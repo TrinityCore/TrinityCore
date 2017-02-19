@@ -1288,8 +1288,13 @@ void ObjectMgr::LoadEquipmentTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                 0     1       2           3           4
-    QueryResult result = WorldDatabase.Query("SELECT CreatureID, ID, ItemID1, ItemID2, ItemID3 FROM creature_equip_template");
+    //                                                        0   1        2                 3            4
+    QueryResult result = WorldDatabase.Query("SELECT CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, "
+    //                                                                     5                 6            7
+                                                                    "ItemID2, AppearanceModID2, ItemVisual2, "
+    //                                                                     8                 9           10
+                                                                    "ItemID3, AppearanceModID3, ItemVisual3 "
+                                                                    "FROM creature_equip_template");
 
     if (!result)
     {
@@ -1318,23 +1323,33 @@ void ObjectMgr::LoadEquipmentTemplates()
         }
 
         EquipmentInfo& equipmentInfo = _equipmentInfoStore[entry][id];
-
-        equipmentInfo.ItemEntry[0] = fields[2].GetUInt32();
-        equipmentInfo.ItemEntry[1] = fields[3].GetUInt32();
-        equipmentInfo.ItemEntry[2] = fields[4].GetUInt32();
-
         for (uint8 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
         {
-            if (!equipmentInfo.ItemEntry[i])
+            equipmentInfo.Items[i].ItemId = fields[2 + i * 3].GetUInt32();
+            equipmentInfo.Items[i].AppearanceModId = fields[3 + i * 3].GetUInt16();
+            equipmentInfo.Items[i].ItemVisual = fields[4 + i * 3].GetUInt16();
+
+            if (!equipmentInfo.Items[i].ItemId)
                 continue;
 
-            ItemEntry const* dbcItem = sItemStore.LookupEntry(equipmentInfo.ItemEntry[i]);
-
+            ItemEntry const* dbcItem = sItemStore.LookupEntry(equipmentInfo.Items[i].ItemId);
             if (!dbcItem)
             {
                 TC_LOG_ERROR("sql.sql", "Unknown item (ID=%u) in creature_equip_template.ItemID%u for CreatureID = %u and ID=%u, forced to 0.",
-                    equipmentInfo.ItemEntry[i], i+1, entry, id);
-                equipmentInfo.ItemEntry[i] = 0;
+                    equipmentInfo.Items[i].ItemId, i + 1, entry, id);
+                equipmentInfo.Items[i].ItemId = 0;
+                continue;
+            }
+
+            if (!sDB2Manager.GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId))
+            {
+                TC_LOG_ERROR("sql.sql", "Unknown item appearance for (ID=%u, AppearanceModID=%u) pair in creature_equip_template.ItemID%u creature_equip_template.AppearanceModID%u "
+                    "for CreatureID = %u and ID=%u, forced to default.",
+                    equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId, i + 1, i + 1, entry, id);
+                if (ItemModifiedAppearanceEntry const* defaultAppearance = sDB2Manager.GetDefaultItemModifiedAppearance(equipmentInfo.Items[i].ItemId))
+                    equipmentInfo.Items[i].AppearanceModId = defaultAppearance->AppearanceModID;
+                else
+                    equipmentInfo.Items[i].AppearanceModId = 0;
                 continue;
             }
 
@@ -1349,8 +1364,8 @@ void ObjectMgr::LoadEquipmentTemplates()
                 dbcItem->InventoryType != INVTYPE_RANGEDRIGHT)
             {
                 TC_LOG_ERROR("sql.sql", "Item (ID=%u) in creature_equip_template.ItemID%u for CreatureID = %u and ID = %u is not equipable in a hand, forced to 0.",
-                    equipmentInfo.ItemEntry[i], i+1, entry, id);
-                equipmentInfo.ItemEntry[i] = 0;
+                    equipmentInfo.Items[i].ItemId, i + 1, entry, id);
+                equipmentInfo.Items[i].ItemId = 0;
             }
         }
 

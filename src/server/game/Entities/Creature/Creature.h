@@ -499,9 +499,16 @@ struct PointOfInterestLocale
     StringVector Name;
 };
 
+struct EquipmentItem
+{
+    uint32 ItemId = 0;
+    uint16 AppearanceModId = 0;
+    uint16 ItemVisual = 0;
+};
+
 struct EquipmentInfo
 {
-    uint32  ItemEntry[MAX_EQUIPMENT_ITEMS];
+    EquipmentItem Items[MAX_EQUIPMENT_ITEMS];
 };
 
 // Benchmarked: Faster than std::map (insert/find)

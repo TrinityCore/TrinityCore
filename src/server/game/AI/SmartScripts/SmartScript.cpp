@@ -1603,7 +1603,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (Creature* npc = (*itr)->ToCreature())
                 {
-                    uint32 slot[3];
+                    EquipmentItem slot[3];
                     int8 equipId = (int8)e.action.equip.entry;
                     if (equipId)
                     {
@@ -1615,22 +1615,22 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         }
 
                         npc->SetCurrentEquipmentId(equipId);
-                        slot[0] = einfo->ItemEntry[0];
-                        slot[1] = einfo->ItemEntry[1];
-                        slot[2] = einfo->ItemEntry[2];
+                        slot[0] = einfo->Items[0];
+                        slot[1] = einfo->Items[1];
+                        slot[2] = einfo->Items[2];
                     }
                     else
                     {
-                        slot[0] = e.action.equip.slot1;
-                        slot[1] = e.action.equip.slot2;
-                        slot[2] = e.action.equip.slot3;
+                        slot[0].ItemId = e.action.equip.slot1;
+                        slot[1].ItemId = e.action.equip.slot2;
+                        slot[2].ItemId = e.action.equip.slot3;
                     }
                     if (!e.action.equip.mask || (e.action.equip.mask & 1))
-                        npc->SetVirtualItem(0, slot[0]);
+                        npc->SetVirtualItem(0, slot[0].ItemId, slot[0].AppearanceModId, slot[0].ItemVisual);
                     if (!e.action.equip.mask || (e.action.equip.mask & 2))
-                        npc->SetVirtualItem(1, slot[1]);
+                        npc->SetVirtualItem(1, slot[1].ItemId, slot[1].AppearanceModId, slot[1].ItemVisual);
                     if (!e.action.equip.mask || (e.action.equip.mask & 4))
-                        npc->SetVirtualItem(2, slot[2]);
+                        npc->SetVirtualItem(2, slot[2].ItemId, slot[2].AppearanceModId, slot[2].ItemVisual);
                 }
             }
 
