@@ -5671,6 +5671,14 @@ void ObjectMgr::LoadInstanceEncounters()
                     continue;
                 }
                 const_cast<CreatureTemplate*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                for (uint8 diff = 0; diff < MAX_CREATURE_DIFFICULTIES; ++diff)
+                {
+                    if (uint32 diffEntry = creatureInfo->DifficultyEntry[diff])
+                    {
+                        if (CreatureTemplate const* diffInfo = GetCreatureTemplate(diffEntry))
+                            const_cast<CreatureTemplate*>(diffInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                    }
+                }
                 break;
             }
             case ENCOUNTER_CREDIT_CAST_SPELL:
