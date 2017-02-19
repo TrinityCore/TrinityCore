@@ -104,10 +104,18 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
-    uint32 timeToTarget = GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : GetUInt32Value(AREATRIGGER_DURATION);
     SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetMiscTemplate()->TimeToTargetScale != 0 ? GetMiscTemplate()->TimeToTargetScale : GetUInt32Value(AREATRIGGER_DURATION));
     SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->MaxSearchRadius);
     SetUInt32Value(AREATRIGGER_DECAL_PROPERTIES_ID, GetMiscTemplate()->DecalPropertiesId);
+
+    uint8 scaleCurveIndex = 0;
+    for (float extraScaleCurve : GetMiscTemplate()->ExtraScaleCurve)
+    {
+        if (extraScaleCurve != 0.0f)
+            SetFloatValue(AREATRIGGER_EXTRA_SCALE_CURVE + scaleCurveIndex, extraScaleCurve);
+
+        ++scaleCurveIndex;
+    }
 
     CopyPhaseFrom(caster);
 
@@ -119,7 +127,10 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     UpdateShape();
 
     if (GetMiscTemplate()->HasSplines())
+    {
+        uint32 timeToTarget = GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : GetUInt32Value(AREATRIGGER_DURATION);
         InitSplineOffsets(GetMiscTemplate()->SplinePoints, timeToTarget);
+    }
 
     sScriptMgr->OnAreaTriggerEntityInitialize(this);
 

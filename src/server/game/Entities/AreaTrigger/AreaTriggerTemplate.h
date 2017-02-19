@@ -164,6 +164,8 @@ public:
         TimeToTarget        = 0;
         TimeToTargetScale   = 0;
 
+        ExtraScaleCurve     = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0000001f, 1.0f };
+
         Template            = nullptr;
     }
 
@@ -181,6 +183,8 @@ public:
 
     uint32 TimeToTarget;
     uint32 TimeToTargetScale;
+
+    std::vector<float> ExtraScaleCurve;
 
     AreaTriggerTemplate const* Template;
     std::vector<G3D::Vector3> SplinePoints;
