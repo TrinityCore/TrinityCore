@@ -483,9 +483,6 @@ class TC_GAME_API GameObjectScript : public ScriptObject, public UpdatableScript
 
         // Called when a GameObjectAI object is needed for the gameobject.
         virtual GameObjectAI* GetAI(GameObject* /*go*/) const { return NULL; }
-
-        // Called when specific game event starts.
-        virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
 };
 
 class TC_GAME_API AreaTriggerScript : public ScriptObject
@@ -986,7 +983,6 @@ class TC_GAME_API ScriptMgr
         void OnGameObjectStateChanged(GameObject* go, uint32 state);
         void OnGameObjectUpdate(GameObject* go, uint32 diff);
         GameObjectAI* GetGameObjectAI(GameObject* go);
-        void OnGameEvent(bool start, uint16 eventId);
 
     public: /* AreaTriggerScript */
 

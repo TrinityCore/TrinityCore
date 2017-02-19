@@ -1510,11 +1510,6 @@ InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
     return tmpscript->GetInstanceScript(map);
 }
 
-void ScriptMgr::OnGameEvent(bool start, uint16 eventId)
-{
-    FOREACH_SCRIPT(GameObjectScript)->OnGameEvent(start, eventId);
-}
-
 bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target)
 {
     ASSERT(caster);
