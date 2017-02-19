@@ -96,7 +96,7 @@ bool BattlefieldTB::SetupBattlefield()
         TolBaradCapturePoint* capturePoint = new TolBaradCapturePoint(this, GetDefenderTeam());
 
         //Spawn flag pole
-        if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].x, TBCapturePoints[i].y, TBCapturePoints[i].z, TBCapturePoints[i].o))
+        if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, G3D::Quat()))
         {
             go->SetGoArtKit(GetDefenderTeam() == TEAM_ALLIANCE ? TB_GO_ARTKIT_FLAG_ALLIANCE : TB_GO_ARTKIT_FLAG_HORDE);
             capturePoint->SetCapturePointData(go);
@@ -106,7 +106,7 @@ bool BattlefieldTB::SetupBattlefield()
 
     // Spawn towers
     for (uint8 i = 0; i < TB_TOWERS_COUNT; i++)
-        if (GameObject* go = SpawnGameObject(TBTowers[i].entry, TBTowers[i].x, TBTowers[i].y, TBTowers[i].z, TBTowers[i].o))
+        if (GameObject* go = SpawnGameObject(TBTowers[i].entry, TBTowers[i].pos, G3D::Quat()))
             Towers.insert(go->GetGUID());
 
     // Init Graveyards
@@ -122,7 +122,7 @@ bool BattlefieldTB::SetupBattlefield()
 
         // Spawn spirits
         for (uint8 team = 0; team < 2; team++)
-            if (Creature* creature = SpawnCreature(TBGraveyards[i].spiritEntry[team], TBGraveyards[i].x, TBGraveyards[i].y, TBGraveyards[i].z, TBGraveyards[i].o, TeamId(team)))
+            if (Creature* creature = SpawnCreature(TBGraveyards[i].spiritEntry[team], TBGraveyards[i].pos))
                 graveyard->SetSpirit(creature, TeamId(team));
 
         m_GraveyardList[i] = graveyard;
@@ -510,7 +510,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
             TolBaradCapturePoint* capturePoint = new TolBaradCapturePoint(this, GetDefenderTeam());
 
             //Spawn flag pole
-            if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].x, TBCapturePoints[i].y, TBCapturePoints[i].z, TBCapturePoints[i].o))
+            if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, G3D::Quat()))
             {
                 go->SetGoArtKit(GetDefenderTeam() == TEAM_ALLIANCE ? TB_GO_ARTKIT_FLAG_ALLIANCE : TB_GO_ARTKIT_FLAG_HORDE);
                 capturePoint->SetCapturePointData(go);
@@ -530,24 +530,24 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
         for (uint8 i = 0; i < TB_QUEST_INFANTRY_MAX; i++)
         {
             uint32 entry = TB_QUEST_INFANTRY[GetDefenderTeam()][urand(0,3)];
-            if (Creature* creature = SpawnCreature(entry, TBQuestInfantrySpawnData[i], GetDefenderTeam()))
+            if (Creature* creature = SpawnCreature(entry, TBQuestInfantrySpawnData[i]))
                 TemporaryNPCs.insert(creature->GetGUID());
         }
 
         for (uint8 i = 0; i < TB_GUARDS_MAX; i++)
-            if (Creature* creature = SpawnCreature(GetDefenderTeam() == TEAM_ALLIANCE ? NPC_BARADIN_GUARD : NPC_HELLSCREAMS_SENTRY, GuardNPCSpawns[i], GetDefenderTeam()))
+            if (Creature* creature = SpawnCreature(GetDefenderTeam() == TEAM_ALLIANCE ? NPC_BARADIN_GUARD : NPC_HELLSCREAMS_SENTRY, GuardNPCSpawns[i]))
                 TemporaryNPCs.insert(creature->GetGUID());
 
         for (uint8 i = 0; i < TB_FACTION_NPC_MAX; i++)
-            if (Creature* creature = SpawnCreature(GetDefenderTeam() == TEAM_ALLIANCE ? FactionNPCSpawns[i].entryAlliance : FactionNPCSpawns[i].entryHorde, FactionNPCSpawns[i].x, FactionNPCSpawns[i].y, FactionNPCSpawns[i].z, FactionNPCSpawns[i].o, GetDefenderTeam()))
+            if (Creature* creature = SpawnCreature(GetDefenderTeam() == TEAM_ALLIANCE ? FactionNPCSpawns[i].entryAlliance : FactionNPCSpawns[i].entryHorde, FactionNPCSpawns[i].pos))
                 TemporaryNPCs.insert(creature->GetGUID());
 
-        if (Creature* creature = SpawnCreature(RandomQuestgivers[GetDefenderTeam()][m_iCellblockRandom], RandomQuestgiverPos, GetDefenderTeam()))
+        if (Creature* creature = SpawnCreature(RandomQuestgivers[GetDefenderTeam()][m_iCellblockRandom], RandomQuestgiverPos))
             TemporaryNPCs.insert(creature->GetGUID());
 
         // Spawn portals
         for (uint8 i = 0; i < TB_PORTAL_MAX; i++)
-            if (GameObject* go = SpawnGameObject(TBPortalEntry[GetDefenderTeam()], TBPortals[i].GetPositionX(), TBPortals[i].GetPositionY(), TBPortals[i].GetPositionZ(), TBPortals[i].GetOrientation()))
+            if (GameObject* go = SpawnGameObject(TBPortalEntry[GetDefenderTeam()], TBPortals[i], G3D::Quat()))
                 TemporaryGOs.insert(go->GetGUID());
 
         // Update towers
@@ -558,7 +558,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
     else if (GetState() == BATTLEFIELD_IN_PROGRESS)
     {
         for (uint8 i = 0; i < TB_ABANDONED_SIEGE_ENGINE_COUNT; i++)
-            if (Creature* creature = SpawnCreature(NPC_ABANDONED_SIEGE_ENGINE, TBAbandonedSiegeEngineSpawnData[i], GetDefenderTeam()))
+            if (Creature* creature = SpawnCreature(NPC_ABANDONED_SIEGE_ENGINE, TBAbandonedSiegeEngineSpawnData[i]))
                 TemporaryNPCs.insert(creature->GetGUID());
 
         for (ObjectGuid guid : Towers)
@@ -573,7 +573,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
 
     // Spawn banners
     for (uint8 i = 0; i < TB_BANNER_MAX; i++)
-        if (GameObject* go = SpawnGameObject(TBBannerEntry[GetDefenderTeam()], TBBanners[i].GetPositionX(), TBBanners[i].GetPositionY(), TBBanners[i].GetPositionZ(), TBBanners[i].GetOrientation()))
+        if (GameObject* go = SpawnGameObject(TBBannerEntry[GetDefenderTeam()], TBBanners[i], G3D::Quat()))
             TemporaryGOs.insert(go->GetGUID());
 
     // Set graveyard controls

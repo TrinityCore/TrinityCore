@@ -168,7 +168,7 @@ namespace Movement
         STRINGIZE(Unknown5           ), // 0x01000000
         STRINGIZE(Animation          ), // 0x02000000           // Animationid (0...3), Uint32 Time, Not Compartible With Trajectory And Fall Movement
         STRINGIZE(Parabolic          ), // 0x04000000           // Not Compartible With Fall Movement
-        STRINGIZE(Unknown6           ), // 0x08000000
+        STRINGIZE(FadeObject         ), // 0x08000000
         STRINGIZE(Unknown7           ), // 0x10000000
         STRINGIZE(Unknown8           ), // 0x20000000
         STRINGIZE(Unknown9           ), // 0x40000000

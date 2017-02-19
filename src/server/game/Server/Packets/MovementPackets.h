@@ -70,10 +70,10 @@ namespace WorldPackets
 
         struct MonsterSplineSpellEffectExtraData
         {
-            ObjectGuid field_1;
-            uint32 field_2;
-            uint32 field_3;
-            uint32 field_4;
+            ObjectGuid TargetGUID;
+            uint32 SpellVisualID = 0;
+            uint32 ProgressCurveID = 0;
+            uint32 ParabolicCurveID = 0;
         };
 
         struct MovementSpline

@@ -294,9 +294,8 @@ class TC_GAME_API Battlefield : public ZoneScript
         BfGraveyard* GetGraveyardById(uint32 id) const;
 
         // Misc methods
-        virtual Creature* SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId /*teamId*/);
-        Creature* SpawnCreature(uint32 entry, Position const& pos, TeamId /*teamId*/);
-        GameObject* SpawnGameObject(uint32 entry, float x, float y, float z, float o);
+        Creature* SpawnCreature(uint32 entry, Position const& pos);
+        GameObject* SpawnGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot);
 
         Creature* GetCreature(ObjectGuid guid);
         GameObject* GetGameObject(ObjectGuid guid);

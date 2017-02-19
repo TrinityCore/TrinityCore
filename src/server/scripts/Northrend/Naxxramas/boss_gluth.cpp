@@ -405,17 +405,17 @@ public:
             if (state == STATE_ZOMBIE_DECIMATED)
             {
                 timer += diff;
-                // Putting this in the UpdateAI loop fixes an issue where death gripping a decimated zombie would make the zombie stand still until the rest of the fight.
-                // Also fix the issue where if one or more zombie is rooted when decimates hits (and MovePoint() is called), the zombie teleport to the boss. pretty weird behavior.
                 if (Creature* gluth = ObjectAccessor::GetCreature(*me, GluthGUID))
                 {
-                    if (timer > 1600 && me->GetExactDist2d(gluth) > 10.0 && me->CanFreeMove()) // it takes about 1600 ms for the animation to cycle. This way, the animation looks relatively smooth.
+                    // Putting this in the UpdateAI loop fixes an issue where death gripping a decimated zombie would make the zombie stand still until the rest of the fight.
+                    // Also fix the issue where if one or more zombie is rooted when decimates hits (and MovePoint() is called), the zombie teleport to the boss. pretty weird behavior.
+                    if (timer > 1600 && me->GetExactDist2d(gluth) > 10.0f && me->CanFreeMove()) // it takes about 1600 ms for the animation to cycle. This way, the animation looks relatively smooth.
                     {
                         me->GetMotionMaster()->MovePoint(0, gluth->GetPosition()); // isn't dynamic. So, to take into account Gluth's movement, it must be called periodicly.
                         timer = 0;
                     }
 
-                    if (me->GetExactDist2d(gluth) <= 10.0)
+                    if (me->GetExactDist2d(gluth) <= 10.0f)
                         me->StopMoving();
                 }
             }

@@ -115,7 +115,6 @@ public:
                     }
                     break;
             }
-            me->SetOrientation(me->GetHomePosition().GetOrientation());
             return;
         }
 
