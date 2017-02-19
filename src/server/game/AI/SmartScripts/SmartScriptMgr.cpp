@@ -1146,15 +1146,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.GetScriptType() == SMART_SCRIPT_TYPE_CREATURE)
             {
                 int8 equipId = (int8)e.action.equip.entry;
-
-                if (equipId)
+                if (equipId && !sObjectMgr->GetEquipmentInfo(e.entryOrGuid, equipId))
                 {
-                    EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(e.entryOrGuid, equipId);
-                    if (!einfo)
-                    {
-                        TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id %u for creature " SI64FMTD ", skipped.", equipId, e.entryOrGuid);
-                        return false;
-                    }
+                    TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id %u for creature " SI64FMTD ", skipped.", equipId, e.entryOrGuid);
+                    return false;
                 }
             }
             break;
