@@ -3332,6 +3332,7 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 
             break;
         case 42292: // PvP trinket
         case 59752: // Every Man for Himself
+        case 53490: // Bullheaded
             mechanic = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
             // Actually we should apply immunities here, too, but the aura has only 100 ms duration, so there is practically no point
             break;

@@ -99,7 +99,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     //calc random
     if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance)
     {
-        uint32 rnd = urand(0, 100);
+        uint32 rnd = urand(1, 100);
         if (e.event.event_chance <= rnd)
             return;
     }
@@ -791,6 +791,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             me->DoFleeToGetAssistance();
+
             if (e.action.flee.withEmote)
             {
                 Trinity::BroadcastTextBuilder builder(me, CHAT_MSG_MONSTER_EMOTE, BROADCAST_TEXT_FLEE_FOR_ASSIST);
@@ -1035,7 +1036,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsCreature(*itr))
-                    (*itr)->ToCreature()->UpdateEntry(e.action.updateTemplate.creature);
+                    (*itr)->ToCreature()->UpdateEntry(e.action.updateTemplate.creature, nullptr, e.action.updateTemplate.updateLevel != 0);
 
             delete targets;
             break;
@@ -1208,6 +1209,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (!IsCreature(*itr))
                         continue;
 
+                    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && !IsCreatureInControlOfSelf(*itr))
+                        continue;
+
                     Position pos = (*itr)->GetPosition();
 
                     // Use forward/backward/left/right cartesian plane movement
@@ -1301,7 +1305,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         continue;
 
                     Position pos = (*itr)->GetPositionWithOffset(Position(e.target.x, e.target.y, e.target.z, e.target.o));
-                    GetBaseObject()->SummonGameObject(e.action.summonGO.entry, pos, G3D::Quat(), e.action.summonGO.despawnTime);
+                    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
+                    GetBaseObject()->SummonGameObject(e.action.summonGO.entry, pos, rot, e.action.summonGO.despawnTime);
                 }
 
                 delete targets;
@@ -1310,7 +1315,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            GetBaseObject()->SummonGameObject(e.action.summonGO.entry, Position(e.target.x, e.target.y, e.target.z, e.target.o), G3D::Quat(), e.action.summonGO.despawnTime);
+            G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(e.target.o, 0.f, 0.f);
+            GetBaseObject()->SummonGameObject(e.action.summonGO.entry, Position(e.target.x, e.target.y, e.target.z, e.target.o), rot, e.action.summonGO.despawnTime);
             break;
         }
         case SMART_ACTION_KILL_UNIT:
@@ -1603,7 +1609,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (Creature* npc = (*itr)->ToCreature())
                 {
-                    uint32 slot[3];
+                    EquipmentItem slot[3];
                     int8 equipId = (int8)e.action.equip.entry;
                     if (equipId)
                     {
@@ -1615,22 +1621,22 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         }
 
                         npc->SetCurrentEquipmentId(equipId);
-                        slot[0] = einfo->ItemEntry[0];
-                        slot[1] = einfo->ItemEntry[1];
-                        slot[2] = einfo->ItemEntry[2];
+                        slot[0] = einfo->Items[0];
+                        slot[1] = einfo->Items[1];
+                        slot[2] = einfo->Items[2];
                     }
                     else
                     {
-                        slot[0] = e.action.equip.slot1;
-                        slot[1] = e.action.equip.slot2;
-                        slot[2] = e.action.equip.slot3;
+                        slot[0].ItemId = e.action.equip.slot1;
+                        slot[1].ItemId = e.action.equip.slot2;
+                        slot[2].ItemId = e.action.equip.slot3;
                     }
                     if (!e.action.equip.mask || (e.action.equip.mask & 1))
-                        npc->SetVirtualItem(0, slot[0]);
+                        npc->SetVirtualItem(0, slot[0].ItemId, slot[0].AppearanceModId, slot[0].ItemVisual);
                     if (!e.action.equip.mask || (e.action.equip.mask & 2))
-                        npc->SetVirtualItem(1, slot[1]);
+                        npc->SetVirtualItem(1, slot[1].ItemId, slot[1].AppearanceModId, slot[1].ItemVisual);
                     if (!e.action.equip.mask || (e.action.equip.mask & 4))
-                        npc->SetVirtualItem(2, slot[2]);
+                        npc->SetVirtualItem(2, slot[2].ItemId, slot[2].AppearanceModId, slot[2].ItemVisual);
                 }
             }
 
@@ -2147,9 +2153,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (e.action.sendGossipMenu.gossipMenuId)
                         player->PrepareGossipMenu(GetBaseObject(), e.action.sendGossipMenu.gossipMenuId, true);
                     else
-                        player->PlayerTalkClass->ClearMenus();
+                        ClearGossipMenuFor(player);
 
-                    player->SEND_GOSSIP_MENU(e.action.sendGossipMenu.gossipNpcTextId, GetBaseObject()->GetGUID());
+                    SendGossipMenuFor(player, e.action.sendGossipMenu.gossipNpcTextId, GetBaseObject()->GetGUID());
                 }
             }
 
@@ -2790,6 +2796,11 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 ObjectGuid charmerOrOwnerGuid = me->GetCharmerOrOwnerGUID();
 
                 if (!charmerOrOwnerGuid)
+                    if (TempSummon* tempSummon = me->ToTempSummon())
+                        if (Unit* summoner = tempSummon->GetSummoner())
+                            charmerOrOwnerGuid = summoner->GetGUID();
+
+                if (!charmerOrOwnerGuid)
                     charmerOrOwnerGuid = me->GetCreatorGUID();
 
                 if (Unit* owner = ObjectAccessor::GetUnit(*me, charmerOrOwnerGuid))
@@ -2873,6 +2884,9 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         return;
 
     if ((e.event.event_phase_mask && !IsInPhase(e.event.event_phase_mask)) || ((e.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && e.runOnce))
+        return;
+
+    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && IsCreature(me) && !IsCreatureInControlOfSelf(me))
         return;
 
     switch (e.GetEventType())
@@ -3014,12 +3028,17 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessTimedAction(e, e.event.aura.repeatMin, e.event.aura.repeatMax);
             break;
         }
+        case SMART_EVENT_CHARMED:
+        {
+            if (bvar == (e.event.charm.onRemove != 1))
+                ProcessAction(e, unit, var0, var1, bvar, spell, gob);
+            break;
+        }
         //no params
         case SMART_EVENT_AGGRO:
         case SMART_EVENT_DEATH:
         case SMART_EVENT_EVADE:
         case SMART_EVENT_REACHED_HOME:
-        case SMART_EVENT_CHARMED:
         case SMART_EVENT_CHARMED_TARGET:
         case SMART_EVENT_CORPSE_REMOVED:
         case SMART_EVENT_AI_INIT:

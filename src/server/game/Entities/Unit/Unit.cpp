@@ -781,8 +781,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE)
         {
             victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE, spellProto ? spellProto->Id : 0);
-            if (victim->GetTypeId() == TYPEID_UNIT && !victim->IsPet())
-                victim->SetLastDamagedTime(time(NULL));
+            victim->UpdateLastDamagedTime(spellProto);
         }
 
         if (victim->GetTypeId() != TYPEID_PLAYER)
@@ -872,10 +871,6 @@ void Unit::CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo
         TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell by caster: %s", GetGUID().ToString().c_str());
         return;
     }
-
-    /// @todo this is a workaround - not needed anymore, but required for some scripts :(
-    if (!originalCaster && triggeredByAura)
-        originalCaster = triggeredByAura->GetCasterGUID();
 
     Spell* spell = new Spell(this, spellInfo, triggerFlags, originalCaster);
 
@@ -8053,12 +8048,12 @@ int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
     return TakenAdvertisedBenefit;
 }
 
-bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
+bool Unit::IsSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType /*= BASE_ATTACK*/) const
 {
     return roll_chance_f(GetUnitSpellCriticalChance(victim, spellProto, schoolMask, attackType));
 }
 
-float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType) const
+float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto, SpellSchoolMask schoolMask, WeaponAttackType attackType /*= BASE_ATTACK*/) const
 {
     //! Mobs can't crit with spells. Player Totems can
     //! Fire Elemental (from totem) can too - but this part is a hack and needs more research
@@ -14082,7 +14077,7 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     player->GetSession()->SendPacket(moveKnockBack.Write());
 }
 
-void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
+void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
     Player* player = ToPlayer();
     if (!player)
@@ -14096,7 +14091,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
     }
 
     if (!player)
-        GetMotionMaster()->MoveKnockbackFrom(x, y, speedXY, speedZ);
+        GetMotionMaster()->MoveKnockbackFrom(x, y, speedXY, speedZ, spellEffectExtraData);
     else
     {
         float vcos, vsin;
@@ -14912,21 +14907,23 @@ bool Unit::IsFalling() const
     return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR) || movespline->isFalling();
 }
 
-void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool casting /*= false*/)
+void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
 {
     DisableSpline();
     if (GetTypeId() == TYPEID_PLAYER)
-        ToPlayer()->TeleportTo(GetMapId(), x, y, z, orientation, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
+    {
+        WorldLocation target(GetMapId(), pos);
+        ToPlayer()->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
+    }
     else
     {
-        Position pos = {x, y, z, orientation};
         SendTeleportPacket(pos);
-        UpdatePosition(x, y, z, orientation, true);
+        UpdatePosition(pos, true);
         UpdateObjectVisibility();
     }
 }
 
-void Unit::SendTeleportPacket(Position& pos)
+void Unit::SendTeleportPacket(Position const& pos)
 {
     // SMSG_MOVE_UPDATE_TELEPORT is sent to nearby players to signal the teleport
     // SMSG_MOVE_TELEPORT is sent to self in order to trigger CMSG_MOVE_TELEPORT_ACK and update the position server side
@@ -15910,6 +15907,17 @@ int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEf
         }
     }
     return val;
+}
+
+void Unit::UpdateLastDamagedTime(SpellInfo const* spellProto)
+{
+    if (GetTypeId() != TYPEID_UNIT || IsPet())
+        return;
+
+    if (spellProto && spellProto->HasAura(DIFFICULTY_NONE, SPELL_AURA_DAMAGE_SHIELD))
+        return;
+
+    SetLastDamagedTime(time(NULL));
 }
 
 bool Unit::IsHighestExclusiveAura(Aura const* aura, bool removeOtherAuraApplications /*= false*/)

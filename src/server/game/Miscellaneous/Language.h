@@ -826,7 +826,7 @@ enum TrinityStrings
     LANG_PINFO_CHR_LEVEL_LOW            = 843,
     LANG_PINFO_CHR_RACE                 = 844,
     LANG_PINFO_CHR_ALIVE                = 845,
-    LANG_PINFO_CHR_PHASE                = 846,
+    LANG_PINFO_CHR_PHASES               = 846,
     LANG_PINFO_CHR_MONEY                = 847,
     LANG_PINFO_CHR_MAP                  = 848,
     LANG_PINFO_CHR_GUILD                = 849,

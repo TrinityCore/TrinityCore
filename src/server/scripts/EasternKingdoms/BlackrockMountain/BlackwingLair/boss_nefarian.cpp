@@ -363,6 +363,9 @@ public:
                             events.ScheduleEvent(EVENT_SPAWN_ADD, 4000);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
             }
         }
@@ -371,7 +374,7 @@ public:
         {
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
                 Talk(SAY_GAMESBEGIN_1);
                 BeginEvent(player);
             }
@@ -553,6 +556,9 @@ public:
                         events.ScheduleEvent(EVENT_CLASSCALL, urand(30000, 35000));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             // Phase3 begins when health below 20 pct

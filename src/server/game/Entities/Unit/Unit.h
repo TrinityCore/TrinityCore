@@ -1673,8 +1673,9 @@ class TC_GAME_API Unit : public WorldObject
         void SendSpellDamageResist(Unit* target, uint32 spellId);
         void SendSpellDamageImmune(Unit* target, uint32 spellId, bool isPeriodic);
 
-        void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false);
-        void SendTeleportPacket(Position& pos);
+        void NearTeleportTo(Position const& pos, bool casting = false);
+        void NearTeleportTo(float x, float y, float z, float orientation, bool casting = false) { NearTeleportTo(Position(x, y, z, orientation), casting); }
+        void SendTeleportPacket(Position const& pos);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed
         virtual bool UpdatePosition(const Position &pos, bool teleport = false);
@@ -1682,7 +1683,7 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateHeight(float newZ);
 
         void SendMoveKnockBack(Player* player, float speedXY, float speedZ, float vcos, float vsin);
-        void KnockbackFrom(float x, float y, float speedXY, float speedZ);
+        void KnockbackFrom(float x, float y, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void JumpTo(float speedXY, float speedZ, bool forward = true);
         void JumpTo(WorldObject* obj, float speedZ, bool withOrientation = false);
 
@@ -2271,6 +2272,7 @@ class TC_GAME_API Unit : public WorldObject
 
         // Part of Evade mechanics
         time_t GetLastDamagedTime() const { return _lastDamagedTime; }
+        void UpdateLastDamagedTime(SpellInfo const* spellProto);
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
         int32 GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue = false, int32 miscValue = 0) const;

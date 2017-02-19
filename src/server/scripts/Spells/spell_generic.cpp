@@ -4331,6 +4331,52 @@ class spell_gen_clear_debuffs : public SpellScriptLoader
         }
 };
 
+enum PonySpells
+{
+    ACHIEV_PONY_UP              = 3736,
+    MOUNT_PONY                  = 29736
+};
+
+class spell_gen_pony_mount_check : public SpellScriptLoader
+{
+    public:
+        spell_gen_pony_mount_check() : SpellScriptLoader("spell_gen_pony_mount_check") { }
+
+        class spell_gen_pony_mount_check_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_pony_mount_check_AuraScript);
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                Unit* caster = GetCaster();
+                Player* owner = caster->GetOwner()->ToPlayer();
+                if (!caster || !owner || !owner->HasAchieved(ACHIEV_PONY_UP))
+                    return;
+
+                if (owner->IsMounted())
+                {
+                    caster->Mount(MOUNT_PONY);
+                    caster->SetSpeedRate(MOVE_RUN, owner->GetSpeedRate(MOVE_RUN));
+                }
+                else if (caster->IsMounted())
+                {
+                    caster->Dismount();
+                    caster->SetSpeedRate(MOVE_RUN, owner->GetSpeedRate(MOVE_RUN));
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_pony_mount_check_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_pony_mount_check_AuraScript();
+        }
+};
+
 // 169869 - Transformation Sickness
 class spell_gen_decimatus_transformation_sickness : public SpellScriptLoader
 {
@@ -4655,6 +4701,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_mixology_bonus();
     new spell_gen_landmine_knockback_achievement();
     new spell_gen_clear_debuffs();
+    new spell_gen_pony_mount_check();
     new spell_gen_decimatus_transformation_sickness();
     new spell_gen_anetheron_summon_towering_infernal();
     new spell_gen_mark_of_kazrogal_hellfire();

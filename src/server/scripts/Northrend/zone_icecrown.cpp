@@ -215,17 +215,6 @@ class npc_tournament_training_dummy : public CreatureScript
                 me->SetControlled(true, UNIT_STATE_STUNNED);
                 Initialize();
 
-                // Cast Defend spells to max stack size
-                switch (me->GetEntry())
-                {
-                    case NPC_CHARGE_TARGET:
-                        DoCast(SPELL_CHARGE_DEFEND);
-                        break;
-                    case NPC_RANGED_TARGET:
-                        me->CastCustomSpell(SPELL_RANGED_DEFEND, SPELLVALUE_AURA_STACK, 3, me);
-                        break;
-                }
-
                 events.Reset();
                 events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
             }
@@ -286,14 +275,14 @@ class npc_tournament_training_dummy : public CreatureScript
                             case NPC_CHARGE_TARGET:
                             {
                                 if (!me->HasAura(SPELL_CHARGE_DEFEND))
-                                    DoCast(SPELL_CHARGE_DEFEND);
+                                    DoCast(me, SPELL_CHARGE_DEFEND, true);
                                 break;
                             }
                             case NPC_RANGED_TARGET:
                             {
                                 Aura* defend = me->GetAura(SPELL_RANGED_DEFEND);
                                 if (!defend || defend->GetStackAmount() < 3 || defend->GetDuration() <= 8000)
-                                    DoCast(SPELL_RANGED_DEFEND);
+                                    DoCast(me, SPELL_RANGED_DEFEND, true);
                                 break;
                             }
                         }
