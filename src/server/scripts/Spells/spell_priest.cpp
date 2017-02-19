@@ -30,6 +30,9 @@
 enum PriestSpells
 {
     SPELL_PRIEST_ABSOLUTION                         = 33167,
+    SPELL_PRIEST_ANGELIC_FEATHER_TRIGGER            = 121536,
+    SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
+    SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER        = 158624,
     SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
     SPELL_PRIEST_CURE_DISEASE                       = 528,
@@ -1327,6 +1330,75 @@ public:
     }
 };
 
+// 121536 - Angelic Feather talent
+class spell_pri_angelic_feather_trigger : public SpellScriptLoader
+{
+    public:
+        spell_pri_angelic_feather_trigger() : SpellScriptLoader("spell_pri_angelic_feather_trigger") { }
+
+        class spell_pri_angelic_feather_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_angelic_feather_trigger_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+            {
+                Position destPos = GetHitDest()->GetPosition();
+
+                SpellCastTargets targets;
+                targets.SetDst(destPos);
+                GetCaster()->CastSpell(targets, sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER), nullptr);
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_pri_angelic_feather_trigger_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pri_angelic_feather_trigger_SpellScript();
+        }
+};
+
+// Angelic Feather areatrigger - created by SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER
+class areatrigger_pri_angelic_feather : public AreaTriggerEntityScript
+{
+public:
+    areatrigger_pri_angelic_feather() : AreaTriggerEntityScript("areatrigger_pri_angelic_feather") { }
+
+    // Called when the AreaTrigger has just been initialized, just before added to map
+    void OnInitialize(AreaTrigger* areaTrigger) override
+    {
+        if (Unit* caster = areaTrigger->GetCaster())
+        {
+            std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER);
+
+            if (areaTriggers.size() >= 3)
+                areaTriggers.front()->SetDuration(0);
+        }
+    }
+
+    void OnUnitEnter(AreaTrigger* areaTrigger, Unit* unit) override
+    {
+        if (Unit* caster = areaTrigger->GetCaster())
+        {
+            if (caster->IsFriendlyTo(unit))
+            {
+                caster->CastSpell(unit, SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
+                areaTrigger->SetDuration(0);
+            }
+        }
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_body_and_soul();
@@ -1356,4 +1428,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_embrace_target();
     new spell_pri_vampiric_touch();
+    new spell_pri_angelic_feather_trigger();
+    new areatrigger_pri_angelic_feather();
 }
