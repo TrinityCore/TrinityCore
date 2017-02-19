@@ -553,7 +553,7 @@ enum SMART_ACTION
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
-    SMART_ACTION_PLAY_ANIMKIT                       = 118,    // id, type
+    SMART_ACTION_PLAY_ANIMKIT                       = 118,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
 
     SMART_ACTION_END                                = 119
 };
