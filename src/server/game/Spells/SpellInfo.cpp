@@ -493,14 +493,16 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     }
     else
     {
-        if (caster)
+        if (caster && basePointsPerLevel != 0.0f)
         {
             int32 level = int32(caster->getLevel());
             if (level > int32(_spellInfo->MaxLevel) && _spellInfo->MaxLevel > 0)
                 level = int32(_spellInfo->MaxLevel);
             else if (level < int32(_spellInfo->BaseLevel))
                 level = int32(_spellInfo->BaseLevel);
-            level -= int32(_spellInfo->SpellLevel);
+
+            // if base level is greater than spell level, reduce by base level (eg. pilgrims foods)
+            level -= int32(std::max(_spellInfo->BaseLevel, _spellInfo->SpellLevel));
             basePoints += int32(level * basePointsPerLevel);
         }
 
