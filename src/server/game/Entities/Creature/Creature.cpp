@@ -2686,12 +2686,6 @@ void Creature::SetPosition(float x, float y, float z, float o)
         GetVehicleKit()->RelocatePassengers();
 }
 
-bool Creature::IsDungeonBoss() const
-{
-    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(GetEntry());
-    return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
-}
-
 bool Creature::SetWalk(bool enable)
 {
     if (!Unit::SetWalk(enable))
