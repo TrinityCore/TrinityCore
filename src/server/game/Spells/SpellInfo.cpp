@@ -3741,10 +3741,10 @@ uint32 SpellInfo::GetRecoveryTime() const
     return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
 }
 
-std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const
+std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, Spell* spell) const
 {
     std::vector<SpellPowerCost> costs;
-    auto collector = [this, caster, schoolMask, &costs](std::vector<SpellPowerEntry const*> const& powers)
+    auto collector = [this, caster, schoolMask, spell, &costs](std::vector<SpellPowerEntry const*> const& powers)
     {
         costs.reserve(powers.size());
         int32 healthCost = 0;
@@ -3861,9 +3861,9 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
             if (Player* modOwner = caster->GetSpellModOwner())
             {
                 if (power->OrderIndex == 0)
-                    modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost);
+                    modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost, spell);
                 else if (power->OrderIndex == 1)
-                    modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST2, powerCost);
+                    modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST2, powerCost, spell);
             }
 
             if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power->PowerCostPct, 0.0f) && SpellLevel)

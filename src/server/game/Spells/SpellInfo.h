@@ -630,7 +630,7 @@ class TC_GAME_API SpellInfo
         SpellSpecificType GetSpellSpecific() const;
 
         float GetMinRange(bool positive = false) const;
-        float GetMaxRange(bool positive = false, Unit* caster = NULL, Spell* spell = NULL) const;
+        float GetMaxRange(bool positive = false, Unit* caster = nullptr, Spell* spell = nullptr) const;
 
         int32 CalcDuration(Unit* caster = nullptr) const;
         int32 GetDuration() const;
@@ -638,10 +638,10 @@ class TC_GAME_API SpellInfo
 
         uint32 GetMaxTicks(uint32 difficulty) const;
 
-        uint32 CalcCastTime(uint8 level = 0, Spell* spell = NULL) const;
+        uint32 CalcCastTime(uint8 level = 0, Spell* spell = nullptr) const;
         uint32 GetRecoveryTime() const;
 
-        std::vector<SpellPowerCost> CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
+        std::vector<SpellPowerCost> CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
 
         float CalcProcPPM(Unit* caster, int32 itemLevel) const;
 

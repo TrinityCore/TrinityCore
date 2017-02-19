@@ -704,6 +704,7 @@ class TC_GAME_API Spell
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
         void CancelGlobalCooldown();
+        void _cast(bool skipCheck = false);
 
         void SendLoot(ObjectGuid guid, LootType loottype);
         std::pair<float, float> GetMinMaxRange(bool strict) const;
