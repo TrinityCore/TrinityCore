@@ -13,16 +13,16 @@ public:
 
     bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override // Any hook here
     {
-        player->PlayerTalkClass->ClearMenus(); // Clears old options
-        player->ADD_GOSSIP_ITEM(0, "Morph", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        player->ADD_GOSSIP_ITEM(0, "Demorph", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, item->GetGUID());
+        ClearGossipMenuFor(player); // Clears old options
+        AddGossipItemFor(player, 0, "Morph", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        AddGossipItemFor(player, 0, "Demorph", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, item->GetGUID());
         return false; // Cast the spell on use normally
     }
 
     void OnGossipSelect(Player* player, Item* /*item*/, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
 
         switch (action)
         {
@@ -33,7 +33,7 @@ public:
             player->DeMorph();
             break;
         }
-        player->CLOSE_GOSSIP_MENU();
+        CloseGossipMenuFor(player);
     }
 };
 
