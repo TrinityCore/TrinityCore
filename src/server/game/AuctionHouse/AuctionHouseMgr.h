@@ -229,7 +229,7 @@ class TC_GAME_API AuctionHouseMgr
 
         void AddAItem(Item* it);
         bool RemoveAItem(ObjectGuid::LowType id, bool deleteItem = false);
-        void PendingAuctionAdd(Player* player, AuctionEntry* aEntry);
+        bool PendingAuctionAdd(Player* player, AuctionEntry* aEntry, Item* item);
         uint32 PendingAuctionCount(const Player* player) const;
         void PendingAuctionProcess(Player* player);
         void UpdatePendingAuctions();
