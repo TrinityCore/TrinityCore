@@ -538,17 +538,17 @@ class TC_GAME_API SpellInfo
         SpellSpecificType GetSpellSpecific() const;
 
         float GetMinRange(bool positive = false) const;
-        float GetMaxRange(bool positive = false, Unit* caster = NULL, Spell* spell = NULL) const;
+        float GetMaxRange(bool positive = false, Unit* caster = nullptr, Spell* spell = nullptr) const;
 
         int32 GetDuration() const;
         int32 GetMaxDuration() const;
 
         uint32 GetMaxTicks() const;
 
-        uint32 CalcCastTime(uint8 level = 0, Spell* spell = NULL) const;
+        uint32 CalcCastTime(uint8 level = 0, Spell* spell = nullptr) const;
         uint32 GetRecoveryTime() const;
 
-        int32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
+        int32 CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
 
         bool IsRanked() const;
         uint8 GetRank() const;
