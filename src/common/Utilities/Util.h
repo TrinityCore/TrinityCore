@@ -25,6 +25,7 @@
 
 #include <algorithm>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <list>
 #include <map>
@@ -324,6 +325,22 @@ TC_COMMON_API std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, b
 TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool reverse = false);
 
 TC_COMMON_API bool StringToBool(std::string const& str);
+
+template<class Container>
+std::string StringJoin(Container const& c, std::string delimiter)
+{
+    if (c.empty())
+        return "";
+
+    std::ostringstream os;
+    auto itr = c.begin();
+    os << *itr++;
+
+    for (; itr != c.end(); ++itr)
+        os << delimiter << *itr;
+
+    return os.str();
+}
 
 // simple class for not-modifyable list
 template <typename T>
