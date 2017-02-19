@@ -113,7 +113,7 @@ enum ScriptCommands
     SCRIPT_COMMAND_MODEL                 = 32,               // source = Creature, datalong = model id
     SCRIPT_COMMAND_CLOSE_GOSSIP          = 33,               // source = Player
     SCRIPT_COMMAND_PLAYMOVIE             = 34,               // source = Player, datalong = movie id
-    SCRIPT_COMMAND_MOVEMENT              = 35                // soucre = Creature, datalong = MovementType, datalong2 = MovementDistance (spawndist f.ex.), dataint = pathid
+    SCRIPT_COMMAND_MOVEMENT              = 35                // source = Creature, datalong = MovementType, datalong2 = MovementDistance (spawndist f.ex.), dataint = pathid
 };
 
 // Benchmarked: Faster than std::unordered_map (insert/find)
