@@ -813,7 +813,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (!IsAnimKitValid(e, e.action.animKit.animKit))
                 return false;
 
-            if (e.action.animKit.type < 0 || e.action.animKit.type > 3)
+            if (e.action.animKit.type > 3)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid AnimKit type %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.animKit.type);
                 return false;
