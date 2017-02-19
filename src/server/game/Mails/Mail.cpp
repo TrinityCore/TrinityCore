@@ -73,6 +73,13 @@ MailSender::MailSender(Player* sender)
     m_senderId = sender->GetGUID().GetCounter();
 }
 
+MailSender::MailSender(uint32 senderEntry)
+{
+    m_messageType = MAIL_CREATURE;
+    m_senderId = senderEntry;
+    m_stationery = MAIL_STATIONERY_DEFAULT;
+}
+
 MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_lowguid(receiver->GetGUID().GetCounter()) { }
 
 MailReceiver::MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)

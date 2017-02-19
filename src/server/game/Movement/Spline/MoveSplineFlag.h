@@ -56,7 +56,7 @@ namespace Movement
             Unknown5            = 0x01000000,           // NOT VERIFIED
             Animation           = 0x02000000,           // Plays animation after some time passed
             Parabolic           = 0x04000000,           // Affects elevation computation, can't be combined with Falling flag
-            Unknown6            = 0x08000000,           // NOT VERIFIED
+            FadeObject          = 0x08000000,
             Unknown7            = 0x10000000,           // NOT VERIFIED
             Unknown8            = 0x20000000,           // NOT VERIFIED
             Unknown9            = 0x40000000,           // NOT VERIFIED
@@ -68,7 +68,7 @@ namespace Movement
             // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
             Mask_No_Monster_Move = Mask_Animations | Done,
             // Unused, not suported flags
-            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown0|Unknown1|Unknown2|Unknown3|Unknown4|Unknown5|Unknown6|Unknown7|Unknown8|Unknown9|Unknown10
+            Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown0|Unknown1|Unknown2|Unknown3|Unknown4|Unknown5|FadeObject|Unknown7|Unknown8|Unknown9|Unknown10
         };
 
         inline uint32& raw() { return (uint32&)*this; }
@@ -95,8 +95,8 @@ namespace Movement
         void operator &= (uint32 f) { raw() &= f; }
         void operator |= (uint32 f) { raw() |= f; }
 
-        void EnableAnimation(uint8 anim) { raw() = (raw() & ~(Mask_Animations | Falling | Parabolic | FallingSlow)) | Animation | (anim & Mask_Animations); }
-        void EnableParabolic() { raw() = (raw() & ~(Mask_Animations | Falling | Animation | FallingSlow)) | Parabolic; }
+        void EnableAnimation(uint8 anim) { raw() = (raw() & ~(Mask_Animations | Falling | Parabolic | FallingSlow | FadeObject)) | Animation | (anim & Mask_Animations); }
+        void EnableParabolic() { raw() = (raw() & ~(Mask_Animations | Falling | Animation | FallingSlow | FadeObject)) | Parabolic; }
         void EnableFlying() { raw() = (raw() & ~(Falling)) | Flying; }
         void EnableFalling() { raw() = (raw() & ~(Mask_Animations | Parabolic | Animation | Flying)) | Falling; }
         void EnableCatmullRom() { raw() = (raw() & ~SmoothGroundPath) | Catmullrom; }
@@ -128,7 +128,7 @@ namespace Movement
         bool unknown5            : 1;
         bool animation           : 1;
         bool parabolic           : 1;
-        bool unknown6            : 1;
+        bool fadeObject          : 1;
         bool unknown7            : 1;
         bool unknown8            : 1;
         bool unknown9            : 1;

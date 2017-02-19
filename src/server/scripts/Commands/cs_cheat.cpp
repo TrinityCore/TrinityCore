@@ -248,7 +248,6 @@ public:
         if (!*args)
             return false;
 
-        // std::int flag = (char*)args;
         int flag = atoi((char*)args);
 
         Player* chr = handler->getSelectedPlayer();

@@ -21,6 +21,8 @@
 #include "Define.h"
 
 #include <unordered_map>
+#include <vector>
+#include <string>
 
 struct CharacterTemplateClass
 {

@@ -60,10 +60,10 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             creature->setFaction(FACTION_OGRE_HOSTILE);
             creature->AI()->Talk(SAY_RALIQ_ATTACK, player);
             creature->AI()->AttackStart(player);
@@ -75,13 +75,13 @@ public:
     {
         if (player->GetQuestStatus(CRACKIN_SOME_SKULLS) == QUEST_STATUS_INCOMPLETE)
         {
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(NPC_TEXT_WUT_YOU_WANT, creature->GetGUID());
+            AddGossipItemFor(player, MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            SendGossipMenuFor(player, NPC_TEXT_WUT_YOU_WANT, creature->GetGUID());
         }
         else
         {
-            player->PlayerTalkClass->ClearMenus();
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            ClearGossipMenuFor(player);
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
         }
         return true;
     }
@@ -150,10 +150,10 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             creature->setFaction(FACTION_DEMON_HOSTILE);
             creature->AI()->Talk(SAY_DEMONIC_AGGRO, player);
             creature->AI()->AttackStart(player);
@@ -165,14 +165,14 @@ public:
     {
         if (player->GetQuestStatus(PATIENCE_AND_UNDERSTANDING) == QUEST_STATUS_INCOMPLETE)
         {
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_ALTRUIS_SENT_ME, OPTION_ID_ALTRUIS_SENT_ME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(NPC_TEXT_SAL_GROWLS_AT_YOU, creature->GetGUID());
+            AddGossipItemFor(player, MENU_ID_ALTRUIS_SENT_ME, OPTION_ID_ALTRUIS_SENT_ME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            SendGossipMenuFor(player, NPC_TEXT_SAL_GROWLS_AT_YOU, creature->GetGUID());
         }
         else
         {
             if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
         }
         return true;
     }
@@ -259,7 +259,7 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_TRADE)
             player->GetSession()->SendListInventory(creature->GetGUID());
 
@@ -273,12 +273,12 @@ public:
             // Aldor vendor
             if (creature->IsVendor() && (player->GetReputationRank(ALDOR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(THE_SHA_TAR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(CENARION_EXPEDITION_REP) == REP_EXALTED))
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                player->SEND_GOSSIP_MENU(NPC_TEXT_WELCOME_NAME, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                SendGossipMenuFor(player, NPC_TEXT_WELCOME_NAME, creature->GetGUID());
             }
             else
             {
-                player->SEND_GOSSIP_MENU(NPC_TEXT_EXALTED_ALDOR, creature->GetGUID());
+                SendGossipMenuFor(player, NPC_TEXT_EXALTED_ALDOR, creature->GetGUID());
             }
         }
 
@@ -287,12 +287,12 @@ public:
             // Scryers vendor
             if (creature->IsVendor() && (player->GetReputationRank(SCRYERS_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(THE_SHA_TAR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(CENARION_EXPEDITION_REP) == REP_EXALTED))
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                player->SEND_GOSSIP_MENU(NPC_TEXT_WELCOME_NAME, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                SendGossipMenuFor(player, NPC_TEXT_WELCOME_NAME, creature->GetGUID());
             }
             else
             {
-                player->SEND_GOSSIP_MENU(NPC_TEXT_EXALTED_SCRYERS, creature->GetGUID());
+                SendGossipMenuFor(player, NPC_TEXT_EXALTED_SCRYERS, creature->GetGUID());
             }
         }
 
@@ -319,7 +319,7 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF+1)
             player->CastSpell(player, TELEPORT_CAVERNS_OF_TIME, false);
 
@@ -329,9 +329,9 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetReputationRank(KEEPERS_OF_TIME_REPUTATION) >= REP_REVERED)
-            player->ADD_GOSSIP_ITEM_DB(MENU_ID_TAKE_ME_TO_C_O_T, OPTION_ID_TAKE_ME_TO_C_O_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, MENU_ID_TAKE_ME_TO_C_O_T, OPTION_ID_TAKE_ME_TO_C_O_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }

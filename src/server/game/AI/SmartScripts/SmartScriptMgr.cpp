@@ -375,6 +375,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_CLOSEST_ENEMY:
         case SMART_TARGET_CLOSEST_FRIENDLY:
         case SMART_TARGET_STORED:
+        case SMART_TARGET_LOOT_RECIPIENTS:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled target_type(%u), Entry " SI64FMTD " SourceType %u Event %u Action %u, skipped.", e.GetTargetType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -809,7 +810,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_FAIL_QUEST:
-        case SMART_ACTION_ADD_QUEST:
+        case SMART_ACTION_OFFER_QUEST:
             if (!e.action.quest.quest || !IsQuestValid(e, e.action.quest.quest))
                 return false;
             break;
@@ -1145,15 +1146,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (e.GetScriptType() == SMART_SCRIPT_TYPE_CREATURE)
             {
                 int8 equipId = (int8)e.action.equip.entry;
-
-                if (equipId)
+                if (equipId && !sObjectMgr->GetEquipmentInfo(e.entryOrGuid, equipId))
                 {
-                    EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(e.entryOrGuid, equipId);
-                    if (!einfo)
-                    {
-                        TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id %u for creature " SI64FMTD ", skipped.", equipId, e.entryOrGuid);
-                        return false;
-                    }
+                    TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id %u for creature " SI64FMTD ", skipped.", equipId, e.entryOrGuid);
+                    return false;
                 }
             }
             break;
@@ -1279,6 +1275,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
         case SMART_ACTION_MOVE_OFFSET:
         case SMART_ACTION_SET_CORPSE_DELAY:
+        case SMART_ACTION_DISABLE_EVADE:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry " SI64FMTD " SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

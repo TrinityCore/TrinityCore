@@ -31,6 +31,10 @@ struct TC_GAME_API Position
 
     Position(Position const& loc) { Relocate(loc); }
 
+    Position(G3D::Vector3 const& vect);
+
+    operator G3D::Vector3() const;
+
     struct PositionXYStreamer
     {
         explicit PositionXYStreamer(Position& pos) : Pos(&pos) { }
@@ -230,6 +234,9 @@ class TC_GAME_API WorldLocation : public Position
 public:
     explicit WorldLocation(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
         : Position(x, y, z, o), m_mapId(mapId) { }
+
+    WorldLocation(uint32 mapId, Position const& position)
+        : Position(position), m_mapId(mapId) { }
 
     WorldLocation(WorldLocation const& loc)
         : Position(loc), m_mapId(loc.GetMapId()) { }

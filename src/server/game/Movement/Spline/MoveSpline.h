@@ -80,12 +80,13 @@ namespace Movement
         int32           effect_start_time;
         int32           point_Idx;
         int32           point_Idx_offset;
+        Optional<SpellEffectExtraData> spell_effect_extra;
 
         void init_spline(const MoveSplineInitArgs& args);
 
     protected:
         MySpline::ControlArray const& getPath() const { return spline.getPoints(); }
-        void computeParabolicElevation(float& el) const;
+        void computeParabolicElevation(float& el, float u) const;
         void computeFallElevation(float& el) const;
 
         UpdateResult _updateState(int32& ms_time_diff);
