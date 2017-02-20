@@ -20,9 +20,18 @@
 #include "Player.h"
 #include "WorldPacket.h"
 
+BattlegroundGOSpawnPoint const BG_RL_GameObjects[BG_RL_OBJECT_MAX] =
+{
+    { BG_RL_OBJECT_TYPE_DOOR_1, { 1293.561000f, 1601.938000f, 31.605570f, -1.45734900f }, { 0.f, 0.f, -0.66588130f,  0.7460576f }, RESPAWN_IMMEDIATELY },
+    { BG_RL_OBJECT_TYPE_DOOR_2, { 1278.648000f, 1730.557000f, 31.605570f,  1.68424500f }, { 0.f, 0.f,  0.74605820f,  0.6658807f }, RESPAWN_IMMEDIATELY },
+
+    { BG_RL_OBJECT_TYPE_BUFF_1, { 1328.719971f, 1632.719971f, 36.730400f, -1.44862400f }, { 0.f, 0.f,  0.66262010f, -0.7489557f }, 2 * MINUTE          },
+    { BG_RL_OBJECT_TYPE_BUFF_2, { 1243.300049f, 1699.170044f, 34.872601f, -0.06981307f }, { 0.f, 0.f,  0.03489945f, -0.9993908f }, 2 * MINUTE          }
+};
+
 BattlegroundRL::BattlegroundRL()
 {
-    BgObjects.resize(BG_RL_OBJECT_MAX);
+    SetGameObjectsNumber(BG_RL_OBJECT_MAX);
 }
 
 void BattlegroundRL::StartingEventCloseDoors()
@@ -64,15 +73,14 @@ void BattlegroundRL::FillInitialWorldStates(WorldPacket& data)
 
 bool BattlegroundRL::SetupBattleground()
 {
-    // gates
-    if (!AddObject(BG_RL_OBJECT_DOOR_1, BG_RL_OBJECT_TYPE_DOOR_1, 1293.561f, 1601.938f, 31.60557f, -1.457349f, 0, 0, -0.6658813f, 0.7460576f, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_RL_OBJECT_DOOR_2, BG_RL_OBJECT_TYPE_DOOR_2, 1278.648f, 1730.557f, 31.60557f, 1.684245f, 0, 0, 0.7460582f, 0.6658807f, RESPAWN_IMMEDIATELY)
-    // buffs
-        || !AddObject(BG_RL_OBJECT_BUFF_1, BG_RL_OBJECT_TYPE_BUFF_1, 1328.719971f, 1632.719971f, 36.730400f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f, 120)
-        || !AddObject(BG_RL_OBJECT_BUFF_2, BG_RL_OBJECT_TYPE_BUFF_2, 1243.300049f, 1699.170044f, 34.872601f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f, 120))
+    for (uint32 i = 0; i < BG_RL_OBJECT_MAX; ++i)
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundRL: Failed to spawn some object!");
-        return false;
+        BattlegroundGOSpawnPoint const& object = BG_RL_GameObjects[i];
+        if (!AddObject(i, object.Entry, object.Pos, object.Rot, object.SpawnTime))
+        {
+            TC_LOG_ERROR("bg.battleground", "BattleGroundRL: Failed to spawn GameObject! (Entry: %u). Battleground not created!", object.Entry);
+            return false;
+        }
     }
 
     return true;
