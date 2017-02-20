@@ -1386,7 +1386,7 @@ public:
             {
                 std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER);
 
-                if (areaTriggers.size() >= 2)
+                if (areaTriggers.size() >= 3)
                     areaTriggers.front()->SetDuration(0);
 
                 // Caster is prioritary
