@@ -29,6 +29,8 @@
 #include "MapManager.h"
 #include "CharacterCache.h"
 
+#include "Packets/QueryPackets.h"
+
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
@@ -87,64 +89,54 @@ void WorldSession::SendQueryTimeResponse()
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleCreatureQueryOpcode(WorldPackets::Query::QueryCreature& query)
 {
-    uint32 entry;
-    recvData >> entry;
-    ObjectGuid guid;
-    recvData >> guid;
-
-    CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(entry);
-    if (ci)
+    if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(query.CreatureID))
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name.c_str(), entry);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name.c_str(), query.CreatureID);
         if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
             SendPacket(&ci->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
         else
         {
-            WorldPacket queryPacket = ci->BuildQueryData(GetSessionDbLocaleIndex());
-            SendPacket(&queryPacket);
+            WorldPacket response = ci->BuildQueryData(GetSessionDbLocaleIndex());
+            SendPacket(&response);
         }
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
     }
     else
     {
         TC_LOG_DEBUG("network", "WORLD: CMSG_CREATURE_QUERY - NO CREATURE INFO! (%s, ENTRY: %u)",
-            guid.ToString().c_str(), entry);
-        WorldPacket data(SMSG_CREATURE_QUERY_RESPONSE, 4);
-        data << uint32(entry | 0x80000000);
-        SendPacket(&data);
+            query.Guid.ToString().c_str(), query.CreatureID);
+
+        WorldPackets::Query::QueryCreatureResponse response;
+        response.CreatureID = query.CreatureID;
+        SendPacket(response.Write());
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CREATURE_QUERY_RESPONSE");
     }
 }
 
 /// Only _static_ data is sent in this packet !!!
-void WorldSession::HandleGameObjectQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& query)
 {
-    uint32 entry;
-    recvData >> entry;
-    ObjectGuid guid;
-    recvData >> guid;
-
-    const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry);
-    if (info)
+    if (GameObjectTemplate const* info = sObjectMgr->GetGameObjectTemplate(query.GameObjectID))
     {
         if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
             SendPacket(&info->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
         else
         {
-            WorldPacket queryPacket = info->BuildQueryData(GetSessionDbLocaleIndex());
-            SendPacket(&queryPacket);
+            WorldPacket response = info->BuildQueryData(GetSessionDbLocaleIndex());
+            SendPacket(&response);
         }
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
     }
     else
     {
         TC_LOG_DEBUG("network", "WORLD: CMSG_GAMEOBJECT_QUERY - Missing gameobject info for (%s, ENTRY: %u)",
-            guid.ToString().c_str(), entry);
-        WorldPacket data (SMSG_GAMEOBJECT_QUERY_RESPONSE, 4);
-        data << uint32(entry | 0x80000000);
-        SendPacket(&data);
+            query.Guid.ToString().c_str(), query.GameObjectID);
+
+        WorldPackets::Query::QueryGameObjectResponse response;
+        response.GameObjectID = query.GameObjectID;
+        SendPacket(response.Write());
         TC_LOG_DEBUG("network", "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
     }
 }
@@ -337,46 +329,29 @@ void WorldSession::HandleCorpseMapPositionQuery(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleQuestPOIQuery(WorldPacket& recvData)
+void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& query)
 {
-    uint32 count;
-    recvData >> count; // quest count, max=25
-
-    if (count > MAX_QUEST_LOG_SIZE)
-    {
-        recvData.rfinish();
+    if (query.MissingQuestCount > MAX_QUEST_LOG_SIZE)
         return;
-    }
 
     // Read quest ids and add the in a unordered_set so we don't send POIs for the same quest multiple times
     std::unordered_set<uint32> questIds;
-    for (uint32 i = 0; i < count; ++i)
-        questIds.insert(recvData.read<uint32>()); // quest id
+    for (uint32 i = 0; i < query.MissingQuestCount; ++i)
+        questIds.insert(query.MissingQuestPOIs[i]); // quest id
 
-    WorldPacket data(SMSG_QUEST_POI_QUERY_RESPONSE, 4 + (4 + 4 + 40)*questIds.size());
-    data << uint32(questIds.size()); // count
-
-    for (auto itr = questIds.begin(); itr != questIds.end(); ++itr)
+    WorldPacket data(SMSG_QUEST_POI_QUERY_RESPONSE, 4 + (4 + 4 + 40) * questIds.size());
+    for (uint32 questId : questIds)
     {
-        uint32 questId = *itr;
-
-        bool questOk = false;
-
-        uint16 questSlot = _player->FindQuestSlot(questId);
-
-        if (questSlot != MAX_QUEST_LOG_SIZE)
-            questOk =_player->GetQuestSlotQuestId(questSlot) == questId;
-
-        if (questOk)
+        uint16 const questSlot = _player->FindQuestSlot(questId);
+        if (questSlot != MAX_QUEST_LOG_SIZE && _player->GetQuestSlotQuestId(questSlot) == questId)
         {
             if (QuestPOIWrapper const* poiWrapper = sObjectMgr->GetQuestPOIWrapper(questId))
             {
-                
                 if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
                     data.append(poiWrapper->QueryDataBuffer);
                 else
                 {
-                    ByteBuffer POIByteBuffer = poiWrapper->BuildQueryData(questId);
+                    ByteBuffer POIByteBuffer = poiWrapper->BuildQueryData();
                     data.append(POIByteBuffer);
                 }
             }

@@ -46,6 +46,8 @@
 #include "Vehicle.h"
 #include "World.h"
 
+#include "Packets/QueryPackets.h"
+
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
 ScriptMapMap sWaypointScripts;
@@ -7334,7 +7336,6 @@ void ObjectMgr::LoadQuestPOI()
 
     //                                               0        1          2          3           4          5       6        7
     QueryResult result = WorldDatabase.Query("SELECT QuestID, id, ObjectiveIndex, MapID, WorldMapAreaId, Floor, Priority, Flags FROM quest_poi order by QuestID");
-
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
@@ -7344,8 +7345,7 @@ void ObjectMgr::LoadQuestPOI()
     //                                                  0       1   2  3
     QueryResult points = WorldDatabase.Query("SELECT QuestID, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx2");
 
-    std::vector<std::vector<std::vector<QuestPOIPoint> > > POIs;
-
+    std::vector<std::vector<std::vector<QuestPOIBlobPoint>>> POIs;
     if (points)
     {
         // The first result should have the highest questId
@@ -7365,7 +7365,10 @@ void ObjectMgr::LoadQuestPOI()
             if (POIs[questId].size() <= id + 1)
                 POIs[questId].resize(id + 10);
 
-            QuestPOIPoint point(x, y);
+            QuestPOIBlobPoint point;
+            point.X = x;
+            point.Y = y;
+
             POIs[questId][id].push_back(point);
         } while (points->NextRow());
     }
@@ -7383,15 +7386,30 @@ void ObjectMgr::LoadQuestPOI()
         uint32 unk3               = fields[6].GetUInt32();
         uint32 unk4               = fields[7].GetUInt32();
 
-        QuestPOI POI(id, objIndex, mapId, WorldMapAreaId, FloorId, unk3, unk4);
+        QuestPOIBlobData POI;
+        POI.BlobIndex = id;
+        POI.ObjectiveIndex = objIndex;
+        POI.MapID = mapId;
+        POI.WorldMapAreaID = WorldMapAreaId;
+        POI.Floor = FloorId;
+        POI.Unk3 = unk3;
+        POI.Unk4 = unk4;
+
         if (questId < POIs.size() && id < POIs[questId].size())
         {
-            POI.points = POIs[questId][id];
-            QuestPOIContainer::iterator itr = _questPOIStore.find(questId);
+            POI.QuestPOIBlobPointStats = POIs[questId][id];
+            auto itr = _questPOIStore.find(questId);
             if (itr == _questPOIStore.end())
-                _questPOIStore[questId] = QuestPOIWrapper();
+            {
+                QuestPOIWrapper wrapper;
+                QuestPOIData data;
+                data.QuestID = questId;
+                wrapper.POIData = data;
 
-            _questPOIStore[questId].DataVector.push_back(POI);
+                _questPOIStore.emplace(questId, std::move(wrapper));
+            }
+
+            _questPOIStore.at(questId).POIData.QuestPOIBlobDataStats.push_back(POI);
         }
         else
             TC_LOG_ERROR("server.loading", "Table quest_poi references unknown quest points for quest %u POI id %u", questId, id);
@@ -9359,35 +9377,35 @@ void ObjectMgr::InitializeQueriesData(QueryDataGroup mask)
     // Initialize Quest POI data
     if (mask & QUERY_DATA_POIS)
         for (auto& poiPair : _questPOIStore)
-            poiPair.second.InitializeQueryData(poiPair.first);
+            poiPair.second.InitializeQueryData();
 }
 
-void QuestPOIWrapper::InitializeQueryData(uint32 questId)
+void QuestPOIWrapper::InitializeQueryData()
 {
-    QueryDataBuffer = BuildQueryData(questId);
+    QueryDataBuffer = BuildQueryData();
 }
 
-ByteBuffer QuestPOIWrapper::BuildQueryData(uint32 questId) const
+ByteBuffer QuestPOIWrapper::BuildQueryData() const
 {
     ByteBuffer tempBuffer;
-    tempBuffer << uint32(questId);                    // quest ID
-    tempBuffer << uint32(DataVector.size());          // POI count
+    tempBuffer << uint32(POIData.QuestID);                                      // quest ID
+    tempBuffer << uint32(POIData.QuestPOIBlobDataStats.size());                 // POI count
 
-    for (QuestPOIVector::const_iterator itr = DataVector.begin(); itr != DataVector.end(); ++itr)
+    for (QuestPOIBlobData const& questPOIBlobData : POIData.QuestPOIBlobDataStats)
     {
-        tempBuffer << uint32(itr->Id);                // POI index
-        tempBuffer << int32(itr->ObjectiveIndex);     // objective index
-        tempBuffer << uint32(itr->MapId);             // mapid
-        tempBuffer << uint32(itr->AreaId);            // areaid
-        tempBuffer << uint32(itr->FloorId);           // floorid
-        tempBuffer << uint32(itr->Unk3);              // unknown
-        tempBuffer << uint32(itr->Unk4);              // unknown
-        tempBuffer << uint32(itr->points.size());     // POI points count
+        tempBuffer << uint32(questPOIBlobData.BlobIndex);                       // POI index
+        tempBuffer << int32(questPOIBlobData.ObjectiveIndex);                   // objective index
+        tempBuffer << uint32(questPOIBlobData.MapID);                           // mapid
+        tempBuffer << uint32(questPOIBlobData.WorldMapAreaID);                  // areaid
+        tempBuffer << uint32(questPOIBlobData.Floor);                           // floorid
+        tempBuffer << uint32(questPOIBlobData.Unk3);                            // unknown
+        tempBuffer << uint32(questPOIBlobData.Unk4);                            // unknown
+        tempBuffer << uint32(questPOIBlobData.QuestPOIBlobPointStats.size());   // POI points count
 
-        for (std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
+        for (QuestPOIBlobPoint const& questPOIBlobPoint : questPOIBlobData.QuestPOIBlobPointStats)
         {
-            tempBuffer << int32(itr2->x); // POI point x
-            tempBuffer << int32(itr2->y); // POI point y
+            tempBuffer << int32(questPOIBlobPoint.X); // POI point x
+            tempBuffer << int32(questPOIBlobPoint.Y); // POI point y
         }
     }
 

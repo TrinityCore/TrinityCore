@@ -33,6 +33,8 @@
 #include "World.h"
 #include "Transport.h"
 
+#include "Packets/QueryPackets.h"
+
 void GameObjectTemplate::InitializeQueryData()
 {
     WorldPacket queryTemp;
@@ -45,7 +47,7 @@ void GameObjectTemplate::InitializeQueryData()
 
 WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
 {
-    WorldPacket queryTemp(SMSG_GAMEOBJECT_QUERY_RESPONSE, 200);
+    WorldPackets::Query::QueryGameObjectResponse queryTemp;
 
     std::string locName = name;
     std::string locIconName = IconName;
@@ -57,30 +59,27 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
         ObjectMgr::GetLocaleString(gameObjectLocale->CastBarCaption, loc, locCastBarCaption);
     }
 
-    queryTemp << uint32(entry);
-    queryTemp << uint32(type);
-    queryTemp << uint32(displayId);
-    queryTemp << locName;
-    queryTemp << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4
-    queryTemp << locIconName;                                // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
-    queryTemp << locCastBarCaption;                          // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
-    queryTemp << unk1;                                       // 2.0.3, string
-    queryTemp.append(raw.data, MAX_GAMEOBJECT_DATA);
-    queryTemp << float(size);                                // go size
+    queryTemp.GameObjectID = entry;
+    queryTemp.Allow = true;
 
-    GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(entry);
-    if (items)
-    {
-        for (size_t i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-            queryTemp << (i < items->size() ? uint32((*items)[i]) : uint32(0));
-    }
-    else
-    {
-        for (size_t i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-            queryTemp << uint32(0);
-    }
+    queryTemp.Stats.Type = type;
+    queryTemp.Stats.DisplayID = displayId;
+    queryTemp.Stats.Name = locName;
+    queryTemp.Stats.IconName = locIconName;
+    queryTemp.Stats.CastBarCaption = locCastBarCaption;
+    queryTemp.Stats.UnkString = unk1;
+    memcpy(queryTemp.Stats.Data, raw.data, sizeof(uint32) * MAX_GAMEOBJECT_DATA);
+    queryTemp.Stats.Size = size;
 
-    return queryTemp;
+    for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+        queryTemp.Stats.QuestItems[i] = 0;
+
+    if (GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(entry))
+        for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+            if (i < items->size())
+                queryTemp.Stats.QuestItems[i] = (*items)[i];
+
+    return *queryTemp.Write();
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),

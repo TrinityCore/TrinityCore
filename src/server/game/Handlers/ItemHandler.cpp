@@ -26,6 +26,8 @@
 #include "Item.h"
 #include "SpellInfo.h"
 
+#include "Packets/QueryPackets.h"
+
 void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
 {
     //TC_LOG_DEBUG("network", "WORLD: CMSG_SPLIT_ITEM");
@@ -305,31 +307,26 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket& recvData)
 }
 
 // Only _static_ data send in this packet !!!
-void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recvData)
+void WorldSession::HandleItemQuerySingleOpcode(WorldPackets::Query::QueryItemSingle& query)
 {
-    //TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_QUERY_SINGLE");
-    uint32 item;
-    recvData >> item;
+    TC_LOG_INFO("network", "STORAGE: Item Query = %u", query.ItemID);
 
-    TC_LOG_INFO("network", "STORAGE: Item Query = %u", item);
-
-    ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item);
-    if (itemTemplate)
+    if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(query.ItemID))
     {
         if (sWorld->getBoolConfig(CONFIG_CACHE_DATA_QUERIES))
             SendPacket(&itemTemplate->QueryData[static_cast<uint32>(GetSessionDbLocaleIndex())]);
         else
         {
-            WorldPacket queryPacket = itemTemplate->BuildQueryData(GetSessionDbLocaleIndex());
-            SendPacket(&queryPacket);
+            WorldPacket response = itemTemplate->BuildQueryData(GetSessionDbLocaleIndex());
+            SendPacket(&response);
         }
     }
     else
     {
-        TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_QUERY_SINGLE - NO item INFO! (ENTRY: %u)", item);
-        WorldPacket data(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 4);
-        data << uint32(item | 0x80000000);
-        SendPacket(&data);
+        TC_LOG_DEBUG("network", "WORLD: CMSG_ITEM_QUERY_SINGLE - NO item INFO! (ENTRY: %u)", query.ItemID);
+        WorldPackets::Query::QueryItemSingleResponse response;
+        response.ItemID = query.ItemID;
+        SendPacket(response.Write());
     }
 }
 

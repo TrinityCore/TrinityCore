@@ -24,6 +24,8 @@
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 
+#include "Packets/QueryPackets.h"
+
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
     switch (InventoryType)
@@ -160,7 +162,7 @@ void ItemTemplate::InitializeQueryData()
 
 WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
 {
-    WorldPacket queryTemp(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 500);
+    WorldPackets::Query::QueryItemSingleResponse response;
 
     std::string locName = Name1;
     std::string locDescription = Description;
@@ -171,114 +173,105 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
         ObjectMgr::GetLocaleString(il->Description, loc, locDescription);
     }
 
-    queryTemp << ItemId;
-    queryTemp << Class;
-    queryTemp << SubClass;
-    queryTemp << SoundOverrideSubclass;
-    queryTemp << locName;
-    queryTemp << uint8(0x00);                                //Name2; // blizz not send name there, just uint8(0x00); <-- \0 = empty string = empty name...
-    queryTemp << uint8(0x00);                                //Name3; // blizz not send name there, just uint8(0x00);
-    queryTemp << uint8(0x00);                                //Name4; // blizz not send name there, just uint8(0x00);
-    queryTemp << DisplayInfoID;
-    queryTemp << Quality;
-    queryTemp << Flags;
-    queryTemp << Flags2;
-    queryTemp << BuyPrice;
-    queryTemp << SellPrice;
-    queryTemp << InventoryType;
-    queryTemp << AllowableClass;
-    queryTemp << AllowableRace;
-    queryTemp << ItemLevel;
-    queryTemp << RequiredLevel;
-    queryTemp << RequiredSkill;
-    queryTemp << RequiredSkillRank;
-    queryTemp << RequiredSpell;
-    queryTemp << RequiredHonorRank;
-    queryTemp << RequiredCityRank;
-    queryTemp << RequiredReputationFaction;
-    queryTemp << RequiredReputationRank;
-    queryTemp << int32(MaxCount);
-    queryTemp << int32(Stackable);
-    queryTemp << ContainerSlots;
-    queryTemp << StatsCount;                         // item stats count
+    response.ItemID = ItemId;
+    response.Allow = true;
+
+    response.Stats.Class = Class;
+    response.Stats.SubClass = SubClass;
+    response.Stats.SoundOverrideSubclass = SoundOverrideSubclass;
+    response.Stats.Name = locName;
+    response.Stats.DisplayInfoID = DisplayInfoID;
+    response.Stats.Quality = Quality;
+    response.Stats.Flags = Flags;
+    response.Stats.Flags2 = Flags2;
+    response.Stats.BuyPrice = BuyPrice;
+    response.Stats.SellPrice = SellPrice;
+    response.Stats.InventoryType = InventoryType;
+    response.Stats.AllowableClass = AllowableClass;
+    response.Stats.AllowableRace = AllowableRace;
+    response.Stats.ItemLevel = ItemLevel;
+    response.Stats.RequiredLevel = RequiredLevel;
+    response.Stats.RequiredSkill = RequiredSkill;
+    response.Stats.RequiredSkillRank = RequiredSkillRank;
+    response.Stats.RequiredSpell = RequiredSpell;
+    response.Stats.RequiredHonorRank = RequiredHonorRank;
+    response.Stats.RequiredCityRank = RequiredCityRank;
+    response.Stats.RequiredReputationFaction = RequiredReputationFaction;
+    response.Stats.RequiredReputationRank = RequiredReputationRank;
+    response.Stats.MaxCount = MaxCount;
+    response.Stats.Stackable = Stackable;
+    response.Stats.ContainerSlots = ContainerSlots;
+    response.Stats.StatsCount = StatsCount;
     for (uint32 i = 0; i < StatsCount; ++i)
     {
-        queryTemp << ItemStat[i].ItemStatType;
-        queryTemp << ItemStat[i].ItemStatValue;
+        response.Stats.ItemStat[i].ItemStatType = ItemStat[i].ItemStatType;
+        response.Stats.ItemStat[i].ItemStatValue = ItemStat[i].ItemStatValue;
     }
-    queryTemp << ScalingStatDistribution;            // scaling stats distribution
-    queryTemp << ScalingStatValue;                   // some kind of flags used to determine stat values column
-    for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+
+    response.Stats.ScalingStatDistribution = ScalingStatDistribution;
+    response.Stats.ScalingStatValue = ScalingStatValue;
+
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
     {
-        queryTemp << Damage[i].DamageMin;
-        queryTemp << Damage[i].DamageMax;
-        queryTemp << Damage[i].DamageType;
+        response.Stats.Damage[i].DamageMin = Damage[i].DamageMin;
+        response.Stats.Damage[i].DamageMax = Damage[i].DamageMax;
+        response.Stats.Damage[i].DamageType = Damage[i].DamageType;
     }
 
-    // resistances (7)
-    queryTemp << Armor;
-    queryTemp << HolyRes;
-    queryTemp << FireRes;
-    queryTemp << NatureRes;
-    queryTemp << FrostRes;
-    queryTemp << ShadowRes;
-    queryTemp << ArcaneRes;
+    response.Stats.Resistance[SPELL_SCHOOL_NORMAL] = Armor;
+    response.Stats.Resistance[SPELL_SCHOOL_HOLY] = HolyRes;
+    response.Stats.Resistance[SPELL_SCHOOL_FIRE] = FireRes;
+    response.Stats.Resistance[SPELL_SCHOOL_NATURE] = NatureRes;
+    response.Stats.Resistance[SPELL_SCHOOL_FROST] = FrostRes;
+    response.Stats.Resistance[SPELL_SCHOOL_SHADOW] = ShadowRes;
+    response.Stats.Resistance[SPELL_SCHOOL_ARCANE] = ArcaneRes;
 
-    queryTemp << Delay;
-    queryTemp << AmmoType;
-    queryTemp << RangedModRange;
+    response.Stats.Delay = Delay;
+    response.Stats.AmmoType = AmmoType;
+    response.Stats.RangedModRange = RangedModRange;
 
     for (uint8 s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
     {
-        // spells are validated on template loading
-        if (Spells[s].SpellId > 0)
-        {
-            queryTemp << Spells[s].SpellId;
-            queryTemp << Spells[s].SpellTrigger;
-            queryTemp << uint32(-abs(Spells[s].SpellCharges));
-            queryTemp << uint32(Spells[s].SpellCooldown);
-            queryTemp << uint32(Spells[s].SpellCategory);
-            queryTemp << uint32(Spells[s].SpellCategoryCooldown);
-        }
-        else
-        {
-            queryTemp << uint32(0);
-            queryTemp << uint32(0);
-            queryTemp << uint32(0);
-            queryTemp << uint32(-1);
-            queryTemp << uint32(0);
-            queryTemp << uint32(-1);
-        }
+        response.Stats.Spells[s].SpellId = Spells[s].SpellId;
+        response.Stats.Spells[s].SpellTrigger = Spells[s].SpellTrigger;
+        response.Stats.Spells[s].SpellCharges = Spells[s].SpellCharges;
+        response.Stats.Spells[s].SpellCooldown = Spells[s].SpellCooldown;
+        response.Stats.Spells[s].SpellCategory = Spells[s].SpellCategory;
+        response.Stats.Spells[s].SpellCategoryCooldown = Spells[s].SpellCategoryCooldown;
     }
-    queryTemp << Bonding;
-    queryTemp << locDescription;
-    queryTemp << PageText;
-    queryTemp << LanguageID;
-    queryTemp << PageMaterial;
-    queryTemp << StartQuest;
-    queryTemp << LockID;
-    queryTemp << int32(Material);
-    queryTemp << Sheath;
-    queryTemp << RandomProperty;
-    queryTemp << RandomSuffix;
-    queryTemp << Block;
-    queryTemp << ItemSet;
-    queryTemp << MaxDurability;
-    queryTemp << Area;
-    queryTemp << Map;                                // Added in 1.12.x & 2.0.1 client branch
-    queryTemp << BagFamily;
-    queryTemp << TotemCategory;
-    for (int s = 0; s < MAX_ITEM_PROTO_SOCKETS; ++s)
+
+    response.Stats.Bonding = Bonding;
+    response.Stats.Description = locDescription;
+    response.Stats.PageText = PageText;
+    response.Stats.LanguageID = LanguageID;
+    response.Stats.PageMaterial = PageMaterial;
+    response.Stats.StartQuest = StartQuest;
+    response.Stats.LockID = LockID;
+    response.Stats.Material = Material;
+    response.Stats.Sheath = Sheath;
+    response.Stats.RandomProperty = RandomProperty;
+    response.Stats.RandomSuffix = RandomSuffix;
+    response.Stats.Block = Block;
+    response.Stats.ItemSet = ItemSet;
+    response.Stats.MaxDurability = MaxDurability;
+    response.Stats.Area = Area;
+    response.Stats.Map = Map;
+    response.Stats.BagFamily = BagFamily;
+    response.Stats.TotemCategory = TotemCategory;
+
+    for (uint8 s = 0; s < MAX_ITEM_PROTO_SOCKETS; ++s)
     {
-        queryTemp << Socket[s].Color;
-        queryTemp << Socket[s].Content;
+        response.Stats.Socket[s].Color = Socket[s].Color;
+        response.Stats.Socket[s].Content = Socket[s].Content;
     }
-    queryTemp << socketBonus;
-    queryTemp << GemProperties;
-    queryTemp << RequiredDisenchantSkill;
-    queryTemp << ArmorDamageModifier;
-    queryTemp << Duration;                           // added in 2.4.2.8209, duration (seconds)
-    queryTemp << ItemLimitCategory;                  // WotLK, ItemLimitCategory
-    queryTemp << HolidayId;                          // Holiday.dbc?
-    return queryTemp;
+
+    response.Stats.SocketBonus = socketBonus;
+    response.Stats.GemProperties = GemProperties;
+    response.Stats.RequiredDisenchantSkill = RequiredDisenchantSkill;
+    response.Stats.ArmorDamageModifier = ArmorDamageModifier;
+    response.Stats.Duration = Duration;
+    response.Stats.ItemLimitCategory = ItemLimitCategory;
+    response.Stats.HolidayId = HolidayId;
+
+    return *response.Write();
 }

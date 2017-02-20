@@ -49,6 +49,8 @@
 #include "Transport.h"
 #include "ScriptedGossip.h"
 
+#include "Packets/QueryPackets.h"
+
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
     TrainerSpellMap::const_iterator itr = spellList.find(spell_id);
@@ -158,7 +160,7 @@ void CreatureTemplate::InitializeQueryData()
 
 WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
 {
-    WorldPacket queryTemp(SMSG_CREATURE_QUERY_RESPONSE, 200);
+    WorldPackets::Query::QueryCreatureResponse queryTemp;
 
     std::string locName = Name, locTitle = Title;
     if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(Entry))
@@ -167,39 +169,35 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
         ObjectMgr::GetLocaleString(cl->Title, loc, locTitle);
     }
 
-    queryTemp << uint32(Entry);                              // creature entry
-    queryTemp << locName;
-    queryTemp << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4, always empty
-    queryTemp << locTitle;
-    queryTemp << IconName;                                   // "Directions" for guard, string for Icons 2.3.0
-    queryTemp << uint32(type_flags);                         // flags
-    queryTemp << uint32(type);                               // CreatureType.dbc
-    queryTemp << uint32(family);                             // CreatureFamily.dbc
-    queryTemp << uint32(rank);                               // Creature Rank (elite, boss, etc)
-    queryTemp << uint32(KillCredit[0]);                      // new in 3.1, kill credit
-    queryTemp << uint32(KillCredit[1]);                      // new in 3.1, kill credit
-    queryTemp << uint32(Modelid1);                           // Modelid1
-    queryTemp << uint32(Modelid2);                           // Modelid2
-    queryTemp << uint32(Modelid3);                           // Modelid3
-    queryTemp << uint32(Modelid4);                           // Modelid4
-    queryTemp << float(ModHealth);                           // dmg/hp modifier
-    queryTemp << float(ModMana);                             // dmg/mana modifier
-    queryTemp << uint8(RacialLeader);
+    queryTemp.CreatureID = Entry;
+    queryTemp.Allow = true;
 
-    CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(Entry);
-    if (items)
-    {
-        for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            queryTemp << (i < items->size() ? uint32((*items)[i]) : uint32(0));
-    }
-    else
-    {
-        for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            queryTemp << uint32(0);
-    }
+    queryTemp.Stats.Name = locName;
+    queryTemp.Stats.NameAlt = locTitle;
+    queryTemp.Stats.CursorName = IconName;
+    queryTemp.Stats.Flags = type_flags;
+    queryTemp.Stats.CreatureType = type;
+    queryTemp.Stats.CreatureFamily = family;
+    queryTemp.Stats.Classification = rank;
+    memcpy(queryTemp.Stats.ProxyCreatureID, KillCredit, sizeof(uint32) * MAX_KILL_CREDIT);
+    queryTemp.Stats.CreatureDisplayID[0] = Modelid1;
+    queryTemp.Stats.CreatureDisplayID[1] = Modelid2;
+    queryTemp.Stats.CreatureDisplayID[2] = Modelid3;
+    queryTemp.Stats.CreatureDisplayID[3] = Modelid4;
+    queryTemp.Stats.HpMulti = ModHealth;
+    queryTemp.Stats.EnergyMulti = ModMana;
+    queryTemp.Stats.Leader = RacialLeader;
 
-    queryTemp << uint32(movementId);                         // CreatureMovementInfo.dbc
-    return queryTemp;
+    for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+        queryTemp.Stats.QuestItems[i] = 0;
+
+    if (CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(Entry))
+        for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+            if (i < items->size())
+                queryTemp.Stats.QuestItems[i] = (*items)[i];
+
+    queryTemp.Stats.CreatureMovementInfoID = movementId;
+    return *queryTemp.Write();
 }
 
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
