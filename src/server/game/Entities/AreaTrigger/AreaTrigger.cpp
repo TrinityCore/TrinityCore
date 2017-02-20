@@ -170,6 +170,17 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
 void AreaTrigger::Update(uint32 p_time)
 {
+    if (GetDuration() != -1)
+    {
+        if (GetDuration() > int32(p_time))
+            _UpdateDuration(_duration - p_time);
+        else
+        {
+            Remove(); // expired
+            return;
+        }
+    }
+
     WorldObject::Update(p_time);
     _timeSinceCreated += p_time;
 
@@ -186,17 +197,6 @@ void AreaTrigger::Update(uint32 p_time)
         _AI_locked = true;
         GetAI()->OnUpdate(p_time);
         _AI_locked = false;
-    }
-
-    if (GetDuration() != -1)
-    {
-        if (GetDuration() > int32(p_time))
-            _UpdateDuration(_duration - p_time);
-        else
-        {
-            Remove(); // expired
-            return;
-        }
     }
 
     UpdateTargetList();
