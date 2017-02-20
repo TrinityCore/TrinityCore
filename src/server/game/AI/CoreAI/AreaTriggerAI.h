@@ -18,6 +18,8 @@
 #ifndef TRINITY_AREATRIGGERAI_H
 #define TRINITY_AREATRIGGERAI_H
 
+#include "Define.h"
+
 class AreaTrigger;
 class Unit;
 
