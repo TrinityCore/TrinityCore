@@ -33,6 +33,56 @@
 #include "World.h"
 #include "Transport.h"
 
+void GameObjectTemplate::InitializeQueryData()
+{
+    WorldPacket queryTemp;
+    for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
+        QueryData[loc] = queryTemp;
+    }
+}
+
+WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
+{
+    WorldPacket queryTemp(SMSG_GAMEOBJECT_QUERY_RESPONSE, 200);
+
+    std::string locName = name;
+    std::string locIconName = IconName;
+    std::string locCastBarCaption = castBarCaption;
+
+    if (GameObjectLocale const* gameObjectLocale = sObjectMgr->GetGameObjectLocale(entry))
+    {
+        ObjectMgr::GetLocaleString(gameObjectLocale->Name, loc, locName);
+        ObjectMgr::GetLocaleString(gameObjectLocale->CastBarCaption, loc, locCastBarCaption);
+    }
+
+    queryTemp << uint32(entry);
+    queryTemp << uint32(type);
+    queryTemp << uint32(displayId);
+    queryTemp << locName;
+    queryTemp << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4
+    queryTemp << locIconName;                                // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
+    queryTemp << locCastBarCaption;                          // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
+    queryTemp << unk1;                                       // 2.0.3, string
+    queryTemp.append(raw.data, MAX_GAMEOBJECT_DATA);
+    queryTemp << float(size);                                // go size
+
+    GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(entry);
+    if (items)
+    {
+        for (size_t i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+            queryTemp << (i < items->size() ? uint32((*items)[i]) : uint32(0));
+    }
+    else
+    {
+        for (size_t i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+            queryTemp << uint32(0);
+    }
+
+    return queryTemp;
+}
+
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(nullptr), m_goValue(), m_AI(nullptr)
 {
