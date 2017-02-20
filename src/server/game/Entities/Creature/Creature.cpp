@@ -1193,8 +1193,19 @@ void Creature::SelectLevel()
     // level
     uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
     uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
-    uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
-    SetLevel(level);
+    uint8 level = maxlevel;
+
+    if (!true) // if (!scalableLevels)
+    {
+        level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
+        SetLevel(level);
+    }
+    else
+    {
+        SetLevel(level);
+        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, minlevel);
+        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, minlevel);
+    }
 
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
 
@@ -2449,17 +2460,59 @@ void Creature::AllLootRemovedFromCorpse()
     m_respawnTime = m_corpseRemoveTime + m_respawnDelay;
 }
 
+uint64 Creature::getHealthForTarget(WorldObject const* target) const
+{
+    if (!true) //if (!scalableLevels)
+        return GetHealth();
+
+    return getMaxHealthForTarget(target) * GetHealthPct();
+}
+
+uint64 Creature::getMaxHealthForTarget(WorldObject const* target) const
+{
+    if (!true) //if (!scalableLevels)
+        return GetMaxHealth();
+
+    uint8 levelForTarget = getLevelForTarget(target);
+
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(levelForTarget, cInfo->unit_class);
+
+    // health
+    float healthmod = _GetHealthMod(cInfo->rank);
+
+    uint32 basehp = stats->GenerateHealth(cInfo);
+    uint32 baseMaxHealth = uint32(basehp * healthmod);
+
+    float currentMaxHpPct = GetMaxHealth() / GetCreateHealth();
+
+    return baseMaxHealth * currentMaxHpPct;
+
+}
+
 uint8 Creature::getLevelForTarget(WorldObject const* target) const
 {
-    if (!isWorldBoss() || !target->ToUnit())
+    if (!target->ToUnit())
         return Unit::getLevelForTarget(target);
 
-    uint16 level = target->ToUnit()->getLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
-    if (level < 1)
-        return 1;
-    if (level > 255)
-        return 255;
-    return uint8(level);
+    if (isWorldBoss())
+    {
+        uint16 level = target->ToUnit()->getLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
+        if (level < 1)
+            return 1;
+        if (level > 255)
+            return 255;
+        return uint8(std::min(std::max(uint16(1), level), uint16(255)));
+    }
+
+    // If this creature should scale level, adapt level depending of target level
+    // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
+    if (true) //if (scalableLevels)
+    {
+        return std::min(std::max(target->ToUnit()->getLevel(), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN)), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
+    }
+
+    return getLevel();
 }
 
 std::string Creature::GetAIName() const

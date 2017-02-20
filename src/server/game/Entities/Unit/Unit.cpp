@@ -15864,6 +15864,18 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                 else
                     *data << m_uint32Values[index];
             }
+            else if (index == UNIT_FIELD_LEVEL)
+            {
+                *data << getLevelForTarget(target);
+            }
+            else if (creature && index == UNIT_FIELD_HEALTH)
+            {
+                *data << creature->getHealthForTarget(target);
+            }
+            else if (creature && index == UNIT_FIELD_MAXHEALTH)
+            {
+                *data << creature->getMaxHealthForTarget(target);
+            }
             else
             {
                 // send in current format (float as float, uint32 as uint32)
