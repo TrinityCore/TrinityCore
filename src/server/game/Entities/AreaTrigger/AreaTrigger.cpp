@@ -37,7 +37,7 @@
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
-    _areaTriggerMiscTemplate(nullptr)
+    _areaTriggerMiscTemplate(nullptr), i_AI(nullptr), _AI_locked(false), IsAIEnabled(false)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -50,6 +50,8 @@ AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
 
 AreaTrigger::~AreaTrigger()
 {
+    delete i_AI;
+    i_AI = nullptr;
 }
 
 void AreaTrigger::AddToWorld()
@@ -132,8 +134,6 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
         InitSplineOffsets(GetMiscTemplate()->SplinePoints, timeToTarget);
     }
 
-    sScriptMgr->OnAreaTriggerEntityInitialize(this);
-
     // movement on transport of areatriggers on unit is handled by themself
     Transport* transport = m_movementInfo.transport.guid.IsEmpty() ? caster->GetTransport() : nullptr;
     if (transport)
@@ -147,6 +147,11 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
         transport->AddPassenger(this);
     }
 
+    AIM_Initialize();
+
+    if (IsAIEnabled)
+        GetAI()->OnInitialize();
+
     if (!GetMap()->AddToMap(this))
     {
         // Returning false will cause the object to be deleted - remove from transport
@@ -157,7 +162,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
     caster->_RegisterAreaTrigger(this);
 
-    sScriptMgr->OnAreaTriggerEntityCreate(this);
+    if (IsAIEnabled)
+        GetAI()->OnCreate();
 
     return true;
 }
@@ -175,7 +181,12 @@ void AreaTrigger::Update(uint32 p_time)
     else
         UpdateSplinePosition(p_time);
 
-    sScriptMgr->OnAreaTriggerEntityUpdate(this, p_time);
+    if (IsAIEnabled)
+    {
+        _AI_locked = true;
+        GetAI()->OnUpdate(p_time);
+        _AI_locked = false;
+    }
 
     if (GetDuration() != -1)
     {
@@ -203,7 +214,8 @@ void AreaTrigger::Remove()
         // Handle removal of all units, calling OnUnitExit & deleting auras if needed
         HandleUnitEnterExit({});
 
-        sScriptMgr->OnAreaTriggerEntityRemove(this);
+        if (IsAIEnabled)
+            GetAI()->OnRemove();
 
         RemoveFromWorld();
         AddObjectToRemoveList();
@@ -364,7 +376,9 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
                 ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTERED, GetTemplate()->Id);
 
         DoActions(unit);
-        sScriptMgr->OnAreaTriggerEntityUnitEnter(this, unit);
+
+        if (IsAIEnabled)
+            GetAI()->OnUnitEnter(unit);
     }
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
@@ -376,7 +390,9 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
                     ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_LEFT, GetTemplate()->Id);
 
             UndoActions(leavingUnit);
-            sScriptMgr->OnAreaTriggerEntityUnitExit(this, leavingUnit);
+
+            if (IsAIEnabled)
+                GetAI()->OnUnitExit(leavingUnit);
         }
     }
 }
@@ -644,8 +660,11 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
         DebugVisualizePosition();
 #endif
 
-        sScriptMgr->OnAreaTriggerEntitySplineIndexReached(this, _lastSplineIndex);
-        sScriptMgr->OnAreaTriggerEntityDestinationReached(this);
+        if (IsAIEnabled)
+        {
+            GetAI()->OnSplineIndexReached(_lastSplineIndex);
+            GetAI()->OnDestinationReached();
+        }
         return;
     }
 
@@ -688,7 +707,9 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
     if (_lastSplineIndex != lastPositionIndex)
     {
         _lastSplineIndex = lastPositionIndex;
-        sScriptMgr->OnAreaTriggerEntitySplineIndexReached(this, _lastSplineIndex);
+
+        if (IsAIEnabled)
+            GetAI()->OnSplineIndexReached(_lastSplineIndex);
     }
 }
 
@@ -698,4 +719,45 @@ void AreaTrigger::DebugVisualizePosition()
         if (Player* player = caster->ToPlayer())
             if (player->isDebugAreaTriggers)
                 player->SummonCreature(1, *this, TEMPSUMMON_TIMED_DESPAWN, GetTimeToTarget());
+}
+
+bool AreaTrigger::AIM_Initialize(AreaTriggerAI* ai)
+{
+    // make sure nothing can change the AI during AI update
+    if (_AI_locked)
+    {
+        TC_LOG_DEBUG("scripts", "AIM_Initialize: failed to init, locked.");
+        return false;
+    }
+
+    AIM_Destroy();
+
+    if (!ai)
+    {
+        if (AreaTriggerAI* scriptedAI = sScriptMgr->GetAreaTriggerAI(this))
+            i_AI = scriptedAI;
+    }
+    else
+        i_AI = ai;
+
+    if (!i_AI)
+        return false;
+
+    IsAIEnabled = true;
+    return true;
+}
+
+bool AreaTrigger::AIM_Destroy()
+{
+    if (_AI_locked)
+    {
+        TC_LOG_DEBUG("scripts", "AIM_Destroy: failed to destroy, locked.");
+        return false;
+    }
+
+    delete i_AI;
+    i_AI = nullptr;
+
+    IsAIEnabled = false;
+    return true;
 }

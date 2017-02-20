@@ -1722,6 +1722,14 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
     return tmpscript->GetAI(gameobject);
 }
 
+AreaTriggerAI* ScriptMgr::GetAreaTriggerAI(AreaTrigger* areatrigger)
+{
+    ASSERT(areatrigger);
+
+    GET_SCRIPT_RET(AreaTriggerEntityScript, areatrigger->GetScriptId(), tmpscript, NULL);
+    return tmpscript->GetAI(areatrigger);
+}
+
 void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
 {
     ASSERT(creature);
@@ -2368,73 +2376,6 @@ void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& dama
 {
     FOREACH_SCRIPT(UnitScript)->ModifySpellDamageTaken(target, attacker, damage);
     FOREACH_SCRIPT(PlayerScript)->ModifySpellDamageTaken(target, attacker, damage);
-}
-
-// AreaTriggerEntityScript
-void ScriptMgr::OnAreaTriggerEntityInitialize(AreaTrigger* areaTrigger)
-{
-    ASSERT(areaTrigger);
-
-    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
-    tmpscript->OnInitialize(areaTrigger);
-}
-
-void ScriptMgr::OnAreaTriggerEntityCreate(AreaTrigger* areaTrigger)
-{
-    ASSERT(areaTrigger);
-
-    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
-    tmpscript->OnCreate(areaTrigger);
-}
-
-void ScriptMgr::OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff)
-{
-    ASSERT(areaTrigger);
-
-    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
-    tmpscript->OnUpdate(areaTrigger, diff);
-}
-
-void ScriptMgr::OnAreaTriggerEntitySplineIndexReached(AreaTrigger* areaTrigger, int splineIndex)
-{
-    ASSERT(areaTrigger);
-
-    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
-    tmpscript->OnSplineIndexReached(areaTrigger, splineIndex);
-}
-
-void ScriptMgr::OnAreaTriggerEntityDestinationReached(AreaTrigger* areaTrigger)
-{
-    ASSERT(areaTrigger);
-
-    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
-    tmpscript->OnDestinationReached(areaTrigger);
-}
-
-void ScriptMgr::OnAreaTriggerEntityUnitEnter(AreaTrigger* areaTrigger, Unit* unit)
-{
-    ASSERT(areaTrigger);
-    ASSERT(unit);
-
-    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
-    tmpscript->OnUnitEnter(areaTrigger, unit);
-}
-
-void ScriptMgr::OnAreaTriggerEntityUnitExit(AreaTrigger* areaTrigger, Unit* unit)
-{
-    ASSERT(areaTrigger);
-    ASSERT(unit);
-
-    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
-    tmpscript->OnUnitExit(areaTrigger, unit);
-}
-
-void ScriptMgr::OnAreaTriggerEntityRemove(AreaTrigger* areaTrigger)
-{
-    ASSERT(areaTrigger);
-
-    GET_SCRIPT(AreaTriggerEntityScript, areaTrigger->GetScriptId(), tmpscript);
-    tmpscript->OnRemove(areaTrigger);
 }
 
 // Scene

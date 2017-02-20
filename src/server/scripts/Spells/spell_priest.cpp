@@ -26,6 +26,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
+#include "AreaTriggerTemplate.h"
 
 enum PriestSpells
 {
@@ -1374,28 +1375,52 @@ class areatrigger_pri_angelic_feather : public AreaTriggerEntityScript
 public:
     areatrigger_pri_angelic_feather() : AreaTriggerEntityScript("areatrigger_pri_angelic_feather") { }
 
-    // Called when the AreaTrigger has just been initialized, just before added to map
-    void OnInitialize(AreaTrigger* areaTrigger) override
+    struct areatrigger_pri_angelic_featherAI : AreaTriggerAI
     {
-        if (Unit* caster = areaTrigger->GetCaster())
-        {
-            std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER);
+        areatrigger_pri_angelic_featherAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-            if (areaTriggers.size() >= 3)
-                areaTriggers.front()->SetDuration(0);
-        }
-    }
-
-    void OnUnitEnter(AreaTrigger* areaTrigger, Unit* unit) override
-    {
-        if (Unit* caster = areaTrigger->GetCaster())
+        // Called when the AreaTrigger has just been initialized, just before added to map
+        void OnInitialize() override
         {
-            if (caster->IsFriendlyTo(unit))
+            if (Unit* caster = at->GetCaster())
             {
-                caster->CastSpell(unit, SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
-                areaTrigger->SetDuration(0);
+                std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER);
+
+                if (areaTriggers.size() >= 2)
+                    areaTriggers.front()->SetDuration(0);
+
+                // Caster is prioritary
+                if (caster->IsWithinDist(at, at->GetTemplate()->SphereDatas.Radius))
+                    OnUnitEnter(caster);
             }
         }
+
+        void OnUnitEnter(Unit* unit) override
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                if (caster->IsFriendlyTo(unit))
+                {
+                    // If target already has aura, increase duration to max 130% of initial duration
+                    if (Aura* aura = unit->GetAura(SPELL_PRIEST_ANGELIC_FEATHER_AURA))
+                    {
+                        int32 newDuration = aura->GetDuration() + aura->GetMaxDuration();
+                        int32 maxPossibleNewDuration = CalculatePct(aura->GetMaxDuration(), 130);
+
+                        aura->SetDuration(newDuration > maxPossibleNewDuration ? maxPossibleNewDuration : newDuration);
+                    }
+                    else
+                        caster->CastSpell(unit, SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
+
+                    at->SetDuration(0);
+                }
+            }
+        }
+    };
+
+    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    {
+        return new areatrigger_pri_angelic_featherAI(areatrigger);
     }
 };
 

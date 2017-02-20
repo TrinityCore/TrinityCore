@@ -21,11 +21,14 @@
 #include "Object.h"
 #include "Position.h"
 #include "Spline.h"
+#include "AreaTriggerAI.h"
 
+class AreaTriggerAI;
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
 class SpellInfo;
 class Unit;
+
 struct AreaTriggerPolygonVertice;
 
 class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigger>, public MapObject
@@ -36,6 +39,12 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
+
+        bool AIM_Initialize(AreaTriggerAI* ai = nullptr);
+        bool AIM_Destroy();
+
+        AreaTriggerAI* GetAI() { return i_AI; }
+        void SetAI(AreaTriggerAI* newAI) { i_AI = newAI; }
 
         bool CreateAreaTrigger(uint32 triggerEntry, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty);
         void Update(uint32 p_time) override;
@@ -109,6 +118,10 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;
+
+        AreaTriggerAI* i_AI;
+        bool _AI_locked;
+        bool IsAIEnabled;
 };
 
 #endif
