@@ -21,8 +21,8 @@
 #include "Object.h"
 #include "Position.h"
 #include "Spline.h"
+#include "AreaTriggerAI.h"
 
-class AreaTriggerAI;
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
 class SpellInfo;
