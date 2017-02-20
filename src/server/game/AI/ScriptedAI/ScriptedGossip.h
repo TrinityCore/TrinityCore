@@ -19,9 +19,12 @@
 #ifndef SC_GOSSIP_H
 #define SC_GOSSIP_H
 
-#include "GossipDef.h"
-#include "QuestDef.h"
-#include "Creature.h"
+#include "Define.h"
+#include <string>
+
+class Creature;
+class ObjectGuid;
+class Player;
 
 // Gossip Item Text
 #define GOSSIP_TEXT_BROWSE_GOODS        "I'd like to browse your goods."
