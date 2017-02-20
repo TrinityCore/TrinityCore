@@ -2825,6 +2825,9 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.FlagsCu &= ~ITEM_FLAGS_CU_DURATION_REAL_TIME;
         }
 
+        // Load cached data
+        itemTemplate._LoadTotalAP();
+
         ++count;
     }
     while (result->NextRow());

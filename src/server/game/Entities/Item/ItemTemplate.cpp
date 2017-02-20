@@ -17,6 +17,9 @@
 
 #include "ItemTemplate.h"
 
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+
 bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
     switch (InventoryType)
@@ -121,4 +124,22 @@ uint32 ItemTemplate::GetSkill() const
         default:
             return 0;
     }
+}
+
+void ItemTemplate::_LoadTotalAP()
+{
+    int32 totalAP = 0;
+    for (uint32 i = 0; i < StatsCount; ++i)
+        if (ItemStat[i].ItemStatType == ITEM_MOD_ATTACK_POWER)
+            totalAP += ItemStat[i].ItemStatValue;
+
+    // some items can have equip spells with +AP
+    for (uint32 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+        if (Spells[i].SpellId > 0 && Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_EQUIP)
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(Spells[i].SpellId))
+                for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+                    if (spellInfo->Effects[j].IsAura(SPELL_AURA_MOD_ATTACK_POWER))
+                        totalAP += spellInfo->Effects[j].CalcValue();
+
+    _totalAP = totalAP;
 }

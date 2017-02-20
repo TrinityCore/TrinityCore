@@ -22,6 +22,8 @@
 #include "Common.h"
 #include "SharedDefines.h"
 
+class ObjectMgr;
+
 enum ItemModType
 {
     ITEM_MOD_MANA                     = 0,
@@ -606,6 +608,8 @@ struct _Socket
 
 struct ItemTemplate
 {
+    friend class ObjectMgr;
+
     uint32 ItemId;
     uint32 Class;                                           // id from ItemClass.dbc
     uint32 SubClass;                                        // id from ItemSubClass.dbc
@@ -695,6 +699,7 @@ struct ItemTemplate
     float getDPS() const;
 
     int32 getFeralBonus(int32 extraDPS = 0) const;
+    int32 GetTotalAPBonus() const { return _totalAP; }
 
     float GetItemLevelIncludingQuality() const;
 
@@ -704,6 +709,13 @@ struct ItemTemplate
     bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
     bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAG_CONJURED); }
+
+private:
+    // Cached info
+    int32 _totalAP;
+
+    // Loading Helpers
+    void _LoadTotalAP();
 };
 
 // Benchmarked: Faster than std::map (insert/find)
