@@ -228,31 +228,17 @@ WorldPacket ItemTemplate::BuildQueryData(LocaleConstant loc) const
     queryTemp << AmmoType;
     queryTemp << RangedModRange;
 
-    for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+    for (uint8 s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
     {
-        // send DBC data for cooldowns in same way as it used in Spell::SendSpellCooldown
-        // use `item_template` or if not set then only use spell cooldowns
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(Spells[s].SpellId);
-        if (spell)
+        // spells are validated on template loading
+        if (Spells[s].SpellId > 0)
         {
-            bool db_data = Spells[s].SpellCooldown >= 0 || Spells[s].SpellCategoryCooldown >= 0;
-
             queryTemp << Spells[s].SpellId;
             queryTemp << Spells[s].SpellTrigger;
             queryTemp << uint32(-abs(Spells[s].SpellCharges));
-
-            if (db_data)
-            {
-                queryTemp << uint32(Spells[s].SpellCooldown);
-                queryTemp << uint32(Spells[s].SpellCategory);
-                queryTemp << uint32(Spells[s].SpellCategoryCooldown);
-            }
-            else
-            {
-                queryTemp << uint32(spell->RecoveryTime);
-                queryTemp << uint32(spell->GetCategory());
-                queryTemp << uint32(spell->CategoryRecoveryTime);
-            }
+            queryTemp << uint32(Spells[s].SpellCooldown);
+            queryTemp << uint32(Spells[s].SpellCategory);
+            queryTemp << uint32(Spells[s].SpellCategoryCooldown);
         }
         else
         {
