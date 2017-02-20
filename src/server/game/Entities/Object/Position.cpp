@@ -21,6 +21,16 @@
 
 #include <G3D/g3dmath.h>
 
+Position::Position(G3D::Vector3 const& vect)
+{
+    Relocate(vect.x, vect.y, vect.z, 0.f);
+}
+
+Position::operator G3D::Vector3() const
+{
+    return { m_positionX, m_positionY, m_positionZ };
+}
+
 bool Position::operator==(Position const &a)
 {
     return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&

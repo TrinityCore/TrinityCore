@@ -63,22 +63,30 @@ class TC_GAME_API SmartScript
             return obj;
         }
 
-        bool IsUnit(WorldObject* obj)
+        static bool IsUnit(WorldObject* obj)
         {
             return obj && (obj->GetTypeId() == TYPEID_UNIT || obj->GetTypeId() == TYPEID_PLAYER);
         }
 
-        bool IsPlayer(WorldObject* obj)
+        static bool IsPlayer(WorldObject* obj)
         {
             return obj && obj->GetTypeId() == TYPEID_PLAYER;
         }
 
-        bool IsCreature(WorldObject* obj)
+        static bool IsCreature(WorldObject* obj)
         {
             return obj && obj->GetTypeId() == TYPEID_UNIT;
         }
 
-        bool IsGameObject(WorldObject* obj)
+        static bool IsCreatureInControlOfSelf(WorldObject* obj)
+        {
+            if (Creature* creatureObj = obj ? obj->ToCreature() : nullptr)
+                return !creatureObj->IsCharmed() && !creatureObj->IsControlledByPlayer();
+            else
+                return false;
+        }
+
+        static bool IsGameObject(WorldObject* obj)
         {
             return obj && obj->GetTypeId() == TYPEID_GAMEOBJECT;
         }

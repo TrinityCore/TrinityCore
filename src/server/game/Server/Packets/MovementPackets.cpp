@@ -302,7 +302,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         data.WriteBits(moveSpline.getPath().size(), 16);
         data.WriteBits(uint8(moveSpline.spline.mode()), 2);                     // Mode
         data.WriteBit(0);                                                       // HasSplineFilter
-        data.WriteBit(0);                                                       // HasSpellEffectExtraData
+        data.WriteBit(moveSpline.spell_effect_extra.is_initialized());          // HasSpellEffectExtraData
         data.FlushBits();
 
         //if (HasSplineFilterKey)
@@ -341,13 +341,13 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
 
         data.append<G3D::Vector3>(&moveSpline.getPath()[0], moveSpline.getPath().size());
 
-        //if (HasSpellEffectExtraData)
-        //{
-        //    data << ObjectGuid(TargetGUID);
-        //    data << uint32(SpellVisualID);
-        //    data << uint32(ProgressCurveID);
-        //    data << uint32(ParabolicCurveID);
-        //}
+        if (moveSpline.spell_effect_extra)
+        {
+            data << moveSpline.spell_effect_extra->Target;
+            data << uint32(moveSpline.spell_effect_extra->SpellVisualId);
+            data << uint32(moveSpline.spell_effect_extra->ProgressCurveId);
+            data << uint32(moveSpline.spell_effect_extra->ParabolicCurveId);
+        }
     }
 }
 
@@ -380,6 +380,15 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
 
     if (splineFlags.fadeObject)
         movementSpline.SpecialTime = moveSpline.effect_start_time;
+
+    if (moveSpline.spell_effect_extra)
+    {
+        movementSpline.SpellEffectExtraData = boost::in_place();
+        movementSpline.SpellEffectExtraData->TargetGUID = moveSpline.spell_effect_extra->Target;
+        movementSpline.SpellEffectExtraData->SpellVisualID = moveSpline.spell_effect_extra->SpellVisualId;
+        movementSpline.SpellEffectExtraData->ProgressCurveID = moveSpline.spell_effect_extra->ProgressCurveId;
+        movementSpline.SpellEffectExtraData->ParabolicCurveID = moveSpline.spell_effect_extra->ParabolicCurveId;
+    }
 
     ::Movement::Spline<int32> const& spline = moveSpline.spline;
     std::vector<G3D::Vector3> const& array = spline.getPoints();

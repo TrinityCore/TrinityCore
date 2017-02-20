@@ -49,6 +49,7 @@
 #include "MiscPackets.h"
 
 #include "Transport.h"
+#include "ScriptedGossip.h"
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -175,7 +176,7 @@ CreatureBaseStats const* CreatureBaseStats::GetBaseStats(uint8 level, uint8 unit
 
 bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
-    m_owner.DespawnOrUnsummon();    // since we are here, we are not TempSummon as object type cannot change during runtime
+    m_owner.DespawnOrUnsummon(0, m_respawnTimer);    // since we are here, we are not TempSummon as object type cannot change during runtime
     return true;
 }
 
@@ -406,7 +407,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     return true;
 }
 
-bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
+bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/, bool updateLevel /* = true */)
 {
     if (!InitEntry(entry, data))
         return false;
@@ -441,7 +442,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     SetBaseAttackTime(OFF_ATTACK,    cInfo->BaseAttackTime);
     SetBaseAttackTime(RANGED_ATTACK, cInfo->RangeAttackTime);
 
-    SelectLevel();
+    if (updateLevel)
+        SelectLevel();
 
     SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
     CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cInfo->unit_class);
@@ -979,12 +981,12 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
 
     if (!player->GetBGAccessByLevel(bgTypeId))
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         switch (bgTypeId)
         {
-            case BATTLEGROUND_AV:  player->PlayerTalkClass->SendGossipMenu(7616, GetGUID()); break;
-            case BATTLEGROUND_WS:  player->PlayerTalkClass->SendGossipMenu(7599, GetGUID()); break;
-            case BATTLEGROUND_AB:  player->PlayerTalkClass->SendGossipMenu(7642, GetGUID()); break;
+            case BATTLEGROUND_AV:  SendGossipMenuFor(player, 7616, this); break;
+            case BATTLEGROUND_WS:  SendGossipMenuFor(player, 7599, this); break;
+            case BATTLEGROUND_AB:  SendGossipMenuFor(player, 7642, this); break;
             case BATTLEGROUND_EY:
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
@@ -992,7 +994,7 @@ bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
             case BATTLEGROUND_RL:
             case BATTLEGROUND_SA:
             case BATTLEGROUND_DS:
-            case BATTLEGROUND_RV: player->PlayerTalkClass->SendGossipMenu(10024, GetGUID()); break;
+            case BATTLEGROUND_RV:  SendGossipMenuFor(player, 10024, this); break;
             default: break;
         }
         return false;
@@ -1470,7 +1472,7 @@ void Creature::LoadEquipment(int8 id, bool force /*= true*/)
 
     m_equipmentId = id;
     for (uint8 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
-        SetVirtualItem(i, einfo->ItemEntry[i]);
+        SetVirtualItem(i, einfo->Items[i].ItemId, einfo->Items[i].AppearanceModId, einfo->Items[i].ItemVisual);
 }
 
 void Creature::SetSpawnHealth()
@@ -1810,28 +1812,42 @@ void Creature::Respawn(bool force)
     UpdateObjectVisibility();
 }
 
-void Creature::ForcedDespawn(uint32 timeMSToDespawn)
+void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawnTimer)
 {
     if (timeMSToDespawn)
     {
-        ForcedDespawnDelayEvent* pEvent = new ForcedDespawnDelayEvent(*this);
+        ForcedDespawnDelayEvent* pEvent = new ForcedDespawnDelayEvent(*this, forceRespawnTimer);
 
         m_Events.AddEvent(pEvent, m_Events.CalculateTime(timeMSToDespawn));
         return;
     }
 
     if (IsAlive())
-        setDeathState(JUST_DIED);
+    {
+        if (forceRespawnTimer > Seconds::zero())
+        {
+            uint32 respawnDelay = m_respawnDelay;
+            uint32 corpseDelay = m_corpseDelay;
+            m_respawnDelay = forceRespawnTimer.count();
+            m_corpseDelay = 0;
+            setDeathState(JUST_DIED);
+
+            m_respawnDelay = respawnDelay;
+            m_corpseDelay = corpseDelay;
+        }
+        else
+            setDeathState(JUST_DIED);
+    }
 
     RemoveCorpse(false);
 }
 
-void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/)
+void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds const& forceRespawnTimer /*= 0*/)
 {
     if (TempSummon* summon = this->ToTempSummon())
         summon->UnSummon(msTimeToDespawn);
     else
-        ForcedDespawn(msTimeToDespawn);
+        ForcedDespawn(msTimeToDespawn, forceRespawnTimer);
 }
 
 bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo) const

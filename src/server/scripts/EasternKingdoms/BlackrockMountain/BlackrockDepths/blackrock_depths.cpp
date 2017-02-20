@@ -434,10 +434,10 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             player->CastSpell(player, SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND, false);
         }
         if (action == GOSSIP_ACTION_TRADE)
@@ -452,19 +452,19 @@ public:
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (creature->IsVendor() && player->GetReputationRank(59) >= REP_FRIENDLY)
-              player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+              AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_ITEM_SHOW_ACCESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
         if (player->GetQuestRewardStatus(QUEST_A_BINDING_CONTRACT) != 1 &&
             !player->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
             player->HasItemCount(ITEM_SULFURON_INGOT))
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         }
 
         if (player->GetReputationRank(59) < REP_FRIENDLY)
-            player->SEND_GOSSIP_MENU(3673, creature->GetGUID());
+            SendGossipMenuFor(player, 3673, creature->GetGUID());
         else
-            player->SEND_GOSSIP_MENU(3677, creature->GetGUID());
+            SendGossipMenuFor(player, 3677, creature->GetGUID());
 
         return true;
     }

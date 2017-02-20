@@ -693,6 +693,9 @@ class boss_algalon_the_observer : public CreatureScript
                             me->DespawnOrUnsummon(1500);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING) && !events.IsInPhase(PHASE_ROLE_PLAY))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
