@@ -1689,6 +1689,8 @@ class TC_GAME_API WorldSession
         void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
+		void HandleSelectFactionOpcode(WorldPacket& recvPacket);
+
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);
