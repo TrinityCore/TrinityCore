@@ -340,6 +340,8 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& query
         questIds.insert(query.MissingQuestPOIs[i]); // quest id
 
     WorldPacket data(SMSG_QUEST_POI_QUERY_RESPONSE, 4 + (4 + 4 + 40) * questIds.size());
+    data << uint32(questIds.size()); // count
+    
     for (uint32 questId : questIds)
     {
         uint16 const questSlot = _player->FindQuestSlot(questId);
