@@ -9268,7 +9268,11 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
 
     if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
     {
-        float min_speed = CalculatePct(GetTypeId() == TYPEID_UNIT ? ToCreature()->GetCreatureTemplate()->speed_run : 1.0f, minSpeedMod);
+        float baseMinSpeed = 1.0f;
+        if (!(GetOwnerGUID().IsPlayer() || IsHunterPet()) && GetTypeId() == TYPEID_UNIT)
+            baseMinSpeed = ToCreature()->GetCreatureTemplate()->speed_run;
+
+        float min_speed = CalculatePct(baseMinSpeed, minSpeedMod);
         if (speed < min_speed)
             speed = min_speed;
     }
