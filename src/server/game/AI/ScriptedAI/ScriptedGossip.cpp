@@ -17,7 +17,6 @@
 
 #include "ScriptedGossip.h"
 #include "Creature.h"
-#include "GossipDef.h"
 #include "Player.h"
 
 void ClearGossipMenuFor(Player* player) { player->PlayerTalkClass->ClearMenus(); }
