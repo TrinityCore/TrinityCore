@@ -146,6 +146,62 @@ uint32 CreatureTemplate::GetFirstVisibleModel() const
     return 17519;
 }
 
+void CreatureTemplate::InitializeQueryData()
+{
+    WorldPacket queryTemp;
+    for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
+        QueryData[loc] = queryTemp;
+    }
+}
+
+WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
+{
+    WorldPacket queryTemp(SMSG_CREATURE_QUERY_RESPONSE, 200);
+
+    std::string locName = Name, locTitle = Title;
+    if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(Entry))
+    {
+        ObjectMgr::GetLocaleString(cl->Name, loc, locName);
+        ObjectMgr::GetLocaleString(cl->Title, loc, locTitle);
+    }
+
+    queryTemp << uint32(Entry);                              // creature entry
+    queryTemp << locName;
+    queryTemp << uint8(0) << uint8(0) << uint8(0);           // name2, name3, name4, always empty
+    queryTemp << locTitle;
+    queryTemp << IconName;                                   // "Directions" for guard, string for Icons 2.3.0
+    queryTemp << uint32(type_flags);                         // flags
+    queryTemp << uint32(type);                               // CreatureType.dbc
+    queryTemp << uint32(family);                             // CreatureFamily.dbc
+    queryTemp << uint32(rank);                               // Creature Rank (elite, boss, etc)
+    queryTemp << uint32(KillCredit[0]);                      // new in 3.1, kill credit
+    queryTemp << uint32(KillCredit[1]);                      // new in 3.1, kill credit
+    queryTemp << uint32(Modelid1);                           // Modelid1
+    queryTemp << uint32(Modelid2);                           // Modelid2
+    queryTemp << uint32(Modelid3);                           // Modelid3
+    queryTemp << uint32(Modelid4);                           // Modelid4
+    queryTemp << float(ModHealth);                           // dmg/hp modifier
+    queryTemp << float(ModMana);                             // dmg/mana modifier
+    queryTemp << uint8(RacialLeader);
+
+    CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(Entry);
+    if (items)
+    {
+        for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+            queryTemp << (i < items->size() ? uint32((*items)[i]) : uint32(0));
+    }
+    else
+    {
+        for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+            queryTemp << uint32(0);
+    }
+
+    queryTemp << uint32(movementId);                         // CreatureMovementInfo.dbc
+    return queryTemp;
+}
+
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
     if (Unit* victim = ObjectAccessor::GetUnit(m_owner, m_victim))
@@ -2684,12 +2740,6 @@ void Creature::SetPosition(float x, float y, float z, float o)
     GetMap()->CreatureRelocation(this, x, y, z, o);
     if (IsVehicle())
         GetVehicleKit()->RelocatePassengers();
-}
-
-bool Creature::IsDungeonBoss() const
-{
-    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(GetEntry());
-    return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
 }
 
 bool Creature::SetWalk(bool enable)
