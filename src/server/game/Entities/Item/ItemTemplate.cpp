@@ -18,9 +18,6 @@
 #include "ItemTemplate.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
-
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 
