@@ -621,7 +621,7 @@ struct QuestPOIWrapper
 
     void InitializeQueryData();
     ByteBuffer BuildQueryData() const;
-    
+
     QuestPOIWrapper() : QueryDataBuffer(0) { }
 };
 
