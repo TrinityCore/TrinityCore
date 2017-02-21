@@ -27433,6 +27433,11 @@ void Player::RemoveRestFlag(RestFlag restFlag)
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
     }
 }
+void Player::ShowNeutralPlayerFactionSelectUI()
+{
+	WorldPacket data(SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI);
+	GetSession()->SendPacket(&data);
+}
 
 uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
 {
