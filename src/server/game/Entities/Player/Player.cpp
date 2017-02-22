@@ -7978,7 +7978,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             else if (chance > 100.0f)
                 chance = GetWeaponProcChance();
 
-            if (roll_chance_f(chance))
+            if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
                 CastSpell(damageInfo.GetVictim(), spellInfo->Id, true, item);
         }
     }
