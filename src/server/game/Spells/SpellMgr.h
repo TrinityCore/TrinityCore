@@ -241,8 +241,10 @@ enum ProcAttributes
     PROC_ATTR_REQ_SPELLMOD       = 0x0000008, // requires triggering spell to be affected by proccing aura to drop charges
 
     PROC_ATTR_DISABLE_EFF_0      = 0x0000010, // explicitly disables aura proc from effects, USE ONLY IF 100% SURE AURA SHOULDN'T PROC
-    PROC_ATTR_DISABLE_EFF_1      = 0x0000020, // used to avoid a console error if the spell has invalid trigger spell and handled elsewhere
-    PROC_ATTR_DISABLE_EFF_2      = 0x0000040  // or handling not needed
+    PROC_ATTR_DISABLE_EFF_1      = 0x0000020, /// used to avoid a console error if the spell has invalid trigger spell and handled elsewhere
+    PROC_ATTR_DISABLE_EFF_2      = 0x0000040, /// or handling not needed
+
+    PROC_ATTR_REDUCE_PROC_60     = 0x0000080  // aura should have a reduced chance to proc if level of proc Actor > 60
 };
 
 struct SpellProcEntry
