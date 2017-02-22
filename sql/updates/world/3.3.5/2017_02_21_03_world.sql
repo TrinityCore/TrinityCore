@@ -7,4 +7,4 @@ UPDATE `spell_enchant_proc_data` SET `AttributesMask`=0x1 WHERE `EnchantID`=2675
 -- Condition for source Spell condition type Level
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=17 AND `SourceGroup`=0 AND `SourceEntry`=46629 AND `SourceId`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(17, 0, 46629, 0, 0, 27, 0, 74, 2, 0, 0, 0, 0, '', 'Spell Deathfrost will hit the caster of the spell if player level must be lesser than 74.');
+(17, 0, 46629, 0, 0, 27, 0, 73, 2, 0, 0, 0, 0, '', 'Spell Deathfrost will hit the caster of the spell if player level must be lesser than 73.');
