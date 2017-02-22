@@ -197,8 +197,7 @@ enum IllidanMisc
     SUMMON_GROUP                 = 1,
     DATA_AKAMA_TELEPORT_POSITION = 0,
     MAX_MINIONS_NUMBER           = 10,
-    SPELL_GLAIVE_VISUAL_KIT      = 7668,
-    BLACK_TEMPLE_ZONE_ID         = 3959
+    SPELL_GLAIVE_VISUAL_KIT      = 7668
 };
 
 enum IllidanActions
@@ -480,7 +479,8 @@ public:
         {
             _EnterCombat();
             me->SetCanDualWield(true);
-            me->GetMap()->SetZoneMusic(BLACK_TEMPLE_ZONE_ID, EVENT_BT_SUMMIT_WALK_3_SOUND_ID);
+            if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
+                musicController->PlayDirectMusic(EVENT_BT_SUMMIT_WALK_3_SOUND_ID);
             specialEvents.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(10));
             specialEvents.ScheduleEvent(EVENT_BERSERK, Minutes(25));
             ScheduleEvents(GROUP_PHASE_1, GROUP_PHASE_1);
@@ -850,7 +850,8 @@ public:
                         pos.Relocate(triggers.front());
                         pos.SetOrientation(0.0f);
                         me->GetMotionMaster()->MovePoint(POINT_THROW_GLAIVE, pos);
-                        me->GetMap()->SetZoneMusic(BLACK_TEMPLE_ZONE_ID, EVENT_BT_STORM_WALK_HERO_2_SOUND_ID);
+                        if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
+                            musicController->PlayDirectMusic(EVENT_BT_STORM_WALK_HERO_2_SOUND_ID);
                         break;
                     }
                     case EVENT_THROW_WARGLAIVE:
@@ -919,7 +920,8 @@ public:
                         me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         ScheduleEvents(GROUP_PHASE_3, GROUP_PHASE_3);
-                        me->GetMap()->SetZoneMusic(BLACK_TEMPLE_ZONE_ID, EVENT_BT_STORM_WALK_UNI_3_SOUND_ID);
+                        if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
+                            musicController->PlayDirectMusic(EVENT_BT_STORM_WALK_UNI_3_SOUND_ID);
                         break;
                     case EVENT_AGONIZING_FLAMES:
                         DoCastSelf(SPELL_AGONIZING_FLAMES_SELECTOR);
@@ -994,7 +996,8 @@ public:
                         break;
                     case EVENT_DEFEATED_TEXT:
                         Talk(SAY_ILLIDAN_DEFEATED);
-                        me->GetMap()->SetZoneMusic(BLACK_TEMPLE_ZONE_ID, EVENT_BT_ARRIVAL_WALK_HERO_1_SOUND_ID);
+                        if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
+                            musicController->PlayDirectMusic(EVENT_BT_ARRIVAL_WALK_HERO_1_SOUND_ID);
                         events.ScheduleEvent(EVENT_QUIET_SUICIDE, Seconds(18));
                         break;
                     case EVENT_QUIET_SUICIDE:
@@ -1255,7 +1258,8 @@ public:
                         _events.ScheduleEvent(EVENT_AKAMA_START_SOUND, Seconds(5));
                         break;
                     case EVENT_AKAMA_START_SOUND:
-                        me->GetMap()->SetZoneMusic(BLACK_TEMPLE_ZONE_ID, EVENT_BT_SUMMIT_WALK_SOUND_ID);
+                        if (GameObject* musicController = _instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
+                            musicController->PlayDirectMusic(EVENT_BT_SUMMIT_WALK_SOUND_ID);
                         break;
                     case EVENT_AKAMA_THANKS:
                         Talk(SAY_AKAMA_SALUTE);
