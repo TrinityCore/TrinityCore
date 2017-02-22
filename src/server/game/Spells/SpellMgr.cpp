@@ -3782,6 +3782,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 46099: // Brutal Gladiator's Totem of the Third Wind
             case 46705: // Honorless Target
             case 49883: // Flames
+            case 50365: // Improved Blood Presence (Rank 1)
+            case 50371: // Improved Blood Presence (Rank 2)
             case 50655: // Frost Cut
             case 50995: // Empowered Blood Presence (Rank 1)
             case 55482: // Fire Breath (Rank 3)
