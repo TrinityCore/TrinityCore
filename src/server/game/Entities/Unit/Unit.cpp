@@ -617,6 +617,11 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
+    if (victim->ToCreature())
+    {
+        damage = ceil(damage * victim->ToCreature()->getHealthMultiplierForTarget(this));
+    }
+
     if (victim->IsAIEnabled)
         victim->GetAI()->DamageTaken(this, damage);
 
@@ -15863,15 +15868,23 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
             }
             else if (index == UNIT_FIELD_LEVEL)
             {
-                *data << getLevelForTarget(target);
+                *data << (uint32)getLevelForTarget(target);
             }
             else if (creature && index == UNIT_FIELD_HEALTH)
             {
-                *data << creature->getHealthForTarget(target);
+                UpdateMask::SetUpdateBit(data->contents() + maskPos, ++index);
+
+                uint64 health = creature->getHealthForTarget(target);
+                *data << PAIR64_LOPART(health);
+                *data << PAIR64_HIPART(health);
             }
             else if (creature && index == UNIT_FIELD_MAXHEALTH)
             {
-                *data << creature->getMaxHealthForTarget(target);
+                UpdateMask::SetUpdateBit(data->contents() + maskPos, ++index);
+
+                uint64 maxHealth = creature->getMaxHealthForTarget(target);
+                *data << PAIR64_LOPART(maxHealth);
+                *data << PAIR64_HIPART(maxHealth);
             }
             else
             {

@@ -752,8 +752,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool IsDungeonBoss() const;
 
+        bool IsScalableLevelFor(WorldObject const* target) const;
         uint64 getHealthForTarget(WorldObject const* target) const;
         uint64 getMaxHealthForTarget(WorldObject const* target) const;
+        float getHealthMultiplierForTarget(WorldObject const* target) const;
         uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
