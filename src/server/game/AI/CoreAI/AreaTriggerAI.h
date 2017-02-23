@@ -19,8 +19,9 @@
 #define TRINITY_AREATRIGGERAI_H
 
 #include "Define.h"
-#include "Object.h"
-#include "AreaTrigger.h"
+
+class AreaTrigger;
+class Unit;
 
 class TC_GAME_API AreaTriggerAI
 {

@@ -18,7 +18,6 @@
 
 #include "Player.h"
 #include "AreaTrigger.h"
-#include "AreaTriggerAI.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"

@@ -846,8 +846,8 @@ protected:
 
 public:
 
-    // Called when a GameObjectAI object is needed for the gameobject.
-    virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return NULL; }
+    // Called when a AreaTriggerAI object is needed for the areatrigger.
+    virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return nullptr; }
 };
 
 class TC_GAME_API SceneScript : public ScriptObject

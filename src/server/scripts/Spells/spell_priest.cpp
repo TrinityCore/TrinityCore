@@ -1351,10 +1351,19 @@ class spell_pri_angelic_feather_trigger : public SpellScriptLoader
             void HandleEffectDummy(SpellEffIndex /*effIndex*/)
             {
                 Position destPos = GetHitDest()->GetPosition();
+                float radius = GetEffectInfo()->CalcRadius();
 
-                SpellCastTargets targets;
-                targets.SetDst(destPos);
-                GetCaster()->CastSpell(targets, sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER), nullptr);
+                // Caster is prioritary
+                if (GetCaster()->IsWithinDist2d(&destPos, radius))
+                {
+                    GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
+                }
+                else
+                {
+                    SpellCastTargets targets;
+                    targets.SetDst(destPos);
+                    GetCaster()->CastSpell(targets, sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER), nullptr);
+                }
             }
 
             void Register() override
@@ -1388,10 +1397,6 @@ public:
 
                 if (areaTriggers.size() >= 3)
                     areaTriggers.front()->SetDuration(0);
-
-                // Caster is prioritary
-                if (caster->IsWithinDist(at, at->GetTemplate()->SphereDatas.Radius))
-                    OnUnitEnter(caster);
             }
         }
 
@@ -1402,16 +1407,7 @@ public:
                 if (caster->IsFriendlyTo(unit))
                 {
                     // If target already has aura, increase duration to max 130% of initial duration
-                    if (Aura* aura = unit->GetAura(SPELL_PRIEST_ANGELIC_FEATHER_AURA))
-                    {
-                        int32 newDuration = aura->GetDuration() + aura->GetMaxDuration();
-                        int32 maxPossibleNewDuration = CalculatePct(aura->GetMaxDuration(), 130);
-
-                        aura->SetDuration(newDuration > maxPossibleNewDuration ? maxPossibleNewDuration : newDuration);
-                    }
-                    else
-                        caster->CastSpell(unit, SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
-
+                    caster->CastSpell(unit, SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
                     at->SetDuration(0);
                 }
             }
