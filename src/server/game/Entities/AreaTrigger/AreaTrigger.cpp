@@ -37,7 +37,7 @@
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
-    _areaTriggerMiscTemplate(nullptr), i_AI(nullptr), _AI_locked(false), IsAIEnabled(false)
+    _areaTriggerMiscTemplate(nullptr), i_AI(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -147,10 +147,10 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
         transport->AddPassenger(this);
     }
 
-    AIM_Initialize();
+    i_AI = sScriptMgr->GetAreaTriggerAI(this);
 
-    if (IsAIEnabled)
-        GetAI()->OnInitialize();
+    if (i_AI != nullptr)
+        i_AI->OnInitialize();
 
     if (!GetMap()->AddToMap(this))
     {
@@ -162,8 +162,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
     caster->_RegisterAreaTrigger(this);
 
-    if (IsAIEnabled)
-        GetAI()->OnCreate();
+    if (i_AI != nullptr)
+        i_AI->OnCreate();
 
     return true;
 }
@@ -192,12 +192,8 @@ void AreaTrigger::Update(uint32 p_time)
         }
     }
 
-    if (IsAIEnabled)
-    {
-        _AI_locked = true;
-        GetAI()->OnUpdate(p_time);
-        _AI_locked = false;
-    }
+    if (i_AI != nullptr)
+        i_AI->OnUpdate(p_time);
 
     UpdateTargetList();
 }
@@ -214,8 +210,8 @@ void AreaTrigger::Remove()
         // Handle removal of all units, calling OnUnitExit & deleting auras if needed
         HandleUnitEnterExit({});
 
-        if (IsAIEnabled)
-            GetAI()->OnRemove();
+        if (i_AI != nullptr)
+            i_AI->OnRemove();
 
         RemoveFromWorld();
         AddObjectToRemoveList();
@@ -377,8 +373,8 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
 
         DoActions(unit);
 
-        if (IsAIEnabled)
-            GetAI()->OnUnitEnter(unit);
+        if (i_AI != nullptr)
+            i_AI->OnUnitEnter(unit);
     }
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
@@ -391,8 +387,8 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
 
             UndoActions(leavingUnit);
 
-            if (IsAIEnabled)
-                GetAI()->OnUnitExit(leavingUnit);
+            if (i_AI != nullptr)
+                i_AI->OnUnitExit(leavingUnit);
         }
     }
 }
@@ -660,11 +656,12 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
         DebugVisualizePosition();
 #endif
 
-        if (IsAIEnabled)
+        if (i_AI != nullptr)
         {
-            GetAI()->OnSplineIndexReached(_lastSplineIndex);
-            GetAI()->OnDestinationReached();
+            i_AI->OnSplineIndexReached(_lastSplineIndex);
+            i_AI->OnDestinationReached();
         }
+
         return;
     }
 
@@ -708,8 +705,8 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
     {
         _lastSplineIndex = lastPositionIndex;
 
-        if (IsAIEnabled)
-            GetAI()->OnSplineIndexReached(_lastSplineIndex);
+        if (i_AI != nullptr)
+            i_AI->OnSplineIndexReached(_lastSplineIndex);
     }
 }
 
@@ -719,45 +716,4 @@ void AreaTrigger::DebugVisualizePosition()
         if (Player* player = caster->ToPlayer())
             if (player->isDebugAreaTriggers)
                 player->SummonCreature(1, *this, TEMPSUMMON_TIMED_DESPAWN, GetTimeToTarget());
-}
-
-bool AreaTrigger::AIM_Initialize(AreaTriggerAI* ai)
-{
-    // make sure nothing can change the AI during AI update
-    if (_AI_locked)
-    {
-        TC_LOG_DEBUG("scripts", "AIM_Initialize: failed to init, locked.");
-        return false;
-    }
-
-    AIM_Destroy();
-
-    if (!ai)
-    {
-        if (AreaTriggerAI* scriptedAI = sScriptMgr->GetAreaTriggerAI(this))
-            i_AI = scriptedAI;
-    }
-    else
-        i_AI = ai;
-
-    if (!i_AI)
-        return false;
-
-    IsAIEnabled = true;
-    return true;
-}
-
-bool AreaTrigger::AIM_Destroy()
-{
-    if (_AI_locked)
-    {
-        TC_LOG_DEBUG("scripts", "AIM_Destroy: failed to destroy, locked.");
-        return false;
-    }
-
-    delete i_AI;
-    i_AI = nullptr;
-
-    IsAIEnabled = false;
-    return true;
 }
