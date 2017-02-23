@@ -2375,6 +2375,32 @@ class spell_gen_proc_below_pct_damaged : public SpellScriptLoader
         }
 };
 
+class spell_gen_proc_charge_drop_only : public SpellScriptLoader
+{
+    public:
+        spell_gen_proc_charge_drop_only() : SpellScriptLoader("spell_gen_proc_charge_drop_only") { }
+
+        class spell_gen_proc_charge_drop_only_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_proc_charge_drop_only_AuraScript);
+
+            void HandleChargeDrop(ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+            }
+
+            void Register() override
+            {
+                OnProc += AuraProcFn(spell_gen_proc_charge_drop_only_AuraScript::HandleChargeDrop);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_proc_charge_drop_only_AuraScript();
+        }
+};
+
 enum ParachuteSpells
 {
     SPELL_PARACHUTE         = 45472,
@@ -4179,6 +4205,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_proc_below_pct_damaged("spell_item_corpse_tongue_coin_heroic");
     new spell_gen_proc_below_pct_damaged("spell_item_petrified_twilight_scale");
     new spell_gen_proc_below_pct_damaged("spell_item_petrified_twilight_scale_heroic");
+    new spell_gen_proc_charge_drop_only();
     new spell_gen_parachute();
     new spell_gen_pet_summoned();
     new spell_gen_profession_research();
