@@ -1207,6 +1207,30 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         }
+        case SMART_ACTION_SCENE_PLAY:
+        {
+            SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(e.action.scene.sceneId);
+
+            if (sceneTemplate == nullptr)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SCENE_PLAY uses sceneId %u but scene don't exist, skipped", e.action.scene.sceneId);
+                return false;
+            }
+
+            break;
+        }
+        case SMART_ACTION_SCENE_CANCEL:
+        {
+            SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(e.action.scene.sceneId);
+
+            if (sceneTemplate == nullptr)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SCENE_CANCEL uses sceneId %u but scene don't exist, skipped", e.action.scene.sceneId);
+                return false;
+            }
+
+            break;
+        }
         case SMART_ACTION_START_CLOSEST_WAYPOINT:
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:

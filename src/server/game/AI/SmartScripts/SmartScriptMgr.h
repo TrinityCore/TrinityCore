@@ -558,8 +558,19 @@ enum SMART_ACTION
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
+    SMART_ACTION_SET_CAN_FLY                        = 119,    // 0/1 (3.3.5 only, NYI)
+    SMART_ACTION_REMOVE_AURAS_BY_TYPE               = 120,    // type (3.3.5 only, NYI)
+    SMART_ACTION_SET_SIGHT_DIST                     = 121,    // sightDistance (3.3.5 only, NYI)
+    SMART_ACTION_FLEE                               = 122,    // fleeTime (3.3.5 only, NYI)
+    SMART_ACTION_ADD_THREAT                         = 123,    // +threat, -threat (3.3.5 only, NYI)
+    SMART_ACTION_LOAD_EQUIPMENT                     = 124,    // id (3.3.5 only, NYI)
+    SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT         = 125,    // id min range, id max range (3.3.5 only, NYI)
+    SMART_ACTION_REMOVE_ALL_GAMEOBJECTS             = 126,    // (3.3.5 only, NYI)
+    SMART_ACTION_STOP_MOTION                        = 127,    // stopMoving, movementExpired (3.3.5 only, NYI)
+    SMART_ACTION_SCENE_PLAY                         = 128,    // sceneId
+    SMART_ACTION_SCENE_CANCEL                       = 129,    // sceneId
 
-    SMART_ACTION_END                                = 118
+    SMART_ACTION_END                                = 130
 };
 
 struct SmartAction
@@ -1073,6 +1084,11 @@ struct SmartAction
         {
             uint32 disable;
         } disableEvade;
+
+        struct
+        {
+            uint32 sceneId;
+        } scene;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
