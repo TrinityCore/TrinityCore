@@ -145,6 +145,9 @@ class boss_murmur : public CreatureScript
                             events.ScheduleEvent(EVENT_SONIC_SHOCK, urand(10000, 20000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 // Select nearest most aggro target if top aggro too far

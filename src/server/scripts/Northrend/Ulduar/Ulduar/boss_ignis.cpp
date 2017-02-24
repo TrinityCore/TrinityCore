@@ -275,6 +275,9 @@ class boss_ignis : public CreatureScript
                             Talk(SAY_BERSERK);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

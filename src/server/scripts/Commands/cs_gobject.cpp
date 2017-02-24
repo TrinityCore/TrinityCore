@@ -118,10 +118,9 @@ public:
         if (!objectId)
             return false;
 
-        char* spawntimeSecs = strtok(NULL, " ");
+        char* spawntimeSecs = strtok(nullptr, " ");
 
-        const GameObjectTemplate* objectInfo = sObjectMgr->GetGameObjectTemplate(objectId);
-
+        GameObjectTemplate const* objectInfo = sObjectMgr->GetGameObjectTemplate(objectId);
         if (!objectInfo)
         {
             handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, objectId);
@@ -141,8 +140,10 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         Map* map = player->GetMap();
 
-        GameObject* object = new GameObject;
-        if (!object->Create(objectInfo->entry, map, 0, *player, G3D::Quat(), 255, GO_STATE_READY))
+        GameObject* object = new GameObject();
+
+        G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
+        if (!object->Create(objectInfo->entry, map, 0, *player, rot, 255, GO_STATE_READY))
         {
             delete object;
             return false;

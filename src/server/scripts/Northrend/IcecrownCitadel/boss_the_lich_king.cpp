@@ -1104,6 +1104,9 @@ class boss_the_lich_king : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING) && !(events.IsInPhase(PHASE_TRANSITION) || events.IsInPhase(PHASE_OUTRO) || events.IsInPhase(PHASE_FROSTMOURNE)))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

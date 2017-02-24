@@ -32,6 +32,7 @@ EndScriptData */
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "GossipDef.h"
+#include "M2Stores.h"
 #include "Transport.h"
 #include "Language.h"
 #include "MapManager.h"
@@ -123,11 +124,26 @@ public:
 
         uint32 id = atoi((char*)args);
 
-        if (!sCinematicSequencesStore.LookupEntry(id))
+        CinematicSequencesEntry const* cineSeq = sCinematicSequencesStore.LookupEntry(id);
+        if (!cineSeq)
         {
             handler->PSendSysMessage(LANG_CINEMATIC_NOT_EXIST, id);
             handler->SetSentErrorMessage(true);
             return false;
+        }
+
+        // Dump camera locations
+        std::unordered_map<uint32, FlyByCameraCollection>::const_iterator itr = sFlyByCameraStore.find(cineSeq->Camera[0]);
+        if (itr != sFlyByCameraStore.end())
+        {
+            handler->PSendSysMessage("Waypoints for sequence %u, camera %u", id, cineSeq->Camera[0]);
+            uint32 count = 1;
+            for (FlyByCamera cam : itr->second)
+            {
+                handler->PSendSysMessage("%02u - %7ums [%f, %f, %f] Facing %f (%f degrees)", count, cam.timeStamp, cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w, cam.locations.w * (180 / M_PI));
+                count++;
+            }
+            handler->PSendSysMessage("%u waypoints dumped", itr->second.size());
         }
 
         handler->GetSession()->GetPlayer()->SendCinematicStart(id);
