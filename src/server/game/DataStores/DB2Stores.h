@@ -49,6 +49,7 @@ TC_GAME_API extern DB2Storage<ChatChannelsEntry>                    sChatChannel
 TC_GAME_API extern DB2Storage<ChrClassesEntry>                      sChrClassesStore;
 TC_GAME_API extern DB2Storage<ChrRacesEntry>                        sChrRacesStore;
 TC_GAME_API extern DB2Storage<ChrSpecializationEntry>               sChrSpecializationStore;
+TC_GAME_API extern DB2Storage<CinematicCameraEntry>                 sCinematicCameraStore;
 TC_GAME_API extern DB2Storage<CinematicSequencesEntry>              sCinematicSequencesStore;
 TC_GAME_API extern DB2Storage<CreatureDisplayInfoEntry>             sCreatureDisplayInfoStore;
 TC_GAME_API extern DB2Storage<CreatureDisplayInfoExtraEntry>        sCreatureDisplayInfoExtraStore;

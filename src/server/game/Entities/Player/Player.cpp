@@ -334,6 +334,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     memset(_voidStorageItems, 0, VOID_STORAGE_MAX_SLOT * sizeof(VoidStorageItem*));
 
+    _cinematicMgr = new CinematicMgr(this);
+
     m_achievementMgr = new PlayerAchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
 
@@ -371,6 +373,7 @@ Player::~Player()
     delete m_runes;
     delete m_achievementMgr;
     delete m_reputationMgr;
+    delete _cinematicMgr;
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
@@ -1040,6 +1043,14 @@ void Player::Update(uint32 p_time)
         TC_LOG_FATAL("spells", "Player::Update: Player '%s' (%s) has m_spellModTakingSpell (SpellID: %u) during update!",
             GetName().c_str(), GetGUID().ToString().c_str(), m_spellModTakingSpell->m_spellInfo->Id);
         m_spellModTakingSpell = nullptr;
+    }
+
+    // Update cinematic location, if 500ms have passed and we're doing a cinematic now.
+    _cinematicMgr->m_cinematicDiff += p_time;
+    if (_cinematicMgr->m_activeCinematicCameraId != 0 && GetMSTimeDiffToNow(_cinematicMgr->m_lastCinematicCheck) > CINEMATIC_UPDATEDIFF)
+    {
+        _cinematicMgr->m_lastCinematicCheck = getMSTime();
+        _cinematicMgr->UpdateCinematicLocation(p_time);
     }
 
     //used to implement delayed far teleport
@@ -5912,6 +5923,8 @@ void Player::SendCinematicStart(uint32 CinematicSequenceId) const
     WorldPackets::Misc::TriggerCinematic packet;
     packet.CinematicID = CinematicSequenceId;
     SendDirectMessage(packet.Write());
+    if (CinematicSequencesEntry const* sequence = sCinematicSequencesStore.LookupEntry(CinematicSequenceId))
+        _cinematicMgr->SetActiveCinematicCamera(sequence->Camera[0]);
 }
 
 void Player::SendMovieStart(uint32 movieId)
