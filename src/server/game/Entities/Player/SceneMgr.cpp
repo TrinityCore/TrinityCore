@@ -23,6 +23,7 @@
 #include "ScenePackets.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
+#include "SmartScript.h"
 
 SceneMgr::SceneMgr(Player* player) : _player(player)
 {
@@ -67,6 +68,7 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
     AddInstanceIdToSceneMap(sceneInstanceID, sceneTemplate);
 
     sScriptMgr->OnSceneStart(GetPlayer(), sceneInstanceID, sceneTemplate);
+    GetPlayer()->GetSmartScript()->ProcessEventsFor(SMART_EVENT_SCENE_START, GetPlayer(), sceneTemplate->SceneId);
 
     return sceneInstanceID;
 }
@@ -102,6 +104,7 @@ void SceneMgr::OnSceneTrigger(uint32 sceneInstanceID, std::string const& trigger
 
     SceneTemplate const* sceneTemplate = GetSceneTemplateFromInstanceId(sceneInstanceID);
     sScriptMgr->OnSceneTrigger(GetPlayer(), sceneInstanceID, sceneTemplate, triggerName);
+    GetPlayer()->GetSmartScript()->ProcessEventsFor(SMART_EVENT_SCENE_TRIGGER, GetPlayer(), sceneTemplate->SceneId, 0, false, nullptr, nullptr, triggerName);
 }
 
 void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
@@ -121,6 +124,7 @@ void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
         RemoveAurasDueToSceneId(sceneTemplate->SceneId);
 
     sScriptMgr->OnSceneCancel(GetPlayer(), sceneInstanceID, sceneTemplate);
+    GetPlayer()->GetSmartScript()->ProcessEventsFor(SMART_EVENT_SCENE_CANCEL, GetPlayer(), sceneTemplate->SceneId);
 }
 
 void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
@@ -140,6 +144,7 @@ void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
         RemoveAurasDueToSceneId(sceneTemplate->SceneId);
 
     sScriptMgr->OnSceneComplete(GetPlayer(), sceneInstanceID, sceneTemplate);
+    GetPlayer()->GetSmartScript()->ProcessEventsFor(SMART_EVENT_SCENE_COMPLETE, GetPlayer(), sceneTemplate->SceneId);
 }
 
 bool SceneMgr::HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId /*= 0*/) const

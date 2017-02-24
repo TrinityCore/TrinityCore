@@ -190,6 +190,8 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     }
                     break;
                 }
+                case SMART_SCRIPT_TYPE_PLAYER:
+                    break;
                 case SMART_SCRIPT_TYPE_TIMED_ACTIONLIST:
                     break;//nothing to check, really
                 default:
@@ -228,27 +230,28 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.event.event_chance = fields[6].GetUInt8();
         temp.event.event_flags = fields[7].GetUInt16();
 
-        temp.event.raw.param1 = fields[8].GetUInt32();
-        temp.event.raw.param2 = fields[9].GetUInt32();
-        temp.event.raw.param3 = fields[10].GetUInt32();
-        temp.event.raw.param4 = fields[11].GetUInt32();
+        temp.event.raw.param1   = fields[8].GetUInt32();
+        temp.event.raw.param2   = fields[9].GetUInt32();
+        temp.event.raw.param3   = fields[10].GetUInt32();
+        temp.event.raw.param4   = fields[11].GetUInt32();
+        temp.event.param_string = fields[12].GetString();
 
-        temp.action.type = (SMART_ACTION)fields[12].GetUInt8();
-        temp.action.raw.param1 = fields[13].GetUInt32();
-        temp.action.raw.param2 = fields[14].GetUInt32();
-        temp.action.raw.param3 = fields[15].GetUInt32();
-        temp.action.raw.param4 = fields[16].GetUInt32();
-        temp.action.raw.param5 = fields[17].GetUInt32();
-        temp.action.raw.param6 = fields[18].GetUInt32();
+        temp.action.type = (SMART_ACTION)fields[13].GetUInt8();
+        temp.action.raw.param1 = fields[14].GetUInt32();
+        temp.action.raw.param2 = fields[15].GetUInt32();
+        temp.action.raw.param3 = fields[16].GetUInt32();
+        temp.action.raw.param4 = fields[17].GetUInt32();
+        temp.action.raw.param5 = fields[18].GetUInt32();
+        temp.action.raw.param6 = fields[19].GetUInt32();
 
-        temp.target.type = (SMARTAI_TARGETS)fields[19].GetUInt8();
-        temp.target.raw.param1 = fields[20].GetUInt32();
-        temp.target.raw.param2 = fields[21].GetUInt32();
-        temp.target.raw.param3 = fields[22].GetUInt32();
-        temp.target.x = fields[23].GetFloat();
-        temp.target.y = fields[24].GetFloat();
-        temp.target.z = fields[25].GetFloat();
-        temp.target.o = fields[26].GetFloat();
+        temp.target.type = (SMARTAI_TARGETS)fields[20].GetUInt8();
+        temp.target.raw.param1 = fields[21].GetUInt32();
+        temp.target.raw.param2 = fields[22].GetUInt32();
+        temp.target.raw.param3 = fields[23].GetUInt32();
+        temp.target.x = fields[24].GetFloat();
+        temp.target.y = fields[25].GetFloat();
+        temp.target.z = fields[26].GetFloat();
+        temp.target.o = fields[27].GetFloat();
 
         //check target
         if (!IsTargetValid(temp))
@@ -720,6 +723,21 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 }
                 break;
+            case SMART_EVENT_SCENE_TRIGGER:
+            case SMART_EVENT_SCENE_START:
+            case SMART_EVENT_SCENE_CANCEL:
+            case SMART_EVENT_SCENE_COMPLETE:
+            {
+                SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(e.event.scene.sceneId);
+
+                if (sceneTemplate == nullptr)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_SCENE_* using invalid sceneId %u, skipped.", e.event.scene.sceneId);
+                    return false;
+                }
+
+                break;
+            }
             case SMART_EVENT_LINK:
             case SMART_EVENT_GO_STATE_CHANGED:
             case SMART_EVENT_GO_EVENT_INFORM:
