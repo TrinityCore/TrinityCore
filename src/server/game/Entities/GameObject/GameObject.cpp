@@ -36,6 +36,55 @@
 #include "LuaEngine.h"
 #endif
 
+#include "Packets/QueryPackets.h"
+
+void GameObjectTemplate::InitializeQueryData()
+{
+    WorldPacket queryTemp;
+    for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
+        QueryData[loc] = queryTemp;
+    }
+}
+
+WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
+{
+    WorldPackets::Query::QueryGameObjectResponse queryTemp;
+
+    std::string locName = name;
+    std::string locIconName = IconName;
+    std::string locCastBarCaption = castBarCaption;
+
+    if (GameObjectLocale const* gameObjectLocale = sObjectMgr->GetGameObjectLocale(entry))
+    {
+        ObjectMgr::GetLocaleString(gameObjectLocale->Name, loc, locName);
+        ObjectMgr::GetLocaleString(gameObjectLocale->CastBarCaption, loc, locCastBarCaption);
+    }
+
+    queryTemp.GameObjectID = entry;
+    queryTemp.Allow = true;
+
+    queryTemp.Stats.Type = type;
+    queryTemp.Stats.DisplayID = displayId;
+    queryTemp.Stats.Name = locName;
+    queryTemp.Stats.IconName = locIconName;
+    queryTemp.Stats.CastBarCaption = locCastBarCaption;
+    queryTemp.Stats.UnkString = unk1;
+    memcpy(queryTemp.Stats.Data, raw.data, sizeof(uint32) * MAX_GAMEOBJECT_DATA);
+    queryTemp.Stats.Size = size;
+
+    for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+        queryTemp.Stats.QuestItems[i] = 0;
+
+    if (GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(entry))
+        for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
+            if (i < items->size())
+                queryTemp.Stats.QuestItems[i] = (*items)[i];
+
+    return *queryTemp.Write();
+}
+
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(nullptr), m_goValue(), m_AI(nullptr)
 {

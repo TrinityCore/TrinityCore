@@ -4655,7 +4655,7 @@ void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelCharges
         if (aura->GetSpellInfo()->GetDispelMask() & dispelMask)
         {
             // do not remove positive auras if friendly target
-            //               negative auras if non-friendly 
+            //               negative auras if non-friendly
             // unless we're reflecting (dispeller eliminates one of it's benefitial buffs)
             if (isReflect != (aurApp->IsPositive() == IsFriendlyTo(caster)))
                 continue;
@@ -5880,6 +5880,24 @@ bool Unit::AttackStop()
     SendMeleeAttackStop(victim);
 
     return true;
+}
+
+void Unit::ValidateAttackersAndOwnTarget()
+{
+    // iterate attackers
+    UnitVector toRemove;
+    AttackerSet const& attackers = getAttackers();
+    for (Unit* attacker : attackers)
+        if (!attacker->IsValidAttackTarget(this))
+            toRemove.push_back(attacker);
+
+    for (Unit* attacker : toRemove)
+        attacker->AttackStop();
+
+    // remove our own victim
+    if (Unit* victim = GetVictim())
+        if (!IsValidAttackTarget(victim))
+            AttackStop();
 }
 
 void Unit::CombatStop(bool includingCast)
@@ -13675,7 +13693,7 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     bool const turn = G3D::fuzzyGt(M_PI - fabs(fabs(GetOrientation() - orientation) - M_PI), 0.0f);
 
     // G3D::fuzzyEq won't help here, in some cases magnitudes differ by a little more than G3D::eps, but should be considered equal
-    bool const relocated = (teleport || 
+    bool const relocated = (teleport ||
         std::fabs(GetPositionX() - x) > 0.001f ||
         std::fabs(GetPositionY() - y) > 0.001f ||
         std::fabs(GetPositionZ() - z) > 0.001f);

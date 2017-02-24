@@ -34,6 +34,8 @@
 #include "LuaEngine.h"
 #endif
 
+#include "Packets/QuestPackets.h"
+
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
@@ -253,16 +255,14 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleQuestQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& query)
 {
     if (!_player)
         return;
 
-    uint32 questId;
-    recvData >> questId;
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUEST_QUERY quest = %u", questId);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUEST_QUERY quest = %u", query.QuestID);
 
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(query.QuestID))
         _player->PlayerTalkClass->SendQuestQueryResponse(quest);
 }
 

@@ -176,7 +176,6 @@ class spell_pet_charge : public SpellScriptLoader
 
             void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
-                // Prevent console log
                 PreventDefaultAction();
 
                 // Remove +% AP aura
