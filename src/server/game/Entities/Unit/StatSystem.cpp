@@ -410,12 +410,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                             if (AuraEffect const* weaponMod = GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 1563, EFFECT_1))
                             {
                                 ItemTemplate const* itemTemplate = weapon->GetTemplate();
-                                int32 bonusAP = 0;
-                                for (uint32 i = 0; i < itemTemplate->StatsCount; ++i)
-                                    if (itemTemplate->ItemStat[i].ItemStatType == ITEM_MOD_ATTACK_POWER)
-                                        bonusAP += itemTemplate->ItemStat[i].ItemStatValue;
-
-                                bonusAP += m_baseFeralAP;
+                                int32 bonusAP = itemTemplate->GetTotalAPBonus() + m_baseFeralAP;
                                 weaponBonus = CalculatePct(static_cast<float>(bonusAP), weaponMod->GetAmount());
                             }
                         }

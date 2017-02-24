@@ -408,18 +408,32 @@ bool AuctionHouseMgr::RemoveAItem(ObjectGuid::LowType id, bool deleteItem)
     return true;
 }
 
-void AuctionHouseMgr::PendingAuctionAdd(Player* player, AuctionEntry* aEntry)
+bool AuctionHouseMgr::PendingAuctionAdd(Player* player, AuctionEntry* aEntry, Item* item)
 {
     PlayerAuctions* thisAH;
     auto itr = pendingAuctionMap.find(player->GetGUID());
     if (itr != pendingAuctionMap.end())
+    {
         thisAH = itr->second.first;
+
+        // Get deposit so far
+        uint32 totalDeposit = 0;
+        for (AuctionEntry const* thisAuction : *thisAH)
+            totalDeposit += GetAuctionDeposit(thisAuction->auctionHouseEntry, thisAuction->etime, item, thisAuction->itemCount);
+
+        // Add this deposit
+        totalDeposit += GetAuctionDeposit(aEntry->auctionHouseEntry, aEntry->etime, item, aEntry->itemCount);
+
+        if (!player->HasEnoughMoney(totalDeposit))
+            return false;
+    }
     else
     {
         thisAH = new PlayerAuctions;
         pendingAuctionMap[player->GetGUID()] = AuctionPair(thisAH, 0);
     }
     thisAH->push_back(aEntry);
+    return true;
 }
 
 uint32 AuctionHouseMgr::PendingAuctionCount(const Player* player) const
@@ -468,6 +482,7 @@ void AuctionHouseMgr::PendingAuctionProcess(Player* player)
         }
 
         AH->DeleteFromDB(trans);
+
         AH->SaveToDB(trans);
     }
 
