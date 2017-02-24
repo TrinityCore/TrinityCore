@@ -1815,10 +1815,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdatePosition(const Position &pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
-        void SendMessageToSet(WorldPacket* data, bool self) override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
-        void SendMessageToSetInRange(WorldPacket* data, float dist, bool self) override;
-        void SendMessageToSetInRange(WorldPacket* data, float dist, bool self, bool own_team_only);
-        void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr) override;
+        void SendMessageToSet(WorldPacket const* data, bool self) override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) override;
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only);
+        void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) override;
 
         void SendTeleportAckPacket();
 
