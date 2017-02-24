@@ -856,16 +856,9 @@ class spell_mage_hot_streak : public SpellScriptLoader
                 counter->SetAmount(25);
             }
 
-            void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                // Prevent console spam
-                PreventDefaultAction();
-            }
-
             void Register() override
             {
                 OnEffectProc += AuraEffectProcFn(spell_mage_hot_streak_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-                OnEffectProc += AuraEffectProcFn(spell_mage_hot_streak_AuraScript::HandleDummy, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
 

@@ -54,7 +54,9 @@ enum DataTypes
 
     DATA_ESSENCE_OF_SUFFERING       = 20,
     DATA_ESSENCE_OF_DESIRE          = 21,
-    DATA_ESSENCE_OF_ANGER           = 22
+    DATA_ESSENCE_OF_ANGER           = 22,
+
+    DATA_ILLIDAN_MUSIC_CONTROLLER   = 23,
 };
 
 enum TriggerEmotes
@@ -123,7 +125,8 @@ enum GameObjectIds
     GO_ILLIDAN_GATE                 = 185905,
     GO_ILLIDAN_DOOR_R               = 186261,
     GO_ILLIDAN_DOOR_L               = 186262,
-    GO_ILLIDAN_CAGE_TRAP            = 185916
+    GO_ILLIDAN_CAGE_TRAP            = 185916,
+    GO_ILLIDAN_MUSIC_CONTROLLER     = 185966
 };
 
 enum BlackTempleMisc

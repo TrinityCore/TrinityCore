@@ -3138,20 +3138,15 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             // Devastate (player ones)
             if (m_spellInfo->SpellFamilyFlags[1] & 0x40)
             {
-                // Player can apply only 58567 Sunder Armor effect.
-                bool needCast = !unitTarget->HasAura(58567, m_caster->GetGUID());
-                if (needCast)
+                m_caster->CastSpell(unitTarget, 58567, true);
+                // 58388 - Glyph of Devastate dummy aura.
+                if (m_caster->HasAura(58388))
                     m_caster->CastSpell(unitTarget, 58567, true);
 
                 if (Aura* aur = unitTarget->GetAura(58567, m_caster->GetGUID()))
-                {
-                    // 58388 - Glyph of Devastate dummy aura.
-                    if (int32 num = (needCast ? 0 : 1) + (m_caster->HasAura(58388) ? 1 : 0))
-                        aur->ModStackAmount(num);
-                    fixed_bonus += (aur->GetStackAmount() - 1) * CalculateDamage(2, unitTarget);
-                }
+                    fixed_bonus += (aur->GetStackAmount() - 1) * CalculateDamage(EFFECT_2, unitTarget); // subtract 1 so fixed bonus is not applied twice
             }
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x8000000) // Mocking Blow
+            else if (m_spellInfo->SpellFamilyFlags[0] & 0x8000000) // Mocking Blow
             {
                 if (unitTarget->IsImmunedToSpellEffect(m_spellInfo, EFFECT_1, m_caster) || unitTarget->GetTypeId() == TYPEID_PLAYER)
                 {

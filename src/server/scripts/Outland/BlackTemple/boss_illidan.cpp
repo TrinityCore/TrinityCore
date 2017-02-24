@@ -29,53 +29,58 @@
 enum IllidanSay
 {
     // Illidan
-    SAY_ILLIDAN_MINION              = 0,
-    SAY_ILLIDAN_KILL                = 1,
-    SAY_ILLIDAN_TAKEOFF             = 2,
-    SAY_ILLIDAN_SUMMONFLAMES        = 3,
-    SAY_ILLIDAN_EYE_BLAST           = 4,
-    SAY_ILLIDAN_MORPH               = 5,
-    SAY_ILLIDAN_ENRAGE              = 6,
-    SAY_ILLIDAN_TAUNT               = 7,
-    SAY_ILLIDAN_DUPLICITY           = 8,
-    SAY_ILLIDAN_UNCONVINCED         = 9,
-    SAY_ILLIDAN_PREPARED            = 10,
-    SAY_ILLIDAN_SHADOW_PRISON       = 11,
-    SAY_ILLIDAN_CONFRONT_MAIEV      = 12,
-    SAY_ILLIDAN_FRENZY              = 13,
-    SAY_ILLIDAN_DEFEATED            = 14,
+    SAY_ILLIDAN_MINION                      = 0,
+    SAY_ILLIDAN_KILL                        = 1,
+    SAY_ILLIDAN_TAKEOFF                     = 2,
+    SAY_ILLIDAN_SUMMONFLAMES                = 3,
+    SAY_ILLIDAN_EYE_BLAST                   = 4,
+    SAY_ILLIDAN_MORPH                       = 5,
+    SAY_ILLIDAN_ENRAGE                      = 6,
+    SAY_ILLIDAN_TAUNT                       = 7,
+    SAY_ILLIDAN_DUPLICITY                   = 8,
+    SAY_ILLIDAN_UNCONVINCED                 = 9,
+    SAY_ILLIDAN_PREPARED                    = 10,
+    SAY_ILLIDAN_SHADOW_PRISON               = 11,
+    SAY_ILLIDAN_CONFRONT_MAIEV              = 12,
+    SAY_ILLIDAN_FRENZY                      = 13,
+    SAY_ILLIDAN_DEFEATED                    = 14,
 
     // Maiev Shadowsong
-    SAY_MAIEV_SHADOWSONG_TAUNT      = 0,
-    SAY_MAIEV_SHADOWSONG_APPEAR     = 1,
-    SAY_MAIEV_SHADOWSONG_JUSTICE    = 2,
-    SAY_MAIEV_SHADOWSONG_TRAP       = 3,
-    SAY_MAIEV_SHADOWSONG_DOWN       = 4,
-    SAY_MAIEV_SHADOWSONG_FINISHED   = 5,
-    SAY_MAIEV_SHADOWSONG_OUTRO      = 6,
-    SAY_MAIEV_SHADOWSONG_FAREWELL   = 7,
+    SAY_MAIEV_SHADOWSONG_TAUNT              = 0,
+    SAY_MAIEV_SHADOWSONG_APPEAR             = 1,
+    SAY_MAIEV_SHADOWSONG_JUSTICE            = 2,
+    SAY_MAIEV_SHADOWSONG_TRAP               = 3,
+    SAY_MAIEV_SHADOWSONG_DOWN               = 4,
+    SAY_MAIEV_SHADOWSONG_FINISHED           = 5,
+    SAY_MAIEV_SHADOWSONG_OUTRO              = 6,
+    SAY_MAIEV_SHADOWSONG_FAREWELL           = 7,
 
     // Flame of Azzinoth
-    EMOTE_AZZINOTH_GAZE             = 0,
+    EMOTE_AZZINOTH_GAZE                     = 0,
 
     // Akama
-    SAY_AKAMA_DOOR                  = 0,
-    SAY_AKAMA_ALONE                 = 1,
-    SAY_AKAMA_SALUTE                = 2,
-    SAY_AKAMA_BETRAYER              = 3,
-    SAY_AKAMA_FREE                  = 4,
-    SAY_AKAMA_TIME_HAS_COME         = 5,
-    SAY_AKAMA_MINIONS               = 6,
-    SAY_AKAMA_LIGHT                 = 7,
-    SAY_AKAMA_FINISH                = 8,
+    SAY_AKAMA_DOOR                          = 0,
+    SAY_AKAMA_ALONE                         = 1,
+    SAY_AKAMA_SALUTE                        = 2,
+    SAY_AKAMA_BETRAYER                      = 3,
+    SAY_AKAMA_FREE                          = 4,
+    SAY_AKAMA_TIME_HAS_COME                 = 5,
+    SAY_AKAMA_MINIONS                       = 6,
+    SAY_AKAMA_LIGHT                         = 7,
+    SAY_AKAMA_FINISH                        = 8,
 
     // Spirits
-    SAY_SPIRIT_ALONE                = 0,
+    SAY_SPIRIT_ALONE                        = 0,
 
     // Direct Sounds
-    ILLIDAN_TAKEOFF_SOUND_ID        = 11479,
-    ILLIDAN_WARGLAIVE_SOUND_ID      = 11480,
-    WARGLAIVE_SPAWN_SOUND_ID        = 11689
+    ILLIDAN_TAKEOFF_SOUND_ID                = 11479,
+    ILLIDAN_WARGLAIVE_SOUND_ID              = 11480,
+    WARGLAIVE_SPAWN_SOUND_ID                = 11689,
+    EVENT_BT_SUMMIT_WALK_SOUND_ID           = 11717,
+    EVENT_BT_SUMMIT_WALK_3_SOUND_ID         = 11725,
+    EVENT_BT_STORM_WALK_HERO_2_SOUND_ID     = 11727,
+    EVENT_BT_STORM_WALK_UNI_3_SOUND_ID      = 11729,
+    EVENT_BT_ARRIVAL_WALK_HERO_1_SOUND_ID   = 11728
 };
 
 enum IllidanSpells
@@ -284,6 +289,7 @@ enum IllidanEvents
     EVENT_AKAMA_LIGHT_TEXT,
     EVENT_FINAL_SALUTE,
     EVENT_AKAMA_DESPAWN,
+    EVENT_AKAMA_START_SOUND,
 
     // Illidan Stormrage
     EVENT_START_INTRO,
@@ -468,6 +474,8 @@ public:
         {
             _EnterCombat();
             me->SetCanDualWield(true);
+            if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
+                musicController->PlayDirectMusic(EVENT_BT_SUMMIT_WALK_3_SOUND_ID);
             specialEvents.ScheduleEvent(EVENT_EVADE_CHECK, Seconds(10));
             specialEvents.ScheduleEvent(EVENT_BERSERK, Minutes(25));
             ScheduleEvents(GROUP_PHASE_1, GROUP_PHASE_1);
@@ -837,6 +845,8 @@ public:
                         pos.Relocate(triggers.front());
                         pos.SetOrientation(0.0f);
                         me->GetMotionMaster()->MovePoint(POINT_THROW_GLAIVE, pos);
+                        if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
+                            musicController->PlayDirectMusic(EVENT_BT_STORM_WALK_HERO_2_SOUND_ID);
                         break;
                     }
                     case EVENT_THROW_WARGLAIVE:
@@ -905,6 +915,8 @@ public:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         ScheduleEvents(GROUP_PHASE_3, GROUP_PHASE_3);
+                        if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
+                            musicController->PlayDirectMusic(EVENT_BT_STORM_WALK_UNI_3_SOUND_ID);
                         break;
                     case EVENT_AGONIZING_FLAMES:
                         DoCastSelf(SPELL_AGONIZING_FLAMES_SELECTOR);
@@ -979,6 +991,8 @@ public:
                         break;
                     case EVENT_DEFEATED_TEXT:
                         Talk(SAY_ILLIDAN_DEFEATED);
+                        if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
+                            musicController->PlayDirectMusic(EVENT_BT_ARRIVAL_WALK_HERO_1_SOUND_ID);
                         events.ScheduleEvent(EVENT_QUIET_SUICIDE, Seconds(18));
                         break;
                     case EVENT_QUIET_SUICIDE:
@@ -1236,6 +1250,11 @@ public:
                             undalo->CastSpell((Unit*) nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
                         if (Creature* olum = ObjectAccessor::GetCreature(*me, _spiritOfOlumGUID))
                             olum->CastSpell((Unit*) nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
+                        _events.ScheduleEvent(EVENT_AKAMA_START_SOUND, Seconds(5));
+                        break;
+                    case EVENT_AKAMA_START_SOUND:
+                        if (GameObject* musicController = _instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
+                            musicController->PlayDirectMusic(EVENT_BT_SUMMIT_WALK_SOUND_ID);
                         break;
                     case EVENT_AKAMA_THANKS:
                         Talk(SAY_AKAMA_SALUTE);
