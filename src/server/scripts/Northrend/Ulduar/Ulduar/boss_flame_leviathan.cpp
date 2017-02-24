@@ -462,6 +462,9 @@ class boss_flame_leviathan : public CreatureScript
                             events.CancelEvent(EVENT_FREYA_S_WARD);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoBatteringRamIfReady();

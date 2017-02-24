@@ -720,10 +720,14 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionBu
 
 void WorldSession::HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& /*packet*/)
 {
+    // If player has sight bound to visual waypoint NPC we should remove it
+    GetPlayer()->GetCinematicMgr()->EndCinematic();
 }
 
 void WorldSession::HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& /*packet*/)
 {
+    // Sent by client when cinematic actually begun. So we begin the server side process
+    GetPlayer()->GetCinematicMgr()->BeginCinematic();
 }
 
 void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*packet*/)
