@@ -590,32 +590,42 @@ typedef std::multimap<uint32, GossipMenuItems> GossipMenuItemsContainer;
 typedef std::pair<GossipMenuItemsContainer::const_iterator, GossipMenuItemsContainer::const_iterator> GossipMenuItemsMapBounds;
 typedef std::pair<GossipMenuItemsContainer::iterator, GossipMenuItemsContainer::iterator> GossipMenuItemsMapBoundsNonConst;
 
-struct QuestPOIPoint
+struct QuestPOIBlobPoint
 {
-    int32 x;
-    int32 y;
-
-    QuestPOIPoint() : x(0), y(0) { }
-    QuestPOIPoint(int32 _x, int32 _y) : x(_x), y(_y) { }
+    int32 X = 0;
+    int32 Y = 0;
 };
 
-struct QuestPOI
+struct QuestPOIBlobData
 {
-    uint32 Id;
-    int32 ObjectiveIndex;
-    uint32 MapId;
-    uint32 AreaId;
-    uint32 FloorId;
-    uint32 Unk3;
-    uint32 Unk4;
-    std::vector<QuestPOIPoint> points;
-
-    QuestPOI() : Id(0), ObjectiveIndex(0), MapId(0), AreaId(0), FloorId(0), Unk3(0), Unk4(0) { }
-    QuestPOI(uint32 id, int32 objIndex, uint32 mapId, uint32 areaId, uint32 floorId, uint32 unk3, uint32 unk4) : Id(id), ObjectiveIndex(objIndex), MapId(mapId), AreaId(areaId), FloorId(floorId), Unk3(unk3), Unk4(unk4) { }
+    uint32 BlobIndex = 0;
+    int32 ObjectiveIndex = 0;
+    uint32 MapID = 0;
+    uint32 WorldMapAreaID = 0;
+    uint32 Floor = 0;
+    uint32 Unk3 = 0;
+    uint32 Unk4 = 0;
+    std::vector<QuestPOIBlobPoint> QuestPOIBlobPointStats;
 };
 
-typedef std::vector<QuestPOI> QuestPOIVector;
-typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIContainer;
+struct QuestPOIData
+{
+    uint32 QuestID = 0;
+    std::vector<QuestPOIBlobData> QuestPOIBlobDataStats;
+};
+
+struct QuestPOIWrapper
+{
+    QuestPOIData POIData;
+    ByteBuffer QueryDataBuffer;
+
+    void InitializeQueryData();
+    ByteBuffer BuildQueryData() const;
+
+    QuestPOIWrapper() : QueryDataBuffer(0) { }
+};
+
+typedef std::unordered_map<uint32, QuestPOIWrapper> QuestPOIContainer;
 
 struct GraveYardData
 {
@@ -677,6 +687,17 @@ struct DungeonEncounter
 
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
+
+enum QueryDataGroup
+{
+    QUERY_DATA_CREATURES        = 0x01,
+    QUERY_DATA_GAMEOBJECTS      = 0x02,
+    QUERY_DATA_ITEMS            = 0x04,
+    QUERY_DATA_QUESTS           = 0x08,
+    QUERY_DATA_POIS             = 0x10,
+
+    QUERY_DATA_ALL              = 0xFF
+};
 
 class PlayerDumpReader;
 
@@ -877,7 +898,7 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        QuestPOIVector const* GetQuestPOIVector(uint32 questId)
+        QuestPOIWrapper const* GetQuestPOIWrapper(uint32 questId)
         {
             QuestPOIContainer::const_iterator itr = _questPOIStore.find(questId);
             if (itr != _questPOIStore.end())
@@ -1032,6 +1053,8 @@ class TC_GAME_API ObjectMgr
         void LoadVendors();
         void LoadTrainerSpell();
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
+
+        void InitializeQueriesData(QueryDataGroup mask);
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
