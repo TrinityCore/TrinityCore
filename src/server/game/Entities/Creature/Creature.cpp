@@ -180,10 +180,10 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
     queryTemp.Stats.CreatureFamily = family;
     queryTemp.Stats.Classification = rank;
     memcpy(queryTemp.Stats.ProxyCreatureID, KillCredit, sizeof(uint32) * MAX_KILL_CREDIT);
-    queryTemp.Stats.CreatureDisplayID[0] = Modelid1;
-    queryTemp.Stats.CreatureDisplayID[1] = Modelid2;
-    queryTemp.Stats.CreatureDisplayID[2] = Modelid3;
-    queryTemp.Stats.CreatureDisplayID[3] = Modelid4;
+    queryTemp.Stats.CreatureDisplayID[0] = sObjectMgr->GetCreatureDisplay(Modelid1);
+    queryTemp.Stats.CreatureDisplayID[1] = sObjectMgr->GetCreatureDisplay(Modelid2);
+    queryTemp.Stats.CreatureDisplayID[2] = sObjectMgr->GetCreatureDisplay(Modelid3);
+    queryTemp.Stats.CreatureDisplayID[3] = sObjectMgr->GetCreatureDisplay(Modelid4);
     queryTemp.Stats.HpMulti = ModHealth;
     queryTemp.Stats.EnergyMulti = ModMana;
     queryTemp.Stats.Leader = RacialLeader;
