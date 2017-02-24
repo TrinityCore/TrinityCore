@@ -49,6 +49,8 @@
 #include "Transport.h"
 #include "ScriptedGossip.h"
 
+#include "Packets/QueryPackets.h"
+
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
     TrainerSpellMap::const_iterator itr = spellList.find(spell_id);
@@ -144,6 +146,58 @@ uint32 CreatureTemplate::GetFirstVisibleModel() const
         return Modelid4;
 
     return 17519;
+}
+
+void CreatureTemplate::InitializeQueryData()
+{
+    WorldPacket queryTemp;
+    for (uint8 loc = LOCALE_enUS; loc < TOTAL_LOCALES; ++loc)
+    {
+        queryTemp = BuildQueryData(static_cast<LocaleConstant>(loc));
+        QueryData[loc] = queryTemp;
+    }
+}
+
+WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
+{
+    WorldPackets::Query::QueryCreatureResponse queryTemp;
+
+    std::string locName = Name, locTitle = Title;
+    if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(Entry))
+    {
+        ObjectMgr::GetLocaleString(cl->Name, loc, locName);
+        ObjectMgr::GetLocaleString(cl->Title, loc, locTitle);
+    }
+
+    queryTemp.CreatureID = Entry;
+    queryTemp.Allow = true;
+
+    queryTemp.Stats.Name = locName;
+    queryTemp.Stats.NameAlt = locTitle;
+    queryTemp.Stats.CursorName = IconName;
+    queryTemp.Stats.Flags = type_flags;
+    queryTemp.Stats.CreatureType = type;
+    queryTemp.Stats.CreatureFamily = family;
+    queryTemp.Stats.Classification = rank;
+    memcpy(queryTemp.Stats.ProxyCreatureID, KillCredit, sizeof(uint32) * MAX_KILL_CREDIT);
+    queryTemp.Stats.CreatureDisplayID[0] = Modelid1;
+    queryTemp.Stats.CreatureDisplayID[1] = Modelid2;
+    queryTemp.Stats.CreatureDisplayID[2] = Modelid3;
+    queryTemp.Stats.CreatureDisplayID[3] = Modelid4;
+    queryTemp.Stats.HpMulti = ModHealth;
+    queryTemp.Stats.EnergyMulti = ModMana;
+    queryTemp.Stats.Leader = RacialLeader;
+
+    for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+        queryTemp.Stats.QuestItems[i] = 0;
+
+    if (CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(Entry))
+        for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+            if (i < items->size())
+                queryTemp.Stats.QuestItems[i] = (*items)[i];
+
+    queryTemp.Stats.CreatureMovementInfoID = movementId;
+    return *queryTemp.Write();
 }
 
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
@@ -926,7 +980,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
     }
 
     // Allow players to see those units while dead, do it here (mayby altered by addon auras)
-    if (cinfo->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE) 
+    if (cinfo->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE)
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
 
     if (!CreateFromProto(guidlow, entry, data, vehId))
@@ -1498,12 +1552,8 @@ void Creature::LoadEquipment(int8 id, bool force /*= true*/)
 
 void Creature::SetSpawnHealth()
 {
-    if (!m_creatureData)
-        return;
-
     uint32 curhealth;
-
-    if (!m_regenHealth)
+    if (m_creatureData && !m_regenHealth)
     {
         curhealth = m_creatureData->curhealth;
         if (curhealth)
@@ -2684,12 +2734,6 @@ void Creature::SetPosition(float x, float y, float z, float o)
     GetMap()->CreatureRelocation(this, x, y, z, o);
     if (IsVehicle())
         GetVehicleKit()->RelocatePassengers();
-}
-
-bool Creature::IsDungeonBoss() const
-{
-    CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(GetEntry());
-    return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
 }
 
 bool Creature::SetWalk(bool enable)

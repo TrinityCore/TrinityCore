@@ -803,7 +803,7 @@ void Spell::SelectSpellTargets()
     }
 
     if (uint64 dstDelay = CalculateDelayMomentForDst())
-        m_delayMoment = dstDelay;    
+        m_delayMoment = dstDelay;
 }
 
 uint64 Spell::CalculateDelayMomentForDst() const
