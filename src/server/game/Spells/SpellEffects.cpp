@@ -5464,6 +5464,9 @@ void Spell::EffectGiveCurrency(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    if (!sCurrencyTypesStore.LookupEntry(effectInfo->MiscValue))
+        return;
+
     unitTarget->ToPlayer()->ModifyCurrency(effectInfo->MiscValue, damage);
 }
 
