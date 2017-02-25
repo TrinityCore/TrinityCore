@@ -53,7 +53,6 @@ enum WarriorSpells
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_2       = 29842,
     SPELL_WARRIOR_SHIELD_SLAM                       = 23922,
     SPELL_WARRIOR_SLAM                              = 50782,
-    SPELL_WARRIOR_STORM_BOLT                        = 107570,
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
     SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
@@ -699,12 +698,11 @@ public:
         {
             return ValidateSpellInfo
             ({
-                SPELL_WARRIOR_STORM_BOLT,
                 SPELL_WARRIOR_STORM_BOLT_STUN
             });
         }
 
-        void HandleDamage(SpellEffIndex /*effIndex*/)
+        void HandleOnHit(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
 
@@ -714,7 +712,7 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt_SpellScript::HandleOnHit, EFFECT_1, SPELL_EFFECT_DUMMY);
         }
     };
 
