@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS `conversation_actor_template`;
 CREATE TABLE `conversation_actor_template` (
   `Id` INT (10) UNSIGNED NOT NULL,
   `CreatureId` INT (10) UNSIGNED NOT NULL DEFAULT 0,
-  `Unk1` INT (10) UNSIGNED NOT NULL DEFAULT 0,
+  `CreatureModelId` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   `Unk2` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   `Unk3` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   `Unk4` INT (10) UNSIGNED NOT NULL DEFAULT 0,
@@ -39,7 +39,7 @@ CREATE TABLE `conversation_actors` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 
-INSERT INTO `conversation_actor_template`(`Id`,`CreatureId`,`Unk1`,`Unk2`,`Unk3`,`Unk4`,`VerifiedBuild`) VALUES
+INSERT INTO `conversation_actor_template`(`Id`,`CreatureId`,`CreatureModelId`,`Unk2`,`Unk3`,`Unk4`,`VerifiedBuild`) VALUES
 (49825, 93221, 65308, 0, 1, 0, 22624),
 (50124, 98075, 21135, 0, 1, 0, 22624);
 

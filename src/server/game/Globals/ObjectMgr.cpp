@@ -9675,7 +9675,7 @@ void ObjectMgr::LoadConversationTemplates()
     _conversationLineTemplateStore.clear();
     _conversationTemplateStore.clear();
 
-    QueryResult actorTemplates = WorldDatabase.Query("SELECT Id, CreatureId, Unk1, Unk2, Unk3, Unk4 FROM conversation_actor_template");
+    QueryResult actorTemplates = WorldDatabase.Query("SELECT Id, CreatureId, CreatureModelId, Unk2, Unk3, Unk4 FROM conversation_actor_template");
 
     if (actorTemplates)
     {
@@ -9688,7 +9688,7 @@ void ObjectMgr::LoadConversationTemplates()
             ConversationActorTemplate conversationActor;
             conversationActor.Id = fields[0].GetUInt32();
             conversationActor.CreatureId = fields[1].GetUInt32();
-            conversationActor.Unk1 = fields[2].GetUInt32();
+            conversationActor.CreatureModelId = fields[2].GetUInt32();
             conversationActor.Unk2 = fields[3].GetUInt32();
             conversationActor.Unk3 = fields[4].GetUInt32();
             conversationActor.Unk4 = fields[5].GetUInt32();
@@ -9712,6 +9712,13 @@ void ObjectMgr::LoadConversationTemplates()
 
             ConversationLineTemplate conversationLine;
             conversationLine.Id                     = fields[0].GetUInt32();
+
+            if (!sConversationLineStore.LookupEntry(conversationLine.Id))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `conversation_line_template` has template for non existent ConversationLine (ID: %u), skipped", conversationLine.Id);
+                continue;
+            }
+
             conversationLine.PreviousLineDuration   = fields[1].GetUInt32();
             conversationLine.Unk2                   = fields[2].GetUInt32();
             conversationLine.Unk3                   = fields[3].GetUInt32();

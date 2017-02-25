@@ -773,9 +773,9 @@ struct ConversationLineLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT,   "ID" },
-            { false, FT_INT,   "Unk1" },
+            { false, FT_INT,   "BroadcastTextId" },
             { false, FT_INT,   "Unk2" },
-            { false, FT_INT,   "Unk3" },
+            { false, FT_INT,   "LineIntervalMS" },
             { false, FT_SHORT, "NextLineID" },
             { false, FT_SHORT, "Unk4" },
             { false, FT_BYTE,  "UnkBoolean" },

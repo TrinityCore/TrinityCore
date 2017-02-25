@@ -112,7 +112,9 @@ bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conver
     uint16 linesIndex = 0;
     for (ConversationLineTemplate const& line : conversationTemplate->Lines)
     {
-        _duration += line.PreviousLineDuration;
+        ConversationLineEntry const* lineEntry = sConversationLineStore.LookupEntry(line.Id);
+        _duration += line.PreviousLineDuration + lineEntry->LineIntervalMS;
+
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, &line);
     }
 

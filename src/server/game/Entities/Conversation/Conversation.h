@@ -28,7 +28,7 @@ struct ConversationActorTemplate
 {
     uint32 Id;
     uint32 CreatureId;
-    uint32 Unk1;
+    uint32 CreatureModelId;
     uint32 Unk2;
     uint32 Unk3;
     uint32 Unk4;

@@ -1,9 +1,9 @@
 DROP TABLE IF EXISTS `conversation_line`;
 CREATE TABLE `conversation_line` (
   `Id` int (10) UNSIGNED NOT NULL,
-  `Unk1` int (10) UNSIGNED NOT NULL,
+  `BroadcastTextId` int (10) UNSIGNED NOT NULL,
   `Unk2` int (10) UNSIGNED NOT NULL,
-  `Unk3` int (10) UNSIGNED NOT NULL,
+  `LineIntervalMS` int (10) UNSIGNED NOT NULL,
   `NextLineID` smallint (5) UNSIGNED NOT NULL,
   `Unk4` smallint (5) UNSIGNED NOT NULL,
   `UnkBoolean` tinyint (3) UNSIGNED NOT NULL,
