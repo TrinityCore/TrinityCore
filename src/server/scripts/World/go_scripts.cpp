@@ -1614,7 +1614,7 @@ public:
 
     struct go_bellsAI : public GameObjectAI
     {
-        go_bellsAI(GameObject* go) : GameObjectAI(go) { }
+        go_bellsAI(GameObject* go) : GameObjectAI(go), _soundId(0) { }
 
         void InitializeAI() override
         {
