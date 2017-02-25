@@ -8,6 +8,10 @@ ECHO ...............................................
 ECHO PRESS 1, 2, 3 OR 4 to select your task, or 5 to EXIT.
 ECHO ...............................................
 ECHO.
+ECHO If you see one row with the error
+ECHO "Couldn't open RootWmo!!!"
+ECHO Ignore it, it's not real error.
+ECHO.
 ECHO 1 - Extract dbc/db2 and maps
 ECHO 2 - Extract vmaps (needs maps to be extracted before you run this)
 ECHO 3 - Extract mmaps (needs vmaps to be extracted before you run this, may take hours)
