@@ -44,8 +44,8 @@ INSERT INTO `conversation_actor_template`(`Id`,`CreatureId`,`Unk1`,`Unk2`,`Unk3`
 (50124, 98075, 21135, 0, 1, 0, 22624);
 
 INSERT INTO `conversation_actors`(`ConversationId`,`ConversationActorId`,`Idx`,`VerifiedBuild`) VALUES
-(705, 50124, 0, 22624),
-(1025, 49825, 0, 22624);
+(705, 49825, 0, 22624),
+(1025, 50124, 0, 22624);
 
 INSERT INTO `conversation_line_template`(`Id`,`PreviousLineDuration`,`Unk2`,`Unk3`,`VerifiedBuild`) VALUES
 (1445, 0, 254, 0, 22624),
