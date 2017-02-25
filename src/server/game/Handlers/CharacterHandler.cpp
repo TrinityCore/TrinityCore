@@ -1596,7 +1596,7 @@ void WorldSession::HandleCharFactionOrRaceChangeCallback(std::shared_ptr<Charact
     uint8 oldRace     = characterInfo->Race;
     uint8 playerClass = characterInfo->Class;
     uint8 level       = characterInfo->Level;
-    std::string oldName = characterInfo->Name;
+    //std::string oldName = characterInfo->Name;
 
     if (!sObjectMgr->GetPlayerInfo(factionChangeInfo->Race, playerClass))
     {
