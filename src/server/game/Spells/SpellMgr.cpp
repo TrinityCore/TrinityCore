@@ -3058,6 +3058,13 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
                 break;
+            case 56690: // Thrust Spear
+            case 60586: // Mighty Spear Thrust
+            case 60776: // Claw Swipe
+            case 60881: // Fatal Strike
+            case 60864: // Jaws of Death
+                spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
+                break;
             case 31344: // Howl of Azgalor
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yards instead of 50000?!
                 break;
