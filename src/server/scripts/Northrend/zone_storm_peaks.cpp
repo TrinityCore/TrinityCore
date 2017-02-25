@@ -1105,7 +1105,7 @@ class spell_grip : public SpellScriptLoader
         {
             PrepareAuraScript(spell_grip_AuraScript);
 
-            void DummyTick(AuraEffect const* aurEff)
+            void DummyTick(AuraEffect const* /*aurEff*/)
             {
                 ++_tickNumber;
 
@@ -1365,7 +1365,6 @@ class spell_fatal_strike : public SpellScriptLoader
             {
                 OnEffectHitTarget += SpellEffectFn(spell_fatal_strike_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
-
         };
 
         SpellScript* GetSpellScript() const override
