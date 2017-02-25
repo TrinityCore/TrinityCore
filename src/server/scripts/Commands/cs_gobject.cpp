@@ -118,10 +118,9 @@ public:
         if (!objectId)
             return false;
 
-        char* spawntimeSecs = strtok(NULL, " ");
+        char* spawntimeSecs = strtok(nullptr, " ");
 
-        const GameObjectTemplate* objectInfo = sObjectMgr->GetGameObjectTemplate(objectId);
-
+        GameObjectTemplate const* objectInfo = sObjectMgr->GetGameObjectTemplate(objectId);
         if (!objectInfo)
         {
             handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, objectId);
@@ -139,14 +138,12 @@ public:
         }
 
         Player* player = handler->GetSession()->GetPlayer();
-        float x = float(player->GetPositionX());
-        float y = float(player->GetPositionY());
-        float z = float(player->GetPositionZ());
-        float o = float(player->GetOrientation());
         Map* map = player->GetMap();
 
-        GameObject* object = new GameObject;
-        if (!object->Create(objectInfo->entry, map, 0, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+        GameObject* object = new GameObject();
+
+        G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
+        if (!object->Create(objectInfo->entry, map, 0, *player, rot, 255, GO_STATE_READY))
         {
             delete object;
             return false;
@@ -179,7 +176,7 @@ public:
         /// @todo is it really necessary to add both the real and DB table guid here ?
         sObjectMgr->AddGameobjectToGrid(spawnId, ASSERT_NOTNULL(sObjectMgr->GetGOData(spawnId)));
 
-        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), spawnId, x, y, z);
+        handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), spawnId, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
         return true;
     }
 
@@ -201,14 +198,7 @@ public:
         if (spawntime)
             spawntm = atoi((char*)spawntime);
 
-        float x = player->GetPositionX();
-        float y = player->GetPositionY();
-        float z = player->GetPositionZ();
-        float ang = player->GetOrientation();
-
-        float rot2 = std::sin(ang/2);
-        float rot3 = std::cos(ang/2);
-
+        G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
         uint32 objectId = atoi(id);
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
@@ -218,7 +208,7 @@ public:
             return false;
         }
 
-        player->SummonGameObject(objectId, x, y, z, ang, 0, 0, rot2, rot3, spawntm);
+        player->SummonGameObject(objectId, *player, rotation, spawntm);
 
         return true;
     }
@@ -416,25 +406,36 @@ public:
         }
 
         char* orientation = strtok(NULL, " ");
-        float o;
+        float oz = 0.f, oy = 0.f, ox = 0.f;
 
         if (orientation)
-            o = (float)atof(orientation);
+        {
+            oz = float(atof(orientation));
+
+            orientation = strtok(NULL, " ");
+            if (orientation)
+            {
+                oy = float(atof(orientation));
+                orientation = strtok(NULL, " ");
+                if (orientation)
+                    ox = float(atof(orientation));
+            }
+        }
         else
         {
             Player* player = handler->GetSession()->GetPlayer();
-            o = player->GetOrientation();
+            oz = player->GetOrientation();
         }
 
-        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
-        object->RelocateStationaryPosition(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
-        object->UpdateRotationFields();
+        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
+        object->RelocateStationaryPosition(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
+        object->SetWorldRotationAngles(oz, oy, ox);
         object->DestroyForNearbyPlayers();
         object->UpdateObjectVisibility();
 
         object->SaveToDB();
 
-        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str(), o);
+        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetSpawnId(), object->GetGOInfo()->name.c_str(), object->GetGUID().ToString().c_str(), object->GetOrientation());
 
         return true;
     }

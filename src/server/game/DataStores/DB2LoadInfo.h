@@ -727,6 +727,24 @@ struct ChrSpecializationLoadInfo
     }
 };
 
+struct CinematicCameraLoadInfo
+{
+    static DB2LoadInfo Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING_NOT_LOCALIZED, "Model" },
+            { false, FT_FLOAT, "OriginX" },
+            { false, FT_FLOAT, "OriginY" },
+            { false, FT_FLOAT, "OriginZ" },
+            { false, FT_FLOAT, "OriginFacing" },
+            { false, FT_SHORT, "SoundID" },
+        };
+        return { &fields[0], std::extent<decltype(fields)>::value, CinematicCameraMeta::Instance(), HOTFIX_SEL_CINEMATIC_CAMERA };
+    }
+};
+
 struct CinematicSequencesLoadInfo
 {
     static DB2LoadInfo Instance()

@@ -50,12 +50,12 @@ enum NAXData
     DATA_HAD_SAPPHIRON_BIRTH,
 
     DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT,
-    DATA_ABOMINATION_KILLED,
 
     DATA_NAXX_PORTAL_ARACHNID,
     DATA_NAXX_PORTAL_CONSTRUCT,
     DATA_NAXX_PORTAL_PLAGUE,
-    DATA_NAXX_PORTAL_MILITARY
+    DATA_NAXX_PORTAL_MILITARY,
+    DATA_KELTHUZAD_THRONE
 };
 
 enum NAXData64
@@ -121,6 +121,7 @@ enum NAXGameObjectsIds
     GO_KELTHUZAD_PORTAL03       = 181404,
     GO_KELTHUZAD_PORTAL04       = 181405,
     GO_KELTHUZAD_TRIGGER        = 181444,
+    GO_KELTHUZAD_THRONE         = 181640,
     GO_ROOM_ANUBREKHAN          = 181126,
     GO_PASSAGE_ANUBREKHAN       = 181195,
     GO_PASSAGE_FAERLINA         = 194022,
@@ -138,14 +139,20 @@ enum NAXGameObjectsIds
     GO_ROOM_HORSEMEN            = 181119,
     GO_PASSAGE_SAPPHIRON        = 181225,
     GO_ROOM_KELTHUZAD           = 181228,
+
+    // End of wing portals
     GO_ARAC_PORTAL              = 181575,
     GO_PLAG_PORTAL              = 181577,
     GO_MILI_PORTAL              = 181578,
     GO_CONS_PORTAL              = 181576,
+
+    // "Glow" effect on center-side portal
     GO_ARAC_EYE_RAMP            = 181212,
     GO_PLAG_EYE_RAMP            = 181211,
     GO_MILI_EYE_RAMP            = 181210,
     GO_CONS_EYE_RAMP            = 181213,
+
+    // "Glow" effect on boss-side portal
     GO_ARAC_EYE_RAMP_BOSS       = 181233,
     GO_PLAG_EYE_RAMP_BOSS       = 181231,
     GO_MILI_EYE_RAMP_BOSS       = 181230,

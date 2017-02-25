@@ -555,8 +555,8 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster /*= nullptr*/, int32 const* 
     if (caster)
     {
         // bonus amount from combo points
-        if (caster->m_movedPlayer && comboDamage)
-            if (uint32 comboPoints = caster->m_movedPlayer->GetComboPoints())
+        if (caster->m_playerMovingMe && comboDamage)
+            if (uint32 comboPoints = caster->m_playerMovingMe->GetComboPoints())
                 value += comboDamage * comboPoints;
 
         value = caster->ApplyEffectModifiers(_spellInfo, EffectIndex, value);
@@ -1444,6 +1444,28 @@ bool SpellInfo::IsRequiringDeadTarget() const
 bool SpellInfo::IsAllowingDeadTarget() const
 {
     return HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD) || Targets & (TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_DEAD);
+}
+
+bool SpellInfo::IsGroupBuff() const
+{
+    SpellEffectInfoVector effects = GetEffectsForDifficulty(DIFFICULTY_NONE);
+    for (SpellEffectInfo const* effect : effects)
+    {
+        if (!effect)
+            continue;
+
+        switch (effect->TargetA.GetCheckType())
+        {
+            case TARGET_CHECK_PARTY:
+            case TARGET_CHECK_RAID:
+            case TARGET_CHECK_RAID_CLASS:
+                return true;
+            default:
+                break;
+        }
+    }
+
+    return false;
 }
 
 bool SpellInfo::CanBeUsedInCombat() const

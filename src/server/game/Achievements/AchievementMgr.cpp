@@ -466,7 +466,7 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
     if (!_owner->GetSession()->PlayerLoading())
         SendAchievementEarned(achievement);
 
-    TC_LOG_DEBUG("criteria.achievement", "PlayerAchievementMgr::CompletedAchievement(%u). %s", achievement->ID, GetOwnerInfo().c_str());
+    TC_LOG_INFO("criteria.achievement", "PlayerAchievementMgr::CompletedAchievement(%u). %s", achievement->ID, GetOwnerInfo().c_str());
 
     CompletedAchievementData& ca = _completedAchievements[achievement->ID];
     ca.Date = time(NULL);

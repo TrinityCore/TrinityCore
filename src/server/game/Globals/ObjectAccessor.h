@@ -108,6 +108,12 @@ namespace ObjectAccessor
         HashMapHolder<T>::Remove(object);
     }
 
+    template<>
+    void AddObject(Player* player);
+
+    template<>
+    void RemoveObject(Player* player);
+
     TC_GAME_API void SaveAllPlayers();
 };
 

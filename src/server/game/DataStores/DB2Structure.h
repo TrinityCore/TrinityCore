@@ -444,6 +444,15 @@ struct ChrSpecializationEntry
     uint32 AnimReplacementSetID;
 };
 
+struct CinematicCameraEntry
+{
+    uint32 ID;
+    char const* Model;                                      // Model filename (translate .mdx to .m2)
+    DBCPosition3D Origin;                                   // Position in map used for basis for M2 co-ordinates
+    float OriginFacing;                                     // Orientation in map used for basis for M2 co-ordinates
+    uint16 SoundID;                                         // Sound ID       (voiceover for cinematic)
+};
+
 struct CinematicSequencesEntry
 {
     uint32 ID;
@@ -1741,7 +1750,7 @@ struct MapEntry
 
     bool IsContinent() const
     {
-        return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 870 || ID == 1116;
+        return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 870 || ID == 1116 || ID == 1220;
     }
 
     bool IsDynamicDifficultyMap() const { return (Flags[0] & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }
