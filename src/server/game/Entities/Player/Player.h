@@ -55,7 +55,6 @@ class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
 class PlayerAI;
-class SmartScript;
 
 enum GroupCategory : uint8;
 
@@ -2516,8 +2515,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
 
-        SmartScript* GetSmartScript() const { return m_smartScript; }
-
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2868,8 +2865,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         WorldLocation _corpseLocation;
 
         SceneMgr m_sceneMgr;
-
-        SmartScript* m_smartScript;
 
         std::unordered_map<ObjectGuid /*LootObject*/, ObjectGuid /*world object*/> m_AELootView;
 };

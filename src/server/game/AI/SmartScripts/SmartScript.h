@@ -36,9 +36,9 @@ class TC_GAME_API SmartScript
         SmartScript();
         ~SmartScript();
 
-        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr);
+        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr, SceneTemplate const* scene = nullptr);
         void GetScript();
-        void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at);
+        void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene);
 
         void ProcessEventsFor(SMART_EVENT e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = nullptr, GameObject* gob = nullptr, std::string varString = "");
         void ProcessEvent(SmartScriptHolder& e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = nullptr, GameObject* gob = nullptr, std::string varString = "");
@@ -62,9 +62,16 @@ class TC_GAME_API SmartScript
                 obj = me;
             else if (go)
                 obj = go;
-            else if (player)
-                obj = player;
             return obj;
+        }
+        WorldObject* GetBaseObjectOrUnit(Unit* unit)
+        {
+            WorldObject* summoner = GetBaseObject();
+
+            if (!summoner && unit)
+                return unit;
+
+            return summoner;
         }
 
         static bool IsUnit(WorldObject* obj)
@@ -277,9 +284,8 @@ class TC_GAME_API SmartScript
         ObjectGuid meOrigGUID;
         GameObject* go;
         ObjectGuid goOrigGUID;
-        Player* player;
-        ObjectGuid playerOrigGUID;
         AreaTriggerEntry const* trigger;
+        SceneTemplate const* sceneTemplate;
         SmartScriptType mScriptType;
         uint32 mEventPhase;
 

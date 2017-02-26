@@ -179,10 +179,10 @@ enum SMART_EVENT
     SMART_EVENT_DISTANCE_CREATURE        = 75,      // guid, entry, distance, repeat
     SMART_EVENT_DISTANCE_GAMEOBJECT      = 76,      // guid, entry, distance, repeat
     SMART_EVENT_COUNTER_SET              = 77,      // id, value, cooldownMin, cooldownMax
-    SMART_EVENT_SCENE_START              = 78,      // sceneId
-    SMART_EVENT_SCENE_TRIGGER            = 79,      // sceneId, param_string : triggerName
-    SMART_EVENT_SCENE_CANCEL             = 80,      // sceneId
-    SMART_EVENT_SCENE_COMPLETE           = 81,      // sceneId
+    SMART_EVENT_SCENE_START              = 78,      // none
+    SMART_EVENT_SCENE_TRIGGER            = 79,      // param_string : triggerName
+    SMART_EVENT_SCENE_CANCEL             = 80,      // none
+    SMART_EVENT_SCENE_COMPLETE           = 81,      // none
 
     SMART_EVENT_END                      = 82
 };
@@ -1269,7 +1269,7 @@ enum SmartScriptType
     SMART_SCRIPT_TYPE_TRANSPORT = 7, //
     SMART_SCRIPT_TYPE_INSTANCE = 8, //
     SMART_SCRIPT_TYPE_TIMED_ACTIONLIST = 9, //
-    SMART_SCRIPT_TYPE_PLAYER = 10, //
+    SMART_SCRIPT_TYPE_SCENE = 10, //done
     SMART_SCRIPT_TYPE_MAX = 11
 };
 
@@ -1285,7 +1285,7 @@ enum SmartAITypeMaskId
     SMART_SCRIPT_TYPE_MASK_TRANSPORT = 128,
     SMART_SCRIPT_TYPE_MASK_INSTANCE = 256,
     SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST = 512,
-    SMART_SCRIPT_TYPE_MASK_PLAYER = 1024
+    SMART_SCRIPT_TYPE_MASK_SCENE = 1024
 };
 
 const uint32 SmartAITypeMask[SMART_SCRIPT_TYPE_MAX][2] =
@@ -1300,7 +1300,7 @@ const uint32 SmartAITypeMask[SMART_SCRIPT_TYPE_MAX][2] =
     {SMART_SCRIPT_TYPE_TRANSPORT,           SMART_SCRIPT_TYPE_MASK_TRANSPORT },
     {SMART_SCRIPT_TYPE_INSTANCE,            SMART_SCRIPT_TYPE_MASK_INSTANCE },
     {SMART_SCRIPT_TYPE_TIMED_ACTIONLIST,    SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST },
-    {SMART_SCRIPT_TYPE_PLAYER,              SMART_SCRIPT_TYPE_MASK_PLAYER }
+    {SMART_SCRIPT_TYPE_SCENE,               SMART_SCRIPT_TYPE_MASK_SCENE }
 };
 
 const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
@@ -1383,10 +1383,10 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_DISTANCE_CREATURE,         SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_DISTANCE_GAMEOBJECT,       SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_COUNTER_SET,               SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
-    {SMART_EVENT_SCENE_START,               SMART_SCRIPT_TYPE_MASK_PLAYER },
-    {SMART_EVENT_SCENE_TRIGGER,             SMART_SCRIPT_TYPE_MASK_PLAYER },
-    {SMART_EVENT_SCENE_CANCEL,              SMART_SCRIPT_TYPE_MASK_PLAYER },
-    {SMART_EVENT_SCENE_COMPLETE,            SMART_SCRIPT_TYPE_MASK_PLAYER }
+    {SMART_EVENT_SCENE_START,               SMART_SCRIPT_TYPE_MASK_SCENE },
+    {SMART_EVENT_SCENE_TRIGGER,             SMART_SCRIPT_TYPE_MASK_SCENE },
+    {SMART_EVENT_SCENE_CANCEL,              SMART_SCRIPT_TYPE_MASK_SCENE },
+    {SMART_EVENT_SCENE_COMPLETE,            SMART_SCRIPT_TYPE_MASK_SCENE }
 };
 
 enum SmartEventFlags
@@ -1443,7 +1443,7 @@ struct SmartScriptHolder
     bool runOnce;
     bool enableTimed;
 
-    operator bool() const { return GetScriptType() != SMART_SCRIPT_TYPE_PLAYER && entryOrGuid != 0; }
+    operator bool() const { return entryOrGuid != 0; }
 };
 
 typedef std::unordered_map<uint32, WayPoint*> WPPath;

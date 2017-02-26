@@ -190,8 +190,15 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     }
                     break;
                 }
-                case SMART_SCRIPT_TYPE_PLAYER:
+                case SMART_SCRIPT_TYPE_SCENE:
+                {
+                    if (!sObjectMgr->GetSceneTemplate((uint32)temp.entryOrGuid))
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Scene id (%u) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                        continue;
+                    }
                     break;
+                }
                 case SMART_SCRIPT_TYPE_TIMED_ACTIONLIST:
                     break;//nothing to check, really
                 default:
@@ -723,21 +730,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 }
                 break;
-            case SMART_EVENT_SCENE_TRIGGER:
-            case SMART_EVENT_SCENE_START:
-            case SMART_EVENT_SCENE_CANCEL:
-            case SMART_EVENT_SCENE_COMPLETE:
-            {
-                SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(e.event.scene.sceneId);
-
-                if (sceneTemplate == nullptr)
-                {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_SCENE_* using invalid sceneId %u, skipped.", e.event.scene.sceneId);
-                    return false;
-                }
-
-                break;
-            }
             case SMART_EVENT_LINK:
             case SMART_EVENT_GO_STATE_CHANGED:
             case SMART_EVENT_GO_EVENT_INFORM:
@@ -772,6 +764,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_JUST_CREATED:
             case SMART_EVENT_FOLLOW_COMPLETED:
             case SMART_EVENT_ON_SPELLCLICK:
+            case SMART_EVENT_SCENE_START:
+            case SMART_EVENT_SCENE_CANCEL:
+            case SMART_EVENT_SCENE_COMPLETE:
+            case SMART_EVENT_SCENE_TRIGGER:
                 break;
             default:
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled event_type(%u), Entry " SI64FMTD " SourceType %u Event %u Action %u, skipped.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
