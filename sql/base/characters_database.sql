@@ -752,6 +752,7 @@ CREATE TABLE `character_fishingsteps` (
 LOCK TABLES `character_fishingsteps` WRITE;
 /*!40000 ALTER TABLE `character_fishingsteps` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_fishingsteps` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `character_garrison`
