@@ -70,7 +70,7 @@ protected:
         {
             for (uint32 a = 0; a < _loadInfo.Meta->ArraySizes[i]; ++a)
             {
-                switch (_loadInfo.Meta->Types[i])
+                switch (_loadInfo.TypesString[i])
                 {
                     case FT_INT:
                         buffer << *(uint32*)entry;
