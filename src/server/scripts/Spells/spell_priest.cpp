@@ -1260,7 +1260,7 @@ public:
             Unit* caster = GetCaster();
             Unit* target = GetTarget();
             
-            if (!caster || !target)
+            if (!caster)
                 return;
 
             if (caster->HasAura(SPELL_PRIEST_BODY_AND_SOUL))
@@ -1281,7 +1281,6 @@ public:
 
                 if (caster->HasAura(SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT))
                     caster->RemoveAura(SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT);
-
                 if (effectDuration > 0 && caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE))
                     caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE, true);
             }
