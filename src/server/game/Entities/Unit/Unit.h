@@ -257,14 +257,19 @@ typedef std::vector<DispelableAura> DispelChargesList;
 
 typedef std::unordered_multimap<uint32 /*type*/, uint32 /*spellId*/> SpellImmuneContainer;
 
-enum UnitModifierType
+enum UnitModifierFlatType
 {
     BASE_VALUE = 0,
     BASE_PCT_EXCLUDE_CREATE = 1,    // percent modifier affecting all stat values from auras and gear but not player base for level
-    BASE_PCT = 2,
-    TOTAL_VALUE = 3,
-    TOTAL_PCT = 4,
-    MODIFIER_TYPE_END = 5
+    TOTAL_VALUE = 2,
+    MODIFIER_TYPE_FLAT_END = 3
+};
+
+enum UnitModifierPctType
+{
+    BASE_PCT = 0,
+    TOTAL_PCT = 1,
+    MODIFIER_TYPE_PCT_END = 2
 };
 
 enum WeaponDamageRange
@@ -1600,8 +1605,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetMaxNegativeAuraModifierByAffectMask(AuraType auratype, SpellInfo const* affectedSpell) const;
 
         void InitStatBuffMods();
-        void ApplyStatBuffMod(Stats stat, float val, bool apply);
-        void ApplyStatPercentBuffMod(Stats stat, float val, bool apply);
+        void UpdateStatBuffMod(Stats stat);
         void UpdateStatBuffModForClient(Stats stat);
         void SetCreateStat(Stats stat, float val) { m_createStats[stat] = val; }
         void SetCreateHealth(uint32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BaseHealth), val); }
@@ -1685,9 +1689,25 @@ class TC_GAME_API Unit : public WorldObject
         EventProcessor m_Events;
 
         // stat system
-        bool HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply);
-        void SetModifierValue(UnitMods unitMod, UnitModifierType modifierType, float value) { m_auraModifiersGroup[unitMod][modifierType] = value; }
-        float GetModifierValue(UnitMods unitMod, UnitModifierType modifierType) const;
+        void HandleStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, float amount, bool apply);
+        void ApplyStatPctModifier(UnitMods unitMod, UnitModifierPctType modifierType, float amount);
+
+        void SetStatFlatModifier(UnitMods unitMod, UnitModifierFlatType modifierType, float val);
+        void SetStatPctModifier(UnitMods unitMod, UnitModifierPctType modifierType, float val);
+
+        float GetFlatModifierValue(UnitMods unitMod, UnitModifierFlatType modifierType) const;
+        float GetPctModifierValue(UnitMods unitMod, UnitModifierPctType modifierType) const;
+
+        void UpdateUnitMod(UnitMods unitMod);
+
+        bool CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect const* aurEff) const;
+
+        virtual void UpdateDamageDoneMods(WeaponAttackType attackType);
+        void UpdateAllDamageDoneMods();
+
+        void UpdateDamagePctDoneMods(WeaponAttackType attackType);
+        void UpdateAllDamagePctDoneMods();
+
         float GetTotalStatValue(Stats stat) const;
         float GetTotalAuraModValue(UnitMods unitMod) const;
         SpellSchools GetSpellSchoolByAuraGroup(UnitMods unitMod) const;
@@ -1715,9 +1735,9 @@ class TC_GAME_API Unit : public WorldObject
         float GetTotalAttackPowerValue(WeaponAttackType attType) const;
         float GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange type) const;
         void SetBaseWeaponDamage(WeaponAttackType attType, WeaponDamageRange damageRange, float value) { m_weaponDamage[attType][damageRange] = value; }
-        virtual void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) = 0;
-        uint32 CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct);
-        float GetAPMultiplier(WeaponAttackType attType, bool normalized);
+        virtual void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) const = 0;
+        uint32 CalculateDamage(WeaponAttackType attType, bool normalized, bool addTotalPct) const;
+        float GetAPMultiplier(WeaponAttackType attType, bool normalized) const;
 
         bool isInFrontInMap(Unit const* target, float distance, float arc = float(M_PI)) const;
         bool isInBackInMap(Unit const* target, float distance, float arc = float(M_PI)) const;
@@ -2058,7 +2078,8 @@ class TC_GAME_API Unit : public WorldObject
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
         std::array<uint32, 2> m_interruptMask;
 
-        float m_auraModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_END];
+        float m_auraFlatModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_FLAT_END];
+        float m_auraPctModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_PCT_END];
         float m_weaponDamage[MAX_ATTACK][2];
         bool m_canModifyStats;
 
