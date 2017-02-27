@@ -806,13 +806,6 @@ void Object::ApplyModSignedFloatValue(uint16 index, float  val, bool apply)
     SetFloatValue(index, cur);
 }
 
-void Object::ApplyPercentModFloatValue(uint16 index, float val, bool apply)
-{
-    float value = GetFloatValue(index);
-    ApplyPercentModFloatVar(value, val, apply);
-    SetFloatValue(index, value);
-}
-
 void Object::ApplyModPositiveFloatValue(uint16 index, float  val, bool apply)
 {
     float cur = GetFloatValue(index);
