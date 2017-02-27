@@ -704,7 +704,6 @@ public:
 
         void HandleOnHit(SpellEffIndex /*effIndex*/)
         {
-            
             if (Unit* target = GetHitUnit())
                 GetCaster()->CastSpell(target, SPELL_WARRIOR_STORM_BOLT_STUN, true);
         }
