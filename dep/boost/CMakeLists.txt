@@ -33,10 +33,17 @@ check_cxx_source_compiles("
   int main() { std::wregex r(L\".*\"); }"
   STD_HAS_WORKING_WREGEX)
 
-if (STD_HAS_WORKING_WREGEX)
-  find_package(Boost 1.55 REQUIRED system filesystem thread program_options iostreams)
+if (WIN32)
+  # On windows the requirements are higher according to the wiki.
+  set(BOOST_REQUIRED_VERSION 1.59)
 else()
-  find_package(Boost 1.55 REQUIRED system filesystem thread program_options iostreams regex)
+  set(BOOST_REQUIRED_VERSION 1.55)
+endif()
+
+if (STD_HAS_WORKING_WREGEX)
+  find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED system filesystem thread program_options iostreams)
+else()
+  find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED system filesystem thread program_options iostreams regex)
 endif()
 
 # Find if Boost was compiled in C++03 mode because it requires -DBOOST_NO_CXX11_SCOPED_ENUMS
@@ -67,7 +74,10 @@ target_compile_definitions(boost
   INTERFACE
     -DBOOST_DATE_TIME_NO_LIB
     -DBOOST_REGEX_NO_LIB
-    -DBOOST_CHRONO_NO_LIB)
+    -DBOOST_CHRONO_NO_LIB
+    # Due to MSVC linking error boost::none" already defined in scripts_...
+    # May be removed when the requirement is raised to boost 1.61 on windows.
+    -DBOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE)
 
 if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
   target_compile_definitions(boost
