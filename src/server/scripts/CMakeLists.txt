@@ -27,8 +27,8 @@ elseif(SCRIPTS MATCHES "static")
 else()
   set(SCRIPTS_DEFAULT_LINKAGE "disabled")
 endif()
-# Sets SCRIPTS_USE_WHITELIST
-# Sets SCRIPTS_WHITELIST
+# Sets SCRIPTS_USE_WHITELIST to indicate that we are using a whitelist,
+# also sets SCRIPTS_WHITELIST to indicate the whitelisted projects.
 if (SCRIPTS MATCHES "minimal")
   set(SCRIPTS_USE_WHITELIST ON)
   # Whitelist which is used when minimal is selected
@@ -39,6 +39,7 @@ endif()
 # variables set above
 foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
   ScriptModuleNameToVariable(${SCRIPT_MODULE} SCRIPT_MODULE_VARIABLE)
+  # "default" is selected for the project
   if (${SCRIPT_MODULE_VARIABLE} STREQUAL "default")
     if(SCRIPTS_USE_WHITELIST)
       list(FIND SCRIPTS_WHITELIST "${SCRIPT_MODULE}" INDEX)
@@ -51,18 +52,22 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
       set(${SCRIPT_MODULE_VARIABLE} ${SCRIPTS_DEFAULT_LINKAGE})
     endif()
   endif()
-  # Build the Graph values
+
+  # Build the visible graph
   if (${SCRIPT_MODULE_VARIABLE} MATCHES "dynamic")
+    # "dynamic" is selected for the project
     GetProjectNameOfScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PROJECT_NAME)
     GetNativeSharedLibraryName(${SCRIPT_MODULE_PROJECT_NAME} SCRIPT_PROJECT_LIBRARY)
     list(APPEND GRAPH_KEYS ${SCRIPT_MODULE_PROJECT_NAME})
     set(GRAPH_VALUE_DISPLAY_${SCRIPT_MODULE_PROJECT_NAME} ${SCRIPT_PROJECT_LIBRARY})
     list(APPEND GRAPH_VALUE_CONTAINS_MODULES_${SCRIPT_MODULE_PROJECT_NAME} ${SCRIPT_MODULE})
   elseif(${SCRIPT_MODULE_VARIABLE} MATCHES "static")
+    # "static" is selected for the project
     list(APPEND GRAPH_KEYS worldserver)
     set(GRAPH_VALUE_DISPLAY_worldserver worldserver)
     list(APPEND GRAPH_VALUE_CONTAINS_MODULES_worldserver ${SCRIPT_MODULE})
   else()
+    # otherwise mark the project as disabled
     list(APPEND GRAPH_KEYS disabled)
     set(GRAPH_VALUE_DISPLAY_disabled disabled)
     list(APPEND GRAPH_VALUE_CONTAINS_MODULES_disabled ${SCRIPT_MODULE})
@@ -130,35 +135,57 @@ endfunction()
 
 # Generates the actual script projects
 # Fills the STATIC_SCRIPT_MODULES and DYNAMIC_SCRIPT_MODULE_PROJECTS variables
-# which contain the names which scripts are linked statically/dynamically and
-# adds the sources of the static modules to the PRIVATE_SOURCES variable.
+# which contain the names which scripts are linked statically/dynamically.
 foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
   GetPathToScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PATH)
   ScriptModuleNameToVariable(${SCRIPT_MODULE} SCRIPT_MODULE_VARIABLE)
 
+  # Uninstall disabled modules
   if ((${SCRIPT_MODULE_VARIABLE} STREQUAL "disabled") OR
       (${SCRIPT_MODULE_VARIABLE} STREQUAL "static"))
-    # Uninstall disabled modules
     GetProjectNameOfScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PROJECT_NAME)
     GetNativeSharedLibraryName(${SCRIPT_MODULE_PROJECT_NAME} SCRIPT_MODULE_OUTPUT_NAME)
     list(APPEND DISABLED_SCRIPT_MODULE_PROJECTS ${INSTALL_OFFSET}/${SCRIPT_MODULE_OUTPUT_NAME})
-    if (${SCRIPT_MODULE_VARIABLE} STREQUAL "static")
-      # Add the module name to STATIC_SCRIPT_MODULES
-      list(APPEND STATIC_SCRIPT_MODULES ${SCRIPT_MODULE})
-      # Add the module content to the whole static module
-      CollectSourceFiles(${SCRIPT_MODULE_PATH} PRIVATE_SOURCES)
-    endif()
+  endif()
+
+  if (${SCRIPT_MODULE_VARIABLE} STREQUAL "static") 
+    # Add the module name to STATIC_SCRIPT_MODULES
+    list(APPEND STATIC_SCRIPT_MODULES ${SCRIPT_MODULE})
+    
+    GetProjectNameOfScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PROJECT_NAME)
+
+    # Add the project name to STATIC_SCRIPT_MODULE_PROJECTS
+    list(APPEND STATIC_SCRIPT_MODULE_PROJECTS ${SCRIPT_MODULE_PROJECT_NAME})
+
+    unset(SCRIPT_MODULE_PRIVATE_SOURCES)
+    # Add the module content to the whole static module
+    CollectSourceFiles(${SCRIPT_MODULE_PATH} SCRIPT_MODULE_PRIVATE_SOURCES)
+
+    add_library(${SCRIPT_MODULE_PROJECT_NAME} STATIC
+      ${PRIVATE_PCH_SOURCE}
+      ${SCRIPT_MODULE_PRIVATE_SOURCES})
+    target_link_libraries(${SCRIPT_MODULE_PROJECT_NAME}
+      PUBLIC
+        game-interface)
+    set_target_properties(${SCRIPT_MODULE_PROJECT_NAME}
+      PROPERTIES
+        FOLDER
+          "scripts")
+
   elseif(${SCRIPT_MODULE_VARIABLE} STREQUAL "dynamic")
     # Generate an own dynamic module which is loadable on runtime
     # Add the module content to the whole static module
     unset(SCRIPT_MODULE_PRIVATE_SOURCES)
     CollectSourceFiles(${SCRIPT_MODULE_PATH} SCRIPT_MODULE_PRIVATE_SOURCES)
     # Configure the scriptloader
-    ConfigureScriptLoader(${SCRIPT_MODULE} SCRIPT_MODULE_PRIVATE_SCRIPTLOADER ON ${SCRIPT_MODULE})
+    ConfigureScriptLoader(${SCRIPT_MODULE} SCRIPT_MODULE_PRIVATE_SCRIPTLOADER
+                          ON ${SCRIPT_MODULE})
+
     GetProjectNameOfScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PROJECT_NAME)
-    # Add the module name to DYNAMIC_SCRIPT_MODULES
+
+    # Add the project name to DYNAMIC_SCRIPT_MODULES
     list(APPEND DYNAMIC_SCRIPT_MODULE_PROJECTS ${SCRIPT_MODULE_PROJECT_NAME})
-    # Create the script module project
+    # Create the dynamic script module project
     add_library(${SCRIPT_MODULE_PROJECT_NAME} SHARED
       ${PRIVATE_PCH_SOURCE}
       ${SCRIPT_MODULE_PRIVATE_SOURCES}
@@ -188,6 +215,8 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
           RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${CMAKE_BINARY_DIR}/bin/MinSizeRel/scripts)
       endif()
     endif()
+  elseif(${SCRIPT_MODULE_VARIABLE} STREQUAL "disabled")
+    # We do nothing
   else()
     message(FATAL_ERROR "Unknown value \"${${SCRIPT_MODULE_VARIABLE}}\"!")
   endif()
@@ -198,14 +227,14 @@ set(WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES ${DYNAMIC_SCRIPT_MODULE_PROJ
 
 ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_SCRIPT_MODULES})
 
+# This is the project which links all static script projects in
 add_library(scripts STATIC
   ScriptLoader.h
-  ${PRIVATE_PCH_SOURCE}
-  ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
-  ${PRIVATE_SOURCES})
+  ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER})
 
 target_link_libraries(scripts
   PUBLIC
+    ${STATIC_SCRIPT_MODULE_PROJECTS}
     game-interface)
 
 target_include_directories(scripts
@@ -219,7 +248,7 @@ set_target_properties(scripts
 
 # Generate precompiled header
 if (USE_SCRIPTPCH)
-  list(APPEND ALL_SCRIPT_PROJECTS scripts ${DYNAMIC_SCRIPT_MODULE_PROJECTS})
+  list(APPEND ALL_SCRIPT_PROJECTS ${STATIC_SCRIPT_MODULE_PROJECTS} ${DYNAMIC_SCRIPT_MODULE_PROJECTS})
   add_cxx_pch("${ALL_SCRIPT_PROJECTS}" ${PRIVATE_PCH_HEADER} ${PRIVATE_PCH_SOURCE})
 endif()
 
