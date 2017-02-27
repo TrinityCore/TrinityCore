@@ -786,6 +786,7 @@ enum NPCFlags : uint64
     UNIT_NPC_FLAG_BLACK_MARKET          = 0x0080000000,     // black market
     UNIT_NPC_FLAG_ITEM_UPGRADE_MASTER   = 0x0100000000,
     UNIT_NPC_FLAG_GARRISON_ARCHITECT    = 0x0200000000,
+    UNIT_NPC_FLAG_STEERING              = 0x0400000000,
     UNIT_NPC_FLAG_SHIPMENT_CRAFTER      = 0x1000000000,
     UNIT_NPC_FLAG_GARRISON_MISSION_NPC  = 0x2000000000,
     UNIT_NPC_FLAG_TRADESKILL_NPC        = 0x4000000000,
@@ -2246,6 +2247,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool CanFly() const = 0;
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsFalling() const;
+        virtual bool CanSwim() const;
 
         void RewardRage(uint32 baseRage);
 
