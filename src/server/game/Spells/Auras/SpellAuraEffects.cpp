@@ -3277,7 +3277,7 @@ void AuraEffect::HandleAuraModBaseResistancePCT(AuraApplication const* aurApp, u
     }
 }
 
-void AuraEffect::HandleModResistancePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModResistancePercent(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -3489,7 +3489,7 @@ void AuraEffect::HandleModHealingDone(AuraApplication const* aurApp, uint8 mode,
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
 }
 
-void AuraEffect::HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
