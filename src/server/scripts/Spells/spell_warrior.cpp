@@ -704,10 +704,9 @@ public:
 
         void HandleOnHit(SpellEffIndex /*effIndex*/)
         {
-            Unit* caster = GetCaster();
-
+            
             if (Unit* target = GetHitUnit())
-                caster->CastSpell(target, SPELL_WARRIOR_STORM_BOLT_STUN, true);
+                GetCaster()->CastSpell(target, SPELL_WARRIOR_STORM_BOLT_STUN, true);
         }
 
         void Register() override
