@@ -160,16 +160,16 @@ namespace Movement
         STRINGIZE(TransportExit      ), // 0x00010000
         STRINGIZE(Unknown2           ), // 0x00020000
         STRINGIZE(Unknown3           ), // 0x00040000
-        STRINGIZE(OrientationInversed), // 0x00080000           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
+        STRINGIZE(Backward           ), // 0x00080000           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
         STRINGIZE(SmoothGroundPath   ), // 0x00100000
-        STRINGIZE(Walkmode           ), // 0x00200000
+        STRINGIZE(CanSwim            ), // 0x00200000
         STRINGIZE(UncompressedPath   ), // 0x00400000
         STRINGIZE(Unknown4           ), // 0x00800000
         STRINGIZE(Unknown5           ), // 0x01000000
         STRINGIZE(Animation          ), // 0x02000000           // Animationid (0...3), Uint32 Time, Not Compartible With Trajectory And Fall Movement
         STRINGIZE(Parabolic          ), // 0x04000000           // Not Compartible With Fall Movement
         STRINGIZE(FadeObject         ), // 0x08000000
-        STRINGIZE(Unknown7           ), // 0x10000000
+        STRINGIZE(Steering           ), // 0x10000000
         STRINGIZE(Unknown8           ), // 0x20000000
         STRINGIZE(Unknown9           ), // 0x40000000
         STRINGIZE(Unknown10          ), // 0x80000000
