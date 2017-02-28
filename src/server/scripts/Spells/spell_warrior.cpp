@@ -127,7 +127,7 @@ class spell_warr_bloodthirst : public SpellScriptLoader
         }
 };
 
-// 100 - Charge
+// 100 - Charge updated to 7.1.5
 class spell_warr_charge : public SpellScriptLoader
 {
     public:
