@@ -332,9 +332,9 @@ public:
     }
 };
 
-/// This hook is responsible for swapping Creature and GameObject AI's
+/// This hook is responsible for swapping Creature, GameObject and AreaTrigger AI's
 template<typename ObjectType, typename ScriptType, typename Base>
-class CreatureGameObjectScriptRegistrySwapHooks
+class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks
     : public ScriptRegistrySwapHookBase
 {
     template<typename W>
@@ -413,6 +413,20 @@ class CreatureGameObjectScriptRegistrySwapHooks
                "The AI should be null here!");
     }
 
+    // Hook which is called before a areatrigger is swapped
+    static void UnloadResetScript(AreaTrigger* at)
+    {
+        at->AI()->OnRemove();
+    }
+
+    static void UnloadDestroyScript(AreaTrigger* at)
+    {
+        at->AI_Destroy();
+
+        ASSERT(!at->AI(),
+            "The AI should be null here!");
+    }
+
     // Hook which is called after a creature was swapped
     static void LoadInitializeScript(Creature* creature)
     {
@@ -455,6 +469,20 @@ class CreatureGameObjectScriptRegistrySwapHooks
         gameobject->AI()->Reset();
     }
 
+    // Hook which is called after a areatrigger was swapped
+    static void LoadInitializeScript(AreaTrigger* at)
+    {
+        ASSERT(!at->AI(),
+            "The AI should be null here!");
+
+        at->AI_Initialize();
+    }
+
+    static void LoadResetScript(AreaTrigger* at)
+    {
+        at->AI()->OnCreate();
+    }
+
     static Creature* GetEntityFromMap(std::common_type<Creature>, Map* map, ObjectGuid const& guid)
     {
         return map->GetCreature(guid);
@@ -463,6 +491,11 @@ class CreatureGameObjectScriptRegistrySwapHooks
     static GameObject* GetEntityFromMap(std::common_type<GameObject>, Map* map, ObjectGuid const& guid)
     {
         return map->GetGameObject(guid);
+    }
+
+    static AreaTrigger* GetEntityFromMap(std::common_type<AreaTrigger>, Map* map, ObjectGuid const& guid)
+    {
+        return map->GetAreaTrigger(guid);
     }
 
     template<typename T>
@@ -583,16 +616,23 @@ private:
 // This hook is responsible for swapping CreatureAI's
 template<typename Base>
 class ScriptRegistrySwapHooks<CreatureScript, Base>
-    : public CreatureGameObjectScriptRegistrySwapHooks<
+    : public CreatureGameObjectAreaTriggerScriptRegistrySwapHooks<
         Creature, CreatureScript, Base
       > { };
 
 // This hook is responsible for swapping GameObjectAI's
 template<typename Base>
 class ScriptRegistrySwapHooks<GameObjectScript, Base>
-    : public CreatureGameObjectScriptRegistrySwapHooks<
+    : public CreatureGameObjectAreaTriggerScriptRegistrySwapHooks<
         GameObject, GameObjectScript, Base
       > { };
+
+// This hook is responsible for swapping AreaTriggerAI's
+template<typename Base>
+class ScriptRegistrySwapHooks<AreaTriggerEntityScript, Base>
+    : public CreatureGameObjectAreaTriggerScriptRegistrySwapHooks<
+    AreaTrigger, AreaTriggerEntityScript, Base
+    > { };
 
 /// This hook is responsible for swapping BattlegroundScript's
 template<typename Base>
@@ -644,35 +684,6 @@ class ScriptRegistrySwapHooks<InstanceMapScript, Base>
 {
 public:
     ScriptRegistrySwapHooks()  : swapped(false) { }
-
-    void BeforeReleaseContext(std::string const& context) final override
-    {
-        auto const bounds = static_cast<Base*>(this)->_ids_of_contexts.equal_range(context);
-        if (bounds.first != bounds.second)
-            swapped = true;
-    }
-
-    void BeforeSwapContext(bool /*initialize*/) override
-    {
-        swapped = false;
-    }
-
-    void BeforeUnload() final override
-    {
-        ASSERT(!swapped);
-    }
-
-private:
-    bool swapped;
-};
-
-/// This hook is responsible for swapping AreaTriggerEntityScript's
-template<typename Base>
-class ScriptRegistrySwapHooks<AreaTriggerEntityScript, Base>
-    : public ScriptRegistrySwapHookBase
-{
-public:
-    ScriptRegistrySwapHooks() : swapped(false) { }
 
     void BeforeReleaseContext(std::string const& context) final override
     {
@@ -771,7 +782,7 @@ class SpecializedScriptRegistry<ScriptType, true>
     friend class ScriptRegistrySwapHooks;
 
     template<typename, typename, typename>
-    friend class CreatureGameObjectScriptRegistrySwapHooks;
+    friend class CreatureGameObjectAreaTriggerScriptRegistrySwapHooks;
 
 public:
     SpecializedScriptRegistry() { }

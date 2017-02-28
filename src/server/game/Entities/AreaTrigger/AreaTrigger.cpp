@@ -147,10 +147,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
         transport->AddPassenger(this);
     }
 
-    i_AI = sScriptMgr->GetAreaTriggerAI(this);
-
-    if (i_AI != nullptr)
-        i_AI->OnInitialize();
+    AI_Initialize();
 
     if (!GetMap()->AddToMap(this))
     {
@@ -716,4 +713,22 @@ void AreaTrigger::DebugVisualizePosition()
         if (Player* player = caster->ToPlayer())
             if (player->isDebugAreaTriggers)
                 player->SummonCreature(1, *this, TEMPSUMMON_TIMED_DESPAWN, GetTimeToTarget());
+}
+
+bool AreaTrigger::AI_Initialize()
+{
+    AI_Destroy();
+    i_AI = sScriptMgr->GetAreaTriggerAI(this);
+
+    if (!i_AI)
+        return false;
+
+    i_AI->OnInitialize();
+    return true;
+}
+
+void AreaTrigger::AI_Destroy()
+{
+    delete i_AI;
+    i_AI = nullptr;
 }
