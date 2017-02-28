@@ -89,9 +89,9 @@ namespace Movement
 
         uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
         if (!args.flags.backward)
-            moveFlags = moveFlags & ~(MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_FORWARD);
+            moveFlags = (moveFlags & ~MOVEMENTFLAG_BACKWARD) | MOVEMENTFLAG_FORWARD;
         else
-            moveFlags = moveFlags & ~(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
+            moveFlags = (moveFlags & ~MOVEMENTFLAG_FORWARD) | MOVEMENTFLAG_BACKWARD;
 
         if (moveFlags & MOVEMENTFLAG_ROOT)
             moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
