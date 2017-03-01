@@ -745,7 +745,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             if (Battleground* bg = killer->GetBattleground())
                 bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
 
-        killer->UpdateCriteria(CRITERIA_TYPE_DAMAGE_DONE, damage, 0, 0, victim);
+        killer->UpdateCriteria(CRITERIA_TYPE_DAMAGE_DONE, health > damage ? damage : health, 0, 0, victim);
         killer->UpdateCriteria(CRITERIA_TYPE_HIGHEST_HIT_DEALT, damage);
     }
 
@@ -13123,14 +13123,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                 if (instanceMap->IsRaidOrHeroicDungeon())
                 {
                     if (creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
-                    {
-                        // if the boss killed itself we still need to bind players to the instance
-                        if (!creditedPlayer && instanceMap->HavePlayers())
-                            creditedPlayer = instanceMap->GetPlayers().getFirst()->GetSource();
-
-                        if (creditedPlayer)
-                            ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
-                    }
+                        ((InstanceMap*)instanceMap)->PermBindAllPlayers();
                 }
                 else
                 {
@@ -14902,6 +14895,18 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 bool Unit::IsFalling() const
 {
     return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR) || movespline->isFalling();
+}
+
+bool Unit::CanSwim() const
+{
+    // Mirror client behavior, if this method returns false then client will not use swimming animation and for players will apply gravity as if there was no water
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CANNOT_SWIM))
+        return false;
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE)) // is player
+        return true;
+    if (HasFlag(UNIT_FIELD_FLAGS_2, 0x1000000))
+        return false;
+    return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_RENAME | UNIT_FLAG_UNK_15);
 }
 
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
