@@ -118,11 +118,11 @@ class TC_GAME_API ReputationMgr
     public:                                                 // modifiers
         bool SetReputation(FactionEntry const* factionEntry, int32 standing)
         {
-            return SetReputation(factionEntry, standing, false, false);
+            return SetReputation(factionEntry, standing, false, false, false);
         }
-        bool ModifyReputation(FactionEntry const* factionEntry, int32 standing, bool noSpillover = false)
+        bool ModifyReputation(FactionEntry const* factionEntry, int32 standing, bool spillOverOnly = false, bool noSpillover = false)
         {
-            return SetReputation(factionEntry, standing, true, noSpillover);
+            return SetReputation(factionEntry, standing, true, spillOverOnly, noSpillover);
         }
 
         void SetVisible(FactionTemplateEntry const* factionTemplateEntry);
@@ -144,7 +144,7 @@ class TC_GAME_API ReputationMgr
     private:                                                // internal helper functions
         void Initialize();
         uint32 GetDefaultStateFlags(FactionEntry const* factionEntry) const;
-        bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental, bool noSpillover);
+        bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental, bool spillOverOnly, bool noSpillover);
         void SetVisible(FactionState* faction);
         void SetAtWar(FactionState* faction, bool atWar) const;
         void SetInactive(FactionState* faction, bool inactive) const;
