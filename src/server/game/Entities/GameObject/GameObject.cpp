@@ -127,6 +127,7 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
     m_spawnId = UI64LIT(0);
 
     m_groupLootTimer = 0;
+    m_lootGenerationTime = 0;
 
     ResetLootMode(); // restore default loot mode
     m_stationaryPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
