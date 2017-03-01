@@ -1098,10 +1098,8 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             {
                 targets.remove_if([](WorldObject* obj) -> bool
                 {
-                    if (Player* target = obj->ToPlayer())
-                        if (target->IsGameMaster())
-                            return true;
-                    return false;
+                    // SPELL_ATTR3_ONLY_TARGET_PLAYERS present on the spell, we can safely cast to Player
+                    return ASSERT_NOTNULL(obj->ToPlayer())->IsGameMaster();
                 });
 
                 _targetCount = targets.size();
