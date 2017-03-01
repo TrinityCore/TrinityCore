@@ -1,5 +1,9 @@
 # NozdormuCore
 
+master | develop
+:------------: | :------------:
+[![master Build Status](https://travis-ci.org/kaytotes/NozdormuCore.svg?branch=master)](https://travis-ci.org/kaytotes/NozdormuCore) | [![develop Build Status](https://travis-ci.org/kaytotes/NozdormuCore.svg?branch=develop)](https://travis-ci.org/kaytotes/NozdormuCore)
+
 ## Introduction
 
 NozdormuCore is a World of Warcraft server Core to power the NozdormuWoW play through expansions server forked from [TrinityCore](https://github.com/TrinityCore/TrinityCore/tree/3.3.5)
