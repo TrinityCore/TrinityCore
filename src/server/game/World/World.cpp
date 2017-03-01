@@ -1202,25 +1202,21 @@ void World::LoadConfigSettings(bool reload)
     {
         // overwrite DB/old value
         if (clientCacheId > 0)
-        {
             m_int_configs[CONFIG_CLIENTCACHE_VERSION] = clientCacheId;
-            TC_LOG_INFO("server.loading", "Client cache version set to: %u", clientCacheId);
-        }
         else
             TC_LOG_ERROR("server.loading", "ClientCacheVersion can't be negative %d, ignored.", clientCacheId);
     }
+    TC_LOG_INFO("server.loading", "Client cache version set to: %u", m_int_configs[CONFIG_CLIENTCACHE_VERSION]);
 
     if (int32 hotfixCacheId = sConfigMgr->GetIntDefault("HotfixCacheVersion", 0))
     {
         // overwrite DB/old value
         if (hotfixCacheId > 0)
-        {
             m_int_configs[CONFIG_HOTFIX_CACHE_VERSION] = hotfixCacheId;
-            TC_LOG_INFO("server.loading", "Hotfix cache version set to: %u", hotfixCacheId);
-        }
         else
             TC_LOG_ERROR("server.loading", "HotfixCacheVersion can't be negative %d, ignored.", hotfixCacheId);
     }
+    TC_LOG_INFO("server.loading", "Hotfix cache version set to: %u", m_int_configs[CONFIG_HOTFIX_CACHE_VERSION]);
 
     m_int_configs[CONFIG_GUILD_NEWS_LOG_COUNT] = sConfigMgr->GetIntDefault("Guild.NewsLogRecordsCount", GUILD_NEWSLOG_MAX_RECORDS);
     if (m_int_configs[CONFIG_GUILD_NEWS_LOG_COUNT] > GUILD_NEWSLOG_MAX_RECORDS)
