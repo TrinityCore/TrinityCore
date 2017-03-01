@@ -49,7 +49,7 @@ enum PriestSpells
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT_TRIGGER       = 92833,
     SPELL_PRIEST_LEAP_OF_FAITH_TRIGGERED            = 92572,
-    SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
+    SPELL_PRIEST_LEVITATE_EFFECT                    = 207903,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
