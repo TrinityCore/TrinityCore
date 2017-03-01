@@ -25,6 +25,7 @@
 #include "UnitEvents.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 //==============================================================
 //================= ThreatCalcHelper ===========================
@@ -415,11 +416,28 @@ void ThreatManager::addThreat(Unit* victim, float threat, SpellSchoolMask school
 void ThreatManager::doAddThreat(Unit* victim, float threat)
 {
     uint32 redirectThreadPct = victim->GetRedirectThreatPercent();
+    Unit* redirectTarget = victim->GetRedirectThreatTarget();
+
+    // If victim is personnal spawn, redirect all aggro to summoner
+    if (TempSummon* tempSummonVictim = victim->ToTempSummon())
+    {
+        if (tempSummonVictim->IsVisibleBySummonerOnly())
+        {
+            // Personnal Spawns from same summoner can aggro each other
+            if (!GetOwner()->ToTempSummon() ||
+                !GetOwner()->ToTempSummon()->IsVisibleBySummonerOnly() ||
+                tempSummonVictim->GetSummonerGUID() != GetOwner()->ToTempSummon()->GetSummonerGUID())
+            {
+                redirectThreadPct = 100;
+                redirectTarget = tempSummonVictim->GetSummoner();
+            }
+        }
+    }
 
     // must check > 0.0f, otherwise dead loop
     if (threat > 0.0f && redirectThreadPct)
     {
-        if (Unit* redirectTarget = victim->GetRedirectThreatTarget())
+        if (redirectTarget)
         {
             float redirectThreat = CalculatePct(threat, redirectThreadPct);
             threat -= redirectThreat;
