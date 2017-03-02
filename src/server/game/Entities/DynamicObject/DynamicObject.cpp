@@ -18,6 +18,7 @@
 
 #include "DynamicObject.h"
 #include "Common.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -106,7 +107,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     SetUInt32Value(DYNAMICOBJECT_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
     SetUInt32Value(DYNAMICOBJECT_SPELLID, spell->Id);
     SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
-    SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());
+    SetUInt32Value(DYNAMICOBJECT_CASTTIME, GameTime::GetGameTimeMS());
 
     if (IsWorldObject())
         setActive(true);    //must before add to map to be put in world container

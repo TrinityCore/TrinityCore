@@ -24,6 +24,7 @@
 #include "CinematicMgr.h"
 #include "Common.h"
 #include "Creature.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScenario.h"
 #include "Item.h"
@@ -499,7 +500,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         if (go && go->ToTransport())                                    // ServerTime
             *data << uint32(go->GetGOValue()->Transport.PathProgress);
         else
-            *data << uint32(getMSTime());
+            *data << uint32(GameTime::GetGameTimeMS());
     }
 
     if (VehicleCreate)
