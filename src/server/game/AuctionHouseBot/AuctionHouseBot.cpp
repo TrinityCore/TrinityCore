@@ -21,6 +21,7 @@
 #include "Config.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
 #include "World.h"
@@ -486,7 +487,7 @@ void AuctionHouseBot::Rebuild(bool all)
         for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
             if (!itr->second->owner || sAuctionBotConfig->IsBotChar(itr->second->owner)) // ahbot auction
                 if (all || itr->second->bid == 0)           // expire now auction if no bid or forced
-                    itr->second->expire_time = sWorld->GetGameTime();
+                    itr->second->expire_time = GameTime::GetGameTime();
     }
 }
 
