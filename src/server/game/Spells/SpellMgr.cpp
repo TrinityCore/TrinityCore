@@ -2782,6 +2782,11 @@ void SpellMgr::LoadSpellInfoCorrections()
                     spellInfo->Effects[j].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
         }
 
+        // disable proc for magnet auras, they're handled differently
+        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+            if (spellInfo->Effects[j].IsAura(SPELL_AURA_SPELL_MAGNET))
+                spellInfo->ProcFlags = 0;
+
         if (spellInfo->ActiveIconID == 2158)  // flight
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
 
