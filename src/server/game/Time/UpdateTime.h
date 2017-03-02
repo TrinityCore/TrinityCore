@@ -19,6 +19,8 @@
 #define __UPDATETIME_H
 
 #include "Define.h"
+#include <array>
+#include <string>
 
 #define AVG_DIFF_COUNT 500
 
