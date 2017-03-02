@@ -23,6 +23,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameTime.h"
 #include "Battleground.h"
 #include "Cell.h"
 #include "CellImpl.h"

@@ -11822,7 +11822,7 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized) const
 
 bool Unit::IsUnderLastManaUseEffect() const
 {
-    return  getMSTimeDiff(m_lastManaUse, GameTime::GetGameTimeMS()) < 5000;
+    return getMSTimeDiff(m_lastManaUse, GameTime::GetGameTimeMS()) < 5000;
 }
 
 void Unit::SetContestedPvP(Player* attackedPlayer)
@@ -13780,7 +13780,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
 {
     *data << uint32(GetUnitMovementFlags());            // movement flags
     *data << uint16(GetExtraUnitMovementFlags());       // 2.3.0
-    *data << uint32(GameTime::GetGameTimeMS());           // time / counter
+    *data << uint32(GameTime::GetGameTimeMS());         // time / counter
     *data << GetPositionX();
     *data << GetPositionY();
     *data << GetPositionZMinusOffset();

@@ -22,6 +22,7 @@
  */
 
 #include "Player.h"
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"

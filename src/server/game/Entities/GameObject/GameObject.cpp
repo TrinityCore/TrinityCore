@@ -1292,7 +1292,7 @@ void GameObject::Use(Unit* user)
             if (goInfo->trap.spellId)
                 CastSpell(user, goInfo->trap.spellId);
 
-            m_cooldownTime = GameTime::GetGameTimeMS() + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4)) * IN_MILLISECONDS;   // template or 4 seconds
+            m_cooldownTime = GameTime::GetGameTimeMS() + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4)) * IN_MILLISECONDS;   // template or 4 seconds
 
             if (goInfo->trap.type == 1)         // Deactivate after trigger
                 SetLootState(GO_JUST_DEACTIVATED);

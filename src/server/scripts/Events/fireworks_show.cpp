@@ -19,6 +19,7 @@
 #include "GameObjectAI.h"
 #include "CreatureAIImpl.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 
 enum FireworksShowTypeObjects
 {

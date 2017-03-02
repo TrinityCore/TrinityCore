@@ -35,6 +35,7 @@ at_brewfest
 at_area_52_entrance
 EndContentData */
 
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Player.h"

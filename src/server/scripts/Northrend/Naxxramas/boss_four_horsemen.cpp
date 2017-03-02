@@ -16,6 +16,7 @@
  */
 
 #include "Player.h"
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"

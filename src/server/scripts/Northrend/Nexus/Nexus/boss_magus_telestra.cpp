@@ -17,6 +17,7 @@
  */
 
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "nexus.h"
