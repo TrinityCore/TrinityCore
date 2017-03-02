@@ -2071,6 +2071,8 @@ void World::Update(uint32 diff)
     _UpdateGameTime();
     time_t currentGameTime = GameTime::GetGameTime();
 
+    sWorldUpdateTime.UpdateWithDiff(diff);
+
     // Record update if recording set in log and diff is greater then minimum set in log
     sWorldUpdateTime.RecordUpdateTime(GameTime::GetGameTimeMS(), diff, GetActiveSessionCount());
 
