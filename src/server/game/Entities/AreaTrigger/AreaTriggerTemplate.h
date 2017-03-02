@@ -83,7 +83,7 @@ struct AreaTriggerScaleInfo
         memset(ExtraScale, 0, sizeof(ExtraScale));
 
         ExtraScale[5].AsFloat = 1.0000001f;
-        ExtraScale[5].AsInt32 = 1;
+        ExtraScale[6].AsInt32 = 1;
     }
 
     union
