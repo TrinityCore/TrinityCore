@@ -286,8 +286,38 @@ void InstanceSaveManager::LoadInstances()
     CharacterDatabase.DirectExecute("UPDATE corpse SET instanceId = 0 WHERE instanceId > 0 AND instanceId NOT IN (SELECT id FROM instance)");
     CharacterDatabase.DirectExecute("UPDATE characters AS tmp LEFT JOIN instance ON tmp.instance_id = instance.id SET tmp.instance_id = 0 WHERE tmp.instance_id > 0 AND instance.id IS NULL");
 
+    // Reduce instance ID numbers when they climb too high, to prevent overflow
+    QueryResult result = CharacterDatabase.Query("SELECT MIN(id), MAX(id) FROM instance");
+    if (result)
+    {
+        uint32 minId = (*result)[0].GetUInt32();
+        uint32 maxId = (*result)[1].GetUInt32();
+
+        // If IDs have reached 4 billion, re-number
+        if (maxId >= uint32(0xEE6B2800))
+        {
+            TC_LOG_INFO("server.loading", "Instance IDs exceed 4000000000, re-numbering...");
+
+            uint32 gap = minId - 1;
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+            trans->PAppend("UPDATE instance SET id = id-%u ORDER BY id ASC", gap);
+
+            trans->PAppend("UPDATE character_instance SET instance = instance-%u ORDER BY instance ASC", gap);
+            trans->PAppend("UPDATE group_instance SET instance = instance-%u ORDER BY instance ASC", gap);
+
+            trans->PAppend("UPDATE creature_respawn SET instanceId = instanceId-%u WHERE instanceId > 0 ORDER BY instanceId ASC", gap);
+            trans->PAppend("UPDATE gameobject_respawn SET instanceId = instanceId-%u WHERE instanceId > 0 ORDER BY instanceId ASC", gap);
+
+            trans->PAppend("UPDATE corpse SET instanceId = instanceId-%u WHERE instanceId > 0 ORDER BY instanceId ASC", gap);
+            trans->PAppend("UPDATE characters SET instance_id = instance_id-%u WHERE instance_id > 0 ORDER BY instance_id ASC", gap);
+
+            CharacterDatabase.DirectCommitTransaction(trans);
+        }
+    }
+
     // Initialize instance id storage (Needs to be done after the trash has been clean out)
-    sMapMgr->InitInstanceIds();
+    sMapMgr->InitInstanceId();
 
     // Load reset times and clean expired instances
     sInstanceSaveMgr->LoadResetTimes();
@@ -323,14 +353,6 @@ void InstanceSaveManager::LoadResetTimes()
             Field* fields = result->Fetch();
 
             uint32 instanceId = fields[0].GetUInt32();
-
-            // Instances are pulled in ascending order from db and nextInstanceId is initialized with 1,
-            // so if the instance id is used, increment until we find the first unused one for a potential new instance
-            if (sMapMgr->GetNextInstanceId() == instanceId)
-                sMapMgr->SetNextInstanceId(instanceId + 1);
-
-            // Mark instance id as being used
-            sMapMgr->RegisterInstanceId(instanceId);
 
             if (time_t resettime = time_t(fields[3].GetUInt32()))
             {
@@ -616,9 +638,6 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
     }
     else
         Map::DeleteRespawnTimesInDB(mapid, instanceId);
-
-    // Free up the instance id and allow it to be reused
-    sMapMgr->FreeInstanceId(instanceId);
 }
 
 void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, time_t resetTime)

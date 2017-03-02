@@ -38,7 +38,7 @@
 #include "AchievementMgr.h"
 
 MapManager::MapManager()
-    : _nextInstanceId(0), _scheduledScripts(0)
+    : _instanceId(1), _scheduledScripts(0)
 {
     i_gridCleanUpDelay = sWorld->getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
     i_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_MAPUPDATE));
@@ -306,69 +306,23 @@ uint32 MapManager::GetNumPlayersInInstances()
     return ret;
 }
 
-void MapManager::InitInstanceIds()
+void MapManager::InitInstanceId()
 {
-    _nextInstanceId = 1;
-
     QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM instance");
     if (result)
-    {
-        uint32 maxId = (*result)[0].GetUInt32();
-
-        // Resize to multiples of 32 (vector<bool> allocates memory the same way)
-        _instanceIds.resize((maxId / 32) * 32 + (maxId % 32 > 0 ? 32 : 0));
-    }
-}
-
-void MapManager::RegisterInstanceId(uint32 instanceId)
-{
-    // Allocation and sizing was done in InitInstanceIds()
-    _instanceIds[instanceId] = true;
+        _instanceId = (*result)[0].GetUInt32()+1;
 }
 
 uint32 MapManager::GenerateInstanceId()
 {
-    uint32 newInstanceId = _nextInstanceId;
-
-    // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
-    for (uint32 i = ++_nextInstanceId; i < 0xFFFFFFFF; ++i)
-    {
-        if ((i < _instanceIds.size() && !_instanceIds[i]) || i >= _instanceIds.size())
-        {
-            _nextInstanceId = i;
-            break;
-        }
-    }
-
-    if (newInstanceId == _nextInstanceId)
+    if (_instanceId >= 0xFFFFFFFE)
     {
         TC_LOG_ERROR("maps", "Instance ID overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
     }
-
-    // Allocate space if necessary
-    if (newInstanceId >= uint32(_instanceIds.size()))
+    else if (_instanceId >= 0xEE6B2800)
     {
-        // Due to the odd memory allocation behavior of vector<bool> we match size to capacity before triggering a new allocation
-        if (_instanceIds.size() < _instanceIds.capacity())
-        {
-            _instanceIds.resize(_instanceIds.capacity());
-        }
-        else
-            _instanceIds.resize((newInstanceId / 32) * 32 + (newInstanceId % 32 > 0 ? 32 : 0));
+        TC_LOG_WARN("maps", "Instance IDs have reached 4,000,000,000. A restart is required soon to reset the sequence!");
     }
-
-    _instanceIds[newInstanceId] = true;
-
-    return newInstanceId;
-}
-
-void MapManager::FreeInstanceId(uint32 instanceId)
-{
-    // If freed instance id is lower than the next id available for new instances, use the freed one instead
-    if (instanceId < _nextInstanceId)
-        SetNextInstanceId(instanceId);
-
-    _instanceIds[instanceId] = false;
-    sAchievementMgr->OnInstanceDestroyed(instanceId);
+    return _instanceId++;
 }
