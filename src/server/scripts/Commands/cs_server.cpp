@@ -110,7 +110,7 @@ public:
         uint32 queuedClientsNum     = sWorld->GetQueuedSessionCount();
         uint32 maxActiveClientsNum  = sWorld->GetMaxActiveSessionCount();
         uint32 maxQueuedClientsNum  = sWorld->GetMaxQueuedSessionCount();
-        std::string uptime          = secsToTimeString(sGameTime->GetUptime());
+        std::string uptime          = secsToTimeString(GameTime::GetUptime());
         uint32 updateTime           = sWorldUpdateTime.GetLastUpdateTime();
 
         handler->SendSysMessage(GitRevision::GetFullVersion());

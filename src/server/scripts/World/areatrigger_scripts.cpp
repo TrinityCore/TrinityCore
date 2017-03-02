@@ -314,7 +314,7 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
         {
             uint32 triggerId = trigger->id;
             // Second trigger happened too early after first, skip for now
-            if (sGameTime->GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
+            if (GameTime::GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
                 return false;
 
             switch (triggerId)
@@ -331,7 +331,7 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
                     break;
             }
 
-            _triggerTimes[triggerId] = sGameTime->GetGameTime();
+            _triggerTimes[triggerId] = GameTime::GetGameTime();
             return false;
         }
 
@@ -371,7 +371,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
                 return false;
 
             uint32 triggerId = trigger->id;
-            if (sGameTime->GetGameTime() - _triggerTimes[trigger->id] < SUMMON_COOLDOWN)
+            if (GameTime::GetGameTime() - _triggerTimes[trigger->id] < SUMMON_COOLDOWN)
                 return false;
 
             switch (triggerId)
@@ -400,7 +400,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
 
             player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
             player->AddAura(SPELL_A52_NEURALYZER, player);
-            _triggerTimes[trigger->id] = sGameTime->GetGameTime();
+            _triggerTimes[trigger->id] = GameTime::GetGameTime();
             return false;
         }
 

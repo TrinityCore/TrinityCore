@@ -18,57 +18,51 @@
 #include "GameTime.h"
 #include "Timer.h"
 
-GameTime::GameTime()
+namespace GameTime
 {
-    UpdateGameTimers();
-    SetStartTime();
-}
+    time_t const StartTime = time(nullptr);
 
-GameTime* GameTime::instance()
-{
-    static GameTime instance;
-    return &instance;
-}
+    time_t GameTime = 0;
+    uint32 GameMSTime = 0;
 
-time_t GameTime::GetStartTime() const
-{
-    return _startTime;
-}
+    std::chrono::system_clock::time_point GameTimeSystemPoint = std::chrono::system_clock::time_point::min();
+    std::chrono::steady_clock::time_point GameTimeSteadyPoint = std::chrono::steady_clock::time_point::min();
 
-time_t GameTime::GetGameTime() const
-{
-    return _gameTime;
-}
+    time_t GetStartTime()
+    {
+        return StartTime;
+    }
 
-uint32 GameTime::GetGameTimeMS() const
-{
-    return _gameMSTime;
-}
+    time_t GetGameTime()
+    {
+        return GameTime;
+    }
 
-std::chrono::system_clock::time_point GameTime::GetGameTimeSystemPoint() const
-{
-    return _gameTimeSystemPoint;
-}
+    uint32 GetGameTimeMS()
+    {
+        return GameMSTime;
+    }
 
-std::chrono::steady_clock::time_point GameTime::GetGameTimeSteadyPoint() const
-{
-    return _gameTimeSteadyPoint;
-}
+    std::chrono::system_clock::time_point GetGameTimeSystemPoint()
+    {
+        return GameTimeSystemPoint;
+    }
 
-uint32 GameTime::GetUptime() const
-{
-    return uint32(_gameTime - _startTime);
-}
+    std::chrono::steady_clock::time_point GetGameTimeSteadyPoint()
+    {
+        return GameTimeSteadyPoint;
+    }
 
-void GameTime::UpdateGameTimers()
-{
-    _gameTime = time(nullptr);
-    _gameMSTime = getMSTime();
-    _gameTimeSystemPoint = std::chrono::system_clock::now();
-    _gameTimeSteadyPoint = std::chrono::steady_clock::now();
-}
+    uint32 GetUptime()
+    {
+        return uint32(GameTime - StartTime);
+    }
 
-void GameTime::SetStartTime()
-{
-    _startTime = _gameTime;
+    void UpdateGameTimers()
+    {
+        GameTime = time(nullptr);
+        GameMSTime = getMSTime();
+        GameTimeSystemPoint = std::chrono::system_clock::now();
+        GameTimeSteadyPoint = std::chrono::steady_clock::now();
+    }
 }

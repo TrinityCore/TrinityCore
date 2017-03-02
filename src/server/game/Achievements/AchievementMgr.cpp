@@ -413,7 +413,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             birthday_tm.tm_year += birthday_login.nth_birthday;
 
             time_t birthday = mktime(&birthday_tm);
-            time_t now = sGameTime->GetGameTime();
+            time_t now = GameTime::GetGameTime();
             return now <= birthday + DAY && now >= birthday;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:

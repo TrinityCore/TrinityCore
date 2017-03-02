@@ -22,43 +22,27 @@
 
 #include <chrono>
 
-class TC_GAME_API GameTime
+namespace GameTime
 {
-    public:
-        GameTime();
+    // Server start time
+    time_t GetStartTime();
 
-        static GameTime* instance();
+    // Current server time (unix) in seconds
+    time_t GetGameTime();
 
-        // Server start time
-        time_t GetStartTime() const;
+    // Milliseconds since server start
+    uint32 GetGameTimeMS();
 
-        // Current server time (unix) in seconds
-        time_t GetGameTime() const;
+    /// Current chrono system_clock time point
+    std::chrono::system_clock::time_point GetGameTimeSystemPoint();
 
-        // Milliseconds since server start
-        uint32 GetGameTimeMS() const;
+    /// Current chrono steady_clock time point
+    std::chrono::steady_clock::time_point GetGameTimeSteadyPoint();
 
-        /// Current chrono system_clock time point
-        std::chrono::system_clock::time_point GetGameTimeSystemPoint() const;
+    /// Uptime (in secs)
+    uint32 GetUptime();
 
-        /// Current chrono steady_clock time point
-        std::chrono::steady_clock::time_point GetGameTimeSteadyPoint() const;
-
-        /// Uptime (in secs)
-        uint32 GetUptime() const;
-
-        void UpdateGameTimers();
-        void SetStartTime();
-
-    private:
-        // Game Time
-        time_t _startTime;
-        time_t _gameTime;
-        uint32 _gameMSTime;
-        std::chrono::system_clock::time_point _gameTimeSystemPoint;
-        std::chrono::steady_clock::time_point _gameTimeSteadyPoint;
+    void UpdateGameTimers();
 };
-
-#define sGameTime GameTime::instance()
 
 #endif

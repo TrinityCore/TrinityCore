@@ -2333,7 +2333,7 @@ bool Creature::CanCreatureAttack(Unit const* victim, bool /*force*/) const
             return true;
 
         // don't check distance to home position if recently damaged, this should include taunt auras
-        if (!isWorldBoss() && (GetLastDamagedTime() > sGameTime->GetGameTime() || HasAuraType(SPELL_AURA_MOD_TAUNT)))
+        if (!isWorldBoss() && (GetLastDamagedTime() > GameTime::GetGameTime() || HasAuraType(SPELL_AURA_MOD_TAUNT)))
             return true;
     }
 
@@ -3088,7 +3088,7 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
         ClearUnitState(UNIT_STATE_CANNOT_TURN);
 
     m_focusSpell = nullptr;
-    m_focusDelay = (!IsPet() && withDelay) ? sGameTime->GetGameTimeMS() : 0; // don't allow re-target right away to prevent visual bugs
+    m_focusDelay = (!IsPet() && withDelay) ? GameTime::GetGameTimeMS() : 0; // don't allow re-target right away to prevent visual bugs
 }
 
 void Creature::StartPickPocketRefillTimer()

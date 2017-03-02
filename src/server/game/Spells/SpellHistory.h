@@ -77,7 +77,7 @@ public:
     template<class Type, class Period>
     void AddCooldown(uint32 spellId, uint32 itemId, std::chrono::duration<Type, Period> cooldownDuration)
     {
-        Clock::time_point now = sGameTime->GetGameTimeSystemPoint();
+        Clock::time_point now = GameTime::GetGameTimeSystemPoint();
         AddCooldown(spellId, itemId, now + std::chrono::duration_cast<Clock::duration>(cooldownDuration), 0, now);
     }
 

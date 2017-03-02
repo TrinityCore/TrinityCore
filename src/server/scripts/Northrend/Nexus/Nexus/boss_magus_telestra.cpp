@@ -167,7 +167,7 @@ public:
                 while (time[i] != 0)
                     ++i;
 
-                time[i] = sGameTime->GetGameTime();
+                time[i] = GameTime::GetGameTime();
                 if (i == 2 && (time[2] - time[1] < 5) && (time[1] - time[0] < 5))
                     ++splitPersonality;
             }

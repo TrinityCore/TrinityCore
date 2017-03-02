@@ -120,9 +120,6 @@ World::World()
     memset(m_int_configs, 0, sizeof(m_int_configs));
     memset(m_bool_configs, 0, sizeof(m_bool_configs));
     memset(m_float_configs, 0, sizeof(m_float_configs));
-
-    sGameTime->UpdateGameTimers();
-    sGameTime->SetStartTime();
 }
 
 /// World destructor
@@ -1860,11 +1857,10 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
-    sGameTime->UpdateGameTimers();
-    sGameTime->SetStartTime();
+    GameTime::UpdateGameTimers();
 
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
-                            realm.Id.Realm, uint32(sGameTime->GetStartTime()), GitRevision::GetFullVersion());       // One-time query
+                            realm.Id.Realm, uint32(GameTime::GetStartTime()), GitRevision::GetFullVersion());       // One-time query
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
@@ -1892,7 +1888,7 @@ void World::SetInitialWorldSettings()
     //one second is 1000 -(tested on win system)
     /// @todo Get rid of magic numbers
     tm localTm;
-    time_t gameTime = sGameTime->GetGameTime();
+    time_t gameTime = GameTime::GetGameTime();
     localtime_r(&gameTime, &localTm);
     mail_timer = ((((localTm.tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
@@ -2073,10 +2069,10 @@ void World::Update(uint32 diff)
 {
     ///- Update the game time and check for shutdown time
     _UpdateGameTime();
-    time_t currentGameTime = sGameTime->GetGameTime();
+    time_t currentGameTime = GameTime::GetGameTime();
 
     // Record update if recording set in log and diff is greater then minimum set in log
-    sWorldUpdateTime.RecordUpdateTime(sGameTime->GetGameTimeMS(), diff, GetActiveSessionCount());
+    sWorldUpdateTime.RecordUpdateTime(GameTime::GetGameTimeMS(), diff, GetActiveSessionCount());
 
     ///- Update the different timers
     for (int i = 0; i < WUPDATE_COUNT; ++i)
@@ -2168,7 +2164,7 @@ void World::Update(uint32 diff)
     /// <li> Update uptime table
     if (m_timers[WUPDATE_UPTIME].Passed())
     {
-        uint32 tmpDiff = sGameTime->GetUptime();
+        uint32 tmpDiff = GameTime::GetUptime();
         uint32 maxOnlinePlayers = GetMaxPlayerCount();
 
         m_timers[WUPDATE_UPTIME].Reset();
@@ -2178,7 +2174,7 @@ void World::Update(uint32 diff)
         stmt->setUInt32(0, tmpDiff);
         stmt->setUInt16(1, uint16(maxOnlinePlayers));
         stmt->setUInt32(2, realm.Id.Realm);
-        stmt->setUInt32(3, uint32(sGameTime->GetStartTime()));
+        stmt->setUInt32(3, uint32(GameTime::GetStartTime()));
 
         LoginDatabase.Execute(stmt);
     }
@@ -2665,10 +2661,10 @@ bool World::RemoveBanCharacter(std::string const& name)
 void World::_UpdateGameTime()
 {
     ///- update the time
-    time_t lastGameTime = sGameTime->GetGameTime();
-    sGameTime->UpdateGameTimers();
+    time_t lastGameTime = GameTime::GetGameTime();
+    GameTime::UpdateGameTimers();
 
-    uint32 elapsed = uint32(sGameTime->GetGameTime() - lastGameTime);
+    uint32 elapsed = uint32(GameTime::GetGameTime() - lastGameTime);
 
     ///- if there is a shutdown timer
     if (!IsStopped() && m_ShutdownTimer > 0 && elapsed > 0)

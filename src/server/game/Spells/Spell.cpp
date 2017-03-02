@@ -2225,7 +2225,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (unit->IsAlive() != target->alive)
         return;
 
-    if (getState() == SPELL_STATE_DELAYED && !m_spellInfo->IsPositive() && (sGameTime->GetGameTimeMS() - target->timeDelay) <= unit->m_lastSanctuaryTime)
+    if (getState() == SPELL_STATE_DELAYED && !m_spellInfo->IsPositive() && (GameTime::GetGameTimeMS() - target->timeDelay) <= unit->m_lastSanctuaryTime)
         return;                                             // No missinfo in that case
 
     // Get original caster (if exist) and calculate damage/healing from him data
@@ -3989,7 +3989,7 @@ void Spell::SendSpellGo()
     data << uint8(m_cast_count);                            // pending spell cast?
     data << uint32(m_spellInfo->Id);                        // spellId
     data << uint32(castFlags);                              // cast flags
-    data << uint32(sGameTime->GetGameTimeMS());             // timestamp
+    data << uint32(GameTime::GetGameTimeMS());             // timestamp
 
     WriteSpellGoTargets(&data);
 
@@ -4474,7 +4474,7 @@ void Spell::TakePower()
 
     // Set the five second timer
     if (powerType == POWER_MANA && m_powerCost > 0)
-        m_caster->SetLastManaUse(sGameTime->GetGameTimeMS());
+        m_caster->SetLastManaUse(GameTime::GetGameTimeMS());
 }
 
 void Spell::TakeAmmo()

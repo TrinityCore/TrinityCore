@@ -359,7 +359,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         plrMover->SetInWater(!plrMover->IsInWater() || plrMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
 
-    uint32 mstime = sGameTime->GetGameTimeMS();
+    uint32 mstime = GameTime::GetGameTimeMS();
     /*----------------------*/
     if (m_clientTimeDelay == 0)
         m_clientTimeDelay = mstime - movementInfo.time;

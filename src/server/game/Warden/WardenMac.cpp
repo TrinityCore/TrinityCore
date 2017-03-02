@@ -185,7 +185,7 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
 
     _initialized = true;
 
-    _previousTimestamp = sGameTime->GetGameTimeMS();
+    _previousTimestamp = GameTime::GetGameTimeMS();
 }
 
 void WardenMac::RequestData()

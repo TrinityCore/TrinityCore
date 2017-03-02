@@ -234,7 +234,7 @@ class spell_dru_eclipse : public SpellScriptLoader
                 if (!spellInfo || !(spellInfo->SpellFamilyFlags[0] & 4)) // Starfire
                     return false;
 
-                return _solarProcCooldownEnd <= sGameTime->GetGameTimeSteadyPoint();
+                return _solarProcCooldownEnd <= GameTime::GetGameTimeSteadyPoint();
             }
 
             bool CheckLunar(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -247,14 +247,14 @@ class spell_dru_eclipse : public SpellScriptLoader
                 if (!roll_chance_i(60))
                     return false;
 
-                return _lunarProcCooldownEnd <= sGameTime->GetGameTimeSteadyPoint();
+                return _lunarProcCooldownEnd <= GameTime::GetGameTimeSteadyPoint();
             }
 
             void ProcSolar(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
-                _solarProcCooldownEnd = sGameTime->GetGameTimeSteadyPoint() + Seconds(30);
+                _solarProcCooldownEnd = GameTime::GetGameTimeSteadyPoint() + Seconds(30);
                 eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_SOLAR_PROC, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
 
@@ -262,7 +262,7 @@ class spell_dru_eclipse : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                _lunarProcCooldownEnd = sGameTime->GetGameTimeSteadyPoint() + Seconds(30);
+                _lunarProcCooldownEnd = GameTime::GetGameTimeSteadyPoint() + Seconds(30);
                 eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_LUNAR_PROC, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
 
