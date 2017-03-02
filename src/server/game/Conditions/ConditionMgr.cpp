@@ -449,7 +449,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_REALM_ACHIEVEMENT:
         {
             AchievementEntry const* achievement = sAchievementMgr->GetAchievement(ConditionValue1);
-            if (achievement && sAchievementMgr->IsRealmCompleted(achievement, std::numeric_limits<uint32>::max()))
+            if (achievement && sAchievementMgr->IsRealmCompleted(achievement))
                 condMeets = true;
             break;
         }

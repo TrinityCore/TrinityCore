@@ -360,26 +360,6 @@ class TC_GAME_API AchievementGlobalMgr
             return iter != m_criteriaDataMap.end() ? &iter->second : nullptr;
         }
 
-        bool IsRealmCompleted(AchievementEntry const* achievement, uint32 instanceId) const
-        {
-            AllCompletedAchievements::const_iterator itr = m_allCompletedAchievements.find(achievement->ID);
-            if (itr == m_allCompletedAchievements.end())
-                return false;
-
-            if (achievement->Flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
-                return itr->second != instanceId;
-
-            return true;
-        }
-
-        void SetRealmCompleted(AchievementEntry const* achievement, uint32 instanceId)
-        {
-            if (IsRealmCompleted(achievement, instanceId))
-                return;
-
-            m_allCompletedAchievements[achievement->ID] = instanceId;
-        }
-
         bool IsGroupCriteriaType(AchievementCriteriaTypes type) const
         {
             switch (type)
@@ -397,9 +377,8 @@ class TC_GAME_API AchievementGlobalMgr
 
             return false;
         }
-
-        // Removes instanceId as valid id to complete realm first kill achievements
-        void OnInstanceDestroyed(uint32 instanceId);
+        bool IsRealmCompleted(AchievementEntry const* achievement) const;
+        void SetRealmCompleted(AchievementEntry const* achievement);
 
         void LoadAchievementCriteriaList();
         void LoadAchievementCriteriaData();
@@ -430,8 +409,10 @@ class TC_GAME_API AchievementGlobalMgr
         // store achievements by referenced achievement id to speed up lookup
         AchievementListByReferencedId m_AchievementListByReferencedId;
 
-        typedef std::map<uint32 /*achievementId*/, uint32 /*instanceId*/> AllCompletedAchievements;
-        AllCompletedAchievements m_allCompletedAchievements;
+        // store realm first achievements
+        // std::chrono::system_clock::time_point::min() is a placeholder value for realm firsts not yet completed
+        // std::chrono::system_clock::time_point::max() is a value assigned to realm firsts complete before worldserver started
+        std::unordered_map<uint32 /*achievementId*/, std::chrono::system_clock::time_point /*completionTime*/> _allCompletedAchievements;
 
         AchievementRewards m_achievementRewards;
         AchievementRewardLocales m_achievementRewardLocales;
