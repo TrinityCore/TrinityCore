@@ -110,14 +110,9 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->MaxSearchRadius);
     SetUInt32Value(AREATRIGGER_DECAL_PROPERTIES_ID, GetMiscTemplate()->DecalPropertiesId);
 
-    uint8 scaleCurveIndex = 0;
-    for (float extraScaleCurve : GetMiscTemplate()->ExtraScaleCurve)
-    {
-        if (extraScaleCurve != 0.0f)
-            SetFloatValue(AREATRIGGER_EXTRA_SCALE_CURVE + scaleCurveIndex, extraScaleCurve);
-
-        ++scaleCurveIndex;
-    }
+    for (uint8 scaleCurveIndex = 0; scaleCurveIndex < MAX_AREATRIGGER_SCALE; ++scaleCurveIndex)
+        if (GetMiscTemplate()->ScaleInfo.ExtraScale[scaleCurveIndex].AsInt32)
+            SetUInt32Value(AREATRIGGER_EXTRA_SCALE_CURVE + scaleCurveIndex, GetMiscTemplate()->ScaleInfo.ExtraScale[scaleCurveIndex].AsInt32);
 
     CopyPhaseFrom(caster);
 
