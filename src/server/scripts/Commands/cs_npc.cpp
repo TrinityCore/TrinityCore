@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -114,7 +114,7 @@ EnumName<UnitFlags> const unitFlags[MAX_UNIT_FLAGS] =
 {
     CREATE_NAMED_ENUM(UNIT_FLAG_SERVER_CONTROLLED),
     CREATE_NAMED_ENUM(UNIT_FLAG_NON_ATTACKABLE),
-    CREATE_NAMED_ENUM(UNIT_FLAG_DISABLE_MOVE),
+    CREATE_NAMED_ENUM(UNIT_FLAG_REMOVE_CLIENT_CONTROL),
     CREATE_NAMED_ENUM(UNIT_FLAG_PVP_ATTACKABLE),
     CREATE_NAMED_ENUM(UNIT_FLAG_RENAME),
     CREATE_NAMED_ENUM(UNIT_FLAG_PREPARATION),
@@ -126,7 +126,7 @@ EnumName<UnitFlags> const unitFlags[MAX_UNIT_FLAGS] =
     CREATE_NAMED_ENUM(UNIT_FLAG_PET_IN_COMBAT),
     CREATE_NAMED_ENUM(UNIT_FLAG_PVP),
     CREATE_NAMED_ENUM(UNIT_FLAG_SILENCED),
-    CREATE_NAMED_ENUM(UNIT_FLAG_UNK_14),
+    CREATE_NAMED_ENUM(UNIT_FLAG_CANNOT_SWIM),
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_15),
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_16),
     CREATE_NAMED_ENUM(UNIT_FLAG_PACIFIED),

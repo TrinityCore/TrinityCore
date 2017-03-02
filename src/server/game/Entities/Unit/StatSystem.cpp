@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1208,7 +1208,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 
     UnitMods unitMod = UNIT_MOD_DAMAGE_MAINHAND;
 
-    float att_speed = float(GetAttackTime(BASE_ATTACK))/1000.0f;
+    float att_speed = float(GetBaseAttackTime(BASE_ATTACK))/1000.0f;
 
     float base_value  = GetModifierValue(unitMod, BASE_VALUE) + GetTotalAttackPowerValue(attType)/ 3.5f * att_speed  + bonusDamage;
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -273,7 +273,7 @@ namespace WorldPackets
             int32 Quality = 0;
             uint8 SortCount = 0;
             Array<uint8, BATTLE_PET_SPECIES_MAX_ID / 8 + 1> KnownPets;
-            int8 MaxPetLevel;
+            int8 MaxPetLevel = 0;
             std::string Name;
             Array<ClassFilter, 7> ClassFilters;
             bool ExactMatch = true;

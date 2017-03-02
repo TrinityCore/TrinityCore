@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -229,7 +229,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
     }
     catch (UpdateException&)
     {
-        TC_LOG_FATAL("sql.updates", "Failed to create database %s! Does the user (named in *.conf) have `CREATE` privileges on the MySQL server?", pool.GetConnectionInfo()->database.c_str());
+        TC_LOG_FATAL("sql.updates", "Failed to create database %s! Does the user (named in *.conf) have `CREATE`, `ALTER`, `DROP`, `INSERT` and `DELETE` privileges on the MySQL server?", pool.GetConnectionInfo()->database.c_str());
         boost::filesystem::remove(temp);
         return false;
     }
@@ -251,7 +251,7 @@ bool DBUpdater<T>::Update(DatabaseWorkerPool<T>& pool)
 
     if (!is_directory(sourceDirectory))
     {
-        TC_LOG_ERROR("sql.updates", "DBUpdater: Given source directory %s does not exist, skipped!", sourceDirectory.generic_string().c_str());
+        TC_LOG_ERROR("sql.updates", "DBUpdater: The given source directory %s does not exist, change the path to the directory where your sql directory exists (for example c:\\source\\trinitycore). Shutting down.", sourceDirectory.generic_string().c_str());
         return false;
     }
 

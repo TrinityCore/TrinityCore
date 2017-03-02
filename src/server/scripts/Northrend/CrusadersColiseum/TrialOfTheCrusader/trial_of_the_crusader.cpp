@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -142,7 +142,7 @@ class npc_announcer_toc10 : public CreatureScript
                 if ((!_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) != DONE)
                     || (_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) == DONE))
                 {
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
                     break;
                 }
             }
@@ -150,14 +150,14 @@ class npc_announcer_toc10 : public CreatureScript
             if (i >= NUM_MESSAGES)
                 return false;
 
-            player->SEND_GOSSIP_MENU(_GossipMessage[i].msgnum, creature->GetGUID());
+            SendGossipMenuFor(player, _GossipMessage[i].msgnum, creature->GetGUID());
             return true;
         }
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
         {
-            player->PlayerTalkClass->ClearMenus();
-            player->CLOSE_GOSSIP_MENU();
+            ClearGossipMenuFor(player);
+            CloseGossipMenuFor(player);
             InstanceScript* instance = creature->GetInstanceScript();
             if (!instance)
                 return true;
@@ -174,7 +174,7 @@ class npc_announcer_toc10 : public CreatureScript
                 if (Creature* jaraxxus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_JARAXXUS)))
                 {
                     jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
-                    jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                     jaraxxus->SetReactState(REACT_DEFENSIVE);
                     jaraxxus->SetInCombatWithZone();
                 }
@@ -360,11 +360,11 @@ class npc_fizzlebang_toc : public CreatureScript
             {
                 Talk(SAY_STAGE_1_06, killer);
                 _instance->SetData(TYPE_EVENT, 1180);
-                if (Creature* temp = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_JARAXXUS)))
+                if (Creature* jaraxxus = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_JARAXXUS)))
                 {
-                    temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    temp->SetReactState(REACT_AGGRESSIVE);
-                    temp->SetInCombatWithZone();
+                    jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                    jaraxxus->SetReactState(REACT_AGGRESSIVE);
+                    jaraxxus->SetInCombatWithZone();
                 }
             }
 
@@ -457,18 +457,18 @@ class npc_fizzlebang_toc : public CreatureScript
                             break;
                         case 1140:
                             Talk(SAY_STAGE_1_04);
-                            if (Creature* temp = me->SummonCreature(NPC_JARAXXUS, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 5.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME))
+                            if (Creature* jaraxxus = me->SummonCreature(NPC_JARAXXUS, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 5.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME))
                             {
-                                temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                                temp->SetReactState(REACT_PASSIVE);
-                                temp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()-10, ToCCommonLoc[1].GetPositionZ());
+                                jaraxxus->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                                jaraxxus->SetReactState(REACT_PASSIVE);
+                                jaraxxus->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()-10, ToCCommonLoc[1].GetPositionZ());
                             }
                             _instance->SetData(TYPE_EVENT, 1142);
                             _updateTimer = 5*IN_MILLISECONDS;
                             break;
                         case 1142:
-                            if (Creature* temp = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_JARAXXUS)))
-                                temp->SetTarget(me->GetGUID());
+                            if (Creature* jaraxxus = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_JARAXXUS)))
+                                jaraxxus->SetTarget(me->GetGUID());
                             if (Creature* pTrigger = ObjectAccessor::GetCreature(*me, _triggerGUID))
                                 pTrigger->DespawnOrUnsummon();
                             if (Creature* pPortal = ObjectAccessor::GetCreature(*me, _portalGUID))
@@ -477,19 +477,19 @@ class npc_fizzlebang_toc : public CreatureScript
                             _updateTimer = 10*IN_MILLISECONDS;
                             break;
                         case 1144:
-                            if (Creature* temp = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_JARAXXUS)))
-                                temp->AI()->Talk(SAY_STAGE_1_05);
+                            if (Creature* jaraxxus = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_JARAXXUS)))
+                                jaraxxus->AI()->Talk(SAY_STAGE_1_05);
                             _instance->SetData(TYPE_EVENT, 1150);
                             _updateTimer = 5*IN_MILLISECONDS;
                             break;
                         case 1150:
-                            if (Creature* temp = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_JARAXXUS)))
+                            if (Creature* jaraxxus = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(NPC_JARAXXUS)))
                             {
                                 //1-shot Fizzlebang
-                                temp->CastSpell(me, 67888, false);
-                                me->SetInCombatWith(temp);
-                                temp->AddThreat(me, 1000.0f);
-                                temp->AI()->AttackStart(me);
+                                jaraxxus->CastSpell(me, 67888, false); // 67888 - Fel Lightning
+                                me->SetInCombatWith(jaraxxus);
+                                jaraxxus->AddThreat(me, 1000.0f);
+                                jaraxxus->AI()->AttackStart(me);
                             }
                             _instance->SetData(TYPE_EVENT, 1160);
                             _updateTimer = 3*IN_MILLISECONDS;
@@ -561,11 +561,11 @@ class npc_tirion_toc : public CreatureScript
                             {
                                 _instance->DoUseDoorOrButton(_instance->GetGuidData(GO_MAIN_GATE_DOOR));
 
-                                if (Creature* temp = me->SummonCreature(NPC_GORMOK, ToCSpawnLoc[0].GetPositionX(), ToCSpawnLoc[0].GetPositionY(), ToCSpawnLoc[0].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30*IN_MILLISECONDS))
+                                if (Creature* gormok = me->SummonCreature(NPC_GORMOK, ToCSpawnLoc[0].GetPositionX(), ToCSpawnLoc[0].GetPositionY(), ToCSpawnLoc[0].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30*IN_MILLISECONDS))
                                 {
-                                    temp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
-                                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                    temp->SetReactState(REACT_PASSIVE);
+                                    gormok->GetMotionMaster()->MovePoint(0, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
+                                    gormok->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                    gormok->SetReactState(REACT_PASSIVE);
                                 }
                             }
                             _updateTimer = 3*IN_MILLISECONDS;
@@ -582,11 +582,11 @@ class npc_tirion_toc : public CreatureScript
                             if (_instance->GetBossState(BOSS_BEASTS) != DONE)
                             {
                                 _instance->DoUseDoorOrButton(_instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                                if (Creature* temp = me->SummonCreature(NPC_DREADSCALE, ToCSpawnLoc[1].GetPositionX(), ToCSpawnLoc[1].GetPositionY(), ToCSpawnLoc[1].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
+                                if (Creature* dreadscale = me->SummonCreature(NPC_DREADSCALE, ToCSpawnLoc[1].GetPositionX(), ToCSpawnLoc[1].GetPositionY(), ToCSpawnLoc[1].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
                                 {
-                                    temp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
-                                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                                    temp->SetReactState(REACT_PASSIVE);
+                                    dreadscale->GetMotionMaster()->MovePoint(0, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
+                                    dreadscale->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                    dreadscale->SetReactState(REACT_PASSIVE);
                                 }
                             }
                             _updateTimer = 5*IN_MILLISECONDS;
@@ -600,9 +600,9 @@ class npc_tirion_toc : public CreatureScript
                             if (_instance->GetBossState(BOSS_BEASTS) != DONE)
                             {
                                 _instance->DoUseDoorOrButton(_instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                                if (Creature* temp = me->SummonCreature(NPC_ICEHOWL, ToCSpawnLoc[0].GetPositionX(), ToCSpawnLoc[0].GetPositionY(), ToCSpawnLoc[0].GetPositionZ(), 5, TEMPSUMMON_DEAD_DESPAWN))
+                                if (Creature* icehowl = me->SummonCreature(NPC_ICEHOWL, ToCSpawnLoc[0].GetPositionX(), ToCSpawnLoc[0].GetPositionY(), ToCSpawnLoc[0].GetPositionZ(), 5, TEMPSUMMON_DEAD_DESPAWN))
                                 {
-                                    temp->GetMotionMaster()->MovePoint(2, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
+                                    icehowl->GetMotionMaster()->MovePoint(2, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                                     me->SetReactState(REACT_PASSIVE);
                                 }
@@ -698,34 +698,34 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         case 4010:
                             Talk(SAY_STAGE_3_02);
-                            if (Creature* temp = me->SummonCreature(NPC_LIGHTBANE, ToCSpawnLoc[1].GetPositionX(), ToCSpawnLoc[1].GetPositionY(), ToCSpawnLoc[1].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME))
+                            if (Creature* lightbane = me->SummonCreature(NPC_LIGHTBANE, ToCSpawnLoc[1].GetPositionX(), ToCSpawnLoc[1].GetPositionY(), ToCSpawnLoc[1].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME))
                             {
-                                temp->SetVisible(false);
-                                temp->SetReactState(REACT_PASSIVE);
-                                temp->SummonCreature(NPC_LIGHT_ESSENCE, TwinValkyrsLoc[0].GetPositionX(), TwinValkyrsLoc[0].GetPositionY(), TwinValkyrsLoc[0].GetPositionZ());
-                                temp->SummonCreature(NPC_LIGHT_ESSENCE, TwinValkyrsLoc[1].GetPositionX(), TwinValkyrsLoc[1].GetPositionY(), TwinValkyrsLoc[1].GetPositionZ());
+                                lightbane->SetVisible(false);
+                                lightbane->SetReactState(REACT_PASSIVE);
+                                lightbane->SummonCreature(NPC_LIGHT_ESSENCE, TwinValkyrsLoc[0].GetPositionX(), TwinValkyrsLoc[0].GetPositionY(), TwinValkyrsLoc[0].GetPositionZ());
+                                lightbane->SummonCreature(NPC_LIGHT_ESSENCE, TwinValkyrsLoc[1].GetPositionX(), TwinValkyrsLoc[1].GetPositionY(), TwinValkyrsLoc[1].GetPositionZ());
                             }
-                            if (Creature* temp = me->SummonCreature(NPC_DARKBANE, ToCSpawnLoc[2].GetPositionX(), ToCSpawnLoc[2].GetPositionY(), ToCSpawnLoc[2].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME))
+                            if (Creature* darkbane = me->SummonCreature(NPC_DARKBANE, ToCSpawnLoc[2].GetPositionX(), ToCSpawnLoc[2].GetPositionY(), ToCSpawnLoc[2].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME))
                             {
-                                temp->SetVisible(false);
-                                temp->SetReactState(REACT_PASSIVE);
-                                temp->SummonCreature(NPC_DARK_ESSENCE, TwinValkyrsLoc[2].GetPositionX(), TwinValkyrsLoc[2].GetPositionY(), TwinValkyrsLoc[2].GetPositionZ());
-                                temp->SummonCreature(NPC_DARK_ESSENCE, TwinValkyrsLoc[3].GetPositionX(), TwinValkyrsLoc[3].GetPositionY(), TwinValkyrsLoc[3].GetPositionZ());
+                                darkbane->SetVisible(false);
+                                darkbane->SetReactState(REACT_PASSIVE);
+                                darkbane->SummonCreature(NPC_DARK_ESSENCE, TwinValkyrsLoc[2].GetPositionX(), TwinValkyrsLoc[2].GetPositionY(), TwinValkyrsLoc[2].GetPositionZ());
+                                darkbane->SummonCreature(NPC_DARK_ESSENCE, TwinValkyrsLoc[3].GetPositionX(), TwinValkyrsLoc[3].GetPositionY(), TwinValkyrsLoc[3].GetPositionZ());
                             }
                             _updateTimer = 3*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 4015);
                             break;
                         case 4015:
                             _instance->DoUseDoorOrButton(_instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                            if (Creature* temp = ObjectAccessor::GetCreature((*me), _instance->GetGuidData(NPC_LIGHTBANE)))
+                            if (Creature* lightbane = ObjectAccessor::GetCreature((*me), _instance->GetGuidData(NPC_LIGHTBANE)))
                             {
-                                temp->GetMotionMaster()->MovePoint(1, ToCCommonLoc[8].GetPositionX(), ToCCommonLoc[8].GetPositionY(), ToCCommonLoc[8].GetPositionZ());
-                                temp->SetVisible(true);
+                                lightbane->GetMotionMaster()->MovePoint(1, ToCCommonLoc[8].GetPositionX(), ToCCommonLoc[8].GetPositionY(), ToCCommonLoc[8].GetPositionZ());
+                                lightbane->SetVisible(true);
                             }
-                            if (Creature* temp = ObjectAccessor::GetCreature((*me), _instance->GetGuidData(NPC_DARKBANE)))
+                            if (Creature* darkbane = ObjectAccessor::GetCreature((*me), _instance->GetGuidData(NPC_DARKBANE)))
                             {
-                                temp->GetMotionMaster()->MovePoint(1, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ());
-                                temp->SetVisible(true);
+                                darkbane->GetMotionMaster()->MovePoint(1, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ());
+                                darkbane->SetVisible(true);
                             }
                             _updateTimer = 10*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 4016);
@@ -754,9 +754,9 @@ class npc_tirion_toc : public CreatureScript
                             _instance->SetData(TYPE_EVENT, 0);
                             break;
                         case 6000:
-                            me->SummonCreature(NPC_TIRION_FORDRING, EndSpawnLoc[0].GetPositionX(), EndSpawnLoc[0].GetPositionY(), EndSpawnLoc[0].GetPositionZ());
-                            me->SummonCreature(NPC_ARGENT_MAGE, EndSpawnLoc[1].GetPositionX(), EndSpawnLoc[1].GetPositionY(), EndSpawnLoc[1].GetPositionZ());
-                            me->SummonGameObject(GO_PORTAL_TO_DALARAN, EndSpawnLoc[2].GetPositionX(), EndSpawnLoc[2].GetPositionY(), EndSpawnLoc[2].GetPositionZ(), 5, 0, 0, 0, 0, 0);
+                            me->SummonCreature(NPC_TIRION_FORDRING, EndSpawnLoc[0]);
+                            me->SummonCreature(NPC_ARGENT_MAGE, EndSpawnLoc[1]);
+                            me->SummonGameObject(GO_PORTAL_TO_DALARAN, EndSpawnLoc[2], G3D::Quat(), 0);
                             _updateTimer = 20*IN_MILLISECONDS;
                             _instance->SetData(TYPE_EVENT, 6005);
                             break;

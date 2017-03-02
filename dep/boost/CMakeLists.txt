@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -26,11 +26,20 @@ if(WIN32)
   set(Boost_USE_STATIC_RUNTIME     OFF)
 endif()
 
-find_package(Boost 1.55 REQUIRED system filesystem thread program_options iostreams)
+include (CheckCXXSourceCompiles)
+
+check_cxx_source_compiles("
+  #include <regex>
+  int main() { std::wregex r(L\".*\"); }"
+  STD_HAS_WORKING_WREGEX)
+
+if (STD_HAS_WORKING_WREGEX)
+  find_package(Boost 1.55 REQUIRED system filesystem thread program_options iostreams)
+else()
+  find_package(Boost 1.55 REQUIRED system filesystem thread program_options iostreams regex)
+endif()
 
 # Find if Boost was compiled in C++03 mode because it requires -DBOOST_NO_CXX11_SCOPED_ENUMS
-
-include (CheckCXXSourceCompiles)
 
 set(CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR})
 set(CMAKE_REQUIRED_LIBRARIES ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${Boost_IOSTREAMS_LIBRARY})
@@ -54,17 +63,20 @@ target_include_directories(boost
   INTERFACE
     ${Boost_INCLUDE_DIRS})
 
-if (boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
+target_compile_definitions(boost
+  INTERFACE
+    -DBOOST_DATE_TIME_NO_LIB
+    -DBOOST_REGEX_NO_LIB
+    -DBOOST_CHRONO_NO_LIB)
+
+if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
   target_compile_definitions(boost
     INTERFACE
-      -DBOOST_DATE_TIME_NO_LIB
-      -DBOOST_REGEX_NO_LIB
-      -DBOOST_CHRONO_NO_LIB)
-else()
-  target_compile_definitions(boost
-    INTERFACE
-      -DBOOST_DATE_TIME_NO_LIB
-      -DBOOST_REGEX_NO_LIB
-      -DBOOST_CHRONO_NO_LIB
       -DBOOST_NO_CXX11_SCOPED_ENUMS)
+endif()
+
+if (NOT STD_HAS_WORKING_WREGEX)
+  target_compile_definitions(boost
+    INTERFACE
+      -DTC_HAS_BROKEN_WSTRING_REGEX)
 endif()

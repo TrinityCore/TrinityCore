@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -290,13 +290,14 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
     CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING | CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ | CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
 
-#define CREATURE_REGEN_INTERVAL 2 * IN_MILLISECONDS
+const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
+const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
 
-#define MAX_KILL_CREDIT 2
-#define MAX_CREATURE_MODELS 4
-#define MAX_CREATURE_NAMES 4
-#define CREATURE_MAX_SPELLS 8
-#define MAX_CREATURE_DIFFICULTIES 3
+const uint8 MAX_KILL_CREDIT = 2;
+const uint32 MAX_CREATURE_MODELS = 4;
+const uint32 MAX_CREATURE_NAMES = 4;
+const uint32 MAX_CREATURE_SPELLS = 8;
+const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
@@ -333,7 +334,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  unit_flags;                                     // enum UnitFlags mask values
     uint32  unit_flags2;                                    // enum UnitFlags2 mask values
     uint32  dynamicflags;
-    uint32  family;                                         // enum CreatureFamily values (optional)
+    CreatureFamily  family;                                 // enum CreatureFamily values (optional)
     uint32  trainer_type;
     uint32  trainer_class;
     uint32  trainer_race;
@@ -344,7 +345,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  pickpocketLootId;
     uint32  SkinLootId;
     int32   resistance[MAX_SPELL_SCHOOL];
-    uint32  spells[CREATURE_MAX_SPELLS];
+    uint32  spells[MAX_CREATURE_SPELLS];
     uint32  VehicleId;
     uint32  mingold;
     uint32  maxgold;
@@ -373,11 +374,11 @@ struct TC_GAME_API CreatureTemplate
     // helpers
     SkillType GetRequiredLootSkill() const
     {
-        if (type_flags & CREATURE_TYPEFLAGS_HERBLOOT)
+        if (type_flags & CREATURE_TYPE_FLAG_HERB_SKINNING_SKILL)
             return SKILL_HERBALISM;
-        else if (type_flags & CREATURE_TYPEFLAGS_MININGLOOT)
+        else if (type_flags & CREATURE_TYPE_FLAG_MINING_SKINNING_SKILL)
             return SKILL_MINING;
-        else if (type_flags & CREATURE_TYPEFLAGS_ENGINEERLOOT)
+        else if (type_flags & CREATURE_TYPE_FLAG_ENGINEERING_SKINNING_SKILL)
             return SKILL_ENGINEERING;
         else
             return SKILL_SKINNING;                          // normal case
@@ -385,12 +386,12 @@ struct TC_GAME_API CreatureTemplate
 
     bool IsExotic() const
     {
-        return (type_flags & CREATURE_TYPEFLAGS_EXOTIC) != 0;
+        return (type_flags & CREATURE_TYPE_FLAG_EXOTIC_PET) != 0;
     }
 
     bool IsTameable(bool canTameExotic) const
     {
-        if (type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE) == 0)
+        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (type_flags & CREATURE_TYPE_FLAG_TAMEABLE_PET) == 0)
             return false;
 
         // if can tame exotic then can tame any tameable
@@ -498,9 +499,16 @@ struct PointOfInterestLocale
     StringVector Name;
 };
 
+struct EquipmentItem
+{
+    uint32 ItemId = 0;
+    uint16 AppearanceModId = 0;
+    uint16 ItemVisual = 0;
+};
+
 struct EquipmentInfo
 {
-    uint32  ItemEntry[MAX_EQUIPMENT_ITEMS];
+    EquipmentItem Items[MAX_EQUIPMENT_ITEMS];
 };
 
 // Benchmarked: Faster than std::map (insert/find)
@@ -555,7 +563,8 @@ enum InhabitTypeValues
     INHABIT_GROUND = 1,
     INHABIT_WATER  = 2,
     INHABIT_AIR    = 4,
-    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR
+    INHABIT_ROOT   = 8,
+    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR | INHABIT_ROOT
 };
 
 // Enums used by StringTextData::Type (CreatureEventAI)
@@ -710,6 +719,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool LoadCreaturesAddon();
         void SelectLevel();
         void LoadEquipment(int8 id = 1, bool force = false);
+        void SetSpawnHealth();
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
@@ -723,7 +733,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
         bool CanWalk() const { return (GetCreatureTemplate()->InhabitType & INHABIT_GROUND) != 0; }
-        bool CanSwim() const { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
+        bool CanSwim() const override { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
         bool CanFly()  const override { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
@@ -745,6 +755,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
+        bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
 
         bool AIM_Destroy();
         bool AIM_Initialize(CreatureAI* ai = NULL);
@@ -757,7 +768,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool HasSpell(uint32 spellID) const override;
 
-        bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr);
+        bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr, bool updateLevel = true);
 
         void UpdateMovementFlags();
 
@@ -827,7 +838,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         SpellInfo const* reachWithSpellAttack(Unit* victim);
         SpellInfo const* reachWithSpellCure(Unit* victim);
 
-        uint32 m_spells[CREATURE_MAX_SPELLS];
+        uint32 m_spells[MAX_CREATURE_SPELLS];
 
         bool CanStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* player) const;
@@ -854,7 +865,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void RemoveCorpse(bool setSpawnTime = true);
 
-        void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
+        void DespawnOrUnsummon(uint32 msTimeToDespawn = 0, Seconds const& forceRespawnTime = Seconds(0));
+        void DespawnOrUnsummon(Milliseconds const& time, Seconds const& forceRespawnTime = Seconds(0)) { DespawnOrUnsummon(uint32(time.count()), forceRespawnTime); }
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
@@ -891,6 +903,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void setRegeneratingHealth(bool regenHealth) { m_regenHealth = regenHealth; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
+
+        void SetCannotReachTarget(bool cannotReach) { if (cannotReach == m_cannotReachTarget) return; m_cannotReachTarget = cannotReach; m_cannotReachTimer = 0; }
+        bool CanNotReachTarget() const { return m_cannotReachTarget; }
 
         void SetPosition(float x, float y, float z, float o);
         void SetPosition(const Position &pos) { SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()); }
@@ -935,7 +950,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid const& guid) override;
-        bool FocusTarget(Spell const* focusSpell, WorldObject const* target);
+        void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Creature for forced (client displayed) target reacquisition in the next ::Update call
+        void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false);
         void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
 
@@ -979,6 +995,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;
         bool m_regenHealth;
+        bool m_cannotReachTarget;
+        uint32 m_cannotReachTimer;
         bool m_AI_locked;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
@@ -998,7 +1016,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
     private:
-        void ForcedDespawn(uint32 timeMSToDespawn = 0);
+        void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
         bool CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
 
         //WaypointMovementGenerator vars
@@ -1009,8 +1027,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureGroup* m_formation;
         bool m_TriggerJustRespawned;
 
-        Spell const* m_focusSpell;   ///> Locks the target during spell cast for proper facing
+        /* Spell focus system */
+        Spell const* m_focusSpell;   // Locks the target during spell cast for proper facing
         uint32 m_focusDelay;
+        bool m_shouldReacquireTarget;
+        ObjectGuid m_suppressedTarget; // Stores the creature's "real" target while casting
+        float m_suppressedOrientation; // Stores the creature's "real" orientation while casting
 
         CreatureTextRepeatGroup m_textRepeat;
 };
@@ -1033,11 +1055,12 @@ class TC_GAME_API AssistDelayEvent : public BasicEvent
 class TC_GAME_API ForcedDespawnDelayEvent : public BasicEvent
 {
     public:
-        ForcedDespawnDelayEvent(Creature& owner) : BasicEvent(), m_owner(owner) { }
+        ForcedDespawnDelayEvent(Creature& owner, Seconds const& respawnTimer) : BasicEvent(), m_owner(owner), m_respawnTimer(respawnTimer) { }
         bool Execute(uint64 e_time, uint32 p_time) override;
 
     private:
         Creature& m_owner;
+        Seconds const m_respawnTimer;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -450,6 +450,9 @@ class boss_freya : public CreatureScript
                             events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(25000, 28000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!me->HasAura(SPELL_TOUCH_OF_EONAR))
@@ -752,6 +755,9 @@ class boss_elder_brightleaf : public CreatureScript
                             events.ScheduleEvent(EVENT_FLUX, 7500);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -856,6 +862,9 @@ class boss_elder_stonebark : public CreatureScript
                             events.ScheduleEvent(EVENT_TREMOR, urand(10000, 20000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -947,6 +956,9 @@ class boss_elder_ironbranch : public CreatureScript
                             events.ScheduleEvent(EVENT_THORN_SWARM, urand(8000, 13000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

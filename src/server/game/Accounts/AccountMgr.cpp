@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,6 +43,9 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long
+
+    if (utf8length(password) > MAX_PASS_STR)
+        return AccountOpResult::AOR_PASS_TOO_LONG;                           // password's too long
 
     Utf8ToUpperOnlyLatin(username);
     Utf8ToUpperOnlyLatin(password);

@@ -166,13 +166,26 @@ static bool CutLastPathPart(TCHAR * szWorkPath)
 {
     size_t nLength = _tcslen(szWorkPath);
 
-    for(nLength = _tcslen(szWorkPath); nLength > 0; nLength--)
+    // Go one character back
+    if(nLength > 0)
+        nLength--;
+
+    // Cut ending (back)slashes, if any
+    while(nLength > 0 && (szWorkPath[nLength] == _T('\\') || szWorkPath[nLength] == _T('/')))
+        nLength--;
+
+    // Cut the last path part
+    while(nLength > 0)
     {
-        if(szWorkPath[nLength] == '\\' || szWorkPath[nLength] == '/')
+        // End of path?
+        if(szWorkPath[nLength] == _T('\\') || szWorkPath[nLength] == _T('/'))
         {
             szWorkPath[nLength] = 0;
             return true;
         }
+
+        // Go one character back
+        nLength--;
     }
 
     return false;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -387,7 +387,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
                         // init db2 string field slots by pointers to string holders
                         char const*** slot = (char const***)(&dataTable[offset]);
                         *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringFieldOffset]);
-                        if (_loadInfo->Meta->Types[x] == FT_STRING)
+                        if (_loadInfo->TypesString[fieldIndex] == FT_STRING)
                             stringFieldOffset += sizeof(LocalizedString);
                         else
                             stringFieldOffset += sizeof(char*);
@@ -396,7 +396,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], fileName);
                         break;
                 }
                 ++fieldIndex;
@@ -481,7 +481,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], fileName);
                         break;
                 }
                 ++fieldIndex;
@@ -619,10 +619,12 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
         std::size_t fieldOffset = 0;
         uint32 stringFieldOffset = 0;
 
+        uint32 fieldIndex = 0;
         if (!_loadInfo->Meta->HasIndexFieldInData())
         {
             *((uint32*)(&dataTable[offset])) = y + _header->MinId;
             offset += 4;
+            ++fieldIndex;
         }
 
         for (uint32 x = 0; x < _header->FieldCount; ++x)
@@ -630,7 +632,7 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
             uint16 fieldBytes = 4 - fields[x].UnusedBits / 8;
             for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
             {
-                switch (_loadInfo->Meta->Types[x])
+                switch (_loadInfo->TypesString[fieldIndex])
                 {
                     case FT_FLOAT:
                     {
@@ -724,9 +726,10 @@ char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], fileName);
                         break;
                 }
+                ++fieldIndex;
             }
         }
 
@@ -777,15 +780,19 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
         if (!offsets[y].FileOffset || !offsets[y].RecordSize)
             continue;
 
+        uint32 fieldIndex = 0;
         if (!_loadInfo->Meta->HasIndexFieldInData())
+        {
             offset += 4;
+            ++fieldIndex;
+        }
 
         std::size_t fieldOffset = 0;
         for (uint32 x = 0; x < _header->FieldCount; ++x)
         {
             for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
             {
-                switch (_loadInfo->Meta->Types[x])
+                switch (_loadInfo->TypesString[fieldIndex])
                 {
                     case FT_FLOAT:
                         offset += 4;
@@ -820,9 +827,10 @@ char* DB2FileLoaderSparseImpl::AutoProduceStrings(char* dataTable, uint32 locale
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], fileName);
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], fileName);
                         break;
                 }
+                ++fieldIndex;
             }
         }
     }
@@ -958,7 +966,7 @@ char* DB2DatabaseLoader::Load(uint32& records, char**& indexTable, char*& string
                         break;
                     }
                     default:
-                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], _storageName.c_str());
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], _storageName.c_str());
                         break;
                 }
                 ++f;
@@ -1059,7 +1067,7 @@ void DB2DatabaseLoader::LoadStrings(uint32 locale, uint32 records, char** indexT
                             offset += sizeof(char*);
                             break;
                         default:
-                            ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->Meta->Types[x], _storageName.c_str());
+                            ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], _storageName.c_str());
                             break;
                     }
                     ++fieldIndex;

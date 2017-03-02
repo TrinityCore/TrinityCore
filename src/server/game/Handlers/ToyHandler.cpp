@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,6 +81,7 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
     spellPrepare.ServerCastID = spell->m_castId;
     SendPacket(spellPrepare.Write());
 
+    spell->m_fromClient = true;
     spell->m_castItemEntry = packet.ItemID;
     spell->m_misc.Raw.Data[0] = packet.Cast.Misc[0];
     spell->m_misc.Raw.Data[1] = packet.Cast.Misc[1];
