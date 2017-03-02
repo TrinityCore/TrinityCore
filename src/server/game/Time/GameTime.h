@@ -43,6 +43,6 @@ namespace GameTime
     uint32 GetUptime();
 
     void UpdateGameTimers();
-};
+}
 
 #endif
