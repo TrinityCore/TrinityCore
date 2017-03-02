@@ -16,6 +16,7 @@
  */
 
 #include "UpdateTime.h"
+#include "Timer.h"
 #include "Config.h"
 #include "Log.h"
 
@@ -31,7 +32,7 @@ UpdateTime::UpdateTime()
     _maxUpdateTimeOfLastTable = 0;
     _maxUpdateTimeOfCurrentTable = 0;
 
-    _updateTimeDataTable = {};
+    _updateTimeDataTable = { };
 }
 
 uint32 UpdateTime::GetAverageUpdateTime() const
@@ -57,12 +58,12 @@ uint32 UpdateTime::GetMaxUpdateTime() const
 
 uint32 UpdateTime::GetMaxUpdateTimeOfCurrentTable() const
 {
-    return _maxUpdateTimeOfCurrentTable > _maxUpdateTimeOfLastTable ? _maxUpdateTimeOfCurrentTable  : _maxUpdateTimeOfLastTable;
+    return std::max(_maxUpdateTimeOfCurrentTable, _maxUpdateTimeOfLastTable);
 }
 
 uint32 UpdateTime::GetLastUpdateTime() const
 {
-    return _updateTimeDataTable[_updateTimeTableIndex != 0 ? _updateTimeTableIndex-1 : _updateTimeDataTable.size()-1];
+    return _updateTimeDataTable[_updateTimeTableIndex != 0 ? _updateTimeTableIndex - 1 : _updateTimeDataTable.size() - 1];
 }
 
 void UpdateTime::UpdateWithDiff(uint32 diff)
@@ -83,7 +84,7 @@ void UpdateTime::UpdateWithDiff(uint32 diff)
         _maxUpdateTimeOfCurrentTable = 0;
     }
 
-    if (_updateTimeDataTable[_updateTimeDataTable.size()-1])
+    if (_updateTimeDataTable[_updateTimeDataTable.size() - 1])
         _averageUpdateTime = _totalUpdateTime / _updateTimeDataTable.size();
     else if (_updateTimeTableIndex)
         _averageUpdateTime = _totalUpdateTime / _updateTimeTableIndex;
@@ -94,7 +95,7 @@ void UpdateTime::RecordUpdateTimeReset()
     _recordedTime = getMSTime();
 }
 
-void UpdateTime::RecordUpdateTimeDuration(std::string const& text, uint32 minUpdateTime)
+void UpdateTime::_RecordUpdateTimeDuration(std::string const& text, uint32 minUpdateTime)
 {
     uint32 thisTime = getMSTime();
     uint32 diff = getMSTimeDiff(_recordedTime, thisTime);
@@ -130,5 +131,5 @@ void WorldUpdateTime::RecordUpdateTime(uint32 gameTimeMs, uint32 diff, uint32 se
 
 void WorldUpdateTime::RecordUpdateTimeDuration(std::string const& text)
 {
-    UpdateTime::RecordUpdateTimeDuration(text, _recordUpdateTimeMin);
+    _RecordUpdateTimeDuration(text, _recordUpdateTimeMin);
 }

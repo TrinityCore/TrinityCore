@@ -18,8 +18,7 @@
 #ifndef __GAMETIME_H
 #define __GAMETIME_H
 
-#include "Common.h"
-#include "Timer.h"
+#include "Define.h"
 
 #include <chrono>
 

@@ -16,6 +16,7 @@
  */
 
 #include "GameTime.h"
+#include "Timer.h"
 
 GameTime::GameTime()
 {
