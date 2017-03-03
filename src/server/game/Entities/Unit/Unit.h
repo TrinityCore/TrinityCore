@@ -829,8 +829,7 @@ enum MovementFlags
 
     MOVEMENTFLAG_MASK_MOVING =
         MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT |
-        MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING |
-        MOVEMENTFLAG_SPLINE_ELEVATION,
+        MOVEMENTFLAG_FALLING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,
 
     MOVEMENTFLAG_MASK_TURNING =
         MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN,
@@ -855,24 +854,25 @@ enum MovementFlags
 
 enum MovementFlags2
 {
-    MOVEMENTFLAG2_NONE                     = 0x00000000,
-    MOVEMENTFLAG2_NO_STRAFE                = 0x00000001,
-    MOVEMENTFLAG2_NO_JUMPING               = 0x00000002,
-    MOVEMENTFLAG2_FULL_SPEED_TURNING       = 0x00000004,
-    MOVEMENTFLAG2_FULL_SPEED_PITCHING      = 0x00000008,
-    MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING    = 0x00000010,
-    MOVEMENTFLAG2_UNK5                     = 0x00000020,
-    MOVEMENTFLAG2_UNK6                     = 0x00000040,
-    MOVEMENTFLAG2_UNK7                     = 0x00000080,
-    MOVEMENTFLAG2_UNK8                     = 0x00000100,
-    MOVEMENTFLAG2_UNK9                     = 0x00000200,
-    MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS    = 0x00000400,
-    MOVEMENTFLAG2_UNK11                    = 0x00000800,
-    MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING   = 0x00001000,
-    MOVEMENTFLAG2_INTERPOLATED_MOVEMENT    = 0x00002000,
-    MOVEMENTFLAG2_INTERPOLATED_TURNING     = 0x00004000,
-    MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00008000,
-    MOVEMENTFLAG2_DOUBLE_JUMP              = 0x00010000
+    MOVEMENTFLAG2_NONE                                      = 0x00000000,
+    MOVEMENTFLAG2_NO_STRAFE                                 = 0x00000001,
+    MOVEMENTFLAG2_NO_JUMPING                                = 0x00000002,
+    MOVEMENTFLAG2_FULL_SPEED_TURNING                        = 0x00000004,
+    MOVEMENTFLAG2_FULL_SPEED_PITCHING                       = 0x00000008,
+    MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING                     = 0x00000010,
+    MOVEMENTFLAG2_IS_VEHICLE_EXIT_VOLUNTARY                 = 0x00000020,
+    MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR                        = 0x00000040,
+    MOVEMENTFLAG2_ANIM_TIER_IN_TRANS                        = 0x00000080,
+    MOVEMENTFLAG2_WATERWALKING_FULL_PITCH                   = 0x00000100, // will always waterwalk, even if facing the camera directly down
+    MOVEMENTFLAG2_VEHICLE_PASSENGER_IS_TRANSITION_ALLOWED   = 0x00000200,
+    MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS                     = 0x00000400,
+    MOVEMENTFLAG2_UNK11                                     = 0x00000800, // terrain normal calculation is disabled if this flag is not present, client automatically handles setting this flag
+    MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING                    = 0x00001000,
+    MOVEMENTFLAG2_UNK13                                     = 0x00002000, // set automatically by the client for aura 373
+    MOVEMENTFLAG2_IGNORE_MOVEMENT_FORCES                    = 0x00004000,
+    MOVEMENTFLAG2_UNK15                                     = 0x00008000,
+    MOVEMENTFLAG2_CAN_DOUBLE_JUMP                           = 0x00010000,
+    MOVEMENTFLAG2_DOUBLE_JUMP                               = 0x00020000
 };
 
 enum UnitTypeMask
@@ -1707,7 +1707,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetCollision(bool disable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
         bool SetCanTurnWhileFalling(bool enable);
-        bool SetDoubleJump(bool enable);
+        bool SetCanDoubleJump(bool enable);
         void SendSetVehicleRecId(uint32 vehicleId);
 
         void SetInFront(WorldObject const* target);
