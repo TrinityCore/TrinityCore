@@ -56,7 +56,7 @@ class TC_GAME_API UpdateTime
         uint32 _recordedTime;
 };
 
-class WorldUpdateTime : public UpdateTime
+class TC_GAME_API WorldUpdateTime : public UpdateTime
 {
     public:
         WorldUpdateTime() : UpdateTime(), _recordUpdateTimeInverval(0), _recordUpdateTimeMin(0), _lastRecordTime(0) { }
