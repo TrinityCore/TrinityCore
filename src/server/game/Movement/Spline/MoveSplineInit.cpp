@@ -186,7 +186,7 @@ namespace Movement
         args.walk = unit->HasUnitMovementFlag(MOVEMENTFLAG_WALKING);
         args.flags.flying = unit->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
         args.flags.smoothGroundPath = true; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
-        args.flags.steering = unit->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_STEERING);
+        args.flags.steering = unit->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_STEERING);
     }
 
     void MoveSplineInit::SetFacing(const Unit* target)
