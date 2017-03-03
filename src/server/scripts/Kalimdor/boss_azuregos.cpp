@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* 
+ * Note: Enrage has been disabled as no evidence can be found of him having one in Vanilla, just TBC and WotLK. Commented out for future releases.
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -35,20 +39,19 @@ enum Spells
     SPELL_CHILL              = 21098,
     SPELL_FROST_BREATH       = 21099,
     SPELL_REFLECT            = 22067,
-    SPELL_CLEAVE             = 8255,     // Perhaps not right ID
-    SPELL_ENRAGE             = 23537
+    SPELL_CLEAVE             = 19983,
+    //SPELL_ENRAGE             = 23537
 };
 
 enum Events
 {
-    EVENT_MARK_OF_FROST      = 1,
-    EVENT_MANA_STORM,
+	EVENT_MANA_STORM         = 1,
     EVENT_CHILL,
     EVENT_BREATH,
     EVENT_TELEPORT,
     EVENT_REFLECT,
     EVENT_CLEAVE,
-    EVENT_ENRAGE
+    //EVENT_ENRAGE
 };
 
 class boss_azuregos : public CreatureScript
@@ -60,7 +63,7 @@ class boss_azuregos : public CreatureScript
         {
             boss_azuregosAI(Creature* creature) : WorldBossAI(creature)
             {
-                _enraged = false;
+                //_enraged = false;
             }
 
             void Reset() override
@@ -71,9 +74,8 @@ class boss_azuregos : public CreatureScript
             void EnterCombat(Unit* /*who*/) override
             {
                 DoCast(me, SPELL_MARK_OF_FROST_AURA, true);
-                _enraged = false;
+                //_enraged = false;
 
-                events.ScheduleEvent(EVENT_MARK_OF_FROST, 35000);
                 events.ScheduleEvent(EVENT_MANA_STORM, urand(5000, 17000));
                 events.ScheduleEvent(EVENT_CHILL, urand(10000, 30000));
                 events.ScheduleEvent(EVENT_BREATH, urand(2000, 8000));
@@ -118,14 +120,23 @@ class boss_azuregos : public CreatureScript
                         case EVENT_TELEPORT:
                         {
                             Talk(SAY_TELEPORT);
+							
+							/* Get all units  on Azuregos threat list */
                             ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
                             for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
                             {
-                                if (Player* player = ObjectAccessor::GetPlayer(*me, (*i)->getUnitGuid()))
-                                    DoTeleportPlayer(player, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, player->GetOrientation());
+								/* Check if it's a Player */
+								if (Player* player = ObjectAccessor::GetPlayer(*me, (*i)->getUnitGuid()))
+								{
+									if (me->IsWithinDistInMap(player, 30.0f))
+									{
+										DoTeleportPlayer(player, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 3, player->GetOrientation());
+										
+										DoModifyThreatPercent(player, -100); // Reset the players threat
+									}
+								}
                             }
 
-                            DoResetThreat();
                             events.ScheduleEvent(EVENT_TELEPORT, 30000);
                             break;
                         }
@@ -145,17 +156,19 @@ class boss_azuregos : public CreatureScript
                         return;
                 }
 
+				/*
                 if (HealthBelowPct(26) && !_enraged)
                 {
                     DoCast(me, SPELL_ENRAGE);
                     _enraged = true;
                 }
+				*/
 
                 DoMeleeAttackIfReady();
             }
 
         private:
-            bool _enraged;
+            //bool _enraged;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
