@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `smart_scripts` SET `action_type`=45, `action_param1`=1, `action_param2`=1, `target_type`=11, `target_param1`=4969, `target_param2`=30, `comment`="Dashel Stonefist - On Script - Set data" WHERE `entryorguid`=496101 AND `source_type`=9 AND `id`=1;
 UPDATE `smart_scripts` SET `event_flags`=1 WHERE `entryorguid` IN (4961) AND `source_type`=0 AND `id`=2 AND `event_type`=2;
@@ -12,3 +13,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (496900, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Old Town Thug - action list - combat stop"),
 (496900, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 2, 35, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Old Town Thug - action list - combat stop"),
 (496900, 9, 2, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Old Town Thug - action list - despawn");
+*/

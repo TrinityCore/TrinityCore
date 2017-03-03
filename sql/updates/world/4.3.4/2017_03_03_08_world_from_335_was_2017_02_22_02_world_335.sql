@@ -1,3 +1,4 @@
+/*
 -- 1015 Armor Reduction (Major) -> Acid Spit, Expose Armor and Sunder Armor
 -- Remove Curse of Weakness from this group
 DELETE FROM `spell_group` WHERE `id`=1015 AND `spell_id`=-1063;
@@ -14,3 +15,4 @@ UPDATE `spell_group` SET `spell_id`=33196 WHERE `id`=1050 AND `spell_id`=33191;
 
 -- Core expects these rules to have exclusive same effect stack rule, so change them
 UPDATE `spell_group_stack_rules` SET `stack_rule`=3 WHERE `group_id` IN (1015,1019,1051);
+*/
