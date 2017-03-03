@@ -152,8 +152,7 @@ class npc_firelands_flame_archon : public CreatureScript
 
                 scheduler.Update(diff);
 
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
             }
 
         private:
@@ -203,7 +202,7 @@ class npc_firelands_molten_flamefather : public CreatureScript
                 scheduler.Schedule(Seconds(5), [this](TaskContext context)
                 {
                     DoCastAOE(SPELL_MAGMA_CONDUIT);
-                    if (me->GetMap()->Is25ManRaid())
+                    if (Is25ManRaid())
                         DoCastAOE(SPELL_MAGMA_CONDUIT);
                     context.Repeat(Seconds(25));
                 });
@@ -233,8 +232,7 @@ class npc_firelands_molten_flamefather : public CreatureScript
 
                 scheduler.Update(diff);
 
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
             }
 
         private:
@@ -344,14 +342,14 @@ class boss_baleroc : public CreatureScript
                         }
                         scheduler.Schedule(Milliseconds(30500), [this](TaskContext context)
                         {
-                            DoCast(SPELL_BLADES_OF_BALEROC);
+                            DoCastSelf(SPELL_BLADES_OF_BALEROC);
                             context.Repeat(Seconds(47));
                         });
                         scheduler.Schedule(Minutes(6), [this](TaskContext)
                         {
                             Talk(SAY_ENRAGE);
                             Talk(EMOTE_ENRAGE);
-                            DoCast(me, SPELL_BERSERK);
+                            DoCastSelf(SPELL_BERSERK);
                         });
                         break;
                     default:
@@ -522,10 +520,16 @@ class spell_firelands_fiery_torment : public SpellScriptLoader
         {
             PrepareSpellScript(spell_firelands_fiery_torment_SpellScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FIERY_TORMENT_DAMAGE))
+                    return false;
+                return true;
+            }
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitUnit())
-                    GetCaster()->CastSpell(GetHitUnit(), SPELL_FIERY_TORMENT_DAMAGE, true);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_FIERY_TORMENT_DAMAGE, true);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -559,6 +563,15 @@ class spell_baleroc_blades_of_baleroc : public SpellScriptLoader
         class spell_baleroc_blades_of_baleroc_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_baleroc_blades_of_baleroc_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_INFERNO_BLADE))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_DECIMATION_BLADE))
+                    return false;
+                return true;
+            }
 
             void ChooseBlade(SpellEffIndex /*effIndex*/)
             {
@@ -685,9 +698,13 @@ class spell_baleroc_decimating_strike : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baleroc_decimating_strike_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DECIMATING_STRIKE))
+                SpellEffectInfo const* spellEffectInfo = spellInfo->GetEffect(EFFECT_0);
+                if (!spellEffectInfo || !sSpellMgr->GetSpellInfo(spellEffectInfo->BasePoints))
+                     return false;
+                SpellEffectInfo const* spellEffectInfo2 = spellInfo->GetEffect(EFFECT_2);
+                if (!spellEffectInfo2 || !sSpellMgr->GetSpellInfo(spellEffectInfo2->BasePoints))
                     return false;
                 return true;
             }
@@ -700,13 +717,13 @@ class spell_baleroc_decimating_strike : public SpellScriptLoader
                 SetHitDamage(healthPctDmg < flatDmg ? flatDmg : healthPctDmg);
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_baleroc_decimating_strike_SpellScript::ChangeDamage);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_baleroc_decimating_strike_SpellScript();
         }
@@ -721,6 +738,15 @@ class spell_baleroc_countdown_aoe_dummy : public SpellScriptLoader
         class spell_baleroc_countdown_aoe_dummy_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_baleroc_countdown_aoe_dummy_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_COUNTDOWN_VISUAL_LINK))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_COUNTDOWN_AURA))
+                    return false;
+                return true;
+            }
 
             void CastSpellLink()
             {
@@ -764,7 +790,7 @@ class spell_baleroc_countdown_aoe_dummy : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_baleroc_countdown_aoe_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_baleroc_countdown_aoe_dummy_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
-            
+
             GuidList _targets;
         };
 
@@ -784,9 +810,18 @@ class spell_baleroc_countdown : public SpellScriptLoader
         {
             PrepareAuraScript(spell_baleroc_countdown_AuraScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_COUNTDOWN_VISUAL_LINK))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_COUNTDOWN_AOE_EXPLOSION))
+                    return false;
+                return true;
+            }
+
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->ToPlayer()->RemoveAurasDueToSpell(SPELL_COUNTDOWN_VISUAL_LINK);
+                GetTarget()->RemoveAurasDueToSpell(SPELL_COUNTDOWN_VISUAL_LINK);
                 if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     GetTarget()->CastSpell(static_cast<Unit*>(nullptr), SPELL_COUNTDOWN_AOE_EXPLOSION, true);
             }
@@ -812,6 +847,13 @@ class spell_baleroc_countdown_proximity_check : public SpellScriptLoader
         class spell_baleroc_countdown_proximity_check_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_baleroc_countdown_proximity_check_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_COUNTDOWN_AURA))
+                    return false;
+                return true;
+            }
 
             void HandleScript(SpellEffIndex effIndex)
             {
@@ -848,6 +890,13 @@ class spell_baleroc_shards_of_torment_target_search : public SpellScriptLoader
         class spell_baleroc_shards_of_torment_target_search_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_baleroc_shards_of_torment_target_search_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHARDS_OF_TORMENT_SUMMON))
+                    return false;
+                return true;
+            }
 
             bool Load() override
             {
@@ -956,6 +1005,13 @@ class spell_baleroc_torment_target_search : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baleroc_torment_target_search_SpellScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TORMENT_PERIODIC))
+                    return false;
+                return true;
+            }
+
             bool Load() override
             {
                 _target = static_cast<WorldObject*>(nullptr);
@@ -1011,16 +1067,9 @@ class spell_baleroc_torment : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baleroc_torment_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TORMENT))
-                    return false;
-                return true;
-            }
-            
             void ModifyDamage()
             {
-                SetHitDamage(GetHitDamage()*GetHitUnit()->GetAuraCount(SPELL_TORMENT));
+                SetHitDamage(GetHitDamage()*GetHitUnit()->GetAuraCount(GetSpellInfo()->Id));
             }
 
             void Register() override
@@ -1037,6 +1086,17 @@ class spell_baleroc_torment : public SpellScriptLoader
         class spell_baleroc_torment_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_baleroc_torment_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_VITAL_FLAME))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VITAL_SPARK))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_TORMENTED))
+                    return false;
+                return true;
+            }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
@@ -1109,6 +1169,13 @@ class spell_baleroc_tormented_spread : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baleroc_tormented_spread_SpellScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TORMENTED))
+                    return false;
+                return true;
+            }
+
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
@@ -1136,6 +1203,15 @@ class spell_baleroc_vital_spark : public SpellScriptLoader
         class spell_baleroc_vital_spark_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_baleroc_vital_spark_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLAZE_OF_GLORY))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VITAL_FLAME))
+                    return false;
+                return true;
+            }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
