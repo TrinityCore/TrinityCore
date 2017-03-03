@@ -1177,7 +1177,7 @@ class spell_grab_on : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Aura* grip = GetCaster()->GetAura(SPELL_GRIP, GetCaster()->GetGUID()))
-                    grip->ModStackAmount(GetEffectValue(), AURA_REMOVE_BY_DEFAULT, false);
+                    grip->ModStackAmount(GetEffectValue(), AURA_REMOVE_BY_DEFAULT/*, false*/);
             }
 
             void Register() override

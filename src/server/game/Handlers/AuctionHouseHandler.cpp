@@ -337,7 +337,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         // Add to pending auctions, or fail with insufficient funds error
         if (!sAuctionMgr->PendingAuctionAdd(_player, AH, item))
         {
-            SendAuctionCommandResult(AH->Id, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
+            SendAuctionCommandResult(AH/*->Id*/, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
             return;
         }
 
@@ -394,7 +394,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         // Add to pending auctions, or fail with insufficient funds error
         if (!sAuctionMgr->PendingAuctionAdd(_player, AH, newItem))
         {
-            SendAuctionCommandResult(AH->Id, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
+            SendAuctionCommandResult(AH/*->Id*/, AUCTION_SELL_ITEM, ERR_AUCTION_NOT_ENOUGHT_MONEY);
             return;
         }
 

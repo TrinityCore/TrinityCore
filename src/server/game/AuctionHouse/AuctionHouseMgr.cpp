@@ -419,7 +419,7 @@ bool AuctionHouseMgr::PendingAuctionAdd(Player* player, AuctionEntry* aEntry, It
         thisAH = itr->second.first;
 
         // Get deposit so far
-        uint32 totalDeposit = 0;
+        uint64 totalDeposit = 0;
         for (AuctionEntry const* thisAuction : *thisAH)
             totalDeposit += GetAuctionDeposit(thisAuction->auctionHouseEntry, thisAuction->etime, item, thisAuction->itemCount);
 
