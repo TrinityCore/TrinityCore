@@ -1,0 +1,2 @@
+-- Spawn Lord Kazzak
+INSERT INTO `world`.`creature` (`id`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `curhealth`) VALUES ('12397', '1', '-12219.5', '-2481.92', '0.993505', '5.74595', '604800', '607970');
