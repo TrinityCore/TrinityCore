@@ -4791,7 +4791,7 @@ void ObjectMgr::LoadQuestOfferRewardLocale()
 										 //                                               0     1          2
 	QueryResult result = WorldDatabase.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
 	if (!result)
-		return;
+        return;
 
 	do
 	{
