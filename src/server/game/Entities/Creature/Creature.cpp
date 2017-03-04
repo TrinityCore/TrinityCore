@@ -2261,38 +2261,44 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
 
 // use this function to avoid having hostile creatures attack
 // friendlies and other mobs they shouldn't attack
-bool Creature::_IsTargetAcceptable(const Unit* target) const
+// use this function to avoid having hostile creatures attack
+// friendlies and other mobs they shouldn't attack
+bool Creature::_IsTargetAcceptable(Unit const* target) const
 {
-    ASSERT(target);
+	ASSERT(target);
 
-    // if the target cannot be attacked, the target is not acceptable
-    if (IsFriendlyTo(target)
-        || !target->isTargetableForAttack(false)
-        || (m_vehicle && (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))))
-        return false;
+	// if the target cannot be attacked, the target is not acceptable
+	if (IsFriendlyTo(target)
+		|| !target->isTargetableForAttack(false)
+		|| (m_vehicle && (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))))
+		return false;
 
-    if (target->HasUnitState(UNIT_STATE_DIED))
-    {
-        // guards can detect fake death
-        if (IsGuard() && target->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH))
-            return true;
-        else
-            return false;
-    }
+	if (target->HasUnitState(UNIT_STATE_DIED))
+	{
+		// guards can detect fake death
+		if (IsGuard() && target->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH))
+			return true;
+		else
+			return false;
+	}
 
-    const Unit* myVictim = getAttackerForHelper();
-    const Unit* targetVictim = target->getAttackerForHelper();
+	Unit const* targetVictim = target->getAttackerForHelper();
 
-    // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
-    if (myVictim == target || targetVictim == this || IsHostileTo(target))
-        return true;
+	// if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
+	if (GetVictim() == target || IsHostileTo(target))
+		return true;
 
-    // if the target's victim is friendly, and the target is neutral, the target is acceptable
-    if (targetVictim && IsFriendlyTo(targetVictim))
-        return true;
+	// a player is targeting me, but I'm not hostile towards it, and not currently attacking it, the target is not acceptable
+	// (players may set their victim from a distance, and doesn't mean we should attack)
+	if (target->GetTypeId() == TYPEID_PLAYER && targetVictim == this)
+		return false;
 
-    // if the target's victim is not friendly, or the target is friendly, the target is not acceptable
-    return false;
+	// if the target's victim is friendly, and the target is neutral, the target is acceptable
+	if (targetVictim && IsFriendlyTo(targetVictim))
+		return true;
+
+	// if the target's victim is not friendly, or the target is friendly, the target is not acceptable
+	return false;
 }
 
 void Creature::SaveRespawnTime()
