@@ -20,9 +20,6 @@
 #define LOAD_LIB_H
 
 #include "Define.h"
-#ifdef PLATFORM_WINDOWS
-#undef PLATFORM_WINDOWS
-#endif
 #include "CascHandles.h"
 #include "CascLib.h"
 #include <map>

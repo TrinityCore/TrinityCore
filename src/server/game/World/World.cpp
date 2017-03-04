@@ -1288,7 +1288,7 @@ void World::LoadConfigSettings(bool reload)
     if (dataPath.empty() || (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\'))
         dataPath.push_back('/');
 
-#if PLATFORM == PLATFORM_UNIX || PLATFORM == PLATFORM_APPLE
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_UNIX || TRINITY_PLATFORM == TRINITY_PLATFORM_APPLE
     if (dataPath[0] == '~')
     {
         const char* home = getenv("HOME");
