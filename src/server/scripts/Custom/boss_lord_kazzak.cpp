@@ -3,6 +3,17 @@
 #include "SpellScript.h"
 #include "Player.h"
 
+enum Texts
+{
+	SAY_INTRO = 0,
+	SAY_AGGRO = 1,
+	SAY_SURPREME = 2,
+	SAY_KILL = 3,
+	SAY_DEATH = 4,
+	EMOTE_FRENZY = 5,
+	SAY_RAND = 6
+};
+
 enum Events
 {
 	EVENT_SHADOW_VOLLEY			= 1,
@@ -45,11 +56,13 @@ public:
 
 		void JustRespawned() override
 		{
-			
+			Talk(SAY_INTRO);
 		}
 
 		void EnterCombat(Unit* /*who*/) override
 		{
+			Talk(SAY_AGGRO);
+
 			events.ScheduleEvent(EVENT_SHADOW_VOLLEY, urand(3000, 12000));
 			events.ScheduleEvent(EVENT_THUNDERCLAP, urand(16000, 20000));
 			events.ScheduleEvent(EVENT_BERSERK, 3 * MINUTE * IN_MILLISECONDS);
@@ -65,11 +78,13 @@ public:
 				return;
 
 			DoCast(me, SPELL_CAPTURESOUL);
+
+			Talk(SAY_KILL);
 		}
 
 		void JustDied(Unit* /*killer*/) override
 		{
-
+			Talk(SAY_DEATH);
 		}
 
 		void UpdateAI(uint32 diff) override
@@ -124,6 +139,7 @@ public:
 						break;
 
 					case EVENT_BERSERK:
+						Talk(SAY_SURPREME);
 						DoCast(SPELL_BESERK);
 						break;
 
