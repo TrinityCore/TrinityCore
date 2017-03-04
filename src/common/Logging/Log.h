@@ -166,7 +166,7 @@ inline bool Log::ShouldLog(std::string const& type, LogLevel level) const
         } \
     }
 
-#if PLATFORM != PLATFORM_WINDOWS
+#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 void check_args(const char*, ...) ATTR_PRINTF(1, 2);
 void check_args(std::string const&, ...);
 

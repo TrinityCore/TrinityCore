@@ -19,9 +19,6 @@
 #define MapExtractor_DB2_h__
 
 #include "DB2Meta.h"
-#ifdef PLATFORM_WINDOWS
-#undef PLATFORM_WINDOWS
-#endif
 #include "CascHandles.h"
 #include "CascLib.h"
 #include "Utilities/ByteConverter.h"
