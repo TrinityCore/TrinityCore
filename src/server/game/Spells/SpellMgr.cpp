@@ -2699,9 +2699,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         }
 
         // disable proc for magnet auras, they're handled differently
-        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-            if (spellInfo->Effects[j].IsAura(SPELL_AURA_SPELL_MAGNET))
-                spellInfo->ProcFlags = 0;
+        if (spellInfo->HasAura(SPELL_AURA_SPELL_MAGNET))
+            spellInfo->ProcFlags = 0;
 
         // due to the way spell system works, unit would change orientation in Spell::_cast
         if (spellInfo->HasAura(SPELL_AURA_CONTROL_VEHICLE))
