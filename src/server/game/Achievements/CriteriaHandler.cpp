@@ -1625,7 +1625,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
         {
             DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(referencePlayer->GetMap()->GetDifficultyID());
             if (!difficulty || difficulty->OldEnumValue != reqValue)
-                    return false;
+                return false;
             break;
         }
         case CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE: // 24
