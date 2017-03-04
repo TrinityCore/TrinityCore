@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,9 +19,7 @@
 #define MapExtractor_DB2_h__
 
 #include "DB2Meta.h"
-#ifdef PLATFORM_WINDOWS
-#undef PLATFORM_WINDOWS
-#endif
+#include "CascHandles.h"
 #include "CascLib.h"
 #include "Utilities/ByteConverter.h"
 #include "Errors.h"
@@ -32,7 +30,7 @@ class DB2FileLoader
     DB2FileLoader();
     ~DB2FileLoader();
 
-    bool Load(HANDLE db2Handle, DB2Meta const* meta);
+    bool Load(CASC::FileHandle const& db2Handle, DB2Meta const* meta);
 
     class Record
     {

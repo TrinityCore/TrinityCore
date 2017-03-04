@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum HOSDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_KRYSTALLUS             = 0,
@@ -42,7 +42,7 @@ enum DataTypes
     DATA_GO_SKY_FLOOR           = 11
 };
 
-enum CreatureIds
+enum HOSCreatureIds
 {
     NPC_MAIDEN                  = 27975,
     NPC_KRYSTALLUS              = 27977,
@@ -53,7 +53,7 @@ enum CreatureIds
     NPC_BRANN                   = 28070
 };
 
-enum GameObjectIds
+enum HOSGameObjectIds
 {
     GO_ABEDNEUM                 = 191669,
     GO_MARNAK                   = 191670,

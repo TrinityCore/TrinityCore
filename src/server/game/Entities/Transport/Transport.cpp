@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -95,7 +95,8 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     SetGoType(GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT);
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
-    UpdateRotationFields(0.0f, 1.0f);
+    SetWorldRotation(G3D::Quat());
+    SetParentRotation(G3D::Quat());
 
     m_model = CreateModel();
     return true;
@@ -627,6 +628,11 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
         {
             if ((*itr)->GetTypeId() == TYPEID_PLAYER)
             {
+                // will be relocated in UpdatePosition of the vehicle
+                if (Unit* veh = (*itr)->ToUnit()->GetVehicleBase())
+                    if (veh->GetTransport() == this)
+                        continue;
+
                 float destX, destY, destZ, destO;
                 (*itr)->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
                 TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);
@@ -670,6 +676,7 @@ void Transport::DelayedTeleportTransport()
                     RemovePassenger(obj);
                 break;
             case TYPEID_DYNAMICOBJECT:
+            case TYPEID_AREATRIGGER:
                 obj->AddObjectToRemoveList();
                 break;
             default:
@@ -724,6 +731,9 @@ void Transport::UpdatePassengerPositions(PassengerSet& passengers)
                 break;
             case TYPEID_DYNAMICOBJECT:
                 GetMap()->DynamicObjectRelocation(passenger->ToDynObject(), x, y, z, o);
+                break;
+            case TYPEID_AREATRIGGER:
+                GetMap()->AreaTriggerRelocation(passenger->ToAreaTrigger(), x, y, z, o);
                 break;
             default:
                 break;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,11 +29,9 @@
 #include <boost/filesystem/operations.hpp>
 
 #include "Common.h"
-#ifdef PLATFORM_WINDOWS
-#undef PLATFORM_WINDOWS
-#endif
 #include "DBFilesClientList.h"
 #include "CascLib.h"
+#include "CascHandles.h"
 #include "DB2.h"
 #include "Banner.h"
 #include "StringFormat.h"
@@ -67,7 +65,7 @@ namespace
     }
 }
 
-HANDLE CascStorage = NULL;
+CASC::StorageHandle CascStorage;
 
 typedef struct
 {
@@ -77,9 +75,20 @@ typedef struct
 
 std::vector<map_id> map_ids;
 std::vector<uint16> LiqType;
-#define MAX_PATH_LENGTH 128
-char output_path[MAX_PATH_LENGTH];
-char input_path[MAX_PATH_LENGTH];
+std::set<std::string> CameraFileNames;
+boost::filesystem::path input_path;
+boost::filesystem::path output_path;
+
+struct CinematicCameraMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static char const* types = "sffh";
+        static uint8 const arraySizes[4] = { 1, 3, 1, 1 };
+        static DB2Meta instance(-1, 4, 0xA7B95349, types, arraySizes);
+        return &instance;
+    }
+};
 
 struct LiquidTypeMeta
 {
@@ -110,11 +119,12 @@ enum Extract
 {
     EXTRACT_MAP = 1,
     EXTRACT_DBC = 2,
+    EXTRACT_CAMERA = 4,
     EXTRACT_GT  = 8
 };
 
 // Select data for extract
-int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_GT;
+int   CONF_extract = EXTRACT_MAP | EXTRACT_DBC | EXTRACT_CAMERA | EXTRACT_GT;
 
 // This option allow limit minimum height to some value (Allow save some memory)
 bool  CONF_allow_height_limit = true;
@@ -175,12 +185,12 @@ void Usage(char const* prg)
     printf(
         "Usage:\n"\
         "%s -[var] [value]\n"\
-        "-i set input path (max %d characters)\n"\
-        "-o set output path (max %d characters)\n"\
-        "-e extract only MAP(1)/DBC(2)/gt(8) - standard: all(11)\n"\
+        "-i set input path\n"\
+        "-o set output path\n"\
+        "-e extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(11)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
         "-l dbc locale\n"\
-        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
+        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, prg);
     exit(1);
 }
 
@@ -190,30 +200,24 @@ void HandleArgs(int argc, char* arg[])
     {
         // i - input path
         // o - output path
-        // e - extract only MAP(1)/DBC(2) - standard both(3)
+        // e - extract only MAP(1)/DBC(2)/Camera(4)/gt(8) - standard: all(11)
         // f - use float to int conversion
         // h - limit minimum height
-        // b - target client build
+        // l - dbc locale
         if (arg[c][0] != '-')
             Usage(arg[0]);
 
         switch (arg[c][1])
         {
             case 'i':
-                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
-                {
-                    strncpy(input_path, arg[c++ + 1], MAX_PATH_LENGTH);
-                    input_path[MAX_PATH_LENGTH - 1] = '\0';
-                }
+                if (c + 1 < argc && strlen(arg[c + 1])) // all ok
+                    input_path = boost::filesystem::path(arg[c++ + 1]);
                 else
                     Usage(arg[0]);
                 break;
             case 'o':
-                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
-                {
-                    strncpy(output_path, arg[c++ + 1], MAX_PATH_LENGTH);
-                    output_path[MAX_PATH_LENGTH - 1] = '\0';
-                }
+                if (c + 1 < argc && strlen(arg[c + 1])) // all ok
+                    output_path = boost::filesystem::path(arg[c++ + 1]);
                 else
                     Usage(arg[0]);
                 break;
@@ -259,8 +263,8 @@ uint32 ReadBuild(int locale)
     std::string filename = Trinity::StringFormat("component.wow-%s.txt", localeNames[locale]);
     //printf("Read %s file... ", filename.c_str());
 
-    HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, filename.c_str(), CASC_LOCALE_ALL, 0, &dbcFile))
+    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, filename.c_str(), CASC_LOCALE_ALL);
+    if (!dbcFile)
     {
         printf("Locale %s not installed.\n", localeNames[locale]);
         return 0;
@@ -268,7 +272,7 @@ uint32 ReadBuild(int locale)
 
     char buff[512];
     DWORD readBytes = 0;
-    CascReadFile(dbcFile, buff, 512, &readBytes);
+    CASC::ReadFile(dbcFile, buff, 512, &readBytes);
     if (!readBytes)
     {
         printf("Fatal error: Not found %s file!\n", filename.c_str());
@@ -276,7 +280,6 @@ uint32 ReadBuild(int locale)
     }
 
     std::string text = std::string(buff, readBytes);
-    CascCloseFile(dbcFile);
 
     size_t pos = text.find("version=\"");
     size_t pos1 = pos + strlen("version=\"");
@@ -301,12 +304,11 @@ uint32 ReadBuild(int locale)
 
 void ReadMapDBC()
 {
-    printf("Read Map.dbc file... ");
+    printf("Read Map.db2 file...\n");
 
-    HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, "DBFilesClient\\Map.db2", CASC_LOCALE_NONE, 0, &dbcFile))
+    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\Map.db2", CASC_LOCALE_NONE, true);
+    if (!dbcFile)
     {
-        printf("Fatal error: Cannot find Map.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
@@ -353,17 +355,15 @@ void ReadMapDBC()
         }
     }
 
-    CascCloseFile(dbcFile);
     printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
 }
 
 void ReadLiquidTypeTableDBC()
 {
-    printf("Read LiquidType.dbc file...");
-    HANDLE dbcFile;
-    if (!CascOpenFile(CascStorage, "DBFilesClient\\LiquidType.db2", CASC_LOCALE_NONE, 0, &dbcFile))
+    printf("Read LiquidType.db2 file...\n");
+    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\LiquidType.db2", CASC_LOCALE_NONE, true);
+    if (!dbcFile)
     {
-        printf("Fatal error: Cannot find LiquidType.dbc in archive! %s\n", HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
@@ -390,8 +390,39 @@ void ReadLiquidTypeTableDBC()
     for (uint32 x = 0; x < db2.GetNumRowCopies(); ++x)
         LiqType[db2.GetRowCopy(x).second] = LiqType[db2.GetRowCopy(x).first];
 
-    CascCloseFile(dbcFile);
     printf("Done! (" SZFMTD " LiqTypes loaded)\n", LiqType.size());
+}
+
+bool ReadCinematicCameraDBC()
+{
+    printf("Read CinematicCamera.db2 file...\n");
+
+    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\CinematicCamera.db2", CASC_LOCALE_NONE, true);
+    if (!dbcFile)
+    {
+        printf("Unable to open CinematicCamera.db2. Camera extract aborted.\n");
+        return false;
+    }
+
+    DB2FileLoader db2;
+    if (!db2.Load(dbcFile, CinematicCameraMeta::Instance()))
+    {
+        printf("Invalid CinematicCamera.db2 file format. Camera extract aborted. %s\n", HumanReadableCASCError(GetLastError()));
+        return false;
+    }
+
+    // get camera file list from DB2
+    for (size_t i = 0; i < db2.GetNumRows(); ++i)
+    {
+        std::string camFile(db2.getRecord(i).getString(0, 0));
+        size_t loc = camFile.find(".mdx");
+        if (loc != std::string::npos)
+            camFile.replace(loc, 4, ".m2");
+        CameraFileNames.insert(camFile);
+    }
+
+    printf("Done! (" SZFMTD " CinematicCameras loaded)\n", CameraFileNames.size());
+    return true;
 }
 
 //
@@ -1086,9 +1117,7 @@ void ExtractMaps(uint32 build)
 
     ReadLiquidTypeTableDBC();
 
-    std::string path = output_path;
-    path += "/maps/";
-    CreateDir(path);
+    CreateDir(output_path / "maps");
 
     std::set<std::string> wmoList;
 
@@ -1113,7 +1142,7 @@ void ExtractMaps(uint32 build)
                     continue;
 
                 storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
-                outputFileName =  Trinity::StringFormat("%s/maps/%04u_%02u_%02u.map", output_path, map_ids[z].id, y, x);
+                outputFileName =  Trinity::StringFormat("%s/maps/%04u_%02u_%02u.map", output_path.string().c_str(), map_ids[z].id, y, x);
                 ConvertADT(storagePath, outputFileName, y, x, build);
 
                 storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u_obj0.adt", map_ids[z].name, map_ids[z].name, x, y);
@@ -1141,7 +1170,7 @@ void ExtractMaps(uint32 build)
     printf("\n");
 }
 
-bool ExtractFile(HANDLE fileInArchive, std::string filename)
+bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filename)
 {
     FILE* output = fopen(filename.c_str(), "wb");
     if (!output)
@@ -1155,7 +1184,7 @@ bool ExtractFile(HANDLE fileInArchive, std::string filename)
 
     while (readBytes > 0)
     {
-        CascReadFile(fileInArchive, buffer, sizeof(buffer), &readBytes);
+        CASC::ReadFile(fileInArchive, buffer, sizeof(buffer), &readBytes);
         if (readBytes > 0)
             fwrite(buffer, 1, readBytes, output);
     }
@@ -1164,36 +1193,37 @@ bool ExtractFile(HANDLE fileInArchive, std::string filename)
     return true;
 }
 
+char const* GetCascFilenamePart(char const* cascPath)
+{
+    if (char const* lastSep = strrchr(cascPath, '\\'))
+        return lastSep + 1;
+
+    return cascPath;
+}
+
 void ExtractDBFilesClient(int l)
 {
     printf("Extracting dbc/db2 files...\n");
 
-    std::string outputPath = output_path;
-    outputPath += "/dbc/";
+    boost::filesystem::path localePath = output_path / "dbc" / localeNames[l];
 
-    CreateDir(outputPath);
-    outputPath += localeNames[l];
-    outputPath += "/";
-    CreateDir(outputPath);
+    CreateDir(output_path / "dbc");
+    CreateDir(localePath);
 
-    printf("locale %s output path %s\n", localeNames[l], outputPath.c_str());
+    printf("locale %s output path %s\n", localeNames[l], localePath.string().c_str());
 
     uint32 index = 0;
     uint32 count = 0;
     char const* fileName = DBFilesClientList[index];
-    HANDLE dbcFile;
     while (fileName)
     {
-        std::string filename = fileName;
-        if (CascOpenFile(CascStorage, filename.c_str(), WowLocaleToCascLocaleFlags[l], 0, &dbcFile))
+        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
         {
-            filename = outputPath + filename.substr(filename.rfind('\\') + 1);
+            boost::filesystem::path filePath = localePath / GetCascFilenamePart(fileName);
 
-            if (!boost::filesystem::exists(filename))
-                if (ExtractFile(dbcFile, filename))
+            if (!boost::filesystem::exists(filePath))
+                if (ExtractFile(dbcFile, filePath.string()))
                     ++count;
-
-            CascCloseFile(dbcFile);
         }
         else
             printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, localeNames[l], HumanReadableCASCError(GetLastError()));
@@ -1204,16 +1234,47 @@ void ExtractDBFilesClient(int l)
     printf("Extracted %u files\n\n", count);
 }
 
+void ExtractCameraFiles()
+{
+    printf("Extracting camera files...\n");
+
+    if (!ReadCinematicCameraDBC())
+        return;
+
+    boost::filesystem::path outputPath = output_path / "cameras";
+
+    CreateDir(outputPath);
+
+    printf("output path %s\n", outputPath.string().c_str());
+
+    // extract M2s
+    uint32 count = 0;
+    for (std::string const& cameraFileName : CameraFileNames)
+    {
+        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, cameraFileName.c_str(), CASC_LOCALE_NONE))
+        {
+            boost::filesystem::path filePath = outputPath / GetCascFilenamePart(cameraFileName.c_str());
+
+            if (!boost::filesystem::exists(filePath))
+                if (ExtractFile(dbcFile, filePath.string()))
+                    ++count;
+        }
+        else
+            printf("Unable to open file %s in the archive: %s\n", cameraFileName.c_str(), HumanReadableCASCError(GetLastError()));
+    }
+
+    printf("Extracted %u camera files\n", count);
+}
+
 void ExtractGameTables()
 {
     printf("Extracting game tables...\n");
 
-    std::string outputPath = output_path;
-    outputPath += "/gt/";
+    boost::filesystem::path outputPath = output_path / "gt";
 
     CreateDir(outputPath);
 
-    printf("output path %s\n", outputPath.c_str());
+    printf("output path %s\n", outputPath.string().c_str());
 
     char const* GameTables[] =
     {
@@ -1254,19 +1315,15 @@ void ExtractGameTables()
     uint32 index = 0;
     uint32 count = 0;
     char const* fileName = GameTables[index];
-    HANDLE dbcFile;
     while (fileName)
     {
-        std::string filename = fileName;
-        if (CascOpenFile(CascStorage, filename.c_str(), CASC_LOCALE_NONE, 0, &dbcFile))
+        if (CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
         {
-            filename = outputPath + filename.substr(filename.rfind('\\') + 1);
+            boost::filesystem::path filePath = outputPath / GetCascFilenamePart(fileName);
 
-            if (!boost::filesystem::exists(filename))
-                if (ExtractFile(dbcFile, filename))
+            if (!boost::filesystem::exists(filePath))
+                if (ExtractFile(dbcFile, filePath.string()))
                     ++count;
-
-            CascCloseFile(dbcFile);
         }
         else
             printf("Unable to open file %s in the archive: %s\n", fileName, HumanReadableCASCError(GetLastError()));
@@ -1282,12 +1339,13 @@ bool OpenCascStorage(int locale)
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        if (!CascOpenStorage(storage_dir.string().c_str(), WowLocaleToCascLocaleFlags[locale], &CascStorage))
+        CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[locale]);
+        if (!CascStorage)
         {
-            printf("error opening casc storage '%s' locale %s: %s\n", storage_dir.string().c_str(), localeNames[locale], HumanReadableCASCError(GetLastError()));
+            printf("error opening casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
             return false;
         }
-        printf("opened casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
+
         return true;
     }
     catch (boost::filesystem::filesystem_error& error)
@@ -1301,9 +1359,8 @@ int main(int argc, char * arg[])
 {
     Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
-    boost::filesystem::path current(boost::filesystem::current_path());
-    strcpy(input_path, current.string().c_str());
-    strcpy(output_path, current.string().c_str());
+    input_path = boost::filesystem::current_path();
+    output_path = boost::filesystem::current_path();
 
     HandleArgs(argc, arg);
 
@@ -1327,7 +1384,7 @@ int main(int argc, char * arg[])
             build = ReadBuild(i);
             if (!build)
             {
-                CascCloseStorage(CascStorage);
+                CascStorage.reset();
                 continue;
             }
 
@@ -1339,13 +1396,13 @@ int main(int argc, char * arg[])
         uint32 tempBuild = ReadBuild(i);
         if (!tempBuild)
         {
-            CascCloseStorage(CascStorage);
+            CascStorage.reset();
             continue;
         }
 
         printf("Detected client build %u for locale %s\n\n", tempBuild, localeNames[i]);
         ExtractDBFilesClient(i);
-        CascCloseStorage(CascStorage);
+        CascStorage.reset();
 
         if (FirstLocale < 0)
         {
@@ -1360,18 +1417,25 @@ int main(int argc, char * arg[])
         return 0;
     }
 
+    if (CONF_extract & EXTRACT_CAMERA)
+    {
+        OpenCascStorage(FirstLocale);
+        ExtractCameraFiles();
+        CascStorage.reset();
+    }
+
     if (CONF_extract & EXTRACT_GT)
     {
         OpenCascStorage(FirstLocale);
         ExtractGameTables();
-        CascCloseStorage(CascStorage);
+        CascStorage.reset();
     }
 
     if (CONF_extract & EXTRACT_MAP)
     {
         OpenCascStorage(FirstLocale);
         ExtractMaps(build);
-        CascCloseStorage(CascStorage);
+        CascStorage.reset();
     }
 
     return 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -713,7 +713,6 @@ struct ChrSpecializationLoadInfo
             { false, FT_STRING, "Name" },
             { false, FT_STRING, "Name2" },
             { false, FT_STRING, "Description" },
-            { false, FT_STRING_NOT_LOCALIZED, "BackgroundFile" },
             { false, FT_SHORT, "SpellIconID" },
             { false, FT_BYTE, "ClassID" },
             { false, FT_BYTE, "OrderIndex" },
@@ -725,6 +724,24 @@ struct ChrSpecializationLoadInfo
             { false, FT_INT, "AnimReplacementSetID" },
         };
         return { &fields[0], std::extent<decltype(fields)>::value, ChrSpecializationMeta::Instance(), HOTFIX_SEL_CHR_SPECIALIZATION };
+    }
+};
+
+struct CinematicCameraLoadInfo
+{
+    static DB2LoadInfo Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING_NOT_LOCALIZED, "Model" },
+            { false, FT_FLOAT, "OriginX" },
+            { false, FT_FLOAT, "OriginY" },
+            { false, FT_FLOAT, "OriginZ" },
+            { false, FT_FLOAT, "OriginFacing" },
+            { false, FT_SHORT, "SoundID" },
+        };
+        return { &fields[0], std::extent<decltype(fields)>::value, CinematicCameraMeta::Instance(), HOTFIX_SEL_CINEMATIC_CAMERA };
     }
 };
 

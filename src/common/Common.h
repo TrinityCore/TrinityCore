@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,6 +35,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <numeric>
 
 #include <cmath>
 #include <cstdio>
@@ -52,14 +53,14 @@
 
 #include "Threading/LockedQueue.h"
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #  include <ws2tcpip.h>
 
-#  if defined(__INTEL_COMPILER)
+#  if TRINITY_COMPILER == TRINITY_COMPILER_INTEL
 #    if !defined(BOOST_ASIO_HAS_MOVE)
 #      define BOOST_ASIO_HAS_MOVE
 #    endif // !defined(BOOST_ASIO_HAS_MOVE)
-#  endif // if defined(__INTEL_COMPILER)
+#  endif // if TRINITY_COMPILER == TRINITY_COMPILER_INTEL
 
 #else
 #  include <sys/types.h>
@@ -70,7 +71,7 @@
 #  include <netdb.h>
 #endif
 
-#if COMPILER == COMPILER_MICROSOFT
+#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
 
 #include <float.h>
 

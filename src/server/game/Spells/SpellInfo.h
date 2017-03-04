@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -460,6 +460,7 @@ public:
     bool IsDeathPersistent() const;
     bool IsRequiringDeadTarget() const;
     bool IsAllowingDeadTarget() const;
+    bool IsGroupBuff() const;
     bool CanBeUsedInCombat() const;
     bool IsPositive() const;
     bool IsPositiveEffect(uint8 effIndex) const;
@@ -503,6 +504,7 @@ public:
     float GetMinRange(bool positive = false) const;
     float GetMaxRange(bool positive = false, Unit* caster = NULL, Spell* spell = NULL) const;
 
+    int32 CalcDuration(Unit* caster = nullptr) const;
     int32 GetDuration() const;
     int32 GetMaxDuration() const;
 

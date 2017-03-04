@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 10;
 
-enum DataTypes
+enum SMDataTypes
 {
     DATA_MOGRAINE_AND_WHITE_EVENT   = 1,
     DATA_MOGRAINE                   = 2,
@@ -43,7 +43,7 @@ enum DataTypes
     DATA_SCORN                      = 14
 };
 
-enum CreatureIds
+enum SMCreatureIds
 {
     NPC_MOGRAINE                    = 3976,
     NPC_WHITEMANE                   = 3977,
@@ -54,7 +54,7 @@ enum CreatureIds
     NPC_PUMPKIN                     = 23694
 };
 
-enum GameObjectIds
+enum SMGameObjectIds
 {
     GO_HIGH_INQUISITORS_DOOR        = 104600,
     GO_PUMPKIN_SHRINE               = 186267

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,7 @@
 
 #define MAX_ENCOUNTER                   3
 
-enum DataTypes
+enum UDDataTypes
 {
     DATA_ALTAR_DOORS                    = 1,
     DATA_ANCIENT_DOOR                   = 2,
@@ -33,7 +33,7 @@ enum DataTypes
     DATA_IRONAYA_SEAL                   = 6,
 };
 
-enum GameObjectIds
+enum UDGameObjectIds
 {
     GO_ARCHAEDAS_TEMPLE_DOOR            = 141869,
     GO_ALTAR_OF_THE_KEEPER_TEMPLE_DOOR  = 124367,
