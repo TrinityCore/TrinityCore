@@ -13317,8 +13317,8 @@ bool Player::IsUsingTwoHandedWeaponInOneHand() const
     if (!mainItem || !offItem)
         return false;
 
-    if (mainItem->GetTemplate()->InventoryType != INVTYPE_2HWEAPON &&
-        offItem->GetTemplate()->InventoryType != INVTYPE_2HWEAPON)
+    if (mainItem->GetTemplate()->GetInventoryType() != INVTYPE_2HWEAPON &&
+        offItem->GetTemplate()->GetInventoryType() != INVTYPE_2HWEAPON)
         return false;
 
     return true;
