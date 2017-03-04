@@ -275,7 +275,7 @@ MaxOverspeedPings = 2
 #        Default:     1 - (enable, Unload grids)
 #                     0 - (disable, Do not unload grids)
 
-GridUnload = 1
+GridUnload = 0
 
 #
 #    BaseMapLoadAllGrids
@@ -285,7 +285,7 @@ GridUnload = 1
 #        Default:     0 - (Don't pre-load all base maps, dynamically load as used)
 #                     1 - (Preload all grids in all base maps upon load)
 
-BaseMapLoadAllGrids = 0
+BaseMapLoadAllGrids = 1
 
 #
 #    InstanceMapLoadAllGrids
