@@ -265,7 +265,7 @@ struct QuestObjectivesLocale
 
 struct QuestOfferRewardLocale
 {
-	StringVector RewardText;
+    StringVector RewardText;
 };
 
 struct QuestObjective
