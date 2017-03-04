@@ -4749,7 +4749,7 @@ void ObjectMgr::LoadQuestTemplateLocale()
         AddLocaleString(questCompletionLog,     locale, data.QuestCompletionLog);
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Quest Tempalate locale strings in %u ms", uint32(_questTemplateLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u Quest Template locale strings in %u ms", uint32(_questTemplateLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadQuestObjectivesLocale()
@@ -4781,6 +4781,36 @@ void ObjectMgr::LoadQuestObjectivesLocale()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u Quest Objectives locale strings in %u ms", uint32(_questObjectivesLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadQuestOfferRewardLocale()
+{
+	uint32 oldMSTime = getMSTime();
+
+	_questOfferRewardLocaleStore.clear(); // need for reload case
+										 //                                               0     1          2
+	QueryResult result = WorldDatabase.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
+	if (!result)
+		return;
+
+	do
+	{
+		Field* fields = result->Fetch();
+
+		uint32 id = fields[0].GetUInt32();
+		std::string localeName = fields[1].GetString();
+
+		std::string RewardText = fields[2].GetString();
+
+		QuestOfferRewardLocale& data = _questOfferRewardLocaleStore[id];
+		LocaleConstant locale = GetLocaleByName(localeName);
+		if (locale == LOCALE_enUS)
+			continue;
+
+		AddLocaleString(RewardText, locale, data.RewardText);
+	} while (result->NextRow());
+
+	TC_LOG_INFO("server.loading", ">> Loaded %u Quest Offer Reward locale strings in %u ms", uint32(_questOfferRewardLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadScripts(ScriptsType type)

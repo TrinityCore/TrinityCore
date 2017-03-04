@@ -622,15 +622,19 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     LocaleConstant locale = _session->GetSessionDbLocaleIndex();
     if (locale >= LOCALE_enUS)
     {
-        if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
-            ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle,           locale, questTitle);
-            ObjectMgr::GetLocaleString(questTemplateLocale->OfferRewardText,    locale, questOfferRewardText);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverText,  locale, portraitGiverText);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverName,  locale, portraitGiverName);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInText, locale, portraitTurnInText);
-            ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInName, locale, portraitTurnInName);
-        }
+		if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+		{
+			ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, locale, questTitle);
+			ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverText, locale, portraitGiverText);
+			ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverName, locale, portraitGiverName);
+			ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInText, locale, portraitTurnInText);
+			ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInName, locale, portraitTurnInName);
+		}
+
+		if (QuestOfferRewardLocale const* questOfferRewardLocale = sObjectMgr->GetQuestOfferRewardLocale(quest->GetQuestId()))
+		{
+			ObjectMgr::GetLocaleString(questOfferRewardLocale->RewardText, locale, questOfferRewardText);
+		}
     }
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
