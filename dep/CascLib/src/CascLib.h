@@ -60,7 +60,7 @@ extern "C" {
 
 #define CASC_LOCALE_BIT_ENUS        0x01
 #define CASC_LOCALE_BIT_KOKR        0x02
-#define CASC_LOCALE_DUAL_LANG       0x03
+#define CASC_LOCALE_BIT_RESERVED    0x03
 #define CASC_LOCALE_BIT_FRFR        0x04
 #define CASC_LOCALE_BIT_DEDE        0x05
 #define CASC_LOCALE_BIT_ZHCN        0x06

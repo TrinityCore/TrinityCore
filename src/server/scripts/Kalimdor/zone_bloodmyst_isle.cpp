@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -499,7 +499,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i].m_positionX, ExplosivesPos[0][i].m_positionY, ExplosivesPos[0][i].m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], G3D::Quat(), 0))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             me->HandleEmoteCommand(EMOTE_ONESHOT_NONE); // reset anim state
@@ -595,7 +595,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i].m_positionX, ExplosivesPos[1][i].m_positionY, ExplosivesPos[1][i].m_positionZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], G3D::Quat(), 0))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             Talk(SAY_LEGOSO_15);

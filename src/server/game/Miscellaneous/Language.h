@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -826,7 +826,7 @@ enum TrinityStrings
     LANG_PINFO_CHR_LEVEL_LOW            = 843,
     LANG_PINFO_CHR_RACE                 = 844,
     LANG_PINFO_CHR_ALIVE                = 845,
-    LANG_PINFO_CHR_PHASE                = 846,
+    LANG_PINFO_CHR_PHASES               = 846,
     LANG_PINFO_CHR_MONEY                = 847,
     LANG_PINFO_CHR_MAP                  = 848,
     LANG_PINFO_CHR_GUILD                = 849,
@@ -873,7 +873,7 @@ enum TrinityStrings
     LANG_ACCOUNT_NOT_DELETED_SQL_ERROR  = 1002,
     LANG_ACCOUNT_NOT_DELETED            = 1003,
     LANG_ACCOUNT_CREATED                = 1004,
-    LANG_ACCOUNT_TOO_LONG               = 1005,
+    LANG_ACCOUNT_NAME_TOO_LONG          = 1005,
     LANG_ACCOUNT_ALREADY_EXIST          = 1006,
     LANG_ACCOUNT_NOT_CREATED_SQL_ERROR  = 1007,
     LANG_ACCOUNT_NOT_CREATED            = 1008,
@@ -902,7 +902,9 @@ enum TrinityStrings
     LANG_ACCOUNT_PASS_TOO_LONG          = 1031,
     LANG_ACCOUNT_CREATED_BNET_WITH_GAME = 1032,
     LANG_ACCOUNT_CREATED_BNET           = 1033,
-    // Room for more level 4              1034-1099 not used
+    LANG_ACCOUNT_BNET_LIST_HEADER       = 1034,
+    LANG_ACCOUNT_BNET_LIST_NO_ACCOUNTS  = 1035,
+    // Room for more level 4              1036-1099 not used
 
     // Level 3 (continue)
     LANG_ACCOUNT_SETADDON               = 1100,
@@ -1236,5 +1238,7 @@ enum TrinityStrings
     LANG_INSTANCE_BIND_MISMATCH                   = 11014,
     LANG_CREATURE_NOT_AI_ENABLED                  = 11015,
     LANG_SELECT_PLAYER_OR_PET                     = 11016,
+    LANG_SHUTDOWN_DELAYED                         = 11017,
+    LANG_SHUTDOWN_CANCELLED                       = 11018
 };
 #endif

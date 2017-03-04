@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -465,7 +465,7 @@ void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& 
     }
     else
     {
-        TC_LOG_ERROR("network", "Player %s (%s) tried to turn in petition (%s) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), packet.Item.ToString().c_str());
+        TC_LOG_ERROR("entities.player.cheat", "Player %s (%s) tried to turn in petition (%s) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), packet.Item.ToString().c_str());
         return;
     }
 

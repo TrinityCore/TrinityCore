@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 
 uint32 const EncounterCount     = 15;
 
-enum Encounter
+enum NAXEncounter
 {
     BOSS_ANUBREKHAN,
     BOSS_FAERLINA,
@@ -41,7 +41,7 @@ enum Encounter
     BOSS_KELTHUZAD
 };
 
-enum Data
+enum NAXData
 {
     DATA_GOTHIK_GATE,
     DATA_HAD_ANUBREKHAN_GREET,
@@ -50,15 +50,15 @@ enum Data
     DATA_HAD_SAPPHIRON_BIRTH,
 
     DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT,
-    DATA_ABOMINATION_KILLED,
 
     DATA_NAXX_PORTAL_ARACHNID,
     DATA_NAXX_PORTAL_CONSTRUCT,
     DATA_NAXX_PORTAL_PLAGUE,
-    DATA_NAXX_PORTAL_MILITARY
+    DATA_NAXX_PORTAL_MILITARY,
+    DATA_KELTHUZAD_THRONE
 };
 
-enum Data64
+enum NAXData64
 {
     DATA_ANUBREKHAN,
     DATA_FAERLINA,
@@ -83,7 +83,7 @@ enum Data64
     DATA_LICH_KING
 };
 
-enum CreaturesIds
+enum NAXCreaturesIds
 {
     NPC_ANUBREKHAN              = 15956,
     NPC_FAERLINA                = 15953,
@@ -107,10 +107,11 @@ enum CreaturesIds
     NPC_DK_UNDERSTUDY           = 16803,
     NPC_BIGGLESWORTH            = 16998,
     NPC_LICH_KING               = 16980,
-    NPC_OLD_WORLD_TRIGGER       = 15384
+    NPC_OLD_WORLD_TRIGGER       = 15384,
+    NPC_FROGGER                 = 16027
 };
 
-enum GameObjectsIds
+enum NAXGameObjectsIds
 {
     GO_HORSEMEN_CHEST_HERO      = 193426,
     GO_HORSEMEN_CHEST           = 181366,
@@ -120,6 +121,7 @@ enum GameObjectsIds
     GO_KELTHUZAD_PORTAL03       = 181404,
     GO_KELTHUZAD_PORTAL04       = 181405,
     GO_KELTHUZAD_TRIGGER        = 181444,
+    GO_KELTHUZAD_THRONE         = 181640,
     GO_ROOM_ANUBREKHAN          = 181126,
     GO_PASSAGE_ANUBREKHAN       = 181195,
     GO_PASSAGE_FAERLINA         = 194022,
@@ -137,14 +139,20 @@ enum GameObjectsIds
     GO_ROOM_HORSEMEN            = 181119,
     GO_PASSAGE_SAPPHIRON        = 181225,
     GO_ROOM_KELTHUZAD           = 181228,
+
+    // End of wing portals
     GO_ARAC_PORTAL              = 181575,
     GO_PLAG_PORTAL              = 181577,
     GO_MILI_PORTAL              = 181578,
     GO_CONS_PORTAL              = 181576,
+
+    // "Glow" effect on center-side portal
     GO_ARAC_EYE_RAMP            = 181212,
     GO_PLAG_EYE_RAMP            = 181211,
     GO_MILI_EYE_RAMP            = 181210,
     GO_CONS_EYE_RAMP            = 181213,
+
+    // "Glow" effect on boss-side portal
     GO_ARAC_EYE_RAMP_BOSS       = 181233,
     GO_PLAG_EYE_RAMP_BOSS       = 181231,
     GO_MILI_EYE_RAMP_BOSS       = 181230,
@@ -160,7 +168,7 @@ enum GameObjectsIds
     GO_NAXX_PORTAL_MILITARY     = 181578
 };
 
-enum InstanceEvents
+enum NAXInstanceEvents
 {
     // Dialogue that happens after Gothik's death.
     EVENT_DIALOGUE_GOTHIK_KORTHAZZ = 1,
@@ -175,6 +183,9 @@ enum InstanceEvents
     // Dialogue that happens after each wing.
     EVENT_KELTHUZAD_WING_TAUNT,
 
+    // Periodic Frogger summon
+    EVENT_SUMMON_FROGGER_WAVE,
+
     // Dialogue that happens after Sapphiron's death.
     EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD,
     EVENT_DIALOGUE_SAPPHIRON_LICHKING,
@@ -184,7 +195,7 @@ enum InstanceEvents
     EVENT_DIALOGUE_SAPPHIRON_KELTHUZAD4
 };
 
-enum InstanceTexts
+enum NAXInstanceTexts
 {
     // The Four Horsemen
     SAY_DIALOGUE_GOTHIK_HORSEMAN      = 5,

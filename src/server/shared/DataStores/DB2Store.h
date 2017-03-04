@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,8 +33,8 @@ public:
 
     virtual ~DB2StorageBase()
     {
-        delete[] reinterpret_cast<char*>(_dataTable);
-        delete[] reinterpret_cast<char*>(_dataTableEx);
+        delete[] _dataTable;
+        delete[] _dataTableEx;
         for (char* strings : _stringPool)
             delete[] strings;
     }
@@ -63,47 +63,48 @@ public:
 protected:
     void WriteRecordData(char const* entry, uint32 locale, ByteBuffer& buffer) const
     {
+        std::size_t i = 0;
         if (!_loadInfo.Meta->HasIndexFieldInData())
-            entry += 4;
-
-        for (uint32 i = 0; i < _loadInfo.Meta->FieldCount; ++i)
         {
-            for (uint32 a = 0; a < _loadInfo.Meta->ArraySizes[i]; ++a)
-            {
-                switch (_loadInfo.Meta->Types[i])
-                {
-                    case FT_INT:
-                        buffer << *(uint32*)entry;
-                        entry += 4;
-                        break;
-                    case FT_FLOAT:
-                        buffer << *(float*)entry;
-                        entry += 4;
-                        break;
-                    case FT_BYTE:
-                        buffer << *(uint8*)entry;
-                        entry += 1;
-                        break;
-                    case FT_SHORT:
-                        buffer << *(uint16*)entry;
-                        entry += 2;
-                        break;
-                    case FT_STRING:
-                    {
-                        LocalizedString* locStr = *(LocalizedString**)entry;
-                        if (locStr->Str[locale][0] == '\0')
-                            locale = 0;
+            entry += 4;
+            ++i;
+        }
 
-                        buffer << locStr->Str[locale];
-                        entry += sizeof(LocalizedString*);
-                        break;
-                    }
-                    case FT_STRING_NOT_LOCALIZED:
-                    {
-                        buffer << *(char const**)entry;
-                        entry += sizeof(char const*);
-                        break;
-                    }
+        for (; i < _loadInfo.FieldCount; ++i)
+        {
+            switch (_loadInfo.TypesString[i])
+            {
+                case FT_INT:
+                    buffer << *(uint32*)entry;
+                    entry += 4;
+                    break;
+                case FT_FLOAT:
+                    buffer << *(float*)entry;
+                    entry += 4;
+                    break;
+                case FT_BYTE:
+                    buffer << *(uint8*)entry;
+                    entry += 1;
+                    break;
+                case FT_SHORT:
+                    buffer << *(uint16*)entry;
+                    entry += 2;
+                    break;
+                case FT_STRING:
+                {
+                    LocalizedString* locStr = *(LocalizedString**)entry;
+                    if (locStr->Str[locale][0] == '\0')
+                        locale = 0;
+
+                    buffer << locStr->Str[locale];
+                    entry += sizeof(LocalizedString*);
+                    break;
+                }
+                case FT_STRING_NOT_LOCALIZED:
+                {
+                    buffer << *(char const**)entry;
+                    entry += sizeof(char const*);
+                    break;
                 }
             }
         }

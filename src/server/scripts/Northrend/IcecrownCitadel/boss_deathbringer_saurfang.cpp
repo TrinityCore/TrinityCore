@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -251,25 +251,20 @@ class boss_deathbringer_saurfang : public CreatureScript
 
         struct boss_deathbringer_saurfangAI : public BossAI
         {
-            boss_deathbringer_saurfangAI(Creature* creature) : BossAI(creature, DATA_DEATHBRINGER_SAURFANG)
+            boss_deathbringer_saurfangAI(Creature* creature) : BossAI(creature, DATA_DEATHBRINGER_SAURFANG), _introDone(false), _frenzied(false), _dead(false)
             {
-                Initialize();
                 ASSERT(creature->GetVehicleKit()); // we dont actually use it, just check if exists
-                _introDone = false;
                 _fallenChampionCastCount = 0;
-            }
-
-            void Initialize()
-            {
-                _frenzied = false;
-                _dead = false;
             }
 
             void Reset() override
             {
+                if (_dead)
+                    return;
                 _Reset();
                 events.SetPhase(PHASE_COMBAT);
-                Initialize();
+                _frenzied = false;
+                _dead = false;
                 me->SetPower(POWER_ENERGY, 0);
                 DoCast(me, SPELL_ZERO_POWER, true);
                 DoCast(me, SPELL_BLOOD_LINK, true);
@@ -341,6 +336,8 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustReachedHome() override
             {
+                if (_dead)
+                    return;
                 _JustReachedHome();
                 Reset();
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, FAIL);
@@ -365,7 +362,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     Talk(SAY_FRENZY);
                 }
 
-                if (!_dead && me->GetHealth() < FightWonValue)
+                if (!_dead && me->GetHealth()-damage < FightWonValue)
                 {
                     _dead = true;
                     _JustDied();
@@ -529,6 +526,9 @@ class boss_deathbringer_saurfang : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

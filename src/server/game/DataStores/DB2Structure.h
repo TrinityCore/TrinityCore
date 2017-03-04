@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -433,7 +433,6 @@ struct ChrSpecializationEntry
     LocalizedString* Name;
     LocalizedString* Name2;
     LocalizedString* Description;
-    char* BackgroundFile;
     uint16 SpellIconID;
     uint8 ClassID;
     uint8 OrderIndex;
@@ -443,6 +442,15 @@ struct ChrSpecializationEntry
     uint32 ID;
     uint32 Flags;
     uint32 AnimReplacementSetID;
+};
+
+struct CinematicCameraEntry
+{
+    uint32 ID;
+    char const* Model;                                      // Model filename (translate .mdx to .m2)
+    DBCPosition3D Origin;                                   // Position in map used for basis for M2 co-ordinates
+    float OriginFacing;                                     // Orientation in map used for basis for M2 co-ordinates
+    uint16 SoundID;                                         // Sound ID       (voiceover for cinematic)
 };
 
 struct CinematicSequencesEntry
@@ -1729,7 +1737,7 @@ struct MapEntry
 
     bool IsContinent() const
     {
-        return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 870 || ID == 1116;
+        return ID == 0 || ID == 1 || ID == 530 || ID == 571 || ID == 870 || ID == 1116 || ID == 1220;
     }
 
     bool IsDynamicDifficultyMap() const { return (Flags[0] & MAP_FLAG_CAN_TOGGLE_DIFFICULTY) != 0; }

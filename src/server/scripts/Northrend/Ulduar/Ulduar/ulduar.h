@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -79,6 +79,9 @@ enum UlduarNPCs
     NPC_VEZAX                               = 33271,
     NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
+
+    //XT002
+    NPC_XS013_SCRAPBOT                      = 33343,
 
     // Flame Leviathan
     NPC_ULDUAR_COLOSSUS                     = 33237,

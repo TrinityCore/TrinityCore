@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "DB2Meta.h"
+#include "Errors.h"
 
 DB2Meta::DB2Meta(int32 indexField, uint32 fieldCount, uint32 layoutHash, char const* types, uint8 const* arraySizes)
     : IndexField(indexField), FieldCount(fieldCount), LayoutHash(layoutHash), Types(types), ArraySizes(arraySizes)
@@ -52,8 +53,10 @@ uint32 DB2Meta::GetRecordSize() const
                     size += 4;
                     break;
                 case FT_STRING:
-                case FT_STRING_NOT_LOCALIZED:
                     size += sizeof(char*);
+                    break;
+                default:
+                    ASSERT(false, "Unsupported column type specified %c", Types[i]);
                     break;
             }
         }

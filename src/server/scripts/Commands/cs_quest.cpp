@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -145,6 +145,8 @@ public:
 
         player->RemoveActiveQuest(entry, false);
         player->RemoveRewardedQuest(entry);
+
+        sScriptMgr->OnQuestStatusChange(player, entry);
 
         handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
         return true;

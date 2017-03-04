@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -140,6 +140,9 @@ public:
 
             events.Update(diff);
 
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
@@ -163,6 +166,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }

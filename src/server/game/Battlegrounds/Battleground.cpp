@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -299,8 +299,12 @@ inline void Battleground::_CheckSafePositions(uint32 diff)
         m_ValidStartPositionTimer = 0;
 
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        {
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
             {
+                if (player->IsGameMaster())
+                    continue;
+
                 Position pos = player->GetPosition();
                 Position const* startPos = GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(player->GetBGTeam()));
                 if (pos.GetExactDistSq(startPos) > maxDist)
@@ -309,6 +313,7 @@ inline void Battleground::_CheckSafePositions(uint32 diff)
                     player->TeleportTo(GetMapId(), startPos->GetPositionX(), startPos->GetPositionY(), startPos->GetPositionZ(), startPos->GetOrientation());
                 }
             }
+        }
     }
 }
 
@@ -1453,11 +1458,22 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     Map* map = FindBgMap();
     if (!map)
         return false;
+
+    G3D::Quat rot(rotation0, rotation1, rotation2, rotation3);
+    // Temporally add safety check for bad spawns and send log (object rotations need to be rechecked in sniff)
+    if (!rotation0 && !rotation1 && !rotation2 && !rotation3)
+    {
+        TC_LOG_DEBUG("bg.battleground", "Battleground::AddObject: gameoobject [entry: %u, object type: %u] for BG (map: %u) has zeroed rotation fields, "
+            "orientation used temporally, but please fix the spawn", entry, type, m_MapId);
+
+        rot = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
+    }
+
     // Must be created this way, adding to godatamap would add it to the base map of the instance
     // and when loading it (in go::LoadFromDB()), a new guid would be assigned to the object, and a new object would be created
     // So we must create it specific for this instance
     GameObject* go = new GameObject;
-    if (!go->Create(entry, GetBgMap(), PHASEMASK_NORMAL, x, y, z, o, rotation0, rotation1, rotation2, rotation3, 100, goState))
+    if (!go->Create(entry, GetBgMap(), PHASEMASK_NORMAL, Position(x, y, z, o), rot, 255, goState))
     {
         TC_LOG_ERROR("bg.battleground", "Battleground::AddObject: cannot create gameobject (entry: %u) for BG (map: %u, instance id: %u)!",
                 entry, m_MapId, m_InstanceID);
@@ -1866,7 +1882,7 @@ uint32 Battleground::GetAlivePlayersCountByTeam(uint32 Team) const
         if (itr->second.Team == Team)
         {
             Player* player = ObjectAccessor::FindPlayer(itr->first);
-            if (player && player->IsAlive() && !player->HasByteFlag(UNIT_FIELD_BYTES_2, 3, FORM_SPIRIT_OF_REDEMPTION))
+            if (player && player->IsAlive() && player->GetShapeshiftForm() != FORM_SPIRIT_OF_REDEMPTION)
                 ++count;
         }
     }

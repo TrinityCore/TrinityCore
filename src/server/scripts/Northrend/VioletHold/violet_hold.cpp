@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -430,6 +430,8 @@ class npc_sinclari_vh : public CreatureScript
                                 me->GetCreatureListWithEntryInGrid(guardList, NPC_VIOLET_HOLD_GUARD, 100.0f);
                                 for (Creature* guard : guardList)
                                 {
+                                    if (!guard->IsAlive())
+                                        continue;
                                     guard->SetReactState(REACT_PASSIVE);
                                     guard->SetWalk(false);
                                     guard->GetMotionMaster()->MovePoint(0, GuardsMovePosition);
