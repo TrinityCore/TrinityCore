@@ -780,6 +780,7 @@ class TC_GAME_API InstanceMap : public Map
         /* this checks if any players have a permanent bind (included reactivatable expired binds) to the instance ID
         it needs a DB query, so use sparingly */
         bool HasPermBoundPlayers() const;
+		uint32 GetAdjustedMaxPlayers() const;
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
 

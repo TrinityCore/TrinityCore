@@ -3416,13 +3416,32 @@ bool InstanceMap::HasPermBoundPlayers() const
     return !!CharacterDatabase.Query(stmt);
 }
 
+uint32 InstanceMap::GetAdjustedMaxPlayers() const
+{
+	MapDifficulty const* mapDiff = GetMapDifficulty();
+	if (mapDiff && mapDiff->maxPlayers)
+	{
+		uint32 id = GetId();
+		uint32 maxPlayers;
+
+		// Set Raid Size to 25 for the below Raids
+		// Ruins of Ahn'Qiraj, Ahn'Qiraj Temple, Molten Core, Blackwing Lair, Zul'Gurub
+		if (id == 531 || id == 509 || id == 409 || id == 469 || id == 309)
+		{
+			maxPlayers = 25;
+		}
+		else
+			maxPlayers = mapDiff->maxPlayers;
+
+		return maxPlayers;
+	}
+
+	return GetEntry()->maxPlayers;
+}
+
 uint32 InstanceMap::GetMaxPlayers() const
 {
-    MapDifficulty const* mapDiff = GetMapDifficulty();
-    if (mapDiff && mapDiff->maxPlayers)
-        return mapDiff->maxPlayers;
-
-    return GetEntry()->maxPlayers;
+	return GetAdjustedMaxPlayers();
 }
 
 uint32 InstanceMap::GetMaxResetDelay() const
