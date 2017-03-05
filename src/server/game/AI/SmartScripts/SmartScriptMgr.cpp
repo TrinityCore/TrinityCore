@@ -210,24 +210,57 @@ void SmartAIMgr::LoadSmartAIFromDB()
         }
         else
         {
-            CreatureData const* creature = sObjectMgr->GetCreatureData(uint64(-temp.entryOrGuid));
-            if (!creature)
+            switch (source_type)
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid (" SI64FMTD ") does not exist, skipped loading.", -temp.entryOrGuid);
-                continue;
-            }
+                case SMART_SCRIPT_TYPE_CREATURE:
+                {
+                    CreatureData const* creature = sObjectMgr->GetCreatureData(uint64(-temp.entryOrGuid));
+                    if (!creature)
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid (" SI64FMTD ") does not exist, skipped loading.", -temp.entryOrGuid);
+                        continue;
+                    }
 
-            CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature->id);
-            if (!creatureInfo)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) guid (" SI64FMTD ") does not exist, skipped loading.", creature->id, -temp.entryOrGuid);
-                continue;
-            }
+                    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature->id);
+                    if (!creatureInfo)
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) guid (" SI64FMTD ") does not exist, skipped loading.", creature->id, -temp.entryOrGuid);
+                        continue;
+                    }
 
-            if (creatureInfo->AIName != "SmartAI")
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) guid (" SI64FMTD ") is not using SmartAI, skipped loading.", creature->id, -temp.entryOrGuid);
-                continue;
+                    if (creatureInfo->AIName != "SmartAI")
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry (%u) guid (" SI64FMTD ") is not using SmartAI, skipped loading.", creature->id, -temp.entryOrGuid);
+                        continue;
+                    }
+                    break;
+                }
+                case SMART_SCRIPT_TYPE_GAMEOBJECT:
+                {
+                    GameObjectData const* gameObject = sObjectMgr->GetGOData(uint64(-temp.entryOrGuid));
+                    if (!gameObject)
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject guid (" SI64FMTD ") does not exist, skipped loading.", -temp.entryOrGuid);
+                        continue;
+                    }
+
+                    GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(gameObject->id);
+                    if (!gameObjectInfo)
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry (%u) guid (" SI64FMTD ") does not exist, skipped loading.", gameObject->id, -temp.entryOrGuid);
+                        continue;
+                    }
+
+                    if (gameObjectInfo->AIName != "SmartGameObjectAI")
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry (%u) guid (" SI64FMTD ") is not using SmartGameObjectAI, skipped loading.", gameObject->id, -temp.entryOrGuid);
+                        continue;
+                    }
+                    break;
+                }
+                default:
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GUID-specific scripting not yet implemented for source_type %u", (uint32)source_type);
+                    continue;
             }
         }
 
