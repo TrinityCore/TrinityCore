@@ -22,6 +22,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+#include "AuctionHouseListing.h"
 #include "AuctionHouseMgr.h"
 #include "CharacterCache.h"
 #include "Log.h"
@@ -625,17 +626,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_AUCTION_LIST_BIDDER_ITEMS");
 
     ObjectGuid guid;                                        //NPC guid
-    uint32 listfrom;                                        //page of auctions
-    uint32 outbiddedCount;                                  //count of outbidded auctions
-
     recvData >> guid;
-    recvData >> listfrom;                                  // not used in fact (this list not have page control in client)
-    recvData >> outbiddedCount;
-    if (recvData.size() != (16 + outbiddedCount * 4))
-    {
-        TC_LOG_ERROR("network", "Client sent bad opcode!!! with count: %u and size : %lu (must be: %u)", outbiddedCount, (unsigned long)recvData.size(), (16 + outbiddedCount * 4));
-        outbiddedCount = 0;
-    }
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -649,31 +640,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
-
-    WorldPacket data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4+4+4));
-    Player* player = GetPlayer();
-    data << (uint32) 0;                                     //add 0 as count
-    uint32 count = 0;
-    uint32 totalcount = 0;
-    while (outbiddedCount > 0)                             //add all data, which client requires
-    {
-        --outbiddedCount;
-        uint32 outbiddedAuctionId;
-        recvData >> outbiddedAuctionId;
-        AuctionEntry* auction = auctionHouse->GetAuction(outbiddedAuctionId);
-        if (auction && auction->BuildAuctionInfo(data))
-        {
-            ++totalcount;
-            ++count;
-        }
-    }
-
-    auctionHouse->BuildListBidderItems(data, player, count, totalcount);
-    data.put<uint32>(0, count);                           // add count to placeholder
-    data << totalcount;
-    data << (uint32)300;                                    //unk 2.3.0
-    SendPacket(&data);
+    AuctionHouseListing::AddListBidsEvent(_player, creature->GetFaction(), recvData);
 }
 
 //this void sends player info about his auctions
@@ -698,19 +665,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
-
-    WorldPacket data(SMSG_AUCTION_OWNER_LIST_RESULT, (4+4+4));
-    data << (uint32) 0;                                     // amount place holder
-
-    uint32 count = 0;
-    uint32 totalcount = 0;
-
-    auctionHouse->BuildListOwnerItems(data, _player, count, totalcount);
-    data.put<uint32>(0, count);
-    data << (uint32) totalcount;
-    data << (uint32) 0;
-    SendPacket(&data);
+    AuctionHouseListing::AddListOwnItemsEvent(_player, creature->GetFaction(), listfrom);
 }
 
 //this void is called when player clicks on search button
@@ -753,32 +708,10 @@ void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
-
     TC_LOG_DEBUG("auctionHouse", "Auctionhouse search (%s) list from: %u, searchedname: %s, levelmin: %u, levelmax: %u, auctionSlotID: %u, auctionMainCategory: %u, auctionSubCategory: %u, quality: %u, usable: %u",
         guid.ToString().c_str(), listfrom, searchedname.c_str(), levelmin, levelmax, auctionSlotID, auctionMainCategory, auctionSubCategory, quality, usable);
 
-    WorldPacket data(SMSG_AUCTION_LIST_RESULT, (4+4+4));
-    uint32 count = 0;
-    uint32 totalcount = 0;
-    data << (uint32) 0;
-
-    // converting string that we try to find to lower case
-    std::wstring wsearchedname;
-    if (!Utf8toWStr(searchedname, wsearchedname))
-        return;
-
-    wstrToLower(wsearchedname);
-
-    auctionHouse->BuildListAuctionItems(data, _player,
-        wsearchedname, listfrom, levelmin, levelmax, usable,
-        auctionSlotID, auctionMainCategory, auctionSubCategory, quality,
-        count, totalcount, (getAll != 0 && sWorld->getIntConfig(CONFIG_AUCTION_GETALL_DELAY) != 0));
-
-    data.put<uint32>(0, count);
-    data << (uint32) totalcount;
-    data << (uint32) sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
-    SendPacket(&data);
+    AuctionHouseListing::AddListItemsEvent(_player, creature->GetFaction(), searchedname, listfrom, levelmin, levelmax, usable, auctionSlotID, auctionMainCategory, auctionSubCategory, quality, getAll);
 }
 
 void WorldSession::HandleAuctionListPendingSales(WorldPacket& recvData)

@@ -267,11 +267,11 @@ class TC_GAME_API Item : public Object
         uint16 GetPos() const { return uint16(GetBagSlot()) << 8 | GetSlot(); }
         void SetContainer(Bag* container) { m_container = container; }
 
-        bool IsInBag() const { return m_container != NULL; }
+        bool IsInBag() const { return m_container != nullptr; }
         bool IsEquipped() const;
 
-        uint32 GetSkill();
-        uint32 GetSpell();
+        uint32 GetSkill() const;
+        uint32 GetSpell() const;
 
         // RandomPropertyId (signed but stored as unsigned)
         int32 GetItemRandomPropertyId() const { return GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID); }

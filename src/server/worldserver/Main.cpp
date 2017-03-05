@@ -27,6 +27,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/program_options.hpp>
 
+#include "AuctionHouseListing.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "AsyncAcceptor.h"
@@ -263,6 +264,9 @@ extern int main(int argc, char** argv)
 
     sScriptMgr->OnStartup();
 
+    // start auction house listing thread
+    std::thread* auctionHouseListingThread = new std::thread(AuctionHouseListing::AuctionHouseListingThread);
+
     WorldUpdateLoop();
 
     // Shutdown starts here
@@ -295,6 +299,9 @@ extern int main(int argc, char** argv)
         soapThread->join();
         delete soapThread;
     }
+
+    auctionHouseListingThread->join();
+    delete auctionHouseListingThread;
 
     delete raAcceptor;
 

@@ -517,19 +517,19 @@ ItemTemplate const* Item::GetTemplate() const
     return sObjectMgr->GetItemTemplate(GetEntry());
 }
 
-Player* Item::GetOwner()const
+Player* Item::GetOwner() const
 {
     return ObjectAccessor::FindPlayer(GetOwnerGUID());
 }
 
 // Just a "legacy shortcut" for proto->GetSkill()
-uint32 Item::GetSkill()
+uint32 Item::GetSkill() const
 {
     ItemTemplate const* proto = GetTemplate();
     return proto->GetSkill();
 }
 
-uint32 Item::GetSpell()
+uint32 Item::GetSpell() const
 {
     ItemTemplate const* proto = GetTemplate();
 

@@ -79,13 +79,11 @@ int32 ReputationMgr::GetReputation(uint32 faction_id) const
     return GetReputation(factionEntry);
 }
 
-int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry) const
+int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry, uint32 raceMask, uint32 classMask)
 {
     if (!factionEntry)
         return 0;
 
-    uint32 raceMask = _player->getRaceMask();
-    uint32 classMask = _player->getClassMask();
     for (int i=0; i < 4; i++)
     {
         if ((factionEntry->BaseRepRaceMask[i] & raceMask  ||
@@ -108,7 +106,7 @@ int32 ReputationMgr::GetReputation(FactionEntry const* factionEntry) const
         return 0;
 
     if (FactionState const* state = GetState(factionEntry))
-        return GetBaseReputation(factionEntry) + state->Standing;
+        return GetBaseReputation(factionEntry, _player->getRaceMask(), _player->getClassMask()) + state->Standing;
 
     return 0;
 }
@@ -121,7 +119,7 @@ ReputationRank ReputationMgr::GetRank(FactionEntry const* factionEntry) const
 
 ReputationRank ReputationMgr::GetBaseRank(FactionEntry const* factionEntry) const
 {
-    int32 reputation = GetBaseReputation(factionEntry);
+    int32 reputation = GetBaseReputation(factionEntry, _player->getRaceMask(), _player->getClassMask());
     return ReputationToRank(reputation);
 }
 
@@ -364,7 +362,7 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
     FactionStateList::iterator itr = _factions.find(factionEntry->reputationListID);
     if (itr != _factions.end())
     {
-        int32 BaseRep = GetBaseReputation(factionEntry);
+        int32 BaseRep = GetBaseReputation(factionEntry, _player->getRaceMask(), _player->getClassMask());
 
         if (incremental)
         {
@@ -532,7 +530,7 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
                 faction->Standing = fields[1].GetInt32();
 
                 // update counters
-                int32 BaseRep = GetBaseReputation(factionEntry);
+                int32 BaseRep = GetBaseReputation(factionEntry, _player->getRaceMask(), _player->getClassMask());
                 ReputationRank old_rank = ReputationToRank(BaseRep);
                 ReputationRank new_rank = ReputationToRank(BaseRep + faction->Standing);
                 UpdateRankCounters(old_rank, new_rank);

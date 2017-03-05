@@ -24,6 +24,7 @@
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseBot.h"
+#include "AuctionHouseListing.h"
 #include "AuctionHouseMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
@@ -77,6 +78,9 @@
 #include "WhoListStorage.h"
 #include "GameTime.h"
 #include "UpdateTime.h"
+
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 
 TC_GAME_API std::atomic<bool> World::m_stopEvent(false);
 TC_GAME_API uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -2117,37 +2121,6 @@ void World::Update(uint32 diff)
     if (currentGameTime > m_NextGuildReset)
         ResetGuildCap();
 
-    /// <ul><li> Handle auctions when the timer has passed
-    if (m_timers[WUPDATE_AUCTIONS].Passed())
-    {
-        m_timers[WUPDATE_AUCTIONS].Reset();
-
-        ///- Update mails (return old mails with item, or delete them)
-        //(tested... works on win)
-        if (++mail_timer > mail_timer_expires)
-        {
-            mail_timer = 0;
-            sObjectMgr->ReturnOrDeleteOldMails(true);
-        }
-
-        ///- Handle expired auctions
-        sAuctionMgr->Update();
-    }
-
-    if (m_timers[WUPDATE_AUCTIONS_PENDING].Passed())
-    {
-        m_timers[WUPDATE_AUCTIONS_PENDING].Reset();
-
-        sAuctionMgr->UpdatePendingAuctions();
-    }
-
-    /// <li> Handle AHBot operations
-    if (m_timers[WUPDATE_AHBOT].Passed())
-    {
-        sAuctionBot->Update();
-        m_timers[WUPDATE_AHBOT].Reset();
-    }
-
     /// <li> Handle file changes
     if (m_timers[WUPDATE_CHECK_FILECHANGES].Passed())
     {
@@ -2155,10 +2128,49 @@ void World::Update(uint32 diff)
         m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
     }
 
-    /// <li> Handle session updates when the timer has passed
-    sWorldUpdateTime.RecordUpdateTimeReset();
-    UpdateSessions(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
+    // acquire mutex now, this is kind of waiting for listing thread to finish it's work (since it can't process next packet)
+    // so we don't have to do it in every packet that modifies auctions
+    AuctionHouseListing::SetListingAllowed(false);
+    {
+        boost::lock_guard<boost::mutex> lock(*AuctionHouseListing::GetListingLock());
+
+        /// <ul><li> Handle auctions when the timer has passed
+        if (m_timers[WUPDATE_AUCTIONS].Passed())
+        {
+            m_timers[WUPDATE_AUCTIONS].Reset();
+
+            ///- Update mails (return old mails with item, or delete them)
+            //(tested... works on win)
+            if (++mail_timer > mail_timer_expires)
+            {
+                mail_timer = 0;
+                sObjectMgr->ReturnOrDeleteOldMails(true);
+            }
+
+            ///- Handle expired auctions
+            sAuctionMgr->Update();
+        }
+
+        if (m_timers[WUPDATE_AUCTIONS_PENDING].Passed())
+        {
+            m_timers[WUPDATE_AUCTIONS_PENDING].Reset();
+
+            sAuctionMgr->UpdatePendingAuctions();
+        }
+
+        /// <li> Handle AHBot operations
+        if (m_timers[WUPDATE_AHBOT].Passed())
+        {
+            sAuctionBot->Update();
+            m_timers[WUPDATE_AHBOT].Reset();
+        }
+
+        /// <li> Handle session updates when the timer has passed
+        sWorldUpdateTime.RecordUpdateTimeReset();
+        UpdateSessions(diff);
+        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
+    }
+    AuctionHouseListing::SetListingAllowed(true);
 
     /// <li> Handle weather updates when the timer has passed
     if (m_timers[WUPDATE_WEATHERS].Passed())

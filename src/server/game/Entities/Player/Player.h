@@ -66,6 +66,18 @@ typedef std::deque<Mail*> PlayerMails;
 #define PLAYER_MAX_DAILY_QUESTS     25
 #define PLAYER_EXPLORED_ZONES_SIZE  128
 
+#define PLAYER_SKILL_INDEX(x)       (PLAYER_SKILL_INFO_1_1 + ((x)*3))
+#define PLAYER_SKILL_VALUE_INDEX(x) (PLAYER_SKILL_INDEX(x)+1)
+#define PLAYER_SKILL_BONUS_INDEX(x) (PLAYER_SKILL_INDEX(x)+2)
+
+#define SKILL_VALUE(x)         PAIR32_LOPART(x)
+#define SKILL_MAX(x)           PAIR32_HIPART(x)
+#define MAKE_SKILL_VALUE(v, m) MAKE_PAIR32(v, m)
+
+#define SKILL_TEMP_BONUS(x)    int16(PAIR32_LOPART(x))
+#define SKILL_PERM_BONUS(x)    int16(PAIR32_HIPART(x))
+#define MAKE_SKILL_BONUS(t, p) MAKE_PAIR32(t, p)
+
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType : uint8
 {
@@ -130,8 +142,8 @@ struct SpellModifier
     Aura* const ownerAura;
 };
 
-typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
-typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
+typedef std::unordered_map<uint32, PlayerTalent> PlayerTalentMap;
+typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
 typedef std::unordered_set<SpellModifier*> SpellModContainer;
 
 typedef std::unordered_map<uint32 /*instanceId*/, time_t/*releaseTime*/> InstanceTimeMap;
@@ -1610,6 +1622,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         PlayerSpellMap const& GetSpellMap() const { return m_spells; }
         PlayerSpellMap      & GetSpellMap()       { return m_spells; }
+        SkillStatusMap const& GetSkillMap() const { return mSkillStatus; }
 
         void AddSpellMod(SpellModifier* mod, bool apply);
         static bool IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod, Spell* spell = nullptr);

@@ -86,13 +86,13 @@ class TC_GAME_API ReputationMgr
 
         FactionState const* GetState(FactionEntry const* factionEntry) const
         {
-            return factionEntry->CanHaveReputation() ? GetState(factionEntry->reputationListID) : NULL;
+            return factionEntry->CanHaveReputation() ? GetState(factionEntry->reputationListID) : nullptr;
         }
 
         FactionState const* GetState(RepListID id) const
         {
             FactionStateList::const_iterator repItr = _factions.find (id);
-            return repItr != _factions.end() ? &repItr->second : NULL;
+            return repItr != _factions.end() ? &repItr->second : nullptr;
         }
 
         bool IsAtWar(uint32 faction_id) const;
@@ -100,7 +100,7 @@ class TC_GAME_API ReputationMgr
 
         int32 GetReputation(uint32 faction_id) const;
         int32 GetReputation(FactionEntry const* factionEntry) const;
-        int32 GetBaseReputation(FactionEntry const* factionEntry) const;
+        static int32 GetBaseReputation(FactionEntry const* factionEntry, uint32 raceMask, uint32 classMask);
 
         ReputationRank GetRank(FactionEntry const* factionEntry) const;
         ReputationRank GetBaseRank(FactionEntry const* factionEntry) const;
