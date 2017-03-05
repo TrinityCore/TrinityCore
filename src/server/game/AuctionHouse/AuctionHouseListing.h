@@ -42,6 +42,7 @@ class AuctionListingEvent
 {
     public:
         AuctionListingEvent(Player* player, uint32 faction);
+        virtual ~AuctionListingEvent();
         virtual bool Execute() = 0;
 
         bool ExecuteBase(Player* player);

@@ -129,6 +129,10 @@ AuctionListingEvent::AuctionListingEvent(Player* player, uint32 faction) :
 {
 }
 
+AuctionListingEvent::~AuctionListingEvent()
+{
+}
+
 AuctionListOwnItemsEvent::AuctionListOwnItemsEvent(Player* player, uint32 faction, uint32 listFrom) :
     AuctionListingEvent(player, faction), _listFrom(listFrom)
 {
