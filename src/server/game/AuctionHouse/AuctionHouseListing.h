@@ -47,26 +47,10 @@ class AuctionListingEvent
         bool ExecuteBase(Player* player);
 
     protected:
-
-        InventoryResult CanUseItem(Item const* pItem, Player const* player) const;
-        InventoryResult CanUseItem(ItemTemplate const* proto, Player const* player) const;
-
-        bool HasSkill(uint32 skill) const;
-        uint16 GetSkillValue(uint32 skill) const;
-        bool HasSpell(uint32 spell) const;
-        ReputationRank GetReputationRank(uint32 faction, Player const* player) const;
-
         // checks
         ObjectGuid _playerGuid;
         uint32 _faction;
         uint32 _mapId;
-        bool _isAlive;
-        uint8 _level;
-
-        SkillStatusMap _mSkillStatus;
-        PlayerSpellMap _spells;
-        std::array<uint32, SkillFieldsSize> _skillFields;
-        FactionStateList _factions;
 };
 
 class AuctionListOwnItemsEvent : public AuctionListingEvent
@@ -101,6 +85,22 @@ class AuctionListItemsEvent : public AuctionListingEvent
         uint32 _itemSubClass;
         uint32 _quality;
         uint8 _getAll;
+
+        // Duplication of CanUseItem
+
+        InventoryResult CanUseItem(Item const* pItem, Player const* player) const;
+        InventoryResult CanUseItem(ItemTemplate const* proto, Player const* player) const;
+        bool HasSkill(uint32 skill) const;
+        uint16 GetSkillValue(uint32 skill) const;
+        bool HasSpell(uint32 spell) const;
+        ReputationRank GetReputationRank(uint32 faction, Player const* player) const;
+
+        bool _isAlive;
+        uint8 _level;
+        SkillStatusMap _mSkillStatus;
+        PlayerSpellMap _spells;
+        std::array<uint32, SkillFieldsSize> _skillFields;
+        FactionStateList _factions;
 };
 
 class AuctionListBidsEvent : public AuctionListingEvent

@@ -125,12 +125,8 @@ void AuctionHouseListing::AddListBidsEvent(Player* player, uint32 faction, World
 }
 
 AuctionListingEvent::AuctionListingEvent(Player* player, uint32 faction) :
-    _playerGuid(player->GetGUID()), _faction(faction), _mapId(player->GetMapId()), _isAlive(player->IsAlive()), _level(player->getLevel())
+    _playerGuid(player->GetGUID()), _faction(faction), _mapId(player->GetMapId())
 {
-    _mSkillStatus = player->GetSkillMap();
-    _spells = player->GetSpellMap();
-    std::copy(player->GetUIntFieldValues() + PLAYER_SKILL_INFO_1_1, player->GetUIntFieldValues() + PLAYER_SKILL_INFO_1_1 + SkillFieldsSize, _skillFields.begin());
-    _factions = player->GetReputationMgr().GetStateList();
 }
 
 AuctionListOwnItemsEvent::AuctionListOwnItemsEvent(Player* player, uint32 faction, uint32 listFrom) :
@@ -139,8 +135,13 @@ AuctionListOwnItemsEvent::AuctionListOwnItemsEvent(Player* player, uint32 factio
 }
 
 AuctionListItemsEvent::AuctionListItemsEvent(Player* player, uint32 faction, std::string const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable, uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint8 getAll) :
-    AuctionListingEvent(player, faction), _searchedname(searchedname), _listfrom(listfrom), _levelmin(levelmin), _levelmax(levelmax), _usable(usable), _inventoryType(inventoryType), _itemClass(itemClass), _itemSubClass(itemSubClass), _quality(quality), _getAll(getAll)
+    AuctionListingEvent(player, faction), _searchedname(searchedname), _listfrom(listfrom), _levelmin(levelmin), _levelmax(levelmax), _usable(usable), _inventoryType(inventoryType), _itemClass(itemClass), _itemSubClass(itemSubClass), _quality(quality), _getAll(getAll),
+    _isAlive(player->IsAlive()), _level(player->getLevel())
 {
+    _mSkillStatus = player->GetSkillMap();
+    _spells = player->GetSpellMap();
+    std::copy(player->GetUIntFieldValues() + PLAYER_SKILL_INFO_1_1, player->GetUIntFieldValues() + PLAYER_SKILL_INFO_1_1 + SkillFieldsSize, _skillFields.begin());
+    _factions = player->GetReputationMgr().GetStateList();
 }
 
 AuctionListBidsEvent::AuctionListBidsEvent(Player* player, uint32 faction, WorldPacket& data) :
@@ -452,7 +453,7 @@ bool AuctionListItemsEvent::BuildListAuctionItems(AuctionHouseObject* auctionHou
     return true;
 }
 
-InventoryResult AuctionListingEvent::CanUseItem(Item const* pItem, Player const* player) const
+InventoryResult AuctionListItemsEvent::CanUseItem(Item const* pItem, Player const* player) const
 {
     if (pItem)
     {
@@ -509,7 +510,7 @@ InventoryResult AuctionListingEvent::CanUseItem(Item const* pItem, Player const*
     return EQUIP_ERR_ITEM_NOT_FOUND;
 }
 
-InventoryResult AuctionListingEvent::CanUseItem(ItemTemplate const* proto, Player const* player) const
+InventoryResult AuctionListItemsEvent::CanUseItem(ItemTemplate const* proto, Player const* player) const
 {
     if (!proto)
         return EQUIP_ERR_ITEM_NOT_FOUND;
@@ -547,7 +548,7 @@ InventoryResult AuctionListingEvent::CanUseItem(ItemTemplate const* proto, Playe
     return EQUIP_ERR_OK;
 }
 
-bool AuctionListingEvent::HasSkill(uint32 skill) const
+bool AuctionListItemsEvent::HasSkill(uint32 skill) const
 {
     if (!skill)
         return false;
@@ -556,7 +557,7 @@ bool AuctionListingEvent::HasSkill(uint32 skill) const
     return (itr != _mSkillStatus.end() && itr->second.uState != SKILL_DELETED);
 }
 
-uint16 AuctionListingEvent::GetSkillValue(uint32 skill) const
+uint16 AuctionListItemsEvent::GetSkillValue(uint32 skill) const
 {
     if (!skill)
         return 0;
@@ -573,13 +574,13 @@ uint16 AuctionListingEvent::GetSkillValue(uint32 skill) const
     return result < 0 ? 0 : result;
 }
 
-bool AuctionListingEvent::HasSpell(uint32 spell) const
+bool AuctionListItemsEvent::HasSpell(uint32 spell) const
 {
     PlayerSpellMap::const_iterator itr = _spells.find(spell);
     return (itr != _spells.end() && itr->second.state != PLAYERSPELL_REMOVED && !itr->second.disabled);
 }
 
-ReputationRank AuctionListingEvent::GetReputationRank(uint32 faction, Player const* player) const
+ReputationRank AuctionListItemsEvent::GetReputationRank(uint32 faction, Player const* player) const
 {
     FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction);
     int32 reputation = 0;
