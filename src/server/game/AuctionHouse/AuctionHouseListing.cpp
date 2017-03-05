@@ -23,7 +23,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "World.h"
+#include "GameTime.h"
 
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
@@ -292,7 +292,7 @@ bool AuctionListItemsEvent::BuildListAuctionItems(AuctionHouseObject* auctionHou
     int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
     int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
-    time_t curTime = sWorld->GetGameTime();
+    time_t curTime = GameTime::GetGameTime();
 
     auto itr = GetAllThrottleMap.find(player->GetGUID());
     time_t throttleTime = itr != GetAllThrottleMap.end() ? itr->second : curTime;
