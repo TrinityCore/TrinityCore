@@ -5219,7 +5219,7 @@ void Spell::EffectDiscoverTaxi(SpellEffIndex /*effIndex*/)
         unitTarget->ToPlayer()->GetSession()->SendDiscoverNewTaxiNode(nodeid);
 }
 
-void Spell::EffectTitanGrip(SpellEffIndex effIndex)
+void Spell::EffectTitanGrip(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
