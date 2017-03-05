@@ -665,7 +665,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket& recvData)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    AuctionHouseListing::AddListOwnItemsEvent(_player, creature->GetFaction(), listfrom);
+    AuctionHouseListing::AddListOwnItemsEvent(_player, creature->GetFaction());
 }
 
 //this void is called when player clicks on search button

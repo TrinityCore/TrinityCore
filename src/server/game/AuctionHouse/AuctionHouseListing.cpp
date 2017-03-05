@@ -106,10 +106,10 @@ boost::mutex* AuctionHouseListing::GetListingLock()
     return &_listingLock;
 }
 
-void AuctionHouseListing::AddListOwnItemsEvent(Player* player, uint32 faction, uint32 listFrom)
+void AuctionHouseListing::AddListOwnItemsEvent(Player* player, uint32 faction)
 {
     boost::lock_guard<boost::mutex> lock(_newRequestsLock);
-    _requestsNew.push_back(new AuctionListOwnItemsEvent(player, faction, listFrom));
+    _requestsNew.push_back(new AuctionListOwnItemsEvent(player, faction));
 }
 
 void AuctionHouseListing::AddListItemsEvent(Player* player, uint32 faction, std::string const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable, uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint8 getAll)
@@ -133,8 +133,8 @@ AuctionListingEvent::~AuctionListingEvent()
 {
 }
 
-AuctionListOwnItemsEvent::AuctionListOwnItemsEvent(Player* player, uint32 faction, uint32 listFrom) :
-    AuctionListingEvent(player, faction), _listFrom(listFrom)
+AuctionListOwnItemsEvent::AuctionListOwnItemsEvent(Player* player, uint32 faction) :
+    AuctionListingEvent(player, faction)
 {
 }
 

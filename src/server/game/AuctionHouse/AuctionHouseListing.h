@@ -57,11 +57,11 @@ class AuctionListingEvent
 class AuctionListOwnItemsEvent : public AuctionListingEvent
 {
     public:
-        AuctionListOwnItemsEvent(Player* player, uint32 faction, uint32 listFrom);
+        AuctionListOwnItemsEvent(Player* player, uint32 faction);
         bool Execute() override;
 
     private:
-        uint32 _listFrom;
+
 };
 
 class AuctionListItemsEvent : public AuctionListingEvent
@@ -118,7 +118,7 @@ namespace AuctionHouseListing
 {
     void AuctionHouseListingThread();
 
-    void AddListOwnItemsEvent(Player* player, uint32 faction, uint32 listFrom);
+    void AddListOwnItemsEvent(Player* player, uint32 faction);
     void AddListItemsEvent(Player* player, uint32 faction, std::string const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable, uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint8 getAll);
     void AddListBidsEvent(Player* player, uint32 faction, WorldPacket& data);
 
