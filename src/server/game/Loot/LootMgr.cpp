@@ -402,7 +402,7 @@ bool LootItem::AllowedForPlayer(Player const* player) const
         return false;
 
     // Don't show bind-when-picked-up unique items if player already has the maximum allowed quantity.
-    if (pProto->GetBonding() == BIND_ON_ACQUIRE && pProto->GetMaxCount() && int32(player->GetItemCount(itemid, true)) >= pProto->GetMaxCount())
+    if (pProto->GetBonding() == BIND_ON_ACQUIRE && pProto->GetMaxCount() && player->GetItemCount(itemid, true) >= pProto->GetMaxCount())
         return false;
 
     return true;
