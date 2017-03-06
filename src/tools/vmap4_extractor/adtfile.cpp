@@ -92,8 +92,8 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
     Adtfilename.erase(Adtfilename.find(".adt"),4);
     std::string TempMapNumber;
     TempMapNumber = Adtfilename.substr(Adtfilename.length()-6,6);
-    xMap = TempMapNumber.substr(TempMapNumber.find("_")+1,(TempMapNumber.find_last_of("_")-1) - (TempMapNumber.find("_")));
-    yMap = TempMapNumber.substr(TempMapNumber.find_last_of("_")+1,(TempMapNumber.length()) - (TempMapNumber.find_last_of("_")));
+    xMap = TempMapNumber.substr(TempMapNumber.find('_')+1,(TempMapNumber.find_last_of('_')-1) - (TempMapNumber.find('_')));
+    yMap = TempMapNumber.substr(TempMapNumber.find_last_of('_')+1,(TempMapNumber.length()) - (TempMapNumber.find_last_of('_')));
     Adtfilename.erase((Adtfilename.length()-xMap.length()-yMap.length()-2), (xMap.length()+yMap.length()+2));
     //string AdtMapNumber = xMap + ' ' + yMap + ' ' + GetPlainName((char*)Adtfilename.c_str());
     //printf("Processing map %s...\n", AdtMapNumber.c_str());
