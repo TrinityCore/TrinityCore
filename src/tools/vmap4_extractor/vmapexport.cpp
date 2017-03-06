@@ -38,9 +38,6 @@
 #include <fstream>
 
 #include "Common.h"
-#ifdef PLATFORM_WINDOWS
-#undef PLATFORM_WINDOWS
-#endif
 //From Extractor
 #include "adtfile.h"
 #include "wdtfile.h"

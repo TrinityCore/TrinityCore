@@ -379,9 +379,9 @@ void BattlefieldTB::SendInitWorldStatesToAll()
     sWorld->setWorldState(TB_WS_TIME_NEXT_BATTLE_SHOW, uint32(!IsWarTime() ? 1 : 0));
 
     // Tol Barad
-    for (uint8 team = 0; team < 2; team++)
-        for (GuidSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+    for (uint8 team = 0; team < BG_TEAMS_COUNT; team++)
+        for (ObjectGuid const& guid : m_players[team])
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
                 SendInitWorldStatesTo(player);
 
     // Tol Barad Peninsula
@@ -400,8 +400,8 @@ void BattlefieldTB::OnStartGrouping()
 
     // Teleport players out of questing area
     for (uint8 team = 0; team < BG_TEAMS_COUNT; ++team)
-        for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+        for (ObjectGuid const& guid : m_players[team])
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
                 if (player->GetAreaId() == TBQuestAreas[m_iCellblockRandom].entry)
                     player->CastSpell(player, TBQuestAreas[m_iCellblockRandom].teleportSpell, true);
 
@@ -441,8 +441,8 @@ void BattlefieldTB::OnBattleEnd(bool endByTimer)
 
     for (uint8 team = 0; team < 2; ++team)
     {
-        for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+        for (ObjectGuid const& guid : m_PlayersInWar[team])
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
                 RemoveAurasFromPlayer(player);
 
         m_PlayersInWar[team].clear();
@@ -754,8 +754,8 @@ void BattlefieldTB::TowerDestroyed(TBTowerId tbTowerId)
     SendUpdateWorldState(uint32(TBTowers[tbTowerId].wsDestroyed), int32(1));
 
     // Attack bonus buff
-    for (GuidSet::const_iterator itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(*itr))
+    for (ObjectGuid const& guid : m_PlayersInWar[GetAttackerTeam()])
+        if (Player* player = ObjectAccessor::FindPlayer(guid))
             player->CastCustomSpell(SPELL_TOWER_ATTACK_BONUS, SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED), player, TRIGGERED_FULL_MASK);
 
     // Honor reward
@@ -785,8 +785,8 @@ void BattlefieldTB::HandleKill(Player* killer, Unit* victim)
         return;
 
     TeamId killerTeam = killer->GetTeamId();
-    for (GuidSet::const_iterator itr = m_PlayersInWar[killerTeam].begin(); itr != m_PlayersInWar[killerTeam].end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(*itr))
+    for (ObjectGuid const& guid : m_PlayersInWar[killerTeam])
+        if (Player* player = ObjectAccessor::FindPlayer(guid))
             if (player->GetDistance2d(killer) < 40.0f)
                 PromotePlayer(player);
 }

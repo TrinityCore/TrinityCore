@@ -24,7 +24,7 @@
 #include "AccountMgr.h"
 #include "World.h"
 
-#define DUMP_TABLE_COUNT 34
+#define DUMP_TABLE_COUNT 35
 struct DumpTable
 {
     char const* name;
@@ -44,6 +44,7 @@ DumpTable const dumpTables[DUMP_TABLE_COUNT] =
     { "character_currency",               DTT_CURRENCY   },
     { "character_declinedname",           DTT_CHAR_TABLE },
     { "character_equipmentsets",          DTT_EQSET_TABLE},
+    { "character_fishingsteps",           DTT_CHAR_TABLE },
     { "character_glyphs",                 DTT_CHAR_TABLE },
     { "character_homebind",               DTT_CHAR_TABLE },
     { "character_inventory",              DTT_INVENTORY  },
