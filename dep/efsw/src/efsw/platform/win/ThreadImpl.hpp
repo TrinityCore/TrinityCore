@@ -21,6 +21,8 @@ class ThreadImpl
 {
 	public:
 		ThreadImpl( Thread * owner );
+
+		~ThreadImpl();
 		
 		void wait();
 		

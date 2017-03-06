@@ -53,6 +53,7 @@ EndContentData */
 #include "Player.h"
 #include "WorldSession.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 
 /*######
 ## go_cat_figurine
@@ -1614,7 +1615,7 @@ public:
 
     struct go_bellsAI : public GameObjectAI
     {
-        go_bellsAI(GameObject* go) : GameObjectAI(go) { }
+        go_bellsAI(GameObject* go) : GameObjectAI(go), _soundId(0) { }
 
         void InitializeAI() override
         {
@@ -1644,7 +1645,7 @@ public:
         {
             if (eventId == GAME_EVENT_HOURLY_BELLS && start)
             {
-                time_t time = sWorld->GetGameTime();
+                time_t time = GameTime::GetGameTime();
                 tm localTm;
                 localtime_r(&time, &localTm);
                 uint8 _rings = (localTm.tm_hour - 1) % 12 + 1;
