@@ -1014,7 +1014,6 @@ struct FactionTemplateEntry
         return EnemyGroup == 0 && FriendGroup == 0;
     }
     bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
-    bool ShouldSparAttack() const { return (Flags & FACTION_TEMPLATE_ENEMY_SPAR) != 0; }
 };
 
 struct GameObjectDisplayInfoEntry
