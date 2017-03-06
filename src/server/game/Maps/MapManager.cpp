@@ -35,7 +35,6 @@
 #include "Player.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
-#include "AchievementMgr.h"
 #ifdef ELUNA
 #include "LuaEngine.h"
 #endif
@@ -382,7 +381,6 @@ void MapManager::FreeInstanceId(uint32 instanceId)
         SetNextInstanceId(instanceId);
 
     _instanceIds[instanceId] = false;
-    sAchievementMgr->OnInstanceDestroyed(instanceId);
 
 #ifdef ELUNA
     sEluna->FreeInstanceId(instanceId);

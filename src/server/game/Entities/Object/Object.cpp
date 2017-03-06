@@ -47,6 +47,7 @@
 #include "LuaEngine.h"
 #include "ElunaEventMgr.h"
 #endif
+#include "GameTime.h"
 
 Object::Object() : m_PackGUID(sizeof(uint64)+1)
 {
@@ -470,7 +471,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (go && go->ToTransport())
             *data << uint32(go->GetGOValue()->Transport.PathProgress);
         else
-            *data << uint32(getMSTime());
+            *data << uint32(GameTime::GetGameTimeMS());
     }
 
     // 0x80
@@ -813,13 +814,6 @@ void Object::ApplyModSignedFloatValue(uint16 index, float  val, bool apply)
     float cur = GetFloatValue(index);
     cur += (apply ? val : -val);
     SetFloatValue(index, cur);
-}
-
-void Object::ApplyPercentModFloatValue(uint16 index, float val, bool apply)
-{
-    float value = GetFloatValue(index);
-    ApplyPercentModFloatVar(value, val, apply);
-    SetFloatValue(index, value);
 }
 
 void Object::ApplyModPositiveFloatValue(uint16 index, float  val, bool apply)
