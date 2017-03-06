@@ -301,6 +301,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
             spellInfo = actualSpellInfo;
     }
 
+    if (cast.Cast.MoveUpdate)
+        HandleMovementOpcode(CMSG_MOVE_STOP, *cast.Cast.MoveUpdate);
+
     Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
 
     WorldPackets::Spells::SpellPrepare spellPrepare;
