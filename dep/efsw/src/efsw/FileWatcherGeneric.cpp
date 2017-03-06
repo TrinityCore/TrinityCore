@@ -1,6 +1,7 @@
 #include <efsw/FileWatcherGeneric.hpp>
 #include <efsw/FileSystem.hpp>
 #include <efsw/System.hpp>
+#include <efsw/Lock.hpp>
 
 namespace efsw
 {
@@ -17,8 +18,6 @@ FileWatcherGeneric::FileWatcherGeneric( FileWatcher * parent ) :
 FileWatcherGeneric::~FileWatcherGeneric()
 {
 	mInitOK = false;
-
-	mThread->wait();
 
 	efSAFE_DELETE( mThread );
 
@@ -75,9 +74,8 @@ WatchID FileWatcherGeneric::addWatch(const std::string& directory, FileWatchList
 
 	WatcherGeneric * pWatch		= new WatcherGeneric( mLastWatchID, dir, watcher, this, recursive );
 
-	mWatchesLock.lock();
+	Lock lock( mWatchesLock );
 	mWatches.push_back(pWatch);
-	mWatchesLock.unlock();
 
 	return pWatch->ID;
 }
@@ -92,13 +90,11 @@ void FileWatcherGeneric::removeWatch( const std::string& directory )
 		{
 			WatcherGeneric * watch = (*it);
 
-			mWatchesLock.lock();
+			Lock lock( mWatchesLock );
 
 			mWatches.erase( it );
 
 			efSAFE_DELETE( watch ) ;
-
-			mWatchesLock.unlock();
 
 			return;
 		}
@@ -115,13 +111,11 @@ void FileWatcherGeneric::removeWatch(WatchID watchid)
 		{
 			WatcherGeneric * watch = (*it);
 
-			mWatchesLock.lock();
+			Lock lock( mWatchesLock );
 
 			mWatches.erase( it );
 
 			efSAFE_DELETE( watch ) ;
-
-			mWatchesLock.unlock();
 
 			return;
 		}
@@ -141,16 +135,16 @@ void FileWatcherGeneric::run()
 {
 	do
 	{
-		mWatchesLock.lock();
-
-		WatchList::iterator it = mWatches.begin();
-
-		for ( ; it != mWatches.end(); it++ )
 		{
-			(*it)->watch();
-		}
+			Lock lock( mWatchesLock);
 
-		mWatchesLock.unlock();
+			WatchList::iterator it = mWatches.begin();
+
+			for ( ; it != mWatches.end(); it++ )
+			{
+				( *it )->watch();
+			}
+		}
 
 		if ( mInitOK ) System::sleep( 1000 );
 	} while ( mInitOK );
@@ -165,7 +159,7 @@ std::list<std::string> FileWatcherGeneric::directories()
 {
 	std::list<std::string> dirs;
 
-	mWatchesLock.lock();
+	Lock lock( mWatchesLock );
 
 	WatchList::iterator it = mWatches.begin();
 
@@ -173,8 +167,6 @@ std::list<std::string> FileWatcherGeneric::directories()
 	{
 		dirs.push_back( (*it)->Directory );
 	}
-
-	mWatchesLock.unlock();
 
 	return dirs;
 }
