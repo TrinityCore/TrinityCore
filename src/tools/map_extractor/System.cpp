@@ -29,9 +29,6 @@
 #include <boost/filesystem/operations.hpp>
 
 #include "Common.h"
-#ifdef PLATFORM_WINDOWS
-#undef PLATFORM_WINDOWS
-#endif
 #include "DBFilesClientList.h"
 #include "CascLib.h"
 #include "CascHandles.h"

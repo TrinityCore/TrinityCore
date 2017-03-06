@@ -470,7 +470,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 if (IsPlayer(*itr))
                 {
-                    (*itr)->ToPlayer()->GroupEventHappens(e.action.quest.quest, me);
+                    (*itr)->ToPlayer()->AreaExploredOrEventHappens(e.action.quest.quest);
 
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: %s credited quest %u",
                         (*itr)->GetGUID().ToString().c_str(), e.action.quest.quest);

@@ -430,6 +430,8 @@ class npc_sinclari_vh : public CreatureScript
                                 me->GetCreatureListWithEntryInGrid(guardList, NPC_VIOLET_HOLD_GUARD, 100.0f);
                                 for (Creature* guard : guardList)
                                 {
+                                    if (!guard->IsAlive())
+                                        continue;
                                     guard->SetReactState(REACT_PASSIVE);
                                     guard->SetWalk(false);
                                     guard->GetMotionMaster()->MovePoint(0, GuardsMovePosition);

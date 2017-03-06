@@ -146,6 +146,8 @@ public:
         player->RemoveActiveQuest(entry, false);
         player->RemoveRewardedQuest(entry);
 
+        sScriptMgr->OnQuestStatusChange(player, entry);
+
         handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
         return true;
     }

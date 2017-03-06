@@ -444,7 +444,7 @@ public:
             else if (pointId == AKAMA_INTRO_WAYPOINT)
             {
                 me->SetWalk(false);
-                me->SetFacingTo(0.08726646f);
+                me->SetFacingTo(0.08726646f, true);
                 _events.ScheduleEvent(EVENT_START_SOUL_EXPEL, Seconds(1));
             }
         }
