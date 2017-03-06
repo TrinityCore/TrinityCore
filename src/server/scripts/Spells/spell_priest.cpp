@@ -27,6 +27,7 @@
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
 #include "AreaTriggerTemplate.h"
+#include "AreaTriggerAI.h"
 
 enum PriestSpells
 {

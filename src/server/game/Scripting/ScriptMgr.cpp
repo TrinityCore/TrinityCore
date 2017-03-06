@@ -37,6 +37,7 @@
 #include "MapManager.h"
 #include "LFGScripts.h"
 #include "InstanceScript.h"
+#include "AreaTriggerAI.h"
 
 // Trait which indicates whether this script type
 // must be assigned in the database.

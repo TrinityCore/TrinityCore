@@ -21,12 +21,12 @@
 #include "Object.h"
 #include "Position.h"
 #include "Spline.h"
-#include "AreaTriggerAI.h"
 
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
 class SpellInfo;
 class Unit;
+class AreaTriggerAI;
 
 struct AreaTriggerPolygonVertice;
 
