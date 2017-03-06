@@ -94,6 +94,7 @@ template <class T>
 bool DatabaseWorkerPool<T>::PrepareStatements()
 {
     for (auto& connections : _connections)
+    {
         for (auto& connection : connections)
         {
             connection->LockIfReady();
@@ -105,7 +106,30 @@ bool DatabaseWorkerPool<T>::PrepareStatements()
             }
             else
                 connection->Unlock();
+
+            size_t const preparedSize = connection->m_stmts.size();
+            if (_preparedStatementSize.size() < preparedSize)
+                _preparedStatementSize.resize(preparedSize);
+
+            for (size_t i = 0; i < preparedSize; ++i)
+            {
+                // already set by another connection
+                // (each connection only has prepared statements of it's own type sync/async)
+                if (_preparedStatementSize[i] > 0)
+                    continue;
+
+                if (MySQLPreparedStatement* stmt = connection->m_stmts[i].get())
+                {
+                    uint32 const paramCount = stmt->GetParameterCount();
+
+                    // TC only supports uint8 indices.
+                    ASSERT(paramCount < std::numeric_limits<uint8>::max());
+
+                    _preparedStatementSize[i] = static_cast<uint8>(paramCount);
+                }
+            }
         }
+    }
 
     return true;
 }

@@ -255,7 +255,7 @@ class DatabaseWorkerPool
         //! This object is not tied to the prepared statement on the MySQL context yet until execution.
         PreparedStatement* GetPreparedStatement(PreparedStatementIndex index)
         {
-            return new PreparedStatement(index);
+            return new PreparedStatement(index, _preparedStatementSize[index]);
         }
 
         //! Apply escape string'ing for current collation. (utf8)
@@ -294,6 +294,7 @@ class DatabaseWorkerPool
         std::unique_ptr<ProducerConsumerQueue<SQLOperation*>> _queue;
         std::array<std::vector<std::unique_ptr<T>>, IDX_SIZE> _connections;
         std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
+        std::vector<uint8> _preparedStatementSize;
         uint8 _async_threads, _synch_threads;
 };
 
