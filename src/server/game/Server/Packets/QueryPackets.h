@@ -51,12 +51,12 @@ namespace WorldPackets
             uint32 CreatureType = 0;
             uint32 CreatureFamily = 0;
             uint32 Classification = 0;
-            uint32 ProxyCreatureID[MAX_KILL_CREDIT];
-            uint32 CreatureDisplayID[MAX_CREATURE_MODELS];
+            uint32 ProxyCreatureID[MAX_KILL_CREDIT] = { };
+            uint32 CreatureDisplayID[MAX_CREATURE_MODELS] = { };
             float HpMulti = 0.0f;
             float EnergyMulti = 0.0f;
             bool Leader = false;
-            uint32 QuestItems[MAX_CREATURE_QUEST_ITEMS];
+            uint32 QuestItems[MAX_CREATURE_QUEST_ITEMS] = { };
             uint32 CreatureMovementInfoID = 0;
         };
 
@@ -91,9 +91,9 @@ namespace WorldPackets
             std::string UnkString;
             uint32 Type = 0;
             uint32 DisplayID = 0;
-            uint32 Data[MAX_GAMEOBJECT_DATA];
+            uint32 Data[MAX_GAMEOBJECT_DATA] = { };
             float Size = 0.0f;
-            uint32 QuestItems[MAX_GAMEOBJECT_QUEST_ITEMS];
+            uint32 QuestItems[MAX_GAMEOBJECT_QUEST_ITEMS] = { };
         };
 
         class QueryGameObjectResponse final : public ServerPacket
@@ -179,7 +179,7 @@ namespace WorldPackets
             uint32 ScalingStatDistribution = 0;
             uint32 ScalingStatValue = 0;
             ItemDamageData Damage[MAX_ITEM_PROTO_DAMAGES];
-            uint32 Resistance[MAX_SPELL_SCHOOL];
+            uint32 Resistance[MAX_SPELL_SCHOOL] = { };
             uint32 Delay = 0;
             uint32 AmmoType = 0;
             float RangedModRange = 0.0f;
