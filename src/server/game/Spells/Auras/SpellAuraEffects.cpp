@@ -2047,8 +2047,9 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                 {
                     uint32 model_id = 0;
 
-                    if (uint32 modelid = ci->GetRandomValidModelId())
-                        model_id = modelid;                     // Will use the default model here
+                    // choose a model, based on trigger flag
+                    if (uint32 modelid = sObjectMgr->ChooseDisplayId(ci))
+                        model_id = modelid;
 
                     // Polymorph (sheep)
                     if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellInfo()->SpellIconID == 82 && GetSpellInfo()->SpellVisual[0] == 12978)
