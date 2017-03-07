@@ -2676,7 +2676,7 @@ float Unit::GetUnitMissChance(WeaponAttackType attType) const
     return miss_chance;
 }
 
-float Unit::GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) const
+float Unit::GetUnitBlockChance(WeaponAttackType /*attType*/, Unit const* victim) const
 {
     int32 const levelDiff = victim->getLevelForTarget(this) - getLevelForTarget(victim);
 
