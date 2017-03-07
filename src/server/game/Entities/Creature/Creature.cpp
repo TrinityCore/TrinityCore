@@ -1050,9 +1050,12 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&display, cinfo);
     if (minfo && !IsTotem())                               // Cancel load if no model defined or if totem
     {
-        SetDisplayId(display.CreatureDisplayID, display.DisplayScale);
         SetNativeDisplayId(display.CreatureDisplayID, display.DisplayScale);
-        SetGender(minfo->gender);
+
+        Unit::AuraEffectList const& transformAuras = GetAuraEffectsByType(SPELL_AURA_TRANSFORM);
+        Unit::AuraEffectList const& shapeshiftAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
+        if (transformAuras.empty() && shapeshiftAuras.empty())
+            SetDisplayId(display.CreatureDisplayID, display.DisplayScale);
     }
 
     LastUsedScriptID = GetScriptId();
