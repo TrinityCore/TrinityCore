@@ -861,15 +861,14 @@ int LoadBuildInfo(TCascStorage * hs)
     // proceed with loading the CDN config file and CDN build file
     if(nError == ERROR_SUCCESS)
     {
-        // Load the configuration file
+        // Load the configuration file. Note that we don't
+        // need it for anything, really, so we don't care if it fails
         pvListFile = FetchAndVerifyConfigFile(hs, &hs->CdnConfigKey);
         if(pvListFile != NULL)
         {
             nError = LoadCdnConfigFile(hs, pvListFile);
             ListFile_Free(pvListFile);
         }
-        else
-            nError = ERROR_FILE_NOT_FOUND;
     }
 
     // Load the build file
@@ -902,9 +901,9 @@ int LoadBuildInfo(TCascStorage * hs)
     return nError;
 }
 
-// Checks whether there is a ".agent.db". If yes, the function
-// sets "szRootPath" and "szDataPath" in the storage structure
-// and returns ERROR_SUCCESS
+// Checks whether there is a ".build.info" or ".build.db".
+// If yes, the function sets "szRootPath" and "szDataPath"
+// in the storage structure and returns ERROR_SUCCESS
 int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory)
 {
     TFileStream * pStream;
