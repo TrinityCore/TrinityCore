@@ -2055,9 +2055,6 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     //   1. >    2. >    3. >       4. >    5. >   6. >       7. >  8.
     // MISS > DODGE > PARRY > GLANCING > BLOCK > CRIT > CRUSHING > HIT
 
-    int32 attackerMaxSkillValueForLevel = GetMaxSkillValueForLevel(victim);
-    int32 victimMaxSkillValueForLevel = victim->GetMaxSkillValueForLevel(this);
-
     int32    sum = 0, tmp = 0;
     int32    roll = urand(0, 9999);
 
