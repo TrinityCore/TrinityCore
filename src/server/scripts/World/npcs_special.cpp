@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
+#include "CombatAI.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
@@ -1478,6 +1479,248 @@ public:
     }
 };
 
+enum TournamentPennantSpells
+{
+    SPELL_PENNANT_STORMWIND_ASPIRANT        = 62595,
+    SPELL_PENNANT_STORMWIND_VALIANT         = 62596,
+    SPELL_PENNANT_STORMWIND_CHAMPION        = 62594,
+    SPELL_PENNANT_GNOMEREGAN_ASPIRANT       = 63394,
+    SPELL_PENNANT_GNOMEREGAN_VALIANT        = 63395,
+    SPELL_PENNANT_GNOMEREGAN_CHAMPION       = 63396,
+    SPELL_PENNANT_SEN_JIN_ASPIRANT          = 63397,
+    SPELL_PENNANT_SEN_JIN_VALIANT           = 63398,
+    SPELL_PENNANT_SEN_JIN_CHAMPION          = 63399,
+    SPELL_PENNANT_SILVERMOON_ASPIRANT       = 63401,
+    SPELL_PENNANT_SILVERMOON_VALIANT        = 63402,
+    SPELL_PENNANT_SILVERMOON_CHAMPION       = 63403,
+    SPELL_PENNANT_DARNASSUS_ASPIRANT        = 63404,
+    SPELL_PENNANT_DARNASSUS_VALIANT         = 63405,
+    SPELL_PENNANT_DARNASSUS_CHAMPION        = 63406,
+    SPELL_PENNANT_EXODAR_ASPIRANT           = 63421,
+    SPELL_PENNANT_EXODAR_VALIANT            = 63422,
+    SPELL_PENNANT_EXODAR_CHAMPION           = 63423,
+    SPELL_PENNANT_IRONFORGE_ASPIRANT        = 63425,
+    SPELL_PENNANT_IRONFORGE_VALIANT         = 63426,
+    SPELL_PENNANT_IRONFORGE_CHAMPION        = 63427,
+    SPELL_PENNANT_UNDERCITY_ASPIRANT        = 63428,
+    SPELL_PENNANT_UNDERCITY_VALIANT         = 63429,
+    SPELL_PENNANT_UNDERCITY_CHAMPION        = 63430,
+    SPELL_PENNANT_ORGRIMMAR_ASPIRANT        = 63431,
+    SPELL_PENNANT_ORGRIMMAR_VALIANT         = 63432,
+    SPELL_PENNANT_ORGRIMMAR_CHAMPION        = 63433,
+    SPELL_PENNANT_THUNDER_BLUFF_ASPIRANT    = 63434,
+    SPELL_PENNANT_THUNDER_BLUFF_VALIANT     = 63435,
+    SPELL_PENNANT_THUNDER_BLUFF_CHAMPION    = 63436,
+    SPELL_PENNANT_ARGENT_CRUSADE_ASPIRANT   = 63606,
+    SPELL_PENNANT_ARGENT_CRUSADE_VALIANT    = 63500,
+    SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION   = 63501,
+    SPELL_PENNANT_EBON_BLADE_ASPIRANT       = 63607,
+    SPELL_PENNANT_EBON_BLADE_VALIANT        = 63608,
+    SPELL_PENNANT_EBON_BLADE_CHAMPION       = 63609
+};
+
+ enum TournamentMounts
+{
+    NPC_STORMWIND_STEED                     = 33217,
+    NPC_IRONFORGE_RAM                       = 33316,
+    NPC_GNOMEREGAN_MECHANOSTRIDER           = 33317,
+    NPC_EXODAR_ELEKK                        = 33318,
+    NPC_DARNASSIAN_NIGHTSABER               = 33319,
+    NPC_ORGRIMMAR_WOLF                      = 33320,
+    NPC_DARK_SPEAR_RAPTOR                   = 33321,
+    NPC_THUNDER_BLUFF_KODO                  = 33322,
+    NPC_SILVERMOON_HAWKSTRIDER              = 33323,
+    NPC_FORSAKEN_WARHORSE                   = 33324,
+    NPC_ARGENT_WARHORSE                     = 33782,
+    NPC_ARGENT_STEED_ASPIRANT               = 33845,
+    NPC_ARGENT_HAWKSTRIDER_ASPIRANT         = 33844
+};
+
+ enum TournamentQuestsAchievements
+{
+    ACHIEVEMENT_CHAMPION_STORMWIND          = 2781,
+    ACHIEVEMENT_CHAMPION_DARNASSUS          = 2777,
+    ACHIEVEMENT_CHAMPION_IRONFORGE          = 2780,
+    ACHIEVEMENT_CHAMPION_GNOMEREGAN         = 2779,
+    ACHIEVEMENT_CHAMPION_THE_EXODAR         = 2778,
+    ACHIEVEMENT_CHAMPION_ORGRIMMAR          = 2783,
+    ACHIEVEMENT_CHAMPION_SEN_JIN            = 2784,
+    ACHIEVEMENT_CHAMPION_THUNDER_BLUFF      = 2786,
+    ACHIEVEMENT_CHAMPION_UNDERCITY          = 2787,
+    ACHIEVEMENT_CHAMPION_SILVERMOON         = 2785,
+    ACHIEVEMENT_ARGENT_VALOR                = 2758,
+    ACHIEVEMENT_CHAMPION_ALLIANCE           = 2782,
+    ACHIEVEMENT_CHAMPION_HORDE              = 2788,
+
+     QUEST_VALIANT_OF_STORMWIND              = 13593,
+    QUEST_A_VALIANT_OF_STORMWIND            = 13684,
+    QUEST_VALIANT_OF_DARNASSUS              = 13706,
+    QUEST_A_VALIANT_OF_DARNASSUS            = 13689,
+    QUEST_VALIANT_OF_IRONFORGE              = 13703,
+    QUEST_A_VALIANT_OF_IRONFORGE            = 13685,
+    QUEST_VALIANT_OF_GNOMEREGAN             = 13704,
+    QUEST_A_VALIANT_OF_GNOMEREGAN           = 13688,
+    QUEST_VALIANT_OF_THE_EXODAR             = 13705,
+    QUEST_A_VALIANT_OF_THE_EXODAR           = 13690,
+    QUEST_VALIANT_OF_ORGRIMMAR              = 13707,
+    QUEST_A_VALIANT_OF_ORGRIMMAR            = 13691,
+    QUEST_VALIANT_OF_SEN_JIN                = 13708,
+    QUEST_A_VALIANT_OF_SEN_JIN              = 13693,
+    QUEST_VALIANT_OF_THUNDER_BLUFF          = 13709,
+    QUEST_A_VALIANT_OF_THUNDER_BLUFF        = 13694,
+    QUEST_VALIANT_OF_UNDERCITY              = 13710,
+    QUEST_A_VALIANT_OF_UNDERCITY            = 13695,
+    QUEST_VALIANT_OF_SILVERMOON             = 13711,
+    QUEST_A_VALIANT_OF_SILVERMOON           = 13696
+};
+
+ class npc_tournament_mount : public CreatureScript
+{
+    public:
+        npc_tournament_mount() : CreatureScript("npc_tournament_mount") { }
+
+         struct npc_tournament_mountAI : public VehicleAI
+        {
+            npc_tournament_mountAI(Creature* creature) : VehicleAI(creature)
+            {
+                _pennantSpellId = 0;
+            }
+
+             void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+            {
+                Player* player = passenger->ToPlayer();
+                if (!player)
+                    return;
+
+                 if (apply)
+                {
+                    _pennantSpellId = GetPennantSpellId(player);
+                    player->CastSpell((Unit*)nullptr, _pennantSpellId, true);
+                }
+                else
+                    player->RemoveAurasDueToSpell(_pennantSpellId);
+            }
+
+         private:
+            uint32 _pennantSpellId;
+
+             uint32 GetPennantSpellId(Player* player) const
+            {
+                switch (me->GetEntry())
+                {
+                    case NPC_ARGENT_STEED_ASPIRANT:
+                    case NPC_STORMWIND_STEED:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_STORMWIND))
+                            return SPELL_PENNANT_STORMWIND_CHAMPION;
+                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_STORMWIND) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_STORMWIND))
+                            return SPELL_PENNANT_STORMWIND_VALIANT;
+                        else
+                            return SPELL_PENNANT_STORMWIND_ASPIRANT;
+                    }
+                    case NPC_GNOMEREGAN_MECHANOSTRIDER:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_GNOMEREGAN))
+                            return SPELL_PENNANT_GNOMEREGAN_CHAMPION;
+                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_GNOMEREGAN) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_GNOMEREGAN))
+                            return SPELL_PENNANT_GNOMEREGAN_VALIANT;
+                        else
+                            return SPELL_PENNANT_GNOMEREGAN_ASPIRANT;
+                    }
+                    case NPC_DARK_SPEAR_RAPTOR:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_SEN_JIN))
+                            return SPELL_PENNANT_SEN_JIN_CHAMPION;
+                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_SEN_JIN) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_SEN_JIN))
+                            return SPELL_PENNANT_SEN_JIN_VALIANT;
+                        else
+                            return SPELL_PENNANT_SEN_JIN_ASPIRANT;
+                    }
+                    case NPC_ARGENT_HAWKSTRIDER_ASPIRANT:
+                    case NPC_SILVERMOON_HAWKSTRIDER:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_SILVERMOON))
+                            return SPELL_PENNANT_SILVERMOON_CHAMPION;
+                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_SILVERMOON) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_SILVERMOON))
+                            return SPELL_PENNANT_SILVERMOON_VALIANT;
+                        else
+                            return SPELL_PENNANT_SILVERMOON_ASPIRANT;
+                    }
+                    case NPC_DARNASSIAN_NIGHTSABER:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_DARNASSUS))
+                            return SPELL_PENNANT_DARNASSUS_CHAMPION;
+                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_DARNASSUS) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_DARNASSUS))
+                            return SPELL_PENNANT_DARNASSUS_VALIANT;
+                        else
+                            return SPELL_PENNANT_DARNASSUS_ASPIRANT;
+                    }
+                    case NPC_EXODAR_ELEKK:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_THE_EXODAR))
+                            return SPELL_PENNANT_EXODAR_CHAMPION;
+                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_THE_EXODAR) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_THE_EXODAR))
+                            return SPELL_PENNANT_EXODAR_VALIANT;
+                        else
+                            return SPELL_PENNANT_EXODAR_ASPIRANT;
+                    }
+                    case NPC_IRONFORGE_RAM:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_IRONFORGE))
+                            return SPELL_PENNANT_IRONFORGE_CHAMPION;
+                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_IRONFORGE) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_IRONFORGE))
+                            return SPELL_PENNANT_IRONFORGE_VALIANT;
+                        else
+                            return SPELL_PENNANT_IRONFORGE_ASPIRANT;
+                    }
+                    case NPC_FORSAKEN_WARHORSE:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_UNDERCITY))
+                            return SPELL_PENNANT_UNDERCITY_CHAMPION;
+                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_UNDERCITY) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_UNDERCITY))
+                            return SPELL_PENNANT_UNDERCITY_VALIANT;
+                        else
+                            return SPELL_PENNANT_UNDERCITY_ASPIRANT;
+                    }
+                    case NPC_ORGRIMMAR_WOLF:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_ORGRIMMAR))
+                            return SPELL_PENNANT_ORGRIMMAR_CHAMPION;
+                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_ORGRIMMAR) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_ORGRIMMAR))
+                            return SPELL_PENNANT_ORGRIMMAR_VALIANT;
+                        else
+                            return SPELL_PENNANT_ORGRIMMAR_ASPIRANT;
+                    }
+                    case NPC_THUNDER_BLUFF_KODO:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_THUNDER_BLUFF))
+                            return SPELL_PENNANT_THUNDER_BLUFF_CHAMPION;
+                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_THUNDER_BLUFF) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_THUNDER_BLUFF))
+                            return SPELL_PENNANT_THUNDER_BLUFF_VALIANT;
+                        else
+                            return SPELL_PENNANT_THUNDER_BLUFF_ASPIRANT;
+                    }
+                    case NPC_ARGENT_WARHORSE:
+                    {
+                        if (player->HasAchieved(ACHIEVEMENT_CHAMPION_ALLIANCE) || player->HasAchieved(ACHIEVEMENT_CHAMPION_HORDE))
+                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_CHAMPION : SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION;
+                        else if (player->HasAchieved(ACHIEVEMENT_ARGENT_VALOR))
+                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_VALIANT : SPELL_PENNANT_ARGENT_CRUSADE_VALIANT;
+                        else
+                            return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_ASPIRANT : SPELL_PENNANT_ARGENT_CRUSADE_ASPIRANT;
+                    }
+                    default:
+                        return 0;
+                }
+            }
+        };
+
+         CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_tournament_mountAI(creature);
+        }
+};
+
 /*####
 ## npc_brewfest_reveler
 ####*/
@@ -2631,6 +2874,7 @@ void AddSC_npcs_special()
     new npc_sayge();
     new npc_steam_tonk();
     new npc_tonk_mine();
+    new npc_tournament_mount();
     new npc_brewfest_reveler();
     new npc_training_dummy();
     new npc_wormhole();
