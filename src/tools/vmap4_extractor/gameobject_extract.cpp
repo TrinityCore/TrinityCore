@@ -66,12 +66,6 @@ struct GameObjectDisplayInfoMeta
     }
 };
 
-struct CascFileHandleDeleter
-{
-    typedef HANDLE pointer;
-    void operator()(HANDLE handle) const { CascCloseFile(handle); }
-};
-
 enum ModelTypes : uint32
 {
     MODEL_MD20 = '02DM',
@@ -83,7 +77,7 @@ bool GetHeaderMagic(std::string const& fileName, uint32* magic)
 {
     *magic = 0;
     CASC::FileHandle file = CASC::OpenFile(CascStorage, fileName.c_str(), CASC_LOCALE_ALL);
-    if (!!file)
+    if (!file)
         return false;
 
     DWORD bytesRead = 0;
