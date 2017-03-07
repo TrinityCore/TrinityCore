@@ -1687,6 +1687,10 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
 
     switch (GetId())
     {
+        // Bear Form
+        case 7090:
+            modelid = 29414;
+            break;
         // Roc Form
         case 35200:
             modelid = 4877;
