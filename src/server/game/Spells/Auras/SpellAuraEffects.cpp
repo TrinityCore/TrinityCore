@@ -1691,7 +1691,16 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             TC_LOG_ERROR("spells", "Auras: Unknown Shapeshift Type: %u", GetMiscValue());
     }
 
-    modelid = target->GetModelForForm(form);
+    switch (GetId())
+    {
+        // Roc Form
+        case 35200:
+            modelid = 4877;
+            break;
+        default:
+            modelid = target->GetModelForForm(form);
+            break;
+    }
 
     if (apply)
     {
