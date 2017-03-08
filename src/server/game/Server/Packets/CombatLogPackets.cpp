@@ -466,8 +466,15 @@ bool WorldPackets::CombatLog::AttackerStateUpdate::UpdateDamageForViewer(Player*
 
                 Damage      = ceil(Damage * calculatedMultiplier);
                 OverDamage  = ceil(OverDamage * calculatedMultiplier);
-                SubDmg      = ceil(SubDmg * calculatedMultiplier);
                 BlockAmount = ceil(BlockAmount * calculatedMultiplier);
+
+                if (SubDmg.is_initialized())
+                {
+                    SubDmg->FDamage     = ceil(SubDmg->FDamage  * calculatedMultiplier);
+                    SubDmg->Damage      = ceil(SubDmg->Damage   * calculatedMultiplier);
+                    SubDmg->Absorbed    = ceil(SubDmg->Absorbed * calculatedMultiplier);
+                    SubDmg->Resisted    = ceil(SubDmg->Resisted * calculatedMultiplier);
+                }
 
                 return true;
             }

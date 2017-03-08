@@ -16219,9 +16219,9 @@ struct CombatLogSender
             }
         }
 
-        if (WorldPackets::CombatLog::AttackerStateUpdate* spellPeriodicAuraLogLog = dynamic_cast<WorldPackets::CombatLog::AttackerStateUpdate*>(i_message))
+        if (WorldPackets::CombatLog::AttackerStateUpdate* attackerStateUpdate = dynamic_cast<WorldPackets::CombatLog::AttackerStateUpdate*>(i_message))
         {
-            WorldPackets::CombatLog::AttackerStateUpdate tempLog = *spellPeriodicAuraLogLog;
+            WorldPackets::CombatLog::AttackerStateUpdate tempLog = *attackerStateUpdate;
             if (tempLog.UpdateDamageForViewer(player))
             {
                 tempLog.Clear();
