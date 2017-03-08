@@ -1193,7 +1193,7 @@ void Creature::SelectLevel()
     uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
     uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
 
-    if (!true) // if (!scalableLevels)
+    if (!HasScalableLevels())
     {
         uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
         SetLevel(level);
@@ -1203,6 +1203,8 @@ void Creature::SelectLevel()
         SetLevel(maxlevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, minlevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, maxlevel);
+
+        InitMaxHealthByLevel(minlevel, maxlevel);
     }
 }
 
@@ -1284,6 +1286,34 @@ float Creature::_GetHealthMod(int32 Rank)
         default:
             return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_HP);
     }
+}
+
+void Creature::InitMaxHealthByLevel(uint8 minLevel, uint8 maxLevel)
+{
+    maxHealthByLevel.clear();
+
+    for (uint8 level = minLevel; level <= maxLevel; ++level)
+    {
+        CreatureTemplate const* cInfo = GetCreatureTemplate();
+        CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+
+        // health
+        float healthmod = _GetHealthMod(cInfo->rank);
+
+        uint32 basehp = stats->GenerateHealth(cInfo);
+        uint32 baseMaxHealth = uint32(basehp * healthmod);
+
+        maxHealthByLevel[level] = baseMaxHealth;
+    }
+}
+
+uint64 Creature::GetMaxHealthByLevel(uint8 level) const
+{
+    std::map<uint8, uint64>::const_iterator itr = maxHealthByLevel.find(level);
+    if (itr != maxHealthByLevel.end())
+        return itr->second;
+
+    return GetMaxHealth();
 }
 
 void Creature::LowerPlayerDamageReq(uint32 unDamage)
@@ -2485,17 +2515,14 @@ void Creature::AllLootRemovedFromCorpse()
     m_respawnTime = m_corpseRemoveTime + m_respawnDelay;
 }
 
-bool Creature::IsScalableLevelFor(WorldObject const* target) const
+bool Creature::HasScalableLevels() const
 {
-    //if (!scalableLevels)
-    //    return false;
-
-    return getLevelForTarget(target) != getLevel();
+    return true; // TODO
 }
 
 uint64 Creature::getHealthForTarget(WorldObject const* target) const
 {
-    if (!GetHealth() || !IsScalableLevelFor(target))
+    if (!GetHealth() || !HasScalableLevels())
         return GetHealth();
 
     return uint64(ceil(getMaxHealthForTarget(target) * (GetHealthPct() / 100)));
@@ -2503,23 +2530,14 @@ uint64 Creature::getHealthForTarget(WorldObject const* target) const
 
 uint64 Creature::getMaxHealthForTarget(WorldObject const* target) const
 {
-    if (!IsScalableLevelFor(target))
+    if (!HasScalableLevels())
         return GetMaxHealth();
 
     uint8 levelForTarget = getLevelForTarget(target);
 
-    CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(levelForTarget, cInfo->unit_class);
+    uint32 targetLevelMaxHealth = GetMaxHealthByLevel(levelForTarget);
 
-    // health
-    float healthmod = _GetHealthMod(cInfo->rank);
-
-    uint32 basehp = stats->GenerateHealth(cInfo);
-    uint32 baseMaxHealth = uint32(basehp * healthmod);
-
-    float currentMaxHpPct = GetMaxHealth() / GetCreateHealth();
-
-    return baseMaxHealth * currentMaxHpPct;
+    return targetLevelMaxHealth * (GetMaxHealth() / GetCreateHealth());
 }
 
 float Creature::getHealthMultiplierForTarget(WorldObject const* target) const
@@ -2544,7 +2562,7 @@ uint8 Creature::getLevelForTarget(WorldObject const* target) const
 
     // If this creature should scale level, adapt level depending of target level
     // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
-    if (true) //if (scalableLevels)
+    if (HasScalableLevels())
     {
         return std::min(std::max(target->ToUnit()->getLevel(), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN)), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
     }
