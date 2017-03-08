@@ -1573,15 +1573,15 @@ class TC_GAME_API Unit : public WorldObject
         void ApplyResilience(Unit const* victim, int32* damage) const;
 
         float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, uint32 spellId) const;
-        SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo);
-        SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo);
+        SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
+        SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false);
 
-        float GetUnitDodgeChanceAgainst(Unit const* attacker) const;
-        float GetUnitParryChanceAgainst(Unit const* attacker) const;
-        float GetUnitBlockChanceAgainst(Unit const* attacker) const;
+        float GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) const;
+        float GetUnitParryChance(WeaponAttackType attType, Unit const* victim) const;
+        float GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) const;
         float GetUnitMissChance(WeaponAttackType attType) const;
-        float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
+        float GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victim) const;
         int32 GetMechanicResistChance(SpellInfo const* spellInfo) const;
         bool CanUseAttackType(uint8 attacktype) const;
 

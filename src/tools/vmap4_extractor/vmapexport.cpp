@@ -541,13 +541,6 @@ int main(int argc, char ** argv)
         return 1;
     }
 
-    if (!OpenCascStorage(FirstLocale))
-    {
-        if (GetLastError() != ERROR_PATH_NOT_FOUND)
-            printf("Unable to open storage!\n");
-        return 1;
-    }
-
     // Extract models, listed in GameObjectDisplayInfo.dbc
     ExtractGameobjectModels();
 
