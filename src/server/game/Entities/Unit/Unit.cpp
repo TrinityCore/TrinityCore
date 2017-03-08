@@ -689,9 +689,7 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
     if (victim->ToCreature())
-    {
         damage = ceil(damage * victim->ToCreature()->getHealthMultiplierForTarget(this));
-    }
 
     if (victim->IsAIEnabled)
         victim->GetAI()->DamageTaken(this, damage);
@@ -16183,6 +16181,7 @@ struct CombatLogSender
     CombatLogSender(WorldObject const* src, WorldPackets::CombatLog::CombatLogServerPacket* msg, float dist)
         : i_source(src), i_message(msg), i_distSq(dist * dist)
     {
+        i_message->Write();
     }
 
     bool IsInRangeHelper(WorldObject const* object) const;
@@ -16191,40 +16190,56 @@ struct CombatLogSender
     void Visit(DynamicObjectMapType &m);
     template<class SKIP> void Visit(GridRefManager<SKIP>&) { }
 
-    void UpdateDamageForPlayer(Player* player)
-    {
-        if (SpellNonMeleeDamage* spellNonMeleeDamageLog = reinterpret_cast<SpellNonMeleeDamage*>(i_message))
-        {
-            if (spellNonMeleeDamageLog->target)
-            {
-                if (Creature* creTarget = spellNonMeleeDamageLog->target->ToCreature())
-                {
-                    if (creTarget->HasScalableLevels())
-                    {
-                        float damageMultiplier = creTarget->getHealthMultiplierForTarget(player);
-
-                        spellNonMeleeDamageLog->cleanDamage /= damageMultiplier;
-                        spellNonMeleeDamageLog->damage /= damageMultiplier;
-                    }
-                }
-            }
-        }
-
-        i_message->Clear();
-        i_message->Write();
-    }
-
     void SendPacket(Player* player)
     {
         if (!player->HaveAtClient(i_source))
             return;
 
-        UpdateDamageForPlayer(player);
+        if (WorldPackets::CombatLog::SpellNonMeleeDamageLog* spellNonMeleeDamageLog = dynamic_cast<WorldPackets::CombatLog::SpellNonMeleeDamageLog*>(i_message))
+        {
+            WorldPackets::CombatLog::SpellNonMeleeDamageLog tempLog = *spellNonMeleeDamageLog;
+            if (tempLog.UpdateDamageForViewer(player))
+            {
+                tempLog.Clear();
+                tempLog.Write();
+                SendDirectMessage(player, &tempLog);
+                return;
+            }
+        }
 
+        if (WorldPackets::CombatLog::SpellPeriodicAuraLog* spellPeriodicAuraLogLog = dynamic_cast<WorldPackets::CombatLog::SpellPeriodicAuraLog*>(i_message))
+        {
+            WorldPackets::CombatLog::SpellPeriodicAuraLog tempLog = *spellPeriodicAuraLogLog;
+            if (tempLog.UpdateDamageForViewer(player))
+            {
+                tempLog.Clear();
+                tempLog.Write();
+                SendDirectMessage(player, &tempLog);
+                return;
+            }
+        }
+
+        if (WorldPackets::CombatLog::AttackerStateUpdate* spellPeriodicAuraLogLog = dynamic_cast<WorldPackets::CombatLog::AttackerStateUpdate*>(i_message))
+        {
+            WorldPackets::CombatLog::AttackerStateUpdate tempLog = *spellPeriodicAuraLogLog;
+            if (tempLog.UpdateDamageForViewer(player))
+            {
+                tempLog.Clear();
+                tempLog.Write();
+                SendDirectMessage(player, &tempLog);
+                return;
+            }
+        }
+
+        SendDirectMessage(player, i_message);
+    }
+
+    void SendDirectMessage(Player* player, WorldPackets::CombatLog::CombatLogServerPacket* message)
+    {
         if (player->IsAdvancedCombatLoggingEnabled())
-            player->SendDirectMessage(i_message->GetFullLogPacket());
+            player->SendDirectMessage(message->GetFullLogPacket());
         else
-            player->SendDirectMessage(i_message->GetBasicLogPacket());
+            player->SendDirectMessage(message->GetBasicLogPacket());
     }
 };
 

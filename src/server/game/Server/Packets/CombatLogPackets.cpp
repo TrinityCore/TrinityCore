@@ -43,6 +43,48 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     return &_worldPacket;
 }
 
+WorldPackets::CombatLog::SpellNonMeleeDamageLog::SpellNonMeleeDamageLog(WorldPackets::CombatLog::SpellNonMeleeDamageLog const& right) : CombatLogServerPacket(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, 60)
+{
+    Me              = right.Me;
+    CasterGUID      = right.CasterGUID;
+    CastID          = right.CastID;
+    SpellID         = right.SpellID;
+    Damage          = right.Damage;
+    Overkill        = right.Overkill;
+    SchoolMask      = right.SchoolMask;
+    ShieldBlock     = right.ShieldBlock;
+    Resisted        = right.Resisted;
+    Absorbed        = right.Absorbed;
+    Periodic        = right.Periodic;
+    Flags           = right.Flags;
+    SandboxScaling  = right.SandboxScaling;
+}
+
+bool WorldPackets::CombatLog::SpellNonMeleeDamageLog::UpdateDamageForViewer(Player* viewer)
+{
+    if (Player* caster = ObjectAccessor::GetPlayer(*viewer, CasterGUID))
+    {
+        if (Creature* target = ObjectAccessor::GetCreature(*viewer, Me))
+        {
+            if (target->HasScalableLevels())
+            {
+                float casterDamageMultiplier = target->getHealthMultiplierForTarget(caster);
+                float viewerDamageMultiplier = target->getHealthMultiplierForTarget(viewer);
+                float calculatedMultiplier = casterDamageMultiplier / viewerDamageMultiplier;
+
+                Damage      = ceil(Damage         * calculatedMultiplier);
+                Absorbed    = ceil(Absorbed       * calculatedMultiplier);
+                Overkill    = ceil(Overkill       * calculatedMultiplier);
+                Resisted    = ceil(Resisted       * calculatedMultiplier);
+                ShieldBlock = ceil(ShieldBlock    * calculatedMultiplier);
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 WorldPacket const* WorldPackets::CombatLog::EnvironmentalDamageLog::Write()
 {
     *this << Victim;
@@ -177,6 +219,42 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
     WriteLogData();
 
     return &_worldPacket;
+}
+
+WorldPackets::CombatLog::SpellPeriodicAuraLog::SpellPeriodicAuraLog(WorldPackets::CombatLog::SpellPeriodicAuraLog const& right) : CombatLogServerPacket(SMSG_SPELL_PERIODIC_AURA_LOG, 16 + 16 + 4 + 4 + 1)
+{
+    TargetGUID  = right.TargetGUID;
+    CasterGUID  = right.CasterGUID;
+    SpellID     = right.SpellID;
+    Effects     = right.Effects;
+}
+
+bool WorldPackets::CombatLog::SpellPeriodicAuraLog::UpdateDamageForViewer(Player* viewer)
+{
+    if (Player* caster = ObjectAccessor::GetPlayer(*viewer, CasterGUID))
+    {
+        if (Creature* target = ObjectAccessor::GetCreature(*viewer, TargetGUID))
+        {
+            if (target->HasScalableLevels())
+            {
+                float casterDamageMultiplier = target->getHealthMultiplierForTarget(caster);
+                float viewerDamageMultiplier = target->getHealthMultiplierForTarget(viewer);
+                float calculatedMultiplier = casterDamageMultiplier / viewerDamageMultiplier;
+
+                for (auto& effect : Effects)
+                {
+                    effect.Amount              = ceil(effect.Amount                 * calculatedMultiplier);
+                    effect.AbsorbedOrAmplitude = ceil(effect.AbsorbedOrAmplitude    * calculatedMultiplier);
+                    effect.OverHealOrKill      = ceil(effect.AbsorbedOrAmplitude    * calculatedMultiplier);
+                    effect.Resisted            = ceil(effect.AbsorbedOrAmplitude    * calculatedMultiplier);
+                }
+
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 WorldPacket const* WorldPackets::CombatLog::SpellInterruptLog::Write()
@@ -354,6 +432,49 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     _fullLogPacket.append(attackRoundInfo);
 
     return &_worldPacket;
+}
+
+WorldPackets::CombatLog::AttackerStateUpdate::AttackerStateUpdate(WorldPackets::CombatLog::AttackerStateUpdate const& right) : CombatLogServerPacket(SMSG_ATTACKER_STATE_UPDATE, 70)
+{
+    HitInfo         = right.HitInfo;
+    AttackerGUID    = right.AttackerGUID;
+    VictimGUID      = right.VictimGUID;
+    Damage          = right.Damage;
+    OverDamage      = right.OverDamage;
+    SubDmg          = right.SubDmg;
+    VictimState     = right.VictimState;
+    AttackerState   = right.AttackerState;
+    MeleeSpellID    = right.MeleeSpellID;
+    BlockAmount     = right.BlockAmount;
+    RageGained      = right.RageGained;
+    UnkState        = right.UnkState;
+    Unk             = right.Unk;
+    SandboxScaling  = right.SandboxScaling;
+}
+
+bool WorldPackets::CombatLog::AttackerStateUpdate::UpdateDamageForViewer(Player* viewer)
+{
+    if (Player* attacker = ObjectAccessor::GetPlayer(*viewer, AttackerGUID))
+    {
+        if (Creature* victim = ObjectAccessor::GetCreature(*viewer, VictimGUID))
+        {
+            if (victim->HasScalableLevels())
+            {
+                float attackerDamageMultiplier = victim->getHealthMultiplierForTarget(attacker);
+                float viewerDamageMultiplier = victim->getHealthMultiplierForTarget(viewer);
+                float calculatedMultiplier = attackerDamageMultiplier / viewerDamageMultiplier;
+
+                Damage      = ceil(Damage * calculatedMultiplier);
+                OverDamage  = ceil(OverDamage * calculatedMultiplier);
+                SubDmg      = ceil(SubDmg * calculatedMultiplier);
+                BlockAmount = ceil(BlockAmount * calculatedMultiplier);
+
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::CombatLog::SpellDispellData const& dispellData)

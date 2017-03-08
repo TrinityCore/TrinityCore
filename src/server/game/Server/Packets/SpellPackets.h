@@ -65,6 +65,15 @@ namespace WorldPackets
             WorldPacket const* GetFullLogPacket() const { return &_fullLogPacket; }
             WorldPacket const* GetBasicLogPacket() const { return &_worldPacket; }
 
+            // Scaling function, return true if damage depend of viewer
+            virtual bool UpdateDamageForViewer(Player* viewer) { return false; }
+
+            void Clear()
+            {
+                _fullLogPacket.clear();
+                _worldPacket.clear();
+            }
+
             Spells::SpellCastLogData LogData;
 
         protected:
