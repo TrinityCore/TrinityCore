@@ -21,12 +21,12 @@
 #ifndef DB2LoadInfo_h__
 #define DB2LoadInfo_h__
 
-#include "DB2StorageLoader.h"
+#include "DB2DatabaseLoader.h"
 #include "DB2Metadata.h"
 
 struct AchievementLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -46,13 +46,14 @@ struct AchievementLoadInfo
             { false, FT_BYTE, "MinimumCriteria" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, AchievementMeta::Instance(), HOTFIX_SEL_ACHIEVEMENT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AchievementMeta::Instance(), HOTFIX_SEL_ACHIEVEMENT);
+        return &loadInfo;
     }
 };
 
 struct AnimKitLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -61,13 +62,14 @@ struct AnimKitLoadInfo
             { false, FT_SHORT, "OneShotStopAnimKitID" },
             { false, FT_SHORT, "LowDefAnimKitID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, AnimKitMeta::Instance(), HOTFIX_SEL_ANIM_KIT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AnimKitMeta::Instance(), HOTFIX_SEL_ANIM_KIT);
+        return &loadInfo;
     }
 };
 
 struct AreaGroupMemberLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -75,13 +77,14 @@ struct AreaGroupMemberLoadInfo
             { false, FT_SHORT, "AreaGroupID" },
             { false, FT_SHORT, "AreaID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, AreaGroupMemberMeta::Instance(), HOTFIX_SEL_AREA_GROUP_MEMBER };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AreaGroupMemberMeta::Instance(), HOTFIX_SEL_AREA_GROUP_MEMBER);
+        return &loadInfo;
     }
 };
 
 struct AreaTableLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -114,13 +117,14 @@ struct AreaTableLoadInfo
             { false, FT_BYTE, "WindSettingsID" },
             { false, FT_INT, "UWIntroSound" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, AreaTableMeta::Instance(), HOTFIX_SEL_AREA_TABLE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AreaTableMeta::Instance(), HOTFIX_SEL_AREA_TABLE);
+        return &loadInfo;
     }
 };
 
 struct AreaTriggerLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -142,13 +146,14 @@ struct AreaTriggerLoadInfo
             { false, FT_BYTE, "Flag" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, AreaTriggerMeta::Instance(), HOTFIX_SEL_AREA_TRIGGER };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AreaTriggerMeta::Instance(), HOTFIX_SEL_AREA_TRIGGER);
+        return &loadInfo;
     }
 };
 
 struct ArmorLocationLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -159,13 +164,14 @@ struct ArmorLocationLoadInfo
             { false, FT_FLOAT, "Modifier4" },
             { false, FT_FLOAT, "Modifier5" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ArmorLocationMeta::Instance(), HOTFIX_SEL_ARMOR_LOCATION };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArmorLocationMeta::Instance(), HOTFIX_SEL_ARMOR_LOCATION);
+        return &loadInfo;
     }
 };
 
 struct ArtifactLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -179,13 +185,14 @@ struct ArtifactLoadInfo
             { false, FT_BYTE, "ArtifactCategoryID" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ArtifactMeta::Instance(), HOTFIX_SEL_ARTIFACT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactMeta::Instance(), HOTFIX_SEL_ARTIFACT);
+        return &loadInfo;
     }
 };
 
 struct ArtifactAppearanceLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -205,13 +212,14 @@ struct ArtifactAppearanceLoadInfo
             { false, FT_INT, "ItemAppearanceID" },
             { false, FT_INT, "AltItemAppearanceID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ArtifactAppearanceMeta::Instance(), HOTFIX_SEL_ARTIFACT_APPEARANCE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactAppearanceMeta::Instance(), HOTFIX_SEL_ARTIFACT_APPEARANCE);
+        return &loadInfo;
     }
 };
 
 struct ArtifactAppearanceSetLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -225,13 +233,14 @@ struct ArtifactAppearanceSetLoadInfo
             { false, FT_BYTE, "Flags" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ArtifactAppearanceSetMeta::Instance(), HOTFIX_SEL_ARTIFACT_APPEARANCE_SET };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactAppearanceSetMeta::Instance(), HOTFIX_SEL_ARTIFACT_APPEARANCE_SET);
+        return &loadInfo;
     }
 };
 
 struct ArtifactCategoryLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -239,13 +248,14 @@ struct ArtifactCategoryLoadInfo
             { false, FT_SHORT, "ArtifactKnowledgeCurrencyID" },
             { false, FT_SHORT, "ArtifactKnowledgeMultiplierCurveID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ArtifactCategoryMeta::Instance(), HOTFIX_SEL_ARTIFACT_CATEGORY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactCategoryMeta::Instance(), HOTFIX_SEL_ARTIFACT_CATEGORY);
+        return &loadInfo;
     }
 };
 
 struct ArtifactPowerLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -257,13 +267,14 @@ struct ArtifactPowerLoadInfo
             { false, FT_INT, "ID" },
             { true, FT_INT, "RelicType" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ArtifactPowerMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactPowerMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER);
+        return &loadInfo;
     }
 };
 
 struct ArtifactPowerLinkLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -271,13 +282,14 @@ struct ArtifactPowerLinkLoadInfo
             { false, FT_SHORT, "FromArtifactPowerID" },
             { false, FT_SHORT, "ToArtifactPowerID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ArtifactPowerLinkMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_LINK };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactPowerLinkMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_LINK);
+        return &loadInfo;
     }
 };
 
 struct ArtifactPowerRankLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -288,13 +300,14 @@ struct ArtifactPowerRankLoadInfo
             { false, FT_SHORT, "Unknown" },
             { false, FT_BYTE, "Rank" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ArtifactPowerRankMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_RANK };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactPowerRankMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_RANK);
+        return &loadInfo;
     }
 };
 
 struct ArtifactQuestXpLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -310,13 +323,14 @@ struct ArtifactQuestXpLoadInfo
             { false, FT_INT, "Exp9" },
             { false, FT_INT, "Exp10" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ArtifactQuestXPMeta::Instance(), HOTFIX_SEL_ARTIFACT_QUEST_XP };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactQuestXPMeta::Instance(), HOTFIX_SEL_ARTIFACT_QUEST_XP);
+        return &loadInfo;
     }
 };
 
 struct AuctionHouseLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -326,26 +340,28 @@ struct AuctionHouseLoadInfo
             { false, FT_BYTE, "DepositRate" },
             { false, FT_BYTE, "ConsignmentRate" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, AuctionHouseMeta::Instance(), HOTFIX_SEL_AUCTION_HOUSE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AuctionHouseMeta::Instance(), HOTFIX_SEL_AUCTION_HOUSE);
+        return &loadInfo;
     }
 };
 
 struct BankBagSlotPricesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_INT, "Cost" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, BankBagSlotPricesMeta::Instance(), HOTFIX_SEL_BANK_BAG_SLOT_PRICES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BankBagSlotPricesMeta::Instance(), HOTFIX_SEL_BANK_BAG_SLOT_PRICES);
+        return &loadInfo;
     }
 };
 
 struct BannedAddonsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -354,13 +370,14 @@ struct BannedAddonsLoadInfo
             { false, FT_STRING_NOT_LOCALIZED, "Version" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, BannedAddOnsMeta::Instance(), HOTFIX_SEL_BANNED_ADDONS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BannedAddOnsMeta::Instance(), HOTFIX_SEL_BANNED_ADDONS);
+        return &loadInfo;
     }
 };
 
 struct BarberShopStyleLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -373,13 +390,14 @@ struct BarberShopStyleLoadInfo
             { false, FT_BYTE, "Data" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, BarberShopStyleMeta::Instance(), HOTFIX_SEL_BARBER_SHOP_STYLE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BarberShopStyleMeta::Instance(), HOTFIX_SEL_BARBER_SHOP_STYLE);
+        return &loadInfo;
     }
 };
 
 struct BattlePetBreedQualityLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -387,13 +405,14 @@ struct BattlePetBreedQualityLoadInfo
             { false, FT_FLOAT, "Modifier" },
             { false, FT_BYTE, "Quality" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, BattlePetBreedQualityMeta::Instance(), HOTFIX_SEL_BATTLE_PET_BREED_QUALITY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetBreedQualityMeta::Instance(), HOTFIX_SEL_BATTLE_PET_BREED_QUALITY);
+        return &loadInfo;
     }
 };
 
 struct BattlePetBreedStateLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -402,13 +421,14 @@ struct BattlePetBreedStateLoadInfo
             { false, FT_BYTE, "BreedID" },
             { false, FT_BYTE, "State" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, BattlePetBreedStateMeta::Instance(), HOTFIX_SEL_BATTLE_PET_BREED_STATE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetBreedStateMeta::Instance(), HOTFIX_SEL_BATTLE_PET_BREED_STATE);
+        return &loadInfo;
     }
 };
 
 struct BattlePetSpeciesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -422,13 +442,14 @@ struct BattlePetSpeciesLoadInfo
             { true, FT_BYTE, "Source" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, BattlePetSpeciesMeta::Instance(), HOTFIX_SEL_BATTLE_PET_SPECIES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetSpeciesMeta::Instance(), HOTFIX_SEL_BATTLE_PET_SPECIES);
+        return &loadInfo;
     }
 };
 
 struct BattlePetSpeciesStateLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -437,13 +458,14 @@ struct BattlePetSpeciesStateLoadInfo
             { false, FT_SHORT, "SpeciesID" },
             { false, FT_BYTE, "State" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, BattlePetSpeciesStateMeta::Instance(), HOTFIX_SEL_BATTLE_PET_SPECIES_STATE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlePetSpeciesStateMeta::Instance(), HOTFIX_SEL_BATTLE_PET_SPECIES_STATE);
+        return &loadInfo;
     }
 };
 
 struct BattlemasterListLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -479,13 +501,14 @@ struct BattlemasterListLoadInfo
             { false, FT_BYTE, "MaxPlayers" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, BattlemasterListMeta::Instance(), HOTFIX_SEL_BATTLEMASTER_LIST };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BattlemasterListMeta::Instance(), HOTFIX_SEL_BATTLEMASTER_LIST);
+        return &loadInfo;
     }
 };
 
 struct BroadcastTextLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -505,13 +528,14 @@ struct BroadcastTextLoadInfo
             { false, FT_INT, "SoundID2" },
             { false, FT_INT, "PlayerConditionID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, BroadcastTextMeta::Instance(), HOTFIX_SEL_BROADCAST_TEXT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, BroadcastTextMeta::Instance(), HOTFIX_SEL_BROADCAST_TEXT);
+        return &loadInfo;
     }
 };
 
 struct CharSectionsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -526,13 +550,14 @@ struct CharSectionsLoadInfo
             { false, FT_BYTE, "Type" },
             { false, FT_BYTE, "Color" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CharSectionsMeta::Instance(), HOTFIX_SEL_CHAR_SECTIONS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CharSectionsMeta::Instance(), HOTFIX_SEL_CHAR_SECTIONS);
+        return &loadInfo;
     }
 };
 
 struct CharStartOutfitLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -568,13 +593,14 @@ struct CharStartOutfitLoadInfo
             { false, FT_BYTE, "OutfitID" },
             { false, FT_BYTE, "PetFamilyID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CharStartOutfitMeta::Instance(), HOTFIX_SEL_CHAR_START_OUTFIT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CharStartOutfitMeta::Instance(), HOTFIX_SEL_CHAR_START_OUTFIT);
+        return &loadInfo;
     }
 };
 
 struct CharTitlesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -584,13 +610,14 @@ struct CharTitlesLoadInfo
             { false, FT_SHORT, "MaskID" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CharTitlesMeta::Instance(), HOTFIX_SEL_CHAR_TITLES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CharTitlesMeta::Instance(), HOTFIX_SEL_CHAR_TITLES);
+        return &loadInfo;
     }
 };
 
 struct ChatChannelsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -600,13 +627,14 @@ struct ChatChannelsLoadInfo
             { false, FT_STRING, "Shortcut" },
             { false, FT_BYTE, "FactionGroup" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ChatChannelsMeta::Instance(), HOTFIX_SEL_CHAT_CHANNELS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ChatChannelsMeta::Instance(), HOTFIX_SEL_CHAT_CHANNELS);
+        return &loadInfo;
     }
 };
 
 struct ChrClassesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -630,13 +658,14 @@ struct ChrClassesLoadInfo
             { false, FT_BYTE, "Unk1" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ChrClassesMeta::Instance(), HOTFIX_SEL_CHR_CLASSES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ChrClassesMeta::Instance(), HOTFIX_SEL_CHR_CLASSES);
+        return &loadInfo;
     }
 };
 
 struct ChrClassesXPowerTypesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -644,13 +673,14 @@ struct ChrClassesXPowerTypesLoadInfo
             { false, FT_BYTE, "ClassID" },
             { false, FT_BYTE, "PowerType" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ChrClassesXPowerTypesMeta::Instance(), HOTFIX_SEL_CHR_CLASSES_X_POWER_TYPES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ChrClassesXPowerTypesMeta::Instance(), HOTFIX_SEL_CHR_CLASSES_X_POWER_TYPES);
+        return &loadInfo;
     }
 };
 
 struct ChrRacesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -698,13 +728,14 @@ struct ChrRacesLoadInfo
             { false, FT_INT, "Unk2" },
             { false, FT_INT, "Unk3" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ChrRacesMeta::Instance(), HOTFIX_SEL_CHR_RACES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ChrRacesMeta::Instance(), HOTFIX_SEL_CHR_RACES);
+        return &loadInfo;
     }
 };
 
 struct ChrSpecializationLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -723,13 +754,14 @@ struct ChrSpecializationLoadInfo
             { false, FT_INT, "Flags" },
             { false, FT_INT, "AnimReplacementSetID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ChrSpecializationMeta::Instance(), HOTFIX_SEL_CHR_SPECIALIZATION };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ChrSpecializationMeta::Instance(), HOTFIX_SEL_CHR_SPECIALIZATION);
+        return &loadInfo;
     }
 };
 
 struct CinematicCameraLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -741,13 +773,14 @@ struct CinematicCameraLoadInfo
             { false, FT_FLOAT, "OriginFacing" },
             { false, FT_SHORT, "SoundID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CinematicCameraMeta::Instance(), HOTFIX_SEL_CINEMATIC_CAMERA };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CinematicCameraMeta::Instance(), HOTFIX_SEL_CINEMATIC_CAMERA);
+        return &loadInfo;
     }
 };
 
 struct CinematicSequencesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -762,13 +795,14 @@ struct CinematicSequencesLoadInfo
             { false, FT_SHORT, "Camera7" },
             { false, FT_SHORT, "Camera8" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CinematicSequencesMeta::Instance(), HOTFIX_SEL_CINEMATIC_SEQUENCES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CinematicSequencesMeta::Instance(), HOTFIX_SEL_CINEMATIC_SEQUENCES);
+        return &loadInfo;
     }
 };
 
 struct CreatureDisplayInfoLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -797,13 +831,14 @@ struct CreatureDisplayInfoLoadInfo
             { true, FT_BYTE, "Gender" },
             { true, FT_BYTE, "Unk700" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CreatureDisplayInfoMeta::Instance(), HOTFIX_SEL_CREATURE_DISPLAY_INFO };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CreatureDisplayInfoMeta::Instance(), HOTFIX_SEL_CREATURE_DISPLAY_INFO);
+        return &loadInfo;
     }
 };
 
 struct CreatureDisplayInfoExtraLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -823,13 +858,14 @@ struct CreatureDisplayInfoExtraLoadInfo
             { false, FT_BYTE, "CustomDisplayOption3" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CreatureDisplayInfoExtraMeta::Instance(), HOTFIX_SEL_CREATURE_DISPLAY_INFO_EXTRA };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CreatureDisplayInfoExtraMeta::Instance(), HOTFIX_SEL_CREATURE_DISPLAY_INFO_EXTRA);
+        return &loadInfo;
     }
 };
 
 struct CreatureFamilyLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -845,13 +881,14 @@ struct CreatureFamilyLoadInfo
             { false, FT_BYTE, "MaxScaleLevel" },
             { false, FT_BYTE, "PetTalentType" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CreatureFamilyMeta::Instance(), HOTFIX_SEL_CREATURE_FAMILY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CreatureFamilyMeta::Instance(), HOTFIX_SEL_CREATURE_FAMILY);
+        return &loadInfo;
     }
 };
 
 struct CreatureModelDataLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -890,13 +927,14 @@ struct CreatureModelDataLoadInfo
             { false, FT_INT, "SoundID" },
             { false, FT_INT, "CreatureGeosetDataID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CreatureModelDataMeta::Instance(), HOTFIX_SEL_CREATURE_MODEL_DATA };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CreatureModelDataMeta::Instance(), HOTFIX_SEL_CREATURE_MODEL_DATA);
+        return &loadInfo;
     }
 };
 
 struct CreatureTypeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -904,13 +942,14 @@ struct CreatureTypeLoadInfo
             { false, FT_STRING, "Name" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CreatureTypeMeta::Instance(), HOTFIX_SEL_CREATURE_TYPE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CreatureTypeMeta::Instance(), HOTFIX_SEL_CREATURE_TYPE);
+        return &loadInfo;
     }
 };
 
 struct CriteriaLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -927,13 +966,14 @@ struct CriteriaLoadInfo
             { false, FT_BYTE, "Flags" },
             { false, FT_BYTE, "EligibilityWorldStateValue" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CriteriaMeta::Instance(), HOTFIX_SEL_CRITERIA };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CriteriaMeta::Instance(), HOTFIX_SEL_CRITERIA);
+        return &loadInfo;
     }
 };
 
 struct CriteriaTreeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -946,13 +986,14 @@ struct CriteriaTreeLoadInfo
             { false, FT_BYTE, "Operator" },
             { true, FT_INT, "OrderIndex" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CriteriaTreeMeta::Instance(), HOTFIX_SEL_CRITERIA_TREE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CriteriaTreeMeta::Instance(), HOTFIX_SEL_CRITERIA_TREE);
+        return &loadInfo;
     }
 };
 
 struct CurrencyTypesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -969,13 +1010,14 @@ struct CurrencyTypesLoadInfo
             { false, FT_BYTE, "Quality" },
             { false, FT_INT, "SpellWeight" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CurrencyTypesMeta::Instance(), HOTFIX_SEL_CURRENCY_TYPES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CurrencyTypesMeta::Instance(), HOTFIX_SEL_CURRENCY_TYPES);
+        return &loadInfo;
     }
 };
 
 struct CurveLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -983,13 +1025,14 @@ struct CurveLoadInfo
             { false, FT_BYTE, "Type" },
             { false, FT_BYTE, "Unused" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CurveMeta::Instance(), HOTFIX_SEL_CURVE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CurveMeta::Instance(), HOTFIX_SEL_CURVE);
+        return &loadInfo;
     }
 };
 
 struct CurvePointLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -999,13 +1042,14 @@ struct CurvePointLoadInfo
             { false, FT_SHORT, "CurveID" },
             { false, FT_BYTE, "Index" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, CurvePointMeta::Instance(), HOTFIX_SEL_CURVE_POINT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CurvePointMeta::Instance(), HOTFIX_SEL_CURVE_POINT);
+        return &loadInfo;
     }
 };
 
 struct DestructibleModelDataLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1033,13 +1077,14 @@ struct DestructibleModelDataLoadInfo
             { false, FT_BYTE, "DoNotHighlight" },
             { false, FT_BYTE, "HealEffect" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, DestructibleModelDataMeta::Instance(), HOTFIX_SEL_DESTRUCTIBLE_MODEL_DATA };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, DestructibleModelDataMeta::Instance(), HOTFIX_SEL_DESTRUCTIBLE_MODEL_DATA);
+        return &loadInfo;
     }
 };
 
 struct DifficultyLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1058,13 +1103,14 @@ struct DifficultyLoadInfo
             { false, FT_BYTE, "ItemBonusTreeModID" },
             { false, FT_BYTE, "OrderIndex" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, DifficultyMeta::Instance(), HOTFIX_SEL_DIFFICULTY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, DifficultyMeta::Instance(), HOTFIX_SEL_DIFFICULTY);
+        return &loadInfo;
     }
 };
 
 struct DungeonEncounterLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1078,13 +1124,14 @@ struct DungeonEncounterLoadInfo
             { false, FT_BYTE, "Flags" },
             { true, FT_INT, "OrderIndex" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, DungeonEncounterMeta::Instance(), HOTFIX_SEL_DUNGEON_ENCOUNTER };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, DungeonEncounterMeta::Instance(), HOTFIX_SEL_DUNGEON_ENCOUNTER);
+        return &loadInfo;
     }
 };
 
 struct DurabilityCostsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1119,26 +1166,28 @@ struct DurabilityCostsLoadInfo
             { false, FT_SHORT, "ArmorSubClassCost7" },
             { false, FT_SHORT, "ArmorSubClassCost8" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, DurabilityCostsMeta::Instance(), HOTFIX_SEL_DURABILITY_COSTS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, DurabilityCostsMeta::Instance(), HOTFIX_SEL_DURABILITY_COSTS);
+        return &loadInfo;
     }
 };
 
 struct DurabilityQualityLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_FLOAT, "QualityMod" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, DurabilityQualityMeta::Instance(), HOTFIX_SEL_DURABILITY_QUALITY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, DurabilityQualityMeta::Instance(), HOTFIX_SEL_DURABILITY_QUALITY);
+        return &loadInfo;
     }
 };
 
 struct EmotesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1153,13 +1202,14 @@ struct EmotesLoadInfo
             { true, FT_INT, "ClassMask" },
             { true, FT_INT, "RaceMask" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, EmotesMeta::Instance(), HOTFIX_SEL_EMOTES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, EmotesMeta::Instance(), HOTFIX_SEL_EMOTES);
+        return &loadInfo;
     }
 };
 
 struct EmotesTextLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1167,13 +1217,14 @@ struct EmotesTextLoadInfo
             { false, FT_STRING, "Name" },
             { false, FT_SHORT, "EmoteID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, EmotesTextMeta::Instance(), HOTFIX_SEL_EMOTES_TEXT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, EmotesTextMeta::Instance(), HOTFIX_SEL_EMOTES_TEXT);
+        return &loadInfo;
     }
 };
 
 struct EmotesTextSoundLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1184,13 +1235,14 @@ struct EmotesTextSoundLoadInfo
             { false, FT_BYTE, "ClassId" },
             { false, FT_INT, "SoundId" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, EmotesTextSoundMeta::Instance(), HOTFIX_SEL_EMOTES_TEXT_SOUND };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, EmotesTextSoundMeta::Instance(), HOTFIX_SEL_EMOTES_TEXT_SOUND);
+        return &loadInfo;
     }
 };
 
 struct FactionLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1227,13 +1279,14 @@ struct FactionLoadInfo
             { false, FT_BYTE, "Flags" },
             { false, FT_BYTE, "FriendshipRepID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, FactionMeta::Instance(), HOTFIX_SEL_FACTION };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, FactionMeta::Instance(), HOTFIX_SEL_FACTION);
+        return &loadInfo;
     }
 };
 
 struct FactionTemplateLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1252,13 +1305,14 @@ struct FactionTemplateLoadInfo
             { false, FT_BYTE, "FriendMask" },
             { false, FT_BYTE, "EnemyMask" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, FactionTemplateMeta::Instance(), HOTFIX_SEL_FACTION_TEMPLATE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, FactionTemplateMeta::Instance(), HOTFIX_SEL_FACTION_TEMPLATE);
+        return &loadInfo;
     }
 };
 
 struct GameobjectsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1287,13 +1341,14 @@ struct GameobjectsLoadInfo
             { false, FT_BYTE, "Type" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GameObjectsMeta::Instance(), HOTFIX_SEL_GAMEOBJECTS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GameObjectsMeta::Instance(), HOTFIX_SEL_GAMEOBJECTS);
+        return &loadInfo;
     }
 };
 
 struct GameobjectDisplayInfoLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1309,13 +1364,14 @@ struct GameobjectDisplayInfoLoadInfo
             { false, FT_FLOAT, "OverrideNameScale" },
             { false, FT_SHORT, "ObjectEffectPackageID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GameObjectDisplayInfoMeta::Instance(), HOTFIX_SEL_GAMEOBJECT_DISPLAY_INFO };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GameObjectDisplayInfoMeta::Instance(), HOTFIX_SEL_GAMEOBJECT_DISPLAY_INFO);
+        return &loadInfo;
     }
 };
 
 struct GarrAbilityLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1328,13 +1384,14 @@ struct GarrAbilityLoadInfo
             { false, FT_BYTE, "FollowerTypeID" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrAbilityMeta::Instance(), HOTFIX_SEL_GARR_ABILITY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrAbilityMeta::Instance(), HOTFIX_SEL_GARR_ABILITY);
+        return &loadInfo;
     }
 };
 
 struct GarrBuildingLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1364,13 +1421,14 @@ struct GarrBuildingLoadInfo
             { true, FT_INT, "CostCurrencyAmount" },
             { true, FT_INT, "BonusAmount" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrBuildingMeta::Instance(), HOTFIX_SEL_GARR_BUILDING };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrBuildingMeta::Instance(), HOTFIX_SEL_GARR_BUILDING);
+        return &loadInfo;
     }
 };
 
 struct GarrBuildingPlotInstLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1381,13 +1439,14 @@ struct GarrBuildingPlotInstLoadInfo
             { false, FT_BYTE, "GarrBuildingID" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrBuildingPlotInstMeta::Instance(), HOTFIX_SEL_GARR_BUILDING_PLOT_INST };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrBuildingPlotInstMeta::Instance(), HOTFIX_SEL_GARR_BUILDING_PLOT_INST);
+        return &loadInfo;
     }
 };
 
 struct GarrClassSpecLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1400,13 +1459,14 @@ struct GarrClassSpecLoadInfo
             { false, FT_BYTE, "Flags" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrClassSpecMeta::Instance(), HOTFIX_SEL_GARR_CLASS_SPEC };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrClassSpecMeta::Instance(), HOTFIX_SEL_GARR_CLASS_SPEC);
+        return &loadInfo;
     }
 };
 
 struct GarrFollowerLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1442,13 +1502,14 @@ struct GarrFollowerLoadInfo
             { false, FT_BYTE, "AllianceFlavorTextGarrStringID" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrFollowerMeta::Instance(), HOTFIX_SEL_GARR_FOLLOWER };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrFollowerMeta::Instance(), HOTFIX_SEL_GARR_FOLLOWER);
+        return &loadInfo;
     }
 };
 
 struct GarrFollowerXAbilityLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1457,13 +1518,14 @@ struct GarrFollowerXAbilityLoadInfo
             { false, FT_SHORT, "GarrAbilityID" },
             { false, FT_BYTE, "FactionIndex" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrFollowerXAbilityMeta::Instance(), HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrFollowerXAbilityMeta::Instance(), HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY);
+        return &loadInfo;
     }
 };
 
 struct GarrPlotLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1477,13 +1539,14 @@ struct GarrPlotLoadInfo
             { false, FT_INT, "MinCount" },
             { false, FT_INT, "MaxCount" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrPlotMeta::Instance(), HOTFIX_SEL_GARR_PLOT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrPlotMeta::Instance(), HOTFIX_SEL_GARR_PLOT);
+        return &loadInfo;
     }
 };
 
 struct GarrPlotBuildingLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1491,13 +1554,14 @@ struct GarrPlotBuildingLoadInfo
             { false, FT_BYTE, "GarrPlotID" },
             { false, FT_BYTE, "GarrBuildingID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrPlotBuildingMeta::Instance(), HOTFIX_SEL_GARR_PLOT_BUILDING };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrPlotBuildingMeta::Instance(), HOTFIX_SEL_GARR_PLOT_BUILDING);
+        return &loadInfo;
     }
 };
 
 struct GarrPlotInstanceLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1505,13 +1569,14 @@ struct GarrPlotInstanceLoadInfo
             { false, FT_STRING, "Name" },
             { false, FT_BYTE, "GarrPlotID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrPlotInstanceMeta::Instance(), HOTFIX_SEL_GARR_PLOT_INSTANCE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrPlotInstanceMeta::Instance(), HOTFIX_SEL_GARR_PLOT_INSTANCE);
+        return &loadInfo;
     }
 };
 
 struct GarrSiteLevelLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1527,13 +1592,14 @@ struct GarrSiteLevelLoadInfo
             { false, FT_BYTE, "MovieID" },
             { false, FT_BYTE, "Level2" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrSiteLevelMeta::Instance(), HOTFIX_SEL_GARR_SITE_LEVEL };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrSiteLevelMeta::Instance(), HOTFIX_SEL_GARR_SITE_LEVEL);
+        return &loadInfo;
     }
 };
 
 struct GarrSiteLevelPlotInstLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1544,13 +1610,14 @@ struct GarrSiteLevelPlotInstLoadInfo
             { false, FT_BYTE, "GarrPlotInstanceID" },
             { false, FT_BYTE, "Unknown" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GarrSiteLevelPlotInstMeta::Instance(), HOTFIX_SEL_GARR_SITE_LEVEL_PLOT_INST };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GarrSiteLevelPlotInstMeta::Instance(), HOTFIX_SEL_GARR_SITE_LEVEL_PLOT_INST);
+        return &loadInfo;
     }
 };
 
 struct GemPropertiesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1559,13 +1626,14 @@ struct GemPropertiesLoadInfo
             { false, FT_SHORT, "EnchantID" },
             { false, FT_SHORT, "MinItemLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GemPropertiesMeta::Instance(), HOTFIX_SEL_GEM_PROPERTIES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GemPropertiesMeta::Instance(), HOTFIX_SEL_GEM_PROPERTIES);
+        return &loadInfo;
     }
 };
 
 struct GlyphBindableSpellLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1573,13 +1641,14 @@ struct GlyphBindableSpellLoadInfo
             { false, FT_INT, "SpellID" },
             { false, FT_SHORT, "GlyphPropertiesID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GlyphBindableSpellMeta::Instance(), HOTFIX_SEL_GLYPH_BINDABLE_SPELL };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GlyphBindableSpellMeta::Instance(), HOTFIX_SEL_GLYPH_BINDABLE_SPELL);
+        return &loadInfo;
     }
 };
 
 struct GlyphPropertiesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1589,13 +1658,14 @@ struct GlyphPropertiesLoadInfo
             { false, FT_BYTE, "Type" },
             { false, FT_BYTE, "GlyphExclusiveCategoryID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GlyphPropertiesMeta::Instance(), HOTFIX_SEL_GLYPH_PROPERTIES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GlyphPropertiesMeta::Instance(), HOTFIX_SEL_GLYPH_PROPERTIES);
+        return &loadInfo;
     }
 };
 
 struct GlyphRequiredSpecLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1603,13 +1673,14 @@ struct GlyphRequiredSpecLoadInfo
             { false, FT_SHORT, "GlyphPropertiesID" },
             { false, FT_SHORT, "ChrSpecializationID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GlyphRequiredSpecMeta::Instance(), HOTFIX_SEL_GLYPH_REQUIRED_SPEC };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GlyphRequiredSpecMeta::Instance(), HOTFIX_SEL_GLYPH_REQUIRED_SPEC);
+        return &loadInfo;
     }
 };
 
 struct GuildColorBackgroundLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1618,13 +1689,14 @@ struct GuildColorBackgroundLoadInfo
             { false, FT_BYTE, "Green" },
             { false, FT_BYTE, "Blue" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GuildColorBackgroundMeta::Instance(), HOTFIX_SEL_GUILD_COLOR_BACKGROUND };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GuildColorBackgroundMeta::Instance(), HOTFIX_SEL_GUILD_COLOR_BACKGROUND);
+        return &loadInfo;
     }
 };
 
 struct GuildColorBorderLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1633,13 +1705,14 @@ struct GuildColorBorderLoadInfo
             { false, FT_BYTE, "Green" },
             { false, FT_BYTE, "Blue" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GuildColorBorderMeta::Instance(), HOTFIX_SEL_GUILD_COLOR_BORDER };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GuildColorBorderMeta::Instance(), HOTFIX_SEL_GUILD_COLOR_BORDER);
+        return &loadInfo;
     }
 };
 
 struct GuildColorEmblemLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1648,26 +1721,28 @@ struct GuildColorEmblemLoadInfo
             { false, FT_BYTE, "Green" },
             { false, FT_BYTE, "Blue" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GuildColorEmblemMeta::Instance(), HOTFIX_SEL_GUILD_COLOR_EMBLEM };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GuildColorEmblemMeta::Instance(), HOTFIX_SEL_GUILD_COLOR_EMBLEM);
+        return &loadInfo;
     }
 };
 
 struct GuildPerkSpellsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_INT, "SpellID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, GuildPerkSpellsMeta::Instance(), HOTFIX_SEL_GUILD_PERK_SPELLS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GuildPerkSpellsMeta::Instance(), HOTFIX_SEL_GUILD_PERK_SPELLS);
+        return &loadInfo;
     }
 };
 
 struct HeirloomLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1684,13 +1759,14 @@ struct HeirloomLoadInfo
             { false, FT_BYTE, "Source" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, HeirloomMeta::Instance(), HOTFIX_SEL_HEIRLOOM };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, HeirloomMeta::Instance(), HOTFIX_SEL_HEIRLOOM);
+        return &loadInfo;
     }
 };
 
 struct HolidaysLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1740,13 +1816,14 @@ struct HolidaysLoadInfo
             { true, FT_BYTE, "CalendarFilterType" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, HolidaysMeta::Instance(), HOTFIX_SEL_HOLIDAYS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, HolidaysMeta::Instance(), HOTFIX_SEL_HOLIDAYS);
+        return &loadInfo;
     }
 };
 
 struct ImportPriceArmorLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1756,52 +1833,56 @@ struct ImportPriceArmorLoadInfo
             { false, FT_FLOAT, "MailFactor" },
             { false, FT_FLOAT, "PlateFactor" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ImportPriceArmorMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_ARMOR };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ImportPriceArmorMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_ARMOR);
+        return &loadInfo;
     }
 };
 
 struct ImportPriceQualityLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_FLOAT, "Factor" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ImportPriceQualityMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_QUALITY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ImportPriceQualityMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_QUALITY);
+        return &loadInfo;
     }
 };
 
 struct ImportPriceShieldLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_FLOAT, "Factor" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ImportPriceShieldMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_SHIELD };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ImportPriceShieldMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_SHIELD);
+        return &loadInfo;
     }
 };
 
 struct ImportPriceWeaponLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_FLOAT, "Factor" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ImportPriceWeaponMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_WEAPON };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ImportPriceWeaponMeta::Instance(), HOTFIX_SEL_IMPORT_PRICE_WEAPON);
+        return &loadInfo;
     }
 };
 
 struct ItemLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1815,13 +1896,14 @@ struct ItemLoadInfo
             { false, FT_BYTE, "Sheath" },
             { false, FT_BYTE, "GroupSoundsID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemMeta::Instance(), HOTFIX_SEL_ITEM };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemMeta::Instance(), HOTFIX_SEL_ITEM);
+        return &loadInfo;
     }
 };
 
 struct ItemAppearanceLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1831,13 +1913,14 @@ struct ItemAppearanceLoadInfo
             { false, FT_INT, "UIOrder" },
             { false, FT_BYTE, "ObjectComponentSlot" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemAppearanceMeta::Instance(), HOTFIX_SEL_ITEM_APPEARANCE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemAppearanceMeta::Instance(), HOTFIX_SEL_ITEM_APPEARANCE);
+        return &loadInfo;
     }
 };
 
 struct ItemArmorQualityLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1851,13 +1934,14 @@ struct ItemArmorQualityLoadInfo
             { false, FT_FLOAT, "QualityMod7" },
             { false, FT_SHORT, "ItemLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemArmorQualityMeta::Instance(), HOTFIX_SEL_ITEM_ARMOR_QUALITY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemArmorQualityMeta::Instance(), HOTFIX_SEL_ITEM_ARMOR_QUALITY);
+        return &loadInfo;
     }
 };
 
 struct ItemArmorShieldLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1871,13 +1955,14 @@ struct ItemArmorShieldLoadInfo
             { false, FT_FLOAT, "Quality7" },
             { false, FT_SHORT, "ItemLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemArmorShieldMeta::Instance(), HOTFIX_SEL_ITEM_ARMOR_SHIELD };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemArmorShieldMeta::Instance(), HOTFIX_SEL_ITEM_ARMOR_SHIELD);
+        return &loadInfo;
     }
 };
 
 struct ItemArmorTotalLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1888,26 +1973,28 @@ struct ItemArmorTotalLoadInfo
             { false, FT_FLOAT, "Value4" },
             { false, FT_SHORT, "ItemLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemArmorTotalMeta::Instance(), HOTFIX_SEL_ITEM_ARMOR_TOTAL };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemArmorTotalMeta::Instance(), HOTFIX_SEL_ITEM_ARMOR_TOTAL);
+        return &loadInfo;
     }
 };
 
 struct ItemBagFamilyLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING, "Name" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemBagFamilyMeta::Instance(), HOTFIX_SEL_ITEM_BAG_FAMILY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemBagFamilyMeta::Instance(), HOTFIX_SEL_ITEM_BAG_FAMILY);
+        return &loadInfo;
     }
 };
 
 struct ItemBonusLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1918,26 +2005,28 @@ struct ItemBonusLoadInfo
             { false, FT_BYTE, "Type" },
             { false, FT_BYTE, "Index" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemBonusMeta::Instance(), HOTFIX_SEL_ITEM_BONUS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemBonusMeta::Instance(), HOTFIX_SEL_ITEM_BONUS);
+        return &loadInfo;
     }
 };
 
 struct ItemBonusListLevelDeltaLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { true, FT_SHORT, "Delta" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemBonusListLevelDeltaMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_LIST_LEVEL_DELTA };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemBonusListLevelDeltaMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_LIST_LEVEL_DELTA);
+        return &loadInfo;
     }
 };
 
 struct ItemBonusTreeNodeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1947,13 +2036,14 @@ struct ItemBonusTreeNodeLoadInfo
             { false, FT_SHORT, "BonusListID" },
             { false, FT_BYTE, "BonusTreeModID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemBonusTreeNodeMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_TREE_NODE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemBonusTreeNodeMeta::Instance(), HOTFIX_SEL_ITEM_BONUS_TREE_NODE);
+        return &loadInfo;
     }
 };
 
 struct ItemChildEquipmentLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1962,13 +2052,14 @@ struct ItemChildEquipmentLoadInfo
             { false, FT_INT, "AltItemID" },
             { false, FT_BYTE, "AltEquipmentSlot" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemChildEquipmentMeta::Instance(), HOTFIX_SEL_ITEM_CHILD_EQUIPMENT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemChildEquipmentMeta::Instance(), HOTFIX_SEL_ITEM_CHILD_EQUIPMENT);
+        return &loadInfo;
     }
 };
 
 struct ItemClassLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -1978,26 +2069,28 @@ struct ItemClassLoadInfo
             { false, FT_BYTE, "OldEnumValue" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemClassMeta::Instance(), HOTFIX_SEL_ITEM_CLASS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemClassMeta::Instance(), HOTFIX_SEL_ITEM_CLASS);
+        return &loadInfo;
     }
 };
 
 struct ItemCurrencyCostLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_INT, "ItemId" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemCurrencyCostMeta::Instance(), HOTFIX_SEL_ITEM_CURRENCY_COST };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemCurrencyCostMeta::Instance(), HOTFIX_SEL_ITEM_CURRENCY_COST);
+        return &loadInfo;
     }
 };
 
 struct ItemDamageAmmoLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2011,13 +2104,14 @@ struct ItemDamageAmmoLoadInfo
             { false, FT_FLOAT, "DPS7" },
             { false, FT_SHORT, "ItemLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemDamageAmmoMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_AMMO };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemDamageAmmoMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_AMMO);
+        return &loadInfo;
     }
 };
 
 struct ItemDamageOneHandLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2031,13 +2125,14 @@ struct ItemDamageOneHandLoadInfo
             { false, FT_FLOAT, "DPS7" },
             { false, FT_SHORT, "ItemLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemDamageOneHandMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_ONE_HAND };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemDamageOneHandMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_ONE_HAND);
+        return &loadInfo;
     }
 };
 
 struct ItemDamageOneHandCasterLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2051,13 +2146,14 @@ struct ItemDamageOneHandCasterLoadInfo
             { false, FT_FLOAT, "DPS7" },
             { false, FT_SHORT, "ItemLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemDamageOneHandCasterMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_ONE_HAND_CASTER };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemDamageOneHandCasterMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_ONE_HAND_CASTER);
+        return &loadInfo;
     }
 };
 
 struct ItemDamageTwoHandLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2071,13 +2167,14 @@ struct ItemDamageTwoHandLoadInfo
             { false, FT_FLOAT, "DPS7" },
             { false, FT_SHORT, "ItemLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemDamageTwoHandMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_TWO_HAND };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemDamageTwoHandMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_TWO_HAND);
+        return &loadInfo;
     }
 };
 
 struct ItemDamageTwoHandCasterLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2091,13 +2188,14 @@ struct ItemDamageTwoHandCasterLoadInfo
             { false, FT_FLOAT, "DPS7" },
             { false, FT_SHORT, "ItemLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemDamageTwoHandCasterMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_TWO_HAND_CASTER };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemDamageTwoHandCasterMeta::Instance(), HOTFIX_SEL_ITEM_DAMAGE_TWO_HAND_CASTER);
+        return &loadInfo;
     }
 };
 
 struct ItemDisenchantLootLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2109,13 +2207,14 @@ struct ItemDisenchantLootLoadInfo
             { true, FT_BYTE, "ItemSubClass" },
             { false, FT_BYTE, "ItemQuality" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemDisenchantLootMeta::Instance(), HOTFIX_SEL_ITEM_DISENCHANT_LOOT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemDisenchantLootMeta::Instance(), HOTFIX_SEL_ITEM_DISENCHANT_LOOT);
+        return &loadInfo;
     }
 };
 
 struct ItemEffectLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2130,13 +2229,14 @@ struct ItemEffectLoadInfo
             { false, FT_BYTE, "OrderIndex" },
             { false, FT_BYTE, "Trigger" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemEffectMeta::Instance(), HOTFIX_SEL_ITEM_EFFECT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemEffectMeta::Instance(), HOTFIX_SEL_ITEM_EFFECT);
+        return &loadInfo;
     }
 };
 
 struct ItemExtendedCostLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2168,13 +2268,14 @@ struct ItemExtendedCostLoadInfo
             { false, FT_BYTE, "RequirementFlags" },
             { false, FT_BYTE, "RequiredAchievement" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemExtendedCostMeta::Instance(), HOTFIX_SEL_ITEM_EXTENDED_COST };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemExtendedCostMeta::Instance(), HOTFIX_SEL_ITEM_EXTENDED_COST);
+        return &loadInfo;
     }
 };
 
 struct ItemLimitCategoryLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2183,13 +2284,14 @@ struct ItemLimitCategoryLoadInfo
             { false, FT_BYTE, "Quantity" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemLimitCategoryMeta::Instance(), HOTFIX_SEL_ITEM_LIMIT_CATEGORY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemLimitCategoryMeta::Instance(), HOTFIX_SEL_ITEM_LIMIT_CATEGORY);
+        return &loadInfo;
     }
 };
 
 struct ItemModifiedAppearanceLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2200,13 +2302,14 @@ struct ItemModifiedAppearanceLoadInfo
             { false, FT_BYTE, "SourceType" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemModifiedAppearanceMeta::Instance(), HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemModifiedAppearanceMeta::Instance(), HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE);
+        return &loadInfo;
     }
 };
 
 struct ItemPriceBaseLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2215,13 +2318,14 @@ struct ItemPriceBaseLoadInfo
             { false, FT_FLOAT, "WeaponFactor" },
             { false, FT_SHORT, "ItemLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemPriceBaseMeta::Instance(), HOTFIX_SEL_ITEM_PRICE_BASE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemPriceBaseMeta::Instance(), HOTFIX_SEL_ITEM_PRICE_BASE);
+        return &loadInfo;
     }
 };
 
 struct ItemRandomPropertiesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2233,13 +2337,14 @@ struct ItemRandomPropertiesLoadInfo
             { false, FT_SHORT, "Enchantment4" },
             { false, FT_SHORT, "Enchantment5" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemRandomPropertiesMeta::Instance(), HOTFIX_SEL_ITEM_RANDOM_PROPERTIES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemRandomPropertiesMeta::Instance(), HOTFIX_SEL_ITEM_RANDOM_PROPERTIES);
+        return &loadInfo;
     }
 };
 
 struct ItemRandomSuffixLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2256,13 +2361,14 @@ struct ItemRandomSuffixLoadInfo
             { false, FT_SHORT, "AllocationPct4" },
             { false, FT_SHORT, "AllocationPct5" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemRandomSuffixMeta::Instance(), HOTFIX_SEL_ITEM_RANDOM_SUFFIX };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemRandomSuffixMeta::Instance(), HOTFIX_SEL_ITEM_RANDOM_SUFFIX);
+        return &loadInfo;
     }
 };
 
 struct ItemSearchNameLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2283,13 +2389,14 @@ struct ItemSearchNameLoadInfo
             { false, FT_BYTE, "RequiredLevel" },
             { true, FT_INT, "AllowableClass" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemSearchNameMeta::Instance(), HOTFIX_SEL_ITEM_SEARCH_NAME };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemSearchNameMeta::Instance(), HOTFIX_SEL_ITEM_SEARCH_NAME);
+        return &loadInfo;
     }
 };
 
 struct ItemSetLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2316,13 +2423,14 @@ struct ItemSetLoadInfo
             { false, FT_INT, "RequiredSkill" },
             { false, FT_INT, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemSetMeta::Instance(), HOTFIX_SEL_ITEM_SET };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemSetMeta::Instance(), HOTFIX_SEL_ITEM_SET);
+        return &loadInfo;
     }
 };
 
 struct ItemSetSpellLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2332,13 +2440,14 @@ struct ItemSetSpellLoadInfo
             { false, FT_SHORT, "ChrSpecID" },
             { false, FT_BYTE, "Threshold" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemSetSpellMeta::Instance(), HOTFIX_SEL_ITEM_SET_SPELL };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemSetSpellMeta::Instance(), HOTFIX_SEL_ITEM_SET_SPELL);
+        return &loadInfo;
     }
 };
 
 struct ItemSparseLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2447,13 +2556,14 @@ struct ItemSparseLoadInfo
             { false, FT_BYTE, "ArtifactID" },
             { false, FT_BYTE, "RequiredExpansion" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemSparseMeta::Instance(), HOTFIX_SEL_ITEM_SPARSE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemSparseMeta::Instance(), HOTFIX_SEL_ITEM_SPARSE);
+        return &loadInfo;
     }
 };
 
 struct ItemSpecLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2465,13 +2575,14 @@ struct ItemSpecLoadInfo
             { false, FT_BYTE, "PrimaryStat" },
             { false, FT_BYTE, "SecondaryStat" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemSpecMeta::Instance(), HOTFIX_SEL_ITEM_SPEC };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemSpecMeta::Instance(), HOTFIX_SEL_ITEM_SPEC);
+        return &loadInfo;
     }
 };
 
 struct ItemSpecOverrideLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2479,13 +2590,14 @@ struct ItemSpecOverrideLoadInfo
             { false, FT_INT, "ItemID" },
             { false, FT_SHORT, "SpecID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemSpecOverrideMeta::Instance(), HOTFIX_SEL_ITEM_SPEC_OVERRIDE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemSpecOverrideMeta::Instance(), HOTFIX_SEL_ITEM_SPEC_OVERRIDE);
+        return &loadInfo;
     }
 };
 
 struct ItemUpgradeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2496,13 +2608,14 @@ struct ItemUpgradeLoadInfo
             { false, FT_BYTE, "ItemUpgradePathID" },
             { false, FT_BYTE, "ItemLevelBonus" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemUpgradeMeta::Instance(), HOTFIX_SEL_ITEM_UPGRADE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemUpgradeMeta::Instance(), HOTFIX_SEL_ITEM_UPGRADE);
+        return &loadInfo;
     }
 };
 
 struct ItemXBonusTreeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2510,13 +2623,14 @@ struct ItemXBonusTreeLoadInfo
             { false, FT_INT, "ItemID" },
             { false, FT_SHORT, "BonusTreeID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ItemXBonusTreeMeta::Instance(), HOTFIX_SEL_ITEM_X_BONUS_TREE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemXBonusTreeMeta::Instance(), HOTFIX_SEL_ITEM_X_BONUS_TREE);
+        return &loadInfo;
     }
 };
 
 struct KeyChainLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2554,13 +2668,14 @@ struct KeyChainLoadInfo
             { false, FT_BYTE, "Key31" },
             { false, FT_BYTE, "Key32" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, KeyChainMeta::Instance(), HOTFIX_SEL_KEY_CHAIN };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, KeyChainMeta::Instance(), HOTFIX_SEL_KEY_CHAIN);
+        return &loadInfo;
     }
 };
 
 struct LfgDungeonsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2597,13 +2712,14 @@ struct LfgDungeonsLoadInfo
             { false, FT_BYTE, "MentorCharLevel" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, LfgDungeonsMeta::Instance(), HOTFIX_SEL_LFG_DUNGEONS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, LfgDungeonsMeta::Instance(), HOTFIX_SEL_LFG_DUNGEONS);
+        return &loadInfo;
     }
 };
 
 struct LightLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2623,13 +2739,14 @@ struct LightLoadInfo
             { false, FT_SHORT, "LightParamsID7" },
             { false, FT_SHORT, "LightParamsID8" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, LightMeta::Instance(), HOTFIX_SEL_LIGHT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, LightMeta::Instance(), HOTFIX_SEL_LIGHT);
+        return &loadInfo;
     }
 };
 
 struct LiquidTypeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2685,13 +2802,14 @@ struct LiquidTypeLoadInfo
             { false, FT_BYTE, "DepthTexCount6" },
             { false, FT_INT, "SoundID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, LiquidTypeMeta::Instance(), HOTFIX_SEL_LIQUID_TYPE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, LiquidTypeMeta::Instance(), HOTFIX_SEL_LIQUID_TYPE);
+        return &loadInfo;
     }
 };
 
 struct LockLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2729,26 +2847,28 @@ struct LockLoadInfo
             { false, FT_BYTE, "Action7" },
             { false, FT_BYTE, "Action8" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, LockMeta::Instance(), HOTFIX_SEL_LOCK };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, LockMeta::Instance(), HOTFIX_SEL_LOCK);
+        return &loadInfo;
     }
 };
 
 struct MailTemplateLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING, "Body" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, MailTemplateMeta::Instance(), HOTFIX_SEL_MAIL_TEMPLATE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MailTemplateMeta::Instance(), HOTFIX_SEL_MAIL_TEMPLATE);
+        return &loadInfo;
     }
 };
 
 struct MapLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2775,13 +2895,14 @@ struct MapLoadInfo
             { false, FT_BYTE, "MaxPlayers" },
             { false, FT_BYTE, "TimeOffset" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, MapMeta::Instance(), HOTFIX_SEL_MAP };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MapMeta::Instance(), HOTFIX_SEL_MAP);
+        return &loadInfo;
     }
 };
 
 struct MapDifficultyLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2795,13 +2916,14 @@ struct MapDifficultyLoadInfo
             { false, FT_BYTE, "ItemBonusTreeModID" },
             { false, FT_INT, "Context" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, MapDifficultyMeta::Instance(), HOTFIX_SEL_MAP_DIFFICULTY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MapDifficultyMeta::Instance(), HOTFIX_SEL_MAP_DIFFICULTY);
+        return &loadInfo;
     }
 };
 
 struct ModifierTreeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2814,13 +2936,14 @@ struct ModifierTreeLoadInfo
             { false, FT_BYTE, "Operator" },
             { false, FT_BYTE, "Amount" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ModifierTreeMeta::Instance(), HOTFIX_SEL_MODIFIER_TREE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ModifierTreeMeta::Instance(), HOTFIX_SEL_MODIFIER_TREE);
+        return &loadInfo;
     }
 };
 
 struct MountLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2836,13 +2959,14 @@ struct MountLoadInfo
             { false, FT_BYTE, "Source" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, MountMeta::Instance(), HOTFIX_SEL_MOUNT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MountMeta::Instance(), HOTFIX_SEL_MOUNT);
+        return &loadInfo;
     }
 };
 
 struct MountCapabilityLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2855,13 +2979,14 @@ struct MountCapabilityLoadInfo
             { false, FT_INT, "ID" },
             { false, FT_INT, "RequiredAura" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, MountCapabilityMeta::Instance(), HOTFIX_SEL_MOUNT_CAPABILITY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MountCapabilityMeta::Instance(), HOTFIX_SEL_MOUNT_CAPABILITY);
+        return &loadInfo;
     }
 };
 
 struct MountTypeXCapabilityLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2870,13 +2995,14 @@ struct MountTypeXCapabilityLoadInfo
             { false, FT_SHORT, "MountCapabilityID" },
             { false, FT_BYTE, "OrderIndex" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, MountTypeXCapabilityMeta::Instance(), HOTFIX_SEL_MOUNT_TYPE_X_CAPABILITY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MountTypeXCapabilityMeta::Instance(), HOTFIX_SEL_MOUNT_TYPE_X_CAPABILITY);
+        return &loadInfo;
     }
 };
 
 struct MovieLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2886,13 +3012,14 @@ struct MovieLoadInfo
             { false, FT_BYTE, "Volume" },
             { false, FT_BYTE, "KeyID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, MovieMeta::Instance(), HOTFIX_SEL_MOVIE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MovieMeta::Instance(), HOTFIX_SEL_MOVIE);
+        return &loadInfo;
     }
 };
 
 struct NameGenLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2901,13 +3028,14 @@ struct NameGenLoadInfo
             { false, FT_BYTE, "Race" },
             { false, FT_BYTE, "Sex" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, NameGenMeta::Instance(), HOTFIX_SEL_NAME_GEN };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NameGenMeta::Instance(), HOTFIX_SEL_NAME_GEN);
+        return &loadInfo;
     }
 };
 
 struct NamesProfanityLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2915,26 +3043,28 @@ struct NamesProfanityLoadInfo
             { false, FT_STRING_NOT_LOCALIZED, "Name" },
             { true, FT_BYTE, "Language" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, NamesProfanityMeta::Instance(), HOTFIX_SEL_NAMES_PROFANITY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NamesProfanityMeta::Instance(), HOTFIX_SEL_NAMES_PROFANITY);
+        return &loadInfo;
     }
 };
 
 struct NamesReservedLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING_NOT_LOCALIZED, "Name" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, NamesReservedMeta::Instance(), HOTFIX_SEL_NAMES_RESERVED };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NamesReservedMeta::Instance(), HOTFIX_SEL_NAMES_RESERVED);
+        return &loadInfo;
     }
 };
 
 struct NamesReservedLocaleLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2942,13 +3072,14 @@ struct NamesReservedLocaleLoadInfo
             { false, FT_STRING_NOT_LOCALIZED, "Name" },
             { false, FT_BYTE, "LocaleMask" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, NamesReservedLocaleMeta::Instance(), HOTFIX_SEL_NAMES_RESERVED };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, NamesReservedLocaleMeta::Instance(), HOTFIX_SEL_NAMES_RESERVED);
+        return &loadInfo;
     }
 };
 
 struct OverrideSpellDataLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2966,26 +3097,28 @@ struct OverrideSpellDataLoadInfo
             { false, FT_INT, "PlayerActionbarFileDataID" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, OverrideSpellDataMeta::Instance(), HOTFIX_SEL_OVERRIDE_SPELL_DATA };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, OverrideSpellDataMeta::Instance(), HOTFIX_SEL_OVERRIDE_SPELL_DATA);
+        return &loadInfo;
     }
 };
 
 struct PhaseLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_SHORT, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, PhaseMeta::Instance(), HOTFIX_SEL_PHASE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PhaseMeta::Instance(), HOTFIX_SEL_PHASE);
+        return &loadInfo;
     }
 };
 
 struct PhaseXPhaseGroupLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -2993,13 +3126,14 @@ struct PhaseXPhaseGroupLoadInfo
             { false, FT_SHORT, "PhaseID" },
             { false, FT_SHORT, "PhaseGroupID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, PhaseXPhaseGroupMeta::Instance(), HOTFIX_SEL_PHASE_X_PHASE_GROUP };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PhaseXPhaseGroupMeta::Instance(), HOTFIX_SEL_PHASE_X_PHASE_GROUP);
+        return &loadInfo;
     }
 };
 
 struct PlayerConditionLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3150,13 +3284,14 @@ struct PlayerConditionLoadInfo
             { true, FT_INT, "Unknown7001" },
             { true, FT_INT, "Unknown7002" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, PlayerConditionMeta::Instance(), HOTFIX_SEL_PLAYER_CONDITION };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PlayerConditionMeta::Instance(), HOTFIX_SEL_PLAYER_CONDITION);
+        return &loadInfo;
     }
 };
 
 struct PowerDisplayLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3167,13 +3302,14 @@ struct PowerDisplayLoadInfo
             { false, FT_BYTE, "Green" },
             { false, FT_BYTE, "Blue" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, PowerDisplayMeta::Instance(), HOTFIX_SEL_POWER_DISPLAY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PowerDisplayMeta::Instance(), HOTFIX_SEL_POWER_DISPLAY);
+        return &loadInfo;
     }
 };
 
 struct PowerTypeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3191,13 +3327,14 @@ struct PowerTypeLoadInfo
             { true, FT_BYTE, "RegenerationMax" },
             { false, FT_BYTE, "UIModifier" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, PowerTypeMeta::Instance(), HOTFIX_SEL_POWER_TYPE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PowerTypeMeta::Instance(), HOTFIX_SEL_POWER_TYPE);
+        return &loadInfo;
     }
 };
 
 struct PvpDifficultyLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3207,13 +3344,14 @@ struct PvpDifficultyLoadInfo
             { false, FT_BYTE, "MinLevel" },
             { false, FT_BYTE, "MaxLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, PvpDifficultyMeta::Instance(), HOTFIX_SEL_PVP_DIFFICULTY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpDifficultyMeta::Instance(), HOTFIX_SEL_PVP_DIFFICULTY);
+        return &loadInfo;
     }
 };
 
 struct QuestFactionRewardLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3229,13 +3367,14 @@ struct QuestFactionRewardLoadInfo
             { true, FT_SHORT, "QuestRewFactionValue9" },
             { true, FT_SHORT, "QuestRewFactionValue10" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, QuestFactionRewardMeta::Instance(), HOTFIX_SEL_QUEST_FACTION_REWARD };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestFactionRewardMeta::Instance(), HOTFIX_SEL_QUEST_FACTION_REWARD);
+        return &loadInfo;
     }
 };
 
 struct QuestMoneyRewardLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3251,13 +3390,14 @@ struct QuestMoneyRewardLoadInfo
             { false, FT_INT, "Money9" },
             { false, FT_INT, "Money10" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, QuestMoneyRewardMeta::Instance(), HOTFIX_SEL_QUEST_MONEY_REWARD };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestMoneyRewardMeta::Instance(), HOTFIX_SEL_QUEST_MONEY_REWARD);
+        return &loadInfo;
     }
 };
 
 struct QuestPackageItemLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3267,13 +3407,14 @@ struct QuestPackageItemLoadInfo
             { false, FT_BYTE, "ItemCount" },
             { false, FT_BYTE, "FilterType" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, QuestPackageItemMeta::Instance(), HOTFIX_SEL_QUEST_PACKAGE_ITEM };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestPackageItemMeta::Instance(), HOTFIX_SEL_QUEST_PACKAGE_ITEM);
+        return &loadInfo;
     }
 };
 
 struct QuestSortLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3281,26 +3422,28 @@ struct QuestSortLoadInfo
             { false, FT_STRING, "SortName" },
             { false, FT_BYTE, "SortOrder" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, QuestSortMeta::Instance(), HOTFIX_SEL_QUEST_SORT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestSortMeta::Instance(), HOTFIX_SEL_QUEST_SORT);
+        return &loadInfo;
     }
 };
 
 struct QuestV2LoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_SHORT, "UniqueBitFlag" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, QuestV2Meta::Instance(), HOTFIX_SEL_QUEST_V2 };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestV2Meta::Instance(), HOTFIX_SEL_QUEST_V2);
+        return &loadInfo;
     }
 };
 
 struct QuestXpLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3316,13 +3459,14 @@ struct QuestXpLoadInfo
             { false, FT_SHORT, "Exp9" },
             { false, FT_SHORT, "Exp10" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, QuestXPMeta::Instance(), HOTFIX_SEL_QUEST_XP };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestXPMeta::Instance(), HOTFIX_SEL_QUEST_XP);
+        return &loadInfo;
     }
 };
 
 struct RandPropPointsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3343,13 +3487,14 @@ struct RandPropPointsLoadInfo
             { false, FT_INT, "UncommonPropertiesPoints4" },
             { false, FT_INT, "UncommonPropertiesPoints5" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, RandPropPointsMeta::Instance(), HOTFIX_SEL_RAND_PROP_POINTS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RandPropPointsMeta::Instance(), HOTFIX_SEL_RAND_PROP_POINTS);
+        return &loadInfo;
     }
 };
 
 struct RulesetItemUpgradeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3357,13 +3502,14 @@ struct RulesetItemUpgradeLoadInfo
             { false, FT_INT, "ItemID" },
             { false, FT_SHORT, "ItemUpgradeID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, RulesetItemUpgradeMeta::Instance(), HOTFIX_SEL_RULESET_ITEM_UPGRADE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RulesetItemUpgradeMeta::Instance(), HOTFIX_SEL_RULESET_ITEM_UPGRADE);
+        return &loadInfo;
     }
 };
 
 struct ScalingStatDistributionLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3372,13 +3518,14 @@ struct ScalingStatDistributionLoadInfo
             { false, FT_INT, "MinLevel" },
             { false, FT_INT, "MaxLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ScalingStatDistributionMeta::Instance(), HOTFIX_SEL_SCALING_STAT_DISTRIBUTION };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ScalingStatDistributionMeta::Instance(), HOTFIX_SEL_SCALING_STAT_DISTRIBUTION);
+        return &loadInfo;
     }
 };
 
 struct ScenarioLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3388,13 +3535,14 @@ struct ScenarioLoadInfo
             { false, FT_BYTE, "Flags" },
             { false, FT_BYTE, "Type" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ScenarioMeta::Instance(), HOTFIX_SEL_SCENARIO };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ScenarioMeta::Instance(), HOTFIX_SEL_SCENARIO);
+        return &loadInfo;
     }
 };
 
 struct ScenarioStepLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3409,13 +3557,14 @@ struct ScenarioStepLoadInfo
             { false, FT_BYTE, "Flags" },
             { false, FT_INT, "BonusRequiredStepID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ScenarioStepMeta::Instance(), HOTFIX_SEL_SCENARIO_STEP };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ScenarioStepMeta::Instance(), HOTFIX_SEL_SCENARIO_STEP);
+        return &loadInfo;
     }
 };
 
 struct SceneScriptLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3425,26 +3574,28 @@ struct SceneScriptLoadInfo
             { false, FT_SHORT, "PrevScriptId" },
             { false, FT_SHORT, "NextScriptId" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SceneScriptMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SceneScriptMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT);
+        return &loadInfo;
     }
 };
 
 struct SceneScriptPackageLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING_NOT_LOCALIZED, "Name" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SceneScriptPackageMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT_PACKAGE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SceneScriptPackageMeta::Instance(), HOTFIX_SEL_SCENE_SCRIPT_PACKAGE);
+        return &loadInfo;
     }
 };
 
 struct SkillLineLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3458,13 +3609,14 @@ struct SkillLineLoadInfo
             { false, FT_BYTE, "CanLink" },
             { false, FT_INT, "ParentSkillLineID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SkillLineMeta::Instance(), HOTFIX_SEL_SKILL_LINE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SkillLineMeta::Instance(), HOTFIX_SEL_SKILL_LINE);
+        return &loadInfo;
     }
 };
 
 struct SkillLineAbilityLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3483,13 +3635,14 @@ struct SkillLineAbilityLoadInfo
             { false, FT_BYTE, "NumSkillUps" },
             { true, FT_INT, "ClassMask" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SkillLineAbilityMeta::Instance(), HOTFIX_SEL_SKILL_LINE_ABILITY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SkillLineAbilityMeta::Instance(), HOTFIX_SEL_SKILL_LINE_ABILITY);
+        return &loadInfo;
     }
 };
 
 struct SkillRaceClassInfoLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3502,13 +3655,14 @@ struct SkillRaceClassInfoLoadInfo
             { false, FT_BYTE, "MinLevel" },
             { true, FT_INT, "ClassMask" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SkillRaceClassInfoMeta::Instance(), HOTFIX_SEL_SKILL_RACE_CLASS_INFO };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SkillRaceClassInfoMeta::Instance(), HOTFIX_SEL_SKILL_RACE_CLASS_INFO);
+        return &loadInfo;
     }
 };
 
 struct SoundKitLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3530,13 +3684,14 @@ struct SoundKitLoadInfo
             { false, FT_BYTE, "Unk700" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SoundKitMeta::Instance(), HOTFIX_SEL_SOUND_KIT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SoundKitMeta::Instance(), HOTFIX_SEL_SOUND_KIT);
+        return &loadInfo;
     }
 };
 
 struct SpecializationSpellsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3547,13 +3702,14 @@ struct SpecializationSpellsLoadInfo
             { false, FT_BYTE, "OrderIndex" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpecializationSpellsMeta::Instance(), HOTFIX_SEL_SPECIALIZATION_SPELLS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpecializationSpellsMeta::Instance(), HOTFIX_SEL_SPECIALIZATION_SPELLS);
+        return &loadInfo;
     }
 };
 
 struct SpellLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3565,13 +3721,14 @@ struct SpellLoadInfo
             { false, FT_INT, "ID" },
             { false, FT_INT, "DescriptionVariablesID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellMeta::Instance(), HOTFIX_SEL_SPELL };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellMeta::Instance(), HOTFIX_SEL_SPELL);
+        return &loadInfo;
     }
 };
 
 struct SpellAuraOptionsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3585,13 +3742,14 @@ struct SpellAuraOptionsLoadInfo
             { false, FT_BYTE, "ProcChance" },
             { false, FT_BYTE, "SpellProcsPerMinuteID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellAuraOptionsMeta::Instance(), HOTFIX_SEL_SPELL_AURA_OPTIONS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellAuraOptionsMeta::Instance(), HOTFIX_SEL_SPELL_AURA_OPTIONS);
+        return &loadInfo;
     }
 };
 
 struct SpellAuraRestrictionsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3607,13 +3765,14 @@ struct SpellAuraRestrictionsLoadInfo
             { false, FT_BYTE, "ExcludeCasterAuraState" },
             { false, FT_BYTE, "ExcludeTargetAuraState" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellAuraRestrictionsMeta::Instance(), HOTFIX_SEL_SPELL_AURA_RESTRICTIONS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellAuraRestrictionsMeta::Instance(), HOTFIX_SEL_SPELL_AURA_RESTRICTIONS);
+        return &loadInfo;
     }
 };
 
 struct SpellCastTimesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3622,13 +3781,14 @@ struct SpellCastTimesLoadInfo
             { true, FT_INT, "MinCastTime" },
             { true, FT_SHORT, "CastTimePerLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellCastTimesMeta::Instance(), HOTFIX_SEL_SPELL_CAST_TIMES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellCastTimesMeta::Instance(), HOTFIX_SEL_SPELL_CAST_TIMES);
+        return &loadInfo;
     }
 };
 
 struct SpellCastingRequirementsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3641,13 +3801,14 @@ struct SpellCastingRequirementsLoadInfo
             { false, FT_BYTE, "MinReputation" },
             { false, FT_BYTE, "RequiredAuraVision" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellCastingRequirementsMeta::Instance(), HOTFIX_SEL_SPELL_CASTING_REQUIREMENTS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellCastingRequirementsMeta::Instance(), HOTFIX_SEL_SPELL_CASTING_REQUIREMENTS);
+        return &loadInfo;
     }
 };
 
 struct SpellCategoriesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3662,13 +3823,14 @@ struct SpellCategoriesLoadInfo
             { false, FT_BYTE, "Mechanic" },
             { false, FT_BYTE, "PreventionType" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellCategoriesMeta::Instance(), HOTFIX_SEL_SPELL_CATEGORIES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellCategoriesMeta::Instance(), HOTFIX_SEL_SPELL_CATEGORIES);
+        return &loadInfo;
     }
 };
 
 struct SpellCategoryLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3680,13 +3842,14 @@ struct SpellCategoryLoadInfo
             { false, FT_BYTE, "MaxCharges" },
             { false, FT_INT, "ChargeCategoryType" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellCategoryMeta::Instance(), HOTFIX_SEL_SPELL_CATEGORY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellCategoryMeta::Instance(), HOTFIX_SEL_SPELL_CATEGORY);
+        return &loadInfo;
     }
 };
 
 struct SpellClassOptionsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3699,13 +3862,14 @@ struct SpellClassOptionsLoadInfo
             { false, FT_BYTE, "SpellClassSet" },
             { false, FT_INT, "ModalNextSpell" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellClassOptionsMeta::Instance(), HOTFIX_SEL_SPELL_CLASS_OPTIONS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellClassOptionsMeta::Instance(), HOTFIX_SEL_SPELL_CLASS_OPTIONS);
+        return &loadInfo;
     }
 };
 
 struct SpellCooldownsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3716,13 +3880,14 @@ struct SpellCooldownsLoadInfo
             { false, FT_INT, "StartRecoveryTime" },
             { false, FT_BYTE, "DifficultyID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellCooldownsMeta::Instance(), HOTFIX_SEL_SPELL_COOLDOWNS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellCooldownsMeta::Instance(), HOTFIX_SEL_SPELL_COOLDOWNS);
+        return &loadInfo;
     }
 };
 
 struct SpellDurationLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3731,13 +3896,14 @@ struct SpellDurationLoadInfo
             { true, FT_INT, "MaxDuration" },
             { true, FT_SHORT, "DurationPerLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellDurationMeta::Instance(), HOTFIX_SEL_SPELL_DURATION };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellDurationMeta::Instance(), HOTFIX_SEL_SPELL_DURATION);
+        return &loadInfo;
     }
 };
 
 struct SpellEffectLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3773,13 +3939,14 @@ struct SpellEffectLoadInfo
             { false, FT_INT, "EffectIndex" },
             { false, FT_INT, "EffectAttributes" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellEffectMeta::Instance(), HOTFIX_SEL_SPELL_EFFECT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellEffectMeta::Instance(), HOTFIX_SEL_SPELL_EFFECT);
+        return &loadInfo;
     }
 };
 
 struct SpellEffectScalingLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3789,13 +3956,14 @@ struct SpellEffectScalingLoadInfo
             { false, FT_FLOAT, "ResourceCoefficient" },
             { false, FT_INT, "SpellEffectID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellEffectScalingMeta::Instance(), HOTFIX_SEL_SPELL_EFFECT_SCALING };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellEffectScalingMeta::Instance(), HOTFIX_SEL_SPELL_EFFECT_SCALING);
+        return &loadInfo;
     }
 };
 
 struct SpellEquippedItemsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3805,26 +3973,28 @@ struct SpellEquippedItemsLoadInfo
             { true, FT_INT, "EquippedItemSubClassMask" },
             { true, FT_BYTE, "EquippedItemClass" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellEquippedItemsMeta::Instance(), HOTFIX_SEL_SPELL_EQUIPPED_ITEMS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellEquippedItemsMeta::Instance(), HOTFIX_SEL_SPELL_EQUIPPED_ITEMS);
+        return &loadInfo;
     }
 };
 
 struct SpellFocusObjectLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING, "Name" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellFocusObjectMeta::Instance(), HOTFIX_SEL_SPELL_FOCUS_OBJECT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellFocusObjectMeta::Instance(), HOTFIX_SEL_SPELL_FOCUS_OBJECT);
+        return &loadInfo;
     }
 };
 
 struct SpellInterruptsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3837,13 +4007,14 @@ struct SpellInterruptsLoadInfo
             { false, FT_SHORT, "InterruptFlags" },
             { false, FT_BYTE, "DifficultyID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellInterruptsMeta::Instance(), HOTFIX_SEL_SPELL_INTERRUPTS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellInterruptsMeta::Instance(), HOTFIX_SEL_SPELL_INTERRUPTS);
+        return &loadInfo;
     }
 };
 
 struct SpellItemEnchantmentLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3876,13 +4047,14 @@ struct SpellItemEnchantmentLoadInfo
             { true, FT_BYTE, "ScalingClassRestricted" },
             { false, FT_INT, "PlayerConditionID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellItemEnchantmentMeta::Instance(), HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellItemEnchantmentMeta::Instance(), HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT);
+        return &loadInfo;
     }
 };
 
 struct SpellItemEnchantmentConditionLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3918,13 +4090,14 @@ struct SpellItemEnchantmentConditionLoadInfo
             { false, FT_INT, "LTOperand4" },
             { false, FT_INT, "LTOperand5" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellItemEnchantmentConditionMeta::Instance(), HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT_CONDITION };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellItemEnchantmentConditionMeta::Instance(), HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT_CONDITION);
+        return &loadInfo;
     }
 };
 
 struct SpellLearnSpellLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3933,13 +4106,14 @@ struct SpellLearnSpellLoadInfo
             { false, FT_INT, "SpellID" },
             { false, FT_INT, "OverridesSpellID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellLearnSpellMeta::Instance(), HOTFIX_SEL_SPELL_LEARN_SPELL };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellLearnSpellMeta::Instance(), HOTFIX_SEL_SPELL_LEARN_SPELL);
+        return &loadInfo;
     }
 };
 
 struct SpellLevelsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3951,13 +4125,14 @@ struct SpellLevelsLoadInfo
             { false, FT_BYTE, "DifficultyID" },
             { false, FT_BYTE, "MaxUsableLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellLevelsMeta::Instance(), HOTFIX_SEL_SPELL_LEVELS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellLevelsMeta::Instance(), HOTFIX_SEL_SPELL_LEVELS);
+        return &loadInfo;
     }
 };
 
 struct SpellMiscLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -3985,13 +4160,14 @@ struct SpellMiscLoadInfo
             { false, FT_SHORT, "ActiveIconID" },
             { false, FT_BYTE, "SchoolMask" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellMiscMeta::Instance(), HOTFIX_SEL_SPELL_MISC };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellMiscMeta::Instance(), HOTFIX_SEL_SPELL_MISC);
+        return &loadInfo;
     }
 };
 
 struct SpellPowerLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4010,13 +4186,14 @@ struct SpellPowerLoadInfo
             { false, FT_INT, "PowerDisplayID" },
             { false, FT_INT, "UnitPowerBarID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellPowerMeta::Instance(), HOTFIX_SEL_SPELL_POWER };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellPowerMeta::Instance(), HOTFIX_SEL_SPELL_POWER);
+        return &loadInfo;
     }
 };
 
 struct SpellPowerDifficultyLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4024,13 +4201,14 @@ struct SpellPowerDifficultyLoadInfo
             { false, FT_BYTE, "PowerIndex" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellPowerDifficultyMeta::Instance(), HOTFIX_SEL_SPELL_POWER_DIFFICULTY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellPowerDifficultyMeta::Instance(), HOTFIX_SEL_SPELL_POWER_DIFFICULTY);
+        return &loadInfo;
     }
 };
 
 struct SpellProcsPerMinuteLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4038,13 +4216,14 @@ struct SpellProcsPerMinuteLoadInfo
             { false, FT_FLOAT, "BaseProcRate" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellProcsPerMinuteMeta::Instance(), HOTFIX_SEL_SPELL_PROCS_PER_MINUTE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellProcsPerMinuteMeta::Instance(), HOTFIX_SEL_SPELL_PROCS_PER_MINUTE);
+        return &loadInfo;
     }
 };
 
 struct SpellProcsPerMinuteModLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4054,13 +4233,14 @@ struct SpellProcsPerMinuteModLoadInfo
             { false, FT_BYTE, "Type" },
             { false, FT_BYTE, "SpellProcsPerMinuteID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellProcsPerMinuteModMeta::Instance(), HOTFIX_SEL_SPELL_PROCS_PER_MINUTE_MOD };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellProcsPerMinuteModMeta::Instance(), HOTFIX_SEL_SPELL_PROCS_PER_MINUTE_MOD);
+        return &loadInfo;
     }
 };
 
 struct SpellRadiusLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4070,13 +4250,14 @@ struct SpellRadiusLoadInfo
             { false, FT_FLOAT, "RadiusMin" },
             { false, FT_FLOAT, "RadiusMax" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellRadiusMeta::Instance(), HOTFIX_SEL_SPELL_RADIUS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellRadiusMeta::Instance(), HOTFIX_SEL_SPELL_RADIUS);
+        return &loadInfo;
     }
 };
 
 struct SpellRangeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4089,13 +4270,14 @@ struct SpellRangeLoadInfo
             { false, FT_STRING, "DisplayNameShort" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellRangeMeta::Instance(), HOTFIX_SEL_SPELL_RANGE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellRangeMeta::Instance(), HOTFIX_SEL_SPELL_RANGE);
+        return &loadInfo;
     }
 };
 
 struct SpellReagentsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4118,13 +4300,14 @@ struct SpellReagentsLoadInfo
             { false, FT_SHORT, "ReagentCount7" },
             { false, FT_SHORT, "ReagentCount8" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellReagentsMeta::Instance(), HOTFIX_SEL_SPELL_REAGENTS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellReagentsMeta::Instance(), HOTFIX_SEL_SPELL_REAGENTS);
+        return &loadInfo;
     }
 };
 
 struct SpellScalingLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4135,13 +4318,14 @@ struct SpellScalingLoadInfo
             { false, FT_INT, "MinScalingLevel" },
             { false, FT_INT, "MaxScalingLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellScalingMeta::Instance(), HOTFIX_SEL_SPELL_SCALING };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellScalingMeta::Instance(), HOTFIX_SEL_SPELL_SCALING);
+        return &loadInfo;
     }
 };
 
 struct SpellShapeshiftLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4153,13 +4337,14 @@ struct SpellShapeshiftLoadInfo
             { false, FT_INT, "ShapeshiftMask2" },
             { false, FT_BYTE, "StanceBarOrder" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellShapeshiftMeta::Instance(), HOTFIX_SEL_SPELL_SHAPESHIFT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellShapeshiftMeta::Instance(), HOTFIX_SEL_SPELL_SHAPESHIFT);
+        return &loadInfo;
     }
 };
 
 struct SpellShapeshiftFormLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4185,13 +4370,14 @@ struct SpellShapeshiftFormLoadInfo
             { true, FT_BYTE, "CreatureType" },
             { false, FT_BYTE, "BonusActionBar" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellShapeshiftFormMeta::Instance(), HOTFIX_SEL_SPELL_SHAPESHIFT_FORM };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellShapeshiftFormMeta::Instance(), HOTFIX_SEL_SPELL_SHAPESHIFT_FORM);
+        return &loadInfo;
     }
 };
 
 struct SpellTargetRestrictionsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4205,13 +4391,14 @@ struct SpellTargetRestrictionsLoadInfo
             { false, FT_BYTE, "MaxAffectedTargets" },
             { false, FT_INT, "MaxTargetLevel" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellTargetRestrictionsMeta::Instance(), HOTFIX_SEL_SPELL_TARGET_RESTRICTIONS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellTargetRestrictionsMeta::Instance(), HOTFIX_SEL_SPELL_TARGET_RESTRICTIONS);
+        return &loadInfo;
     }
 };
 
 struct SpellTotemsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4222,13 +4409,14 @@ struct SpellTotemsLoadInfo
             { false, FT_SHORT, "RequiredTotemCategoryID1" },
             { false, FT_SHORT, "RequiredTotemCategoryID2" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellTotemsMeta::Instance(), HOTFIX_SEL_SPELL_TOTEMS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellTotemsMeta::Instance(), HOTFIX_SEL_SPELL_TOTEMS);
+        return &loadInfo;
     }
 };
 
 struct SpellXSpellVisualLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4243,13 +4431,14 @@ struct SpellXSpellVisualLoadInfo
             { false, FT_BYTE, "Priority" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SpellXSpellVisualMeta::Instance(), HOTFIX_SEL_SPELL_X_SPELL_VISUAL };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellXSpellVisualMeta::Instance(), HOTFIX_SEL_SPELL_X_SPELL_VISUAL);
+        return &loadInfo;
     }
 };
 
 struct SummonPropertiesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4260,13 +4449,14 @@ struct SummonPropertiesLoadInfo
             { true, FT_INT, "Type" },
             { true, FT_INT, "Slot" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, SummonPropertiesMeta::Instance(), HOTFIX_SEL_SUMMON_PROPERTIES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SummonPropertiesMeta::Instance(), HOTFIX_SEL_SUMMON_PROPERTIES);
+        return &loadInfo;
     }
 };
 
 struct TactKeyLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4288,13 +4478,14 @@ struct TactKeyLoadInfo
             { false, FT_BYTE, "Key15" },
             { false, FT_BYTE, "Key16" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, TactKeyMeta::Instance(), HOTFIX_SEL_TACT_KEY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TactKeyMeta::Instance(), HOTFIX_SEL_TACT_KEY);
+        return &loadInfo;
     }
 };
 
 struct TalentLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4310,13 +4501,14 @@ struct TalentLoadInfo
             { false, FT_BYTE, "CategoryMask2" },
             { false, FT_BYTE, "ClassID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, TalentMeta::Instance(), HOTFIX_SEL_TALENT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TalentMeta::Instance(), HOTFIX_SEL_TALENT);
+        return &loadInfo;
     }
 };
 
 struct TaxiNodesLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4334,13 +4526,14 @@ struct TaxiNodesLoadInfo
             { false, FT_BYTE, "Flags" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, TaxiNodesMeta::Instance(), HOTFIX_SEL_TAXI_NODES };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TaxiNodesMeta::Instance(), HOTFIX_SEL_TAXI_NODES);
+        return &loadInfo;
     }
 };
 
 struct TaxiPathLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4349,13 +4542,14 @@ struct TaxiPathLoadInfo
             { false, FT_INT, "ID" },
             { false, FT_INT, "Cost" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, TaxiPathMeta::Instance(), HOTFIX_SEL_TAXI_PATH };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TaxiPathMeta::Instance(), HOTFIX_SEL_TAXI_PATH);
+        return &loadInfo;
     }
 };
 
 struct TaxiPathNodeLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4371,13 +4565,14 @@ struct TaxiPathNodeLoadInfo
             { false, FT_BYTE, "Flags" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, TaxiPathNodeMeta::Instance(), HOTFIX_SEL_TAXI_PATH_NODE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TaxiPathNodeMeta::Instance(), HOTFIX_SEL_TAXI_PATH_NODE);
+        return &loadInfo;
     }
 };
 
 struct TotemCategoryLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4386,13 +4581,14 @@ struct TotemCategoryLoadInfo
             { false, FT_INT, "CategoryMask" },
             { false, FT_BYTE, "CategoryType" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, TotemCategoryMeta::Instance(), HOTFIX_SEL_TOTEM_CATEGORY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TotemCategoryMeta::Instance(), HOTFIX_SEL_TOTEM_CATEGORY);
+        return &loadInfo;
     }
 };
 
 struct ToyLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4402,13 +4598,14 @@ struct ToyLoadInfo
             { false, FT_BYTE, "CategoryFilter" },
             { false, FT_INT, "ID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, ToyMeta::Instance(), HOTFIX_SEL_TOY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ToyMeta::Instance(), HOTFIX_SEL_TOY);
+        return &loadInfo;
     }
 };
 
 struct TransportAnimationLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4420,13 +4617,14 @@ struct TransportAnimationLoadInfo
             { false, FT_FLOAT, "PosZ" },
             { false, FT_BYTE, "SequenceID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, TransportAnimationMeta::Instance(), HOTFIX_SEL_TRANSPORT_ANIMATION };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransportAnimationMeta::Instance(), HOTFIX_SEL_TRANSPORT_ANIMATION);
+        return &loadInfo;
     }
 };
 
 struct TransportRotationLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4438,13 +4636,14 @@ struct TransportRotationLoadInfo
             { false, FT_FLOAT, "Z" },
             { false, FT_FLOAT, "W" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, TransportRotationMeta::Instance(), HOTFIX_SEL_TRANSPORT_ROTATION };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransportRotationMeta::Instance(), HOTFIX_SEL_TRANSPORT_ROTATION);
+        return &loadInfo;
     }
 };
 
 struct UnitPowerBarLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4476,13 +4675,14 @@ struct UnitPowerBarLoadInfo
             { false, FT_INT, "MinPower" },
             { false, FT_INT, "MaxPower" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, UnitPowerBarMeta::Instance(), HOTFIX_SEL_UNIT_POWER_BAR };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, UnitPowerBarMeta::Instance(), HOTFIX_SEL_UNIT_POWER_BAR);
+        return &loadInfo;
     }
 };
 
 struct VehicleLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4528,13 +4728,14 @@ struct VehicleLoadInfo
             { false, FT_BYTE, "FlagsB" },
             { false, FT_BYTE, "UILocomotionType" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, VehicleMeta::Instance(), HOTFIX_SEL_VEHICLE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, VehicleMeta::Instance(), HOTFIX_SEL_VEHICLE);
+        return &loadInfo;
     }
 };
 
 struct VehicleSeatLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4605,13 +4806,14 @@ struct VehicleSeatLoadInfo
             { false, FT_INT, "EnterUISoundID" },
             { false, FT_INT, "ExitUISoundID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, VehicleSeatMeta::Instance(), HOTFIX_SEL_VEHICLE_SEAT };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, VehicleSeatMeta::Instance(), HOTFIX_SEL_VEHICLE_SEAT);
+        return &loadInfo;
     }
 };
 
 struct WmoAreaTableLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4631,13 +4833,14 @@ struct WmoAreaTableLoadInfo
             { false, FT_INT, "ID" },
             { false, FT_INT, "UWZoneMusic" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, WMOAreaTableMeta::Instance(), HOTFIX_SEL_WMO_AREA_TABLE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WMOAreaTableMeta::Instance(), HOTFIX_SEL_WMO_AREA_TABLE);
+        return &loadInfo;
     }
 };
 
 struct WorldMapAreaLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4659,13 +4862,14 @@ struct WorldMapAreaLoadInfo
             { false, FT_INT, "ID" },
             { false, FT_INT, "PlayerConditionID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, WorldMapAreaMeta::Instance(), HOTFIX_SEL_WORLD_MAP_AREA };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WorldMapAreaMeta::Instance(), HOTFIX_SEL_WORLD_MAP_AREA);
+        return &loadInfo;
     }
 };
 
 struct WorldMapOverlayLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4687,13 +4891,14 @@ struct WorldMapOverlayLoadInfo
             { false, FT_INT, "PlayerConditionID" },
             { false, FT_INT, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, WorldMapOverlayMeta::Instance(), HOTFIX_SEL_WORLD_MAP_OVERLAY };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WorldMapOverlayMeta::Instance(), HOTFIX_SEL_WORLD_MAP_OVERLAY);
+        return &loadInfo;
     }
 };
 
 struct WorldMapTransformsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4714,13 +4919,14 @@ struct WorldMapTransformsLoadInfo
             { false, FT_SHORT, "NewAreaID" },
             { false, FT_BYTE, "Flags" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, WorldMapTransformsMeta::Instance(), HOTFIX_SEL_WORLD_MAP_TRANSFORMS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WorldMapTransformsMeta::Instance(), HOTFIX_SEL_WORLD_MAP_TRANSFORMS);
+        return &loadInfo;
     }
 };
 
 struct WorldSafeLocsLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
@@ -4732,7 +4938,8 @@ struct WorldSafeLocsLoadInfo
             { false, FT_STRING, "AreaName" },
             { false, FT_SHORT, "MapID" },
         };
-        return { &fields[0], std::extent<decltype(fields)>::value, WorldSafeLocsMeta::Instance(), HOTFIX_SEL_WORLD_SAFE_LOCS };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, WorldSafeLocsMeta::Instance(), HOTFIX_SEL_WORLD_SAFE_LOCS);
+        return &loadInfo;
     }
 };
 

@@ -17,53 +17,26 @@
  */
 
 #define _CRT_SECURE_NO_DEPRECATE
+#define WIN32_LEAN_AND_MEAN
 
+#include "Banner.h"
+#include "CascHandles.h"
+#include "Common.h"
+#include "DB2CascFileSource.h"
+#include "DB2Meta.h"
+#include "DBFilesClientList.h"
+#include "StringFormat.h"
+#include "adt.h"
+#include "wdt.h"
+#include <CascLib.h>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <cstdio>
 #include <deque>
 #include <fstream>
 #include <set>
 #include <cstdlib>
 #include <cstring>
-
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-
-#include "Common.h"
-#include "DBFilesClientList.h"
-#include "CascLib.h"
-#include "CascHandles.h"
-#include "DB2.h"
-#include "Banner.h"
-#include "StringFormat.h"
-
-#include "adt.h"
-#include "wdt.h"
-
-namespace
-{
-    const char* HumanReadableCASCError(int error)
-    {
-        switch (error)
-        {
-            case ERROR_SUCCESS: return "SUCCESS";
-            case ERROR_FILE_CORRUPT: return "FILE_CORRUPT";
-            case ERROR_CAN_NOT_COMPLETE: return "CAN_NOT_COMPLETE";
-            case ERROR_HANDLE_EOF: return "HANDLE_EOF";
-            case ERROR_NO_MORE_FILES: return "NO_MORE_FILES";
-            case ERROR_BAD_FORMAT: return "BAD_FORMAT";
-            case ERROR_INSUFFICIENT_BUFFER: return "INSUFFICIENT_BUFFER";
-            case ERROR_ALREADY_EXISTS: return "ALREADY_EXISTS";
-            case ERROR_DISK_FULL: return "DISK_FULL";
-            case ERROR_INVALID_PARAMETER: return "INVALID_PARAMETER";
-            case ERROR_NOT_SUPPORTED: return "NOT_SUPPORTED";
-            case ERROR_NOT_ENOUGH_MEMORY: return "NOT_ENOUGH_MEMORY";
-            case ERROR_INVALID_HANDLE: return "INVALID_HANDLE";
-            case ERROR_ACCESS_DENIED: return "ACCESS_DENIED";
-            case ERROR_FILE_NOT_FOUND: return "FILE_NOT_FOUND";
-            default: return "UNKNOWN";
-        }
-    }
-}
 
 CASC::StorageHandle CascStorage;
 
@@ -79,36 +52,128 @@ std::set<std::string> CameraFileNames;
 boost::filesystem::path input_path;
 boost::filesystem::path output_path;
 
-struct CinematicCameraMeta
+struct CinematicCameraLoadInfo
 {
-    static DB2Meta const* Instance()
+    static DB2FileLoadInfo const* Instance()
     {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING_NOT_LOCALIZED, "Model" },
+            { false, FT_FLOAT, "OriginX" },
+            { false, FT_FLOAT, "OriginY" },
+            { false, FT_FLOAT, "OriginZ" },
+            { false, FT_FLOAT, "OriginFacing" },
+            { false, FT_SHORT, "SoundID" },
+        };
         static char const* types = "sffh";
         static uint8 const arraySizes[4] = { 1, 3, 1, 1 };
-        static DB2Meta instance(-1, 4, 0xA7B95349, types, arraySizes);
-        return &instance;
+        static DB2Meta const meta(-1, 4, 0xA7B95349, types, arraySizes);
+        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
+        return &loadInfo;
     }
 };
 
-struct LiquidTypeMeta
+struct LiquidTypeLoadInfo
 {
-    static DB2Meta const* Instance()
+    static DB2FileLoadInfo const* Instance()
     {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_INT, "SpellID" },
+            { false, FT_FLOAT, "MaxDarkenDepth" },
+            { false, FT_FLOAT, "FogDarkenIntensity" },
+            { false, FT_FLOAT, "AmbDarkenIntensity" },
+            { false, FT_FLOAT, "DirDarkenIntensity" },
+            { false, FT_FLOAT, "ParticleScale" },
+            { false, FT_STRING_NOT_LOCALIZED, "Texture1" },
+            { false, FT_STRING_NOT_LOCALIZED, "Texture2" },
+            { false, FT_STRING_NOT_LOCALIZED, "Texture3" },
+            { false, FT_STRING_NOT_LOCALIZED, "Texture4" },
+            { false, FT_STRING_NOT_LOCALIZED, "Texture5" },
+            { false, FT_STRING_NOT_LOCALIZED, "Texture6" },
+            { false, FT_INT, "Color1" },
+            { false, FT_INT, "Color2" },
+            { false, FT_FLOAT, "Float1" },
+            { false, FT_FLOAT, "Float2" },
+            { false, FT_FLOAT, "Float3" },
+            { false, FT_FLOAT, "Float4" },
+            { false, FT_FLOAT, "Float5" },
+            { false, FT_FLOAT, "Float6" },
+            { false, FT_FLOAT, "Float7" },
+            { false, FT_FLOAT, "Float8" },
+            { false, FT_FLOAT, "Float9" },
+            { false, FT_FLOAT, "Float10" },
+            { false, FT_FLOAT, "Float11" },
+            { false, FT_FLOAT, "Float12" },
+            { false, FT_FLOAT, "Float13" },
+            { false, FT_FLOAT, "Float14" },
+            { false, FT_FLOAT, "Float15" },
+            { false, FT_FLOAT, "Float16" },
+            { false, FT_FLOAT, "Float17" },
+            { false, FT_FLOAT, "Float18" },
+            { false, FT_INT, "Int1" },
+            { false, FT_INT, "Int2" },
+            { false, FT_INT, "Int3" },
+            { false, FT_INT, "Int4" },
+            { false, FT_SHORT, "Flags" },
+            { false, FT_SHORT, "LightID" },
+            { false, FT_BYTE, "Type" },
+            { false, FT_BYTE, "ParticleMovement" },
+            { false, FT_BYTE, "ParticleTexSlots" },
+            { false, FT_BYTE, "MaterialID" },
+            { false, FT_BYTE, "DepthTexCount1" },
+            { false, FT_BYTE, "DepthTexCount2" },
+            { false, FT_BYTE, "DepthTexCount3" },
+            { false, FT_BYTE, "DepthTexCount4" },
+            { false, FT_BYTE, "DepthTexCount5" },
+            { false, FT_BYTE, "DepthTexCount6" },
+            { false, FT_INT, "SoundID" },
+        };
         static char const* types = "sifffffsifihhbbbbbi";
         static uint8 const arraySizes[19] = { 1, 1, 1, 1, 1, 1, 1, 6, 2, 18, 4, 1, 1, 1, 1, 1, 1, 6, 1 };
-        static DB2Meta instance(-1, 19, 0x99FC34E5, types, arraySizes);
-        return &instance;
+        static DB2Meta const meta(-1, 19, 0x99FC34E5, types, arraySizes);
+        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
+        return &loadInfo;
     }
 };
 
-struct MapMeta
+struct MapLoadInfo
 {
-    static DB2Meta const* Instance()
+    static DB2FileLoadInfo const* Instance()
     {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING_NOT_LOCALIZED, "Directory" },
+            { false, FT_INT, "Flags1" },
+            { false, FT_INT, "Flags2" },
+            { false, FT_FLOAT, "MinimapIconScale" },
+            { false, FT_FLOAT, "CorpsePosX" },
+            { false, FT_FLOAT, "CorpsePosY" },
+            { false, FT_STRING, "MapName" },
+            { false, FT_STRING, "MapDescription0" },
+            { false, FT_STRING, "MapDescription1" },
+            { false, FT_SHORT, "AreaTableID" },
+            { false, FT_SHORT, "LoadingScreenID" },
+            { true, FT_SHORT, "CorpseMapID" },
+            { false, FT_SHORT, "TimeOfDayOverride" },
+            { true, FT_SHORT, "ParentMapID" },
+            { true, FT_SHORT, "CosmeticParentMapID" },
+            { false, FT_SHORT, "WindSettingsID" },
+            { false, FT_BYTE, "InstanceType" },
+            { false, FT_BYTE, "unk5" },
+            { false, FT_BYTE, "ExpansionID" },
+            { false, FT_BYTE, "MaxPlayers" },
+            { false, FT_BYTE, "TimeOffset" },
+        };
         static char const* types = "siffssshhhhhhhbbbbb";
         static uint8 const arraySizes[19] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2Meta instance(-1, 19, 0xF7CF2DA2, types, arraySizes);
-        return &instance;
+        static DB2Meta const meta(-1, 19, 0xF7CF2DA2, types, arraySizes);
+        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
+        return &loadInfo;
     }
 };
 
@@ -306,29 +371,22 @@ void ReadMapDBC()
 {
     printf("Read Map.db2 file...\n");
 
-    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\Map.db2", CASC_LOCALE_NONE, true);
-    if (!dbcFile)
-    {
-        exit(1);
-    }
-
+    DB2CascFileSource source(CascStorage, "DBFilesClient\\Map.db2");
     DB2FileLoader db2;
-    if (!db2.Load(dbcFile, MapMeta::Instance()))
+    if (!db2.Load(&source, MapLoadInfo::Instance()))
     {
-        printf("Fatal error: Invalid Map.db2 file format! %s\n", HumanReadableCASCError(GetLastError()));
+        printf("Fatal error: Invalid Map.db2 file format! %s\n", CASC::HumanReadableCASCError(GetLastError()));
         exit(1);
     }
 
-    map_ids.resize(db2.GetNumRows());
+    map_ids.resize(db2.GetRecordCount());
     std::unordered_map<uint32, uint32> idToIndex;
-    for (uint32 x = 0; x < db2.GetNumRows(); ++x)
+    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
-        if (MapMeta::Instance()->HasIndexFieldInData())
-            map_ids[x].id = db2.getRecord(x).getUInt(MapMeta::Instance()->GetIndexField(), 0);
-        else
-            map_ids[x].id = db2.getId(x);
+        DB2Record record = db2.GetRecord(x);
+        map_ids[x].id = record.GetId();
 
-        const char* map_name = db2.getRecord(x).getString(0, 0);
+        const char* map_name = record.GetString(0, 0);
         size_t max_map_name_length = sizeof(map_ids[x].name);
         if (strlen(map_name) >= max_map_name_length)
         {
@@ -341,15 +399,14 @@ void ReadMapDBC()
         idToIndex[map_ids[x].id] = x;
     }
 
-    for (uint32 x = 0; x < db2.GetNumRowCopies(); ++x)
+    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
     {
-        uint32 from = db2.GetRowCopy(x).first;
-        uint32 to = db2.GetRowCopy(x).second;
-        auto itr = idToIndex.find(from);
+        DB2RecordCopy copy = db2.GetRecordCopy(x);
+        auto itr = idToIndex.find(copy.SourceRowId);
         if (itr != idToIndex.end())
         {
             map_id id;
-            id.id = to;
+            id.id = copy.NewRowId;
             strcpy(id.name, map_ids[itr->second].name);
             map_ids.push_back(id);
         }
@@ -361,14 +418,10 @@ void ReadMapDBC()
 void ReadLiquidTypeTableDBC()
 {
     printf("Read LiquidType.db2 file...\n");
-    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\LiquidType.db2", CASC_LOCALE_NONE, true);
-    if (!dbcFile)
-    {
-        exit(1);
-    }
 
+    DB2CascFileSource source(CascStorage, "DBFilesClient\\LiquidType.db2");
     DB2FileLoader db2;
-    if (!db2.Load(dbcFile, LiquidTypeMeta::Instance()))
+    if (!db2.Load(&source, LiquidTypeLoadInfo::Instance()))
     {
         printf("Fatal error: Invalid LiquidType.db2 file format!\n");
         exit(1);
@@ -376,19 +429,14 @@ void ReadLiquidTypeTableDBC()
 
     LiqType.resize(db2.GetMaxId() + 1, 0xFFFF);
 
-    for (uint32 x = 0; x < db2.GetNumRows(); ++x)
+    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
-        uint32 liquidTypeId;
-        if (LiquidTypeMeta::Instance()->HasIndexFieldInData())
-            liquidTypeId = db2.getRecord(x).getUInt(LiquidTypeMeta::Instance()->GetIndexField(), 0);
-        else
-            liquidTypeId = db2.getId(x);
-
-        LiqType[liquidTypeId] = db2.getRecord(x).getUInt8(13, 0);
+        DB2Record record = db2.GetRecord(x);
+        LiqType[record.GetId()] = record.GetUInt8(13, 0);
     }
 
-    for (uint32 x = 0; x < db2.GetNumRowCopies(); ++x)
-        LiqType[db2.GetRowCopy(x).second] = LiqType[db2.GetRowCopy(x).first];
+    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
+        LiqType[db2.GetRecordCopy(x).NewRowId] = LiqType[db2.GetRecordCopy(x).SourceRowId];
 
     printf("Done! (" SZFMTD " LiqTypes loaded)\n", LiqType.size());
 }
@@ -397,24 +445,19 @@ bool ReadCinematicCameraDBC()
 {
     printf("Read CinematicCamera.db2 file...\n");
 
-    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\CinematicCamera.db2", CASC_LOCALE_NONE, true);
-    if (!dbcFile)
-    {
-        printf("Unable to open CinematicCamera.db2. Camera extract aborted.\n");
-        return false;
-    }
-
+    DB2CascFileSource source(CascStorage, "DBFilesClient\\CinematicCamera.db2");
     DB2FileLoader db2;
-    if (!db2.Load(dbcFile, CinematicCameraMeta::Instance()))
+    if (!db2.Load(&source, CinematicCameraLoadInfo::Instance()))
     {
-        printf("Invalid CinematicCamera.db2 file format. Camera extract aborted. %s\n", HumanReadableCASCError(GetLastError()));
+        printf("Invalid CinematicCamera.db2 file format. Camera extract aborted. %s\n", CASC::HumanReadableCASCError(GetLastError()));
         return false;
     }
 
     // get camera file list from DB2
-    for (size_t i = 0; i < db2.GetNumRows(); ++i)
+    for (size_t i = 0; i < db2.GetRecordCount(); ++i)
     {
-        std::string camFile(db2.getRecord(i).getString(0, 0));
+        DB2Record record = db2.GetRecord(i);
+        std::string camFile(record.GetString(0, 0));
         size_t loc = camFile.find(".mdx");
         if (loc != std::string::npos)
             camFile.replace(loc, 4, ".m2");
@@ -1089,23 +1132,6 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     return true;
 }
 
-void ExtractWmos(ChunkedFile& file, std::set<std::string>& wmoList)
-{
-    if (FileChunk* chunk = file.GetChunk("MWMO"))
-    {
-        file_MWMO* wmo = chunk->As<file_MWMO>();
-        if (wmo->size)
-        {
-            char* fileName = wmo->FileList;
-            while (fileName < wmo->FileList + wmo->size)
-            {
-                wmoList.insert(fileName);
-                fileName += strlen(fileName) + 1;
-            }
-        }
-    }
-}
-
 void ExtractMaps(uint32 build)
 {
     std::string storagePath;
@@ -1119,8 +1145,6 @@ void ExtractMaps(uint32 build)
 
     CreateDir(output_path / "maps");
 
-    std::set<std::string> wmoList;
-
     printf("Convert map files\n");
     for (std::size_t z = 0; z < map_ids.size(); ++z)
     {
@@ -1130,8 +1154,6 @@ void ExtractMaps(uint32 build)
         ChunkedFile wdt;
         if (!wdt.loadFile(CascStorage, storagePath, false))
             continue;
-
-        ExtractWmos(wdt, wmoList);
 
         FileChunk* chunk = wdt.GetChunk("MAIN");
         for (uint32 y = 0; y < WDT_MAP_SIZE; ++y)
@@ -1144,26 +1166,10 @@ void ExtractMaps(uint32 build)
                 storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
                 outputFileName =  Trinity::StringFormat("%s/maps/%04u_%02u_%02u.map", output_path.string().c_str(), map_ids[z].id, y, x);
                 ConvertADT(storagePath, outputFileName, y, x, build);
-
-                storagePath = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u_obj0.adt", map_ids[z].name, map_ids[z].name, x, y);
-                ChunkedFile adtObj;
-                if (adtObj.loadFile(CascStorage, storagePath, false))
-                    ExtractWmos(adtObj, wmoList);
             }
 
             // draw progress bar
             printf("Processing........................%d%%\r", (100 * (y+1)) / WDT_MAP_SIZE);
-        }
-    }
-
-    if (!wmoList.empty())
-    {
-        if (FILE* wmoListFile = fopen("wmo_list.txt", "w"))
-        {
-            for (std::string const& wmo : wmoList)
-                fprintf(wmoListFile, "%s\n", wmo.c_str());
-
-            fclose(wmoListFile);
         }
     }
 
@@ -1226,7 +1232,7 @@ void ExtractDBFilesClient(int l)
                     ++count;
         }
         else
-            printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, localeNames[l], HumanReadableCASCError(GetLastError()));
+            printf("Unable to open file %s in the archive for locale %s: %s\n", fileName, localeNames[l], CASC::HumanReadableCASCError(GetLastError()));
 
         fileName = DBFilesClientList[++index];
     }
@@ -1260,7 +1266,7 @@ void ExtractCameraFiles()
                     ++count;
         }
         else
-            printf("Unable to open file %s in the archive: %s\n", cameraFileName.c_str(), HumanReadableCASCError(GetLastError()));
+            printf("Unable to open file %s in the archive: %s\n", cameraFileName.c_str(), CASC::HumanReadableCASCError(GetLastError()));
     }
 
     printf("Extracted %u camera files\n", count);
@@ -1326,7 +1332,7 @@ void ExtractGameTables()
                     ++count;
         }
         else
-            printf("Unable to open file %s in the archive: %s\n", fileName, HumanReadableCASCError(GetLastError()));
+            printf("Unable to open file %s in the archive: %s\n", fileName, CASC::HumanReadableCASCError(GetLastError()));
 
         fileName = GameTables[++index];
     }
