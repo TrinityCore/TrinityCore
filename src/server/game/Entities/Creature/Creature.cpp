@@ -1204,7 +1204,8 @@ void Creature::SelectLevel()
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, minlevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, maxlevel);
 
-        InitMaxHealthByLevel(minlevel, maxlevel);
+        if (cInfo->levelScalingDelta)
+            SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, cInfo->levelScalingDelta);
     }
 }
 
@@ -1288,32 +1289,11 @@ float Creature::_GetHealthMod(int32 Rank)
     }
 }
 
-void Creature::InitMaxHealthByLevel(uint8 minLevel, uint8 maxLevel)
-{
-    maxHealthByLevel.clear();
-
-    for (uint8 level = minLevel; level <= maxLevel; ++level)
-    {
-        CreatureTemplate const* cInfo = GetCreatureTemplate();
-        CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
-
-        // health
-        float healthmod = _GetHealthMod(cInfo->rank);
-
-        uint32 basehp = stats->GenerateHealth(cInfo);
-        uint32 baseMaxHealth = uint32(basehp * healthmod);
-
-        maxHealthByLevel[level] = baseMaxHealth;
-    }
-}
-
 uint64 Creature::GetMaxHealthByLevel(uint8 level) const
 {
-    std::map<uint8, uint64>::const_iterator itr = maxHealthByLevel.find(level);
-    if (itr != maxHealthByLevel.end())
-        return itr->second;
-
-    return GetMaxHealth();
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+    return stats->GenerateHealth(cInfo);
 }
 
 void Creature::LowerPlayerDamageReq(uint32 unDamage)
@@ -2517,15 +2497,8 @@ void Creature::AllLootRemovedFromCorpse()
 
 bool Creature::HasScalableLevels() const
 {
-    return true; // TODO
-}
-
-uint64 Creature::getHealthForTarget(WorldObject const* target) const
-{
-    if (!GetHealth() || !HasScalableLevels())
-        return GetHealth();
-
-    return uint64(ceil(getMaxHealthForTarget(target) * (GetHealthPct() / 100)));
+    CreatureTemplate const* cinfo = GetCreatureTemplate();
+    return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_SCALING_LEVEL);
 }
 
 uint64 Creature::getMaxHealthForTarget(WorldObject const* target) const

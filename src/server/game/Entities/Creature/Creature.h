@@ -260,7 +260,7 @@ enum CreatureDifficultyFlags7
     CREATURE_DIFFICULTYFLAGS_7_UNK1         = 0x00000008
 };
 
-enum CreatureFlagsExtra
+enum CreatureFlagsExtra : uint64
 {
     CREATURE_FLAG_EXTRA_INSTANCE_BIND        = 0x00000001,       // creature kill bind instance with killer and killer's group
     CREATURE_FLAG_EXTRA_CIVILIAN             = 0x00000002,       // not aggro (ignore faction/reputation hostility)
@@ -280,7 +280,8 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ = 0x00200000,       // creature does not need to take player damage for kill credit
     CREATURE_FLAG_EXTRA_DUNGEON_BOSS         = 0x10000000,       // creature is a dungeon boss (SET DYNAMICALLY, DO NOT ADD IN DB)
     CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING   = 0x20000000,       // creature ignore pathfinding
-    CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK   = 0x40000000        // creature is immune to knockback effects
+    CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK   = 0x40000000,       // creature is immune to knockback effects
+    CREATURE_FLAG_EXTRA_SCALING_LEVEL        = 0x80000000        // Creature will scale its level depending of player level between minlevel and maxlevel
 };
 
 #define CREATURE_FLAG_EXTRA_DB_ALLOWED (CREATURE_FLAG_EXTRA_INSTANCE_BIND | CREATURE_FLAG_EXTRA_CIVILIAN | \
@@ -316,6 +317,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
+    int16   levelScalingDelta;
     int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
@@ -364,7 +366,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  movementId;
     bool    RegenHealth;
     uint32  MechanicImmuneMask;
-    uint32  flags_extra;
+    uint64  flags_extra;
     uint32  ScriptID;
     uint32  GetRandomValidModelId() const;
     uint32  GetFirstValidModelId() const;
@@ -718,7 +720,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool LoadCreaturesAddon();
         void SelectLevel();
-        void InitMaxHealthByLevel(uint8 minLevel, uint8 maxLevel);
         uint64 GetMaxHealthByLevel(uint8 level) const;
         void UpdateLevelDependantStats();
         void LoadEquipment(int8 id = 1, bool force = false);
@@ -756,7 +757,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsDungeonBoss() const;
 
         bool HasScalableLevels() const;
-        uint64 getHealthForTarget(WorldObject const* target) const;
         uint64 getMaxHealthForTarget(WorldObject const* target) const;
         float getHealthMultiplierForTarget(WorldObject const* target) const;
         uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support

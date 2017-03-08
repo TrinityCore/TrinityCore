@@ -15929,26 +15929,6 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
                 else
                     *data << m_uint32Values[index];
             }
-            else if (index == UNIT_FIELD_LEVEL)
-            {
-                *data << (uint32)getLevelForTarget(target);
-            }
-            else if (creature && index == UNIT_FIELD_HEALTH)
-            {
-                UpdateMask::SetUpdateBit(data->contents() + maskPos, ++index);
-
-                uint64 health = creature->getHealthForTarget(target);
-                *data << PAIR64_LOPART(health);
-                *data << PAIR64_HIPART(health);
-            }
-            else if (creature && index == UNIT_FIELD_MAXHEALTH)
-            {
-                UpdateMask::SetUpdateBit(data->contents() + maskPos, ++index);
-
-                uint64 maxHealth = creature->getMaxHealthForTarget(target);
-                *data << PAIR64_LOPART(maxHealth);
-                *data << PAIR64_HIPART(maxHealth);
-            }
             else
             {
                 // send in current format (float as float, uint32 as uint32)
@@ -16198,12 +16178,11 @@ uint32 Unit::GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const
 struct CombatLogSender
 {
     WorldObject const* i_source;
-    WorldPackets::CombatLog::CombatLogServerPacket const* i_message;
+    WorldPackets::CombatLog::CombatLogServerPacket* i_message;
     float const i_distSq;
     CombatLogSender(WorldObject const* src, WorldPackets::CombatLog::CombatLogServerPacket* msg, float dist)
         : i_source(src), i_message(msg), i_distSq(dist * dist)
     {
-        msg->Write();
     }
 
     bool IsInRangeHelper(WorldObject const* object) const;
@@ -16212,10 +16191,35 @@ struct CombatLogSender
     void Visit(DynamicObjectMapType &m);
     template<class SKIP> void Visit(GridRefManager<SKIP>&) { }
 
+    void UpdateDamageForPlayer(Player* player)
+    {
+        if (SpellNonMeleeDamage* spellNonMeleeDamageLog = reinterpret_cast<SpellNonMeleeDamage*>(i_message))
+        {
+            if (spellNonMeleeDamageLog->target)
+            {
+                if (Creature* creTarget = spellNonMeleeDamageLog->target->ToCreature())
+                {
+                    if (creTarget->HasScalableLevels())
+                    {
+                        float damageMultiplier = creTarget->getHealthMultiplierForTarget(player);
+
+                        spellNonMeleeDamageLog->cleanDamage /= damageMultiplier;
+                        spellNonMeleeDamageLog->damage /= damageMultiplier;
+                    }
+                }
+            }
+        }
+
+        i_message->Clear();
+        i_message->Write();
+    }
+
     void SendPacket(Player* player)
     {
         if (!player->HaveAtClient(i_source))
             return;
+
+        UpdateDamageForPlayer(player);
 
         if (player->IsAdvancedCombatLoggingEnabled())
             player->SendDirectMessage(i_message->GetFullLogPacket());
