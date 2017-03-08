@@ -1691,20 +1691,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             TC_LOG_ERROR("spells", "Auras: Unknown Shapeshift Type: %u", GetMiscValue());
     }
 
-    switch (GetId())
-    {
-        // Bear Form
-        case 7090:
-            modelid = 29414;
-            break;
-        // Roc Form
-        case 35200:
-            modelid = 4877;
-            break;
-        default:
-            modelid = target->GetModelForForm(form);
-            break;
-    }
+    modelid = target->GetModelForForm(form, GetId());
 
     if (apply)
     {
@@ -2078,7 +2065,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                     uint32 model_id = 0;
 
                     // choose a model, based on trigger flag
-                    if (uint32 modelid = sObjectMgr->ChooseDisplayId(ci))
+                    if (uint32 modelid = ObjectMgr::ChooseDisplayId(ci))
                         model_id = modelid;
 
                     // Polymorph (sheep)
