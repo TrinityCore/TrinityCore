@@ -1683,22 +1683,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     Unit* target = aurApp->GetTarget();
 
     ShapeshiftForm form = ShapeshiftForm(GetMiscValue());
-    uint32 modelid = 0;
-
-    switch (GetId())
-    {
-        // Bear Form
-        case 7090:
-            modelid = 29414;
-            break;
-        // Roc Form
-        case 35200:
-            modelid = 4877;
-            break;
-        default:
-            modelid = target->GetModelForForm(form);
-            break;
-    }
+    uint32 modelid = target->GetModelForForm(form, GetId());
 
     if (apply)
     {
