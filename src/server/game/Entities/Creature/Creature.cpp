@@ -369,7 +369,6 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     SetDisplayId(displayID);
     SetNativeDisplayId(displayID);
-    SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
 
     // Load creature equipment
     if (!data || data->equipmentId == 0)
@@ -400,7 +399,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     if (!m_respawnradius && m_defaultMovementType == RANDOM_MOTION_TYPE)
         m_defaultMovementType = IDLE_MOTION_TYPE;
 
-    for (uint8 i=0; i < MAX_CREATURE_SPELLS; ++i)
+    for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
         m_spells[i] = GetCreatureTemplate()->spells[i];
 
     return true;
@@ -458,12 +457,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     // checked and error show at loading templates
     if (FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction))
-    {
-        if (factionTemplate->factionFlags & FACTION_TEMPLATE_FLAG_PVP)
-            SetPvP(true);
-        else
-            SetPvP(false);
-    }
+        SetPvP((factionTemplate->factionFlags & FACTION_TEMPLATE_FLAG_PVP) != 0);
 
     // updates spell bars for vehicles and set player's faction - should be called here, to overwrite faction that is set from the new template
     if (IsVehicle())
@@ -930,18 +924,6 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 /*phaseMask*
 
         //! Relocate again with updated Z coord
         Relocate(x, y, z, ang);
-    }
-
-    uint32 displayID = GetNativeDisplayId();
-    CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
-    if (minfo && !IsTotem())                               // Cancel load if no model defined or if totem
-    {
-        SetNativeDisplayId(displayID);
-
-        Unit::AuraEffectList const& transformAuras = GetAuraEffectsByType(SPELL_AURA_TRANSFORM);
-        Unit::AuraEffectList const& shapeshiftAuras = GetAuraEffectsByType(SPELL_AURA_MOD_SHAPESHIFT);
-        if (transformAuras.empty() && shapeshiftAuras.empty())
-            SetDisplayId(displayID);
     }
 
     LastUsedScriptID = GetCreatureTemplate()->ScriptID;
@@ -1786,13 +1768,7 @@ void Creature::Respawn(bool force)
         setDeathState(JUST_RESPAWNED);
 
         uint32 displayID = GetNativeDisplayId();
-        CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
-        if (minfo)                                             // Cancel load if no model defined
-        {
-            SetDisplayId(displayID);
-            SetNativeDisplayId(displayID);
-            SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
-        }
+        SetDisplayId(displayID);
 
         GetMotionMaster()->InitDefault();
         //Re-initialize reactstate that could be altered by movementgenerators
