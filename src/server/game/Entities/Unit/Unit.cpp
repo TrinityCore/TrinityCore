@@ -16186,7 +16186,7 @@ struct CombatLogSender
     CombatLogSender(WorldObject const* src, WorldPackets::CombatLog::CombatLogServerPacket* msg, float dist)
         : i_source(src), i_message(msg), i_distSq(dist * dist)
     {
-        i_message->Write();
+        msg->Write();
     }
 
     bool IsInRangeHelper(WorldObject const* object) const;

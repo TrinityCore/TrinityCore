@@ -66,7 +66,7 @@ namespace WorldPackets
             WorldPacket const* GetBasicLogPacket() const { return &_worldPacket; }
 
             // Scaling function, return true if damage depend of viewer
-            virtual bool UpdateDamageForViewer(Player* viewer) { return false; }
+            virtual bool UpdateDamageForViewer(Player* /*viewer*/) { return false; }
 
             void Clear()
             {
