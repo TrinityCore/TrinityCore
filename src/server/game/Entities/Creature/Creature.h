@@ -721,7 +721,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool LoadCreaturesAddon();
         void SelectLevel();
-        uint64 GetMaxHealthByLevel(uint8 level) const;
         void UpdateLevelDependantStats();
         void LoadEquipment(int8 id = 1, bool force = false);
         void SetSpawnHealth();
@@ -758,9 +757,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsDungeonBoss() const;
 
         bool HasScalableLevels() const;
+        uint8 GetLevelForTarget(WorldObject const* target) const override;
+
+        uint64 GetMaxHealthByLevel(uint8 level) const;
         uint64 GetMaxHealthForTarget(WorldObject const* target) const;
         float GetHealthMultiplierForTarget(WorldObject const* target) const;
-        uint8 GetLevelForTarget(WorldObject const* target) const override;
 
         float GetBaseDamageForLevel(uint8 level) const;
         float GetDamageMultiplierForTarget(WorldObject const* target) const;
@@ -1025,8 +1026,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool IsInvisibleDueToDespawn() const override;
         bool CanAlwaysSee(WorldObject const* obj) const override;
-
-        std::map<uint8, uint64> maxHealthByLevel;
 
     private:
         void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
