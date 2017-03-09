@@ -2557,7 +2557,9 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
     // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
     if (HasScalableLevels())
     {
-        return std::min(std::max(target->ToUnit()->getLevel(), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN)), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
+        uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + GetCreatureTemplate()->levelScalingDelta;
+
+        return std::min(std::max(targetLevelWithDelta, (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN)), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
     }
 
     return getLevel();
