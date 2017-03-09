@@ -68,8 +68,8 @@ bool WorldPackets::CombatLog::SpellNonMeleeDamageLog::UpdateDamageForViewer(Play
         {
             if (target->HasScalableLevels())
             {
-                float casterDamageMultiplier = target->getHealthMultiplierForTarget(caster);
-                float viewerDamageMultiplier = target->getHealthMultiplierForTarget(viewer);
+                float casterDamageMultiplier = target->GetHealthMultiplierForTarget(caster);
+                float viewerDamageMultiplier = target->GetHealthMultiplierForTarget(viewer);
                 float calculatedMultiplier = casterDamageMultiplier / viewerDamageMultiplier;
 
                 Damage      = ceil(Damage         * calculatedMultiplier);
@@ -237,8 +237,8 @@ bool WorldPackets::CombatLog::SpellPeriodicAuraLog::UpdateDamageForViewer(Player
         {
             if (target->HasScalableLevels())
             {
-                float casterDamageMultiplier = target->getHealthMultiplierForTarget(caster);
-                float viewerDamageMultiplier = target->getHealthMultiplierForTarget(viewer);
+                float casterDamageMultiplier = target->GetHealthMultiplierForTarget(caster);
+                float viewerDamageMultiplier = target->GetHealthMultiplierForTarget(viewer);
                 float calculatedMultiplier = casterDamageMultiplier / viewerDamageMultiplier;
 
                 for (auto& effect : Effects)
@@ -460,8 +460,8 @@ bool WorldPackets::CombatLog::AttackerStateUpdate::UpdateDamageForViewer(Player*
         {
             if (victim->HasScalableLevels())
             {
-                float attackerDamageMultiplier = victim->getHealthMultiplierForTarget(attacker);
-                float viewerDamageMultiplier = victim->getHealthMultiplierForTarget(viewer);
+                float attackerDamageMultiplier = victim->GetHealthMultiplierForTarget(attacker);
+                float viewerDamageMultiplier = victim->GetHealthMultiplierForTarget(viewer);
                 float calculatedMultiplier = attackerDamageMultiplier / viewerDamageMultiplier;
 
                 Damage      = ceil(Damage * calculatedMultiplier);
