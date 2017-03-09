@@ -150,6 +150,7 @@ class spell_warr_charge : public SpellScriptLoader
             {
                 if (Unit* target = GetHitUnit())
                 {
+                    GetCaster()->ToPlayer()->RemoveMovementImpairingAuras();
                     GetCaster()->CastSpell(target, SPELL_WARRIOR_CHARGE, true);
                     GetCaster()->CastSpell(target, SPELL_WARRIOR_CHARGE_SLOW_EFFECT, true);
                 }
