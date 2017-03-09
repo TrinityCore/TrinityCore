@@ -2525,7 +2525,7 @@ float Creature::GetBaseDamageForLevel(uint8 level) const
     return stats->GenerateBaseDamage(cInfo);
 }
 
-float Creature::GetDamagehMultiplierForTarget(WorldObject const* target) const
+float Creature::GetDamageMultiplierForTarget(WorldObject const* target) const
 {
     if (!HasScalableLevels())
         return 1.0f;

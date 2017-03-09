@@ -694,7 +694,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     if (Creature* creAttacker = ToCreature())
         if (creAttacker->HasScalableLevels())
-            damage = ceil(float(damage) * creAttacker->GetDamagehMultiplierForTarget(victim));
+            damage = ceil(float(damage) * creAttacker->GetDamageMultiplierForTarget(victim));
 
     if (victim->IsAIEnabled)
         victim->GetAI()->DamageTaken(this, damage);

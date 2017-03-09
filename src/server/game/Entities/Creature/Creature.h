@@ -763,7 +763,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint8 GetLevelForTarget(WorldObject const* target) const override;
 
         float GetBaseDamageForLevel(uint8 level) const;
-        float GetDamagehMultiplierForTarget(WorldObject const* target) const;
+        float GetDamageMultiplierForTarget(WorldObject const* target) const;
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
