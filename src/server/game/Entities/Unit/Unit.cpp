@@ -613,9 +613,9 @@ void Unit::DisableSpline()
 
 void Unit::resetAttackTimer(WeaponAttackType type)
 {
-	if (sConfigMgr->GetBoolDefault("Custom.HurtInRealTime", true))
+	if (GetTypeId() == TYPEID_PLAYER || (ToCreature()->GetOwner() && ToCreature()->GetOwner()->GetTypeId() == TYPEID_PLAYER) && sConfigMgr->GetBoolDefault("Custom.HurtInRealTime", true))
 	{
-		m_attackTimer[type] = uint32(GetBaseAttackTime(type) * m_modAttackSpeedPct[type] / 2);
+		m_attackTimer[type] = uint32(GetBaseAttackTime(type) * m_modAttackSpeedPct[type] / 3);
 	}
 	else
 	{
