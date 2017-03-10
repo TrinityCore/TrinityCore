@@ -1,4 +1,4 @@
-﻿//小女孩 注释 此文件包含控制台启动时候的提示信息
+﻿//СŮ�� ע�� ���ļ���������̨���ʱ�����ʾ��Ϣ
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
@@ -140,38 +140,38 @@ PersistentWorldVariable const World::NextOldCalendarEventDeletionTimeVarId{ "Nex
 PersistentWorldVariable const World::NextGuildWeeklyResetTimeVarId{ "NextGuildWeeklyResetTime" };
 
 /// World constructor
-/// World 构造器
+/// World ������
 World::World()
 {
-    m_playerLimit = 0;                          //玩家限制,此处改为5,预计就限制了最高在线只能5人(估计论坛上的人数限制版就是这么来的)
-                                                //(错,预计是是否限制玩家登录,如GM可以登录,玩家登录不了,可以设置为1,此处预计为是否启用的布尔标志)
-    m_allowedSecurityLevel = SEC_PLAYER;        //允许的安全等级
-    m_allowMovement = true;                     //允许移动
-    m_ShutdownMask = 0;                         //关闭标志
-    m_ShutdownTimer = 0;                        //关闭定时器
+    m_playerLimit = 0;                          //�������,�˴���Ϊ5,Ԥ�ƾ��������������ֻ��5��(������̳�ϵ��������ư������ô����)
+                                                //(��,Ԥ�����Ƿ�������ҵ�¼,��GM���Ե�¼,��ҵ�¼����,��������Ϊ1,�˴�Ԥ��Ϊ�Ƿ����õĲ�����־)
+    m_allowedSecurityLevel = SEC_PLAYER;        //����İ�ȫ�ȼ�
+    m_allowMovement = true;                     //�����ƶ�
+    m_ShutdownMask = 0;                         //�رձ�־
+    m_ShutdownTimer = 0;                        //�رն�ʱ��
 
-    m_maxActiveSessionCount = 0;               //最大的活动会话计数
-    m_maxQueuedSessionCount = 0;               //最大的队列会话计数
-    m_PlayerCount = 0;                        //玩家计数
-    m_MaxPlayerCount = 0;                     //最大玩家计数
-    m_NextDailyQuestReset = 0;                //下一个日常重置
-    m_NextWeeklyQuestReset = 0;               //下一个周常重置
-    m_NextMonthlyQuestReset = 0;              //下一个月常重置
-    m_NextRandomBGReset = 0;                  //下一个随机战场重置
-    m_NextCalendarOldEventsDeletionTime = 0;  //下一个日历旧事件删除时间
-    m_NextGuildReset = 0;                     //下一个工会重置
-    m_NextCurrencyReset = 0;                  //下一个货币重置
+    m_maxActiveSessionCount = 0;               //���Ļ�Ự����
+    m_maxQueuedSessionCount = 0;               //���Ķ��лỰ����
+    m_PlayerCount = 0;                        //��Ҽ���
+    m_MaxPlayerCount = 0;                     //�����Ҽ���
+    m_NextDailyQuestReset = 0;                //��һ���ճ�����
+    m_NextWeeklyQuestReset = 0;               //��һ���ܳ�����
+    m_NextMonthlyQuestReset = 0;              //��һ���³�����
+    m_NextRandomBGReset = 0;                  //��һ�����ս������
+    m_NextCalendarOldEventsDeletionTime = 0;  //��һ���������¼�ɾ��ʱ��
+    m_NextGuildReset = 0;                     //��һ����������
+    m_NextCurrencyReset = 0;                  //��һ����������
 
-    m_defaultDbcLocale = LOCALE_enUS;         //默认的Dbc地区=地区_美国(此处难不成就是地图解压工具总是出现乱码的根源所在?)
-    m_availableDbcLocaleMask = 0;             //可用的dbc区域编号
+    m_defaultDbcLocale = LOCALE_enUS;         //Ĭ�ϵ�Dbc����=����_����(�˴��Ѳ��ɾ��ǵ�ͼ��ѹ�������ǳ�������ĸ�Դ����?)
+    m_availableDbcLocaleMask = 0;             //���õ�dbc������
 
-    mail_timer = 0;                           //邮件定时器
-    mail_timer_expires = 0;                   //邮件定时器过期
+    mail_timer = 0;                           //�ʼ���ʱ��
+    mail_timer_expires = 0;                   //�ʼ���ʱ������
     blackmarket_timer = 0; 
 
-    m_isClosed = false;                       //是否关闭
+    m_isClosed = false;                       //�Ƿ�ر�
 
-    m_CleaningFlags = 0;                      //正在清除标志
+    m_CleaningFlags = 0;                      //���������־
 
     memset(rate_values, 0, sizeof(rate_values));
     memset(m_int_configs, 0, sizeof(m_int_configs));
@@ -186,11 +186,11 @@ World::World()
 }
 
 /// World destructor
-/// World析构器
+/// World������
 World::~World()
 {
     ///- Empty the kicked session set
-    ///- 清空被踢出会话设置
+    ///- ��ձ��߳��Ự����
     while (!m_sessions.empty())
     {
         // not remove from queue, prevent loading new sessions
@@ -206,7 +206,7 @@ World::~World()
     MMAP::MMapFactory::clear();
 
     /// @todo free addSessQueue
-    /// @要做的免费增加会话队列
+    /// @Ҫ����������ӻỰ����
 }
 
 World* World::instance()
@@ -216,11 +216,11 @@ World* World::instance()
 }
 
 /// Find a player in a specified zone
-/// 在一个特定区域找到一个玩家
+/// ��һ���ض������ҵ�һ�����
 Player* World::FindPlayerInZone(uint32 zone)
 {
     ///- circle through active sessions and return the first player found in the zone
-    ///- 在活动会话中循环并且返回在此区域中第一个找到的玩家
+    ///- �ڻ�Ự��ѭ�����ҷ����ڴ������е�һ���ҵ������
     SessionMap::const_iterator itr;
     for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
@@ -337,7 +337,7 @@ void World::SendGuidWarning()
 }
 
 /// Find a session by its id
-/// 根据ID找到会话
+/// ����ID�ҵ��Ự
 WorldSession* World::FindSession(uint32 id) const
 {
     SessionMap::const_iterator itr = m_sessions.find(id);
@@ -1708,6 +1708,11 @@ void World::LoadConfigSettings(bool reload)
 
     // Whether to use LoS from game objects
     m_bool_configs[CONFIG_CHECK_GOBJECT_LOS] = sConfigMgr->GetBoolDefault("CheckGameObjectLoS", true);
+	// lasyan3 patches
+	m_int_configs[CONFIG_QUEST_AUTOCOMPLETE_DELAY] = sConfigMgr->GetIntDefault("Custom.AutoCompleteQuestDelay", 0);
+	m_float_configs[CONFIG_SPEED_GAME] = sConfigMgr->GetFloatDefault("Custom.SpeedGame", 1.0f);
+	m_bool_configs[CONFIG_NO_CAST_TIME] = sConfigMgr->GetBoolDefault("Custom.NoCastTime", false);
+	m_bool_configs[CONFIG_HURT_IN_REAL_TIME] = sConfigMgr->GetBoolDefault("Custom.HurtInRealTime", false);
 
     // FactionBalance
     m_int_configs[CONFIG_FACTION_BALANCE_LEVEL_CHECK_DIFF] = sConfigMgr->GetIntDefault("Pvp.FactionBalance.LevelCheckDiff", 0);
@@ -3693,7 +3698,7 @@ void World::InitGuildResetTime()
         m_NextGuildReset = GameTime::GetGameTime();         // game time not yet init
 
     // generate time by config
-    // 由配置生成时间
+    // ����������ʱ��
     time_t curTime = GameTime::GetGameTime();
     tm localTm;
     localtime_r(&curTime, &localTm);
@@ -3702,16 +3707,16 @@ void World::InitGuildResetTime()
     localTm.tm_sec = 0;
 
     // current day reset time
-    // 当前天重置时间
+    // ��ǰ������ʱ��
     time_t nextDayResetTime = mktime(&localTm);
 
     // next reset time before current moment
-    // 在此刻前的下次重置时间
+    // �ڴ˿�ǰ���´�����ʱ��
     if (curTime >= nextDayResetTime)
         nextDayResetTime += DAY;
 
     // normalize reset time
-    // 普通重置时间
+    // ��ͨ����ʱ��
     m_NextGuildReset = gtime < curTime ? nextDayResetTime - DAY : nextDayResetTime;
 
     if (!gtime)
@@ -3725,7 +3730,7 @@ void World::InitCurrencyResetTime()
         m_NextCurrencyReset = GameTime::GetGameTime();         // game time not yet init
 
     // generate time by config
-    // 由配置生成时间
+    // ����������ʱ��
     time_t curTime = GameTime::GetGameTime();
     tm localTm;
     localtime_r(&curTime, &localTm);
@@ -3736,16 +3741,16 @@ void World::InitCurrencyResetTime()
     localTm.tm_sec = 0;
 
     // current week reset time
-    // 当前周重置时间
+    // ��ǰ������ʱ��
     time_t nextWeekResetTime = mktime(&localTm);
 
     // next reset time before current moment
-    // 在此刻前的下次重置时间
+    // �ڴ˿�ǰ���´�����ʱ��
     if (curTime >= nextWeekResetTime)
         nextWeekResetTime += getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY;
 
     // normalize reset time
-    // 普通重置时间
+    // ��ͨ����ʱ��
     m_NextCurrencyReset = currencytime < curTime ? nextWeekResetTime - getIntConfig(CONFIG_CURRENCY_RESET_INTERVAL) * DAY : nextWeekResetTime;
 
     if (!currencytime)
@@ -3828,7 +3833,7 @@ void World::LoadDBVersion()
 
         m_DBVersion = fields[0].GetString();
         // will be overwrite by config values if different and non-0
-        // 如果配置的值不同且非0,则重写值
+        // ������õ�ֵ��ͬ�ҷ�0,����дֵ
         m_int_configs[CONFIG_CLIENTCACHE_VERSION] = fields[1].GetUInt32();
     }
 
@@ -3908,7 +3913,7 @@ void World::ProcessQueryCallbacks()
 void World::ReloadRBAC()
 {
     // Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
-    // 被动加载,我们标记数据为无效,并且下次检测一次权限,重新加载
+    // ��������,���Ǳ������Ϊ��Ч,�����´μ��һ��Ȩ��,���¼���
     TC_LOG_INFO("rbac", "World::ReloadRBAC()");
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (WorldSession* session = itr->second)
@@ -3925,7 +3930,7 @@ void World::UpdateWarModeRewardValues()
     std::array<int64, 2> warModeEnabledFaction = { };
 
     // Search for characters that have war mode enabled and played during the last week
-    // 查找上周开启了战争模式且玩了的玩家
+    // �������ܿ�����ս��ģʽ�����˵����
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_WAR_MODE_TUNING);
     stmt->setUInt32(0, PLAYER_FLAGS_WAR_MODE_DESIRED);
     stmt->setUInt32(1, PLAYER_FLAGS_WAR_MODE_DESIRED);

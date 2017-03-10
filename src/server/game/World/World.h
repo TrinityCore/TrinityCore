@@ -197,6 +197,8 @@ enum WorldBoolConfigs
     CONFIG_REGEN_HP_CANNOT_REACH_TARGET_IN_RAID,
     CONFIG_ALLOW_LOGGING_IP_ADDRESSES_IN_DATABASE,
     CONFIG_CHARACTER_CREATING_DISABLE_ALLIED_RACE_ACHIEVEMENT_REQUIREMENT,
+    CONFIG_NO_CAST_TIME,
+    CONFIG_HURT_IN_REAL_TIME,
     CONFIG_GAIN_HONOR_GUARD,
     CONFIG_GAIN_HONOR_ELITE,
     BOOL_CONFIG_VALUE_COUNT
@@ -226,7 +228,8 @@ enum WorldFloatConfigs
     CONFIG_CALL_TO_ARMS_5_PCT,
     CONFIG_CALL_TO_ARMS_10_PCT,
     CONFIG_CALL_TO_ARMS_20_PCT,
-    FLOAT_CONFIG_VALUE_COUNT
+	CONFIG_SPEED_GAME,
+	FLOAT_CONFIG_VALUE_COUNT
 };
 
 enum WorldIntConfigs
@@ -418,6 +421,7 @@ enum WorldIntConfigs
     CONFIG_AHBOT_UPDATE_INTERVAL,
     CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_COOLDOWN,
     CONFIG_CHARTER_COST_GUILD,
+    CONFIG_QUEST_AUTOCOMPLETE_DELAY,
     CONFIG_CHARTER_COST_ARENA_2v2,
     CONFIG_CHARTER_COST_ARENA_3v3,
     CONFIG_CHARTER_COST_ARENA_5v5,
@@ -674,6 +678,11 @@ class TC_GAME_API World
         /// Get the path where data (dbc, maps) are stored on disk
         std::string const& GetDataPath() const { return m_dataPath; }
 
+        /// What time is it?
+        time_t const& GetGameTime() const { return m_gameTime; }
+        /// Uptime (in secs)
+        uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
+
         /// Next daily quests and random bg reset time
         time_t GetNextDailyQuestsResetTime() const { return m_NextDailyQuestReset; }
         time_t GetNextWeeklyQuestsResetTime() const { return m_NextWeeklyQuestReset; }
@@ -864,6 +873,8 @@ class TC_GAME_API World
         uint32 m_CleaningFlags;
 
         bool m_isClosed;
+        time_t m_startTime;
+        time_t m_gameTime;
 
         IntervalTimer m_timers[WUPDATE_COUNT];
         time_t mail_timer;

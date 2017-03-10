@@ -1140,7 +1140,10 @@ void Player::Update(uint32 p_time)
 
                     // do attack
                     AttackerStateUpdate(victim, BASE_ATTACK);
-                    resetAttackTimer(BASE_ATTACK);
+					if (sWorld->getBoolConfig(CONFIG_HURT_IN_REAL_TIME))
+						resetAttackTimer(BASE_ATTACK), AttackStop();
+					else
+						resetAttackTimer(BASE_ATTACK);
                 }
             }
 
@@ -6843,7 +6846,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 		//else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_GUARD) && victim->ToCreature()->IsGuard())   //原句
         else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_GUARD) && victim->ToCreature()->IsGuard()) //判断是否开启击杀精英与守卫获得荣誉
 		{//if (sConfigMgr->GetBoolDefault("Duel_Reset.enable", false))
-         //上句是用来参照写配置的,后来发现已有配置文件参数,忽略        
+        //上句是用来参照写配置的,后来发现已有配置文件参数,忽略       
 
 			uint8 k_level = getLevel();
 			uint8 k_grey = Trinity::XP::GetGrayLevel(k_level);
@@ -24146,15 +24149,24 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// SMSG_EQUIPMENT_SET_LIST
     SendEquipmentSetList();
 
+	float speedrate = sWorld->getFloatConfig(CONFIG_SPEED_GAME);
+	uint32 speedtime = ((sWorld->GetGameTime() - sWorld->GetUptime()) + (sWorld->GetUptime() * speedrate));
+
     m_achievementMgr->SendAllData(this);
     m_questObjectiveCriteriaMgr->SendAllData(this);
 
     /// SMSG_LOGIN_SETTIMESPEED
-    static float const TimeSpeed = 0.01666667f;
+    //static float const TimeSpeed = 0.01666667f;//原句
+    static float const TimeSpeed = 0.01666667f * speedrate;
     WorldPackets::Misc::LoginSetTimeSpeed loginSetTimeSpeed;
     loginSetTimeSpeed.NewSpeed = TimeSpeed;
     loginSetTimeSpeed.GameTime = GameTime::GetGameTime();
     loginSetTimeSpeed.ServerTime = GameTime::GetGameTime();
+    //If probelm occours,release this
+    //上面为原先的,为了测试快速技能脚本是否有用,注释下
+    //Original,to test SpeedGame, NoCastTime, HurtInRealTime patches commit works or not,temp unuse this
+    /*loginSetTimeSpeed.GameTime = speedtime;
+    loginSetTimeSpeed.ServerTime = speedtime;*/
     loginSetTimeSpeed.GameTimeHolidayOffset = 0; /// @todo
     loginSetTimeSpeed.ServerTimeHolidayOffset = 0; /// @todo
     SendDirectMessage(loginSetTimeSpeed.Write());

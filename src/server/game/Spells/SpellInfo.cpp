@@ -37,6 +37,9 @@
 #include "SpellMgr.h"
 #include "Vehicle.h"
 #include <G3D/g3dmath.h>
+#include "Pet.h"
+#include "InstanceScript.h"
+#include "World.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -3863,7 +3866,10 @@ uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
     if (HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) && !IsAutoRepeatRangedSpell() && !HasAttribute(SPELL_ATTR9_AIMED_SHOT))
         castTime += 500;
 
-    return (castTime > 0) ? uint32(castTime) : 0;
+	if (!sWorld->getBoolConfig(CONFIG_NO_CAST_TIME))
+		return (castTime > 0) ? uint32(castTime) : 0;
+	else
+		return 0;
 }
 
 uint32 SpellInfo::GetMaxTicks() const
