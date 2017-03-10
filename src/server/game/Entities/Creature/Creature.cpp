@@ -444,8 +444,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     if (updateLevel)
         SelectLevel();
-
-    UpdateLevelDependantStats();
+    else
+        UpdateLevelDependantStats(); // We still re-initialize level dependant stats on entry update
 
     SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
     SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_HOLY]));
@@ -1193,14 +1193,13 @@ void Creature::SelectLevel()
     uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
     uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
 
-    if (!HasScalableLevels())
+    uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
+    SetLevel(level);
+
+    UpdateLevelDependantStats();
+
+    if (HasScalableLevels())
     {
-        uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
-        SetLevel(level);
-    }
-    else
-    {
-        SetLevel(maxlevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, minlevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, maxlevel);
 
