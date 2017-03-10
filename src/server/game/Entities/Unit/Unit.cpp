@@ -16204,41 +16204,42 @@ struct CombatLogSender
 
         if (WorldPackets::CombatLog::SpellNonMeleeDamageLog* spellNonMeleeDamageLog = dynamic_cast<WorldPackets::CombatLog::SpellNonMeleeDamageLog*>(i_message))
         {
-            WorldPackets::CombatLog::SpellNonMeleeDamageLog tempLog = *spellNonMeleeDamageLog;
-            if (tempLog.UpdateDamageForViewer(player))
-            {
-                tempLog.Clear();
-                tempLog.Write();
-                SendDirectMessage(player, &tempLog);
+            WorldPackets::CombatLog::SpellNonMeleeDamageLog tempLog(*spellNonMeleeDamageLog);
+
+            if (SendUpdatedDamageMessageIfNeeded(player, &tempLog))
                 return;
-            }
         }
 
         if (WorldPackets::CombatLog::SpellPeriodicAuraLog* spellPeriodicAuraLogLog = dynamic_cast<WorldPackets::CombatLog::SpellPeriodicAuraLog*>(i_message))
         {
-            WorldPackets::CombatLog::SpellPeriodicAuraLog tempLog = *spellPeriodicAuraLogLog;
-            if (tempLog.UpdateDamageForViewer(player))
-            {
-                tempLog.Clear();
-                tempLog.Write();
-                SendDirectMessage(player, &tempLog);
+            WorldPackets::CombatLog::SpellPeriodicAuraLog tempLog(*spellPeriodicAuraLogLog);
+
+            if (SendUpdatedDamageMessageIfNeeded(player, &tempLog))
                 return;
-            }
         }
 
         if (WorldPackets::CombatLog::AttackerStateUpdate* attackerStateUpdate = dynamic_cast<WorldPackets::CombatLog::AttackerStateUpdate*>(i_message))
         {
-            WorldPackets::CombatLog::AttackerStateUpdate tempLog = *attackerStateUpdate;
-            if (tempLog.UpdateDamageForViewer(player))
-            {
-                tempLog.Clear();
-                tempLog.Write();
-                SendDirectMessage(player, &tempLog);
+            WorldPackets::CombatLog::AttackerStateUpdate tempLog(*attackerStateUpdate);
+
+            if (SendUpdatedDamageMessageIfNeeded(player, &tempLog))
                 return;
-            }
         }
 
         SendDirectMessage(player, i_message);
+    }
+
+    bool SendUpdatedDamageMessageIfNeeded(Player* player, WorldPackets::CombatLog::CombatLogServerPacket* message)
+    {
+        if (message->UpdateDamageForViewer(player))
+        {
+            message->Clear();
+            message->Write();
+            SendDirectMessage(player, message);
+            return true;
+        }
+
+        return false;
     }
 
     void SendDirectMessage(Player* player, WorldPackets::CombatLog::CombatLogServerPacket* message)

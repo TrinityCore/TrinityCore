@@ -2508,9 +2508,9 @@ uint64 Creature::GetMaxHealthForTarget(WorldObject const* target) const
 
     uint8 levelForTarget = GetLevelForTarget(target);
 
-    uint32 targetLevelMaxHealth = GetMaxHealthByLevel(levelForTarget);
+    float targetLevelMaxHealth = float(GetMaxHealthByLevel(levelForTarget));
 
-    return targetLevelMaxHealth * (GetMaxHealth() / GetCreateHealth());
+    return ceil(targetLevelMaxHealth * (float(GetMaxHealth()) / float(GetCreateHealth())));
 }
 
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const

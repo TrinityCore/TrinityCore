@@ -176,10 +176,7 @@ namespace Trinity
             {
                 float xpMod = 1.0f;
 
-                if (creature && creature->HasScalableLevels())
-                    gain = BaseGain(player->getLevel(), u->GetLevelForTarget(player));
-                else
-                    gain = BaseGain(player->getLevel(), u->getLevel());
+                gain = BaseGain(player->getLevel(), u->GetLevelForTarget(player));
 
                 if (gain && creature)
                 {
