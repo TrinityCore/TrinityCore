@@ -684,6 +684,29 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
             *absorb += damage;
         damage = 0;
     }
+
+    // Damage increase with expansion/level difference
+    if (ToPlayer() && victim->ToCreature())
+    {
+        int16 levelDiff = getLevel() - victim->getLevelForTarget(this);
+
+        if (levelDiff > 0)
+        {
+            float damageMultiplier = 1.0f;
+
+            if (victim->ToCreature()->GetCreatureTemplate()->RequiredExpansion < EXPANSION_WARLORDS_OF_DRAENOR)
+            {
+                if (levelDiff < 5)
+                    damageMultiplier = 1f + (0.0625f * levelDiff);
+                else if (levelDiff < 10)
+                    damageMultiplier = 1.5f + (0.5f * levelDiff);
+                else
+                    damageMultiplier = 16.5f;
+            }
+
+            damage *= damageMultiplier;
+        }
+    }
 }
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
