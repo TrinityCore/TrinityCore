@@ -2346,8 +2346,13 @@ void Player::SetXP(uint32 xp)
 {
     SetUInt32Value(PLAYER_XP, xp);
 
-    // If XP < 50%, player should see scaling creature with -1 level
-    SetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA, xp < (GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 2)  ? -1 : 0);
+    int32 playerLevelDelta = 0;
+
+    // If XP < 50%, player should see scaling creature with -1 level except for level max
+    if (getLevel() < MAX_LEVEL && xp < (GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 2))
+        playerLevelDelta = -1;
+
+    SetInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA, playerLevelDelta);
 }
 
 void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
