@@ -68,6 +68,8 @@ namespace WorldPackets
             // Scaling function, return true if damage depend of viewer
             virtual bool UpdateDamageForViewer(Player* /*viewer*/) { return false; }
 
+            float GetMultiplierFor(Player* viewer, ObjectGuid attacker, ObjectGuid target);
+
             void Clear()
             {
                 _fullLogPacket.clear();

@@ -688,13 +688,15 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
-    if (Creature* creVictim = victim->ToCreature())
-        if (creVictim->HasScalableLevels())
-            damage = ceil(float(damage) * creVictim->GetHealthMultiplierForTarget(this));
+    if (IsPlayer())
+        if (Creature* creVictim = victim->ToCreature())
+            if (creVictim->HasScalableLevels())
+                damage = ceil(float(damage) * creVictim->GetHealthMultiplierForTarget(this));
 
-    if (Creature* creAttacker = ToCreature())
-        if (creAttacker->HasScalableLevels())
-            damage = ceil(float(damage) * creAttacker->GetDamageMultiplierForTarget(victim));
+    if (victim->IsPlayer())
+        if (Creature* creAttacker = ToCreature())
+            if (creAttacker->HasScalableLevels())
+                damage = ceil(float(damage) * creAttacker->GetDamageMultiplierForTarget(victim));
 
     if (victim->IsAIEnabled)
         victim->GetAI()->DamageTaken(this, damage);

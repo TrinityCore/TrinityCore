@@ -18,6 +18,27 @@
 #include "CombatLogPackets.h"
 #include "SpellPackets.h"
 
+float WorldPackets::CombatLog::CombatLogServerPacket::GetMultiplierFor(Player* viewer, ObjectGuid attackerGUID, ObjectGuid targetGUID)
+{
+    if (Unit* attacker = ObjectAccessor::GetUnit(*viewer, attackerGUID))
+    {
+        if (Unit* target = ObjectAccessor::GetUnit(*viewer, targetGUID))
+        {
+            if (attacker->ToCreature() && attacker->ToCreature()->HasScalableLevels())
+                return attacker->ToCreature()->GetDamageMultiplierForTarget(target);
+
+            if (target->ToCreature() && target->ToCreature()->HasScalableLevels())
+            {
+                float casterDamageMultiplier = target->ToCreature()->GetHealthMultiplierForTarget(attacker);
+                float viewerDamageMultiplier = target->ToCreature()->GetHealthMultiplierForTarget(viewer);
+                return casterDamageMultiplier / viewerDamageMultiplier;
+            }
+        }
+    }
+
+    return 0.0f;
+}
+
 WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
 {
     *this << Me;
@@ -62,24 +83,14 @@ WorldPackets::CombatLog::SpellNonMeleeDamageLog::SpellNonMeleeDamageLog(WorldPac
 
 bool WorldPackets::CombatLog::SpellNonMeleeDamageLog::UpdateDamageForViewer(Player* viewer)
 {
-    if (Player* caster = ObjectAccessor::GetPlayer(*viewer, CasterGUID))
+    if (float calculatedMultiplier = GetMultiplierFor(viewer, CasterGUID, Me))
     {
-        if (Creature* target = ObjectAccessor::GetCreature(*viewer, Me))
-        {
-            if (target->HasScalableLevels())
-            {
-                float casterDamageMultiplier = target->GetHealthMultiplierForTarget(caster);
-                float viewerDamageMultiplier = target->GetHealthMultiplierForTarget(viewer);
-                float calculatedMultiplier = casterDamageMultiplier / viewerDamageMultiplier;
-
-                Damage      = ceil(Damage         * calculatedMultiplier);
-                Absorbed    = ceil(Absorbed       * calculatedMultiplier);
-                Overkill    = ceil(Overkill       * calculatedMultiplier);
-                Resisted    = ceil(Resisted       * calculatedMultiplier);
-                ShieldBlock = ceil(ShieldBlock    * calculatedMultiplier);
-                return true;
-            }
-        }
+        Damage      = ceil(Damage         * calculatedMultiplier);
+        Absorbed    = ceil(Absorbed       * calculatedMultiplier);
+        Overkill    = ceil(Overkill       * calculatedMultiplier);
+        Resisted    = ceil(Resisted       * calculatedMultiplier);
+        ShieldBlock = ceil(ShieldBlock    * calculatedMultiplier);
+        return true;
     }
 
     return false;
@@ -231,27 +242,17 @@ WorldPackets::CombatLog::SpellPeriodicAuraLog::SpellPeriodicAuraLog(WorldPackets
 
 bool WorldPackets::CombatLog::SpellPeriodicAuraLog::UpdateDamageForViewer(Player* viewer)
 {
-    if (Player* caster = ObjectAccessor::GetPlayer(*viewer, CasterGUID))
+    if (float calculatedMultiplier = GetMultiplierFor(viewer, CasterGUID, TargetGUID))
     {
-        if (Creature* target = ObjectAccessor::GetCreature(*viewer, TargetGUID))
+        for (auto& effect : Effects)
         {
-            if (target->HasScalableLevels())
-            {
-                float casterDamageMultiplier = target->GetHealthMultiplierForTarget(caster);
-                float viewerDamageMultiplier = target->GetHealthMultiplierForTarget(viewer);
-                float calculatedMultiplier = casterDamageMultiplier / viewerDamageMultiplier;
-
-                for (auto& effect : Effects)
-                {
-                    effect.Amount              = ceil(effect.Amount                 * calculatedMultiplier);
-                    effect.AbsorbedOrAmplitude = ceil(effect.AbsorbedOrAmplitude    * calculatedMultiplier);
-                    effect.OverHealOrKill      = ceil(effect.AbsorbedOrAmplitude    * calculatedMultiplier);
-                    effect.Resisted            = ceil(effect.AbsorbedOrAmplitude    * calculatedMultiplier);
-                }
-
-                return true;
-            }
+            effect.Amount              = ceil(effect.Amount                 * calculatedMultiplier);
+            effect.AbsorbedOrAmplitude = ceil(effect.AbsorbedOrAmplitude    * calculatedMultiplier);
+            effect.OverHealOrKill      = ceil(effect.AbsorbedOrAmplitude    * calculatedMultiplier);
+            effect.Resisted            = ceil(effect.AbsorbedOrAmplitude    * calculatedMultiplier);
         }
+
+        return true;
     }
 
     return false;
@@ -454,31 +455,21 @@ WorldPackets::CombatLog::AttackerStateUpdate::AttackerStateUpdate(WorldPackets::
 
 bool WorldPackets::CombatLog::AttackerStateUpdate::UpdateDamageForViewer(Player* viewer)
 {
-    if (Player* attacker = ObjectAccessor::GetPlayer(*viewer, AttackerGUID))
+    if (float calculatedMultiplier = GetMultiplierFor(viewer, AttackerGUID, VictimGUID))
     {
-        if (Creature* victim = ObjectAccessor::GetCreature(*viewer, VictimGUID))
+        Damage      = ceil(Damage       * calculatedMultiplier);
+        OverDamage  = ceil(OverDamage   * calculatedMultiplier);
+        BlockAmount = ceil(BlockAmount  * calculatedMultiplier);
+
+        if (SubDmg.is_initialized())
         {
-            if (victim->HasScalableLevels())
-            {
-                float attackerDamageMultiplier = victim->GetHealthMultiplierForTarget(attacker);
-                float viewerDamageMultiplier = victim->GetHealthMultiplierForTarget(viewer);
-                float calculatedMultiplier = attackerDamageMultiplier / viewerDamageMultiplier;
-
-                Damage      = ceil(Damage * calculatedMultiplier);
-                OverDamage  = ceil(OverDamage * calculatedMultiplier);
-                BlockAmount = ceil(BlockAmount * calculatedMultiplier);
-
-                if (SubDmg.is_initialized())
-                {
-                    SubDmg->FDamage     = ceil(SubDmg->FDamage  * calculatedMultiplier);
-                    SubDmg->Damage      = ceil(SubDmg->Damage   * calculatedMultiplier);
-                    SubDmg->Absorbed    = ceil(SubDmg->Absorbed * calculatedMultiplier);
-                    SubDmg->Resisted    = ceil(SubDmg->Resisted * calculatedMultiplier);
-                }
-
-                return true;
-            }
+            SubDmg->FDamage     = ceil(SubDmg->FDamage  * calculatedMultiplier);
+            SubDmg->Damage      = ceil(SubDmg->Damage   * calculatedMultiplier);
+            SubDmg->Absorbed    = ceil(SubDmg->Absorbed * calculatedMultiplier);
+            SubDmg->Resisted    = ceil(SubDmg->Resisted * calculatedMultiplier);
         }
+
+        return true;
     }
 
     return false;
