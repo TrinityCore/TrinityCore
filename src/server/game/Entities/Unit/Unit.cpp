@@ -34,6 +34,7 @@
 #include "ConditionMgr.h"
 #include "Containers.h"
 #include "Creature.h"
+#include "Config.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "CreatureAIFactory.h"
@@ -612,7 +613,14 @@ void Unit::DisableSpline()
 
 void Unit::resetAttackTimer(WeaponAttackType type)
 {
-    m_attackTimer[type] = uint32(GetBaseAttackTime(type) * m_modAttackSpeedPct[type]);
+	if (sConfigMgr->GetBoolDefault("Custom.HurtInRealTime", true))
+	{
+		m_attackTimer[type] = uint32(GetBaseAttackTime(type) * m_modAttackSpeedPct[type] / 2);
+	}
+	else
+	{
+		m_attackTimer[type] = uint32(GetBaseAttackTime(type) * m_modAttackSpeedPct[type]);
+	}
 }
 
 bool Unit::IsWithinCombatRange(Unit const* obj, float dist2compare) const
