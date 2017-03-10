@@ -2132,7 +2132,7 @@ void World::Update(uint32 diff)
     // so we don't have to do it in every packet that modifies auctions
     AuctionHouseListing::SetListingAllowed(false);
     {
-        boost::lock_guard<boost::mutex> lock(*AuctionHouseListing::GetListingLock());
+        std::unique_lock<std::mutex> lock(*AuctionHouseListing::GetListingLock());
 
         /// <ul><li> Handle auctions when the timer has passed
         if (m_timers[WUPDATE_AUCTIONS].Passed())
@@ -2171,6 +2171,7 @@ void World::Update(uint32 diff)
         sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
     }
     AuctionHouseListing::SetListingAllowed(true);
+    AuctionHouseListing::Notify();
 
     /// <li> Handle weather updates when the timer has passed
     if (m_timers[WUPDATE_WEATHERS].Passed())

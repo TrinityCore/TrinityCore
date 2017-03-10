@@ -29,11 +29,6 @@
 enum InventoryResult;
 
 class AuctionHouseObject;
-namespace boost
-{
-    class mutex;
-}
-
 
 constexpr uint32 SkillFieldsSize = 384; // PLAYER_SKILL_INFO_1_1 size
 constexpr uint32 AuctionItemPacketSize = (12 * 4 + 8 * 2 + (MAX_INSPECTED_ENCHANTMENT_SLOT * 12));
@@ -116,16 +111,17 @@ class AuctionListBidsEvent : public AuctionListingEvent
 
 namespace AuctionHouseListing
 {
-    void AuctionHouseListingThread();
+    TC_GAME_API void AuctionHouseListingThread();
 
-    void AddListOwnItemsEvent(Player* player, uint32 faction);
-    void AddListItemsEvent(Player* player, uint32 faction, std::string const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable, uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint8 getAll);
-    void AddListBidsEvent(Player* player, uint32 faction, WorldPacket& data);
+    TC_GAME_API void AddListOwnItemsEvent(Player* player, uint32 faction);
+    TC_GAME_API void AddListItemsEvent(Player* player, uint32 faction, std::string const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable, uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint8 getAll);
+    TC_GAME_API void AddListBidsEvent(Player* player, uint32 faction, WorldPacket& data);
 
-    void SetListingAllowed(bool allowed);
-    bool IsListingAllowed();
+    TC_GAME_API void SetListingAllowed(bool allowed);
+    TC_GAME_API bool IsListingAllowed();
 
-    boost::mutex* GetListingLock();
+    TC_GAME_API std::mutex* GetListingLock();
+    TC_GAME_API void Notify();
 }
 
 #endif

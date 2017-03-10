@@ -28,18 +28,18 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include <condition_variable>
 #include <vector>
 #include <unordered_map>
 
 namespace
 {
-    std::atomic<bool> _auctionHouseListingAllowed;
-
     std::list<AuctionListingEvent*> _requestsNew;
     std::list<AuctionListingEvent*> _requests;
 
-    boost::mutex _newRequestsLock;
-    boost::mutex _listingLock;
+    std::mutex _listingLock;
+    std::condition_variable _allowedCondition;
+    std::atomic<bool> _auctionHouseListingAllowed;
 
     // Map of throttled players for GetAll, and throttle expiry time
     // Stored here, rather than player object to maintain persistence after logout
@@ -52,40 +52,33 @@ void AuctionHouseListing::AuctionHouseListingThread()
 
     while (!World::IsStopped())
     {
-        if (IsListingAllowed())
+        std::unique_lock<std::mutex> lock(_listingLock);
+        while (!IsListingAllowed())
+            _allowedCondition.wait(lock);
+
+        // process new requests
         {
-            boost::lock_guard<boost::mutex> lock(_listingLock);
-
-            // process new requests
-            {
-                boost::lock_guard<boost::mutex> lock(_newRequestsLock);
-                if (!_requestsNew.empty())
-                {
-                    std::move(_requestsNew.begin(), _requestsNew.end(), std::back_inserter(_requests));
-                    _requestsNew.clear();
-                }
-            }
-
-            if (!_requests.empty())
-            {
-                for (auto itr = _requests.begin(); itr != _requests.end();)
-                {
-                    if ((*itr)->Execute())
-                    {
-                        delete (*itr);
-                        _requests.erase(itr++);
-                    }
-                    else
-                        ++itr;
-
-                    // main thread may be waiting for us
-                    if (!IsListingAllowed())
-                        break;
-                }
-            }
+            if (!_requestsNew.empty())
+                _requests.splice(_requests.end(), _requestsNew);
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        if (!_requests.empty())
+        {
+            for (auto itr = _requests.begin(); itr != _requests.end();)
+            {
+                if ((*itr)->Execute())
+                {
+                    delete (*itr);
+                    itr = _requests.erase(itr);
+                }
+                else
+                    ++itr;
+
+                // main thread may be waiting for us
+                if (!IsListingAllowed())
+                    break;
+            }
+        }
     }
 
     TC_LOG_INFO("misc", "Auction House Listing thread exiting without problems.");
@@ -101,26 +94,28 @@ bool AuctionHouseListing::IsListingAllowed()
     return _auctionHouseListingAllowed;
 }
 
-boost::mutex* AuctionHouseListing::GetListingLock()
+std::mutex* AuctionHouseListing::GetListingLock()
 {
     return &_listingLock;
 }
 
+void AuctionHouseListing::Notify()
+{
+    _allowedCondition.notify_all();
+}
+
 void AuctionHouseListing::AddListOwnItemsEvent(Player* player, uint32 faction)
 {
-    boost::lock_guard<boost::mutex> lock(_newRequestsLock);
     _requestsNew.push_back(new AuctionListOwnItemsEvent(player, faction));
 }
 
 void AuctionHouseListing::AddListItemsEvent(Player* player, uint32 faction, std::string const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable, uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint8 getAll)
 {
-    boost::lock_guard<boost::mutex> lock(_newRequestsLock);
     _requestsNew.push_back(new AuctionListItemsEvent(player, faction, searchedname, listfrom, levelmin, levelmax, usable, inventoryType, itemClass, itemSubClass, quality, getAll));
 }
 
 void AuctionHouseListing::AddListBidsEvent(Player* player, uint32 faction, WorldPacket& data)
 {
-    boost::lock_guard<boost::mutex> lock(_newRequestsLock);
     _requestsNew.push_back(new AuctionListBidsEvent(player, faction, data));
 }
 
