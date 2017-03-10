@@ -2561,6 +2561,9 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
     {
         uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + GetCreatureTemplate()->levelScalingDelta;
 
+        if (target->IsPlayer())
+            targetLevelWithDelta += target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+
         return std::min(std::max(targetLevelWithDelta, (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN)), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
     }
 
