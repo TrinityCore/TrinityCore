@@ -687,14 +687,16 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 
     if (sWorld->getBoolConfig(CONFIG_LEGACY_BUFF_ENABLED))
     {
-        // Damage increase with expansion/level difference
-        if (ToPlayer() && victim->ToCreature())
-        {
-            int16 levelDiff = getLevel() - victim->getLevelForTarget(this);
+        int16 levelDiff = getLevel() - victim->getLevelForTarget(this);
 
-            if (levelDiff > 0)
+        if (levelDiff > 0)
+        {
+            const uint32 intendedItemLevelByExpansion[CURRENT_EXPANSION] = { 65, 115, 200, 346, 0, 0 };
+            float damageMultiplier = 1.0f;
+
+            // Damage increase with expansion/level difference
+            if (ToPlayer() && victim->ToCreature())
             {
-                float damageMultiplier = 1.0f;
                 uint32 expansion = victim->ToCreature()->GetCreatureTemplate()->RequiredExpansion;
 
                 if (expansion < EXPANSION_MISTS_OF_PANDARIA && getLevel() > Trinity::GetMaxLevelForExpansion(expansion))
@@ -705,6 +707,37 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
                         damageMultiplier = 1.5f + (0.5f * levelDiff);
                     else
                         damageMultiplier = 16.5f;
+                }
+
+                uint32 maxLevelInExpansion = Trinity::GetMaxLevelForExpansion(expansion);
+                uint32 intendedItemLevelDiff = ToPlayer()->GetAverageItemLevel() - intendedItemLevelByExpansion[expansion];
+
+                if (getLevel() < maxLevelInExpansion && intendedItemLevelDiff > 0)
+                {
+                    float alternateDamageDealtFactor = 1 + 5 / 3 * 0.01 * intendedItemLevelDiff;
+                    damageMultiplier = std::max(damageMultiplier, alternateDamageDealtFactor);
+                }
+
+                damage *= damageMultiplier;
+            }
+
+            // Damage taken by player reduced if in next expansion
+            if (ToCreature() && victim->ToPlayer())
+            {
+                uint32 expansion = ToCreature()->GetCreatureTemplate()->RequiredExpansion;
+
+                if (expansion < EXPANSION_MISTS_OF_PANDARIA && victim->getLevel() > Trinity::GetMaxLevelForExpansion(expansion))
+                {
+                    damageMultiplier = std::max(1.0f - 0.1f * levelDiff, 0.1f);
+                }
+
+                uint32 maxLevelInExpansion = Trinity::GetMaxLevelForExpansion(expansion);
+                uint32 intendedItemLevelDiff = victim->ToPlayer()->GetAverageItemLevel() - intendedItemLevelByExpansion[expansion];
+
+                if (victim->getLevel() < maxLevelInExpansion && intendedItemLevelDiff > 0)
+                {
+                    float alternateDamageTakenFactor = 1 - 0.01 * intendedItemLevelDiff;
+                    damageMultiplier = std::min(damageMultiplier, alternateDamageTakenFactor);
                 }
 
                 damage *= damageMultiplier;
