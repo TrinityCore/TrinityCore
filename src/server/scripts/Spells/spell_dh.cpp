@@ -88,7 +88,7 @@ public:
             });
         }
 
-        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
         {
             if (Unit* caster = GetCaster())
                 caster->CastCustomSpell(SPELL_DH_DEMON_BLADES_PROC, SPELLVALUE_BASE_POINT0, aurEff->GetBaseAmount(), caster);
