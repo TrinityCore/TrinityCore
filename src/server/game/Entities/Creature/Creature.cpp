@@ -1193,19 +1193,22 @@ void Creature::SelectLevel()
     uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
     uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
 
-    uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
-    SetLevel(level);
-
-    UpdateLevelDependantStats();
-
-    if (HasScalableLevels())
+    if (!HasScalableLevels())
     {
+        uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
+        SetLevel(level);
+    }
+    else
+    {
+        SetLevel(maxlevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, minlevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, maxlevel);
 
         if (cInfo->levelScalingDelta)
             SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, cInfo->levelScalingDelta);
     }
+
+    UpdateLevelDependantStats();
 }
 
 void Creature::UpdateLevelDependantStats()
@@ -1795,8 +1798,8 @@ void Creature::Respawn(bool force)
         loot.clear();
         if (m_originalEntry != GetEntry())
             UpdateEntry(m_originalEntry);
-
-        SelectLevel();
+        else
+            SelectLevel();
 
         setDeathState(JUST_RESPAWNED);
 
