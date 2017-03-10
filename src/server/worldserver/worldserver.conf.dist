@@ -3190,6 +3190,13 @@ Creature.CheckInvalidPosition = 0
 GameObject.CheckInvalidPosition = 0
 
 #
+#     LegacyBuffEnabled
+#        Description: Enable player damage increase for mobs of lower expansion, prior to Mist of Pandaria
+#        Default:     1  - (Enabled)
+
+LegacyBuffEnabled = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################

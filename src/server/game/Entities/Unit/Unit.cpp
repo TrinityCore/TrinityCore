@@ -685,26 +685,30 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
         damage = 0;
     }
 
-    // Damage increase with expansion/level difference
-    if (ToPlayer() && victim->ToCreature())
+    if (sWorld->getBoolConfig(CONFIG_LEGACY_BUFF_ENABLED))
     {
-        int16 levelDiff = getLevel() - victim->getLevelForTarget(this);
-
-        if (levelDiff > 0)
+        // Damage increase with expansion/level difference
+        if (ToPlayer() && victim->ToCreature())
         {
-            float damageMultiplier = 1.0f;
+            int16 levelDiff = getLevel() - victim->getLevelForTarget(this);
 
-            if (victim->ToCreature()->GetCreatureTemplate()->RequiredExpansion < EXPANSION_WARLORDS_OF_DRAENOR)
+            if (levelDiff > 0)
             {
-                if (levelDiff < 5)
-                    damageMultiplier = 1f + (0.0625f * levelDiff);
-                else if (levelDiff < 10)
-                    damageMultiplier = 1.5f + (0.5f * levelDiff);
-                else
-                    damageMultiplier = 16.5f;
-            }
+                float damageMultiplier = 1.0f;
+                uint32 expansion = victim->ToCreature()->GetCreatureTemplate()->RequiredExpansion;
 
-            damage *= damageMultiplier;
+                if (expansion < EXPANSION_MISTS_OF_PANDARIA && getLevel() > Trinity::GetMaxLevelForExpansion(expansion))
+                {
+                    if (levelDiff < 5)
+                        damageMultiplier = 1.0f + (0.0625f * levelDiff);
+                    else if (levelDiff < 10)
+                        damageMultiplier = 1.5f + (0.5f * levelDiff);
+                    else
+                        damageMultiplier = 16.5f;
+                }
+
+                damage *= damageMultiplier;
+            }
         }
     }
 }

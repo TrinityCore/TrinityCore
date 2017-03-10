@@ -19,31 +19,8 @@
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "Log.h"
+#include "Formulas.h"
 #include "ReferAFriendPackets.h"
-
-inline uint32 GetMaxLevelForExpansion(uint32 expansion)
-{
-    switch (expansion)
-    {
-        case EXPANSION_CLASSIC:
-            return 60;
-        case EXPANSION_THE_BURNING_CRUSADE:
-            return 70;
-        case EXPANSION_WRATH_OF_THE_LICH_KING:
-            return 80;
-        case EXPANSION_CATACLYSM:
-            return 85;
-        case EXPANSION_MISTS_OF_PANDARIA:
-            return 90;
-        case EXPANSION_WARLORDS_OF_DRAENOR:
-            return 100;
-        case EXPANSION_LEGION:
-            return 110;
-        default:
-            break;
-    }
-    return 0;
-}
 
 void WorldSession::HandleGrantLevel(WorldPackets::RaF::GrantLevel& grantLevel)
 {
@@ -66,7 +43,7 @@ void WorldSession::HandleGrantLevel(WorldPackets::RaF::GrantLevel& grantLevel)
         error = ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I;
     else if (target->GetGroup() != _player->GetGroup())
         error = ERR_REFER_A_FRIEND_NOT_IN_GROUP;
-    else if (target->getLevel() >= GetMaxLevelForExpansion(target->GetSession()->GetExpansion()))
+    else if (target->getLevel() >= Trinity::GetMaxLevelForExpansion(target->GetSession()->GetExpansion()))
         error = ERR_REFER_A_FRIEND_INSUF_EXPAN_LVL;
 
     if (error)
