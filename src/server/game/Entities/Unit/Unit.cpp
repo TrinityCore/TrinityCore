@@ -16183,7 +16183,7 @@ uint32 Unit::GetCastSpellXSpellVisualId(SpellInfo const* spellInfo) const
 struct CombatLogSender
 {
     WorldObject const* i_source;
-    WorldPackets::CombatLog::CombatLogServerPacket* i_message;
+    WorldPackets::CombatLog::CombatLogServerPacket const* i_message;
     float const i_distSq;
     CombatLogSender(WorldObject const* src, WorldPackets::CombatLog::CombatLogServerPacket* msg, float dist)
         : i_source(src), i_message(msg), i_distSq(dist * dist)
@@ -16202,7 +16202,7 @@ struct CombatLogSender
         if (!player->HaveAtClient(i_source))
             return;
 
-        if (WorldPackets::CombatLog::SpellNonMeleeDamageLog* spellNonMeleeDamageLog = dynamic_cast<WorldPackets::CombatLog::SpellNonMeleeDamageLog*>(i_message))
+        if (WorldPackets::CombatLog::SpellNonMeleeDamageLog const* spellNonMeleeDamageLog = dynamic_cast<WorldPackets::CombatLog::SpellNonMeleeDamageLog const*>(i_message))
         {
             WorldPackets::CombatLog::SpellNonMeleeDamageLog tempLog(*spellNonMeleeDamageLog);
 
@@ -16210,7 +16210,7 @@ struct CombatLogSender
                 return;
         }
 
-        if (WorldPackets::CombatLog::SpellPeriodicAuraLog* spellPeriodicAuraLogLog = dynamic_cast<WorldPackets::CombatLog::SpellPeriodicAuraLog*>(i_message))
+        if (WorldPackets::CombatLog::SpellPeriodicAuraLog const* spellPeriodicAuraLogLog = dynamic_cast<WorldPackets::CombatLog::SpellPeriodicAuraLog const*>(i_message))
         {
             WorldPackets::CombatLog::SpellPeriodicAuraLog tempLog(*spellPeriodicAuraLogLog);
 
@@ -16218,7 +16218,7 @@ struct CombatLogSender
                 return;
         }
 
-        if (WorldPackets::CombatLog::AttackerStateUpdate* attackerStateUpdate = dynamic_cast<WorldPackets::CombatLog::AttackerStateUpdate*>(i_message))
+        if (WorldPackets::CombatLog::AttackerStateUpdate const* attackerStateUpdate = dynamic_cast<WorldPackets::CombatLog::AttackerStateUpdate const*>(i_message))
         {
             WorldPackets::CombatLog::AttackerStateUpdate tempLog(*attackerStateUpdate);
 
@@ -16242,7 +16242,7 @@ struct CombatLogSender
         return false;
     }
 
-    void SendDirectMessage(Player* player, WorldPackets::CombatLog::CombatLogServerPacket* message)
+    void SendDirectMessage(Player* player, WorldPackets::CombatLog::CombatLogServerPacket const* message)
     {
         if (player->IsAdvancedCombatLoggingEnabled())
             player->SendDirectMessage(message->GetFullLogPacket());
