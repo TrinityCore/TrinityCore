@@ -2172,7 +2172,9 @@ void Creature::setDeathState(DeathState s)
 
     if (s == JUST_DIED)
     {
-        m_corpseRemoveTime = GameTime::GetGameTime() + m_corpseDelay;
+        //m_corpseRemoveTime = GameTime::GetGameTime() + m_corpseDelay;//org
+        m_corpseRemoveTime = time(NULL) + m_corpseDelay;
+		m_respawnTime = time(NULL) + (m_respawnDelay / sWorld->getFloatConfig(CONFIG_RESPAWNSPEED)) + m_corpseDelay;
 
         uint32 respawnDelay = m_respawnDelay;
         if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
