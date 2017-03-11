@@ -6536,6 +6536,8 @@ void Player::SetHonorLevel(uint8 level)
     SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, level);
     SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, sHonorLevelGameTable.GetRow(level)->Total);
 
+    UpdateCriteria(CRITERIA_TYPE_HONOR_LEVEL_REACHED);
+
     if (CanPrestige())
         Prestige();
 }
@@ -6545,6 +6547,8 @@ void Player::Prestige()
     SetUInt32Value(PLAYER_FIELD_PRESTIGE, GetPrestigeLevel() + 1);
     SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, 1);
     SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, sHonorLevelGameTable.GetRow(1)->Total);
+
+    UpdateCriteria(CRITERIA_TYPE_PRESTIGE_REACHED);
 }
 
 bool Player::CanPrestige() const
