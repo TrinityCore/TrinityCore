@@ -280,7 +280,7 @@ public:
     typedef std::tuple<int16, int8, int32> WMOAreaTableKey;
     typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
     typedef std::unordered_map<uint32, WorldMapAreaEntry const*> WorldMapAreaByAreaIDContainer;
-    typedef std::tuple<uint32, uint32> PvpRewardKey;
+    typedef std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> PvpRewardsContainer;
 
     static DB2Manager& Instance();
 
@@ -407,7 +407,7 @@ private:
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
     WorldMapAreaByAreaIDContainer _worldMapAreaByAreaID;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackXItems;
-    std::map<PvpRewardKey, uint32> _pvpRewardPack;
+    PvpRewardsContainer _pvpRewardPack;
 };
 
 #define sDB2Manager DB2Manager::Instance()

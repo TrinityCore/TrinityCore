@@ -929,7 +929,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         _rewardPackXItems[rewardPackXItem->RewardPackID].push_back(rewardPackXItem);
 
     for (PvpRewardEntry const* pvpReward : sPvpRewardStore)
-        _pvpRewardPack[PvpRewardKey(pvpReward->Prestige, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
+        _pvpRewardPack[std::pair<uint32, uint32>{ pvpReward->Prestige, pvpReward->HonorLevel }] = pvpReward->RewardPackID;
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
@@ -1902,9 +1902,9 @@ std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsBy
 
 uint32 DB2Manager::GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(uint8 honorLevel, uint8 prestige) const
 {
-    auto itr = _pvpRewardPack.find(PvpRewardKey(prestige, honorLevel));
+    auto itr = _pvpRewardPack.find({ prestige, honorLevel });
     if (itr == _pvpRewardPack.end())
-        itr = _pvpRewardPack.find(PvpRewardKey(0, honorLevel));
+        itr = _pvpRewardPack.find({ 0, honorLevel });
 
     if (itr == _pvpRewardPack.end())
         return 0;
