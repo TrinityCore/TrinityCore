@@ -18,7 +18,7 @@
 #ifndef CascHandles_h__
 #define CascHandles_h__
 
-#include "CascPort.h"
+#include <CascPort.h>
 #include <memory>
 
 namespace boost
@@ -46,10 +46,13 @@ namespace CASC
     typedef std::unique_ptr<HANDLE, StorageDeleter> StorageHandle;
     typedef std::unique_ptr<HANDLE, FileDeleter> FileHandle;
 
+    char const* HumanReadableCASCError(DWORD error);
+
     StorageHandle OpenStorage(boost::filesystem::path const& path, DWORD localeMask);
 
     FileHandle OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors = false);
     DWORD GetFileSize(FileHandle const& file, PDWORD fileSizeHigh);
+    DWORD GetFilePointer(FileHandle const& file);
     bool ReadFile(FileHandle const& file, void* buffer, DWORD bytes, PDWORD bytesRead);
 }
 

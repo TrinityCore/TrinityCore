@@ -108,15 +108,17 @@ static bool DoStorageSearch_RootFile(TCascSearch * pSearch, PCASC_FIND_DATA pFin
     QUERY_KEY IndexKey;
     LPBYTE pbEncodingKey;
     DWORD EncodingIndex = 0;
-    DWORD LocaleFlags = 0;
-    DWORD FileSize = CASC_INVALID_SIZE;
     DWORD ByteIndex;
     DWORD BitMask;
 
     for(;;)
     {
+        DWORD LocaleFlags = 0;
+        DWORD FileDataId = CASC_INVALID_ID;
+        DWORD FileSize = CASC_INVALID_SIZE;
+
         // Attempt to find (the next) file from the root entry
-        pbEncodingKey = RootHandler_Search(pSearch->hs->pRootHandler, pSearch, &FileSize, &LocaleFlags);
+        pbEncodingKey = RootHandler_Search(pSearch->hs->pRootHandler, pSearch, &FileSize, &LocaleFlags, &FileDataId);
         if(pbEncodingKey == NULL)
             return false;
 
@@ -150,6 +152,7 @@ static bool DoStorageSearch_RootFile(TCascSearch * pSearch, PCASC_FIND_DATA pFin
             memcpy(pFindData->EncodingKey, pEncodingEntry->EncodingKey, MD5_HASH_SIZE);
             pFindData->szPlainName = (char *)GetPlainFileName(pFindData->szFileName);
             pFindData->dwLocaleFlags = LocaleFlags;
+            pFindData->dwFileDataId = FileDataId;
             pFindData->dwFileSize = FileSize;
             return true;
         }
