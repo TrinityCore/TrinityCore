@@ -168,19 +168,50 @@ public:
 
     static bool HandleGPSCommand(ChatHandler* handler, char const* args)
     {
-        WorldObject* object = NULL;
+        WorldObject* object = nullptr;
         if (*args)
         {
-            ObjectGuid guid = handler->extractGuidFromLink((char*)args);
-            if (!guid.IsEmpty())
-                object = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
-
-            if (!object)
-            {
-                handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                handler->SetSentErrorMessage(true);
+            HighGuid guidHigh;
+            ObjectGuid::LowType guidLow = handler->extractLowGuidFromLink((char*)args, guidHigh);
+            if (!guidLow)
                 return false;
+            switch (guidHigh)
+            {
+                case HighGuid::Player:
+                {
+                    object = sObjectMgr->GetPlayerByLowGUID(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::Creature:
+                {
+                    object = handler->GetCreatureFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOCREATUREFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::GameObject:
+                {
+                    object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOGAMEOBJECTFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                default:
+                    return false;
             }
+            if (!object)
+                return false;
         }
         else
         {
@@ -774,26 +805,55 @@ public:
 
     static bool HandleGetDistanceCommand(ChatHandler* handler, char const* args)
     {
-        WorldObject* obj = NULL;
-
+        WorldObject* object = nullptr;
         if (*args)
         {
-            ObjectGuid guid = handler->extractGuidFromLink((char*)args);
-            if (!guid.IsEmpty())
-                obj = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
-
-            if (!obj)
-            {
-                handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                handler->SetSentErrorMessage(true);
+            HighGuid guidHigh;
+            ObjectGuid::LowType guidLow = handler->extractLowGuidFromLink((char*)args, guidHigh);
+            if (!guidLow)
                 return false;
+            switch (guidHigh)
+            {
+                case HighGuid::Player:
+                {
+                    object = sObjectMgr->GetPlayerByLowGUID(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::Creature:
+                {
+                    object = handler->GetCreatureFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOCREATUREFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::GameObject:
+                {
+                    object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOGAMEOBJECTFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                default:
+                    return false;
             }
+            if (!object)
+                return false;
         }
         else
         {
-            obj = handler->getSelectedUnit();
-
-            if (!obj)
+            object = handler->getSelectedUnit();
+            if (!object)
             {
                 handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
                 handler->SetSentErrorMessage(true);
@@ -801,7 +861,7 @@ public:
             }
         }
 
-        handler->PSendSysMessage(LANG_DISTANCE, handler->GetSession()->GetPlayer()->GetDistance(obj), handler->GetSession()->GetPlayer()->GetDistance2d(obj), handler->GetSession()->GetPlayer()->GetExactDist(obj), handler->GetSession()->GetPlayer()->GetExactDist2d(obj));
+        handler->PSendSysMessage(LANG_DISTANCE, handler->GetSession()->GetPlayer()->GetDistance(object), handler->GetSession()->GetPlayer()->GetDistance2d(object), handler->GetSession()->GetPlayer()->GetExactDist(object), handler->GetSession()->GetPlayer()->GetExactDist2d(object));
         return true;
     }
     // Teleport player to last position
@@ -2253,8 +2313,8 @@ public:
                 return false;
             }
 
-            ObjectGuid::LowType guid = strtoull(guidStr, nullptr, 10);
-            if (!guid)
+            ObjectGuid::LowType guidLow = atoull(guidStr);
+            if (!guidLow)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
                 handler->SetSentErrorMessage(true);
@@ -2279,14 +2339,10 @@ public:
 
             if (Player* player = handler->GetSession()->GetPlayer())
             {
-                GameObject* go = NULL;
-
-                if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
-                    go = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guid, goData->id);
-
+                GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
                 if (!go)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guid);
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -2299,7 +2355,7 @@ public:
                 }
 
                 go->ModifyHealth(-damage, player);
-                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guid, -damage, go->GetGOValue()->Building.Health);
+                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guidLow, -damage, go->GetGOValue()->Building.Health);
             }
 
             return true;

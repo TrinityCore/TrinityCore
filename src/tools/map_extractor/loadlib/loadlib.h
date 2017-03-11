@@ -21,13 +21,8 @@
 
 #include "Define.h"
 #include "CascHandles.h"
-#include "CascLib.h"
 #include <map>
 #include <string>
-
-#ifndef _WIN32
-int GetLastError();
-#endif
 
 #define FILE_FORMAT_VERSION    18
 

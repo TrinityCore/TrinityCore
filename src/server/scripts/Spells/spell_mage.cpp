@@ -35,6 +35,7 @@ enum MageSpells
     SPELL_ARCANCE_POTENCY_RANK_2                 = 31572,
     SPELL_ARCANCE_POTENCY_TRIGGER_RANK_1         = 57529,
     SPELL_ARCANCE_POTENCY_TRIGGER_RANK_2         = 57531,
+    SPELL_MAGE_BLAZING_BARRIER_TRIGGER           = 235314,
     SPELL_MAGE_BLAZING_SPEED                     = 31643,
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
@@ -70,11 +71,6 @@ enum MageSpells
     SPELL_MAGE_CONE_OF_COLD_AURA_R2              = 12489,
     SPELL_MAGE_CONE_OF_COLD_TRIGGER_R1           = 83301,
     SPELL_MAGE_CONE_OF_COLD_TRIGGER_R2           = 83302,
-
-    SPELL_MAGE_SHATTERED_BARRIER_R1              = 44745,
-    SPELL_MAGE_SHATTERED_BARRIER_R2              = 54787,
-    SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R1       = 55080,
-    SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R2       = 83073,
 
     SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED       = 83098,
 
@@ -229,6 +225,54 @@ class spell_mage_blast_wave : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_mage_blast_wave_SpellScript();
+        }
+};
+
+// 235313 - Blazing Barrier
+class spell_mage_blazing_barrier : public SpellScriptLoader
+{
+    public:
+        spell_mage_blazing_barrier() : SpellScriptLoader("spell_mage_blazing_barrier") { }
+
+        class spell_mage_blazing_barrier_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_blazing_barrier_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo
+                ({
+                    SPELL_MAGE_BLAZING_BARRIER_TRIGGER
+                });
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            {
+                canBeRecalculated = false;
+                if (Unit* caster = GetCaster())
+                    amount = int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 7.0f);
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                Unit* caster = eventInfo.GetDamageInfo()->GetVictim();
+                Unit* target = eventInfo.GetDamageInfo()->GetAttacker();
+
+                if (caster && target)
+                    caster->CastSpell(target, SPELL_MAGE_BLAZING_BARRIER_TRIGGER, true);
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_blazing_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectProc += AuraEffectProcFn(spell_mage_blazing_barrier_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_blazing_barrier_AuraScript();
         }
 };
 
@@ -617,7 +661,6 @@ class spell_mage_living_bomb : public SpellScriptLoader
 };
 
 // 11426 - Ice Barrier
-/// Updated 4.3.4
 class spell_mage_ice_barrier : public SpellScriptLoader
 {
    public:
@@ -627,28 +670,34 @@ class spell_mage_ice_barrier : public SpellScriptLoader
        {
            PrepareAuraScript(spell_mage_ice_barrier_AuraScript);
 
+           bool Validate(SpellInfo const* /*spellInfo*/) override
+           {
+               return ValidateSpellInfo
+               ({
+                   SPELL_MAGE_CHILLED
+               });
+           }
+
            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
            {
                canBeRecalculated = false;
                if (Unit* caster = GetCaster())
-                   amount += int32(4.95f * caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()));
+                   amount += int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 10.0f);
            }
 
-           void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+           void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
            {
-               if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
-                   return;
+               Unit* caster = eventInfo.GetDamageInfo()->GetVictim();
+               Unit* target = eventInfo.GetDamageInfo()->GetAttacker();
 
-               if (GetTarget()->HasAura(SPELL_MAGE_SHATTERED_BARRIER_R1))
-                   GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R1, true);
-               else if (GetTarget()->HasAura(SPELL_MAGE_SHATTERED_BARRIER_R2))
-                   GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R2, true);
+               if (caster && target)
+                   caster->CastSpell(target, SPELL_MAGE_CHILLED, true);
            }
 
            void Register() override
            {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_ice_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_ice_barrier_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+                OnEffectProc += AuraEffectProcFn(spell_mage_ice_barrier_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
            }
        };
 
@@ -1025,6 +1074,35 @@ uint32 const spell_mage_polymorph_cast_visual::spell_mage_polymorph_cast_visual_
     SPELL_MAGE_SHEEP_FORM
 };
 
+// 235450 - Prismatic Barrier
+class spell_mage_prismatic_barrier : public SpellScriptLoader
+{
+    public:
+        spell_mage_prismatic_barrier() : SpellScriptLoader("spell_mage_prismatic_barrier") { }
+
+        class spell_mage_prismatic_barrier_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_prismatic_barrier_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            {
+                canBeRecalculated = false;
+                if (Unit* caster = GetCaster())
+                    amount += int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 7.0f);
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_prismatic_barrier_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_mage_prismatic_barrier_AuraScript();
+        }
+};
+
 // 5405  - Replenish Mana (Mana Gem)
 /// Updated 4.3.4
 class spell_mage_replenish_mana : public SpellScriptLoader
@@ -1361,6 +1439,7 @@ void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
     new spell_mage_blast_wave();
+    new spell_mage_blazing_barrier();
     new spell_mage_cold_snap();
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
@@ -1379,6 +1458,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_permafrost();
     new spell_mage_polymorph();
     new spell_mage_polymorph_cast_visual();
+    new spell_mage_prismatic_barrier();
     new spell_mage_replenish_mana();
     new spell_mage_ring_of_frost();
     new spell_mage_ring_of_frost_freeze();

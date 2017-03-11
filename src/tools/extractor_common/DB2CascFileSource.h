@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,30 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WDTFILE_H
-#define WDTFILE_H
+#ifndef DB2CascFileSource_h__
+#define DB2CascFileSource_h__
 
-#include "cascfile.h"
-#include "wmo.h"
+#include "DB2FileLoader.h"
+#include "CascHandles.h"
 #include <string>
-#include <vector>
 
-class ADTFile;
-
-class WDTFile
+struct DB2CascFileSource : public DB2FileSource
 {
+    DB2CascFileSource(CASC::StorageHandle const& storage, std::string fileName);
+    bool IsOpen() const override;
+    bool Read(void* buffer, std::size_t numBytes) override;
+    std::size_t GetPosition() const override;
+    char const* GetFileName() const override;
+
 private:
-    CASCFile WDT;
-    std::string filename;
-public:
-    WDTFile(char* file_name, char* file_name1);
-    ~WDTFile(void);
-    bool init(char* map_id, unsigned int mapID);
-
-    std::vector<std::string> gWmoInstansName;
-    int gnWMO;
-
-    ADTFile* GetMap(int x, int z);
+    CASC::FileHandle _fileHandle;
+    std::string _fileName;
 };
 
-#endif
+#endif // DB2CascFile_h__

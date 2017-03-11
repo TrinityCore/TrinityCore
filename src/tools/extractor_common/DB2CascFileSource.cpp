@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,30 +15,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WDTFILE_H
-#define WDTFILE_H
+#include "DB2CascFileSource.h"
+#include <CascLib.h>
 
-#include "cascfile.h"
-#include "wmo.h"
-#include <string>
-#include <vector>
-
-class ADTFile;
-
-class WDTFile
+DB2CascFileSource::DB2CascFileSource(CASC::StorageHandle const& storage, std::string fileName)
 {
-private:
-    CASCFile WDT;
-    std::string filename;
-public:
-    WDTFile(char* file_name, char* file_name1);
-    ~WDTFile(void);
-    bool init(char* map_id, unsigned int mapID);
+    _fileHandle = CASC::OpenFile(storage, fileName.c_str(), CASC_LOCALE_NONE, true);
+    _fileName = std::move(fileName);
+}
 
-    std::vector<std::string> gWmoInstansName;
-    int gnWMO;
+bool DB2CascFileSource::IsOpen() const
+{
+    return _fileHandle != nullptr;
+}
 
-    ADTFile* GetMap(int x, int z);
-};
+bool DB2CascFileSource::Read(void* buffer, std::size_t numBytes)
+{
+    DWORD bytesRead = 0;
+    return CASC::ReadFile(_fileHandle, buffer, numBytes, &bytesRead) && numBytes == bytesRead;
+}
 
-#endif
+std::size_t DB2CascFileSource::GetPosition() const
+{
+    return CASC::GetFilePointer(_fileHandle);
+}
+
+char const* DB2CascFileSource::GetFileName() const
+{
+    return _fileName.c_str();
+}
