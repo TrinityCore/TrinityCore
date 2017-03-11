@@ -6417,25 +6417,31 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
             case SPELL_EFFECT_CREATE_ITEM:
             case SPELL_EFFECT_CREATE_LOOT:
             {
-                if (!IsTriggered() && effect->ItemType)
+                // m_targets.GetUnitTarget() means explicit cast, otherwise we dont check for possible equip error
+                Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
+                if (target && target->GetTypeId() == TYPEID_PLAYER && !IsTriggered() && effect->ItemType)
                 {
                     ItemPosCountVec dest;
-                    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, effect->ItemType, 1);
+
+                    InventoryResult msg = target->ToPlayer()->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, effect->ItemType, 1);
                     if (msg != EQUIP_ERR_OK)
                     {
                         ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(effect->ItemType);
                         /// @todo Needs review
                         if (pProto && !(pProto->GetItemLimitCategory()))
                         {
-                            player->SendEquipError(msg, NULL, NULL, effect->ItemType);
+                            player->SendEquipError(msg, nullptr, nullptr, effect->ItemType);
                             return SPELL_FAILED_DONT_REPORT;
                         }
                         else
                         {
                             if (!(m_spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (m_spellInfo->SpellFamilyFlags[0] & 0x40000000)))
                                 return SPELL_FAILED_TOO_MANY_OF_ITEM;
-                            else if (!(player->HasItemCount(effect->ItemType)))
-                                return SPELL_FAILED_TOO_MANY_OF_ITEM;
+                            else if (!(target->ToPlayer()->HasItemCount(effect->ItemType)))
+                            {
+                                player->SendEquipError(msg, nullptr, nullptr, effect->ItemType);
+                                return SPELL_FAILED_DONT_REPORT;
+                            }
                             else if (SpellEffectInfo const* efi = GetEffect(EFFECT_1))
                                 player->CastSpell(m_caster, efi->CalcValue(), false);        // move this to anywhere
                             return SPELL_FAILED_DONT_REPORT;
@@ -6458,7 +6464,7 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                     InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, effect->ItemType, 1);
                     if (msg != EQUIP_ERR_OK)
                     {
-                        player->SendEquipError(msg, NULL, NULL, effect->ItemType);
+                        player->SendEquipError(msg, nullptr, nullptr, effect->ItemType);
                         return SPELL_FAILED_DONT_REPORT;
                     }
                 }
@@ -6469,7 +6475,8 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                 if (!targetItem)
                     return SPELL_FAILED_ITEM_NOT_FOUND;
 
-                if (targetItem->GetTemplate()->GetBaseItemLevel() < m_spellInfo->BaseLevel)
+                // required level has to be checked also! Exploit fix
+                if (targetItem->GetTemplate()->GetBaseItemLevel() < m_spellInfo->BaseLevel || (targetItem->GetTemplate()->GetBaseRequiredLevel() && (uint32)targetItem->GetTemplate()->GetBaseRequiredLevel() < m_spellInfo->BaseLevel))
                     return SPELL_FAILED_LOWLEVEL;
 
                 bool isItemUsable = false;
@@ -6534,6 +6541,15 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
                         return SPELL_FAILED_ERROR;
                     if (pEnchant->Flags & ENCHANTMENT_CAN_SOULBOUND)
                         return SPELL_FAILED_NOT_TRADEABLE;
+                }
+
+                // Apply item level restriction if the enchanting spell has max level restrition set
+                if (m_CastItem && m_spellInfo->MaxLevel > 0)
+                {
+                    if (item->GetTemplate()->GetBaseItemLevel() < (uint32)m_CastItem->GetTemplate()->GetBaseRequiredLevel())
+                        return SPELL_FAILED_LOWLEVEL;
+                    if (item->GetTemplate()->GetBaseItemLevel() > m_spellInfo->MaxLevel)
+                        return SPELL_FAILED_HIGHLEVEL;
                 }
                 break;
             }
