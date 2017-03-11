@@ -584,8 +584,9 @@ enum SMART_ACTION
     SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT         = 125,    // id min range, id max range
     SMART_ACTION_REMOVE_ALL_GAMEOBJECTS             = 126,
     SMART_ACTION_STOP_MOTION                        = 127,	  // stopMoving, movementExpired
+    SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
 
-    SMART_ACTION_END                                = 128
+    SMART_ACTION_END                                = 129
 };
 
 struct SmartAction
@@ -1116,6 +1117,12 @@ struct SmartAction
         {
             uint32 disable;
         } disableEvade;
+
+        struct
+        {
+            uint32 animKit;
+            uint32 type;
+        } animKit;
 
         struct
         {
@@ -1770,6 +1777,16 @@ class TC_GAME_API SmartAIMgr
             if (!sSoundEntriesStore.LookupEntry(entry))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Sound entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
+                return false;
+            }
+            return true;
+        }
+
+        bool IsAnimKitValid(SmartScriptHolder const& e, uint32 entry)
+        {
+            if (!sAnimKitStore.LookupEntry(entry))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses non-existent AnimKit entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                 return false;
             }
             return true;
