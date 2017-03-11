@@ -197,11 +197,11 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         void MoveLand(uint32 id, Position const& pos);
         void MoveTakeoff(uint32 id, Position const& pos);
 
-        void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false);
-        void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE);
+        void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
+        void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveJumpTo(float angle, float speedXY, float speedZ);
-        void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr)
+        void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, ObjectGuid const& target = ObjectGuid::Empty, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr)
         {
             MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
         }

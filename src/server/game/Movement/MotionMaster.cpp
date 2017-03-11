@@ -541,7 +541,8 @@ void MotionMaster::MoveFall(uint32 id /*=0*/)
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
-void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_CHARGE*/, uint32 id /*= EVENT_CHARGE*/, bool generatePath /*= false*/)
+void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_CHARGE*/, uint32 id /*= EVENT_CHARGE*/, bool generatePath /*= false*/,
+    Unit const* target /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
     if (Impl[MOTION_SLOT_CONTROLLED] && Impl[MOTION_SLOT_CONTROLLED]->GetMovementGeneratorType() != DISTRACT_MOTION_TYPE)
         return;
@@ -549,17 +550,18 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_C
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
         TC_LOG_DEBUG("misc", "Player (%s) charged point (X: %f Y: %f Z: %f).", _owner->GetGUID().ToString().c_str(), x, y, z);
-        Mutate(new PointMovementGenerator<Player>(id, x, y, z, generatePath, speed), MOTION_SLOT_CONTROLLED);
+        Mutate(new PointMovementGenerator<Player>(id, x, y, z, generatePath, speed, target), MOTION_SLOT_CONTROLLED);
     }
     else
     {
         TC_LOG_DEBUG("misc", "Creature (Entry: %u %s) charged point (X: %f Y: %f Z: %f).",
             _owner->GetEntry(), _owner->GetGUID().ToString().c_str(), x, y, z);
-        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath, speed), MOTION_SLOT_CONTROLLED);
+        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath, speed, target), MOTION_SLOT_CONTROLLED);
     }
 }
 
-void MotionMaster::MoveCharge(PathGenerator const& path, float speed /*= SPEED_CHARGE*/)
+void MotionMaster::MoveCharge(PathGenerator const& path, float speed /*= SPEED_CHARGE*/, Unit const* target /*= nullptr*/,
+    Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/)
 {
     G3D::Vector3 dest = path.GetActualEndPosition();
 
@@ -569,6 +571,10 @@ void MotionMaster::MoveCharge(PathGenerator const& path, float speed /*= SPEED_C
     Movement::MoveSplineInit init(_owner);
     init.MovebyPath(path.GetPath());
     init.SetVelocity(speed);
+    if (target)
+        init.SetFacing(target);
+    if (spellEffectExtraData)
+        init.SetSpellEffectExtraData(*spellEffectExtraData);
     init.Launch();
 }
 
