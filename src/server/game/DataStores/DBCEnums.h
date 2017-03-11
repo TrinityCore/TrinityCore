@@ -966,4 +966,9 @@ enum SceneFlags
     SCENEFLAG_UNK16             = 0x10, // 16, most common value
 };
 
+enum PrestigeLevelInfoFlags
+{
+    PRESTIGE_FLAG_DONT_LIST = 0x01 // Don't list prestige level when hovering over prestige icon in honor talents.
+};
+
 #endif

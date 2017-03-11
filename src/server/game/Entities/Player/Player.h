@@ -2145,7 +2145,18 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RestoreHealthAfterDuel() { SetHealth(healthBeforeDuel); }
         void RestoreManaAfterDuel() { SetPower(POWER_MANA, manaBeforeDuel); }
 
+        uint32 GetPrestigeLevel() const { return GetUInt32Value(PLAYER_FIELD_PRESTIGE); }
+        uint32 GetHonorLevel() const { return GetUInt32Value(PLAYER_FIELD_HONOR_LEVEL); }
+        void AddHonorXP(uint32 xp);
+        void SetHonorLevel(uint8 honorLevel);
+        void Prestige();
+        bool CanPrestige() const;
+        bool IsMaxPrestige() const;
+        bool IsMaxHonorLevelAndPrestige() const;
         //End of PvP System
+
+        void RewardPlayerWithRewardPack(uint32 rewardPackID);
+        void RewardPlayerWithRewardPack(RewardPackEntry const* rewardPackEntry);
 
         void SetDrunkValue(uint8 newDrunkValue, uint32 itemId = 0);
         uint8 GetDrunkValue() const { return GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_INEBRIATION); }
@@ -2874,6 +2885,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         SceneMgr m_sceneMgr;
 
         std::unordered_map<ObjectGuid /*LootObject*/, ObjectGuid /*world object*/> m_AELootView;
+
+        void _InitHonorLevelOnLoadFromDB(uint32 /*honor*/, uint32 /*honorLevel*/, uint32 /*prestigeLevel*/);
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

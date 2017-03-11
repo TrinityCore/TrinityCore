@@ -1987,6 +1987,17 @@ struct PowerTypeEntry
     uint8 UIModifier;
 };
 
+struct PrestigeLevelInfoEntry
+{
+    uint32 ID;
+    uint32 IconID;
+    LocalizedString* PrestigeText;
+    uint8 PrestigeLevel;
+    uint8 Flags;
+
+    bool IsListed() const { return (Flags & PRESTIGE_FLAG_DONT_LIST) == 0; }
+};
+
 struct PvpDifficultyEntry
 {
     uint32 ID;
@@ -1997,6 +2008,14 @@ struct PvpDifficultyEntry
 
     // helpers
     BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(BracketID); }
+};
+
+struct PvpRewardEntry
+{
+    uint32 ID;
+    uint32 HonorLevel;
+    uint32 Prestige;
+    uint32 RewardPackID;
 };
 
 struct QuestFactionRewardEntry
@@ -2045,6 +2064,25 @@ struct RandPropPointsEntry
     uint32 EpicPropertiesPoints[5];
     uint32 RarePropertiesPoints[5];
     uint32 UncommonPropertiesPoints[5];
+};
+
+struct RewardPackEntry
+{
+    uint32 ID;
+    uint32 Money;
+    float ArtifactPowerMultiplier;
+    uint8 ArtifactQuestXPIndex;
+    uint8 ArtifactCategoryID;
+    uint32 TitleID;
+    uint32 Unk;
+};
+
+struct RewardPackXItemEntry
+{
+    uint32 ID;
+    uint32 ItemID;
+    uint32 RewardPackID;
+    uint32 Amount;
 };
 
 struct RulesetItemUpgradeEntry

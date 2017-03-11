@@ -1,0 +1,4 @@
+ALTER TABLE `characters`
+    ADD COLUMN `honor` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `deleteDate`,
+    ADD COLUMN `honorLevel` INT(10) UNSIGNED NOT NULL DEFAULT '1' AFTER `honor`,
+    ADD COLUMN `prestigeLevel` INT(10) UNSIGNED NOT NULL DEFAULT '0' AFTER `honorLevel`;

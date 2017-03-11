@@ -161,7 +161,9 @@ DB2Storage<PhaseXPhaseGroupEntry>               sPhaseXPhaseGroupStore("PhaseXPh
 DB2Storage<PlayerConditionEntry>                sPlayerConditionStore("PlayerCondition.db2", PlayerConditionLoadInfo::Instance());
 DB2Storage<PowerDisplayEntry>                   sPowerDisplayStore("PowerDisplay.db2", PowerDisplayLoadInfo::Instance());
 DB2Storage<PowerTypeEntry>                      sPowerTypeStore("PowerType.db2", PowerTypeLoadInfo::Instance());
+DB2Storage<PrestigeLevelInfoEntry>              sPrestigeLevelInfoStore("PrestigeLevelInfo.db2", PrestigeLevelInfoLoadInfo::Instance());
 DB2Storage<PvpDifficultyEntry>                  sPvpDifficultyStore("PvpDifficulty.db2", PvpDifficultyLoadInfo::Instance());
+DB2Storage<PvpRewardEntry>                      sPvpRewardStore("PvpReward.db2", PvpRewardLoadInfo::Instance());
 DB2Storage<QuestFactionRewardEntry>             sQuestFactionRewardStore("QuestFactionReward.db2", QuestFactionRewardLoadInfo::Instance());
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", QuestMoneyRewardLoadInfo::Instance());
 DB2Storage<QuestPackageItemEntry>               sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemLoadInfo::Instance());
@@ -169,6 +171,8 @@ DB2Storage<QuestSortEntry>                      sQuestSortStore("QuestSort.db2",
 DB2Storage<QuestV2Entry>                        sQuestV2Store("QuestV2.db2", QuestV2LoadInfo::Instance());
 DB2Storage<QuestXPEntry>                        sQuestXPStore("QuestXP.db2", QuestXpLoadInfo::Instance());
 DB2Storage<RandPropPointsEntry>                 sRandPropPointsStore("RandPropPoints.db2", RandPropPointsLoadInfo::Instance());
+DB2Storage<RewardPackEntry>                     sRewardPackStore("RewardPack.db2", RewardPackLoadInfo::Instance());
+DB2Storage<RewardPackXItemEntry>                sRewardPackXItemStore("RewardPackXItem.db2", RewardPackXItemLoadInfo::Instance());
 DB2Storage<RulesetItemUpgradeEntry>             sRulesetItemUpgradeStore("RulesetItemUpgrade.db2", RulesetItemUpgradeLoadInfo::Instance());
 DB2Storage<ScalingStatDistributionEntry>        sScalingStatDistributionStore("ScalingStatDistribution.db2", ScalingStatDistributionLoadInfo::Instance());
 DB2Storage<ScenarioEntry>                       sScenarioStore("Scenario.db2", ScenarioLoadInfo::Instance());
@@ -459,7 +463,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sPlayerConditionStore);
     LOAD_DB2(sPowerDisplayStore);
     LOAD_DB2(sPowerTypeStore);
+    LOAD_DB2(sPrestigeLevelInfoStore);
     LOAD_DB2(sPvpDifficultyStore);
+    LOAD_DB2(sPvpRewardStore);
     LOAD_DB2(sQuestFactionRewardStore);
     LOAD_DB2(sQuestMoneyRewardStore);
     LOAD_DB2(sQuestPackageItemStore);
@@ -467,6 +473,8 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sQuestV2Store);
     LOAD_DB2(sQuestXPStore);
     LOAD_DB2(sRandPropPointsStore);
+    LOAD_DB2(sRewardPackStore);
+    LOAD_DB2(sRewardPackXItemStore);
     LOAD_DB2(sRulesetItemUpgradeStore);
     LOAD_DB2(sScalingStatDistributionStore);
     LOAD_DB2(sScenarioStore);
@@ -916,6 +924,12 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (WorldMapAreaEntry const* worldMapArea : sWorldMapAreaStore)
         _worldMapAreaByAreaID[worldMapArea->AreaID] = worldMapArea;
+
+    for (RewardPackXItemEntry const* rewardPackXItem : sRewardPackXItemStore)
+        _rewardPackXItems[rewardPackXItem->RewardPackID].push_back(rewardPackXItem);
+
+    for (PvpRewardEntry const* pvpReward : sPvpRewardStore)
+        _pvpRewardPack[PvpRewardKey(pvpReward->Prestige, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
@@ -1875,6 +1889,37 @@ void DB2Manager::DeterminaAlternateMapPosition(uint32 mapId, float x, float y, f
 
     newPos->X = x + transformation->RegionOffset.X;
     newPos->Y = y + transformation->RegionOffset.Y;
+}
+
+std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsByRewardID(uint32 rewardPackID) const
+{
+    auto itr = _rewardPackXItems.find(rewardPackID);
+    if (itr != _rewardPackXItems.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+uint32 DB2Manager::GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(uint8 honorLevel, uint8 prestige) const
+{
+    auto itr = _pvpRewardPack.find(PvpRewardKey(prestige, honorLevel));
+    if (itr == _pvpRewardPack.end())
+        itr = _pvpRewardPack.find(PvpRewardKey(0, honorLevel));
+
+    if (itr == _pvpRewardPack.end())
+        return 0;
+
+    return itr->second;
+}
+
+uint8 DB2Manager::GetMaxPrestige() const
+{
+    uint8 max = 0;
+    for (PrestigeLevelInfoEntry const* prestigeLevelInfo : sPrestigeLevelInfoStore)
+        if (prestigeLevelInfo->IsListed())
+            max = std::max(prestigeLevelInfo->PrestigeLevel, max);
+
+    return max;
 }
 
 bool DB2Manager::ChrClassesXPowerTypesEntryComparator::Compare(ChrClassesXPowerTypesEntry const* left, ChrClassesXPowerTypesEntry const* right)

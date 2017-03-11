@@ -132,11 +132,15 @@ TC_GAME_API extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpe
 TC_GAME_API extern DB2Storage<PhaseEntry>                           sPhaseStore;
 TC_GAME_API extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;
 TC_GAME_API extern DB2Storage<PowerDisplayEntry>                    sPowerDisplayStore;
+TC_GAME_API extern DB2Storage<PrestigeLevelInfoEntry>               sPrestigeLevelInfoStore;
+TC_GAME_API extern DB2Storage<PvpRewardEntry>                       sPvpRewardStore;
 TC_GAME_API extern DB2Storage<QuestFactionRewardEntry>              sQuestFactionRewardStore;
 TC_GAME_API extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
 TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
 TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
 TC_GAME_API extern DB2Storage<RandPropPointsEntry>                  sRandPropPointsStore;
+TC_GAME_API extern DB2Storage<RewardPackEntry>                      sRewardPackStore;
+TC_GAME_API extern DB2Storage<RewardPackXItemEntry>                 sRewardPackXItemStore;
 TC_GAME_API extern DB2Storage<ScalingStatDistributionEntry>         sScalingStatDistributionStore;
 TC_GAME_API extern DB2Storage<ScenarioEntry>                        sScenarioStore;
 TC_GAME_API extern DB2Storage<ScenarioStepEntry>                    sScenarioStepStore;
@@ -276,6 +280,7 @@ public:
     typedef std::tuple<int16, int8, int32> WMOAreaTableKey;
     typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
     typedef std::unordered_map<uint32, WorldMapAreaEntry const*> WorldMapAreaByAreaIDContainer;
+    typedef std::tuple<uint32, uint32> PvpRewardKey;
 
     static DB2Manager& Instance();
 
@@ -349,6 +354,10 @@ public:
     void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
     static void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId = nullptr, DBCPosition2D* newPos = nullptr);
 
+    std::vector<RewardPackXItemEntry const*> const* GetRewardPackItemsByRewardID(uint32 rewardPackID) const;
+    uint32 GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(uint8 honorLevel, uint8 prestige) const;
+    uint8 GetMaxPrestige() const;
+
 private:
     StorageMap _stores;
     HotfixData _hotfixData;
@@ -397,6 +406,8 @@ private:
     ToyItemIdsContainer _toys;
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
     WorldMapAreaByAreaIDContainer _worldMapAreaByAreaID;
+    std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackXItems;
+    std::map<PvpRewardKey, uint32> _pvpRewardPack;
 };
 
 #define sDB2Manager DB2Manager::Instance()
