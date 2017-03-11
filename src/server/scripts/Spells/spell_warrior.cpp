@@ -52,6 +52,8 @@ enum WarriorSpells
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_1       = 29841,
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_2       = 29842,
     SPELL_WARRIOR_SHIELD_SLAM                       = 23922,
+    SPELL_WARRIOR_SHOCKWAVE                         = 46968,
+    SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_SLAM                              = 50782,
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
     SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
@@ -684,6 +686,57 @@ class spell_warr_second_wind_trigger : public SpellScriptLoader
         }
 };
 
+// 46968 - Shockwave
+class spell_warr_shockwave : public SpellScriptLoader
+{
+public:
+    spell_warr_shockwave() : SpellScriptLoader("spell_warr_shockwave") { }
+
+    class spell_warr_shockwave_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_shockwave_SpellScript);
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            if (!ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE, SPELL_WARRIOR_SHOCKWAVE_STUN }))
+                return false;
+
+            return spellInfo->GetEffect(EFFECT_0) && spellInfo->GetEffect(EFFECT_3);
+        }
+
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void HandleStun(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_SHOCKWAVE_STUN, true);
+            ++_targetCount;
+        }
+
+        // Cooldown reduced by 20 sec if it strikes at least 3 targets.
+        void HandleAfterCast()
+        {
+            if (_targetCount >= uint32(GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue()))
+                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, -(GetSpellInfo()->GetEffect(EFFECT_3)->CalcValue() * IN_MILLISECONDS));
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleStun, EFFECT_0, SPELL_EFFECT_DUMMY);
+            AfterCast += SpellCastFn(spell_warr_shockwave_SpellScript::HandleAfterCast);
+        }
+
+        uint32 _targetCount = 0;
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_shockwave_SpellScript();
+    }
+};
+
 // 107570 - Storm Bolt
 class spell_warr_storm_bolt : public SpellScriptLoader
 {
@@ -1127,6 +1180,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_second_wind_proc();
     new spell_warr_second_wind_trigger();
     new spell_warr_shattering_throw();
+    new spell_warr_shockwave();
     new spell_warr_slam();
     new spell_warr_storm_bolt();
     new spell_warr_sudden_death();
