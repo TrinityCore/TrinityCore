@@ -583,8 +583,9 @@ enum SMART_ACTION
     SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT         = 125,    // id min range, id max range
     SMART_ACTION_REMOVE_ALL_GAMEOBJECTS             = 126,
     SMART_ACTION_STOP_MOTION                        = 127,    // stopMoving, movementExpired
+    SMART_ACTION_PLAY_ANIMKIT                       = 128,    // don't use on 3.3.5a
 
-    SMART_ACTION_END                                = 128
+    SMART_ACTION_END                                = 129
 };
 
 struct SmartAction
