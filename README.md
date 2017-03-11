@@ -1,6 +1,6 @@
 # ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore (master)
 
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](http://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](http://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](http://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
+[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
 
 ## Build Status
 

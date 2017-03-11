@@ -570,10 +570,11 @@ enum SMART_ACTION
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
     // 118 - 127 : 3.3.5 reserved
-    SMART_ACTION_SCENE_PLAY                         = 128,    // sceneId
-    SMART_ACTION_SCENE_CANCEL                       = 129,    // sceneId
+    SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
+    SMART_ACTION_SCENE_PLAY                         = 129,    // sceneId
+    SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
 
-    SMART_ACTION_END                                = 130
+    SMART_ACTION_END                                = 131
 };
 
 struct SmartAction
@@ -1087,6 +1088,12 @@ struct SmartAction
         {
             uint32 disable;
         } disableEvade;
+
+        struct
+        {
+            uint32 animKit;
+            uint32 type;
+        } animKit;
 
         struct
         {
@@ -1704,6 +1711,16 @@ class TC_GAME_API SmartAIMgr
             if (!sSoundKitStore.LookupEntry(entry))
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses non-existent Sound entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
+                return false;
+            }
+            return true;
+        }
+
+        bool IsAnimKitValid(SmartScriptHolder const& e, uint32 entry)
+        {
+            if (!sAnimKitStore.LookupEntry(entry))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses non-existent AnimKit entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                 return false;
             }
             return true;

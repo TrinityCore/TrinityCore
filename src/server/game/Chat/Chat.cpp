@@ -770,25 +770,30 @@ GameObject* ChatHandler::GetNearbyGameObject()
     return obj;
 }
 
-GameObject* ChatHandler::GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry)
+GameObject* ChatHandler::GetObjectFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid)
 {
     if (!m_session)
         return nullptr;
-
-    Player* pl = m_session->GetPlayer();
-
-    GameObject* obj = pl->GetMap()->GetGameObject(ObjectGuid::Create<HighGuid::GameObject>(pl->GetMapId(), entry, lowguid));
-
-    if (!obj && sObjectMgr->GetGOData(lowguid))                   // guid is DB guid of object
-    {
-        auto bounds = pl->GetMap()->GetGameObjectBySpawnIdStore().equal_range(lowguid);
-        if (bounds.first == bounds.second)
-            return nullptr;
-
+    auto bounds = m_session->GetPlayer()->GetMap()->GetGameObjectBySpawnIdStore().equal_range(lowguid);
+    if (bounds.first != bounds.second)
         return bounds.first->second;
-    }
+    return nullptr;
+}
 
-    return obj;
+Creature* ChatHandler::GetCreatureFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid)
+{
+    if (!m_session)
+        return nullptr;
+    // Select the first alive creature or a dead one if not found
+    Creature* creature = nullptr;
+    auto bounds = m_session->GetPlayer()->GetMap()->GetCreatureBySpawnIdStore().equal_range(lowguid);
+    for (auto it = bounds.first; it != bounds.second; ++it)
+    {
+        creature = it->second;
+        if (it->second->IsAlive())
+            break;
+    }
+    return creature;
 }
 
 enum SpellLinkType
@@ -874,9 +879,9 @@ GameTele const* ChatHandler::extractGameTeleFromLink(char* text)
 
 enum GuidLinkType
 {
-    SPELL_LINK_PLAYER     = 0,                              // must be first for selection in not link case
-    SPELL_LINK_CREATURE   = 1,
-    SPELL_LINK_GAMEOBJECT = 2
+    GUID_LINK_PLAYER     = 0,                              // must be first for selection in not link case
+    GUID_LINK_CREATURE   = 1,
+    GUID_LINK_GAMEOBJECT = 2
 };
 
 static char const* const guidKeys[] =
@@ -887,7 +892,7 @@ static char const* const guidKeys[] =
     nullptr
 };
 
-ObjectGuid ChatHandler::extractGuidFromLink(char* text)
+ObjectGuid::LowType ChatHandler::extractLowGuidFromLink(char* text, HighGuid& guidHigh)
 {
     int type = 0;
 
@@ -896,43 +901,42 @@ ObjectGuid ChatHandler::extractGuidFromLink(char* text)
     // |color|Hplayer:name|h[name]|h|r
     char* idS = extractKeyFromLink(text, guidKeys, &type);
     if (!idS)
-        return ObjectGuid::Empty;
+        return 0;
 
     switch (type)
     {
-        case SPELL_LINK_PLAYER:
+        case GUID_LINK_PLAYER:
         {
+            guidHigh = HighGuid::Player;
             std::string name = idS;
             if (!normalizePlayerName(name))
-                return ObjectGuid::Empty;
+                return 0;
 
             if (Player* player = ObjectAccessor::FindPlayerByName(name))
-                return player->GetGUID();
+                return player->GetGUID().GetCounter();
 
-            return ObjectMgr::GetPlayerGUIDByName(name);
+            ObjectGuid guid = ObjectMgr::GetPlayerGUIDByName(name);
+            if (guid.IsEmpty())
+                return 0;
+
+            return guid.GetCounter();
         }
-        case SPELL_LINK_CREATURE:
+        case GUID_LINK_CREATURE:
         {
-            ObjectGuid::LowType lowguid = strtoull(idS, nullptr, 10);
-
-            if (CreatureData const* data = sObjectMgr->GetCreatureData(lowguid))
-                return ObjectGuid::Create<HighGuid::Creature>(data->mapid, data->id, lowguid);
-            else
-                return ObjectGuid::Empty;
+            guidHigh = HighGuid::Creature;
+            ObjectGuid::LowType lowguid = atoull(idS);
+            return lowguid;
         }
-        case SPELL_LINK_GAMEOBJECT:
+        case GUID_LINK_GAMEOBJECT:
         {
-            ObjectGuid::LowType lowguid = strtoull(idS, nullptr, 10);
-
-            if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-                return ObjectGuid::Create<HighGuid::GameObject>(data->mapid, data->id, lowguid);
-            else
-                return ObjectGuid::Empty;
+            guidHigh = HighGuid::GameObject;
+            ObjectGuid::LowType lowguid = atoull(idS);
+            return lowguid;
         }
     }
 
     // unknown type?
-    return ObjectGuid::Empty;
+    return 0;
 }
 
 std::string ChatHandler::extractPlayerNameFromLink(char* text)

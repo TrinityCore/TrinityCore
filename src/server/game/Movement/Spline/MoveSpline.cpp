@@ -67,7 +67,7 @@ Location MoveSpline::ComputePosition() const
             c.orientation = std::atan2(hermite.y, hermite.x);
         }
 
-        if (splineflags.orientationInversed)
+        if (splineflags.backward)
             c.orientation = c.orientation - float(M_PI);
     }
     return c;

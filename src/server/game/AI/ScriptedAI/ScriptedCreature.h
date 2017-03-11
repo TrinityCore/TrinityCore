@@ -89,6 +89,12 @@ public:
         return storage_.size();
     }
 
+    // Clear the underlying storage. This does NOT despawn the creatures - use DespawnAll for that!
+    void clear()
+    {
+        storage_.clear();
+    }
+
     void Summon(Creature const* summon) { storage_.push_back(summon->GetGUID()); }
     void Despawn(Creature const* summon) { storage_.remove(summon->GetGUID()); }
     void DespawnEntry(uint32 entry);
@@ -358,7 +364,6 @@ class TC_GAME_API BossAI : public ScriptedAI
         void JustReachedHome() override { _JustReachedHome(); }
 
         bool CanAIAttack(Unit const* target) const override { return CheckBoundary(target); }
-        bool CanRespawn() override;
 
     protected:
         void _Reset();

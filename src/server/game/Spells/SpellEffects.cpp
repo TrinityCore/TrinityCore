@@ -3222,25 +3222,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Glyph of Backstab
-                case 63975:
-                {
-                    // search our Rupture aura on target
-                    if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, flag128(0x00100000, 0, 0), m_caster->GetGUID()))
-                    {
-                        uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                        uint32 countMax = 12000; // this can be wrong, duration should be based on combo-points
-                        countMax += m_caster->HasAura(56801) ? 4000 : 0;
-
-                        if (countMin < countMax)
-                        {
-                            aurEff->GetBase()->SetDuration(uint32(aurEff->GetBase()->GetDuration() + 3000));
-                            aurEff->GetBase()->SetMaxDuration(countMin + 2000);
-                        }
-
-                    }
-                    return;
-                }
                 // Glyph of Scourge Strike
                 case 69961:
                 {
@@ -4265,8 +4246,8 @@ void Spell::EffectQuestComplete(SpellEffIndex /*effIndex*/)
         uint16 logSlot = player->FindQuestSlot(questId);
         if (logSlot < MAX_QUEST_LOG_SIZE)
             player->AreaExploredOrEventHappens(questId);
-        else if (player->CanTakeQuest(quest, false))    // never rewarded before
-            player->CompleteQuest(questId);             // quest not in log - for internal use
+        else if (player->CanTakeQuest(quest, false))    // Check if the quest has already been turned in.
+            player->SetRewardedQuest(questId);          // If not, set status to rewarded without broadcasting it to client.
     }
 }
 
@@ -4491,6 +4472,8 @@ void Spell::EffectQuestClear(SpellEffIndex /*effIndex*/)
 
     player->RemoveActiveQuest(quest_id, false);
     player->RemoveRewardedQuest(quest_id);
+
+    sScriptMgr->OnQuestStatusChange(player, quest_id);
 }
 
 void Spell::EffectSendTaxi(SpellEffIndex /*effIndex*/)
@@ -5242,7 +5225,7 @@ void Spell::EffectTitanGrip(SpellEffIndex /*effIndex*/)
         return;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetCanTitanGrip(true);
+        m_caster->ToPlayer()->SetCanTitanGrip(true, uint32(effectInfo->MiscValue));
 }
 
 void Spell::EffectRedirectThreat(SpellEffIndex /*effIndex*/)
@@ -5462,6 +5445,9 @@ void Spell::EffectGiveCurrency(SpellEffIndex /*effIndex*/)
         return;
 
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (!sCurrencyTypesStore.LookupEntry(effectInfo->MiscValue))
         return;
 
     unitTarget->ToPlayer()->ModifyCurrency(effectInfo->MiscValue, damage);

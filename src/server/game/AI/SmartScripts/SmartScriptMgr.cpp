@@ -584,7 +584,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             case SMART_EVENT_MOVEMENTINFORM:
             {
-                if (e.event.movementInform.type > NULL_MOTION_TYPE)
+                if (e.event.movementInform.type >= MAX_MOTION_TYPE)
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid Motion type %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.movementInform.type);
                     return false;
@@ -822,6 +822,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_PLAY_EMOTE:
             if (!IsEmoteValid(e, e.action.emote.emote))
                 return false;
+            break;
+        case SMART_ACTION_PLAY_ANIMKIT:
+            if (!IsAnimKitValid(e, e.action.animKit.animKit))
+                return false;
+
+            if (e.action.animKit.type > 3)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid AnimKit type %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.animKit.type);
+                return false;
+            }
             break;
         case SMART_ACTION_FAIL_QUEST:
         case SMART_ACTION_OFFER_QUEST:
