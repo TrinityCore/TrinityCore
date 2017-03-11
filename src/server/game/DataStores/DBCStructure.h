@@ -684,7 +684,6 @@ struct FactionTemplateEntry
         return hostileMask == 0 && friendlyMask == 0;
     }
     bool IsContestedGuardFaction() const { return (factionFlags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
-    bool ShouldSparAttack() const { return (factionFlags & FACTION_TEMPLATE_ENEMY_SPAR) != 0; }
 };
 
 struct GameObjectDisplayInfoEntry
