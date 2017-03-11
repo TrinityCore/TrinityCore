@@ -630,6 +630,26 @@ Loot::~Loot()
             player->GetSession()->DoLootRelease(this);
 }
 
+void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
+{
+    // Deletes a single item associated with an openable item from the DB
+    //PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);//org
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);//I modified
+    stmt->setUInt64(0, containerID.GetCounter());
+    stmt->setUInt32(1, itemID);
+    CharacterDatabase.Execute(stmt);
+
+    // Mark the item looted to prevent resaving
+    for (LootItemList::iterator _itr = items.begin(); _itr != items.end(); ++_itr)
+    {
+        if (_itr->itemid != itemID)
+            continue;
+
+        _itr->canSave = false;
+        break;
+    }
+
+}
 void Loot::NotifyLootList(Map const* map) const
 {
     WorldPackets::Loot::LootList lootList;

@@ -1350,6 +1350,8 @@ void Spell::DoCreateItem(uint32 itemId, ItemContext context /*= ItemContext::NON
             if (Guild* guild = player->GetGuild())
                 guild->AddGuildNews(GUILD_NEWS_ITEM_CRAFTED, player->GetGUID(), 0, pProto->GetId());
 
+		sScriptMgr->OnCreateItem(player, pItem, num_to_add);
+
         // we succeeded in creating at least one item, so a levelup is possible
         player->UpdateCraftSkill(m_spellInfo);
     }
@@ -4093,7 +4095,7 @@ void Spell::EffectDispelMechanic()
         unitTarget->RemoveAura(itr->first, itr->second, 0, AURA_REMOVE_BY_ENEMY_SPELL);
 }
 
-void Spell::EffectResurrectPet()//复活宠物
+void Spell::EffectResurrectPet()//revive pet
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
@@ -4106,7 +4108,7 @@ void Spell::EffectResurrectPet()//复活宠物
         return;
 
     // Maybe player dismissed dead pet or pet despawned?
-    //或许玩家解散了死亡的宠物或者宠物未刷新
+    
     bool hadPet = true;
 
     if (!player->GetPet())
@@ -4127,13 +4129,13 @@ void Spell::EffectResurrectPet()//复活宠物
 
     // TODO: Better to fail Hunter's "Revive Pet" at cast instead of here when casting ends
     // 将做:更新此处代码:当技能释放结束时,更好地让猎人"复活宠物"失败
-    //此处预计为宠物复活的相关代码
-    Pet* pet = player->GetPet(); // Attempt to get current pet  //尝试获取当前宠物
-    if (!pet || pet->IsAlive()) //无宠物或宠物是活的
+    //This is supposed to be the codes when pet revive
+    Pet* pet = player->GetPet(); // Attempt to get current pet  
+    if (!pet || pet->IsAlive()) //No pet or pet is dead
         return;
 
     // If player did have a pet before reviving, teleport it
-    //如果玩家在复活前有宠物,传送它
+    
     if (hadPet)
     {
         // Reposition the pet's corpse before reviving so as not to grab aggro
@@ -4164,7 +4166,7 @@ void Spell::EffectResurrectPet()//复活宠物
         ci->SetIsReturning(false);
     }
 
-    pet->SavePetToDB(PET_SAVE_AS_CURRENT);  //保存宠物到数据库
+    pet->SavePetToDB(PET_SAVE_AS_CURRENT);  //save pet to database
 }
 
 void Spell::EffectDestroyAllTotems()

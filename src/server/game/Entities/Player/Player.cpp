@@ -417,10 +417,10 @@ uint32 Player::FindTalentType()
 bool Player::ResetPlayerToLevel(uint32 level, uint32 talent)
 {
  //tmp   return m_PlayerBotSetting->ResetPlayerToLevel(level, talent);
-    return false;//此处是为避免错误,瞎写的
+    return false;//This is to void mistake,a mass write
 }
 
-bool Player::IsSettingFinish()  //后加
+bool Player::IsSettingFinish()  //later add
 {
     return m_PlayerBotSetting->IsFinish();
 }
@@ -454,7 +454,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
 
     Unit::CleanupsBeforeDelete(finalCleanup);
 }
-//后加,暂时注释
+//later add,temp unuse
 void Player::SetPersonnalXpRate(float personnalXPRate)
 {
     _PersonnalXpRate = personnalXPRate;
@@ -6843,10 +6843,10 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             UpdateCriteria(CriteriaType::EarnHonorableKill, 1, 0, 0, victim);
             UpdateCriteria(CriteriaType::KillPlayer, 1, 0, 0, victim);
         }
-		//else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_GUARD) && victim->ToCreature()->IsGuard())   //原句
-        else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_GUARD) && victim->ToCreature()->IsGuard()) //判断是否开启击杀精英与守卫获得荣誉
+		//else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_GUARD) && victim->ToCreature()->IsGuard())   //org
+        else if (sWorld->getBoolConfig(CONFIG_GAIN_HONOR_GUARD) && victim->ToCreature()->IsGuard()) //judge whether use config of kill elite or guard to gain honore
 		{//if (sConfigMgr->GetBoolDefault("Duel_Reset.enable", false))
-        //上句是用来参照写配置的,后来发现已有配置文件参数,忽略       
+        //Former is to use write config,later found already has a config in file,abort     
 
 			uint8 k_level = getLevel();
 			uint8 k_grey = Trinity::XP::GetGrayLevel(k_level);
@@ -6869,7 +6869,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 			//UpdateCriteria(CRITERIA_TYPE_HK_RACE, victim->getRace());           //3
 			//UpdateCriteria(CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());  //4
 			//UpdateCriteria(CRITERIA_TYPE_HONORABLE_KILL, 1, 0, 0, victim);      //5
-            //上面是旧代码,留作备查,当然下面的都是看名字瞎猜,至于会发生什么,那鬼知道
+            //Former is od code,left to check,of course below things are mass of mine,you want to know what will happen?Sorry,I dont know...
 
             UpdateCriteria(CriteriaType::EarnHonorableKill);
             UpdateCriteria(CriteriaType::DeliverKillingBlowToClass, victim->getClass());
@@ -11934,7 +11934,7 @@ uint32 Player::GetBattlePayCredits() const
 bool Player::AddBattlePetByCreatureId(uint32 creatureId, bool sendUpdate /*= true*/, bool sendDiliveryUpdate /*= false*/)
 {
 //    return AddBattlePetWithSpeciesId(sDB2Manager.GetSpeciesByCreatureID(creatureId), 0, sendUpdate, sendDiliveryUpdate);//tmp
-    return false;//这句是为了给返回值,我瞎写的,原来没有.修复时,要删除这句.
+    return false;//this is for a return value,no before,when fix,delete this.
 }
 
 bool Player::AddBattlePetWithSpeciesId(BattlePetSpeciesEntry const* entry, uint16 flags /*= 0*/, bool sendUpdate /*= true*/, bool sendDiliveryUpdate /*= false*/)
@@ -24156,14 +24156,14 @@ void Player::SendInitialPacketsBeforeAddToMap()
     m_questObjectiveCriteriaMgr->SendAllData(this);
 
     /// SMSG_LOGIN_SETTIMESPEED
-    //static float const TimeSpeed = 0.01666667f;//原句
+    //static float const TimeSpeed = 0.01666667f;//org
     static float const TimeSpeed = 0.01666667f * speedrate;
     WorldPackets::Misc::LoginSetTimeSpeed loginSetTimeSpeed;
     loginSetTimeSpeed.NewSpeed = TimeSpeed;
     loginSetTimeSpeed.GameTime = GameTime::GetGameTime();
     loginSetTimeSpeed.ServerTime = GameTime::GetGameTime();
     //If probelm occours,release this
-    //上面为原先的,为了测试快速技能脚本是否有用,注释下
+    //Former is org,to test whether fast cast script is enabled,unuse it.
     //Original,to test SpeedGame, NoCastTime, HurtInRealTime patches commit works or not,temp unuse this
     /*loginSetTimeSpeed.GameTime = speedtime;
     loginSetTimeSpeed.ServerTime = speedtime;*/
@@ -26311,6 +26311,10 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
             sLootItemStorage->RemoveStoredLootItemForContainer(lootWorldObjectGuid.GetCounter(), item->itemid, item->count, item->LootListId);
 
         ApplyItemLootedSpell(newitem, true);
+        if (!loot->containerID.IsEmpty())
+            loot->DeleteLootItemFromContainerItemDB(item->itemid);
+
+		sScriptMgr->OnLootItem(this, newitem, item->count);
     }
     else
         SendEquipError(msg, nullptr, nullptr, item->itemid);
@@ -29299,7 +29303,7 @@ uint32 Player::GetDefaultSpecId() const
     return ASSERT_NOTNULL(sDB2Manager.GetDefaultChrSpecializationForClass(GetClass()))->ID;
 }
 
-uint32 Player::GetRoleBySpecializationId(uint32 specializationId) //后加
+uint32 Player::GetRoleBySpecializationId(uint32 specializationId) //later add
 {
     if (specializationId)
         if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(specializationId))

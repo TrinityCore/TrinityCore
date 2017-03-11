@@ -188,6 +188,7 @@ struct TC_GAME_API LootItem
     bool    is_counted        : 1;
     bool    needs_quest       : 1;                          // quest drop
     bool    follow_loot_rules : 1;
+    bool    canSave;//later add
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (reference = 0)
@@ -287,6 +288,14 @@ struct TC_GAME_API Loot
 
     explicit Loot(Map* map, ObjectGuid owner, LootType type, Group const* group);
     ~Loot();
+
+    // GUID of container that holds this loot (item_instance.entry)
+    //  Only set for inventory items that can be right-click looted
+    ObjectGuid containerID;
+
+    // For deleting items at loot removal since there is no backward interface to the Item()
+    void DeleteLootItemFromContainerItemDB(uint32 itemID);
+    void DeleteLootMoneyFromContainerItemDB();
 
     Loot(Loot const&) = delete;
     Loot(Loot&&) = delete;

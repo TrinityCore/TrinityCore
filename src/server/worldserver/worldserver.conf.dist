@@ -4533,7 +4533,7 @@ PhasedDueling.Enable = 0
 # Default : 0 (No honor when you kill a guard)
 #
 
-Custom.GainHonorOnGuardKill = 10
+Custom.GainHonorOnGuardKill = 1
 
 #
 # Custom.GainHonorOnEliteKill
@@ -4541,7 +4541,48 @@ Custom.GainHonorOnGuardKill = 10
 # Default : 0 (No honor when you kill an elite mob)
 #
 
-Custom.GainHonorOnEliteKill = 5
+Custom.GainHonorOnEliteKill = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+# RANDOM ENCHANTS OPTIONS
+#
+#     RandomEnchants.AnnounceOnLogin
+#        Announce a message on login for this module
+#        Default:     1
+
+RandomEnchants.AnnounceOnLogin = 1
+
+#
+#     RandomEnchants.OnLoginMessage
+#        Message to display on login(Only applies if AnnounceOnLogin is enabled)
+#        Default:    "This server is running a RandomEnchants Module."
+
+RandomEnchants.OnLoginMessage="This server is based on Single Player Project - Legion repack."
+
+#
+#     RandomEnchants.OnLoot
+#        Chance at random enchant on looting an item
+#        Default:     1
+
+RandomEnchants.OnLoot = 1
+
+#
+#     RandomEnchants.OnCreate
+#        Chance at random enchant on creating an item via profession
+#        Default:     1
+
+RandomEnchants.OnCreate = 1
+
+#
+#     RandomEnchants.OnQuestReward (Not working yet)
+#        Chance at random enchant on obtaining item from quest reward
+#        Default:     1
+
+RandomEnchants.OnQuestReward = 1
 
 #
 ###################################################################################################

@@ -443,13 +443,13 @@ class TC_GAME_API CreatureScript : public ScriptObject
 
         // Called when a CreatureAI object is needed for the creature.
         //virtual CreatureAI* GetAI(Creature* creature) const = 0;
-        //上方为新版
+        //Former is new
         // 
-        //旧版原版
+        //org
         //virtual CreatureAI* GetAI(Creature* /*creature*/) const { return nullptr; }
-        //尝试失败1
+        //Try failed 1
         //virtual CreatureAI* GetAI(Creature* creature/*creature*/) const { return nullptr; }
-        //尝试失败2
+        //Try failed 2
         virtual CreatureAI* GetAI(Creature* creature/*creature*/) const { return 0; }
 };
 
@@ -816,6 +816,16 @@ class TC_GAME_API PlayerScript : public ScriptObject
 
         // Called when a player choose a response from a PlayerChoice
         virtual void OnPlayerChoiceResponse(Player* player, uint32 choiceId, uint32 responseId);
+        //virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }//old
+
+		//After looting item
+		virtual void OnLootItem(Player* player, Item* item, uint32 count) { }
+
+		//After creating item (eg profession item creation)
+		virtual void OnCreateItem(Player* player, Item* item, uint32 count) { }
+
+		//After receiving item as a quest reward
+		virtual void OnQuestRewardItem(Player* player, Item* item, uint32 count) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -1244,6 +1254,9 @@ class TC_GAME_API ScriptMgr
         void OnPlayerRepop(Player* player);
         void OnMovieComplete(Player* player, uint32 movieId);
         void OnPlayerChoiceResponse(Player* player, uint32 choiceId, uint32 responseId);
+		void OnLootItem(Player* player, Item* item, uint32 count);
+		void OnCreateItem(Player* player, Item* item, uint32 count);
+		void OnQuestRewardItem(Player* player, Item* item, uint32 count);
 
     public: /* AccountScript */
 
