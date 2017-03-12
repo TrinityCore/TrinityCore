@@ -9568,23 +9568,6 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
     }
 }
 
-bool Unit::CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect const* aurEff) const
-{
-    // only players have item requirements
-    if (GetTypeId() != TYPEID_PLAYER)
-        return true;
-
-    SpellInfo const* spellInfo = aurEff->GetSpellInfo();
-    if (spellInfo->EquippedItemClass == -1)
-        return true;
-
-    Item* item = ToPlayer()->GetWeaponForAttack(attackType, true);
-    if (!item || !item->IsFitToSpellRequirements(spellInfo))
-        return false;
-
-    return true;
-}
-
 void Unit::UpdateDamageDoneMods(WeaponAttackType attackType)
 {
     UnitMods unitMod;
