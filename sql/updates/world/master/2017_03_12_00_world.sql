@@ -11,7 +11,7 @@ DELETE FROM `creature_formations` WHERE `leaderGUID`=33658;
 -- Respawn creatures
 SET @CGUID := 251251;
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+104;
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseID`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID+0,2914,109,0,0,1,169,0,0,0,-391.7645,92.71431,-90.86712,2.963046,7200,10,0,0,0,1,0,0,0,23420), -- Snake
 (@CGUID+1,2914,109,0,0,1,169,0,0,0,-297.3856,83.04854,-91.09061,5.10778,7200,10,0,0,0,1,0,0,0,23420), -- Snake
 (@CGUID+2,2914,109,0,0,1,169,0,0,0,-373.0406,75.03958,-131.447,6.026293,7200,10,0,0,0,1,0,0,0,23420), -- Snake
@@ -180,7 +180,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 -- Respawn gameobjects
 SET @OGUID := 203021;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+7;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseID`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 148418, 109, 0, 0, 1, 169, 0, -435.975, 249.375, -90.8275, 1.221729, 0, 0, 0.573576, 0.8191524, 7200, 255, 0, 23420), -- Eternal Flame
 (@OGUID+1, 148419, 109, 0, 0, 1, 169, 0, -498.729, 250.433, -90.8275, 3.176533, 0, 0, -0.9998474, 0.01746928, 7200, 255, 0, 23420), -- Eternal Flame
 (@OGUID+2, 148420, 109, 0, 0, 1, 169, 0, -498.091, 302.458, -90.8275, 3.071766, 0, 0, 0.9993906, 0.03490613, 7200, 255, 0, 23420), -- Eternal Flame
