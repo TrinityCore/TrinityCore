@@ -243,47 +243,6 @@ public:
     }
 };
 
-/*######
-## npc_lunaclaw_spirit
-######*/
-
-enum LunaclawSpirit
-{
-    QUEST_BODY_HEART_A      = 6001,
-    QUEST_BODY_HEART_H      = 6002,
-
-    TEXT_ID_DEFAULT         = 4714,
-    TEXT_ID_PROGRESS        = 4715
-};
-
-#define GOSSIP_ITEM_GRANT   "You have thought well, spirit. I ask you to grant me the strength of your body and the strength of your heart."
-
-class npc_lunaclaw_spirit : public CreatureScript
-{
-public:
-    npc_lunaclaw_spirit() : CreatureScript("npc_lunaclaw_spirit") { }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_BODY_HEART_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_BODY_HEART_H) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_GRANT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        SendGossipMenuFor(player, TEXT_ID_DEFAULT, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            SendGossipMenuFor(player, TEXT_ID_PROGRESS, creature->GetGUID());
-            player->AreaExploredOrEventHappens(player->GetTeam() == ALLIANCE ? QUEST_BODY_HEART_A : QUEST_BODY_HEART_H);
-        }
-        return true;
-    }
-};
-
 /*########
 # npc_chicken_cluck
 #########*/
@@ -330,7 +289,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             // Reset flags after a certain time has passed so that the next player has to start the 'event' again
-            if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
+            if (me->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
             {
                 if (ResetFlagTimer <= diff)
                 {
@@ -2498,7 +2457,7 @@ public:
                 })
                 .Schedule(Seconds(1), [this](TaskContext context)
                 {
-                    if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
+                    if ((me->HasAura(SPELL_AURA_TIRED_S) || me->HasAura(SPELL_AURA_TIRED_G)) && me->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR);
                     context.Repeat();
                 });
@@ -2577,7 +2536,6 @@ public:
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
-    new npc_lunaclaw_spirit();
     new npc_chicken_cluck();
     new npc_dancing_flames();
     new npc_torch_tossing_target_bunny_controller();

@@ -31,9 +31,10 @@ enum ANDataTypes
     DATA_ANUBARAK                   = 2,
 
     // Additional Data
-    DATA_WATCHER_GASHRA             = 3,
-    DATA_WATCHER_SILTHIK            = 4,
-    DATA_WATCHER_NARJIL             = 5
+    DATA_WATCHER_NARJIL,
+    DATA_WATCHER_GASHRA,
+    DATA_WATCHER_SILTHIK,
+    DATA_ANUBARAK_WALL
 };
 
 enum ANCreatureIds
@@ -53,6 +54,12 @@ enum ANGameObjectIds
     GO_ANUBARAK_DOOR_1              = 192396,
     GO_ANUBARAK_DOOR_2              = 192397,
     GO_ANUBARAK_DOOR_3              = 192398
+};
+
+// These are passed as -action to AI's DoAction to differentiate between them and boss scripts' own actions
+enum ANInstanceActions
+{
+    ACTION_GATEWATCHER_GREET        = 1
 };
 
 template<class AI>

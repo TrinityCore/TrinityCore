@@ -1494,7 +1494,7 @@ void MovementInfo::OutDebug()
         TC_LOG_DEBUG("misc", "position: `%s`", transport.pos.ToString().c_str());
         TC_LOG_DEBUG("misc", "seat: %i", transport.seat);
         TC_LOG_DEBUG("misc", "time: %u", transport.time);
-        if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
+        if (transport.prevTime)
             TC_LOG_DEBUG("misc", "prevTime: %u", transport.prevTime);
         if (transport.vehicleId)
             TC_LOG_DEBUG("misc", "vehicleId: %u", transport.vehicleId);

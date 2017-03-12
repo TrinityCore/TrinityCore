@@ -323,6 +323,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         void PlayerAcceptInviteToWar(Player* player);
         uint32 GetBattleId() const { return m_BattleId; }
         void AskToLeaveQueue(Player* player);
+        void PlayerAskToLeave(Player* player);
 
         virtual void DoCompleteOrIncrementAchievement(uint32 /*achievement*/, Player* /*player*/, uint8 /*incrementNumber = 1*/) { }
 
