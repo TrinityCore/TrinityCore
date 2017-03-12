@@ -2522,7 +2522,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (IsCreature(*itr))
                 {
                     if (e.action.animKit.type == 0)
-                        (*itr)->ToCreature()->PlayOneShotAnimKitId(e.action.animKit.animKit);
+                        (*itr)->ToCreature()->PlayOneShotAnimKit(e.action.animKit.animKit);
                     else if (e.action.animKit.type == 1)
                         (*itr)->ToCreature()->SetAIAnimKitId(e.action.animKit.animKit);
                     else if (e.action.animKit.type == 2)
