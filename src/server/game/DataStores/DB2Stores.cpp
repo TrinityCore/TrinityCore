@@ -929,7 +929,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         _rewardPackXItems[rewardPackXItem->RewardPackID].push_back(rewardPackXItem);
 
     for (PvpRewardEntry const* pvpReward : sPvpRewardStore)
-        _pvpRewardPack[std::pair<uint32, uint32>{ pvpReward->Prestige, pvpReward->HonorLevel }] = pvpReward->RewardPackID;
+        _pvpRewardPack[std::make_pair(pvpReward->Prestige, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
 
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
