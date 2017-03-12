@@ -7907,6 +7907,19 @@ void Player::ApplyItemDependentAuras(Item* item, bool apply)
         RemoveItemDependentAurasAndCasts(item);
 }
 
+bool Player::CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect const* aurEff) const
+{
+    SpellInfo const* spellInfo = aurEff->GetSpellInfo();
+    if (spellInfo->EquippedItemClass == -1)
+        return true;
+
+    Item* item = GetWeaponForAttack(attackType, true);
+    if (!item || !item->IsFitToSpellRequirements(spellInfo))
+        return false;
+
+    return true;
+}
+
 void Player::ApplyItemEquipSpell(Item* item, bool apply, bool form_change)
 {
     if (!item)
