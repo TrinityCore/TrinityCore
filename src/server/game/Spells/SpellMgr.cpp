@@ -3316,6 +3316,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             // THESE SPELLS ARE WORKING CORRECTLY EVEN WITHOUT THIS HACK
             // THE ONLY REASON ITS HERE IS THAT CURRENT GRID SYSTEM
             // DOES NOT ALLOW FAR OBJECT SELECTION (dist > 333)
+            case 70650: // Death and Decay (Death Knight T10 Tank 2P Bonus)
+                spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_PCT_MODIFIER;
+                break;
             case 70781: // Light's Hammer Teleport
             case 70856: // Oratory of the Damned Teleport
             case 70857: // Rampart of Skulls Teleport
