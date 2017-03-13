@@ -1,5 +1,5 @@
-SET @CGUID := 400000;
-SET @OGUID := 400000;
+SET @CGUID := 146562;
+SET @OGUID := 9743;
 
 UPDATE `creature_template` SET `unit_flags`=33280, `ScriptName`='boss_apothecary_hummel', `mechanic_immune_mask`=617297791 WHERE `entry`=36296;
 UPDATE `creature_template` SET `unit_flags`=33280, `ScriptName`='npc_apothecary_baxter', `mechanic_immune_mask`=617297791 WHERE  `entry`=36565;
