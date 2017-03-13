@@ -60,11 +60,11 @@ enum DruidSpells
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881
 };
 
-// Moonfire - 8921
+//  8921 - Moonfire
 class spell_dru_moonfire : public SpellScriptLoader
 {
-public:
-	spell_dru_moonfire() : SpellScriptLoader("spell_dru_moonfire") { }
+    public:
+        spell_dru_moonfire() : SpellScriptLoader("spell_dru_moonfire") { }
 
 	class spell_dru_moonfire_SpellScript : public SpellScript
 	{
@@ -72,72 +72,71 @@ public:
 
 		void HandleOnHit(SpellEffIndex /*effIndex*/)
 		{
-			Unit* Caster = GetCaster();
-			Unit* Target = GetHitUnit();
+		    Unit* Caster = GetCaster();
+		    Unit* Target = GetHitUnit();
 
-			if (Target == nullptr)
-				return;
+		    if (Target == nullptr)
+			    return;
 
-			if (!Caster || Caster->GetTypeId() != TYPEID_PLAYER)
-				return;
+		    if (!Caster || Caster->GetTypeId() != TYPEID_PLAYER)
+			    return;
 
-			if (Unit* Target = GetHitUnit())
-			{
-				Caster->CastSpell(Target, SPELL_DRUID_MOONFIRE_DAMAGE, true);
-			}
+		    if (Unit* Target = GetHitUnit())
+		    {
+			    Caster->CastSpell(Target, SPELL_DRUID_MOONFIRE_DAMAGE, true);
+		    }
 
-		}
+	        }
 
-		void Register()
-		{
-			OnEffectHitTarget += SpellEffectFn(spell_dru_moonfire_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-		}
-	};
+	    void Register()
+	        {
+		    OnEffectHitTarget += SpellEffectFn(spell_dru_moonfire_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+	        }
+        };
 
-	SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const
 	{
-		return new spell_dru_moonfire_SpellScript();
+	    return new spell_dru_moonfire_SpellScript();
 	}
 };
 
-// Sunfire - 93402
+//  93402 - Sunfire
 class spell_dru_sunfire : public SpellScriptLoader
 {
-public:
+    public:
 	spell_dru_sunfire() : SpellScriptLoader("spell_dru_sunfire") { }
 
 	class spell_dru_sunfire_SpellScript : public SpellScript
 	{
-		PrepareSpellScript(spell_dru_sunfire_SpellScript);
+	    PrepareSpellScript(spell_dru_sunfire_SpellScript);
+
+	    void HandleOnHit(SpellEffIndex /*effIndex*/)
+	    {
+		Unit* Caster = GetCaster();
+		Unit* Target = GetHitUnit();
+
+		if (Target == nullptr)
+			return;
+
+		if (!Caster || Caster->GetTypeId() != TYPEID_PLAYER)
+			return;
+
+		if (Unit* Target = GetHitUnit())
+		    {
+			Caster->CastSpell(Target, SPELL_DRUID_SUNFIRE_DAMAGE, true);
+		    }
+	    }
 
 
-		void HandleOnHit(SpellEffIndex /*effIndex*/)
-		{
-			Unit* Caster = GetCaster();
-			Unit* Target = GetHitUnit();
-
-			if (Target == nullptr)
-				return;
-
-			if (!Caster || Caster->GetTypeId() != TYPEID_PLAYER)
-				return;
-
-			if (Unit* Target = GetHitUnit())
-			{
-				Caster->CastSpell(Target, SPELL_DRUID_SUNFIRE_DAMAGE, true);
-			}
-		}
-
-
-		void Register()
-		{
-			OnEffectHitTarget += SpellEffectFn(spell_dru_sunfire_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-		}
+	    void Register()
+	    {
+		OnEffectHitTarget += SpellEffectFn(spell_dru_sunfire_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
 	};
 
 	SpellScript* GetSpellScript() const
 	{
-		return new spell_dru_sunfire_SpellScript();
+	    return new spell_dru_sunfire_SpellScript();
 	}
 };
 
