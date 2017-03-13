@@ -202,9 +202,6 @@ public:
     //Edit Player Faction
     static bool HandleModifyFactionCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)
-            return false;
-
         char* pfactionid = handler->extractKeyFromLink((char*)args, "Hfaction");
 
         Creature* target = handler->getSelectedCreature();
@@ -225,14 +222,14 @@ public:
             return true;
         }
 
-        uint32 factionid = atoi(pfactionid);
+        uint32 factionid = atoul(pfactionid);
         uint32 flag;
 
         char *pflag = strtok(NULL, " ");
         if (!pflag)
             flag = target->GetUInt32Value(UNIT_FIELD_FLAGS);
         else
-            flag = atoi(pflag);
+            flag = atoul(pflag);
 
         char* pnpcflag = strtok(NULL, " ");
 
@@ -240,7 +237,7 @@ public:
         if (!pnpcflag)
             npcflag = target->GetUInt64Value(UNIT_NPC_FLAGS);
         else
-            npcflag = std::strtoull(pnpcflag, nullptr, 10);
+            npcflag = atoull(pnpcflag);
 
         char* pdyflag = strtok(NULL, " ");
 
@@ -248,7 +245,7 @@ public:
         if (!pdyflag)
             dyflag = target->GetUInt32Value(OBJECT_DYNAMIC_FLAGS);
         else
-            dyflag = atoi(pdyflag);
+            dyflag = atoul(pdyflag);
 
         if (!sFactionTemplateStore.LookupEntry(factionid))
         {
