@@ -5470,6 +5470,14 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_BAD_TARGETS;
                 break;
             }
+            case SPELL_EFFECT_TRIGGER_SPELL:
+            {
+                // Shadowstep cannot be used while rooted.
+                if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->HasUnitState(UNIT_STATE_ROOT))
+                    if (m_spellInfo->SpellFamilyFlags.IsEqual(0x0, 0x200, 0x0) && m_spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
+                        return SPELL_FAILED_ROOTED;
+                break;
+            }
             case SPELL_EFFECT_LEAP_BACK:
             {
                 if (m_caster->HasUnitState(UNIT_STATE_ROOT))
