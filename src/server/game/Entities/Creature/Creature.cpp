@@ -1681,6 +1681,7 @@ void Creature::setDeathState(DeathState s)
 
     if (s == JUST_DIED)
     {
+        DisableSpline();
         m_corpseRemoveTime = time(NULL) + m_corpseDelay;
         m_respawnTime = time(NULL) + m_respawnDelay + m_corpseDelay;
 
