@@ -71,22 +71,22 @@ class spell_dru_moonfire : public SpellScriptLoader
 	    PrepareSpellScript(spell_dru_moonfire_SpellScript);
 
 	    void HandleOnHit(SpellEffIndex /*effIndex*/)
-		{
-		    Unit* Caster = GetCaster();
-		    Unit* Target = GetHitUnit();
+	    {
+	        Unit* Caster = GetCaster();
+	        Unit* Target = GetHitUnit();
 
-		    if (Target == nullptr)
-			    return;
+	        if (Target == nullptr)
+	 	    return;
 
-		    if (!Caster || Caster->GetTypeId() != TYPEID_PLAYER)
-			    return;
+	        if (!Caster || Caster->GetTypeId() != TYPEID_PLAYER)
+		    return;
 
-		    if (Unit* Target = GetHitUnit())
-		    {
-			Caster->CastSpell(Target, SPELL_DRUID_MOONFIRE_DAMAGE, true);
-		    }
+		if (Unit* Target = GetHitUnit())
+	        {
+   	     	    Caster->CastSpell(Target, SPELL_DRUID_MOONFIRE_DAMAGE, true);
+		}
 
-	        }
+	    }
 
 	    void Register()
 	    {
