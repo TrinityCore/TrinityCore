@@ -386,7 +386,12 @@ static int WowHandler_Insert(
     return ERROR_SUCCESS;
 }
 
-static LPBYTE WowHandler_Search(TRootHandler_WoW6 * pRootHandler, TCascSearch * pSearch, PDWORD /* PtrFileSize */, PDWORD PtrLocaleFlags)
+static LPBYTE WowHandler_Search(
+    TRootHandler_WoW6 * pRootHandler,
+    TCascSearch * pSearch,
+    PDWORD /* PtrFileSize */,
+    PDWORD PtrLocaleFlags,
+    PDWORD PtrFileDataId)
 {
     PCASC_FILE_ENTRY pFileEntry;
 
@@ -403,6 +408,8 @@ static LPBYTE WowHandler_Search(TRootHandler_WoW6 * pRootHandler, TCascSearch * 
                 // Give the caller the locale mask
                 if(PtrLocaleFlags != NULL)
                     PtrLocaleFlags[0] = pFileEntry->Locales;
+                if(PtrFileDataId != NULL)
+                    PtrFileDataId[0] = pFileEntry->FileDataId;
                 return pFileEntry->EncodingKey.Value;
             }
         }
@@ -442,6 +449,15 @@ static void WowHandler_EndSearch(TRootHandler_WoW6 * /* pRootHandler */, TCascSe
     if(pSearch->pRootContext != NULL)
         CASC_FREE(pSearch->pRootContext);
     pSearch->pRootContext = NULL;
+}
+
+static DWORD WowHandler_GetFileId(TRootHandler_WoW6 * pRootHandler, const char * szFileName)
+{
+    PCASC_FILE_ENTRY pFileEntry;
+
+    // Find by the file name hash
+    pFileEntry = FindRootEntry(pRootHandler->pRootMap, szFileName, NULL);
+    return (pFileEntry != NULL) ? pFileEntry->FileDataId : NULL;
 }
 
 static void WowHandler_Close(TRootHandler_WoW6 * pRootHandler)
@@ -545,6 +561,7 @@ int RootHandler_CreateWoW6(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFil
     pRootHandler->EndSearch   = (ROOT_ENDSEARCH)WowHandler_EndSearch;
     pRootHandler->GetKey      = (ROOT_GETKEY)WowHandler_GetKey;
     pRootHandler->Close       = (ROOT_CLOSE)WowHandler_Close;
+    pRootHandler->GetFileId   = (ROOT_GETFILEID)WowHandler_GetFileId;
 
 #ifdef _DEBUG
     pRootHandler->Dump = TRootHandlerWoW6_Dump;    // Support for ROOT file dump
