@@ -759,8 +759,8 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GO_OFFSET                              = 852,
 
     // custom permissions 1000+
-	RBAC_PERM_COMMAND_MODIFY_FURY                            = 1001,
-	RBAC_PERM_COMMAND_MODIFY_PAIN                            = 1002,	
+    RBAC_PERM_COMMAND_MODIFY_FURY                            = 1001,
+    RBAC_PERM_COMMAND_MODIFY_PAIN                            = 1002,	
     RBAC_PERM_MAX
 };
 
