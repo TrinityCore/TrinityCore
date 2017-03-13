@@ -202,6 +202,12 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         if (itemEntry == 0)
             itemEntry = item->GetTemplate()->ItemId;
 
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_AUCTIONHOUSE_ITEM, itemEntry, nullptr))
+        {
+            SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
+            return;
+        }
+
         if (sAuctionMgr->GetAItem(item->GetGUID().GetCounter()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
             (item->GetTemplate()->Flags & ITEM_FLAG_CONJURED) || item->GetUInt32Value(ITEM_FIELD_DURATION) ||
             item->GetCount() < count[i] || itemEntry != item->GetTemplate()->ItemId)

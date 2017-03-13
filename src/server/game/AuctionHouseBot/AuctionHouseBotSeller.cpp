@@ -37,7 +37,6 @@ bool AuctionBotSeller::Initialize()
     std::vector<uint32> npcItems;
     std::vector<uint32> lootItems;
     std::vector<uint32> includeItems;
-    std::vector<uint32> excludeItems;
 
     TC_LOG_DEBUG("ahbot", "AHBot seller filters:");
 
@@ -48,15 +47,7 @@ bool AuctionBotSeller::Initialize()
             includeItems.push_back(atoi(temp.c_str()));
     }
 
-    {
-        std::stringstream excludeStream(sAuctionBotConfig->GetAHBotExcludes());
-        std::string temp;
-        while (std::getline(excludeStream, temp, ','))
-            excludeItems.push_back(atoi(temp.c_str()));
-    }
-
     TC_LOG_DEBUG("ahbot", "Forced Inclusion %u items", (uint32)includeItems.size());
-    TC_LOG_DEBUG("ahbot", "Forced Exclusion %u items", (uint32)excludeItems.size());
 
     TC_LOG_DEBUG("ahbot", "Loading npc vendor items for filter..");
     const CreatureTemplateContainer* creatures = sObjectMgr->GetCreatureTemplates();
@@ -118,13 +109,7 @@ bool AuctionBotSeller::Initialize()
         if (prototype->Quality >= MAX_AUCTION_QUALITY)
             continue;
 
-        // forced exclude filter
-        bool isExcludeItem = false;
-        for (size_t i = 0; i < excludeItems.size() && !isExcludeItem; ++i)
-            if (itemId == excludeItems[i])
-                isExcludeItem = true;
-
-        if (isExcludeItem)
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_AUCTIONHOUSE_ITEM, itemId, nullptr))
             continue;
 
         // forced include filter

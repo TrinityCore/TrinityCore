@@ -42,7 +42,7 @@ namespace
 
     DisableMap m_DisableMap;
 
-    uint8 MAX_DISABLE_TYPES = 9;
+    uint8 MAX_DISABLE_TYPES = 10;
 }
 
 void LoadDisables()
@@ -251,6 +251,17 @@ void LoadDisables()
                 }
                 break;
             }
+            case DISABLE_TYPE_AUCTIONHOUSE_ITEM:
+            {
+                if (!sObjectMgr->GetItemTemplate(entry))
+                {
+                    TC_LOG_ERROR("sql.sql", "Item entry %u from `disables` doesn't exist in item_template, skipped.", entry);
+                    continue;
+                }
+                if (flags)
+                    TC_LOG_ERROR("sql.sql", "Disable flags specified for auction house item %u, useless data.", entry);
+                break;
+            }
             default:
                 break;
         }
@@ -381,6 +392,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
         case DISABLE_TYPE_MMAP:
+        case DISABLE_TYPE_AUCTIONHOUSE_ITEM:
             return true;
         case DISABLE_TYPE_VMAP:
            return (flags & itr->second.flags) != 0;

@@ -212,7 +212,6 @@ public:
 
     bool Initialize();
     const std::string& GetAHBotIncludes() const { return _AHBotIncludes; }
-    const std::string& GetAHBotExcludes() const { return _AHBotExcludes; }
 
     uint32 GetConfig(AuctionBotConfigUInt32Values index) const { return _configUint32Values[index]; }
     bool GetConfig(AuctionBotConfigBoolValues index) const { return _configBoolValues[index]; }
@@ -236,7 +235,6 @@ public:
 
 private:
     std::string _AHBotIncludes;
-    std::string _AHBotExcludes;
     std::vector<uint32> _AHBotCharacters;
     uint32 _itemsPerCycleBoost;
     uint32 _itemsPerCycleNormal;
@@ -246,7 +244,6 @@ private:
     float _configFloatValues[CONFIG_AHBOT_FLOAT_COUNT];
 
     void SetAHBotIncludes(const std::string& AHBotIncludes) { _AHBotIncludes = AHBotIncludes; }
-    void SetAHBotExcludes(const std::string& AHBotExcludes) { _AHBotExcludes = AHBotExcludes; }
 
     void SetConfig(AuctionBotConfigUInt32Values index, char const* fieldname, uint32 defvalue);
     void SetConfigMax(AuctionBotConfigUInt32Values index, char const* fieldname, uint32 defvalue, uint32 maxvalue);
