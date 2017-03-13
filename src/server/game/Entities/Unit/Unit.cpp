@@ -13999,7 +13999,7 @@ void Unit::SendDurabilityLoss(Player* receiver, uint32 percent)
     receiver->GetSession()->SendPacket(&data);
 }
 
-void Unit::PlayOneShotAnimKit(uint16 animKitId)
+void Unit::PlayOneShotAnimKitId(uint16 animKitId)
 {
     WorldPacket data(SMSG_PLAY_ONE_SHOT_ANIM_KIT, 7+2);
     data << GetPackGUID();
