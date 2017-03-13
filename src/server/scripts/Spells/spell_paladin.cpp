@@ -22,6 +22,7 @@
  */
 
 #include "Player.h"
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -131,7 +132,8 @@ enum PaladinSpells
 
 enum PaladinSpellIcons
 {
-    PALADIN_ICON_ID_RETRIBUTION_AURA             = 555
+    PALADIN_ICON_ID_RETRIBUTION_AURA             = 555,
+    PALADIN_ICON_ID_HAMMER_OF_THE_RIGHTEOUS      = 3023
 };
 
 // 31850 - Ardent Defender
@@ -1988,7 +1990,7 @@ class spell_pal_sacred_shield_dummy : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+                std::chrono::steady_clock::time_point now = GameTime::GetGameTimeSteadyPoint();
                 if (_cooldownEnd > now)
                     return;
 
@@ -2104,7 +2106,12 @@ class spell_pal_seal_of_vengeance : public SpellScriptLoader
                 PreventDefaultAction();
 
                 if (!(eventInfo.GetTypeMask() & PROC_FLAG_DONE_MELEE_AUTO_ATTACK))
-                    return;
+                {
+                    // Patch 3.2.0 Notes: Only auto-attacks and Hammer of the Righteous can place the debuff on the paladin's current target(s).
+                    SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                    if (!spellInfo || spellInfo->SpellIconID != PALADIN_ICON_ID_HAMMER_OF_THE_RIGHTEOUS)
+                        return;
+                }
 
                 // don't cast triggered, spell already has SPELL_ATTR4_CAN_CAST_WHILE_CASTING attr
                 eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), DoTSpell, TRIGGERED_DONT_RESET_PERIODIC_TIMER, nullptr, aurEff);
