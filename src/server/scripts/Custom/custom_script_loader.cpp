@@ -39,6 +39,7 @@ void AddSC_FireWorksOnLevelUp();
 void AddSC_accontmounts();
 void AddSC_accountachievement();
 void AddSC_RandomEnchantsScripts();
+void AddSC_Dynamic_Resurrections();
 //Bots
 void AddSC_death_knight_bot();
 void AddSC_druid_bot();
@@ -83,6 +84,7 @@ void AddCustomScripts()
 	AddSC_accontmounts();
 	AddSC_accountachievement();
 	AddSC_RandomEnchantsScripts();
+	AddSC_Dynamic_Resurrections();
     //Bots
     AddSC_death_knight_bot();
     AddSC_druid_bot();
