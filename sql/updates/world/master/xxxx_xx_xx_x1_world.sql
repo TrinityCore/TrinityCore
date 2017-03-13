@@ -20,7 +20,7 @@ UPDATE `trinity_string` SET `content_default`='Could not create waypoint-creatur
 UPDATE `trinity_string` SET `content_default`='Warning: Could not delete WP with ID: %s from the world' WHERE  `entry`=242;
 UPDATE `trinity_string` SET `content_default`='Creature (GUID:%s) must be on the same map as player!' WHERE  `entry`=272;
 UPDATE `trinity_string` SET `content_default`='Game Object (GUID: %s) not found' WHERE  `entry`=273;
-UPDATE `trinity_string` SET `content_default`='Game Object (GUID: %s) is referenced by nonexistent creature %s in GO list, can\'t be deleted.' WHERE  `entry`=274;
+UPDATE `trinity_string` SET `content_default`='Game Object (GUID: %s) has a nonexistent owner %s, can\'t be deleted.' WHERE  `entry`=274;
 UPDATE `trinity_string` SET `content_default`='Game Object |cffffffff|Hgameobject:%s|h[%s]|h|r (%s) turned to %f' WHERE  `entry`=276;
 UPDATE `trinity_string` SET `content_default`='Game Object |cffffffff|Hgameobject:%s|h[%s]|h|r (%s) moved' WHERE  `entry`=277;
 UPDATE `trinity_string` SET `content_default`='Creature (GUID: %s) not found' WHERE  `entry`=287;
