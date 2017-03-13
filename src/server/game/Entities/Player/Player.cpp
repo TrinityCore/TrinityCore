@@ -136,6 +136,7 @@
 #include <sstream>
 #include <BattlePet.h>
 #include <BotGroupAI.cpp>
+#include "..\Custom\DynamicResurrection\DynamicResurrection.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -4926,13 +4927,18 @@ void Player::RepopAtGraveyard()
     // and don't show spirit healer location
     if (ClosestGrave)
     {
-        TeleportTo(ClosestGrave->Loc, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : 0);
-        if (isDead())                                        // not send if alive, because it used in TeleportTo()
+        if (sDynRes->IsInDungeonOrRaid(this) && sDynRes->CheckForSpawnPoint(this))  //On revive,teleport to the last kiied boss in dungeon or raid
+            sDynRes->DynamicResurrection(this);
+        else
         {
-            WorldPackets::Misc::DeathReleaseLoc packet;
-            packet.MapID = ClosestGrave->Loc.GetMapId();
-            packet.Loc = ClosestGrave->Loc;
-            SendDirectMessage(packet.Write());
+            TeleportTo(ClosestGrave->Loc, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : 0);
+            if (isDead())                                        // not send if alive, because it used in TeleportTo()
+            {
+                WorldPackets::Misc::DeathReleaseLoc packet;
+                packet.MapID = ClosestGrave->Loc.GetMapId();
+                packet.Loc = ClosestGrave->Loc;
+                SendDirectMessage(packet.Write());
+            }
         }
     }
     else if (GetPositionZ() < GetMap()->GetMinHeight(GetPhaseShift(), GetPositionX(), GetPositionY()))
