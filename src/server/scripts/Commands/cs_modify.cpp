@@ -71,8 +71,7 @@ public:
             { "talentpoints", rbac::RBAC_PERM_COMMAND_MODIFY_TALENTPOINTS, false, &HandleModifyTalentCommand,        "" },
             { "xp",           rbac::RBAC_PERM_COMMAND_MODIFY_XP,           false, &HandleModifyXPCommand,            "" },
             { "fury",         rbac::RBAC_PERM_COMMAND_MODIFY_FURY,         false, &HandleModifyFuryCommand,          "" },
-            { "pain",         rbac::RBAC_PERM_COMMAND_MODIFY_PAIN,         false, &HandleModifyPainCommand,          "" },
-			
+            { "pain",         rbac::RBAC_PERM_COMMAND_MODIFY_PAIN,         false, &HandleModifyPainCommand,          "" },			
         };
         static std::vector<ChatCommand> commandTable =
         {
