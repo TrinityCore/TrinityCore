@@ -316,7 +316,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
-    boost::optional<int16> levelScalingDelta;
+    Optional<int16> levelScalingDelta;
     int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2

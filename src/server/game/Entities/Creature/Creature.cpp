@@ -1204,8 +1204,8 @@ void Creature::SelectLevel()
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, minlevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, maxlevel);
 
-        if (cInfo->levelScalingDelta.value)
-            SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, cInfo->levelScalingDelta.value);
+        if (*cInfo->levelScalingDelta != 0)
+            SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, *cInfo->levelScalingDelta);
     }
 
     UpdateLevelDependantStats();
@@ -2559,7 +2559,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
     // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
     if (HasScalableLevels())
     {
-        uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + GetCreatureTemplate()->levelScalingDelta.value;
+        uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + *(GetCreatureTemplate()->levelScalingDelta);
 
         if (target->IsPlayer())
             targetLevelWithDelta += target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
