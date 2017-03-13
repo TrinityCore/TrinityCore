@@ -67,7 +67,7 @@ enum ApothecaryEvents
     EVENT_PERFUME_SPRAY,
     EVENT_COLOGNE_SPRAY,
     EVENT_CALL_BAXTER,
-    EVENT_CALL_FRYE,
+    EVENT_CALL_FRYE
 };
 
 enum ApothecaryMisc
@@ -367,12 +367,12 @@ class npc_apothecary_baxter : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_COLOGNE_SPRAY:
-                            DoCastVictim(SPELL_COLOGNE_SPRAY, false);
+                            DoCastVictim(SPELL_COLOGNE_SPRAY);
                             _events.Repeat(Seconds(4));
                             break;
                         case EVENT_CHAIN_REACTION:
                             DoCastVictim(SPELL_SUMMON_TABLE);
-                            DoCastVictim(SPELL_CHAIN_REACTION, false);
+                            DoCastVictim(SPELL_CHAIN_REACTION);
                             _events.Repeat(Seconds(25));
                             break;
                         default:
