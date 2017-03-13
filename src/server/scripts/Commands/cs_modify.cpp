@@ -70,6 +70,9 @@ public:
             { "standstate",   rbac::RBAC_PERM_COMMAND_MODIFY_STANDSTATE,   false, &HandleModifyStandStateCommand,    "" },
             { "talentpoints", rbac::RBAC_PERM_COMMAND_MODIFY_TALENTPOINTS, false, &HandleModifyTalentCommand,        "" },
             { "xp",           rbac::RBAC_PERM_COMMAND_MODIFY_XP,           false, &HandleModifyXPCommand,            "" },
+			{ "fury",         rbac::RBAC_PERM_COMMAND_MODIFY_FURY,         false, &HandleModifyFuryCommand,          "" },
+			{ "pain",         rbac::RBAC_PERM_COMMAND_MODIFY_PAIN,         false, &HandleModifyPainCommand,          "" },
+			
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1213,6 +1216,38 @@ public:
         target->GiveXP(xp, nullptr);
         return true;
     }
+	//Edit Player Fury
+	static bool HandleModifyFuryCommand(ChatHandler* handler, const char* args)
+	{
+		int32 fury, furymax;
+		Player* target = handler->getSelectedPlayerOrSelf();
+		int8 const furyMultiplier = 10;
+		if (CheckModifyResources(handler, args, target, fury, furymax, furyMultiplier))
+		{
+			NotifyModification(handler, target, LANG_YOU_CHANGE_FURY, LANG_YOUR_FURY_CHANGED, fury / furyMultiplier, furymax / furyMultiplier);
+			target->SetMaxPower(POWER_FURY, furymax);
+			target->SetPower(POWER_FURY, fury);
+			return true;
+		}
+		return false;
+	}
+	
+	//Edit Player Pain
+	static bool HandleModifyPainCommand(ChatHandler* handler, const char* args)
+	{
+		int32 pain, painmax;
+		Player* target = handler->getSelectedPlayerOrSelf();
+		int8 const painMultiplier = 10;
+		if (CheckModifyResources(handler, args, target, pain, painmax, painMultiplier))
+		{
+			NotifyModification(handler, target, LANG_YOU_CHANGE_PAIN, LANG_YOUR_PAIN_CHANGED, pain / painMultiplier, painmax / painMultiplier);
+			target->SetMaxPower(POWER_PAIN, painmax);
+			target->SetPower(POWER_PAIN, pain);
+			return true;
+		}
+		return false;
+	}
+		
 };
 
 void AddSC_modify_commandscript()

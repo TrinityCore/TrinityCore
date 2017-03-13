@@ -1242,6 +1242,10 @@ enum TrinityStrings
     LANG_CREATURE_NOT_AI_ENABLED                  = 11015,
     LANG_SELECT_PLAYER_OR_PET                     = 11016,
     LANG_SHUTDOWN_DELAYED                         = 11017,
-    LANG_SHUTDOWN_CANCELLED                       = 11018
+    LANG_SHUTDOWN_CANCELLED                       = 11018,
+	LANG_YOU_CHANGE_FURY                          = 11019,
+	LANG_YOUR_FURY_CHANGED                        = 11020,
+	LANG_YOU_CHANGE_PAIN                          = 11021,
+	LANG_YOUR_PAIN_CHANGED                        = 11022	
 };
 #endif
