@@ -18,9 +18,13 @@
 // This is where scripts' loading functions should be declared:
 void AddSC_boss_lordkazzak();
 
+/* PvP */
+void AddSC_player_vanilla_ranks();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
 	AddSC_boss_lordkazzak();
+	AddSC_player_vanilla_ranks();
 }
