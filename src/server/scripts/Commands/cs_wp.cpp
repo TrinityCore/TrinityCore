@@ -450,7 +450,7 @@ public:
             if (arg_str_2 == "setid")
             {
                 uint32 newid = atoul(arg_3);
-                handler->PSendSysMessage("%s%s|r|cff00ffff%u|r|cff00ff00%s|r|cff00ffff%u|r", "|cff00ff00", "Wp Event: Wypoint script guid: ", newid, " id changed: ", id);
+                handler->PSendSysMessage("%s%s|r|cff00ffff%u|r|cff00ff00%s|r|cff00ffff%u|r", "|cff00ff00", "Wp Event: Waypoint script guid: ", newid, " id changed: ", id);
 
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_SCRIPT_ID);
                 stmt->setUInt32(0, newid);
