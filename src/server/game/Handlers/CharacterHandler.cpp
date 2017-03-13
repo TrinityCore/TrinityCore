@@ -382,17 +382,15 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 
     if (createInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT))
     {
-        // speedup check for deathKnight class disabled case
-        uint32 deathKnight_free_slots = sWorld->getIntConfig(CONFIG_DEATH_KNIGHTS_PER_REALM);
-        if (deathKnight_free_slots == 0)
+        // speedup check for death knight class disabled case
+        if (sWorld->getIntConfig(CONFIG_DEATH_KNIGHTS_PER_REALM) == 0)
         {
             SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
             return;
         }
 
-        // speedup check for deathKnight class disabled case
-        uint32 req_level_for_deathKnight = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT);
-        if (req_level_for_deathKnight > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        // speedup check for death knight class disabled case
+        if (sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT) > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
             SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
             return;
