@@ -251,15 +251,18 @@ void LoadDisables()
                 }
                 break;
             }
-            case DISABLE_TYPE_AUCTIONHOUSE_ITEM:
+            case DISABLE_TYPE_ITEM:
             {
                 if (!sObjectMgr->GetItemTemplate(entry))
                 {
                     TC_LOG_ERROR("sql.sql", "Item entry %u from `disables` doesn't exist in item_template, skipped.", entry);
                     continue;
                 }
-                if (flags)
-                    TC_LOG_ERROR("sql.sql", "Disable flags specified for auction house item %u, useless data.", entry);
+                if (!flags || flags > MAX_ITEM_DISABLE_TYPE)
+                {
+                    TC_LOG_ERROR("sql.sql", "Disable flags for item %u are invalid, skipped.", entry);
+                    continue;
+                }
                 break;
             }
             default:
@@ -392,9 +395,9 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
         case DISABLE_TYPE_MMAP:
-        case DISABLE_TYPE_AUCTIONHOUSE_ITEM:
             return true;
         case DISABLE_TYPE_VMAP:
+        case DISABLE_TYPE_ITEM:
            return (flags & itr->second.flags) != 0;
     }
 

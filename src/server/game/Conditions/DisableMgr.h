@@ -35,7 +35,7 @@ enum DisableType
     DISABLE_TYPE_VMAP                   = 6,
     DISABLE_TYPE_MMAP                   = 7,
     DISABLE_TYPE_LFG_MAP                = 8,
-    DISABLE_TYPE_AUCTIONHOUSE_ITEM      = 9
+    DISABLE_TYPE_ITEM                   = 9
 };
 
 enum SpellDisableTypes
@@ -50,6 +50,17 @@ enum SpellDisableTypes
     MAX_SPELL_DISABLE_TYPE = (  SPELL_DISABLE_PLAYER | SPELL_DISABLE_CREATURE | SPELL_DISABLE_PET |
                                 SPELL_DISABLE_DEPRECATED_SPELL | SPELL_DISABLE_MAP | SPELL_DISABLE_AREA |
                                 SPELL_DISABLE_LOS)
+};
+
+enum ItemDisableTypes
+{
+    ITEM_DISABLE_AUCTIONHOUSE       = 0x1,
+    /* @todo
+    ITEM_DISABLE_VENDOR             = 0x2,
+    ITEM_DISABLE_QUEST              = 0x4,
+    ITEM_DISABLE_DROP               = 0x8,
+    */
+    MAX_ITEM_DISABLE_TYPE = (  ITEM_DISABLE_AUCTIONHOUSE /*| ITEM_DISABLE_VENDOR | ITEM_DISABLE_QUEST | ITEM_DISABLE_DROP*/)
 };
 
 enum MMapDisableTypes

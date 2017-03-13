@@ -202,7 +202,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         if (itemEntry == 0)
             itemEntry = item->GetTemplate()->ItemId;
 
-        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_AUCTIONHOUSE_ITEM, itemEntry, nullptr))
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ITEM, itemEntry, nullptr, ITEM_DISABLE_AUCTIONHOUSE))
         {
             SendAuctionCommandResult(0, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
             return;
