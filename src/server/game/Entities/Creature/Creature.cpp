@@ -1204,8 +1204,8 @@ void Creature::SelectLevel()
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, minlevel);
         SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, maxlevel);
 
-        if (cInfo->levelScalingDelta)
-            SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, cInfo->levelScalingDelta);
+        if (cInfo->levelScalingDelta.value)
+            SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, cInfo->levelScalingDelta.value);
     }
 
     UpdateLevelDependantStats();
@@ -2500,7 +2500,7 @@ void Creature::AllLootRemovedFromCorpse()
 bool Creature::HasScalableLevels() const
 {
     CreatureTemplate const* cinfo = GetCreatureTemplate();
-    return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_SCALING_LEVEL);
+    return cinfo->levelScalingDelta.is_initialized();
 }
 
 uint64 Creature::GetMaxHealthForTarget(WorldObject const* target) const
@@ -2559,7 +2559,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
     // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
     if (HasScalableLevels())
     {
-        uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + GetCreatureTemplate()->levelScalingDelta;
+        uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + GetCreatureTemplate()->levelScalingDelta.value;
 
         if (target->IsPlayer())
             targetLevelWithDelta += target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);

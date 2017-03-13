@@ -260,7 +260,7 @@ enum CreatureDifficultyFlags7
     CREATURE_DIFFICULTYFLAGS_7_UNK1         = 0x00000008
 };
 
-enum CreatureFlagsExtra : uint64
+enum CreatureFlagsExtra
 {
     CREATURE_FLAG_EXTRA_INSTANCE_BIND        = 0x00000001,       // creature kill bind instance with killer and killer's group
     CREATURE_FLAG_EXTRA_CIVILIAN             = 0x00000002,       // not aggro (ignore faction/reputation hostility)
@@ -280,8 +280,7 @@ enum CreatureFlagsExtra : uint64
     CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ = 0x00200000,       // creature does not need to take player damage for kill credit
     CREATURE_FLAG_EXTRA_DUNGEON_BOSS         = 0x10000000,       // creature is a dungeon boss (SET DYNAMICALLY, DO NOT ADD IN DB)
     CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING   = 0x20000000,       // creature ignore pathfinding
-    CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK   = 0x40000000,       // creature is immune to knockback effects
-    CREATURE_FLAG_EXTRA_SCALING_LEVEL        = 0x80000000        // Creature will scale its level depending of player level between minlevel and maxlevel
+    CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK   = 0x40000000        // creature is immune to knockback effects
 };
 
 #define CREATURE_FLAG_EXTRA_DB_ALLOWED (CREATURE_FLAG_EXTRA_INSTANCE_BIND | CREATURE_FLAG_EXTRA_CIVILIAN | \
@@ -290,7 +289,7 @@ enum CreatureFlagsExtra : uint64
     CREATURE_FLAG_EXTRA_NO_TAUNT | CREATURE_FLAG_EXTRA_WORLDEVENT | CREATURE_FLAG_EXTRA_NO_CRIT | \
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
     CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING | CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ | \
-    CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK | CREATURE_FLAG_EXTRA_SCALING_LEVEL)
+    CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
 
 const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
 const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
@@ -318,7 +317,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
-    int16   levelScalingDelta;
+    boost::optional<int16> levelScalingDelta;
     int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
