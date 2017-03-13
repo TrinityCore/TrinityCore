@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid` IN (74034,74142,77646,77647,77815,77864,77865,77866,77906,77937,77938,77939,77940);
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
@@ -25,3 +26,4 @@ INSERT INTO `pool_creature` (`guid`, `pool_entry`, `chance`, `description`) VALU
 (77938, 373, 0, 'Dr. Whitherlimb 2'),
 (77939, 373, 0, 'Dr. Whitherlimb 3'),
 (77940, 373, 0, 'Dr. Whitherlimb 4');
+*/

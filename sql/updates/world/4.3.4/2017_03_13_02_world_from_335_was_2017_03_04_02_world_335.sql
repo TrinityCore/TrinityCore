@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `smart_scripts` SET `event_param3`=2000 ,`event_param4`=2000  WHERE `entryorguid` IN (6182) AND `source_type`=0 AND `id`=22;
 UPDATE `smart_scripts` SET `event_flags`=1 WHERE `entryorguid` IN (7726) AND `source_type`=0 AND `id`=3;
@@ -19,3 +20,4 @@ UPDATE `smart_scripts` SET `event_flags`=1 WHERE `entryorguid` IN (13197) AND `s
 UPDATE `smart_scripts` SET `event_flags`=1 WHERE `entryorguid` IN (13197) AND `source_type`=0 AND `id`=6;
 UPDATE `smart_scripts` SET `event_flags`=1 WHERE `entryorguid` IN (13197) AND `source_type`=0 AND `id`=7;
 UPDATE `smart_scripts` SET `event_flags`=1 WHERE `entryorguid` IN (13197) AND `source_type`=0 AND `id`=8;
+*/

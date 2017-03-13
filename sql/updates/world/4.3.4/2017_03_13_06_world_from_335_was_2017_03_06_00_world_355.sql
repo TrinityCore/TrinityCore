@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `creature` WHERE `guid`=74033;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
@@ -33,3 +34,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (10820, 0, 0, 0, 0, 0, 100, 0, 2000, 4000, 5000, 9000, 11, 12471, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "Duke Ragereaver - IC - cast Shadow Bolt"),
 (10820, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 21000, 25000, 11, 13847, 1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "Duke Ragereaver - IC - cast recklessness"),
 (10820, 0, 2, 0, 23, 0, 100, 0, 11733, 0, 0, 0, 11, 11733, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "Duke Ragereaver - on missing aura - cast demon armor");
+*/
