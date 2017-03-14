@@ -69,13 +69,13 @@ public:
 				}
 			}
 		}
-		/*ChatHandler chathandle = ChatHandler(player->GetSession());
+		ChatHandler chathandle = ChatHandler(player->GetSession());
 		if (slotRand[2] != -1)
-			chathandle.PSendSysMessage("Newly Acquired |cffFF0000 %s |rhas received|cffFF0000 3 |rrandom enchantments!", item->GetTemplate()->GetName().c_str());
+			chathandle.PSendSysMessage("Newly Acquired item has received|cffFF0000 3 |rrandom enchantments!");
 		else if(slotRand[1] != -1)
-			chathandle.PSendSysMessage("Newly Acquired |cffFF0000 %s |rhas received|cffFF0000 2 |rrandom enchantments!", item->GetTemplate()->GetName.c_str());
+			chathandle.PSendSysMessage("Newly Acquired item has received|cffFF0000 2 |rrandom enchantments!");
 		else if(slotRand[0] != -1)
-			chathandle.PSendSysMessage("Newly Acquired |cffFF0000 %s |rhas received|cffFF0000 1 |rrandom enchantment!", item->GetTemplate()->GetName.c_str());*/
+			chathandle.PSendSysMessage("Newly Acquired item has received|cffFF0000 1 |rrandom enchantment!");
 	}
 	int getRandEnchantment(Item* item)
 	{
