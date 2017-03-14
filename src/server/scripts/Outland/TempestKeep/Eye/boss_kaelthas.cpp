@@ -594,7 +594,7 @@ class boss_kaelthas : public CreatureScript
                         events.ScheduleEvent(EVENT_TRANSITION_1, 1000);
                         break;
                     case POINT_TRANSITION_CENTER_ASCENDING:
-                        me->SetFacingTo(float(M_PI));
+                        me->SetFacingTo(float(M_PI), true);
                         Talk(SAY_PHASE5_NUTS);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisableGravity(true);
@@ -843,6 +843,9 @@ class boss_kaelthas : public CreatureScript
                         default:
                             break;
                     }
+                    
+                    if (me->HasUnitState(UNIT_STATE_CASTING) && !me->FindCurrentSpellBySpellId(SPELL_KAEL_GAINING_POWER) && !me->FindCurrentSpellBySpellId(SPELL_KAEL_STUNNED))
+                        return;
                 }
 
                 if (events.IsInPhase(PHASE_COMBAT))

@@ -43,6 +43,8 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
     init.MoveTo(i_x, i_y, i_z, m_generatePath);
     if (speed > 0.0f)
         init.SetVelocity(speed);
+    if (i_faceTarget)
+        init.SetFacing(i_faceTarget);
     init.Launch();
 
     // Call for creature group update

@@ -531,7 +531,11 @@ void BossAI::UpdateAI(uint32 diff)
         return;
 
     while (uint32 eventId = events.ExecuteEvent())
+    {
         ExecuteEvent(eventId);
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+    }
 
     DoMeleeAttackIfReady();
 }
@@ -554,16 +558,7 @@ void BossAI::_DespawnAtEvade(uint32 delayToRespawn, Creature* who)
         return;
     }
 
-    uint32 corpseDelay = who->GetCorpseDelay();
-    uint32 respawnDelay = who->GetRespawnDelay();
-
-    who->SetCorpseDelay(1);
-    who->SetRespawnDelay(delayToRespawn - 1);
-
-    who->DespawnOrUnsummon();
-
-    who->SetCorpseDelay(corpseDelay);
-    who->SetRespawnDelay(respawnDelay);
+    me->DespawnOrUnsummon(0, Seconds(delayToRespawn));
 
     if (instance && who == me)
         instance->SetBossState(_bossId, FAIL);
@@ -621,7 +616,11 @@ void WorldBossAI::UpdateAI(uint32 diff)
         return;
 
     while (uint32 eventId = events.ExecuteEvent())
+    {
         ExecuteEvent(eventId);
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+    }
 
     DoMeleeAttackIfReady();
 }

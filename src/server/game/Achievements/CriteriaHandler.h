@@ -95,12 +95,13 @@ enum CriteriaDataType
     CRITERIA_DATA_TYPE_HOLIDAY              = 16, // HolidayId      0             event in holiday time
     CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE   = 17, // MinScore       MaxScore      player's team win bg and opposition team have team score in range
     CRITERIA_DATA_TYPE_INSTANCE_SCRIPT      = 18, // 0              0             maker instance script call for check current criteria requirements fit
-    CRITERIA_DATA_TYPE_S_EQUIPED_ITEM       = 19, // ItemLevel      Quality       for equipped item in slot to check item level and quality
+    CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM      = 19, // ItemLevel      Quality       for equipped item in slot to check item level and quality
     CRITERIA_DATA_TYPE_MAP_ID               = 20, // MapId          0             player must be on map with id in map_id
     CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE  = 21, // Class          Race
     CRITERIA_DATA_TYPE_NTH_BIRTHDAY         = 22, // used on 3.3.5a branch
     CRITERIA_DATA_TYPE_S_KNOWN_TITLE        = 23, // TitleId                      known (pvp) title, values from dbc
     CRITERIA_DATA_TYPE_GAME_EVENT           = 24, // GameEventId    0
+    CRITERIA_DATA_TYPE_S_ITEM_QUALITY       = 25, // ItemQuality    0
 
     MAX_CRITERIA_DATA_TYPE
 };
@@ -179,7 +180,7 @@ struct CriteriaData
             uint32 Max;
         } BattlegroundScore;
         // CRITERIA_DATA_TYPE_INSTANCE_SCRIPT   = 18 (no data)
-        // CRITERIA_DATA_TYPE_S_EQUIPED_ITEM    = 19
+        // CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM   = 19
         struct
         {
             uint32 ItemLevel;
@@ -190,16 +191,21 @@ struct CriteriaData
         {
             uint32 Id;
         } Map;
-        // CRITERIA_DATA_TYPE_KNOWN_TITLE       = 22
+        // CRITERIA_DATA_TYPE_KNOWN_TITLE       = 23
         struct
         {
             uint32 Id;
         } KnownTitle;
-        // CRITERIA_DATA_TYPE_GAME_EVENT           = 24
+        // CRITERIA_DATA_TYPE_GAME_EVENT        = 25
         struct
         {
             uint32 Id;
         } GameEvent;
+        // CRITERIA_DATA_TYPE_S_ITEM_QUALITY    = 24
+        struct
+        {
+            uint32 Quality;
+        } ItemQuality;
         // raw
         struct
         {

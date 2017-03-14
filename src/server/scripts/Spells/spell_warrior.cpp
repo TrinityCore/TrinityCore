@@ -52,7 +52,10 @@ enum WarriorSpells
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_1       = 29841,
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_2       = 29842,
     SPELL_WARRIOR_SHIELD_SLAM                       = 23922,
+    SPELL_WARRIOR_SHOCKWAVE                         = 46968,
+    SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_SLAM                              = 50782,
+    SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
     SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
@@ -63,6 +66,8 @@ enum WarriorSpells
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
     SPELL_WARRIOR_VIGILANCE_PROC                    = 50725,
     SPELL_WARRIOR_VENGEANCE                         = 76691,
+    SPELL_WARRIOR_VICTORIOUS                        = 32216,
+    SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
@@ -681,6 +686,92 @@ class spell_warr_second_wind_trigger : public SpellScriptLoader
         }
 };
 
+// 46968 - Shockwave
+class spell_warr_shockwave : public SpellScriptLoader
+{
+public:
+    spell_warr_shockwave() : SpellScriptLoader("spell_warr_shockwave") { }
+
+    class spell_warr_shockwave_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_shockwave_SpellScript);
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            if (!ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE, SPELL_WARRIOR_SHOCKWAVE_STUN }))
+                return false;
+
+            return spellInfo->GetEffect(EFFECT_0) && spellInfo->GetEffect(EFFECT_3);
+        }
+
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void HandleStun(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_SHOCKWAVE_STUN, true);
+            ++_targetCount;
+        }
+
+        // Cooldown reduced by 20 sec if it strikes at least 3 targets.
+        void HandleAfterCast()
+        {
+            if (_targetCount >= uint32(GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue()))
+                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, -(GetSpellInfo()->GetEffect(EFFECT_3)->CalcValue() * IN_MILLISECONDS));
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave_SpellScript::HandleStun, EFFECT_0, SPELL_EFFECT_DUMMY);
+            AfterCast += SpellCastFn(spell_warr_shockwave_SpellScript::HandleAfterCast);
+        }
+
+        uint32 _targetCount = 0;
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_shockwave_SpellScript();
+    }
+};
+
+// 107570 - Storm Bolt
+class spell_warr_storm_bolt : public SpellScriptLoader
+{
+public:
+    spell_warr_storm_bolt() : SpellScriptLoader("spell_warr_storm_bolt") { }
+
+    class spell_warr_storm_bolt_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_storm_bolt_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_STORM_BOLT_STUN
+            });
+        }
+
+        void HandleOnHit(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_STORM_BOLT_STUN, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_storm_bolt_SpellScript::HandleOnHit, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_storm_bolt_SpellScript();
+    }
+};
+
 // 52437 - Sudden Death
 class spell_warr_sudden_death : public SpellScriptLoader
 {
@@ -819,32 +910,41 @@ class spell_warr_sword_and_board : public SpellScriptLoader
         }
 };
 
-// 32216 - Victorious
-// 82368 - Victorious
-class spell_warr_victorious : public SpellScriptLoader
+// 34428 - Victory Rush
+class spell_warr_victory_rush : public SpellScriptLoader
 {
     public:
-        spell_warr_victorious() : SpellScriptLoader("spell_warr_victorious") { }
+        spell_warr_victory_rush() : SpellScriptLoader("spell_warr_victory_rush") { }
 
-        class spell_warr_victorious_AuraScript : public AuraScript
+        class spell_warr_victory_rush_SpellScript : public SpellScript
         {
-            PrepareAuraScript(spell_warr_victorious_AuraScript);
+            PrepareSpellScript(spell_warr_victory_rush_SpellScript);
 
-            void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                PreventDefaultAction();
-                GetTarget()->RemoveAura(GetId());
+                return ValidateSpellInfo
+                ({
+                    SPELL_WARRIOR_VICTORIOUS,
+                    SPELL_WARRIOR_VICTORY_RUSH_HEAL
+                });
+            }
+
+            void HandleHeal()
+            {
+                Unit* caster = GetCaster();
+                caster->CastSpell(caster, SPELL_WARRIOR_VICTORY_RUSH_HEAL, true);
+                caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
             }
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_warr_victorious_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+                AfterCast += SpellCastFn(spell_warr_victory_rush_SpellScript::HandleHeal);
             }
         };
 
-        AuraScript* GetAuraScript() const override
+        SpellScript* GetSpellScript() const override
         {
-            return new spell_warr_victorious_AuraScript();
+            return new spell_warr_victory_rush_SpellScript();
         }
 };
 
@@ -1080,11 +1180,13 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_second_wind_proc();
     new spell_warr_second_wind_trigger();
     new spell_warr_shattering_throw();
+    new spell_warr_shockwave();
     new spell_warr_slam();
+    new spell_warr_storm_bolt();
     new spell_warr_sudden_death();
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
-    new spell_warr_victorious();
+    new spell_warr_victory_rush();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
     new spell_warr_heroic_leap();

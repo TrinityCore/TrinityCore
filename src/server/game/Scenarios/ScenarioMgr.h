@@ -69,9 +69,6 @@ struct ScenarioPOIPoint
 struct ScenarioPOI
 {
     int32 BlobIndex;
-    int32 ObjectiveIndex;
-    int32 QuestObjectiveID;
-    int32 QuestObjectID;
     int32 MapID;
     int32 WorldMapAreaID;
     int32 Floor;

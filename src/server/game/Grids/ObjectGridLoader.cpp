@@ -213,10 +213,12 @@ void ObjectGridUnloader::Visit(GridRefManager<T> &m)
 
 void ObjectGridStoper::Visit(CreatureMapType &m)
 {
-    // stop any fights at grid de-activation and remove dynobjects created at cast by creatures
+    // stop any fights at grid de-activation and remove dynobjects/areatriggers created at cast by creatures
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         iter->GetSource()->RemoveAllDynObjects();
+        iter->GetSource()->RemoveAllAreaTriggers();
+
         if (iter->GetSource()->IsInCombat())
         {
             iter->GetSource()->CombatStop();

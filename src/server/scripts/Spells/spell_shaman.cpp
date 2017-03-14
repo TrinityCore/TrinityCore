@@ -34,6 +34,7 @@ enum ShamanSpells
 {
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE             = 108281,
     SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL        = 114911,
+    SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE         = 187878,
     SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 204290,
     SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE           = 170374,
     SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC          = 170377,
@@ -47,6 +48,8 @@ enum ShamanSpells
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
     SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM          = 188389,
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
+    SPELL_SHAMAN_GATHERING_STORMS               = 198299,
+    SPELL_SHAMAN_GATHERING_STORMS_BUFF          = 198300,
     SPELL_SHAMAN_HIGH_TIDE                      = 157154,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD          = 23552,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE   = 27635,
@@ -192,6 +195,51 @@ class spell_sha_bloodlust : public SpellScriptLoader
         {
             return new spell_sha_bloodlust_SpellScript();
         }
+};
+
+// 187874 - Crash Lightning
+class spell_sha_crash_lightning : public SpellScriptLoader
+{
+public:
+    spell_sha_crash_lightning() : SpellScriptLoader("spell_sha_crash_lightning") { }
+
+    class spell_sha_crash_lightning_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_crash_lightning_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE))
+                return false;
+            return true;
+        }
+
+        void CountTargets(std::list<WorldObject*>& targets)
+        {
+            _targetsHit = targets.size();
+        }
+
+        void TriggerCleaveBuff()
+        {
+            if (_targetsHit >= 2)
+                GetCaster()->CastSpell(GetCaster(), SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE, true);
+            if (AuraEffect const* gatheringStorms = GetCaster()->GetAuraEffect(SPELL_SHAMAN_GATHERING_STORMS, EFFECT_0))
+                GetCaster()->CastCustomSpell(SPELL_SHAMAN_GATHERING_STORMS_BUFF, SPELLVALUE_BASE_POINT0, int32(gatheringStorms->GetAmount() * _targetsHit), GetCaster(), true);
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_crash_lightning_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            AfterCast += SpellCastFn(spell_sha_crash_lightning_SpellScript::TriggerCleaveBuff);
+        }
+
+        size_t _targetsHit = 0;
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_sha_crash_lightning_SpellScript();
+    }
 };
 
 // 204288 - Earth Shield
@@ -935,6 +983,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_ancestral_guidance();
     new spell_sha_ancestral_guidance_heal();
     new spell_sha_bloodlust();
+    new spell_sha_crash_lightning();
     new spell_sha_earth_shield();
     new spell_sha_earthen_rage_passive();
     new spell_sha_earthen_rage_proc_aura();

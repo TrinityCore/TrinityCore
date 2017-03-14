@@ -3045,7 +3045,7 @@ static int MndxHandler_Insert(TRootHandler_MNDX *, const char *, LPBYTE)
     return ERROR_NOT_SUPPORTED;
 }
 
-static LPBYTE MndxHandler_Search(TRootHandler_MNDX * pRootHandler, TCascSearch * pSearch, PDWORD PtrFileSize, PDWORD /* PtrLocaleFlags */)
+static LPBYTE MndxHandler_Search(TRootHandler_MNDX * pRootHandler, TCascSearch * pSearch, PDWORD PtrFileSize, PDWORD /* PtrLocaleFlags */, PDWORD /* PtrFileDataId */)
 {
     TMndxFindResult * pStruct1C = NULL;
     PCASC_MNDX_INFO pMndxInfo = &pRootHandler->MndxInfo;
@@ -3083,6 +3083,12 @@ static void MndxHandler_EndSearch(TRootHandler_MNDX * /* pRootHandler */, TCascS
     if(pSearch != NULL)
         delete (TMndxFindResult *)pSearch->pRootContext;
     pSearch->pRootContext = NULL;
+}
+
+static DWORD MndxHandler_GetFileId(TRootHandler_MNDX * /* pRootHandler */, const char * /* szFileName */)
+{
+  // Not implemented for HOTS
+  return 0;
 }
 
 static LPBYTE MndxHandler_GetKey(TRootHandler_MNDX * pRootHandler, const char * szFileName)
@@ -3164,7 +3170,9 @@ int RootHandler_CreateMNDX(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFil
     pRootHandler->Search      = (ROOT_SEARCH)MndxHandler_Search;
     pRootHandler->EndSearch   = (ROOT_ENDSEARCH)MndxHandler_EndSearch;
     pRootHandler->GetKey      = (ROOT_GETKEY)MndxHandler_GetKey;
-    pRootHandler->Close       = (ROOT_CLOSE) MndxHandler_Close;
+    pRootHandler->Close       = (ROOT_CLOSE)MndxHandler_Close;
+    pRootHandler->GetFileId   = (ROOT_GETFILEID)MndxHandler_GetFileId;
+
     pMndxInfo = &pRootHandler->MndxInfo;
 
     // Fill-in the flags

@@ -299,6 +299,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void CreatureRelocation(Creature* creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true);
         void GameObjectRelocation(GameObject* go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true);
         void DynamicObjectRelocation(DynamicObject* go, float x, float y, float z, float orientation);
+        void AreaTriggerRelocation(AreaTrigger* at, float x, float y, float z, float orientation);
 
         template<class T, class CONTAINER>
         void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
@@ -359,6 +360,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void MoveAllCreaturesInMoveList();
         void MoveAllGameObjectsInMoveList();
         void MoveAllDynamicObjectsInMoveList();
+        void MoveAllAreaTriggersInMoveList();
         void RemoveAllObjectsInRemoveList();
         virtual void RemoveAllPlayers();
 
@@ -588,6 +590,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);
         bool GameObjectCellRelocation(GameObject* go, Cell new_cell);
         bool DynamicObjectCellRelocation(DynamicObject* go, Cell new_cell);
+        bool AreaTriggerCellRelocation(AreaTrigger* at, Cell new_cell);
 
         template<class T> void InitializeObject(T* obj);
         void AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang);
@@ -596,6 +599,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RemoveGameObjectFromMoveList(GameObject* go);
         void AddDynamicObjectToMoveList(DynamicObject* go, float x, float y, float z, float ang);
         void RemoveDynamicObjectFromMoveList(DynamicObject* go);
+        void AddAreaTriggerToMoveList(AreaTrigger* at, float x, float y, float z, float ang);
+        void RemoveAreaTriggerFromMoveList(AreaTrigger* at);
 
         bool _creatureToMoveLock;
         std::vector<Creature*> _creaturesToMove;
@@ -605,6 +610,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         bool _dynamicObjectsToMoveLock;
         std::vector<DynamicObject*> _dynamicObjectsToMove;
+
+        bool _areaTriggersToMoveLock;
+        std::vector<AreaTrigger*> _areaTriggersToMove;
 
         bool IsGridLoaded(const GridCoord &) const;
         void EnsureGridCreated(const GridCoord &);
@@ -767,9 +775,11 @@ class TC_GAME_API InstanceMap : public Map
         bool Reset(uint8 method);
         uint32 GetScriptId() const { return i_script_id; }
         InstanceScript* GetInstanceScript() { return i_data; }
+        InstanceScript const* GetInstanceScript() const { return i_data; }
         InstanceScenario* GetInstanceScenario() { return i_scenario; }
+        InstanceScenario const* GetInstanceScenario() const { return i_scenario; }
         void SetInstanceScenario(InstanceScenario* scenario) { i_scenario = scenario; }
-        void PermBindAllPlayers(Player* source);
+        void PermBindAllPlayers();
         void UnloadAll() override;
         EnterState CannotEnter(Player* player) override;
         void SendResetWarnings(uint32 timeLeft) const;

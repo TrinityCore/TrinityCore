@@ -148,6 +148,9 @@ class boss_majordomo : public CreatureScript
                             default:
                                 break;
                         }
+
+                        if (me->HasUnitState(UNIT_STATE_CASTING))
+                            return;
                     }
 
                     DoMeleeAttackIfReady();
@@ -197,7 +200,7 @@ class boss_majordomo : public CreatureScript
             {
                 if (menuId == MENU_OPTION_YOU_CHALLENGED_US && gossipListId == OPTION_ID_YOU_CHALLENGED_US)
                 {
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
                     DoAction(ACTION_START_RAGNAROS);
                 }
             }

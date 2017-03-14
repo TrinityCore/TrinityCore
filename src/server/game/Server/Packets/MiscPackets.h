@@ -247,18 +247,6 @@ namespace WorldPackets
             Optional<uint32> InstanceGroupSize;
         };
 
-        class AreaTrigger final : public ClientPacket
-        {
-        public:
-            AreaTrigger(WorldPacket&& packet) : ClientPacket(CMSG_AREA_TRIGGER, std::move(packet)) { }
-
-            void Read() override;
-
-            int32 AreaTriggerID = 0;
-            bool Entered = false;
-            bool FromClient = false;
-        };
-
         class SetDungeonDifficulty final : public ClientPacket
         {
         public:
@@ -390,15 +378,7 @@ namespace WorldPackets
             uint32 Response = 0;
         };
 
-        class AreaTriggerNoCorpse final : public ServerPacket
-        {
-        public:
-            AreaTriggerNoCorpse() : ServerPacket(SMSG_AREA_TRIGGER_NO_CORPSE, 0) { }
-
-            WorldPacket const* Write() override { return &_worldPacket; }
-        };
-
-        class TC_GAME_API  Weather final : public ServerPacket
+        class TC_GAME_API Weather final : public ServerPacket
         {
         public:
             Weather();
@@ -602,7 +582,7 @@ namespace WorldPackets
         class PlayObjectSound final : public ServerPacket
         {
         public:
-            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 16 + 16 + 4 + 4 * 4) { }
+            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 16 + 16 + 4 + 4 * 3) { }
 
             WorldPacket const* Write() override;
 
@@ -793,7 +773,7 @@ namespace WorldPackets
             ObjectGuid TransportGUID;
             G3D::Vector3 Pos;
             float Facing = 0.0f;
-            int32 LfgDungeonID;
+            int32 LfgDungeonID = 0;
         };
 
         class AccountHeirloomUpdate final : public ServerPacket

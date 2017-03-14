@@ -273,7 +273,7 @@ namespace WorldPackets
             int32 Quality = 0;
             uint8 SortCount = 0;
             Array<uint8, BATTLE_PET_SPECIES_MAX_ID / 8 + 1> KnownPets;
-            int8 MaxPetLevel;
+            int8 MaxPetLevel = 0;
             std::string Name;
             Array<ClassFilter, 7> ClassFilters;
             bool ExactMatch = true;

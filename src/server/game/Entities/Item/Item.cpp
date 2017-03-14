@@ -333,7 +333,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owne
                     continue;
 
                 if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactAppearance->PlayerConditionID))
-                    if (!sConditionMgr->IsPlayerMeetingCondition(owner, playerCondition))
+                    if (!owner || !sConditionMgr->IsPlayerMeetingCondition(owner, playerCondition))
                         continue;
 
                 SetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID, artifactAppearance->ID);

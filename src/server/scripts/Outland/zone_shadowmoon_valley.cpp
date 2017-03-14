@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10583, 10601, 10804, 10854, 10458, 10481, 10480, 10781, 10451. Vendor Drake Dealer Hurlunk.
+SDComment: Quest support: 10804, 10854, 10458, 10481, 10480, 10781, 10451.
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -28,9 +28,6 @@ npc_invis_infernal_caster
 npc_infernal_attacker
 npc_mature_netherwing_drake
 npc_enslaved_netherwing_drake
-npc_drake_dealer_hurlunk
-npcs_flanis_swiftwing_and_kagrosh
-npc_karynaku
 npc_earthmender_wilda
 npc_torloth_the_magnificent
 npc_illidari_spawn
@@ -568,117 +565,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-};
-
-/*######
-## npc_drake_dealer_hurlunk
-######*/
-
-class npc_drake_dealer_hurlunk : public CreatureScript
-{
-public:
-    npc_drake_dealer_hurlunk() : CreatureScript("npc_drake_dealer_hurlunk") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsVendor() && player->GetReputationRank(1015) == REP_EXALTED)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*######
-## npc_flanis_swiftwing_and_kagrosh
-######*/
-
-#define GOSSIP_HSK1 "Take Flanis's Pack"
-#define GOSSIP_HSK2 "Take Kagrosh's Pack"
-
-class npcs_flanis_swiftwing_and_kagrosh : public CreatureScript
-{
-public:
-    npcs_flanis_swiftwing_and_kagrosh() : CreatureScript("npcs_flanis_swiftwing_and_kagrosh") { }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30658, 1, NULL);
-            if (msg == EQUIP_ERR_OK)
-            {
-                player->StoreNewItem(dest, 30658, true);
-                player->PlayerTalkClass->ClearMenus();
-            }
-        }
-        if (action == GOSSIP_ACTION_INFO_DEF+2)
-        {
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30659, 1, NULL);
-            if (msg == EQUIP_ERR_OK)
-            {
-                player->StoreNewItem(dest, 30659, true);
-                player->PlayerTalkClass->ClearMenus();
-            }
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(10583) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(30658, 1, true))
-            player->ADD_GOSSIP_ITEM(0, GOSSIP_HSK1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        if (player->GetQuestStatus(10601) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(30659, 1, true))
-            player->ADD_GOSSIP_ITEM(0, GOSSIP_HSK2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
-
-/*######
-# npc_karynaku
-####*/
-
-enum Karynaku
-{
-    QUEST_ALLY_OF_NETHER    = 10870,
-    QUEST_ZUHULED_THE_WACK  = 10866,
-
-    NPC_ZUHULED_THE_WACKED  = 11980,
-
-    TAXI_PATH_ID            = 649,
-};
-
-class npc_karynaku : public CreatureScript
-{
-    public:
-        npc_karynaku() : CreatureScript("npc_karynaku") { }
-
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_ALLY_OF_NETHER)
-                player->ActivateTaxiPathTo(TAXI_PATH_ID);
-
-            if (quest->GetQuestId() == QUEST_ZUHULED_THE_WACK)
-                creature->SummonCreature(NPC_ZUHULED_THE_WACKED, -4204.94f, 316.397f, 122.508f, 1.309f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
-
-            return true;
-        }
 };
 
 /*####
@@ -1703,9 +1589,6 @@ void AddSC_shadowmoon_valley()
     new npc_mature_netherwing_drake();
     new npc_enslaved_netherwing_drake();
     new npc_dragonmaw_peon();
-    new npc_drake_dealer_hurlunk();
-    new npcs_flanis_swiftwing_and_kagrosh();
-    new npc_karynaku();
     new npc_earthmender_wilda();
     new npc_lord_illidan_stormrage();
     new go_crystal_prison();

@@ -23,7 +23,6 @@
 #include "wmo.h"
 #include <string>
 #include <vector>
-#include <cstdlib>
 
 class ADTFile;
 
