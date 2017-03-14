@@ -1144,7 +1144,7 @@ SET @MOTHER   := 4300;
 SET @LASTGUID := 2;
 SET @ACTIVE   := 2; -- Max number of active spawns
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID AND @OGUID+@LASTGUID;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 1619, 43, 0, 0, 1, 169, 0, -53.0091, 389.589, -61.6968, 5.201083, 0, 0, -0.5150375, 0.8571676, @TIMER, 255, 1, 23420), -- Earthroot
 (@OGUID+1, 1619, 43, 0, 0, 1, 169, 0, 47.5179, 517.586, -58.1344, 0.5410506, 0, 0, 0.2672377, 0.9636307, @TIMER, 255, 1, 23420), -- Earthroot
 (@OGUID+2, 1619, 43, 0, 0, 1, 169, 0, -121.701, 462.537, -72.2603, 3.647741, 0, 0, -0.9681473, 0.2503814, @TIMER, 255, 1, 23420); -- Earthroot
@@ -1167,7 +1167,7 @@ SET @MOTHER   := 4301;
 SET @LASTGUID := 6;
 SET @ACTIVE   := 2; -- Max number of active spawns
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID AND @OGUID+@LASTGUID;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 1624, 43, 0, 0, 1, 169, 0, -96.1374, 181.974, -78.5475, 3.57793, 0, 0, -0.9762955, 0.2164421, @TIMER, 255, 1, 23420), -- Kingsblood
 (@OGUID+1, 1624, 43, 0, 0, 1, 169, 0, -60.23, 298.535, -90.2058, 1.692969, 0, 0, 0.7489557, 0.6626201, @TIMER, 255, 1, 23420), -- Kingsblood
 (@OGUID+2, 1624, 43, 0, 0, 1, 169, 0, -51.4081, 367.112, -59.5331, 2.321287, 0, 0, 0.9170599, 0.3987495, @TIMER, 255, 1, 23420), -- Kingsblood
@@ -1198,7 +1198,7 @@ SET @MOTHER   := 4302;
 SET @LASTGUID := 2;
 SET @ACTIVE   := 1; -- Max number of active spawns
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID AND @OGUID+@LASTGUID;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 1731, 43, 0, 0, 1, 169, 0, -12.9076, 366.047, -59.3451, 5.846854, 0, 0, -0.2164392, 0.9762961, @TIMER, 255, 1, 23420), -- Copper Vein
 (@OGUID+1, 1731, 43, 0, 0, 1, 169, 0, -161.053, 411.129, -72.5271, 3.019413, 0, 0, 0.9981346, 0.06105176, @TIMER, 255, 1, 23420), -- Copper Vein
 (@OGUID+2, 1731, 43, 0, 0, 1, 169, 0, 11.0334, 528.04, -57.3123, 1.256636, 0, 0, 0.5877848, 0.8090174, @TIMER, 255, 1, 23420); -- Copper Vein
@@ -1224,7 +1224,7 @@ SET @MOTHER   := 4303;
 SET @ACTIVE   := 1; -- Max number of active spawns
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID1 AND @OGUID1+@LASTGUID;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID2 AND @OGUID2+@LASTGUID;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID1+0, 1732, 43, 0, 0, 1, 169, 0, 45.3749, 529.187, -55.8656, 2.722713, 0, 0, 0.9781475, 0.2079121, @TIMER, 255, 1, 23420), -- Tin Vein
 (@OGUID1+1, 1732, 43, 0, 0, 1, 169, 0, -32.2606, 43.5227, -117.543, 2.268925, 0, 0, 0.9063072, 0.4226195, @TIMER, 255, 1, 23420), -- Tin Vein
 (@OGUID1+2, 1732, 43, 0, 0, 1, 169, 0, -52.6802, 387.592, -61.6997, 6.178466, 0, 0, -0.05233574, 0.9986296, @TIMER, 255, 1, 23420), -- Tin Vein
@@ -1254,7 +1254,7 @@ SET @MOTHER   := 4304;
 SET @LASTGUID := 2;
 SET @ACTIVE   := 1; -- Max number of active spawns
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID AND @OGUID+@LASTGUID;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 2041, 43, 0, 0, 1, 169, 0, -15.1086, 190.488, -105.497, 2.303831, 0, 0, 0.9135447, 0.4067384, @TIMER, 255, 1, 23420), -- Liferoot
 (@OGUID+1, 2041, 43, 0, 0, 1, 169, 0, -167.482, 43.7933, -105.824, 2.879789, 0, 0, 0.9914446, 0.1305283, @TIMER, 255, 1, 23420), -- Liferoot
 (@OGUID+2, 2041, 43, 0, 0, 1, 169, 0, -33.4606, 282.588, -105.51, 6.143561, 0, 0, -0.06975555, 0.9975641, @TIMER, 255, 1, 23420); -- Liferoot
@@ -1277,7 +1277,7 @@ SET @MOTHER   := 4305;
 SET @LASTGUID := 1;
 SET @ACTIVE   := 1; -- Max number of active spawns
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID AND @OGUID+@LASTGUID;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 75293, 43, 0, 0, 1, 169, 0, -49.9295, 370.574, -59.6856, 0.5759573, 0, 0, 0.2840147, 0.9588199, @TIMER, 255, 1, 23420), -- Large Battered Chest
 (@OGUID+1, 75293, 43, 0, 0, 1, 169, 0, 29.6232, 531.781, -56.9991, 5.585054, 0, 0, -0.34202, 0.9396927, @TIMER, 255, 1, 23420); -- Large Battered Chest
 
