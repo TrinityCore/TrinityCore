@@ -72,20 +72,10 @@ class spell_dru_moonfire : public SpellScriptLoader
 
             void HandleOnHit(SpellEffIndex /*effIndex*/)
             {
-                Unit* Caster = GetCaster();
-                Unit* Target = GetHitUnit();
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
 
-                if (Target == nullptr)
-                    return;
-
-                if (!Caster || Caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (Unit* Target = GetHitUnit())
-                {
-                    Caster->CastSpell(Target, SPELL_DRUID_MOONFIRE_DAMAGE, true);
-                }
-
+                caster->CastSpell(target, SPELL_DRUID_MOONFIRE_DAMAGE, true);
             }
 
             void Register()
@@ -113,19 +103,10 @@ class spell_dru_sunfire : public SpellScriptLoader
 
             void HandleOnHit(SpellEffIndex /*effIndex*/)
             {
-                Unit* Caster = GetCaster();
-                Unit* Target = GetHitUnit();
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
 
-                if (Target == nullptr)
-                    return;
-
-                if (!Caster || Caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                if (Unit* Target = GetHitUnit())
-                {
-                    Caster->CastSpell(Target, SPELL_DRUID_SUNFIRE_DAMAGE, true);
-                }
+                caster->CastSpell(target, SPELL_DRUID_SUNFIRE_DAMAGE, true);                
             }
 
 
