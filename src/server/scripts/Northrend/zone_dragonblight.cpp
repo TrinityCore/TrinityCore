@@ -548,6 +548,8 @@ class npc_wyrmrest_defender : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
+                VehicleAI::UpdateAI(diff);
+
                 // Check system for Health Warning should happen first time whenever get under 30%,
                 // after it should be able to happen only after recovery of last renew is fully done (20 sec),
                 // next one used won't interfere
@@ -564,7 +566,8 @@ class npc_wyrmrest_defender : public CreatureScript
                         renewRecoveryCanCheck = false;
                         hpWarningReady = true;
                     }
-                    else RenewRecoveryChecker -= diff;
+                    else
+                        RenewRecoveryChecker -= diff;
                 }
             }
 
@@ -583,9 +586,8 @@ class npc_wyrmrest_defender : public CreatureScript
                         break;
                     case SPELL_RENEW:
                         if (!hpWarningReady && RenewRecoveryChecker <= 100)
-                        {
                             RenewRecoveryChecker = 20000;
-                        }
+
                         renewRecoveryCanCheck = true;
                         break;
                 }
