@@ -72,10 +72,7 @@ class spell_dru_moonfire : public SpellScriptLoader
 
             void HandleOnHit(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                Unit* target = GetHitUnit();
-
-                caster->CastSpell(target, SPELL_DRUID_MOONFIRE_DAMAGE, true);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_MOONFIRE_DAMAGE, true);
             }
 
             void Register()
@@ -103,10 +100,7 @@ class spell_dru_sunfire : public SpellScriptLoader
 
             void HandleOnHit(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                Unit* target = GetHitUnit();
-
-                caster->CastSpell(target, SPELL_DRUID_SUNFIRE_DAMAGE, true);                
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_SUNFIRE_DAMAGE, true);           
             }
 
 
