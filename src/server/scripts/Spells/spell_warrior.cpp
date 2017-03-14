@@ -40,6 +40,8 @@ enum WarriorSpells
     SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC              = 12721,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_GLYPH_OF_EXECUTION                = 58367,
+    SPELL_WARRIOR_IMPENDING_VICTORY                 = 202168,
+    SPELL_WARRIOR_IMPENDING_VICTORY_HEAL            = 202166,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF        = 65156,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
@@ -948,6 +950,86 @@ class spell_warr_victory_rush : public SpellScriptLoader
         }
 };
 
+// 32215 - Victorious State
+class spell_warr_victorious_state : public SpellScriptLoader
+{
+public:
+    spell_warr_victorious_state() : SpellScriptLoader("spell_warr_victorious_state") { }
+
+    class spell_warr_victorious_state_Aurascript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_victorious_state_Aurascript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_IMPENDING_VICTORY
+            });
+        }
+        
+        void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*procInfo*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_WARRIOR_FURY)
+                    PreventDefaultAction();
+
+                if (caster->HasSpell(SPELL_WARRIOR_IMPENDING_VICTORY))
+                    caster->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_IMPENDING_VICTORY, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warr_victorious_state_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_warr_victorious_state_Aurascript();
+    }
+};
+
+// 202168 - Impending Victory
+class spell_warr_impending_victory : public SpellScriptLoader
+{
+public:
+    spell_warr_impending_victory() : SpellScriptLoader("spell_warr_impending_victory") { }
+
+    class spell_warr_impending_victory_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_impending_victory_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_IMPENDING_VICTORY_HEAL
+            });
+        }
+        
+        void HandleAfterCast()
+        {
+            Unit* caster = GetCaster();
+            caster->CastSpell(caster, SPELL_WARRIOR_IMPENDING_VICTORY_HEAL, true);
+            if (caster->HasAura(SPELL_WARRIOR_VICTORIOUS))
+                caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_warr_impending_victory_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_impending_victory_SpellScript();
+    }
+};
+
 // 50720 - Vigilance
 class spell_warr_vigilance : public SpellScriptLoader
 {
@@ -1171,6 +1253,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_execute();
     new spell_warr_improved_spell_reflection();
     new spell_warr_intimidating_shout();
+    new spell_warr_impending_victory();
     new spell_warr_lambs_to_the_slaughter();
     new spell_warr_last_stand();
     new spell_warr_overpower();
@@ -1187,6 +1270,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
     new spell_warr_victory_rush();
+    new spell_warr_victorious_state();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
     new spell_warr_heroic_leap();
