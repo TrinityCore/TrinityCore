@@ -248,6 +248,44 @@ class spell_warr_execute : public SpellScriptLoader
         }
 };
 
+// 202168 - Impending Victory
+class spell_warr_impending_victory : public SpellScriptLoader
+{
+public:
+    spell_warr_impending_victory() : SpellScriptLoader("spell_warr_impending_victory") { }
+
+    class spell_warr_impending_victory_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_impending_victory_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_IMPENDING_VICTORY_HEAL
+            });
+        }
+        
+        void HandleAfterCast()
+        {
+            Unit* caster = GetCaster();
+            caster->CastSpell(caster, SPELL_WARRIOR_IMPENDING_VICTORY_HEAL, true);
+            if (caster->HasAura(SPELL_WARRIOR_VICTORIOUS))
+                caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_warr_impending_victory_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_impending_victory_SpellScript();
+    }
+};
+
 // 59725 - Improved Spell Reflection
 class spell_warr_improved_spell_reflection : public SpellScriptLoader
 {
@@ -989,44 +1027,6 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_warr_victorious_state_Aurascript();
-    }
-};
-
-// 202168 - Impending Victory
-class spell_warr_impending_victory : public SpellScriptLoader
-{
-public:
-    spell_warr_impending_victory() : SpellScriptLoader("spell_warr_impending_victory") { }
-
-    class spell_warr_impending_victory_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_impending_victory_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo
-            ({
-                SPELL_WARRIOR_IMPENDING_VICTORY_HEAL
-            });
-        }
-        
-        void HandleAfterCast()
-        {
-            Unit* caster = GetCaster();
-            caster->CastSpell(caster, SPELL_WARRIOR_IMPENDING_VICTORY_HEAL, true);
-            if (caster->HasAura(SPELL_WARRIOR_VICTORIOUS))
-                caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
-        }
-
-        void Register() override
-        {
-            AfterCast += SpellCastFn(spell_warr_impending_victory_SpellScript::HandleAfterCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warr_impending_victory_SpellScript();
     }
 };
 
