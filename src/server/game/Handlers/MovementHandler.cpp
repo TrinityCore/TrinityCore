@@ -289,8 +289,11 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
 
 void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMovement& packet)
 {
-    OpcodeClient opcode = packet.GetOpcode();
+    HandleMovementOpcode(packet.GetOpcode(), packet.movementInfo);
+}
 
+void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movementInfo)
+{
     Unit* mover = _player->m_unitMovedByMe;
 
     ASSERT(mover != nullptr);                      // there must always be a mover
@@ -301,9 +304,7 @@ void WorldSession::HandleMovementOpcodes(WorldPackets::Movement::ClientPlayerMov
     if (plrMover && plrMover->IsBeingTeleported())
         return;
 
-    GetPlayer()->ValidateMovementInfo(&packet.movementInfo);
-
-    MovementInfo& movementInfo = packet.movementInfo;
+    GetPlayer()->ValidateMovementInfo(&movementInfo);
 
     // prevent tampered movement data
     if (movementInfo.guid != mover->GetGUID())

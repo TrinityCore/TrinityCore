@@ -546,7 +546,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce c
     data << movementForce.ID;
     data << movementForce.Origin;
     data << movementForce.Direction;
-    data << movementForce.TransportPosition;
     data << movementForce.TransportID;
     data << movementForce.Magnitude;
     data.WriteBits(movementForce.Type, 2);

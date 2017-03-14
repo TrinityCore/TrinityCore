@@ -29,7 +29,6 @@
 #include "cascfile.h"
 
 using namespace std;
-extern std::vector<uint16> LiqType;
 
 WMORoot::WMORoot(std::string &filename)
     : filename(filename), color(0), nTextures(0), nGroups(0), nPortals(0), nLights(0),

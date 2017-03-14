@@ -70,12 +70,12 @@ Position Position::GetPositionWithOffset(Position const& offset) const
     return ret;
 }
 
-float Position::GetAngle(const Position* obj) const
+float Position::GetAngle(Position const* pos) const
 {
-    if (!obj)
+    if (!pos)
         return 0;
 
-    return GetAngle(obj->GetPositionX(), obj->GetPositionY());
+    return GetAngle(pos->GetPositionX(), pos->GetPositionY());
 }
 
 // Return angle in range 0..2*pi

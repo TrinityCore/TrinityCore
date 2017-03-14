@@ -95,7 +95,8 @@ enum ConditionTypes
     CONDITION_CHARMED               = 44,                   // 0                0              0                  true if unit is currently charmed
     CONDITION_PET_TYPE              = 45,                   // mask             0              0                  true if player has a pet of given type(s)
     CONDITION_TAXI                  = 46,                   // 0                0              0                  true if player is on taxi
-    CONDITION_MAX                   = 47                    // MAX
+    CONDITION_QUESTSTATE            = 47,                   // quest_id         state_mask     0                  true if player is in any of the provided quest states for the quest (1 = not taken, 2 = completed, 8 = in progress, 32 = failed, 64 = rewarded)
+    CONDITION_MAX                   = 48                    // MAX
 };
 
 /*! Documentation on implementing a new ConditionSourceType:
