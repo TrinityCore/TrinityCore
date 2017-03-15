@@ -4513,7 +4513,6 @@ Guildhouse.SellCost = 500
 ###################################################################################################
 
 ###################################################################################################
-#
 # BeastMaster Configuration
 #
 # BeastMaster Hunter Only
@@ -4526,7 +4525,6 @@ BeastMaster.OnlyHunter = 1
 # BeastMaster Enable Normal Pets
 #                 = 0  (Normal pets disabled)
 #         default = 1  (Normal Pets enabled)
-#
 
 BeastMaster.EnableNormalPet = 1
 
@@ -4613,12 +4611,22 @@ Add.Token.On.PvP.Kill = 1
 #
 #     XP for PvP kills
 #         Set the XP and money rate for PvP kills.
-#     Xp.For.Pvp.Low.Rate = 1
-#     Xp.For.Pvp.High.Rate = 1
 #
+#     Default:  Xp.For.Pvp.Low.Rate = 1
+#               Xp.For.Pvp.High.Rate = 1
 
 Xp.For.Pvp.Low.Rate = 1
 Xp.For.Pvp.High.Rate = 1
+
+#
+#     Time reward
+#         Gives money for players who is online after every x minutes.
+#
+#     Default:  PlayedTimeReward.Interval = 600000 (10 minutes)
+#               PlayedTimeReward.Money    = 1000 (10 silver)
+
+PlayedTimeReward.Interval = 600000
+PlayedTimeReward.Money    = 1000
 
 #
 ###################################################################################################
