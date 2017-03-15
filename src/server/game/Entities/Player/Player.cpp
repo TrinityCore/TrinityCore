@@ -1325,7 +1325,9 @@ void Player::Update(uint32 p_time)
 	{
 		if (ptr_Interval <= p_time)
 		{
-			GetSession()->SendNotification("Bonus for played time.");
+			std::ostringstream ss;
+			ss << "|cff3DAEFF[Time is money friend]|cffFFD800 You recieved |cffFF0000" << sConfigMgr->GetIntDefault("TimeIsMoneyFriend.Money", 0) << "|cffFFD800 money for |cffFF0000"<< sConfigMgr->GetIntDefault("TimeIsMoneyFriend.Interval", 0) /1000 <<"|cffFFD800 seconds played time.|cffFFD800";
+			sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());("");
 			ModifyMoney(ptr_Money);
 			ptr_Interval = sConfigMgr->GetIntDefault("TimeIsMoneyFriend.Interval", 0);
 		}
