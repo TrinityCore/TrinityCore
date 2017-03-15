@@ -775,7 +775,10 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
     GetApplicationList(effectApplications);
 
     for (AuraApplication* aurApp : effectApplications)
+    {
+        aurApp->GetTarget()->_RegisterAuraEffect(this, false);
         HandleEffect(aurApp, handleMask, false);
+    }
 
     if (handleMask & AURA_EFFECT_HANDLE_CHANGE_AMOUNT)
     {
@@ -787,7 +790,10 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
     }
 
     for (AuraApplication* aurApp : effectApplications)
+    {
+        aurApp->GetTarget()->_RegisterAuraEffect(this, true);
         HandleEffect(aurApp, handleMask, true);
+    }
 
     if (GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT))
         GetBase()->SetNeedClientUpdateForTargets();
