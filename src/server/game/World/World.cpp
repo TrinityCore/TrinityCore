@@ -1507,6 +1507,10 @@ void World::LoadConfigSettings(bool reload)
 	m_bool_configs[CONFIG_NO_COOLDOWN] = sConfigMgr->GetBoolDefault("Custom.NoCooldown", false);
 	m_bool_configs[CONFIG_HURT_IN_REAL_TIME] = sConfigMgr->GetBoolDefault("Custom.HurtInRealTime", false);
 
+	// XP for PvP
+	rate_values[CONFIG_XP_FOR_PVP_LOW_RATE] = sConfigMgr->GetFloatDefault("Xp.For.Pvp.Low.Rate", 1.0f);
+	rate_values[CONFIG_XP_FOR_PVP_HIGH_RATE] = sConfigMgr->GetFloatDefault("Xp.For.Pvp.High.Rate", 1.0f);
+
     // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
