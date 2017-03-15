@@ -4531,7 +4531,6 @@ PhasedDueling.Enable = 0
 # Note that not all city guards will give you honor. It seems only capital and big city guards are flagged
 # as so in the database.
 # Default : 0 (No honor when you kill a guard)
-#
 
 Custom.GainHonorOnGuardKill = 1
 
@@ -4539,9 +4538,28 @@ Custom.GainHonorOnGuardKill = 1
 # Custom.GainHonorOnEliteKill
 # Set it to 1 to gain honor when you kill an elite mob (this does not apply on rare mob, unless he is also elite).
 # Default : 0 (No honor when you kill an elite mob)
-#
 
 Custom.GainHonorOnEliteKill = 1
+
+#
+#     XP for PvP kills
+#         Set the XP and money rate for PvP kills.
+#
+#     Default:  Xp.For.Pvp.Low.Rate = 1
+#               Xp.For.Pvp.High.Rate = 1
+
+Xp.For.Pvp.Low.Rate = 1
+Xp.For.Pvp.High.Rate = 1
+
+#
+#     Time reward
+#         Gives money for players who is online after every x minutes.
+#
+#     Default:  PlayedTimeReward.Interval = 600000 (10 minutes)
+#               PlayedTimeReward.Money    = 1000 (10 silver)
+
+PlayedTimeReward.Interval = 600000
+PlayedTimeReward.Money    = 1000
 
 #
 ###################################################################################################

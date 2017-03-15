@@ -796,6 +796,7 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 
     // ASSERT must fail after function call
     //return false;//It's a dangerous place,disable,may cause crash
+    return true;//tmp,I wrote this to reduce crash
 }
 
 uint32 Object::GetUInt32Value(uint16 index) const
