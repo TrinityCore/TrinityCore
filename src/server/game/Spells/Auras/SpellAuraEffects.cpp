@@ -771,12 +771,11 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
     if (!handleMask)
         return;
 
-    std::list<AuraApplication*> effectApplications;
+    std::vector<AuraApplication*> effectApplications;
     GetApplicationList(effectApplications);
 
-    for (std::list<AuraApplication*>::const_iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
-        if ((*apptItr)->HasEffect(GetEffIndex()))
-            HandleEffect(*apptItr, handleMask, false);
+    for (AuraApplication* aurApp : effectApplications)
+        HandleEffect(aurApp, handleMask, false);
 
     if (handleMask & AURA_EFFECT_HANDLE_CHANGE_AMOUNT)
     {
@@ -787,9 +786,8 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
         CalculateSpellMod();
     }
 
-    for (std::list<AuraApplication*>::const_iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
-        if ((*apptItr)->HasEffect(GetEffIndex()))
-            HandleEffect(*apptItr, handleMask, true);
+    for (AuraApplication* aurApp : effectApplications)
+        HandleEffect(aurApp, handleMask, true);
 
     if (GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT))
         GetBase()->SetNeedClientUpdateForTargets();
@@ -931,12 +929,12 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
             m_periodicTimer += m_period - diff;
             UpdatePeriodic(caster);
 
-            std::list<AuraApplication*> effectApplications;
+            std::vector<AuraApplication*> effectApplications;
             GetApplicationList(effectApplications);
+
             // tick on targets of effects
-            for (std::list<AuraApplication*>::const_iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
-                if ((*apptItr)->HasEffect(GetEffIndex()))
-                    PeriodicTick(*apptItr, caster);
+            for (AuraApplication* aurApp : effectApplications)
+                PeriodicTick(aurApp, caster);
         }
     }
 }
