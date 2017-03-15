@@ -413,9 +413,9 @@ Player::Player(WorldSession* session): Unit(true)
         m_bgBattlegroundQueueID[j].invitedToInstance = 0;
     }
 
-    // PlayedTimeReward
-	ptr_Interval = sConfigMgr->GetIntDefault("PlayedTimeReward.Interval", 0);
-	ptr_Money = sConfigMgr->GetIntDefault("PlayedTimeReward.Money", 0);
+    // TimeIsMoneyFriend
+	ptr_Interval = sConfigMgr->GetIntDefault("TimeIsMoneyFriend.Interval", 0);
+	ptr_Money = sConfigMgr->GetIntDefault("TimeIsMoneyFriend.Money", 0);
 
     m_logintime = time(nullptr);
     m_Last_tick = m_logintime;
@@ -1320,14 +1320,14 @@ void Player::Update(uint32 p_time)
         LoginDatabase.Execute(stmt);
     }
 
-	// PlayedTimeReward
+	// TimeIsMoneyFriend
 	if (ptr_Interval > 0)
 	{
 		if (ptr_Interval <= p_time)
 		{
 			GetSession()->SendNotification("Bonus for played time.");
 			ModifyMoney(ptr_Money);
-			ptr_Interval = sConfigMgr->GetIntDefault("PlayedTimeReward.Interval", 0);
+			ptr_Interval = sConfigMgr->GetIntDefault("TimeIsMoneyFriend.Interval", 0);
 		}
 		else
 	ptr_Interval -= p_time;

@@ -4619,14 +4619,14 @@ Xp.For.Pvp.Low.Rate = 1
 Xp.For.Pvp.High.Rate = 1
 
 #
-#     Time reward
-#         Gives money for players who is online after every x minutes.
+#     TimeIsMoneyFriend
+#         Gives money for players who is online after every X minutes.
 #
-#     Default:  PlayedTimeReward.Interval = 600000 (10 minutes)
-#               PlayedTimeReward.Money    = 1000 (10 silver)
+#     Default:  TimeIsMoneyFriend.Interval = 600000 (10 minutes)
+#               TimeIsMoneyFriend.Money    = 1000 (10 silver)
 
-PlayedTimeReward.Interval = 600000
-PlayedTimeReward.Money    = 1000
+TimeIsMoneyFriend.Interval = 600000
+TimeIsMoneyFriend.Money    = 1000
 
 #
 ###################################################################################################
