@@ -4,7 +4,7 @@
 UPDATE `points_of_interest` SET `PositionX`=-1057.35,`PositionY`=-261.014 WHERE `ID`=285;
 UPDATE `points_of_interest` SET `PositionX`=-1116.56,`PositionY`=-45.6337 WHERE `ID`=292;
 DELETE FROM `points_of_interest` WHERE `ID` IN (500,501,502,503,600);
-INSERT INTO `points_of_interest` (`ID`,`PositionX`,`PositionY`,`Icon`,`Flags`,`Data`,`Importance`,`VerifiedBuild`) VALUES
+INSERT INTO `points_of_interest` (`ID`,`PositionX`,`PositionY`,`Icon`,`Flags`,`Importance`,`Name`,`VerifiedBuild`) VALUES
 (500,-1404.26,-130.934,7,99,0, 'Sunwalker Lodge',23420),
 (501,-1045.52,-266.559,7,99,0, 'Thunder Bluff Archaeology',23420),
 (502,-1266.255,139.4323,7,99,0, 'Thunder Bluff Engineering',23420),
