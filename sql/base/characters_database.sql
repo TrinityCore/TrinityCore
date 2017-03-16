@@ -1657,7 +1657,7 @@ CREATE TABLE `characters` (
   `honorLevel` INT(10) unsigned NOT NULL DEFAULT '1',
   `prestigeLevel` INT(10) unsigned NOT NULL DEFAULT '0',
   `honor_rest_state` TINYINT unsigned NOT NULL DEFAULT '2',
-  `honor_rest_bonus` FLOAT NOT NULL DEFAULT '0' AFTER `honor_rest_state`,
+  `honor_rest_bonus` FLOAT NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`),
   KEY `idx_account` (`account`),
   KEY `idx_online` (`online`),
