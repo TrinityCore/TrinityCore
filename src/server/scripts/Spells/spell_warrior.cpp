@@ -29,6 +29,7 @@
 
 enum WarriorSpells
 {
+    SPELL_WARRIOR_BATTLE_CRY                        = 1719,
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST                       = 23885,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
@@ -38,10 +39,12 @@ enum WarriorSpells
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_2                = 12850,
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_3                = 12868,
     SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC              = 12721,
+    SPELL_WARRIOR_DEMORALIZING_SHOUT                = 1160,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_GLYPH_OF_EXECUTION                = 58367,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF        = 65156,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
+    SPELL_WARRIOR_LAST_STAND                        = 12975,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
     SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
@@ -51,6 +54,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SECOUND_WIND_PROC_RANK_2          = 29838,
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_1       = 29841,
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_2       = 29842,
+    SPELL_WARRIOR_SHIELD_WALL                       = 871,
     SPELL_WARRIOR_SHIELD_SLAM                       = 23922,
     SPELL_WARRIOR_SHOCKWAVE                         = 46968,
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
@@ -85,6 +89,68 @@ enum MiscSpells
     SPELL_PALADIN_BLESSING_OF_SANCTUARY             = 20911,
     SPELL_PALADIN_GREATER_BLESSING_OF_SANCTUARY     = 25899,
     SPELL_PRIEST_RENEWED_HOPE                       = 63944
+};
+
+// 152278 - Anger Management
+// Updated 7.1.5
+class spell_warr_anger_management : public SpellScriptLoader
+{
+public:
+    spell_warr_anger_management() : SpellScriptLoader("spell_warr_anger_management") { }
+
+    class spell_warr_anger_management_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_anger_management_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_BATTLE_CRY,
+                SPELL_WARRIOR_LAST_STAND,
+                SPELL_WARRIOR_SHIELD_WALL,
+                SPELL_WARRIOR_DEMORALIZING_SHOUT
+            });
+        }
+
+        void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            if (Unit* caster = GetCaster())
+            {
+                SpellInfo const* spellInfo = eventInfo.GetDamageInfo()->GetSpellInfo();
+                std::vector<SpellInfo::CostData> costs = spellInfo->CalcPowerCost(GetTarget(), SpellSchoolMask(eventInfo.GetDamageInfo()->GetSchoolMask()));
+                auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_RAGE; });
+                if (m != costs.end())
+                {
+                    if (m->Amount >= 10)
+                    {
+                        Player* player = GetCaster()->ToPlayer();
+
+                        if (player->GetSpellHistory()->HasCooldown(SPELL_WARRIOR_BATTLE_CRY))
+                            caster->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_BATTLE_CRY, -1 * IN_MILLISECONDS);
+                        if (player->GetSpellHistory()->HasCooldown(SPELL_WARRIOR_LAST_STAND))
+                            caster->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_LAST_STAND, -1 * IN_MILLISECONDS);
+                        if (player->GetSpellHistory()->HasCooldown(SPELL_WARRIOR_SHIELD_WALL))
+                            caster->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_SHIELD_WALL, -1 * IN_MILLISECONDS);
+                        if (player->GetSpellHistory()->HasCooldown(SPELL_WARRIOR_DEMORALIZING_SHOUT))
+                            caster->GetSpellHistory()->ModifyCooldown(SPELL_WARRIOR_DEMORALIZING_SHOUT, -1 * IN_MILLISECONDS);
+                    }
+                        
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warr_anger_management_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_warr_anger_management_AuraScript();
+    }
 };
 
 /// Updated 4.3.4
@@ -1165,6 +1231,7 @@ public:
 
 void AddSC_warrior_spell_scripts()
 {
+    new spell_warr_anger_management();
     new spell_warr_bloodthirst();
     new spell_warr_charge();
     new spell_warr_concussion_blow();
