@@ -125,7 +125,7 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
 {
     ASSERT(player);
 
-    uint32 size = _playerSocialMap.size();
+    uint32 size = GetNumberOfSocialsWithFlag(SocialFlag(flags));
 
     uint32 count = 0;
     WorldPacket data(SMSG_CONTACT_LIST, (4 + 4 + size * 25)); // just can guess size
