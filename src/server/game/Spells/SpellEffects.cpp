@@ -5401,15 +5401,7 @@ void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)
     if (!ispet)
         player->ActivateTalentGroup(sChrSpecializationStore.AssertEntry(specID));
     else
-    {
-        Pet* pet = player->GetPet();
-
-        if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET ||
-            pet->GetOwnerGUID() != player->GetGUID() || !pet->GetCharmInfo())
-            return;
-
-        pet->SetSpecialization(specID);
-    }
+        player->GetPet()->SetSpecialization(specID);
 }
 
 void Spell::EffectPlaySound(SpellEffIndex /*effIndex*/)
