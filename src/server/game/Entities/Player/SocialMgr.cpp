@@ -125,12 +125,13 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
 {
     ASSERT(player);
 
-    uint32 size = GetNumberOfSocialsWithFlag(SocialFlag(flags));
-
     uint32 count = 0;
-    WorldPacket data(SMSG_CONTACT_LIST, (4 + 4 + size * 25)); // just can guess size
+
+    WorldPacket data(SMSG_CONTACT_LIST, (4 + 4 + _playerSocialMap.size() * 25)); // just can guess size
     data << uint32(flags);                                    // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
-    data << uint32(size);                                     // friends count
+
+    size_t wpos = data.wpos();
+    data << uint32(0);                                        // placeholder for contacts count
 
     for (PlayerSocialMap::value_type& v : _playerSocialMap)
     {
@@ -159,6 +160,7 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
             break;
     }
 
+    data.put<uint32>(wpos, count);                            // set real data to placeholder
     player->SendDirectMessage(&data);
 }
 
