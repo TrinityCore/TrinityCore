@@ -1019,13 +1019,13 @@ namespace WorldPackets
 
         class CustomLoadScreen final : public ServerPacket
         {
-            public:
-                CustomLoadScreen(uint32 teleportSpellId, uint32 loadingScreenId) : ServerPacket(SMSG_CUSTOM_LOAD_SCREEN), TeleportSpellID(teleportSpellId), LoadingScreenID(loadingScreenId) { }
+        public:
+            CustomLoadScreen(uint32 teleportSpellId, uint32 loadingScreenId) : ServerPacket(SMSG_CUSTOM_LOAD_SCREEN), TeleportSpellID(teleportSpellId), LoadingScreenID(loadingScreenId) { }
 
-                WorldPacket const* Write() override;
+            WorldPacket const* Write() override;
 
-                uint32 TeleportSpellID;
-                uint32 LoadingScreenID;
+            uint32 TeleportSpellID;
+            uint32 LoadingScreenID;
         };
     }
 }
