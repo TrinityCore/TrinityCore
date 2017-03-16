@@ -5394,7 +5394,22 @@ void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->ActivateTalentGroup(sChrSpecializationStore.AssertEntry(m_misc.SpecializationId));
+    Player* player = unitTarget->ToPlayer();
+    bool ispet = (m_misc.SpecTree.ClassId != 0);
+    uint32 specID = m_misc.SpecTree.SpecializationId;
+
+    if (!ispet)
+        player->ActivateTalentGroup(sChrSpecializationStore.AssertEntry(specID));
+    else
+    {
+        Pet* pet = player->GetPet();
+
+        if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET ||
+            pet->GetOwnerGUID() != player->GetGUID() || !pet->GetCharmInfo())
+            return;
+
+        pet->SetSpecialization(specID);
+    }
 }
 
 void Spell::EffectPlaySound(SpellEffIndex /*effIndex*/)

@@ -5483,8 +5483,8 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_TALENT_SPEC_SELECT:
             {
-                ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(m_misc.SpecializationId);
-                if (!spec || spec->ClassID != m_caster->getClass())
+                ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(m_misc.SpecTree.SpecializationId);
+                if (!spec || (spec->ClassID != m_caster->getClass() && spec->ClassID != 0))
                     return SPELL_FAILED_NO_SPEC;
 
                 // can't change during already started arena/battleground
