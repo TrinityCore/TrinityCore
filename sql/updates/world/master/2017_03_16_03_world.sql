@@ -74,7 +74,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 DELETE FROM `points_of_interest` WHERE `ID` IN (13,18,19,20,23,30,457);
 DELETE FROM `points_of_interest` WHERE `ID` BETWEEN 533 AND 570;
 DELETE FROM `points_of_interest` WHERE `ID` IN (601,602);
-INSERT INTO `points_of_interest` (`ID`,`PositionX`,`PositionY`,`Icon`,`Flags`,`Data`,`Name`,`VerifiedBuild`) VALUES
+INSERT INTO `points_of_interest` (`ID`,`PositionX`,`PositionY`,`Icon`,`Flags`,`Importance`,`Name`,`VerifiedBuild`) VALUES
 (13,-8850.78,856.596,7,99,0, 'Stormwind Inscription',23420),
 (18,-8832.65,652.766,7,99,0, 'Stormwind Auction House',23420),
 (19,-8900.59,632.021,7,99,0, 'Stormwind Bank',23420),
