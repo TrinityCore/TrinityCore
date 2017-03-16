@@ -3874,7 +3874,7 @@ void ObjectMgr::LoadQuests()
     uint32 oldMSTime = getMSTime();
 
     // For reload case
-    for (QuestMap::const_iterator itr=_questTemplates.begin(); itr != _questTemplates.end(); ++itr)
+    for (auto itr = _questTemplates.begin(); itr != _questTemplates.end(); ++itr)
         delete itr->second;
     _questTemplates.clear();
     _questObjectives.clear();
@@ -3969,7 +3969,7 @@ void ObjectMgr::LoadQuests()
 
     for (QuestLoaderHelper const& loader : QuestLoaderHelpers)
     {
-        QueryResult result = WorldDatabase.Query(Trinity::StringFormat("SELECT %s FROM %s %s", loader.QueryFields, loader.TableName, loader.QueryExtra).c_str());
+        QueryResult result = WorldDatabase.PQuery("SELECT %s FROM %s", loader.QueryFields, loader.TableName, loader.QueryExtra);
 
         if (!result)
             TC_LOG_ERROR("server.loading", ">> Loaded 0 quest %s. DB table `%s` is empty.", loader.TableDesc, loader.TableName);
@@ -4617,8 +4617,6 @@ void ObjectMgr::LoadQuests()
         {
             if (_questTemplates.find(abs(qinfo->GetPrevQuestId())) == _questTemplates.end())
                 TC_LOG_ERROR("sql.sql", "Quest %d has PrevQuestId %i, but no such quest", qinfo->GetQuestId(), qinfo->GetPrevQuestId());
-            else
-                qinfo->PrevQuests.push_back(qinfo->_prevQuestID);
         }
 
         if (qinfo->_nextQuestID)
@@ -4627,7 +4625,7 @@ void ObjectMgr::LoadQuests()
             if (qNextItr == _questTemplates.end())
                 TC_LOG_ERROR("sql.sql", "Quest %d has NextQuestId %u, but no such quest", qinfo->GetQuestId(), qinfo->GetNextQuestId());
             else
-                qNextItr->second->PrevQuests.push_back(static_cast<int32>(qinfo->GetQuestId()));
+                qNextItr->second->DependentPreviousQuests.push_back(qinfo->GetQuestId());
         }
 
         if (qinfo->_exclusiveGroup)
