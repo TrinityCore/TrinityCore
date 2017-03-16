@@ -29,6 +29,7 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
     uint8 rest_rested_offset;
     uint8 rest_state_offset;
     uint32 next_level_xp_field;
+    bool affectedByRaF = false;
 
     switch (restType)
     {
@@ -39,6 +40,7 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
             rest_rested_offset = REST_RESTED_XP;
             rest_state_offset = REST_STATE_XP;
             next_level_xp_field = PLAYER_NEXT_LEVEL_XP;
+            affectedByRaF = true;
             break;
         case REST_TYPE_HONOR:
             if (_player->getLevel() < PLAYER_LEVEL_MIN_HONOR || _player->IsMaxHonorLevelAndPrestige())
@@ -63,7 +65,7 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
         RestBonus[restType] = restBonus;
 
     // update data for client
-    if (_player->GetsRecruitAFriendBonus(true) && (_player->GetSession()->IsARecruiter() || _player->GetSession()->GetRecruiterId() != 0))
+    if (affectedByRaF && _player->GetsRecruitAFriendBonus(true) && (_player->GetSession()->IsARecruiter() || _player->GetSession()->GetRecruiterId() != 0))
         _player->SetUInt32Value(PLAYER_FIELD_REST_INFO + rest_state_offset, REST_STATE_RAF_LINKED);
     else
     {
