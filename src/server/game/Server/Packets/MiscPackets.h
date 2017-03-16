@@ -875,6 +875,17 @@ namespace WorldPackets
             uint32 MountSpellID = 0;
             bool IsFavorite = false;
         };
+
+        class CustomLoadScreen final : public ServerPacket
+        {
+            public:
+                CustomLoadScreen(uint32 teleportSpellId, uint32 loadingScreenId) : ServerPacket(SMSG_CUSTOM_LOAD_SCREEN), TeleportSpellID(teleportSpellId), LoadingScreenID(loadingScreenId) { }
+
+                WorldPacket const* Write() override;
+
+                uint32 TeleportSpellID;
+                uint32 LoadingScreenID;
+        };
     }
 }
 
