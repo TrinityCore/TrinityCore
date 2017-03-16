@@ -4619,7 +4619,7 @@ Xp.For.Pvp.Low.Rate = 1
 Xp.For.Pvp.High.Rate = 1
 
 #
-#     TimeIsMoneyFriend
+#     Time Is Money Friend
 #         Gives money for players who is online after every X minutes.
 #
 #     Default:  TimeIsMoneyFriend.Interval = 600000 (10 minutes)
@@ -4627,6 +4627,17 @@ Xp.For.Pvp.High.Rate = 1
 
 TimeIsMoneyFriend.Interval = 600000
 TimeIsMoneyFriend.Money    = 1000
+
+#
+#    Dungeon Checkpoints
+#        Description: Enable checkpoints in dungeons/instances. 
+#        The server set a respawn point after every world boss you defeated.
+#
+#    Dungeon.Checkpoints.Enable
+#        Default:     1 (enabled)
+#                     0 (disabled)
+
+Dungeon.Checkpoints.Enable = 1
 
 #
 ###################################################################################################
