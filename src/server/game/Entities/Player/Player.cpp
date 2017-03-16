@@ -4948,8 +4948,11 @@ void Player::RepopAtGraveyard()
     // and don't show spirit healer location
     if (ClosestGrave)
     {
-        if (sDynRes->IsInDungeonOrRaid(this) && sDynRes->CheckForSpawnPoint(this))  //On revive,teleport to the last kiied boss in dungeon or raid
-            sDynRes->DynamicResurrection(this);
+        if (sConfigMgr->GetBoolDefault("Dungeon.Checkpoints.Enable", true))//config to open or close this function
+        {
+            if (sDynRes->IsInDungeonOrRaid(this) && sDynRes->CheckForSpawnPoint(this))  //On revive,teleport to the last kiied boss in dungeon or raid
+                sDynRes->DynamicResurrection(this);
+        }
         else
         {
             TeleportTo(ClosestGrave->Loc, shouldResurrect ? TELE_REVIVE_AT_TELEPORT : 0);
