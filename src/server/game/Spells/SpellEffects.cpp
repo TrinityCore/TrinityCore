@@ -904,7 +904,7 @@ void Spell::CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, floa
     speedXY = dist * 10.0f / speedZ;
 }
 
-void Spell::EffectTeleportUnits(SpellEffIndex effIndex)
+void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -932,7 +932,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex effIndex)
     if (Player* player = unitTarget->ToPlayer())
     {
         // Custom loading screen
-        if (uint32 customLoadingScreenId = m_spellInfo->GetEffect(effIndex)->MiscValue)
+        if (uint32 customLoadingScreenId = effectInfo->MiscValue)
             player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
 
         player->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : 0);
