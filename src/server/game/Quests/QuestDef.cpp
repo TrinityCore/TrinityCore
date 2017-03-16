@@ -185,11 +185,15 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     _requiredMinRepValue = fields[13].GetInt32();
     _requiredMaxRepValue = fields[14].GetInt32();
     _startItemCount = fields[15].GetUInt8();
-    _rewardMailSenderEntry = fields[16].GetUInt32();
-    _specialFlags = fields[17].GetUInt8();
+    _specialFlags = fields[16].GetUInt8();
 
     if (_specialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         _flags |= QUEST_FLAGS_AUTO_ACCEPT;
+}
+
+void Quest::LoadQuestMailSender(Field* fields)
+{
+    _rewardMailSenderEntry = fields[1].GetUInt32();
 }
 
 uint32 Quest::XPValue(Player* player) const

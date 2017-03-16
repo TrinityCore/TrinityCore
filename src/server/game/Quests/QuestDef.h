@@ -200,6 +200,7 @@ class TC_GAME_API Quest
         void LoadQuestRequestItems(Field* fields);
         void LoadQuestOfferReward(Field* fields);
         void LoadQuestTemplateAddon(Field* fields);
+        void LoadQuestMailSender(Field* fields);
 
         uint32 XPValue(Player* player) const;
 
