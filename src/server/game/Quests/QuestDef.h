@@ -387,7 +387,7 @@ class TC_GAME_API Quest
         uint32 GetSuggestedPlayers() const { return _suggestedPlayers; }
         uint32 GetLimitTime() const { return _limitTime; }
         int32  GetPrevQuestId() const { return _prevQuestID; }
-        int32  GetNextQuestId() const { return _nextQuestID; }
+        uint32  GetNextQuestId() const { return _nextQuestID; }
         int32  GetExclusiveGroup() const { return _exclusiveGroup; }
         uint32 GetNextQuestInChain() const { return _nextQuestInChain; }
         int32  GetRewArenaPoints() const {return _rewardArenaPoints; }
@@ -580,7 +580,7 @@ class TC_GAME_API Quest
         uint32 _allowableClasses     = 0;
         uint32 _sourceSpellID        = 0;
         int32  _prevQuestID          = 0;
-        int32  _nextQuestID          = 0;
+        uint32  _nextQuestID         = 0;
         int32  _exclusiveGroup       = 0;
         uint32 _rewardMailTemplateId = 0;
         uint32 _rewardMailDelay      = 0;
