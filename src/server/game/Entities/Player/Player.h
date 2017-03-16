@@ -34,6 +34,7 @@
 #include "TradeData.h"
 #include "CinematicMgr.h"
 #include "SceneMgr.h"
+#include "RestMgr.h"
 
 struct CreatureTemplate;
 struct Mail;
@@ -619,16 +620,6 @@ enum PlayerFieldKillsOffsets
     PLAYER_FIELD_KILLS_OFFSET_YESTERDAY_KILLS = 1
 };
 
-enum PlayerRestInfoOffsets
-{
-    REST_STATE_XP       = 0,
-    REST_RESTED_XP      = 1,
-    REST_STATE_HONOR    = 2,
-    REST_RESTED_HONOR   = 3,
-
-    MAX_REST_INFO
-};
-
 enum MirrorTimerType
 {
     FATIGUE_TIMER      = 0,
@@ -917,13 +908,6 @@ enum ArenaTeamInfoType
 
 class InstanceSave;
 
-enum RestFlag
-{
-    REST_FLAG_IN_TAVERN         = 0x1,
-    REST_FLAG_IN_CITY           = 0x2,
-    REST_FLAG_IN_FACTION_AREA   = 0x4, // used with AREA_FLAG_REST_ZONE_*
-};
-
 enum TeleportToOptions
 {
     TELE_TO_GM_MODE             = 0x01,
@@ -1210,10 +1194,14 @@ private:
     SpecializationInfo& operator=(SpecializationInfo const&) = delete;
 };
 
+uint8 const PLAYER_MAX_HONOR_LEVEL = 50;
+uint8 const PLAYER_LEVEL_MIN_HONOR = 110;
+
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
     friend class CinematicMgr;
+    friend class RestMgr;
     friend void Item::AddToUpdateQueueOf(Player* player);
     friend void Item::RemoveFromUpdateQueueOf(Player* player);
     public:
@@ -1310,16 +1298,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetLevelPlayedTime() const { return m_Played_time[PLAYED_TIME_LEVEL]; }
 
         void setDeathState(DeathState s) override;                   // overwrite Unit::setDeathState
-
-        float GetRestBonus() const { return m_rest_bonus; }
-        void SetRestBonus(float rest_bonus_new);
-
-        bool HasRestFlag(RestFlag restFlag) const { return (_restFlagMask & restFlag) != 0; }
-        void SetRestFlag(RestFlag restFlag, uint32 triggerId = 0);
-        void RemoveRestFlag(RestFlag restFlag);
-
-        uint32 GetXPRestBonus(uint32 xp);
-        uint32 GetInnTriggerId() const { return inn_triggerId; }
 
         Pet* GetPet() const;
         Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime);
@@ -2152,7 +2130,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void Prestige();
         bool CanPrestige() const;
         bool IsMaxPrestige() const;
-        bool IsMaxHonorLevelAndPrestige() const;
+        bool IsMaxHonorLevelAndPrestige() const { return IsMaxPrestige() && GetHonorLevel() == PLAYER_MAX_HONOR_LEVEL; }
         //End of PvP System
 
         void RewardPlayerWithRewardPack(uint32 rewardPackID);
@@ -2529,6 +2507,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
+        RestMgr* GetRestMgr() const { return _restMgr; }
 
     protected:
         // Gamemaster whisper whitelist
@@ -2761,13 +2740,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_titanGripPenaltySpellId;
         uint8 m_swingErrorMsg;
 
-        ////////////////////Rest System/////////////////////
-        time_t _restTime;
-        uint32 inn_triggerId;
-        float m_rest_bonus;
-        uint32 _restFlagMask;
-        ////////////////////Rest System/////////////////////
-
         // Social
         PlayerSocial* m_social;
 
@@ -2887,6 +2859,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unordered_map<ObjectGuid /*LootObject*/, ObjectGuid /*world object*/> m_AELootView;
 
         void _InitHonorLevelOnLoadFromDB(uint32 /*honor*/, uint32 /*honorLevel*/, uint32 /*prestigeLevel*/);
+        RestMgr* _restMgr;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
