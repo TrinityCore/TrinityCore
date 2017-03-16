@@ -933,7 +933,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex effIndex)
     {
         // Custom loading screen
         if (uint32 customLoadingScreenId = m_spellInfo->GetEffect(effIndex)->MiscValue)
-            player->SendDirectMessage(WorldPackets::Misc::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
+            player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
 
         player->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : 0);
     }

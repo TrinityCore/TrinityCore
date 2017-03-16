@@ -675,10 +675,3 @@ void WorldPackets::Misc::MountSetFavorite::Read()
     _worldPacket >> MountSpellID;
     IsFavorite = _worldPacket.ReadBit();
 }
-
-WorldPacket const * WorldPackets::Misc::CustomLoadScreen::Write()
-{
-    _worldPacket << uint32(TeleportSpellID);
-    _worldPacket << uint32(LoadingScreenID);
-    return &_worldPacket;
-}
