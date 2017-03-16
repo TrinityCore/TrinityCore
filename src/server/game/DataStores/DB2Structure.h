@@ -444,6 +444,15 @@ struct ChrSpecializationEntry
     uint32 AnimReplacementSetID;
 };
 
+struct CinematicCameraEntry
+{
+    uint32 ID;
+    char const* Model;                                      // Model filename (translate .mdx to .m2)
+    DBCPosition3D Origin;                                   // Position in map used for basis for M2 co-ordinates
+    float OriginFacing;                                     // Orientation in map used for basis for M2 co-ordinates
+    uint16 SoundID;                                         // Sound ID       (voiceover for cinematic)
+};
+
 struct CinematicSequencesEntry
 {
     uint32 ID;
@@ -910,7 +919,6 @@ struct FactionTemplateEntry
         return EnemyMask == 0 && FriendMask == 0;
     }
     bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
-    bool ShouldSparAttack() const { return (Flags & FACTION_TEMPLATE_ENEMY_SPAR) != 0; }
 };
 
 struct GameObjectsEntry

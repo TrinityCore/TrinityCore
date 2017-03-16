@@ -1078,9 +1078,8 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 enum RedSnapperVeryTasty
 {
     ITEM_RED_SNAPPER             = 23614,
-
     SPELL_CAST_NET               = 29866,
-    SPELL_NEW_SUMMON_TEST        = 49214
+    SPELL_FISHED_UP_MURLOC       = 29869
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1103,7 +1102,7 @@ class spell_q9452_cast_net: public SpellScriptLoader
                 if (roll_chance_i(66))
                     caster->AddItem(ITEM_RED_SNAPPER, 1);
                 else
-                    caster->CastSpell(caster, SPELL_NEW_SUMMON_TEST, true);
+                    caster->CastSpell(caster, SPELL_FISHED_UP_MURLOC, true);
             }
 
             void HandleActiveObject(SpellEffIndex effIndex)
@@ -1124,6 +1123,75 @@ class spell_q9452_cast_net: public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_q9452_cast_net_SpellScript();
+        }
+};
+
+enum PoundDrumSpells
+{
+    SPELL_SUMMON_DEEP_JORMUNGAR     = 66510,
+    SPELL_STORMFORGED_MOLE_MACHINE  = 66492
+};
+
+class spell_q14076_14092_pound_drum : public SpellScriptLoader
+{
+    public:
+        spell_q14076_14092_pound_drum() : SpellScriptLoader("spell_q14076_14092_pound_drum") { }
+
+        class spell_q14076_14092_pound_drum_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q14076_14092_pound_drum_SpellScript);
+
+            void HandleSummon()
+            {
+                Unit* caster = GetCaster();
+
+                if (roll_chance_i(80))
+                    caster->CastSpell(caster, SPELL_SUMMON_DEEP_JORMUNGAR, true);
+                else
+                    caster->CastSpell(caster, SPELL_STORMFORGED_MOLE_MACHINE, true);
+            }
+
+            void HandleActiveObject(SpellEffIndex /*effIndex*/)
+            {
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
+            void Register() override
+            {
+                OnCast += SpellCastFn(spell_q14076_14092_pound_drum_SpellScript::HandleSummon);
+                OnEffectHitTarget += SpellEffectFn(spell_q14076_14092_pound_drum_SpellScript::HandleActiveObject, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q14076_14092_pound_drum_SpellScript();
+        }
+};
+
+class spell_q12279_cast_net : public SpellScriptLoader
+{
+    public:
+        spell_q12279_cast_net() : SpellScriptLoader("spell_q12279_cast_net") { }
+
+        class spell_q12279_cast_net_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12279_cast_net_SpellScript);
+
+            void HandleActiveObject(SpellEffIndex /*effIndex*/)
+            {
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12279_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12279_cast_net_SpellScript();
         }
 };
 
@@ -2528,7 +2596,7 @@ class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit()->GetCharmerOrOwnerOrSelf();
-                target->CastSpell(target, uint32(GetEffectValue()));
+                target->CastSpell(target, uint32(GetEffectValue()), true);
             }
 
             void Register() override
@@ -2569,6 +2637,8 @@ void AddSC_quest_spell_scripts()
     new spell_q13280_13283_plant_battle_standard();
     new spell_q14112_14145_chum_the_water();
     new spell_q9452_cast_net();
+    new spell_q12279_cast_net();
+    new spell_q14076_14092_pound_drum();
     new spell_q12987_read_pronouncement();
     new spell_q12277_wintergarde_mine_explosion();
     new spell_q12066_bunny_kill_credit();

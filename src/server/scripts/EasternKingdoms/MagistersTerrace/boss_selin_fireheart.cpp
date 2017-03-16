@@ -229,6 +229,9 @@ class boss_selin_fireheart : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (me->GetPowerPct(POWER_MANA) < 10.f)

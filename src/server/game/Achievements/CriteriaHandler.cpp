@@ -66,6 +66,8 @@ bool CriteriaData::IsValid(Criteria const* criteria)
         case CRITERIA_TYPE_GET_KILLING_BLOWS:
         case CRITERIA_TYPE_REACH_LEVEL:
         case CRITERIA_TYPE_ON_LOGIN:
+        case CRITERIA_TYPE_LOOT_EPIC_ITEM:
+        case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             break;
         default:
             if (DataType != CRITERIA_DATA_TYPE_SCRIPT)
@@ -219,10 +221,10 @@ bool CriteriaData::IsValid(Criteria const* criteria)
         }
         case CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE:
             return true;                                    // not check correctness node indexes
-        case CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
+        case CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
             if (EquippedItem.Quality >= MAX_ITEM_QUALITY)
             {
-                TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_EQUIPED_ITEM (%u) contains an unknown quality state value in value1 (%u), ignored.",
+                TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM (%u) contains an unknown quality state value in value2 (%u), ignored.",
                     criteria->ID, criteria->Entry->Type, DataType, EquippedItem.Quality);
                 return false;
             }
@@ -259,6 +261,14 @@ bool CriteriaData::IsValid(Criteria const* criteria)
             {
                 TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_KNOWN_TITLE (%u) contains an unknown title_id in value1 (%u), ignore.",
                     criteria->ID, criteria->Entry->Type, DataType, KnownTitle.Id);
+                return false;
+            }
+            return true;
+        case CRITERIA_DATA_TYPE_S_ITEM_QUALITY:
+            if (ItemQuality.Quality >= MAX_ITEM_QUALITY)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_ITEM_QUALITY (%u) contains an unknown quality state value in value1 (%u), ignored.",
+                    criteria->ID, criteria->Entry->Type, DataType, ItemQuality.Quality);
                 return false;
             }
             return true;
@@ -355,7 +365,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
             }
             return instance->CheckAchievementCriteriaMeet(criteriaId, source, target, miscValue1);
         }
-        case CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
+        case CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
         {
             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
             if (!pProto)
@@ -370,6 +380,13 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
                 return source && source->HasTitle(titleInfo->MaskID);
 
             return false;
+        }
+        case CRITERIA_DATA_TYPE_S_ITEM_QUALITY:
+        {
+            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
+            if (!pProto)
+                return false;
+            return pProto->GetQuality() == ItemQuality.Quality;
         }
         default:
             break;

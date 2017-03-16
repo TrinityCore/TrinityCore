@@ -444,7 +444,7 @@ public:
             else if (pointId == AKAMA_INTRO_WAYPOINT)
             {
                 me->SetWalk(false);
-                me->SetFacingTo(0.08726646f);
+                me->SetFacingTo(0.08726646f, true);
                 _events.ScheduleEvent(EVENT_START_SOUL_EXPEL, Seconds(1));
             }
         }
@@ -550,7 +550,7 @@ public:
         {
             if (gossipListId == 0)
             {
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
                 _events.ScheduleEvent(EVENT_SHADE_START, Milliseconds(500));
             }
         }
