@@ -550,13 +550,13 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed /*= SPEED_C
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
         TC_LOG_DEBUG("misc", "Player (%s) charged point (X: %f Y: %f Z: %f).", _owner->GetGUID().ToString().c_str(), x, y, z);
-        Mutate(new PointMovementGenerator<Player>(id, x, y, z, generatePath, speed, target), MOTION_SLOT_CONTROLLED);
+        Mutate(new PointMovementGenerator<Player>(id, x, y, z, generatePath, speed, target, spellEffectExtraData), MOTION_SLOT_CONTROLLED);
     }
     else
     {
         TC_LOG_DEBUG("misc", "Creature (Entry: %u %s) charged point (X: %f Y: %f Z: %f).",
             _owner->GetEntry(), _owner->GetGUID().ToString().c_str(), x, y, z);
-        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath, speed, target), MOTION_SLOT_CONTROLLED);
+        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, generatePath, speed, target, spellEffectExtraData), MOTION_SLOT_CONTROLLED);
     }
 }
 
