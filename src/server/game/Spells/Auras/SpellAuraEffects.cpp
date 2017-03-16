@@ -450,24 +450,26 @@ AuraEffect::~AuraEffect()
     delete m_spellmod;
 }
 
-void AuraEffect::GetTargetList(std::list<Unit*> & targetList) const
+template <typename Container>
+void AuraEffect::GetTargetList(Container& targetContainer) const
 {
-    Aura::ApplicationMap const & targetMap = GetBase()->GetApplicationMap();
+    Aura::ApplicationMap const& targetMap = GetBase()->GetApplicationMap();
     // remove all targets which were not added to new list - they no longer deserve area aura
-    for (Aura::ApplicationMap::const_iterator appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
+    for (auto appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
     {
         if (appIter->second->HasEffect(GetEffIndex()))
-            targetList.push_back(appIter->second->GetTarget());
+            targetContainer.push_back(appIter->second->GetTarget());
     }
 }
 
-void AuraEffect::GetApplicationList(std::list<AuraApplication*> & applicationList) const
+template <typename Container>
+void AuraEffect::GetApplicationList(Container& applicationContainer) const
 {
-    Aura::ApplicationMap const & targetMap = GetBase()->GetApplicationMap();
-    for (Aura::ApplicationMap::const_iterator appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
+    Aura::ApplicationMap const& targetMap = GetBase()->GetApplicationMap();
+    for (auto appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
     {
         if (appIter->second->HasEffect(GetEffIndex()))
-            applicationList.push_back(appIter->second);
+            applicationContainer.push_back(appIter->second);
     }
 }
 
@@ -6168,3 +6170,11 @@ void AuraEffect::HandleModSpellCategoryCooldown(AuraApplication const* aurApp, u
     if (Player* player = aurApp->GetTarget()->ToPlayer())
         player->SendSpellCategoryCooldowns();
 }
+
+template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;
+template TC_GAME_API void AuraEffect::GetTargetList(std::deque<Unit*>&) const;
+template TC_GAME_API void AuraEffect::GetTargetList(std::vector<Unit*>&) const;
+
+template TC_GAME_API void AuraEffect::GetApplicationList(std::list<AuraApplication*>&) const;
+template TC_GAME_API void AuraEffect::GetApplicationList(std::deque<AuraApplication*>&) const;
+template TC_GAME_API void AuraEffect::GetApplicationList(std::vector<AuraApplication*>&) const;

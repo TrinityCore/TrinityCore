@@ -39,8 +39,13 @@ class TC_GAME_API AuraEffect
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
         ObjectGuid GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         Aura* GetBase() const { return m_base; }
-        void GetTargetList(std::list<Unit*> & targetList) const;
-        void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
+
+        template <typename Container>
+        void GetTargetList(Container& targetContainer) const;
+
+        template <typename Container>
+        void GetApplicationList(Container& applicationContainer) const;
+
         SpellModifier* GetSpellModifier() const { return m_spellmod; }
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
