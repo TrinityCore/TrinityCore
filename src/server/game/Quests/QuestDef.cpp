@@ -202,19 +202,23 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     _requiredMinRepValue = fields[13].GetInt32();
     _requiredMaxRepValue = fields[14].GetInt32();
     _sourceItemIdCount = fields[15].GetUInt8();
-    _rewardMailSenderEntry = fields[16].GetUInt32();
-    _specialFlags = fields[17].GetUInt8();
-    _scriptId = sObjectMgr->GetScriptId(fields[18].GetString());
+    _specialFlags = fields[16].GetUInt8();
+    _scriptId = sObjectMgr->GetScriptId(fields[17].GetString());
 
     if (_specialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         _flags |= QUEST_FLAGS_AUTO_ACCEPT;
 }
 
+void Quest::LoadQuestMailSender(Field* fields)
+{
+    _rewardMailSenderEntry = fields[1].GetUInt32();
+}
+
 void Quest::LoadQuestObjective(Field* fields)
 {
     QuestObjective obj;
-    obj.ID = fields[0].GetUInt32();
-    obj.QuestID = fields[1].GetUInt32();
+    obj.QuestID = fields[0].GetUInt32();
+    obj.ID = fields[1].GetUInt32();
     obj.Type = fields[2].GetUInt8();
     obj.StorageIndex = fields[3].GetInt8();
     obj.ObjectID = fields[4].GetInt32();

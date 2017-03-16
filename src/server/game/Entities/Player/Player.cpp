@@ -16108,11 +16108,10 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
 
                 // each-from-all exclusive group (< 0)
                 // can be start if only all quests in prev quest exclusive group completed and rewarded
-                ObjectMgr::ExclusiveQuestGroupsBounds range(sObjectMgr->mExclusiveQuestGroups.equal_range(qPrevInfo->GetExclusiveGroup()));
-
-                for (; range.first != range.second; ++range.first)
+                auto bounds = sObjectMgr->GetExclusiveQuestGroupBounds(qPrevInfo->GetExclusiveGroup());
+                for (auto itr = bounds.first; itr != bounds.second; ++itr)
                 {
-                    uint32 exclude_Id = range.first->second;
+                    uint32 exclude_Id = itr->second;
 
                     // skip checked quest id, only state of other quests in group is interesting
                     if (exclude_Id == prevId)
@@ -16142,11 +16141,10 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
 
                 // each-from-all exclusive group (< 0)
                 // can be start if only all quests in prev quest exclusive group active
-                ObjectMgr::ExclusiveQuestGroupsBounds range(sObjectMgr->mExclusiveQuestGroups.equal_range(qPrevInfo->GetExclusiveGroup()));
-
-                for (; range.first != range.second; ++range.first)
+                auto bounds = sObjectMgr->GetExclusiveQuestGroupBounds(qPrevInfo->GetExclusiveGroup());
+                for (auto itr = bounds.first; itr != bounds.second; ++itr)
                 {
-                    uint32 exclude_Id = range.first->second;
+                    uint32 exclude_Id = itr->second;
 
                     // skip checked quest id, only state of other quests in group is interesting
                     if (exclude_Id == prevId)
@@ -16326,11 +16324,10 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
     if (qInfo->GetExclusiveGroup() <= 0)
         return true;
 
-    ObjectMgr::ExclusiveQuestGroupsBounds range(sObjectMgr->mExclusiveQuestGroups.equal_range(qInfo->GetExclusiveGroup()));
-
-    for (; range.first != range.second; ++range.first)
+    auto bounds = sObjectMgr->GetExclusiveQuestGroupBounds(qInfo->GetExclusiveGroup());
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
     {
-        uint32 exclude_Id = range.first->second;
+        uint32 exclude_Id = itr->second;
 
         // skip checked quest id, only state of other quests in group is interesting
         if (exclude_Id == qInfo->GetQuestId())

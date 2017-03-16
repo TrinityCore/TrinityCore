@@ -3879,7 +3879,7 @@ void ObjectMgr::LoadQuests()
     _questTemplates.clear();
     _questObjectives.clear();
 
-    mExclusiveQuestGroups.clear();
+    _exclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
         //0  1          2           3                    4                5               6         7            8            9                  10               11                  12
@@ -3930,123 +3930,63 @@ void ObjectMgr::LoadQuests()
         _questTemplates[newQuest->GetQuestId()] = newQuest;
     } while (result->NextRow());
 
-    // Load `quest_details`
-    //                                   0   1       2       3       4       5            6            7            8
-    result = WorldDatabase.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4 FROM quest_details");
+    struct QuestLoaderHelper
+    {
+        typedef void(Quest::* QuestLoaderFunction)(Field* fields);
 
-    if (!result)
+        char const* QueryFields;
+        char const* TableName;
+        char const* QueryExtra;
+        char const* TableDesc;
+        QuestLoaderFunction LoaderFunction;
+    };
+
+    static std::vector<QuestLoaderHelper> const QuestLoaderHelpers =
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 quest details. DB table `quest_details` is empty.");
-    }
-    else
+        // 0   1       2       3       4       5            6            7            8
+        { "ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4",                                                                       "quest_details",        "",                                       "details",             &Quest::LoadQuestDetails       },
+
+        // 0   1                2                  3                     4                       5
+        { "ID, EmoteOnComplete, EmoteOnIncomplete, EmoteOnCompleteDelay, EmoteOnIncompleteDelay, CompletionText",                                                         "quest_request_items",  "",                                       "request items",       &Quest::LoadQuestRequestItems  },
+
+        // 0   1       2       3       4       5            6            7            8            9
+        { "ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4, RewardText",                                                           "quest_offer_reward",   "",                                       "reward emotes",       &Quest::LoadQuestOfferReward   },
+
+        // 0   1         2                 3              4            5            6               7                     8
+        { "ID, MaxLevel, AllowableClasses, SourceSpellID, PrevQuestID, NextQuestID, ExclusiveGroup, RewardMailTemplateID, RewardMailDelay,"
+        // 9               10                   11                     12                     13                   14                   15                 16
+        " RequiredSkillID, RequiredSkillPoints, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, ProvidedItemCount, SpecialFlags,"
+        // 17
+        " ScriptName",                                                                                                                                                    "quest_template_addon", "",                                       "template addons",     &Quest::LoadQuestTemplateAddon },
+
+        // 0        1
+        { "QuestId, RewardMailSenderEntry",                                                                                                                               "quest_mail_sender",    "",                                       "mail sender entries", &Quest::LoadQuestMailSender    },
+
+        // QuestID needs to be fields[0]
+        // 0        1   2     3             4         5       6      7       8                  9
+        { "QuestID, ID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, ProgressBarWeight, Description",                                                             "quest_objectives",     "ORDER BY `Order` ASC, StorageIndex ASC", "quest objectives",    &Quest::LoadQuestObjective     }
+    };
+
+    for (QuestLoaderHelper const& loader : QuestLoaderHelpers)
     {
-        do
+        QueryResult result = WorldDatabase.Query(Trinity::StringFormat("SELECT %s FROM %s %s", loader.QueryFields, loader.TableName, loader.QueryExtra).c_str());
+
+        if (!result)
+            TC_LOG_ERROR("server.loading", ">> Loaded 0 quest %s. DB table `%s` is empty.", loader.TableDesc, loader.TableName);
+        else
         {
-            Field* fields = result->Fetch();
-            uint32 questId = fields[0].GetUInt32();
+            do
+            {
+                Field* fields = result->Fetch();
+                uint32 questId = fields[0].GetUInt32();
 
-            auto itr = _questTemplates.find(questId);
-            if (itr != _questTemplates.end())
-                itr->second->LoadQuestDetails(fields);
-            else
-                TC_LOG_ERROR("server.loading", "Table `quest_details` has data for quest %u but such quest does not exist", questId);
-        } while (result->NextRow());
-    }
-
-    // Load `quest_request_items`
-    //                                   0   1                2                  3                     4                       5
-    result = WorldDatabase.Query("SELECT ID, EmoteOnComplete, EmoteOnIncomplete, EmoteOnCompleteDelay, EmoteOnIncompleteDelay, CompletionText FROM quest_request_items");
-
-    if (!result)
-    {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 quest request items. DB table `quest_request_items` is empty.");
-    }
-    else
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 questId = fields[0].GetUInt32();
-
-            auto itr = _questTemplates.find(questId);
-            if (itr != _questTemplates.end())
-                itr->second->LoadQuestRequestItems(fields);
-            else
-                TC_LOG_ERROR("server.loading", "Table `quest_request_items` has data for quest %u but such quest does not exist", questId);
-        } while (result->NextRow());
-    }
-
-    // Load `quest_offer_reward`
-    //                                   0   1       2       3       4       5            6            7            8            9
-    result = WorldDatabase.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4, RewardText FROM quest_offer_reward");
-
-    if (!result)
-    {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 quest reward emotes. DB table `quest_offer_reward` is empty.");
-    }
-    else
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 questId = fields[0].GetUInt32();
-
-            auto itr = _questTemplates.find(questId);
-            if (itr != _questTemplates.end())
-                itr->second->LoadQuestOfferReward(fields);
-            else
-                TC_LOG_ERROR("server.loading", "Table `quest_offer_reward` has data for quest %u but such quest does not exist", questId);
-        } while (result->NextRow());
-    }
-
-    // Load `quest_template_addon`
-    //                                   0   1         2                 3              4            5            6               7                     8
-    result = WorldDatabase.Query("SELECT ID, MaxLevel, AllowableClasses, SourceSpellID, PrevQuestID, NextQuestID, ExclusiveGroup, RewardMailTemplateID, RewardMailDelay, "
-        //9               10                   11                     12                     13                   14                   15                 16
-        "RequiredSkillID, RequiredSkillPoints, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, ProvidedItemCount, RewardMailSenderEntry, "
-        //17           18
-        "SpecialFlags, ScriptName FROM quest_template_addon LEFT JOIN quest_mail_sender ON Id=QuestId");
-
-    if (!result)
-    {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 quest template addons. DB table `quest_template_addon` is empty.");
-    }
-    else
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 questId = fields[0].GetUInt32();
-
-            auto itr = _questTemplates.find(questId);
-            if (itr != _questTemplates.end())
-                itr->second->LoadQuestTemplateAddon(fields);
-            else
-                TC_LOG_ERROR("server.loading", "Table `quest_template_addon` has data for quest %u but such quest does not exist", questId);
-        } while (result->NextRow());
-    }
-
-    // Load `quest_objectives`
-    //                                   0   1        2     3             4         5       6      7       8                  9
-    result = WorldDatabase.Query("SELECT ID, QuestID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, ProgressBarWeight, Description FROM quest_objectives ORDER BY `Order` ASC, StorageIndex ASC");
-
-    if (!result)
-    {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 quest objectives. DB table `quest_objectives` is empty.");
-    }
-    else
-    {
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 questId = fields[1].GetUInt32();
-
-            auto itr = _questTemplates.find(questId);
-            if (itr != _questTemplates.end())
-                itr->second->LoadQuestObjective(fields);
-            else
-                TC_LOG_ERROR("server.loading", "Table `quest_objectives` has objective for quest %u but such quest does not exist", questId);
-        } while (result->NextRow());
+                auto itr = _questTemplates.find(questId);
+                if (itr != _questTemplates.end())
+                    (itr->second->*loader.LoaderFunction)(fields);
+                else
+                    TC_LOG_ERROR("server.loading", "Table `%s` has data for quest %u but such quest does not exist", loader.TableName, questId);
+            } while (result->NextRow());
+        }
     }
 
     // Load `quest_visual_effect` join table with quest_objectives because visual effects are based on objective ID (core stores objectives by their index in quest)
@@ -4694,7 +4634,7 @@ void ObjectMgr::LoadQuests()
         }
 
         if (qinfo->_exclusiveGroup)
-            mExclusiveQuestGroups.insert(std::pair<int32, uint32>(qinfo->_exclusiveGroup, qinfo->GetQuestId()));
+            _exclusiveQuestGroups.insert(std::pair<int32, uint32>(qinfo->_exclusiveGroup, qinfo->GetQuestId()));
         if (qinfo->_limitTime)
             qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED);
     }
