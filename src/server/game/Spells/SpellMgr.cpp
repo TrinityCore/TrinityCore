@@ -3576,7 +3576,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS); // 10yd
                 break;
             case 74282: // Shadow Trap (searcher)
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_3_YARDS); // 3yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS); // 5yd
                 break;
             case 72595: // Restore Soul
             case 73650: // Restore Soul
@@ -3615,11 +3615,13 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50000_YARDS); // 50000yd
                 break;
             case 71809: // Jump
-                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(3); // 20yd
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS); // 25yd
+                spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
+                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS); // 10yd
+                spellInfo->Effects[EFFECT_0].MiscValue = 190;
                 break;
             case 72405: // Broken Frostmourne
-                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+                spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_20_YARDS); // 20yd
+                spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
                 break;
             // ENDOF ICECROWN CITADEL SPELLS
             //
