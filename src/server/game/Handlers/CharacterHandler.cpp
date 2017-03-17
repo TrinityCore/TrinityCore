@@ -504,17 +504,17 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         return;
     }
 
-    if (charCreate.CreateInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_HEROIC_CHARACTER))
+    if (charCreate.CreateInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT))
     {
-        // speedup check for heroic class disabled case
-        if (!sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM))
+        // speedup check for death knight class disabled case
+        if (!sWorld->getIntConfig(CONFIG_DEATH_KNIGHTS_PER_REALM))
         {
             SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
             return;
         }
 
-        // speedup check for heroic class disabled case
-        if (sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER) > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        // speedup check for death knight class disabled case
+        if (sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT) > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
             SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
             return;
@@ -577,44 +577,44 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         std::function<void(PreparedQueryResult)> finalizeCharacterCreation = [this, createInfo](PreparedQueryResult result)
         {
             bool haveSameRace = false;
-            uint32 heroicReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
+            uint32 deathKnightReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT);
             uint32 demonHunterReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER);
-            bool hasHeroicReqLevel = (heroicReqLevel == 0);
+            bool hasDeathKnightReqLevel = (deathKnightReqLevel == 0);
             bool hasDemonHunterReqLevel = (demonHunterReqLevel == 0);
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-            bool checkHeroicReqs = createInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_HEROIC_CHARACTER);
+            bool checkDeathKnightReqs = createInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT);
             bool checkDemonHunterReqs = createInfo->Class == CLASS_DEMON_HUNTER && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
 
             if (result)
             {
                 uint32 team = Player::TeamForRace(createInfo->Race);
-                uint32 freeHeroicSlots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
+                uint32 freeDeathKnightSlots = sWorld->getIntConfig(CONFIG_DEATH_KNIGHTS_PER_REALM);
                 uint32 freeDemonHunterSlots = sWorld->getIntConfig(CONFIG_DEMON_HUNTERS_PER_REALM);
 
                 Field* field = result->Fetch();
                 uint8 accRace = field[1].GetUInt8();
 
-                if (checkHeroicReqs)
+                if (checkDeathKnightReqs)
                 {
                     uint8 accClass = field[2].GetUInt8();
                     if (accClass == CLASS_DEATH_KNIGHT)
                     {
-                        if (freeHeroicSlots > 0)
-                            --freeHeroicSlots;
+                        if (freeDeathKnightSlots > 0)
+                            --freeDeathKnightSlots;
 
-                        if (freeHeroicSlots == 0)
+                        if (freeDeathKnightSlots == 0)
                         {
                             SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
                             return;
                         }
                     }
 
-                    if (!hasHeroicReqLevel)
+                    if (!hasDeathKnightReqLevel)
                     {
                         uint8 accLevel = field[0].GetUInt8();
-                        if (accLevel >= heroicReqLevel)
-                            hasHeroicReqLevel = true;
+                        if (accLevel >= deathKnightReqLevel)
+                            hasDeathKnightReqLevel = true;
                     }
                 }
 
@@ -669,26 +669,26 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                     if (!haveSameRace)
                         haveSameRace = createInfo->Race == accRace;
 
-                    if (checkHeroicReqs)
+                    if (checkDeathKnightReqs)
                     {
                         uint8 acc_class = field[2].GetUInt8();
                         if (acc_class == CLASS_DEATH_KNIGHT)
                         {
-                            if (freeHeroicSlots > 0)
-                                --freeHeroicSlots;
+                            if (freeDeathKnightSlots > 0)
+                                --freeDeathKnightSlots;
 
-                            if (freeHeroicSlots == 0)
+                            if (freeDeathKnightSlots == 0)
                             {
                                 SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
                                 return;
                             }
                         }
 
-                        if (!hasHeroicReqLevel)
+                        if (!hasDeathKnightReqLevel)
                         {
                             uint8 acc_level = field[0].GetUInt8();
-                            if (acc_level >= heroicReqLevel)
-                                hasHeroicReqLevel = true;
+                            if (acc_level >= deathKnightReqLevel)
+                                hasDeathKnightReqLevel = true;
                         }
                     }
 
@@ -717,7 +717,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                 }
             }
 
-            if (checkHeroicReqs && !hasHeroicReqLevel)
+            if (checkDeathKnightReqs && !hasDeathKnightReqLevel)
             {
                 SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
                 return;
@@ -2458,7 +2458,7 @@ void WorldSession::HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCha
 
         /// @todo: add more safety checks
         /// * max char count per account
-        /// * max heroic char count
+        /// * max death knight count
         /// * team violation
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
