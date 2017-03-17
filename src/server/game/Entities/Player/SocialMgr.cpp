@@ -140,9 +140,9 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
             continue;
 
         ObjectGuid friendGUID = v.first;
-        sSocialMgr->GetFriendInfo(player, v.first, friendInfo);
+        sSocialMgr->GetFriendInfo(player, friendGUID, friendInfo);
 
-        data << uint64(v.first);                                // player guid
+        data << uint64(friendGUID);                             // player guid
         data << uint32(friendInfo.Flags);                       // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
         data << friendInfo.Note;                                // string note
         if (friendInfo.Flags & SOCIAL_FLAG_FRIEND)              // if IsFriend()
