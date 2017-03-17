@@ -1218,7 +1218,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                 if (spell->Id == SPELL_ICE_LOCK)
                     me->SetFacingTo(3.085098f);
                 else if (spell->Id == SPELL_BROKEN_FROSTMOURNE_KNOCK)
-                    SetEquipmentSlots(true);    // remove glow on ashbringer
+                    me->LoadEquipment(1); // remove glow on ashbringer
             }
 
             void sGossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
