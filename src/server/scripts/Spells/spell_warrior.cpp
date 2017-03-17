@@ -30,8 +30,7 @@
 enum WarriorSpells
 {
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
-    SPELL_WARRIOR_BLOODTHIRST                       = 23885,
-    SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
+    SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 86346,
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_1                = 12162,
@@ -87,46 +86,40 @@ enum MiscSpells
     SPELL_PRIEST_RENEWED_HOPE                       = 63944
 };
 
-/// Updated 4.3.4
+// 23881 - Bloodthirst 
+// Updated 7.1.5
 class spell_warr_bloodthirst : public SpellScriptLoader
 {
-    public:
-        spell_warr_bloodthirst() : SpellScriptLoader("spell_warr_bloodthirst") { }
+public:
+    spell_warr_bloodthirst() : SpellScriptLoader("spell_warr_bloodthirst") { }
 
-        class spell_warr_bloodthirst_SpellScript : public SpellScript
+    class spell_warr_bloodthirst_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
-
-            void HandleDamage(SpellEffIndex effIndex)
-            {
-                int32 damage = GetEffectValue();
-                ApplyPct(damage, GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
-
-                if (Unit* target = GetHitUnit())
-                {
-                    damage = GetCaster()->SpellDamageBonusDone(target, GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE, GetEffectInfo(effIndex));
-                    damage = target->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE, GetEffectInfo(effIndex));
-                }
-                SetHitDamage(damage);
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                int32 damage = GetEffectValue();
-                GetCaster()->CastCustomSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST, &damage, NULL, NULL, true, NULL);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHit += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warr_bloodthirst_SpellScript();
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_BLOODTHIRST_HEAL
+            });
         }
+        
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDummy, EFFECT_3, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_bloodthirst_SpellScript();
+    }
 };
 
 /// Updated 4.3.4
