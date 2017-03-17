@@ -1534,7 +1534,10 @@ class npc_valkyr_shadowguard : public CreatureScript
                 {
                     case POINT_DROP_PLAYER:
                         DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
-                        IsHeroic() ? me->GetMotionMaster()->MoveTargetedHome() : me->DespawnOrUnsummon(1000);
+                        if (IsHeroic())
+                            me->GetMotionMaster()->MoveTargetedHome();
+                        else
+                            me->DespawnOrUnsummon(1000);
                         break;
                     case POINT_CHARGE:
                         if (Player* target = ObjectAccessor::GetPlayer(*me, _grabbedPlayer))
