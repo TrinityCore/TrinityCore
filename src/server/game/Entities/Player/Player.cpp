@@ -84,6 +84,7 @@
 #include "ReputationMgr.h"
 #include "Scenario.h"
 #include "SkillDiscovery.h"
+#include "SmartScript.h"
 #include "SocialMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -1376,7 +1377,6 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
-
 }
 
 void Player::setDeathState(DeathState s)
@@ -17992,6 +17992,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         _garrison = std::move(garrison);
 
     m_achievementMgr->CheckAllAchievementCriteria(this);
+
     return true;
 }
 
