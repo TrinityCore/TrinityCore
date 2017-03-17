@@ -125,40 +125,43 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
 {
     ASSERT(player);
 
-    uint32 size = _playerSocialMap.size();
-
     uint32 count = 0;
-    WorldPacket data(SMSG_CONTACT_LIST, (4 + 4 + size * 25)); // just can guess size
-    data << uint32(flags);                                    // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
-    data << uint32(size);                                     // friends count
+
+    WorldPacket data(SMSG_CONTACT_LIST, (4 + 4 + _playerSocialMap.size() * 25)); // just can guess size
+    data << uint32(flags);                                      // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
+
+    size_t wpos = data.wpos();
+    data << uint32(0);                                          // placeholder for contacts count
 
     for (PlayerSocialMap::value_type& v : _playerSocialMap)
     {
-        if (!(v.second.Flags & flags))
+        FriendInfo friendInfo = v.second;
+        if (!(friendInfo.Flags & flags))
             continue;
 
-        ++count;
-        sSocialMgr->GetFriendInfo(player, v.first, v.second);
+        ObjectGuid friendGUID = v.first;
+        sSocialMgr->GetFriendInfo(player, friendGUID, friendInfo);
 
-        data << uint64(v.first);                              // player guid
-        data << uint32(v.second.Flags);                       // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
-        data << v.second.Note;                                // string note
-        if (v.second.Flags & SOCIAL_FLAG_FRIEND)              // if IsFriend()
+        data << uint64(friendGUID);                             // player guid
+        data << uint32(friendInfo.Flags);                       // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
+        data << friendInfo.Note;                                // string note
+        if (friendInfo.Flags & SOCIAL_FLAG_FRIEND)              // if IsFriend()
         {
-            data << uint8(v.second.Status);                   // online/offline/etc?
-            if (v.second.Status)                              // if online
+            data << uint8(friendInfo.Status);                   // online/offline/etc?
+            if (friendInfo.Status)                              // if online
             {
-                data << uint32(v.second.Area);                // player area
-                data << uint32(v.second.Level);               // player level
-                data << uint32(v.second.Class);               // player class
+                data << uint32(friendInfo.Area);                // player area
+                data << uint32(friendInfo.Level);               // player level
+                data << uint32(friendInfo.Class);               // player class
             }
         }
 
         // client's friends list and ignore list limit
-        if (count >= (((flags & SOCIAL_FLAG_FRIEND) != 0) ? SOCIALMGR_FRIEND_LIMIT : SOCIALMGR_IGNORE_LIMIT))
+        if (++count >= (((flags & SOCIAL_FLAG_FRIEND) != 0) ? SOCIALMGR_FRIEND_LIMIT : SOCIALMGR_IGNORE_LIMIT))
             break;
     }
 
+    data.put<uint32>(wpos, count);                              // set real data to placeholder
     player->SendDirectMessage(&data);
 }
 
