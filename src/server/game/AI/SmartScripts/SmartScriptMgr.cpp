@@ -1217,6 +1217,33 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         }
+        case SMART_ACTION_MOVE_TO_POS:
+            if (e.action.MoveToPos.closePoint != 0 && e.action.MoveToPos.closePoint != 1)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid closePoint value %u (should be 0 or 1), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.MoveToPos.closePoint);
+                return false;
+            }
+
+            if (e.GetTargetType() == SMART_TARGET_POSITION && (e.action.MoveToPos.closePoint == 1 || e.action.MoveToPos.distance))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u has closePoint or distance specified (both should be 0), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
+            else
+            {
+                if (e.action.MoveToPos.closePoint == 1 && !e.action.MoveToPos.distance)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses closePoint, but has distance %u, which has no effect, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.MoveToPos.distance);
+                    return false;
+                }
+
+                if (e.action.MoveToPos.distance && !e.action.MoveToPos.closePoint)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u has distance specified, but closePoint is %u (should be 1), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.MoveToPos.closePoint);
+                    return false;
+                }
+            }
+            break;
         case SMART_ACTION_START_CLOSEST_WAYPOINT:
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
@@ -1248,7 +1275,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SET_UNIT_FLAG:
         case SMART_ACTION_REMOVE_UNIT_FLAG:
         case SMART_ACTION_PLAYMOVIE:
-        case SMART_ACTION_MOVE_TO_POS:
         case SMART_ACTION_RESPAWN_TARGET:
         case SMART_ACTION_CLOSE_GOSSIP:
         case SMART_ACTION_TRIGGER_TIMED_EVENT:
