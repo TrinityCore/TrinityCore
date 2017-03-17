@@ -10782,7 +10782,10 @@ void Unit::RestoreDisplayId(bool ignorePositiveAurasPreventingMounting /*= false
 
     // transform aura was found
     if (handledAura)
+    {
         handledAura->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
+        return;
+    }
     // we've found shapeshift
     else if (!shapeshiftAura.empty()) // we've found shapeshift
     {
@@ -10793,11 +10796,11 @@ void Unit::RestoreDisplayId(bool ignorePositiveAurasPreventingMounting /*= false
                 SetDisplayId(modelId);
             else
                 SetDisplayId(GetNativeDisplayId());
+            return;
         }
     }
     // no auras found - set modelid to default
-    else
-        SetDisplayId(GetNativeDisplayId());
+    SetDisplayId(GetNativeDisplayId());
 }
 
 void Unit::ClearAllReactives()
