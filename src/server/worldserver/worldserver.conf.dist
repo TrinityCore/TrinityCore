@@ -798,22 +798,22 @@ CharactersPerAccount = 50
 CharactersPerRealm = 12
 
 #
-#    HeroicCharactersPerRealm
-#        Description: Limit number of heroic class characters per account on this realm.
+#    DeathKnightsPerRealm
+#        Description: Limit number of death knight characters per account on this realm.
 #        Range:       1-12
 #        Default:     1
 
-HeroicCharactersPerRealm = 1
+DeathKnightsPerRealm = 1
 
 #
-#    CharacterCreating.MinLevelForHeroicCharacter
-#        Description: Limit creating heroic characters only for account with another
+#    CharacterCreating.MinLevelForDeathKnight
+#        Description: Limit creating death knights only for account with another
 #                     character of specific level (ignored for GM accounts).
 #        Default:     55 - (Enabled, Requires at least another level 55 character)
 #                     0  - (Disabled)
 #                     1  - (Enabled, Requires at least another level 1 character)
 
-CharacterCreating.MinLevelForHeroicCharacter = 55
+CharacterCreating.MinLevelForDeathKnight = 55
 
 #
 #    DemonHuntersPerRealm
@@ -868,12 +868,12 @@ MinDualSpecLevel = 30
 StartPlayerLevel = 1
 
 #
-#    StartHeroicPlayerLevel
-#        Description: Staring level for heroic class characters after creation.
+#    StartDeathKnightPlayerLevel
+#        Description: Staring level for death knights after creation.
 #        Range:       1-MaxPlayerLevel
 #        Default:     55
 
-StartHeroicPlayerLevel = 55
+StartDeathKnightPlayerLevel = 55
 
 #
 #    StartDemonHunterPlayerLevel
@@ -2898,12 +2898,12 @@ CharDelete.Method = 0
 CharDelete.MinLevel = 0
 
 #
-#    CharDelete.Heroic.MinLevel
-#        Description: Required level to use the unlinking method if enabled for heroic classes.
+#    CharDelete.DeathKnight.MinLevel
+#        Description: Required level to use the unlinking method if enabled for death knights.
 #        Default:     0  - (Same method for every level)
 #                     1+ - (Only characters with the specified level will use the unlinking method)
 
-CharDelete.Heroic.MinLevel = 0
+CharDelete.DeathKnight.MinLevel = 0
 
 #
 #    CharDelete.KeepDays

@@ -813,14 +813,14 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT] = m_int_configs[CONFIG_CHARACTERS_PER_REALM];
     }
 
-    m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] = sConfigMgr->GetIntDefault("HeroicCharactersPerRealm", 1);
-    if (int32(m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] > 12)
+    m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM] = sConfigMgr->GetIntDefault("DeathKnightsPerRealm", 1);
+    if (int32(m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM] > 12)
     {
-        TC_LOG_ERROR("server.loading", "HeroicCharactersPerRealm (%i) must be in range 0..12. Set to 1.", m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]);
-        m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] = 1;
+        TC_LOG_ERROR("server.loading", "DeathKnightsPerRealm (%i) must be in range 0..12. Set to 1.", m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM]);
+        m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM] = 1;
     }
 
-    m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForHeroicCharacter", 55);
+    m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForDeathKnight", 55);
 
     m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] = sConfigMgr->GetIntDefault("DemonHuntersPerRealm", 1);
     if (int32(m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] > 12)
@@ -867,18 +867,18 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_START_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
-    m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("StartHeroicPlayerLevel", 55);
-    if (m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] < 1)
+    m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("StartDeathKnightPlayerLevel", 55);
+    if (m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] < 1)
     {
-        TC_LOG_ERROR("server.loading", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 55.",
-            m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
-        m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = 55;
+        TC_LOG_ERROR("server.loading", "StartDeathKnightPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 55.",
+            m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+        m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] = 55;
     }
-    else if (m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
+    else if (m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
-        TC_LOG_ERROR("server.loading", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",
-            m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
-        m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
+        TC_LOG_ERROR("server.loading", "StartDeathKnightPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",
+            m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+        m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
     m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("StartDemonHunterPlayerLevel", 98);
@@ -1262,7 +1262,7 @@ void World::LoadConfigSettings(bool reload)
     ///- Load the CharDelete related config options
     m_int_configs[CONFIG_CHARDELETE_METHOD] = sConfigMgr->GetIntDefault("CharDelete.Method", 0);
     m_int_configs[CONFIG_CHARDELETE_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.MinLevel", 0);
-    m_int_configs[CONFIG_CHARDELETE_HEROIC_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.Heroic.MinLevel", 0);
+    m_int_configs[CONFIG_CHARDELETE_DEATH_KNIGHT_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.DeathKnight.MinLevel", 0);
     m_int_configs[CONFIG_CHARDELETE_KEEP_DAYS] = sConfigMgr->GetIntDefault("CharDelete.KeepDays", 30);
 
     // No aggro from gray mobs

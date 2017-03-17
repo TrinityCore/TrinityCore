@@ -490,7 +490,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     // set starting level
     uint32 start_level = sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL);
     if (getClass() == CLASS_DEATH_KNIGHT)
-        start_level = sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
+        start_level = sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL);
     else if (getClass() == CLASS_DEMON_HUNTER)
         start_level = sWorld->getIntConfig(CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL);
 
@@ -3751,7 +3751,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     else if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(playerguid)) // To avoid a query, we select loaded data. If it doesn't exist, return.
     {
         // Define the required variables
-        uint32 charDeleteMinLvl = sWorld->getIntConfig(characterInfo->Class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
+        uint32 charDeleteMinLvl = sWorld->getIntConfig(characterInfo->Class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_DEATH_KNIGHT_MIN_LEVEL);
 
         // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
         // we set it to mode CHAR_DELETE_REMOVE
