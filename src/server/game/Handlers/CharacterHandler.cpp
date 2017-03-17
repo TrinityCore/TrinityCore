@@ -2459,6 +2459,7 @@ void WorldSession::HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCha
         /// @todo: add more safety checks
         /// * max char count per account
         /// * max death knight count
+        /// * max demon hunter count
         /// * team violation
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);

@@ -2906,6 +2906,14 @@ CharDelete.MinLevel = 0
 CharDelete.DeathKnight.MinLevel = 0
 
 #
+#    CharDelete.DemonHunter.MinLevel
+#        Description: Required level to use the unlinking method if enabled for demon hunters.
+#        Default:     0  - (Same method for every level)
+#                     1+ - (Only characters with the specified level will use the unlinking method)
+
+CharDelete.DemonHunter.MinLevel = 0
+
+#
 #    CharDelete.KeepDays
 #        Description: Time (in days) before unlinked characters will be removed from the database.
 #        Default:     30 - (Enabled)
