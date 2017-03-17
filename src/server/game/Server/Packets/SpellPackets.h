@@ -1016,6 +1016,17 @@ namespace WorldPackets
             uint32 SpellID = 0;
             std::vector<int32> FailedSpells;
         };
+
+        class CustomLoadScreen final : public ServerPacket
+        {
+        public:
+            CustomLoadScreen(uint32 teleportSpellId, uint32 loadingScreenId) : ServerPacket(SMSG_CUSTOM_LOAD_SCREEN), TeleportSpellID(teleportSpellId), LoadingScreenID(loadingScreenId) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 TeleportSpellID;
+            uint32 LoadingScreenID;
+        };
     }
 }
 
