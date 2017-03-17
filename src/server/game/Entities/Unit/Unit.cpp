@@ -13350,16 +13350,22 @@ void Unit::RestoreDisplayId()
 
     // transform aura was found
     if (handledAura)
+    {
         handledAura->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
+        return;
+    }
     else if (!shapeshiftAura.empty()) // we've found shapeshift
     {
         // only one such aura possible at a time
         if (uint32 modelId = GetModelForForm(GetShapeshiftForm(), shapeshiftAura.front()->GetId()))
+        {
             SetDisplayId(modelId);
+            return;
+        }
     }
+
     // no auras found - set modelid to default
-    else
-        SetDisplayId(GetNativeDisplayId());
+    SetDisplayId(GetNativeDisplayId());
 }
 
 void Unit::ClearComboPointHolders()
