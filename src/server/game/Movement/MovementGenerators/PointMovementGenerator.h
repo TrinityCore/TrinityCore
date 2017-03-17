@@ -22,12 +22,19 @@
 #include "MovementGenerator.h"
 #include "FollowerReference.h"
 
+namespace Movement
+{
+    struct SpellEffectExtraData;
+}
+
 template<class T>
 class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
 {
     public:
-        PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f, Unit const* faceTarget = nullptr) : id(_id),
-            i_x(_x), i_y(_y), i_z(_z), speed(_speed), i_faceTarget(faceTarget), m_generatePath(_generatePath), i_recalculateSpeed(false) { }
+        PointMovementGenerator(uint32 _id, float _x, float _y, float _z, bool _generatePath, float _speed = 0.0f, Unit const* faceTarget = nullptr,
+            Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr) : id(_id),
+            i_x(_x), i_y(_y), i_z(_z), speed(_speed), i_faceTarget(faceTarget), i_spellEffectExtra(spellEffectExtraData),
+            m_generatePath(_generatePath), i_recalculateSpeed(false) { }
 
         void DoInitialize(T*);
         void DoFinalize(T*);
@@ -46,6 +53,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         float i_x, i_y, i_z;
         float speed;
         Unit const* i_faceTarget;
+        Movement::SpellEffectExtraData const* i_spellEffectExtra;
         bool m_generatePath;
         bool i_recalculateSpeed;
 };
