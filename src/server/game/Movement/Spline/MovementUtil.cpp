@@ -138,6 +138,11 @@ namespace Movement
         STRINGIZE(Unk15                              ), // 0x00008000
         STRINGIZE(CanDoubleJump                      ), // 0x00010000
         STRINGIZE(DoubleJump                         ), // 0x00020000
+        STRINGIZE(Unk18                              ), // 0x00040000
+        STRINGIZE(Unk19                              ), // 0x00080000
+        STRINGIZE(InterpolatedMovement               ), // 0x00100000
+        STRINGIZE(InterpolatedTurning                ), // 0x00200000
+        STRINGIZE(InterpolatedPitching               ), // 0x00400000
     };
 
     char const* SplineFlagNames[32] =
