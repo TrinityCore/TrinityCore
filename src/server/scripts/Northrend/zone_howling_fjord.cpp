@@ -212,7 +212,7 @@ public:
 
         void WaypointReached(uint32 waypointId) override
         {
-            if (GetPlayerForEscort())
+            if (!GetPlayerForEscort())
                 return;
 
             switch (waypointId)
