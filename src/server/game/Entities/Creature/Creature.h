@@ -543,6 +543,7 @@ struct CreatureData
     uint32 dynamicflags;
     uint32 phaseid;
     uint32 phaseGroup;
+    uint32 ScriptId;
     bool dbData;
 };
 

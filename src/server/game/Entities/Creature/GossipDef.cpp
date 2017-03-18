@@ -613,7 +613,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const
 {
     std::string questTitle              = quest->GetLogTitle();
-    std::string questOfferRewardText    = quest->GetOfferRewardText();
+    std::string rewardText    = quest->GetOfferRewardText();
     std::string portraitGiverText       = quest->GetPortraitGiverText();
     std::string portraitGiverName       = quest->GetPortraitGiverName();
     std::string portraitTurnInText      = quest->GetPortraitTurnInText();
@@ -625,12 +625,14 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
         if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
         {
             ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle,           locale, questTitle);
-            ObjectMgr::GetLocaleString(questTemplateLocale->OfferRewardText,    locale, questOfferRewardText);
             ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverText,  locale, portraitGiverText);
             ObjectMgr::GetLocaleString(questTemplateLocale->PortraitGiverName,  locale, portraitGiverName);
             ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInText, locale, portraitTurnInText);
             ObjectMgr::GetLocaleString(questTemplateLocale->PortraitTurnInName, locale, portraitTurnInName);
         }
+
+        if (QuestOfferRewardLocale const* questOfferRewardLocale = sObjectMgr->GetQuestOfferRewardLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questOfferRewardLocale->RewardText, locale, rewardText);
     }
 
     if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
@@ -651,13 +653,13 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     offer.SuggestedPartyMembers = quest->GetSuggestedPlayers();
 
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT && quest->OfferRewardEmote[i]; ++i)
-        offer.Emotes.push_back(WorldPackets::Quest::QuestDescEmote(quest->OfferRewardEmote[i], quest->OfferRewardEmoteDelay[i]));
+        offer.Emotes.emplace_back(quest->OfferRewardEmote[i], quest->OfferRewardEmoteDelay[i]);
 
     offer.QuestFlags[0] = quest->GetFlags();
     offer.QuestFlags[1] = quest->GetFlagsEx();
 
     packet.QuestTitle = questTitle;
-    packet.RewardText = questOfferRewardText;
+    packet.RewardText = rewardText;
     packet.PortraitTurnIn = quest->GetQuestTurnInPortrait();
     packet.PortraitGiver = quest->GetQuestGiverPortrait();
     packet.PortraitGiverText = portraitGiverText;
