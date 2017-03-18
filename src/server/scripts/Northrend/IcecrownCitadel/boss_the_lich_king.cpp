@@ -219,6 +219,7 @@ enum Events
     EVENT_GRAB_PLAYER,
     EVENT_MOVE_TO_DROP_POS,
     EVENT_LIFE_SIPHON, // heroic only
+    EVENT_MOVE_TO_CENTER, // heroic only
     EVENT_START_ATTACK,
     EVENT_SUMMON_RAGING_SPIRIT_2,
     EVENT_QUAKE_2,
@@ -317,6 +318,7 @@ enum MovePoints
     POINT_OUTRO_JUMP        = 11,
     POINT_LK_OUTRO_2        = 12,
     POINT_GROUND            = 13,
+    POINT_SIPHON            = 14,
     POINT_CHARGE            = 1003, // globally used number for charge spell effects
 };
 
@@ -1506,19 +1508,18 @@ class npc_valkyr_shadowguard : public CreatureScript
 
                 if (me->HealthBelowPctDamaged(50, damage))
                 {
-                    _events.Reset();
                     DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
-                    me->GetMotionMaster()->MoveTargetedHome();
-                    me->ClearUnitState(UNIT_STATE_EVADE);
+                    ScheduleHeroicEvents();
                 }
             }
 
-            void JustReachedHome() override
+            void ScheduleHeroicEvents()
             {
-                // schedule siphon life event (heroic only)
                 DoZoneInCombat();
                 _events.Reset();
+                _events.ScheduleEvent(EVENT_MOVE_TO_CENTER, 1);
                 _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2000);
+                me->ClearUnitState(UNIT_STATE_EVADE);
             }
 
             void AttackStart(Unit* /*target*/) override
@@ -1535,7 +1536,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                     case POINT_DROP_PLAYER:
                         DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
                         if (IsHeroic())
-                            me->GetMotionMaster()->MoveTargetedHome();
+                            ScheduleHeroicEvents();
                         else
                             me->DespawnOrUnsummon(1000);
                         break;
@@ -1600,6 +1601,13 @@ class npc_valkyr_shadowguard : public CreatureScript
                                 DoCast(target, SPELL_LIFE_SIPHON);
                             _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2500);
                             break;
+                        case EVENT_MOVE_TO_CENTER:
+                        {
+                            Position pos = me->GetRandomPoint(CenterPosition, 4.0f);
+                            pos.m_positionZ = me->GetHomePosition().m_positionZ;
+                            me->GetMotionMaster()->MovePoint(POINT_SIPHON, pos);
+                            break;
+                        }
                         default:
                             break;
                     }
