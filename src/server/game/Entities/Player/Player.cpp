@@ -5300,6 +5300,17 @@ void Player::RepopAtGraveyard()
 		{
 			if (sDynRes->IsInDungeonOrRaid(this) && sDynRes->CheckForSpawnPoint(this))
 				sDynRes->DynamicResurrection(this);
+			else
+			{
+				TeleportTo(ClosestGrave->MapID, ClosestGrave->Loc.X, ClosestGrave->Loc.Y, ClosestGrave->Loc.Z, (ClosestGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
+				if (isDead())                                        // not send if alive, because it used in TeleportTo()
+				{
+					WorldPackets::Misc::DeathReleaseLoc packet;
+					packet.MapID = ClosestGrave->MapID;
+					packet.Loc = G3D::Vector3(ClosestGrave->Loc.X, ClosestGrave->Loc.Y, ClosestGrave->Loc.Z);
+					GetSession()->SendPacket(packet.Write());
+				}
+			}
 		}
 		else
 		{
