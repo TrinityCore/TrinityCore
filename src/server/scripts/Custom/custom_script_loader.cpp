@@ -40,6 +40,7 @@ void AddSC_accontmounts();
 void AddSC_accountachievement();
 void AddSC_RandomEnchantsScripts();
 void AddSC_Dynamic_Resurrections();
+void AddSC_custom_CongratsOnLevel();
 //Bots
 void AddSC_death_knight_bot();
 void AddSC_druid_bot();
@@ -85,6 +86,7 @@ void AddCustomScripts()
 	AddSC_accountachievement();
 	AddSC_RandomEnchantsScripts();
 	AddSC_Dynamic_Resurrections();
+	AddSC_custom_CongratsOnLevel();
     //Bots
     AddSC_death_knight_bot();
     AddSC_druid_bot();

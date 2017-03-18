@@ -4640,6 +4640,14 @@ TimeIsMoneyFriend.Money    = 1000
 Dungeon.Checkpoints.Enable = 1
 
 #
+#     Congrats.Level
+#        Description: Server gives money for players on every 10 level.
+#        Default:     0 (disabled)
+#                     1 (enabled)
+
+Congrats.Level = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
