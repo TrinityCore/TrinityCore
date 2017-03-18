@@ -2500,6 +2500,9 @@ std::string Creature::GetScriptName() const
 
 uint32 Creature::GetScriptId() const
 {
+    if (CreatureData const* creatureData = GetCreatureData())
+        return creatureData->ScriptID;
+
     return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
 }
 
