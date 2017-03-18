@@ -190,6 +190,15 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     }
                     break;
                 }
+                case SMART_SCRIPT_TYPE_SCENE:
+                {
+                    if (!sObjectMgr->GetSceneTemplate((uint32)temp.entryOrGuid))
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Scene id (%u) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                        continue;
+                    }
+                    break;
+                }
                 case SMART_SCRIPT_TYPE_TIMED_ACTIONLIST:
                     break;//nothing to check, really
                 default:
@@ -232,23 +241,24 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.event.raw.param2 = fields[9].GetUInt32();
         temp.event.raw.param3 = fields[10].GetUInt32();
         temp.event.raw.param4 = fields[11].GetUInt32();
+        temp.event.param_string = fields[12].GetString();
 
-        temp.action.type = (SMART_ACTION)fields[12].GetUInt8();
-        temp.action.raw.param1 = fields[13].GetUInt32();
-        temp.action.raw.param2 = fields[14].GetUInt32();
-        temp.action.raw.param3 = fields[15].GetUInt32();
-        temp.action.raw.param4 = fields[16].GetUInt32();
-        temp.action.raw.param5 = fields[17].GetUInt32();
-        temp.action.raw.param6 = fields[18].GetUInt32();
+        temp.action.type = (SMART_ACTION)fields[13].GetUInt8();
+        temp.action.raw.param1 = fields[14].GetUInt32();
+        temp.action.raw.param2 = fields[15].GetUInt32();
+        temp.action.raw.param3 = fields[16].GetUInt32();
+        temp.action.raw.param4 = fields[17].GetUInt32();
+        temp.action.raw.param5 = fields[18].GetUInt32();
+        temp.action.raw.param6 = fields[19].GetUInt32();
 
-        temp.target.type = (SMARTAI_TARGETS)fields[19].GetUInt8();
-        temp.target.raw.param1 = fields[20].GetUInt32();
-        temp.target.raw.param2 = fields[21].GetUInt32();
-        temp.target.raw.param3 = fields[22].GetUInt32();
-        temp.target.x = fields[23].GetFloat();
-        temp.target.y = fields[24].GetFloat();
-        temp.target.z = fields[25].GetFloat();
-        temp.target.o = fields[26].GetFloat();
+        temp.target.type = (SMARTAI_TARGETS)fields[20].GetUInt8();
+        temp.target.raw.param1 = fields[21].GetUInt32();
+        temp.target.raw.param2 = fields[22].GetUInt32();
+        temp.target.raw.param3 = fields[23].GetUInt32();
+        temp.target.x = fields[24].GetFloat();
+        temp.target.y = fields[25].GetFloat();
+        temp.target.z = fields[26].GetFloat();
+        temp.target.o = fields[27].GetFloat();
 
         //check target
         if (!IsTargetValid(temp))
@@ -754,6 +764,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_JUST_CREATED:
             case SMART_EVENT_FOLLOW_COMPLETED:
             case SMART_EVENT_ON_SPELLCLICK:
+            case SMART_EVENT_SCENE_START:
+            case SMART_EVENT_SCENE_CANCEL:
+            case SMART_EVENT_SCENE_COMPLETE:
+            case SMART_EVENT_SCENE_TRIGGER:
                 break;
             default:
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled event_type(%u), Entry " SI64FMTD " SourceType %u Event %u Action %u, skipped.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1215,6 +1229,26 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid phase group id %u for creature " SI64FMTD ", skipped", phaseGroup, e.entryOrGuid);
                 return false;
             }
+            break;
+        }
+        case SMART_ACTION_SCENE_PLAY:
+        {
+            if (!sObjectMgr->GetSceneTemplate(e.action.scene.sceneId))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SCENE_PLAY uses sceneId %u but scene don't exist, skipped", e.action.scene.sceneId);
+                return false;
+            }
+
+            break;
+        }
+        case SMART_ACTION_SCENE_CANCEL:
+        {
+            if (!sObjectMgr->GetSceneTemplate(e.action.scene.sceneId))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SCENE_CANCEL uses sceneId %u but scene don't exist, skipped", e.action.scene.sceneId);
+                return false;
+            }
+
             break;
         }
         case SMART_ACTION_START_CLOSEST_WAYPOINT:

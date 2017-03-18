@@ -979,7 +979,42 @@ class SmartTrigger : public AreaTriggerScript
         }
 };
 
+class SmartScene : public SceneScript
+{
+public:
+    SmartScene() : SceneScript("SmartScene") { }
+
+    void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
+    {
+        SmartScript smartScript;
+        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_START, player);
+    }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate, std::string const& triggerName) override
+    {
+        SmartScript smartScript;
+        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_TRIGGER, player, 0, 0, false, nullptr, nullptr, triggerName);
+    }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
+    {
+        SmartScript smartScript;
+        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_CANCEL, player);
+    }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
+    {
+        SmartScript smartScript;
+        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_COMPLETE, player);
+    }
+};
+
 void AddSC_SmartScripts()
 {
     new SmartTrigger();
+    new SmartScene();
 }

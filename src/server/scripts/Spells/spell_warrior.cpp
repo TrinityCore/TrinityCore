@@ -30,16 +30,14 @@
 enum WarriorSpells
 {
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
-    SPELL_WARRIOR_BLOODTHIRST                       = 23885,
-    SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
+    SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 86346,
-    SPELL_WARRIOR_DEEP_WOUNDS_RANK_1                = 12162,
-    SPELL_WARRIOR_DEEP_WOUNDS_RANK_2                = 12850,
-    SPELL_WARRIOR_DEEP_WOUNDS_RANK_3                = 12868,
-    SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC              = 12721,
     SPELL_WARRIOR_EXECUTE                           = 20647,
-    SPELL_WARRIOR_GLYPH_OF_EXECUTION                = 58367,
+    SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
+    SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
+    SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
+    SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF        = 65156,
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
@@ -56,7 +54,6 @@ enum WarriorSpells
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_SLAM                              = 50782,
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
-    SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
@@ -64,69 +61,44 @@ enum WarriorSpells
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_2        = 46860,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
-    SPELL_WARRIOR_VIGILANCE_PROC                    = 50725,
     SPELL_WARRIOR_VENGEANCE                         = 76691,
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
-    SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
-    SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
-    SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
-    SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
 };
 
-enum WarriorSpellIcons
-{
-    WARRIOR_ICON_ID_SUDDEN_DEATH                    = 1989
-};
-
-
-enum MiscSpells
-{
-    SPELL_PALADIN_BLESSING_OF_SANCTUARY             = 20911,
-    SPELL_PALADIN_GREATER_BLESSING_OF_SANCTUARY     = 25899,
-    SPELL_PRIEST_RENEWED_HOPE                       = 63944
-};
-
-/// Updated 4.3.4
+// 23881 - Bloodthirst
 class spell_warr_bloodthirst : public SpellScriptLoader
 {
-    public:
-        spell_warr_bloodthirst() : SpellScriptLoader("spell_warr_bloodthirst") { }
+public:
+    spell_warr_bloodthirst() : SpellScriptLoader("spell_warr_bloodthirst") { }
 
-        class spell_warr_bloodthirst_SpellScript : public SpellScript
+    class spell_warr_bloodthirst_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
-
-            void HandleDamage(SpellEffIndex effIndex)
-            {
-                int32 damage = GetEffectValue();
-                ApplyPct(damage, GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
-
-                if (Unit* target = GetHitUnit())
-                {
-                    damage = GetCaster()->SpellDamageBonusDone(target, GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE, GetEffectInfo(effIndex));
-                    damage = target->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE, GetEffectInfo(effIndex));
-                }
-                SetHitDamage(damage);
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                int32 damage = GetEffectValue();
-                GetCaster()->CastCustomSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST, &damage, NULL, NULL, true, NULL);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHit += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warr_bloodthirst_SpellScript();
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_BLOODTHIRST_HEAL
+            });
         }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDummy, EFFECT_3, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_bloodthirst_SpellScript();
+    }
 };
 
 /// Updated 4.3.4
@@ -244,6 +216,117 @@ class spell_warr_execute : public SpellScriptLoader
         {
             return new spell_warr_execute_SpellScript();
         }
+};
+
+// Heroic leap - 6544
+class spell_warr_heroic_leap : public SpellScriptLoader
+{
+public:
+    spell_warr_heroic_leap() : SpellScriptLoader("spell_warr_heroic_leap") { }
+
+    class spell_warr_heroic_leap_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_heroic_leap_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_HEROIC_LEAP_JUMP))
+                return false;
+            return true;
+        }
+
+        SpellCastResult CheckElevation()
+        {
+            if (WorldLocation const* dest = GetExplTargetDest())
+            {
+                if (GetCaster()->HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
+                    return SPELL_FAILED_ROOTED;
+
+                if (GetCaster()->GetMap()->Instanceable())
+                {
+                    float range = GetSpellInfo()->GetMaxRange(true, GetCaster()) * 1.5f;
+
+                    PathGenerator generatedPath(GetCaster());
+                    generatedPath.SetPathLengthLimit(range);
+
+                    bool result = generatedPath.CalculatePath(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), false, true);
+                    if (generatedPath.GetPathType() & PATHFIND_SHORT)
+                        return SPELL_FAILED_OUT_OF_RANGE;
+                    else if (!result || generatedPath.GetPathType() & PATHFIND_NOPATH)
+                    {
+                        result = generatedPath.CalculatePath(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), false, false);
+                        if (generatedPath.GetPathType() & PATHFIND_SHORT)
+                            return SPELL_FAILED_OUT_OF_RANGE;
+                        else if (!result || generatedPath.GetPathType() & PATHFIND_NOPATH)
+                            return SPELL_FAILED_NOPATH;
+                    }
+                }
+                else if (dest->GetPositionZ() > GetCaster()->GetPositionZ() + 4.0f)
+                    return SPELL_FAILED_NOPATH;
+
+                return SPELL_CAST_OK;
+            }
+
+            return SPELL_FAILED_NO_VALID_TARGETS;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (WorldLocation* dest = GetHitDest())
+                GetCaster()->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), SPELL_WARRIOR_HEROIC_LEAP_JUMP, true);
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap_SpellScript::CheckElevation);
+            OnEffectHit += SpellEffectFn(spell_warr_heroic_leap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_heroic_leap_SpellScript();
+    }
+};
+
+// Heroic Leap (triggered by Heroic Leap (6544)) - 178368
+class spell_warr_heroic_leap_jump : public SpellScriptLoader
+{
+public:
+    spell_warr_heroic_leap_jump() : SpellScriptLoader("spell_warr_heroic_leap_jump") { }
+
+    class spell_warr_heroic_leap_jump_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_heroic_leap_jump_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP) ||
+                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF) ||
+                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IMPROVED_HEROIC_LEAP) ||
+                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_TAUNT))
+                return false;
+            return true;
+        }
+
+        void AfterJump(SpellEffIndex /*effIndex*/)
+        {
+            if (GetCaster()->HasAura(SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP))
+                GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF, true);
+            if (GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_HEROIC_LEAP))
+                GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_TAUNT, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_warr_heroic_leap_jump_SpellScript::AfterJump, EFFECT_1, SPELL_EFFECT_JUMP_DEST);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_heroic_leap_jump_SpellScript();
+    }
 };
 
 // 59725 - Improved Spell Reflection
@@ -1052,123 +1135,14 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
         }
 };
 
-// Heroic leap - 6544
-class spell_warr_heroic_leap : public SpellScriptLoader
-{
-public:
-    spell_warr_heroic_leap() : SpellScriptLoader("spell_warr_heroic_leap") { }
-
-    class spell_warr_heroic_leap_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_heroic_leap_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_HEROIC_LEAP_JUMP))
-                return false;
-            return true;
-        }
-
-        SpellCastResult CheckElevation()
-        {
-            if (WorldLocation const* dest = GetExplTargetDest())
-            {
-                if (GetCaster()->HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
-                    return SPELL_FAILED_ROOTED;
-
-                if (GetCaster()->GetMap()->Instanceable())
-                {
-                    float range = GetSpellInfo()->GetMaxRange(true, GetCaster()) * 1.5f;
-
-                    PathGenerator generatedPath(GetCaster());
-                    generatedPath.SetPathLengthLimit(range);
-
-                    bool result = generatedPath.CalculatePath(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), false, true);
-                    if (generatedPath.GetPathType() & PATHFIND_SHORT)
-                        return SPELL_FAILED_OUT_OF_RANGE;
-                    else if (!result || generatedPath.GetPathType() & PATHFIND_NOPATH)
-                    {
-                        result = generatedPath.CalculatePath(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), false, false);
-                        if (generatedPath.GetPathType() & PATHFIND_SHORT)
-                            return SPELL_FAILED_OUT_OF_RANGE;
-                        else if (!result || generatedPath.GetPathType() & PATHFIND_NOPATH)
-                            return SPELL_FAILED_NOPATH;
-                    }
-                }
-                else if (dest->GetPositionZ() > GetCaster()->GetPositionZ() + 4.0f)
-                    return SPELL_FAILED_NOPATH;
-
-                return SPELL_CAST_OK;
-            }
-
-            return SPELL_FAILED_NO_VALID_TARGETS;
-        }
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (WorldLocation* dest = GetHitDest())
-                GetCaster()->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), SPELL_WARRIOR_HEROIC_LEAP_JUMP, true);
-        }
-
-        void Register() override
-        {
-            OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap_SpellScript::CheckElevation);
-            OnEffectHit += SpellEffectFn(spell_warr_heroic_leap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warr_heroic_leap_SpellScript();
-    }
-};
-
-// Heroic Leap (triggered by Heroic Leap (6544)) - 178368
-class spell_warr_heroic_leap_jump : public SpellScriptLoader
-{
-public:
-    spell_warr_heroic_leap_jump() : SpellScriptLoader("spell_warr_heroic_leap_jump") { }
-
-    class spell_warr_heroic_leap_jump_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_heroic_leap_jump_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP) ||
-                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF) ||
-                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IMPROVED_HEROIC_LEAP) ||
-                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_TAUNT))
-                return false;
-            return true;
-        }
-
-        void AfterJump(SpellEffIndex /*effIndex*/)
-        {
-            if (GetCaster()->HasAura(SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP))
-                GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF, true);
-            if (GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_HEROIC_LEAP))
-                GetCaster()->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_TAUNT, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHit += SpellEffectFn(spell_warr_heroic_leap_jump_SpellScript::AfterJump, EFFECT_1, SPELL_EFFECT_JUMP_DEST);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_warr_heroic_leap_jump_SpellScript();
-    }
-};
-
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
     new spell_warr_charge();
     new spell_warr_concussion_blow();
     new spell_warr_execute();
+    new spell_warr_heroic_leap();
+    new spell_warr_heroic_leap_jump();
     new spell_warr_improved_spell_reflection();
     new spell_warr_intimidating_shout();
     new spell_warr_lambs_to_the_slaughter();
@@ -1189,6 +1163,4 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_victory_rush();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
-    new spell_warr_heroic_leap();
-    new spell_warr_heroic_leap_jump();
 }

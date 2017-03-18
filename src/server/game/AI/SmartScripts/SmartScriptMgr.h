@@ -179,8 +179,12 @@ enum SMART_EVENT
     SMART_EVENT_DISTANCE_CREATURE        = 75,      // guid, entry, distance, repeat
     SMART_EVENT_DISTANCE_GAMEOBJECT      = 76,      // guid, entry, distance, repeat
     SMART_EVENT_COUNTER_SET              = 77,      // id, value, cooldownMin, cooldownMax
+    SMART_EVENT_SCENE_START              = 78,      // none
+    SMART_EVENT_SCENE_TRIGGER            = 79,      // param_string : triggerName
+    SMART_EVENT_SCENE_CANCEL             = 80,      // none
+    SMART_EVENT_SCENE_COMPLETE           = 81,      // none
 
-    SMART_EVENT_END                      = 78
+    SMART_EVENT_END                      = 82
 };
 
 struct SmartEvent
@@ -423,12 +427,19 @@ struct SmartEvent
 
         struct
         {
+            uint32 sceneId;
+        } scene;
+
+        struct
+        {
             uint32 param1;
             uint32 param2;
             uint32 param3;
             uint32 param4;
         } raw;
     };
+
+    std::string param_string;
 };
 
 enum SMART_SCRIPT_RESPAWN_CONDITION
@@ -558,9 +569,12 @@ enum SMART_ACTION
     SMART_ACTION_RANDOM_SOUND                       = 115,    // soundId1, soundId2, soundId3, soundId4, soundId5, onlySelf
     SMART_ACTION_SET_CORPSE_DELAY                   = 116,    // timer
     SMART_ACTION_DISABLE_EVADE                      = 117,    // 0/1 (1 = disabled, 0 = enabled)
+    // 118 - 127 : 3.3.5 reserved
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
+    SMART_ACTION_SCENE_PLAY                         = 129,    // sceneId
+    SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
 
-    SMART_ACTION_END                                = 129
+    SMART_ACTION_END                                = 131
 };
 
 struct SmartAction
@@ -1081,6 +1095,11 @@ struct SmartAction
             uint32 type;
         } animKit;
 
+        struct
+        {
+            uint32 sceneId;
+        } scene;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1257,7 +1276,8 @@ enum SmartScriptType
     SMART_SCRIPT_TYPE_TRANSPORT = 7, //
     SMART_SCRIPT_TYPE_INSTANCE = 8, //
     SMART_SCRIPT_TYPE_TIMED_ACTIONLIST = 9, //
-    SMART_SCRIPT_TYPE_MAX = 10
+    SMART_SCRIPT_TYPE_SCENE = 10, //done
+    SMART_SCRIPT_TYPE_MAX = 11
 };
 
 enum SmartAITypeMaskId
@@ -1271,7 +1291,8 @@ enum SmartAITypeMaskId
     SMART_SCRIPT_TYPE_MASK_SPELL = 64,
     SMART_SCRIPT_TYPE_MASK_TRANSPORT = 128,
     SMART_SCRIPT_TYPE_MASK_INSTANCE = 256,
-    SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST = 512
+    SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST = 512,
+    SMART_SCRIPT_TYPE_MASK_SCENE = 1024
 };
 
 const uint32 SmartAITypeMask[SMART_SCRIPT_TYPE_MAX][2] =
@@ -1285,7 +1306,8 @@ const uint32 SmartAITypeMask[SMART_SCRIPT_TYPE_MAX][2] =
     {SMART_SCRIPT_TYPE_SPELL,               SMART_SCRIPT_TYPE_MASK_SPELL },
     {SMART_SCRIPT_TYPE_TRANSPORT,           SMART_SCRIPT_TYPE_MASK_TRANSPORT },
     {SMART_SCRIPT_TYPE_INSTANCE,            SMART_SCRIPT_TYPE_MASK_INSTANCE },
-    {SMART_SCRIPT_TYPE_TIMED_ACTIONLIST,    SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST }
+    {SMART_SCRIPT_TYPE_TIMED_ACTIONLIST,    SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST },
+    {SMART_SCRIPT_TYPE_SCENE,               SMART_SCRIPT_TYPE_MASK_SCENE }
 };
 
 const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
@@ -1367,7 +1389,11 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_FRIENDLY_HEALTH_PCT,       SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_DISTANCE_CREATURE,         SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_DISTANCE_GAMEOBJECT,       SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_EVENT_COUNTER_SET,               SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT }
+    {SMART_EVENT_COUNTER_SET,               SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    {SMART_EVENT_SCENE_START,               SMART_SCRIPT_TYPE_MASK_SCENE },
+    {SMART_EVENT_SCENE_TRIGGER,             SMART_SCRIPT_TYPE_MASK_SCENE },
+    {SMART_EVENT_SCENE_CANCEL,              SMART_SCRIPT_TYPE_MASK_SCENE },
+    {SMART_EVENT_SCENE_COMPLETE,            SMART_SCRIPT_TYPE_MASK_SCENE }
 };
 
 enum SmartEventFlags
