@@ -960,3 +960,10 @@ WorldPacket const* WorldPackets::Spells::DispelFailed::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::CustomLoadScreen::Write()
+{
+    _worldPacket << uint32(TeleportSpellID);
+    _worldPacket << uint32(LoadingScreenID);
+    return &_worldPacket;
+}
