@@ -46,7 +46,7 @@ enum Entries
 
     SPELL_HEALING_POTION = 17534,
     SPELL_BURN           = 42685,
-    
+
     EVENT_EMOTE_BEG    = 1,
     EVENT_BEGIN        = 2,
     EVENT_START_ESCORT = 3,
@@ -212,8 +212,7 @@ public:
 
         void WaypointReached(uint32 waypointId) override
         {
-            Player* player = GetPlayerForEscort();
-            if (!player)
+            if (GetPlayerForEscort())
                 return;
 
             switch (waypointId)
