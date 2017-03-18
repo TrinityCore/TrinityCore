@@ -35,8 +35,8 @@ public:
 		// Find Nearest Creature And Teleport.
 		if (Creature* creature = player->FindNearestCreature(C_Resurrection_ENTRY, C_DISTANCE_CHECK_RANGE))
 			player->TeleportTo(player->GetMapId(), creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 1);
-		// Revive Player with 70 %
-		player->ResurrectPlayer(0.7);
+		// Revive Player with 25 %
+		player->ResurrectPlayer(0.25);
 		player->SpawnCorpseBones();
 	}
 };
