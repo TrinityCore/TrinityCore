@@ -10636,6 +10636,17 @@ bool Unit::IsInFeralForm() const
     return form == FORM_CAT_FORM || form == FORM_BEAR_FORM || form == FORM_DIRE_BEAR_FORM || form == FORM_GHOST_WOLF;
 }
 
+bool Unit::IsInTravelForm() const
+{
+    ShapeshiftForm form = GetShapeshiftForm();
+    return IsTravelForm(form);
+}
+
+bool Unit::IsTravelForm(ShapeshiftForm form) const
+{
+    return form == FORM_TRAVEL_FORM || form == FORM_AQUATIC_FORM || form == FORM_FLIGHT_FORM || form == FORM_FLIGHT_FORM_EPIC;
+}
+
 bool Unit::IsInDisallowedMountForm() const
 {
     if (SpellInfo const* transformSpellInfo = sSpellMgr->GetSpellInfo(getTransForm()))

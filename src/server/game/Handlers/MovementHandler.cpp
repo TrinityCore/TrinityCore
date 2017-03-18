@@ -33,6 +33,7 @@
 #include "Vehicle.h"
 #include "InstancePackets.h"
 #include "MovementPackets.h"
+#include "ScriptMgr.h"
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
 
@@ -376,6 +377,9 @@ void WorldSession::HandleMovementOpcode(OpcodeClient opcode, MovementInfo& movem
         // now client not include swimming flag in case jumping under water
         plrMover->SetInWater(!plrMover->IsInWater() || plrMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
+
+    // called by playerscript for travel form
+    sScriptMgr->OnPlayerMovementUpdate(plrMover);
 
     uint32 mstime = getMSTime();
     /*----------------------*/

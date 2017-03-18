@@ -2232,6 +2232,16 @@ void ScriptMgr::OnMovieComplete(Player* player, uint32 movieId)
     FOREACH_SCRIPT(PlayerScript)->OnMovieComplete(player, movieId);
 }
 
+void ScriptMgr::OnPlayerMovementUpdate(Player* player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMovementUpdate(player);
+}
+
+void ScriptMgr::OnPlayerChangeShapeshift(Player* player, ShapeshiftForm form)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnChangeShapeshift(player, form);
+}
+
 // Account
 void ScriptMgr::OnAccountLogin(uint32 accountId)
 {
