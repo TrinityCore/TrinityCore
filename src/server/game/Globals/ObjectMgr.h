@@ -441,6 +441,7 @@ typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef std::unordered_map<uint32, GameObjectLocale> GameObjectLocaleContainer;
 typedef std::unordered_map<uint32, QuestTemplateLocale> QuestTemplateLocaleContainer;
 typedef std::unordered_map<uint32, QuestObjectivesLocale> QuestObjectivesLocaleContainer;
+typedef std::unordered_map<uint32, QuestOfferRewardLocale> QuestOfferRewardLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef std::unordered_map<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
@@ -1014,6 +1015,7 @@ class TC_GAME_API ObjectMgr
         void LoadItemScriptNames();
         void LoadQuestTemplateLocale();
         void LoadQuestObjectivesLocale();
+        void LoadQuestOfferRewardLocale();
         void LoadPageTextLocales();
         void LoadGossipMenuItemsLocales();
         void LoadPointOfInterestLocales();
@@ -1182,6 +1184,12 @@ class TC_GAME_API ObjectMgr
         {
             QuestTemplateLocaleContainer::const_iterator itr = _questTemplateLocaleStore.find(entry);
             if (itr == _questTemplateLocaleStore.end()) return nullptr;
+            return &itr->second;
+        }
+        QuestOfferRewardLocale const* GetQuestOfferRewardLocale(uint32 entry) const
+        {
+            auto itr = _questOfferRewardLocaleStore.find(entry);
+            if (itr == _questOfferRewardLocaleStore.end()) return nullptr;
             return &itr->second;
         }
         QuestObjectivesLocale const* GetQuestObjectivesLocale(uint32 entry) const
@@ -1537,6 +1545,7 @@ class TC_GAME_API ObjectMgr
         ItemTemplateContainer _itemTemplateStore;
         QuestTemplateLocaleContainer _questTemplateLocaleStore;
         QuestObjectivesLocaleContainer _questObjectivesLocaleStore;
+        QuestOfferRewardLocaleContainer _questOfferRewardLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
