@@ -101,46 +101,101 @@ public:
     }
 };
 
-/// Updated 4.3.4
+// 100 - Charge
+//Updated to 7.1.5
 class spell_warr_charge : public SpellScriptLoader
 {
-    public:
-        spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
+public:
+    spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
 
-        class spell_warr_charge_SpellScript : public SpellScript
+    enum eSpell
+    {
+        SPELL_CHARGE_EFFECT = 218104
+    };
+
+    class spell_warr_charge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_charge_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            PrepareSpellScript(spell_warr_charge_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_CHARGE))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                int32 chargeBasePoints0 = GetEffectValue();
-                Unit* caster = GetCaster();
-                caster->CastCustomSpell(caster, SPELL_WARRIOR_CHARGE, &chargeBasePoints0, NULL, NULL, true);
-
-                // Juggernaut crit bonus
-                if (caster->HasAura(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT))
-                    caster->CastSpell(caster, SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warr_charge_SpellScript();
+            return ValidateSpellInfo
+            ({
+                SPELL_CHARGE_EFFECT
+            });
         }
+
+        void HandleOnCast()
+        {
+            //Remove Impairing effects when charge
+            if (GetCaster()->ToPlayer()->HasAuraWithMechanic((1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT)))
+                GetCaster()->ToPlayer()->RemoveMovementImpairingAuras();
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* target = GetHitUnit())
+                GetCaster()->CastSpell(target, SPELL_CHARGE_EFFECT, true);
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_warr_charge_SpellScript::HandleOnCast);
+            OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_charge_SpellScript();
+    }
+};
+
+// 218104 - Charge Effect
+// Called by Charge
+class spell_warr_charge_effect : public SpellScriptLoader
+{
+public:
+    spell_warr_charge_effect() : SpellScriptLoader("spell_warr_charge_effect") { }
+
+    enum eSpell
+    {
+        SPELL_ROOT_EFFECT = 105771,
+        SPELL_SLOW_EFFECT = 236027
+    };
+
+    class spell_warr_charge_effect_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_charge_effect_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_ROOT_EFFECT,
+                SPELL_SLOW_EFFECT
+            });
+        }
+        
+        void HandleCharge(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* target = GetHitUnit())
+            {
+                GetCaster()->CastSpell(target, SPELL_ROOT_EFFECT, true);
+                GetCaster()->CastSpell(target, SPELL_SLOW_EFFECT, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_charge_effect_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_charge_effect_SpellScript();
+    }
 };
 
 /// Updated 4.3.4
@@ -1139,6 +1194,7 @@ void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
     new spell_warr_charge();
+    new spell_warr_charge_effect();
     new spell_warr_concussion_blow();
     new spell_warr_execute();
     new spell_warr_heroic_leap();
