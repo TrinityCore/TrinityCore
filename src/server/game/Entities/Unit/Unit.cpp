@@ -10241,23 +10241,6 @@ void Unit::UpdateUnitMod(UnitMods unitMod)
     }
 }
 
-bool Unit::CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect const* aurEff) const
-{
-    // only players have item requirements
-    if (GetTypeId() != TYPEID_PLAYER)
-        return true;
-
-    SpellInfo const* spellInfo = aurEff->GetSpellInfo();
-    if (spellInfo->EquippedItemClass == -1)
-        return true;
-
-    Item* item = ToPlayer()->GetWeaponForAttack(attackType, true);
-    if (!item || !item->IsFitToSpellRequirements(spellInfo))
-        return false;
-
-    return true;
-}
-
 void Unit::UpdateDamageDoneMods(WeaponAttackType attackType)
 {
     UnitMods unitMod;
@@ -11480,16 +11463,22 @@ void Unit::RestoreDisplayId()
 
     // transform aura was found
     if (handledAura)
+    {
         handledAura->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
+        return;
+    }
     else if (!shapeshiftAura.empty()) // we've found shapeshift
     {
         // only one such aura possible at a time
         if (uint32 modelId = GetModelForForm(GetShapeshiftForm(), shapeshiftAura.front()->GetId()))
+        {
             SetDisplayId(modelId);
+            return;
+        }
     }
+
     // no auras found - set modelid to default
-    else
-        SetDisplayId(GetNativeDisplayId());
+    SetDisplayId(GetNativeDisplayId());
 }
 
 void Unit::ClearComboPointHolders()

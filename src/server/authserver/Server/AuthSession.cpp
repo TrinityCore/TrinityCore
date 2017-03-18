@@ -477,7 +477,7 @@ bool AuthSession::HandleLogonProof()
     A.SetBinary(logonProof->A, 32);
 
     // SRP safeguard: abort if A == 0
-    if (A.IsZero())
+    if ((A % N).IsZero())
         return false;
 
     SHA1Hash sha;
