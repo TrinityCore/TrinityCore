@@ -1621,11 +1621,14 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
                 return false;
             break;
         }
-        case CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY: // 20
-            if (uint32(referencePlayer->GetMap()->GetDifficultyID()) != reqValue)
+        case CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY_OLD: // 20
+        {
+            DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(referencePlayer->GetMap()->GetDifficultyID());
+            if (!difficulty || difficulty->OldEnumValue == -1 || uint32(difficulty->OldEnumValue) != reqValue)
                 return false;
             break;
-        case CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE:
+        }
+        case CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE: // 24
         {
             Battleground* bg = referencePlayer->GetBattleground();
             if (!bg || !bg->isArena() || bg->GetArenaType() != reqValue)
@@ -1684,6 +1687,10 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
             break;
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PERCENT_BELOW: // 46
             if (!unit || unit->GetHealthPct() >= reqValue)
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND_RATING: // 64
+            if (referencePlayer->GetRBGPersonalRating() < reqValue)
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES: // 91
