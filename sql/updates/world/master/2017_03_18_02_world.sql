@@ -5,4 +5,4 @@ CREATE TABLE `quest_offer_reward_locale` (
   `RewardText` text,
   `VerifiedBuild` smallint(6) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`locale`)
-)
+);
