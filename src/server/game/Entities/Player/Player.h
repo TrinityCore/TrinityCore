@@ -1361,19 +1361,21 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SatisfyQuestSkill(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestLevel(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestLog(bool msg) const;
-        bool SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg);
+        bool SatisfyQuestDependentQuests(Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestDependentPreviousQuests(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestClass(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestRace(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestReputation(Quest const* qInfo, bool msg);
         bool SatisfyQuestStatus(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestConditions(Quest const* qInfo, bool msg);
         bool SatisfyQuestTimed(Quest const* qInfo, bool msg) const;
-        bool SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg);
+        bool SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestNextChain(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestPrevChain(Quest const* qInfo, bool msg);
         bool SatisfyQuestDay(Quest const* qInfo, bool msg) const;
-        bool SatisfyQuestWeek(Quest const* qInfo, bool msg);
-        bool SatisfyQuestMonth(Quest const* qInfo, bool msg);
+        bool SatisfyQuestWeek(Quest const* qInfo, bool msg) const;
+        bool SatisfyQuestMonth(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestSeasonal(Quest const* qInfo, bool msg) const;
         bool GiveQuestSourceItem(Quest const* quest);
         bool TakeQuestSourceItem(uint32 questId, bool msg);
@@ -1984,6 +1986,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void UpdateWeaponDependentAuras(WeaponAttackType attackType);
         void ApplyItemDependentAuras(Item* item, bool apply);
+
+        bool CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEffect const* aurEff) const override;
 
         void _ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemAuras = true);
         void _RemoveAllItemMods();
