@@ -720,7 +720,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, Item*> ItemMap;
 
         typedef std::unordered_map<uint32, Quest*> QuestMap;
-        typedef std::unordered_map<uint32 /*questObjectiveId*/, std::pair<QuestObjective const*, uint32 /*questId*/>> QuestObjectivesByIdContainer;
+        typedef std::unordered_map<uint32 /*questObjectiveId*/, QuestObjective const*> QuestObjectivesByIdContainer;
 
         typedef std::unordered_map<uint32, AreaTriggerStruct> AreaTriggerContainer;
 
