@@ -10665,7 +10665,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     ClearComboPointHolders();
     DeleteThreatList();
     getHostileRefManager().deleteReferences();
-    GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
 }
 
 void Unit::CleanupsBeforeDelete(bool finalCleanup)
