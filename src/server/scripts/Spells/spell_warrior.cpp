@@ -1281,6 +1281,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_intimidating_shout();
     new spell_warr_lambs_to_the_slaughter();
     new spell_warr_last_stand();
+    new spell_warr_mortalstrike();
     new spell_warr_overpower();
     new spell_warr_rallying_cry();
     new spell_warr_rend();
