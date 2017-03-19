@@ -445,9 +445,7 @@ struct ChrSpecializationEntry
 
     bool IsPetSpecialization() const
     {
-        if (ClassID == 0)
-            return true;
-        return false;
+        return ClassID == 0;
     }
 };
 

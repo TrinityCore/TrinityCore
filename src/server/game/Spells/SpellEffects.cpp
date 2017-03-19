@@ -5396,11 +5396,11 @@ void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)
 
     Player* player = unitTarget->ToPlayer();
     uint32 specID = m_misc.SpecializationId;
-    ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(specID);
+    ChrSpecializationEntry const* spec = sChrSpecializationStore.AssertEntry(specID);
 
     // Safety checks done in Spell::CheckCast
     if (!spec->IsPetSpecialization())
-        player->ActivateTalentGroup(sChrSpecializationStore.AssertEntry(specID));
+        player->ActivateTalentGroup(spec);
     else
         player->GetPet()->SetSpecialization(specID);
 }
