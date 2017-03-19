@@ -295,16 +295,41 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             //TC_LOG_ERROR("misc", "Inialize boss %u state as %u.", id, (uint32)state);
             return false;
         }
-        else
-        {
-            if (bossInfo->state == state)
-                return false;
+		else
+		{
+			if (bossInfo->state == state)
+				return false;
 
-            if (state == DONE)
-                for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
-                    if (Creature* minion = instance->GetCreature(*i))
-                        if (minion->isWorldBoss() && minion->IsAlive())
-                            return false;
+			if (state == DONE)
+				for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
+					if (Creature* minion = instance->GetCreature(*i))
+						if (minion->isWorldBoss() && minion->IsAlive())
+							return false;
+
+			switch (state)
+			{
+			case IN_PROGRESS:
+			{
+				uint32 resInterval = GetCombatResurrectionChargeInterval();
+				if (instance->Is25ManRaid() || (instance->Is25ManRaid() && instance->IsHeroic()))
+				{
+					InitializeCombatResurrections(3, resInterval);
+				}
+				else
+				{
+					InitializeCombatResurrections(1, resInterval);
+				}
+				break;
+			}
+
+			case FAIL:
+			case DONE:
+				ResetCombatResurrections();
+				break;
+
+			default:
+				break;
+			}
 
             bossInfo->state = state;
             SaveToDB();
@@ -689,4 +714,57 @@ void InstanceScript::UpdatePhasing()
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->GetSource())
             player->SendUpdatePhasing();
+}
+
+void InstanceScript::UpdateCombatResurrection(uint32 diff)
+{
+	if (!_combatResurrectionTimerStarted)
+		return;
+
+	_combatResurrectionTimer -= diff;
+	if (_combatResurrectionTimer <= 0)
+	{
+		AddCombatResurrectionCharge();
+		_combatResurrectionTimerStarted = false;
+	}
+}
+
+void InstanceScript::InitializeCombatResurrections(uint8 charges /*= 1*/, uint32 interval /*= 0*/)
+{
+	_combatResurrectionCharges = charges;
+	if (!interval)
+		return;
+
+	_combatResurrectionTimer = interval;
+	_combatResurrectionTimerStarted = true; // true;
+}
+
+void InstanceScript::AddCombatResurrectionCharge()
+{
+	//	++_combatResurrectionCharges;
+	_combatResurrectionTimer = GetCombatResurrectionChargeInterval();
+	_combatResurrectionTimerStarted = true;
+}
+
+void InstanceScript::UseCombatResurrection()
+{
+	--_combatResurrectionCharges;
+}
+
+void InstanceScript::ResetCombatResurrections()
+{
+	_combatResurrectionCharges = 0;
+	_combatResurrectionTimer = 0;
+	_combatResurrectionTimerStarted = 0;
+}
+
+uint32 InstanceScript::GetCombatResurrectionChargeInterval() const
+{
+	// This System here is from MoP and not Cataclysm.
+	// In Cataclysm have 10 Man Raids 1 Resurrection and 25 Man Raids 3 Resurrection free.
+	uint32 interval = 0;
+	if (uint32 playerCount = instance->GetPlayers().getSize())
+		interval = 90 * MINUTE * IN_MILLISECONDS / playerCount;
+
+	return interval;
 }

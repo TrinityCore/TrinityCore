@@ -46,6 +46,7 @@
 #include "BattlefieldMgr.h"
 #include "DB2Stores.h"
 #include "WhoListStorage.h"
+#include "InstanceScript.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -615,6 +616,20 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
 
     if (!GetPlayer()->IsResurrectRequestedBy(guid))
         return;
+
+	if (Player* ressPlayer = ObjectAccessor::GetPlayer(*GetPlayer(), guid))
+	{
+		if (InstanceScript* instance = player->GetInstanceScript())
+		{
+			if (instance->IsEncounterInProgress())
+			{
+				if (!instance->GetCombatResurrectionCharges())
+					return;
+				else
+					instance->UseCombatResurrection();
+			}
+		}
+	}
 
     GetPlayer()->ResurrectUsingRequestData();
 }
