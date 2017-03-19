@@ -595,14 +595,14 @@ class spell_warr_last_stand : public SpellScriptLoader
 };
 
 // 12294 - Mortal Strike 7.1.5
-class spell_warr_mortalstrike : public SpellScriptLoader
+class spell_warr_mortal_strike : public SpellScriptLoader
 {
 public:
-    spell_warr_mortalstrike() : SpellScriptLoader("spell_warr_mortalstrike") { }
+    spell_warr_mortal_strike() : SpellScriptLoader("spell_warr_mortalstrike") { }
 
-    class spell_warr_mortalstrike_SpellScript : public SpellScript
+    class spell_warr_mortal_strike_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_warr_mortalstrike_SpellScript);
+        PrepareSpellScript(spell_warr_mortal_strike_SpellScript);
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -619,13 +619,13 @@ public:
 
         void Register() override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_warr_mortalstrike_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_warr_mortal_strike_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
     SpellScript* GetSpellScript() const override
     {
-        return new spell_warr_mortalstrike_SpellScript();
+        return new spell_warr_mortal_strike_SpellScript();
     }
 };
 
@@ -1319,7 +1319,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_intimidating_shout();
     new spell_warr_lambs_to_the_slaughter();
     new spell_warr_last_stand();
-    new spell_warr_mortalstrike();
+    new spell_warr_mortal_strike();
     new spell_warr_overpower();
     new spell_warr_rallying_cry();
     new spell_warr_rend();
