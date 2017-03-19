@@ -4848,7 +4848,7 @@ void ObjectMgr::LoadQuestRequestItemsLocale()
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(CompletionText, locale, data.RequestItemsText);
+        AddLocaleString(CompletionText, locale, data.CompletionText);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Request Items locale strings in %u ms", _questRequestItemsLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
