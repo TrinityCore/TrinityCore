@@ -50,6 +50,7 @@ enum WarriorSpells
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
     SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
+    SPELL_WARRIOR_MORTAL_WOUNDS                     = 213667,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_REND                              = 94009,
     SPELL_WARRIOR_RETALIATION_DAMAGE                = 22858,
@@ -555,6 +556,40 @@ class spell_warr_last_stand : public SpellScriptLoader
         {
             return new spell_warr_last_stand_SpellScript();
         }
+};
+
+// 12294 - Mortal Strike 7.1.5
+class spell_warr_mortalstrike : public SpellScriptLoader
+{
+public:
+    spell_warr_mortalstrike() : SpellScriptLoader("spell_warr_mortalstrike") { }
+
+    class spell_warr_mortalstrike_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_mortalstrike_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_MORTAL_WOUNDS))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_MORTAL_WOUNDS, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_mortalstrike_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_mortalstrike_SpellScript();
+    }
 };
 
 // 7384 - Overpower
