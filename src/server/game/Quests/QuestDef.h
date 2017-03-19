@@ -255,13 +255,17 @@ struct QuestTemplateLocale
     StringVector QuestCompletionLog;
 
     /// @todo: implemente this in new tables
-    StringVector OfferRewardText;
     StringVector RequestItemsText;
 };
 
 struct QuestObjectivesLocale
 {
     StringVector Description;
+};
+
+struct QuestOfferRewardLocale
+{
+    StringVector RewardText;
 };
 
 struct QuestObjective
