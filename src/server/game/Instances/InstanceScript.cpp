@@ -295,6 +295,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             //TC_LOG_ERROR("misc", "Inialize boss %u state as %u.", id, (uint32)state);
             return false;
         }
+
 		else
 		{
 			if (bossInfo->state == state)
@@ -308,27 +309,26 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 
 			switch (state)
 			{
-			case IN_PROGRESS:
-			{
-				uint32 resInterval = GetCombatResurrectionChargeInterval();
-				if (instance->Is25ManRaid() || (instance->Is25ManRaid() && instance->IsHeroic()))
+				case IN_PROGRESS:
 				{
-					InitializeCombatResurrections(3, resInterval);
+					uint32 resInterval = GetCombatResurrectionChargeInterval();
+					if (instance->Is25ManRaid() || (instance->Is25ManRaid() && instance->IsHeroic()))
+					{
+						InitializeCombatResurrections(3, resInterval);
+					}
+					else
+					{
+						InitializeCombatResurrections(1, resInterval);
+					}
+					break;
 				}
-				else
-				{
-					InitializeCombatResurrections(1, resInterval);
-				}
-				break;
-			}
 
-			case FAIL:
-			case DONE:
-				ResetCombatResurrections();
-				break;
-
-			default:
-				break;
+				case FAIL:
+				case DONE:
+					ResetCombatResurrections();
+					break;
+				default:
+					break;
 			}
 
             bossInfo->state = state;
