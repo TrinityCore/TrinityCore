@@ -577,7 +577,8 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_MORTAL_WOUNDS, true);
+            if (Unit* target = GetHitUnit())
+                GetCaster()->CastSpell(target, SPELL_WARRIOR_MORTAL_WOUNDS, true);
         }
 
         void Register() override
