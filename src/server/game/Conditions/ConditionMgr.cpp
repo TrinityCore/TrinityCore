@@ -2335,16 +2335,10 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_QUEST_OBJECTIVE_COMPLETE:
         {
-            std::pair<QuestObjective const*, uint32> const* objPair = sObjectMgr->GetQuestObjectivePairData(cond->ConditionValue1);
-            if (!objPair->first)
+            QuestObjective const* obj = sObjectMgr->GetQuestObjective(cond->ConditionValue1);
+            if (!obj)
             {
                 TC_LOG_ERROR("sql.sql", "%s points to non-existing quest objective (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
-                return false;
-            }
-            Quest const* qInfo = sObjectMgr->GetQuestTemplate(objPair->second);
-            if (!qInfo)
-            {
-                TC_LOG_ERROR("sql.sql", "%s points to non-existing quest (%u), skipped.", cond->ToString(true).c_str(), objPair->second);
                 return false;
             }
             break;
