@@ -39,7 +39,8 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_PAUSE_RAGE_DECAY           = 109128,
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
     SPELL_WARRIOR_CHARGE_SLOW_EFFECT                = 236027,
-    SPELL_WARRIOR_COLOSSUS_SMASH                    = 86346,
+    SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
+    SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT             = 208086,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
@@ -239,6 +240,41 @@ class spell_warr_charge_effect : public SpellScriptLoader
         {
             return new spell_warr_charge_effect_SpellScript();
         }
+};
+
+// 167105 - Colossus Smash 7.1.5
+class spell_warr_colossus_smash : public SpellScriptLoader
+{
+public:
+    spell_warr_colossus_smash() : SpellScriptLoader("spell_warr_colossus_smash") { }
+
+    class spell_warr_colossus_smash_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_colossus_smash_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT))
+                return false;
+            return true;
+        }
+
+        void HandleOnHit()
+        {
+            if (Unit* target = GetHitUnit())
+                GetCaster()->CastSpell(target, SPELL_WARRIOR_COLOSSUS_SMASH_EFFECT, true);
+        }
+
+        void Register() override
+        {
+            OnHit += SpellHitFn(spell_warr_colossus_smash_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_colossus_smash_SpellScript();
+    }
 };
 
 /// Updated 4.3.4
