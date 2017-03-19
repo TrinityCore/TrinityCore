@@ -5490,9 +5490,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_NO_SPEC;
 
                 if (spec->IsPetSpecialization())
-                    if (Pet* pet = player->GetPet())
-                        if (!pet || pet->getPetType() != HUNTER_PET || !pet->GetCharmInfo())
-                            return SPELL_FAILED_NO_PET;
+                {
+                    Pet* pet = player->GetPet();
+                    if (!pet || pet->getPetType() != HUNTER_PET || !pet->GetCharmInfo())
+                        return SPELL_FAILED_NO_PET;
+                }
 
                 // can't change during already started arena/battleground
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
