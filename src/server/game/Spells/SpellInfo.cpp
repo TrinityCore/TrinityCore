@@ -1881,7 +1881,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
 	if (HasAttribute(SPELL_ATTR8_BATTLE_RESURRECTION))
 		if (Map* map = caster->GetMap())
-			if (InstanceMap* iMap = map->ToInstance())
+			if (InstanceMap* iMap = map->ToInstanceMap())
 				if (InstanceScript* instance = iMap->GetInstanceScript())
 					if (instance->GetCombatResurrectionCharges() == 0 && instance->IsEncounterInProgress())
 						return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
