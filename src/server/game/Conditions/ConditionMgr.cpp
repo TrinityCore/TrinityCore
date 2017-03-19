@@ -111,7 +111,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Pet type",             true, false, false },
     { "On Taxi",             false, false, false },
     { "Quest state mask",     true,  true, false },
-    { "Objective Complete",   true,  true, false }
+    { "Objective Complete",   true,  false, false }
 };
 
 // Checks if object meets the condition
@@ -505,15 +505,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         {
             if (Player* player = object->ToPlayer())
             {
-                Quest const* qInfo = sObjectMgr->GetQuestTemplate(ConditionValue1);
+                std::pair<QuestObjective const*, uint32> const* objPair = sObjectMgr->GetQuestObjectivePairData(ConditionValue1);
+                Quest const* qInfo = sObjectMgr->GetQuestTemplate(objPair->second);
                 if (!qInfo)
                     break;
                 
-                for (QuestObjective const& obj : qInfo->GetObjectives())
-                {
-                    if (obj.ID == ConditionValue2)
-                        condMeets = (player->IsQuestObjectiveComplete(qInfo, obj) && !player->GetQuestRewardStatus(ConditionValue1));
-                }
+                condMeets = (!player->GetQuestRewardStatus(objPair->second) && player->IsQuestObjectiveComplete(qInfo, *objPair->first));
             }
             break;
         }
@@ -2336,7 +2333,8 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_QUEST_OBJECTIVE_COMPLETE:
         {
-            Quest const* qInfo = sObjectMgr->GetQuestTemplate(cond->ConditionValue1);
+            std::pair<QuestObjective const*, uint32> const* objPair = sObjectMgr->GetQuestObjectivePairData(cond->ConditionValue1);
+            Quest const* qInfo = sObjectMgr->GetQuestTemplate(objPair->second);
             if (!qInfo)
             {
                 TC_LOG_ERROR("sql.sql", "%s points to non-existing quest (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);

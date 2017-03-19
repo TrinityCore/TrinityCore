@@ -829,6 +829,14 @@ class TC_GAME_API ObjectMgr
             return itr != _questObjectives.end() ? itr->second.first : nullptr;
         }
 
+        std::pair<QuestObjective const*, uint32> const* GetQuestObjectivePairData(uint32 questObjectiveId) const
+        {
+            auto itr = _questObjectives.find(questObjectiveId);
+            if (itr != _questObjectives.end())
+                return &itr->second;
+            return nullptr;
+        }
+
         std::unordered_set<uint32> const* GetQuestsForAreaTrigger(uint32 Trigger_ID) const
         {
             auto itr = _questAreaTriggerStore.find(Trigger_ID);
