@@ -505,13 +505,13 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         {
             if (Player* player = object->ToPlayer())
             {
-                std::pair<QuestObjective const*, uint32> const* objPair = sObjectMgr->GetQuestObjectivePairData(ConditionValue1);
-                if (!objPair)
+                QuestObjective const* obj = sObjectMgr->GetQuestObjective(ConditionValue1);
+                if (!obj)
                     break;
-                Quest const* qInfo = sObjectMgr->GetQuestTemplate(objPair->second);
+                Quest const* qInfo = sObjectMgr->GetQuestTemplate(obj->QuestID);
                 ASSERT(qInfo);
                 
-                condMeets = (!player->GetQuestRewardStatus(objPair->second) && player->IsQuestObjectiveComplete(qInfo, *objPair->first));
+                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(qInfo, *obj));
             }
             break;
         }
