@@ -1273,6 +1273,9 @@ void Player::Update(uint32 p_time)
     if (m_deathState == JUST_DIED)
         KillPlayer();
 
+    if (m_deathState == DEAD)
+        SetWaterWalking(true, true);
+
     if (m_nextSave > 0)
     {
         if (p_time >= m_nextSave)
