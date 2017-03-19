@@ -224,10 +224,10 @@ void SocialMgr::GetFriendInfo(Player* player, ObjectGuid const& friendGUID, Frie
             friendInfo.Status = FRIEND_STATUS_AFK;
         else
         {
+            friendInfo.Status = FRIEND_STATUS_ONLINE;
+
             if (target->GetSession()->GetRecruiterId() == player->GetSession()->GetAccountId() || target->GetSession()->GetAccountId() == player->GetSession()->GetRecruiterId())
-                friendInfo.Status = FRIEND_STATUS_RAF;
-            else
-                friendInfo.Status = FRIEND_STATUS_ONLINE;
+                friendInfo.Status = FriendStatus(uint32(friendInfo.Status) | FRIEND_STATUS_RAF);
         }
 
         friendInfo.Area = target->GetZoneId();
