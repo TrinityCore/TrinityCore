@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,7 +54,9 @@ enum HunterSpells
     SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
-    SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720
+    SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
+    SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
+    SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
 };
 
 enum MiscSpells
@@ -708,6 +710,49 @@ class spell_hun_ready_set_aim : public SpellScriptLoader
         }
 };
 
+// 53480 - Roar of Sacrifice
+class spell_hun_roar_of_sacrifice : public SpellScriptLoader
+{
+    public:
+        spell_hun_roar_of_sacrifice() : SpellScriptLoader("spell_hun_roar_of_sacrifice") { }
+
+        class spell_hun_roar_of_sacrifice_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_roar_of_sacrifice_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROAR_OF_SACRIFICE_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return GetCaster() && (eventInfo.GetDamageInfo()->GetSchoolMask() & GetEffect(EFFECT_1)->GetMiscValue()) != 0;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                uint32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
+                eventInfo.GetActor()->CastCustomSpell(SPELL_ROAR_OF_SACRIFICE_TRIGGERED, SPELLVALUE_BASE_POINT0, damage, GetCaster(), TRIGGERED_FULL_MASK, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_roar_of_sacrifice_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_hun_roar_of_sacrifice_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_roar_of_sacrifice_AuraScript();
+        }
+};
+
 // 37506 - Scatter Shot
 class spell_hun_scatter_shot : public SpellScriptLoader
 {
@@ -927,6 +972,51 @@ class spell_hun_target_only_pet_and_owner : public SpellScriptLoader
         }
 };
 
+// 67151 - Item - Hunter T9 4P Bonus (Steady Shot)
+class spell_hun_t9_4p_bonus : public SpellScriptLoader
+{
+public:
+    spell_hun_t9_4p_bonus() : SpellScriptLoader("spell_hun_t9_4p_bonus") { }
+
+    class spell_hun_t9_4p_bonus_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_t9_4p_bonus_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_T9_4P_GREATNESS))
+                return false;
+            return true;
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            if (eventInfo.GetActor()->GetTypeId() == TYPEID_PLAYER && eventInfo.GetActor()->ToPlayer()->GetPet())
+                return true;
+            return false;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            Unit* caster = eventInfo.GetActor();
+
+            caster->CastSpell(caster->ToPlayer()->GetPet(), SPELL_HUNTER_T9_4P_GREATNESS, true, nullptr, aurEff);
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_hun_t9_4p_bonus_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_hun_t9_4p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_hun_t9_4p_bonus_AuraScript();
+    }
+};
+
 // 34497 - Thrill of the Hunt
 class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
 {
@@ -1027,11 +1117,13 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_rapid_recuperation();
     new spell_hun_readiness();
     new spell_hun_ready_set_aim();
+    new spell_hun_roar_of_sacrifice();
     new spell_hun_scatter_shot();
     new spell_hun_sniper_training();
     new spell_hun_steady_shot();
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
+    new spell_hun_t9_4p_bonus();
     new spell_hun_thrill_of_the_hunt();
     new spell_hun_tnt();
 }

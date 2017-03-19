@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -70,10 +70,10 @@ namespace WorldPackets
 
         struct MonsterSplineSpellEffectExtraData
         {
-            ObjectGuid field_1;
-            uint32 field_2;
-            uint32 field_3;
-            uint32 field_4;
+            ObjectGuid TargetGUID;
+            uint32 SpellVisualID = 0;
+            uint32 ProgressCurveID = 0;
+            uint32 ParabolicCurveID = 0;
         };
 
         struct MovementSpline
@@ -210,7 +210,7 @@ namespace WorldPackets
 
             uint32 MapID = 0;
             uint8 Arg = 0;
-            int32 MapDifficultyXConditionID;
+            int32 MapDifficultyXConditionID = 0;
             uint32 TransfertAbort = 0;
         };
 
@@ -263,7 +263,6 @@ namespace WorldPackets
             ObjectGuid ID;
             G3D::Vector3 Origin;
             G3D::Vector3 Direction;
-            G3D::Vector3 TransportPosition;
             uint32 TransportID  = 0;
             float Magnitude     = 0;
             uint8 Type          = 0;

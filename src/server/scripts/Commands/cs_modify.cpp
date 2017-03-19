@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1047,13 +1047,20 @@ public:
         if (!*args)
             return false;
 
-        uint32 phase = (uint32)atoi((char*)args);
+        uint32 phaseId = uint32(atoul(args));
+
+        if (!sPhaseStore.LookupEntry(phaseId))
+        {
+            handler->SendSysMessage(LANG_PHASE_NOTFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
         Unit* target = handler->getSelectedUnit();
         if (!target)
             target = handler->GetSession()->GetPlayer();
 
-        target->SetInPhase(phase, true, !target->IsInPhase(phase));
+        target->SetInPhase(phaseId, true, !target->IsInPhase(phaseId));
 
         if (target->GetTypeId() == TYPEID_PLAYER)
             target->ToPlayer()->SendUpdatePhasing();

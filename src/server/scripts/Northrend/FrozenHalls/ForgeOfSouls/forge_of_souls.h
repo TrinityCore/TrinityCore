@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 2;
 
-enum Data
+enum FOSData
 {
     // Encounter states and GUIDs
     DATA_BRONJAHM                   = 0,
@@ -33,7 +33,7 @@ enum Data
     DATA_TEAM_IN_INSTANCE           = 2
 };
 
-enum Creatures
+enum FOSCreatures
 {
     NPC_BRONJAHM                    = 36497,
     NPC_DEVOURER                    = 36502,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -489,6 +489,61 @@ class spell_gen_bandage : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_gen_bandage_SpellScript();
+        }
+};
+
+// Blood Reserve - 64568
+enum BloodReserve
+{
+    SPELL_GEN_BLOOD_RESERVE_AURA = 64568,
+    SPELL_GEN_BLOOD_RESERVE_HEAL = 64569
+};
+
+class spell_gen_blood_reserve : public SpellScriptLoader
+{
+    public:
+        spell_gen_blood_reserve() : SpellScriptLoader("spell_gen_blood_reserve") { }
+
+        class spell_gen_blood_reserve_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_blood_reserve_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_BLOOD_RESERVE_HEAL))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (DamageInfo* dmgInfo = eventInfo.GetDamageInfo())
+                    if (Unit* caster = eventInfo.GetActionTarget())
+                        if (caster->HealthBelowPctDamaged(35, dmgInfo->GetDamage()))
+                            return true;
+
+                return false;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* caster = eventInfo.GetActionTarget();
+                caster->CastCustomSpell(SPELL_GEN_BLOOD_RESERVE_HEAL, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), caster, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                caster->RemoveAura(SPELL_GEN_BLOOD_RESERVE_AURA);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_gen_blood_reserve_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_gen_blood_reserve_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_blood_reserve_AuraScript();
         }
 };
 
@@ -1574,6 +1629,57 @@ class spell_gen_elune_candle : public SpellScriptLoader
         }
 };
 
+enum FishingSpells
+{
+    SPELL_FISHING_NO_FISHING_POLE   = 131476,
+    SPELL_FISHING_WITH_POLE         = 131490
+};
+
+// 131474 - Fishing
+class spell_gen_fishing : public SpellScriptLoader
+{
+public:
+    spell_gen_fishing() : SpellScriptLoader("spell_gen_fishing") { }
+
+    class spell_gen_fishing_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_fishing_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_FISHING_NO_FISHING_POLE, SPELL_FISHING_WITH_POLE });
+        }
+
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            uint32 spellId;
+            Item* mainHand = GetCaster()->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+            if (!mainHand || mainHand->GetTemplate()->GetClass() != ITEM_CLASS_WEAPON || mainHand->GetTemplate()->GetSubClass() != ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+                spellId = SPELL_FISHING_NO_FISHING_POLE;
+            else
+                spellId = SPELL_FISHING_WITH_POLE;
+
+            GetCaster()->CastSpell(GetCaster(), spellId, false);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_gen_fishing_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_gen_fishing_SpellScript();
+    }
+};
+
 enum TransporterBackfires
 {
     SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH     = 23444,
@@ -1925,7 +2031,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                         }
 
                         // If target isn't a training dummy there's a chance of failing the charge
-                        if (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE) && roll_chance_f(12.5f))
+                        if (!target->IsCharmedOwnedByPlayerOrPlayer() && roll_chance_f(12.5f))
                             spellId = SPELL_CHARGE_MISS_EFFECT;
 
                         if (Unit* vehicle = GetCaster()->GetVehicleBase())
@@ -2883,8 +2989,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
 enum RunningWildMountIds
 {
-    RUNNING_WILD_MODEL_MALE     = 29422,
-    RUNNING_WILD_MODEL_FEMALE   = 29423,
+    RUNNING_WILD_MODEL          = 73200,
     SPELL_ALTERED_FORM          = 97709
 };
 
@@ -2899,9 +3004,7 @@ class spell_gen_running_wild : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL_MALE))
-                    return false;
-                if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL_FEMALE))
+                if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL))
                     return false;
                 return true;
             }
@@ -2911,7 +3014,7 @@ class spell_gen_running_wild : public SpellScriptLoader
                 Unit* target = GetTarget();
                 PreventDefaultAction();
 
-                target->Mount(target->getGender() == GENDER_FEMALE ? RUNNING_WILD_MODEL_FEMALE : RUNNING_WILD_MODEL_MALE, 0, 0);
+                target->Mount(RUNNING_WILD_MODEL, 0, 0);
 
                 // cast speed aura
                 if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount()))
@@ -3832,7 +3935,7 @@ public:
             if (!target)
                 return;
 
-            target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_STAND);
+            target->SetStandState(UNIT_STAND_STATE_STAND);
             target->HandleEmoteCommand(EMOTE_STATE_NONE);
         }
 
@@ -4228,6 +4331,54 @@ class spell_gen_clear_debuffs : public SpellScriptLoader
         }
 };
 
+enum PonySpells
+{
+    ACHIEV_PONY_UP              = 3736,
+    MOUNT_PONY                  = 29736
+};
+
+class spell_gen_pony_mount_check : public SpellScriptLoader
+{
+    public:
+        spell_gen_pony_mount_check() : SpellScriptLoader("spell_gen_pony_mount_check") { }
+
+        class spell_gen_pony_mount_check_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_pony_mount_check_AuraScript);
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+                Player* owner = caster->GetOwner()->ToPlayer();
+                if (!owner || !owner->HasAchieved(ACHIEV_PONY_UP))
+                    return;
+
+                if (owner->IsMounted())
+                {
+                    caster->Mount(MOUNT_PONY);
+                    caster->SetSpeedRate(MOVE_RUN, owner->GetSpeedRate(MOVE_RUN));
+                }
+                else if (caster->IsMounted())
+                {
+                    caster->Dismount();
+                    caster->SetSpeedRate(MOVE_RUN, owner->GetSpeedRate(MOVE_RUN));
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_pony_mount_check_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_pony_mount_check_AuraScript();
+        }
+};
+
 // 169869 - Transformation Sickness
 class spell_gen_decimatus_transformation_sickness : public SpellScriptLoader
 {
@@ -4241,7 +4392,7 @@ public:
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
              if (Unit* target = GetHitUnit())
-                 target->SetHealth(target->CountPctFromMaxHealth(10));
+                 target->SetHealth(target->CountPctFromMaxHealth(25));
         }
 
         void Register() override
@@ -4471,6 +4622,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_aura_service_uniform();
     new spell_gen_av_drekthar_presence();
     new spell_gen_bandage();
+    new spell_gen_blood_reserve();
     new spell_gen_bonked();
     new spell_gen_break_shield("spell_gen_break_shield");
     new spell_gen_break_shield("spell_gen_tournament_counterattack");
@@ -4494,6 +4646,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_dummy_trigger();
     new spell_gen_dungeon_credit();
     new spell_gen_elune_candle();
+    new spell_gen_fishing();
     new spell_gen_gadgetzan_transporter_backfire();
     new spell_gen_gift_of_naaru();
     new spell_gen_gnomish_transporter();
@@ -4550,6 +4703,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_mixology_bonus();
     new spell_gen_landmine_knockback_achievement();
     new spell_gen_clear_debuffs();
+    new spell_gen_pony_mount_check();
     new spell_gen_decimatus_transformation_sickness();
     new spell_gen_anetheron_summon_towering_infernal();
     new spell_gen_mark_of_kazrogal_hellfire();

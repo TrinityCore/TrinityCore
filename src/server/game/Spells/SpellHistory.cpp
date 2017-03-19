@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -204,7 +204,6 @@ void SpellHistory::SaveToDB(SQLTransaction& trans)
 
 void SpellHistory::Update()
 {
-    SQLTransaction t;
     Clock::time_point now = Clock::now();
     for (auto itr = _categoryCooldowns.begin(); itr != _categoryCooldowns.end();)
     {
@@ -407,10 +406,10 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
     }
     else
     {
-        // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
+        // shoot spells used equipped item cooldown values already assigned in SetBaseAttackTime(RANGED_ATTACK)
         // prevent 0 cooldowns set by another way
         if (cooldown <= 0 && categoryCooldown <= 0 && (categoryId == 76 || (spellInfo->IsAutoRepeatRangedSpell() && spellInfo->Id != 75)))
-            cooldown = _owner->GetAttackTime(RANGED_ATTACK);
+            cooldown = _owner->GetUInt32Value(UNIT_FIELD_RANGEDATTACKTIME);
 
         // Now we have cooldown data (if found any), time to apply mods
         if (Player* modOwner = _owner->GetSpellModOwner())
@@ -669,7 +668,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
     else
     {
         Creature* creatureOwner = _owner->ToCreature();
-        for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
             if (creatureOwner->m_spells[i])
                 knownSpells.insert(creatureOwner->m_spells[i]);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,8 @@
  */
 
 /*
- * Comment: Complete - BUT THE TRIGGER NEEDS DATA WHETHER THE PRISON OF TALDARAM IS OFFLINE !
+ * Comment: Visuals missing, de-germanize code, wow 3.3.5a-ize
+ * Patch 3.3.2 (2010-01-02): Jedoga Shadowseeker now only ascends once during the encounter.
  */
 
 #include "ScriptMgr.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -166,7 +166,7 @@ inline bool Log::ShouldLog(std::string const& type, LogLevel level) const
         } \
     }
 
-#if PLATFORM != PLATFORM_WINDOWS
+#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 void check_args(const char*, ...) ATTR_PRINTF(1, 2);
 void check_args(std::string const&, ...);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,6 +52,7 @@ public:
     bool HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId = 0) const;
 
     void AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+    void CancelSceneBySceneId(uint32 sceneId);
     void CancelSceneByPackageId(uint32 sceneScriptPackageId);
     void RemoveSceneInstanceId(uint32 sceneInstanceID);
     void RemoveAurasDueToSceneId(uint32 sceneId);

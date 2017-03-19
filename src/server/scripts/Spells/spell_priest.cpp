@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,6 +30,7 @@
 enum PriestSpells
 {
     SPELL_PRIEST_ABSOLUTION                         = 33167,
+    SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
     SPELL_PRIEST_CURE_DISEASE                       = 528,
@@ -49,19 +50,29 @@ enum PriestSpells
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT_TRIGGER       = 92833,
     SPELL_PRIEST_LEAP_OF_FAITH_TRIGGERED            = 92572,
+    SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
     SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
     SPELL_PRIEST_REFLECTIVE_SHIELD_R1               = 33201,
     SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
+    SPELL_PRIEST_RENEWED_HOPE                       = 197469,
+    SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
+    SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
+    SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
+    SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
+    SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
+    SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_TWIN_DISCIPLINES_RANK_1            = 47586,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
-    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085
+    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
+    SPELL_PRIEST_VOID_SHIELD                        = 199144,
+    SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145
 };
 
 enum PriestSpellIcons
@@ -385,6 +396,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
         }
 };
 
+// 24191 - Improved Power Word Shield
 class spell_pri_improved_power_word_shield : public SpellScriptLoader
 {
     public:
@@ -592,6 +604,40 @@ class spell_pri_leap_of_faith_effect_trigger : public SpellScriptLoader
         {
             return new spell_pri_leap_of_faith_effect_trigger_SpellScript();
         }
+};
+
+// 1706 - Levitate
+class spell_pri_levitate : public SpellScriptLoader
+{
+public:
+    spell_pri_levitate() : SpellScriptLoader("spell_pri_levitate") { }
+
+    class spell_pri_levitate_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_levitate_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEVITATE_EFFECT))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_LEVITATE_EFFECT, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pri_levitate_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_levitate_SpellScript;
+    }
 };
 
 // 7001 - Lightwell Renew
@@ -807,17 +853,17 @@ class spell_pri_penance : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
+                if (Unit* target = GetHitUnit())
                 {
-                    if (!unitTarget->IsAlive())
+                    if (!target->IsAlive())
                         return;
 
                     uint8 rank = GetSpellInfo()->GetRank();
 
-                    if (caster->IsFriendlyTo(unitTarget))
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false);
+                    if (caster->IsFriendlyTo(target))
+                        caster->CastSpell(target, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false);
                     else
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false);
+                        caster->CastSpell(target, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false);
                 }
             }
 
@@ -825,13 +871,26 @@ class spell_pri_penance : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (Unit* target = GetExplTargetUnit())
+                {
                     if (!caster->IsFriendlyTo(target))
                     {
                         if (!caster->IsValidAttackTarget(target))
                             return SPELL_FAILED_BAD_TARGETS;
+
                         if (!caster->isInFront(target))
                             return SPELL_FAILED_UNIT_NOT_INFRONT;
                     }
+                    else
+                    {
+                        //Support for modifications of this spell in Legion with The Penitent talent (7.1.5)
+                        if(!caster->HasAura(SPELL_PRIEST_THE_PENITENT_AURA))
+                            return SPELL_FAILED_BAD_TARGETS;
+
+                        if (!caster->isInFront(target))
+                            return SPELL_FAILED_UNIT_NOT_INFRONT;
+                    }
+                }
+
                 return SPELL_CAST_OK;
             }
 
@@ -885,76 +944,65 @@ class spell_pri_phantasm : public SpellScriptLoader
 // 17 - Power Word: Shield
 class spell_pri_power_word_shield : public SpellScriptLoader
 {
-    public:
-        spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
+public:
+    spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
 
-        class spell_pri_power_word_shield_AuraScript : public AuraScript
+    class spell_pri_power_word_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+
+        void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& canBeRecalculated)
         {
-            PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+            canBeRecalculated = false;
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+            if (Player* player = GetCaster()->ToPlayer())
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_R1))
-                    return false;
-                return true;
+                int32 playerMastery = player->GetRatingBonusValue(CR_MASTERY);
+                int32 playerSpellPower = player->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
+                int32 playerVersatileDamage = player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
+
+                //Formula taken from SpellWork
+                amount = (int32)((playerSpellPower * 5.5f) + playerMastery) * (1 + playerVersatileDamage);
             }
-
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
-            {
-                canBeRecalculated = false;
-                if (Unit* caster = GetCaster())
-                {
-                    // +87% from sp bonus
-                    float bonus = 0.87f;
-
-                    // Borrowed Time
-                    if (AuraEffect const* borrowedTime = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_BORROWED_TIME, EFFECT_1))
-                        bonus += CalculatePct(1.0f, borrowedTime->GetAmount());
-
-                    bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
-
-                    // Improved PW: Shield: its weird having a SPELLMOD_ALL_EFFECTS here but its blizzards doing :)
-                    // Improved PW: Shield is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
-                    bonus = caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), bonus);
-                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
-
-                    amount += int32(bonus);
-
-                    // Twin Disciplines
-                    if (AuraEffect const* twinDisciplines = caster->GetAuraEffectOfRankedSpell(SPELL_PRIEST_TWIN_DISCIPLINES_RANK_1, EFFECT_1))
-                        AddPct(amount, twinDisciplines->GetAmount());
-
-                    // Focused Power
-                    amount *= caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
-                }
-            }
-
-            void ReflectDamage(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
-            {
-                Unit* target = GetTarget();
-                if (dmgInfo.GetAttacker() == target)
-                    return;
-
-                if (AuraEffect const* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
-                {
-                    int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
-                    target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
-                }
-            }
-
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::ReflectDamage, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pri_power_word_shield_AuraScript();
         }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* caster = GetCaster();
+            Unit* target = GetTarget();
+            if (!caster)
+                return;
+
+            if (caster->HasAura(SPELL_PRIEST_BODY_AND_SOUL))
+                caster->CastSpell(target, SPELL_PRIEST_BODY_AND_SOUL_SPEED, true);
+            if (caster->HasAura(SPELL_PRIEST_STRENGTH_OF_SOUL))
+                caster->CastSpell(target, SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT, true);
+            if (caster->HasAura(SPELL_PRIEST_RENEWED_HOPE))
+                caster->CastSpell(target, SPELL_PRIEST_RENEWED_HOPE_EFFECT, true);
+            if (caster->HasAura(SPELL_PRIEST_VOID_SHIELD) && caster == target)
+                caster->CastSpell(target, SPELL_PRIEST_VOID_SHIELD_EFFECT, true);
+        }
+
+        void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetTarget()->RemoveAura(SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT);
+            if (Unit* caster = GetCaster())
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && caster->HasAura(SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE))
+                    caster->CastSpell(caster, SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE, true);
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield_AuraScript::HandleOnRemove, EFFECT_0, AuraType::SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_power_word_shield_AuraScript();
+    }
 };
 
 // 33110 - Prayer of Mending Heal
@@ -1254,6 +1302,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_item_greater_heal_refund();
     new spell_pri_guardian_spirit();
     new spell_pri_leap_of_faith_effect_trigger();
+    new spell_pri_levitate();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();
     new spell_pri_mana_leech();

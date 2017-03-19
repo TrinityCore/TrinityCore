@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -155,6 +155,18 @@ bool SceneMgr::HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId /*= 
 void SceneMgr::AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
 {
     _scenesByInstance[sceneInstanceID] = sceneTemplate;
+}
+
+void SceneMgr::CancelSceneBySceneId(uint32 sceneId)
+{
+    std::vector<uint32> instancesIds;
+
+    for (auto const& itr : _scenesByInstance)
+        if (itr.second->SceneId == sceneId)
+            instancesIds.push_back(itr.first);
+
+    for (uint32 sceneInstanceID : instancesIds)
+        CancelScene(sceneInstanceID);
 }
 
 void SceneMgr::CancelSceneByPackageId(uint32 sceneScriptPackageId)
