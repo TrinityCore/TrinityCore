@@ -619,7 +619,7 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
 
 	if (Player* ressPlayer = ObjectAccessor::GetPlayer(*GetPlayer(), guid))
 	{
-		if (InstanceScript* instance = player->GetInstanceScript())
+		if (InstanceScript* instance = ressPlayer->GetInstanceScript())
 		{
 			if (instance->IsEncounterInProgress())
 			{
