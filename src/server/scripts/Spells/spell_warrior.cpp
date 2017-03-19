@@ -343,7 +343,7 @@ public:
             if (caster->HasAura(SPELL_WARRIOR_VICTORIOUS))
                 caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
         }
-    }
+    };
 };
                 
 // Heroic leap - 6544
