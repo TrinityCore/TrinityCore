@@ -598,7 +598,7 @@ class spell_warr_last_stand : public SpellScriptLoader
 class spell_warr_mortal_strike : public SpellScriptLoader
 {
 public:
-    spell_warr_mortal_strike() : SpellScriptLoader("spell_warr_mortalstrike") { }
+    spell_warr_mortal_strike() : SpellScriptLoader("spell_warr_mortal_strike") { }
 
     class spell_warr_mortal_strike_SpellScript : public SpellScript
     {
