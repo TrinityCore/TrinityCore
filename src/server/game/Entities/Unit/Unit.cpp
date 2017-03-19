@@ -9975,7 +9975,6 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     CombatStop();
     DeleteThreatList();
     getHostileRefManager().deleteReferences();
-    GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
 }
 
 void Unit::CleanupsBeforeDelete(bool finalCleanup)
