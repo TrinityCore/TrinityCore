@@ -257,7 +257,7 @@ struct QuestTemplateLocale
 
 struct QuestRequestItemsLocale
 {
-    StringVector CompletionText;
+    StringVector RequestItemsText;
 };
 
 struct QuestObjectivesLocale

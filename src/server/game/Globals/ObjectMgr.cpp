@@ -4841,14 +4841,14 @@ void ObjectMgr::LoadQuestRequestItemsLocale()
         uint32 id = fields[0].GetUInt32();
         std::string localeName = fields[1].GetString();
 
-        std::string CompletionText = fields[2].GetString();
+        std::string RequestItemsText = fields[2].GetString();
 
         QuestRequestItemsLocale& data = _questRequestItemsLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(CompletionText, locale, data.CompletionText);
+        AddLocaleString(RequestItemsText, locale, data.RequestItemsText);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Request Items locale strings in %u ms", _questRequestItemsLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
