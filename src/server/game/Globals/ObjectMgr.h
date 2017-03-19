@@ -455,7 +455,7 @@ typedef std::pair<QuestRelationsReverse::const_iterator, QuestRelationsReverse::
 
 struct PetLevelInfo
 {
-    PetLevelInfo() : health(0), mana(0), armor(0) { for (uint8 i=0; i < MAX_STATS; ++i) stats[i] = 0; }
+    PetLevelInfo() : health(0), mana(0), armor(0) { memset(stats, 0, sizeof(stats)); }
 
     uint16 stats[MAX_STATS];
     uint16 health;
@@ -720,6 +720,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, Item*> ItemMap;
 
         typedef std::unordered_map<uint32, Quest*> QuestMap;
+        typedef std::unordered_map<uint32 /*questObjectiveId*/, std::pair<QuestObjective const*, uint32 /*questId*/>> QuestObjectivesByIdContainer;
 
         typedef std::unordered_map<uint32, AreaTriggerStruct> AreaTriggerContainer;
 
@@ -821,6 +822,12 @@ class TC_GAME_API ObjectMgr
         }
 
         QuestMap const& GetQuestTemplates() const { return _questTemplates; }
+
+        QuestObjective const* GetQuestObjective(uint32 questObjectiveId) const
+        {
+            auto itr = _questObjectives.find(questObjectiveId);
+            return itr != _questObjectives.end() ? itr->second.first : nullptr;
+        }
 
         std::unordered_set<uint32> const* GetQuestsForAreaTrigger(uint32 Trigger_ID) const
         {
@@ -1119,9 +1126,9 @@ class TC_GAME_API ObjectMgr
             if (map_itr == _mailLevelRewardStore.end())
                 return nullptr;
 
-            for (MailLevelRewardList::const_iterator set_itr = map_itr->second.begin(); set_itr != map_itr->second.end(); ++set_itr)
-                if (set_itr->raceMask & raceMask)
-                    return &*set_itr;
+            for (auto const& mailLevelReward : map_itr->second)
+                if (mailLevelReward.raceMask & raceMask)
+                    return &mailLevelReward;
 
             return nullptr;
         }
@@ -1289,7 +1296,7 @@ class TC_GAME_API ObjectMgr
 
         void AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist = true); // for event
         bool RemoveVendorItem(uint32 entry, uint32 item, uint8 type, bool persist = true); // for event
-        bool IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 type, Player* player = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
+        bool IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount, uint32 ptime, uint32 ExtendedCost, uint8 type, Player* player = nullptr, std::set<uint32>* skip_vendors = nullptr, uint32 ORnpcflag = 0) const;
 
         void LoadScriptNames();
         ScriptNameContainer const& GetAllScriptNames() const;
@@ -1434,6 +1441,7 @@ class TC_GAME_API ObjectMgr
         std::map<HighGuid, std::unique_ptr<ObjectGuidGeneratorBase>> _guidGenerators;
 
         QuestMap _questTemplates;
+        QuestObjectivesByIdContainer _questObjectives;
 
         typedef std::unordered_map<uint32, NpcText> NpcTextContainer;
         typedef std::unordered_map<uint32, std::unordered_set<uint32>> QuestAreaTriggerContainer;
