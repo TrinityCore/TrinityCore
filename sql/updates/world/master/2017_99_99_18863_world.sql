@@ -1,3 +1,4 @@
+-- trinity_string content
 UPDATE `trinity_string` SET `content_default`='Up to %i expansions are allowed now.' WHERE  `entry`=61;
 UPDATE `trinity_string` SET `content_default`='Current energy: %i' WHERE  `entry`=124;
 UPDATE `trinity_string` SET `content_default`='GUID %s, faction is %u, flags is %u, npcflag is %s, dynflag is %u.' WHERE  `entry`=128;
