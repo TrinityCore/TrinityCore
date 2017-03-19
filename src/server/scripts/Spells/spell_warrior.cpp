@@ -1310,6 +1310,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_charge();
     new spell_warr_charge_drop_fire_periodic();
     new spell_warr_charge_effect();
+    new spell_warr_colossus_smash();
     new spell_warr_concussion_blow();
     new spell_warr_execute();
     new spell_warr_heroic_leap();
