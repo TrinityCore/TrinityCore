@@ -82,7 +82,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRange
     // If it can't find a suitable attack target then we should error out.
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
     {
-        TC_LOG_ERROR("misc", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
+        TC_LOG_ERROR("misc.dozoneincombat", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
         return;
     }
 
@@ -162,7 +162,7 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->SendAIReaction(AI_REACTION_ALERT);
 
     // Face the unit (stealthed player) and set distracted state for 5 seconds
-    me->SetFacingTo(me->GetAngle(who->GetPositionX(), who->GetPositionY()));
+    me->SetFacingTo(me->GetAngle(who->GetPositionX(), who->GetPositionY()), true);
     me->StopMoving();
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS);
 }

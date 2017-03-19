@@ -23,10 +23,16 @@
 #include <vector>
 #include "SharedDefines.h"
 #include "Object.h"
+#include "MoveSplineInitArgs.h"
+#include "SplineChain.h"
 
 class MovementGenerator;
 class Unit;
 class PathGenerator;
+namespace Movement
+{
+    struct SpellEffectExtraData;
+}
 
 // Creature Entry ID used for waypoints show, visible only for GMs
 #define VISUAL_WAYPOINT 1
@@ -52,7 +58,9 @@ enum MovementGeneratorType
     FOLLOW_MOTION_TYPE    = 14,
     ROTATE_MOTION_TYPE    = 15,
     EFFECT_MOTION_TYPE    = 16,
-    NULL_MOTION_TYPE      = 17
+    NULL_MOTION_TYPE      = 17,
+    SPLINE_CHAIN_MOTION_TYPE = 18,                          // SplineChainMovementGenerator.h
+    MAX_MOTION_TYPE                                         // limit
 };
 
 enum MovementSlot
@@ -74,6 +82,12 @@ enum RotateDirection
 {
     ROTATE_DIRECTION_LEFT,
     ROTATE_DIRECTION_RIGHT
+};
+
+struct JumpArrivalCastArgs
+{
+    uint32 SpellId;
+    ObjectGuid Target;
 };
 
 // assume it is 25 yard per 0.6 second
@@ -183,17 +197,22 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         void MoveLand(uint32 id, Position const& pos);
         void MoveTakeoff(uint32 id, Position const& pos);
 
-        void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false);
-        void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE);
-        void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ);
+        void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
+        void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
+        void MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveJumpTo(float angle, float speedXY, float speedZ);
-        void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty)
+        void MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr)
         {
-            MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalSpellId, arrivalSpellTargetGuid);
+            MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation, arrivalCast, spellEffectExtraData);
         }
-        void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty);
+        void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
         void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk);
+        void MoveSmoothPath(uint32 pointId, Movement::PointsArray const& points, bool walk);
+        // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
+        void MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk);
+        void MoveAlongSplineChain(uint32 pointId, SplineChain const& chain, bool walk);
+        void ResumeSplineChain(SplineChainResumeInfo const& info);
         void MoveFall(uint32 id = 0);
 
         void MoveSeekAssistance(float x, float y, float z);

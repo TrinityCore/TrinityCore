@@ -821,7 +821,7 @@ class npc_grandmother : public CreatureScript
             {
                 if (menuId == OPTION_WHAT_PHAT_LEWTS_YOU_HAVE && gossipListId == 0)
                 {
-                    player->CLOSE_GOSSIP_MENU();
+                    CloseGossipMenuFor(player);
 
                     if (Creature* pBigBadWolf = me->SummonCreature(CREATURE_BIG_BAD_WOLF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
                         pBigBadWolf->AI()->AttackStart(player);

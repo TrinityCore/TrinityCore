@@ -31,6 +31,10 @@ struct TC_GAME_API Position
 
     Position(Position const& loc) { Relocate(loc); }
 
+    Position(G3D::Vector3 const& vect);
+
+    operator G3D::Vector3() const;
+
     struct PositionXYStreamer
     {
         explicit PositionXYStreamer(Position& pos) : Pos(&pos) { }
@@ -129,7 +133,7 @@ public:
 
     bool IsPositionValid() const;
 
-    float GetExactDist2dSq(float x, float y) const
+    float GetExactDist2dSq(const float x, const float y) const
     {
         float dx = m_positionX - x; float dy = m_positionY - y; return dx*dx + dy*dy;
     }
@@ -137,6 +141,16 @@ public:
     float GetExactDist2d(const float x, const float y) const
     {
         return std::sqrt(GetExactDist2dSq(x, y));
+    }
+
+    float GetExactDist2dSq(Position const& pos) const
+    {
+        float dx = m_positionX - pos.m_positionX; float dy = m_positionY - pos.m_positionY; return dx*dx + dy*dy;
+    }
+
+    float GetExactDist2d(Position const& pos) const
+    {
+        return std::sqrt(GetExactDist2dSq(pos));
     }
 
     float GetExactDist2dSq(Position const* pos) const
@@ -159,6 +173,16 @@ public:
         return std::sqrt(GetExactDistSq(x, y, z));
     }
 
+    float GetExactDistSq(Position const& pos) const
+    {
+        float dx = m_positionX - pos.m_positionX; float dy = m_positionY - pos.m_positionY; float dz = m_positionZ - pos.m_positionZ; return dx*dx + dy*dy + dz*dz;
+    }
+
+    float GetExactDist(Position const& pos) const
+    {
+        return std::sqrt(GetExactDistSq(pos));
+    }
+
     float GetExactDistSq(Position const* pos) const
     {
         float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; float dz = m_positionZ - pos->m_positionZ; return dx*dx + dy*dy + dz*dz;
@@ -173,6 +197,10 @@ public:
     Position GetPositionWithOffset(Position const& offset) const;
 
     float GetAngle(Position const* pos) const;
+    float GetAngle(Position const& pos) const
+    {
+        return GetAngle(pos.m_positionX, pos.m_positionY);
+    }
     float GetAngle(float x, float y) const;
     float GetRelativeAngle(Position const* pos) const
     {
@@ -230,6 +258,9 @@ class TC_GAME_API WorldLocation : public Position
 public:
     explicit WorldLocation(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
         : Position(x, y, z, o), m_mapId(mapId) { }
+
+    WorldLocation(uint32 mapId, Position const& position)
+        : Position(position), m_mapId(mapId) { }
 
     WorldLocation(WorldLocation const& loc)
         : Position(loc), m_mapId(loc.GetMapId()) { }

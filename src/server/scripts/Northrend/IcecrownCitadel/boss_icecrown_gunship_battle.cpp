@@ -1716,10 +1716,7 @@ class npc_gunship_mage : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                ScriptedAI::EnterEvadeMode(why);
-            }
+            void EnterEvadeMode(EvadeReason /*why*/) override { }
 
             void MovementInform(uint32 type, uint32 pointId) override
             {

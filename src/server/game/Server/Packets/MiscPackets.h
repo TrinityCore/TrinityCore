@@ -582,7 +582,7 @@ namespace WorldPackets
         class PlayObjectSound final : public ServerPacket
         {
         public:
-            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 16 + 16 + 4 + 4 * 4) { }
+            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 16 + 16 + 4 + 4 * 3) { }
 
             WorldPacket const* Write() override;
 

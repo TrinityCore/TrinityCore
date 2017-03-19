@@ -115,7 +115,8 @@ enum ScriptCommands
     SCRIPT_COMMAND_MODEL                 = 32,               // source = Creature, datalong = model id
     SCRIPT_COMMAND_CLOSE_GOSSIP          = 33,               // source = Player
     SCRIPT_COMMAND_PLAYMOVIE             = 34,               // source = Player, datalong = movie id
-    SCRIPT_COMMAND_PLAY_ANIMKIT          = 35                // source = Creature, datalong = AnimKit id
+    SCRIPT_COMMAND_MOVEMENT              = 35,               // source = Creature, datalong = MovementType, datalong2 = MovementDistance (spawndist f.ex.), dataint = pathid
+    SCRIPT_COMMAND_PLAY_ANIMKIT          = 36                // source = Creature, datalong = AnimKit id
 };
 
 // Benchmarked: Faster than std::unordered_map (insert/find)
@@ -365,7 +366,14 @@ struct ScriptInfo
             uint32 MovieID;         // datalong
         } PlayMovie;
 
-        struct                      // SCRIPT_COMMAND_PLAY_ANIMKIT (35)
+        struct                       // SCRIPT_COMMAND_MOVEMENT (35)
+        {
+            uint32 MovementType;     // datalong
+            uint32 MovementDistance; // datalong2
+            int32  Path;             // dataint
+        } Movement;
+
+        struct                      // SCRIPT_COMMAND_PLAY_ANIMKIT (36)
         {
             uint32 AnimKitID;       // datalong
         } PlayAnimKit;
@@ -433,6 +441,7 @@ typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef std::unordered_map<uint32, GameObjectLocale> GameObjectLocaleContainer;
 typedef std::unordered_map<uint32, QuestTemplateLocale> QuestTemplateLocaleContainer;
 typedef std::unordered_map<uint32, QuestObjectivesLocale> QuestObjectivesLocaleContainer;
+typedef std::unordered_map<uint32, QuestOfferRewardLocale> QuestOfferRewardLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef std::unordered_map<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
@@ -1006,6 +1015,7 @@ class TC_GAME_API ObjectMgr
         void LoadItemScriptNames();
         void LoadQuestTemplateLocale();
         void LoadQuestObjectivesLocale();
+        void LoadQuestOfferRewardLocale();
         void LoadPageTextLocales();
         void LoadGossipMenuItemsLocales();
         void LoadPointOfInterestLocales();
@@ -1174,6 +1184,12 @@ class TC_GAME_API ObjectMgr
         {
             QuestTemplateLocaleContainer::const_iterator itr = _questTemplateLocaleStore.find(entry);
             if (itr == _questTemplateLocaleStore.end()) return nullptr;
+            return &itr->second;
+        }
+        QuestOfferRewardLocale const* GetQuestOfferRewardLocale(uint32 entry) const
+        {
+            auto itr = _questOfferRewardLocaleStore.find(entry);
+            if (itr == _questOfferRewardLocaleStore.end()) return nullptr;
             return &itr->second;
         }
         QuestObjectivesLocale const* GetQuestObjectivesLocale(uint32 entry) const
@@ -1529,6 +1545,7 @@ class TC_GAME_API ObjectMgr
         ItemTemplateContainer _itemTemplateStore;
         QuestTemplateLocaleContainer _questTemplateLocaleStore;
         QuestObjectivesLocaleContainer _questObjectivesLocaleStore;
+        QuestOfferRewardLocaleContainer _questOfferRewardLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
