@@ -4310,7 +4310,7 @@ void ObjectMgr::LoadQuests()
         for (QuestObjective const& obj : qinfo->GetObjectives())
         {
             // Store objective for lookup by id
-            _questObjectives[obj.ID] = std::make_pair(&obj, qinfo->GetQuestId());
+            _questObjectives[obj.ID] = &obj;
 
             // Check storage index for objectives which store data
             if (obj.StorageIndex < 0)
@@ -5863,9 +5863,9 @@ void ObjectMgr::LoadQuestAreaTriggers()
 
     for (auto const& pair : _questObjectives)
     {
-        QuestObjective const* objective = pair.second.first;
+        QuestObjective const* objective = pair.second;
         if (objective->Type == QUEST_OBJECTIVE_AREATRIGGER)
-            _questAreaTriggerStore[objective->ObjectID].insert(pair.second.second);
+            _questAreaTriggerStore[objective->ObjectID].insert(objective->QuestID);
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded %u quest trigger points in %u ms", count, GetMSTimeDiffToNow(oldMSTime));

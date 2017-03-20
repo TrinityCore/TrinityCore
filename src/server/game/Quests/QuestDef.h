@@ -271,6 +271,7 @@ struct QuestOfferRewardLocale
 struct QuestObjective
 {
     uint32 ID           = 0;
+    uint32 QuestID      = 0;
     uint8  Type         = 0;
     int8   StorageIndex = 0;
     int32  ObjectID     = 0;
