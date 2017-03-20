@@ -13,7 +13,7 @@ ALTER TABLE `locales_points_of_interest` CHANGE `icon_name_loc8` `Name_loc8` TEX
 
 ALTER TABLE `npc_trainer` CHANGE `reqLevel` `ReqLevel` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0';
 
-ALTER TABLE `page_text` CHANGE `text` `Text` LONGTEXT NOT NULL DEFAULT '';
+ALTER TABLE `page_text` CHANGE `text` `Text` LONGTEXT;
 
 ALTER TABLE `points_of_interest` CHANGE `icon` `Icon` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0';
 ALTER TABLE `points_of_interest` CHANGE `flags` `Flags` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0';
