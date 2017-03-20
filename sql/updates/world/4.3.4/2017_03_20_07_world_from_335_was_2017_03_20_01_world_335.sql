@@ -1,3 +1,4 @@
+/*
 SET @OGUID := 55735;
 DELETE FROM `gameobject` WHERE `map`=568;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
@@ -94,3 +95,4 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `positi
 (@OGUID+90,187380,568,1,1,383.674,1083.18,5.75323,0.017452,0,0,0.00872612,0.999962,180,255,1),
 (@OGUID+91,186622,568,1,1,305.514,1467.34,81.5059,-2.32129,0,0,-0.91706,0.39875,180,255,1),
 (@OGUID+92,186623,568,1,1,307.208,1464.14,81.6032,-0.104719,0,0,-0.0523357,0.99863,180,255,1);
+*/
