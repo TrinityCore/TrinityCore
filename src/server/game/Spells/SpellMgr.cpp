@@ -3641,6 +3641,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         if (spellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_SPELL_MAGNET))
             spellInfo->ProcFlags = 0;
 
+        // due to the way spell system works, unit would change orientation in Spell::_cast
+        if (spellInfo->HasAura(DIFFICULTY_NONE, SPELL_AURA_CONTROL_VEHICLE))
+            spellInfo->AttributesEx5 |= SPELL_ATTR5_DONT_TURN_DURING_CAST;
+
         if (spellInfo->ActiveIconFileDataId == 135754)  // flight
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
     }
