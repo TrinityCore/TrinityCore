@@ -9,3 +9,5 @@ ALTER TABLE `locales_points_of_interest` CHANGE `icon_name_loc7` `Name_loc7` TEX
 ALTER TABLE `locales_points_of_interest` CHANGE `icon_name_loc8` `Name_loc8` TEXT NOT NULL DEFAULT '';
 
 ALTER TABLE `locales_page_text` CHANGE `entry` `ID` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0';
+
+ALTER TABLE `points_of_interest` CHANGE `data` `Importance` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0';
