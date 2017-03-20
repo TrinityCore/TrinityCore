@@ -14629,48 +14629,8 @@ bool Player::CanCompleteQuest(uint32 quest_id)
         {
             for (QuestObjective const& obj : qInfo->GetObjectives())
             {
-                switch (obj.Type)
-                {
-                    case QUEST_OBJECTIVE_MONSTER:
-                    case QUEST_OBJECTIVE_ITEM:
-                    case QUEST_OBJECTIVE_GAMEOBJECT:
-                    case QUEST_OBJECTIVE_PLAYERKILLS:
-                    case QUEST_OBJECTIVE_TALKTO:
-                    case QUEST_OBJECTIVE_WINPVPPETBATTLES:
-                    case QUEST_OBJECTIVE_HAVE_CURRENCY:
-                    case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
-                        if (GetQuestObjectiveData(qInfo, obj.StorageIndex) < obj.Amount)
-                            return false;
-                        break;
-                    case QUEST_OBJECTIVE_MIN_REPUTATION:
-                        if (GetReputationMgr().GetReputation(obj.ObjectID) < obj.Amount)
-                            return false;
-                        break;
-                    case QUEST_OBJECTIVE_MAX_REPUTATION:
-                        if (GetReputationMgr().GetReputation(obj.ObjectID) > obj.Amount)
-                            return false;
-                        break;
-                    case QUEST_OBJECTIVE_MONEY:
-                        if (!HasEnoughMoney(uint64(obj.Amount)))
-                            return false;
-                        break;
-                    case QUEST_OBJECTIVE_AREATRIGGER:
-                        if (!GetQuestObjectiveData(qInfo, obj.StorageIndex))
-                            return false;
-                        break;
-                    case QUEST_OBJECTIVE_LEARNSPELL:
-                        if (!HasSpell(obj.ObjectID))
-                            return false;
-                        break;
-                    case QUEST_OBJECTIVE_CURRENCY:
-                        if (!HasCurrency(obj.ObjectID, obj.Amount))
-                            return false;
-                        break;
-                    default:
-                        TC_LOG_ERROR("entities.player.quest", "Player::CanCompleteQuest: Player '%s' (%s) tried to complete a quest (ID: %u) with an unknown objective type %u",
-                            GetName().c_str(), GetGUID().ToString().c_str(), quest_id, obj.Type);
-                        return false;
-                }
+                if (!IsQuestObjectiveComplete(qInfo, obj))
+                    return false;
             }
 
             if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) && q_status.Timer == 0)
@@ -16793,6 +16753,54 @@ int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
     }
 
     return status.ObjectiveData[storageIndex];
+}
+
+bool Player::IsQuestObjectiveComplete(Quest const* quest, QuestObjective const& objective) const
+{
+    switch (objective.Type)
+    {
+        case QUEST_OBJECTIVE_MONSTER:
+        case QUEST_OBJECTIVE_ITEM:
+        case QUEST_OBJECTIVE_GAMEOBJECT:
+        case QUEST_OBJECTIVE_PLAYERKILLS:
+        case QUEST_OBJECTIVE_TALKTO:
+        case QUEST_OBJECTIVE_WINPVPPETBATTLES:
+        case QUEST_OBJECTIVE_HAVE_CURRENCY:
+        case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
+            if (GetQuestObjectiveData(quest, objective.StorageIndex) < objective.Amount)
+                return false;
+            break;
+        case QUEST_OBJECTIVE_MIN_REPUTATION:
+            if (GetReputationMgr().GetReputation(objective.ObjectID) < objective.Amount)
+                return false;
+            break;
+        case QUEST_OBJECTIVE_MAX_REPUTATION:
+            if (GetReputationMgr().GetReputation(objective.ObjectID) > objective.Amount)
+                return false;
+            break;
+        case QUEST_OBJECTIVE_MONEY:
+            if (!HasEnoughMoney(uint64(objective.Amount)))
+                return false;
+            break;
+        case QUEST_OBJECTIVE_AREATRIGGER:
+            if (!GetQuestObjectiveData(quest, objective.StorageIndex))
+                return false;
+            break;
+        case QUEST_OBJECTIVE_LEARNSPELL:
+            if (!HasSpell(objective.ObjectID))
+                return false;
+            break;
+        case QUEST_OBJECTIVE_CURRENCY:
+            if (!HasCurrency(objective.ObjectID, objective.Amount))
+                return false;
+            break;
+        default:
+            TC_LOG_ERROR("entities.player.quest", "Player::CanCompleteQuest: Player '%s' (%s) tried to complete a quest (ID: %u) with an unknown objective type %u",
+                GetName().c_str(), GetGUID().ToString().c_str(), quest->ID, objective.Type);
+            return false;
+    }
+    
+    return true;
 }
 
 void Player::SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data)

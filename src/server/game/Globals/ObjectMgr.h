@@ -720,7 +720,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, Item*> ItemMap;
 
         typedef std::unordered_map<uint32, Quest*> QuestMap;
-        typedef std::unordered_map<uint32 /*questObjectiveId*/, std::pair<QuestObjective const*, uint32 /*questId*/>> QuestObjectivesByIdContainer;
+        typedef std::unordered_map<uint32 /*questObjectiveId*/, QuestObjective const*> QuestObjectivesByIdContainer;
 
         typedef std::unordered_map<uint32, AreaTriggerStruct> AreaTriggerContainer;
 
@@ -826,7 +826,7 @@ class TC_GAME_API ObjectMgr
         QuestObjective const* GetQuestObjective(uint32 questObjectiveId) const
         {
             auto itr = _questObjectives.find(questObjectiveId);
-            return itr != _questObjectives.end() ? itr->second.first : nullptr;
+            return itr != _questObjectives.end() ? itr->second : nullptr;
         }
 
         std::unordered_set<uint32> const* GetQuestsForAreaTrigger(uint32 Trigger_ID) const
