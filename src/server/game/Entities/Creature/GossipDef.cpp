@@ -613,7 +613,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool enableNext) const
 {
     std::string questTitle              = quest->GetLogTitle();
-    std::string rewardText    = quest->GetOfferRewardText();
+    std::string rewardText              = quest->GetOfferRewardText();
     std::string portraitGiverText       = quest->GetPortraitGiverText();
     std::string portraitGiverName       = quest->GetPortraitGiverName();
     std::string portraitTurnInText      = quest->GetPortraitTurnInText();
@@ -684,10 +684,10 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     if (locale >= LOCALE_enUS)
     {
         if (QuestTemplateLocale const* questTemplateLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-        {
             ObjectMgr::GetLocaleString(questTemplateLocale->LogTitle, locale, questTitle);
-            ObjectMgr::GetLocaleString(questTemplateLocale->RequestItemsText, locale, requestItemsText);
-        }
+
+        if (QuestRequestItemsLocale const* questRequestItemsLocale = sObjectMgr->GetQuestRequestItemsLocale(quest->GetQuestId()))
+            ObjectMgr::GetLocaleString(questRequestItemsLocale->RequestItemsText, locale, requestItemsText);
     }
 
     if (!quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER) && canComplete)
