@@ -25,13 +25,13 @@ class WorldPacket;
 namespace Motd
 {
     /// Set a new Message of the Day
-    void SetMotd(std::string motd);
+    void TC_GAME_API SetMotd(std::string motd);
 
     /// Get the current Message of the Day
-    char const* GetMotd();
+    char const* TC_GAME_API GetMotd();
 
     /// Get the motd packet to send at login
-    WorldPacket const* GetMotdPacket();
+    WorldPacket const* TC_GAME_API GetMotdPacket();
 }
 
 #endif //ServerMotd_h__
