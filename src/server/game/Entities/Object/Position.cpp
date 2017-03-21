@@ -137,13 +137,7 @@ bool Position::IsWithinBox(const Position& center, float xradius, float yradius,
     return true;
 }
 
-bool Position::IsWithinVerticalCylindar(Position const* center, float radius, float height) const
-{
-    float verticalDelta = GetPositionZ() - center->GetPositionZ();
-    return IsInDist2d(center, radius) && verticalDelta >= 0.0f && verticalDelta <= height;
-}
-
-bool Position::IsWithinDoubleVerticalCylindar(Position const* center, float radius, float height) const
+bool Position::IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const
 {
     float verticalDelta = GetPositionZ() - center->GetPositionZ();
     return IsInDist2d(center, radius) && std::abs(verticalDelta) <= height;

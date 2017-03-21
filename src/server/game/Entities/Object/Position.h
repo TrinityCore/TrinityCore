@@ -231,30 +231,9 @@ public:
     bool IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const;
 
     /*
-    side view:
-     _____     
-    |     |     ^
-    |     |     | height
-    |_____|     v
-       ^
-       center
+    search using this relation: dist2d < radius && abs(dz) < height
     */
-    bool IsWithinVerticalCylindar(Position const* center, float radius, float height) const;
-
-    /*
-    side view:
-     _____
-    |     |     ^
-    |     |     | height
-    |__v__|     v 
-    |  ^  |     ^                   
-    |     |     | height         
-    |_____|     v
-                     
-    The center is at v
-                     ^
-    */
-    bool IsWithinDoubleVerticalCylindar(Position const* center, float radius, float height) const;
+    bool IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const;
     bool HasInArc(float arcangle, Position const* pos, float border = 2.0f) const;
     bool HasInLine(Position const* pos, float objSize, float width) const;
     std::string ToString() const;
