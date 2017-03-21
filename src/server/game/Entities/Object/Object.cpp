@@ -1120,19 +1120,19 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
     sizefactor += incTargetRadius ? obj->GetCombatReach() : 0.0f;
     float maxdist = dist2compare + sizefactor;
 
-    const Position* a = this;
-    const Position* b = obj;
+    Position const* thisOrTransport = this;
+    Position const* objOrObjTransport = obj;
 
     if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetGUID().GetCounter() == GetTransport()->GetGUID().GetCounter())
     {
-        a = &m_movementInfo.transport.pos;
-        b = &obj->m_movementInfo.transport.pos;
+        thisOrTransport = &m_movementInfo.transport.pos;
+        objOrObjTransport = &obj->m_movementInfo.transport.pos;
     }
 
     if (is3D)
-        return a->IsInDist(b, maxdist);
+        return thisOrTransport->IsInDist(objOrObjTransport, maxdist);
     else
-        return a->IsInDist2d(b, maxdist);
+        return thisOrTransport->IsInDist2d(objOrObjTransport, maxdist);
 }
 
 bool WorldObject::IsWithinLOSInMap(const WorldObject* obj, VMAP::ModelIgnoreFlags ignoreFlags) const
