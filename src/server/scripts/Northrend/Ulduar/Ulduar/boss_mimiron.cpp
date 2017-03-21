@@ -347,7 +347,7 @@ Position const VehicleRelocation[] =
 };
 
 Position const VX001SummonPos = { 2744.431f, 2569.385f, 364.3968f, 3.141593f };
-Position const ACUSummonPos   = { 2744.650f, 2569.460f, 380.0000f, 0.0f };
+Position const ACUSummonPos   = { 2744.650f, 2569.460f, 380.0000f, 3.141593f };
 
 static bool IsEncounterFinished(Unit* who)
 {
@@ -610,7 +610,7 @@ class boss_mimiron : public CreatureScript
                             {
                                 if (Creature* aerial = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT)))
                                 {
-                                    aerial->GetMotionMaster()->MoveLand(0, (aerial->GetPositionX(), aerial->GetPositionY(), aerial->GetPositionZMinusOffset()));
+                                    aerial->GetMotionMaster()->MoveLand(0, (aerial->GetPositionX(), aerial->GetPositionY(), aerial->GetPositionZ()));
                                     aerial->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0);
                                     aerial->CastSpell(vx001, SPELL_MOUNT_VX_001);
                                     aerial->CastSpell(aerial, SPELL_HALF_HEAL);
@@ -1156,6 +1156,8 @@ class boss_aerial_command_unit : public CreatureScript
                     case DO_START_AERIAL:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
                         me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetHover(true);
+                        me->SetDisableGravity(false);
 
                         events.SetPhase(PHASE_AERIAL_COMMAND_UNIT);
                         events.ScheduleEvent(EVENT_SUMMON_JUNK_BOT, 5000, 0, PHASE_AERIAL_COMMAND_UNIT);

@@ -57,8 +57,39 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             if (i_target->IsWithinDistInMap(owner, CONTACT_DISTANCE))
                 return;
 
-            // to nearest contact position
-            i_target->GetContactPoint(owner, x, y, z);
+
+            if (owner->IsHovering())
+            {
+                //           CHASER
+                //             |\
+                //             | \
+                // hoverHeight |  \ A
+                //             |   \
+                //             |    \
+                //              -----TARGET
+                //                B
+                float hoverHeight = owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                float A = i_target->GetObjectSize() + owner->GetObjectSize() + CONTACT_DISTANCE; // default 2D distance search used by GetContactPoint
+                if (A > hoverHeight)
+                {
+                    float B = std::sqrt(A*A - hoverHeight * hoverHeight);
+                    float searchDistance = B - A;
+                    i_target->GetContactPoint(owner, x, y, z, searchDistance);
+                    z += hoverHeight;
+                }
+                else
+                {
+                    // the target is not reachable. owner is too high compared to the melee range. Get as close as possible: on top of it.
+                    x = i_target->GetPositionX();
+                    y = i_target->GetPositionY();
+                    z = i_target->GetPositionZ() + hoverHeight;
+                }
+            }
+            else
+            {
+                // to nearest contact position
+                i_target->GetContactPoint(owner, x, y, z);
+            }
         }
         else
         {
@@ -78,15 +109,46 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             }
             else
             {
-                dist = i_offset + 1.0f;
+                dist = i_offset + 1.0f; // todo: what the heck is this
                 size = owner->GetObjectSize();
             }
 
             if (i_target->IsWithinDistInMap(owner, dist))
                 return;
 
-            // to at i_offset distance from target and i_angle from target facing
-            i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
+            
+            if (owner->IsHovering())
+            {
+                //           CHASER
+                //             |\
+                //             | \
+                // hoverHeight |  \ A
+                //             |   \
+                //             |    \
+                //              -----TARGET
+                //                B
+                float hoverHeight = owner->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                float A = i_target->GetObjectSize() + size + i_offset; // the 2D distance search used by GetClosePoint(x, y, z, size, i_offset, i_angle)
+                if (A > hoverHeight)
+                {
+                    float B = std::sqrt(A*A - hoverHeight * hoverHeight);
+                    float searchDistance = B - A;
+                    i_target->GetClosePoint(x, y, z, searchDistance, 0, i_angle);
+                    z += hoverHeight;
+                }
+                else
+                {
+                    // the target is not reachable. owner is too high compared to the melee range. Get as close as possible: on top of it.
+                    x = i_target->GetPositionX();
+                    y = i_target->GetPositionY();
+                    z = i_target->GetPositionZ() + hoverHeight;
+                }
+            }
+            else
+            {
+                // to at i_offset distance from target and i_angle from target facing
+                i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
+            }
         }
     }
     else
@@ -172,10 +234,14 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
         //More distance let have better performance, less distance let have more sensitive reaction at target move.
         float allowed_dist = 0.0f;
 
+        // the chase distance is at chaser->CombatReach + target->CombatReach + 4/3. The melee range max is chaser->CombatReach + target->CombatReach + CONTACT_DISTANCE
+        // so here is the maximum allowed distance that the target can move without the need for the chase to move closer.
+        // todo: this value is only correct for an offset equal to zero. an zero offset should be also supported.
+        float maxAllowedDistance = 4.0f / 3.0f - CONTACT_DISTANCE;
         if (owner->IsPet() && (owner->GetCharmerOrOwnerGUID() == i_target->GetGUID()))
             allowed_dist = 1.0f; // pet following owner
         else
-            allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
+            allowed_dist = std::min(maxAllowedDistance, sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE));
 
         G3D::Vector3 dest = owner->movespline->FinalDestination();
         if (owner->movespline->onTransport)

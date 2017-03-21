@@ -350,7 +350,7 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
     {
         // we are already close enough. We just need to turn toward the target without changing position.
         Movement::MoveSplineInit init(_owner);
-        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZMinusOffset());
+        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
         init.SetFacing(target);
         init.Launch();
         Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);

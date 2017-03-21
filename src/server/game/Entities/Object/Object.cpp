@@ -362,10 +362,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
             *data << object->GetPositionX();
             *data << object->GetPositionY();
-            if (isType(TYPEMASK_UNIT))
-                *data << unit->GetPositionZMinusOffset();
-            else
-                *data << object->GetPositionZ();
+            *data << object->GetPositionZ();
 
             if (transport)
             {
@@ -377,10 +374,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             {
                 *data << object->GetPositionX();
                 *data << object->GetPositionY();
-                if (isType(TYPEMASK_UNIT))
-                    *data << unit->GetPositionZMinusOffset();
-                else
-                    *data << object->GetPositionZ();
+                *data << object->GetPositionZ();
             }
 
             *data << object->GetOrientation();
@@ -1432,7 +1426,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         {
             // non fly unit don't must be in air
             // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
-            if (!ToCreature()->CanFly())
+            if (!ToCreature()->CanFly() && !ToCreature()->IsHovering() && !ToCreature()->IsLevitating())
             {
                 bool canSwim = ToCreature()->CanSwim();
                 float ground_z = z;
@@ -1446,6 +1440,12 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
                     else if (z < ground_z)
                         z = ground_z;
                 }
+            }
+            else if (ToCreature()->IsHovering())
+            {
+                float ground_z = GetMap()->GetHeight(GetPhaseMask(), x, y, z, true);
+                float hoverHeight = ToCreature()->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+                z = ground_z + hoverHeight;
             }
             else
             {
