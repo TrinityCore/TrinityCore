@@ -33,11 +33,12 @@
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
+#include "AreaTriggerAI.h"
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
-    _areaTriggerMiscTemplate(nullptr)
+    _areaTriggerMiscTemplate(nullptr), i_AI(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -50,6 +51,8 @@ AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
 
 AreaTrigger::~AreaTrigger()
 {
+    delete i_AI;
+    i_AI = nullptr;
 }
 
 void AreaTrigger::AddToWorld()
@@ -104,10 +107,13 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_SPELL_X_SPELL_VISUAL_ID, spellXSpellVisualId);
-    uint32 timeToTarget = GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : GetUInt32Value(AREATRIGGER_DURATION);
     SetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE, GetMiscTemplate()->TimeToTargetScale != 0 ? GetMiscTemplate()->TimeToTargetScale : GetUInt32Value(AREATRIGGER_DURATION));
     SetFloatValue(AREATRIGGER_BOUNDS_RADIUS_2D, GetTemplate()->MaxSearchRadius);
     SetUInt32Value(AREATRIGGER_DECAL_PROPERTIES_ID, GetMiscTemplate()->DecalPropertiesId);
+
+    for (uint8 scaleCurveIndex = 0; scaleCurveIndex < MAX_AREATRIGGER_SCALE; ++scaleCurveIndex)
+        if (GetMiscTemplate()->ScaleInfo.ExtraScale[scaleCurveIndex].AsInt32)
+            SetUInt32Value(AREATRIGGER_EXTRA_SCALE_CURVE + scaleCurveIndex, GetMiscTemplate()->ScaleInfo.ExtraScale[scaleCurveIndex].AsInt32);
 
     CopyPhaseFrom(caster);
 
@@ -119,9 +125,10 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
     UpdateShape();
 
     if (GetMiscTemplate()->HasSplines())
+    {
+        uint32 timeToTarget = GetMiscTemplate()->TimeToTarget != 0 ? GetMiscTemplate()->TimeToTarget : GetUInt32Value(AREATRIGGER_DURATION);
         InitSplineOffsets(GetMiscTemplate()->SplinePoints, timeToTarget);
-
-    sScriptMgr->OnAreaTriggerEntityInitialize(this);
+    }
 
     // movement on transport of areatriggers on unit is handled by themself
     Transport* transport = m_movementInfo.transport.guid.IsEmpty() ? caster->GetTransport() : nullptr;
@@ -136,6 +143,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
         transport->AddPassenger(this);
     }
 
+    AI_Initialize();
+
     if (!GetMap()->AddToMap(this))
     {
         // Returning false will cause the object to be deleted - remove from transport
@@ -146,7 +155,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* targ
 
     caster->_RegisterAreaTrigger(this);
 
-    sScriptMgr->OnAreaTriggerEntityCreate(this);
+    if (i_AI != nullptr)
+        i_AI->OnCreate();
 
     return true;
 }
@@ -164,8 +174,6 @@ void AreaTrigger::Update(uint32 p_time)
     else
         UpdateSplinePosition(p_time);
 
-    sScriptMgr->OnAreaTriggerEntityUpdate(this, p_time);
-
     if (GetDuration() != -1)
     {
         if (GetDuration() > int32(p_time))
@@ -176,6 +184,9 @@ void AreaTrigger::Update(uint32 p_time)
             return;
         }
     }
+
+    if (i_AI != nullptr)
+        i_AI->OnUpdate(p_time);
 
     UpdateTargetList();
 }
@@ -192,7 +203,8 @@ void AreaTrigger::Remove()
         // Handle removal of all units, calling OnUnitExit & deleting auras if needed
         HandleUnitEnterExit({});
 
-        sScriptMgr->OnAreaTriggerEntityRemove(this);
+        if (i_AI != nullptr)
+            i_AI->OnRemove();
 
         RemoveFromWorld();
         AddObjectToRemoveList();
@@ -353,7 +365,9 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
                 ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTERED, GetTemplate()->Id);
 
         DoActions(unit);
-        sScriptMgr->OnAreaTriggerEntityUnitEnter(this, unit);
+
+        if (i_AI != nullptr)
+            i_AI->OnUnitEnter(unit);
     }
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
@@ -365,7 +379,9 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
                     ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_LEFT, GetTemplate()->Id);
 
             UndoActions(leavingUnit);
-            sScriptMgr->OnAreaTriggerEntityUnitExit(this, leavingUnit);
+
+            if (i_AI != nullptr)
+                i_AI->OnUnitExit(leavingUnit);
         }
     }
 }
@@ -633,8 +649,12 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
         DebugVisualizePosition();
 #endif
 
-        sScriptMgr->OnAreaTriggerEntitySplineIndexReached(this, _lastSplineIndex);
-        sScriptMgr->OnAreaTriggerEntityDestinationReached(this);
+        if (i_AI != nullptr)
+        {
+            i_AI->OnSplineIndexReached(_lastSplineIndex);
+            i_AI->OnDestinationReached();
+        }
+
         return;
     }
 
@@ -677,7 +697,9 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
     if (_lastSplineIndex != lastPositionIndex)
     {
         _lastSplineIndex = lastPositionIndex;
-        sScriptMgr->OnAreaTriggerEntitySplineIndexReached(this, _lastSplineIndex);
+
+        if (i_AI != nullptr)
+            i_AI->OnSplineIndexReached(_lastSplineIndex);
     }
 }
 
@@ -687,4 +709,22 @@ void AreaTrigger::DebugVisualizePosition()
         if (Player* player = caster->ToPlayer())
             if (player->isDebugAreaTriggers)
                 player->SummonCreature(1, *this, TEMPSUMMON_TIMED_DESPAWN, GetTimeToTarget());
+}
+
+bool AreaTrigger::AI_Initialize()
+{
+    AI_Destroy();
+    i_AI = sScriptMgr->GetAreaTriggerAI(this);
+
+    if (!i_AI)
+        return false;
+
+    i_AI->OnInitialize();
+    return true;
+}
+
+void AreaTrigger::AI_Destroy()
+{
+    delete i_AI;
+    i_AI = nullptr;
 }
