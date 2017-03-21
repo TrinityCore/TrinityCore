@@ -5400,7 +5400,14 @@ void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->ActivateTalentGroup(sChrSpecializationStore.AssertEntry(m_misc.SpecializationId));
+    Player* player = unitTarget->ToPlayer();
+    bool ispet = (m_misc.SpecTree.ClassId != 0);
+    uint32 specID = m_misc.SpecTree.SpecializationId;
+
+    if (!ispet)
+        player->ActivateTalentGroup(sChrSpecializationStore.AssertEntry(specID));
+    else
+        player->GetPet()->SetSpecialization(specID);
 }
 
 void Spell::EffectPlaySound(SpellEffIndex /*effIndex*/)

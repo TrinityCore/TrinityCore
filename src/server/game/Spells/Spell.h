@@ -578,7 +578,11 @@ class TC_GAME_API Spell
             uint32 SpellId;
 
             // SPELL_EFFECT_TALENT_SPEC_SELECT
-            uint32 SpecializationId;
+            struct
+            {
+                uint32 SpecializationId;
+                uint32 ClassId;
+            } SpecTree;
 
             // SPELL_EFFECT_SET_FOLLOWER_QUALITY
             // SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL
