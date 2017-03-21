@@ -25,13 +25,6 @@ namespace
 {
     WorldPacket MotdPacket;
     std::string FormattedMotd;
-
-    std::string const EndLine = []() -> std::string
-    {
-        std::ostringstream oss;
-        oss << std::endl;
-        return oss.str();
-    }();
 }
 
 void Motd::SetMotd(std::string motd)
@@ -53,7 +46,7 @@ void Motd::SetMotd(std::string motd)
         return;
 
     std::ostringstream oss;
-    std::copy(motdTokens.begin(), motdTokens.end() - 1, std::ostream_iterator<char const*>(oss, EndLine.c_str()));
+    std::copy(motdTokens.begin(), motdTokens.end() - 1, std::ostream_iterator<char const*>(oss, "\n"));
     oss << *(motdTokens.end() - 1); // copy back element
     FormattedMotd = oss.str();
 }
