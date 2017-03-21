@@ -26,10 +26,15 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
+#include "AreaTriggerTemplate.h"
+#include "AreaTriggerAI.h"
 
 enum PriestSpells
 {
     SPELL_PRIEST_ABSOLUTION                         = 33167,
+    SPELL_PRIEST_ANGELIC_FEATHER_TRIGGER            = 121536,
+    SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
+    SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER        = 158624,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
@@ -1289,6 +1294,95 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
+// 121536 - Angelic Feather talent
+class spell_pri_angelic_feather_trigger : public SpellScriptLoader
+{
+    public:
+        spell_pri_angelic_feather_trigger() : SpellScriptLoader("spell_pri_angelic_feather_trigger") { }
+
+        class spell_pri_angelic_feather_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_angelic_feather_trigger_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+            {
+                Position destPos = GetHitDest()->GetPosition();
+                float radius = GetEffectInfo()->CalcRadius();
+
+                // Caster is prioritary
+                if (GetCaster()->IsWithinDist2d(&destPos, radius))
+                {
+                    GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
+                }
+                else
+                {
+                    SpellCastTargets targets;
+                    targets.SetDst(destPos);
+                    GetCaster()->CastSpell(targets, sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER), nullptr);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_pri_angelic_feather_trigger_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_pri_angelic_feather_trigger_SpellScript();
+        }
+};
+
+// Angelic Feather areatrigger - created by SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER
+class areatrigger_pri_angelic_feather : public AreaTriggerEntityScript
+{
+public:
+    areatrigger_pri_angelic_feather() : AreaTriggerEntityScript("areatrigger_pri_angelic_feather") { }
+
+    struct areatrigger_pri_angelic_featherAI : AreaTriggerAI
+    {
+        areatrigger_pri_angelic_featherAI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
+
+        // Called when the AreaTrigger has just been initialized, just before added to map
+        void OnInitialize() override
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                std::vector<AreaTrigger*> areaTriggers = caster->GetAreaTriggers(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER);
+
+                if (areaTriggers.size() >= 3)
+                    areaTriggers.front()->SetDuration(0);
+            }
+        }
+
+        void OnUnitEnter(Unit* unit) override
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                if (caster->IsFriendlyTo(unit))
+                {
+                    // If target already has aura, increase duration to max 130% of initial duration
+                    caster->CastSpell(unit, SPELL_PRIEST_ANGELIC_FEATHER_AURA, true);
+                    at->SetDuration(0);
+                }
+            }
+        }
+    };
+
+    AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+    {
+        return new areatrigger_pri_angelic_featherAI(areatrigger);
+    }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_body_and_soul();
@@ -1318,4 +1412,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_embrace_target();
     new spell_pri_vampiric_touch();
+    new spell_pri_angelic_feather_trigger();
+    new areatrigger_pri_angelic_feather();
 }
