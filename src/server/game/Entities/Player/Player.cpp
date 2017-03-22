@@ -1767,8 +1767,8 @@ void Player::RemoveFromWorld()
 void Player::SetObjectScale(float scale)
 {
     Unit::SetObjectScale(scale);
-    SetBoundingRadius(scale * DEFAULT_WORLD_OBJECT_SIZE);
-    SetCombatReach(scale * DEFAULT_COMBAT_REACH);
+    SetBoundingRadius(scale * DEFAULT_PLAYER_BOUNDING_RADIUS);
+    SetCombatReach(scale * DEFAULT_PLAYER_COMBAT_REACH);
     if (IsInWorld())
         SendMovementSetCollisionHeight(scale * GetCollisionHeight(IsMounted()));
 }

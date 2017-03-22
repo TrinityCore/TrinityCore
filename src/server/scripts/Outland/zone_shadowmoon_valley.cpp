@@ -525,7 +525,7 @@ public:
 
                 Tapped = true;
                 float x, y, z;
-                caster->GetClosePoint(x, y, z, me->GetObjectSize());
+                caster->GetClosePoint(x, y, z, me->GetCombatReach());
 
                 me->SetWalk(false);
                 me->GetMotionMaster()->MovePoint(1, x, y, z);

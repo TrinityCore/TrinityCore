@@ -75,6 +75,35 @@ bool SpellImplicitTargetInfo::IsArea() const
     return GetSelectionCategory() == TARGET_SELECT_CATEGORY_AREA || GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE;
 }
 
+bool SpellImplicitTargetInfo::IsProximityBasedAoe() const
+{
+    switch (_target)
+    {
+    case TARGET_UNIT_SRC_AREA_ENTRY:
+    case TARGET_UNIT_SRC_AREA_ENEMY:
+    case TARGET_UNIT_CASTER_AREA_PARTY:
+    case TARGET_UNIT_SRC_AREA_ALLY:
+    case TARGET_UNIT_SRC_AREA_PARTY:
+    case TARGET_UNIT_LASTTARGET_AREA_PARTY:
+    case TARGET_GAMEOBJECT_SRC_AREA:
+    case TARGET_UNIT_CASTER_AREA_RAID:
+    case TARGET_CORPSE_SRC_AREA_ENEMY:
+        return true;
+
+    case TARGET_UNIT_DEST_AREA_ENTRY:
+    case TARGET_UNIT_DEST_AREA_ENEMY:
+    case TARGET_UNIT_DEST_AREA_ALLY:
+    case TARGET_UNIT_DEST_AREA_PARTY:
+    case TARGET_GAMEOBJECT_DEST_AREA:
+    case TARGET_UNIT_TARGET_AREA_RAID_CLASS:
+        return false;
+
+    default:
+        TC_LOG_WARN("spells", "SpellImplicitTargetInfo::IsProximityBasedAoe called a non-aoe spell");
+        return false;
+    }
+}
+
 SpellTargetSelectionCategories SpellImplicitTargetInfo::GetSelectionCategory() const
 {
     return _data[_target].SelectionCategory;

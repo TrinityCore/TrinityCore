@@ -126,7 +126,7 @@ class boss_selin_fireheart : public CreatureScript
                     Crystals.remove(CrystalChosen);
 
                     float x, y, z;
-                    CrystalChosen->GetClosePoint(x, y, z, me->GetObjectSize(), CONTACT_DISTANCE);
+                    CrystalChosen->GetClosePoint(x, y, z, me->GetCombatReach(), CONTACT_DISTANCE);
 
                     events.SetPhase(PHASE_DRAIN);
                     me->SetWalk(false);
