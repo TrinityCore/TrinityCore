@@ -111,7 +111,7 @@ public:
     {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         StorageType listCopy = storage_;
-        Trinity::Containers::RandomResizeList<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), max);
+        Trinity::Containers::RandomResize<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), max);
         for (StorageType::iterator i = listCopy.begin(); i != listCopy.end(); )
         {
             Creature* summon = ObjectAccessor::GetCreature(*me, *i++);

@@ -1147,7 +1147,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
         {
             // Other special target selection goes here
             if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-                Trinity::Containers::RandomResizeList(targets, maxTargets);
+                Trinity::Containers::RandomResize(targets, maxTargets);
 
             for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
             {
@@ -1226,7 +1226,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     {
         // Other special target selection goes here
         if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-            Trinity::Containers::RandomResizeList(targets, maxTargets);
+            Trinity::Containers::RandomResize(targets, maxTargets);
 
         for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
         {
