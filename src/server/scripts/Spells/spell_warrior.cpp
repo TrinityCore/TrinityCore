@@ -65,6 +65,8 @@ enum WarriorSpells
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
+    SPELL_WARRIOR_TRAUMA                            = 215538,
+    SPELL_WARRIOR_TRAUMA_EFFECT                     = 215537,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_1        = 46859,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_2        = 46860,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
@@ -1090,6 +1092,50 @@ class spell_warr_sword_and_board : public SpellScriptLoader
         }
 };
 
+// 215538 - Trauma
+// Updated 7.x
+class spell_warr_trauma : public SpellScriptLoader
+{
+public:
+    spell_warr_trauma() : SpellScriptLoader("spell_warr_trauma") { }
+
+    class spell_warr_trauma_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_trauma_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_TRAUMA,
+                SPELL_WARRIOR_TRAUMA_EFFECT
+            });
+        }
+
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        {
+            PreventDefaultAction();
+            // Proc only with Slam & Whirlwind
+            if (!(eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[0] & 0x200000 || eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[1] & 0x4))
+                return;
+
+            //Get 25% of damage from the spell casted (Slam & Whirlwind)
+            int32 damage = eventInfo.GetDamageInfo()->GetDamage() * 25.0 / 100.0;
+            GetCaster()->CastCustomSpell(eventInfo.GetActionTarget(), SPELL_WARRIOR_TRAUMA_EFFECT, &damage, NULL, NULL, true);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warr_trauma_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_warr_trauma_AuraScript();
+    }
+};
+
 // 34428 - Victory Rush
 class spell_warr_victory_rush : public SpellScriptLoader
 {
@@ -1232,6 +1278,44 @@ class spell_warr_vigilance_trigger : public SpellScriptLoader
         }
 };
 
+// 1680 - Whirlwind 
+// Updated 7.1.5
+class spell_warr_whirlwind : public SpellScriptLoader
+{
+public:
+    spell_warr_whirlwind() : SpellScriptLoader("spell_warr_whirlwind") { }
+
+    class spell_warr_whirlwind_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_whirlwind_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_TRAUMA_EFFECT
+            });
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (GetCaster()->HasAura(SPELL_WARRIOR_TRAUMA))
+                //GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_TRAUMA_EFFECT, true);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_TRAUMA, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_warr_whirlwind_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_whirlwind_SpellScript();
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
@@ -1259,7 +1343,9 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sudden_death();
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
+    new spell_warr_trauma();
     new spell_warr_victory_rush();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
+    new spell_warr_whirlwind();
 }
