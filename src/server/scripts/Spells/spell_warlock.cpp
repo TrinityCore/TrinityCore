@@ -1399,7 +1399,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
         }
 };
 
-// 5740 - Demonic Circle: Summon
+// 5740 - Rain of Fire
 /// Updated 7.1.5
 class spell_warl_rain_of_fire : public SpellScriptLoader
 {
