@@ -2071,8 +2071,8 @@ struct RewardPackEntry
     uint32 ID;
     uint32 Money;
     float ArtifactXPMultiplier;
-    uint32 ArtifactXPDifficulty;
-    uint32 ArtifactCategoryID;
+    uint8 ArtifactXPDifficulty;
+    uint8 ArtifactCategoryID;
     uint32 TitleID;
     uint32 Unused;
 };
