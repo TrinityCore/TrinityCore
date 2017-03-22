@@ -975,7 +975,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->family = CREATURE_FAMILY_NONE;
     }
 
-    if (cInfo->InhabitType <= 0 || cInfo->InhabitType > INHABIT_ANYWHERE)
+    if (cInfo->InhabitType <= 0 || cInfo->InhabitType > INHABIT_ALL)
     {
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has wrong value (%u) in `InhabitType`, creature will not correctly walk/swim/fly.", cInfo->Entry, cInfo->InhabitType);
         const_cast<CreatureTemplate*>(cInfo)->InhabitType = INHABIT_ANYWHERE;
@@ -1845,8 +1845,8 @@ void ObjectMgr::LoadCreatures()
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
     //   11               12         13       14            15         16          17          18                19                   20                     21
         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.phaseid, "
-    //   22                   23
-        "creature.phasegroup, creature.ScriptName "
+    //   22                   23                    24
+        "creature.phasegroup, creature.inhabitType, creature.ScriptName "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1903,7 +1903,8 @@ void ObjectMgr::LoadCreatures()
         data.dynamicflags   = fields[20].GetUInt32();
         data.phaseid        = fields[21].GetUInt32();
         data.phaseGroup     = fields[22].GetUInt32();
-        data.ScriptId       = GetScriptId(fields[23].GetString());
+        data.inhabitType    = int32(fields[23].GetInt8());
+        data.ScriptId       = GetScriptId(fields[24].GetString());
         if (!data.ScriptId)
             data.ScriptId = cInfo->ScriptID;
 
@@ -2015,6 +2016,12 @@ void ObjectMgr::LoadCreatures()
                 TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phasegroup` %u does not exist, set to 0", guid, data.id, data.phaseGroup);
                 data.phaseGroup = 0;
             }
+        }
+
+        if (data.inhabitType < -1 || cInfo->InhabitType > INHABIT_ALL)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with wrong value (%u) in `InhabitType`, creature will take inhabitType from template.", guid, data.id, data.inhabitType);
+            data.inhabitType = -1;
         }
 
         if (sWorld->getBoolConfig(CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA))
