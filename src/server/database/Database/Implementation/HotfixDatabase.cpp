@@ -691,7 +691,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "UncommonPropertiesPoints5 FROM rand_prop_points ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // RewardPack.db2
-    PrepareStatement(HOTFIX_SEL_REWARD_PACK, "SELECT ID, Money, ArtifactPowerMultiplier, ArtifactQuestXPIndex, ArtifactCategoryID, TitleID, Unk"
+    PrepareStatement(HOTFIX_SEL_REWARD_PACK, "SELECT ID, Money, ArtifactXPMultiplier, ArtifactXPDifficulty, ArtifactCategoryID, TitleID, Unused"
         " FROM reward_pack ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // RewardPackXItem.db2

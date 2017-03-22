@@ -4303,7 +4303,7 @@ struct RewardPackMeta
 {
     static DB2Meta const* Instance()
     {
-        static char const* types = "ifbbii";
+        static char const* types = "ifiiii";
         static uint8 const arraySizes[6] = { 1, 1, 1, 1, 1, 1 };
         static DB2Meta instance(-1, 6, 0x4AE87C13, types, arraySizes);
         return &instance;

@@ -3533,9 +3533,9 @@ struct RewardPackLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_INT, "Money" },
-            { false, FT_FLOAT, "ArtifactPowerMultiplier" },
-            { false, FT_BYTE, "ArtifactQuestXPIndex" },
-            { false, FT_BYTE, "ArtifactCategoryID" },
+            { false, FT_FLOAT, "ArtifactXPMultiplier" },
+            { false, FT_INT, "ArtifactXPDifficulty" },
+            { false, FT_INT, "ArtifactCategoryID" },
             { false, FT_INT, "TitleID" },
             { false, FT_INT, "Unk" },
         };

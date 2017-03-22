@@ -2070,11 +2070,11 @@ struct RewardPackEntry
 {
     uint32 ID;
     uint32 Money;
-    float ArtifactPowerMultiplier;
-    uint8 ArtifactQuestXPIndex;
-    uint8 ArtifactCategoryID;
+    float ArtifactXPMultiplier;
+    uint32 ArtifactXPDifficulty;
+    uint32 ArtifactCategoryID;
     uint32 TitleID;
-    uint32 Unk;
+    uint32 Unused;
 };
 
 struct RewardPackXItemEntry

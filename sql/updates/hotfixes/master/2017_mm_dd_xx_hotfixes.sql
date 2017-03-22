@@ -32,11 +32,11 @@ DROP TABLE IF EXISTS `reward_pack`;
 CREATE TABLE `reward_pack` (
   `ID` int(10) unsigned NOT NULL DEFAULT '0',
   `Money` int(10) unsigned NOT NULL DEFAULT '0',
-  `ArtifactPowerMultiplier` float NOT NULL DEFAULT '0',
-  `ArtifactQuestXPIndex` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `ArtifactCategoryID` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `ArtifactXPMultiplier` float NOT NULL DEFAULT '0',
+  `ArtifactXPDifficulty` int(10) unsigned NOT NULL DEFAULT '0',
+  `ArtifactCategoryID` int(10) unsigned NOT NULL DEFAULT '0',
   `TitleID` int(10) unsigned NOT NULL DEFAULT '0',
-  `Unk` int(10) unsigned NOT NULL DEFAULT '0',
+  `Unused` int(10) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(6) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
