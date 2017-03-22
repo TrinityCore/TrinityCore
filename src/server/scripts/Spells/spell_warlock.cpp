@@ -1417,8 +1417,7 @@ public:
 
             for (AreaTrigger* rainOfFireAreaTrigger : rainOfFireAreaTriggers)
             {
-                GuidUnorderedSet insideTargets = rainOfFireAreaTrigger->GetInsideUnits();
-
+                GuidUnorderedSet const& insideTargets = rainOfFireAreaTrigger->GetInsideUnits();
                 targetsInRainOfFire.insert(insideTargets.begin(), insideTargets.end());
             }
 
