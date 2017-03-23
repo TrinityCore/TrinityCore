@@ -1156,8 +1156,10 @@ enum SMARTAI_TARGETS
     SMART_TARGET_CLOSEST_ENEMY                  = 25,   // maxDist, playerOnly
     SMART_TARGET_CLOSEST_FRIENDLY               = 26,   // maxDist, playerOnly
     SMART_TARGET_LOOT_RECIPIENTS                = 27,   // all players that have tagged this creature (for kill credit)
+    SMART_TARGET_FARTHEST                       = 28,   // maxDist, playerOnly, isInLos
+    SMART_TARGET_VEHICLE_ACCESSORY              = 29,   // seat number (vehicle can target it's own accessory)
 
-    SMART_TARGET_END                            = 28
+    SMART_TARGET_END                            = 30
 };
 
 struct SmartTarget
@@ -1261,6 +1263,11 @@ struct SmartTarget
             uint32 param2;
             uint32 param3;
         } raw;
+
+        struct
+        {
+            uint32 seat;
+        } vehicle;
     };
 };
 
