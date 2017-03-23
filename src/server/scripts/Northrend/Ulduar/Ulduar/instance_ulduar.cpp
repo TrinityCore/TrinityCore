@@ -54,6 +54,10 @@ static DoorData const doorData[] =
     { GO_MIMIRON_DOOR_2,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
     { GO_MIMIRON_DOOR_3,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
     { GO_THORIM_ENCOUNTER_DOOR,         BOSS_THORIM,            DOOR_TYPE_ROOM },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_HODIR,             DOOR_TYPE_ROOM },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_MIMIRON,           DOOR_TYPE_ROOM },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_THORIM,            DOOR_TYPE_ROOM },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_FREYA,             DOOR_TYPE_ROOM },
     { GO_VEZAX_DOOR,                    BOSS_VEZAX,             DOOR_TYPE_PASSAGE },
     { GO_YOGG_SARON_DOOR,               BOSS_YOGG_SARON,        DOOR_TYPE_ROOM },
     { GO_DOODAD_UL_SIGILDOOR_03,        BOSS_ALGALON,           DOOR_TYPE_ROOM },
@@ -93,6 +97,7 @@ ObjectData const creatureData[] =
     { NPC_SIF,                      DATA_SIF                      },
     { NPC_RUNIC_COLOSSUS,           DATA_RUNIC_COLOSSUS           },
     { NPC_RUNE_GIANT,               DATA_RUNE_GIANT               },
+    { NPC_THORIM_CONTROLLER,        DATA_THORIM_CONTROLLER        },
     { NPC_COMPUTER,                 DATA_COMPUTER                 },
     { NPC_WORLD_TRIGGER_MIMIRON,    DATA_MIMIRON_WORLD_TRIGGER    },
     { NPC_VOICE_OF_YOGG_SARON,      DATA_VOICE_OF_YOGG_SARON      },
@@ -165,6 +170,8 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid XTToyPileGUIDs[4];
             ObjectGuid AssemblyGUIDs[3];
 
+            ObjectGuid SifBlizzardGUID;
+
             ObjectGuid ElderGUIDs[3];
             ObjectGuid FreyaAchieveTriggerGUID;
             ObjectGuid MimironVehicleGUIDs[3];
@@ -174,6 +181,7 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid LeviathanGateGUID;
             ObjectGuid KologarnChestGUID;
             ObjectGuid KologarnBridgeGUID;
+            ObjectGuid ThorimDarkIronPortcullisGUID;
             ObjectGuid CacheOfStormsGUID;
             ObjectGuid CacheOfStormsHardmodeGUID;
             ObjectGuid HodirRareCacheGUID;
@@ -332,6 +340,20 @@ class instance_ulduar : public InstanceMapScript
                             creature->UpdateEntry(NPC_BATTLE_PRIEST_GINA);
                         break;
 
+                    // Thorim
+                    case NPC_THORIM_EVENT_BUNNY:
+                        if (creature->GetWaypointPath())
+                            SifBlizzardGUID = creature->GetGUID();
+                        break;
+                    case NPC_MERCENARY_CAPTAIN_A:
+                        if (TeamInInstance == HORDE)
+                            creature->UpdateEntry(NPC_MERCENARY_CAPTAIN_H);
+                        break;
+                    case NPC_MERCENARY_SOLDIER_A:
+                        if (TeamInInstance == HORDE)
+                            creature->UpdateEntry(NPC_MERCENARY_SOLDIER_H);
+                        break;
+
                     // Freya
                     case NPC_IRONBRANCH:
                         ElderGUIDs[0] = creature->GetGUID();
@@ -446,6 +468,9 @@ class instance_ulduar : public InstanceMapScript
                         KologarnBridgeGUID = gameObject->GetGUID();
                         if (GetBossState(BOSS_KOLOGARN) == DONE)
                             HandleGameObject(ObjectGuid::Empty, false, gameObject);
+                        break;
+                    case GO_THORIM_DARK_IRON_PORTCULLIS:
+                        ThorimDarkIronPortcullisGUID = gameObject->GetGUID();
                         break;
                     case GO_CACHE_OF_STORMS_10:
                     case GO_CACHE_OF_STORMS_25:
@@ -669,7 +694,13 @@ class instance_ulduar : public InstanceMapScript
                                     cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                                 }
                             }
+
                             instance->SummonCreature(NPC_THORIM_OBSERVATION_RING, ObservationRingKeepersPos[2]);
+                        }
+                        else
+                        {
+                            DoCloseDoorOrButton(GetGuidData(DATA_THORIM_LEVER));
+                            DoCloseDoorOrButton(ThorimDarkIronPortcullisGUID);
                         }
                         break;
                     case BOSS_ALGALON:
@@ -798,6 +829,10 @@ class instance_ulduar : public InstanceMapScript
                         return ElderGUIDs[1];
                     case BOSS_STONEBARK:
                         return ElderGUIDs[2];
+
+                    // Thorim
+                    case DATA_SIF_BLIZZARD:
+                        return SifBlizzardGUID;
 
                     // Mimiron
                     case DATA_LEVIATHAN_MK_II:
