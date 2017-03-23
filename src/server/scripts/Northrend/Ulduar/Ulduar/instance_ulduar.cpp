@@ -40,7 +40,7 @@ static BossBoundaryData const boundaries =
     { BOSS_ALGALON, new CircleBoundary(Position(1632.668f, -307.7656f), 45.0) },
     { BOSS_ALGALON, new ZRangeBoundary(410.0f, 440.0f) },
     { BOSS_HODIR, new EllipseBoundary(Position(2001.5f, -240.0f), 50.0, 75.0) },
-    { BOSS_THORIM, new CircleBoundary(Position(2134.73f, -263.2f), 50.0) },
+    // Thorim sets boundaries dinamically
     { BOSS_FREYA, new RectangleBoundary(2094.6f, 2520.0f, -250.0f, 200.0f) },
     { BOSS_MIMIRON, new CircleBoundary(Position(2744.0f, 2569.0f), 70.0) },
     { BOSS_VEZAX, new RectangleBoundary(1740.0f, 1930.0f, 31.0f, 228.0f) },
@@ -60,6 +60,10 @@ static DoorData const doorData[] =
     { GO_MIMIRON_DOOR_2,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
     { GO_MIMIRON_DOOR_3,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
     { GO_THORIM_ENCOUNTER_DOOR,         BOSS_THORIM,            DOOR_TYPE_ROOM },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_HODIR,             DOOR_TYPE_PASSAGE },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_MIMIRON,           DOOR_TYPE_PASSAGE },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_THORIM,            DOOR_TYPE_PASSAGE },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_FREYA,             DOOR_TYPE_PASSAGE },
     { GO_VEZAX_DOOR,                    BOSS_VEZAX,             DOOR_TYPE_PASSAGE },
     { GO_YOGG_SARON_DOOR,               BOSS_YOGG_SARON,        DOOR_TYPE_ROOM },
     { GO_DOODAD_UL_SIGILDOOR_03,        BOSS_ALGALON,           DOOR_TYPE_ROOM },
@@ -99,6 +103,7 @@ ObjectData const creatureData[] =
     { NPC_SIF,                      DATA_SIF                      },
     { NPC_RUNIC_COLOSSUS,           DATA_RUNIC_COLOSSUS           },
     { NPC_RUNE_GIANT,               DATA_RUNE_GIANT               },
+    { NPC_THORIM_CONTROLLER,        DATA_THORIM_CONTROLLER        },
     { NPC_COMPUTER,                 DATA_COMPUTER                 },
     { NPC_WORLD_TRIGGER_MIMIRON,    DATA_MIMIRON_WORLD_TRIGGER    },
     { NPC_VOICE_OF_YOGG_SARON,      DATA_VOICE_OF_YOGG_SARON      },
@@ -180,6 +185,7 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid LeviathanGateGUID;
             ObjectGuid KologarnChestGUID;
             ObjectGuid KologarnBridgeGUID;
+            ObjectGuid ThorimDarkIronPortcullisGUID;
             ObjectGuid CacheOfStormsGUID;
             ObjectGuid CacheOfStormsHardmodeGUID;
             ObjectGuid HodirRareCacheGUID;
@@ -338,6 +344,16 @@ class instance_ulduar : public InstanceMapScript
                             creature->UpdateEntry(NPC_BATTLE_PRIEST_GINA);
                         break;
 
+                    // Thorim
+                    case NPC_MERCENARY_CAPTAIN_H:
+                        if (TeamInInstance == HORDE)
+                            creature->UpdateEntry(NPC_MERCENARY_CAPTAIN_A);
+                        break;
+                    case NPC_MERCENARY_SOLDIER_H:
+                        if (TeamInInstance == HORDE)
+                            creature->UpdateEntry(NPC_MERCENARY_SOLDIER_A);
+                        break;
+
                     // Freya
                     case NPC_IRONBRANCH:
                         ElderGUIDs[0] = creature->GetGUID();
@@ -454,6 +470,9 @@ class instance_ulduar : public InstanceMapScript
                         KologarnBridgeGUID = gameObject->GetGUID();
                         if (GetBossState(BOSS_KOLOGARN) == DONE)
                             HandleGameObject(ObjectGuid::Empty, false, gameObject);
+                        break;
+                    case GO_THORIM_DARK_IRON_PORTCULLIS:
+                        ThorimDarkIronPortcullisGUID = gameObject->GetGUID();
                         break;
                     case GO_CACHE_OF_STORMS_10:
                     case GO_CACHE_OF_STORMS_25:
@@ -679,7 +698,13 @@ class instance_ulduar : public InstanceMapScript
                                     cache->RemoveFlag(GO_FLAG_NODESPAWN);
                                 }
                             }
+
                             instance->SummonCreature(NPC_THORIM_OBSERVATION_RING, ObservationRingKeepersPos[2]);
+                        }
+                        else
+                        {
+                            DoCloseDoorOrButton(GetGuidData(DATA_THORIM_LEVER));
+                            DoCloseDoorOrButton(ThorimDarkIronPortcullisGUID);
                         }
                         break;
                     case BOSS_ALGALON:
