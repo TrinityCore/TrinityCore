@@ -58,10 +58,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_1       = 29841,
     SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_2       = 29842,
     SPELL_WARRIOR_SHIELD_SLAM                       = 23922,
-    SPELL_WARRIOR_SHIELD_WALL                       = 871,
-    SPELL_WARRIOR_SHIELD_OF_WALL_NOSHIELD           = 146128,
-    SPELL_WARRIOR_SHIELD_OF_WALL_HORDE              = 146127,
-    SPELL_WARRIOR_SHIELD_OF_WALL_ALLIANCE           = 147925,
+    SPELL_WARRIOR_SHIELD_OF_WALL                    = 146128,
     SPELL_WARRIOR_SHOCKWAVE                         = 46968,
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_SLAM                              = 50782,
@@ -885,17 +882,9 @@ public:
             if (!GetCaster())
                 return;
 
-            if (Player* _player = GetCaster()->ToPlayer())
+            if (Player* player = GetCaster()->ToPlayer())
             {
-                if (_player->GetShield())
-                    _player->AddAura(SPELL_WARRIOR_SHIELD_OF_WALL_NOSHIELD, _player);
-                else
-                {
-                    if (_player->GetTeam() == HORDE)
-                        _player->AddAura(SPELL_WARRIOR_SHIELD_OF_WALL_HORDE, _player);
-                    else
-                        _player->AddAura(SPELL_WARRIOR_SHIELD_OF_WALL_ALLIANCE, _player);
-                }
+                player->AddAura(SPELL_WARRIOR_SHIELD_OF_WALL, player);   
             }
         }
 
@@ -904,25 +893,20 @@ public:
             if (!GetCaster())
                 return;
 
-            if (Player* _player = GetCaster()->ToPlayer())
+            if (Player* player = GetCaster()->ToPlayer())
             {
-                if (_player->HasAura(SPELL_WARRIOR_SHIELD_OF_WALL_NOSHIELD))
-                    _player->RemoveAura(SPELL_WARRIOR_SHIELD_OF_WALL_NOSHIELD);
-                else if (_player->HasAura(SPELL_WARRIOR_SHIELD_OF_WALL_HORDE))
-                    _player->RemoveAura(SPELL_WARRIOR_SHIELD_OF_WALL_HORDE);
-                else
-                    _player->RemoveAura(SPELL_WARRIOR_SHIELD_OF_WALL_ALLIANCE);
+                player->RemoveAura(SPELL_WARRIOR_SHIELD_OF_WALL);
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectApply += AuraEffectApplyFn(spell_warr_shield_wall_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
             OnEffectRemove += AuraEffectRemoveFn(spell_warr_shield_wall_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_warr_shield_wall_AuraScript();
     }
