@@ -3300,6 +3300,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 65042: // Prison of Yogg-Saron Teleport
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
+            case 64745: // Item - Death Knight T8 Tank 4P Bonus
+            case 64936: // Item - Warrior T8 Protection 4P Bonus
+                spellInfo->EffectBasePoints[0] = 101; // negative proc chance (-10)
+                break;
             // ENDOF ULDUAR SPELLS
             //
             // TRIAL OF THE CRUSADER SPELLS
