@@ -754,7 +754,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                 continue;
 
             // local name
-            if (localeConstant >= 0)
+            if (localeConstant >= LOCALE_enUS)
                 if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->ItemId))
                     ObjectMgr::GetLocaleString(il->Name, localeConstant, name);
 
