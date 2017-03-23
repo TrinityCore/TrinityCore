@@ -2005,7 +2005,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
             void RemoveAliveTarget(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(AliveCheck());
-                Trinity::Containers::RandomResizeList(targets, 2);
+                Trinity::Containers::RandomResize(targets, 2);
             }
 
             void Land(SpellEffIndex /*effIndex*/)

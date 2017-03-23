@@ -26,6 +26,8 @@ class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
 class SpellInfo;
 class Unit;
+class AreaTriggerAI;
+
 struct AreaTriggerPolygonVertice;
 
 class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigger>, public MapObject
@@ -36,6 +38,11 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
+
+        void AI_Initialize();
+        void AI_Destroy();
+
+        AreaTriggerAI* AI() { return _ai.get(); }
 
         bool CreateAreaTrigger(uint32 triggerEntry, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty);
         void Update(uint32 p_time) override;
@@ -109,6 +116,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
         GuidUnorderedSet _insideUnits;
+
+        std::unique_ptr<AreaTriggerAI> _ai;
 };
 
 #endif

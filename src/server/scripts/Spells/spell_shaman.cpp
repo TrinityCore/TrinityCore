@@ -135,7 +135,7 @@ public:
 
         void ResizeTargets(std::list<WorldObject*>& targets)
         {
-            Trinity::Containers::RandomResizeList(targets, 3);
+            Trinity::Containers::RandomResize(targets, 3);
         }
 
         void Register() override
@@ -494,7 +494,7 @@ class spell_sha_healing_stream_totem_heal : public SpellScriptLoader
                     return !target->ToUnit() || target->ToUnit()->IsFullHealth();
                 });
 
-                Trinity::Containers::RandomResizeList(targets, 1);
+                Trinity::Containers::RandomResize(targets, 1);
 
                 if (targets.empty())
                     targets.push_back(GetOriginalCaster());
@@ -869,7 +869,7 @@ public:
         void FilterTargets(std::list<WorldObject*>& targets)
         {
             targets.remove(GetExplTargetUnit());
-            Trinity::Containers::RandomResizeList(targets, [this](WorldObject* target)
+            Trinity::Containers::RandomResize(targets, [this](WorldObject* target)
             {
                 return target->GetTypeId() == TYPEID_UNIT && !target->ToUnit()->HasAura(SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM, GetCaster()->GetGUID());
             }, 1);
