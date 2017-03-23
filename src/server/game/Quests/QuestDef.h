@@ -253,9 +253,11 @@ struct QuestTemplateLocale
     StringVector PortraitTurnInText;
     StringVector PortraitTurnInName;
     StringVector QuestCompletionLog;
+};
 
-    /// @todo: implemente this in new tables
-    StringVector RequestItemsText;
+struct QuestRequestItemsLocale
+{
+    StringVector CompletionText;
 };
 
 struct QuestObjectivesLocale

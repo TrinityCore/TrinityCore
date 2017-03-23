@@ -194,7 +194,7 @@ class boss_mandokir : public CreatureScript
                         GetCreatureListWithEntryInGrid(creatures, me, NPC_CHAINED_SPIRIT, 200.0f);
                         creatures.remove_if(Trinity::AnyDeadUnitCheck());
                         creatures.remove_if(Trinity::UnitAuraCheck(true, SPELL_OHGAN_ORDERS_TRIGGER));
-                        Trinity::Containers::RandomResizeList(creatures, 1);
+                        Trinity::Containers::RandomResize(creatures, 1);
                         if (creatures.empty())
                             return;
 
