@@ -14630,7 +14630,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
         {
             for (QuestObjective const& obj : qInfo->GetObjectives())
             {
-                if (!IsQuestObjectiveComplete(qInfo, obj))
+                if (!IsQuestObjectiveComplete(obj))
                     return false;
             }
 
@@ -16756,8 +16756,11 @@ int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
     return status.ObjectiveData[storageIndex];
 }
 
-bool Player::IsQuestObjectiveComplete(Quest const* quest, QuestObjective const& objective) const
+bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
 {
+    Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID);
+    ASSERT(quest);
+
     switch (objective.Type)
     {
         case QUEST_OBJECTIVE_MONSTER:
@@ -16797,7 +16800,7 @@ bool Player::IsQuestObjectiveComplete(Quest const* quest, QuestObjective const& 
             break;
         default:
             TC_LOG_ERROR("entities.player.quest", "Player::CanCompleteQuest: Player '%s' (%s) tried to complete a quest (ID: %u) with an unknown objective type %u",
-                GetName().c_str(), GetGUID().ToString().c_str(), quest->ID, objective.Type);
+                GetName().c_str(), GetGUID().ToString().c_str(), objective.QuestID, objective.Type);
             return false;
     }
     
