@@ -319,7 +319,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //251 SPELL_EFFECT_SET_GARRISON_CACHE_SIZE
     &Spell::EffectTeleportUnits,                            //252 SPELL_EFFECT_TELEPORT_UNITS
     &Spell::EffectNULL,                                     //253 SPELL_EFFECT_GIVE_HONOR
-    &Spell::EffectJumpDest,                                 //254 SPELL_EFFECT_254
+    &Spell::EffectNULL,                                     //254 SPELL_EFFECT_254
     &Spell::EffectNULL,                                     //255 SPELL_EFFECT_LEARN_TRANSMOG_SET
 };
 
@@ -889,18 +889,7 @@ void Spell::EffectJumpDest(SpellEffIndex /*effIndex*/)
     CalculateJumpSpeeds(effectInfo, m_caster->GetExactDist2d(destTarget), speedXY, speedZ);
     JumpArrivalCastArgs arrivalCast;
     arrivalCast.SpellId = effectInfo->TriggerSpell;
-    Optional<Movement::SpellEffectExtraData> extra;
-    if (m_spellInfo->Id == 191428)
-    {
-        // 0.88 - time, A CONSTANT
-        // 0.001 - parabolic max_height - THIS IS A CONSTANT!!!
-        // 0.19642354884476423184854952469683 - speedZ - CONSTANT FOR MAX_HEIGHT
-        // EFFECT_254 = SPELL_EFFECT_JUMP_CONSTANT_TIME?
-        // time taken from curve?
-        extra = boost::in_place();
-        extra->ProgressCurveId = 1717;
-    }
-    m_caster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, !m_targets.GetObjectTargetGUID().IsEmpty(), &arrivalCast, extra.get_ptr());
+    m_caster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, !m_targets.GetObjectTargetGUID().IsEmpty(), &arrivalCast);
 }
 
 void Spell::CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedXY, float& speedZ)
