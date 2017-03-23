@@ -682,7 +682,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
     uint32& count, uint32& totalcount, bool getall)
 {
-    int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
+    LocaleConstant localeConstant = player->GetSession()->GetSessionDbLocaleIndex();
     int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
     time_t curTime = GameTime::GetGameTime();
@@ -754,9 +754,9 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                 continue;
 
             // local name
-            if (loc_idx >= 0)
+            if (localeConstant >= 0)
                 if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->ItemId))
-                    ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
+                    ObjectMgr::GetLocaleString(il->Name, localeConstant, name);
 
             // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result
             //  that matches the search but it may not equal item->GetItemRandomPropertyId()

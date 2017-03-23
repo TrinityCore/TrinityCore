@@ -14682,19 +14682,19 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                 {
                     title = gossiptext->Options[0].Text_0;
 
-                    int loc_idx = GetSession()->GetSessionDbLocaleIndex();
-                    if (loc_idx >= 0)
+                    LocaleConstant localeConstant = GetSession()->GetSessionDbLocaleIndex();
+                    if (localeConstant >= 0)
                         if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
-                            ObjectMgr::GetLocaleString(nl->Text_0[0], loc_idx, title);
+                            ObjectMgr::GetLocaleString(nl->Text_0[0], localeConstant, title);
                 }
                 else
                 {
                     title = gossiptext->Options[0].Text_1;
 
-                    int loc_idx = GetSession()->GetSessionDbLocaleIndex();
-                    if (loc_idx >= 0)
+                    LocaleConstant localeConstant = GetSession()->GetSessionDbLocaleIndex();
+                    if (localeConstant >= 0)
                         if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
-                            ObjectMgr::GetLocaleString(nl->Text_1[0], loc_idx, title);
+                            ObjectMgr::GetLocaleString(nl->Text_1[0], localeConstant, title);
                 }
             }
         }
@@ -16799,10 +16799,10 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver) const
     {
         std::string strTitle = quest->GetTitle();
 
-        int loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        LocaleConstant localeConstant = pReceiver->GetSession()->GetSessionDbLocaleIndex();
+        if (localeConstant >= 0)
             if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-                ObjectMgr::GetLocaleString(pLocale->Title, loc_idx, strTitle);
+                ObjectMgr::GetLocaleString(pLocale->Title, localeConstant, strTitle);
 
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
         data << uint32(quest->GetQuestId());

@@ -933,10 +933,10 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket& recvData)
     if (pName)
     {
         std::string Name = pName->name;
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+        if (localeConstant >= 0)
             if (ItemSetNameLocale const* isnl = sObjectMgr->GetItemSetNameLocale(itemid))
-                ObjectMgr::GetLocaleString(isnl->Name, loc_idx, Name);
+                ObjectMgr::GetLocaleString(isnl->Name, localeConstant, Name);
 
         WorldPacket data(SMSG_ITEM_NAME_QUERY_RESPONSE, (4+Name.size()+1+4));
         data << uint32(itemid);
