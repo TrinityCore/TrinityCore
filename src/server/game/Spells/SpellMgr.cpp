@@ -3418,14 +3418,16 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Jump
     ApplySpellFix({ 71809 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(3); // 20yd
-        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS); // 25yd
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS); // 10yd
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MiscValue = 190;
     });
 
     // Broken Frostmourne
     ApplySpellFix({ 72405 }, [](SpellInfo* spellInfo)
     {
-        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_200_YARDS); // 200yd
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_1))->RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_20_YARDS); // 20yd
+        spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
     });
     // ENDOF ICECROWN CITADEL SPELLS
 
