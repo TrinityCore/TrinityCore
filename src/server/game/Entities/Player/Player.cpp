@@ -6535,6 +6535,15 @@ void Player::SetHonorLevel(uint8 level)
 
     UpdateCriteria(CRITERIA_TYPE_HONOR_LEVEL_REACHED);
 
+    // This code is here because no link was found between those items and this reward condition in the db2 files.
+    if (level == 50 && prestige == 1)
+    {
+        if (GetTeam() == ALLIANCE)
+            AddItem(138992, 1);
+        else
+            AddItem(138996, 1);
+    }
+
     if (CanPrestige())
         Prestige();
 }
@@ -16886,7 +16895,7 @@ bool Player::IsQuestObjectiveComplete(Quest const* quest, QuestObjective const& 
                 GetName().c_str(), GetGUID().ToString().c_str(), quest->ID, objective.Type);
             return false;
     }
-    
+
     return true;
 }
 
