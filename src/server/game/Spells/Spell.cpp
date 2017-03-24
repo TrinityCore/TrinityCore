@@ -1147,7 +1147,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
         {
             // Other special target selection goes here
             if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-                Trinity::Containers::RandomResizeList(targets, maxTargets);
+                Trinity::Containers::RandomResize(targets, maxTargets);
 
             for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
             {
@@ -1226,7 +1226,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     {
         // Other special target selection goes here
         if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
-            Trinity::Containers::RandomResizeList(targets, maxTargets);
+            Trinity::Containers::RandomResize(targets, maxTargets);
 
         for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
         {
@@ -2504,7 +2504,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     }
 
     // Check for SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER
-    if (m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
+    if (missInfo == SPELL_MISS_NONE && m_spellInfo->HasAttribute(SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER) && unit->GetTypeId() != TYPEID_PLAYER)
         caster->CastSpell(unit, SPELL_INTERRUPT_NONPLAYER, true);
 
     if (spellHitTarget)
@@ -3700,6 +3700,7 @@ void Spell::finish(bool ok)
                 break;
             }
         }
+
         if (!found && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS))
         {
             m_caster->resetAttackTimer(BASE_ATTACK);
@@ -5483,14 +5484,24 @@ SpellCastResult Spell::CheckCast(bool strict)
             case SPELL_EFFECT_TALENT_SPEC_SELECT:
             {
                 ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(m_misc.SpecializationId);
-                if (!spec || spec->ClassID != m_caster->getClass())
+                Player* player = m_caster->ToPlayer();
+                if (!player)
+                    return SPELL_FAILED_TARGET_NOT_PLAYER;
+
+                if (!spec || (spec->ClassID != m_caster->getClass() && !spec->IsPetSpecialization()))
                     return SPELL_FAILED_NO_SPEC;
 
+                if (spec->IsPetSpecialization())
+                {
+                    Pet* pet = player->GetPet();
+                    if (!pet || pet->getPetType() != HUNTER_PET || !pet->GetCharmInfo())
+                        return SPELL_FAILED_NO_PET;
+                }
+
                 // can't change during already started arena/battleground
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    if (Battleground const* bg = m_caster->ToPlayer()->GetBattleground())
-                        if (bg->GetStatus() == STATUS_IN_PROGRESS)
-                            return SPELL_FAILED_NOT_IN_BATTLEGROUND;
+                if (Battleground const* bg = player->GetBattleground())
+                    if (bg->GetStatus() == STATUS_IN_PROGRESS)
+                        return SPELL_FAILED_NOT_IN_BATTLEGROUND;
                 break;
             }
             case SPELL_EFFECT_REMOVE_TALENT:
@@ -6791,7 +6802,13 @@ bool Spell::IsNextMeleeSwingSpell() const
 bool Spell::IsAutoActionResetSpell() const
 {
     /// @todo changed SPELL_INTERRUPT_FLAG_AUTOATTACK -> SPELL_INTERRUPT_FLAG_INTERRUPT to fix compile - is this check correct at all?
-    return !IsTriggered() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT);
+    if (IsTriggered() || !(m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT))
+        return false;
+
+    if (!m_casttime && m_spellInfo->HasAttribute(SPELL_ATTR6_NOT_RESET_SWING_IF_INSTANT))
+        return false;
+
+    return true;
 }
 
 bool Spell::IsNeedSendToClient() const

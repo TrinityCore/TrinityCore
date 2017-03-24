@@ -16,32 +16,29 @@
  */
 
 #include "CascHandles.h"
-#include "CascLib.h"
+#include <CascLib.h>
 #include <boost/filesystem/operations.hpp>
 
-namespace
+char const* CASC::HumanReadableCASCError(DWORD error)
 {
-    const char* HumanReadableCASCError(int error)
+    switch (error)
     {
-        switch (error)
-        {
-            case ERROR_SUCCESS: return "SUCCESS";
-            case ERROR_FILE_CORRUPT: return "FILE_CORRUPT";
-            case ERROR_CAN_NOT_COMPLETE: return "CAN_NOT_COMPLETE";
-            case ERROR_HANDLE_EOF: return "HANDLE_EOF";
-            case ERROR_NO_MORE_FILES: return "NO_MORE_FILES";
-            case ERROR_BAD_FORMAT: return "BAD_FORMAT";
-            case ERROR_INSUFFICIENT_BUFFER: return "INSUFFICIENT_BUFFER";
-            case ERROR_ALREADY_EXISTS: return "ALREADY_EXISTS";
-            case ERROR_DISK_FULL: return "DISK_FULL";
-            case ERROR_INVALID_PARAMETER: return "INVALID_PARAMETER";
-            case ERROR_NOT_SUPPORTED: return "NOT_SUPPORTED";
-            case ERROR_NOT_ENOUGH_MEMORY: return "NOT_ENOUGH_MEMORY";
-            case ERROR_INVALID_HANDLE: return "INVALID_HANDLE";
-            case ERROR_ACCESS_DENIED: return "ACCESS_DENIED";
-            case ERROR_FILE_NOT_FOUND: return "FILE_NOT_FOUND";
-            default: return "UNKNOWN";
-        }
+        case ERROR_SUCCESS: return "SUCCESS";
+        case ERROR_FILE_CORRUPT: return "FILE_CORRUPT";
+        case ERROR_CAN_NOT_COMPLETE: return "CAN_NOT_COMPLETE";
+        case ERROR_HANDLE_EOF: return "HANDLE_EOF";
+        case ERROR_NO_MORE_FILES: return "NO_MORE_FILES";
+        case ERROR_BAD_FORMAT: return "BAD_FORMAT";
+        case ERROR_INSUFFICIENT_BUFFER: return "INSUFFICIENT_BUFFER";
+        case ERROR_ALREADY_EXISTS: return "ALREADY_EXISTS";
+        case ERROR_DISK_FULL: return "DISK_FULL";
+        case ERROR_INVALID_PARAMETER: return "INVALID_PARAMETER";
+        case ERROR_NOT_SUPPORTED: return "NOT_SUPPORTED";
+        case ERROR_NOT_ENOUGH_MEMORY: return "NOT_ENOUGH_MEMORY";
+        case ERROR_INVALID_HANDLE: return "INVALID_HANDLE";
+        case ERROR_ACCESS_DENIED: return "ACCESS_DENIED";
+        case ERROR_FILE_NOT_FOUND: return "FILE_NOT_FOUND";
+        default: return "UNKNOWN";
     }
 }
 
@@ -93,6 +90,11 @@ CASC::FileHandle CASC::OpenFile(StorageHandle const& storage, char const* fileNa
 DWORD CASC::GetFileSize(FileHandle const& file, PDWORD fileSizeHigh)
 {
     return ::CascGetFileSize(file.get(), fileSizeHigh);
+}
+
+DWORD CASC::GetFilePointer(FileHandle const& file)
+{
+    return ::CascSetFilePointer(file.get(), 0, nullptr, FILE_CURRENT);
 }
 
 bool CASC::ReadFile(FileHandle const& file, void* buffer, DWORD bytes, PDWORD bytesRead)

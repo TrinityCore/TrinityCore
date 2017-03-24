@@ -1473,6 +1473,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetArmorProficiency() const { return m_ArmorProficiency; }
         bool IsUseEquipedWeapon(bool mainhand) const;
         bool IsTwoHandUsed() const;
+        bool IsUsingTwoHandedWeaponInOneHand() const;
         void SendNewItem(Item* item, uint32 quantity, bool received, bool created, bool broadcast = false);
         bool BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
@@ -1547,6 +1548,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetQuestXPReward(Quest const* quest);
         bool CanSelectQuestPackageItem(QuestPackageItemEntry const* questPackageItem) const;
         void RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce = true);
+        void SetRewardedQuest(uint32 quest_id);
         void FailQuest(uint32 quest_id);
         bool SatisfyQuestSkill(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestLevel(Quest const* qInfo, bool msg) const;
@@ -1616,6 +1618,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanShareQuest(uint32 questId) const;
 
         int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;
+        bool IsQuestObjectiveComplete(Quest const* quest, QuestObjective const& objective) const;
         void SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data);
         void SendQuestComplete(Quest const* quest) const;
         void SendQuestReward(Quest const* quest, uint32 XP) const;
@@ -2160,7 +2163,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanBlock() const { return m_canBlock; }
         void SetCanBlock(bool value);
         bool CanTitanGrip() const { return m_canTitanGrip; }
-        void SetCanTitanGrip(bool value) { m_canTitanGrip = value; }
+        void SetCanTitanGrip(bool value, uint32 penaltySpellId = 0);
+        void CheckTitanGripPenalty();
         bool CanTameExoticPets() const { return IsGameMaster() || HasAuraType(SPELL_AURA_ALLOW_TAME_PET_TYPE); }
 
         void SetRegularAttackTime();
@@ -2743,6 +2747,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool m_canParry;
         bool m_canBlock;
         bool m_canTitanGrip;
+        uint32 m_titanGripPenaltySpellId;
         uint8 m_swingErrorMsg;
 
         ////////////////////Rest System/////////////////////
@@ -2782,6 +2787,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsAlwaysDetectableFor(WorldObject const* seer) const override;
 
         uint8 m_grantableLevels;
+
+        uint8 m_fishingSteps;
 
         std::array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> _CUFProfiles;
 

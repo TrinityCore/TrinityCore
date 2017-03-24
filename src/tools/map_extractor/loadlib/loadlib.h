@@ -20,17 +20,9 @@
 #define LOAD_LIB_H
 
 #include "Define.h"
-#ifdef PLATFORM_WINDOWS
-#undef PLATFORM_WINDOWS
-#endif
 #include "CascHandles.h"
-#include "CascLib.h"
 #include <map>
 #include <string>
-
-#ifndef _WIN32
-int GetLastError();
-#endif
 
 #define FILE_FORMAT_VERSION    18
 

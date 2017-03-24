@@ -442,6 +442,11 @@ struct ChrSpecializationEntry
     uint32 ID;
     uint32 Flags;
     uint32 AnimReplacementSetID;
+
+    bool IsPetSpecialization() const
+    {
+        return ClassID == 0;
+    }
 };
 
 struct CinematicCameraEntry
@@ -932,7 +937,6 @@ struct FactionTemplateEntry
         return EnemyMask == 0 && FriendMask == 0;
     }
     bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
-    bool ShouldSparAttack() const { return (Flags & FACTION_TEMPLATE_ENEMY_SPAR) != 0; }
 };
 
 struct GameObjectsEntry

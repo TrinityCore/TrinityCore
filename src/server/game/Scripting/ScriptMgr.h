@@ -29,6 +29,7 @@
 
 class AccountMgr;
 class AreaTrigger;
+class AreaTriggerAI;
 class AuctionHouseObject;
 class Aura;
 class AuraScript;
@@ -68,6 +69,8 @@ struct AreaTriggerEntry;
 struct AuctionEntry;
 struct ConditionSourceInfo;
 struct Condition;
+struct CreatureTemplate;
+struct CreatureData;
 struct ItemTemplate;
 struct MapEntry;
 struct OutdoorPvPData;
@@ -436,6 +439,9 @@ class TC_GAME_API CreatureScript : public UnitScript, public UpdatableScript<Cre
         // Called when the dialog status between a player and the creature is requested.
         virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
 
+        // Called when the creature tries to spawn. Return false to block spawn and re-evaluate on next tick.
+        virtual bool CanSpawn(ObjectGuid::LowType /*spawnId*/, uint32 /*entry*/, CreatureTemplate const* /*baseTemplate*/, CreatureTemplate const* /*actTemplate*/, CreatureData const* /*cData*/, Map const* /*map*/) const { return true; }
+
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const { return NULL; }
 };
@@ -739,7 +745,7 @@ class TC_GAME_API PlayerScript : public UnitScript
         virtual void OnMapChanged(Player* /*player*/) { }
 
         // Called after a player's quest status has been changed
-        virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/, QuestStatus /*status*/) { }
+        virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
 
         // Called when a player completes a movie
         virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
@@ -844,29 +850,9 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
         AreaTriggerEntityScript(const char* name);
 
     public:
-        // Called when the AreaTrigger has just been initialized, just before added to map
-        virtual void OnInitialize(AreaTrigger* /*areaTrigger*/) { }
 
-        // Called when the AreaTrigger has just been created
-        virtual void OnCreate(AreaTrigger* /*areaTrigger*/) { }
-
-        // Called on each AreaTrigger update
-        virtual void OnUpdate(AreaTrigger* /*areaTrigger*/, uint32 /*diff*/) { }
-
-        // Called when the AreaTrigger reach splineIndex
-        virtual void OnSplineIndexReached(AreaTrigger* /*areaTrigger*/, int /*splineIndex*/) { }
-
-        // Called when the AreaTrigger reach its destination
-        virtual void OnDestinationReached(AreaTrigger* /*areaTrigger*/) { }
-
-        // Called when an unit enter the AreaTrigger
-        virtual void OnUnitEnter(AreaTrigger* /*areaTrigger*/, Unit* /*unit*/) { }
-
-        // Called when an unit exit the AreaTrigger, or when the AreaTrigger is removed
-        virtual void OnUnitExit(AreaTrigger* /*areaTrigger*/, Unit* /*unit*/) { }
-
-        // Called when the AreaTrigger is removed
-        virtual void OnRemove(AreaTrigger* /*areaTrigger*/) { }
+        // Called when a AreaTriggerAI object is needed for the areatrigger.
+        virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return nullptr; }
 };
 
 class TC_GAME_API SceneScript : public ScriptObject
@@ -1016,6 +1002,7 @@ class TC_GAME_API ScriptMgr
         bool OnQuestSelect(Player* player, Creature* creature, Quest const* quest);
         bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt);
         uint32 GetDialogStatus(Player* player, Creature* creature);
+        bool CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemplate const* actTemplate, CreatureData const* cData, Map const* map);
         CreatureAI* GetCreatureAI(Creature* creature);
         void OnCreatureUpdate(Creature* creature, uint32 diff);
 
@@ -1123,7 +1110,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
-        void OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status);
+        void OnQuestStatusChange(Player* player, uint32 questId);
         void OnMovieComplete(Player* player, uint32 movieId);
 
     public: /* AccountScript */
@@ -1168,14 +1155,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* AreaTriggerEntityScript */
 
-        void OnAreaTriggerEntityInitialize(AreaTrigger* areaTrigger);
-        void OnAreaTriggerEntityCreate(AreaTrigger* areaTrigger);
-        void OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff);
-        void OnAreaTriggerEntitySplineIndexReached(AreaTrigger* areaTrigger, int splineIndex);
-        void OnAreaTriggerEntityDestinationReached(AreaTrigger* areaTrigger);
-        void OnAreaTriggerEntityUnitEnter(AreaTrigger* areaTrigger, Unit* unit);
-        void OnAreaTriggerEntityUnitExit(AreaTrigger* areaTrigger, Unit* unit);
-        void OnAreaTriggerEntityRemove(AreaTrigger* areaTrigger);
+        AreaTriggerAI* GetAreaTriggerAI(AreaTrigger* areaTrigger);
 
     public: /* SceneScript */
         void OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);

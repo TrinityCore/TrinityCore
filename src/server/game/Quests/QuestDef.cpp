@@ -217,6 +217,7 @@ void Quest::LoadQuestObjective(Field* fields)
 {
     QuestObjective obj;
     obj.ID = fields[0].GetUInt32();
+    obj.QuestID = fields[1].GetUInt32();
     obj.Type = fields[2].GetUInt8();
     obj.StorageIndex = fields[3].GetInt8();
     obj.ObjectID = fields[4].GetInt32();

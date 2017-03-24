@@ -913,6 +913,7 @@ struct GameObjectData
     uint8 artKit;
     uint32 phaseid;
     uint32 phaseGroup;
+    uint32 ScriptId;
     bool dbData;
 };
 
@@ -1075,7 +1076,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         Player* GetLootRecipient() const;
         Group* GetLootRecipientGroup() const;
-        void SetLootRecipient(Unit* unit);
+        void SetLootRecipient(Unit* unit, Group* group = nullptr);
         bool IsLootAllowedFor(Player const* player) const;
         bool HasLootRecipient() const { return !m_lootRecipient.IsEmpty() || !m_lootRecipientGroup.IsEmpty(); }
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
@@ -1124,7 +1125,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void EventInform(uint32 eventId, WorldObject* invoker = NULL);
 
-        virtual uint32 GetScriptId() const { return GetGOInfo()->ScriptId; }
+        virtual uint32 GetScriptId() const;
         GameObjectAI* AI() const { return m_AI; }
 
         std::string GetAIName() const;

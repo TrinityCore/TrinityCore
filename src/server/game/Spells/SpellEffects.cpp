@@ -930,8 +930,14 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
         orientation = m_targets.GetUnitTarget()->GetOrientation();
     TC_LOG_DEBUG("spells", "Spell::EffectTeleportUnits - teleport unit to %u %f %f %f %f\n", mapid, x, y, z, orientation);
 
-    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
-        unitTarget->ToPlayer()->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : 0);
+    if (Player* player = unitTarget->ToPlayer())
+    {
+        // Custom loading screen
+        if (uint32 customLoadingScreenId = effectInfo->MiscValue)
+            player->SendDirectMessage(WorldPackets::Spells::CustomLoadScreen(m_spellInfo->Id, customLoadingScreenId).Write());
+
+        player->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL | TELE_TO_NOT_LEAVE_COMBAT : 0);
+    }
     else if (mapid == unitTarget->GetMapId())
         unitTarget->NearTeleportTo(x, y, z, orientation, unitTarget == m_caster);
     else
@@ -3223,25 +3229,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Glyph of Backstab
-                case 63975:
-                {
-                    // search our Rupture aura on target
-                    if (AuraEffect const* aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, flag128(0x00100000, 0, 0), m_caster->GetGUID()))
-                    {
-                        uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                        uint32 countMax = 12000; // this can be wrong, duration should be based on combo-points
-                        countMax += m_caster->HasAura(56801) ? 4000 : 0;
-
-                        if (countMin < countMax)
-                        {
-                            aurEff->GetBase()->SetDuration(uint32(aurEff->GetBase()->GetDuration() + 3000));
-                            aurEff->GetBase()->SetMaxDuration(countMin + 2000);
-                        }
-
-                    }
-                    return;
-                }
                 // Glyph of Scourge Strike
                 case 69961:
                 {
@@ -4266,8 +4253,8 @@ void Spell::EffectQuestComplete(SpellEffIndex /*effIndex*/)
         uint16 logSlot = player->FindQuestSlot(questId);
         if (logSlot < MAX_QUEST_LOG_SIZE)
             player->AreaExploredOrEventHappens(questId);
-        else if (player->CanTakeQuest(quest, false))    // never rewarded before
-            player->CompleteQuest(questId);             // quest not in log - for internal use
+        else if (player->CanTakeQuest(quest, false))    // Check if the quest has already been turned in.
+            player->SetRewardedQuest(questId);          // If not, set status to rewarded without broadcasting it to client.
     }
 }
 
@@ -4357,15 +4344,22 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
         float speed = G3D::fuzzyGt(m_spellInfo->Speed, 0.0f) ? m_spellInfo->Speed : SPEED_CHARGE;
+        Optional<Movement::SpellEffectExtraData> spellEffectExtraData;
+        if (effectInfo->MiscValueB)
+        {
+            spellEffectExtraData = boost::in_place();
+            spellEffectExtraData->Target = unitTarget->GetGUID();
+            spellEffectExtraData->SpellVisualId = effectInfo->MiscValueB;
+        }
         // Spell is not using explicit target - no generated path
         if (m_preGeneratedPath.GetPathType() == PATHFIND_BLANK)
         {
             //unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             Position pos = unitTarget->GetFirstCollisionPosition(unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
-            m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed);
+            m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed, EVENT_CHARGE, false, unitTarget, spellEffectExtraData.get_ptr());
         }
         else
-            m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath, speed);
+            m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath, speed, unitTarget, spellEffectExtraData.get_ptr());
     }
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -4381,10 +4375,10 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
+    if (!destTarget)
         return;
 
-    if (m_targets.HasDst())
+    if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH)
     {
         Position pos = destTarget->GetPosition();
         float angle = m_caster->GetRelativeAngle(pos.GetPositionX(), pos.GetPositionY());
@@ -4392,6 +4386,11 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
         pos = m_caster->GetFirstCollisionPosition(dist, angle);
 
         m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+    }
+    else if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
+    {
+        if (effectInfo->TriggerSpell)
+            m_caster->CastSpell(unitTarget, effectInfo->TriggerSpell, true, nullptr, nullptr, m_originalCasterGUID);
     }
 }
 
@@ -4492,6 +4491,8 @@ void Spell::EffectQuestClear(SpellEffIndex /*effIndex*/)
 
     player->RemoveActiveQuest(quest_id, false);
     player->RemoveRewardedQuest(quest_id);
+
+    sScriptMgr->OnQuestStatusChange(player, quest_id);
 }
 
 void Spell::EffectSendTaxi(SpellEffIndex /*effIndex*/)
@@ -5243,7 +5244,7 @@ void Spell::EffectTitanGrip(SpellEffIndex /*effIndex*/)
         return;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetCanTitanGrip(true);
+        m_caster->ToPlayer()->SetCanTitanGrip(true, uint32(effectInfo->MiscValue));
 }
 
 void Spell::EffectRedirectThreat(SpellEffIndex /*effIndex*/)
@@ -5400,7 +5401,15 @@ void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    unitTarget->ToPlayer()->ActivateTalentGroup(sChrSpecializationStore.AssertEntry(m_misc.SpecializationId));
+    Player* player = unitTarget->ToPlayer();
+    uint32 specID = m_misc.SpecializationId;
+    ChrSpecializationEntry const* spec = sChrSpecializationStore.AssertEntry(specID);
+
+    // Safety checks done in Spell::CheckCast
+    if (!spec->IsPetSpecialization())
+        player->ActivateTalentGroup(spec);
+    else
+        player->GetPet()->SetSpecialization(specID);
 }
 
 void Spell::EffectPlaySound(SpellEffIndex /*effIndex*/)

@@ -15,67 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DB2_FILE_LOADER_H
-#define DB2_FILE_LOADER_H
+#ifndef DB2_DATABASE_LOADER_H
+#define DB2_DATABASE_LOADER_H
 
-#include "Define.h"
+#include "DB2FileLoader.h"
 #include "Implementation/HotfixDatabase.h"
 
-class DB2FileLoaderImpl;
-struct DB2Meta;
-struct DB2FieldMeta;
-
-#pragma pack(push, 1)
-struct DB2Header
-{
-    uint32 Signature;
-    uint32 RecordCount;
-    uint32 FieldCount;
-    uint32 RecordSize;
-    uint32 StringTableSize;
-    uint32 TableHash;
-    uint32 LayoutHash;
-    uint32 MinId;
-    uint32 MaxId;
-    uint32 Locale;
-    uint32 CopyTableSize;
-    uint16 Flags;
-    int16 IndexField;
-};
-#pragma pack(pop)
-
-struct TC_SHARED_API DB2LoadInfo
+struct TC_SHARED_API DB2LoadInfo : public DB2FileLoadInfo
 {
     DB2LoadInfo();
     DB2LoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta, HotfixDatabaseStatements statement);
 
-    uint32 GetStringFieldCount(bool localizedOnly) const;
-
-    DB2FieldMeta const* Fields;
-    std::size_t FieldCount;
-    DB2Meta const* Meta;
     HotfixDatabaseStatements Statement;
-    std::string TypesString;
-};
-
-class TC_SHARED_API DB2FileLoader
-{
-public:
-    DB2FileLoader();
-    ~DB2FileLoader();
-
-    bool Load(char const* filename, DB2LoadInfo const* loadInfo);
-    char* AutoProduceData(uint32& count, char**& indexTable, std::vector<char*>& stringPool);
-    char* AutoProduceStrings(char* dataTable, uint32 locale);
-    void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable);
-
-    uint32 GetCols() const { return _header.FieldCount; }
-    uint32 GetTableHash() const { return _header.TableHash; }
-    uint32 GetLayoutHash() const { return _header.LayoutHash; }
-
-private:
-    DB2FileLoaderImpl* _impl;
-    DB2Header _header;
 };
 
 class TC_SHARED_API DB2DatabaseLoader
