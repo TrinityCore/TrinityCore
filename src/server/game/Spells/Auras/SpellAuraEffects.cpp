@@ -790,6 +790,9 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
 
     for (AuraApplication* aurApp : effectApplications)
     {
+        if (aurApp->GetRemoveMode() != AURA_REMOVE_NONE)
+            continue;
+
         aurApp->GetTarget()->_RegisterAuraEffect(this, true);
         HandleEffect(aurApp, handleMask, true);
     }
