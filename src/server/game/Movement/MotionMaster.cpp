@@ -173,12 +173,12 @@ MovementGenerator* MotionMaster::GetMotionSlot(int slot) const
     return _slot[slot];
 }
 
-void MotionMaster::propagateSpeedChange()
+void MotionMaster::PropagateSpeedChange()
 {
     for (int i = 0; i <= _top; ++i)
     {
         if (_slot[i])
-            _slot[i]->unitSpeedChanged();
+            _slot[i]->UnitSpeedChanged();
     }
 }
 

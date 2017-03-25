@@ -34,14 +34,12 @@ class TC_GAME_API MovementGenerator
 
         virtual void Initialize(Unit*) = 0;
         virtual void Finalize(Unit*) = 0;
-
         virtual void Reset(Unit*) = 0;
-
         virtual bool Update(Unit*, uint32 time_diff) = 0;
 
         virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 
-        virtual void unitSpeedChanged() { }
+        virtual void UnitSpeedChanged() { }
 
         // used by Evade code for select point to evade with expected restart default movement
         virtual bool GetResetPosition(Unit*, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }
@@ -78,17 +76,18 @@ class MovementGeneratorMedium : public MovementGenerator
 
 struct SelectableMovement : public FactoryHolder<MovementGenerator, MovementGeneratorType>
 {
-    SelectableMovement(MovementGeneratorType mgt) : FactoryHolder<MovementGenerator, MovementGeneratorType>(mgt) { }
+    SelectableMovement(MovementGeneratorType movementGeneratorType) : FactoryHolder<MovementGenerator, MovementGeneratorType>(movementGeneratorType) { }
 };
 
-template<class REAL_MOVEMENT>
+template<class Movement>
 struct MovementGeneratorFactory : public SelectableMovement
 {
-    MovementGeneratorFactory(MovementGeneratorType mgt) : SelectableMovement(mgt) { }
+    MovementGeneratorFactory(MovementGeneratorType movementGeneratorType) : SelectableMovement(movementGeneratorType) { }
 
     MovementGenerator* Create(void *) const override;
 };
 
 typedef FactoryHolder<MovementGenerator, MovementGeneratorType> MovementGeneratorCreator;
 typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRegistry MovementGeneratorRegistry;
+
 #endif
