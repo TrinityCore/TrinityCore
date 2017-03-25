@@ -42,4 +42,5 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMov
         G3D::Vector3 _reference;
         bool _interrupt;
 };
+
 #endif
