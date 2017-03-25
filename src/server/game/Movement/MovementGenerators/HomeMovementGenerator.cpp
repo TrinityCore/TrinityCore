@@ -32,9 +32,6 @@ HomeMovementGenerator<Creature>::~HomeMovementGenerator()
 }
 
 template<class T>
-void HomeMovementGenerator<T>::DoInitialize(T*) { }
-
-template<class T>
 void HomeMovementGenerator<T>::SetTargetLocation(T*) { }
 
 template<>
@@ -64,6 +61,9 @@ void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
     owner->ClearUnitState(UNIT_STATE_ALL_ERASABLE & ~UNIT_STATE_EVADE);
 }
 
+template<class T>
+void HomeMovementGenerator<T>::DoInitialize(T*) { }
+
 template<>
 void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
@@ -88,6 +88,12 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
 
 template<class T>
 void HomeMovementGenerator<T>::DoReset(T*) { }
+
+template<>
+void HomeMovementGenerator<Creature>::DoReset(Creature* owner)
+{
+    DoInitialize(owner);
+}
 
 template<class T>
 bool HomeMovementGenerator<T>::DoUpdate(T*, uint32)
