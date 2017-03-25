@@ -96,7 +96,7 @@ bool HomeMovementGenerator<T>::DoUpdate(T*, uint32)
 }
 
 template<>
-bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
+bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 /*diff*/)
 {
     _arrived = _skipToHome || owner->movespline->Finalized();
     return !_arrived;
