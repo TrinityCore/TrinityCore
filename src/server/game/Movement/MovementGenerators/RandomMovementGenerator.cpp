@@ -77,27 +77,8 @@ bool RandomMovementGenerator<T>::DoUpdate(T*, uint32)
     return false;
 }
 
-template<>
-bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 diff)
-{
-    if (!owner || !owner->IsAlive())
-        return false;
-
-    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
-    {
-        _interrupt = true;
-        owner->StopMoving();
-        return true;
-    }
-    else
-        _interrupt = false;
-
-    _timer.Update(diff);
-    if (!_interrupt && _timer.Passed() && owner->movespline->Finalized())
-        SetRandomLocation(owner);
-
-    return true;
-}
+template<class T>
+void RandomMovementGenerator<T>::SetRandomLocation(T*) { }
 
 template<>
 void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
@@ -143,4 +124,26 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     // Call for creature group update
     if (owner->GetFormation() && owner->GetFormation()->getLeader() == owner)
         owner->GetFormation()->LeaderMoveTo(position.m_positionX, position.m_positionY, position.m_positionZ);
+}
+
+template<>
+bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 diff)
+{
+    if (!owner || !owner->IsAlive())
+        return false;
+
+    if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
+    {
+        _interrupt = true;
+        owner->StopMoving();
+        return true;
+    }
+    else
+        _interrupt = false;
+
+    _timer.Update(diff);
+    if (!_interrupt && _timer.Passed() && owner->movespline->Finalized())
+        SetRandomLocation(owner);
+
+    return true;
 }
