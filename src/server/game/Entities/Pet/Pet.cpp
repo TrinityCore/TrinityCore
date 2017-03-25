@@ -795,6 +795,11 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map)
     return true;
 }
 
+static float interpolate_base_damage (float level, float max_level, float min_level, float max_damage, float min_damage, float power) {
+    float ic = pow((level - min_level) / (max_level - min_level), power);
+    return max_damage * ic + min_damage * (1.0f-ic);
+}
+
 /// @todo Move stat mods code to pet passive auras
 bool Guardian::InitStatsForLevel(uint8 petlevel)
 {
@@ -898,9 +903,30 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
             SetBonusDamage(val * 0.15f);
 
-            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
-            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
-
+            float base_damage = petlevel;
+            switch (GetEntry())
+            {
+                case 416: // NPC_IMP
+                    base_damage = interpolate_base_damage ( petlevel, 80.0f, 1.0f, 381.5f, 5.0f, 3.0f);
+                    break;
+                case 1860: //NPC_VOIDWALKER
+                    base_damage = interpolate_base_damage ( petlevel, 80.0f, 10.0f, 342.64f, 10.57f, 3.0f);
+                    break;
+                case 1863: //NPC_SUCCUBUS
+                    base_damage = interpolate_base_damage ( petlevel, 80.0f, 20.0f, 461,14f, 24.86f, 2.5f);
+                    break;
+                case 417: // NPC_FELHUNTER
+                    base_damage = interpolate_base_damage ( petlevel, 80.0f, 30.0f, 312.6f, 23.07f, 2.0f);
+                    break;
+                case 17252: // NPC_FELGUARD
+                    base_damage = interpolate_base_damage ( petlevel, 80.0f, 50.0f, 412.0f, 131.0f, 1.0f);
+                    break;
+                default:
+                    break;
+            }
+            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, base_damage * 0.80f);
+            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, base_damage * 1.20f);
+            
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
             break;
         }
