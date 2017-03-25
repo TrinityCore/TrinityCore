@@ -72,12 +72,6 @@ void RandomMovementGenerator<Creature>::DoReset(Creature* owner)
 }
 
 template<class T>
-bool RandomMovementGenerator<T>::DoUpdate(T*, uint32)
-{
-    return false;
-}
-
-template<class T>
 void RandomMovementGenerator<T>::SetRandomLocation(T*) { }
 
 template<>
@@ -126,8 +120,14 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
         owner->GetFormation()->LeaderMoveTo(position.m_positionX, position.m_positionY, position.m_positionZ);
 }
 
+template<class T>
+bool RandomMovementGenerator<T>::DoUpdate(T*, uint32)
+{
+    return false;
+}
+
 template<>
-bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 diff)
+bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
 {
     if (!owner || !owner->IsAlive())
         return false;
