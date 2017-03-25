@@ -913,7 +913,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     base_damage = interpolate_base_damage ( petlevel, 80.0f, 10.0f, 342.64f, 10.57f, 3.0f);
                     break;
                 case 1863: //NPC_SUCCUBUS
-                    base_damage = interpolate_base_damage ( petlevel, 80.0f, 20.0f, 461,14f, 24.86f, 2.5f);
+                    base_damage = interpolate_base_damage ( petlevel, 80.0f, 20.0f, 461.14f, 24.86f, 2.5f);
                     break;
                 case 417: // NPC_FELHUNTER
                     base_damage = interpolate_base_damage ( petlevel, 80.0f, 30.0f, 312.6f, 23.07f, 2.0f);
