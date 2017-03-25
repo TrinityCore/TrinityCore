@@ -43,10 +43,16 @@ MotionMaster::~MotionMaster()
     // clear ALL movement generators (including default)
     while (!empty())
     {
-        MovementGenerator *curr = top();
+        MovementGenerator* movement = top();
         pop();
-        if (curr && !IsStatic(curr))
-            delete curr;    // Skip finalizing on delete, it might launch new movement
+        if (movement && !IsStatic(movement))
+            delete movement;
+    }
+
+    while (!_expireList.empty())
+    {
+        delete _expireList.back();
+        _expireList.pop_back();
     }
 }
 
@@ -117,8 +123,8 @@ void MotionMaster::Clear(bool reset /*= true*/)
 
 void MotionMaster::ClearExpireList()
 {
-    for (auto itr = _expireList.begin(); itr != _expireList.end(); itr++)
-        DirectDelete(*itr);
+    for (auto itr : _expireList)
+        DirectDelete(itr);
 
     _expireList.clear();
 
