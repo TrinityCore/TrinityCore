@@ -934,7 +934,7 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket& recvData)
     {
         std::string Name = pName->name;
         LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-        if (localeConstant >= 0)
+        if (localeConstant >= LOCALE_enUS)
             if (ItemSetNameLocale const* isnl = sObjectMgr->GetItemSetNameLocale(itemid))
                 ObjectMgr::GetLocaleString(isnl->Name, localeConstant, Name);
 
