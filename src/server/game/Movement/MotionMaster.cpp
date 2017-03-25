@@ -89,13 +89,15 @@ void MotionMaster::UpdateMotion(uint32 diff)
     ASSERT(!empty());
 
     _cleanFlag |= MMCF_UPDATE;
-    bool isMoveGenUpdateSuccess = top()->Update(_owner, diff);
-    _cleanFlag &= ~MMCF_UPDATE;
-
-    if (!isMoveGenUpdateSuccess)
+    if (!top()->Update(_owner, diff))
+    {
+        _cleanFlag &= ~MMCF_UPDATE;
         MovementExpired();
+    }
+    else
+        _cleanFlag &= ~MMCF_UPDATE;
 
-    if (_expireList)
+    if (!_expireList.empty())
         ClearExpireList();
 }
 
@@ -115,14 +117,10 @@ void MotionMaster::Clear(bool reset /*= true*/)
 
 void MotionMaster::ClearExpireList()
 {
-    for (size_t i = 0; i < _expireList->size(); ++i)
-    {
-        MovementGenerator* mg = (*_expireList)[i];
-        DirectDelete(mg);
-    }
+    for (auto itr = _expireList.begin(); itr != _expireList.end(); itr++)
+        DirectDelete(*itr);
 
-    delete _expireList;
-    _expireList = nullptr;
+    _expireList.clear();
 
     if (empty())
         Initialize();
@@ -835,7 +833,6 @@ void MotionMaster::DelayedDelete(MovementGenerator* curr)
     TC_LOG_FATAL("misc", "Unit (Entry %u) is trying to delete its updating Movement Generator (Type %u)!", _owner->GetEntry(), curr->GetMovementGeneratorType());
     if (IsStatic(curr))
         return;
-    if (!_expireList)
-        _expireList = new ExpireList();
-    _expireList->push_back(curr);
+
+    _expireList.push_back(curr);
 }
