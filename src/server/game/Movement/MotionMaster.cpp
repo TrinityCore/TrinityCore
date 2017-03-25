@@ -158,7 +158,7 @@ MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
 MovementGeneratorType MotionMaster::GetMotionSlotType(int slot) const
 {
     if (!_slot[slot])
-        return NULL_MOTION_TYPE;
+        return MAX_MOTION_TYPE;
     else
         return _slot[slot]->GetMovementGeneratorType();
 }
