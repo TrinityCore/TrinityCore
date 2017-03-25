@@ -1,4 +1,4 @@
-/*
+// overwrite WorldObject function for proper name localization/*
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -1943,6 +1943,14 @@ void GameObject::EventInform(uint32 eventId, WorldObject* invoker /*= nullptr*/)
     if (BattlegroundMap* bgMap = GetMap()->ToBattlegroundMap())
         if (bgMap->GetBG())
             bgMap->GetBG()->ProcessEvent(this, eventId, invoker);
+}
+
+uint32 GameObject::GetScriptId() const
+{
+    if (GameObjectData const* gameObjectData = GetGOData())
+        return gameObjectData->ScriptId;
+
+    return GetGOInfo()->ScriptId;
 }
 
 // overwrite WorldObject function for proper name localization

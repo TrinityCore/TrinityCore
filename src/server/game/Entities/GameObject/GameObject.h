@@ -660,6 +660,7 @@ struct GameObjectData
     uint8 artKit;
     uint32 phaseid;
     uint32 phaseGroup;
+    uint32 ScriptId;
     bool dbData;
 };
 
@@ -879,7 +880,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void EventInform(uint32 eventId, WorldObject* invoker = NULL);
 
-        virtual uint32 GetScriptId() const { return GetGOInfo()->ScriptId; }
+        virtual uint32 GetScriptId() const;
         GameObjectAI* AI() const { return m_AI; }
 
         std::string GetAIName() const;
