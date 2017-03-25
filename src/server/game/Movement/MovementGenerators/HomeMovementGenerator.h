@@ -20,7 +20,6 @@
 #define TRINITY_HOMEMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
-#include "Timer.h"
 
 template <class T>
 class HomeMovementGenerator : public MovementGeneratorMedium< T, HomeMovementGenerator<T> >
