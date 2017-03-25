@@ -75,12 +75,12 @@ bool PointMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
         return true;
     }
 
-    owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
-
     if ((_interrupt && owner->movespline->Finalized()) || (_recalculateSpeed && !owner->movespline->Finalized()))
     {
         _recalculateSpeed = false;
         _interrupt = false;
+
+        owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
         Movement::MoveSplineInit init(owner);
         init.MoveTo(_destination, _generatePath);
