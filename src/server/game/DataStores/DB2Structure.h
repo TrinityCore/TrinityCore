@@ -469,7 +469,7 @@ struct ConversationLineEntry
 {
     uint32 ID;
     uint32 BroadcastTextId;
-    uint32 Unk2;
+    uint32 SpellVisualKitID;
     uint32 LineIntervalMS;
     uint16 NextLineID;
     uint16 Unk4; // Flag ?

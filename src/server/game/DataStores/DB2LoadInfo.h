@@ -802,13 +802,13 @@ struct CinematicSequencesLoadInfo
 
 struct ConversationLineLoadInfo
 {
-    static DB2LoadInfo Instance()
+    static DB2LoadInfo const* Instance()
     {
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT,   "ID" },
             { false, FT_INT,   "BroadcastTextId" },
-            { false, FT_INT,   "Unk2" },
+            { false, FT_INT,   "SpellVisualKitID" },
             { false, FT_INT,   "LineIntervalMS" },
             { false, FT_SHORT, "NextLineID" },
             { false, FT_SHORT, "Unk4" },
@@ -816,7 +816,8 @@ struct ConversationLineLoadInfo
             { false, FT_BYTE,  "Unk5" },
             { false, FT_BYTE,  "Unk6" },
         };
-        return{ &fields[0], std::extent<decltype(fields)>::value, ConversationLineMeta::Instance(), HOTFIX_SEL_CONVERSATION_LINE };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ConversationLineMeta::Instance(), HOTFIX_SEL_CONVERSATION_LINE);
+        return &loadInfo;
     }
 };
 
