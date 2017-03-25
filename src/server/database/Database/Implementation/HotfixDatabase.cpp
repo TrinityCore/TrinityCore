@@ -180,7 +180,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM cinematic_sequences ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // ConversationLine.db2
-    PrepareStatement(HOTFIX_SEL_CONVERSATION_LINE, "SELECT ID, BroadcastTextId, Unk2, LineIntervalMS, NextLineID, Unk4, UnkBoolean, Unk5, Unk6"
+    PrepareStatement(HOTFIX_SEL_CONVERSATION_LINE, "SELECT ID, BroadcastTextId, BroadcastTextId, LineIntervalMS, NextLineID, Unk4, UnkBoolean, Unk5, Unk6"
         " FROM conversation_line ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CreatureDisplayInfo.db2
