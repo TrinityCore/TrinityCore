@@ -25,30 +25,25 @@
 
 namespace Movement{
 
-Location MoveSpline::ComputePosition() const
+Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
 {
     ASSERT(Initialized());
 
     float u = 1.0f;
-    float u2 = 1.0f;
-    int32 seg_time = spline.length(point_Idx, point_Idx+1);
+    int32 seg_time = spline.length(point_index, point_index + 1);
     if (seg_time > 0)
-    {
-        u = (time_passed - spline.length(point_Idx)) / (float)seg_time;
-        u2 = u;
-        if (spell_effect_extra && spell_effect_extra->ProgressCurveId)
-            u = sDB2Manager.GetCurveValueAt(spell_effect_extra->ProgressCurveId, u);
-    }
+        u = (time_point - spline.length(point_index)) / (float)seg_time;
+
     Location c;
     c.orientation = initialOrientation;
-    spline.evaluate_percent(point_Idx, u, c);
+    spline.evaluate_percent(point_index, u, c);
 
     if (splineflags.animation)
         ;// MoveSplineFlag::Animation disables falling or parabolic movement
     else if (splineflags.parabolic)
-        computeParabolicElevation(c.z, u2 /*progress without curve modifer is expected here*/);
+        computeParabolicElevation(time_point, c.z);
     else if (splineflags.falling)
-        computeFallElevation(c.z);
+        computeFallElevation(time_point, c.z);
 
     if (splineflags.done && facing.type != MONSTER_MOVE_NORMAL)
     {
@@ -73,14 +68,38 @@ Location MoveSpline::ComputePosition() const
     return c;
 }
 
-void MoveSpline::computeParabolicElevation(float& el, float u) const
+Location MoveSpline::ComputePosition() const
 {
-    if (time_passed > effect_start_time)
+    return computePosition(time_passed, point_Idx);
+}
+
+Location MoveSpline::ComputePosition(int32 time_offset) const
+{
+    int32 time_point = time_passed + time_offset;
+    if (time_point >= Duration())
+        return computePosition(Duration(), spline.last() - 1);
+    if (time_point <= 0)
+        return computePosition(0, spline.first());
+
+    // find point_index where spline.length(point_index) < time_point < spline.length(point_index + 1)
+    int32 point_index = point_Idx;
+    while (time_point >= spline.length(point_index + 1))
+        ++point_index;
+
+    while (time_point < spline.length(point_index))
+        --point_index;
+
+    return computePosition(time_point, point_index);
+}
+
+void MoveSpline::computeParabolicElevation(int32 time_point, float& el) const
+{
+    if (time_point > effect_start_time)
     {
-        float t_passedf = MSToSec(time_passed - effect_start_time);
+        float t_passedf = MSToSec(time_point - effect_start_time);
         float t_durationf = MSToSec(Duration() - effect_start_time); //client use not modified duration here
         if (spell_effect_extra && spell_effect_extra->ParabolicCurveId)
-            t_passedf *= sDB2Manager.GetCurveValueAt(spell_effect_extra->ParabolicCurveId, u);
+            t_passedf *= sDB2Manager.GetCurveValueAt(spell_effect_extra->ParabolicCurveId, float(time_point) / Duration());
 
         // -a*x*x + bx + c:
         //(dur * v3->z_acceleration * dt)/2 - (v3->z_acceleration * dt * dt)/2 + Z;
@@ -88,9 +107,9 @@ void MoveSpline::computeParabolicElevation(float& el, float u) const
     }
 }
 
-void MoveSpline::computeFallElevation(float& el) const
+void MoveSpline::computeFallElevation(int32 time_point, float& el) const
 {
-    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(time_passed), false);
+    float z_now = spline.getPoint(spline.first()).z - Movement::computeFallElevation(MSToSec(time_point), false);
     float final_z = FinalDestination().z;
     el = std::max(z_now, final_z);
 }
