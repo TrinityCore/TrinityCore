@@ -23,17 +23,25 @@
 
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "MoveSpline.h"
 #include "SpellHistory.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellPackets.h"
 
 enum WarriorSpells
 {
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_CHARGE                            = 34846,
+    SPELL_WARRIOR_CHARGE_EFFECT                     = 218104,
+    SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL       = 198337,
+    SPELL_WARRIOR_CHARGE_PAUSE_RAGE_DECAY           = 109128,
+    SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
+    SPELL_WARRIOR_CHARGE_SLOW_EFFECT                = 236027,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 86346,
     SPELL_WARRIOR_EXECUTE                           = 20647,
+    SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
@@ -64,6 +72,11 @@ enum WarriorSpells
     SPELL_WARRIOR_VENGEANCE                         = 76691,
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
+};
+
+enum WarriorMisc
+{
+    SPELL_VISUAL_BLAZING_CHARGE = 26423
 };
 
 // 23881 - Bloodthirst
@@ -101,7 +114,7 @@ public:
     }
 };
 
-/// Updated 4.3.4
+// 100 - Charge
 class spell_warr_charge : public SpellScriptLoader
 {
     public:
@@ -113,33 +126,117 @@ class spell_warr_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo
+                ({
+                    SPELL_WARRIOR_CHARGE_EFFECT,
+                    SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                int32 chargeBasePoints0 = GetEffectValue();
-                Unit* caster = GetCaster();
-                caster->CastCustomSpell(caster, SPELL_WARRIOR_CHARGE, &chargeBasePoints0, NULL, NULL, true);
+                uint32 spellId = SPELL_WARRIOR_CHARGE_EFFECT;
+                if (GetCaster()->HasAura(SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL))
+                    spellId = SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL;
 
-                // Juggernaut crit bonus
-                if (caster->HasAura(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT))
-                    caster->CastSpell(caster, SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_BUFF, true);
+                GetCaster()->CastSpell(GetHitUnit(), spellId, true);
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
             return new spell_warr_charge_SpellScript();
+        }
+};
+
+// 126661 - Warrior Charge Drop Fire Periodic
+class spell_warr_charge_drop_fire_periodic : public SpellScriptLoader
+{
+    public:
+        spell_warr_charge_drop_fire_periodic() : SpellScriptLoader("spell_warr_charge_drop_fire_periodic") { }
+
+        class spell_warr_charge_drop_fire_periodic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_charge_drop_fire_periodic_AuraScript);
+
+            void DropFireVisual(AuraEffect const* aurEff)
+            {
+                PreventDefaultAction();
+                if (GetTarget()->IsSplineEnabled())
+                {
+                    for (uint32 i = 0; i < 5; ++i)
+                    {
+                        int32 timeOffset = 6 * i * aurEff->GetPeriod() / 25;
+                        WorldPackets::Spells::PlaySpellVisual playSpellVisual;
+                        playSpellVisual.Source = GetTarget()->GetGUID();
+                        playSpellVisual.TargetPostion = static_cast<G3D::Vector3>(GetTarget()->movespline->ComputePosition(timeOffset)); // slices
+                        playSpellVisual.SpellVisualID = SPELL_VISUAL_BLAZING_CHARGE;
+                        playSpellVisual.TravelSpeed = 1.0f;
+                        playSpellVisual.MissReason = 0;
+                        playSpellVisual.ReflectStatus = 0;
+                        playSpellVisual.Orientation = 0.0f;
+                        playSpellVisual.SpeedAsTime = true;
+                        GetTarget()->SendMessageToSet(playSpellVisual.Write(), true);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_charge_drop_fire_periodic_AuraScript::DropFireVisual, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_charge_drop_fire_periodic_AuraScript();
+        }
+};
+
+// 198337 - Charge Effect (dropping Blazing Trail)
+// 218104 - Charge Effect
+class spell_warr_charge_effect : public SpellScriptLoader
+{
+    public:
+        spell_warr_charge_effect() : SpellScriptLoader("spell_warr_charge_effect") { }
+
+        class spell_warr_charge_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_charge_effect_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo
+                ({
+                    SPELL_WARRIOR_CHARGE_PAUSE_RAGE_DECAY,
+                    SPELL_WARRIOR_CHARGE_ROOT_EFFECT,
+                    SPELL_WARRIOR_CHARGE_SLOW_EFFECT
+                });
+            }
+
+            void HandleCharge(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                caster->CastCustomSpell(SPELL_WARRIOR_CHARGE_PAUSE_RAGE_DECAY, SPELLVALUE_BASE_POINT0, 0, caster, true);
+                caster->CastSpell(target, SPELL_WARRIOR_CHARGE_ROOT_EFFECT, true);
+                caster->CastSpell(target, SPELL_WARRIOR_CHARGE_SLOW_EFFECT, true);
+            }
+
+            void Register() override
+            {
+                OnEffectLaunchTarget += SpellEffectFn(spell_warr_charge_effect_SpellScript::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_warr_charge_effect_SpellScript();
         }
 };
 
@@ -444,7 +541,7 @@ class spell_warr_last_stand : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetEffectValue()));
-                caster->CastCustomSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+                caster->CastCustomSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, nullptr, nullptr, true, nullptr);
             }
 
             void Register() override
@@ -524,7 +621,7 @@ class spell_warr_rallying_cry : public SpellScriptLoader
             {
                 int32 basePoints0 = int32(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue()));
 
-                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_WARRIOR_RALLYING_CRY, &basePoints0, NULL, NULL, true);
+                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_WARRIOR_RALLYING_CRY, &basePoints0, nullptr, nullptr, true);
             }
 
             void Register() override
@@ -603,7 +700,7 @@ class spell_warr_retaliation : public SpellScriptLoader
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARRIOR_RETALIATION_DAMAGE, true, NULL, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARRIOR_RETALIATION_DAMAGE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -725,7 +822,7 @@ class spell_warr_second_wind_proc : public SpellScriptLoader
                 if (!spellId)
                     return;
 
-                GetTarget()->CastSpell(GetTarget(), spellId, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), spellId, true, nullptr, aurEff);
 
             }
 
@@ -930,12 +1027,12 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
                     if (spellInfo && (spellInfo->Id == SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo->Id == SPELL_WARRIOR_EXECUTE && !_procTarget->HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT))))
                     {
                         // If triggered by Execute (while target is not under 20% hp) or Bladestorm deals normalized weapon damage
-                        GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, true, NULL, aurEff);
+                        GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, true, nullptr, aurEff);
                     }
                     else
                     {
                         int32 damage = eventInfo.GetDamageInfo()->GetDamage();
-                        GetTarget()->CastCustomSpell(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, NULL, aurEff);
+                        GetTarget()->CastCustomSpell(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, nullptr, aurEff);
                     }
                 }
             }
@@ -1057,7 +1154,7 @@ class spell_warr_vigilance : public SpellScriptLoader
 
             bool Load() override
             {
-                _procTarget = NULL;
+                _procTarget = nullptr;
                 return true;
             }
 
@@ -1139,6 +1236,8 @@ void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
     new spell_warr_charge();
+    new spell_warr_charge_drop_fire_periodic();
+    new spell_warr_charge_effect();
     new spell_warr_concussion_blow();
     new spell_warr_execute();
     new spell_warr_heroic_leap();
