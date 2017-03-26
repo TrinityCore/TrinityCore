@@ -442,6 +442,11 @@ struct ChrSpecializationEntry
     uint32 ID;
     uint32 Flags;
     uint32 AnimReplacementSetID;
+
+    bool IsPetSpecialization() const
+    {
+        return ClassID == 0;
+    }
 };
 
 struct CinematicCameraEntry
