@@ -1,4 +1,3 @@
-
 /* 
 	Spell ID:		215538
 	Spell Name:		Trauma
