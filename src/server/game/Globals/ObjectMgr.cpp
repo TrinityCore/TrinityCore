@@ -1794,7 +1794,7 @@ void ObjectMgr::LoadCreatures()
         data.npcflag        = fields[19].GetUInt32();
         data.unit_flags     = fields[20].GetUInt32();
         data.dynamicflags   = fields[21].GetUInt32();
-        data.ScriptId       = GetScriptId(fields[23].GetString());
+        data.ScriptId       = GetScriptId(fields[22].GetString());
         if (!data.ScriptId)
             data.ScriptId = cInfo->ScriptID;
 
@@ -2136,7 +2136,7 @@ void ObjectMgr::LoadGameobjects()
         int16 gameEvent     = fields[16].GetInt8();
         uint32 PoolId        = fields[17].GetUInt32();
 
-        data.ScriptId = GetScriptId(fields[19].GetString());
+        data.ScriptId = GetScriptId(fields[18].GetString());
         if (!data.ScriptId)
             data.ScriptId = gInfo->ScriptId;
 
