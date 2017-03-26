@@ -280,7 +280,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void EventInform(uint32 eventId, WorldObject* invoker = NULL);
 
-        virtual uint32 GetScriptId() const;
+        uint32 GetScriptId() const;
         GameObjectAI* AI() const { return m_AI; }
 
         std::string GetAIName() const;
