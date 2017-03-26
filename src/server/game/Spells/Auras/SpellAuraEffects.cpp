@@ -627,6 +627,9 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
 
     for (AuraApplication* aurApp : effectApplications)
     {
+        if (aurApp->GetRemoveMode() != AURA_REMOVE_NONE)
+            continue;
+
         aurApp->GetTarget()->_RegisterAuraEffect(this, true);
         HandleEffect(aurApp, handleMask, true);
     }
@@ -3689,24 +3692,32 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
         return;
 
     Unit* target = aurApp->GetTarget();
-
     Powers powerType = Powers(GetMiscValue());
-
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
+
+    uint32 curPower = target->GetPower(powerType);
+    uint32 oldMaxPower = target->GetMaxPower(powerType);
 
     if (apply)
     {
         float amount = float(GetAmount());
         target->ApplyStatPctModifier(unitMod, TOTAL_PCT, amount);
-
-        float power = target->GetMaxPower(powerType);
-        AddPct(power, amount);
-        target->ModifyPower(powerType, (int32)power - (int32)target->GetMaxPower(powerType));
     }
     else
     {
         float amount = target->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT, GetMiscValue());
         target->SetStatPctModifier(unitMod, TOTAL_PCT, amount);
+    }
+
+    int32 dmax = ((int32)target->GetMaxPower(powerType)) - oldMaxPower;
+    if (dmax >= 0) // increase current power by dmax on both buff application and debuff removal
+        target->SetPower(powerType, curPower + dmax);
+    else if (apply) // do not reduce current power on buff removal (Hymn of Hope et al), but reduce it on debuff application (Aura of Desire)
+    {
+        if ((uint32)(-dmax) <= curPower)
+            target->SetPower(powerType, curPower + dmax);
+        else
+            target->SetPower(powerType, 0);
     }
 }
 
