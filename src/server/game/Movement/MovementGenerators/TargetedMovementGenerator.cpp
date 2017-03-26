@@ -193,7 +193,7 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
 template<class T, typename D>
 bool TargetedMovementGenerator<T, D>::IsReachable() const
 {
-    return (i_path) ? (i_path->GetPathType() & PATHFIND_NORMAL) : true;
+    return (_path) ? (_path->GetPathType() & PATHFIND_NORMAL) : true;
 }
 
 //---- ChaseMovementGenerator
