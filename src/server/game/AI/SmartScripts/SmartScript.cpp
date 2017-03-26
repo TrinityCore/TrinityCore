@@ -3079,6 +3079,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                         l->push_back(recipient);
                 }
             }
+            break;
         }
         case SMART_TARGET_VEHICLE_ACCESSORY:
         {
@@ -3087,6 +3088,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 if (Unit* target = me->GetVehicleKit()->GetPassenger(e.target.vehicle.seat))
                     l->push_back(target);
             }
+            break;
         }
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
