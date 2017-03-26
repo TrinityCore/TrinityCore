@@ -26,6 +26,7 @@
 #include "DatabaseEnv.h"
 #include "World.h"
 #include "Config.h"
+#include "ServerMotd.h"
 
 using boost::asio::ip::tcp;
 
@@ -73,7 +74,7 @@ void RASession::Start()
     TC_LOG_INFO("commands.ra", "User %s (IP: %s) authenticated correctly to RA", username.c_str(), GetRemoteIpAddress().c_str());
 
     // Authentication successful, send the motd
-    Send(std::string(std::string(sWorld->GetMotd()) + "\r\n").c_str());
+    Send(std::string(std::string(Motd::GetMotd()) + "\r\n").c_str());
 
     // Read commands
     for (;;)

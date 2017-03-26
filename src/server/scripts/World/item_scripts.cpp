@@ -240,7 +240,7 @@ public:
             return true;
 
         float x, y, z;
-        go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
+        go->GetClosePoint(x, y, z, go->GetCombatReach() / 3, 7.0f);
         go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, G3D::Quat(), 1);
         if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
