@@ -386,6 +386,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_CLOSEST_FRIENDLY:
         case SMART_TARGET_STORED:
         case SMART_TARGET_LOOT_RECIPIENTS:
+        case SMART_TARGET_VEHICLE_ACCESSORY:
             break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Not handled target_type(%u), Entry " SI64FMTD " SourceType %u Event %u Action %u, skipped.", e.GetTargetType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -824,7 +825,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             break;
         case SMART_ACTION_PLAY_ANIMKIT:
-            if (!IsAnimKitValid(e, e.action.animKit.animKit))
+            if (e.action.animKit.animKit && !IsAnimKitValid(e, e.action.animKit.animKit))
                 return false;
 
             if (e.action.animKit.type > 3)

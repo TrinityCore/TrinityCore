@@ -29,6 +29,7 @@
 
 class AccountMgr;
 class AreaTrigger;
+class AreaTriggerAI;
 class AuctionHouseObject;
 class Aura;
 class AuraScript;
@@ -849,29 +850,9 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
         AreaTriggerEntityScript(const char* name);
 
     public:
-        // Called when the AreaTrigger has just been initialized, just before added to map
-        virtual void OnInitialize(AreaTrigger* /*areaTrigger*/) { }
 
-        // Called when the AreaTrigger has just been created
-        virtual void OnCreate(AreaTrigger* /*areaTrigger*/) { }
-
-        // Called on each AreaTrigger update
-        virtual void OnUpdate(AreaTrigger* /*areaTrigger*/, uint32 /*diff*/) { }
-
-        // Called when the AreaTrigger reach splineIndex
-        virtual void OnSplineIndexReached(AreaTrigger* /*areaTrigger*/, int /*splineIndex*/) { }
-
-        // Called when the AreaTrigger reach its destination
-        virtual void OnDestinationReached(AreaTrigger* /*areaTrigger*/) { }
-
-        // Called when an unit enter the AreaTrigger
-        virtual void OnUnitEnter(AreaTrigger* /*areaTrigger*/, Unit* /*unit*/) { }
-
-        // Called when an unit exit the AreaTrigger, or when the AreaTrigger is removed
-        virtual void OnUnitExit(AreaTrigger* /*areaTrigger*/, Unit* /*unit*/) { }
-
-        // Called when the AreaTrigger is removed
-        virtual void OnRemove(AreaTrigger* /*areaTrigger*/) { }
+        // Called when a AreaTriggerAI object is needed for the areatrigger.
+        virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return nullptr; }
 };
 
 class TC_GAME_API SceneScript : public ScriptObject
@@ -1174,14 +1155,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* AreaTriggerEntityScript */
 
-        void OnAreaTriggerEntityInitialize(AreaTrigger* areaTrigger);
-        void OnAreaTriggerEntityCreate(AreaTrigger* areaTrigger);
-        void OnAreaTriggerEntityUpdate(AreaTrigger* areaTrigger, uint32 diff);
-        void OnAreaTriggerEntitySplineIndexReached(AreaTrigger* areaTrigger, int splineIndex);
-        void OnAreaTriggerEntityDestinationReached(AreaTrigger* areaTrigger);
-        void OnAreaTriggerEntityUnitEnter(AreaTrigger* areaTrigger, Unit* unit);
-        void OnAreaTriggerEntityUnitExit(AreaTrigger* areaTrigger, Unit* unit);
-        void OnAreaTriggerEntityRemove(AreaTrigger* areaTrigger);
+        AreaTriggerAI* GetAreaTriggerAI(AreaTrigger* areaTrigger);
 
     public: /* SceneScript */
         void OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);

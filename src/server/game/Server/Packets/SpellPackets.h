@@ -761,7 +761,7 @@ namespace WorldPackets
             int32 SpellVisualID = 0;
         };
 
-        class PlaySpellVisual final : public ServerPacket
+        class TC_GAME_API PlaySpellVisual final : public ServerPacket
         {
         public:
             PlaySpellVisual() : ServerPacket(SMSG_PLAY_SPELL_VISUAL, 16 + 16 + 2 + 4 + 1 + 2 + 4 + 4 * 4) { }
