@@ -123,7 +123,7 @@ inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, 
 {
     //we should increase search radius by object's radius, otherwise
     //we could have problems with huge creatures, which won't attack nearest players etc
-    Visit(standing_cell, visitor, map, radius + obj.GetObjectSize(), obj.GetPositionX(), obj.GetPositionY());
+    Visit(standing_cell, visitor, map, radius + obj.GetCombatReach(), obj.GetPositionX(), obj.GetPositionY());
 }
 
 template<class T, class CONTAINER>

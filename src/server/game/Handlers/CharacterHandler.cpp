@@ -41,6 +41,7 @@
 #include "ReputationMgr.h"
 #include "GitRevision.h"
 #include "ScriptMgr.h"
+#include "ServerMotd.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "UpdateMask.h"
@@ -750,33 +751,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     // Send MOTD
     {
-        data.Initialize(SMSG_MOTD, 50);                     // new in 2.0.1
-        data << (uint32)0;
-
-        uint32 linecount=0;
-        std::string str_motd = sWorld->GetMotd();
-        std::string::size_type pos, nextpos;
-
-        pos = 0;
-        while ((nextpos= str_motd.find('@', pos)) != std::string::npos)
-        {
-            if (nextpos != pos)
-            {
-                data << str_motd.substr(pos, nextpos-pos);
-                ++linecount;
-            }
-            pos = nextpos+1;
-        }
-
-        if (pos<str_motd.length())
-        {
-            data << str_motd.substr(pos);
-            ++linecount;
-        }
-
-        data.put(0, linecount);
-
-        SendPacket(&data);
+        SendPacket(Motd::GetMotdPacket());
 
         // send server info
         if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
