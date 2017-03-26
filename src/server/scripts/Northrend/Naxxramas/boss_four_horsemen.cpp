@@ -16,6 +16,7 @@
  */
 
 #include "Player.h"
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -264,7 +265,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))
                 {
-                    cBoss->DespawnOrUnsummon(0);
+                    cBoss->DespawnOrUnsummon();
                     cBoss->SetRespawnTime(15);
                 }
                 else
@@ -327,7 +328,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             }
 
             Talk(SAY_DEATH);
-            _timeDied = getMSTime();
+            _timeDied = GameTime::GetGameTimeMS();
             for (Horseman boss : horsemen)
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))

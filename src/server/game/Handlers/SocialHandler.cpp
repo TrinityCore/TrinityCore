@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "WorldSession.h"
 #include "Player.h"
 #include "QueryCallback.h"
@@ -41,10 +41,10 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recvData)
         GetPlayer()->GetName().c_str(), friendName.c_str());
 
     FriendsResult friendResult = FRIEND_NOT_FOUND;
-    ObjectGuid friendGuid = sWorld->GetCharacterGuidByName(friendName);
+    ObjectGuid friendGuid = sCharacterCache->GetCharacterGuidByName(friendName);
     if (!friendGuid.IsEmpty())
     {
-        if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(friendGuid))
+        if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(friendGuid))
         {
             uint32 team = Player::TeamForRace(characterInfo->Race);
             uint32 friendAccountId = characterInfo->AccountId;
@@ -101,7 +101,7 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket& recvData)
     TC_LOG_DEBUG("network", "WorldSession::HandleAddIgnoreOpcode: %s asked to Ignore: %s",
         GetPlayer()->GetName().c_str(), ignoreName.c_str());
 
-    ObjectGuid ignoreGuid = sWorld->GetCharacterGuidByName(ignoreName);
+    ObjectGuid ignoreGuid = sCharacterCache->GetCharacterGuidByName(ignoreName);
     FriendsResult ignoreResult = FRIEND_IGNORE_NOT_FOUND;
     if (!ignoreGuid.IsEmpty())
     {

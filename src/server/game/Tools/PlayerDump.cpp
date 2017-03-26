@@ -23,6 +23,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "AccountMgr.h"
+#include "CharacterCache.h"
 #include "World.h"
 
 #define DUMP_TABLE_COUNT 32
@@ -358,7 +359,7 @@ bool PlayerDumpWriter::GetDump(ObjectGuid::LowType guid, std::string &dump)
 DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, ObjectGuid::LowType guid)
 {
     if (sWorld->getBoolConfig(CONFIG_PDUMP_NO_PATHS))
-        if (strstr(file.c_str(), "\\") || strstr(file.c_str(), "/"))
+        if (strchr(file.c_str(), '\\') || strchr(file.c_str(), '/'))
             return DUMP_FILE_OPEN_ERROR;
 
     if (sWorld->getBoolConfig(CONFIG_PDUMP_NO_OVERWRITE))
@@ -677,7 +678,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
     CharacterDatabase.CommitTransaction(trans);
 
     // in case of name conflict player has to rename at login anyway
-    sWorld->AddCharacterInfo(ObjectGuid(HighGuid::Player, guid), account, name, gender, race, playerClass, level);
+    sCharacterCache->AddCharacterCacheEntry(ObjectGuid(HighGuid::Player, guid), account, name, gender, race, playerClass, level);
 
     sObjectMgr->GetGenerator<HighGuid::Item>().Set(sObjectMgr->GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed() + items.size());
 

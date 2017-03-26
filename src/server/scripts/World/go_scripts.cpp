@@ -42,6 +42,7 @@ go_amberpine_outhouse
 go_hive_pod
 go_veil_skith_cage
 go_toy_train_set
+go_bells
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -52,6 +53,7 @@ EndContentData */
 #include "Player.h"
 #include "WorldSession.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 
 /*######
 ## go_cat_figurine
@@ -354,7 +356,7 @@ public:
         uint32 BirdEntry = 0;
 
         float fX, fY, fZ;
-        go->GetClosePoint(fX, fY, fZ, go->GetObjectSize(), INTERACTION_DISTANCE);
+        go->GetClosePoint(fX, fY, fZ, go->GetCombatReach(), INTERACTION_DISTANCE);
 
         switch (go->GetEntry())
         {
@@ -889,7 +891,7 @@ class go_soulwell : public GameObjectScript
             /// _and_ CMSG_GAMEOBJECT_REPORT_USE, this GossipHello hook is called
             /// twice. The script's handling is fine as it won't remove two charges
             /// on the well. We have to find how to segregate REPORT_USE and USE.
-            bool GossipHello(Player* player) override
+            bool GossipHello(Player* player, bool /*reportUse*/) override
             {
                 Unit* owner = go->GetOwner();
                 if (_stoneSpell == 0 || _stoneId == 0)
@@ -1569,6 +1571,117 @@ public:
     }
 };
 
+/*####
+## go_bells
+####*/
+
+enum BellHourlySoundFX
+{
+    BELLTOLLHORDE          = 6595, // Horde
+    BELLTOLLTRIBAL         = 6675,
+    BELLTOLLALLIANCE       = 6594, // Alliance
+    BELLTOLLNIGHTELF       = 6674,
+    BELLTOLLDWARFGNOME     = 7234,
+    BELLTOLLKHARAZHAN      = 9154 // Kharazhan
+};
+
+enum BellHourlySoundAreas
+{
+    UNDERCITY_AREA         = 1497,
+    IRONFORGE_1_AREA       = 809,
+    IRONFORGE_2_AREA       = 1,
+    DARNASSUS_AREA         = 1657,
+    TELDRASSIL_ZONE        = 141,
+    KHARAZHAN_MAPID        = 532
+};
+
+enum BellHourlyObjects
+{
+    GO_HORDE_BELL          = 175885,
+    GO_ALLIANCE_BELL       = 176573,
+    GO_KHARAZHAN_BELL      = 182064
+};
+
+enum BellHourlyMisc
+{
+    GAME_EVENT_HOURLY_BELLS = 73,
+    EVENT_RING_BELL        = 1
+};
+
+class go_bells : public GameObjectScript
+{
+public:
+    go_bells() : GameObjectScript("go_bells") { }
+
+    struct go_bellsAI : public GameObjectAI
+    {
+        go_bellsAI(GameObject* go) : GameObjectAI(go), _soundId(0) { }
+
+        void InitializeAI() override
+        {
+            switch (go->GetEntry())
+            {
+                case GO_HORDE_BELL:
+                    _soundId = go->GetAreaId() == UNDERCITY_AREA ? BELLTOLLHORDE : BELLTOLLTRIBAL;
+                    break;
+                case GO_ALLIANCE_BELL:
+                {
+                    if (go->GetAreaId() == IRONFORGE_1_AREA || go->GetAreaId() == IRONFORGE_2_AREA)
+                        _soundId = BELLTOLLDWARFGNOME;
+                    else if (go->GetAreaId() == DARNASSUS_AREA || go->GetZoneId() == TELDRASSIL_ZONE)
+                        _soundId = BELLTOLLNIGHTELF;
+                    else
+                        _soundId = BELLTOLLALLIANCE;
+
+                    break;
+                }
+                case GO_KHARAZHAN_BELL:
+                    _soundId = BELLTOLLKHARAZHAN;
+                    break;
+            }
+        }
+
+        void OnGameEvent(bool start, uint16 eventId) override
+        {
+            if (eventId == GAME_EVENT_HOURLY_BELLS && start)
+            {
+                time_t time = GameTime::GetGameTime();
+                tm localTm;
+                localtime_r(&time, &localTm);
+                uint8 _rings = (localTm.tm_hour - 1) % 12 + 1;
+
+                for (auto i = 0; i < _rings; ++i)
+                    _events.ScheduleEvent(EVENT_RING_BELL, Seconds(i * 4 + 1));
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_RING_BELL:
+                        go->PlayDirectSound(_soundId);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    private:
+        EventMap _events;
+        uint32 _soundId;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_bellsAI(go);
+    }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine();
@@ -1610,4 +1723,5 @@ void AddSC_go_scripts()
     new go_midsummer_music();
     new go_darkmoon_faire_music();
     new go_pirate_day_music();
+    new go_bells();
 }

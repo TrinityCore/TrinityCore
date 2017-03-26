@@ -137,6 +137,12 @@ bool Position::IsWithinBox(const Position& center, float xradius, float yradius,
     return true;
 }
 
+bool Position::IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const
+{
+    float verticalDelta = GetPositionZ() - center->GetPositionZ();
+    return IsInDist2d(center, radius) && std::abs(verticalDelta) <= height;
+}
+
 bool Position::HasInArc(float arc, const Position* obj, float border) const
 {
     // always have self in arc
@@ -159,11 +165,12 @@ bool Position::HasInArc(float arc, const Position* obj, float border) const
     return ((angle >= lborder) && (angle <= rborder));
 }
 
-bool Position::HasInLine(Position const* pos, float width) const
+bool Position::HasInLine(Position const* pos, float objSize, float width) const
 {
     if (!HasInArc(float(M_PI), pos))
         return false;
 
+    width += objSize;
     float angle = GetRelativeAngle(pos);
     return std::fabs(std::sin(angle)) * GetExactDist2d(pos->GetPositionX(), pos->GetPositionY()) < width;
 }

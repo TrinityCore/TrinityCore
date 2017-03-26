@@ -28,6 +28,7 @@
 class Group;
 class Player;
 class Quest;
+class Map;
 
 namespace lfg
 {
@@ -303,7 +304,7 @@ class TC_GAME_API LFGMgr
 
         // World.cpp
         /// Finish the dungeon for the given group. All check are performed using internal lfg data
-        void FinishDungeon(ObjectGuid gguid, uint32 dungeonId);
+        void FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map const* currMap);
         /// Loads rewards for random dungeons
         void LoadRewards();
         /// Loads dungeons from dbc and adds teleport coords

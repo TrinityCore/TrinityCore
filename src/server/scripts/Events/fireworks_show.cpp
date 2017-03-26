@@ -19,6 +19,7 @@
 #include "GameObjectAI.h"
 #include "CreatureAIImpl.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 
 enum FireworksShowTypeObjects
 {
@@ -792,7 +793,7 @@ public:
         {
             _events.Update(diff);
 
-            time_t time = sWorld->GetGameTime();
+            time_t time = GameTime::GetGameTime();
             tm localTm;
             localtime_r(&time, &localTm);
 
