@@ -149,8 +149,6 @@ void EffectMovementGenerator::Finalize(Unit* unit)
     {
         if (Unit* victim = unit->GetVictim())
             unit->GetMotionMaster()->MoveChase(victim);
-        else
-            unit->GetMotionMaster()->Initialize();
     }
 
     if (unit->ToCreature()->AI())
