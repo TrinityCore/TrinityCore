@@ -272,7 +272,37 @@ void ChaseMovementGenerator<Creature>::MovementInform(Creature* owner)
 //---- FollowMovementGenerator
 
 template<class T>
-void FollowMovementGenerator<T>::DoInitialize(T* owner)
+void FollowMovementGenerator<T>::UpdateSpeed(T*) { }
+
+template<>
+void FollowMovementGenerator<Player>::UpdateSpeed(Player* /*owner*/) { }
+
+template<>
+void FollowMovementGenerator<Creature>::UpdateSpeed(Creature* owner)
+{
+    // Pet only sync speed with owner
+    // Make sure we are not in the process of a map change (IsInWorld)
+    if (!owner->IsPet() || !owner->IsInWorld() || !IsTargetValid() || GetTarget()->GetGUID() != owner->GetOwnerGUID())
+        return;
+
+    owner->UpdateSpeed(MOVE_RUN);
+    owner->UpdateSpeed(MOVE_WALK);
+    owner->UpdateSpeed(MOVE_SWIM);
+}
+
+template<class T>
+void FollowMovementGenerator<T>::DoInitialize(T* owner) { }
+
+template<>
+void FollowMovementGenerator<Player>::DoInitialize(Player* owner)
+{
+    owner->AddUnitState(UNIT_STATE_FOLLOW);
+    UpdateSpeed(owner);
+    SetTargetLocation(owner, true);
+}
+
+template<>
+void FollowMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
     owner->AddUnitState(UNIT_STATE_FOLLOW);
     UpdateSpeed(owner);
@@ -333,25 +363,6 @@ void FollowMovementGenerator<Creature>::MovementInform(Creature* unit)
         unit->AI()->MovementInform(FOLLOW_MOTION_TYPE, GetTarget()->GetGUID().GetCounter());
 }
 
-template<class T>
-void FollowMovementGenerator<T>::UpdateSpeed(T*) { }
-
-template<>
-void FollowMovementGenerator<Player>::UpdateSpeed(Player* /*owner*/) { }
-
-template<>
-void FollowMovementGenerator<Creature>::UpdateSpeed(Creature* owner)
-{
-    // Pet only sync speed with owner
-    // Make sure we are not in the process of a map change (IsInWorld)
-    if (!owner->IsPet() || !owner->IsInWorld() || !IsTargetValid() || GetTarget()->GetGUID() != owner->GetOwnerGUID())
-        return;
-
-    owner->UpdateSpeed(MOVE_RUN);
-    owner->UpdateSpeed(MOVE_WALK);
-    owner->UpdateSpeed(MOVE_SWIM);
-}
-
 //-----------------------------------------------//
 
 template TargetedMovementGenerator<Player, ChaseMovementGenerator<Player> >::~TargetedMovementGenerator();
@@ -381,8 +392,6 @@ template void ChaseMovementGenerator<Player>::ReachTarget(Player*);
 template void ChaseMovementGenerator<Creature>::ReachTarget(Creature*);
 template void ChaseMovementGenerator<Player>::MovementInform(Player*);
 
-template void FollowMovementGenerator<Player>::DoInitialize(Player*);
-template void FollowMovementGenerator<Creature>::DoInitialize(Creature*);
 template void FollowMovementGenerator<Player>::DoFinalize(Player*);
 template void FollowMovementGenerator<Creature>::DoFinalize(Creature*);
 template void FollowMovementGenerator<Player>::DoReset(Player*);
