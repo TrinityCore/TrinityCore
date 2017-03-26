@@ -243,7 +243,7 @@ void ChaseMovementGenerator<T>::AddUnitStateMove(T* owner)
 template<class T>
 bool ChaseMovementGenerator<T>::HasLostTarget(T* owner) const
 {
-    return owner->GetVictim() != GetTarget();
+    return owner->GetVictim() != TargetedMovementGeneratorBase::GetTarget();
 }
 
 template<class T>
@@ -251,8 +251,8 @@ void ChaseMovementGenerator<T>::ReachTarget(T* owner)
 {
     ClearUnitStateMove(owner);
 
-    if (owner->IsWithinMeleeRange(GetTarget()))
-        owner->Attack(GetTarget(), true);
+    if (owner->IsWithinMeleeRange(TargetedMovementGeneratorBase::GetTarget()))
+        owner->Attack(TargetedMovementGeneratorBase::GetTarget(), true);
 
     if (owner->GetTypeId() == TYPEID_UNIT)
         owner->ToCreature()->SetCannotReachTarget(false);
