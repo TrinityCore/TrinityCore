@@ -291,22 +291,11 @@ void FollowMovementGenerator<Creature>::UpdateSpeed(Creature* owner)
 }
 
 template<class T>
-void FollowMovementGenerator<T>::DoInitialize(T* owner) { }
-
-template<>
-void FollowMovementGenerator<Player>::DoInitialize(Player* owner)
+void FollowMovementGenerator<T>::DoInitialize(T* owner)
 {
     owner->AddUnitState(UNIT_STATE_FOLLOW);
     UpdateSpeed(owner);
-    SetTargetLocation(owner, true);
-}
-
-template<>
-void FollowMovementGenerator<Creature>::DoInitialize(Creature* owner)
-{
-    owner->AddUnitState(UNIT_STATE_FOLLOW);
-    UpdateSpeed(owner);
-    SetTargetLocation(owner, true);
+    TargetedMovementGenerator<T, FollowMovementGenerator<T>>::SetTargetLocation(owner, true);
 }
 
 template<class T>
@@ -392,6 +381,8 @@ template void ChaseMovementGenerator<Player>::ReachTarget(Player*);
 template void ChaseMovementGenerator<Creature>::ReachTarget(Creature*);
 template void ChaseMovementGenerator<Player>::MovementInform(Player*);
 
+template void FollowMovementGenerator<Player>::DoInitialize(Player*);
+template void FollowMovementGenerator<Creature>::DoInitialize(Creature*);
 template void FollowMovementGenerator<Player>::DoFinalize(Player*);
 template void FollowMovementGenerator<Creature>::DoFinalize(Creature*);
 template void FollowMovementGenerator<Player>::DoReset(Player*);
