@@ -8695,6 +8695,8 @@ void ObjectMgr::LoadScriptNames()
         return;
     }
 
+    _scriptNamesStore.reserve(result->GetRowCount() + 1);
+
     do
     {
         _scriptNamesStore.push_back((*result)[0].GetString());
