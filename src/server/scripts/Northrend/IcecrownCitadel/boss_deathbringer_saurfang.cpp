@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -788,7 +788,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                             if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
                             {
                                 float x, y, z;
-                                deathbringer->GetClosePoint(x, y, z, deathbringer->GetObjectSize());
+                                deathbringer->GetClosePoint(x, y, z, deathbringer->GetCombatReach());
                                 me->SetWalk(true);
                                 me->GetMotionMaster()->MovePoint(POINT_CORPSE, x, y, z);
                             }

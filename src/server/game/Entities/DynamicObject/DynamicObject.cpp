@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,7 @@
 #include "World.h"
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
@@ -103,7 +104,7 @@ bool DynamicObject::CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caste
     SetByteValue(DYNAMICOBJECT_BYTES, 0, type);
     SetUInt32Value(DYNAMICOBJECT_SPELLID, spellId);
     SetFloatValue(DYNAMICOBJECT_RADIUS, radius);
-    SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());
+    SetUInt32Value(DYNAMICOBJECT_CASTTIME, GameTime::GetGameTimeMS());
 
     if (IsWorldObject())
         setActive(true);    //must before add to map to be put in world container

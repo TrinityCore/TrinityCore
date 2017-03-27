@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -63,9 +63,9 @@ class TC_GAME_API _SpellScript
     public:
         _SpellScript() : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptName(NULL), m_scriptSpellId(0) {}
         virtual ~_SpellScript() { }
-        virtual void _Register();
-        virtual void _Unload();
-        virtual void _Init(std::string const* scriptname, uint32 spellId);
+        void _Register();
+        void _Unload();
+        void _Init(std::string const* scriptname, uint32 spellId);
         std::string const* _GetScriptName() const;
 
     protected:
@@ -132,6 +132,8 @@ class TC_GAME_API _SpellScript
         // Function called when script is destroyed
         // use for: deallocating memory allocated by script
         virtual void Unload() { }
+        // Helpers
+        static bool ValidateSpellInfo(std::vector<uint32> const& spellIds);
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls
@@ -441,7 +443,7 @@ class TC_GAME_API SpellScript : public _SpellScript
         SpellInfo const* GetTriggeringSpell();
 
         // finishes spellcast prematurely with selected error message
-        void FinishCast(SpellCastResult result);
+        void FinishCast(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr);
 
         void SetCustomCastResultMessage(SpellCustomErrors result);
 };

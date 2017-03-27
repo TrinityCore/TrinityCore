@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,24 +56,17 @@ void UnitAI::DoMeleeAttackIfReady()
     if (!me->IsWithinMeleeRange(victim))
         return;
 
-    bool sparAttack = me->GetFactionTemplateEntry()->ShouldSparAttack() && victim->GetFactionTemplateEntry()->ShouldSparAttack();
     //Make sure our attack is ready and we aren't currently casting before checking distance
     if (me->isAttackReady())
     {
-        if (sparAttack)
-            me->FakeAttackerStateUpdate(victim);
-        else
-            me->AttackerStateUpdate(victim);
+        me->AttackerStateUpdate(victim);
 
         me->resetAttackTimer();
     }
 
     if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK))
     {
-        if (sparAttack)
-            me->FakeAttackerStateUpdate(victim, OFF_ATTACK);
-        else
-            me->AttackerStateUpdate(victim, OFF_ATTACK);
+        me->AttackerStateUpdate(victim, OFF_ATTACK);
 
         me->resetAttackTimer(OFF_ATTACK);
     }
@@ -347,4 +340,41 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
         return target->GetGUID() != currentVictim->getUnitGuid();
 
     return target != _source->GetVictim();
+}
+
+bool PowerUsersSelector::operator()(Unit const* target) const
+{
+    if (!_me || !target)
+        return false;
+
+    if (target->getPowerType() != _power)
+        return false;
+
+    if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
+        return false;
+
+    if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))
+        return false;
+
+    if (_dist < 0.0f && _me->IsWithinCombatRange(target, -_dist))
+        return false;
+
+    return true;
+}
+
+bool FarthestTargetSelector::operator()(Unit const* target) const
+{
+    if (!_me || !target)
+        return false;
+
+    if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
+        return false;
+
+    if (_dist > 0.0f && !_me->IsWithinCombatRange(target, _dist))
+        return false;
+
+    if (_inLos && !_me->IsWithinLOSInMap(target))
+        return false;
+
+    return true;
 }

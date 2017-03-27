@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -108,13 +108,20 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
     {
         if (vmgr->isMapLoadingEnabled())
         {
-            bool exists = vmgr->existsMap((sWorld->GetDataPath()+ "vmaps").c_str(),  mapid, gx, gy);
-            if (!exists)
+            VMAP::LoadResult result = vmgr->existsMap((sWorld->GetDataPath() + "vmaps").c_str(), mapid, gx, gy);
+            std::string name = vmgr->getDirFileName(mapid, gx, gy);
+            switch (result)
             {
-                std::string name = vmgr->getDirFileName(mapid, gx, gy);
-                TC_LOG_ERROR("maps", "VMap file '%s' does not exist", (sWorld->GetDataPath()+"vmaps/"+name).c_str());
-                TC_LOG_ERROR("maps", "Please place VMAP-files (*.vmtree and *.vmtile) in the vmap-directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath()+"vmaps/").c_str());
-                return false;
+                case VMAP::LoadResult::Success:
+                    break;
+                case VMAP::LoadResult::FileNotFound:
+                    TC_LOG_ERROR("maps", "VMap file '%s' does not exist", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                    TC_LOG_ERROR("maps", "Please place VMAP files (*.vmtree and *.vmtile) in the vmap directory (%s), or correct the DataDir setting in your worldserver.conf file.", (sWorld->GetDataPath() + "vmaps/").c_str());
+                    return false;
+                case VMAP::LoadResult::VersionMismatch:
+                    TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                    TC_LOG_ERROR("maps", "This is because the version of the VMap file and the version of this module are different, please re-extract the maps with the tools compiled with this module.");
+                    return false;
             }
         }
     }
@@ -714,14 +721,9 @@ void Map::Update(const uint32 t_diff)
 
         VisitNearbyCellsOf(player, grid_object_update, world_object_update);
 
-        // If player is using far sight, visit that object too
+        // If player is using far sight or mind vision, visit that object too
         if (WorldObject* viewPoint = player->GetViewpoint())
-        {
-            if (Creature* viewCreature = viewPoint->ToCreature())
-                VisitNearbyCellsOf(viewCreature, grid_object_update, world_object_update);
-            else if (DynamicObject* viewObject = viewPoint->ToDynObject())
-                VisitNearbyCellsOf(viewObject, grid_object_update, world_object_update);
-        }
+            VisitNearbyCellsOf(viewPoint, grid_object_update, world_object_update);
 
         // Handle updates for creatures in combat with player and are more than 60 yards away
         if (player->IsInCombat())
@@ -879,10 +881,15 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
 {
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
+    player->getHostileRefManager().deleteReferences(); // multithreading crashfix
+
+    bool const inWorld = player->IsInWorld();
     player->RemoveFromWorld();
     SendRemoveTransports(player);
 
-    player->UpdateObjectVisibility(true);
+    if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
+        player->DestroyForNearbyPlayers(); // previous player->UpdateObjectVisibility(true)
+
     if (player->IsInGrid())
         player->RemoveFromGrid();
     else
@@ -895,11 +902,15 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
 template<class T>
 void Map::RemoveFromMap(T *obj, bool remove)
 {
+    bool const inWorld = obj->IsInWorld() && obj->GetTypeId() >= TYPEID_UNIT && obj->GetTypeId() <= TYPEID_GAMEOBJECT;
     obj->RemoveFromWorld();
+
     if (obj->isActiveObject())
         RemoveFromActive(obj);
 
-    obj->UpdateObjectVisibility(true);
+    if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
+        obj->DestroyForNearbyPlayers(); // previous obj->UpdateObjectVisibility(true)
+
     obj->RemoveFromGrid();
 
     obj->ResetMap();
@@ -2593,9 +2604,9 @@ float Map::GetWaterLevel(float x, float y) const
         return 0;
 }
 
-bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const
+bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
-    return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2)
+    return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2, ignoreFlags)
         && _dynamicTree.isInLineOfSight(x1, y1, z1, x2, y2, z2, phasemask);
 }
 
@@ -3494,6 +3505,11 @@ void BattlegroundMap::RemoveAllPlayers()
             if (Player* player = itr->GetSource())
                 if (!player->IsBeingTeleportedFar())
                     player->TeleportTo(player->GetBattlegroundEntryPoint());
+}
+
+Player* Map::GetPlayer(ObjectGuid const& guid)
+{
+    return ObjectAccessor::GetPlayer(this, guid);
 }
 
 Corpse* Map::GetCorpse(ObjectGuid const& guid)

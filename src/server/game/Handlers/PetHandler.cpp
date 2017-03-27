@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -138,6 +138,7 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
         return;
 
     pet->AttackStop();
+    pet->ClearInPetCombat();
 }
 
 void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2)
@@ -171,6 +172,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 case COMMAND_FOLLOW:                        //spellid=1792  //FOLLOW
                     pet->AttackStop();
                     pet->InterruptNonMeleeSpells(false);
+                    pet->ClearInPetCombat();
                     pet->GetMotionMaster()->MoveFollow(_player, PET_FOLLOW_DIST, pet->GetFollowAngle());
                     charmInfo->SetCommandState(COMMAND_FOLLOW);
 
@@ -227,9 +229,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                         }
                         else                                // charmed player
                         {
-                            if (pet->GetVictim() && pet->GetVictim() != TargetUnit)
-                                pet->AttackStop();
-
                             charmInfo->SetIsCommandAttack(true);
                             charmInfo->SetIsAtStay(false);
                             charmInfo->SetIsFollowing(false);
@@ -271,6 +270,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
             {
                 case REACT_PASSIVE:                         //passive
                     pet->AttackStop();
+                    pet->ClearInPetCombat();
                     // no break;
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
@@ -361,8 +361,6 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     // This is true if pet has no target or has target but targets differs.
                     if (pet->GetVictim() != unit_target)
                     {
-                        if (pet->GetVictim())
-                            pet->AttackStop();
                         pet->GetMotionMaster()->Clear();
                         if (pet->ToCreature()->IsAIEnabled)
                             pet->ToCreature()->AI()->AttackStart(unit_target);
@@ -596,7 +594,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
     Pet* pet = ObjectAccessor::GetPet(*_player, petguid);
                                                             // check it!
     if (!pet || !pet->IsPet() || ((Pet*)pet)->getPetType() != HUNTER_PET ||
-        !pet->HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ||
+        !pet->HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ||
         pet->GetOwnerGUID() != _player->GetGUID() || !pet->GetCharmInfo())
         return;
 
@@ -618,7 +616,7 @@ void WorldSession::HandlePetRename(WorldPacket& recvData)
     if (pet->GetOwner()->GetGroup())
         pet->GetOwner()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
 
-    pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
+    pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED);
 
     if (isdeclined)
     {
@@ -676,20 +674,15 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 
     // pet/charmed
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
-    if (pet)
+    if (pet && pet->ToPet() && pet->ToPet()->getPetType() == HUNTER_PET)
     {
-        if (pet->IsPet())
+        if (pet->GetGUID() == _player->GetPetGUID())
         {
-            if (pet->GetGUID() == _player->GetPetGUID())
-            {
-                uint32 feelty = pet->GetPower(POWER_HAPPINESS);
-                pet->SetPower(POWER_HAPPINESS, feelty > 50000 ? (feelty-50000) : 0);
-            }
-
-            _player->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
+            uint32 feelty = pet->GetPower(POWER_HAPPINESS);
+            pet->SetPower(POWER_HAPPINESS, feelty > 50000 ? (feelty-50000) : 0);
         }
-        else if (pet->GetGUID() == _player->GetCharmGUID())
-            _player->StopCastingCharm();
+
+        _player->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
     }
 }
 
@@ -704,7 +697,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
     if (!_player->GetGuardianPet() && !_player->GetCharm())
         return;
 
-    if (ObjectAccessor::FindPlayer(guid))
+    if (guid.IsPlayer())
         return;
 
     Creature* pet=ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);

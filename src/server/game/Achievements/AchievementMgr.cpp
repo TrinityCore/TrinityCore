@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,7 @@
 #include "DBCEnums.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Guild.h"
 #include "GuildMgr.h"
@@ -412,7 +413,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             birthday_tm.tm_year += birthday_login.nth_birthday;
 
             time_t birthday = mktime(&birthday_tm);
-            time_t now = sWorld->GetGameTime();
+            time_t now = GameTime::GetGameTime();
             return now <= birthday + DAY && now >= birthday;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE:
@@ -474,19 +475,21 @@ void AchievementMgr::Reset()
     CheckAllAchievementCriteria();
 }
 
-void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1, uint32 miscvalue2, bool evenIfCriteriaComplete)
+void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaCondition condition, uint32 value, bool evenIfCriteriaComplete)
 {
-    TC_LOG_DEBUG("achievement", "AchievementMgr::ResetAchievementCriteria(%u, %u, %u)", type, miscvalue1, miscvalue2);
+    TC_LOG_DEBUG("achievement", "AchievementMgr::ResetAchievementCriteria(%u, %u, %u)", condition, value, evenIfCriteriaComplete);
 
     // disable for gamemasters with GM-mode enabled
     if (m_player->IsGameMaster())
         return;
 
-    AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type);
-    for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
-    {
-        AchievementCriteriaEntry const* achievementCriteria = (*i);
+    AchievementCriteriaEntryList const* achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByCondition(condition, value);
+    if (!achievementCriteriaList)
+        return;
 
+    for (auto itr = achievementCriteriaList->begin(); itr != achievementCriteriaList->end(); ++itr)
+    {
+        AchievementCriteriaEntry const* achievementCriteria = *itr;
         AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementCriteria->ReferredAchievement);
         if (!achievement)
             continue;
@@ -495,14 +498,7 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
         if ((IsCompletedCriteria(achievementCriteria, achievement) && !evenIfCriteriaComplete) || HasAchieved(achievement->ID))
             continue;
 
-        for (uint8 j = 0; j < MAX_CRITERIA_REQUIREMENTS; ++j)
-            if (achievementCriteria->AdditionalRequirements[j].Type == miscvalue1 &&
-                (!achievementCriteria->AdditionalRequirements[j].Asset ||
-                achievementCriteria->AdditionalRequirements[j].Asset == miscvalue2))
-            {
-                RemoveCriteriaProgress(achievementCriteria);
-                break;
-            }
+        RemoveCriteriaProgress(achievementCriteria);
     }
 }
 
@@ -741,7 +737,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     TC_LOG_DEBUG("achievement", "UpdateAchievementCriteria: %s, %s (%u), %u, %u"
         , m_player->GetGUID().ToString().c_str(), AchievementGlobalMgr::GetCriteriaTypeString(type), type, miscValue1, miscValue2);
 
-    AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type);
+    AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type, miscValue1);
     for (AchievementCriteriaEntry const* achievementCriteria : achievementCriteriaList)
     {
         AchievementEntry const* achievement = sAchievementMgr->GetAchievement(achievementCriteria->ReferredAchievement);
@@ -768,7 +764,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         switch (type)
         {
             // std. case: increment at 1
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
             case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
             case ACHIEVEMENT_CRITERIA_TYPE_DEATH:
             case ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON:
@@ -808,9 +806,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscvalue1
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
             case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
             case ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE:
             case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS:
             case ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS:
@@ -864,7 +860,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     SetCriteriaProgress(achievementCriteria, maxSkillvalue);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
-                if (m_completedAchievements.find(achievementCriteria->Asset.AchievementID) != m_completedAchievements.end())
+                if ((miscValue1 && achievementCriteria->Asset.AchievementID == miscValue1) || (!miscValue1 && m_completedAchievements.find(achievementCriteria->Asset.AchievementID) != m_completedAchievements.end()))
                     SetCriteriaProgress(achievementCriteria, 1);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT:
@@ -973,7 +969,11 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     {
                         if (skillIter->second->skillId == achievementCriteria->Asset.SkillID)
-                            spellCount++;
+                        {
+                            // do not add couter twice if by any chance skill is listed twice in dbc (eg. skill 777 and spell 22717)
+                            ++spellCount;
+                            break;
+                        }
                     }
                 }
                 SetCriteriaProgress(achievementCriteria, spellCount);
@@ -998,7 +998,11 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                         if (skillIter->second->skillId == achievementCriteria->Asset.SkillID)
-                            spellCount++;
+                        {
+                            // do not add couter twice if by any chance skill is listed twice in dbc (eg. skill 777 and spell 22717)
+                            ++spellCount;
+                            break;
+                        }
                 }
                 SetCriteriaProgress(achievementCriteria, spellCount);
                 break;
@@ -1126,7 +1130,7 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
     if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
     {
         // someone on this realm has already completed that achievement
-        if (sAchievementMgr->IsRealmCompleted(achievement, GetPlayer()->GetInstanceId()))
+        if (sAchievementMgr->IsRealmCompleted(achievement))
             return false;
     }
 
@@ -1490,9 +1494,10 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     ca.date = time(NULL);
     ca.changed = true;
 
-    sAchievementMgr->SetRealmCompleted(achievement, GetPlayer()->GetInstanceId());
+    if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
+        sAchievementMgr->SetRealmCompleted(achievement);
 
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT, achievement->ID);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->Points);
 
     // reward items and titles if any
@@ -1879,11 +1884,11 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
-            // miscvalue1 = itemid
-            // miscvalue2 = itemSlot
-            if (!miscValue1)
+            // miscvalue1 = itemSlot
+            // miscvalue2 = itemid
+            if (!miscValue2)
                 return false;
-            if (miscValue2 != achievementCriteria->Asset.ItemSlot)
+            if (miscValue1 != achievementCriteria->Asset.ItemSlot)
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
@@ -2187,6 +2192,89 @@ AchievementGlobalMgr* AchievementGlobalMgr::instance()
     return &instance;
 }
 
+inline bool IsAchievementCriteriaTypeStoredByMiscValue(AchievementCriteriaTypes type)
+{
+    switch (type)
+    {
+        case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
+        case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
+        case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+        case ACHIEVEMENT_CRITERIA_TYPE_KILLED_BY_CREATURE:
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST:
+        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
+        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:
+        case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+        case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL:
+        case ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL:
+        case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA:
+        case ACHIEVEMENT_CRITERIA_TYPE_GAIN_REPUTATION:
+        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS:
+        case ACHIEVEMENT_CRITERIA_TYPE_HK_RACE:
+        case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:
+        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
+        case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
+        case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
+        case ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE:
+        case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
+        case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
+AchievementCriteriaEntryList const& AchievementGlobalMgr::GetAchievementCriteriaByType(AchievementCriteriaTypes type, uint32 miscValue) const
+{
+    if (miscValue && IsAchievementCriteriaTypeStoredByMiscValue(type))
+    {
+        auto itr = m_AchievementCriteriasByMiscValue[type].find(miscValue);
+        if (itr != m_AchievementCriteriasByMiscValue[type].end())
+            return itr->second;
+    }
+
+    return m_AchievementCriteriasByType[type];
+}
+
+bool AchievementGlobalMgr::IsRealmCompleted(AchievementEntry const* achievement) const
+{
+    auto itr = _allCompletedAchievements.find(achievement->ID);
+    if (itr == _allCompletedAchievements.end())
+        return false;
+
+    if (itr->second == std::chrono::system_clock::time_point::min())
+        return false;
+
+    if (itr->second == std::chrono::system_clock::time_point::max())
+        return true;
+
+    // Allow completing the realm first kill for entire minute after first person did it
+    // it may allow more than one group to achieve it (highly unlikely)
+    // but apparently this is how blizz handles it as well
+    if (achievement->Flags & ACHIEVEMENT_FLAG_REALM_FIRST_KILL)
+        return (GameTime::GetGameTimeSystemPoint() - itr->second) > Minutes(1);
+
+    return true;
+}
+
+void AchievementGlobalMgr::SetRealmCompleted(AchievementEntry const* achievement)
+{
+    if (IsRealmCompleted(achievement))
+        return;
+
+    _allCompletedAchievements[achievement->ID] = GameTime::GetGameTimeSystemPoint();
+}
+
 //==========================================================
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {
@@ -2205,11 +2293,57 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         if (!criteria)
             continue;
 
+        ASSERT(criteria->Type < ACHIEVEMENT_CRITERIA_TYPE_TOTAL, "ACHIEVEMENT_CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
+            criteria->Type + 1, ACHIEVEMENT_CRITERIA_TYPE_TOTAL);
+
         m_AchievementCriteriasByType[criteria->Type].push_back(criteria);
         m_AchievementCriteriaListByAchievement[criteria->ReferredAchievement].push_back(criteria);
+        if (IsAchievementCriteriaTypeStoredByMiscValue(AchievementCriteriaTypes(criteria->Type)))
+        {
+            if (criteria->Type != ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA)
+                m_AchievementCriteriasByMiscValue[criteria->Type][criteria->Asset.ID].push_back(criteria);
+            else
+            {
+                WorldMapOverlayEntry const* worldOverlayEntry = sWorldMapOverlayStore.LookupEntry(criteria->Asset.WorldMapOverlayID);
+                if (!worldOverlayEntry)
+                    break;
+
+                for (uint8 j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
+                {
+                    if (worldOverlayEntry->areatableID[j])
+                    {
+                        bool valid = true;
+                        for (uint8 i = 0; i < j; ++i)
+                            if (worldOverlayEntry->areatableID[j] == worldOverlayEntry->areatableID[i])
+                                valid = false;
+                        if (valid)
+                            m_AchievementCriteriasByMiscValue[criteria->Type][worldOverlayEntry->areatableID[j]].push_back(criteria);
+                    }
+                }
+            }
+        }
+
+        for (uint32 i = 0; i < MAX_CRITERIA_REQUIREMENTS; ++i)
+        {
+            if (criteria->AdditionalRequirements[i].Type != ACHIEVEMENT_CRITERIA_CONDITION_NONE)
+            {
+                ASSERT(criteria->AdditionalRequirements[i].Type < ACHIEVEMENT_CRITERIA_CONDITION_MAX,
+                    "ACHIEVEMENT_CRITERIA_CONDITION_MAX must be greater than or equal to %u but is currently equal to %u",
+                    criteria->AdditionalRequirements[i].Type + 1, ACHIEVEMENT_CRITERIA_CONDITION_MAX);
+
+                if (i == 0
+                    || criteria->AdditionalRequirements[i].Type != criteria->AdditionalRequirements[i - 1].Type
+                    || criteria->AdditionalRequirements[i].Asset != criteria->AdditionalRequirements[i - 1].Asset)
+                    m_AchievementCriteriasByCondition[criteria->AdditionalRequirements[i].Type][criteria->AdditionalRequirements[i].Asset].push_back(criteria);
+            }
+        }
 
         if (criteria->StartTimer)
+        {
+            ASSERT(criteria->StartEvent < ACHIEVEMENT_TIMED_TYPE_MAX, "ACHIEVEMENT_TIMED_TYPE_MAX must be greater than or equal to %u but is currently equal to %u",
+                criteria->StartEvent + 1, ACHIEVEMENT_TIMED_TYPE_MAX);
             m_AchievementCriteriasByTimedType[criteria->StartEvent].push_back(criteria);
+        }
 
         ++loaded;
     }
@@ -2384,6 +2518,14 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 {
     uint32 oldMSTime = getMSTime();
 
+    // Populate _allCompletedAchievements with all realm first achievement ids to make multithreaded access safer
+    // while it will not prevent races, it will prevent crashes that happen because std::unordered_map key was added
+    // instead the only potential race will happen on value associated with the key
+    for (uint32 i = 0; i < sAchievementStore.GetNumRows(); ++i)
+        if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(i))
+            if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
+                _allCompletedAchievements[achievement->ID] = std::chrono::system_clock::time_point::min();
+
     QueryResult result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
     if (!result)
@@ -2410,11 +2552,10 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
             continue;
         }
         else if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
-            m_allCompletedAchievements[achievementId] = uint32(0xFFFFFFFF);
-    }
-    while (result->NextRow());
+            _allCompletedAchievements[achievementId] = std::chrono::system_clock::time_point::max();
+    } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu realm first completed achievements in %u ms.", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %lu realm first completed achievements in %u ms.", (unsigned long)_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AchievementGlobalMgr::LoadRewards()
@@ -2586,11 +2727,4 @@ AchievementEntry const* AchievementGlobalMgr::GetAchievement(uint32 achievementI
 AchievementCriteriaEntry const* AchievementGlobalMgr::GetAchievementCriteria(uint32 criteriaId) const
 {
     return sAchievementCriteriaStore.LookupEntry(criteriaId);
-}
-
-void AchievementGlobalMgr::OnInstanceDestroyed(uint32 instanceId)
-{
-    for (auto& realmCompletion : m_allCompletedAchievements)
-        if (realmCompletion.second == instanceId)
-            realmCompletion.second = uint32(0xFFFFFFFF);
 }

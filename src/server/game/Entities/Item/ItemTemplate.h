@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,9 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include "WorldPacket.h"
+
+class ObjectMgr;
 
 enum ItemModType
 {
@@ -606,6 +609,8 @@ struct _Socket
 
 struct ItemTemplate
 {
+    friend class ObjectMgr;
+
     uint32 ItemId;
     uint32 Class;                                           // id from ItemClass.dbc
     uint32 SubClass;                                        // id from ItemSubClass.dbc
@@ -681,6 +686,7 @@ struct ItemTemplate
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
+    WorldPacket QueryData[TOTAL_LOCALES];
 
     // helpers
     bool CanChangeEquipStateInCombat() const;
@@ -695,6 +701,7 @@ struct ItemTemplate
     float getDPS() const;
 
     int32 getFeralBonus(int32 extraDPS = 0) const;
+    int32 GetTotalAPBonus() const { return _totalAP; }
 
     float GetItemLevelIncludingQuality() const;
 
@@ -704,6 +711,16 @@ struct ItemTemplate
     bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
     bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAG_CONJURED); }
+
+    void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
+
+private:
+    // Cached info
+    int32 _totalAP;
+
+    // Loading Helpers
+    void _LoadTotalAP();
 };
 
 // Benchmarked: Faster than std::map (insert/find)

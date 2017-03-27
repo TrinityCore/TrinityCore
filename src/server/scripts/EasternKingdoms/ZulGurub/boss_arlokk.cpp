@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -86,6 +86,13 @@ Position const PosMoveOnSpawn[1] =
     { -11561.9f, -1627.868f, 41.29941f, 0.0f }
 };
 
+// AWFUL HACK WARNING
+// To whoever reads this: Zul'Gurub needs your love
+// Need to do this calculation to increase/decrease Arlokk's damage by 35% (probably some aura missing)
+// This is only to compile the scripts after the aura calculation revamp
+float const DamageIncrease = 35.0f;
+float const DamageDecrease = 100.f / (1.f + DamageIncrease / 100.f) - 100.f;
+
 class boss_arlokk : public CreatureScript
 {
     public: boss_arlokk() : CreatureScript("boss_arlokk") { }
@@ -106,7 +113,7 @@ class boss_arlokk : public CreatureScript
             void Reset() override
             {
                 if (events.IsInPhase(PHASE_TWO))
-                    me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
+                    me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
                 _Reset();
                 Initialize();
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_DAGGER));
@@ -267,7 +274,7 @@ class boss_arlokk : public CreatureScript
                             events.ScheduleEvent(EVENT_RAVAGE, urand(10000, 14000), 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM_BACK, urand(15000, 18000), 0, PHASE_TWO);
                             events.SetPhase(PHASE_TWO);
-                            me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, true); // hack
+                            me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageIncrease); // hack
                             break;
                         case EVENT_RAVAGE:
                             DoCastVictim(SPELL_RAVAGE, true);
@@ -285,7 +292,7 @@ class boss_arlokk : public CreatureScript
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg));
                             me->UpdateDamagePhysical(BASE_ATTACK);
                             */
-                            me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
+                            me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
                             events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(4000, 7000), 0, PHASE_ONE);
                             events.ScheduleEvent(EVENT_GOUGE, urand(12000, 15000), 0, PHASE_ONE);
                             events.ScheduleEvent(EVENT_TRANSFORM, urand(16000, 20000), 0, PHASE_ONE);

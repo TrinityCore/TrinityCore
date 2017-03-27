@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE))
         return;
 
-    if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringChannel())
+    if (owner->IsMovementPreventedByCasting())
         return;
 
     if (owner->GetTypeId() == TYPEID_UNIT && !i_target->isInAccessiblePlaceFor(owner->ToCreature()))
@@ -66,7 +66,7 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             float size;
 
             // Pets need special handling.
-            // We need to subtract GetObjectSize() because it gets added back further down the chain
+            // We need to subtract GetCombatReach() because it gets added back further down the chain
             //  and that makes pets too far away. Subtracting it allows pets to properly
             //  be (GetCombatReach() + i_offset) away.
             // Only applies when i_target is pet's owner otherwise pets and mobs end up
@@ -74,12 +74,12 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T* owner, bool up
             if (owner->IsPet() && i_target->GetTypeId() == TYPEID_PLAYER)
             {
                 dist = 1.0f; //i_target->GetCombatReach();
-                size = 1.0f; //i_target->GetCombatReach() - i_target->GetObjectSize();
+                size = 1.0f; //i_target->GetCombatReach() - i_target->GetCombatReach();
             }
             else
             {
                 dist = i_offset + 1.0f;
-                size = owner->GetObjectSize();
+                size = owner->GetCombatReach();
             }
 
             if (i_target->IsWithinDistInMap(owner, dist))
@@ -149,7 +149,7 @@ bool TargetedMovementGeneratorMedium<T, D>::DoUpdate(T* owner, uint32 time_diff)
     }
 
     // prevent movement while casting spells with cast time or channel time
-    if (owner->HasUnitState(UNIT_STATE_CASTING) && !owner->CanMoveDuringChannel())
+    if (owner->IsMovementPreventedByCasting())
     {
         if (!owner->IsStopped())
             owner->StopMoving();

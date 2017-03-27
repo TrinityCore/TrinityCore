@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,8 +24,8 @@
 #include "DBCfmt.h"
 #include "Timer.h"
 #include "ObjectDefines.h"
+#include "Regex.h"
 
-#include <regex>
 #include <map>
 
 typedef std::map<uint16, uint32> AreaFlagByAreaID;
@@ -145,7 +145,7 @@ DBCStorage <MovieEntry> sMovieStore(MovieEntryfmt);
 
 DBCStorage<NamesProfanityEntry> sNamesProfanityStore(NamesProfanityEntryfmt);
 DBCStorage<NamesReservedEntry> sNamesReservedStore(NamesReservedEntryfmt);
-typedef std::array<std::vector<std::wregex>, TOTAL_LOCALES> NameValidationRegexContainer;
+typedef std::array<std::vector<Trinity::wregex>, TOTAL_LOCALES> NameValidationRegexContainer;
 NameValidationRegexContainer NamesProfaneValidators;
 NameValidationRegexContainer NamesReservedValidators;
 
@@ -414,10 +414,10 @@ void LoadDBCStores(const std::string& dataPath)
         ASSERT(Utf8toWStr(namesProfanity->Name, wname));
 
         if (namesProfanity->Language != -1)
-            NamesProfaneValidators[namesProfanity->Language].emplace_back(wname, std::regex::icase | std::regex::optimize);
+            NamesProfaneValidators[namesProfanity->Language].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesProfaneValidators[i].emplace_back(wname, std::regex::icase | std::regex::optimize);
+                NamesProfaneValidators[i].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
     }
 
     for (uint32 i = 0; i < sNamesReservedStore.GetNumRows(); ++i)
@@ -431,10 +431,10 @@ void LoadDBCStores(const std::string& dataPath)
         ASSERT(Utf8toWStr(namesReserved->Name, wname));
 
         if (namesReserved->Language != -1)
-            NamesReservedValidators[namesReserved->Language].emplace_back(wname, std::regex::icase | std::regex::optimize);
+            NamesReservedValidators[namesReserved->Language].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
         else
             for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
-                NamesReservedValidators[i].emplace_back(wname, std::regex::icase | std::regex::optimize);
+                NamesReservedValidators[i].emplace_back(wname, Trinity::regex::icase | Trinity::regex::optimize);
     }
 
 
@@ -1011,13 +1011,13 @@ ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale)
     if (locale >= TOTAL_LOCALES)
         return RESPONSE_FAILURE;
 
-    for (std::wregex const& regex : NamesProfaneValidators[locale])
-        if (std::regex_search(name, regex))
+    for (Trinity::wregex const& regex : NamesProfaneValidators[locale])
+        if (Trinity::regex_search(name, regex))
             return CHAR_NAME_PROFANE;
 
     // regexes at TOTAL_LOCALES are loaded from NamesReserved which is not locale specific
-    for (std::wregex const& regex : NamesReservedValidators[locale])
-        if (std::regex_search(name, regex))
+    for (Trinity::wregex const& regex : NamesReservedValidators[locale])
+        if (Trinity::regex_search(name, regex))
             return CHAR_NAME_RESERVED;
 
     return CHAR_NAME_SUCCESS;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -114,7 +114,9 @@ enum ScriptCommands
     SCRIPT_COMMAND_EQUIP                 = 31,               // soucre = Creature, datalong = equipment id
     SCRIPT_COMMAND_MODEL                 = 32,               // source = Creature, datalong = model id
     SCRIPT_COMMAND_CLOSE_GOSSIP          = 33,               // source = Player
-    SCRIPT_COMMAND_PLAYMOVIE             = 34                // source = Player, datalong = movie id
+    SCRIPT_COMMAND_PLAYMOVIE             = 34,               // source = Player, datalong = movie id
+    SCRIPT_COMMAND_MOVEMENT              = 35,               // source = Creature, datalong = MovementType, datalong2 = MovementDistance (spawndist f.ex.), dataint = pathid
+    SCRIPT_COMMAND_PLAY_ANIMKIT          = 36                // source = Creature, datalong = AnimKit id (NOT ON 3.3.5A, DON'T REUSE)
 };
 
 // Benchmarked: Faster than std::unordered_map (insert/find)
@@ -363,6 +365,13 @@ struct ScriptInfo
         {
             uint32 MovieID;         // datalong
         } PlayMovie;
+
+        struct                       // SCRIPT_COMMAND_MOVEMENT (35)
+        {
+            uint32 MovementType;     // datalong
+            uint32 MovementDistance; // datalong2
+            int32  Path;             // dataint
+        } Movement;
     };
 
     std::string GetDebugInfo() const;
@@ -483,6 +492,9 @@ typedef std::multimap<uint32, uint32> QuestRelationsReverse; // quest -> unit/go
 typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> QuestRelationBounds;
 typedef std::pair<QuestRelationsReverse::const_iterator, QuestRelationsReverse::const_iterator> QuestRelationReverseBounds;
 
+typedef std::multimap<int32, uint32> ExclusiveQuestGroups; // exclusiveGroupId -> quest
+typedef std::pair<ExclusiveQuestGroups::const_iterator, ExclusiveQuestGroups::const_iterator> ExclusiveQuestGroupsBounds;
+
 struct PetLevelInfo
 {
     PetLevelInfo() : health(0), mana(0), armor(0) { for (uint8 i=0; i < MAX_STATS; ++i) stats[i] = 0; }
@@ -581,32 +593,42 @@ typedef std::multimap<uint32, GossipMenuItems> GossipMenuItemsContainer;
 typedef std::pair<GossipMenuItemsContainer::const_iterator, GossipMenuItemsContainer::const_iterator> GossipMenuItemsMapBounds;
 typedef std::pair<GossipMenuItemsContainer::iterator, GossipMenuItemsContainer::iterator> GossipMenuItemsMapBoundsNonConst;
 
-struct QuestPOIPoint
+struct QuestPOIBlobPoint
 {
-    int32 x;
-    int32 y;
-
-    QuestPOIPoint() : x(0), y(0) { }
-    QuestPOIPoint(int32 _x, int32 _y) : x(_x), y(_y) { }
+    int32 X = 0;
+    int32 Y = 0;
 };
 
-struct QuestPOI
+struct QuestPOIBlobData
 {
-    uint32 Id;
-    int32 ObjectiveIndex;
-    uint32 MapId;
-    uint32 AreaId;
-    uint32 FloorId;
-    uint32 Unk3;
-    uint32 Unk4;
-    std::vector<QuestPOIPoint> points;
-
-    QuestPOI() : Id(0), ObjectiveIndex(0), MapId(0), AreaId(0), FloorId(0), Unk3(0), Unk4(0) { }
-    QuestPOI(uint32 id, int32 objIndex, uint32 mapId, uint32 areaId, uint32 floorId, uint32 unk3, uint32 unk4) : Id(id), ObjectiveIndex(objIndex), MapId(mapId), AreaId(areaId), FloorId(floorId), Unk3(unk3), Unk4(unk4) { }
+    uint32 BlobIndex = 0;
+    int32 ObjectiveIndex = 0;
+    uint32 MapID = 0;
+    uint32 WorldMapAreaID = 0;
+    uint32 Floor = 0;
+    uint32 Unk3 = 0;
+    uint32 Unk4 = 0;
+    std::vector<QuestPOIBlobPoint> QuestPOIBlobPointStats;
 };
 
-typedef std::vector<QuestPOI> QuestPOIVector;
-typedef std::unordered_map<uint32, QuestPOIVector> QuestPOIContainer;
+struct QuestPOIData
+{
+    uint32 QuestID = 0;
+    std::vector<QuestPOIBlobData> QuestPOIBlobDataStats;
+};
+
+struct QuestPOIWrapper
+{
+    QuestPOIData POIData;
+    ByteBuffer QueryDataBuffer;
+
+    void InitializeQueryData();
+    ByteBuffer BuildQueryData() const;
+
+    QuestPOIWrapper() : QueryDataBuffer(0) { }
+};
+
+typedef std::unordered_map<uint32, QuestPOIWrapper> QuestPOIContainer;
 
 struct GraveYardData
 {
@@ -669,6 +691,17 @@ struct DungeonEncounter
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef std::unordered_map<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
+enum QueryDataGroup
+{
+    QUERY_DATA_CREATURES        = 0x01,
+    QUERY_DATA_GAMEOBJECTS      = 0x02,
+    QUERY_DATA_ITEMS            = 0x04,
+    QUERY_DATA_QUESTS           = 0x08,
+    QUERY_DATA_POIS             = 0x10,
+
+    QUERY_DATA_ALL              = 0xFF
+};
+
 class PlayerDumpReader;
 
 class TC_GAME_API ObjectMgr
@@ -707,8 +740,6 @@ class TC_GAME_API ObjectMgr
         typedef std::vector<std::string> ScriptNameContainer;
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
-
-        Player* GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const;
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry) const;
         GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
@@ -755,8 +786,6 @@ class TC_GAME_API ObjectMgr
 
         void GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const;
 
-        ObjectGuid GetPlayerGUIDByName(std::string const& name) const;
-
         GameObjectQuestItemList const* GetGameObjectQuestItemList(uint32 id) const
         {
             GameObjectQuestItemMap::const_iterator itr = _gameObjectQuestItemStore.find(id);
@@ -774,24 +803,6 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
         CreatureQuestItemMap const* GetCreatureQuestItemMap() const { return &_creatureQuestItemStore; }
-
-        /**
-        * Retrieves the player name by guid.
-        *
-        * If the player is online, the name is retrieved immediately otherwise
-        * a database query is done.
-        *
-        * @remark Use sWorld->GetCharacterInfo because it doesn't require a database query when player is offline
-        *
-        * @param guid player full guid
-        * @param name returned name
-        *
-        * @return true if player was found, false otherwise
-        */
-        bool GetPlayerNameByGUID(ObjectGuid guid, std::string& name) const;
-        uint32 GetPlayerTeamByGUID(ObjectGuid guid) const;
-        uint32 GetPlayerAccountIdByGUID(ObjectGuid guid) const;
-        uint32 GetPlayerAccountIdByPlayerName(std::string const& name) const;
 
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
@@ -890,7 +901,7 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        QuestPOIVector const* GetQuestPOIVector(uint32 questId)
+        QuestPOIWrapper const* GetQuestPOIWrapper(uint32 questId)
         {
             QuestPOIContainer::const_iterator itr = _questPOIStore.find(questId);
             if (itr != _questPOIStore.end())
@@ -963,6 +974,11 @@ class TC_GAME_API ObjectMgr
         QuestRelationReverseBounds GetCreatureQuestInvolvedRelationReverseBounds(uint32 questId) const
         {
             return _creatureQuestInvolvedRelationsReverse.equal_range(questId);
+        }
+
+        ExclusiveQuestGroupsBounds GetExclusiveQuestGroupBounds(int32 exclusiveGroupId) const
+        {
+            return _exclusiveQuestGroups.equal_range(exclusiveGroupId);
         }
 
         bool LoadTrinityStrings();
@@ -1046,6 +1062,8 @@ class TC_GAME_API ObjectMgr
         void LoadTrainerSpell();
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
 
+        void InitializeQueriesData(QueryDataGroup mask);
+
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level) const;
@@ -1075,11 +1093,6 @@ class TC_GAME_API ObjectMgr
         uint32 GeneratePetNumber();
         uint32 GenerateCreatureSpawnId();
         uint32 GenerateGameObjectSpawnId();
-
-        typedef std::multimap<int32, uint32> ExclusiveQuestGroups;
-        typedef std::pair<ExclusiveQuestGroups::const_iterator, ExclusiveQuestGroups::const_iterator> ExclusiveQuestGroupsBounds;
-
-        ExclusiveQuestGroups mExclusiveQuestGroups;
 
         MailLevelReward const* GetMailLevelReward(uint32 level, uint32 raceMask) const
         {
@@ -1331,9 +1344,8 @@ class TC_GAME_API ObjectMgr
         // first free id for selected id type
         uint32 _auctionId;
         uint64 _equipmentSetGuid;
-        uint32 _itemTextId;
-        uint32 _mailId;
-        uint32 _hiPetNumber;
+        std::atomic<uint32> _mailId;
+        std::atomic<uint32> _hiPetNumber;
 
         uint32 _creatureSpawnId;
         uint32 _gameObjectSpawnId;
@@ -1382,6 +1394,8 @@ class TC_GAME_API ObjectMgr
         QuestRelations _creatureQuestRelations;
         QuestRelations _creatureQuestInvolvedRelations;
         QuestRelationsReverse _creatureQuestInvolvedRelationsReverse;
+
+        ExclusiveQuestGroups _exclusiveQuestGroups;
 
         //character reserved names
         typedef std::set<std::wstring> ReservedNamesContainer;

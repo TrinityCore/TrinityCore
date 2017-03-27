@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "DatabaseWorkerPool.h"
 #include "DatabaseEnv.h"
+#include "QueryCallback.h"
 
 #define MIN_MYSQL_SERVER_VERSION 50100u
 #define MIN_MYSQL_CLIENT_VERSION 50100u
@@ -93,6 +94,7 @@ template <class T>
 bool DatabaseWorkerPool<T>::PrepareStatements()
 {
     for (auto& connections : _connections)
+    {
         for (auto& connection : connections)
         {
             connection->LockIfReady();
@@ -104,7 +106,30 @@ bool DatabaseWorkerPool<T>::PrepareStatements()
             }
             else
                 connection->Unlock();
+
+            size_t const preparedSize = connection->m_stmts.size();
+            if (_preparedStatementSize.size() < preparedSize)
+                _preparedStatementSize.resize(preparedSize);
+
+            for (size_t i = 0; i < preparedSize; ++i)
+            {
+                // already set by another connection
+                // (each connection only has prepared statements of it's own type sync/async)
+                if (_preparedStatementSize[i] > 0)
+                    continue;
+
+                if (MySQLPreparedStatement* stmt = connection->m_stmts[i].get())
+                {
+                    uint32 const paramCount = stmt->GetParameterCount();
+
+                    // TC only supports uint8 indices.
+                    ASSERT(paramCount < std::numeric_limits<uint8>::max());
+
+                    _preparedStatementSize[i] = static_cast<uint8>(paramCount);
+                }
+            }
         }
+    }
 
     return true;
 }
@@ -146,23 +171,23 @@ PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement* stmt)
 }
 
 template <class T>
-QueryResultFuture DatabaseWorkerPool<T>::AsyncQuery(const char* sql)
+QueryCallback DatabaseWorkerPool<T>::AsyncQuery(const char* sql)
 {
     BasicStatementTask* task = new BasicStatementTask(sql, true);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
     QueryResultFuture result = task->GetFuture();
     Enqueue(task);
-    return result;
+    return QueryCallback(std::move(result));
 }
 
 template <class T>
-PreparedQueryResultFuture DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement* stmt)
+QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement* stmt)
 {
     PreparedStatementTask* task = new PreparedStatementTask(stmt, true);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
     PreparedQueryResultFuture result = task->GetFuture();
     Enqueue(task);
-    return result;
+    return QueryCallback(std::move(result));
 }
 
 template <class T>

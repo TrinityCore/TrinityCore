@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -651,7 +651,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
                 if (Group* grp = player->GetGroup())
                     if (grp->isLFGGroup())
                     {
-                        sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId);
+                        sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId, instance);
                         return;
                     }
         }

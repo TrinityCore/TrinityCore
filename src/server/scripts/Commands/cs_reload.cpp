@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -447,6 +447,7 @@ public:
             sObjectMgr->CheckCreatureTemplate(cInfo);
         }
 
+        sObjectMgr->InitializeQueriesData(QUERY_DATA_CREATURES);
         handler->SendGlobalGMSysMessage("Creature template reloaded.");
         return true;
     }
@@ -521,6 +522,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Quest Templates...");
         sObjectMgr->LoadQuests();
+        sObjectMgr->InitializeQueriesData(QUERY_DATA_QUESTS);
         handler->SendGlobalGMSysMessage("DB table `quest_template` (quest definitions) reloaded.");
 
         /// dependent also from `gameobject` but this table not reloaded anyway
@@ -700,6 +702,7 @@ public:
     {
         TC_LOG_INFO("misc", "Re-Loading Quest POI ..." );
         sObjectMgr->LoadQuestPOI();
+        sObjectMgr->InitializeQueriesData(QUERY_DATA_POIS);
         handler->SendGlobalGMSysMessage("DB Table `quest_poi` and `quest_poi_points` reloaded.");
         return true;
     }

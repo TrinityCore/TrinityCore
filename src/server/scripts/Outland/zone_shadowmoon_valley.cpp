@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -379,7 +379,6 @@ public:
 
             FlyTimer = 10000;
             me->SetDisableGravity(false);
-            me->SetVisible(true);
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
@@ -423,10 +422,8 @@ public:
 
                     PlayerGUID.Clear();
                 }
-                me->SetVisible(false);
-                me->SetDisableGravity(false);
-                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                me->RemoveCorpse();
+
+                me->DespawnOrUnsummon(1);
             }
         }
 
@@ -524,7 +521,7 @@ public:
 
                 Tapped = true;
                 float x, y, z;
-                caster->GetClosePoint(x, y, z, me->GetObjectSize());
+                caster->GetClosePoint(x, y, z, me->GetCombatReach());
 
                 me->SetWalk(false);
                 me->GetMotionMaster()->MovePoint(1, x, y, z);
@@ -903,10 +900,10 @@ public:
             switch (AnimationCount)
             {
             case 0:
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
+                me->SetStandState(UNIT_STAND_STATE_KNEEL);
                 break;
             case 3:
-                me->RemoveFlag(UNIT_FIELD_BYTES_1, 8);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
                 break;
             case 5:
                 if (Player* AggroTarget = ObjectAccessor::GetPlayer(*me, AggroTargetGUID))
@@ -1192,7 +1189,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->RemoveCorpse();
+            me->DespawnOrUnsummon();
             if (Creature* LordIllidan = (ObjectAccessor::GetCreature(*me, LordIllidanGUID)))
                 if (LordIllidan)
                     ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, LordIllidan->AI())->LiveCounter();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -117,6 +117,20 @@ void EventProcessor::AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime
         Event->m_addTime = m_time;
     Event->m_execTime = e_time;
     m_events.insert(std::pair<uint64, BasicEvent*>(e_time, Event));
+}
+
+void EventProcessor::ModifyEventTime(BasicEvent* Event, uint64 newTime)
+{
+    for (auto itr = m_events.begin(); itr != m_events.end(); ++itr)
+    {
+        if (itr->second != Event)
+            continue;
+
+        Event->m_execTime = newTime;
+        m_events.erase(itr);
+        m_events.insert(std::pair<uint64, BasicEvent*>(newTime, Event));
+        break;
+    }
 }
 
 uint64 EventProcessor::CalculateTime(uint64 t_offset) const

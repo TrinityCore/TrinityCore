@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -113,6 +113,33 @@ struct TC_GAME_API NonTankTargetSelector : public std::unary_function<Unit*, boo
     private:
         Unit* _source;
         bool _playerOnly;
+};
+
+// Simple selector for units using mana
+struct TC_GAME_API PowerUsersSelector
+{
+    public:
+        PowerUsersSelector(Unit const* unit, Powers power, float dist, bool playerOnly) : _me(unit), _power(power), _dist(dist), _playerOnly(playerOnly) { }
+        bool operator()(Unit const* target) const;
+
+    private:
+        Unit const* _me;
+        Powers const _power;
+        float const _dist;
+        bool const _playerOnly;
+};
+
+struct TC_GAME_API FarthestTargetSelector
+{
+    public:
+        FarthestTargetSelector(Unit const* unit, float dist, bool playerOnly, bool inLos) : _me(unit), _dist(dist), _playerOnly(playerOnly), _inLos(inLos) {}
+        bool operator()(Unit const* target) const;
+
+    private:
+        const Unit* _me;
+        float _dist;
+        bool _playerOnly;
+        bool _inLos;
 };
 
 class TC_GAME_API UnitAI

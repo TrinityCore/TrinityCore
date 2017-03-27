@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 #include "SharedDefines.h"
 #include "QueryResult.h"
 #include "Transaction.h"
-#include <chrono>
+#include "GameTime.h"
 #include <deque>
 
 class Item;
@@ -76,7 +76,7 @@ public:
     template<class Type, class Period>
     void AddCooldown(uint32 spellId, uint32 itemId, std::chrono::duration<Type, Period> cooldownDuration)
     {
-        Clock::time_point now = Clock::now();
+        Clock::time_point now = GameTime::GetGameTimeSystemPoint();
         AddCooldown(spellId, itemId, now + std::chrono::duration_cast<Clock::duration>(cooldownDuration), 0, now);
     }
 

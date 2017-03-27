@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -186,7 +186,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (IsCritter())
     {
         float px, py, pz;
-        owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
+        owner->GetClosePoint(px, py, pz, GetCombatReach(), PET_FOLLOW_DIST, GetFollowAngle());
         Relocate(px, py, pz, owner->GetOrientation());
 
         if (!IsPositionValid())
@@ -222,7 +222,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
             SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, GENDER_NONE);
             SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_POWER_TYPE, POWER_FOCUS);
             SetSheath(SHEATH_STATE_MELEE);
-            SetByteFlag(UNIT_FIELD_BYTES_2, 2, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
+            SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, fields[9].GetBool() ? UNIT_CAN_BE_ABANDONED : UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
 
             SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                                                             // this enables popup window (pet abandon, cancel)
@@ -245,7 +245,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     // Set pet's position after setting level, its size depends on it
     float px, py, pz;
-    owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
+    owner->GetClosePoint(px, py, pz, GetCombatReach(), PET_FOLLOW_DIST, GetFollowAngle());
     Relocate(px, py, pz, owner->GetOrientation());
     if (!IsPositionValid())
     {
@@ -369,6 +369,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
         owner->ToPlayer()->SetLastPetNumber(petId);
 
+    // must be after SetMinion (owner guid check)
+    LoadMechanicTemplateImmunity();
     m_loading = false;
 
     return true;
@@ -420,8 +422,6 @@ void Pet::SavePetToDB(PetSaveMode mode)
     if (mode >= PET_SAVE_AS_CURRENT)
     {
         ObjectGuid::LowType ownerLowGUID = GetOwnerGUID().GetCounter();
-        std::string name = m_name;
-        CharacterDatabase.EscapeString(name);
         trans = CharacterDatabase.BeginTransaction();
         // remove current data
 
@@ -450,35 +450,26 @@ void Pet::SavePetToDB(PetSaveMode mode)
         }
 
         // save pet
-        std::ostringstream ss;
-        ss  << "INSERT INTO character_pet (id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType) "
-            << "VALUES ("
-            << m_charmInfo->GetPetNumber() << ','
-            << GetEntry() << ','
-            << ownerLowGUID << ','
-            << GetNativeDisplayId() << ','
-            << uint32(getLevel()) << ','
-            << GetUInt32Value(UNIT_FIELD_PETEXPERIENCE) << ','
-            << uint32(GetReactState()) << ','
-            << uint32(mode) << ", '"
-            << name.c_str() << "', "
-            << uint32(HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ? 0 : 1) << ','
-            << curhealth << ','
-            << curmana << ','
-            << GetPower(POWER_HAPPINESS) << ", '";
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET);
+        stmt->setUInt32(0, m_charmInfo->GetPetNumber());
+        stmt->setUInt32(1, GetEntry());
+        stmt->setUInt32(2, ownerLowGUID);
+        stmt->setUInt32(3, GetNativeDisplayId());
+        stmt->setUInt8(4, getLevel());
+        stmt->setUInt32(5, GetUInt32Value(UNIT_FIELD_PETEXPERIENCE));
+        stmt->setUInt8(6, GetReactState());
+        stmt->setUInt8(7, mode);
+        stmt->setString(8, m_name);
+        stmt->setUInt8(9, HasByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED) ? 0 : 1);
+        stmt->setUInt32(10, curhealth);
+        stmt->setUInt32(11, curmana);
+        stmt->setUInt32(12, GetPower(POWER_HAPPINESS));
+        stmt->setString(13, GenerateActionBarData());
+        stmt->setUInt32(14, time(nullptr));
+        stmt->setUInt32(15, GetUInt32Value(UNIT_CREATED_BY_SPELL));
+        stmt->setUInt8(16, getPetType());
+        trans->Append(stmt);
 
-        for (uint32 i = ACTION_BAR_INDEX_START; i < ACTION_BAR_INDEX_END; ++i)
-        {
-            ss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << ' '
-               << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << ' ';
-        };
-
-        ss  << "', "
-            << time(NULL) << ','
-            << GetUInt32Value(UNIT_CREATED_BY_SPELL) << ','
-            << uint32(getPetType()) << ')';
-
-        trans->Append(ss.str().c_str());
         CharacterDatabase.CommitTransaction(trans);
     }
     // delete
@@ -644,44 +635,6 @@ void Pet::Update(uint32 diff)
     Creature::Update(diff);
 }
 
-void Creature::Regenerate(Powers power)
-{
-    uint32 curValue = GetPower(power);
-    uint32 maxValue = GetMaxPower(power);
-
-    if (curValue >= maxValue)
-        return;
-
-    float addvalue = 0.0f;
-
-    switch (power)
-    {
-        case POWER_FOCUS:
-        {
-            // For hunter pets.
-            addvalue = 24 * sWorld->getRate(RATE_POWER_FOCUS);
-            break;
-        }
-        case POWER_ENERGY:
-        {
-            // For deathknight's ghoul.
-            addvalue = 20;
-            break;
-        }
-        default:
-            return;
-    }
-
-    // Apply modifiers (if any).
-    AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
-        if (Powers((*i)->GetMiscValue()) == power)
-            AddPct(addvalue, (*i)->GetAmount());
-
-    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (IsHunterPet()? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
-
-    ModifyPower(power, int32(addvalue));
-}
 
 void Pet::LoseHappiness()
 {
@@ -830,7 +783,7 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phas
         SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, GENDER_NONE);
         SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_POWER_TYPE, POWER_FOCUS);
         SetSheath(SHEATH_STATE_MELEE);
-        SetByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
+        SetByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PET_FLAGS, UNIT_CAN_BE_RENAMED | UNIT_CAN_BE_ABANDONED);
     }
 
     return true;
@@ -870,7 +823,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
 
-    SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(petlevel*50));
+    SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(petlevel * 50));
 
     SetAttackTime(BASE_ATTACK, BASE_ATTACK_TIME);
     SetAttackTime(OFF_ATTACK, BASE_ATTACK_TIME);
@@ -894,8 +847,10 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     }
 
     // Resistance
-    for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(cinfo->resistance[i]));
+    // Hunters pet should not inherit resistances from creature_template, they have separate auras for that
+    if (!IsHunterPet())
+        for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+            SetStatFlatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(cinfo->resistance[i]));
 
     //health, mana, armor and resistance
     PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
@@ -906,7 +861,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             SetCreateMana(pInfo->mana);
 
         if (pInfo->armor > 0)
-            SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
+            SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(pInfo->armor));
 
         for (uint8 stat = 0; stat < MAX_STATS; ++stat)
             SetCreateStat(Stats(stat), float(pInfo->stats[stat]));
@@ -1030,8 +985,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float((petlevel * 4 - petlevel)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float((petlevel * 4 + petlevel)));
 
-                    SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(GetOwner()->GetArmor()) * 0.35f);  // Bonus Armor (35% of player armor)
-                    SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(GetOwner()->GetStat(STAT_STAMINA)) * 0.3f);  // Bonus Stamina (30% of player stamina)
+                    SetStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(GetOwner()->GetArmor()) * 0.35f);  // Bonus Armor (35% of player armor)
+                    SetStatFlatModifier(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(GetOwner()->GetStat(STAT_STAMINA)) * 0.3f);  // Bonus Stamina (30% of player stamina)
                     if (!HasAura(58877))//prevent apply twice for the 2 wolves
                         AddAura(58877, this);//Spirit Hunt, passive, Spirit Wolves' attacks heal them and their master for 150% of damage done.
                     break;
@@ -1563,7 +1518,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
     }
 
     // if remove last rank or non-ranked then update action bar at server and client if need
-    if (clear_ab && !learn_prev && m_charmInfo->RemoveSpellFromActionBar(spell_id))
+    if (m_charmInfo->RemoveSpellFromActionBar(spell_id) && !learn_prev && clear_ab)
     {
         if (!m_loading)
             GetOwner()->PetSpellInitialize(); // need update action bar for last removed rank
@@ -1981,4 +1936,17 @@ void Pet::SetDisplayId(uint32 modelId)
 
     if (GetOwner()->GetGroup())
         GetOwner()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MODEL_ID);
+}
+
+std::string Pet::GenerateActionBarData() const
+{
+    std::ostringstream oss;
+
+    for (uint32 i = ACTION_BAR_INDEX_START; i < ACTION_BAR_INDEX_END; ++i)
+    {
+        oss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << ' '
+            << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << ' ';
+    }
+
+    return oss.str();
 }

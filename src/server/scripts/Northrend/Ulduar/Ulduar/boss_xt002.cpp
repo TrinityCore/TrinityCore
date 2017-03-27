@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -173,11 +173,6 @@ class boss_xt002 : public CreatureScript
     public:
         boss_xt002() : CreatureScript("boss_xt002") { }
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetUlduarAI<boss_xt002_AI>(creature);
-        }
-
         struct boss_xt002_AI : public BossAI
         {
             boss_xt002_AI(Creature* creature) : BossAI(creature, BOSS_XT002)
@@ -207,6 +202,12 @@ class boss_xt002 : public CreatureScript
                 Initialize();
 
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
+            }
+
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                summons.DespawnAll();
+                _DespawnAtEvade();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -431,6 +432,12 @@ class boss_xt002 : public CreatureScript
                 uint8 _heartExposed;
                 uint32 _transferHealth;
         };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetUlduarAI<boss_xt002_AI>(creature);
+        }
+
 };
 
 /*-------------------------------------------------------
@@ -444,24 +451,17 @@ class npc_xt002_heart : public CreatureScript
     public:
         npc_xt002_heart() : CreatureScript("npc_xt002_heart") { }
 
-        struct npc_xt002_heartAI : public ScriptedAI
+        struct npc_xt002_heartAI : public NullCreatureAI
         {
-            npc_xt002_heartAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
-            {
-                SetCombatMovement(false);
-            }
-
-            void UpdateAI(uint32 /*diff*/) override { }
+            npc_xt002_heartAI(Creature* creature) : NullCreatureAI(creature), _instance(creature->GetInstanceScript()) { }
 
             void JustDied(Unit* /*killer*/) override
             {
-                Creature* xt002 = _instance ? ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)) : nullptr;
-                if (!xt002 || !xt002->AI())
-                    return;
-
-                xt002->AI()->SetData(DATA_TRANSFERED_HEALTH, me->GetHealth());
-                xt002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
+                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                {
+                    xt002->AI()->SetData(DATA_TRANSFERED_HEALTH, me->GetHealth());
+                    xt002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
+                }
             }
 
         private:
@@ -470,7 +470,7 @@ class npc_xt002_heart : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_xt002_heartAI>(creature);
+            return GetUlduarAI<npc_xt002_heartAI>(creature);
         }
 };
 
@@ -483,11 +483,6 @@ class npc_scrapbot : public CreatureScript
 {
     public:
         npc_scrapbot() : CreatureScript("npc_scrapbot") { }
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<npc_scrapbotAI>(creature);
-        }
 
         struct npc_scrapbotAI : public ScriptedAI
         {
@@ -508,15 +503,15 @@ class npc_scrapbot : public CreatureScript
 
                 Initialize();
 
-                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
-                    me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
+                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                    me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
             }
 
             void UpdateAI(uint32 diff) override
             {
                 if (_rangeCheckTimer <= diff)
                 {
-                    if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
+                    if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
                     {
                         if (me->IsWithinMeleeRange(xt002))
                         {
@@ -535,6 +530,11 @@ class npc_scrapbot : public CreatureScript
                 InstanceScript* _instance;
                 uint32 _rangeCheckTimer;
         };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetUlduarAI<npc_scrapbotAI>(creature);
+        }
 };
 
 /*-------------------------------------------------------
@@ -546,11 +546,6 @@ class npc_pummeller : public CreatureScript
 {
     public:
         npc_pummeller() : CreatureScript("npc_pummeller") { }
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<npc_pummellerAI>(creature);
-        }
 
         struct npc_pummellerAI : public ScriptedAI
         {
@@ -571,7 +566,7 @@ class npc_pummeller : public CreatureScript
             {
                 Initialize();
 
-                if (Creature* xt002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
+                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
                 {
                     Position pos = xt002->GetPosition();
                     me->GetMotionMaster()->MovePoint(0, pos);
@@ -619,6 +614,11 @@ class npc_pummeller : public CreatureScript
                 uint32 _trampleTimer;
                 uint32 _uppercutTimer;
         };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetUlduarAI<npc_pummellerAI>(creature);
+        }
 };
 
 /*-------------------------------------------------------
@@ -654,11 +654,6 @@ class npc_boombot : public CreatureScript
     public:
         npc_boombot() : CreatureScript("npc_boombot") { }
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetInstanceAI<npc_boombotAI>(creature);
-        }
-
         struct npc_boombotAI : public ScriptedAI
         {
             npc_boombotAI(Creature* creature) : ScriptedAI(creature)
@@ -685,8 +680,8 @@ class npc_boombot : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
                 /// @todo proper waypoints?
-                if (Creature* pXT002 = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_XT002)))
-                    me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
+                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                    me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage) override
@@ -726,6 +721,11 @@ class npc_boombot : public CreatureScript
                 InstanceScript* _instance;
                 bool _boomed;
         };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetUlduarAI<npc_boombotAI>(creature);
+        }
 };
 
 
@@ -1048,7 +1048,7 @@ class spell_xt002_submerged : public SpellScriptLoader
                     return;
 
                 target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_SUBMERGED);
+                target->SetStandState(UNIT_STAND_STATE_SUBMERGED);
             }
 
             void Register() override

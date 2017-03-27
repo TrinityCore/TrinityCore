@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,7 @@
 
 #include "BattlegroundSA.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -985,11 +986,11 @@ void BattlegroundSA::UpdateDemolisherSpawns()
                     // Demolisher is not in list
                     if (DemoliserRespawnList.find(i) == DemoliserRespawnList.end())
                     {
-                        DemoliserRespawnList[i] = getMSTime()+30000;
+                        DemoliserRespawnList[i] = GameTime::GetGameTimeMS()+30000;
                     }
                     else
                     {
-                        if (DemoliserRespawnList[i] < getMSTime())
+                        if (DemoliserRespawnList[i] < GameTime::GetGameTimeMS())
                         {
                             Demolisher->Relocate(BG_SA_NpcSpawnlocs[i]);
                             Demolisher->Respawn();

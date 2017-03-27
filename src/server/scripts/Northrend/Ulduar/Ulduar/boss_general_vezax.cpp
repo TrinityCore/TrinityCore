@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -331,8 +331,8 @@ class boss_saronite_animus : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* Vezax = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_VEZAX)))
-                    Vezax->AI()->DoAction(ACTION_ANIMUS_DIE);
+                if (Creature* vezax = instance->GetCreature(BOSS_VEZAX))
+                    vezax->AI()->DoAction(ACTION_ANIMUS_DIE);
             }
 
             void UpdateAI(uint32 diff) override
@@ -429,8 +429,8 @@ class npc_saronite_vapors : public CreatureScript
                     DoCast(me, SPELL_SARONITE_VAPORS);
                     me->DespawnOrUnsummon(30000);
 
-                    if (Creature* Vezax = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_VEZAX)))
-                        Vezax->AI()->DoAction(ACTION_VAPORS_DIE);
+                    if (Creature* vezax = instance->GetCreature(BOSS_VEZAX))
+                        vezax->AI()->DoAction(ACTION_VAPORS_DIE);
                 }
             }
 

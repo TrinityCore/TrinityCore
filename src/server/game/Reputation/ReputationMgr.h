@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -118,11 +118,11 @@ class TC_GAME_API ReputationMgr
     public:                                                 // modifiers
         bool SetReputation(FactionEntry const* factionEntry, int32 standing)
         {
-            return SetReputation(factionEntry, standing, false);
+            return SetReputation(factionEntry, standing, false, false);
         }
-        bool ModifyReputation(FactionEntry const* factionEntry, int32 standing)
+        bool ModifyReputation(FactionEntry const* factionEntry, int32 standing, bool spillOverOnly = false)
         {
-            return SetReputation(factionEntry, standing, true);
+            return SetReputation(factionEntry, standing, true, spillOverOnly);
         }
 
         void SetVisible(FactionTemplateEntry const* factionTemplateEntry);
@@ -144,7 +144,7 @@ class TC_GAME_API ReputationMgr
     private:                                                // internal helper functions
         void Initialize();
         uint32 GetDefaultStateFlags(FactionEntry const* factionEntry) const;
-        bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
+        bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental, bool spillOverOnly);
         void SetVisible(FactionState* faction);
         void SetAtWar(FactionState* faction, bool atWar) const;
         void SetInactive(FactionState* faction, bool inactive) const;

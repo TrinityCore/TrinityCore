@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -150,7 +150,8 @@ void npc_escortAI::JustDied(Unit* /*killer*/)
         {
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
                 if (Player* member = groupRef->GetSource())
-                    member->FailQuest(m_pQuestForEscort->GetQuestId());
+                    if (member->IsInMap(player))
+                        member->FailQuest(m_pQuestForEscort->GetQuestId());
         }
         else
             player->FailQuest(m_pQuestForEscort->GetQuestId());
@@ -339,7 +340,7 @@ void npc_escortAI::MovementInform(uint32 moveType, uint32 pointId)
         CurrentWP = WaypointList.begin();
         m_uiWPWaitTimer = 1;
     }
-    else
+    else if (CurrentWP != WaypointList.end())
     {
         //Make sure that we are still on the right waypoint
         if (CurrentWP->id != pointId)

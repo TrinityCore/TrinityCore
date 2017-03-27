@@ -1,25 +1,26 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "AuthSession.h"
 #include "Log.h"
 #include "AuthCodes.h"
 #include "Database/DatabaseEnv.h"
+#include "QueryCallback.h"
 #include "SHA1.h"
 #include "TOTP.h"
 #include "openssl/crypto.h"
@@ -118,10 +119,10 @@ std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
 {
     std::unordered_map<uint8, AuthHandler> handlers;
 
-    handlers[AUTH_LOGON_CHALLENGE]     = { STATUS_CONNECTED, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleLogonChallenge };
-    handlers[AUTH_LOGON_PROOF]         = { STATUS_CONNECTED, sizeof(AUTH_LOGON_PROOF_C),        &AuthSession::HandleLogonProof };
-    handlers[AUTH_RECONNECT_CHALLENGE] = { STATUS_CONNECTED, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleReconnectChallenge };
-    handlers[AUTH_RECONNECT_PROOF]     = { STATUS_CONNECTED, sizeof(AUTH_RECONNECT_PROOF_C),    &AuthSession::HandleReconnectProof };
+    handlers[AUTH_LOGON_CHALLENGE]     = { STATUS_CHALLENGE, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleLogonChallenge };
+    handlers[AUTH_LOGON_PROOF]         = { STATUS_LOGON_PROOF, sizeof(AUTH_LOGON_PROOF_C),        &AuthSession::HandleLogonProof };
+    handlers[AUTH_RECONNECT_CHALLENGE] = { STATUS_CHALLENGE, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleReconnectChallenge };
+    handlers[AUTH_RECONNECT_PROOF]     = { STATUS_RECONNECT_PROOF, sizeof(AUTH_RECONNECT_PROOF_C),    &AuthSession::HandleReconnectProof };
     handlers[REALM_LIST]               = { STATUS_AUTHED,    REALM_LIST_PACKET_SIZE,            &AuthSession::HandleRealmList };
 
     return handlers;
@@ -154,8 +155,7 @@ void AccountInfo::LoadResult(Field* fields)
 }
 
 AuthSession::AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
-_sentChallenge(false), _sentProof(false),
-_status(STATUS_CONNECTED), _build(0), _expversion(0)
+_status(STATUS_CHALLENGE), _build(0), _expversion(0)
 {
     N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
     g.SetDword(7);
@@ -170,8 +170,7 @@ void AuthSession::Start()
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
-    _queryCallback = std::bind(&AuthSession::CheckIpCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::CheckIpCallback, this, std::placeholders::_1)));
 }
 
 bool AuthSession::Update()
@@ -179,12 +178,7 @@ bool AuthSession::Update()
     if (!AuthSocket::Update())
         return false;
 
-    if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        auto callback = _queryCallback;
-        _queryCallback = nullptr;
-        callback(_queryFuture.get());
-    }
+    _queryProcessor.ProcessReadyQueries();
 
     return true;
 }
@@ -285,10 +279,7 @@ void AuthSession::SendPacket(ByteBuffer& packet)
 
 bool AuthSession::HandleLogonChallenge()
 {
-    if (_sentChallenge)
-        return false;
-
-    _sentChallenge = true;
+    _status = STATUS_CLOSED;
 
     sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer().GetReadPointer());
     if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE - 1) != challenge->I_len)
@@ -296,18 +287,6 @@ bool AuthSession::HandleLogonChallenge()
 
     std::string login((const char*)challenge->I, challenge->I_len);
     TC_LOG_DEBUG("server.authserver", "[AuthChallenge] '%s'", login.c_str());
-
-    if (_queryCallback)
-    {
-        ByteBuffer pkt;
-        pkt << uint8(AUTH_LOGON_CHALLENGE);
-        pkt << uint8(0x00);
-        pkt << uint8(WOW_FAIL_DB_BUSY);
-        SendPacket(pkt);
-
-        TC_LOG_DEBUG("server.authserver", "[AuthChallenge] %s attempted to log too quick after previous attempt!", login.c_str());
-        return true;
-    }
 
     _build = challenge->build;
     _expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
@@ -327,8 +306,7 @@ bool AuthSession::HandleLogonChallenge()
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGONCHALLENGE);
     stmt->setString(0, login);
 
-    _queryCallback = std::bind(&AuthSession::LogonChallengeCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::LogonChallengeCallback, this, std::placeholders::_1)));
     return true;
 }
 
@@ -428,7 +406,10 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
 
     // Fill the response packet with the result
     if (AuthHelper::IsAcceptedClientBuild(_build))
+    {
         pkt << uint8(WOW_SUCCESS);
+        _status = STATUS_LOGON_PROOF;
+    }
     else
         pkt << uint8(WOW_FAIL_VERSION_INVALID);
 
@@ -477,10 +458,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
 bool AuthSession::HandleLogonProof()
 {
     TC_LOG_DEBUG("server.authserver", "Entering _HandleLogonProof");
-    if (_sentProof)
-        return false;
-
-    _sentProof = true;
+    _status = STATUS_CLOSED;
 
     // Read the packet
     sAuthLogonProof_C *logonProof = reinterpret_cast<sAuthLogonProof_C*>(GetReadBuffer().GetReadPointer());
@@ -499,10 +477,8 @@ bool AuthSession::HandleLogonProof()
     A.SetBinary(logonProof->A, 32);
 
     // SRP safeguard: abort if A == 0
-    if (A.IsZero())
-    {
+    if ((A % N).IsZero())
         return false;
-    }
 
     SHA1Hash sha;
     sha.UpdateBigNumbers(&A, &B, NULL);
@@ -571,24 +547,6 @@ bool AuthSession::HandleLogonProof()
     // Check if SRP6 results match (password is correct), else send an error
     if (!memcmp(M.AsByteArray(sha.GetLength()).get(), logonProof->M1, 20))
     {
-        TC_LOG_DEBUG("server.authserver", "'%s:%d' User '%s' successfully authenticated", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountInfo.Login.c_str());
-
-        // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
-        // No SQL injection (escaped user name) and IP address as received by socket
-
-        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
-        stmt->setString(0, K.AsHexStr());
-        stmt->setString(1, GetRemoteIpAddress().to_string().c_str());
-        stmt->setUInt32(2, GetLocaleByName(_localizationName));
-        stmt->setString(3, _os);
-        stmt->setString(4, _accountInfo.Login);
-        LoginDatabase.DirectExecute(stmt);
-
-        // Finish SRP6 and send the final result to the client
-        sha.Initialize();
-        sha.UpdateBigNumbers(&A, &M, &K, NULL);
-        sha.Finalize();
-
         // Check auth token
         if ((logonProof->securityFlags & 0x04) || !_tokenKey.empty())
         {
@@ -609,6 +567,24 @@ bool AuthSession::HandleLogonProof()
                 return true;
             }
         }
+
+        TC_LOG_DEBUG("server.authserver", "'%s:%d' User '%s' successfully authenticated", GetRemoteIpAddress().to_string().c_str(), GetRemotePort(), _accountInfo.Login.c_str());
+
+        // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
+        // No SQL injection (escaped user name) and IP address as received by socket
+
+        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
+        stmt->setString(0, K.AsHexStr());
+        stmt->setString(1, GetRemoteIpAddress().to_string().c_str());
+        stmt->setUInt32(2, GetLocaleByName(_localizationName));
+        stmt->setString(3, _os);
+        stmt->setString(4, _accountInfo.Login);
+        LoginDatabase.DirectExecute(stmt);
+
+        // Finish SRP6 and send the final result to the client
+        sha.Initialize();
+        sha.UpdateBigNumbers(&A, &M, &K, NULL);
+        sha.Finalize();
 
         ByteBuffer packet;
         if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
@@ -705,10 +681,7 @@ bool AuthSession::HandleLogonProof()
 
 bool AuthSession::HandleReconnectChallenge()
 {
-    if (_sentChallenge)
-        return false;
-
-    _sentChallenge = true;
+    _status = STATUS_CLOSED;
 
     sAuthLogonChallenge_C* challenge = reinterpret_cast<sAuthLogonChallenge_C*>(GetReadBuffer().GetReadPointer());
     if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE - 1) != challenge->I_len)
@@ -716,17 +689,6 @@ bool AuthSession::HandleReconnectChallenge()
 
     std::string login((const char*)challenge->I, challenge->I_len);
     TC_LOG_DEBUG("server.authserver", "[ReconnectChallenge] '%s'", login.c_str());
-
-    if (_queryCallback)
-    {
-        ByteBuffer pkt;
-        pkt << uint8(AUTH_RECONNECT_CHALLENGE);
-        pkt << uint8(WOW_FAIL_DB_BUSY);
-        SendPacket(pkt);
-
-        TC_LOG_DEBUG("server.authserver", "[ReconnectChallenge] %s attempted to log too quick after previous attempt!", login.c_str());
-        return true;
-    }
 
     _build = challenge->build;
     _expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
@@ -746,8 +708,7 @@ bool AuthSession::HandleReconnectChallenge()
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RECONNECTCHALLENGE);
     stmt->setString(0, login);
 
-    _queryCallback = std::bind(&AuthSession::ReconnectChallengeCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::ReconnectChallengeCallback, this, std::placeholders::_1)));
     return true;
 }
 
@@ -768,6 +729,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
     _accountInfo.LoadResult(fields);
     K.SetHexStr(fields[9].GetCString());
     _reconnectProof.SetRand(16 * 8);
+    _status = STATUS_RECONNECT_PROOF;
 
     pkt << uint8(WOW_SUCCESS);
     pkt.append(_reconnectProof.AsByteArray(16).get(), 16);  // 16 bytes random
@@ -779,10 +741,7 @@ void AuthSession::ReconnectChallengeCallback(PreparedQueryResult result)
 bool AuthSession::HandleReconnectProof()
 {
     TC_LOG_DEBUG("server.authserver", "Entering _HandleReconnectProof");
-    if (_sentProof)
-        return false;
-
-    _sentProof = true;
+    _status = STATUS_CLOSED;
 
     sAuthReconnectProof_C *reconnectProof = reinterpret_cast<sAuthReconnectProof_C*>(GetReadBuffer().GetReadPointer());
 
@@ -821,17 +780,10 @@ bool AuthSession::HandleRealmList()
 {
     TC_LOG_DEBUG("server.authserver", "Entering _HandleRealmList");
 
-    if (_queryCallback)
-    {
-        TC_LOG_DEBUG("server.authserver", "[RealmList] %s attempted to get realmlist too quick after previous attempt!", _accountInfo.Login.c_str());
-        return false;
-    }
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALM_CHARACTER_COUNTS);
     stmt->setUInt32(0, _accountInfo.Id);
 
-    _queryCallback = std::bind(&AuthSession::RealmListCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::RealmListCallback, this, std::placeholders::_1)));
     return true;
 }
 

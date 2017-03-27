@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,7 @@
  */
 
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "nexus.h"
@@ -167,7 +168,7 @@ public:
                 while (time[i] != 0)
                     ++i;
 
-                time[i] = sWorld->GetGameTime();
+                time[i] = GameTime::GetGameTime();
                 if (i == 2 && (time[2] - time[1] < 5) && (time[1] - time[0] < 5))
                     ++splitPersonality;
             }

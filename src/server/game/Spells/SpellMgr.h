@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -238,7 +238,13 @@ enum ProcAttributes
     PROC_ATTR_REQ_EXP_OR_HONOR   = 0x0000001, // requires proc target to give exp or honor for aura proc
     PROC_ATTR_TRIGGERED_CAN_PROC = 0x0000002, // aura can proc even with triggered spells
     PROC_ATTR_REQ_MANA_COST      = 0x0000004, // requires triggering spell to have a mana cost for aura proc
-    PROC_ATTR_REQ_SPELLMOD       = 0x0000008  // requires triggering spell to be affected by proccing aura to drop charges
+    PROC_ATTR_REQ_SPELLMOD       = 0x0000008, // requires triggering spell to be affected by proccing aura to drop charges
+
+    PROC_ATTR_DISABLE_EFF_0      = 0x0000010, // explicitly disables aura proc from effects, USE ONLY IF 100% SURE AURA SHOULDN'T PROC
+    PROC_ATTR_DISABLE_EFF_1      = 0x0000020, /// used to avoid a console error if the spell has invalid trigger spell and handled elsewhere
+    PROC_ATTR_DISABLE_EFF_2      = 0x0000040, /// or handling not needed
+
+    PROC_ATTR_REDUCE_PROC_60     = 0x0000080  // aura should have a reduced chance to proc if level of proc Actor > 60
 };
 
 struct SpellProcEntry
@@ -259,11 +265,18 @@ struct SpellProcEntry
 
 typedef std::unordered_map<uint32, SpellProcEntry> SpellProcMap;
 
+enum EnchantProcAttributes
+{
+    ENCHANT_PROC_ATTR_WHITE_HIT  = 0x0000001, // enchant shall only proc off white hits (not abilities)
+    ENCHANT_PROC_ATTR_LIMIT_60   = 0x0000002  // enchant effects shall be reduced past lvl 60
+};
+
 struct SpellEnchantProcEntry
 {
-    uint32      customChance;
-    float       PPMChance;
-    uint32      procEx;
+    float       Chance;         // if nonzero - overwrite SpellItemEnchantment value
+    float       ProcsPerMinute; // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
+    uint32      HitMask;        // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
+    uint32      AttributesMask; // bitmask, see EnchantProcAttributes
 };
 
 typedef std::unordered_map<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
@@ -606,7 +619,7 @@ class TC_GAME_API SpellMgr
 
         // Spell proc table
         SpellProcEntry const* GetSpellProcEntry(uint32 spellId) const;
-        bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
+        static bool CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo);
 
         // Spell bonus data table
         SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const;
@@ -680,6 +693,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoCorrections();
         void LoadSpellInfoSpellSpecificAndAuraState();
         void LoadSpellInfoDiminishing();
+        void LoadSpellInfoImmunities();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;

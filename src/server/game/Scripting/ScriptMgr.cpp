@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -378,7 +378,8 @@ class CreatureGameObjectScriptRegistrySwapHooks
         ASSERT(!creature->IsCharmed(),
                "There is a disabled AI which is still loaded.");
 
-        creature->AI()->EnterEvadeMode();
+        if (creature->IsAlive())
+            creature->AI()->EnterEvadeMode();
     }
 
     static void UnloadDestroyScript(Creature* creature)
@@ -1202,12 +1203,11 @@ void ScriptMgr::FillSpellSummary()
     }
 }
 
-template<typename T, typename F>
-void CreateSpellOrAuraScripts(uint32 spellId, std::list<T*>& scriptVector, F&& extractor)
+template<typename T, typename F, typename O>
+void CreateSpellOrAuraScripts(uint32 spellId, std::vector<T*>& scriptVector, F&& extractor, O* objectInvoker)
 {
     SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spellId);
-
-    for (SpellScriptsContainer::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
     {
         // When the script is disabled continue with the next one
         if (!itr->second.second)
@@ -1218,24 +1218,28 @@ void CreateSpellOrAuraScripts(uint32 spellId, std::list<T*>& scriptVector, F&& e
             continue;
 
         T* script = (*tmpscript.*extractor)();
-
         if (!script)
             continue;
 
         script->_Init(&tmpscript->GetName(), spellId);
+        if (!script->_Load(objectInvoker))
+        {
+            delete script;
+            continue;
+        }
 
         scriptVector.push_back(script);
     }
 }
 
-void ScriptMgr::CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scriptVector)
+void ScriptMgr::CreateSpellScripts(uint32 spellId, std::vector<SpellScript*>& scriptVector, Spell* invoker) const
 {
-    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetSpellScript);
+    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetSpellScript, invoker);
 }
 
-void ScriptMgr::CreateAuraScripts(uint32 spellId, std::list<AuraScript*>& scriptVector)
+void ScriptMgr::CreateAuraScripts(uint32 spellId, std::vector<AuraScript*>& scriptVector, Aura* invoker) const
 {
-    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetAuraScript);
+    CreateSpellOrAuraScripts(spellId, scriptVector, &SpellScriptLoader::GetAuraScript, invoker);
 }
 
 SpellScriptLoader* ScriptMgr::GetSpellScriptLoader(uint32 scriptId)
@@ -1555,6 +1559,17 @@ bool ScriptMgr::OnItemRemove(Player* player, Item* item)
     return tmpscript->OnRemove(player, item);
 }
 
+bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo const* spellInfo, Item* item)
+{
+    ASSERT(player);
+    ASSERT(victim);
+    ASSERT(spellInfo);
+    ASSERT(item);
+
+    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, true);
+    return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
+}
+
 bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target)
 {
     ASSERT(caster);
@@ -1643,7 +1658,7 @@ bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemp
     CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
     if (!baseTemplate)
         baseTemplate = actTemplate;
-    GET_SCRIPT_RET(CreatureScript, baseTemplate->ScriptID, tmpscript, true);
+    GET_SCRIPT_RET(CreatureScript, (cData ? cData->ScriptId : baseTemplate->ScriptID), tmpscript, true);
     return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
 }
 
@@ -2154,6 +2169,11 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newAre
 void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId)
 {
     FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId);
+}
+
+void ScriptMgr::OnPlayerRepop(Player* player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerRepop(player);
 }
 
 // Account

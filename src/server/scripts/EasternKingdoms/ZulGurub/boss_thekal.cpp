@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -76,6 +76,13 @@ enum Phases
     PHASE_TWO                 = 2
 };
 
+// AWFUL HACK WARNING
+// To whoever reads this: Zul'Gurub needs your love
+// Need to do this calculation to increase/decrease Thekal's damage by 40% (probably some aura missing)
+// This is only to compile the scripts after the aura calculation revamp
+float const DamageIncrease = 40.0f;
+float const DamageDecrease = 100.f / (1.f + DamageIncrease / 100.f) - 100.f;
+
 class boss_thekal : public CreatureScript
 {
     public:
@@ -100,7 +107,7 @@ class boss_thekal : public CreatureScript
             void Reset() override
             {
                 if (events.IsInPhase(PHASE_TWO))
-                    me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
+                    me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
                 _Reset();
                 Initialize();
             }
@@ -162,7 +169,7 @@ class boss_thekal : public CreatureScript
                                 me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 40)));
                                 me->UpdateDamagePhysical(BASE_ATTACK);
                                 */
-                                me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 40.0f, true); // hack
+                                me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageIncrease); // hack
                                 DoResetThreat();
                                 events.ScheduleEvent(EVENT_FRENZY, 30000, 0, PHASE_TWO);          // Phase 2
                                 events.ScheduleEvent(EVENT_FORCEPUNCH, 4000, 0, PHASE_TWO);       // Phase 2
