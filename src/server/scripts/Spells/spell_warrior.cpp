@@ -272,7 +272,7 @@ public:
             caster->CastSpell(caster, SPELL_WARRIOR_IMPENDING_VICTORY_HEAL, true);
             if (caster->HasAura(SPELL_WARRIOR_VICTORIOUS))
                 caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
-        }
+                }
 
         void Register() override
         {
