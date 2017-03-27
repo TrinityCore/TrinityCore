@@ -1043,8 +1043,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float
 
     LastUsedScriptID = GetScriptId();
 
-    /// @todo Replace with spell, handle from DB
-    if (IsSpiritHealer() || IsSpiritGuide())
+    if (IsSpiritHealer() || IsSpiritGuide() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GHOST_VISIBILITY))
     {
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
