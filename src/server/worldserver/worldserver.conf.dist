@@ -2058,14 +2058,10 @@ Rate.Drop.Item.ReferencedAmount = 1
 #        Default:     1 - (Rate.XP.Kill, affects only kills outside of Battlegrounds)
 #                     1 - (Rate.XP.Quest)
 #                     1 - (Rate.XP.Explore)
-#                     1 - (Rate.XP.Weekend)
-#                    66 - (Rate.XP.Weekend.EVID EventID (from game_event.eventEntry))
 
-Rate.XP.Kill         = 1
-Rate.XP.Quest        = 1
-Rate.XP.Explore      = 1
-Rate.XP.Weekend      = 1
-Rate.XP.Weekend.EVID = 66
+Rate.XP.Kill    = 1
+Rate.XP.Quest   = 1
+Rate.XP.Explore = 1
 
 #
 #    Rate.XP.BattlegroundKill
@@ -2846,6 +2842,23 @@ AllowTrackBothResources = 0
 #                     1 - (Enabled)
 
 PlayerStart.AllReputation = 0
+
+#
+#    Weekend.XP.Days
+#        Description: Enables XP increase during last days of the week.
+#
+#        Default:     0 - (Disabled)
+#                     2 - (Weekend - Saturdays and Sundays)
+#                     7 - (Always active)
+
+Weekend.XP.Days = 0
+
+#
+#    Weekend.XP.Rate
+#        Description: Experience rates during weekend
+#        Default:     1 - (Weekend.XP.Rate, normal experience gain)
+
+Weekend.XP.Rate = 1
 
 #
 #    PlayerStart.AllSpells

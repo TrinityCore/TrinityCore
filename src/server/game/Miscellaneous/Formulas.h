@@ -19,7 +19,6 @@
 #ifndef TRINITY_FORMULAS_H
 #define TRINITY_FORMULAS_H
 
-#include "GameEventMgr.h"
 #include "World.h"
 #include "SharedDefines.h"
 #include "ScriptMgr.h"
@@ -185,7 +184,7 @@ namespace Trinity
                     xpMod *= creature->GetCreatureTemplate()->ModExperience;
                 }
 
-                xpMod *= isBattleGround ? sWorld->getRate(RATE_XP_BG_KILL) : sWorld->getRate(RATE_XP_KILL)  * (IsEventActive(sWorld->getIntConfig(CONFIG_RATE_XP_WEEKEND_EVID)) ? sWorld->getRate(RATE_XP_WEEKEND) : 1.0f);
+                xpMod *= isBattleGround ? sWorld->getRate(RATE_XP_BG_KILL) : sWorld->getRate(RATE_XP_KILL);
                 if (creature && creature->m_PlayerDamageReq) // if players dealt less than 50% of the damage and were credited anyway (due to CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ), scale XP gained appropriately (linear scaling)
                     xpMod *= 1.0f - 2.0f*creature->m_PlayerDamageReq / creature->GetMaxHealth();
 
@@ -228,16 +227,6 @@ namespace Trinity
 
             sScriptMgr->OnGroupRateCalculation(rate, count, isRaid);
             return rate;
-        }
-
-        inline float xp_on_weekend_rate(uint32 initial_rate = 1.0f)
-        {
-            if(IsEventActive(sWorld->getIntConfig(CONFIG_RATE_XP_WEEKEND_EVID)))
-            {
-                initial_rate *= sWorld->getRate(RATE_XP_WEEKEND);
-            }
-            // Original value is unaffected if no event.
-            return initial_rate;
         }
     } // namespace Trinity::XP
 } // namespace Trinity

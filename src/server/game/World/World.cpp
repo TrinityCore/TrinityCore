@@ -452,8 +452,16 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_XP_BG_KILL]  = sConfigMgr->GetFloatDefault("Rate.XP.BattlegroundKill", 1.0f);
     rate_values[RATE_XP_QUEST]    = sConfigMgr->GetFloatDefault("Rate.XP.Quest", 1.0f);
     rate_values[RATE_XP_EXPLORE]  = sConfigMgr->GetFloatDefault("Rate.XP.Explore", 1.0f);
-    rate_values[RATE_XP_WEEKEND]  = sConfigMgr->GetFloatDefault("Rate.XP.Weekend", 1.0f);
-    m_int_configs[CONFIG_RATE_XP_WEEKEND_EVID] = sConfigMgr->GetIntDefault("Rate.XP.Weekend.EVID", 66);
+
+    m_int_configs[CONFIG_WEEKEND_XP_DAYS] = sConfigMgr->GetIntDefault("Weekend.XP.Days", 0);
+    if (m_int_configs[CONFIG_WEEKEND_XP_DAYS] > 7)
+    {
+        TC_LOG_ERROR("server.loading", "Weekend.XP.Days must have value betwween 0 and 7. Using 0 instead.");
+        m_int_configs[CONFIG_WEEKEND_XP_DAYS] = 0;
+    }
+
+    rate_values[RATE_XP_WEEKEND] = sConfigMgr->GetFloatDefault("Weekend.XP.Rate", 1.0f);
+
     rate_values[RATE_REPAIRCOST]  = sConfigMgr->GetFloatDefault("Rate.RepairCost", 1.0f);
     if (rate_values[RATE_REPAIRCOST] < 0.0f)
     {
