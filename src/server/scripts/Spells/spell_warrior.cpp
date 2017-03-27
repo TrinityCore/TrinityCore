@@ -426,6 +426,44 @@ public:
     }
 };
 
+// 202168 - Impending Victory
+class spell_warr_impending_victory : public SpellScriptLoader
+{
+public:
+    spell_warr_impending_victory() : SpellScriptLoader("spell_warr_impending_victory") { }
+
+    class spell_warr_impending_victory_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_impending_victory_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_IMPENDING_VICTORY_HEAL
+            });
+        }
+        
+        void HandleAfterCast()
+        {
+            Unit* caster = GetCaster();
+            caster->CastSpell(caster, SPELL_WARRIOR_IMPENDING_VICTORY_HEAL, true);
+            if (caster->HasAura(SPELL_WARRIOR_VICTORIOUS))
+                caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VICTORIOUS);
+                }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_warr_impending_victory_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_impending_victory_SpellScript();
+    }
+};
+
 // 59725 - Improved Spell Reflection
 class spell_warr_improved_spell_reflection : public SpellScriptLoader
 {
@@ -1128,77 +1166,46 @@ class spell_warr_victory_rush : public SpellScriptLoader
         }
 };
 
-// 50720 - Vigilance
-class spell_warr_vigilance : public SpellScriptLoader
+// 32215 - Victorious State
+class spell_warr_victorious_state : public SpellScriptLoader
 {
-    public:
-        spell_warr_vigilance() : SpellScriptLoader("spell_warr_vigilance") { }
+public:
+    spell_warr_victorious_state() : SpellScriptLoader("spell_warr_victorious_state") { }
 
-        class spell_warr_vigilance_AuraScript : public AuraScript
+    class spell_warr_victorious_state_Aurascript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_victorious_state_Aurascript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            PrepareAuraScript(spell_warr_vigilance_AuraScript);
-
-        public:
-            spell_warr_vigilance_AuraScript()
-            {
-                _procTarget = nullptr;
-            }
-
-        private:
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_VENGEANCE))
-                    return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                _procTarget = nullptr;
-                return true;
-            }
-
-            /*
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                _procTarget = GetCaster();
-                return _procTarget && eventInfo.GetDamageInfo();
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
-
-                GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_VIGILANCE_PROC, true, NULL, aurEff);
-                _procTarget->CastCustomSpell(_procTarget, SPELL_WARRIOR_VENGEANCE, &damage, &damage, &damage, true, NULL, aurEff);
-            }
-            */
-
-            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (caster->HasAura(SPELL_WARRIOR_VENGEANCE))
-                        caster->RemoveAurasDueToSpell(SPELL_WARRIOR_VENGEANCE);
-                }
-            }
-
-            void Register() override
-            {
-                //DoCheckProc += AuraCheckProcFn(spell_warr_vigilance_AuraScript::CheckProc);
-                //OnEffectProc += AuraEffectProcFn(spell_warr_vigilance_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_warr_vigilance_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
-            }
-
-        private:
-            Unit* _procTarget;
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_warr_vigilance_AuraScript();
+            return ValidateSpellInfo
+            ({
+                SPELL_WARRIOR_IMPENDING_VICTORY
+            });
         }
+        
+        void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*procInfo*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (caster->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_WARRIOR_FURY)
+                    PreventDefaultAction();
+
+                if (caster->HasSpell(SPELL_WARRIOR_IMPENDING_VICTORY))
+                    caster->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_IMPENDING_VICTORY, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warr_victorious_state_Aurascript::HandleOnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_warr_victorious_state_Aurascript();
+    }
 };
 
 // 50725 Vigilance
