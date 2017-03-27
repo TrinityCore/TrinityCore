@@ -3176,7 +3176,7 @@ class spell_item_taunt_flag_targeting : public SpellScriptLoader
                     return;
                 }
 
-                Trinity::Containers::RandomResizeList(targets, 1);
+                Trinity::Containers::RandomResize(targets, 1);
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

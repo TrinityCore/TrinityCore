@@ -253,10 +253,11 @@ struct QuestTemplateLocale
     StringVector PortraitTurnInText;
     StringVector PortraitTurnInName;
     StringVector QuestCompletionLog;
+};
 
-    /// @todo: implemente this in new tables
-    StringVector OfferRewardText;
-    StringVector RequestItemsText;
+struct QuestRequestItemsLocale
+{
+    StringVector CompletionText;
 };
 
 struct QuestObjectivesLocale
@@ -264,9 +265,15 @@ struct QuestObjectivesLocale
     StringVector Description;
 };
 
+struct QuestOfferRewardLocale
+{
+    StringVector RewardText;
+};
+
 struct QuestObjective
 {
     uint32 ID           = 0;
+    uint32 QuestID      = 0;
     uint8  Type         = 0;
     int8   StorageIndex = 0;
     int32  ObjectID     = 0;

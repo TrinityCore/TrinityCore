@@ -95,7 +95,7 @@ namespace MMAP
             void buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY);
 
             // builds list of maps, then builds all of mmap tiles (based on the skip settings)
-            void buildAllMaps(int threads);
+            void buildAllMaps(unsigned int threads);
 
             void WorkerThread();
 

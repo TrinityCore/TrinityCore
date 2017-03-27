@@ -244,7 +244,11 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
 
     ChatMsg finalType = (msgType == CHAT_MSG_ADDON) ? iter->type : msgType;
     Language finalLang = (language == LANG_ADDON) ? iter->lang : language;
-    uint32 finalSound = sound ? sound : iter->sound;
+    uint32 finalSound = iter->sound;
+    if (sound)
+        finalSound = sound;
+    else if (BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(iter->BroadcastTextId))
+        finalSound = bct->SoundID[source->getGender() == GENDER_FEMALE ? 1 : 0];
 
     if (range == TEXT_RANGE_NORMAL)
         range = iter->TextRange;
