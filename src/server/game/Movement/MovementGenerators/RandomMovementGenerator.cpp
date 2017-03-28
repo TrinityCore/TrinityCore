@@ -94,9 +94,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     float angle = frand(0.f, 1.f) * float(M_PI) * 2.f;
     owner->MovePositionToFirstCollision(position, distance, angle);
 
-    uint32 resetTimer = urand(1000, 2000);
-    if (roll_chance_i(50))
-        resetTimer = urand(5000, 10000);
+    uint32 resetTimer = roll_chance_i(50) ? urand(5000, 10000) : urand(1000, 2000);
 
     if (!_path)
         _path = new PathGenerator(owner);
