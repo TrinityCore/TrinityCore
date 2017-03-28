@@ -51,7 +51,7 @@ ObjectData const gameObjectData[] =
     { 0,                            0                           } //END
 };
 
-static DataTypes const collapseObjectDatas[] =
+static MLDataTypes const collapseObjectDatas[] =
 {
     DATA_MAGTHERIDON_COLUMN_0,
     DATA_MAGTHERIDON_COLUMN_1,
