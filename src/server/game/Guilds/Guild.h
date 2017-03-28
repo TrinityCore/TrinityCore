@@ -831,7 +831,6 @@ class TC_GAME_API Guild
         uint32 _GetRankRights(uint8 rankId) const;
         int32 _GetRankBankMoneyPerDay(uint8 rankId) const;
         int32 _GetRankBankTabSlotsPerDay(uint8 rankId, uint8 tabId) const;
-        std::string _GetRankName(uint8 rankId) const;
 
         int32 _GetMemberRemainingSlots(Member const* member, uint8 tabId) const;
         int32 _GetMemberRemainingMoney(Member const* member) const;
@@ -850,6 +849,7 @@ class TC_GAME_API Guild
         void _SendBankMoneyUpdate(WorldSession* session) const;
         void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
         void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
+        std::string _GetRankName(uint8 rankId) const;
         void _SendBankList(WorldSession* session = NULL, uint8 tabId = 0, bool sendFullSlots = false, SlotIds *slots = NULL) const;
 
         void _BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;

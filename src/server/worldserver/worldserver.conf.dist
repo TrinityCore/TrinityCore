@@ -3815,3 +3815,369 @@ Metric.OverallStatusInterval = 1
 
 #
 ###################################################################################################
+
+#########################################################
+# TriniChat IRC BOT For Trinity Core Configuration File #
+#########################################################
+# irc.active
+# Enable TriniChat Addon
+# Default: 1 - Enable
+# 0 - Disable
+#
+
+irc.active = 1
+
+#
+##################################################
+
+##################################################
+# irc.icc
+# IRC connect code
+# Default: 001 - Welcome To Network msg
+# 375 - Beginning Of MOTD
+# 376 - End Of MOTD
+#
+
+irc.icc = 001
+
+#
+##################################################
+
+##################################################
+# irc.host
+# IRC server to have TriniChat connect to
+#
+
+irc.host = "irc.xxxx.net"
+
+#
+##################################################
+
+##################################################
+# irc.port
+# IRC server port to use
+#
+
+irc.port = "6667"
+
+#
+##################################################
+
+##################################################
+# irc.user
+# The username to have TriniChat use to connect to the IRC server
+# irc.nick
+# IRC nickname to be used by the bot
+# irc.pass
+# The password to be used to identify to NickServ (IRC NickName Enforcement Services)
+#
+
+irc.user = "Trini_Chat"
+irc.nick = "Trini_Chat"
+irc.pass = "ServicesPass"
+
+#
+##################################################
+
+##################################################
+# irc.auth
+# IRC Authentication Method
+# Default: 0 - Disable
+# 1 - NickServ - Normal Method - PRIVMSG NickServ :IDENTIFY Password
+# 2 - NickServ - Alternate Method To Identify To A Different Nick - PRIVMSG NickServ :IDENTIFY irc.auth.nick Password
+# 3 - QuakeNet - Normal Method - PRIVMSG Q@CServe.quakenet.org :AUTH irc.nick Password
+# 4 - QuakeNet - Alternate Method To Identify To A Different Nick - PRIVMSG Q@CServe.quakenet.org :AUTH irc.auth.nick Password
+# irc.auth.nick
+# IRC Nickname to use if Auth method 2 or 4 is used
+#
+
+irc.auth = 0
+irc.auth.nick = "NickServ"
+
+#
+##################################################
+
+##################################################
+# irc.ldef
+# Leave a defined IRC channel on server connect
+# Default: 0 - Disable
+# 1 - Enable
+# irc.defchan
+# IRC channel to leave on server connect if irc.ldef is on
+#
+
+irc.ldef = 0
+irc.defchan = "lobby"
+
+#
+##################################################
+
+##################################################
+# irc.wct
+# Time to wait before (re)attemptimg connection to IRC server
+# Default: 30000 - (30 Seconds)
+# irc.maxattempt
+# Maximum attempts to try IRC server
+# Default: 20
+#
+
+irc.wct = 30000
+irc.maxattempt = 20
+
+#
+##################################################
+
+##################################################
+# irc.auto.announce
+# Time to wait in Minutes to announce random messages from database.
+# Default: 30 - (30 Minutes)
+#
+
+irc.auto.announce = 30
+
+#
+##################################################
+
+##################################################
+# irc.autojoin_kick
+# Autojoin IRC channel if kicked
+# Default: 1 - Enable
+# 0 - Disable
+#
+
+irc.autojoin_kick = 1
+
+#
+##################################################
+
+##################################################
+# irc.command_prefix
+# IRC command prefix
+# Example: (.)online all
+#
+
+irc.command_prefix = "."
+
+#
+##################################################
+
+##################################################
+# irc.joinmsg
+# irc.rstmsg
+# irc.kickmsg
+# TriniChat bot join/restart/kick messages
+#
+
+irc.joinmsg = "TrinityCore With TriniChat $Ver Is Up And Running! Command Trigger Is: $Trigger"
+irc.rstmsg = "TriniChat Is Restarting, I Will Be Right Back."
+irc.kickmsg = "Do Not Kick Me Again, Severe Actions Will Be Taken!"
+
+#
+##################################################
+
+##################################################
+# irc.chan_#
+# wow.chan_#
+# IRC and WOW channels to link. Leave # out of IRC channel. Both channels _ARE_ case sensitive
+# NOTE: you can have more than 1 IRC channel linked to wow channels, as in example:
+# Example: irc.chan_1 = "Trinity"
+# irc.chan_2 = "trinity2"
+# wow.chan_1 = "world"
+# wow.chan_2 = "LookingForGroup"
+# irc.pass_#
+# Passwords for said IRC channels (IRC server side)
+# Example:
+# irc.pass_1 = "password" password for irc channel #1
+# irc.pass_2 = "password2" password for irc channel #2
+
+irc.chan_1 = "ircchan"
+wow.chan_1 = "world"
+irc.pass_1 = "pass"
+
+#
+##################################################
+
+##################################################
+# irc.staff_link
+# if set to 1 will link gm name announce to irc channel
+# Default: 0
+# irc.staff_chan
+# Print IRC messages to GM Name Announce and Gm Name Announce to IRC Channel
+# Default: "staff"
+# irc.ignore_bots
+# enter nicks of bots to ignore seprated by commas
+# Default: ""
+#
+
+irc.staff_link = 0
+irc.staff_chan = "staff"
+irc.ignore_bots = ""
+
+#
+##################################################
+
+##################################################
+# irc.StatusChannel
+# Channel Name To Display Status Messages In (AuctionHouse, Levels, Deaths, Etc)
+# Default: ""
+# irc.AnnounceChannel
+# Channel Name To Display Announcements In (Announces, Notifies, Event)
+# Default: ""
+# irc.Tickets
+# Channel Name To Display Ticket Announcment in (Create, Edit, Closed, lag Reports)
+# Default: ""
+# Note: Botmask : Enable Ticket Announment must be activ
+#
+
+irc.StatusChannel = ""
+irc.StatusChannelPW = ""
+irc.AnnounceChannel = ""
+irc.AnnounceChannelPW = ""
+irc.Tickets = ""
+irc.TicketsPW = ""
+
+#
+##################################################
+
+##################################################
+# irc.op_gm_login
+# Op The GM In All Channels The Bot Is On When They Log In To TriniChat
+# Default: 0 - Disable
+# 1 - Enable
+# irc.op_gm_level
+# The Minimum GM Level Required To Have The Bot Op The User
+# Default: 3 - GM Level 3
+#
+
+irc.op_gm_login = 0
+irc.op_gm_level = 3
+
+#
+##################################################
+
+##################################################
+# irc.ajoin (Experimental/Under Development)
+# Force players to autojoin a WOW in game channel
+# Atleast one player must be in the channel on server start, and atleast one person online for invite to work
+# Default: 0 - Disable
+# 1 - Enable
+# irc.ajchan
+# Channel to join if above is Enabled.
+#
+
+irc.ajoin = 0
+irc.ajchan = "world"
+
+#
+##################################################
+
+##################################################
+# irc.online.result
+# Maximum number of results per line for the online command
+#
+
+irc.online.result = 30
+
+#
+##################################################
+
+##################################################
+# chat.*** (Defineable Strings) (maybe more in future)
+# wow_* - String is displayed in IRC channel
+# irc_* - String is displayed in WOW channel
+# Options: $Name, $Level, $Class, $Msg, $GM (not all options work in every string)
+#
+
+chat.wow_irc = "<WoW>[$Name($Level)[$Class]] $Msg"
+chat.irc_wow = "<IRC>[$Name]: $Msg"
+chat.join_wow = "12>>04 $GM$Name Joined The $Channel Channel!"
+chat.join_irc = "[$Name]: Has Joined IRC!"
+chat.leave_wow = "12<<04 $GM$Name Left The $Channel Channel!"
+chat.leave_irc = "[$Name]: Has Left IRC!"
+chat.change_nick = "<> $Name Is Now Known As $NewName!"
+
+#
+##################################################
+
+##################################################
+# Botmask
+# This defines what the bot announces, if its 0 everything is disabled
+# simply add the values of the elements you want to create this mask.
+# Example: WoW join/leaves are 1 and IRC join/leaves are 2, if you want both of these active then the BotMask is 3.
+# (1)Display WoW Chan Join/Leaves In IRC
+# (2)Display IRC Chan Join/Leaves/NickChanges In WoW
+# (4)Display Unknown Command Message When Trigger Is Used And No Command Exists
+# (8)Announce Security Level > 0 As GM At Login
+# (16)Announce GM In GM ON State AS GM At Login
+# (32)Return Errors To Notice. (If disabled then default is Private Message)
+# (64)Display WoW Status Messages (Levels/Deaths)
+# (128)Display Nick Changes From IRC In WOW
+# (256)Display WoW Announces/Notifies In IRC
+# (512)Do Not Let Players Use Commands On Higher GM Level Players
+# (1024)Enable Ticket Annoucemnt
+# (2048)Display Warden penalties
+#
+# Tickets Botmask
+# (1) Announce Created Tickets.
+# (2) Announce Updated Tickets.
+# (4) Announce Abandoned Tickets.
+# (8) Announce Lag Reports.
+# (16) Announce Tickets updated by Gms. (Close ,Assigned ,Unassigned and ect..)
+#
+
+Botmask = 0
+Ticketmask = 0
+
+#
+##################################################
+
+##################################################
+# irc.gmlog
+# Minimum GM level to not show login/pass info in IRC logs
+# irc.logfile.prefix
+# The prefix of the IRC logfile. Directories can be added here.
+# Example: "IRC/IRC_" outputs IRC_YYYY-MM-DD.log to the IRC subdirectory in your logs dir
+# irc.logchannel
+# Specefies the channel where logged output gets broadcasted.
+# Default: "" (none)
+# irc.logchannelpw
+# The password for the log channel.
+# irc.logmask
+# Bitmask, see Botmask for explanation. Determines what gets logged to the logchannel.
+# (0) Do not broadcast into logchannel.
+# (1) Broadcast IRC Commands into logchannel.
+# (2) Broadcast Ingame GM Commands into logchannel.
+# (3) Broadcast both IRC Commands and GM Commands into logchannel.
+
+irc.gmlog = 0
+irc.logfile.prefix = "IRC_"
+irc.logchannel = ""
+irc.logchannelpw = ""
+irc.logmask = 3
+
+#
+##################################################
+
+##################################################
+# irc.fun.games (Experimental/Under Development)
+# Enable TriniChat Games
+# Default: 0 - Disable
+# 1 - Enable
+#
+
+irc.fun.games = 0
+
+#
+##################################################
+
+##################################################
+# irc.gm#
+# GM tag to append to (GM onjoin / online command) IRC color codes are acceptable
+#
+irc.gm1 = "[Moderator]"
+irc.gm2 = "[GameMaster]"
+irc.gm3 = "[Developer]"
+irc.gm4 = "[Owner]"
+
+#
+###################################################################################################

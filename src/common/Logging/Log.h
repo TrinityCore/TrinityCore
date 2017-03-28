@@ -90,9 +90,9 @@ class TC_COMMON_API Log
 
         std::string const& GetLogsDir() const { return m_logsDir; }
         std::string const& GetLogsTimestamp() const { return m_logsTimestamp; }
+        static std::string GetTimestampStr();
 
     private:
-        static std::string GetTimestampStr();
         void write(std::unique_ptr<LogMessage>&& msg) const;
 
         Logger const* GetLoggerByType(std::string const& type) const;

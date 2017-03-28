@@ -2627,6 +2627,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
+
+        public:
+            QuestStatusSaveMap m_RewardedQuestsSave2;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

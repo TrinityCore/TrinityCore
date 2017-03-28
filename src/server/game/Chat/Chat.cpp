@@ -32,6 +32,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
+#include "IRCClient.h"
 
 // Lazy loading of the command table cache from commands and the
 // ScriptMgr should be thread safe since the player commands,
@@ -322,6 +323,14 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
                     areaId, areaName.c_str(), zoneName.c_str(),
                     (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "",
                     guid.ToString().c_str());
+                if ((sIRC->logmask & 2) != 0)
+                    {
+                        std::string logchan = "#";
+                        logchan += sIRC->logchan;
+                        std::stringstream ss;
+                        ss << sIRC->iLog.GetLogDateTimeStr() << ": [ " << player->GetName() << "(" << GetSession()->GetSecurity() << ") ] Used Command: [ " << fullcmd << " ] Target Guid: [" << GUID_LOPART(guid) << "]";
+                        sIRC->Send_IRC_Channel(logchan,ss.str().c_str(), true, "LOG");
+                    }
             }
         }
         // some commands have custom error messages. Don't send the default one in these cases.

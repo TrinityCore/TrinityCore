@@ -28,6 +28,7 @@
 #include "DatabaseEnv.h"
 #include "AccountMgr.h"
 #include "Player.h"
+#include "IRCClient.h"
 
 Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zoneEntry /*= nullptr*/) :
     _announceEnabled(false),                                        // no join/leave announces
@@ -241,6 +242,8 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
 
     JoinNotify(guid);
 
+    sIRC->Handle_WoW_Channel(_name, ObjectAccessor::FindPlayer(guid), CHANNEL_JOIN);
+
     // Custom channel handling
     if (!IsConstant())
     {
@@ -293,6 +296,8 @@ void Channel::LeaveChannel(Player* player, bool send)
         ChannelNameBuilder<LeftAppend> builder(this, appender);
         SendToAll(builder);
     }
+
+    sIRC->Handle_WoW_Channel(_name, ObjectAccessor::FindPlayer(guid), CHANNEL_LEAVE);
 
     LeaveNotify(guid);
 

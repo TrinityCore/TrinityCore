@@ -117,6 +117,14 @@ public:
                         sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD, author.c_str(), name.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
                     else
                         handler->PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
+                    //TCC announcing
+                    if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+                    {
+                        std::string ircchan = "#" + sIRC->Status;
+                        std::stringstream data;
+                        data << "Character " << name << " banned for " << secsToTimeString(TimeStringToSecs(durationStr)) << "by " << author << ", reason: " << reasonStr;
+                        sIRC->Send_IRC_Channel(ircchan, data.str(), true);
+                    }
                 }
                 else
                 {
@@ -124,6 +132,14 @@ public:
                         sWorld->SendWorldText(LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), name.c_str(), reasonStr);
                     else
                         handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, name.c_str(), reasonStr);
+                    //TCC announcing
+                    if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+                    {
+                        std::string ircchan = "#" + sIRC->Status;
+                        std::stringstream data;
+                        data << "Character " << name << " permabanned by " << author << ", reason: " << reasonStr;
+                        sIRC->Send_IRC_Channel(ircchan, data.str(), true);
+                    }
                 }
                 break;
             }
@@ -204,6 +220,14 @@ public:
                         sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD, author.c_str(), nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
                     else
                         handler->PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(durationStr), true).c_str(), reasonStr);
+                    //TCC announcing
+                    if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+                    {
+                        std::string ircchan = "#" + sIRC->Status;
+                        std::stringstream data;
+                        data << nameOrIP << " banned for " << secsToTimeString(TimeStringToSecs(durationStr)) << "by " << author << ", reason: " << reasonStr;
+                        sIRC->Send_IRC_Channel(ircchan, data.str(), true);
+                    }
                 }
                 else
                 {
@@ -211,6 +235,14 @@ public:
                         sWorld->SendWorldText(LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD, author.c_str(), nameOrIP.c_str(), reasonStr);
                     else
                         handler->PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP.c_str(), reasonStr);
+                    //TCC announcing
+                    if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+                    {
+                        std::string ircchan = "#" + sIRC->Status;
+                        std::stringstream data;
+                        data << nameOrIP << " permabanned by "<< author << ", reason: " << reasonStr;
+                        sIRC->Send_IRC_Channel(ircchan, data.str(), true);
+                    }
                 }
                 break;
             case BAN_SYNTAX_ERROR:
@@ -690,7 +722,15 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-
+        //TCC announcing
+        if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+        {
+            std::string author = handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server";
+            std::string ircchan = "#" + sIRC->Status;
+            std::stringstream data;
+            data << "Character " << name << " unbanned by " << author;
+            sIRC->Send_IRC_Channel(ircchan, data.str(), true);
+        }
         return true;
     }
 
@@ -743,7 +783,15 @@ public:
             handler->PSendSysMessage(LANG_UNBAN_UNBANNED, nameOrIP.c_str());
         else
             handler->PSendSysMessage(LANG_UNBAN_ERROR, nameOrIP.c_str());
-
+        //TCC announcing
+        if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+        {
+            std::string author = handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server";
+            std::string ircchan = "#" + sIRC->Status;
+            std::stringstream data;
+            data << nameOrIP << " unbanned by " << author;
+            sIRC->Send_IRC_Channel(ircchan, data.str(), true);
+        }
         return true;
     }
 };
