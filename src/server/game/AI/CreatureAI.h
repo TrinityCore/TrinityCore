@@ -31,7 +31,7 @@ class PlayerAI;
 class WorldObject;
 struct Position;
 
-typedef std::set<AreaBoundary const*> CreatureBoundary;
+typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
@@ -82,6 +82,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
         bool CheckBoundary(Position const* who = nullptr) const;
+        static bool IsInBounds(CreatureBoundary const* boundary, Position const* who);
+
         void SetBoundary(CreatureBoundary const* boundary);
     public:
         enum EvadeReason
