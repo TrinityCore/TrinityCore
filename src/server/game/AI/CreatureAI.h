@@ -82,7 +82,6 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
         bool CheckBoundary(Position const* who = nullptr) const;
-        static bool IsInBounds(CreatureBoundary const* boundary, Position const* who);
 
         void SetBoundary(CreatureBoundary const* boundary);
     public:
@@ -215,6 +214,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         int32 VisualizeBoundary(uint32 duration, Unit* owner=nullptr, bool fill=false) const;
         virtual bool CheckInRoom();
         CreatureBoundary const* GetBoundary() const { return _boundary; }
+
+        static bool IsInBounds(CreatureBoundary const* boundary, Position const* who);
 
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);
