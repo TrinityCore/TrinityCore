@@ -89,9 +89,7 @@ class TC_GAME_API CircleBoundary : public AreaBoundary
 {
     public:
         CircleBoundary(Position const& center, double radius, bool isInverted = false);
-        CircleBoundary(DoublePosition const& center, double radius, bool isInverted = false);
         CircleBoundary(Position const& center, Position const& pointOnCircle, bool isInverted = false);
-        CircleBoundary(DoublePosition const& center, DoublePosition const& pointOnCircle, bool isInverted = false);
 
     protected:
         bool IsWithinBoundaryArea(Position const* pos) const override;
@@ -105,7 +103,6 @@ class TC_GAME_API EllipseBoundary : public AreaBoundary
 {
     public:
         EllipseBoundary(Position const& center, double radiusX, double radiusY, bool isInverted = false);
-        EllipseBoundary(DoublePosition const& center, double radiusX, double radiusY, bool isInverted = false);
 
     protected:
         bool IsWithinBoundaryArea(Position const* pos) const override;
@@ -119,7 +116,6 @@ class TC_GAME_API TriangleBoundary : public AreaBoundary
 {
     public:
         TriangleBoundary(Position const& pointA, Position const& pointB, Position const& pointC, bool isInverted = false);
-        TriangleBoundary(DoublePosition const& pointA, DoublePosition const& pointB, DoublePosition const& pointC, bool isInverted = false);
 
     protected:
         bool IsWithinBoundaryArea(Position const* pos) const override;
@@ -134,7 +130,6 @@ class TC_GAME_API ParallelogramBoundary : public AreaBoundary
     public:
         // Note: AB must be orthogonal to AD
         ParallelogramBoundary(Position const& cornerA, Position const& cornerB, Position const& cornerD, bool isInverted = false);
-        ParallelogramBoundary(DoublePosition const& cornerA, DoublePosition const& cornerB, DoublePosition const& cornerD, bool isInverted = false);
 
     protected:
         bool IsWithinBoundaryArea(Position const* pos) const override;
