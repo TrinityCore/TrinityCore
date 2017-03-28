@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 2;
 
-enum Data
+enum FOSData
 {
     // Encounter states and GUIDs
     DATA_BRONJAHM                   = 0,
@@ -33,7 +33,7 @@ enum Data
     DATA_TEAM_IN_INSTANCE           = 2
 };
 
-enum Creatures
+enum FOSCreatures
 {
     NPC_BRONJAHM                    = 36497,
     NPC_DEVOURER                    = 36502,
