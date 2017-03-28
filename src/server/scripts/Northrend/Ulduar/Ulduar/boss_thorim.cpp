@@ -404,11 +404,6 @@ class LightningFieldEvent : public BasicEvent
         Creature* _owner;
 };
 
-bool IsInArena(Position const* pos)
-{
-    return (pos->GetPositionX() < 2181.19f && pos->GetPositionY() > -299.12f);
-}
-
 class boss_thorim : public CreatureScript
 {
     public:
@@ -1183,11 +1178,20 @@ class npc_thorim_arena_phase : public CreatureScript
                         _isInArena = false;
                         break;
                 }
+
+                if (_isInArena)
+                    SetBoundary(&ThorimInArenaBoundaries);
+                else
+                    SetBoundary(&ThorimOutOfArenaBoundaries);
             }
 
             bool CanAIAttack(Unit const* who) const override
             {
-                return _isInArena == IsInArena(who);
+                // don't try to attack players in balcony
+                if (_isInArena && who->GetPositionZ() > 428.0f)
+                    return false;
+
+                return CheckBoundary(who);
             }
 
             void Reset() override
@@ -1215,8 +1219,10 @@ class npc_thorim_arena_phase : public CreatureScript
 
             void EnterEvadeMode(EvadeReason why) override
             {
+                if (why != EVADE_REASON_NO_HOSTILES && why != EVADE_REASON_BOUNDARY)
+                    return;
+
                 // this should only happen if theres no alive player in the arena -> summon orb
-                // might be called by mind control release or controllers death?
                 if (Creature* thorim = _instance->GetCreature(BOSS_THORIM))
                     thorim->AI()->DoAction(ACTION_BERSERK);
                 ScriptedAI::EnterEvadeMode(why);
@@ -1846,6 +1852,14 @@ class spell_thorim_arena_leap : public SpellScriptLoader
         }
 };
 
+struct OutOfArenaCheck
+{
+    bool operator()(Position const* who) const
+    {
+        return CreatureAI::IsInBounds(&ThorimOutOfArenaBoundaries, who);
+    }
+};
+
 // 62042 - Stormhammer
 class spell_thorim_stormhammer : public SpellScriptLoader
 {
@@ -1866,7 +1880,7 @@ class spell_thorim_stormhammer : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if([](WorldObject* target) -> bool { return !IsInArena(target); });
+                targets.remove_if([](WorldObject* target) -> bool { return target->GetPositionZ() > 428.0f || OutOfArenaCheck()(target); });
 
                 if (targets.empty())
                 {
@@ -2143,12 +2157,15 @@ class achievement_lose_your_illusion : public AchievementCriteriaScript
 class achievement_i_ll_take_you_all_on : public AchievementCriteriaScript
 {
     public:
-        achievement_i_ll_take_you_all_on() : AchievementCriteriaScript("achievement_i_ll_take_you_all_on") { }
+        achievement_i_ll_take_you_all_on() : AchievementCriteriaScript("achievement_i_ll_take_you_all_on"), _check() { }
 
         bool OnCheck(Player* source, Unit* /*target*/) override
         {
-            return !IsInArena(source);
+            return _check(source);
         }
+
+    private:
+        OutOfArenaCheck _check;
 };
 
 class condition_thorim_arena_leap : public ConditionScript
