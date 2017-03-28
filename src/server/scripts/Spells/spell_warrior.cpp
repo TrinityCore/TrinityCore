@@ -1110,19 +1110,15 @@ public:
             });
         }
 
-        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
-            PreventDefaultAction();
-            if (Unit* caster = GetCaster())
+            if (Unit* target = eventInfo.GetActionTarget())
             {
-                if (Unit* target = eventInfo.GetActionTarget())
-                {
-                    //Get the Remaining Damage from the aura (if exist)
-                    int32 remainingDamage = target->GetRemainingPeriodicAmount(target->GetGUID(), SPELL_WARRIOR_TRAUMA_EFFECT, SPELL_AURA_PERIODIC_DAMAGE);
-                    //Get 25% of damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
-                    int32 damage = (eventInfo.GetDamageInfo()->GetDamage() * 25.0 / 100.0) + remainingDamage;
-                    caster->CastCustomSpell(target, SPELL_WARRIOR_TRAUMA_EFFECT, &damage, nullptr, nullptr, true);
-                }
+                //Get the Remaining Damage from the aura (if exist)
+                int32 remainingDamage = target->GetRemainingPeriodicAmount(target->GetGUID(), SPELL_WARRIOR_TRAUMA_EFFECT, SPELL_AURA_PERIODIC_DAMAGE);
+                //Get 25% of damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
+                int32 damage = (eventInfo.GetDamageInfo()->GetDamage() * aurEff->GetAmount() / 100.0f) + remainingDamage;
+                GetCaster()->CastCustomSpell(target, SPELL_WARRIOR_TRAUMA_EFFECT, &damage, nullptr, nullptr, true);
             }
         }
 
