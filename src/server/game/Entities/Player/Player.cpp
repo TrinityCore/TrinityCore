@@ -26779,6 +26779,8 @@ float Player::GetAverageItemLevel() const
         ++count;
     }
 
+    if (count == 0)
+        return 0;
     return ((float)sum) / count;
 }
 
