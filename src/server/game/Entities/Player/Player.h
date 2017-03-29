@@ -1194,6 +1194,15 @@ private:
     SpecializationInfo& operator=(SpecializationInfo const&) = delete;
 };
 
+#pragma pack(push, 1)
+struct PlayerDynamicFieldSpellModByLabel
+{
+    uint32 Mod;
+    float Value;
+    uint32 Label;
+};
+#pragma pack(pop)
+
 uint8 const PLAYER_MAX_HONOR_LEVEL = 50;
 uint8 const PLAYER_LEVEL_MIN_HONOR = 110;
 
