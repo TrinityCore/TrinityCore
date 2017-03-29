@@ -23,18 +23,6 @@
 
 enum STEvents
 {
-    TROLLBOSS1_DEATH  = 1,
-    TROLLBOSS2_DEATH  = 2,
-    TROLLBOSS3_DEATH  = 3,
-    TROLLBOSS4_DEATH  = 4,
-    TROLLBOSS5_DEATH  = 5,
-    TROLLBOSS6_DEATH  = 6,
-    JAMMALAN_DEATH    = 7,
-    MORPHAZ_DEATH     = 8,
-    HAZZAS_DEATH      = 9,
-    ERANIKUS_DEATH    = 10,
-    ATALALARION_DEATH = 11, //optional
-
     EVENT_STATE       = 1
 };
 
