@@ -112,7 +112,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                             HandleGameObject(ObjectGuid::Empty, value == ACTION_ENABLE ? true : false, hall);
                         break;
                     case DATA_COLLAPSE_2:
-                        for (DataTypes data : collapseObjectDatas)
+                        for (MLDataTypes data : collapseObjectDatas)
                             if (GameObject* go = GetGameObject(data))
                                 HandleGameObject(ObjectGuid::Empty, value == ACTION_ENABLE ? true : false, go);
                         break;

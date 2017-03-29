@@ -227,7 +227,7 @@ public:
             }
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                for (Data64 portalData : portalList)
+                for (NAXData64 portalData : portalList)
                     if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                         portal->SetGoState(GO_STATE_READY);
 
@@ -469,7 +469,7 @@ public:
                         case EVENT_TRANSITION_REPLY:
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICH_KING)))
                                 lichKing->AI()->Talk(SAY_ANSWER_REQUEST);
-                            for (Data64 portalData : portalList)
+                            for (NAXData64 portalData : portalList)
                                 if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                                     portal->SetGoState(GO_STATE_ACTIVE);
                             break;
