@@ -14142,6 +14142,9 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ, Movement
         GetMotionMaster()->MoveKnockbackFrom(x, y, speedXY, speedZ, spellEffectExtraData);
     else
     {
+        // Bladestorm
+        if (player->HasAura(46924))
+            return;
         float vcos, vsin;
         GetSinCos(x, y, vsin, vcos);
         SendMoveKnockBack(player, speedXY, -speedZ, vcos, vsin);
