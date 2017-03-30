@@ -1528,9 +1528,6 @@ class npc_sif : public CreatureScript
             {
                 if (spellInfo->Id == SPELL_STORMHAMMER_SIF)
                 {
-                    if (Creature* blizzard = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SIF_BLIZZARD)))
-                        blizzard->RemoveAllAuras();
-
                     me->InterruptSpell(CURRENT_GENERIC_SPELL);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
@@ -1619,45 +1616,6 @@ class HeightPositionCheck
 
     private:
         bool _ret;
-};
-
-// 62577 - Blizzard
-// 62603 - Blizzard
-class spell_thorim_blizzard : public SpellScriptLoader
-{
-    public:
-        spell_thorim_blizzard() : SpellScriptLoader("spell_thorim_blizzard") { }
-
-        class spell_thorim_blizzard_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_thorim_blizzard_SpellScript);
-
-            void SelectTarget(std::list<WorldObject*>& targets)
-            {
-                targets.clear();
-
-                if (Creature* blizzard = ObjectAccessor::GetCreature(*GetCaster(), _instance->GetGuidData(DATA_SIF_BLIZZARD)))
-                    targets.push_back(blizzard);
-            }
-
-            bool Load() override
-            {
-                _instance = GetCaster()->GetInstanceScript();
-                return _instance != nullptr;
-            }
-
-            InstanceScript* _instance;
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_thorim_blizzard_SpellScript::SelectTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_thorim_blizzard_SpellScript();
-        }
 };
 
 // 62576 - Blizzard
@@ -2181,7 +2139,7 @@ class condition_thorim_arena_leap : public ConditionScript
             if (!instance)
                 return false;
 
-            return target->GetGUID() != instance->GetGuidData(DATA_SIF_BLIZZARD) && _check(target);
+            return _check(target);
         }
 
     private:
@@ -2196,7 +2154,6 @@ void AddSC_boss_thorim()
     new npc_runic_colossus();
     new npc_ancient_rune_giant();
     new npc_sif();
-    new spell_thorim_blizzard();
     new spell_thorim_blizzard_effect();
     new spell_thorim_frostbolt_volley();
     new spell_thorim_charge_orb();

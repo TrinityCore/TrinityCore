@@ -177,8 +177,6 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid XTToyPileGUIDs[4];
             ObjectGuid AssemblyGUIDs[3];
 
-            ObjectGuid SifBlizzardGUID;
-
             ObjectGuid ElderGUIDs[3];
             ObjectGuid FreyaAchieveTriggerGUID;
             ObjectGuid MimironVehicleGUIDs[3];
@@ -348,10 +346,6 @@ class instance_ulduar : public InstanceMapScript
                         break;
 
                     // Thorim
-                    case NPC_THORIM_EVENT_BUNNY:
-                        if (creature->GetWaypointPath())
-                            SifBlizzardGUID = creature->GetGUID();
-                        break;
                     case NPC_MERCENARY_CAPTAIN_A:
                         if (TeamInInstance == HORDE)
                             creature->UpdateEntry(NPC_MERCENARY_CAPTAIN_H);
@@ -836,10 +830,6 @@ class instance_ulduar : public InstanceMapScript
                         return ElderGUIDs[1];
                     case BOSS_STONEBARK:
                         return ElderGUIDs[2];
-
-                    // Thorim
-                    case DATA_SIF_BLIZZARD:
-                        return SifBlizzardGUID;
 
                     // Mimiron
                     case DATA_LEVIATHAN_MK_II:
