@@ -621,7 +621,7 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
 	{
 		if (InstanceScript* instance = ressPlayer->GetInstanceScript())
 		{
-			if (instance->IsEncounterInProgress())
+			if ((instance->IsEncounterInProgress() && player->GetMap()->IsRaid()))
 			{
 				if (!instance->GetCombatResurrectionCharges())
 					return;

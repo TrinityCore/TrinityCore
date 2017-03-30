@@ -316,7 +316,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 					{
 						InitializeCombatResurrections(3, resInterval);
 					}
-					else
+					else if (instance->IsRaid())
 					{
 						InitializeCombatResurrections(1, resInterval);
 					}
