@@ -8234,7 +8234,7 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
 
     if (GetTalentSpellCost(spell))
     {
-        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains an entry (Entry: %u) for a non-existing spell (Spell: %u) which is a talent, ignoring", entry, spell);
+        TC_LOG_ERROR("sql.sql", "Table `npc_trainer` contains an entry (Entry: %u) for a spell (Spell: %u) which is a talent, ignoring", entry, spell);
         return;
     }
 
