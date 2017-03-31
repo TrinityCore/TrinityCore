@@ -21,14 +21,14 @@
 
 #define DataHeader "BRD"
 
-enum FactionIds
+enum BRDFactionIds
 {
     FACTION_NEUTRAL            = 734,
     FACTION_HOSTILE            = 754,
     FACTION_FRIEND             = 35
 };
 
-enum DataTypes
+enum BRDDataTypes
 {
     TYPE_RING_OF_LAW        = 1,
     TYPE_VAULT              = 2,

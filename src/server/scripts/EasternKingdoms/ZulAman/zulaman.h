@@ -22,7 +22,7 @@
 #define ZulamanScriptName "instance_zulaman"
 #define DataHeader "ZA"
 
-enum DataTypes
+enum ZADataTypes
 {
     BOSS_NALORAKK                       = 0,
     BOSS_AKILZON                        = 1,
@@ -38,7 +38,7 @@ enum DataTypes
     TYPE_RAND_VENDOR_2
 };
 
-enum CreatureIds
+enum ZACreatureIds
 {
     NPC_HARRISON_JONES                  = 24358,
     NPC_NALORAKK                        = 23576,
@@ -49,7 +49,7 @@ enum CreatureIds
     NPC_ZULJIN                          = 23863
 };
 
-enum GameobjectIds
+enum ZAGameObjectIds
 {
     GO_LYNX_TEMPLE_EXIT                 = 186303,
     GO_LYNX_TEMPLE_ENTRANCE             = 186304,

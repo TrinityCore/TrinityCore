@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 6;
 
-enum DataTypes
+enum SWPDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_KALECGOS                            = 0,
@@ -53,7 +53,7 @@ enum DataTypes
     DATA_PLAYER_GUID
 };
 
-enum CreatureIds
+enum SWPCreatureIds
 {
     NPC_MURU                                 = 25741,
     NPC_ENTROPIUS                            = 25840,
@@ -101,7 +101,7 @@ enum CreatureIds
     NPC_MURU_PORTAL_TARGET                   = 25770
 };
 
-enum GameObjectIds
+enum SWPGameObjectIds
 {
     GO_ORB_OF_THE_BLUE_DRAGONFLIGHT          = 188415,
     GO_FORCE_FIELD                           = 188421,

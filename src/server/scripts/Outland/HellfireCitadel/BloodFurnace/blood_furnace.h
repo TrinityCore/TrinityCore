@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 3;
 
-enum DataTypes
+enum BFDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_THE_MAKER              = 0,
@@ -43,7 +43,7 @@ enum DataTypes
     DATA_BROGGOK_LEVER          = 12
 };
 
-enum CreatureIds
+enum BFCreatureIds
 {
     NPC_THE_MAKER               = 17381,
     NPC_BROGGOK                 = 17380,
@@ -52,7 +52,7 @@ enum CreatureIds
     NPC_BROGGOK_POISON_CLOUD    = 17662
 };
 
-enum GameObjectIds
+enum BFGameObjectIds
 {
     GO_PRISON_DOOR_01           = 181766, // Final Exit Door
     GO_PRISON_DOOR_02           = 181811, // The Maker Front Door
@@ -73,7 +73,7 @@ enum GameObjectIds
     GO_BROGGOK_LEVER            = 181982
 };
 
-enum ActionIds
+enum BFActionIds
 {
     ACTION_ACTIVATE_BROGGOK     = 1,
     ACTION_RESET_BROGGOK        = 2,
@@ -87,4 +87,3 @@ AI* GetBloodFurnaceAI(Creature* creature)
 }
 
 #endif // BLOOD_FURNACE_H_
-
