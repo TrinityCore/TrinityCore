@@ -24,7 +24,7 @@ uint32 const EncounterCount = 13;
 
 #define ZGScriptName "instance_zulgurub"
 
-enum DataTypes
+enum ZGDataTypes
 {
     DATA_JEKLIK             = 0,  // Main boss
     DATA_VENOXIS            = 1,  // Main boss
@@ -42,7 +42,7 @@ enum DataTypes
     TYPE_EDGE_OF_MADNESS    = 13  // Boss storage
 };
 
-enum CreatureIds
+enum ZGCreatureIds
 {
     NPC_ARLOKK              = 14515, // Arlokk Event
     NPC_PANTHER_TRIGGER     = 15091, // Arlokk Event
@@ -61,7 +61,7 @@ enum CreatureIds
 
 };
 
-enum GameobjectIds
+enum ZGGameObjectIds
 {
     GO_FORCEFIELD           = 180497, // Arlokk Event
     GO_GONG_OF_BETHEKK      = 180526  // Arlokk Event

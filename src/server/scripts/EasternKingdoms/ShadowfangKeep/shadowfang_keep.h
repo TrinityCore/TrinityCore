@@ -21,7 +21,7 @@
 
 #define DataHeader "SK"
 
-enum DataTypes
+enum SKDataTypes
 {
     TYPE_FREE_NPC               = 1,
     TYPE_RETHILGORE             = 2,
