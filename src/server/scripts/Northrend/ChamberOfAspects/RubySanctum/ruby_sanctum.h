@@ -25,7 +25,7 @@ uint32 const EncounterCount = 4;
 
 Position const HalionControllerSpawnPos = {3156.037f, 533.2656f, 72.97205f, 0.0f};
 
-enum DataTypes
+enum RSDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_BALTHARUS_THE_WARBORN              = 0,
@@ -53,7 +53,7 @@ enum DataTypes
     DATA_FLAME_WALLS                        = 20
 };
 
-enum SharedActions
+enum RSSharedActions
 {
     ACTION_INTRO_BALTHARUS                  = -3975101,
     ACTION_BALTHARUS_DEATH                  = -3975102,
@@ -61,7 +61,7 @@ enum SharedActions
     ACTION_INTRO_HALION_2                   = -4014602
 };
 
-enum CreaturesIds
+enum RSCreaturesIds
 {
     // Baltharus the Warborn
     NPC_BALTHARUS_THE_WARBORN               = 39751,
@@ -102,7 +102,7 @@ enum CreaturesIds
     NPC_XERESTRASZA                         = 40429
 };
 
-enum GameObjectsIds
+enum RSGameObjectsIds
 {
     GO_HALION_PORTAL_1                      = 202794,   // Unknown spell 75074, should be somehow be linked to 74807
     GO_HALION_PORTAL_2                      = 202795,   // Also spell 75074
@@ -117,14 +117,14 @@ enum GameObjectsIds
     GO_BURNING_TREE_4                       = 203037
 };
 
-enum WorldStatesRS
+enum RSWorldStatesRS
 {
     WORLDSTATE_CORPOREALITY_MATERIAL = 5049,
     WORLDSTATE_CORPOREALITY_TWILIGHT = 5050,
     WORLDSTATE_CORPOREALITY_TOGGLE   = 5051
 };
 
-enum InstanceSpell
+enum RSInstanceSpell
 {
     SPELL_BERSERK                       = 26662
 };
