@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum UPDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_SVALA_SORROWGRAVE          = 0,
@@ -45,7 +45,7 @@ enum DataTypes
     DATA_GRAUF                      = 13
 };
 
-enum CreatureIds
+enum UPCreatureIds
 {
     // Bosses
     NPC_SVALA_SORROWGRAVE           = 26668,
@@ -87,7 +87,7 @@ enum CreatureIds
     NPC_AVENGING_SPIRIT             = 27386
 };
 
-enum GameObjectIds
+enum UPGameObjectIds
 {
     GO_GORTOK_PALEHOOF_SPHERE       = 188593,
     GO_UTGARDE_MIRROR               = 191745,

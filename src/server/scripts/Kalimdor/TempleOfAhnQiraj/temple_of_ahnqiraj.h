@@ -21,7 +21,7 @@
 
 #define DataHeader "AQT"
 
-enum DataTypes
+enum AQTDataTypes
 {
     DATA_SKERAM             = 1,
     DATA_KRI                = 2,
@@ -39,7 +39,7 @@ enum DataTypes
     DATA_VISCIDUS           = 21
 };
 
-enum Creatures
+enum AQTCreatures
 {
     BOSS_EYE_OF_CTHUN       = 15589,
     NPC_CTHUN_PORTAL        = 15896,
@@ -61,5 +61,5 @@ enum Creatures
     NPC_VEKLOR              = 15276,
     NPC_VEKNILASH           = 15275
 };
-#endif
 
+#endif

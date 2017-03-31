@@ -23,7 +23,7 @@ uint32 const EncounterCount               = 3;
 #define SPScriptName "instance_the_slave_pens"
 #define DataHeader "SP"
 
-enum DataTypes
+enum SPDataTypes
 {
     DATA_MENNU_THE_BETRAYER               = 1,
     DATA_ROKMAR_THE_CRACKLER              = 2,
@@ -43,7 +43,7 @@ enum DataTypes
     DATA_LUMA_SKYMOTHER                   = 16
 };
 
-enum CreaturesIds
+enum SPCreaturesIds
 {
     NPC_AHUNE                            = 25740,
     NPC_FROZEN_CORE                      = 25865,
@@ -60,7 +60,7 @@ enum CreaturesIds
     NPC_WHISP_SOURCE_BUNNY               = 26121
 };
 
-enum GameObjectIds
+enum SPGameObjectIds
 {
     GO_ICE_SPEAR                         = 188077,
     GO_ICE_STONE                         = 187882

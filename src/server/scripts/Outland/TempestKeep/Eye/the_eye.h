@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum TEDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_KAELTHAS                       = 0,
@@ -43,7 +43,7 @@ enum DataTypes
     DATA_TEMPEST_BRIDGE_WINDOW          = 11
 };
 
-enum CreatureIds
+enum TECreatureIds
 {
     NPC_SANGUINAR                       = 20060,
     NPC_CAPERNIAN                       = 20062,
@@ -54,7 +54,7 @@ enum CreatureIds
     NPC_ALAR                            = 19514
 };
 
-enum GameObjectIds
+enum TEGameObjectIds
 {
     GO_TEMPEST_BRIDDGE_WINDOW           = 184069,
     GO_KAEL_STATUE_RIGHT                = 184596,
