@@ -1795,8 +1795,6 @@ void ObjectMgr::LoadCreatures()
         data.unit_flags     = fields[20].GetUInt32();
         data.dynamicflags   = fields[21].GetUInt32();
         data.ScriptId       = GetScriptId(fields[22].GetString());
-        if (!data.ScriptId)
-            data.ScriptId = cInfo->ScriptID;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -2137,8 +2135,6 @@ void ObjectMgr::LoadGameobjects()
         uint32 PoolId        = fields[17].GetUInt32();
 
         data.ScriptId = GetScriptId(fields[18].GetString());
-        if (!data.ScriptId)
-            data.ScriptId = gInfo->ScriptId;
 
         if (std::abs(data.orientation) > 2 * float(M_PI))
         {
@@ -8778,6 +8774,8 @@ void ObjectMgr::LoadScriptNames()
         TC_LOG_ERROR("server.loading", ">> Loaded empty set of Script Names!");
         return;
     }
+
+    _scriptNamesStore.reserve(result->GetRowCount() + 1);
 
     do
     {
