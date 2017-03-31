@@ -1,6 +1,6 @@
 # ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore
 
-[![Issue Stats](http://www.issuestats.com/github/TrinityCore/TrinityCore/badge/issue)](http://www.issuestats.com/github/TrinityCore/TrinityCore) [![Issue Stats](http://www.issuestats.com/github/TrinityCore/TrinityCore/badge/pr)](http://www.issuestats.com/github/TrinityCore/TrinityCore) [![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=1310)](https://www.bountysource.com/trackers/1310-trinity-core?utm_source=1310&utm_medium=shield&utm_campaign=TRACKER_BADGE)
+[![Bountysource](https://www.bountysource.com/badge/tracker?tracker_id=1310)](https://www.bountysource.com/trackers/1310-trinity-core?utm_source=1310&utm_medium=shield&utm_campaign=TRACKER_BADGE)
 
 ## Build Status
 
@@ -25,7 +25,7 @@ If you wish to contribute ideas or code please visit our site linked below or
 make pull requests to our [Gitlab repository](https://gitlab.com/trinitycore/TrinityCore_434/).
 
 For further information on the TrinityCore project, please visit our project
-website at [TrinityCore.org](http://www.trinitycore.org).
+website at [TrinityCore.org](https://www.trinitycore.org).
 
 ## Requirements
 
@@ -39,12 +39,12 @@ website at [TrinityCore.org](http://www.trinitycore.org).
 + MS Visual Studio ≥ 14 (2015) (Windows only)
 + ZeroMQ:
 + apt-get install libzmq-dev (Linux only)
-+ x64 - http://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x64.exe (Windows only)
-+ or x86 - http://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x86.exe (Windows only)
++ x64 - https://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x64.exe (Windows only)
++ or x86 - https://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x86.exe (Windows only)
 
 ## Install
 
-Detailed installation guides are available in the [wiki](http://collab.kpsn.org/display/tc/Installation+Guide) for
+Detailed installation guides are available in the [wiki](https://collab.kpsn.org/display/tc/Installation+Guide) for
 Windows, Linux and Mac OSX.
 You can get database from https://github.com/TrinityCoreLegacy/TrinityCore/releases
 
@@ -56,7 +56,7 @@ Issues can be reported via the [Gitlab issue tracker](https://gitlab.com/trinity
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
 
-In addition, thoroughly read through the [issue tracker guide](http://www.trinitycore.org/f/topic/37-the-trinitycore-issuetracker-and-you/) to ensure
+In addition, thoroughly read through the [issue tracker guide](https://www.trinitycore.org/f/topic/37-the-trinitycore-issuetracker-and-you/) to ensure
 your report contains the required information. Incorrect or poorly formed
 reports are wasteful and are subject to deletion.
 
@@ -64,7 +64,7 @@ reports are wasteful and are subject to deletion.
 ## Submitting fixes
 
 Fixes are submitted as pull requests via Github. For more information on how to
-properly submit a pull request, read the [how-to: maintain a remote fork](http://www.trinitycore.org/f/topic/6037-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
+properly submit a pull request, read the [how-to: maintain a remote fork](https://www.trinitycore.org/f/topic/6037-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
 NOTE: if a fix is valid also for 3.3.5a/6.x branches submit them also to [Github](https://github.com/TrinityCore/TrinityCore)
 
 
@@ -82,10 +82,10 @@ Read file [THANKS](THANKS)
 
 ## Links
 
-[Site](http://www.trinitycore.org)
+[Site](https://www.trinitycore.org)
 
-[Wiki](http://trinitycore.info)
+[Wiki](https://trinitycore.info)
 
-[Documentation](http://www.trinitycore.net) (powered by Doxygen)
+[Documentation](https://www.trinitycore.net) (powered by Doxygen)
 
-[Forums](http://www.trinitycore.org/f/)
+[Forums](https://www.trinitycore.org/f/)
