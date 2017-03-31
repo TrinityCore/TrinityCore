@@ -23361,11 +23361,9 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
     {
         if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id))
         {
-            if (ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(getClass()))
-            {
-                if (spellInfo->SpellFamilyName == classEntry->spellfamily)
-                    return false;
-            }
+            ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(getClass());
+            if (spellInfo->SpellFamilyName == classEntry->spellfamily)
+                return false;
         }
         return true;
     }
