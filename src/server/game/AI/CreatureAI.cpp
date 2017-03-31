@@ -358,9 +358,21 @@ bool CreatureAI::CheckBoundary(Position const* who) const
         who = me;
 
     if (_boundary)
-        for (CreatureBoundary::const_iterator it = _boundary->begin(); it != _boundary->end(); ++it)
-            if (!(*it)->IsWithinBoundary(who))
+        for (AreaBoundary const* areaBoundary : *_boundary)
+            if (!areaBoundary->IsWithinBoundary(who))
                 return false;
+
+    return true;
+}
+
+bool CreatureAI::IsInBounds(CreatureBoundary const* boundary, Position const* pos)
+{
+    if (!boundary)
+        return true;
+
+    for (AreaBoundary const* areaBoundary : *boundary)
+        if (!areaBoundary->IsWithinBoundary(pos))
+            return false;
 
     return true;
 }

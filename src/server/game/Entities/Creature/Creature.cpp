@@ -1015,8 +1015,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
 
     LastUsedScriptID = GetScriptId();
 
-    /// @todo Replace with spell, handle from DB
-    if (IsSpiritHealer() || IsSpiritGuide())
+    if (IsSpiritHealer() || IsSpiritGuide() || (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GHOST_VISIBILITY))
     {
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
         m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
@@ -2592,7 +2591,8 @@ std::string Creature::GetScriptName() const
 uint32 Creature::GetScriptId() const
 {
     if (CreatureData const* creatureData = GetCreatureData())
-        return creatureData->ScriptId;
+        if (uint32 scriptId = creatureData->ScriptId)
+            return scriptId;
 
     return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
 }
