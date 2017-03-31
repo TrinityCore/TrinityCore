@@ -3651,6 +3651,15 @@ void Spell::finish(bool ok)
 
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
+
+    if (Player* modOwner = m_caster->GetSpellModOwner())
+    {
+        if (ok || m_spellState != SPELL_STATE_PREPARING)
+            modOwner->RemoveSpellMods(this);
+        else
+            modOwner->RestoreSpellMods(this);
+    }
+
     m_spellState = SPELL_STATE_FINISHED;
 
     if (m_spellInfo->IsChanneled())
