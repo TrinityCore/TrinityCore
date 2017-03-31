@@ -508,10 +508,8 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 QuestObjective const* obj = sObjectMgr->GetQuestObjective(ConditionValue1);
                 if (!obj)
                     break;
-                Quest const* qInfo = sObjectMgr->GetQuestTemplate(obj->QuestID);
-                ASSERT(qInfo);
                 
-                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(qInfo, *obj));
+                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(*obj));
             }
             break;
         }
