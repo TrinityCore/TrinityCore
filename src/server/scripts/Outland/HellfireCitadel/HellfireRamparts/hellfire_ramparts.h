@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount       = 4;
 
-enum DataTypes
+enum HRDataTypes
 {
     DATA_WATCHKEEPER_GARGOLMAR    = 0,
     DATA_OMOR_THE_UNSCARRED       = 1,
@@ -31,7 +31,7 @@ enum DataTypes
     DATA_NAZAN                    = 3
 };
 
-enum CreatureIds
+enum HRCreatureIds
 {
     NPC_HELLFIRE_SENTRY           = 17517,
     NPC_VAZRUDEN_HERALD           = 17307,
@@ -40,7 +40,7 @@ enum CreatureIds
     NPC_LIQUID_FIRE               = 22515
 };
 
-enum GameobjectIds
+enum HRGameobjectIds
 {
     GO_FEL_IRON_CHEST_NORMAL      = 185168,
     GO_FEL_IRON_CHEST_HEROIC      = 185169
