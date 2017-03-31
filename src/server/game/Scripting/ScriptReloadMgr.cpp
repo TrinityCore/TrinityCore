@@ -66,6 +66,9 @@ namespace fs = boost::filesystem;
 #ifdef _WIN32
     #include <windows.h>
     #define HOTSWAP_PLATFORM_REQUIRES_CACHING
+#elif __APPLE__
+    #include <dlfcn.h>
+    #define HOTSWAP_PLATFORM_REQUIRES_CACHING
 #else // Posix
     #include <dlfcn.h>
     // #define HOTSWAP_PLATFORM_REQUIRES_CACHING
@@ -86,11 +89,13 @@ static char const* GetSharedLibraryPrefix()
 #endif
 }
 
-// Returns "dll" on Windows and "so" on posix.
+// Returns "dll" on Windows, "dylib" on OS X, and "so" on posix.
 static char const* GetSharedLibraryExtension()
 {
 #ifdef _WIN32
     return "dll";
+#elif __APPLE__
+    return "dylib";
 #else // Posix
     return "so";
 #endif
@@ -111,7 +116,7 @@ static fs::path GetDirectoryOfExecutable()
     if (path.is_absolute())
         return path.parent_path();
     else
-        return fs::absolute(path).parent_path();
+        return fs::canonical(fs::absolute(path)).parent_path();
 }
 
 class SharedLibraryUnloader
