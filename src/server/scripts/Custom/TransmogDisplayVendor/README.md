@@ -1,6 +1,6 @@
-#Transmogrification Display Vendor [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=transmogvendor)](https://travis-ci.org/Rochet2/TrinityCore)
+# Transmogrification Display Vendor [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=transmogvendor)](https://travis-ci.org/Rochet2/TrinityCore)
 
-####About
+#### About
 Original idea by LilleCarl.
 Coding work and execution by Rochet2.
 Transmogrification Display Vendor allows you to change the display of an item to something else.
@@ -13,7 +13,7 @@ Source: http://www.trinitycore.org/f/topic/7993-transmogrification-display-vendo
 
 Video: https://youtu.be/PIheEziN_dY
 
-####Installation
+#### Installation
 
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/transmogvendor
@@ -41,9 +41,9 @@ After compiling:
  - This is same file as with the regular transmog
 - Optionally you can also insert a transmogrifier NPC to your database by running `world_NPC.sql` to your world database.
 
-####Usage
+#### Usage
 Equip an item that is suitable for transmogrification.
 Talk to Transmogrifier and select the item slot. Then select the quality and then the item you want to transmogrify to.
 
-####Bugs and Contact
+#### Bugs and Contact
 Report issues and similar to http://rochet2.github.io/
