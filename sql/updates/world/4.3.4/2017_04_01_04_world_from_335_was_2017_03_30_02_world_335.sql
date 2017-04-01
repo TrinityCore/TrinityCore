@@ -1,3 +1,4 @@
+/*
 -- Components of Importance: class restrictions for Dungeon Set 2 armor quests
 UPDATE `quest_template_addon` SET `AllowableClasses`=129 WHERE `ID`=8962;  -- Warrior / Mage
 UPDATE `quest_template_addon` SET `AllowableClasses`=1280 WHERE `ID`=8963; -- Druid / Warlock
@@ -8,3 +9,4 @@ UPDATE `quest_template_addon` SET `AllowableClasses`=9 WHERE `ID`=8985;    -- Wa
 UPDATE `quest_template_addon` SET `AllowableClasses`=1090 WHERE `ID`=8986; -- Druid / Paladin / Shaman
 UPDATE `quest_template_addon` SET `AllowableClasses`=144 WHERE `ID`=8987;  -- Priest / Mage
 UPDATE `quest_template_addon` SET `AllowableClasses`=260 WHERE `ID`=8988;  -- Hunter / Warlock
+*/
