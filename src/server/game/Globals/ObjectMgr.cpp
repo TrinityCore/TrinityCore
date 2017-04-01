@@ -1866,8 +1866,6 @@ void ObjectMgr::LoadCreatures()
         data.phaseid        = fields[22].GetUInt32();
         data.phaseGroup     = fields[23].GetUInt32();
         data.ScriptId       = GetScriptId(fields[23].GetString());
-        if (!data.ScriptId)
-            data.ScriptId = cInfo->ScriptID;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -2236,8 +2234,6 @@ void ObjectMgr::LoadGameobjects()
         }
 
         data.ScriptId = GetScriptId(fields[19].GetString());
-        if (!data.ScriptId)
-            data.ScriptId = gInfo->ScriptId;
 
         if (std::abs(data.orientation) > 2 * float(M_PI))
         {
