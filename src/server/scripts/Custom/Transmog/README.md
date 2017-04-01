@@ -1,6 +1,6 @@
-#Transmogrification [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=transmog)](https://travis-ci.org/Rochet2/TrinityCore)
+# Transmogrification [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=transmog)](https://travis-ci.org/Rochet2/TrinityCore)
 
-####About
+#### About
 Transmogrification allows you to change the display of an item to something else.
 You can use any item in your bags as source of display, as long as it fits the requirements.
 Requirements can be tweaked in the server configuration file.
@@ -11,7 +11,7 @@ Source: http://rochet2.github.io/Transmogrification.html
 
 Video: https://youtu.be/xtH4ogz12iM
 
-####Installation
+#### Installation
 
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/transmog
@@ -39,7 +39,7 @@ After compiling:
  - optionally you can also insert a transmogrifier NPC to your database by running `world_NPC.sql` to your world database.
 - Change the settings to your liking in `worldserver.conf` (Note that you should copy over the new config created)
 
-####Usage
+#### Usage
 Equip an item that is suitable for transmogrification.
 Have an item in your bags that is suitable to be used to transmogrify the equipped item
 Talk to Transmogrifier and select the item slot. Then select the item you want to transmogrify to.
@@ -47,7 +47,7 @@ Click to proceed when prompted and your items are transmogrified.
 Currently the default settings are according to this: http://wowwiki.wikia.com/Transmogrification#Current_rules
 Tweak the settings if you need in worldserver.conf
 
-####Changelog: [Changelog](https://github.com/Rochet2/TrinityCore/blob/transmog/src/server/scripts/Custom/Transmog/CHANGELOG.md)
+#### Changelog: [Changelog](https://github.com/Rochet2/TrinityCore/blob/transmog/src/server/scripts/Custom/Transmog/CHANGELOG.md)
 
-####Bugs and Contact
+#### Bugs and Contact
 Report issues and similar to https://rochet2.github.io/
