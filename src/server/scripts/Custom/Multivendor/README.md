@@ -1,10 +1,10 @@
-#Multivendor [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=multivendor_7.x)](https://travis-ci.org/Rochet2/TrinityCore)
+# Multivendor [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=multivendor_7.x)](https://travis-ci.org/Rochet2/TrinityCore)
 
-####About
+#### About
 Allows you to show gossip options that show different vendors from npc_vendor.<br />
 Source: http://rochet2.github.io/Multivendor.html
 
-####Installation
+#### Installation
 
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/multivendor_7.x
@@ -25,7 +25,7 @@ Using diff:
 - do `git apply multivendor.diff`
 - use cmake and compile
 
-####Usage
+#### Usage
 Set your NPC to have gossip and vendor NPCflags (129)<br />
 Add a gossip menu for him and add a new option to it.<br />
 The option needs to have option_id set to 3 so it acts as a vendor button,<br />
