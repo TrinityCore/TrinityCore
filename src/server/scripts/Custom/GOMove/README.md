@@ -1,6 +1,6 @@
-#GOMove [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=gomove)](https://travis-ci.org/Rochet2/TrinityCore)
+# GOMove [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=gomove)](https://travis-ci.org/Rochet2/TrinityCore)
 
-####About
+#### About
 GOMove is a script that allows you to move objects.
 
 You no longer need to be at the point where you want to spawn an object
@@ -16,7 +16,7 @@ Some features:
 Source: http://rochet2.github.io/GOMove.html  
 Original idea by [Mordred](https://www.youtube.com/watch?v=a0JVXJ07KUU)
 
-####Installation
+#### Installation
 
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/gomove
@@ -44,7 +44,7 @@ Want to place objects with a spell (green targetting circle)?
 - learn spell `27651`
 - Now you can put the entry of the object in Send input box and click Send. Then you can spawn the object with the spell. All objects spawned will be saved for the spell spawning aswell (spawned from favourites list for example)
 
-####Usage
+#### Usage
 Install to server, enable the addon on client side and go ingame.
 You will see the addon display as you log in and you should see a minmap icon with a G on it.
 In game chat use `/gomove help` to see all commands
