@@ -1,10 +1,10 @@
-#Player and Item Gossip [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=playeritemgossip_7.x)](https://travis-ci.org/Rochet2/TrinityCore)
+# Player and Item Gossip [![Build Status](https://travis-ci.org/Rochet2/TrinityCore.svg?branch=playeritemgossip_7.x)](https://travis-ci.org/Rochet2/TrinityCore)
 
-####About
+#### About
 Enables Item and Player gossip for TrinityCore.<br />
 Source: http://rochet2.github.io/Player-and-Item-Gossip.html
 
-####Installation
+#### Installation
 
 Available as:
 - Direct merge: https://github.com/Rochet2/TrinityCore/tree/playeritemgossip_7.x
@@ -25,10 +25,10 @@ Using diff:
 - do `git apply playeritemgossip.diff`
 - use cmake and compile
 
-####Usage
+#### Usage
 Make a gossip script for player or item like the example scripts.<br/>
 If making item script, add the scriptname to DB.<br/>
 Compile and test.
 
-####Bugs and Contact
+#### Bugs and Contact
 Report issues and similar to https://rochet2.github.io/
