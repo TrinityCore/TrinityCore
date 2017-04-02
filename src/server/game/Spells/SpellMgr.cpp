@@ -187,7 +187,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
                 return DIMINISHING_STUN;
 
             // Incapacitating Roar -- 99, no flags on the stun, 14
-            if (spellproto->SpellFamilyFlags[1] 0x1)
+            if (spellproto->SpellFamilyFlags[1] & 0x1)
                 return DIMINISHING_INCAPACITATE;
 
             // Cyclone -- 33786
