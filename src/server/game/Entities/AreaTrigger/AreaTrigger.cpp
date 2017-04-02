@@ -100,7 +100,6 @@ void AreaTrigger::Remove()
 {
     if (IsInWorld())
     {
-        SendObjectDeSpawnAnim(GetGUID());
         RemoveFromWorld();
         AddObjectToRemoveList();
     }

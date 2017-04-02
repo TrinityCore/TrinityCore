@@ -1975,13 +1975,6 @@ void WorldObject::SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr
     VisitNearbyWorldObject(GetVisibilityRange(), notifier);
 }
 
-void WorldObject::SendObjectDeSpawnAnim(ObjectGuid guid)
-{
-    WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8);
-    data << uint64(guid);
-    SendMessageToSet(&data, true);
-}
-
 void WorldObject::SetMap(Map* map)
 {
     ASSERT(map);

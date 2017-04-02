@@ -160,7 +160,6 @@ void DynamicObject::Remove()
 {
     if (IsInWorld())
     {
-        SendObjectDeSpawnAnim(GetGUID());
         RemoveFromWorld();
         AddObjectToRemoveList();
     }

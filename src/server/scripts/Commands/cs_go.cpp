@@ -49,7 +49,7 @@ public:
             { "zonexy",             rbac::RBAC_PERM_COMMAND_GO_ZONEXY,              false, &HandleGoZoneXYCommand,                      "" },
             { "xyz",                rbac::RBAC_PERM_COMMAND_GO_XYZ,                 false, &HandleGoXYZCommand,                         "" },
             { "ticket",             rbac::RBAC_PERM_COMMAND_GO_TICKET,              false, &HandleGoTicketCommand,                      "" },
-            { "offset",             rbac::RBAC_PERM_COMMAND_GO_OFFSET,              false, &HandleGoOffsetCommand,    
+            { "offset",             rbac::RBAC_PERM_COMMAND_GO_OFFSET,              false, &HandleGoOffsetCommand,                      "" },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -562,7 +562,6 @@ public:
         ticket->TeleportTo(player);
         return true;
     }
-};
 
     static bool HandleGoOffsetCommand(ChatHandler* handler, char const* args)
     {

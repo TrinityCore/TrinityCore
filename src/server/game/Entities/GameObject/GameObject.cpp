@@ -707,7 +707,7 @@ void GameObject::Update(uint32 diff)
             //burning flags in some battlegrounds, if you find better condition, just add it
             if (GetGOInfo()->IsDespawnAtAction() || GetGoAnimProgress() > 0)
             {
-                SendObjectDeSpawnAnim(GetGUID());
+                SendGameObjectDespawn();
                 //reset flags
                 if (GameObjectTemplateAddon const* addon = GetTemplateAddon())
                     SetUInt32Value(GAMEOBJECT_FLAGS, addon->flags);
@@ -758,7 +758,7 @@ void GameObject::Delete()
     SetLootState(GO_NOT_READY);
     RemoveFromOwner();
 
-    SendObjectDeSpawnAnim(GetGUID());
+    SendGameObjectDespawn();
 
     SetGoState(GO_STATE_READY);
 
@@ -771,6 +771,14 @@ void GameObject::Delete()
     else
         AddObjectToRemoveList();
 }
+
+void GameObject::SendGameObjectDespawn()
+{
+    WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8);
+    data << uint64(guid);
+    SendMessageToSet(&data, true);
+}
+
 
 void GameObject::getFishLoot(Loot* fishloot, Player* loot_owner)
 {
