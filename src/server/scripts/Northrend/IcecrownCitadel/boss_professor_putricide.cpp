@@ -730,7 +730,7 @@ class npc_putricide_oozeAI : public ScriptedAI
 {
     public:
         npc_putricide_oozeAI(Creature* creature, uint32 auraSpellId, uint32 hitTargetSpellId) : ScriptedAI(creature),
-            _auraSpellId(auraSpellId), _hitTargetSpellId(hitTargetSpellId), _newTargetSelectTimer(0), _instance(creature->GetInstanceScript()){ }
+            _auraSpellId(auraSpellId), _hitTargetSpellId(hitTargetSpellId), _newTargetSelectTimer(0), _instance(creature->GetInstanceScript()) { }
 
         void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
         {
