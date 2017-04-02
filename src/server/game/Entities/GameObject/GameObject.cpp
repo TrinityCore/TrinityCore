@@ -775,7 +775,7 @@ void GameObject::Delete()
 void GameObject::SendGameObjectDespawn()
 {
     WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8);
-    data << uint64(guid);
+    data << uint64(GetGUID());
     SendMessageToSet(&data, true);
 }
 
