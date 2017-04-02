@@ -26,6 +26,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
+#include "AreaTrigger.h"
 #include "AreaTriggerTemplate.h"
 
 enum WarlockSpells
