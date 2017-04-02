@@ -108,14 +108,6 @@ enum Stages
     MAX_STAGES
 };
 
-#define SPELL_DARK_ESSENCE_HELPER RAID_MODE<uint32>(65684, 67176, 67177, 67178)
-#define SPELL_LIGHT_ESSENCE_HELPER RAID_MODE<uint32>(65686, 67222, 67223, 67224)
-
-#define SPELL_POWERING_UP_HELPER RAID_MODE<uint32>(67590, 67602, 67603, 67604)
-
-#define SPELL_UNLEASHED_DARK_HELPER RAID_MODE<uint32>(65808, 67172, 67173, 67174)
-#define SPELL_UNLEASHED_LIGHT_HELPER RAID_MODE<uint32>(65795, 67238, 67239, 67240)
-
 enum Actions
 {
     ACTION_VORTEX,
@@ -220,12 +212,12 @@ struct boss_twin_baseAI : public BossAI
         switch (summoned->GetEntry())
         {
             case NPC_LIGHT_ESSENCE:
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP);
                 break;
             case NPC_DARK_ESSENCE:
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP);
                 break;
             case NPC_BULLET_CONTROLLER:
                 me->m_Events.AddEvent(new OrbsDespawner(me), me->m_Events.CalculateTime(100));
@@ -363,7 +355,7 @@ class boss_fjola : public CreatureScript
                 AuraState = AURA_STATE_UNKNOWN22;
                 SisterNpcId = NPC_DARKBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
-                OtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
+                OtherEssenceSpellId = SPELL_DARK_ESSENCE;
                 SurgeSpellId = SPELL_LIGHT_SURGE;
                 VortexSpellId = SPELL_LIGHT_VORTEX;
                 ShieldSpellId = SPELL_LIGHT_SHIELD;
@@ -471,7 +463,7 @@ class boss_eydis : public CreatureScript
                 AuraState = AURA_STATE_UNKNOWN19;
                 SisterNpcId = NPC_LIGHTBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
-                OtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
+                OtherEssenceSpellId = SPELL_LIGHT_ESSENCE;
                 SurgeSpellId = SPELL_DARK_SURGE;
                 VortexSpellId = SPELL_DARK_VORTEX;
                 ShieldSpellId = SPELL_DARK_SHIELD;
@@ -503,10 +495,10 @@ class npc_essence_of_twin : public CreatureScript
                 switch (me->GetEntry())
                 {
                     case NPC_LIGHT_ESSENCE:
-                        spellReturned = (data == ESSENCE_REMOVE) ? SPELL_DARK_ESSENCE_HELPER : SPELL_LIGHT_ESSENCE_HELPER;
+                        spellReturned = (data == ESSENCE_REMOVE) ? SPELL_DARK_ESSENCE : SPELL_LIGHT_ESSENCE;
                         break;
                     case NPC_DARK_ESSENCE:
-                        spellReturned = (data == ESSENCE_REMOVE) ? SPELL_LIGHT_ESSENCE_HELPER : SPELL_DARK_ESSENCE_HELPER;
+                        spellReturned = (data == ESSENCE_REMOVE) ? SPELL_LIGHT_ESSENCE : SPELL_DARK_ESSENCE;
                         break;
                     default:
                         break;
@@ -604,7 +596,7 @@ class npc_unleashed_dark : public CreatureScript
                 {
                     if (me->SelectNearestPlayer(3.0f))
                     {
-                        DoCastAOE(SPELL_UNLEASHED_DARK_HELPER);
+                        DoCastAOE(SPELL_UNLEASHED_DARK);
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                     }
@@ -636,7 +628,7 @@ class npc_unleashed_light : public CreatureScript
                 {
                     if (me->SelectNearestPlayer(3.0f))
                     {
-                        DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
+                        DoCastAOE(SPELL_UNLEASHED_LIGHT);
                         me->GetMotionMaster()->MoveIdle();
                         me->DespawnOrUnsummon(1*IN_MILLISECONDS);
                     }
@@ -691,45 +683,26 @@ class spell_powering_up : public SpellScriptLoader
         {
             PrepareSpellScript(spell_powering_up_SpellScript);
 
-        public:
-            spell_powering_up_SpellScript()
+            bool Validate(SpellInfo const* spellInfo) override
             {
-                spellId = 0;
-                poweringUp = 0;
-            }
-
-        private:
-            uint32 spellId;
-            uint32 poweringUp;
-
-            bool Load() override
-            {
-                spellId = SPELL_SURGE_OF_SPEED;
-                if (!sSpellMgr->GetSpellInfo(spellId))
-                    return false;
-
-                poweringUp = SPELL_POWERING_UP;
-                if (!sSpellMgr->GetSpellInfo(poweringUp))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_SURGE_OF_SPEED, SPELL_POWERING_UP });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
                 {
-                    if (Aura* pAura = target->GetAura(poweringUp))
+                    if (Aura* pAura = target->GetAura(SPELL_POWERING_UP))
                     {
                         if (pAura->GetStackAmount() >= 100)
                         {
-                            if (target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2206, EFFECT_1))
+                            if (target->HasAura(SPELL_DARK_ESSENCE))
                                 target->CastSpell(target, SPELL_EMPOWERED_DARK, true);
 
-                            if (target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2845, EFFECT_1))
+                            if (target->HasAura(SPELL_LIGHT_ESSENCE))
                                 target->CastSpell(target, SPELL_EMPOWERED_LIGHT, true);
 
-                            target->RemoveAurasDueToSpell(poweringUp);
+                            target->RemoveAurasDueToSpell(SPELL_POWERING_UP);
                         }
                     }
                 }
