@@ -56,39 +56,31 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
     if (spellproto->IsPositive())
         return DIMINISHING_NONE;
 
-    for (SpellEffectInfo const* effect: spellproto->GetEffectsForDifficulty(DIFFICULTY_NONE))
+    if (spellproto->HasAura(DIFFICULTY_NONE, SPELL_AURA_MOD_TAUNT))
+        return DIMINISHING_TAUNT;
+
+    switch (spellproto->Id)
     {
-        if (effect && effect->ApplyAuraName == SPELL_AURA_MOD_TAUNT)
-            return DIMINISHING_TAUNT;
+        case 64803:     // Entrapment
+        case 135373:    // Entrapment
+            return DIMINISHING_ROOT;
+        case 24394:     // Intimidation
+            return DIMINISHING_STUN;
+        case 118345:    // Pulverize (Primal Earth Elemental)
+            return DIMINISHING_STUN;
+        case 118905:    // Static Charge (Capacitor Totem)
+            return DIMINISHING_STUN;
+        case 108199:    // Gorefiend's Grasp
+            return DIMINISHING_AOE_KNOCKBACK;
+        default:
+            break;
     }
 
     // Explicit Diminishing Groups
     switch (spellproto->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
-        {
-            // Entrapment -- 135373
-            if (spellproto->SpellIconID == 20 && spellproto->GetSpellVisual() == 39588)
-                return DIMINISHING_ROOT;
-
-            // Intimidation -- 24394
-            if (spellproto->SpellIconID == 166 && spellproto->GetSpellVisual() == 2816)
-                return DIMINISHING_STUN;
-            // Pulverize (Primal Earth Elemental) -- 118345
-            if (spellproto->SpellIconID == 4507 && spellproto->GetSpellVisual() == 39877)
-                return DIMINISHING_STUN;
-            // Static Charge (Capacitor Totem) -- 118905
-            if (spellproto->SpellIconID == 54 && spellproto->GetSpellVisual() == 24442)
-                return DIMINISHING_STUN;
-            // Remorseless Winter -- 115001
-            if (spellproto->SpellIconID == 5744 && spellproto->GetSpellVisual() == 23514)
-                return DIMINISHING_STUN;
-
-            // Gorefiend's Grasp -- 108199
-            if (spellproto->SpellIconID == 5743 && spellproto->GetSpellVisual() == 28937)
-                return DIMINISHING_AOE_KNOCKBACK;
             break;
-        }
         case SPELLFAMILY_MAGE:
         {
             // Frostjaw -- 102051
@@ -149,9 +141,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Banish -- 710
             if (spellproto->SpellFamilyFlags[1] & 0x8000000)
                 return DIMINISHING_INCAPACITATE;
-            // Blood Horror -- 137143, no flags (17986)
-            if (spellproto->SpellIconID == 6447 && spellproto->GetSpellVisual() == 26758)
-                return DIMINISHING_INCAPACITATE;
 
             // Fear -- 118699
             if (spellproto->SpellFamilyFlags[1] & 0x400)
@@ -193,34 +182,30 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Mighty Bash -- 5211
             if (spellproto->SpellFamilyFlags[0] & 0x2000)
                 return DIMINISHING_STUN;
-            // Rake -- 163505 -- no flags on the stun, 20490
-            if (spellproto->SpellIconID == 494 && spellproto->GetSpellVisual() == 38283)
+            // Rake -- 163505 -- no flags on the stun
+            if (spellproto->Id == 163505)
                 return DIMINISHING_STUN;
 
             // Incapacitating Roar -- 99, no flags on the stun, 14
-            if (spellproto->SpellIconID == 960 && spellproto->GetSpellVisual() == 38528)
+            if (spellproto->SpellFamilyFlags[1] 0x1)
                 return DIMINISHING_INCAPACITATE;
 
             // Cyclone -- 33786
             if (spellproto->SpellFamilyFlags[1] & 0x20)
                 return DIMINISHING_DISORIENT;
 
-            // Glyph of Fae Silence -- 114238, no flags on the silence, 15035
-            if (spellproto->SpellIconID == 957 && spellproto->SchoolMask == 8)
-                return DIMINISHING_SILENCE;
-
             // Typhoon -- 61391
             if (spellproto->SpellFamilyFlags[1] & 0x1000000)
                 return DIMINISHING_AOE_KNOCKBACK;
-            // Ursol's Vortex -- 127797, no flags on the effect, 16921
-            if (spellproto->SpellIconID == 5784 && spellproto->SchoolMask == 8)
+            // Ursol's Vortex -- 118283, no family flags
+            if (spellproto->Id == 118283)
                 return DIMINISHING_AOE_KNOCKBACK;
 
             // Entangling Roots -- 339
             if (spellproto->SpellFamilyFlags[0] & 0x200)
                 return DIMINISHING_ROOT;
-            // Mass Entanglement -- 102359, no flags on the root, 13535
-            if (spellproto->SpellIconID == 5782 && spellproto->GetSpellVisual() == 38269)
+            // Mass Entanglement -- 102359
+            if (spellproto->SpellFamilyFlags[2] 0x4)
                 return DIMINISHING_ROOT;
 
             // Faerie Fire -- 770, 20 seconds in PvP (6.0)
@@ -255,18 +240,15 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_HUNTER:
         {
-            // Glyph of Explosive Trap -- 149575 maybe? @todo
-                // return DIMINISHING_AOE_KNOCKBACK;
-
-            // Charge (Tenacity pet) -- 53148, no flags (5526)
-            if (spellproto->SpellIconID == 1559 && spellproto->GetSpellVisual() == 39480)
+            // Charge (Tenacity pet) -- 53148, no flags
+            if (spellproto->Id == 53148)
                 return DIMINISHING_ROOT;
-            // Narrow Escape -- 136634, no flags (17964)
-            if (spellproto->SpellIconID == 3342 && spellproto->SchoolMask == 8)
+            // Narrow Escape -- 136634, no flags
+            if (spellproto->Id == 136634)
                 return DIMINISHING_ROOT;
 
-            // Binding Shot -- 117526, no flags (15581)
-            if (spellproto->SpellIconID == 4612 && spellproto->GetSpellVisual() == 6859)
+            // Binding Shot -- 117526, no flags
+            if (spellproto->Id == 117526)
                 return DIMINISHING_STUN;
 
             // Freezing Trap -- 3355
@@ -309,11 +291,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             // Thunderstorm -- 51490
             if (spellproto->SpellFamilyFlags[1] & 0x2000)
                 return DIMINISHING_AOE_KNOCKBACK;
+
             // Earthgrab Totem -- 64695
             if (spellproto->SpellFamilyFlags[2] & 0x4000)
-                return DIMINISHING_ROOT;
-            // Frost Shock (with Frozen Power) -- 63685, no flags (6918)
-            if (spellproto->SpellIconID == 193 && spellproto->GetSpellVisual() == 39876)
                 return DIMINISHING_ROOT;
             break;
         }
@@ -323,30 +303,19 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[0] & 0x200)
                 return DIMINISHING_SILENCE;
 
-            // Chains of Ice (with Chilblains) -- 96294, no flags (13020)
-            if (spellproto->SpellIconID == 180 && spellproto->GetSpellVisual() == 20135)
-                return DIMINISHING_ROOT;
-
             // Asphyxiate -- 108194
             if (spellproto->SpellFamilyFlags[2] & 0x100000)
                 return DIMINISHING_STUN;
-            // Gnaw (Ghoul) -- 91800, no flags (12511)
-            if (spellproto->SpellIconID == 3010 && spellproto->GetSpellVisual() == 38760)
+            // Gnaw (Ghoul) -- 91800, no flags
+            if (spellproto->Id == 91800)
                 return DIMINISHING_STUN;
-            // Monstrous Blow (Ghoul w/ Dark Transformation active) -- 91797, no flags (12510)
-            if (spellproto->SpellIconID == 15 && spellproto->GetSpellVisual() == 38761)
+            // Monstrous Blow (Ghoul w/ Dark Transformation active) -- 91797
+            if (spellproto->Id == 91797)
                 return DIMINISHING_STUN;
             break;
         }
         case SPELLFAMILY_PRIEST:
         {
-            // Glyph of Mind Blast -- 87194, no flags (10092)
-            if (spellproto->SpellIconID == 2114 && spellproto->GetSpellVisual() == 38927)
-                return DIMINISHING_ROOT;
-            // Void Tendrils -- 114404, no flags (15067)
-            if (spellproto->SpellIconID == 5816 && spellproto->GetSpellVisual() == 25199)
-                return DIMINISHING_ROOT;
-
             // Dominate Mind -- 605
             if (spellproto->SpellFamilyFlags[0] & 0x20000 && spellproto->GetSpellVisual() == 39068)
                 return DIMINISHING_INCAPACITATE;
@@ -368,8 +337,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
         }
         case SPELLFAMILY_MONK:
         {
-            // Disable -- 116706, no flags (15483)
-            if (spellproto->SpellIconID == 23 && spellproto->GetSpellVisual() == 39984)
+            // Disable -- 116706, no flags
+            if (spellproto->Id == 116706)
                 return DIMINISHING_ROOT;
 
             // Charging Ox Wave -- 119392
@@ -382,14 +351,11 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
             if (spellproto->SpellFamilyFlags[1] & 0x200)
                 return DIMINISHING_STUN;
 
-            // Glyph of Breath of Fire -- 123393, no flags (16504)
-            if (spellproto->SpellIconID == 15 && spellproto->GetSpellVisual() == 25408)
+            // Incendiary Breath (honor talent) -- 202274, no flags
+            if (spellproto->Id == 202274)
                 return DIMINISHING_INCAPACITATE;
             // Paralysis -- 115078
             if (spellproto->SpellFamilyFlags[2] & 0x800000)
-                return DIMINISHING_INCAPACITATE;
-            // Ring of Peace -- 137460, no flags (18006)
-            if (spellproto->SpellIconID == 7195 && spellproto->GetSpellVisual() == 39999)
                 return DIMINISHING_INCAPACITATE;
             break;
         }
@@ -443,7 +409,7 @@ int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
         case SPELLFAMILY_HUNTER:
         {
             // Binding Shot - 3 seconds in PvP (6.0)
-            if (spellproto->SpellIconID == 4612 && spellproto->GetSpellVisual() == 6859)
+            if (spellproto->Id == 117526)
                 return 3 * IN_MILLISECONDS;
             // Wyvern Sting - 6 seconds in PvP (6.0)
             if (spellproto->SpellFamilyFlags[1] & 0x1000)
