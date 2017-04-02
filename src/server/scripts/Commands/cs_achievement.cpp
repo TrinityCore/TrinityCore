@@ -55,7 +55,7 @@ public:
         if (!achievementId)
         {
             if (char* id = handler->extractKeyFromLink((char*)args, "Hachievement"))
-                achievementId = atoi(id);
+                achievementId = atoul(id);
             if (!achievementId)
                 return false;
         }

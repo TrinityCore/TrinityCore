@@ -114,7 +114,10 @@ enum TrinityStrings
     LANG_PVPSTATS_DISABLED              = 81,
     LANG_COMMAND_NEARGRAVEYARD          = 82,
     LANG_COMMAND_NEARGRAVEYARD_NOTFOUND = 83,
-    // Free 84 - 95
+    LANG_GOINFO_SIZE                    = 84,
+    LANG_GOINFO_ADDON                   = 85,
+    LANG_GOINFO_MODEL                   = 86,
+    // Free 87 - 95
 
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,

@@ -77,16 +77,11 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
-        GameObject* object = NULL;
-
-        // by DB guid
-        if (GameObjectData const* goData = sObjectMgr->GetGOData(guidLow))
-            object = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, goData->id);
-
+        GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
             handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
@@ -154,7 +149,7 @@ public:
 
         if (spawntimeSecs)
         {
-            uint32 value = atoi((char*)spawntimeSecs);
+            int32 value = atoi((char*)spawntimeSecs);
             object->SetRespawnTime(value);
         }
 
@@ -197,10 +192,10 @@ public:
         uint32 spawntm = 300;
 
         if (spawntime)
-            spawntm = atoi((char*)spawntime);
+            spawntm = atoul(spawntime);
 
         G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
-        uint32 objectId = atoi(id);
+        uint32 objectId = atoul(id);
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
         {
@@ -314,7 +309,7 @@ public:
             return false;
         }
 
-        GameObject* target = handler->GetSession()->GetPlayer()->GetMap()->GetGameObject(ObjectGuid(HighGuid::GameObject, id, guidLow));
+        GameObject* target = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
 
         handler->PSendSysMessage(LANG_GAMEOBJECT_DETAIL, guidLow, objectInfo->name.c_str(), guidLow, id, x, y, z, mapId, o, phase);
 
@@ -340,16 +335,11 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
-        GameObject* object = NULL;
-
-        // by DB guid
-        if (GameObjectData const* gameObjectData = sObjectMgr->GetGOData(guidLow))
-            object = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, gameObjectData->id);
-
+        GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
             handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
@@ -363,7 +353,7 @@ public:
             Unit* owner = ObjectAccessor::GetUnit(*handler->GetSession()->GetPlayer(), ownerGuid);
             if (!owner || !ownerGuid.IsPlayer())
             {
-                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), object->GetGUID().GetCounter());
+                handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), guidLow);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -375,7 +365,7 @@ public:
         object->Delete();
         object->DeleteFromDB();
 
-        handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetGUID().GetCounter());
+        handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, object->GetSpawnId());
 
         return true;
     }
@@ -388,16 +378,11 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
-        GameObject* object = NULL;
-
-        // by DB guid
-        if (GameObjectData const* gameObjectData = sObjectMgr->GetGOData(guidLow))
-            object = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, gameObjectData->id);
-
+        GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
             handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
@@ -444,16 +429,11 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
-        GameObject* object = NULL;
-
-        // by DB guid
-        if (GameObjectData const* gameObjectData = sObjectMgr->GetGOData(guidLow))
-            object = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, gameObjectData->id);
-
+        GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
             handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
@@ -504,16 +484,11 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
-        GameObject* object = NULL;
-
-        // by DB guid
-        if (GameObjectData const* gameObjectData = sObjectMgr->GetGOData(guidLow))
-            object = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, gameObjectData->id);
-
+        GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
             handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
@@ -590,13 +565,28 @@ public:
         uint32 lootId = 0;
 
         if (!*args)
+            return false;
+
+        char* param1 = handler->extractKeyFromLink((char*)args, "Hgameobject_entry");
+        if (!param1)
+            return false;
+
+        if (strcmp(param1, "guid") == 0)
         {
-            if (WorldObject* object = handler->getSelectedObject())
-                entry = object->GetEntry();
-            else
-                entry = atoi((char*)args);
-        } else
-                entry = atoi((char*)args);
+            char* tail = strtok(nullptr, "");
+            char* cValue = handler->extractKeyFromLink(tail, "Hgameobject");
+            if (!cValue)
+                return false;
+            ObjectGuid::LowType guidLow = atoul(cValue);
+            const GameObjectData* data = sObjectMgr->GetGOData(guidLow);
+            if (!data)
+                return false;
+            entry = data->id;
+        }
+        else
+        {
+            entry = atoul(param1);
+        }
 
         GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(entry);
 
@@ -616,7 +606,14 @@ public:
         handler->PSendSysMessage(LANG_GOINFO_LOOTID, lootId);
         handler->PSendSysMessage(LANG_GOINFO_DISPLAYID, displayId);
         handler->PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
+        handler->PSendSysMessage(LANG_GOINFO_SIZE, gameObjectInfo->size);
 
+        if (GameObjectTemplateAddon const* addon = sObjectMgr->GetGameObjectTemplateAddon(entry))
+            handler->PSendSysMessage(LANG_GOINFO_ADDON, addon->faction, addon->flags);
+
+        if (GameObjectDisplayInfoEntry const* modelInfo = sGameObjectDisplayInfoStore.LookupEntry(displayId))
+            handler->PSendSysMessage(LANG_GOINFO_MODEL, modelInfo->maxX, modelInfo->maxY, modelInfo->maxZ, modelInfo->minX, modelInfo->minY, modelInfo->minZ);
+  
         return true;
     }
 
@@ -627,15 +624,11 @@ public:
         if (!id)
             return false;
 
-        ObjectGuid::LowType guidLow = atoi(id);
+        ObjectGuid::LowType guidLow = atoul(id);
         if (!guidLow)
             return false;
 
-        GameObject* object = NULL;
-
-        if (GameObjectData const* gameObjectData = sObjectMgr->GetGOData(guidLow))
-            object = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, gameObjectData->id);
-
+        GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
             handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
