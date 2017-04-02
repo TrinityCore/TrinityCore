@@ -627,7 +627,7 @@ enum BreakShieldSpells
     SPELL_BREAK_SHIELD_TRIGGER_UNK               = 66480
 };
 
-class spell_gen_break_shield: public SpellScriptLoader
+class spell_gen_break_shield : public SpellScriptLoader
 {
     public:
         spell_gen_break_shield(const char* name) : SpellScriptLoader(name) { }
@@ -635,6 +635,11 @@ class spell_gen_break_shield: public SpellScriptLoader
         class spell_gen_break_shield_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gen_break_shield_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return ValidateSpellInfo({ 62552, 62719, 64100, 66482 });
+            }
 
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
@@ -672,8 +677,7 @@ class spell_gen_break_shield: public SpellScriptLoader
                         {
                             if (Aura* aura = itr->second->GetBase())
                             {
-                                SpellInfo const* auraInfo = aura->GetSpellInfo();
-                                if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                                if (aura->GetId() == 62552 || aura->GetId() == 62719 || aura->GetId() == 64100 || aura->GetId() == 66482)
                                 {
                                     aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
                                     // Remove dummys from rider (Necessary for updating visual shields)
@@ -2008,6 +2012,11 @@ class spell_gen_mounted_charge: public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_mounted_charge_SpellScript);
 
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                return ValidateSpellInfo({ 62552, 62719, 64100, 66482 });
+            }
+
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
                 Unit* target = GetHitUnit();
@@ -2048,8 +2057,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                         {
                             if (Aura* aura = itr->second->GetBase())
                             {
-                                SpellInfo const* auraInfo = aura->GetSpellInfo();
-                                if (auraInfo && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                                if (aura->GetId() == 62552 || aura->GetId() == 62719 || aura->GetId() == 64100 || aura->GetId() == 66482)
                                 {
                                     aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
                                     // Remove dummys from rider (Necessary for updating visual shields)

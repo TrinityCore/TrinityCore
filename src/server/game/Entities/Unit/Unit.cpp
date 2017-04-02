@@ -4218,20 +4218,6 @@ AuraEffect* Unit::GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, Obj
     return NULL;
 }
 
-AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames name, uint32 iconId, uint8 effIndex) const
-{
-    AuraEffectList const& auras = GetAuraEffectsByType(type);
-    for (Unit::AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-    {
-        if (effIndex != (*itr)->GetEffIndex())
-            continue;
-        SpellInfo const* spell = (*itr)->GetSpellInfo();
-        if (spell->SpellIconID == iconId && spell->SpellFamilyName == uint32(name) && !spell->SpellFamilyFlags)
-            return *itr;
-    }
-    return NULL;
-}
-
 AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, flag128 const& familyFlag, ObjectGuid casterGUID) const
 {
     AuraEffectList const& auras = GetAuraEffectsByType(type);
@@ -6111,24 +6097,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 else
                     return false;
             }
-            // Threat of Thassarian
-            if (dummySpell->SpellIconID == 2023)
-            {
-                // Must Dual Wield
-                if (!procSpell || !haveOffhandWeapon())
-                    return false;
-
-                switch (procSpell->Id)
-                {
-                    case 49020: triggered_spell_id = 66198; break; // Obliterate
-                    case 49143: triggered_spell_id = 66196; break; // Frost Strike
-                    case 45462: triggered_spell_id = 66216; break; // Plague Strike
-                    case 49998: triggered_spell_id = 66188; break; // Death Strike
-                    default:
-                        return false;
-                }
-                break;
-            }
             // Runic Power Back on Snare/Root
             if (dummySpell->Id == 61257)
             {
@@ -7889,27 +7857,10 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     switch (spellProto->SpellFamilyName)
     {
         case SPELLFAMILY_MAGE:
-            // Ice Lance
-            if (spellProto->SpellIconID == 186)
+            // Ice Lance (no unique family flag)
+            if (spellProto->Id == 228598)
                 if (victim->HasAuraState(AURA_STATE_FROZEN, spellProto, this))
-                    DoneTotalMod *= 2.0f;
-
-            // Torment the weak
-            if (spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_ARCANE)
-            {
-                if (victim->HasAuraWithMechanic((1<<MECHANIC_SNARE)|(1<<MECHANIC_SLOW_ATTACK)))
-                {
-                    AuraEffectList const& mDumyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
-                    for (AuraEffectList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
-                    {
-                        if ((*i)->GetSpellInfo()->SpellIconID == 2215)
-                        {
-                            AddPct(DoneTotalMod, (*i)->GetAmount());
-                            break;
-                        }
-                    }
-                }
-            }
+                    DoneTotalMod *= 3.0f;
             break;
         case SPELLFAMILY_PRIEST:
             // Smite
@@ -7922,19 +7873,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
             }
             break;
         case SPELLFAMILY_WARLOCK:
-            // Fire and Brimstone
-            if (spellProto->SpellFamilyFlags[1] & 0x00020040)
-                if (victim->HasAuraState(AURA_STATE_CONFLAGRATE))
-                {
-                    AuraEffectList const& mDumyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
-                    for (AuraEffectList::const_iterator i = mDumyAuras.begin(); i != mDumyAuras.end(); ++i)
-                        if ((*i)->GetSpellInfo()->SpellIconID == 3173)
-                        {
-                            AddPct(DoneTotalMod, (*i)->GetAmount());
-                            break;
-                        }
-                }
-
             // Shadow Bite (30% increase from each dot)
             if (spellProto->SpellFamilyFlags[1] & 0x00400000 && IsPet())
                 if (uint8 count = victim->GetDoTsByCaster(GetOwnerGUID()))
@@ -7974,20 +7912,11 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
                 AddPct(TakenTotalMod, (*i)->GetAmount());
     }
 
-    //.. taken pct: dummy auras
-    AuraEffectList const& mDummyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
-    for (AuraEffectList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
-    {
-        switch ((*i)->GetSpellInfo()->SpellIconID)
-        {
-            // Cheat Death
-            case 2109:
-                if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-                    AddPct(TakenTotalMod, (*i)->GetAmount());
-                break;
-        }
-    }
-        // Spells with SPELL_ATTR4_FIXED_DAMAGE should only benefit from mechanic damage mod auras.
+    if (AuraEffect const* cheatDeath = GetAuraEffect(45182, EFFECT_0))
+        if (cheatDeath->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
+            AddPct(TakenTotalMod, cheatDeath->GetAmount());
+
+    // Spells with SPELL_ATTR4_FIXED_DAMAGE should only benefit from mechanic damage mod auras.
     if (!spellProto->HasAttribute(SPELL_ATTR4_FIXED_DAMAGE))
     {
         // get all auras from caster that allow the spell to ignore resistance (sanctified wrath)
@@ -8180,30 +8109,12 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
-                    case SPELLFAMILY_MAGE:
-                        // Glyph of Fire Blast
-                        if (spellProto->SpellFamilyFlags[0] == 0x2 && spellProto->SpellIconID == 12)
-                            if (victim->HasAuraWithMechanic((1 << MECHANIC_STUN) | (1 << MECHANIC_KNOCKOUT)))
-                                if (AuraEffect const* aurEff = GetAuraEffect(56369, EFFECT_0))
-                                    crit_chance += aurEff->GetAmount();
-                        break;
                     case SPELLFAMILY_DRUID:
                         // Improved Faerie Fire
                         if (victim->HasAuraState(AURA_STATE_FAERIE_FIRE))
                             if (AuraEffect const* aurEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 109, 0))
                                 crit_chance += aurEff->GetAmount();
 
-                        // cumulative effect - don't break
-
-                        // Starfire
-                        if (spellProto->SpellFamilyFlags[0] & 0x4 && spellProto->SpellIconID == 1485)
-                        {
-                            // Improved Insect Swarm
-                            if (AuraEffect const* aurEff = GetDummyAuraEffect(SPELLFAMILY_DRUID, 1771, 0))
-                                if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, flag128(0x00000002, 0, 0)))
-                                    crit_chance += aurEff->GetAmount();
-                           break;
-                        }
                         break;
                     case SPELLFAMILY_ROGUE:
                         // Shiv-applied poisons can't crit
@@ -8242,24 +8153,6 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
-            if (victim)
-            {
-                // Custom crit by class
-                switch (spellProto->SpellFamilyName)
-                {
-                    case SPELLFAMILY_DRUID:
-                        // Rend and Tear - bonus crit chance for Ferocious Bite on bleeding targets
-                        if (spellProto->SpellFamilyFlags[0] & 0x00800000
-                            && spellProto->SpellIconID == 1680
-                            && victim->HasAuraState(AURA_STATE_BLEEDING))
-                        {
-                            if (AuraEffect const* rendAndTear = GetDummyAuraEffect(SPELLFAMILY_DRUID, 2859, 1))
-                                crit_chance += rendAndTear->GetAmount();
-                            break;
-                        }
-                        break;
-                }
-            }
         /// Intentional fallback. Calculate critical strike chance for both Ranged and Melee spells
         case SPELL_DAMAGE_CLASS_RANGED:
         {
@@ -8909,25 +8802,8 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         }
     }
 
-    // .. taken pct: dummy auras
-    AuraEffectList const& mDummyAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
-    for (AuraEffectList::const_iterator i = mDummyAuras.begin(); i != mDummyAuras.end(); ++i)
-    {
-        switch ((*i)->GetSpellInfo()->SpellIconID)
-        {
-            // Cheat Death
-            case 2109:
-                if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-                {
-                    if (Player* player = ToPlayer())
-                    {
-                        float mod = player->GetRatingBonusValue(CR_RESILIENCE_PLAYER_DAMAGE) * (-8.0f);
-                        AddPct(TakenTotalMod, std::max(mod, float((*i)->GetAmount())));
-                    }
-                }
-                break;
-        }
-    }
+    if (AuraEffect const* cheatDeath = GetAuraEffect(45182, EFFECT_0))
+        AddPct(TakenTotalMod, cheatDeath->GetAmount());
 
     if (attType != RANGED_ATTACK)
     {
@@ -13071,26 +12947,21 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     bool spiritOfRedemption = false;
     if (victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_PRIEST)
     {
-        AuraEffectList const& dummyAuras = victim->GetAuraEffectsByType(SPELL_AURA_DUMMY);
-        for (AuraEffectList::const_iterator itr = dummyAuras.begin(); itr != dummyAuras.end(); ++itr)
+        if (AuraEffect const* spiritOfRedemptionEffect = GetAuraEffect(20711, EFFECT_0))
         {
-            if ((*itr)->GetSpellInfo()->SpellIconID == 1654)
-            {
-                AuraEffect const* aurEff = *itr;
-                // save value before aura remove
-                uint32 ressSpellId = victim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
-                if (!ressSpellId)
-                    ressSpellId = victim->ToPlayer()->GetResurrectionSpellId();
-                // Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
-                victim->RemoveAllAurasOnDeath();
-                // restore for use at real death
-                victim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
+            // save value before aura remove
+            uint32 ressSpellId = victim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
+            if (!ressSpellId)
+                ressSpellId = victim->ToPlayer()->GetResurrectionSpellId();
+            // Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
+            victim->RemoveAllAurasOnDeath();
+            // restore for use at real death
+            victim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
 
-                // FORM_SPIRIT_OF_REDEMPTION and related auras
-                victim->CastSpell(victim, 27827, true, NULL, aurEff);
-                spiritOfRedemption = true;
-                break;
-            }
+            // FORM_SPIRIT_OF_REDEMPTION and related auras
+            victim->CastSpell(victim, 27827, true, NULL, spiritOfRedemptionEffect);
+            spiritOfRedemption = true;
+            break;
         }
     }
 

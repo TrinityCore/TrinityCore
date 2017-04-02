@@ -481,17 +481,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_WARLOCK:
             {
-                // Incinerate Rank 1 & 2
-                if ((m_spellInfo->SpellFamilyFlags[1] & 0x000040) && m_spellInfo->SpellIconID == 2128)
-                {
-                    // Incinerate does more dmg (dmg/6) if the target have Immolate debuff.
-                    // Check aura state for speed but aura state set not only for Immolate spell
-                    if (unitTarget->HasAuraState(AURA_STATE_CONFLAGRATE))
-                    {
-                        if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, flag128(0x4, 0, 0)))
-                            damage += damage / 6;
-                    }
-                }
                 break;
             }
             case SPELLFAMILY_PRIEST:
@@ -3228,36 +3217,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Glyph of Scourge Strike
-                case 69961:
-                {
-                    Unit::AuraEffectList const &mPeriodic = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-                    for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
-                    {
-                        AuraEffect const* aurEff = *i;
-                        SpellInfo const* spellInfo = aurEff->GetSpellInfo();
-                        // search our Blood Plague and Frost Fever on target
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[2] & 0x2 &&
-                            aurEff->GetCasterGUID() == m_caster->GetGUID())
-                        {
-                            uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                            uint32 countMax = spellInfo->GetMaxDuration();
-
-                            // this Glyph
-                            countMax += 9000;
-                            // talent Epidemic
-                            if (AuraEffect const* epidemic = m_caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 234, EFFECT_0))
-                                countMax += epidemic->GetAmount();
-
-                            if (countMin < countMax)
-                            {
-                                aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + 3000);
-                                aurEff->GetBase()->SetMaxDuration(countMin + 3000);
-                            }
-                        }
-                    }
-                    return;
-                }
                 case 55693:                                 // Remove Collapsing Cave Aura
                     if (!unitTarget)
                         return;
