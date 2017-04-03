@@ -12949,7 +12949,6 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
             // FORM_SPIRIT_OF_REDEMPTION and related auras
             victim->CastSpell(victim, 27827, true, NULL, spiritOfRedemptionEffect);
             spiritOfRedemption = true;
-            break;
         }
     }
 
