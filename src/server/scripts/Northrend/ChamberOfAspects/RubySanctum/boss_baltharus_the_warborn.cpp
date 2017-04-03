@@ -75,7 +75,7 @@ class boss_baltharus_the_warborn : public CreatureScript
         struct boss_baltharus_the_warbornAI : public BossAI
         {
             boss_baltharus_the_warbornAI(Creature* creature) : BossAI(creature, DATA_BALTHARUS_THE_WARBORN),
-                _cloneCount(RAID_MODE<uint8>(1, 2, 2, 2)), _introDone(false) { }
+                _cloneCount(0), _introDone(false) { }
 
             void Reset() override
             {
@@ -84,7 +84,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetMaxHealth());
                 if (Creature* channelTarget = instance->GetCreature(DATA_CRYSTAL_CHANNEL_TARGET))
                     DoCast(channelTarget, SPELL_BARRIER_CHANNEL);
-                _cloneCount = RAID_MODE<uint8>(1, 2, 2, 2);
+                _cloneCount = 0;
             }
 
             void DoAction(int32 action) override
@@ -104,7 +104,6 @@ class boss_baltharus_the_warborn : public CreatureScript
                         DoCastSelf(SPELL_CLONE, true);
                         DoCastSelf(SPELL_REPELLING_WAVE);
                         Talk(SAY_CLONE);
-                        --_cloneCount;
                         break;
                     }
                     default:
@@ -149,15 +148,24 @@ class boss_baltharus_the_warborn : public CreatureScript
             {
                 if (GetDifficulty() == DIFFICULTY_10_N)
                 {
-                    if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 1)
+                    if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 0)
+                    {
+                        _cloneCount++;
                         events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
+                    }
                 }
                 else
                 {
-                    if (me->HealthBelowPctDamaged(66, damage) && _cloneCount == 2)
+                    if (me->HealthBelowPctDamaged(66, damage) && _cloneCount == 0)
+                    {
+                        _cloneCount++;
                         events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
+                    }
                     else if (me->HealthBelowPctDamaged(33, damage) && _cloneCount == 1)
+                    {
+                        _cloneCount++;
                         events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
+                    }
                 }
 
                 if (me->GetHealth() > damage)
