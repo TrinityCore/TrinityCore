@@ -129,7 +129,11 @@ enum SpellRangeFlag
 
 enum SpellMinLevelBlackList : unsigned int32
 {
+<<<<<<< HEAD
     SPELL_NO_MIN_LEVEL_BEAST_LORE = 1462 // Beast Lore Spell ID        
+=======
+    SPELL_NO_MIN_LEVEL_BEAST_LORE = 1462 // Beast Lore Spell ID
+>>>>>>> 79039dda51c54dc11949cdd604b20af8d3d5600b
 };
 
 struct TC_GAME_API SpellDestination
