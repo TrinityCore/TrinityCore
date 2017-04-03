@@ -636,7 +636,7 @@ class spell_gen_break_shield : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_break_shield_SpellScript);
 
-            bool Validate(SpellInfo const* spellInfo) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ 62552, 62719, 64100, 66482 });
             }
@@ -2012,7 +2012,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_mounted_charge_SpellScript);
 
-            bool Validate(SpellInfo const* spellInfo) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ 62552, 62719, 64100, 66482 });
             }
