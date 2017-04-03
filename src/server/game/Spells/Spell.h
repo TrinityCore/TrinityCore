@@ -127,7 +127,7 @@ enum SpellRangeFlag
     SPELL_RANGE_RANGED              = 2      //hunter range and ranged weapon
 };
 
-enum SpellMinLevelBlackList : unsigned int32
+enum SpellMinLevelBlackList : uint32
 {
     SPELL_NO_MIN_LEVEL_BEAST_LORE = 1462 // Beast Lore Spell ID
 };
