@@ -357,7 +357,7 @@ uint32 AuctionBotConfig::GetConfigPriceRatio(AuctionHouseType houseType) const
     {
         case AUCTION_HOUSE_ALLIANCE:
             return GetConfig(CONFIG_AHBOT_ALLIANCE_PRICE_RATIO);
-        case AUCTIONHOUSE_HORDE:
+        case AUCTION_HOUSE_HORDE:
             return GetConfig(CONFIG_AHBOT_HORDE_PRICE_RATIO);
         default:
             return GetConfig(CONFIG_AHBOT_NEUTRAL_PRICE_RATIO);
