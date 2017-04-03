@@ -616,7 +616,9 @@ void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConf
     if (sAuctionBotConfig->GetConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
         buyPrice = sellPrice;
 
-    float basePriceFloat = (buyPrice * stackCount * priceRatio) / (itemProto->GetClass() == 6 ? 200.0f : static_cast<float>(itemProto->GetBuyCount())) / 100.0f;
+    float basePriceFloat = buyPrice * stackCount / (itemProto->GetClass() == 6 ? 200.0f : static_cast<float>(itemProto->GetBuyCount()));
+    basePriceFloat *= priceRatio;
+
     float range = basePriceFloat * 0.04f;
 
     buyout = (static_cast<uint32>(frand(basePriceFloat - range, basePriceFloat + range) + 0.5f) / SILVER) * SILVER;
