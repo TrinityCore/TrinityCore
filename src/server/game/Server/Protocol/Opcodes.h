@@ -818,7 +818,6 @@ enum Opcodes
     SMSG_DEBUG_RUNE_REGEN                             = 0x31B3,
     SMSG_DEBUG_SERVER_GEO                             = 0x0235,
     SMSG_DEFENSE_MESSAGE                              = 0x0314,
-    SMSG_DESTROY_OBJECT                               = 0x4724,
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                 = 0x4825,
     SMSG_DIFFERENT_INSTANCE_FROM_PARTY                = 0x15B1,
     SMSG_DISENCHANT_CREDIT                            = 0x55A2,
