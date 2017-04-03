@@ -475,10 +475,15 @@ void AuctionBotSeller::LoadItemsQuantity(SellerConfiguration& config)
         }
     }
 
-    // do some assert checking, GetItemAmount must always return 0 iif selected _itemPool is empty
+    // do some assert checking, GetItemAmount must always return 0 if selected _itemPool is empty
     for (uint32 j = 0; j < MAX_AUCTION_QUALITY; ++j)
+    {
         for (uint32 i = 0; i < MAX_ITEM_CLASS; ++i)
-            ASSERT(_itemPool[j][i].empty() == (config.GetItemsAmountPerClass(AuctionQuality(j), ItemClass(i)) == 0));
+        {
+            if (_itemPool[j][i].empty())
+                ASSERT(config.GetItemsAmountPerClass(AuctionQuality(j), ItemClass(i)) == 0);
+        }
+    }
 }
 
 void AuctionBotSeller::LoadSellerValues(SellerConfiguration& config)
