@@ -80,6 +80,9 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
             targetMoved = !GetTarget()->IsWithinLOSInMap(owner);
     }
 
+    if (targetMoved)
+        SetTargetLocation(owner, targetMoved);
+
     if (!_targetReached && owner->movespline->Finalized())
     {
         MovementInform(owner);
