@@ -373,7 +373,7 @@ class TC_GAME_API AuctionHouseMgr
         void LoadAuctions();
 
         void AddAItem(Item* item);
-        bool RemoveAItem(ObjectGuid itemGuid, bool deleteItem = false);
+        bool RemoveAItem(ObjectGuid itemGuid, bool deleteItem = false, CharacterDatabaseTransaction* trans = nullptr);
         bool PendingAuctionAdd(Player* player, uint32 auctionHouseId, uint32 auctionId, uint64 deposit);
         std::size_t PendingAuctionCount(Player const* player) const;
         void PendingAuctionProcess(Player* player);
