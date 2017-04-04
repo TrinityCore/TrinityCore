@@ -41,7 +41,7 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
         return false;
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting() || HasLostTarget(owner)
-        || (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsFocusing(nullptr, true))))
+        || (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsFocusing(nullptr, true)))
     {
         _interrupt = true;
         owner->StopMoving();
