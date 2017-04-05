@@ -3128,8 +3128,8 @@ void ObjectMgr::LoadPetLevelInfo()
         pLevelInfo->health = fields[2].GetUInt16();
         pLevelInfo->mana   = fields[3].GetUInt16();
         pLevelInfo->armor  = fields[9].GetUInt32();
-	pLevelInfo->min_dmg= fields[10].GetUInt32();
-	pLevelInfo->max_dmg= fields[11].GetUInt32();
+        pLevelInfo->min_dmg= fields[10].GetUInt32();
+        pLevelInfo->max_dmg= fields[11].GetUInt32();
         for (int i = 0; i < MAX_STATS; i++)
         {
             pLevelInfo->stats[i] = fields[i+4].GetUInt16();
