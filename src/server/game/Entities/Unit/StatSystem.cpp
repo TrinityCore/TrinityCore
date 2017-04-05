@@ -960,18 +960,6 @@ bool Guardian::UpdateStats(Stats stat)
         else
             mod = 0.7f; // Default Owner's Strength scale
 
-        // Check just if owner has Ravenous Dead since it's effect is not an aura
-        AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
-        if (aurEff)
-        {
-            SpellInfo const* spellInfo = aurEff->GetSpellInfo();                                               // Then get the SpellProto and add the dummy effect value
-            if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), EFFECT_1))
-                AddPct(mod, effect->CalcValue(owner));                                                         // Ravenous Dead edits the original scale
-        }
-        // Glyph of the Ghoul
-        aurEff = owner->GetAuraEffect(58686, 0);
-        if (aurEff)
-            mod += CalculatePct(1.0f, aurEff->GetAmount());                                                    // Glyph of the Ghoul adds a flat value to the scale mod
         ownersBonus = float(owner->GetStat(stat)) * mod;
         value += ownersBonus;
     }
