@@ -42,7 +42,6 @@ enum PriestSpells
     SPELL_PRIEST_DISPEL_MAGIC_FRIENDLY              = 97690,
     SPELL_PRIEST_DISPEL_MAGIC_HOSTILE               = 97691,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
-    SPELL_PRIEST_DIVINE_TOUCH                       = 63544,
     SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING         = 55675,
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC              = 55677,
     SPELL_PRIEST_GLYPH_OF_DISPEL_MAGIC_HEAL         = 56131,
@@ -66,7 +65,6 @@ enum PriestSpells
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
-    SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
     SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
@@ -78,13 +76,6 @@ enum PriestSpells
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145
-};
-
-enum PriestSpellIcons
-{
-    PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
-    PRIEST_ICON_ID_DIVINE_TOUCH_TALENT              = 3021,
-    PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874
 };
 
 enum MiscSpells
@@ -1045,88 +1036,6 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
         }
 };
 
-// 139 - Renew
-class spell_pri_renew : public SpellScriptLoader
-{
-    public:
-        spell_pri_renew() : SpellScriptLoader("spell_pri_renew") { }
-
-        class spell_pri_renew_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_renew_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_DIVINE_TOUCH))
-                    return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void HandleApplyEffect(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    // Divine Touch
-                    if (AuraEffect const* empoweredRenewAurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_DIVINE_TOUCH_TALENT, EFFECT_0))
-                    {
-                        uint32 heal = caster->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), aurEff->GetAmount(), DOT, aurEff->GetSpellEffectInfo());
-                        heal = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DOT, aurEff->GetSpellEffectInfo());
-                        int32 basepoints0 = CalculatePct(int32(heal) * aurEff->GetTotalTicks(), empoweredRenewAurEff->GetAmount());
-                        caster->CastCustomSpell(GetTarget(), SPELL_PRIEST_DIVINE_TOUCH, &basepoints0, NULL, NULL, true, NULL, aurEff);
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_pri_renew_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pri_renew_AuraScript();
-        }
-};
-
-// 32379 - Shadow Word Death
-class spell_pri_shadow_word_death : public SpellScriptLoader
-{
-    public:
-        spell_pri_shadow_word_death() : SpellScriptLoader("spell_pri_shadow_word_death") { }
-
-        class spell_pri_shadow_word_death_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_shadow_word_death_SpellScript);
-
-            void HandleDamage()
-            {
-                int32 damage = GetHitDamage();
-
-                // Pain and Suffering reduces damage
-                if (AuraEffect* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_PAIN_AND_SUFFERING, EFFECT_1))
-                    AddPct(damage, aurEff->GetAmount());
-
-                GetCaster()->CastCustomSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH, &damage, nullptr, nullptr, true);
-            }
-
-            void Register() override
-            {
-                OnHit += SpellHitFn(spell_pri_shadow_word_death_SpellScript::HandleDamage);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pri_shadow_word_death_SpellScript();
-        }
-};
-
 // 15473 - Shadowform
 class spell_pri_shadowform : public SpellScriptLoader
 {
@@ -1406,8 +1315,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_phantasm();
     new spell_pri_power_word_shield();
     new spell_pri_prayer_of_mending_heal();
-    new spell_pri_renew();
-    new spell_pri_shadow_word_death();
     new spell_pri_shadowform();
     new spell_pri_vampiric_embrace();
     new spell_pri_vampiric_embrace_target();

@@ -30,7 +30,7 @@
 
 enum PaladinSpells
 {
-    SPELL_PALADIN_AVENGERS_SHIELD               = 31935,
+    SPELL_PALADIN_AVENGERS_SHIELD                = 31935,
     SPELL_PALADIN_AURA_MASTERY_IMMUNE            = 64364,
     SPELL_PALADIN_BEACON_OF_LIGHT                = 53563,
     SPELL_PALADIN_BEACON_OF_LIGHT_HEAL           = 53652,
@@ -40,7 +40,6 @@ enum PaladinSpells
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN  = 37881,
     SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
-    SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
     SPELL_PALADIN_DIVINE_STEED_HUMAN             = 221883,
     SPELL_PALADIN_DIVINE_STEED_DRAENEI           = 221887,
     SPELL_PALADIN_DIVINE_STEED_BLOODELF          = 221886,
@@ -49,35 +48,17 @@ enum PaladinSpells
     SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1          = 9799,
     SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
     SPELL_PALADIN_FORBEARANCE                    = 25771,
-    SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
-    SPELL_PALADIN_HOLY_LIGHT                     = 635,
     SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
     SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
     SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
-    SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA   = 63510,
-    SPELL_PALADIN_IMPROVED_DEVOTION_AURA         = 63514,
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGEMENT_DAMAGE               = 54158,
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
-    SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA    = 63531,
-    SPELL_PALADIN_SANCTIFIED_RETRIBUTION_R1      = 31869,
     SPELL_PALADIN_SANCTIFIED_WRATH               = 57318,
     SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1     = 53375,
-    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
-    SPELL_PALADIN_SWIFT_RETRIBUTION_R1           = 53379
-};
-
-enum MiscSpells
-{
-    SPELL_GENERIC_ARENA_DAMPENING                = 74410,
-    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
-};
-
-enum PaladinSpellIcons
-{
-    PALADIN_ICON_ID_RETRIBUTION_AURA             = 555
+    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742
 };
 
 enum PaladinSpellVisualKit
@@ -720,48 +701,6 @@ class spell_pal_holy_shock : public SpellScriptLoader
         }
 };
 
-// 63510 - Improved Concentraction Aura (Area Aura)
-// 63514 - Improved Devotion Aura (Area Aura)
-// 63531 - Sanctified Retribution (Area Aura)
-class spell_pal_improved_aura_effect : public SpellScriptLoader
-{
-    public:
-        spell_pal_improved_aura_effect(char const* name) : SpellScriptLoader(name) { }
-
-        class spell_pal_improved_aura_effect_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_improved_aura_effect_AuraScript);
-
-            bool CheckAreaTarget(Unit* target)
-            {
-                Unit::AuraApplicationMap& appliedAuras = target->GetAppliedAuras();
-                for (Unit::AuraApplicationMap::iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
-                {
-                    Aura const* aura = itr->second->GetBase();
-                    if (aura->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA && aura->GetCasterGUID() == GetCasterGUID())
-                    {
-                        // Not allow for Retribution Aura (prevent stacking) - Retribution Aura Overflow and Retribution Aura has same spell effects
-                        if (GetSpellInfo()->Id == SPELL_PALADIN_SANCTIFIED_RETRIBUTION_AURA && aura->GetSpellInfo()->SpellIconID == PALADIN_ICON_ID_RETRIBUTION_AURA)
-                            return false;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            void Register() override
-            {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_pal_improved_aura_effect_AuraScript::CheckAreaTarget);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_improved_aura_effect_AuraScript();
-        }
-};
-
 // 37705 - Healing Discount
 class spell_pal_item_healing_discount : public SpellScriptLoader
 {
@@ -1238,9 +1177,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_grand_crusader();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_holy_shock();
-    new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
-    new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
-    new spell_pal_improved_aura_effect("spell_pal_sanctified_retribution_effect");
     new spell_pal_item_healing_discount();
     new spell_pal_judgement();
     new spell_pal_lay_on_hands();
