@@ -3086,11 +3086,6 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                     break;
             }
             break;
-        case SPELLFAMILY_MAGE:
-            // Ignite
-            if (SpellIconID == 45)
-                return true;
-            break;
         case SPELLFAMILY_PRIEST:
             switch (Id)
             {
