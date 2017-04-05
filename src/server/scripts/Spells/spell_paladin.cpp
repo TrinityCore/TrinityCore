@@ -1592,10 +1592,11 @@ class spell_pal_judgement_of_wisdom_mana : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                Unit* caster = eventInfo.GetProcTarget();
-                int32 amount = CalculatePct(static_cast<int32>(caster->GetCreateMana()), aurEff->GetAmount());
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_JUDGEMENT_OF_WISDOM_MANA);
 
-                caster->CastCustomSpell(SPELL_PALADIN_JUDGEMENT_OF_WISDOM_MANA, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff, GetCasterGUID());
+                Unit* caster = eventInfo.GetProcTarget();
+                int32 const amount = CalculatePct(static_cast<int32>(caster->GetCreateMana()), spellInfo->Effects[EFFECT_0].CalcValue());
+                caster->CastCustomSpell(spellInfo->Id, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff, GetCasterGUID());
             }
 
             void Register() override
