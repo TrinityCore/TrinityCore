@@ -2486,7 +2486,21 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
 
         if (MountEntry const* mountEntry = sDB2Manager.GetMount(GetId()))
         {
-            displayId = mountEntry->DisplayId;
+            if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mountEntry->ID))
+            {
+                DB2Manager::MountXDisplayContainer usableDisplays;
+                std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [target](MountXDisplayEntry const* mountDisplay)
+                {
+                    if (Player* playerTarget = target->ToPlayer())
+                        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
+                            return sConditionMgr->IsPlayerMeetingCondition(playerTarget, playerCondition);
+
+                    return true;
+                });
+
+                if (!usableDisplays.empty())
+                    displayId = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->DisplayID;
+            }
             // TODO: CREATE TABLE mount_vehicle (mountId, vehicleCreatureId) for future mounts that are vehicles (new mounts no longer have proper data in MiscValue)
             //if (MountVehicle const* mountVehicle = sObjectMgr->GetMountVehicle(mountEntry->Id))
             //    creatureEntry = mountVehicle->VehicleCreatureId;

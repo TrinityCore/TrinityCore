@@ -42,6 +42,8 @@ struct DB2Header
     uint32 CopyTableSize;
     uint16 Flags;
     int16 IndexField;
+    uint32 TotalFieldCount;
+    uint32 CommonDataSize;
 };
 #pragma pack(pop)
 
@@ -123,7 +125,7 @@ public:
     char* AutoProduceStrings(char* dataTable, uint32 locale);
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable);
 
-    uint32 GetCols() const { return _header.FieldCount; }
+    uint32 GetCols() const { return _header.TotalFieldCount; }
     uint32 GetRecordCount() const;
     uint32 GetRecordCopyCount() const;
     uint32 GetTableHash() const { return _header.TableHash; }

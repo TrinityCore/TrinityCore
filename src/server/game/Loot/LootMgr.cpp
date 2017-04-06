@@ -1817,6 +1817,7 @@ void LoadLootTemplates_Skinning()
 
 void LoadLootTemplates_Spell()
 {
+    // TODO: change this to use MiscValue from spell effect as id instead of spell id
     TC_LOG_INFO("server.loading", "Loading spell loot templates...");
 
     uint32 oldMSTime = getMSTime();

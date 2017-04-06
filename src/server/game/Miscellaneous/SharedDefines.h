@@ -1179,7 +1179,7 @@ enum SpellEffectName
     SPELL_EFFECT_DISCOVER_TAXI                      = 154,
     SPELL_EFFECT_TITAN_GRIP                         = 155,
     SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC             = 156,
-    SPELL_EFFECT_CREATE_ITEM_2                      = 157,
+    SPELL_EFFECT_CREATE_LOOT                        = 157, // crafting loot
     SPELL_EFFECT_MILLING                            = 158,
     SPELL_EFFECT_ALLOW_RENAME_PET                   = 159,
     SPELL_EFFECT_FORCE_CAST_2                       = 160,
