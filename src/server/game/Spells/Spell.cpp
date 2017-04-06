@@ -3680,7 +3680,7 @@ void Spell::finish(bool ok)
         // Unsummon statue
         uint32 spell = m_caster->GetUInt32Value(UNIT_CREATED_BY_SPELL);
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
-        if (spellInfo && spellInfo->SpellIconID == 2056)
+        if (spellInfo && spellInfo->IconFileDataId == 134230)
         {
             TC_LOG_DEBUG("spells", "Statue %s is unsummoned in spell %d finish", m_caster->GetGUID().ToString().c_str(), m_spellInfo->Id);
             m_caster->setDeathState(JUST_DIED);
@@ -6275,7 +6275,7 @@ SpellCastResult Spell::CheckItems()
         switch (effect->Effect)
         {
             case SPELL_EFFECT_CREATE_ITEM:
-            case SPELL_EFFECT_CREATE_ITEM_2:
+            case SPELL_EFFECT_CREATE_LOOT:
             {
                 if (!IsTriggered() && effect->ItemType)
                 {

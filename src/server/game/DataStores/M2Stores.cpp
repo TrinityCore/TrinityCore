@@ -183,7 +183,7 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
     return true;
 }
 
-void LoadM2Cameras(std::string const& dataPath)
+TC_GAME_API void LoadM2Cameras(boost::filesystem::path const& dataPath)
 {
     sFlyByCameraStore.clear();
     TC_LOG_INFO("server.loading", ">> Loading Cinematic Camera files");
@@ -191,19 +191,10 @@ void LoadM2Cameras(std::string const& dataPath)
     uint32 oldMSTime = getMSTime();
     for (CinematicCameraEntry const* cameraEntry : sCinematicCameraStore)
     {
-        std::string filenameWork = dataPath;
-        filenameWork.append(cameraEntry->Model);
-
-        // Replace slashes (always to forward slash, because boost!)
-        std::replace(filenameWork.begin(), filenameWork.end(), '\\', '/');
-
-        boost::filesystem::path filename = filenameWork;
+        boost::filesystem::path filename = dataPath / Trinity::StringFormat("FILE%08X.xxx", cameraEntry->ModelFileDataID);
 
         // Convert to native format
         filename.make_preferred();
-
-        // Replace mdx to .m2
-        filename.replace_extension("m2");
 
         std::ifstream m2file(filename.string().c_str(), std::ios::in | std::ios::binary);
         if (!m2file.is_open())

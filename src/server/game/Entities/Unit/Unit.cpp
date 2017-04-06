@@ -5524,7 +5524,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 return true;
             }
             // Seed of Corruption (Mobs cast) - no die req
-            if (!dummySpell->SpellFamilyFlags && dummySpell->SpellIconID == 1932)
+            if (!dummySpell->SpellFamilyFlags && dummySpell->IconFileDataId == 136193)
             {
                 // if damage is more than need deal finish spell
                 if (triggeredByAura->GetAmount() <= int32(damage))

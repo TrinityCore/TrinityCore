@@ -1387,6 +1387,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, std::vector<int32> const
         num_to_add = pProto->GetMaxStackSize();
 
     /* == gem perfection handling == */
+    // this is bad, should be done using spell_loot_template (and conditions)
 
     // the chance of getting a perfect result
     float perfectCreateChance = 0.0f;
@@ -4398,8 +4399,8 @@ void Spell::EffectLeapBack(SpellEffIndex /*effIndex*/)
 
     float speedxy = effectInfo->MiscValue / 10.f;
     float speedz = damage / 10.f;
-    //1891: Disengage
-    unitTarget->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID != 1891);
+    // Disengage
+    unitTarget->JumpTo(speedxy, speedz, m_spellInfo->IconFileDataId != 132572);
 }
 
 void Spell::EffectQuestClear(SpellEffIndex /*effIndex*/)

@@ -21,6 +21,14 @@
 #include "Common.h"
 #include "G3D/Vector4.h"
 
+namespace boost
+{
+    namespace filesystem
+    {
+        class path;
+    }
+}
+
 struct FlyByCamera
 {
     uint32 timeStamp;
@@ -31,6 +39,6 @@ typedef std::vector<FlyByCamera> FlyByCameraCollection;
 
 TC_GAME_API extern std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
 
-TC_GAME_API void LoadM2Cameras(std::string const& dataPath);
+TC_GAME_API void LoadM2Cameras(boost::filesystem::path const& dataPath);
 
 #endif

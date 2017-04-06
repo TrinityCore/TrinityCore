@@ -37,8 +37,8 @@ DB2FileLoadInfo::DB2FileLoadInfo(DB2FieldMeta const* fields, std::size_t fieldCo
 uint32 DB2FileLoadInfo::GetStringFieldCount(bool localizedOnly) const
 {
     uint32 stringFields = 0;
-    for (std::size_t i = 0; i < TypesString.length(); ++i)
-        if (TypesString[i] == FT_STRING || (TypesString[i] == FT_STRING_NOT_LOCALIZED && !localizedOnly))
+    for (char fieldType : TypesString)
+        if (fieldType == FT_STRING || (fieldType == FT_STRING_NOT_LOCALIZED && !localizedOnly))
             ++stringFields;
 
     return stringFields;
@@ -93,6 +93,7 @@ public:
     uint32 GetMaxId() const override;
 
 private:
+    void FillCommonValues(char** indexTable);
     unsigned char const* GetRawRecordData(uint32 recordNumber) const override;
     uint32 RecordGetId(unsigned char const* record, uint32 recordIndex) const override;
     uint8 RecordGetUInt8(unsigned char const* record, uint32 field, uint32 arrayIndex) const override;
@@ -126,6 +127,7 @@ private:
     uint32 idTableSize;
     DB2RecordCopy* copyTable;
     FieldEntry* fields;
+    unsigned char* commonData;
 };
 
 class DB2FileLoaderSparseImpl final : public DB2FileLoaderImpl
@@ -196,6 +198,7 @@ DB2FileLoaderRegularImpl::DB2FileLoaderRegularImpl()
     idTableSize = 0;
     copyTable = nullptr;
     fields = nullptr;
+    commonData = nullptr;
 }
 
 bool DB2FileLoaderRegularImpl::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo, DB2Header const* header)
@@ -232,6 +235,20 @@ bool DB2FileLoaderRegularImpl::Load(DB2FileSource* source, DB2FileLoadInfo const
             return false;
     }
 
+    if (header->CommonDataSize)
+    {
+        uint32 commonFieldCount;
+        if (!source->Read(&commonFieldCount, sizeof(uint32)))
+            return false;
+
+        if (commonFieldCount != header->TotalFieldCount)
+            return false;
+
+        commonData = new unsigned char[header->CommonDataSize - sizeof(uint32)];
+        if (!source->Read(commonData, header->CommonDataSize - sizeof(uint32)))
+            return false;
+    }
+
     return true;
 }
 
@@ -241,13 +258,14 @@ DB2FileLoaderRegularImpl::~DB2FileLoaderRegularImpl()
     delete[] idTable;
     delete[] copyTable;
     delete[] fields;
+    delete[] commonData;
 }
 
 static char const* const nullStr = "";
 
 char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool)
 {
-    if (_loadInfo->Meta->FieldCount != _header->FieldCount)
+    if (_loadInfo->Meta->FieldCount != _header->TotalFieldCount)
         return nullptr;
 
     //get struct size and index pos
@@ -347,14 +365,61 @@ char* DB2FileLoaderRegularImpl::AutoProduceData(uint32& records, char**& indexTa
                 ++fieldIndex;
             }
         }
+
+        for (uint32 x = _header->FieldCount; x < _header->TotalFieldCount; ++x)
+        {
+            for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
+            {
+                switch (_loadInfo->TypesString[fieldIndex])
+                {
+                    case FT_FLOAT:
+                        *((float*)(&dataTable[offset])) = _loadInfo->Meta->FieldDefaults[x].AsFloat;
+                        offset += 4;
+                        break;
+                    case FT_INT:
+                        *((uint32*)(&dataTable[offset])) = _loadInfo->Meta->FieldDefaults[x].AsUInt32;
+                        offset += 4;
+                        break;
+                    case FT_BYTE:
+                        *((uint8*)(&dataTable[offset])) = _loadInfo->Meta->FieldDefaults[x].AsUInt8;
+                        offset += 1;
+                        break;
+                    case FT_SHORT:
+                        *((uint16*)(&dataTable[offset])) = _loadInfo->Meta->FieldDefaults[x].AsUInt16;
+                        offset += 2;
+                        break;
+                    case FT_STRING:
+                    case FT_STRING_NOT_LOCALIZED:
+                    {
+                        // init db2 string field slots by pointers to string holders
+                        char const*** slot = (char const***)(&dataTable[offset]);
+                        *slot = (char const**)(&stringHoldersPool[stringHoldersRecordPoolSize * y + stringFieldOffset]);
+                        if (_loadInfo->TypesString[fieldIndex] == FT_STRING)
+                            stringFieldOffset += sizeof(LocalizedString);
+                        else
+                            stringFieldOffset += sizeof(char*);
+
+                        offset += sizeof(char*);
+                        break;
+                    }
+                    default:
+                        ASSERT(false, "Unknown format character '%c' found in %s meta", _loadInfo->TypesString[x], fileName);
+                        break;
+                }
+                ++fieldIndex;
+            }
+        }
     }
+
+    if (commonData)
+        FillCommonValues(indexTable);
 
     return dataTable;
 }
 
 char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 locale)
 {
-    if (_loadInfo->Meta->FieldCount != _header->FieldCount)
+    if (_loadInfo->Meta->FieldCount != _header->TotalFieldCount)
         return nullptr;
 
     if (!(_header->Locale & (1 << locale)))
@@ -389,7 +454,7 @@ char* DB2FileLoaderRegularImpl::AutoProduceStrings(char* dataTable, uint32 local
             ++fieldIndex;
         }
 
-        for (uint32 x = 0; x < _header->FieldCount; ++x)
+        for (uint32 x = 0; x < _header->TotalFieldCount; ++x)
         {
             for (uint32 z = 0; z < _loadInfo->Meta->ArraySizes[x]; ++z)
             {
@@ -456,6 +521,91 @@ void DB2FileLoaderRegularImpl::AutoProduceRecordCopies(uint32 records, char** in
                 *((uint32*)(&dataTable[offset])) = copy.NewRowId;
 
             offset += recordsize;
+        }
+    }
+}
+
+void DB2FileLoaderRegularImpl::FillCommonValues(char** indexTable)
+{
+    uint32 fieldOffset = 0;
+    if (!_loadInfo->Meta->HasIndexFieldInData())
+        fieldOffset += 4;
+
+    unsigned char* commonDataItr = commonData;
+    for (uint32 field = 0; field < _header->TotalFieldCount; ++field)
+    {
+        uint32 numExtraValuesForField = *reinterpret_cast<uint32*>(commonDataItr);
+        commonDataItr += sizeof(uint32);
+        uint8 dataType = *reinterpret_cast<uint8*>(commonDataItr);
+        commonDataItr += sizeof(uint8);
+        for (uint32 record = 0; record < numExtraValuesForField; ++record)
+        {
+            uint32 recordId = *reinterpret_cast<uint32*>(commonDataItr);
+            commonDataItr += sizeof(uint32);
+
+            char* recordData = indexTable[recordId];
+
+            switch (dataType)
+            {
+                case 1:
+                {
+                    ASSERT(_loadInfo->Meta->Types[field] == FT_SHORT);
+                    uint16 value = *reinterpret_cast<uint16*>(commonDataItr);
+                    EndianConvert(value);
+                    commonDataItr += sizeof(uint16);
+                    for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
+                        *reinterpret_cast<uint16*>(&recordData[fieldOffset + sizeof(uint16) * arrayIndex]) = value;
+                    break;
+                }
+                case 2:
+                {
+                    ASSERT(_loadInfo->Meta->Types[field] == FT_BYTE);
+                    uint8 value = *reinterpret_cast<uint8*>(commonDataItr);
+                    commonDataItr += sizeof(uint8);
+                    for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
+                        *reinterpret_cast<uint8*>(&recordData[fieldOffset + sizeof(uint8) * arrayIndex]) = value;
+                    break;
+                }
+                case 3:
+                {
+                    ASSERT(_loadInfo->Meta->Types[field] == FT_FLOAT);
+                    float value = *reinterpret_cast<float*>(commonDataItr);
+                    EndianConvert(value);
+                    commonDataItr += sizeof(float);
+                    for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
+                        *reinterpret_cast<float*>(&recordData[fieldOffset + sizeof(float) * arrayIndex]) = value;
+                    break;
+                }
+                case 4:
+                {
+                    ASSERT(_loadInfo->Meta->Types[field] == FT_INT);
+                    uint32 value = *reinterpret_cast<uint32*>(commonDataItr);
+                    EndianConvert(value);
+                    commonDataItr += sizeof(uint32);
+                    for (uint32 arrayIndex = 0; arrayIndex < _loadInfo->Meta->ArraySizes[field]; ++arrayIndex)
+                        *reinterpret_cast<uint32*>(&recordData[fieldOffset + sizeof(uint32) * arrayIndex]) = value;
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        switch (_loadInfo->Meta->Types[field])
+        {
+            case FT_FLOAT:
+            case FT_INT:
+                fieldOffset += 4 * _loadInfo->Meta->ArraySizes[field];
+                break;
+            case FT_BYTE:
+                fieldOffset += 1 * _loadInfo->Meta->ArraySizes[field];
+                break;
+            case FT_SHORT:
+                fieldOffset += 2 * _loadInfo->Meta->ArraySizes[field];
+                break;
+            case FT_STRING:
+                fieldOffset += sizeof(char*) * _loadInfo->Meta->ArraySizes[field];
+                break;
         }
     }
 }
@@ -642,7 +792,7 @@ bool DB2FileLoaderSparseImpl::Load(DB2FileSource* source, DB2FileLoadInfo const*
 char* DB2FileLoaderSparseImpl::AutoProduceData(uint32& maxId, char**& indexTable, std::vector<char*>& stringPool)
 {
     if (_loadInfo->Meta->FieldCount != _header->FieldCount)
-        return NULL;
+        return nullptr;
 
     //get struct size and index pos
     uint32 recordsize = _loadInfo->Meta->GetRecordSize();
@@ -1100,8 +1250,10 @@ bool DB2FileLoader::Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo)
     EndianConvert(_header.CopyTableSize);
     EndianConvert(_header.Flags);
     EndianConvert(_header.IndexField);
+    EndianConvert(_header.TotalFieldCount);
+    EndianConvert(_header.CommonDataSize);
 
-    if (_header.Signature != 0x35424457)                        //'WDB5'
+    if (_header.Signature != 0x36424457)                        //'WDB6'
         return false;
 
     if (_header.LayoutHash != loadInfo->Meta->LayoutHash)

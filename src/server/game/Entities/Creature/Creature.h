@@ -415,7 +415,7 @@ struct TC_GAME_API CreatureTemplate
             case DIFFICULTY_HEROIC_RAID:
                 return 0;
             case DIFFICULTY_10_HC:
-            case DIFFICULTY_CHALLENGE:
+            case DIFFICULTY_MYTHIC_KEYSTONE:
             case DIFFICULTY_MYTHIC_RAID:
                 return 1;
             case DIFFICULTY_25_HC:
