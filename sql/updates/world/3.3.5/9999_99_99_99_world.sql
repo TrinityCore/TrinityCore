@@ -1,8 +1,8 @@
 -- adds damage to pet_levelstats and fills it with correct damage and stats for every level for every pet
 
 ALTER TABLE pet_levelstats
-  ADD COLUMN `min_dmg` smallint(5) UNSIGNED NOT NULL default '0' AFTER spi,
-  ADD COLUMN `max_dmg` smallint(5) UNSIGNED NOT NULL default '0' AFTER min_dmg;
+  ADD COLUMN `min_dmg` smallint(5) UNSIGNED NOT NULL default 0 AFTER spi,
+  ADD COLUMN `max_dmg` smallint(5) UNSIGNED NOT NULL default 0 AFTER min_dmg;
 
 -- IMP
 UPDATE pet_levelstats SET str=20, agi=20, sta=20, inte=24, spi=23, armor=20, min_dmg=1, max_dmg=2 WHERE creature_entry=416 AND level=1;
