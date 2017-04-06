@@ -62,6 +62,7 @@ namespace MMAP
         public:
             MMapManager() : loadedTiles(0), thread_safe_environment(true) {}
             ~MMapManager();
+            static MMapManager* createOrGetMMapManager();
 
             void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);
             bool loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y);

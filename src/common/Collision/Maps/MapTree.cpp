@@ -18,7 +18,7 @@
 
 #include "MapTree.h"
 #include "ModelInstance.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "VMapDefinitions.h"
 #include "Log.h"
 #include "Errors.h"
@@ -242,7 +242,7 @@ namespace VMAP
         std::string basePath = vmapPath;
         if (basePath.length() > 0 && basePath[basePath.length()-1] != '/' && basePath[basePath.length()-1] != '\\')
             basePath.push_back('/');
-        std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
+        std::string fullname = basePath + VMapManager::getMapFileName(mapID);
 
         LoadResult result = LoadResult::Success;
 
@@ -276,7 +276,7 @@ namespace VMAP
 
     //=========================================================
 
-    bool StaticMapTree::InitMap(const std::string &fname, VMapManager2* vm)
+    bool StaticMapTree::InitMap(const std::string &fname, VMapManager* vm)
     {
         VMAP_DEBUG_LOG("maps", "StaticMapTree::InitMap() : initializing StaticMapTree '%s'", fname.c_str());
         bool success = false;
@@ -327,7 +327,7 @@ namespace VMAP
 
     //=========================================================
 
-    void StaticMapTree::UnloadMap(VMapManager2* vm)
+    void StaticMapTree::UnloadMap(VMapManager* vm)
     {
         for (loadedSpawnMap::iterator i = iLoadedSpawns.begin(); i != iLoadedSpawns.end(); ++i)
         {
@@ -341,7 +341,7 @@ namespace VMAP
 
     //=========================================================
 
-    bool StaticMapTree::LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm)
+    bool StaticMapTree::LoadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm)
     {
         if (!iIsTiled)
         {
@@ -423,7 +423,7 @@ namespace VMAP
 
     //=========================================================
 
-    void StaticMapTree::UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm)
+    void StaticMapTree::UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm)
     {
         uint32 tileID = packTileID(tileX, tileY);
         loadedTileMap::iterator tile = iLoadedTiles.find(tileID);

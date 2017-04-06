@@ -19,7 +19,7 @@
 #include "PathGenerator.h"
 #include "Map.h"
 #include "Creature.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "MMapManager.h"
 #include "Log.h"
 #include "DisableMgr.h"
@@ -41,7 +41,7 @@ PathGenerator::PathGenerator(const Unit* owner) :
     uint32 mapId = _sourceUnit->GetMapId();
     if (DisableMgr::IsPathfindingEnabled(mapId))
     {
-        MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
+        MMAP::MMapManager* mmap = MMAP::MMapManager::createOrGetMMapManager();
         _navMesh = mmap->GetNavMesh(mapId);
         _navMeshQuery = mmap->GetNavMeshQuery(mapId, _sourceUnit->GetInstanceId());
     }

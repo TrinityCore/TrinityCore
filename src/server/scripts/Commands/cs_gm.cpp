@@ -251,7 +251,7 @@ public:
             handler->GetSession()->SendNotification(LANG_GM_ON);
             _player->UpdateTriggerVisibility();
 #ifdef _DEBUG_VMAPS
-            VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
+            VMAP::VMapManager* vMapManager = VMAP::VMapManager::createOrGetVMapManager();
             vMapManager->processCommand("stoplog");
 #endif
             return true;
@@ -263,7 +263,7 @@ public:
             handler->GetSession()->SendNotification(LANG_GM_OFF);
             _player->UpdateTriggerVisibility();
 #ifdef _DEBUG_VMAPS
-            VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
+            VMAP::VMapManager* vMapManager = VMAP::VMapManager::createOrGetVMapManager();
             vMapManager->processCommand("startlog");
 #endif
             return true;

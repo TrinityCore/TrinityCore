@@ -36,9 +36,16 @@ namespace MMAP
         // if we had, tiles in MMapData->mmapLoadedTiles, their actual data is lost!
     }
 
+    // using c++ 11 static initializer, we have the guarantee of creating only one MapManager instance (aka singleton)
+    MMapManager* MMapManager::createOrGetMMapManager()
+    {
+        static MMapManager g_MMapManager;
+        return &g_MMapManager;
+    }
+
     void MMapManager::InitializeThreadUnsafe(const std::vector<uint32>& mapIds)
     {
-        // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
+        // the caller must pass the list of all mapIds that will be used in the VMapManager lifetime
         for (const uint32& mapId : mapIds)
             loadedMMaps.insert(MMapDataSet::value_type(mapId, nullptr));
 

@@ -16,14 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _VMAPMANAGER2_H
-#define _VMAPMANAGER2_H
+#ifndef _VMAPMANAGER_H
+#define _VMAPMANAGER_H
 
 #include <mutex>
 #include <unordered_map>
 #include <vector>
 #include "Define.h"
-#include "IVMapManager.h"
+#include <string>
+#include "ModelIgnoreFlags.h"
 
 //===========================================================
 
@@ -51,6 +52,9 @@ namespace VMAP
     class StaticMapTree;
     class WorldModel;
 
+#define VMAP_INVALID_HEIGHT       -100000.0f            // for check
+#define VMAP_INVALID_HEIGHT_VALUE -200000.0f            // real assigned value in unknown height case
+
     class TC_COMMON_API ManagedModel
     {
         public:
@@ -75,8 +79,26 @@ namespace VMAP
         VMAP_DISABLE_LIQUIDSTATUS   = 0x8
     };
 
-    class TC_COMMON_API VMapManager2 : public IVMapManager
+    enum VMAP_LOAD_RESULT
     {
+        VMAP_LOAD_RESULT_ERROR,
+        VMAP_LOAD_RESULT_OK,
+        VMAP_LOAD_RESULT_IGNORED
+    };
+
+    enum class LoadResult : uint8
+    {
+        Success,
+        FileNotFound,
+        VersionMismatch
+    };
+
+    class TC_COMMON_API VMapManager
+    {
+        private:
+            bool iEnableLineOfSightCalc;
+            bool iEnableHeightCalc;
+
         protected:
             // Tree to check collision
             ModelFileMap iLoadedModelFiles;
@@ -98,36 +120,47 @@ namespace VMAP
             G3D::Vector3 convertPositionToInternalRep(float x, float y, float z) const;
             static std::string getMapFileName(unsigned int mapId);
 
-            VMapManager2();
-            ~VMapManager2(void);
+            VMapManager();
+            static VMapManager* createOrGetVMapManager();
+            ~VMapManager(void);
 
             void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);
-            int loadMap(const char* pBasePath, unsigned int mapId, int x, int y) override;
+            int loadMap(const char* pBasePath, unsigned int mapId, int x, int y);
 
-            void unloadMap(unsigned int mapId, int x, int y) override;
-            void unloadMap(unsigned int mapId) override;
+            void unloadMap(unsigned int mapId, int x, int y);
+            void unloadMap(unsigned int mapId);
 
-            bool isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags) override ;
+            bool isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags);
             /**
+            test if we hit an object. return true if we hit one. rx, ry, rz will hold the hit position or the dest position, if no intersection was found
+            return a position, that is pReduceDist closer to the origin
+
             fill the hit pos and return true, if an object was hit
             */
-            bool getObjectHitPos(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist) override;
-            float getHeight(unsigned int mapId, float x, float y, float z, float maxSearchDist) override;
+            bool getObjectHitPos(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist);
+            float getHeight(unsigned int mapId, float x, float y, float z, float maxSearchDist);
 
-            bool processCommand(char* /*command*/) override { return false; } // for debug and extensions
+            /**
+            send debug commands
+            */
+            bool processCommand(char* /*command*/) { return false; } // for debug and extensions
 
-            bool getAreaInfo(unsigned int pMapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const override;
-            bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const override;
+            /**
+            Query world model area info.
+            \param z gets adjusted to the ground height for which this are info is valid
+            */
+            bool getAreaInfo(unsigned int pMapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const;
+            bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const;
 
             WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags = 0);
             void releaseModelInstance(const std::string& filename);
 
             // what's the use of this? o.O
-            virtual std::string getDirFileName(unsigned int mapId, int /*x*/, int /*y*/) const override
+            std::string getDirFileName(unsigned int mapId, int /*x*/, int /*y*/) const
             {
                 return getMapFileName(mapId);
             }
-            virtual LoadResult existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
+            LoadResult existsMap(const char* basePath, unsigned int mapId, int x, int y);
 
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
 
@@ -136,6 +169,21 @@ namespace VMAP
 
             typedef bool(*IsVMAPDisabledForFn)(uint32 entry, uint8 flags);
             IsVMAPDisabledForFn IsVMAPDisabledForPtr;
+
+            /**
+            Enable/disable LOS calculation
+            It is enabled by default. If it is enabled in mid game the maps have to loaded manualy
+            */
+            void setEnableLineOfSightCalc(bool pVal) { iEnableLineOfSightCalc = pVal; }
+            /**
+            Enable/disable model height calculation
+            It is enabled by default. If it is enabled in mid game the maps have to loaded manualy
+            */
+            void setEnableHeightCalc(bool pVal) { iEnableHeightCalc = pVal; }
+
+            bool isLineOfSightCalcEnabled() const { return(iEnableLineOfSightCalc); }
+            bool isHeightCalcEnabled() const { return(iEnableHeightCalc); }
+            bool isMapLoadingEnabled() const { return(iEnableLineOfSightCalc || iEnableHeightCalc); }
     };
 }
 

@@ -49,7 +49,7 @@
 #include "LFGMgr.h"
 #include "MapManager.h"
 #include "Memory.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
@@ -65,7 +65,7 @@
 #include "TicketMgr.h"
 #include "TransportMgr.h"
 #include "Unit.h"
-#include "VMapFactory.h"
+#include "VMapManager.h"
 #include "WardenCheckMgr.h"
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
@@ -137,9 +137,6 @@ World::~World()
     CliCommandHolder* command = NULL;
     while (cliCmdQueue.next(command))
         delete command;
-
-    VMAP::VMapFactory::clear();
-    MMAP::MMapFactory::clear();
 
     /// @todo free addSessQueue
 }
@@ -1214,8 +1211,8 @@ void World::LoadConfigSettings(bool reload)
     if (!enableHeight)
         TC_LOG_ERROR("server.loading", "VMap height checking disabled! Creatures movements and other various things WILL be broken! Expect no support.");
 
-    VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
-    VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
+    VMAP::VMapManager::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
+    VMAP::VMapManager::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
     TC_LOG_INFO("server.loading", "VMap support included. LineOfSight: %i, getHeight: %i, indoorCheck: %i", enableLOS, enableHeight, enableIndoor);
     TC_LOG_INFO("server.loading", "VMap data directory is: %svmaps", m_dataPath.c_str());
 
@@ -1361,7 +1358,7 @@ void World::SetInitialWorldSettings()
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
 
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
-    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
+    if (VMAP::VMapManager* vmmgr2 = dynamic_cast<VMAP::VMapManager*>(VMAP::VMapManager::createOrGetVMapManager()))
     {
         vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
         vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
@@ -1425,10 +1422,10 @@ void World::SetInitialWorldSettings()
         if (sMapStore.LookupEntry(mapId))
             mapIds.push_back(mapId);
 
-    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
+    if (VMAP::VMapManager* vmmgr2 = dynamic_cast<VMAP::VMapManager*>(VMAP::VMapManager::createOrGetVMapManager()))
         vmmgr2->InitializeThreadUnsafe(mapIds);
 
-    MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
+    MMAP::MMapManager* mmmgr = MMAP::MMapManager::createOrGetMMapManager();
     mmmgr->InitializeThreadUnsafe(mapIds);
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");

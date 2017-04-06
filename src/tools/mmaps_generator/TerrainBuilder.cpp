@@ -20,7 +20,7 @@
 
 #include "MapBuilder.h"
 
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
 
@@ -631,7 +631,7 @@ namespace MMAP
     /**************************************************************************/
     bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
     {
-        IVMapManager* vmapManager = new VMapManager2();
+        VMapManager* vmapManager = new VMapManager();
         int result = vmapManager->loadMap("vmaps", mapID, tileX, tileY);
         bool retval = false;
 
@@ -641,7 +641,7 @@ namespace MMAP
                 break;
 
             InstanceTreeMap instanceTrees;
-            ((VMapManager2*)vmapManager)->getInstanceMapTree(instanceTrees);
+            ((VMapManager*)vmapManager)->getInstanceMapTree(instanceTrees);
 
             if (!instanceTrees[mapID])
                 break;
