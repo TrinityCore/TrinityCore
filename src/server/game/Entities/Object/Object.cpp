@@ -1213,6 +1213,18 @@ bool WorldObject::IsWithinDist2d(const Position* pos, float dist) const
     return IsInDist2d(pos, dist + GetCombatReach());
 }
 
+bool WorldObject::IsWithinDist2dCenter(float x, float y, float dist) const
+{
+    //Same as Dist2d but without Combat Reach
+    return IsInDist2d(x, y, dist);
+}
+
+bool WorldObject::IsWithinDist2dCenter(const Position* pos, float dist) const
+{
+    //Same as Dist2d but without Combat Reach
+    return IsInDist2d(pos, dist);
+}
+
 bool WorldObject::IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D /*= true*/) const
 {
     return obj && _IsWithinDist(obj, dist2compare, is3D);
