@@ -486,8 +486,6 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool IsWithinDist3d(Position const* pos, float dist) const;
         bool IsWithinDist2d(float x, float y, float dist) const;
         bool IsWithinDist2d(Position const* pos, float dist) const;
-        bool IsWithinDist2dCenter(float x, float y, float dist) const;
-        bool IsWithinDist2dCenter(Position const* pos, float dist) const;
         // use only if you will sure about placing both object at same map
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const;
         bool IsWithinDistCenter(WorldObject const* obj, float dist2compare, bool is3D = true) const;

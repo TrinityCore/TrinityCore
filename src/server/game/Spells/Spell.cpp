@@ -7809,7 +7809,7 @@ bool WorldObjectSpellChainTargetCheck::operator()(WorldObject* target)
     }
     else
     {
-        bool isInsideCylinder = target->IsWithinDist2dCenter(_position, _range) && std::abs(target->GetPositionZ() - _position->GetPositionZ()) <= _range;
+        bool isInsideCylinder = target->IsInDist2d(_position, _range) && std::abs(target->GetPositionZ() - _position->GetPositionZ()) <= _range;
         if (!isInsideCylinder)
             return false;
     }
