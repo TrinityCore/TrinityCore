@@ -32,6 +32,12 @@ namespace
     std::unordered_map<uint32, StoredLootContainer> _lootItemStore;
 }
 
+StoredLootItem::StoredLootItem(LootItem const& lootItem) : ItemId(lootItem.itemid), Count(lootItem.count), FollowRules(lootItem.follow_loot_rules),
+FFA(lootItem.freeforall), Blocked(lootItem.is_blocked), Counted(lootItem.is_counted), UnderThreshold(lootItem.is_underthreshold),
+NeedsQuest(lootItem.needs_quest), RandomPropertyId(lootItem.randomPropertyId), RandomSuffix(lootItem.randomSuffix)
+{
+}
+
 LootItemStorage::LootItemStorage()
 {
 }
@@ -69,8 +75,20 @@ void LootItemStorage::LoadStorageFromDB()
 
             StoredLootContainer& storedContainer = _lootItemStore[fields[0].GetUInt32()];
             storedContainer.SetContainer(fields[0].GetUInt32());
-            storedContainer.AddLootItem(fields[1].GetUInt32(), fields[2].GetUInt32(), fields[3].GetBool(), fields[4].GetBool(), fields[5].GetBool(), fields[6].GetBool(),
-                fields[7].GetBool(), fields[8].GetBool(), fields[9].GetInt32(), fields[10].GetUInt32(), trans);
+
+            LootItem lootItem;
+            lootItem.itemid = fields[1].GetUInt32();
+            lootItem.count = fields[2].GetUInt32();
+            lootItem.follow_loot_rules = fields[3].GetBool();
+            lootItem.freeforall = fields[4].GetBool();
+            lootItem.is_blocked = fields[5].GetBool();
+            lootItem.is_counted = fields[6].GetBool();
+            lootItem.is_underthreshold = fields[7].GetBool();
+            lootItem.needs_quest = fields[8].GetBool();
+            lootItem.randomPropertyId = fields[9].GetInt32();
+            lootItem.randomSuffix = fields[10].GetUInt32();
+
+            storedContainer.AddLootItem(lootItem, trans);
 
             ++count;
         } while (result->NextRow());
@@ -105,34 +123,37 @@ void LootItemStorage::LoadStorageFromDB()
 bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
 {
     Loot* loot = &item->loot;
+    StoredLootContainer const* container = nullptr;
+
     // read
-    boost::shared_lock<boost::shared_mutex> lock(*GetLock());
-
-    auto itr = _lootItemStore.find(loot->containerID);
-    if (itr == _lootItemStore.end())
-        return false;
-
-    StoredLootContainer const& container = itr->second;
-    lock.unlock();
-
-    loot->gold = container.GetMoney();
-
-    LootTemplate const* lt = LootTemplates_Item.GetLootFor(item->GetEntry());
-    if (lt)
     {
-        for (auto const& storedItem : container.GetLootItems())
+        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+
+        auto itr = _lootItemStore.find(loot->containerID);
+        if (itr == _lootItemStore.end())
+            return false;
+
+        container = &itr->second;
+    }
+
+    // container is never null at this point
+    loot->gold = container->GetMoney();
+
+    if (LootTemplate const* lt = LootTemplates_Item.GetLootFor(item->GetEntry()))
+    {
+        for (auto const& storedItemPair : container->GetLootItems())
         {
-            LootItem li = LootItem();
-            li.itemid = storedItem.itemId;
-            li.count = storedItem.count;
-            li.follow_loot_rules = storedItem.followRules;
-            li.freeforall = storedItem.ffa;
-            li.is_blocked = storedItem.blocked;
-            li.is_counted = storedItem.counted;
-            li.is_underthreshold = storedItem.underTreshold;
-            li.needs_quest = storedItem.needsQuest;
-            li.randomPropertyId = storedItem.randomPropertyId;
-            li.randomSuffix = storedItem.randomSuffix;
+            LootItem li;
+            li.itemid = storedItemPair.first;
+            li.count = storedItemPair.second.Count;
+            li.follow_loot_rules = storedItemPair.second.FollowRules;
+            li.freeforall = storedItemPair.second.FFA;
+            li.is_blocked = storedItemPair.second.Blocked;
+            li.is_counted = storedItemPair.second.Counted;
+            li.is_underthreshold = storedItemPair.second.UnderThreshold;
+            li.needs_quest = storedItemPair.second.NeedsQuest;
+            li.randomPropertyId = storedItemPair.second.RandomPropertyId;
+            li.randomSuffix = storedItemPair.second.RandomSuffix;
 
             // Copy the extra loot conditions from the item in the loot template
             lt->CopyConditions(&li);
@@ -145,7 +166,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
             loot->items.push_back(li);
 
             // Increment unlooted count
-            loot->unlootedCount++;
+            ++loot->unlootedCount;
         }
     }
 
@@ -204,19 +225,19 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
     if (loot->isLooted()) // no money and no loot
         return;
 
-    // write
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
-
-    auto itr = _lootItemStore.find(loot->containerID);
-    if (itr != _lootItemStore.end())
+    // read
     {
-        TC_LOG_ERROR("misc", "Trying to store item loot by player: %s for container id: %u that is already in storage!", player->GetGUID().ToString().c_str(), loot->containerID);
-        return;
+        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+
+        auto itr = _lootItemStore.find(loot->containerID);
+        if (itr != _lootItemStore.end())
+        {
+            TC_LOG_ERROR("misc", "Trying to store item loot by player: %s for container id: %u that is already in storage!", player->GetGUID().ToString().c_str(), loot->containerID);
+            return;
+        }
     }
 
-    StoredLootContainer& container = _lootItemStore[loot->containerID];
-    lock.unlock();
-
+    StoredLootContainer container;
     container.SetContainer(loot->containerID);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -227,25 +248,31 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
     stmt->setUInt32(0, loot->containerID);
     trans->Append(stmt);
 
-    for (auto const& _li : loot->items)
+    for (LootItem const& li : loot->items)
     {
         // Conditions are not checked when loot is generated, it is checked when loot is sent to a player.
         // For items that are lootable, loot is saved to the DB immediately, that means that loot can be
         // saved to the DB that the player never should have gotten. This check prevents that, so that only
         // items that the player should get in loot are in the DB.
         // IE: Horde items are not saved to the DB for Ally players.
-        if (!_li.AllowedForPlayer(player))
+        if (!li.AllowedForPlayer(player))
             continue;
 
         // Don't save currency tokens
-        const ItemTemplate* itemTemplate = sObjectMgr->GetItemTemplate(_li.itemid);
+        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(li.itemid);
         if (!itemTemplate || itemTemplate->IsCurrencyToken())
             continue;
 
-        container.AddLootItem(_li.itemid, _li.count, _li.follow_loot_rules, _li.freeforall, _li.is_blocked, _li.is_counted, _li.is_underthreshold, _li.needs_quest, _li.randomPropertyId, _li.randomSuffix, trans);
+        container.AddLootItem(li, trans);
     }
 
     CharacterDatabase.CommitTransaction(trans);
+
+    // write
+    {
+        boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+        _lootItemStore.emplace(loot->containerID, std::move(container));
+    }
 }
 
 void StoredLootContainer::SetContainer(uint32 containerId)
@@ -253,9 +280,9 @@ void StoredLootContainer::SetContainer(uint32 containerId)
     _containerId = containerId;
 }
 
-void StoredLootContainer::AddLootItem(uint32 itemId, uint32 count, bool followRules, bool ffa, bool blocked, bool counted, bool underTreshold, bool needsQuest, int32 randomPropertyId, uint32 randomSuffix, SQLTransaction trans)
+void StoredLootContainer::AddLootItem(LootItem const& lootItem, SQLTransaction& trans)
 {
-    _lootItems.emplace_back(itemId, count, followRules, ffa, blocked, counted, underTreshold, needsQuest, randomPropertyId, randomSuffix);
+    _lootItems.emplace(lootItem.itemid, lootItem);
     if (!trans)
         return;
 
@@ -263,20 +290,20 @@ void StoredLootContainer::AddLootItem(uint32 itemId, uint32 count, bool followRu
 
     // container_id, item_id, item_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, rnd_suffix
     stmt->setUInt32(0, _containerId);
-    stmt->setUInt32(1, itemId);
-    stmt->setUInt32(2, count);
-    stmt->setBool(3, followRules);
-    stmt->setBool(4, ffa);
-    stmt->setBool(5, blocked);
-    stmt->setBool(6, counted);
-    stmt->setBool(7, underTreshold);
-    stmt->setBool(8, needsQuest);
-    stmt->setInt32(9, randomPropertyId);
-    stmt->setUInt32(10, randomSuffix);
+    stmt->setUInt32(1, lootItem.itemid);
+    stmt->setUInt32(2, lootItem.count);
+    stmt->setBool(3, lootItem.follow_loot_rules);
+    stmt->setBool(4, lootItem.freeforall);
+    stmt->setBool(5, lootItem.is_blocked);
+    stmt->setBool(6, lootItem.is_counted);
+    stmt->setBool(7, lootItem.is_underthreshold);
+    stmt->setBool(8, lootItem.needs_quest);
+    stmt->setInt32(9, lootItem.randomPropertyId);
+    stmt->setUInt32(10, lootItem.randomSuffix);
     trans->Append(stmt);
 }
 
-void StoredLootContainer::AddMoney(uint32 money, SQLTransaction trans)
+void StoredLootContainer::AddMoney(uint32 money, SQLTransaction& trans)
 {
     _money = money;
     if (!trans)
@@ -302,7 +329,7 @@ uint32 StoredLootContainer::GetMoney() const
     return _money;
 }
 
-StoredLootItems const& StoredLootContainer::GetLootItems() const
+StoredLootItemContainer const& StoredLootContainer::GetLootItems() const
 {
     return _lootItems;
 }
@@ -318,12 +345,15 @@ void StoredLootContainer::RemoveMoney()
 
 void StoredLootContainer::RemoveItem(uint32 itemId, uint32 count)
 {
-    for (auto itr = _lootItems.begin(); itr != _lootItems.end(); ++itr)
-        if (itr->itemId == itemId && itr->count == count)
+    auto bounds = _lootItems.equal_range(itemId);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+    {
+        if (itr->second.Count == count)
         {
             _lootItems.erase(itr);
             break;
         }
+    }
 
     // Deletes a single item associated with an openable item from the DB
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);

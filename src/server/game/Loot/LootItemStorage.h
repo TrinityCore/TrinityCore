@@ -25,6 +25,7 @@
 class Item;
 class Player;
 struct Loot;
+struct LootItem;
 namespace boost
 {
     class shared_mutex;
@@ -32,25 +33,21 @@ namespace boost
 
 struct StoredLootItem
 {
-    StoredLootItem(uint32 itemId, uint32 count, bool followRules, bool ffa, bool blocked, bool counted, bool underTreshold, bool needsQuest, int32 randomPropertyId, uint32 randomSuffix) : 
-        itemId(itemId), count(count), followRules(followRules), ffa(ffa), blocked(blocked), counted(counted), underTreshold(underTreshold), needsQuest(needsQuest),
-        randomPropertyId(randomPropertyId), randomSuffix(randomSuffix)
-    {
-    }
+    explicit StoredLootItem(LootItem const& lootItem);
 
-    uint32 itemId;
-    uint32 count;
-    bool followRules;
-    bool ffa;
-    bool blocked;
-    bool counted;
-    bool underTreshold;
-    bool needsQuest;
-    int32 randomPropertyId;
-    uint32 randomSuffix;
+    uint32 ItemId;
+    uint32 Count;
+    bool FollowRules;
+    bool FFA;
+    bool Blocked;
+    bool Counted;
+    bool UnderThreshold;
+    bool NeedsQuest;
+    int32 RandomPropertyId;
+    uint32 RandomSuffix;
 };
 
-typedef std::vector<StoredLootItem> StoredLootItems;
+typedef std::unordered_multimap<uint32 /*itemId*/, StoredLootItem> StoredLootItemContainer;
 
 class StoredLootContainer
 {
@@ -58,18 +55,18 @@ class StoredLootContainer
         StoredLootContainer() : _money(0) { }
 
         void SetContainer(uint32 containerId);
-        void AddLootItem(uint32 itemId, uint32 count, bool followRules, bool ffa, bool blocked, bool counted, bool underTreshold, bool needsQuest, int32 randomPropertyId, uint32 randomSuffix, SQLTransaction trans);
-        void AddMoney(uint32 money, SQLTransaction trans);
+        void AddLootItem(LootItem const& lootItem, SQLTransaction& trans);
+        void AddMoney(uint32 money, SQLTransaction& trans);
 
         void RemoveMoney();
         void RemoveItem(uint32 itemId, uint32 count);
 
         uint32 GetContainer() const;
         uint32 GetMoney() const;
-        StoredLootItems const& GetLootItems() const;
+        StoredLootItemContainer const& GetLootItems() const;
 
     private:
-        StoredLootItems _lootItems;
+        StoredLootItemContainer _lootItems;
         uint32 _money;
         uint32 _containerId;
 };
