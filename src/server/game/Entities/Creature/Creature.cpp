@@ -1823,14 +1823,21 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
 
     if (forceRespawnTimer > Seconds::zero())
     {
-        uint32 respawnDelay = m_respawnDelay;
-        uint32 corpseDelay = m_corpseDelay;
-        m_respawnDelay = forceRespawnTimer.count();
-        m_corpseDelay = 0;
-        setDeathState(JUST_DIED);
-
-        m_respawnDelay = respawnDelay;
-        m_corpseDelay = corpseDelay;
+        if (IsAlive())
+        {
+            uint32 respawnDelay = m_respawnDelay;
+            uint32 corpseDelay = m_corpseDelay;
+            m_respawnDelay = forceRespawnTimer.count();
+            m_corpseDelay = 0;
+            setDeathState(JUST_DIED);
+            m_respawnDelay = respawnDelay;
+            m_corpseDelay = corpseDelay;
+        }
+        else
+        {
+            m_corpseRemoveTime = time(NULL);
+            m_respawnTime = time(NULL) + forceRespawnTimer.count();
+        }
     }
     else
         if (IsAlive())
