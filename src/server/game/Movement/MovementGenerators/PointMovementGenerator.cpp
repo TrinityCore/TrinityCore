@@ -30,24 +30,22 @@
 template<class T>
 void PointMovementGenerator<T>::DoInitialize(T* unit)
 {
-    if (!unit->IsStopped())
-        unit->StopMoving();
+    // this is unblizz-like imo. i dont see this kind of packet in sniffs
+    //if (!unit->IsStopped())
+    //    unit->StopMoving();
 
     unit->AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+
+    if (unit->HasUnitState(UNIT_STATE_NOT_MOVE))
+    {
+        unit->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+        return;
+    }
 
     if (id == EVENT_CHARGE_PREPATH)
         return;
 
-    Movement::MoveSplineInit init(unit);
-    init.MoveTo(i_x, i_y, i_z, m_generatePath);
-    if (speed > 0.0f)
-        init.SetVelocity(speed);
-    init.Launch();
-
-    // Call for creature group update
-    if (Creature* creature = unit->ToCreature())
-        if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
-            creature->GetFormation()->LeaderMoveTo(i_x, i_y, i_z);
+    LaunchMovement(unit);
 }
 
 template<class T>
@@ -67,16 +65,7 @@ bool PointMovementGenerator<T>::DoUpdate(T* unit, uint32 /*diff*/)
     if (id != EVENT_CHARGE_PREPATH && i_recalculateSpeed && !unit->movespline->Finalized())
     {
         i_recalculateSpeed = false;
-        Movement::MoveSplineInit init(unit);
-        init.MoveTo(i_x, i_y, i_z, m_generatePath);
-        if (speed > 0.0f) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
-            init.SetVelocity(speed);
-        init.Launch();
-
-        // Call for creature group update
-        if (Creature* creature = unit->ToCreature())
-            if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
-                creature->GetFormation()->LeaderMoveTo(i_x, i_y, i_z);
+        LaunchMovement(unit);
     }
 
     return !unit->movespline->Finalized();
@@ -95,10 +84,16 @@ void PointMovementGenerator<T>::DoFinalize(T* unit)
 template<class T>
 void PointMovementGenerator<T>::DoReset(T* unit)
 {
-    if (!unit->IsStopped())
-        unit->StopMoving();
+    // this is unblizz-like imo. i dont see this kind of packet in sniffs
+    //if (!unit->IsStopped())
+    //    unit->StopMoving();
 
     unit->AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+
+    if (id == EVENT_CHARGE_PREPATH)
+        return;
+
+    LaunchMovement(unit);
 }
 
 template<class T>
@@ -110,6 +105,21 @@ template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit
         unit->AI()->MovementInform(POINT_MOTION_TYPE, id);
 }
 
+template<class T>
+void PointMovementGenerator<T>::LaunchMovement(T* unit)
+{
+    Movement::MoveSplineInit init(unit);
+    init.MoveTo(i_x, i_y, i_z, m_generatePath);
+    if (speed > 0.0f) // Default value for point motion type is 0.0, if 0.0 spline will use GetSpeed on unit
+        init.SetVelocity(speed);
+    init.Launch();
+
+    // Call for creature group update
+    if (Creature* creature = unit->ToCreature())
+        if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
+            creature->GetFormation()->LeaderMoveTo(i_x, i_y, i_z);
+}
+
 template void PointMovementGenerator<Player>::DoInitialize(Player*);
 template void PointMovementGenerator<Creature>::DoInitialize(Creature*);
 template void PointMovementGenerator<Player>::DoFinalize(Player*);
@@ -118,6 +128,8 @@ template void PointMovementGenerator<Player>::DoReset(Player*);
 template void PointMovementGenerator<Creature>::DoReset(Creature*);
 template bool PointMovementGenerator<Player>::DoUpdate(Player*, uint32);
 template bool PointMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
+template void PointMovementGenerator<Player>::LaunchMovement(Player*);
+template void PointMovementGenerator<Creature>::LaunchMovement(Creature*);
 
 void AssistanceMovementGenerator::Finalize(Unit* unit)
 {

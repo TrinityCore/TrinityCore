@@ -823,3 +823,13 @@ void MotionMaster::DelayedDelete(MovementGenerator* curr)
 
     _expireList.push_back(curr);
 }
+
+void MotionMaster::ForcedStop()
+{
+    Mutate(&si_idleMovement, MovementSlot::MOTION_SLOT_CONTROLLED);
+}
+
+void MotionMaster::ResumeMovement()
+{
+    MovementExpired();
+}
