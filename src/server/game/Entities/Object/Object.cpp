@@ -1230,6 +1230,11 @@ bool WorldObject::IsWithinDist(WorldObject const* obj, float dist2compare, bool 
     return obj && _IsWithinDist(obj, dist2compare, is3D);
 }
 
+bool WorldObject::IsWithinDistCenter(WorldObject const* obj, float dist2compare, bool is3D /*= true*/) const
+{
+    return obj && _IsWithinDist(obj, dist2compare, is3D, false, false);
+}
+
 bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D /*= true*/, bool incOwnRadius /*= true*/, bool incTargetRadius /*= true*/) const
 {
     return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D, incOwnRadius, incTargetRadius);
