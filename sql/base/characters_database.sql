@@ -2093,7 +2093,8 @@ DROP TABLE IF EXISTS `item_loot_money`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_loot_money` (
   `container_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'guid of container (item_instance.guid)',
-  `money` int(10) NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)'
+  `money` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'money loot (in copper)',
+  PRIMARY KEY (`container_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
