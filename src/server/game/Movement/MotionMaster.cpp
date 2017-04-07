@@ -75,7 +75,7 @@ void MotionMaster::InitDefault()
     if (_owner->GetTypeId() == TYPEID_UNIT)
     {
         MovementGenerator* movement = FactorySelector::selectMovementGenerator(_owner->ToCreature());
-        Mutate(movement == NULL ? &si_idleMovement : movement, MOTION_SLOT_IDLE);
+        Mutate(movement == nullptr ? &si_idleMovement : movement, MOTION_SLOT_IDLE);
     }
     else
     {
@@ -86,9 +86,6 @@ void MotionMaster::InitDefault()
 void MotionMaster::UpdateMotion(uint32 diff)
 {
     if (!_owner)
-        return;
-
-    if (_owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED)) // what about UNIT_STATE_DISTRACTED? Why is this not included?
         return;
 
     ASSERT(!empty());
@@ -173,12 +170,12 @@ MovementGenerator* MotionMaster::GetMotionSlot(int slot) const
     return _slot[slot];
 }
 
-void MotionMaster::propagateSpeedChange()
+void MotionMaster::PropagateSpeedChange()
 {
     for (int i = 0; i <= _top; ++i)
     {
         if (_slot[i])
-            _slot[i]->unitSpeedChanged();
+            _slot[i]->UnitSpeedChanged();
     }
 }
 
