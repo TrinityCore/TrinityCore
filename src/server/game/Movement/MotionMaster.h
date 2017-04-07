@@ -125,7 +125,7 @@ class TC_GAME_API MotionMaster
         MovementGeneratorType GetMotionSlotType(int slot) const;
         MovementGenerator* GetMotionSlot(int slot) const;
 
-        void propagateSpeedChange();
+        void PropagateSpeedChange();
 
         bool GetDestination(float &x, float &y, float &z);
 

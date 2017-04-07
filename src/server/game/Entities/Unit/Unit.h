@@ -1915,7 +1915,7 @@ class TC_GAME_API Unit : public WorldObject
         void SendPetAIReaction(ObjectGuid guid);
         ///----------End of Pet responses methods----------
 
-        void propagateSpeedChange();
+        void PropagateSpeedChange();
 
         // reactive attacks
         void ClearAllReactives();
