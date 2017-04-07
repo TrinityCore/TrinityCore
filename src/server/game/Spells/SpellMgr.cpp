@@ -3539,6 +3539,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 69846: // Frost Bomb
                 spellInfo->Speed = 0.0f;    // This spell's summon happens instantly
                 break;
+            case 70106: // Chilled to the Bone
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
+                break;
             case 71614: // Ice Lock
                 spellInfo->Mechanic = MECHANIC_STUN;
                 break;
