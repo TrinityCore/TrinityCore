@@ -3450,6 +3450,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Speed = 0.0f;    // This spell's summon happens instantly
     });
 
+    // Chilled to the Bone
+    ApplySpellFix({ 70106 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS;
+    });
+
     // Ice Lock
     ApplySpellFix({ 71614 }, [](SpellInfo* spellInfo)
     {
