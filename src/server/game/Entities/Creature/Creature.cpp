@@ -1833,7 +1833,8 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
         m_corpseDelay = corpseDelay;
     }
     else
-        setDeathState(JUST_DIED);
+        if (IsAlive())
+            setDeathState(JUST_DIED);
 
     RemoveCorpse(false);
 }
