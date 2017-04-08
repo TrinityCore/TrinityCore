@@ -282,7 +282,7 @@ void StoredLootContainer::SetContainer(uint32 containerId)
 
 void StoredLootContainer::AddLootItem(LootItem const& lootItem, SQLTransaction& trans)
 {
-    _lootItems.emplace(lootItem.itemid, lootItem);
+    _lootItems.emplace(std::piecewise_construct, std::forward_as_tuple(lootItem.itemid), std::forward_as_tuple(lootItem));
     if (!trans)
         return;
 
