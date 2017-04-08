@@ -292,7 +292,7 @@ bool CriteriaData::IsValid(Criteria const* criteria)
     }
 }
 
-bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/) const
+bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/) const
 {
     switch (DataType)
     {
@@ -381,10 +381,13 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
         }
         case CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
         {
-            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
-            if (!pProto)
+            Criteria const* entry = ASSERT_NOTNULL(sCriteriaMgr->GetCriteria(criteriaId));
+
+            uint32 itemId = (entry->Entry->Type == CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscValue2 : miscValue1);
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
+            if (!itemTemplate)
                 return false;
-            return pProto->GetBaseItemLevel() >= EquippedItem.ItemLevel && pProto->GetQuality() >= EquippedItem.Quality;
+            return itemTemplate->GetBaseItemLevel() >= EquippedItem.ItemLevel && itemTemplate->GetQuality() >= EquippedItem.Quality;
         }
         case CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == Map.Id;
@@ -408,10 +411,10 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
     return false;
 }
 
-bool CriteriaDataSet::Meets(Player const* source, Unit const* target, uint32 miscValue /*= 0*/) const
+bool CriteriaDataSet::Meets(Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/) const
 {
     for (CriteriaData const& data : _storage)
-        if (!data.Meets(_criteriaId, source, target, miscValue))
+        if (!data.Meets(_criteriaId, source, target, miscValue1, miscValue2))
             return false;
 
     return true;
@@ -466,7 +469,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
 
         // requirements not found in the dbc
         if (CriteriaDataSet const* data = sCriteriaMgr->GetCriteriaDataSet(criteria))
-            if (!data->Meets(referencePlayer, unit, uint32(miscValue1)))
+            if (!data->Meets(referencePlayer, unit, uint32(miscValue1), uint32(miscValue2)))
                 continue;
 
         switch (type)
