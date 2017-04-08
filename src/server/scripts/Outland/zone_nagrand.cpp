@@ -384,7 +384,7 @@ public:
               if (me->GetEntry() == NPC_CORKI_3)
                   Talk(CORKI_SAY_LAST);
           }
-      };
+      }
   };
 };
 
