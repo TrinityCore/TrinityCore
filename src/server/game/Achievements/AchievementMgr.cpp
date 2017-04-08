@@ -275,7 +275,7 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     }
 }
 
-bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/) const
+bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /* = 0*/) const
 {
     switch (dataType)
     {
@@ -364,10 +364,14 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
         {
-            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
-            if (!pProto)
+            AchievementCriteriaEntry const* entry = ASSERT_NOTNULL(sAchievementMgr->GetAchievementCriteria(criteria_id));
+
+            uint32 itemId = (entry->Type == ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM ? miscValue2 : miscValue1);
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
+            if (!itemTemplate)
                 return false;
-            return pProto->GetBaseItemLevel() >= equipped_item.item_level && pProto->GetQuality() >= equipped_item.item_quality;
+
+            return itemTemplate->GetBaseItemLevel() >= equipped_item.item_level && itemTemplate->GetQuality() >= equipped_item.item_quality;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
             return source->GetMapId() == map_id.mapId;
@@ -391,10 +395,10 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
     return false;
 }
 
-bool AchievementCriteriaDataSet::Meets(Player const* source, Unit const* target, uint32 miscValue /*= 0*/) const
+bool AchievementCriteriaDataSet::Meets(Player const* source, Unit const* target, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/) const
 {
     for (Storage::const_iterator itr = storage.begin(); itr != storage.end(); ++itr)
-        if (!itr->Meets(criteria_id, source, target, miscValue))
+        if (!itr->Meets(criteria_id, source, target, miscValue1, miscValue2))
             return false;
 
     return true;
@@ -1178,7 +1182,7 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
             break;
         default:
             if (AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria))
-                if (!data->Meets(referencePlayer, unit, miscValue1))
+                if (!data->Meets(referencePlayer, unit, miscValue1, miscValue2))
                     continue;
             break;
         }
