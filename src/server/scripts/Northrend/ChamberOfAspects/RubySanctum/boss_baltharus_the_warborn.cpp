@@ -150,7 +150,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 {
                     if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 0)
                     {
-                        _cloneCount++;
+                        ++_cloneCount;
                         events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
                     }
                 }
@@ -158,12 +158,12 @@ class boss_baltharus_the_warborn : public CreatureScript
                 {
                     if (me->HealthBelowPctDamaged(66, damage) && _cloneCount == 0)
                     {
-                        _cloneCount++;
+                        ++_cloneCount;
                         events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
                     }
                     else if (me->HealthBelowPctDamaged(33, damage) && _cloneCount == 1)
                     {
-                        _cloneCount++;
+                        ++_cloneCount;
                         events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
                     }
                 }
