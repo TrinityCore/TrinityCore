@@ -556,12 +556,6 @@ class spell_collecting_fallout : public SpellScriptLoader
         {
             PrepareSpellScript(spell_collecting_fallout_SpellScript);
 
-            bool Load() override
-            {
-                _spellFail = true;
-                return true;
-            }
-
             void OnLaunch(SpellEffIndex effIndex)
             {
                 // estimated 25% chance of success
@@ -583,7 +577,7 @@ class spell_collecting_fallout : public SpellScriptLoader
                 OnEffectLaunch += SpellEffectFn(spell_collecting_fallout_SpellScript::HandleFail, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
             }
 
-            bool _spellFail;
+            bool _spellFail = true;
         };
 
         SpellScript* GetSpellScript() const override
