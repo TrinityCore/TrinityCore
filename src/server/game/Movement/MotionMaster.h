@@ -66,6 +66,7 @@ enum MovementGeneratorType : uint8
     ROTATE_MOTION_TYPE              = 15,
     EFFECT_MOTION_TYPE              = 16,
     SPLINE_CHAIN_MOTION_TYPE        = 17,                 // SplineChainMovementGenerator.h
+    FORMATION_MOTION_TYPE           = 18,                 // FormationMovementGenerator.h
     MAX_MOTION_TYPE                                       // limit
 };
 
@@ -175,6 +176,8 @@ class TC_GAME_API MotionMaster
         void MoveDistract(uint32 time);
         void MovePath(uint32 path_id, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
+
+        void MoveFormation(uint32 id, Position destination, uint32 moveType, bool forceRun = false, bool forceOrientation = false);
 
     private:
         typedef std::vector<MovementGenerator*> MovementList;

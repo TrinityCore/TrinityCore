@@ -116,7 +116,7 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
 
     // Call for creature group update
     if (owner->GetFormation() && owner->GetFormation()->getLeader() == owner)
-        owner->GetFormation()->LeaderMoveTo(position.m_positionX, position.m_positionY, position.m_positionZ);
+        owner->GetFormation()->LeaderMoveTo(position);
 }
 
 template<class T>

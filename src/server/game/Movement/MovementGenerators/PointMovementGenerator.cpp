@@ -60,7 +60,7 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
     // Call for creature group update
     if (Creature* creature = owner->ToCreature())
         if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
-            creature->GetFormation()->LeaderMoveTo(_destination.GetPositionX(), _destination.GetPositionY(), _destination.GetPositionZ());
+            creature->GetFormation()->LeaderMoveTo(_destination, _movementId);
 }
 
 template<class T>
@@ -95,7 +95,7 @@ bool PointMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
         // Call for creature group update
         if (Creature* creature = owner->ToCreature())
             if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
-                creature->GetFormation()->LeaderMoveTo(_destination.GetPositionX(), _destination.GetPositionY(), _destination.GetPositionZ());
+                creature->GetFormation()->LeaderMoveTo(_destination, _movementId);
     }
 
     return !owner->movespline->Finalized();
