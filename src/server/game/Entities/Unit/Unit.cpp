@@ -17027,6 +17027,21 @@ void Unit::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* target)
     data->append(fieldBuffer);
 }
 
+void Unit::DestroyForPlayer(Player* target) const
+{
+    if (Battleground* bg = target->GetBattleground())
+    {
+        if (bg->isArena())
+        {
+            WorldPacket data(SMSG_ARENA_UNIT_DESTROYED, 8);
+            data << GetGUID();
+            target->GetSession()->SendPacket(&data);
+        }
+    }
+
+    WorldObject::DestroyForPlayer(target);
+}
+
 int32 Unit::GetHighestExclusiveSameEffectSpellGroupValue(AuraEffect const* aurEff, AuraType auraType, bool checkMiscValue /*= false*/, int32 miscValue /*= 0*/) const
 {
     int32 val = 0;
