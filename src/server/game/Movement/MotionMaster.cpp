@@ -525,7 +525,10 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& p
 {
     Movement::MoveSplineInit init(_owner);
     if (_owner->CanFly())
+    {
+        init.SetFly();
         init.SetUncompressed();
+    }
     init.MovebyPath(path);
     init.SetSmooth();
     init.SetWalk(walk);
