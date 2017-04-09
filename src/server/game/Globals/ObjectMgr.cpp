@@ -1464,9 +1464,6 @@ void ObjectMgr::LoadCreatureModelInfo()
             modelInfo.modelid_other_gender = 0;
         }
 
-        if (modelInfo.combat_reach < 0.1f)
-            modelInfo.combat_reach = DEFAULT_COMBAT_REACH;
-
         if (CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(creatureDisplay->ModelId))
             modelInfo.is_trigger = strstr(modelData->ModelPath, "InvisibleStalker") != nullptr;
 

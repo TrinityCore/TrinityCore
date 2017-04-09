@@ -25801,7 +25801,7 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
         if (CanUseMastery())
             for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
                 if (SpellInfo const* masterySpell = sSpellMgr->GetSpellInfo(talentTabInfo->MasterySpellId[i]))
-                    if (masterySpell->IsPassive() && IsNeedCastPassiveSpellAtLearn(masterySpell))
+                    if (masterySpell->IsPassive() && HandlePassiveSpellLearn(masterySpell))
                         CastSpell(this, masterySpell->Id, true);
     }
 
