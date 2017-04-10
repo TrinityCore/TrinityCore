@@ -75,7 +75,6 @@
 #include "TradePackets.h"
 #include "TransmogrificationPackets.h"
 #include "VehiclePackets.h"
-#include "VoicePackets.h"
 #include "VoidStoragePackets.h"
 #include "WardenPackets.h"
 #include "WhoPackets.h"
