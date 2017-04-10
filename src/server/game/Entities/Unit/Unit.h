@@ -1042,7 +1042,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetResistance(SpellSchoolMask mask) const;
         void SetResistance(SpellSchools school, int32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Resistances, school), val); }
         void SetBonusResistanceMod(SpellSchools school, int32 val) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BonusResistanceMods, school), val); }
-        float GetEffectiveResistChance(Unit const* owner, SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr);
+        float CalculateAverageResistReduction(SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr) const;
 
         uint64 GetHealth()    const { return m_unitData->Health; }
         uint64 GetMaxHealth() const { return m_unitData->MaxHealth; }
