@@ -217,16 +217,12 @@ class TC_GAME_API Channel
         void SetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, true); }
         void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
         void SilenceAll(Player const* player, std::string const& name);
-        void SilenceVoice(Player const* player, std::string const& name);
         void UnsilenceAll(Player const* player, std::string const& name);
-        void UnsilenceVoice(Player const* player, std::string const& name);
         void List(Player const* player);
         void Announce(Player const* player);
         void Say(ObjectGuid const& guid, std::string const& what, uint32 lang) const;
         void DeclineInvite(Player const* player);
         void Invite(Player const* player, std::string const& newp);
-        void Voice(Player const* player);
-        void DeVoice(Player const* player);
         void JoinNotify(Player const* player);
         void LeaveNotify(Player const* player);
         void SetOwnership(bool ownership) { _ownershipEnabled = ownership; }

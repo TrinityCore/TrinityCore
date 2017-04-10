@@ -583,7 +583,6 @@ namespace WorldPackets
     {
         class AccountToysUpdate;
         class AddToy;
-        class ToySetFavorite;
         class UseToy;
     }
 
@@ -689,7 +688,6 @@ namespace WorldPackets
     namespace Transmogrification
     {
         class TransmogrifyItems;
-        class TransmogAppearanceSetFavorite;
     }
 
     namespace Vehicle
@@ -703,12 +701,6 @@ namespace WorldPackets
         class EjectPassenger;
         class RequestVehicleExit;
         class MoveSetVehicleRecIdAck;
-    }
-
-    namespace Voice
-    {
-        class VoiceSessionEnable;
-        class SetActiveVoiceChannel;
     }
 
     namespace VoidStorage
@@ -1516,9 +1508,6 @@ class TC_GAME_API WorldSession
         template<void(Channel::*CommandFunction)(Player const*, std::string const&)>
         void HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlayerCommand& packet);
 
-        void HandleVoiceSessionEnable(WorldPackets::Voice::VoiceSessionEnable& packet);
-        void HandleSetActiveVoiceChannel(WorldPackets::Voice::SetActiveVoiceChannel& packet);
-
         void HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& packet);
         void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
         void HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& packet);
@@ -1674,7 +1663,6 @@ class TC_GAME_API WorldSession
 
         // Transmogrification
         void HandleTransmogrifyItems(WorldPackets::Transmogrification::TransmogrifyItems& transmogrifyItems);
-        void HandleTransmogAppearanceSetFavorite(WorldPackets::Transmogrification::TransmogAppearanceSetFavorite& transmogAppearanceSetFavorite);
 
         // Miscellaneous
         void HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick);
@@ -1693,7 +1681,6 @@ class TC_GAME_API WorldSession
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);
-        void HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet);
         void HandleUseToy(WorldPackets::Toy::UseToy& packet);
 
         void HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite);
