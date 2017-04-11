@@ -42,12 +42,12 @@ template<class T, typename D>
 class TargetedMovementGenerator : public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
 {
     public:
-        explicit TargetedMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGeneratorBase(target), _path(nullptr), _timer(0), _offset(offset), _angle(angle), _recalculateTravel(false), _targetReached(false), _interrupt(false) { }
+        explicit TargetedMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGeneratorBase(target), _path(nullptr), _timer(0), _offset(offset), _angle(angle), _recalculateTravel(false), _speedChanged(false), _targetReached(false), _interrupt(false) { }
         ~TargetedMovementGenerator();
 
         bool DoUpdate(T*, uint32);
 
-        void UnitSpeedChanged() override { _recalculateTravel = true; }
+        void UnitSpeedChanged() override { _speedChanged = true; }
 
         virtual void ClearUnitStateMove(T*) { }
         virtual void AddUnitStateMove(T*) { }
@@ -65,6 +65,7 @@ class TargetedMovementGenerator : public MovementGeneratorMedium< T, D >, public
         float _offset;
         float _angle;
         bool _recalculateTravel;
+        bool _speedChanged;
         bool _targetReached;
         bool _interrupt;
 };
