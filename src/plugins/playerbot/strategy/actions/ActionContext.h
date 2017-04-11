@@ -16,6 +16,7 @@
 #include "CheckMailAction.h"
 #include "SayAction.h"
 #include "CheckMountStateAction.h"
+#include "RandomBotUpdateAction.h"
 
 namespace ai
 {
@@ -68,6 +69,7 @@ namespace ai
             creators["check mail"] = &ActionContext::check_mail;
             creators["say"] = &ActionContext::say;
 			creators["mount"] = &ActionContext::mount;
+			creators["random bot update"] = &ActionContext::random_bot_update;
         }
 
     private:
@@ -112,6 +114,7 @@ namespace ai
         static Action* set_facing(PlayerbotAI* ai) { return new SetFacingTargetAction(ai); }
         static Action* say(PlayerbotAI* ai) { return new SayAction(ai); }
 		static Action* mount(PlayerbotAI *ai) { return new CastSpellAction(ai,"mount"); }
+		static Action* random_bot_update(PlayerbotAI* ai) { return new RandomBotUpdateAction(ai); }
     };
 
 };

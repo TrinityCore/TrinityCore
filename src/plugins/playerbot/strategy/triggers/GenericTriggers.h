@@ -231,7 +231,7 @@ namespace ai
     class BuffTrigger : public SpellTrigger
     {
     public:
-        BuffTrigger(PlayerbotAI* ai, string spell) : SpellTrigger(ai, spell, 5) {}
+        BuffTrigger(PlayerbotAI* ai, string spell, int checkInterval = 5) : SpellTrigger(ai, spell, checkInterval) {}
     public:
 		virtual string GetTargetName() { return "self target"; }
         virtual bool IsActive();
@@ -263,7 +263,7 @@ namespace ai
     class DebuffTrigger : public BuffTrigger
     {
     public:
-        DebuffTrigger(PlayerbotAI* ai, string spell) : BuffTrigger(ai, spell) {
+        DebuffTrigger(PlayerbotAI* ai, string spell, int checkInterval = 5) : BuffTrigger(ai, spell, checkInterval) {
 			checkInterval = 1;
 		}
     public:
@@ -283,7 +283,7 @@ namespace ai
 	class BoostTrigger : public BuffTrigger
 	{
 	public:
-		BoostTrigger(PlayerbotAI* ai, string spell, float balance = 50) : BuffTrigger(ai, spell)
+		BoostTrigger(PlayerbotAI* ai, string spell, float balance = 50) : BuffTrigger(ai, spell, 1)
 		{
 			this->balance = balance;
 		}
@@ -565,6 +565,17 @@ namespace ai
         virtual string getName() { return spell + " on enemy healer"; }
     };
 
+	class RandomBotUpdateTrigger : public RandomTrigger
+	{
+	public:
+		RandomBotUpdateTrigger(PlayerbotAI* ai) : RandomTrigger(ai, 15) {}
+		
+	public:
+		virtual bool IsActive()
+		{
+			return RandomTrigger::IsActive() && AI_VALUE(bool, "random bot update");
+		}
+	};
 }
 
 #include "RangeTriggers.h"

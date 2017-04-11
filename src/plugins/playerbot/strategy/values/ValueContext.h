@@ -56,6 +56,7 @@
 #include "Formations.h"
 #include "ItemUsageValue.h"
 #include "LastSaidValue.h"
+#include "RandomBotUpdateValue.h"
 
 namespace ai
 {
@@ -145,6 +146,7 @@ namespace ai
             creators["speed"] = &ValueContext::speed;
             creators["last said"] = &ValueContext::last_said;
             creators["last emote"] = &ValueContext::last_emote;
+			creators["random bot update"] = &ValueContext::random_bot_update_value;
         }
 
     private:
@@ -228,5 +230,6 @@ namespace ai
         static UntypedValue* speed(PlayerbotAI* ai) { return new SpeedValue(ai); }
         static UntypedValue* last_said(PlayerbotAI* ai) { return new LastSaidValue(ai); }
         static UntypedValue* last_emote(PlayerbotAI* ai) { return new LastEmoteValue(ai); }
+		static UntypedValue* random_bot_update_value(PlayerbotAI* ai) { return new RandomBotUpdateValue(ai); }
     };
 };

@@ -27,8 +27,6 @@ void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
     if (!sPlayerbotAIConfig.randomBotAutologin || !sPlayerbotAIConfig.enabled)
         return;
 
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Processing random bots...");
-
     int maxAllowedBotCount = GetEventValue(0, "bot_count");
     if (!maxAllowedBotCount)
     {
@@ -77,8 +75,9 @@ void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
             break;
     }
 
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "%d bots processed. %d alliance and %d horde bots added. %d bots online. Next check in %d seconds",
-            botProcessed, allianceNewBots, hordeNewBots, playerBots.size(), sPlayerbotAIConfig.randomBotUpdateInterval);
+	ostringstream out; out << "Random bots are now scheduled to be processed in the background. Next re-schedule in " << sPlayerbotAIConfig.randomBotUpdateInterval << " seconds";
+	sLog->outMessage("playerbot", LOG_LEVEL_INFO, out.str().c_str());
+	//sWorld->SendWorldText(3, out.str().c_str());
 
     if (processTicks++ == 1)
         PrintStats();
@@ -176,6 +175,15 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
         return false;
     }
 
+    ai->GetAiObjectContext()->GetValue<bool>("random bot update")->Set(true);
+    return true;
+}
+
+bool RandomPlayerbotMgr::ProcessBot(Player* player)
+{
+	player->GetPlayerbotAI()->GetAiObjectContext()->GetValue<bool>("random bot update")->Set(false);
+
+	uint32 bot = player->GetGUID();
     if (player->isDead())
     {
         if (!GetEventValue(bot, "dead"))
@@ -259,7 +267,7 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
     if (!teleport)
     {
         sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random teleporting bot %d", bot);
-        RandomTeleportForLevel(ai->GetBot());
+		RandomTeleportForLevel(player);
         SetEventValue(bot, "teleport", 1, sPlayerbotAIConfig.maxRandomBotInWorldTime);
         return true;
     }
@@ -311,8 +319,8 @@ void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs
             continue;
 
         z = 0.05f + ground;
-        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random teleporting bot %s to %s %f,%f,%f (1/%u locations)",
-                bot->GetName().c_str(), area->area_name[0], x, y, z, locs.size());
+        sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random teleporting bot %s to %s %f,%f,%f (%u/%u locations)",
+                bot->GetName().c_str(), area->area_name[0], x, y, z, attemtps, locs.size());
 
         bot->GetMotionMaster()->Clear();
         bot->TeleportTo(loc.GetMapId(), x, y, z, 0);
@@ -347,7 +355,7 @@ void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
             "(q1.position_x - q.position_x)*(q1.position_x - q.position_x) +"
             "(q1.position_y - q.position_y)*(q1.position_y - q.position_y) +"
             "(q1.position_z - q.position_z)*(q1.position_z - q.position_z)"
-            ") < %u)",
+            ") < %u) limit 50",
             bot->getLevel(),
             sPlayerbotAIConfig.randomBotTeleLevel,
             sPlayerbotAIConfig.randomBotMapsAsString.c_str(),
@@ -380,7 +388,7 @@ void RandomPlayerbotMgr::RandomTeleport(Player* bot, uint16 mapId, float teleX, 
 	sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Preparing location to random teleporting bot %s", bot->GetName().c_str());
 
     vector<WorldLocation> locs;
-    QueryResult results = WorldDatabase.PQuery("select position_x, position_y, position_z from creature where map = '%u' and abs(position_x - '%f') < '%u' and abs(position_y - '%f') < '%u'",
+    QueryResult results = WorldDatabase.PQuery("select position_x, position_y, position_z from creature where map = '%u' and abs(position_x - '%f') < '%u' and abs(position_y - '%f') < '%u' limit 50",
             mapId, teleX, sPlayerbotAIConfig.randomBotTeleportDistance / 2, teleY, sPlayerbotAIConfig.randomBotTeleportDistance / 2);
     if (results)
     {
