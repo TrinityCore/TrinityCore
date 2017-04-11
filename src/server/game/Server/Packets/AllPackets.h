@@ -35,6 +35,7 @@
 #include "CharacterPackets.h"
 #include "ChatPackets.h"
 #include "ClientConfigPackets.h"
+#include "CollectionPackets.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "DuelPackets.h"
