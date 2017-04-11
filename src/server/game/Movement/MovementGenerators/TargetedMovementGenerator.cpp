@@ -82,7 +82,9 @@ bool TargetedMovementGenerator<T, D>::DoUpdate(T* owner, uint32 diff)
     }
 
     if (targetMoved)
-        SetTargetLocation(owner, targetMoved);
+        SetTargetLocation(owner, true);
+    else if (_speedChanged)
+        SetTargetLocation(owner, false);
 
     if (!_targetReached && owner->movespline->Finalized())
     {
@@ -177,6 +179,7 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
 
     _targetReached = false;
     _recalculateTravel = false;
+    _speedChanged = false;
 
     AddUnitStateMove(owner);
 
