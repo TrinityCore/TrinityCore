@@ -3,16 +3,16 @@
 #include "SuggestWhatToDoAction.h"
 #include "../../../ahbot/AhBot.h"
 #include "../../PlayerbotAIConfig.h"
-#include "ChannelMGR.h"
 
 using namespace ai;
 
-SuggestWhatToDoAction::SuggestWhatToDoAction(PlayerbotAI* ai, string name) : InventoryAction(ai, name)
+SuggestWhatToDoAction::SuggestWhatToDoAction(PlayerbotAI* ai) : InventoryAction(ai, "suggest what to do"), suggested(false)
 {
     suggestions.push_back(&SuggestWhatToDoAction::instance);
     suggestions.push_back(&SuggestWhatToDoAction::specificQuest);
     suggestions.push_back(&SuggestWhatToDoAction::newQuest);
     suggestions.push_back(&SuggestWhatToDoAction::grindMaterials);
+    suggestions.push_back(&SuggestWhatToDoAction::trade);
     suggestions.push_back(&SuggestWhatToDoAction::grindReputation);
     suggestions.push_back(&SuggestWhatToDoAction::nothing);
     suggestions.push_back(&SuggestWhatToDoAction::relax);
@@ -21,13 +21,19 @@ SuggestWhatToDoAction::SuggestWhatToDoAction(PlayerbotAI* ai, string name) : Inv
 
 bool SuggestWhatToDoAction::Execute(Event event)
 {
-	if (!sRandomPlayerbotMgr.IsRandomBot(bot) || bot->GetGroup() || bot->GetInstanceId())
+    if (suggested)
+    {
+        trade();
+        return true;
+    }
+
+    if (bot->GetInstanceId() || suggested)
         return false;
 
     int index = rand() % suggestions.size();
     (this->*suggestions[index])();
 
-	return true;
+    return suggested = true;
 }
 
 void SuggestWhatToDoAction::instance()
@@ -55,6 +61,8 @@ void SuggestWhatToDoAction::instance()
         case 5:
             spam("Have group quests? Invite me!");
             break;
+        default:
+            spam("Hey, why not join Dungeon Finder?");
         }
     }
 }
@@ -121,74 +129,23 @@ void SuggestWhatToDoAction::grindMaterials()
 void SuggestWhatToDoAction::grindReputation()
 {
     if (bot->getLevel() > 15)
-		spam("I think we should do something to improve our reputation");
+        ai->TellMasterNoFacing("I think we should do something to improve our reputation", PLAYERBOT_SECURITY_ALLOW_ALL);
 }
 
 void SuggestWhatToDoAction::nothing()
 {
-	spam("I don't want to do anything. Help me find something interesting");
+    ai->TellMasterNoFacing("I don't want to do anything", PLAYERBOT_SECURITY_ALLOW_ALL);
 }
 
 void SuggestWhatToDoAction::relax()
 {
-	spam("It is so boring... We could relax a bit");
+    ai->TellMasterNoFacing("It is so boring... We could relax a bit", PLAYERBOT_SECURITY_ALLOW_ALL);
 }
 
 void SuggestWhatToDoAction::achievement()
 {
     if (bot->getLevel() > 15)
         spam("I would like to get some achievement. Would you like to join me?");
-}
-
-void SuggestWhatToDoAction::spam(string msg, uint32 channelId)
-{
-	// Current player area id
-	const uint32 playerZoneId = bot->GetZoneId();
-	const uint32 stormwindZoneID = 1519;
-	const uint32 ironforgeZoneID = 1537;
-	const uint32 darnassusZoneID = 1657;
-	const uint32 orgrimmarZoneID = 1637;
-	const uint32 thunderbluffZoneID = 1638;
-	const uint32 undercityZoneID = 1497;
-	// Area id of "Cities"
-	const uint32 citiesZoneID = 3459;
-	// Channel ID of the trade channel since this only applies to it
-	const uint32 tradeChannelID = 2;
-	uint32 cityLookupAreaID = playerZoneId;    // Used to lookup for channels which support cross-city-chat
-
-											   // Check if we are inside of a city
-	if (playerZoneId == stormwindZoneID ||
-		playerZoneId == ironforgeZoneID ||
-		playerZoneId == darnassusZoneID ||
-		playerZoneId == orgrimmarZoneID ||
-		playerZoneId == thunderbluffZoneID ||
-		playerZoneId == undercityZoneID)
-	{
-		// Use cities instead of the player id
-		cityLookupAreaID = citiesZoneID;
-	}
-
-	for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
-	{
-		ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(i);
-		AreaTableEntry const* area = sAreaTableStore.LookupEntry(
-			(channel->ChannelID == tradeChannelID) ? cityLookupAreaID : playerZoneId);
-		if (channel && area && channel->ChannelID == channelId)
-		{
-			char channelName[255];
-			snprintf(channelName, 255, channel->pattern[0], area->area_name[0]);
-
-			if (ChannelMgr* cMgr = ChannelMgr::forTeam(bot->GetTeam()))
-			{
-				cMgr->setTeam(bot->GetTeam());
-				if (Channel* chn = cMgr->GetJoinChannel(channelName, channelId))
-				{
-					chn->JoinChannel(bot, "");
-					chn->Say(bot->GetGUID(), msg.c_str(), LANG_UNIVERSAL);
-				}
-			}
-		}
-	}
 }
 
 class FindTradeItemsVisitor : public IterateItemsVisitor
@@ -223,11 +180,11 @@ private:
 };
 
 
-SuggestTradeAction::SuggestTradeAction(PlayerbotAI* ai) : SuggestWhatToDoAction(ai, "suggest trade")
+void SuggestWhatToDoAction::trade()
 {
-}
-bool SuggestTradeAction::Execute(Event event)
-{
+    if (!sRandomPlayerbotMgr.IsRandomBot(bot))
+        return;
+
     uint32 quality = urand(0, 100);
     if (quality > 90)
         quality = ITEM_QUALITY_EPIC;
@@ -266,18 +223,33 @@ bool SuggestTradeAction::Execute(Event event)
     }
 
     if (!item || !count)
-		return false;
+        return;
 
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
     if (!proto)
-		return false;
+        return;
 
     uint32 price = auctionbot.GetSellPrice(proto) * sRandomPlayerbotMgr.GetSellMultiplier(bot) * count;
     if (!price)
-		return false;
+        return;
 
     ostringstream out; out << "Selling " << chat->formatItem(proto, count) << " for " << chat->formatMoney(price);
-	spam(out.str(), 2);
-	
-	return true;
+    spam(out.str());
+}
+
+void SuggestWhatToDoAction::spam(string msg)
+{
+    Player* player = sRandomPlayerbotMgr.GetRandomPlayer();
+    if (!player || !player->IsInWorld())
+        return;
+
+    if (!ai->GetSecurity()->CheckLevelFor(PLAYERBOT_SECURITY_TALK, true, player))
+        return;
+
+    if (sPlayerbotAIConfig.whisperDistance && !bot->GetGroup() && sRandomPlayerbotMgr.IsRandomBot(bot) &&
+            player->GetSession()->GetSecurity() < SEC_GAMEMASTER &&
+            (bot->GetMapId() != player->GetMapId() || bot->GetDistance(player) > sPlayerbotAIConfig.whisperDistance))
+        return;
+
+    bot->Whisper(msg, LANG_UNIVERSAL, player);
 }

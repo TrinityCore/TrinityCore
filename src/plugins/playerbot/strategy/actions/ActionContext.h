@@ -58,7 +58,6 @@ namespace ai
             creators["attack enemy player"] = &ActionContext::enemy_player_target;
             creators["emote"] = &ActionContext::emote;
             creators["suggest what to do"] = &ActionContext::suggest_what_to_do;
-			creators["suggest trade"] = &ActionContext::suggest_trade;
             creators["move random"] = &ActionContext::move_random;
             creators["move to loot"] = &ActionContext::move_to_loot;
             creators["open loot"] = &ActionContext::open_loot;
@@ -93,7 +92,6 @@ namespace ai
 
         static Action* emote(PlayerbotAI* ai) { return new EmoteAction(ai); }
         static Action* suggest_what_to_do(PlayerbotAI* ai) { return new SuggestWhatToDoAction(ai); }
-		static Action* suggest_trade(PlayerbotAI* ai) { return new SuggestTradeAction(ai); }
         static Action* attack_anything(PlayerbotAI* ai) { return new AttackAnythingAction(ai); }
         static Action* attack_least_hp_target(PlayerbotAI* ai) { return new AttackLeastHpTargetAction(ai); }
         static Action* enemy_player_target(PlayerbotAI* ai) { return new AttackEnemyPlayerAction(ai); }
