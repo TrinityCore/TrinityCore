@@ -255,6 +255,11 @@ namespace WorldPackets
         class ChatReportIgnored;
     }
 
+    namespace Collections
+    {
+        class CollectionItemSetFavorite;
+    }
+
     namespace Combat
     {
         class AttackSwing;
@@ -1660,6 +1665,9 @@ class TC_GAME_API WorldSession
         void HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStorageTransfer& voidStorageTransfer);
         void HandleVoidSwapItem(WorldPackets::VoidStorage::SwapVoidItem& swapVoidItem);
         void SendVoidStorageTransferResult(VoidTransferError result);
+
+        // Collections
+        void HandleCollectionItemSetFavorite(WorldPackets::Collections::CollectionItemSetFavorite& collectionItemSetFavorite);
 
         // Transmogrification
         void HandleTransmogrifyItems(WorldPackets::Transmogrification::TransmogrifyItems& transmogrifyItems);
