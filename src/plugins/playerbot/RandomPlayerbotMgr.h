@@ -47,6 +47,7 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         uint32 GetTradeDiscount(Player* bot);
         void Refresh(Player* bot);
         void RandomTeleportForLevel(Player* bot);
+		bool ProcessBot(Player* player);
 
 	protected:
 	    virtual void OnBotLoginInternal(Player * const bot) {}
