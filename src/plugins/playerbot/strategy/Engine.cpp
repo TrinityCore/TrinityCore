@@ -132,8 +132,6 @@ bool Engine::DoNextAction(Unit* unit, int depth)
     do {
         basket = queue.Peek();
         if (basket) {
-            if (++iterations > iterationsPerTick)
-                break;
 
             float relevance = basket->getRelevance(); // just for reference
             bool skipPrerequisites = basket->isSkipPrerequisites();
@@ -201,7 +199,7 @@ bool Engine::DoNextAction(Unit* unit, int depth)
             delete actionNode;
         }
     }
-    while (basket);
+	while (basket && ++iterations <= iterationsPerTick);
 
     if (!basket)
     {
@@ -210,6 +208,16 @@ bool Engine::DoNextAction(Unit* unit, int depth)
         if (queue.Peek() && depth < 2)
             return DoNextAction(unit, depth + 1);
     }
+
+	do {
+		basket = queue.Peek();
+		if (basket) {
+			// NOTE: queue.Pop() deletes basket
+			delete queue.Pop();
+
+		}
+
+	} while (basket);
 
     if (time(0) - currentTime > 1) {
         LogAction("too long execution");
@@ -241,7 +249,7 @@ bool Engine::MultiplyAndPush(NextAction** actions, float forceRelevance, bool sk
     bool pushed = false;
     if (actions)
     {
-        for (int j=0; j<10; j++) // TODO: remove 10
+		for (int j = 0; actions[j]; j++)
         {
             NextAction* nextAction = actions[j];
             if (nextAction)
@@ -261,6 +269,10 @@ bool Engine::MultiplyAndPush(NextAction** actions, float forceRelevance, bool sk
                     queue.Push(new ActionBasket(action, k, skipPrerequisites, event));
                     pushed = true;
                 }
+				else
+				{
+					delete action;
+				}
 
                 delete nextAction;
             }
@@ -282,7 +294,10 @@ ActionResult Engine::ExecuteAction(string name)
 
     Action* action = InitializeAction(actionNode);
     if (!action)
+	{
+		delete actionNode;
         return ACTION_RESULT_UNKNOWN;
+	}
 
     if (!action->isPossible())
     {

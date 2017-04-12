@@ -11,7 +11,7 @@ int NextAction::size(NextAction** actions)
         return 0;
 
     int size;
-    for (size=0; size<10 && actions[size]; ) 
+	for (size = 0; actions[size]; )
         size++;
     return size;
 }
@@ -52,10 +52,10 @@ NextAction** NextAction::array(uint8 nil, ...)
 {
     va_list vl;
     va_start(vl, nil);
-    
+
     int size = 0;
     NextAction* cur = NULL;
-    do 
+    do
     {
         cur = va_arg(vl, NextAction*);
         size++;
@@ -78,8 +78,10 @@ void NextAction::destroy(NextAction** actions)
     if (!actions)
         return;
 
-    for (int i=0; i<10 && actions[i]; i++)
+	for (int i = 0; actions[i]; i++)
         delete actions[i];
+
+	delete actions;
 }
 
 Value<Unit*>* Action::GetTargetValue()
