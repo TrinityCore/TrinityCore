@@ -30,6 +30,7 @@
 #include "ItemEnchantmentMgr.h"
 #include "ItemPackets.h"
 #include "Log.h"
+#include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
@@ -763,7 +764,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction& trans)
 
             // Delete the items if this is a container
             if (!loot.isLooted())
-                ItemContainerDeleteLootMoneyAndLootItemsFromDB();
+                sLootItemStorage->RemoveStoredLootForContainer(GetGUID().GetCounter());
 
             delete this;
             return;
@@ -1058,7 +1059,7 @@ void Item::DeleteFromDB(CharacterDatabaseTransaction& trans)
 
     // Delete the items if this is a container
     if (!loot.isLooted())
-        ItemContainerDeleteLootMoneyAndLootItemsFromDB();
+        sLootItemStorage->RemoveStoredLootForContainer(GetGUID().GetCounter());
 }
 
 /*static*/
@@ -2139,191 +2140,6 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, uint32 quality, uint32 item
     }
 
     return 0;
-}
-
-void Item::ItemContainerSaveLootToDB()
-{
-    // Saves the money and item loot associated with an openable item to the DB
-    if (loot.isLooted()) // no money and no loot
-        return;
-
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-
-    loot.containerID = GetGUID(); // Save this for when a LootItem is removed
-
-    // Save money
-    if (loot.gold > 0)
-    {
-        CharacterDatabasePreparedStatement* stmt_money = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
-        stmt_money->setUInt64(0, loot.containerID.GetCounter());
-        trans->Append(stmt_money);
-
-        stmt_money = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_MONEY);
-        stmt_money->setUInt64(0, loot.containerID.GetCounter());
-        stmt_money->setUInt32(1, loot.gold);
-        trans->Append(stmt_money);
-    }
-
-    // Save items
-    if (!loot.isLooted())
-    {
-        CharacterDatabasePreparedStatement* stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
-        stmt_items->setUInt64(0, loot.containerID.GetCounter());
-        trans->Append(stmt_items);
-
-        // Now insert the items
-        for (LootItemList::const_iterator _li = loot.items.begin(); _li != loot.items.end(); ++_li)
-        {
-            // When an item is looted, it doesn't get removed from the items collection
-            //  but we don't want to resave it.
-            if (!_li->canSave)
-                continue;
-            // Conditions are not checked when loot is generated, it is checked when loot is sent to a player.
-            // For items that are lootable, loot is saved to the DB immediately, that means that loot can be
-            // saved to the DB that the player never should have gotten. This check prevents that, so that only
-            // items that the player should get in loot are in the DB.
-            // IE: Horde items are not saved to the DB for Ally players.
-            Player* const guid = GetOwner();
-            if (!_li->AllowedForPlayer(guid))
-               continue;
-
-            stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
-
-            // container_id, item_id, item_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, context, bonus_list_ids
-            stmt_items->setUInt64(0, loot.containerID.GetCounter());
-            stmt_items->setUInt32(1, _li->itemid);
-            stmt_items->setUInt32(2, _li->count);
-            stmt_items->setBool(3, _li->follow_loot_rules);
-            stmt_items->setBool(4, _li->freeforall);
-            stmt_items->setBool(5, _li->is_blocked);
-            stmt_items->setBool(6, _li->is_counted);
-            stmt_items->setBool(7, _li->is_underthreshold);
-            stmt_items->setBool(8, _li->needs_quest);
-            stmt_items->setUInt32(9, _li->randomBonusListId);
-            stmt_items->setUInt8(10, AsUnderlyingType(_li->context));
-            std::ostringstream bonusListIDs;
-            for (int32 bonusListID : _li->BonusListIDs)
-                bonusListIDs << bonusListID << ' ';
-            stmt_items->setString(11, bonusListIDs.str());
-            trans->Append(stmt_items);
-        }
-    }
-
-    CharacterDatabase.CommitTransaction(trans);
-}
-
-bool Item::ItemContainerLoadLootFromDB()
-{
-    // Loads the money and item loot associated with an openable item from the DB
-    // Default. If there are no records for this item then it will be rolled for in Player::SendLoot()
-    m_lootGenerated = false;
-
-    // Save this for later use
-    loot.containerID = GetGUID();
-
-    // First, see if there was any money loot. This gets added directly to the container.
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_MONEY);
-    stmt->setUInt64(0, loot.containerID.GetCounter());
-    PreparedQueryResult money_result = CharacterDatabase.Query(stmt);
-
-    if (money_result)
-    {
-        Field* fields = money_result->Fetch();
-        loot.gold = fields[0].GetUInt32();
-    }
-
-    // Next, load any items that were saved
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
-    stmt->setUInt64(0, loot.containerID.GetCounter());
-    PreparedQueryResult item_result = CharacterDatabase.Query(stmt);
-
-    if (item_result)
-    {
-        // Get a LootTemplate for the container item. This is where
-        //  the saved loot was originally rolled from, we will copy conditions from it
-        LootTemplate const* lt = LootTemplates_Item.GetLootFor(GetEntry());
-        if (lt)
-        {
-            do
-            {
-                // Create an empty LootItem
-                LootItem loot_item = LootItem();
-
-                // Fill in the rest of the LootItem from the DB
-                Field* fields = item_result->Fetch();
-
-                // item_id, itm_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, context, bonus_list_ids
-                loot_item.itemid = fields[0].GetUInt32();
-                loot_item.count = fields[1].GetUInt32();
-                loot_item.follow_loot_rules = fields[2].GetBool();
-                loot_item.freeforall = fields[3].GetBool();
-                loot_item.is_blocked = fields[4].GetBool();
-                loot_item.is_counted = fields[5].GetBool();
-                loot_item.canSave = true;
-                loot_item.is_underthreshold = fields[6].GetBool();
-                loot_item.needs_quest = fields[7].GetBool();
-                loot_item.randomBonusListId = fields[8].GetUInt32();
-                loot_item.context = ItemContext(fields[9].GetUInt8());
-                Tokenizer bonusLists(fields[10].GetString(), ' ');
-                std::transform(bonusLists.begin(), bonusLists.end(), std::back_inserter(loot_item.BonusListIDs), [](char const* token)
-                {
-                    return int32(strtol(token, NULL, 10));
-                });
-
-                // Copy the extra loot conditions from the item in the loot template
-                lt->CopyConditions(&loot_item);
-
-                // If container item is in a bag, add that player as an allowed looter
-                if (GetBagSlot())
-                    loot_item.AddAllowedLooter(GetOwner());
-
-                // Finally add the LootItem to the container
-                loot.items.push_back(loot_item);
-
-                // Increment unlooted count
-                loot.unlootedCount++;
-
-            }
-            while (item_result->NextRow());
-        }
-    }
-
-    // Mark the item if it has loot so it won't be generated again on open
-    m_lootGenerated = !loot.isLooted();
-
-    return m_lootGenerated;
-}
-
-void Item::ItemContainerDeleteLootItemsFromDB()
-{
-    // Deletes items associated with an openable item from the DB
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    CharacterDatabase.Execute(stmt);
-}
-
-void Item::ItemContainerDeleteLootItemFromDB(uint32 itemID)
-{
-    // Deletes a single item associated with an openable item from the DB
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    stmt->setUInt32(1, itemID);
-    CharacterDatabase.Execute(stmt);
-}
-
-void Item::ItemContainerDeleteLootMoneyFromDB()
-{
-    // Deletes the money loot associated with an openable item from the DB
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
-    stmt->setUInt64(0, GetGUID().GetCounter());
-    CharacterDatabase.Execute(stmt);
-}
-
-void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
-{
-    // Deletes money and items associated with an openable item from the DB
-    ItemContainerDeleteLootMoneyFromDB();
-    ItemContainerDeleteLootItemsFromDB();
 }
 
 uint32 Item::GetItemLevel(Player const* owner) const

@@ -75,6 +75,7 @@
 #include "LFGMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "LootPackets.h"
 #include "Mail.h"
@@ -8838,9 +8839,12 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
 
         loot = &item->loot;
 
+        // Store container id
+        loot->containerID = item->GetGUID();
+
         // If item doesn't already have loot, attempt to load it. If that
-        //  fails then this is first time opening, generate loot
-        if (!item->m_lootGenerated && !item->ItemContainerLoadLootFromDB())
+        // fails then this is first time opening, generate loot
+        if (!item->m_lootGenerated && !sLootItemStorage->LoadStoredLoot(item, this))
         {
             item->m_lootGenerated = true;
             loot->clear();
@@ -8863,7 +8867,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
                     // Force save the loot and money items that were just rolled
                     //  Also saves the container item ID in Loot struct (not to DB)
                     if (loot->gold > 0 || loot->unlootedCount > 0)
-                        item->ItemContainerSaveLootToDB();
+                        sLootItemStorage->AddNewStoredLoot(loot, this);
 
                     break;
             }
@@ -12803,6 +12807,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
         sScriptMgr->OnItemRemove(this, pItem);
 
+        ItemTemplate const* pProto = pItem->GetTemplate();
         if (bag == INVENTORY_SLOT_BAG_0)
         {
             SetInvSlot(slot, ObjectGuid::Empty);
@@ -12810,8 +12815,6 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
             // equipment and equipped bags can have applied bonuses
             if (slot < INVENTORY_SLOT_BAG_END)
             {
-                ItemTemplate const* pProto = pItem->GetTemplate();
-
                 // item set bonuses applied only at equip and removed at unequip, and still active for broken items
                 if (pProto && pProto->GetItemSet())
                     RemoveItemsSetItem(this, pProto);
@@ -12847,9 +12850,8 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         // Delete rolled money / loot from db.
         // MUST be done before RemoveFromWorld() or GetTemplate() fails
-        if (ItemTemplate const* pTmp = pItem->GetTemplate())
-            if (pTmp->GetFlags() & ITEM_FLAG_HAS_LOOT)
-                pItem->ItemContainerDeleteLootMoneyAndLootItemsFromDB();
+        if (pProto->GetFlags() & ITEM_FLAG_HAS_LOOT)
+            sLootItemStorage->RemoveStoredLootForContainer(pItem->GetGUID().GetCounter());
 
         if (IsInWorld() && update)
         {
@@ -13766,7 +13768,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             {
                 if (Item* bagItem = bag->GetItemByPos(i))
                 {
-                    if (bagItem->m_lootGenerated)
+                    if (bagItem->GetGUID() == GetLootGUID())
                     {
                         m_session->DoLootRelease(GetLootGUID());
                         released = true;                    // so we don't need to look at dstBag
@@ -13783,7 +13785,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             {
                 if (Item* bagItem = bag->GetItemByPos(i))
                 {
-                    if (bagItem->m_lootGenerated)
+                    if (bagItem->GetGUID() == GetLootGUID())
                     {
                         m_session->DoLootRelease(GetLootGUID());
                         break;
@@ -13872,7 +13874,12 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
         {
             pItem->RemoveFromWorld();
             if (del)
+            {
                 pItem->SetState(ITEM_REMOVED, this);
+                if (ItemTemplate const* itemTemplate = pItem->GetTemplate())
+                    if (itemTemplate->GetFlags() & ITEM_FLAG_HAS_LOOT)
+                        sLootItemStorage->RemoveStoredLootForContainer(pItem->GetGUID().GetCounter());
+            }
         }
 
         m_items[slot] = nullptr;
@@ -20846,12 +20853,25 @@ void Player::_SaveInventory(CharacterDatabaseTransaction& trans)
     for (uint8 i = BUYBACK_SLOT_START; i < BUYBACK_SLOT_END; ++i)
     {
         Item* item = m_items[i];
-        if (!item || item->GetState() == ITEM_NEW)
+        if (!item)
             continue;
+
+        if (item->GetState() == ITEM_NEW)
+        {
+            if (ItemTemplate const* itemTemplate = item->GetTemplate())
+                if (itemTemplate->GetFlags() & ITEM_FLAG_HAS_LOOT)
+                    sLootItemStorage->RemoveStoredLootForContainer(item->GetGUID().GetCounter());
+
+            continue;
+        }
 
         item->DeleteFromInventoryDB(trans);
         item->DeleteFromDB(trans);
         m_items[i]->FSetState(ITEM_NEW);
+
+        if (ItemTemplate const* itemTemplate = item->GetTemplate())
+            if (itemTemplate->GetFlags() & ITEM_FLAG_HAS_LOOT)
+                sLootItemStorage->RemoveStoredLootForContainer(item->GetGUID().GetCounter());
     }
 
     // Updated played time for refundable items. We don't do this in Player::Update because there's simply no need for it,
@@ -26197,7 +26217,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* 
 
         // LootItem is being removed (looted) from the container, delete it from the DB.
         if (!loot->containerID.IsEmpty())
-            loot->DeleteLootItemFromContainerItemDB(item->itemid);
+            sLootItemStorage->RemoveStoredLootItemForContainer(loot->containerID.GetCounter(), item->itemid, item->count);
     }
     else
         SendEquipError(msg, nullptr, nullptr, item->itemid);
