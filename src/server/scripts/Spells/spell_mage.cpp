@@ -35,6 +35,7 @@ enum MageSpells
     SPELL_ARCANCE_POTENCY_RANK_2                 = 31572,
     SPELL_ARCANCE_POTENCY_TRIGGER_RANK_1         = 57529,
     SPELL_ARCANCE_POTENCY_TRIGGER_RANK_2         = 57531,
+    SPELL_MAGE_ARCANE_MISSILES                   = 79808
     SPELL_MAGE_BLAZING_SPEED                     = 31643,
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
@@ -1463,6 +1464,51 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
        }
 };
 
+// 79683 Arcane Missiles!
+class spell_mage_arcane_missiles_trigger : public SpellScriptLoader
+{
+public:
+    spell_mage_arcane_missiles_trigger() : SpellScriptLoader("spell_mage_arcane_missiles_trigger") { }
+ 
+    class spell_mage_arcane_missiles_trigger_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_arcane_missiles_trigger_AuraScript);
+ 
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+ 
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_ARCANE_MISSILES))
+                return false;
+            return true;
+        }
+ 
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_ARCANE_MISSILES);
+        }
+ 
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            GetCaster()->RemoveAura(SPELL_MAGE_ARCANE_MISSILES);
+        }
+ 
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_mage_arcane_missiles_trigger_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missiles_trigger_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+ 
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_mage_arcane_missiles_trigger_AuraScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
@@ -1493,4 +1539,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ring_of_frost_freeze();
     new spell_mage_time_warp();
     new spell_mage_water_elemental_freeze();
+    new spell_mage_arcane_missiles_trigger_AuraScript();
 }
