@@ -20,12 +20,13 @@
 
 #include "Define.h"
 
-#include <vector>
+#include <unordered_map>
 
 class Item;
 class Player;
 struct Loot;
 struct LootItem;
+
 namespace boost
 {
     class shared_mutex;
