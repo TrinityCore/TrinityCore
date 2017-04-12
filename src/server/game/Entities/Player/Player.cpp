@@ -13875,10 +13875,11 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
             pItem->RemoveFromWorld();
             if (del)
             {
-                pItem->SetState(ITEM_REMOVED, this);
                 if (ItemTemplate const* itemTemplate = pItem->GetTemplate())
                     if (itemTemplate->GetFlags() & ITEM_FLAG_HAS_LOOT)
                         sLootItemStorage->RemoveStoredLootForContainer(pItem->GetGUID().GetCounter());
+
+                pItem->SetState(ITEM_REMOVED, this);
             }
         }
 
