@@ -35,7 +35,7 @@ enum MageSpells
     SPELL_ARCANCE_POTENCY_RANK_2                 = 31572,
     SPELL_ARCANCE_POTENCY_TRIGGER_RANK_1         = 57529,
     SPELL_ARCANCE_POTENCY_TRIGGER_RANK_2         = 57531,
-    SPELL_MAGE_ARCANE_MISSILES                   = 79808
+    SPELL_MAGE_ARCANE_MISSILES                   = 79808,
     SPELL_MAGE_BLAZING_SPEED                     = 31643,
     SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
