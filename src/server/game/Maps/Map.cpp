@@ -3505,7 +3505,7 @@ void Map::SaveCreatureRespawnTime(ObjectGuid::LowType dbGuid, time_t respawnTime
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
     stmt->setUInt32(0, dbGuid);
-    stmt->setUInt32(1, uint32(respawnTime));
+    stmt->setUInt64(1, uint64(respawnTime));
     stmt->setUInt16(2, GetId());
     stmt->setUInt32(3, GetInstanceId());
     CharacterDatabase.Execute(stmt);
@@ -3535,7 +3535,7 @@ void Map::SaveGORespawnTime(ObjectGuid::LowType dbGuid, time_t respawnTime)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GO_RESPAWN);
     stmt->setUInt32(0, dbGuid);
-    stmt->setUInt32(1, uint32(respawnTime));
+    stmt->setUInt64(1, uint64(respawnTime));
     stmt->setUInt16(2, GetId());
     stmt->setUInt32(3, GetInstanceId());
     CharacterDatabase.Execute(stmt);
@@ -3563,7 +3563,7 @@ void Map::LoadRespawnTimes()
         {
             Field* fields = result->Fetch();
             ObjectGuid::LowType loguid = fields[0].GetUInt32();
-            uint32 respawnTime = fields[1].GetUInt32();
+            uint64 respawnTime = fields[1].GetUInt64();
 
             _creatureRespawnTimes[loguid] = time_t(respawnTime);
         } while (result->NextRow());
@@ -3578,7 +3578,7 @@ void Map::LoadRespawnTimes()
         {
             Field* fields = result->Fetch();
             ObjectGuid::LowType loguid = fields[0].GetUInt32();
-            uint32 respawnTime = fields[1].GetUInt32();
+            uint64 respawnTime = fields[1].GetUInt64();
 
             _goRespawnTimes[loguid] = time_t(respawnTime);
         } while (result->NextRow());
