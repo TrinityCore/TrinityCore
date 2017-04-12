@@ -18,6 +18,7 @@
 #ifndef __LOOTITEMSTORAGE_H
 #define __LOOTITEMSTORAGE_H
 
+#include "DatabaseEnvFwd.h"
 #include "Define.h"
 #include "DBCEnums.h"
 #include "ItemEnchantmentMgr.h"
