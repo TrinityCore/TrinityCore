@@ -38,14 +38,6 @@ NeedsQuest(lootItem.needs_quest), RandomPropertyId(lootItem.randomPropertyId), R
 {
 }
 
-LootItemStorage::LootItemStorage()
-{
-}
-
-LootItemStorage::~LootItemStorage()
-{
-}
-
 LootItemStorage* LootItemStorage::instance()
 {
     static LootItemStorage instance;
@@ -73,8 +65,17 @@ void LootItemStorage::LoadStorageFromDB()
         {
             Field* fields = result->Fetch();
 
-            StoredLootContainer& storedContainer = _lootItemStore[fields[0].GetUInt32()];
-            storedContainer.SetContainer(fields[0].GetUInt32());
+            uint32 key = fields[0].GetUInt32();
+            auto itr = _lootItemStore.find(key);
+            if (itr == _lootItemStore.end())
+            {
+                bool added;
+                std::tie(itr, added) = _lootItemStore.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(key));
+
+                ASSERT(added);
+            }
+
+            StoredLootContainer& storedContainer = itr->second;
 
             LootItem lootItem;
             lootItem.itemid = fields[1].GetUInt32();
@@ -107,8 +108,17 @@ void LootItemStorage::LoadStorageFromDB()
         {
             Field* fields = result->Fetch();
 
-            StoredLootContainer& storedContainer = _lootItemStore[fields[0].GetUInt32()];
-            storedContainer.SetContainer(fields[0].GetUInt32());
+            uint32 key = fields[0].GetUInt32();
+            auto itr = _lootItemStore.find(key);
+            if (itr == _lootItemStore.end())
+            {
+                bool added;
+                std::tie(itr, added) = _lootItemStore.emplace(std::piecewise_construct, std::forward_as_tuple(key), std::forward_as_tuple(key));
+
+                ASSERT(added);
+            }
+
+            StoredLootContainer& storedContainer = itr->second;
             storedContainer.AddMoney(fields[1].GetUInt32(), trans);
 
             ++count;
@@ -237,8 +247,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
         }
     }
 
-    StoredLootContainer container;
-    container.SetContainer(loot->containerID);
+    StoredLootContainer container(loot->containerID);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     if (loot->gold)
@@ -273,11 +282,6 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
         boost::unique_lock<boost::shared_mutex> lock(*GetLock());
         _lootItemStore.emplace(loot->containerID, std::move(container));
     }
-}
-
-void StoredLootContainer::SetContainer(uint32 containerId)
-{
-    _containerId = containerId;
 }
 
 void StoredLootContainer::AddLootItem(LootItem const& lootItem, SQLTransaction& trans)
@@ -317,21 +321,6 @@ void StoredLootContainer::AddMoney(uint32 money, SQLTransaction& trans)
     stmt->setUInt32(0, _containerId);
     stmt->setUInt32(1, _money);
     trans->Append(stmt);
-}
-
-uint32 StoredLootContainer::GetContainer() const
-{
-    return _containerId;
-}
-
-uint32 StoredLootContainer::GetMoney() const
-{
-    return _money;
-}
-
-StoredLootItemContainer const& StoredLootContainer::GetLootItems() const
-{
-    return _lootItems;
 }
 
 void StoredLootContainer::RemoveMoney()

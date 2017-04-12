@@ -47,36 +47,32 @@ struct StoredLootItem
     uint32 RandomSuffix;
 };
 
-typedef std::unordered_multimap<uint32 /*itemId*/, StoredLootItem> StoredLootItemContainer;
-
 class StoredLootContainer
 {
     public:
-        StoredLootContainer() : _money(0) { }
+        typedef std::unordered_multimap<uint32 /*itemId*/, StoredLootItem> StoredLootItemContainer;
 
-        void SetContainer(uint32 containerId);
+        explicit StoredLootContainer(uint32 containerId) : _containerId(containerId), _money(0) { }
+
         void AddLootItem(LootItem const& lootItem, SQLTransaction& trans);
         void AddMoney(uint32 money, SQLTransaction& trans);
 
         void RemoveMoney();
         void RemoveItem(uint32 itemId, uint32 count);
 
-        uint32 GetContainer() const;
-        uint32 GetMoney() const;
-        StoredLootItemContainer const& GetLootItems() const;
+        uint32 GetContainer() const { return _containerId; }
+        uint32 GetMoney() const { return _money; }
+        StoredLootItemContainer const& GetLootItems() const { return _lootItems; }
 
     private:
         StoredLootItemContainer _lootItems;
+        uint32 const _containerId;
         uint32 _money;
-        uint32 _containerId;
 };
 
 class LootItemStorage
 {
     public:
-        LootItemStorage();
-        ~LootItemStorage();
-
         static LootItemStorage* instance();
         static boost::shared_mutex* GetLock();
 
@@ -86,6 +82,10 @@ class LootItemStorage
         void RemoveStoredLootForContainer(uint32 containerId);
         void RemoveStoredLootItemForContainer(uint32 containerId, uint32 itemId, uint32 count);
         void AddNewStoredLoot(Loot* loot, Player* player);
+
+    private:
+        LootItemStorage() { }
+        ~LootItemStorage() { }
 };
 
 #define sLootItemStorage LootItemStorage::instance()
