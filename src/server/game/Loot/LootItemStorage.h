@@ -22,12 +22,14 @@
 #include "DBCEnums.h"
 #include "ItemEnchantmentMgr.h"
 
+#include <unordered_map>
 #include <vector>
 
 class Item;
 class Player;
 struct Loot;
 struct LootItem;
+
 namespace boost
 {
     class shared_mutex;
