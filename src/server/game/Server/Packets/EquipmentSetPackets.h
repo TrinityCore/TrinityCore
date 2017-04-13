@@ -83,6 +83,7 @@ namespace WorldPackets
 
             WorldPackets::Item::InvUpdate Inv;
             EquipmentSetItem Items[EQUIPMENT_SLOT_END];
+            uint64 GUID = 0; ///< Set Identifier
         };
 
         class UseEquipmentSetResult final : public ServerPacket
