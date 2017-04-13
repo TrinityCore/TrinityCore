@@ -9208,11 +9208,11 @@ void Unit::IncrDiminishing(SpellInfo const* auraSpellInfo)
         ++diminish.hitCount;
 }
 
-float Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, int32& duration, Unit* caster, DiminishingLevels previousLevel)
+bool Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, int32& duration, Unit* caster, DiminishingLevels previousLevel) const
 {
     DiminishingGroup const group = auraSpellInfo->GetDiminishingReturnsGroupForSpell();
     if (duration == -1 || group == DIMINISHING_NONE)
-        return 1.0f;
+        return true;
 
     int32 const limitDuration = auraSpellInfo->GetDiminishingReturnsLimitDuration();
 
@@ -9232,7 +9232,6 @@ float Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, int32& du
     }
 
     float mod = 1.0f;
-
     switch (group)
     {
         case DIMINISHING_TAUNT:
@@ -9289,7 +9288,7 @@ float Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, int32& du
     }
 
     duration = int32(duration * mod);
-    return mod;
+    return (duration != 0);
 }
 
 void Unit::ApplyDiminishingAura(DiminishingGroup group, bool apply)
