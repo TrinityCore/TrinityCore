@@ -31,7 +31,6 @@
 #include "Util.h"
 #include "Group.h"
 #include "WorldSession.h"
-#include "MercenaryMgr.h"
 
 #define PET_XP_FACTOR 0.05f
 
@@ -315,8 +314,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     owner->SetMinion(this, true);
     map->AddToMap(this->ToCreature());
 
-    sMercenaryMgr->OnSummon(owner);
-
     InitTalentForLevel();                                   // set original talents points before spell loading
 
     uint32 timediff = uint32(time(NULL) - fields[14].GetUInt32());
@@ -517,8 +514,6 @@ void Pet::DeleteFromDB(ObjectGuid::LowType guidlow)
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
-
-    sMercenaryMgr->OnDelete(guidlow);
 }
 
 void Pet::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState

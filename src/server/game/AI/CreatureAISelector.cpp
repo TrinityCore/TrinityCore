@@ -24,7 +24,6 @@
 #include "TemporarySummon.h"
 #include "CreatureAIFactory.h"
 #include "ScriptMgr.h"
-#include "MercenaryMgr.h"
 
 namespace FactorySelector
 {
@@ -32,7 +31,7 @@ namespace FactorySelector
     {
         const CreatureAICreator* ai_factory = NULL;
 
-        if (creature->IsPet() && creature->GetScriptName() != sMercenaryMgr->GetAIName())
+        if (creature->IsPet())
             ai_factory = sCreatureAIRegistry->GetRegistryItem("PetAI");
 
         //scriptname in db
