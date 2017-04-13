@@ -641,13 +641,28 @@ WorldPacket const* WorldPackets::Movement::MoveSetActiveMover::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MoveKnockBackSpeeds const& speeds)
+{
+    data << float(speeds.HorzSpeed);
+    data << float(speeds.VertSpeed);
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MoveKnockBackSpeeds const& speeds)
+{
+    data >> speeds.HorzSpeed;
+    data >> speeds.VertSpeed;
+
+    return data;
+}
+
 WorldPacket const* WorldPackets::Movement::MoveKnockBack::Write()
 {
     _worldPacket << MoverGUID;
     _worldPacket << uint32(SequenceIndex);
     _worldPacket << Direction;
-    _worldPacket << float(HorzSpeed);
-    _worldPacket << float(VertSpeed);
+    _worldPacket << Speeds;
 
     return &_worldPacket;
 }
@@ -657,6 +672,17 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateKnockBack::Write()
     _worldPacket << *movementInfo;
 
     return &_worldPacket;
+}
+
+void WorldPackets::Movement::MoveKnockBackAck::Read()
+{
+    _worldPacket >> Ack;
+    bool hasSpeeds = _worldPacket.ReadBit();
+    if (hasSpeeds)
+    {
+        Speeds = boost::in_place();
+        _worldPacket >> *Speeds;
+    }
 }
 
 WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()

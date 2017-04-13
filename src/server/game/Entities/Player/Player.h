@@ -838,6 +838,7 @@ struct EquipmentSetInfo
         uint64 Guid       = 0; ///< Set Identifier
         uint32 SetID      = 0; ///< Index
         uint32 IgnoreMask = 0; ///< Mask of EquipmentSlot
+        int32 AssignedSpecIndex = -1; ///< Index of character specialization that this set is automatically equipped for
         std::string SetName;
         std::string SetIcon;
         std::array<ObjectGuid, EQUIPMENT_SLOT_END> Pieces;
