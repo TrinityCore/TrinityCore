@@ -1539,5 +1539,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_ring_of_frost_freeze();
     new spell_mage_time_warp();
     new spell_mage_water_elemental_freeze();
-    new spell_mage_arcane_missiles_trigger::spell_mage_arcane_missiles_trigger_AuraScript();
+    new spell_mage_arcane_missiles_trigger();
 }
