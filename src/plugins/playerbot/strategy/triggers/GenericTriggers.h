@@ -576,6 +576,18 @@ namespace ai
 			return RandomTrigger::IsActive() && AI_VALUE(bool, "random bot update");
 		}
 	};
+
+	class NewPlayerNearbyTrigger : public RandomTrigger
+	{
+	public:
+		NewPlayerNearbyTrigger(PlayerbotAI* ai) : RandomTrigger(ai, 7) {}
+
+	public:
+		virtual bool IsActive()
+		{
+			return AI_VALUE(ObjectGuid, "new player nearby");
+		}
+	};
 }
 
 #include "RangeTriggers.h"
