@@ -215,7 +215,7 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
 +			"default", "quest", "loot", "gather", "duel", "emote", "lfg", "bg", NULL);
 	}
 	else {
-		nonCombatEngine->addStrategies("nc", "attack weak", "food", "stay", "chat",
+		nonCombatEngine->addStrategies("move random", "nc", "attack weak", "food", "stay", "chat",
 +			"default", "quest", "loot", "gather", "duel", "emote", "follow", "lfg", "bg", NULL);
 	}
     if (sRandomPlayerbotMgr.IsRandomBot(player) && !player->GetGroup())
