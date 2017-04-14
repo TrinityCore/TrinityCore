@@ -251,5 +251,5 @@ void SuggestWhatToDoAction::spam(string msg)
             (bot->GetMapId() != player->GetMapId() || bot->GetDistance(player) > sPlayerbotAIConfig.whisperDistance))
         return;
 
-    bot->Whisper(msg, LANG_UNIVERSAL, player);
+    bot->Yell(msg, LANG_UNIVERSAL);
 }
