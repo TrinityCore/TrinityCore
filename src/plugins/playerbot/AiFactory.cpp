@@ -92,7 +92,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 
 	if (player->InBattleground() && player->GetBattlegroundTypeId()==BattlegroundTypeId::BATTLEGROUND_WS)
 	{
-		engine->addStrategies("grind","warsong", "attack weak", "racials", "chat", "default", "dps", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+		engine->addStrategies("warsong", "racials", "chat", "default", "dps", "potions", "conserve mana", "duel", "pvp", NULL);
 	}
 	else {
 		engine->addStrategies("racials", "chat", "default", "aoe", "potions", "conserve mana", "duel", "pvp", NULL);
@@ -110,7 +110,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
             else
                 engine->addStrategies("heal", "holy", "conserve mana", NULL);
 
-            engine->addStrategies("cure", "flee", NULL);
+            engine->addStrategies("dps assist", "flee", NULL);
             break;
         case CLASS_MAGE:
 			if ((tab == 0) && (player->getLevel() > 9))
@@ -122,7 +122,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 			else
 				engine->addStrategies("fire", "threat", NULL);
 
-			engine->addStrategies("dps assist", "flee", "cure", NULL);
+            engine->addStrategies("dps assist", "flee", NULL);
             break;
         case CLASS_WARRIOR:
             if (tab == 2)
@@ -146,7 +146,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 
 			else engine->addStrategies("caster", "bmana", "threat", "flee", NULL);
 
-            engine->addStrategies("dps assist", "cure", NULL);
+            engine->addStrategies("dps assist", NULL);
             break;
         case CLASS_PALADIN:
             if (tab == 1)
@@ -167,7 +167,7 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 			else if ((tab == 1) && (player->getLevel() > 9))
 				engine->addStrategies("bear", "tank aoe", NULL);
 
-			else engine->addStrategies("caster", "cure", "threat", "flee", "dps assist", NULL);
+			else engine->addStrategies("caster", "threat", "flee", "dps assist", NULL);
 			break;
         case CLASS_HUNTER:
             engine->addStrategies("dps", "bdps", "threat", "dps assist", NULL);
@@ -241,6 +241,21 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
             else
                 nonCombatEngine->addStrategy("bmana");
 
+            nonCombatEngine->addStrategy("dps assist");
+            break;
+        case CLASS_DRUID:
+            if (tab == 1)
+                nonCombatEngine->addStrategy("tank aoe");
+            else
+                nonCombatEngine->addStrategy("dps assist");
+            break;
+        case CLASS_WARRIOR:
+            if (tab == 2)
+                nonCombatEngine->addStrategy("tank aoe");
+            else
+                nonCombatEngine->addStrategy("dps assist");
+            break;
+        default:
             nonCombatEngine->addStrategy("dps assist");
             break;
 		case CLASS_ROGUE:
