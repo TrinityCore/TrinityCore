@@ -64,7 +64,7 @@ void StatsAction::ListBagSlots(ostringstream &out)
 		color = "ffffff00";
 	if (totalfree < total / 4)
 		color = "ffff0000";
-    out << "|h|c" << color << (total - totalfree) << "/" << total << "|h|cffffffff Bag";
+    out << "|h|c" << color << totalfree << "/" << total << "|h|cffffffff Bag";
 }
 
 void StatsAction::ListXP( ostringstream &out )
