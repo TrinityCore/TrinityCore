@@ -20,6 +20,7 @@
 #include "DatabaseEnv.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Opcodes.h"
@@ -2301,7 +2302,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (unit->IsAlive() != target->alive)
         return;
 
-    if (getState() == SPELL_STATE_DELAYED && !m_spellInfo->IsPositive() && (getMSTime() - target->timeDelay) <= unit->m_lastSanctuaryTime)
+    if (getState() == SPELL_STATE_DELAYED && !m_spellInfo->IsPositive() && (GameTime::GetGameTimeMS() - target->timeDelay) <= unit->m_lastSanctuaryTime)
         return;                                             // No missinfo in that case
 
     // Get original caster (if exist) and calculate damage/healing from him data
@@ -4085,7 +4086,7 @@ void Spell::SendSpellGo()
     data << uint32(m_spellInfo->Id);                        // spellId
     data << uint32(castFlags);                              // cast flags
     data << uint32(m_timer);
-    data << uint32(getMSTime());                            // timestamp
+    data << uint32(GameTime::GetGameTimeMS());                            // timestamp
 
     WriteSpellGoTargets(&data);
 

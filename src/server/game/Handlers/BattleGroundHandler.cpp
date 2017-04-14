@@ -27,6 +27,7 @@
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
 #include "Chat.h"
+#include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "Player.h"
@@ -659,7 +660,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
                 continue;
 
             // send status invited to Battleground
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, GetPlayer(), i, STATUS_WAIT_JOIN, getMSTimeDiff(getMSTime(), ginfo.RemoveInviteTime), _player->GetBattlegroundQueueJoinTime(bgTypeId), arenaType);
+            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, GetPlayer(), i, STATUS_WAIT_JOIN, getMSTimeDiff(GameTime::GetGameTimeMS(), ginfo.RemoveInviteTime), _player->GetBattlegroundQueueJoinTime(bgTypeId), arenaType);
             SendPacket(&data);
         }
         else

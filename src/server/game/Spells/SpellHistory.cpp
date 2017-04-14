@@ -21,7 +21,6 @@
 #include "Player.h"
 #include "SpellInfo.h"
 #include "Spell.h"
-#include "World.h"
 #include "Opcodes.h"
 
 SpellHistory::Clock::duration const SpellHistory::InfinityCooldownDelay = std::chrono::duration_cast<SpellHistory::Clock::duration>(std::chrono::seconds(MONTH));
@@ -136,7 +135,7 @@ void SpellHistory::SaveToDB(SQLTransaction& trans)
 
 void SpellHistory::Update()
 {
-    Clock::time_point now = Clock::now();
+    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
     for (auto itr = _categoryCooldowns.begin(); itr != _categoryCooldowns.end();)
     {
         if (itr->second->CategoryEnd < now)
@@ -195,7 +194,7 @@ bool SpellHistory::IsReady(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, bo
 template<>
 void SpellHistory::WritePacket<Pet>(WorldPacket& packet) const
 {
-    Clock::time_point now = Clock::now();
+    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
 
     uint8 cooldownsCount = _spellCooldowns.size();
     packet << uint8(cooldownsCount);
@@ -232,7 +231,7 @@ void SpellHistory::WritePacket<Pet>(WorldPacket& packet) const
 template<>
 void SpellHistory::WritePacket<Player>(WorldPacket& packet) const
 {
-    Clock::time_point now = Clock::now();
+    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
 
     packet << uint16(_spellCooldowns.size());
 
@@ -281,7 +280,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
 
     GetCooldownDurations(spellInfo, itemId, &cooldown, &categoryId, &categoryCooldown);
 
-    Clock::time_point curTime = Clock::now();
+    Clock::time_point curTime = GameTime::GetGameTimeSystemPoint();
     Clock::time_point catrecTime;
     Clock::time_point recTime;
     bool needsCooldownPacket = false;
@@ -428,7 +427,7 @@ void SpellHistory::ModifyCooldown(uint32 spellId, int32 cooldownModMs)
     if (!cooldownModMs || itr == _spellCooldowns.end())
         return;
 
-    Clock::time_point now = Clock::now();
+    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
     Clock::duration offset = std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(cooldownModMs));
     if (itr->second.CooldownEnd + offset > now)
         itr->second.CooldownEnd += offset;
@@ -522,7 +521,7 @@ uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const
         end = catItr->second->CategoryEnd;
     }
 
-    Clock::time_point now = Clock::now();
+    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
     if (end < now)
         return 0;
 
@@ -532,7 +531,7 @@ uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const
 
 void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTime)
 {
-    Clock::time_point now = Clock::now();
+    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
     Clock::time_point lockoutEnd = now + std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(lockoutTime));
     for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (SpellSchoolMask(1 << i) & schoolMask)
@@ -589,7 +588,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
 
 bool SpellHistory::IsSchoolLocked(SpellSchoolMask schoolMask) const
 {
-    Clock::time_point now = Clock::now();
+    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
     for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (SpellSchoolMask(1 << i) & schoolMask)
             if (_schoolLockouts[i] > now)
@@ -601,12 +600,12 @@ bool SpellHistory::IsSchoolLocked(SpellSchoolMask schoolMask) const
 bool SpellHistory::HasGlobalCooldown(SpellInfo const* spellInfo) const
 {
     auto itr = _globalCooldowns.find(spellInfo->StartRecoveryCategory);
-    return itr != _globalCooldowns.end() && itr->second > Clock::now();
+    return itr != _globalCooldowns.end() && itr->second > GameTime::GetGameTimeSystemPoint();
 }
 
 void SpellHistory::AddGlobalCooldown(SpellInfo const* spellInfo, uint32 duration)
 {
-    _globalCooldowns[spellInfo->StartRecoveryCategory] = Clock::now() + std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(duration));
+    _globalCooldowns[spellInfo->StartRecoveryCategory] = GameTime::GetGameTimeSystemPoint() + std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(duration));
 }
 
 void SpellHistory::CancelGlobalCooldown(SpellInfo const* spellInfo)
@@ -750,7 +749,7 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
 
         for (auto const& c : _spellCooldowns)
         {
-            Clock::time_point now = Clock::now();
+            Clock::time_point now = GameTime::GetGameTimeSystemPoint();
             uint32 cooldownDuration = uint32(c.second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(c.second.CooldownEnd - now).count() : 0);
 
             // cooldownDuration must be between 0 and 10 minutes in order to avoid any visual bugs

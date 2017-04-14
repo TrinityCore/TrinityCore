@@ -41,6 +41,7 @@
 #include "DisableMgr.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -1226,7 +1227,7 @@ void Player::Update(uint32 p_time)
     _cinematicMgr->m_cinematicDiff += p_time;
     if (_cinematicMgr->m_activeCinematicCameraId != 0 && GetMSTimeDiffToNow(_cinematicMgr->m_lastCinematicCheck) > CINEMATIC_UPDATEDIFF)
     {
-        _cinematicMgr->m_lastCinematicCheck = getMSTime();
+        _cinematicMgr->m_lastCinematicCheck = GameTime::GetGameTimeMS();
         _cinematicMgr->UpdateCinematicLocation(p_time);
     }
 
@@ -3981,7 +3982,7 @@ uint32 Player::GetNextResetTalentsCost() const
         return 10*GOLD;
     else
     {
-        uint64 months = (sWorld->GetGameTime() - GetTalentResetTime())/MONTH;
+        uint64 months = (GameTime::GetGameTime() - GetTalentResetTime())/MONTH;
         if (months > 0)
         {
             // This cost will be reduced by a rate of 5 gold per month
@@ -18603,10 +18604,10 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 {
                     AddTimedQuest(quest_id);
 
-                    if (quest_time <= sWorld->GetGameTime())
+                    if (quest_time <= GameTime::GetGameTime())
                         questStatusData.Timer = 1;
                     else
-                        questStatusData.Timer = uint32((quest_time - sWorld->GetGameTime()) * IN_MILLISECONDS);
+                        questStatusData.Timer = uint32((quest_time - GameTime::GetGameTime()) * IN_MILLISECONDS);
                 }
                 else
                     quest_time = 0;
@@ -20147,7 +20148,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
                 stmt->setUInt32(index++, statusItr->first);
                 stmt->setUInt8(index++, uint8(statusItr->second.Status));
                 stmt->setBool(index++, statusItr->second.Explored);
-                stmt->setUInt32(index++, uint32(statusItr->second.Timer / IN_MILLISECONDS+ sWorld->GetGameTime()));
+                stmt->setUInt32(index++, uint32(statusItr->second.Timer / IN_MILLISECONDS+ GameTime::GetGameTime()));
 
                 for (uint8 i = 0; i < 4; i++)
                     stmt->setUInt16(index++, statusItr->second.CreatureOrGOCount[i]);
@@ -23215,7 +23216,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendEquipmentSetList();
 
     data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
-    data.AppendPackedTime(sWorld->GetGameTime());
+    data.AppendPackedTime(GameTime::GetGameTime());
     data << float(0.01666667f);                             // game speed
     data << uint32(0);                                      // added in 3.1.2
     GetSession()->SendPacket(&data);
@@ -26757,7 +26758,7 @@ void Player::ResetTimeSync()
 {
     m_timeSyncTimer = 0;
     m_timeSyncClient = 0;
-    m_timeSyncServer = getMSTime();
+    m_timeSyncServer = GameTime::GetGameTimeMS();
 }
 
 void Player::SendTimeSync()
@@ -26770,7 +26771,7 @@ void Player::SendTimeSync()
 
     // Schedule next sync in 10 sec
     m_timeSyncTimer = 10000;
-    m_timeSyncServer = getMSTime();
+    m_timeSyncServer = GameTime::GetGameTimeMS();
 
     if (m_timeSyncQueue.size() > 3)
         TC_LOG_ERROR("network", "Not received CMSG_TIME_SYNC_RESP for over 30 seconds from player %u (%s), possible cheater", GetGUID().GetCounter(), GetName().c_str());

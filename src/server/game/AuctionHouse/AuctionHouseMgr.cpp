@@ -31,6 +31,7 @@
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
+#include "GameTime.h"
 
 enum eAuctionHouse
 {
@@ -591,7 +592,7 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction)
 
 void AuctionHouseObject::Update()
 {
-    time_t curTime = sWorld->GetGameTime();
+    time_t curTime = GameTime::GetGameTime();
     ///- Handle expired auctions
 
     // If storage is empty, no need to update. next == NULL in this case.
@@ -686,7 +687,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
     int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
-    time_t curTime = sWorld->GetGameTime();
+    time_t curTime = GameTime::GetGameTime();
 
     PlayerGetAllThrottleMap::const_iterator itr = GetAllThrottleMap.find(player->GetGUID());
     time_t throttleTime = itr != GetAllThrottleMap.end() ? itr->second : curTime;

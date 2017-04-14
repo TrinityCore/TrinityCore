@@ -52,6 +52,7 @@
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "Chat.h"
+#include "GameTime.h"
 
 Object::Object() : m_PackGUID(sizeof(uint64)+1)
 {
@@ -544,7 +545,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         *data << self->GetSpeed(MOVE_WALK);
 
         //if (true)   // Has time, controlled by bit just after HasTransport
-        *data << uint32(getMSTime());
+        *data << uint32(GameTime::GetGameTimeMS());
 
         *data << self->GetSpeed(MOVE_TURN_RATE);
         data->WriteByteSeq(guid[6]);
@@ -659,7 +660,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         if (go && go->ToTransport())
             *data << uint32(go->GetGOValue()->Transport.PathProgress);
         else
-            *data << uint32(getMSTime());
+            *data << uint32(GameTime::GetGameTimeMS());
     }
 }
 

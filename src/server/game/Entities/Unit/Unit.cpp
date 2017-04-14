@@ -30,6 +30,7 @@
 #include "CreatureGroups.h"
 #include "Creature.h"
 #include "Formulas.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"

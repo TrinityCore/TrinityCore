@@ -26,6 +26,7 @@
 #include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -2894,7 +2895,7 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
         ClearUnitState(UNIT_STATE_CANNOT_TURN);
 
     m_focusSpell = nullptr;
-    m_focusDelay = (!IsPet() && withDelay) ? getMSTime() : 0; // don't allow re-target right away to prevent visual bugs
+    m_focusDelay = (!IsPet() && withDelay) ? GameTime::GetGameTimeMS() : 0; // don't allow re-target right away to prevent visual bugs
 }
 
 void Creature::StartPickPocketRefillTimer()
