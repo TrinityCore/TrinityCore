@@ -121,6 +121,8 @@ AiPlayerbot.RandomBotAutologin = 1
 # Random bot default strategies (applied after defaults)
 AiPlayerbot.RandomBotCombatStrategies = +dps,+attack weak,-threat
 AiPlayerbot.RandomBotNonCombatStrategies = +grind,+move random,+loot
+AiPlayerbot.CombatStrategies = +custom::say
+AiPlayerbot.NonCombatStrategies = +custom::say
 
 # Create random bot characters automatically
 AiPlayerbot.RandomBotAutoCreate = 1

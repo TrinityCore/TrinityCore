@@ -172,12 +172,21 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
             break;
     }
 
-    if (sRandomPlayerbotMgr.IsRandomBot(player) && !player->GetGroup())
-    {
-        engine->ChangeStrategy(sPlayerbotAIConfig.randomBotCombatStrategies);
-        if (player->getClass() == CLASS_DRUID && player->getLevel() < 20)
-            engine->addStrategies("bear", NULL);
-    }
+	if (sRandomPlayerbotMgr.IsRandomBot(player))
+	{
+		if (!player->GetGroup())
+		{
+			engine->ChangeStrategy(sPlayerbotAIConfig.randomBotCombatStrategies);
+			if (player->getClass() == CLASS_DRUID && player->getLevel() < 20)
+			{
+				engine->addStrategies("bear", NULL);
+			}
+		}
+	}
+	else
+	{
+		engine->ChangeStrategy(sPlayerbotAIConfig.combatStrategies);
+	}
 }
 
 Engine* AiFactory::createCombatEngine(Player* player, PlayerbotAI* const facade, AiObjectContext* AiObjectContext) {
@@ -218,11 +227,18 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
 		nonCombatEngine->addStrategies("nc", "attack weak", "food", "stay", "chat",
 +			"default", "quest", "loot", "gather", "duel", "emote", "follow", "lfg", "bg", NULL);
 	}
-    if (sRandomPlayerbotMgr.IsRandomBot(player) && !player->GetGroup())
-    {
-        nonCombatEngine->ChangeStrategy(sPlayerbotAIConfig.randomBotNonCombatStrategies);
-    }
 
+	if (sRandomPlayerbotMgr.IsRandomBot(player))
+	{
+		if (!player->GetGroup())
+		{
+			nonCombatEngine->ChangeStrategy(sPlayerbotAIConfig.randomBotNonCombatStrategies);
+		}
+	}
+	else
+	{
+		nonCombatEngine->ChangeStrategy(sPlayerbotAIConfig.nonCombatStrategies);
+	}
 }
 
 Engine* AiFactory::createNonCombatEngine(Player* player, PlayerbotAI* const facade, AiObjectContext* AiObjectContext) {
