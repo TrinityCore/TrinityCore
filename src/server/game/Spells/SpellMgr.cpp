@@ -1270,10 +1270,10 @@ void SpellMgr::LoadSpellGroupStackRules()
             continue;
         }
 
+        mSpellGroupStack.emplace(SpellGroup(group_id), SpellGroupStackRule(stack_rule));
+
         // different container for same effect stack rules, need to check effect types
-        if (stack_rule != SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT)
-            mSpellGroupStack.emplace(SpellGroup(group_id), SpellGroupStackRule(stack_rule));
-        else
+        if (stack_rule == SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT)
             sameEffectGroups.push_back(group_id);
 
         ++count;
