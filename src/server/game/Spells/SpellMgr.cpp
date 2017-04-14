@@ -335,7 +335,7 @@ void SpellMgr::GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>&
     }
 }
 
-bool SpellMgr::AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, AuraType auraType, int32 amount, std::map<SpellGroup, int32>& groups) const
+bool SpellMgr::AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, uint32 auraType, int32 amount, std::map<SpellGroup, int32>& groups) const
 {
     uint32 spellId = spellInfo->GetFirstRankSpell()->Id;
     auto spellGroupBounds = GetSpellSpellGroupMapBounds(spellId);
@@ -347,7 +347,7 @@ bool SpellMgr::AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, Aur
         if (found != mSpellSameEffectStack.end())
         {
             // check auraTypes
-            if (!found->second.count(uint32(auraType)))
+            if (!found->second.count(auraType))
                 continue;
 
             // Put the highest amount in the map

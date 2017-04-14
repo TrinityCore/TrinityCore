@@ -55,7 +55,6 @@ struct SpellScalingEntry;
 struct SpellShapeshiftEntry;
 struct SpellTargetRestrictionsEntry;
 struct SpellTotemsEntry;
-enum AuraType;
 
 // only used in code
 enum SpellCategories
@@ -671,7 +670,7 @@ class TC_GAME_API SpellMgr
         void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells, std::set<SpellGroup>& usedGroups) const;
 
         // Spell Group Stack Rules table
-        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, AuraType auraType, int32 amount, std::map<SpellGroup, int32>& groups) const;
+        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, uint32 auraType, int32 amount, std::map<SpellGroup, int32>& groups) const;
         SpellGroupStackRule CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const;
         SpellGroupStackRule GetSpellGroupStackRule(SpellGroup groupid) const;
 
