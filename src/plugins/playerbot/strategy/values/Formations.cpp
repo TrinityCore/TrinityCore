@@ -38,6 +38,17 @@ namespace ai
             float x = master->GetPositionX() + cos(angle) * range;
             float y = master->GetPositionY() + sin(angle) * range;
             float z = master->GetPositionZ();
+			if (master->isMoving()) {
+				float ori = master->GetOrientation();
+				float x1 = x + sPlayerbotAIConfig.tooCloseDistance * cos(ori);
+				float y1 = y + sPlayerbotAIConfig.tooCloseDistance * sin(ori);
+				float ground = master->GetMap()->GetHeight(x1, y1, z + 0.5f);
+				if (ground > INVALID_HEIGHT)
+				{
+					x = x1;
+					y = y1;
+				}
+			}
             float ground = master->GetMap()->GetHeight(x, y, z + 0.5f);
             if (ground <= INVALID_HEIGHT)
                 return Formation::NullLocation;
