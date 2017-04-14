@@ -2347,8 +2347,8 @@ void World::Update(uint32 diff)
         ///- Handle expired auctions
         sAuctionMgr->Update();
 
-        // ahbot mod (DMANBOB DISABLE ike3 AHbot) 
-		//auctionbot.Update();
+        // ahbot mod
+        auctionbot.Update();
     }
 
     // playerbot mod
@@ -2361,13 +2361,13 @@ void World::Update(uint32 diff)
 
         sAuctionMgr->UpdatePendingAuctions();
     }
-	// DMANBOB Restore Trinity AHBOT use worldserver.conf to enable or diasble AHbot
+
     /// <li> Handle AHBot operations
-	if (m_timers[WUPDATE_AHBOT].Passed())
-	{
-		sAuctionBot->Update();
-		m_timers[WUPDATE_AHBOT].Reset();
-	}
+    // if (m_timers[WUPDATE_AHBOT].Passed())
+    //{
+    //    sAuctionBot->Update();
+    //    m_timers[WUPDATE_AHBOT].Reset();
+    //}
     // end of playerbot mod
 
     /// <li> Handle file changes
