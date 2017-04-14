@@ -228,13 +228,13 @@ enum WorldIntConfigs
     CONFIG_CHARACTER_CREATING_DISABLED_CLASSMASK,
     CONFIG_CHARACTERS_PER_ACCOUNT,
     CONFIG_CHARACTERS_PER_REALM,
-    CONFIG_HEROIC_CHARACTERS_PER_REALM,
-    CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER,
+    CONFIG_DEATH_KNIGHTS_PER_REALM,
+    CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT,
     CONFIG_SKIP_CINEMATICS,
     CONFIG_MAX_PLAYER_LEVEL,
     CONFIG_MIN_DUALSPEC_LEVEL,
     CONFIG_START_PLAYER_LEVEL,
-    CONFIG_START_HEROIC_PLAYER_LEVEL,
+    CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL,
     CONFIG_START_PLAYER_MONEY,
     CONFIG_MAX_HONOR_POINTS,
     CONFIG_START_HONOR_POINTS,
@@ -331,7 +331,7 @@ enum WorldIntConfigs
     CONFIG_CHARDELETE_KEEP_DAYS,
     CONFIG_CHARDELETE_METHOD,
     CONFIG_CHARDELETE_MIN_LEVEL,
-    CONFIG_CHARDELETE_HEROIC_MIN_LEVEL,
+    CONFIG_CHARDELETE_DEATH_KNIGHT_MIN_LEVEL,
     CONFIG_AUTOBROADCAST_CENTER,
     CONFIG_AUTOBROADCAST_INTERVAL,
     CONFIG_MAX_RESULTS_LOOKUP_COMMANDS,
@@ -615,11 +615,6 @@ class TC_GAME_API World
         /// Allow/Disallow object movements
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
 
-        /// Set a new Message of the Day
-        void SetMotd(std::string const& motd);
-        /// Get the current Message of the Day
-        const char* GetMotd() const;
-
         /// Set the string for new characters (first login)
         void SetNewCharString(std::string const& str) { m_newCharString = str; }
         /// Get the string for new characters (first login)
@@ -816,7 +811,6 @@ class TC_GAME_API World
         uint32 m_availableDbcLocaleMask;                       // by loaded DBC
         void DetectDBCLang();
         bool m_allowMovement;
-        std::string m_motd;
         std::string m_dataPath;
 
         // for max speed access

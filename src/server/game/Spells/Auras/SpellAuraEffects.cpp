@@ -395,24 +395,26 @@ AuraEffect::~AuraEffect()
     delete m_spellmod;
 }
 
-void AuraEffect::GetTargetList(std::list<Unit*> & targetList) const
+template <typename Container>
+void AuraEffect::GetTargetList(Container& targetContainer) const
 {
-    Aura::ApplicationMap const & targetMap = GetBase()->GetApplicationMap();
+    Aura::ApplicationMap const& targetMap = GetBase()->GetApplicationMap();
     // remove all targets which were not added to new list - they no longer deserve area aura
-    for (Aura::ApplicationMap::const_iterator appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
+    for (auto appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
     {
         if (appIter->second->HasEffect(GetEffIndex()))
-            targetList.push_back(appIter->second->GetTarget());
+            targetContainer.push_back(appIter->second->GetTarget());
     }
 }
 
-void AuraEffect::GetApplicationList(std::list<AuraApplication*> & applicationList) const
+template <typename Container>
+void AuraEffect::GetApplicationList(Container& applicationContainer) const
 {
-    Aura::ApplicationMap const & targetMap = GetBase()->GetApplicationMap();
-    for (Aura::ApplicationMap::const_iterator appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
+    Aura::ApplicationMap const& targetMap = GetBase()->GetApplicationMap();
+    for (auto appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
     {
         if (appIter->second->HasEffect(GetEffIndex()))
-            applicationList.push_back(appIter->second);
+            applicationContainer.push_back(appIter->second);
     }
 }
 
@@ -605,12 +607,14 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
     if (!handleMask)
         return;
 
-    std::list<AuraApplication*> effectApplications;
+    std::vector<AuraApplication*> effectApplications;
     GetApplicationList(effectApplications);
 
-    for (std::list<AuraApplication*>::const_iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
-        if ((*apptItr)->HasEffect(GetEffIndex()))
-            HandleEffect(*apptItr, handleMask, false);
+    for (AuraApplication* aurApp : effectApplications)
+    {
+        aurApp->GetTarget()->_RegisterAuraEffect(this, false);
+        HandleEffect(aurApp, handleMask, false);
+    }
 
     if (handleMask & AURA_EFFECT_HANDLE_CHANGE_AMOUNT)
     {
@@ -621,9 +625,14 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
         CalculateSpellMod();
     }
 
-    for (std::list<AuraApplication*>::const_iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
-        if ((*apptItr)->HasEffect(GetEffIndex()))
-            HandleEffect(*apptItr, handleMask, true);
+    for (AuraApplication* aurApp : effectApplications)
+    {
+        if (aurApp->GetRemoveMode() != AURA_REMOVE_NONE)
+            continue;
+
+        aurApp->GetTarget()->_RegisterAuraEffect(this, true);
+        HandleEffect(aurApp, handleMask, true);
+    }
 }
 
 void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
@@ -750,12 +759,12 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
             m_periodicTimer += m_amplitude - diff;
             UpdatePeriodic(caster);
 
-            std::list<AuraApplication*> effectApplications;
+            std::vector<AuraApplication*> effectApplications;
             GetApplicationList(effectApplications);
+
             // tick on targets of effects
-            for (std::list<AuraApplication*>::const_iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
-                if ((*apptItr)->HasEffect(GetEffIndex()))
-                    PeriodicTick(*apptItr, caster);
+            for (AuraApplication* aurApp : effectApplications)
+                PeriodicTick(aurApp, caster);
         }
     }
 }
@@ -3683,24 +3692,32 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
         return;
 
     Unit* target = aurApp->GetTarget();
-
     Powers powerType = Powers(GetMiscValue());
-
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
+
+    uint32 curPower = target->GetPower(powerType);
+    uint32 oldMaxPower = target->GetMaxPower(powerType);
 
     if (apply)
     {
         float amount = float(GetAmount());
         target->ApplyStatPctModifier(unitMod, TOTAL_PCT, amount);
-
-        float power = target->GetMaxPower(powerType);
-        AddPct(power, amount);
-        target->ModifyPower(powerType, (int32)power - (int32)target->GetMaxPower(powerType));
     }
     else
     {
         float amount = target->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT, GetMiscValue());
         target->SetStatPctModifier(unitMod, TOTAL_PCT, amount);
+    }
+
+    int32 dmax = ((int32)target->GetMaxPower(powerType)) - oldMaxPower;
+    if (dmax >= 0) // increase current power by dmax on both buff application and debuff removal
+        target->SetPower(powerType, curPower + dmax);
+    else if (apply) // do not reduce current power on buff removal (Hymn of Hope et al), but reduce it on debuff application (Aura of Desire)
+    {
+        if ((uint32)(-dmax) <= curPower)
+            target->SetPower(powerType, curPower + dmax);
+        else
+            target->SetPower(powerType, 0);
     }
 }
 
@@ -6248,3 +6265,11 @@ void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurA
     TC_LOG_DEBUG("spells", "AuraEffect::HandleRaidProcFromChargeWithValueAuraProc: Triggering spell %u from aura %u proc", triggerSpellId, GetId());
     target->CastCustomSpell(target, triggerSpellId, &value, NULL, NULL, true, NULL, this, GetCasterGUID());
 }
+
+template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;
+template TC_GAME_API void AuraEffect::GetTargetList(std::deque<Unit*>&) const;
+template TC_GAME_API void AuraEffect::GetTargetList(std::vector<Unit*>&) const;
+
+template TC_GAME_API void AuraEffect::GetApplicationList(std::list<AuraApplication*>&) const;
+template TC_GAME_API void AuraEffect::GetApplicationList(std::deque<AuraApplication*>&) const;
+template TC_GAME_API void AuraEffect::GetApplicationList(std::vector<AuraApplication*>&) const;

@@ -21,13 +21,14 @@
 
 #define DataHeader "SK"
 
-enum DataTypes
+enum SKDataTypes
 {
     TYPE_FREE_NPC               = 1,
     TYPE_RETHILGORE             = 2,
     TYPE_FENRUS                 = 3,
     TYPE_NANDOS                 = 4,
-    BOSS_ARUGAL                 = 5
+    BOSS_ARUGAL                 = 5,
+    DATA_APOTHECARY_HUMMEL      = 6
 };
 
 #endif

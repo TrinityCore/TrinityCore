@@ -526,53 +526,55 @@ enum DeathState
     JUST_RESPAWNED = 4
 };
 
-enum UnitState
+enum UnitState : uint32
 {
-    UNIT_STATE_DIED            = 0x00000001,                     // player has fake death aura
-    UNIT_STATE_MELEE_ATTACKING = 0x00000002,                     // player is melee attacking someone
-    //UNIT_STATE_MELEE_ATTACK_BY = 0x00000004,                     // player is melee attack by someone
-    UNIT_STATE_STUNNED         = 0x00000008,
-    UNIT_STATE_ROAMING         = 0x00000010,
-    UNIT_STATE_CHASE           = 0x00000020,
-    //UNIT_STATE_SEARCHING       = 0x00000040,
-    UNIT_STATE_FLEEING         = 0x00000080,
-    UNIT_STATE_IN_FLIGHT       = 0x00000100,                     // player is in flight mode
-    UNIT_STATE_FOLLOW          = 0x00000200,
-    UNIT_STATE_ROOT            = 0x00000400,
-    UNIT_STATE_CONFUSED        = 0x00000800,
-    UNIT_STATE_DISTRACTED      = 0x00001000,
-    UNIT_STATE_ISOLATED        = 0x00002000,                     // area auras do not affect other players
-    UNIT_STATE_ATTACK_PLAYER   = 0x00004000,
-    UNIT_STATE_CASTING         = 0x00008000,
-    UNIT_STATE_POSSESSED       = 0x00010000,
-    UNIT_STATE_CHARGING        = 0x00020000,
-    UNIT_STATE_JUMPING         = 0x00040000,
-    UNIT_STATE_MOVE            = 0x00100000,
-    UNIT_STATE_ROTATING        = 0x00200000,
-    UNIT_STATE_EVADE           = 0x00400000,
-    UNIT_STATE_ROAMING_MOVE    = 0x00800000,
-    UNIT_STATE_CONFUSED_MOVE   = 0x01000000,
-    UNIT_STATE_FLEEING_MOVE    = 0x02000000,
-    UNIT_STATE_CHASE_MOVE      = 0x04000000,
-    UNIT_STATE_FOLLOW_MOVE     = 0x08000000,
-    UNIT_STATE_IGNORE_PATHFINDING = 0x10000000,                 // do not use pathfinding in any MovementGenerator
+    UNIT_STATE_DIED                = 0x00000001,                     // player has fake death aura
+    UNIT_STATE_MELEE_ATTACKING     = 0x00000002,                     // player is melee attacking someone
+    //UNIT_STATE_MELEE_ATTACK_BY   = 0x00000004,                     // player is melee attack by someone
+    UNIT_STATE_STUNNED             = 0x00000008,
+    UNIT_STATE_ROAMING             = 0x00000010,
+    UNIT_STATE_CHASE               = 0x00000020,
+    //UNIT_STATE_SEARCHING         = 0x00000040,
+    UNIT_STATE_FLEEING             = 0x00000080,
+    UNIT_STATE_IN_FLIGHT           = 0x00000100,                     // player is in flight mode
+    UNIT_STATE_FOLLOW              = 0x00000200,
+    UNIT_STATE_ROOT                = 0x00000400,
+    UNIT_STATE_CONFUSED            = 0x00000800,
+    UNIT_STATE_DISTRACTED          = 0x00001000,
+    UNIT_STATE_ISOLATED            = 0x00002000,                     // area auras do not affect other players
+    UNIT_STATE_ATTACK_PLAYER       = 0x00004000,
+    UNIT_STATE_CASTING             = 0x00008000,
+    UNIT_STATE_POSSESSED           = 0x00010000,
+    UNIT_STATE_CHARGING            = 0x00020000,
+    UNIT_STATE_JUMPING             = 0x00040000,
+    UNIT_STATE_MOVE                = 0x00100000,
+    UNIT_STATE_ROTATING            = 0x00200000,
+    UNIT_STATE_EVADE               = 0x00400000,
+    UNIT_STATE_ROAMING_MOVE        = 0x00800000,
+    UNIT_STATE_CONFUSED_MOVE       = 0x01000000,
+    UNIT_STATE_FLEEING_MOVE        = 0x02000000,
+    UNIT_STATE_CHASE_MOVE          = 0x04000000,
+    UNIT_STATE_FOLLOW_MOVE         = 0x08000000,
+    UNIT_STATE_IGNORE_PATHFINDING  = 0x10000000,                 // do not use pathfinding in any MovementGenerator
+
     UNIT_STATE_ALL_STATE_SUPPORTED = UNIT_STATE_DIED | UNIT_STATE_MELEE_ATTACKING | UNIT_STATE_STUNNED | UNIT_STATE_ROAMING | UNIT_STATE_CHASE
                                    | UNIT_STATE_FLEEING | UNIT_STATE_IN_FLIGHT | UNIT_STATE_FOLLOW | UNIT_STATE_ROOT | UNIT_STATE_CONFUSED
                                    | UNIT_STATE_DISTRACTED | UNIT_STATE_ISOLATED | UNIT_STATE_ATTACK_PLAYER | UNIT_STATE_CASTING
                                    | UNIT_STATE_POSSESSED | UNIT_STATE_CHARGING | UNIT_STATE_JUMPING | UNIT_STATE_MOVE | UNIT_STATE_ROTATING
                                    | UNIT_STATE_EVADE | UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE
                                    | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE | UNIT_STATE_IGNORE_PATHFINDING,
-    UNIT_STATE_UNATTACKABLE    = UNIT_STATE_IN_FLIGHT,
-    // for real move using movegen check and stop (except unstoppable flight)
-    UNIT_STATE_MOVING          = UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE,
-    UNIT_STATE_CONTROLLED      = (UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING),
-    UNIT_STATE_LOST_CONTROL    = (UNIT_STATE_CONTROLLED | UNIT_STATE_JUMPING | UNIT_STATE_CHARGING),
-    UNIT_STATE_SIGHTLESS       = (UNIT_STATE_LOST_CONTROL | UNIT_STATE_EVADE),
-    UNIT_STATE_CANNOT_AUTOATTACK     = (UNIT_STATE_LOST_CONTROL | UNIT_STATE_CASTING),
-    UNIT_STATE_CANNOT_TURN     = (UNIT_STATE_LOST_CONTROL | UNIT_STATE_ROTATING),
-    // stay by different reasons
-    UNIT_STATE_NOT_MOVE        = UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DIED | UNIT_STATE_DISTRACTED,
-    UNIT_STATE_ALL_STATE       = 0xffffffff                      //(UNIT_STATE_STOPPED | UNIT_STATE_MOVING | UNIT_STATE_IN_COMBAT | UNIT_STATE_IN_FLIGHT)
+
+    UNIT_STATE_UNATTACKABLE        = UNIT_STATE_IN_FLIGHT,
+    UNIT_STATE_MOVING              = UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE,
+    UNIT_STATE_CONTROLLED          = UNIT_STATE_CONFUSED | UNIT_STATE_STUNNED | UNIT_STATE_FLEEING,
+    UNIT_STATE_LOST_CONTROL        = UNIT_STATE_CONTROLLED | UNIT_STATE_JUMPING | UNIT_STATE_CHARGING,
+    UNIT_STATE_SIGHTLESS           = UNIT_STATE_LOST_CONTROL | UNIT_STATE_EVADE,
+    UNIT_STATE_CANNOT_AUTOATTACK   = UNIT_STATE_LOST_CONTROL | UNIT_STATE_CASTING,
+    UNIT_STATE_CANNOT_TURN         = UNIT_STATE_LOST_CONTROL | UNIT_STATE_ROTATING,
+    UNIT_STATE_NOT_MOVE            = UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DIED | UNIT_STATE_DISTRACTED,
+
+    UNIT_STATE_ALL_ERASABLE        = UNIT_STATE_ALL_STATE_SUPPORTED & ~(UNIT_STATE_IGNORE_PATHFINDING),
+    UNIT_STATE_ALL_STATE           = 0xffffffff
 };
 
 enum UnitMoveType
@@ -1304,7 +1306,7 @@ class TC_GAME_API Unit : public WorldObject
 
         DiminishingLevels GetDiminishing(DiminishingGroup group);
         void IncrDiminishing(SpellInfo const* auraSpellInfo, bool triggered);
-        float ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool triggered, int32& duration, Unit* caster, DiminishingLevels previousLevel);
+        bool ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool triggered, int32& duration, Unit* caster, DiminishingLevels previousLevel) const;
         void ApplyDiminishingAura(DiminishingGroup group, bool apply);
         void ClearDiminishings();
 
@@ -1321,7 +1323,7 @@ class TC_GAME_API Unit : public WorldObject
         bool haveOffhandWeapon() const;
         bool CanDualWield() const { return m_canDualWield; }
         virtual void SetCanDualWield(bool value) { m_canDualWield = value; }
-        float GetCombatReach() const { return m_floatValues[UNIT_FIELD_COMBATREACH]; }
+        float GetCombatReach() const override { return m_floatValues[UNIT_FIELD_COMBATREACH]; }
         bool IsWithinCombatRange(const Unit* obj, float dist2compare) const;
         bool IsWithinMeleeRange(Unit const* obj) const;
         float GetMeleeRange(Unit const* target) const;
@@ -1385,7 +1387,7 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetResistance(SpellSchools school) const { return GetUInt32Value(UNIT_FIELD_RESISTANCES+school); }
         uint32 GetResistance(SpellSchoolMask mask) const;
         void SetResistance(SpellSchools school, int32 val) { SetStatInt32Value(UNIT_FIELD_RESISTANCES+school, val); }
-        static float GetEffectiveResistChance(Unit const* owner, SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr);
+        float CalculateAverageResistReduction(SpellSchoolMask schoolMask, Unit const* victim, SpellInfo const* spellInfo = nullptr) const;
 
         uint32 GetHealth()    const { return GetUInt32Value(UNIT_FIELD_HEALTH); }
         uint32 GetMaxHealth() const { return GetUInt32Value(UNIT_FIELD_MAXHEALTH); }
@@ -1459,7 +1461,7 @@ class TC_GAME_API Unit : public WorldObject
         void Mount(uint32 mount, uint32 vehicleId = 0, uint32 creatureEntry = 0);
         void Dismount();
 
-        uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
+        uint32 GetMaxSkillValueForLevel(Unit const* target = nullptr) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit const* victim, uint32 &damage, uint32* absorb) const;
         uint32 DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage = NULL, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = NULL, bool durabilityLoss = true);
         void Kill(Unit* victim, bool durabilityLoss = true);
@@ -1520,7 +1522,6 @@ class TC_GAME_API Unit : public WorldObject
 
         virtual uint32 GetShieldBlockValue() const = 0;
         uint32 GetShieldBlockValue(uint32 soft_cap, uint32 hard_cap) const;
-        uint32 GetUnitMeleeSkill(Unit const* target = nullptr) const;
         uint32 GetDefenseSkillValue(Unit const* target = nullptr) const;
         uint32 GetWeaponSkillValue(WeaponAttackType attType, Unit const* target = nullptr) const;
         float GetWeaponProcChance() const;
@@ -2132,7 +2133,7 @@ class TC_GAME_API Unit : public WorldObject
         void SendPetAIReaction(ObjectGuid guid);
         ///----------End of Pet responses methods----------
 
-        void propagateSpeedChange() { GetMotionMaster()->propagateSpeedChange(); }
+        void PropagateSpeedChange() { GetMotionMaster()->PropagateSpeedChange(); }
 
         // reactive attacks
         void ClearAllReactives();

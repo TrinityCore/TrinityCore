@@ -186,7 +186,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (IsCritter())
     {
         float px, py, pz;
-        owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
+        owner->GetClosePoint(px, py, pz, GetCombatReach(), PET_FOLLOW_DIST, GetFollowAngle());
         Relocate(px, py, pz, owner->GetOrientation());
 
         if (!IsPositionValid())
@@ -245,7 +245,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     // Set pet's position after setting level, its size depends on it
     float px, py, pz;
-    owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
+    owner->GetClosePoint(px, py, pz, GetCombatReach(), PET_FOLLOW_DIST, GetFollowAngle());
     Relocate(px, py, pz, owner->GetOrientation());
     if (!IsPositionValid())
     {
@@ -369,6 +369,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
         owner->ToPlayer()->SetLastPetNumber(petId);
 
+    // must be after SetMinion (owner guid check)
+    LoadMechanicTemplateImmunity();
     m_loading = false;
 
     return true;

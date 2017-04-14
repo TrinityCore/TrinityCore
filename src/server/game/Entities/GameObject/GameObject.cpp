@@ -1954,6 +1954,15 @@ void GameObject::EventInform(uint32 eventId, WorldObject* invoker /*= nullptr*/)
             bgMap->GetBG()->ProcessEvent(this, eventId, invoker);
 }
 
+uint32 GameObject::GetScriptId() const
+{
+    if (GameObjectData const* gameObjectData = GetGOData())
+        if (uint32 scriptId = gameObjectData->ScriptId)
+            return scriptId;
+
+    return GetGOInfo()->ScriptId;
+}
+
 // overwrite WorldObject function for proper name localization
 std::string const & GameObject::GetNameForLocaleIdx(LocaleConstant loc_idx) const
 {

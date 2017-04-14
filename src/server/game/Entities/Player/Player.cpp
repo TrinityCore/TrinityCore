@@ -54,6 +54,7 @@
 #include "LFGMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "LootItemStorage.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -684,7 +685,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     // set starting level
     uint32 start_level = getClass() != CLASS_DEATH_KNIGHT
         ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
-        : sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
+        : sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL);
 
     if (m_session->HasPermission(rbac::RBAC_PERM_USE_START_GM_LEVEL))
     {
@@ -3325,7 +3326,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
 
             if (active)
             {
-                if (spellInfo->IsPassive() && IsNeedCastPassiveSpellAtLearn(spellInfo))
+                if (spellInfo->IsPassive() && HandlePassiveSpellLearn(spellInfo))
                     CastSpell(this, spellId, true);
             }
             else if (IsInWorld())
@@ -3470,7 +3471,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     // also cast passive spells (including all talents without SPELL_EFFECT_LEARN_SPELL) with additional checks
     else if (spellInfo->IsPassive())
     {
-        if (IsNeedCastPassiveSpellAtLearn(spellInfo))
+        if (HandlePassiveSpellLearn(spellInfo))
             CastSpell(this, spellId, true);
     }
     else if (spellInfo->HasEffect(SPELL_EFFECT_SKILL_STEP))
@@ -3592,7 +3593,7 @@ void Player::RemoveTemporarySpell(uint32 spellId)
     m_spells.erase(itr);
 }
 
-bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
+bool Player::HandlePassiveSpellLearn(SpellInfo const* spellInfo)
 {
     // note: form passives activated with shapeshift spells be implemented by HandleShapeshiftBoosts instead of spell_learn_spell
     // talent dependent passives activated at form apply have proper stance data
@@ -3601,12 +3602,18 @@ bool Player::IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const
         (!form && spellInfo->HasAttribute(SPELL_ATTR2_NOT_NEED_SHAPESHIFT)));
 
     // Check EquippedItemClass
-    // passive spells which apply aura and have an item requirement are to be added in Player::ApplyItemDependentAuras
-    if (spellInfo->IsPassive() && spellInfo->EquippedItemClass >= 0)
+    // passive spells which apply aura and have an item requirement are to be added manually, instead of casted
+    if (spellInfo->EquippedItemClass >= 0)
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
             if (spellInfo->Effects[i].IsAura())
+            {
+                if (!HasAura(spellInfo->Id) && HasItemFitToSpellRequirements(spellInfo))
+                    AddAura(spellInfo->Id, this);
                 return false;
+            }
+        }
     }
 
     //Check CasterAuraStates
@@ -4233,7 +4240,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
     else if (characterInfo)    // To avoid a query, we select loaded data. If it doesn't exist, return.
     {
         // Define the required variables
-        uint32 charDelete_minLvl = sWorld->getIntConfig(characterInfo->Class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
+        uint32 charDelete_minLvl = sWorld->getIntConfig(characterInfo->Class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_DEATH_KNIGHT_MIN_LEVEL);
 
         // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
         // we set it to mode CHAR_DELETE_REMOVE
@@ -8618,9 +8625,12 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
         loot = &item->loot;
 
+        // Store container id
+        loot->containerID = item->GetGUID().GetCounter();
+
         // If item doesn't already have loot, attempt to load it. If that
-        //  fails then this is first time opening, generate loot
-        if (!item->m_lootGenerated && !item->ItemContainerLoadLootFromDB())
+        // fails then this is first time opening, generate loot
+        if (!item->m_lootGenerated && !sLootItemStorage->LoadStoredLoot(item, this))
         {
             item->m_lootGenerated = true;
             loot->clear();
@@ -8643,7 +8653,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                     // Force save the loot and money items that were just rolled
                     //  Also saves the container item ID in Loot struct (not to DB)
                     if (loot->gold > 0 || loot->unlootedCount > 0)
-                        item->ItemContainerSaveLootToDB();
+                        sLootItemStorage->AddNewStoredLoot(loot, this);
 
                     break;
             }
@@ -12486,6 +12496,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
         sScriptMgr->OnItemRemove(this, pItem);
 
+        ItemTemplate const* pProto = pItem->GetTemplate();
         if (bag == INVENTORY_SLOT_BAG_0)
         {
             SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), ObjectGuid::Empty);
@@ -12493,7 +12504,6 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
             // equipment and equipped bags can have applied bonuses
             if (slot < INVENTORY_SLOT_BAG_END)
             {
-                ItemTemplate const* pProto = pItem->GetTemplate();
 
                 // item set bonuses applied only at equip and removed at unequip, and still active for broken items
                 if (pProto && pProto->ItemSet)
@@ -12531,9 +12541,8 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         // Delete rolled money / loot from db.
         // MUST be done before RemoveFromWorld() or GetTemplate() fails
-        if (ItemTemplate const* pTmp = pItem->GetTemplate())
-            if (pTmp->Flags & ITEM_FLAG_HAS_LOOT)
-                pItem->ItemContainerDeleteLootMoneyAndLootItemsFromDB();
+        if (pProto->Flags & ITEM_FLAG_HAS_LOOT)
+            sLootItemStorage->RemoveStoredLootForContainer(pItem->GetGUID().GetCounter());
 
         if (IsInWorld() && update)
         {
@@ -13285,7 +13294,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             {
                 if (Item* bagItem = bag->GetItemByPos(i))
                 {
-                    if (bagItem->m_lootGenerated)
+                    if (bagItem->GetGUID() == GetLootGUID())
                     {
                         m_session->DoLootRelease(GetLootGUID());
                         released = true;                    // so we don't need to look at dstBag
@@ -13302,7 +13311,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             {
                 if (Item* bagItem = bag->GetItemByPos(i))
                 {
-                    if (bagItem->m_lootGenerated)
+                    if (bagItem->GetGUID() == GetLootGUID())
                     {
                         m_session->DoLootRelease(GetLootGUID());
                         break;
@@ -13390,7 +13399,13 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
         {
             pItem->RemoveFromWorld();
             if (del)
+            {
+                if (ItemTemplate const* itemTemplate = pItem->GetTemplate())
+                    if (itemTemplate->Flags & ITEM_FLAG_HAS_LOOT)
+                        sLootItemStorage->RemoveStoredLootForContainer(pItem->GetGUID().GetCounter());
+
                 pItem->SetState(ITEM_REMOVED, this);
+            }
         }
 
         m_items[slot] = nullptr;
@@ -14741,8 +14756,8 @@ bool Player::CanSeeStartQuest(Quest const* quest)
 {
     if (!DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this) && SatisfyQuestClass(quest, false) && SatisfyQuestRace(quest, false) &&
         SatisfyQuestSkill(quest, false) && SatisfyQuestExclusiveGroup(quest, false) && SatisfyQuestReputation(quest, false) &&
-        SatisfyQuestPreviousQuest(quest, false) && SatisfyQuestNextChain(quest, false) &&
-        SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
+        SatisfyQuestDependentQuests(quest, false) && SatisfyQuestNextChain(quest, false) &&
+        SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
         SatisfyQuestMonth(quest, false) && SatisfyQuestSeasonal(quest, false))
     {
         return getLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF) >= quest->GetMinLevel();
@@ -14757,8 +14772,8 @@ bool Player::CanTakeQuest(Quest const* quest, bool msg)
         && SatisfyQuestStatus(quest, msg) && SatisfyQuestExclusiveGroup(quest, msg)
         && SatisfyQuestClass(quest, msg) && SatisfyQuestRace(quest, msg) && SatisfyQuestLevel(quest, msg)
         && SatisfyQuestSkill(quest, msg) && SatisfyQuestReputation(quest, msg)
-        && SatisfyQuestPreviousQuest(quest, msg) && SatisfyQuestTimed(quest, msg)
-        && SatisfyQuestNextChain(quest, msg) && SatisfyQuestPrevChain(quest, msg)
+        && SatisfyQuestDependentQuests(quest, msg) && SatisfyQuestTimed(quest, msg)
+        && SatisfyQuestNextChain(quest, msg)
         && SatisfyQuestDay(quest, msg) && SatisfyQuestWeek(quest, msg)
         && SatisfyQuestMonth(quest, msg) && SatisfyQuestSeasonal(quest, msg)
         && SatisfyQuestConditions(quest, msg);
@@ -15464,97 +15479,90 @@ bool Player::SatisfyQuestLog(bool msg) const
     return false;
 }
 
-bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestDependentQuests(Quest const* qInfo, bool msg) const
+{
+    return SatisfyQuestPreviousQuest(qInfo, msg) && SatisfyQuestDependentPreviousQuests(qInfo, msg);
+}
+
+bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg) const
 {
     // No previous quest (might be first quest in a series)
-    if (qInfo->prevQuests.empty())
+    if (!qInfo->GetPrevQuestId())
         return true;
 
-    for (Quest::PrevQuests::const_iterator iter = qInfo->prevQuests.begin(); iter != qInfo->prevQuests.end(); ++iter)
-    {
-        uint32 prevId = abs(*iter);
+    uint32 prevId = std::abs(qInfo->GetPrevQuestId());
+    // If positive previous quest rewarded, return true
+    if (qInfo->GetPrevQuestId() > 0 && m_RewardedQuests.count(prevId) > 0)
+        return true;
 
-        Quest const* qPrevInfo = sObjectMgr->GetQuestTemplate(prevId);
+    // If negative previous quest active, return true
+    if (qInfo->GetPrevQuestId() < 0 && GetQuestStatus(prevId) == QUEST_STATUS_INCOMPLETE)
+        return true;
 
-        if (qPrevInfo)
-        {
-            // If any of the positive previous quests completed, return true
-            if (*iter > 0 && m_RewardedQuests.find(prevId) != m_RewardedQuests.end())
-            {
-                // skip one-from-all exclusive group
-                if (qPrevInfo->GetExclusiveGroup() >= 0)
-                    return true;
-
-                // each-from-all exclusive group (< 0)
-                // can be start if only all quests in prev quest exclusive group completed and rewarded
-                ObjectMgr::ExclusiveQuestGroupsBounds range(sObjectMgr->mExclusiveQuestGroups.equal_range(qPrevInfo->GetExclusiveGroup()));
-
-                for (; range.first != range.second; ++range.first)
-                {
-                    uint32 exclude_Id = range.first->second;
-
-                    // skip checked quest id, only state of other quests in group is interesting
-                    if (exclude_Id == prevId)
-                        continue;
-
-                    // alternative quest from group also must be completed and rewarded (reported)
-                    if (m_RewardedQuests.find(exclude_Id) == m_RewardedQuests.end())
-                    {
-                        if (msg)
-                        {
-                            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
-                            TC_LOG_DEBUG("misc", "Player::SatisfyQuestPreviousQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because player '%s' (%s) doesn't have the required quest (1).",
-                                qInfo->GetQuestId(), GetName().c_str(), GetGUID().ToString().c_str());
-                        }
-                        return false;
-                    }
-                }
-                return true;
-            }
-
-            // If any of the negative previous quests active, return true
-            if (*iter < 0 && GetQuestStatus(prevId) != QUEST_STATUS_NONE)
-            {
-                // skip one-from-all exclusive group
-                if (qPrevInfo->GetExclusiveGroup() >= 0)
-                    return true;
-
-                // each-from-all exclusive group (< 0)
-                // can be start if only all quests in prev quest exclusive group active
-                ObjectMgr::ExclusiveQuestGroupsBounds range(sObjectMgr->mExclusiveQuestGroups.equal_range(qPrevInfo->GetExclusiveGroup()));
-
-                for (; range.first != range.second; ++range.first)
-                {
-                    uint32 exclude_Id = range.first->second;
-
-                    // skip checked quest id, only state of other quests in group is interesting
-                    if (exclude_Id == prevId)
-                        continue;
-
-                    // alternative quest from group also must be active
-                    if (GetQuestStatus(exclude_Id) != QUEST_STATUS_NONE)
-                    {
-                        if (msg)
-                        {
-                            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
-                            TC_LOG_DEBUG("misc", "Player::SatisfyQuestPreviousQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because player '%s' (%s) doesn't have the required quest (2).",
-                                qInfo->GetQuestId(), GetName().c_str(), GetGUID().ToString().c_str());
-
-                        }
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
-    }
-
-    // Has only positive prev. quests in non-rewarded state
-    // and negative prev. quests in non-active state
+    // Has positive prev. quest in non-rewarded state
+    // and negative prev. quest in non-active state
     if (msg)
     {
         SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
-        TC_LOG_DEBUG("misc", "Player::SatisfyQuestPreviousQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because player '%s' (%s) doesn't have required quest (3).",
+        TC_LOG_DEBUG("misc", "Player::SatisfyQuestPreviousQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because player '%s' (%s) doesn't have required quest %u.",
+            qInfo->GetQuestId(), GetName().c_str(), GetGUID().ToString().c_str(), prevId);
+    }
+
+    return false;
+}
+
+bool Player::SatisfyQuestDependentPreviousQuests(Quest const* qInfo, bool msg) const
+{
+    // No previous quest (might be first quest in a series)
+    if (qInfo->DependentPreviousQuests.empty())
+        return true;
+
+    for (uint32 prevId : qInfo->DependentPreviousQuests)
+    {
+        // checked in startup
+        Quest const* questInfo = sObjectMgr->GetQuestTemplate(prevId);
+        ASSERT(questInfo);
+
+        // If any of the previous quests completed, return true
+        if (IsQuestRewarded(prevId))
+        {
+            // skip one-from-all exclusive group
+            if (questInfo->GetExclusiveGroup() >= 0)
+                return true;
+
+            // each-from-all exclusive group (< 0)
+            // can be start if only all quests in prev quest exclusive group completed and rewarded
+            auto bounds = sObjectMgr->GetExclusiveQuestGroupBounds(questInfo->GetExclusiveGroup());
+            for (auto itr = bounds.first; itr != bounds.second; ++itr)
+            {
+                // skip checked quest id, only state of other quests in group is interesting
+                uint32 exclusiveQuestId = itr->second;
+                if (exclusiveQuestId == prevId)
+                    continue;
+
+                // alternative quest from group also must be completed and rewarded (reported)
+                if (!IsQuestRewarded(exclusiveQuestId))
+                {
+                    if (msg)
+                    {
+                        SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+                        TC_LOG_DEBUG("misc", "Player::SatisfyQuestDependentPreviousQuests: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because player '%s' (%s) doesn't have the required quest (1).",
+                            qInfo->GetQuestId(), GetName().c_str(), GetGUID().ToString().c_str());
+                    }
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    // Has only prev. quests in non-rewarded state
+    if (msg)
+    {
+        SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+        TC_LOG_DEBUG("misc", "Player::SatisfyQuestDependentPreviousQuests: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because player '%s' (%s) doesn't have required quest (2).",
             qInfo->GetQuestId(), GetName().c_str(), GetGUID().ToString().c_str());
     }
 
@@ -15701,17 +15709,16 @@ bool Player::SatisfyQuestTimed(Quest const* qInfo, bool msg) const
     return true;
 }
 
-bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
+bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg) const
 {
     // non positive exclusive group, if > 0 then can be start if any other quest in exclusive group already started/completed
     if (qInfo->GetExclusiveGroup() <= 0)
         return true;
 
-    ObjectMgr::ExclusiveQuestGroupsBounds range(sObjectMgr->mExclusiveQuestGroups.equal_range(qInfo->GetExclusiveGroup()));
-
-    for (; range.first != range.second; ++range.first)
+    auto bounds = sObjectMgr->GetExclusiveQuestGroupBounds(qInfo->GetExclusiveGroup());
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
     {
-        uint32 exclude_Id = range.first->second;
+        uint32 exclude_Id = itr->second;
 
         // skip checked quest id, only state of other quests in group is interesting
         if (exclude_Id == qInfo->GetQuestId())
@@ -15771,38 +15778,6 @@ bool Player::SatisfyQuestNextChain(Quest const* qInfo, bool msg) const
     return true;
 }
 
-bool Player::SatisfyQuestPrevChain(Quest const* qInfo, bool msg)
-{
-    // No previous quest in chain
-    if (qInfo->prevChainQuests.empty())
-        return true;
-
-    for (Quest::PrevChainQuests::const_iterator iter = qInfo->prevChainQuests.begin(); iter != qInfo->prevChainQuests.end(); ++iter)
-    {
-        QuestStatusMap::const_iterator itr = m_QuestStatus.find(*iter);
-
-        // If any of the previous quests in chain active, return false
-        if (itr != m_QuestStatus.end() && itr->second.Status != QUEST_STATUS_NONE)
-        {
-            if (msg)
-            {
-                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
-                TC_LOG_DEBUG("misc", "Player::SatisfyQuestNextChain: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: %u) because player '%s' (%s) already did or started next quest in chain.",
-                    qInfo->GetQuestId(), GetName().c_str(), GetGUID().ToString().c_str());
-            }
-            return false;
-        }
-
-        // check for all quests further down the chain
-        // only necessary if there are quest chains with more than one quest that can be skipped
-        //if (!SatisfyQuestPrevChain(prevId, msg))
-        //    return false;
-    }
-
-    // No previous quest in chain active
-    return true;
-}
-
 bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg) const
 {
     if (!qInfo->IsDaily() && !qInfo->IsDFQuest())
@@ -15840,7 +15815,7 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg) const
     return true;
 }
 
-bool Player::SatisfyQuestWeek(Quest const* qInfo, bool /*msg*/)
+bool Player::SatisfyQuestWeek(Quest const* qInfo, bool /*msg*/) const
 {
     if (!qInfo->IsWeekly() || m_weeklyquests.empty())
         return true;
@@ -15862,7 +15837,7 @@ bool Player::SatisfyQuestSeasonal(Quest const* qInfo, bool /*msg*/) const
     return itr->second.find(qInfo->GetQuestId()) == itr->second.end();
 }
 
-bool Player::SatisfyQuestMonth(Quest const* qInfo, bool /*msg*/)
+bool Player::SatisfyQuestMonth(Quest const* qInfo, bool /*msg*/) const
 {
     if (!qInfo->IsMonthly() || m_monthlyquests.empty())
         return true;
@@ -18747,7 +18722,8 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
 
     Group* group = GetGroup();
 
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT id, permanent, map, difficulty, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = '%u'", GUID_LOPART(m_guid));
+    //         0          1    2           3            4          5
+    // SELECT id, permanent, map, difficulty, extendState, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = ?
     if (result)
     {
         do
@@ -18760,7 +18736,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             uint8 difficulty = fields[3].GetUInt8();
             BindExtensionState extendState = BindExtensionState(fields[4].GetUInt8());
 
-            time_t resetTime = time_t(fields[5].GetUInt32());
+            time_t resetTime = time_t(fields[5].GetUInt64());
             // the resettime for normal instances is only saved when the InstanceSave is unloaded
             // so the value read from the DB may be wrong here but only if the InstanceSave is loaded
             // and in that case it is not used
@@ -19696,8 +19672,17 @@ void Player::_SaveInventory(SQLTransaction& trans)
     for (uint8 i = BUYBACK_SLOT_START; i < BUYBACK_SLOT_END; ++i)
     {
         Item* item = m_items[i];
-        if (!item || item->GetState() == ITEM_NEW)
+        if (!item)
             continue;
+        
+        if (item->GetState() == ITEM_NEW)
+        {
+            if (ItemTemplate const* itemTemplate = item->GetTemplate())
+                if (itemTemplate->Flags & ITEM_FLAG_HAS_LOOT)
+                    sLootItemStorage->RemoveStoredLootForContainer(item->GetGUID().GetCounter());
+
+            continue;
+        }
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_INVENTORY_BY_ITEM);
         stmt->setUInt32(0, item->GetGUID().GetCounter());
@@ -19707,6 +19692,10 @@ void Player::_SaveInventory(SQLTransaction& trans)
         stmt->setUInt32(0, item->GetGUID().GetCounter());
         trans->Append(stmt);
         m_items[i]->FSetState(ITEM_NEW);
+
+        if (ItemTemplate const* itemTemplate = item->GetTemplate())
+            if (itemTemplate->Flags & ITEM_FLAG_HAS_LOOT)
+                sLootItemStorage->RemoveStoredLootForContainer(item->GetGUID().GetCounter());
     }
 
     // Updated played time for refundable items. We don't do this in Player::Update because there's simply no need for it,
@@ -24754,7 +24743,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
         // LootItem is being removed (looted) from the container, delete it from the DB.
         if (loot->containerID > 0)
-            loot->DeleteLootItemFromContainerItemDB(item->itemid);
+            sLootItemStorage->RemoveStoredLootItemForContainer(loot->containerID, item->itemid, item->count);
 
     }
     else

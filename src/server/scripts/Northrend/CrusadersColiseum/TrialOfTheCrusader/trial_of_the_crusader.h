@@ -7,7 +7,7 @@
 
 #define DataHeader "TCR"
 
-enum DataTypes
+enum TCRDataTypes
 {
     BOSS_BEASTS                 = 0,
     BOSS_JARAXXUS               = 1,
@@ -31,7 +31,7 @@ enum DataTypes
     DECREASE                    = 502,
 };
 
-enum SpellIds
+enum TCRSpellIds
 {
     SPELL_WILFRED_PORTAL        = 68424,
     SPELL_JARAXXUS_CHAINS       = 67924,
@@ -39,7 +39,7 @@ enum SpellIds
     SPELL_DESTROY_FLOOR_KNOCKUP = 68193,
 };
 
-enum MiscData
+enum TCRMiscData
 {
     DESPAWN_TIME                = 1200000
 };
@@ -145,7 +145,7 @@ const Position EndSpawnLoc[]=
     {644.6250f, 149.2743f, 140.6015f, 5.f}  // 2 - Portal to Dalaran
 };
 
-enum WorldStateIds
+enum TCRWorldStateIds
 {
     UPDATE_STATE_UI_SHOW            = 4390,
     UPDATE_STATE_UI_COUNT           = 4389
@@ -174,7 +174,7 @@ enum AnnouncerMessages
     MSG_ANUBARAK               = 724006
 };
 
-enum CreatureIds
+enum TCRCreatureIds
 {
     NPC_BARRENT                 = 34816,
     NPC_TIRION                  = 34996,
@@ -238,7 +238,7 @@ enum CreatureIds
     NPC_ANUBARAK                        = 34564
 };
 
-enum GameObjectIds
+enum TCRGameObjectIds
 {
     GO_CRUSADERS_CACHE_10       = 195631,
     GO_CRUSADERS_CACHE_25       = 195632,
@@ -264,7 +264,7 @@ enum GameObjectIds
     GO_PORTAL_TO_DALARAN        = 195682
 };
 
-enum AchievementData
+enum TCRAchievementData
 {
     // Northrend Beasts
     UPPER_BACK_PAIN_10_PLAYER               = 11779,
