@@ -37,7 +37,7 @@ protected:
 		tick();
         set<bool>("mounted", "self target", false);
 
-		assertActions(">P:blessing of kings on party>S:crusader aura");
+		assertActions(">S:check mount state>S:crusader aura");
     }
 
 	void resurrect()
@@ -75,7 +75,7 @@ protected:
     void cureMagic()
     {
         cureKind(DISPEL_MAGIC);
-        assertActions(">S:cleanse>P:cleanse magic on party>P:blessing of kings on party>S:check mount state");
+        assertActions(">S:cleanse>P:cleanse magic on party>S:check mount state>S:check mount state");
     }
 
     void cureKind(DispelType type)

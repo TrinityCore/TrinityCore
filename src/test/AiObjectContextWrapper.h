@@ -204,8 +204,6 @@ namespace ai
               GetValue<Unit*>("current target")->Set(MockedTargets::GetCurrentTarget());
               GetValue<Unit*>("old target")->Set(MockedTargets::GetCurrentTarget());
               GetValue<Unit*>("pet target")->Set(MockedTargets::GetPet());
-              GetValue<Unit*>("least hp target")->Set(MockedTargets::GetLeastHpTarget());
-              GetValue<Unit*>("rti target")->Set(MockedTargets::GetRtiTarget());
               GetValue<Unit*>("enemy player target")->Set(MockedTargets::GetEnemyPlayer());
               GetValue<Unit*>("attacker without aura")->Set(NULL);
 

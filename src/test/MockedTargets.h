@@ -16,7 +16,6 @@ namespace ai
         static Player* GetTargetForTank() { return (Player*)4; }
         static Player* GetCc() { return (Player*)12; }
 		static Player* GetLineTarget() { return (Player*)14; }
-		static Unit* GetLeastHpTarget() { return (Unit*)15; }
 		static Unit* GetLeastHpPartyMember() { return (Unit*)16; }
 		static Unit* GetRtiTarget() { return (Unit*)17; }
 		static Unit* GetDuelTarget() { return (Unit*)18; }
@@ -45,8 +44,6 @@ namespace ai
                 buffer.append("Cc");
             if (unit == GetLineTarget())
                 buffer.append("Line");
-            if (unit == GetLeastHpTarget())
-                buffer.append("LeastHp");
             if (unit == GetRtiTarget())
                 buffer.append("Rti");
             if (unit == GetDuelTarget())
