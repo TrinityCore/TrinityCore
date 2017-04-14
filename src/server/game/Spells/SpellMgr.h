@@ -36,6 +36,7 @@ class Player;
 class Unit;
 class ProcEventInfo;
 struct SkillLineAbilityEntry;
+enum AuraType;
 
 // only used in code
 enum SpellCategories
