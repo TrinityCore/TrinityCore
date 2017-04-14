@@ -794,6 +794,15 @@ class TC_GAME_API PlayerScript : public UnitScript
 
         // Called after a player's quest status has been changed
         virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
+
+		//After looting item
+		virtual void OnLootItem(Player* player, Item* item, uint32 count) { }
+
+		//After creating item (eg profession item creation)
+		virtual void OnCreateItem(Player* player, Item* item, uint32 count) { }
+
+		//After receiving item as a quest reward
+		virtual void OnQuestRewardItem(Player* player, Item* item, uint32 count) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -1143,6 +1152,9 @@ class TC_GAME_API ScriptMgr
         void OnGossipSelect(Player* player, uint32 menu_id, uint32 sender, uint32 action);
         void OnGossipSelectCode(Player* player, uint32 menu_id, uint32 sender, uint32 action, const char* code);
         void OnQuestStatusChange(Player* player, uint32 questId);
+		void OnLootItem(Player* player, Item* item, uint32 count);
+		void OnCreateItem(Player* player, Item* item, uint32 count);
+		void OnQuestRewardItem(Player* player, Item* item, uint32 count);
 
     public: /* AccountScript */
 

@@ -4617,14 +4617,41 @@ Add.Token.On.PvP.Kill = 1
 
 ###################################################################################################
 #
-#     StartGuild
-#        Description: New players automatically added for the configurated guild IDs.
-#		 Example: 	  StartGuild.Alliance = 45
-#					  StartGuild.Horde = 46
-#        Default:     0 (disabled)
+# RANDOM ENCHANTS OPTIONS
+#
+#     RandomEnchants.AnnounceOnLogin
+#        Announce a message on login for this module
+#        Default:     1
 
-StartGuild.Alliance = 0
-StartGuild.Horde = 0
+RandomEnchants.AnnounceOnLogin = 1
+
+#
+#     RandomEnchants.OnLoginMessage
+#        Message to display on login(Only applies if AnnounceOnLogin is enabled)
+#        Default:    "This server is running a RandomEnchants Module."
+
+RandomEnchants.OnLoginMessage="This server is based on Single Player Project - TrinityCore repack."
+
+#
+#     RandomEnchants.OnLoot
+#        Chance at random enchant on looting an item
+#        Default:     1
+
+RandomEnchants.OnLoot = 1
+
+#
+#     RandomEnchants.OnCreate
+#        Chance at random enchant on creating an item via profession
+#        Default:     1
+
+RandomEnchants.OnCreate = 1
+
+#
+#     RandomEnchants.OnQuestReward (Not working yet)
+#        Chance at random enchant on obtaining item from quest reward
+#        Default:     1
+
+RandomEnchants.OnQuestReward = 1
 
 #
 ###################################################################################################
@@ -4711,16 +4738,20 @@ PhasedDueling.Enable = 0
 FireWorksOnLevelUp = 1
 
 #
-###################################################################################################
-
-###################################################################################################
-# CROSSFACTION BG CONFIG
-# 
-#
 #    CrossfactionBG.enable = 1 - Mixed battleground enabled.
 #    CrossfactionBG.enable = 0 - Mixed battleground disabled.
 
 CrossfactionBG.enable = 1
+
+#
+#     StartGuild
+#        Description: New players automatically added for the configurated guild IDs.
+#		 Example: 	  StartGuild.Alliance = 45
+#					  StartGuild.Horde = 46
+#        Default:     0 (disabled)
+
+StartGuild.Alliance = 0
+StartGuild.Horde = 0
 
 #
 ###################################################################################################

@@ -25080,6 +25080,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         if (loot->containerID > 0)
             loot->DeleteLootItemFromContainerItemDB(item->itemid);
 		SetRandomEnchantVisual(this, newitem);
+		sScriptMgr->OnLootItem(this, newitem, item->count);
 
 #ifdef ELUNA
         sEluna->OnLootItem(this, newitem, item->count, this->GetLootGUID());
