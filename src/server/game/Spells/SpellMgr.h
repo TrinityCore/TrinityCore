@@ -310,6 +310,18 @@ enum SpellGroup
     SPELL_GROUP_CORE_RANGE_MAX   = 5
 };
 
+namespace std
+{
+    template<>
+    struct hash<SpellGroup>
+    {
+        size_t operator()(SpellGroup const& group) const
+        {
+            return hash<uint32>()(uint32(group));
+        }
+    };
+}
+
 #define SPELL_GROUP_DB_RANGE_MIN 1000
 
 //                  spell_id, group_id
