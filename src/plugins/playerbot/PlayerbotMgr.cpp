@@ -207,6 +207,13 @@ void PlayerbotHolder::OnBotLogin(Player * const bot)
 
     ai->ResetStrategies();
     ai->TellMaster("Hey there!");
+
+	uint32 account = sObjectMgr->GetPlayerAccountIdByGUID(bot->GetGUID());
+	if (sPlayerbotAIConfig.IsInRandomAccountList(account))
+	{
+		sLog->outMessage("playerbot", LOG_LEVEL_INFO, "%d/%d Bot %s logged in", playerBots.size(), sRandomPlayerbotMgr.GetMaxAllowedBotCount(), bot->GetName());
+	}
+	else sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Bot %s logged in", bot->GetName());
 }
 
 string PlayerbotHolder::ProcessBotCommand(string cmd, ObjectGuid guid, bool admin, uint32 masterAccountId, uint32 masterGuildId)

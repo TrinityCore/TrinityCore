@@ -242,9 +242,9 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
         default:
             nonCombatEngine->addStrategy("dps assist");
             break;
-		case CLASS_ROGUE:
+		/*case CLASS_ROGUE:
 			nonCombatEngine->addStrategy("stealth");
-			break;
+			break;*/
     }
 	if (player->InBattleground())
 	{

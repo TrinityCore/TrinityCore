@@ -326,8 +326,8 @@ bool MoveRandomAction::Execute(Event event)
     }
 
     //thesawolf - testing move random change.. currently too far out
-    //float distance = sPlayerbotAIConfig.tooCloseDistance + sPlayerbotAIConfig.grindDistance * urand(3, 10) / 10.0f;
-    float distance = sPlayerbotAIConfig.tooCloseDistance + sPlayerbotAIConfig.grindDistance / 10.0f;
+    float distance = sPlayerbotAIConfig.tooCloseDistance + sPlayerbotAIConfig.grindDistance * urand(3, 10) / 10.0f;
+    //float distance = sPlayerbotAIConfig.tooCloseDistance + sPlayerbotAIConfig.grindDistance / 10.0f;
 
     Map* map = bot->GetMap();
     if (target)

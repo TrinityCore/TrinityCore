@@ -20,6 +20,11 @@ RandomPlayerbotMgr::~RandomPlayerbotMgr()
 {
 }
 
+int RandomPlayerbotMgr::GetMaxAllowedBotCount()
+{
+	return GetEventValue(0, "bot_count");
+}
+
 void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
 {
     SetNextCheckDelay(sPlayerbotAIConfig.randomBotUpdateInterval * 1000);
