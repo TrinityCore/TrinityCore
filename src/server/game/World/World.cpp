@@ -2239,7 +2239,7 @@ void World::Update(uint32 diff)
 
     /// <li> Handle all other objects
     ///- Update objects when the timer has passed (maps, transport, creatures, ...)
-    sWorldUpdateTime.RecordUpdateTimeReset();();
+    sWorldUpdateTime.RecordUpdateTimeReset();
     sMapMgr->Update(diff);
     sWorldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
 
