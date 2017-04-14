@@ -1447,22 +1447,6 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = sConfigMgr->GetBoolDefault("PlayerDump.DisallowOverwrite", true);
     m_bool_configs[CONFIG_UI_QUESTLEVELS_IN_DIALOGS] = sConfigMgr->GetBoolDefault("UI.ShowQuestLevelsInDialogs", false);
 
-	//VAS
-	m_int_configs[VAS_VasDebug] = sConfigMgr->GetIntDefault("VAS.AutoBalance.Debug", 1);
-	m_int_configs[VAS_AutoInstance] = sConfigMgr->GetIntDefault("VAS.AutoBalance.AutoInstance", 1);
-	m_int_configs[VAS_PlayerChangeNotify] = sConfigMgr->GetIntDefault("VAS.AutoBalance.PlayerChangeNotify", 1);
-	
-	m_float_configs[VAS_Config_xPlayer] = sConfigMgr->GetFloatDefault("VAS.AutoBalance.XPlayer", 1.0f);
-	m_float_configs[VAS_Min_D_Mod] = sConfigMgr->GetFloatDefault("Min.D.Mod", 0.10f);
-	m_float_configs[VAS_Min_HP_Mod] = sConfigMgr->GetFloatDefault("Min.HP.Mod", 0.20f);
-	
-	std::string VAS_AutoBalance_40_Name = sConfigMgr->GetStringDefault("VAS.AutoBalance.40.Name", "");
-	std::string VAS_AutoBalance_25_Name = sConfigMgr->GetStringDefault("VAS.AutoBalance.25.Name", "");
-	std::string VAS_AutoBalance_20_Name = sConfigMgr->GetStringDefault("VAS.AutoBalance.20.Name", "");
-	std::string VAS_AutoBalance_10_Name = sConfigMgr->GetStringDefault("VAS.AutoBalance.10.Name", "");
-	std::string VAS_AutoBalance_5_Name = sConfigMgr->GetStringDefault("VAS.AutoBalance.5.Name", "");
-	std::string VAS_AutoBalance_2_Name = sConfigMgr->GetStringDefault("VAS.AutoBalance.2.Name", "");
-
     // Wintergrasp battlefield
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = sConfigMgr->GetBoolDefault("Wintergrasp.Enable", false);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MAX] = sConfigMgr->GetIntDefault("Wintergrasp.PlayerMax", 100);

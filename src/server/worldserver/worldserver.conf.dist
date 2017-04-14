@@ -4087,71 +4087,69 @@ Custom.AutoCompleteQuestDelay = 0
 #
 # VAS AUTOBALANCE OPTIONS
 #
-#     VAS.AutoBalance.XPlayer
+#     VASAutoBalance.numPlayer
 #        Set Server to level of solo mode.
 #        Set to 0 to Disable VAS-SOLO Mod.
 #        Example: VAS.AutoBalance.XPlayer = 1 will set everything for a 1 player game.
 #        Default:     1
 
-VAS.AutoBalance.XPlayer = 1
+VASAutoBalance.numPlayer=1.0
 
 #
-#     VAS.AutoBalance.AutoInstance
+#     VASAutoBalance.Instances
 #        Set instances to Auto chance XPlayer depending on players in it.
 #        Default:     1 (1 = ON, 0 = OFF)
 
-VAS.AutoBalance.AutoInstance = 1
+VASAutoBalance.Instances=1
+#
+#     VASAutoBalance.DungeonsOnly
+#        Only apply scaling changes to dungeons
+#        Default:     1 (1 = ON, 0 = OFF)
+VASAutoBalance.DungeonsOnly=1
 
 #
-#     VAS.AutoBalance.Debug
+#     VASAutoBalance.DebugLevel
 #        0 = None
 #        1 = Errors Only
 #        2 = Errors and Basic Information
 #        3 = All VAS Info
-#        Default:     1
+#        Default:     2
 
-VAS.AutoBalance.Debug = 2
+VASAutoBalance.DebugLevel=2
 
 #
 #     VAS.AutoBalance.PlayerChangeNotify
 #        Set Auto Notifications to all players in Instance that player count has changed.
 #        Default:     1 (1 = ON, 0 = OFF)
 
-VAS.AutoBalance.PlayerChangeNotify = 1
+VASAutoBalance.PlayerChangeNotify=1
 
 #
-#     VAS.AutoBalance.Color
-#        In Game Color for mod information in chat window.
-#        Default:     cffFF8000 (Orange)
-
-VAS.AutoBalance.Color = cffFF8000
-
-#
-#     Min.HP.Mod
+#     VASAutoBalance.MinHPModifier
 #        Minimum Modifier setting for Health Modification
-#        Default:     0.20
+#        Default:     0.10
 
-Min.HP.Mod = 0.10
+VASAutoBalance.MinHPModifier=0.10
 
 #
-#     Min.D.Mod
+#     VASAutoBalance.MinDamageModifier
 #        Minimum Modifier setting for Damage Modification
 #        Default:     0.10
 
-Min.D.Mod = 0.10
+VASAutoBalance.MinDamageModifier=0.10
 
 #
-#     VAS.AutoBalance.XX.Name
+#     VASAutoBalance.ForcedIDXX
 #        Sets MobIDs for the group they belong to.
 #        All 5 Man Mobs should go in VAS.AutoBalance.5.Name
 #        All 10 Man Mobs should go in VAS.AutoBalance.10.Name etc.
 
-VAS.AutoBalance.40.Name = "11583,16441,30057,13020,15589,14435,18192,14889,14888,14887,14890,15302,15818,15742,15741,15740,18338"
-VAS.AutoBalance.25.Name = "22997,21966,21965,21964,21806,21215,21845,19728,12397,17711,18256,18192,"
-VAS.AutoBalance.20.Name = ""
-VAS.AutoBalance.10.Name = "15689,15550,16152,17521,17225,16028,29324,31099"
-VAS.AutoBalance.5.Name = "15203,15204,15205,15305,6109,26801,30508,26799,30495,26803,30497,27859,27249"
-VAS.AutoBalance.2.Name = "25549,24558,25574,24559,25556,25557,25578,24561,25555,24555,25541,24553,25550,24554,24552,25564,15931,29373"
+VASAutoBalance.ForcedID40="11583,16441,30057,13020,15589,14435,18192,14889,14888,14887,14890,15302,15818,15742,15741,15740,18338"
+VASAutoBalance.ForcedID25="22997,21966,21965,21964,21806,21215,21845,19728,12397,17711,18256,18192,"
+VASAutoBalance.ForcedID20=""
+VASAutoBalance.ForcedID10="15689,15550,16152,17521,17225,16028,29324,31099"
+VASAutoBalance.ForcedID5="8317,15203,15204,15205,15305,6109,26801,30508,26799,30495,26803,30497,27859,27249"
+VASAutoBalance.ForcedID2="25549,24558,25574,24559,25556,25557,25578,24561,25555,24555,25541,24553,25550,24554,24552,25564,15931,29373"
 
 #
 ###################################################################################################
