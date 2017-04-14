@@ -57,7 +57,6 @@
 #include "ItemUsageValue.h"
 #include "LastSaidValue.h"
 #include "RandomBotUpdateValue.h"
-#include "NewPlayerNearbyValue.h"
 
 namespace ai
 {
@@ -148,12 +147,10 @@ namespace ai
             creators["last said"] = &ValueContext::last_said;
             creators["last emote"] = &ValueContext::last_emote;
 			creators["random bot update"] = &ValueContext::random_bot_update_value;
-			creators["new player nearby"] = &ValueContext::new_player_nearby;
-			creators["already seen players"] = &ValueContext::already_seen_players;
         }
 
     private:
-		static UntypedValue* item_usage(PlayerbotAI* ai) { return new ItemUsageValue(ai); }
+        static UntypedValue* item_usage(PlayerbotAI* ai) { return new ItemUsageValue(ai); }
         static UntypedValue* formation(PlayerbotAI* ai) { return new FormationValue(ai); }
         static UntypedValue* mana_save_level(PlayerbotAI* ai) { return new ManaSaveLevelValue(ai); }
         static UntypedValue* invalid_target(PlayerbotAI* ai) { return new InvalidTargetValue(ai); }
@@ -234,7 +231,5 @@ namespace ai
         static UntypedValue* last_said(PlayerbotAI* ai) { return new LastSaidValue(ai); }
         static UntypedValue* last_emote(PlayerbotAI* ai) { return new LastEmoteValue(ai); }
 		static UntypedValue* random_bot_update_value(PlayerbotAI* ai) { return new RandomBotUpdateValue(ai); }
-		static UntypedValue* already_seen_players(PlayerbotAI* ai) { return new AlreadySeenPlayersValue(ai); }
-		static UntypedValue* new_player_nearby(PlayerbotAI* ai) { return new NewPlayerNearbyValue(ai); }
     };
 };
