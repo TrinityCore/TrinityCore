@@ -109,6 +109,7 @@ void WorldPackets::EquipmentSet::UseEquipmentSet::Read()
 
 WorldPacket const* WorldPackets::EquipmentSet::UseEquipmentSetResult::Write()
 {
+    _worldPacket << uint64(GUID);
     _worldPacket << uint8(Reason);
 
     return &_worldPacket;

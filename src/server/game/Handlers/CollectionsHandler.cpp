@@ -24,7 +24,7 @@ void WorldSession::HandleCollectionItemSetFavorite(WorldPackets::Collections::Co
     switch (collectionItemSetFavorite.Type)
     {
         case WorldPackets::Collections::TOYBOX:
-            GetCollectionMgr()->ToySetFavorite(collectionItemSetFavorite.ID, packet.IsFavorite);
+            GetCollectionMgr()->ToySetFavorite(collectionItemSetFavorite.ID, collectionItemSetFavorite.IsFavorite);
             break;
         case WorldPackets::Collections::APPEARANCE:
         {

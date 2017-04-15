@@ -365,9 +365,8 @@ void PlayerMenu::SendQuestGiverQuestList(ObjectGuid guid)
                 AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
             bool repeatable = false; // NYI
-            bool ignored = false; // NYI
 
-            questList.GossipTexts.push_back(WorldPackets::Quest::GossipTextData(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, ignored, title));
+            questList.GossipTexts.emplace_back(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, title);
         }
     }
 
@@ -577,6 +576,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     packet.Info.QuestCompletionLog = questCompletionLog;
     packet.Info.AllowableRaces = quest->GetAllowableRaces();
     packet.Info.QuestRewardID = quest->GetRewardId();
+    packet.Info.Expansion = quest->GetExpansion();
 
     for (QuestObjective const& questObjective : quest->GetObjectives())
     {

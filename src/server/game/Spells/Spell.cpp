@@ -2451,7 +2451,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     else if (m_damage > 0)
     {
         // Fill base damage struct (unitTarget - is real spell target)
-        SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask, m_castId);
+        SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_SpellVisual, m_spellSchoolMask, m_castId);
 
         // Add bonuses and fill damageInfo struct
         caster->CalculateSpellDamageTaken(&damageInfo, m_damage, m_spellInfo, m_attackType, target->crit);
@@ -2480,7 +2480,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     else
     {
         // Fill base damage struct (unitTarget - is real spell target)
-        SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
+        SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_SpellVisual, m_spellSchoolMask);
         procEx |= createProcExtendMask(&damageInfo, missInfo);
         // Do triggers for unit (reflect triggers passed on hit phase for correct drop charge)
         if (canEffectTrigger && missInfo != SPELL_MISS_REFLECT)
@@ -4340,7 +4340,7 @@ void Spell::SendInterrupted(uint8 result)
     failurePacket.CasterUnit = m_caster->GetGUID();
     failurePacket.CastID = m_castId;
     failurePacket.SpellID = m_spellInfo->Id;
-    failurePacket.SpelXSpellVisualID = m_SpellVisual;
+    failurePacket.SpellXSpellVisualID = m_SpellVisual;
     failurePacket.Reason = result;
     m_caster->SendMessageToSet(failurePacket.Write(), true);
 
@@ -4376,6 +4376,7 @@ void Spell::SendChannelStart(uint32 duration)
     WorldPackets::Spells::SpellChannelStart spellChannelStart;
     spellChannelStart.CasterGUID = m_caster->GetGUID();
     spellChannelStart.SpellID = m_spellInfo->Id;
+    spellChannelStart.SpellXSpellVisualID = m_SpellVisual;
     spellChannelStart.ChannelDuration = duration;
     m_caster->SendMessageToSet(spellChannelStart.Write(), true);
 

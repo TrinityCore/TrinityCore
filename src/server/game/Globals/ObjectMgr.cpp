@@ -3894,9 +3894,9 @@ void ObjectMgr::LoadQuests()
         "RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, RewardFactionCapIn5, RewardFactionFlags, "
         //92                93                  94                 95                  96                 97                  98                 99
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
-        //100                101                 102          103          104             105
-        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, QuestRewardID, "
-        //106      107             108               109              110                111                112                 113                 114
+        //100                101                 102          103          104             105            106
+        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, QuestRewardID, Expansion, "
+        //107      108             109               110              111                112                113                 114                 115
         "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog"
         " FROM quest_template");
     if (!result)

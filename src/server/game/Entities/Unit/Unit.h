@@ -1072,12 +1072,13 @@ struct CalcDamageInfo
 // Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
 struct TC_GAME_API SpellNonMeleeDamage
 {
-    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask, ObjectGuid _castId = ObjectGuid::Empty);
+    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _SpellXSpellVisualID, uint32 _schoolMask, ObjectGuid _castId = ObjectGuid::Empty);
 
     Unit   *target;
     Unit   *attacker;
     ObjectGuid castId;
     uint32 SpellID;
+    uint32 SpellXSpellVisualID;
     uint32 damage;
     uint32 schoolMask;
     uint32 absorb;
@@ -1653,7 +1654,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 overHeal, uint32 absorbed, bool crit = false);
         int32 HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical = false);
-        void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, Powers powertype);
+        void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, int32 overEnergize, Powers powertype);
         void EnergizeBySpell(Unit* victim, uint32 SpellID, int32 Damage, Powers powertype);
 
         void CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, ObjectGuid originalCaster = ObjectGuid::Empty);

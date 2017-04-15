@@ -336,7 +336,7 @@ class TC_GAME_API Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
-        void LoadArtifactData(uint32 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
+        void LoadArtifactData(uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
 
         void AddBonuses(uint32 bonusListID);
 
@@ -515,7 +515,7 @@ class TC_GAME_API Item : public Object
         void ApplyArtifactPowerEnchantmentBonuses(uint32 enchantId, bool apply, Player* owner);
         void CopyArtifactDataFromParent(Item* parent);
 
-        void GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategoryId);
+        void GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCategoryId);
     protected:
         BonusData _bonusData;
 
