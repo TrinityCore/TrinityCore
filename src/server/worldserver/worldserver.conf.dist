@@ -4609,45 +4609,6 @@ Loose.Token.On.PvP.Death = 0
 Add.Token.On.PvP.Kill = 1
 
 #
-#     XP for PvP kills
-#         Set the XP and money rate for PvP kills.
-#
-#     Default:  Xp.For.Pvp.Low.Rate = 1
-#               Xp.For.Pvp.High.Rate = 1
-
-Xp.For.Pvp.Low.Rate = 1
-Xp.For.Pvp.High.Rate = 1
-
-#
-#     Time Is Money Friend
-#         Gives money for players who is online after every X minutes.
-#
-#     Default:  TimeIsMoneyFriend.Interval = 600000 (10 minutes)
-#               TimeIsMoneyFriend.Money    = 1000 (10 silver)
-
-TimeIsMoneyFriend.Interval = 600000
-TimeIsMoneyFriend.Money    = 1000
-
-#
-#    Dungeon Checkpoints
-#        Description: Enable checkpoints in dungeons/instances. 
-#        The server set a respawn point after every world boss you defeated.
-#
-#    Dungeon.Checkpoints.Enable
-#        Default:     1 (enabled)
-#                     0 (disabled)
-
-Dungeon.Checkpoints.Enable = 1
-
-#
-#     Congrats.Level
-#        Description: Server gives money for players on every 10 level.
-#        Default:     0 (disabled)
-#                     1 (enabled)
-
-Congrats.Level = 0
-
-#
 ###################################################################################################
 
 ###################################################################################################
@@ -4787,6 +4748,45 @@ CrossfactionBG.enable = 1
 
 StartGuild.Alliance = 0
 StartGuild.Horde = 0
+
+#
+#     XP for PvP kills
+#         Set the XP and money rate for PvP kills.
+#
+#     Default:  Xp.For.Pvp.Low.Rate = 1
+#               Xp.For.Pvp.High.Rate = 1
+
+Xp.For.Pvp.Low.Rate = 1
+Xp.For.Pvp.High.Rate = 1
+
+#
+#     Time Is Money Friend
+#         Gives money for players who is online after every X minutes.
+#
+#     Default:  TimeIsMoneyFriend.Interval = 600000 (10 minutes)
+#               TimeIsMoneyFriend.Money    = 1000 (10 silver)
+
+TimeIsMoneyFriend.Interval = 600000
+TimeIsMoneyFriend.Money    = 1000
+
+#
+#    Dungeon Checkpoints
+#        Description: Enable checkpoints in dungeons/instances. 
+#        The server set a respawn point after every world boss you defeated.
+#
+#    Dungeon.Checkpoints.Enable
+#        Default:     1 (enabled)
+#                     0 (disabled)
+
+Dungeon.Checkpoints.Enable = 1
+
+#
+#     Congrats.Level
+#        Description: Server gives money for players on every 10 level.
+#        Default:     0 (disabled)
+#                     1 (enabled)
+
+Congrats.Level = 0
 
 #
 ###################################################################################################
