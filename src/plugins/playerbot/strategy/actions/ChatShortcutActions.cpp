@@ -19,7 +19,7 @@ bool FollowChatShortcutAction::Execute(Event event)
         ai->TellMaster("I will not follow you - too far away");
         return true;
     }
-    ai->TellMaster("Following");
+	bot->Say("Lead the way!", LANG_UNIVERSAL);
     return true;
 }
 
@@ -32,7 +32,7 @@ bool StayChatShortcutAction::Execute(Event event)
     ai->Reset();
     ai->ChangeStrategy("+stay,-passive", BOT_STATE_NON_COMBAT);
     ai->ChangeStrategy("-follow,-passive", BOT_STATE_COMBAT);
-    ai->TellMaster("Staying");
+	bot->Say("Alrigh, I stay here.", LANG_UNIVERSAL);
     return true;
 }
 
@@ -50,7 +50,7 @@ bool FleeChatShortcutAction::Execute(Event event)
         ai->TellMaster("I will not flee with you - too far away");
         return true;
     }
-    ai->TellMaster("Fleeing");
+	bot->Say("Run for your life!", LANG_UNIVERSAL);
     return true;
 }
 
@@ -63,7 +63,7 @@ bool GoawayChatShortcutAction::Execute(Event event)
     ai->Reset();
     ai->ChangeStrategy("+runaway", BOT_STATE_NON_COMBAT);
     ai->ChangeStrategy("+runaway", BOT_STATE_COMBAT);
-    ai->TellMaster("Running away");
+	bot->Say("I'm running away!", LANG_UNIVERSAL);
     return true;
 }
 
@@ -75,7 +75,7 @@ bool GrindChatShortcutAction::Execute(Event event)
 
     ai->Reset();
     ai->ChangeStrategy("+grind,-passive", BOT_STATE_NON_COMBAT);
-    ai->TellMaster("Grinding");
+	bot->Say("Kill them all!", LANG_UNIVERSAL);
     return true;
 }
 
@@ -91,7 +91,7 @@ bool TankAttackChatShortcutAction::Execute(Event event)
     ai->Reset();
     ai->ChangeStrategy("-passive", BOT_STATE_NON_COMBAT);
     ai->ChangeStrategy("-passive", BOT_STATE_COMBAT);
-    ai->TellMaster("Attacking");
+	bot->Say("Die monster!", LANG_UNIVERSAL);
     return true;
 }
 

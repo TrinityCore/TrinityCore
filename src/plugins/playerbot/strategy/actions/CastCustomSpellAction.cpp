@@ -23,7 +23,7 @@ bool CastCustomSpellAction::Execute(Event event)
     if (!ai->CanCastSpell(spell, target))
     {
         msg << "Cannot cast " << text << " on " << target->GetName();
-        ai->TellMaster(msg.str());
+		bot->Say(msg.str(), LANG_UNIVERSAL);
         return false;
     }
 
@@ -36,12 +36,12 @@ bool CastCustomSpellAction::Execute(Event event)
     if (result)
     {
         msg << "Casting " << text << " on " << target->GetName();
-        ai->TellMasterNoFacing(msg.str());
+		bot->Say(msg.str(), LANG_UNIVERSAL);
     }
     else
     {
         msg << "Cast " << text << " on " << target->GetName() << " is failed";
-        ai->TellMaster(msg.str());
+		bot->Say(msg.str(), LANG_UNIVERSAL);
     }
 
     return result;
