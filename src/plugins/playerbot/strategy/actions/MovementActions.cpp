@@ -288,8 +288,7 @@ bool FleeAction::Execute(Event event)
 bool FleeAction::isUseful()
 {
     return AI_VALUE(uint8, "attacker count") > 0 &&
-            AI_VALUE2(float, "distance", "current target") <= sPlayerbotAIConfig.tooCloseDistance &&
-            AI_VALUE2(uint8, "speed", "current target") < 100;
+		AI_VALUE2(float, "distance", "current target") <= sPlayerbotAIConfig.shootDistance;
 }
 
 bool RunAwayAction::Execute(Event event)

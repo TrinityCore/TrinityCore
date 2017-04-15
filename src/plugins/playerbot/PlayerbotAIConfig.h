@@ -28,7 +28,7 @@ public:
     bool aracgen;
     bool allowGuildBots;
     uint32 globalCoolDown, reactDelay, maxWaitForMove;
-    float sightDistance, spellDistance, reactDistance, grindDistance, lootDistance,
+    float sightDistance, spellDistance, reactDistance, grindDistance, lootDistance, shootDistance,
         fleeDistance, tooCloseDistance, meleeDistance, followDistance, whisperDistance, contactDistance;
     uint32 criticalHealth, lowHealth, mediumHealth, almostFullHealth;
     uint32 lowMana, mediumMana;

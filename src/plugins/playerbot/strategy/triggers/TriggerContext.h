@@ -64,6 +64,7 @@ namespace ai
             creators["enemy out of melee"] = &TriggerContext::EnemyOutOfMelee;
             creators["enemy out of spell"] = &TriggerContext::EnemyOutOfSpell;
             creators["enemy too close for spell"] = &TriggerContext::enemy_too_close_for_spell;
+			creators["enemy too close for shoot"] = &TriggerContext::enemy_too_close_for_shoot;
             creators["enemy too close for melee"] = &TriggerContext::enemy_too_close_for_melee;
 
             creators["combo points available"] = &TriggerContext::ComboPointsAvailable;
@@ -149,6 +150,7 @@ namespace ai
         static Trigger* EnemyOutOfMelee(PlayerbotAI* ai) { return new EnemyOutOfMeleeTrigger(ai); }
         static Trigger* EnemyOutOfSpell(PlayerbotAI* ai) { return new EnemyOutOfSpellRangeTrigger(ai); }
         static Trigger* enemy_too_close_for_spell(PlayerbotAI* ai) { return new EnemyTooCloseForSpellTrigger(ai); }
+		static Trigger* enemy_too_close_for_shoot(PlayerbotAI* ai) { return new EnemyTooCloseForShootTrigger(ai); }
         static Trigger* enemy_too_close_for_melee(PlayerbotAI* ai) { return new EnemyTooCloseForMeleeTrigger(ai); }
         static Trigger* ComboPointsAvailable(PlayerbotAI* ai) { return new ComboPointsAvailableTrigger(ai); }
         static Trigger* MediumThreat(PlayerbotAI* ai) { return new MediumThreatTrigger(ai); }
