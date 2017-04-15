@@ -65,13 +65,8 @@ namespace fs = boost::filesystem;
 
 #ifdef _WIN32
     #include <windows.h>
-    #define HOTSWAP_PLATFORM_REQUIRES_CACHING
-#elif __APPLE__
+#else // Posix and Apple
     #include <dlfcn.h>
-    #define HOTSWAP_PLATFORM_REQUIRES_CACHING
-#else // Posix
-    #include <dlfcn.h>
-    // #define HOTSWAP_PLATFORM_REQUIRES_CACHING
 #endif
 
 // Promote the sScriptReloadMgr to a HotSwapScriptReloadMgr
@@ -608,8 +603,6 @@ public:
             }
         }
 
-    #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
-
         temporary_cache_path_ = CalculateTemporaryCachePath();
 
         // We use the boost filesystem function versions which accept
@@ -627,8 +620,6 @@ public:
 
         // Used to silent compiler warnings
         (void)code;
-
-    #endif // #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
 
         // Correct the CMake prefix when needed
         if (sWorld->getBoolConfig(CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED))
@@ -868,8 +859,6 @@ private:
 
         Optional<fs::path> cache_path;
 
-    #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
-
         // Copy the shared library into a cache on platforms which lock files on use (windows).
         cache_path = GenerateUniquePathForLibraryInCache(path);
 
@@ -893,8 +882,6 @@ private:
             TC_LOG_TRACE("scripts.hotswap", ">> Copied the shared library \"%s\" to \"%s\" for caching.",
                 path.filename().generic_string().c_str(), cache_path->generic_string().c_str());
         }
-
-    #endif // #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
 
         auto module = ScriptModule::CreateFromPath(path, cache_path);
         if (!module)
