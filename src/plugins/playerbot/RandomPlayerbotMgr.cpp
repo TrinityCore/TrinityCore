@@ -202,10 +202,7 @@ bool RandomPlayerbotMgr::ProcessBot(Player* player)
 
         if (!GetEventValue(bot, "revive"))
         {
-            sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Reviving dead bot %d", bot);
-            SetEventValue(bot, "dead", 0, 0);
-            SetEventValue(bot, "revive", 0, 0);
-			RandomTeleport(player, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+			Revive(player);
 			return true;
         }
 
@@ -278,6 +275,15 @@ bool RandomPlayerbotMgr::ProcessBot(Player* player)
     }
 
     return false;
+}
+
+void RandomPlayerbotMgr::Revive(Player* player)
+{
+	uint32 bot = player->GetGUID();
+	sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Reviving dead bot %d", bot);
+	SetEventValue(bot, "dead", 0, 0);
+	SetEventValue(bot, "revive", 0, 0);
+	RandomTeleport(player, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 }
 
 void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs)
@@ -498,7 +504,7 @@ void RandomPlayerbotMgr::RandomizeFirst(Player* bot)
 
         PlayerbotFactory factory(bot, level);
         factory.CleanRandomize();
-        RandomTeleport(bot, tele->mapId, tele->position_x, tele->position_y, tele->position_z);
+		RandomTeleportForLevel(bot);
         break;
     }
 }
@@ -727,7 +733,7 @@ bool RandomPlayerbotMgr::HandlePlayerbotConsoleCommand(ChatHandler* handler, cha
         sRandomPlayerbotMgr.UpdateAIInternal(0);
         return true;
     }
-    else if (cmd == "init" || cmd == "refresh" || cmd == "teleport")
+    else if (cmd == "init" || cmd == "refresh" || cmd == "teleport" || cmd == "revive")
     {
 		sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Randomizing bots for %d accounts", sPlayerbotAIConfig.randomBotAccounts.size());
         list<uint32> botIds;
@@ -770,6 +776,10 @@ bool RandomPlayerbotMgr::HandlePlayerbotConsoleCommand(ChatHandler* handler, cha
             {
                 sRandomPlayerbotMgr.RandomTeleportForLevel(bot);
             }
+			else if (cmd == "revive")
+			{
+				sRandomPlayerbotMgr.Revive(bot);
+			}
             else
             {
                 bot->SetLevel(bot->getLevel() - 1);
