@@ -122,7 +122,7 @@ uint8 BotMgr::GetNpcBotXpReduction()
 
 uint8 BotMgr::GetMaxNpcBots()
 {
-    return _maxNpcBots <= 4 ? _maxNpcBots : 4;
+    return _maxNpcBots <= 24 ? _maxNpcBots : 24;
 }
 
 bool BotMgr::LimitBots(Map const* map)
