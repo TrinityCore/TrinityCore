@@ -39,8 +39,6 @@ namespace ai
 
     public:
         bool isReasonable();
-        bool isBetterByCreatures(FleePoint* other);
-        bool isBetterByAll(FleePoint* other);
 
 	public:
 		float x;
