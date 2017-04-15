@@ -310,13 +310,16 @@ class spell_dru_enrage : public SpellScriptLoader
 
             void RecalculateBaseArmor()
             {
+                // Recalculate modifies the list while we're iterating through it, so let's copy it instead
                 Unit::AuraEffectList const& auras = GetTarget()->GetAuraEffectsByType(SPELL_AURA_MOD_BASE_RESISTANCE_PCT);
-                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                std::vector<AuraEffect*> aurEffs(auras.begin(), auras.end());
+
+                for (AuraEffect* aurEff : aurEffs)
                 {
-                    SpellInfo const* spellInfo = (*i)->GetSpellInfo();
+                    SpellInfo const* spellInfo = aurEff->GetSpellInfo();
                     // Dire- / Bear Form (Passive)
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags.HasFlag(0x0, 0x0, 0x2))
-                        (*i)->RecalculateAmount();
+                        aurEff->RecalculateAmount();
                 }
             }
 
