@@ -5281,7 +5281,7 @@ void Player::RepopAtGraveyard()
 			sDynRes->DynamicResurrection(this);
 		else
 		{
-			TeleportTo(ClosestGrave->MapID, ClosestGrave->Loc.X, ClosestGrave->Loc.Y, ClosestGrave->Loc.Z, (ClosestGrave->Facing * M_PI) / 180); // Orientation is initially in degrees
+			TeleportTo(ClosestGrave->map_id, ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, GetOrientation());
 			if (isDead())                                        // not send if alive, because it used in TeleportTo()
 			{
                 WorldPacket data(SMSG_DEATH_RELEASE_LOC, 4*4);  // show spirit healer position on minimap

@@ -8,7 +8,7 @@ Dynamic Resurrection is a simple script that add a "Resurrection Waypoint" near 
 #define DYNAMIC_RESURRECTION
 
 #include "Player.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 
 class Player;
 
