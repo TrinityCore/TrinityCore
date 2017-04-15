@@ -681,7 +681,7 @@ enum QuestSaveType
 typedef std::map<uint32, QuestSaveType> QuestStatusSaveMap;
 
 // Size of client completed quests bit map
-#define QUESTS_COMPLETED_BITS_SIZE 1000
+#define QUESTS_COMPLETED_BITS_SIZE 1750
 
 enum QuestSlotOffsets
 {
