@@ -26,14 +26,14 @@ bool BuyAction::Execute(Event event)
     Creature *pCreature = bot->GetNPCIfCanInteractWith(vendor->GetGUID(), UNIT_NPC_FLAG_VENDOR);
     if (!pCreature)
     {
-        ai->TellMaster("Cannot talk to vendor");
+		bot->Say("Cannot talk to vendor", LANG_UNIVERSAL);
         return false;
     }
 
     VendorItemData const* tItems = pCreature->GetVendorItems();
     if (!tItems)
     {
-        ai->TellMaster("This vendor has no items");
+		bot->Say("This vendor has no items", LANG_UNIVERSAL);
         return false;
     }
 
