@@ -97,7 +97,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid ArtifactGUID;
-            int32 Amount = 0;
+            uint64 Amount = 0;
         };
     }
 }

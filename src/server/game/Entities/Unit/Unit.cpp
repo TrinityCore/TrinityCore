@@ -235,8 +235,8 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
     _damageInfo(damageInfo), _healInfo(healInfo)
 { }
 
-SpellNonMeleeDamage::SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask, ObjectGuid _castId)
-    : target(_target), attacker(_attacker), castId(_castId), SpellID(_SpellID), damage(0), schoolMask(_schoolMask),
+SpellNonMeleeDamage::SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _SpellXSpellVisualID, uint32 _schoolMask, ObjectGuid _castId)
+    : target(_target), attacker(_attacker), castId(_castId), SpellID(_SpellID), SpellXSpellVisualID(_SpellXSpellVisualID), damage(0), schoolMask(_schoolMask),
     absorb(0), resist(0), periodicLog(false), blocked(0), HitInfo(0), cleanDamage(0), preHitHealth(_target->GetHealth())
 {
 }
@@ -1860,7 +1860,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             uint32 split_absorb = 0;
             DealDamageMods(caster, splitDamage, &split_absorb);
 
-            SpellNonMeleeDamage log(this, caster, (*itr)->GetSpellInfo()->Id, schoolMask, (*itr)->GetBase()->GetCastGUID());
+            SpellNonMeleeDamage log(this, caster, (*itr)->GetSpellInfo()->Id, (*itr)->GetBase()->GetSpellXSpellVisualId(), schoolMask, (*itr)->GetBase()->GetCastGUID());
             CleanDamage cleanDamage = CleanDamage(splitDamage, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
             DealDamage(caster, splitDamage, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellInfo(), false);
             log.damage = splitDamage;
@@ -6083,7 +6083,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 {
                     uint32 procDmg = damage / 2;
 
-                    SpellNonMeleeDamage log(pPet, pPet->GetVictim(), procSpell->Id, procSpell->GetSchoolMask());
+                    SpellNonMeleeDamage log(pPet, pPet->GetVictim(), procSpell->Id, procSpell->GetSpellXSpellVisualId(pPet), procSpell->GetSchoolMask());
                     log.damage = procDmg;
                     pPet->DealDamage(pPet->GetVictim(), procDmg, NULL, SPELL_DIRECT_DAMAGE, procSpell->GetSchoolMask(), procSpell, true);
                     pPet->SendSpellNonMeleeDamageLog(&log);
@@ -7714,26 +7714,28 @@ int32 Unit::HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHeal
     return gain;
 }
 
-void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
+void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, int32 overEnergize, Powers powertype)
 {
     WorldPackets::CombatLog::SpellEnergizeLog data;
     data.CasterGUID = GetGUID();
     data.TargetGUID = victim->GetGUID();
-    data.SpellID = spellId;
-    data.Type = powerType;
+    data.SpellID = spellID;
+    data.Type = powertype;
     data.Amount = damage;
+    data.OverEnergize = overEnergize;
     data.LogData.Initialize(victim);
     SendCombatLogMessage(&data);
 }
 
 void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
 {
-    victim->ModifyPower(powerType, damage);
+    int32 gain = victim->ModifyPower(powerType, damage);
+    int32 overEnergize = damage - gain;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     victim->getHostileRefManager().threatAssist(this, float(damage) * 0.5f, spellInfo);
 
-    SendEnergizeSpellLog(victim, spellId, damage, powerType);
+    SendEnergizeSpellLog(victim, spellId, damage, overEnergize, powerType);
 }
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, SpellEffectInfo const* effect, uint32 stack) const
@@ -12883,6 +12885,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
             {
                 WorldPackets::Loot::LootList lootList;
                 lootList.Owner = creature->GetGUID();
+                lootList.LootObj = creature->loot.GetGUID();
 
                 player->SendMessageToSet(lootList.Write(), true);
             }
@@ -13976,8 +13979,8 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     WorldPackets::Movement::MoveKnockBack moveKnockBack;
     moveKnockBack.MoverGUID = GetGUID();
     moveKnockBack.SequenceIndex = m_movementCounter++;
-    moveKnockBack.HorzSpeed = speedXY;
-    moveKnockBack.VertSpeed = speedZ;
+    moveKnockBack.Speeds.HorzSpeed = speedXY;
+    moveKnockBack.Speeds.VertSpeed = speedZ;
     moveKnockBack.Direction.x = vcos;
     moveKnockBack.Direction.y = vsin;
     player->GetSession()->SendPacket(moveKnockBack.Write());

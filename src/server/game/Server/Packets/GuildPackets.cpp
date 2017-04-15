@@ -614,12 +614,12 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
     for (GuildBankItemInfo const& item : ItemInfo)
     {
         _worldPacket << item.Slot;
-        _worldPacket << item.Item;
         _worldPacket << item.Count;
         _worldPacket << item.EnchantmentID;
         _worldPacket << item.Charges;
         _worldPacket << item.OnUseEnchantmentID;
         _worldPacket << item.Flags;
+        _worldPacket << item.Item;
         _worldPacket.WriteBits(item.SocketEnchant.size(), 2);
         _worldPacket.WriteBit(item.Locked);
         _worldPacket.FlushBits();

@@ -1776,6 +1776,7 @@ void WorldSession::HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmen
     }
 
     WorldPackets::EquipmentSet::UseEquipmentSetResult result;
+    result.GUID = useEquipmentSet.GUID;
     result.Reason = 0; // 4 - equipment swap failed - inventory is full
     SendPacket(result.Write());
 }

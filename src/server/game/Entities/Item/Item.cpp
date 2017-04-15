@@ -528,7 +528,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             {
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_ARTIFACT);
                 stmt->setUInt64(0, GetGUID().GetCounter());
-                stmt->setUInt32(1, GetUInt32Value(ITEM_FIELD_ARTIFACT_XP));
+                stmt->setUInt64(1, GetUInt64Value(ITEM_FIELD_ARTIFACT_XP));
                 stmt->setUInt32(2, GetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID));
                 trans->Append(stmt);
 
@@ -784,10 +784,10 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     return true;
 }
 
-void Item::LoadArtifactData(uint32 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers)
+void Item::LoadArtifactData(uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers)
 {
     InitArtifactPowers(GetTemplate()->GetArtifactID());
-    SetUInt32Value(ITEM_FIELD_ARTIFACT_XP, xp);
+    SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, xp);
     SetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID, artifactAppearanceId);
     if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifactAppearanceId))
         SetAppearanceModId(artifactAppearance->AppearanceModID);
@@ -2407,7 +2407,7 @@ void Item::CopyArtifactDataFromParent(Item* parent)
     SetAppearanceModId(parent->GetAppearanceModId());
 }
 
-void Item::GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategoryId)
+void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCategoryId)
 {
     Player* owner = GetOwner();
     if (!owner)
@@ -2423,7 +2423,7 @@ void Item::GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategor
             else
                 artifactKnowledgeLevel = owner->GetCurrency(artifactCategory->ArtifactKnowledgeCurrencyID);
 
-            amount = int32(amount * sDB2Manager.GetCurveValueAt(artifactCategory->ArtifactKnowledgeMultiplierCurveID, artifactKnowledgeLevel));
+            amount = uint64(amount * sDB2Manager.GetCurveValueAt(artifactCategory->ArtifactKnowledgeMultiplierCurveID, artifactKnowledgeLevel));
             if (amount >= 5000)
                 amount = 50 * (amount / 50);
             else if (amount >= 1000)
@@ -2433,7 +2433,7 @@ void Item::GiveArtifactXp(int32 amount, Item* sourceItem, uint32 artifactCategor
         }
     }
 
-    ApplyModInt32Value(ITEM_FIELD_ARTIFACT_XP, amount, true);
+    SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, GetUInt64Value(ITEM_FIELD_ARTIFACT_XP) + amount);
 
     WorldPackets::Artifact::ArtifactXpGain artifactXpGain;
     artifactXpGain.ArtifactGUID = GetGUID();

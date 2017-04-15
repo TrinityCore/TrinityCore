@@ -2924,7 +2924,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             }
         }
 
-        if (spellInfo->ActiveIconID == 2158)  // flight
+        if (spellInfo->ActiveIconFileDataId == 135754)  // flight
             spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
 
         switch (spellInfo->Id)
