@@ -4763,10 +4763,10 @@ Xp.For.Pvp.High.Rate = 1
 #     Time Is Money Friend
 #         Gives money for players who is online after every X minutes.
 #
-#     Default:  TimeIsMoneyFriend.Interval = 600000 (10 minutes)
+#     Default:  TimeIsMoneyFriend.Interval = 3600000 (1 hour) [0 - disabled]
 #               TimeIsMoneyFriend.Money    = 1000 (10 silver)
 
-TimeIsMoneyFriend.Interval = 600000
+TimeIsMoneyFriend.Interval = 3600000
 TimeIsMoneyFriend.Money    = 1000
 
 #
