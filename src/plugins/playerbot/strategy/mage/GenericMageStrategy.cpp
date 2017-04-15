@@ -46,8 +46,8 @@ private:
     {
         return new ActionNode ("frost nova",
             /*P*/ NULL,
-            /*A*/ NextAction::array(0, new NextAction("flee"), NULL),
-            /*C*/ NextAction::array(0, new NextAction("flee"), NULL));
+			/*A*/ NULL,
+			/*C*/ NULL);
     }
     static ActionNode* icy_veins(PlayerbotAI* ai)
     {
@@ -105,6 +105,10 @@ void GenericMageStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
     triggers.push_back(new TriggerNode(
         "enemy too close for spell",
+		NextAction::array(0, new NextAction("flee", 49.0f), NULL)));
+
+	triggers.push_back(new TriggerNode(
+		"enemy is close",
         NextAction::array(0, new NextAction("frost nova", 50.0f), NULL)));
 
     triggers.push_back(new TriggerNode(

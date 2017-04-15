@@ -34,6 +34,16 @@ namespace ai
         }
     };
 
+	class EnemyIsCloseTrigger : public Trigger {
+	public:
+		EnemyIsCloseTrigger(PlayerbotAI* ai) : Trigger(ai, "enemy is close") {}
+		virtual bool IsActive()
+		{
+			Unit* target = AI_VALUE(Unit*, "current target");
+			return target && AI_VALUE2(float, "distance", "current target") <= sPlayerbotAIConfig.tooCloseDistance;
+		}
+	};
+
     class OutOfRangeTrigger : public Trigger {
     public:
         OutOfRangeTrigger(PlayerbotAI* ai, string name, float distance) : Trigger(ai, name)
