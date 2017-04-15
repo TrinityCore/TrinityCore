@@ -17770,10 +17770,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     if (m_deathExpireTime > now + MAX_DEATH_COUNT * DEATH_EXPIRE_STEP)
         m_deathExpireTime = now + MAX_DEATH_COUNT * DEATH_EXPIRE_STEP - 1;
 
-    // clear channel spell data (if saved at channel spell casting)
-    SetChannelObjectGuid(ObjectGuid::Empty);
-    SetUInt32Value(UNIT_CHANNEL_SPELL, 0);
-
     // clear charm/summon related fields
     SetOwnerGUID(ObjectGuid::Empty);
     SetGuidValue(UNIT_FIELD_CHARMEDBY, ObjectGuid::Empty);
