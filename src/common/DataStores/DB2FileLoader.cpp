@@ -158,7 +158,7 @@ public:
     bool Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo, DB2Header const* header) override;
     char* AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool) override;
     char* AutoProduceStrings(char* dataTable, uint32 locale) override;
-    void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) override { }
+    void AutoProduceRecordCopies(uint32 /*records*/, char** /*indexTable*/, char* /*dataTable*/) override { }
     DB2Record GetRecord(uint32 recordNumber) const override;
     DB2RecordCopy GetRecordCopy(uint32 copyNumber) const override;
     uint32 GetRecordCount() const override;
