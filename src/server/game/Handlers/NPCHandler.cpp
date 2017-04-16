@@ -164,7 +164,7 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle,
     {
         TrainerSpell const* tSpell = &itr->second;
 
-        if (index && tSpell->Index != index) // *** Added Index check here
+        if (index && tSpell->Index != index)
             continue;
 
         bool valid = true;
