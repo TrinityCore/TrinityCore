@@ -2417,13 +2417,15 @@ void Item::GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCatego
     {
         if (ArtifactCategoryEntry const* artifactCategory = sArtifactCategoryStore.LookupEntry(artifactCategoryId))
         {
-            uint32 artifactKnowledgeLevel = 0;
+            uint32 artifactKnowledgeLevel = 1;
             if (sourceItem && sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL))
-                artifactKnowledgeLevel = sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL) - 1;
+                artifactKnowledgeLevel = sourceItem->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL);
             else
-                artifactKnowledgeLevel = owner->GetCurrency(artifactCategory->ArtifactKnowledgeCurrencyID);
+                artifactKnowledgeLevel = owner->GetCurrency(artifactCategory->ArtifactKnowledgeCurrencyID) + 1;
 
-            amount = uint64(amount * sDB2Manager.GetCurveValueAt(artifactCategory->ArtifactKnowledgeMultiplierCurveID, artifactKnowledgeLevel));
+            if (GtArtifactKnowledgeMultiplierEntry const* artifactKnowledge = sArtifactKnowledgeMultiplierGameTable.GetRow(artifactKnowledgeLevel))
+                amount = uint64(amount * artifactKnowledge->Multiplier);
+
             if (amount >= 5000)
                 amount = 50 * (amount / 50);
             else if (amount >= 1000)
