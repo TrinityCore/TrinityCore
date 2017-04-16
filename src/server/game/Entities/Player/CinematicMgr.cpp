@@ -51,7 +51,6 @@ void CinematicMgr::BeginCinematic()
         m_cinematicDiff = 0;
         m_cinematicCamera = flyByCameras;
 
-        auto camitr = m_cinematicCamera->begin();
         if (!m_cinematicCamera->empty())
         {
             FlyByCamera const& firstCamera = m_cinematicCamera->front();
