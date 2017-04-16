@@ -1,0 +1,30 @@
+=  Trinity Core  =
+
+Copyright (C) Trinity Core (http://www.trinitycore.org)
+
+	目前主分支支持魔兽:
+	世界燃烧的远征3.3.5a(台服build 12340,国服build 13930); 
+	大地的裂变4.3.4(build 15595)。
+	数据库实用自带的TDB，也可以使用YTDB for Trinity，然后更新，游戏内容比较全。
+
+==================================================================
+
+=  Trinity Core  =
+
+官方网站：	http://www.trinitycore.org
+源码托管：	https://github.com/TrinityCore/TrinityCore
+
+Core地址：	https://github.com/TrinityCore/TrinityCore.git
+3.3.5分支：	选择Core master分支
+4.3.4分支：	选择Core 4.3.4分支
+3.3.5DB：	http://www.trinitycore.org/f/files/download/5-tdb-full-updates/
+		Core updates：core/sql/updates
+4.3.4DB：	目前在测试，
+		base是：http://www.trinitycore.org/f/files/download/9-tdb-full-434/
+		updates是：https://github.com/TrinityCore/TrinityCore_4.3.4_DB_Alpha.git
+		Core updates：core/sql/updates
+
+Wiki百科：	http://www.trinitycore.info/
+安装手册：	http://www.trinitycore.info/How-to:Win
+		trinitycore教程，以及如何编译
+Tracker：	https://github.com/TrinityCore/TrinityCore/issues
