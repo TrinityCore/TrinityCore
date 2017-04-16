@@ -22,6 +22,9 @@ float ConserveManaMultiplier::GetValue(Action* action)
     if (health < sPlayerbotAIConfig.lowHealth)
         return 1.0f;
 
+	if (mediumMana && dynamic_cast<BuffOnPartyAction*>(action))
+		return 0.0f;
+
     if (name == "melee" || name == "reach melee" || name == "reach spell")
         return 1.0f;
 
