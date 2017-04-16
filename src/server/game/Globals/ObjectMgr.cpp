@@ -8464,7 +8464,7 @@ void ObjectMgr::LoadMailLevelRewards()
     TC_LOG_INFO("server.loading", ">> Loaded %u level dependent mail rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddSpellToTrainer(uint32 ID, uint32 SpellID, uint32 MoneyCost, uint32 ReqSkillLine, uint32 ReqSkillRank, uint32 ReqLevel)
+void ObjectMgr::AddSpellToTrainer(uint32 ID, uint32 SpellID, uint32 MoneyCost, uint32 ReqSkillLine, uint32 ReqSkillRank, uint32 ReqLevel, uint32 Index)
 {
     if (ID >= TRINITY_TRAINER_START_REF)
         return;
@@ -8503,6 +8503,7 @@ void ObjectMgr::AddSpellToTrainer(uint32 ID, uint32 SpellID, uint32 MoneyCost, u
     trainerSpell.ReqSkillLine  = ReqSkillLine;
     trainerSpell.ReqSkillRank  = ReqSkillRank;
     trainerSpell.ReqLevel      = ReqLevel;
+    trainerSpell.Index         = Index;
 
     if (!trainerSpell.ReqLevel)
         trainerSpell.ReqLevel = spellinfo->SpellLevel;
@@ -8543,7 +8544,7 @@ void ObjectMgr::LoadTrainerSpell()
     // For reload case
     _cacheTrainerSpellStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT b.ID, a.SpellID, a.MoneyCost, a.ReqSkillLine, a.ReqSkillRank, a.Reqlevel FROM npc_trainer AS a "
+    QueryResult result = WorldDatabase.Query("SELECT b.ID, a.SpellID, a.MoneyCost, a.ReqSkillLine, a.ReqSkillRank, a.Reqlevel, a.Index FROM npc_trainer AS a "
                                              "INNER JOIN npc_trainer AS b ON a.ID = -(b.SpellID) "
                                              "UNION SELECT * FROM npc_trainer WHERE SpellID > 0");
 
@@ -8566,8 +8567,9 @@ void ObjectMgr::LoadTrainerSpell()
         uint32 ReqSkillLine = fields[3].GetUInt16();
         uint32 ReqSkillRank = fields[4].GetUInt16();
         uint32 ReqLevel     = fields[5].GetUInt8();
+        uint32 Index        = fields[6].GetUInt8();
 
-        AddSpellToTrainer(ID, SpellID, MoneyCost, ReqSkillLine, ReqSkillRank, ReqLevel);
+        AddSpellToTrainer(ID, SpellID, MoneyCost, ReqSkillLine, ReqSkillRank, ReqLevel, Index);
 
         ++count;
     }

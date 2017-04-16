@@ -1210,6 +1210,94 @@ public:
     }
 };
 
+/*###
+# start menu multi profession trainer
+###*/
+
+class npc_multi_profession_trainer : public CreatureScript
+{
+public:
+    npc_multi_profession_trainer() : CreatureScript("npc_multi_profession_trainer") { }
+
+    struct npc_multi_profession_trainerAI : public ScriptedAI
+    {
+        npc_multi_profession_trainerAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
+        {
+            switch (gossipListId)
+            {
+            case GOSSIP_OPTION_ALCHEMY:
+            case GOSSIP_OPTION_BLACKSMITHING:
+            case GOSSIP_OPTION_ENCHANTING:
+            case GOSSIP_OPTION_ENGINEERING:
+            case GOSSIP_OPTION_HERBALISM:
+            case GOSSIP_OPTION_INSCRIPTION:
+            case GOSSIP_OPTION_JEWELCRAFTING:
+            case GOSSIP_OPTION_LEATHERWORKING:
+            case GOSSIP_OPTION_MINING:
+            case GOSSIP_OPTION_SKINNING:
+            case GOSSIP_OPTION_TAILORING:
+                SendTrainerList(player, gossipListId);
+                break;
+            case GOSSIP_OPTION_MULTI:
+            {
+                switch (menuId)
+                {
+                case GOSSIP_MENU_HERBALISM:
+                    SendTrainerList(player, GOSSIP_OPTION_HERBALISM);
+                    break;
+                case GOSSIP_MENU_MINING:
+                    SendTrainerList(player, GOSSIP_OPTION_MINING);
+                    break;
+                case GOSSIP_MENU_SKINNING:
+                    SendTrainerList(player, GOSSIP_OPTION_SKINNING);
+                    break;
+                case GOSSIP_MENU_ALCHEMY:
+                    SendTrainerList(player, GOSSIP_OPTION_ALCHEMY);
+                    break;
+                case GOSSIP_MENU_BLACKSMITHING:
+                    SendTrainerList(player, GOSSIP_OPTION_BLACKSMITHING);
+                    break;
+                case GOSSIP_MENU_ENCHANTING:
+                    SendTrainerList(player, GOSSIP_OPTION_ENCHANTING);
+                    break;
+                case GOSSIP_MENU_ENGINEERING:
+                    SendTrainerList(player, GOSSIP_OPTION_ENGINEERING);
+                    break;
+                case GOSSIP_MENU_INSCRIPTION:
+                    SendTrainerList(player, GOSSIP_OPTION_INSCRIPTION);
+                    break;
+                case GOSSIP_MENU_JEWELCRAFTING:
+                    SendTrainerList(player, GOSSIP_OPTION_JEWELCRAFTING);
+                    break;
+                case GOSSIP_MENU_LEATHERWORKING:
+                    SendTrainerList(player, GOSSIP_OPTION_LEATHERWORKING);
+                    break;
+                case GOSSIP_MENU_TAILORING:
+                    SendTrainerList(player, GOSSIP_OPTION_TAILORING);
+                    break;
+                default:
+                    break;
+                }
+            }
+            default:
+                break;
+            }
+        }
+
+        void SendTrainerList(Player* player, uint32 Index)
+        {
+            player->GetSession()->SendTrainerList(me->GetGUID(), Index + 1);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_multi_profession_trainerAI(creature);
+    }
+};
+
 void AddSC_npc_professions()
 {
     new npc_prof_alchemy();
@@ -1217,4 +1305,5 @@ void AddSC_npc_professions()
     new npc_engineering_tele_trinket();
     new npc_prof_leather();
     new npc_prof_tailor();
+    new npc_multi_profession_trainer();
 }
