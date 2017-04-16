@@ -58,8 +58,7 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         uint32 GetEventValue(uint32 bot, string event);
         uint32 SetEventValue(uint32 bot, string event, uint32 value, uint32 validIn);
         list<uint32> GetBots();
-        vector<uint32> GetFreeBots(bool alliance);
-        uint32 AddRandomBot(bool alliance);
+		uint32 AddRandomBots();
         bool ProcessBot(uint32 bot);
         void ScheduleRandomize(uint32 bot, uint32 time);
         void RandomTeleport(Player* bot, uint16 mapId, float teleX, float teleY, float teleZ);

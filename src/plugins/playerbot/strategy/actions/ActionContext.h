@@ -17,6 +17,7 @@
 #include "SayAction.h"
 #include "CheckMountStateAction.h"
 #include "RandomBotUpdateAction.h"
+#include "DelayAction.h"
 
 namespace ai
 {
@@ -70,6 +71,7 @@ namespace ai
             creators["say"] = &ActionContext::say;
 			creators["mount"] = &ActionContext::mount;
 			creators["random bot update"] = &ActionContext::random_bot_update;
+			creators["delay"] = &ActionContext::delay;
         }
 
     private:
@@ -115,6 +117,7 @@ namespace ai
         static Action* say(PlayerbotAI* ai) { return new SayAction(ai); }
 		static Action* mount(PlayerbotAI *ai) { return new CastSpellAction(ai,"mount"); }
 		static Action* random_bot_update(PlayerbotAI* ai) { return new RandomBotUpdateAction(ai); }
+		static Action* delay(PlayerbotAI* ai) { return new DelayAction(ai); }
     };
 
 };
