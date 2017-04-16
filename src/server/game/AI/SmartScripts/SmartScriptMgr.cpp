@@ -981,7 +981,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         case SMART_ACTION_SET_EVENT_PHASE:
-            if (e.action.setEventPhase.phase >= SMART_EVENT_PHASE_MAX)
+            if (e.action.setEventPhase.phase > SMART_EVENT_PHASE_ALL)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u attempts to set phase %u. Phase mask cannot be used past phase %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setEventPhase.phase, SMART_EVENT_PHASE_MAX-1);
                 return false;
@@ -1005,12 +1005,12 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         case SMART_ACTION_RANDOM_PHASE:
             {
-                if (e.action.randomPhase.phase1 >= SMART_EVENT_PHASE_MAX ||
-                    e.action.randomPhase.phase2 >= SMART_EVENT_PHASE_MAX ||
-                    e.action.randomPhase.phase3 >= SMART_EVENT_PHASE_MAX ||
-                    e.action.randomPhase.phase4 >= SMART_EVENT_PHASE_MAX ||
-                    e.action.randomPhase.phase5 >= SMART_EVENT_PHASE_MAX ||
-                    e.action.randomPhase.phase6 >= SMART_EVENT_PHASE_MAX)
+                if (e.action.randomPhase.phase1 > SMART_EVENT_PHASE_ALL ||
+                    e.action.randomPhase.phase2 > SMART_EVENT_PHASE_ALL ||
+                    e.action.randomPhase.phase3 > SMART_EVENT_PHASE_ALL ||
+                    e.action.randomPhase.phase4 > SMART_EVENT_PHASE_ALL ||
+                    e.action.randomPhase.phase5 > SMART_EVENT_PHASE_ALL ||
+                    e.action.randomPhase.phase6 > SMART_EVENT_PHASE_ALL)
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u attempts to set invalid phase, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                     return false;
@@ -1019,8 +1019,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             break;
         case SMART_ACTION_RANDOM_PHASE_RANGE:       //PhaseMin, PhaseMax
             {
-                if (e.action.randomPhaseRange.phaseMin >= SMART_EVENT_PHASE_MAX ||
-                    e.action.randomPhaseRange.phaseMax >= SMART_EVENT_PHASE_MAX)
+                if (e.action.randomPhaseRange.phaseMin > SMART_EVENT_PHASE_ALL ||
+                    e.action.randomPhaseRange.phaseMax > SMART_EVENT_PHASE_ALL)
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u attempts to set invalid phase, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                     return false;

@@ -713,6 +713,7 @@ struct SmartAction
 
         struct
         {
+            //this is a phase mask
             uint32 phase;
         } setEventPhase;
 
@@ -739,6 +740,7 @@ struct SmartAction
 
         struct
         {
+            //these are phase masks
             uint32 phase1;
             uint32 phase2;
             uint32 phase3;
@@ -749,6 +751,7 @@ struct SmartAction
 
         struct
         {
+            //these are phase masks
             uint32 phaseMin;
             uint32 phaseMax;
         } randomPhaseRange;
