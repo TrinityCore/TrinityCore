@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Npc_Professions
 SD%Complete: 80
-SDComment: Provides learn/unlearn/relearn-options for professions. Not supported: Unlearn engineering, re-learn engineering, re-learn leatherworking.
+SDComment: Provides learn/unlearn/relearn-options for professions. Not supported: Re-learn leatherworking.
 SDCategory: NPCs
 EndScriptData */
 
@@ -49,6 +49,8 @@ there is no difference here (except that default text is chosen with `gameobject
 #define TALK_HAMMER_UNLEARN         "Forgetting your Hammersmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Hammersmithing to create!"
 #define TALK_AXE_UNLEARN            "Forgetting your Axesmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Axesmithing to create!"
 #define TALK_SWORD_UNLEARN          "Forgetting your Swordsmithing skill is not something to do lightly. If you choose to abandon it you will forget all recipes that require Swordsmithing to create!"
+
+#define TALK_ENGINEERING_UNLEARN    "Hundreds of various diagrams and schematics begin to take shape on the pages of the book. You recognize some of the diagrams while others remain foreign but familiar."
 
 /*###
 # generic defines
@@ -153,6 +155,9 @@ enum ProfessionSpells
     S_LEARN_GOBLIN          = 20221,
     S_LEARN_GNOMISH         = 20220,
 
+	S_UNLEARN_GOBLIN        = 68334,
+	S_UNLEARN_GNOMISH       = 68333,
+
     S_SPELLFIRE             = 26797,
     S_MOONCLOTH             = 26798,
     S_SHADOWEAVE            = 26801,
@@ -233,7 +238,7 @@ int32 DoLearnCost(Player* /*player*/)                      //tailor, alchemy
     return 200000;
 }
 
-int32 DoHighUnlearnCost(Player* /*player*/)                //tailor, alchemy
+int32 DoHighUnlearnCost(Player* /*player*/)                //tailor, alchemy, engineering
 {
     return 1500000;
 }
@@ -379,6 +384,27 @@ void ProfessionUnlearnSpells(Player* player, uint32 type)
             player->RemoveSpell(36075);                     // Wildfeather Leggings
             player->RemoveSpell(36078);                     // Living Crystal Breastplate
             break;
+		case S_UNLEARN_GOBLIN:								// S_UNLEARN_GOBLIN
+			player->RemoveSpell(30565);						// Foreman's Enchanted Helmet
+			player->RemoveSpell(30566);						// Foreman's Reinforced Helmet
+			player->RemoveSpell(30563);						// Goblin Rocket Launcher
+			player->RemoveSpell(56514);						// Global Thermal Sapper Charge
+			player->RemoveSpell(36954);						// Dimensional Ripper - Area 52
+			player->RemoveSpell(23486);						// Dimensional Ripper - Everlook
+			player->RemoveSpell(23078);						// Goblin Jumper Cables XL
+			player->RemoveSpell(72952);						// Shatter Rounds
+			break;
+		case S_UNLEARN_GNOMISH:								// S_UNLEARN_GNOMISH
+			player->RemoveSpell(30575);						// Gnomish Battle Goggles
+			player->RemoveSpell(30574);						// Gnomish Power Goggles
+			player->RemoveSpell(56473);						// Gnomish X-Ray Specs
+			player->RemoveSpell(30569);						// Gnomish Poultryizer
+			player->RemoveSpell(30563);						// Ultrasafe Transporter - Toshley's Station
+			player->RemoveSpell(23489);						// Ultrasafe Transporter - Gadgetzan
+			player->RemoveSpell(23129);						// World Enlarger
+			player->RemoveSpell(23096);						// Gnomish Alarm-o-Bot
+			player->RemoveSpell(72953);						// Iceblade Arrow
+			break;
         case S_UNLEARN_SPELLFIRE:                           // S_UNLEARN_SPELLFIRE
             player->RemoveSpell(26752);                     // Spellfire Belt
             player->RemoveSpell(26753);                     // Spellfire Gloves
@@ -836,7 +862,8 @@ enum EngineeringTrinkets
 
 #define GOSSIP_ITEM_ZAP         "This Dimensional Imploder sounds dangerous! How can I make one?"
 #define GOSSIP_ITEM_JHORDY      "I must build a beacon for this marvelous device!"
-#define GOSSIP_ITEM_KABLAM      "[PH] Unknown"
+#define GOSSIP_ITEM_KABLAM      "This Dimensional Imploder sounds dangerous! How can I make one?"
+#define GOSSIP_ITEM_SMILES      "[PH] Unknown"
 
 class npc_engineering_tele_trinket : public CreatureScript
 {
@@ -885,7 +912,7 @@ public:
                 case NPC_SMILES:
                     canLearn = CanLearn(player, 10363, 0, 350, S_GNOMISH, SPELL_TO_TOSHLEY, npcTextId);
                     if (canLearn)
-                        gossipItem = GOSSIP_ITEM_KABLAM;
+                        gossipItem = GOSSIP_ITEM_SMILES;
                     break;
             }
         }
@@ -924,6 +951,90 @@ public:
 
         return true;
     }
+};
+
+/*###
+# start menues engineering
+###*/
+
+#define GOSSIP_LEARN_GOBLIN "I am 100% confident that I wish to learn in the ways of goblin engineering."
+#define GOSSIP_UNLEARN_GOBLIN "I wish to unlearn my Goblin Engineering specialization!"
+#define GOSSIP_LEARN_GNOMISH "I am 100% confident that I wish to learn in the ways of gnomish engineering."
+#define GOSSIP_UNLEARN_GNOMISH "I wish to unlearn my Gnomish Engineering specialization!"
+
+#define BOX_UNLEARN_GOBLIN_SPEC "Do you really want to unlearn your Goblin Engineering specialization and lose all asociated recipes?"
+#define BOX_UNLEARN_GNOMISH_SPEC "Do you really want to unlearn your Gnomish Engineering specialization and lose all asociated recipes?"
+
+class go_soothsaying_book : public GameObjectScript
+{
+public:
+	go_soothsaying_book() : GameObjectScript("go_soothsaying_book") { }
+
+	bool HasEngineerSpell(Player* player) { return (player->HasSpell(S_GNOMISH) || player->HasSpell(S_GOBLIN)); }
+
+	bool OnGossipHello(Player* player, GameObject* go) override	
+	{
+		if (player->HasSkill(SKILL_ENGINEERING) && player->GetBaseSkillValue(SKILL_ENGINEERING) >= 200 && player->getLevel() > 9) 
+		{
+			if (player->GetQuestRewardStatus(3643) || player->GetQuestRewardStatus(3641) || player->GetQuestRewardStatus(3639)) 
+			{
+				if (!HasEngineerSpell(player)) 
+				{
+					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_GNOMISH, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 1);
+					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_GOBLIN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 2);
+					player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
+					return true;
+				}
+				if (player->HasSpell(S_GNOMISH))
+					player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_GNOMISH, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 3, BOX_UNLEARN_GNOMISH_SPEC, DoHighUnlearnCost(player), false);
+				if (player->HasSpell(S_GOBLIN))
+					player->ADD_GOSSIP_ITEM_EXTENDED(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_GOBLIN, GOSSIP_SENDER_CHECK, GOSSIP_ACTION_INFO_DEF + 4, BOX_UNLEARN_GOBLIN_SPEC, DoHighUnlearnCost(player), false);
+			}
+		}
+		
+		player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
+		return true;		
+	}
+
+
+	void SendActionMenu(Player* player, GameObject* go, uint32 action)
+	{
+		switch (action)
+		{
+			//Learn Engineering spec
+			case GOSSIP_ACTION_INFO_DEF + 1:
+				if (!player->HasSpell(S_GNOMISH))
+					player->CastSpell(player, S_LEARN_GNOMISH, true);
+				player->CLOSE_GOSSIP_MENU();
+				break;
+			case GOSSIP_ACTION_INFO_DEF + 2:
+				if (!player->HasSpell(S_GOBLIN))
+					player->CastSpell(player, S_LEARN_GOBLIN, true);
+				player->CLOSE_GOSSIP_MENU();
+				break;
+			//Unlearn Engineering spec
+			case GOSSIP_ACTION_INFO_DEF + 3:
+				ProcessUnlearnAction(player, 0, S_UNLEARN_GNOMISH, 0, DoHighUnlearnCost(player));
+				break;
+			case GOSSIP_ACTION_INFO_DEF + 4:
+				ProcessUnlearnAction(player, 0, S_UNLEARN_GOBLIN, 0, DoHighUnlearnCost(player));
+				break;
+		}
+	}
+
+	bool OnGossipSelect(Player* player, GameObject* go, uint32 uiSender, uint32 action)
+	{
+	player->PlayerTalkClass->ClearMenus();
+	switch (uiSender)
+	{
+		case GOSSIP_SENDER_MAIN:
+		case GOSSIP_SENDER_CHECK:
+			SendActionMenu(player, go, action);
+			break;
+	}
+	return true;
+	}
+	
 };
 
 /*###
@@ -1215,6 +1326,7 @@ void AddSC_npc_professions()
     new npc_prof_alchemy();
     new npc_prof_blacksmith();
     new npc_engineering_tele_trinket();
+	new go_soothsaying_book();
     new npc_prof_leather();
     new npc_prof_tailor();
 }
