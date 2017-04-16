@@ -18,7 +18,6 @@ public:
 	void YieldThread();
     virtual void UpdateAI(uint32 elapsed);
     virtual void UpdateAIInternal(uint32 elapsed) = 0;
-	bool IsActive();
 
 protected:
 	uint32 nextAICheckDelay;

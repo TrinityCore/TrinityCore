@@ -50,8 +50,3 @@ void PlayerbotAIBase::YieldThread()
     if (nextAICheckDelay < sPlayerbotAIConfig.reactDelay)
         nextAICheckDelay = sPlayerbotAIConfig.reactDelay;
 }
-
-bool PlayerbotAIBase::IsActive()
-{
-	return nextAICheckDelay < sPlayerbotAIConfig.maxWaitForMove;
-}
