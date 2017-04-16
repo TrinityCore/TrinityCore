@@ -114,9 +114,9 @@ INSERT INTO `npc_trainer` (`ID`,`SpellID`,`MoneyCost`,`ReqSkillLine`,`ReqSkillRa
 (200012,3759,190,165,75,0,8), -- Leatherworking
 (200012,9065,142,165,70,0,8), -- Leatherworking
 (200012,2155,10,0,0,5,8), -- Leatherworking
--- (200012,226105,95,165,55,0,8), -- Leatherworking "MASTER ONLY"
--- (200012,226107,142,165,70,0,8), -- Leatherworking "MASTER ONLY"
--- (200012,226106,142,165,70,0,8), -- Leatherworking "MASTER ONLY"
+(200012,226105,95,165,55,0,8), -- Leatherworking "MASTER ONLY"
+(200012,226107,142,165,70,0,8), -- Leatherworking "MASTER ONLY"
+(200012,226106,142,165,70,0,8), -- Leatherworking "MASTER ONLY"
 (200012,2659,190,186,50,0,9), -- Mining
 (200012,3304,48,186,50,0,9), -- Mining
 (200012,2658,190,186,50,0,9), -- Mining
