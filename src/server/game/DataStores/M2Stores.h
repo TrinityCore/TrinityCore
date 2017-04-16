@@ -18,16 +18,8 @@
 #ifndef TRINITY_M2STORES_H
 #define TRINITY_M2STORES_H
 
-#include "Common.h"
-#include "G3D/Vector4.h"
-
-namespace boost
-{
-    namespace filesystem
-    {
-        class path;
-    }
-}
+#include "Define.h"
+#include <G3D/Vector4.h>
 
 struct FlyByCamera
 {
@@ -35,10 +27,8 @@ struct FlyByCamera
     G3D::Vector4 locations;
 };
 
-typedef std::vector<FlyByCamera> FlyByCameraCollection;
+TC_GAME_API void LoadM2Cameras(std::string const& dataPath);
 
-TC_GAME_API extern std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
-
-TC_GAME_API void LoadM2Cameras(boost::filesystem::path const& dataPath);
+TC_GAME_API std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId);
 
 #endif

@@ -17,6 +17,7 @@
 
 #include "CinematicMgr.h"
 #include "Creature.h"
+#include "M2Stores.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 
@@ -44,21 +45,21 @@ void CinematicMgr::BeginCinematic()
     if (m_activeCinematicCameraId == 0)
         return;
 
-    auto itr = sFlyByCameraStore.find(m_activeCinematicCameraId);
-    if (itr != sFlyByCameraStore.end())
+    if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(m_activeCinematicCameraId))
     {
         // Initialize diff, and set camera
         m_cinematicDiff = 0;
-        m_cinematicCamera = &itr->second;
+        m_cinematicCamera = flyByCameras;
 
-        FlyByCameraCollection::const_iterator camitr = m_cinematicCamera->begin();
-        if (camitr != m_cinematicCamera->end())
+        auto camitr = m_cinematicCamera->begin();
+        if (!m_cinematicCamera->empty())
         {
-            Position pos(camitr->locations.x, camitr->locations.y, camitr->locations.z, camitr->locations.w);
+            FlyByCamera const& firstCamera = m_cinematicCamera->front();
+            Position pos(firstCamera.locations.x, firstCamera.locations.y, firstCamera.locations.z, firstCamera.locations.w);
             if (!pos.IsPositionValid())
                 return;
 
-            player->GetMap()->LoadGrid(camitr->locations.x, camitr->locations.y);
+            player->GetMap()->LoadGrid(firstCamera.locations.x, firstCamera.locations.y);
             m_CinematicObject = player->SummonCreature(VISUAL_WAYPOINT, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5 * MINUTE * IN_MILLISECONDS);
             if (m_CinematicObject)
             {
@@ -67,11 +68,7 @@ void CinematicMgr::BeginCinematic()
             }
 
             // Get cinematic length
-            FlyByCameraCollection::const_reverse_iterator camrevitr = m_cinematicCamera->rbegin();
-            if (camrevitr != m_cinematicCamera->rend())
-                m_cinematicLength = camrevitr->timeStamp;
-            else
-                m_cinematicLength = 0;
+            m_cinematicLength = m_cinematicCamera->back().timeStamp;
         }
     }
 }
@@ -105,7 +102,7 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
     uint32 nextTimestamp = 0;
 
     // Obtain direction of travel
-    for (FlyByCamera cam : *m_cinematicCamera)
+    for (FlyByCamera const& cam : *m_cinematicCamera)
     {
         if (cam.timeStamp > m_cinematicDiff)
         {
@@ -128,7 +125,7 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
     workDiff += static_cast<int32>(float(CINEMATIC_LOOKAHEAD) * cos(angle));
 
     // Get an iterator to the last entry in the cameras, to make sure we don't go beyond the end
-    FlyByCameraCollection::const_reverse_iterator endItr = m_cinematicCamera->rbegin();
+    auto endItr = m_cinematicCamera->rbegin();
     if (endItr != m_cinematicCamera->rend() && workDiff > static_cast<int32>(endItr->timeStamp))
         workDiff = endItr->timeStamp;
 
@@ -137,7 +134,7 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
         workDiff = m_cinematicDiff;
 
     // Obtain the previous and next waypoint based on timestamp
-    for (FlyByCamera cam : *m_cinematicCamera)
+    for (FlyByCamera const& cam : *m_cinematicCamera)
     {
         if (static_cast<int32>(cam.timeStamp) >= workDiff)
         {

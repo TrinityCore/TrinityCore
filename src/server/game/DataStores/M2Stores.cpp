@@ -15,18 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DB2Stores.h"
-#include "M2Structure.h"
 #include "M2Stores.h"
 #include "Common.h"
 #include "Containers.h"
+#include "DB2Stores.h"
 #include "Log.h"
+#include "M2Structure.h"
 #include "World.h"
+#include <boost/filesystem/path.hpp>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
-#include <boost/filesystem/path.hpp>
 
+typedef std::vector<FlyByCamera> FlyByCameraCollection;
 std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
 
 // Convert the geomoetry from a spline value, to an actual WoW XYZ
@@ -183,15 +184,17 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
     return true;
 }
 
-TC_GAME_API void LoadM2Cameras(boost::filesystem::path const& dataPath)
+TC_GAME_API void LoadM2Cameras(std::string const& dataPath)
 {
     sFlyByCameraStore.clear();
     TC_LOG_INFO("server.loading", ">> Loading Cinematic Camera files");
 
+    boost::filesystem::path camerasPath = boost::filesystem::path(dataPath) / "cameras";
+
     uint32 oldMSTime = getMSTime();
     for (CinematicCameraEntry const* cameraEntry : sCinematicCameraStore)
     {
-        boost::filesystem::path filename = dataPath / Trinity::StringFormat("FILE%08X.xxx", cameraEntry->ModelFileDataID);
+        boost::filesystem::path filename = camerasPath / Trinity::StringFormat("FILE%08X.xxx", cameraEntry->ModelFileDataID);
 
         // Convert to native format
         filename.make_preferred();
@@ -271,4 +274,9 @@ TC_GAME_API void LoadM2Cameras(boost::filesystem::path const& dataPath)
             TC_LOG_ERROR("server.loading", "Camera file %s is damaged. Camera references position beyond file end", filename.string().c_str());
     }
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " cinematic waypoint sets in %u ms", sFlyByCameraStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId)
+{
+    return Trinity::Containers::MapGetValuePtr(sFlyByCameraStore, cinematicCameraId);
 }

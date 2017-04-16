@@ -44,6 +44,23 @@ uint32 DB2FileLoadInfo::GetStringFieldCount(bool localizedOnly) const
     return stringFields;
 }
 
+std::pair<int32, int32> DB2FileLoadInfo::GetFieldIndexByName(char const* fieldName) const
+{
+    std::size_t ourIndex = Meta->HasIndexFieldInData() ? 0 : 1;
+    for (uint32 i = 0; i < Meta->FieldCount; ++i)
+    {
+        for (uint8 arr = 0; arr < Meta->ArraySizes[i]; ++arr)
+        {
+            if (!strcmp(Fields[ourIndex].Name, fieldName))
+                return std::make_pair(int32(i), int32(arr));
+
+            ++ourIndex;
+        }
+    }
+
+    return std::make_pair(-1, -1);
+}
+
 DB2FileSource::~DB2FileSource()
 {
 }
@@ -61,6 +78,7 @@ public:
     virtual uint32 GetRecordCount() const = 0;
     virtual uint32 GetRecordCopyCount() const = 0;
     virtual uint32 GetMaxId() const = 0;
+    virtual DB2FileLoadInfo const* GetLoadInfo() const = 0;
 
 private:
     friend class DB2Record;
@@ -91,6 +109,7 @@ public:
     uint32 GetRecordCount() const override;
     uint32 GetRecordCopyCount() const override;
     uint32 GetMaxId() const override;
+    DB2FileLoadInfo const* GetLoadInfo() const override;
 
 private:
     void FillCommonValues(char** indexTable);
@@ -139,12 +158,13 @@ public:
     bool Load(DB2FileSource* source, DB2FileLoadInfo const* loadInfo, DB2Header const* header) override;
     char* AutoProduceData(uint32& records, char**& indexTable, std::vector<char*>& stringPool) override;
     char* AutoProduceStrings(char* dataTable, uint32 locale) override;
-    void AutoProduceRecordCopies(uint32 /*records*/, char** /*indexTable*/, char* /*dataTable*/) override { }
+    void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable) override { }
     DB2Record GetRecord(uint32 recordNumber) const override;
     DB2RecordCopy GetRecordCopy(uint32 copyNumber) const override;
     uint32 GetRecordCount() const override;
     uint32 GetRecordCopyCount() const override;
     uint32 GetMaxId() const override;
+    DB2FileLoadInfo const* GetLoadInfo() const override;
 
 private:
     unsigned char const* GetRawRecordData(uint32 recordNumber) const override;
@@ -744,6 +764,11 @@ uint32 DB2FileLoaderRegularImpl::GetMaxId() const
     return maxId;
 }
 
+DB2FileLoadInfo const* DB2FileLoaderRegularImpl::GetLoadInfo() const
+{
+    return _loadInfo;
+}
+
 DB2FileLoaderSparseImpl::DB2FileLoaderSparseImpl()
 {
     fileName = nullptr;
@@ -1165,6 +1190,11 @@ uint32 DB2FileLoaderSparseImpl::GetMaxId() const
     return _header->MaxId;
 }
 
+DB2FileLoadInfo const* DB2FileLoaderSparseImpl::GetLoadInfo() const
+{
+    return _loadInfo;
+}
+
 DB2Record::DB2Record(DB2FileLoaderImpl const& db2, uint32 recordIndex, std::size_t* fieldOffsets)
     : _db2(db2), _recordIndex(recordIndex), _recordData(db2.GetRawRecordData(recordIndex)), _fieldOffsets(fieldOffsets)
 {
@@ -1190,9 +1220,23 @@ uint8 DB2Record::GetUInt8(uint32 field, uint32 arrayIndex) const
     return _db2.RecordGetUInt8(_recordData, field, arrayIndex);
 }
 
+uint8 DB2Record::GetUInt8(char const* fieldName) const
+{
+    std::pair<int32, int32> fieldIndex = _db2.GetLoadInfo()->GetFieldIndexByName(fieldName);
+    ASSERT(fieldIndex.first != -1, "Field with name %s does not exist!", fieldName);
+    return _db2.RecordGetUInt8(_recordData, uint32(fieldIndex.first), uint32(fieldIndex.second));
+}
+
 uint16 DB2Record::GetUInt16(uint32 field, uint32 arrayIndex) const
 {
     return _db2.RecordGetUInt16(_recordData, field, arrayIndex);
+}
+
+uint16 DB2Record::GetUInt16(char const* fieldName) const
+{
+    std::pair<int32, int32> fieldIndex = _db2.GetLoadInfo()->GetFieldIndexByName(fieldName);
+    ASSERT(fieldIndex.first != -1, "Field with name %s does not exist!", fieldName);
+    return _db2.RecordGetUInt16(_recordData, uint32(fieldIndex.first), uint32(fieldIndex.second));
 }
 
 uint32 DB2Record::GetUInt32(uint32 field, uint32 arrayIndex) const
@@ -1200,9 +1244,23 @@ uint32 DB2Record::GetUInt32(uint32 field, uint32 arrayIndex) const
     return _db2.RecordGetUInt32(_recordData, field, arrayIndex);
 }
 
+uint32 DB2Record::GetUInt32(char const* fieldName) const
+{
+    std::pair<int32, int32> fieldIndex = _db2.GetLoadInfo()->GetFieldIndexByName(fieldName);
+    ASSERT(fieldIndex.first != -1, "Field with name %s does not exist!", fieldName);
+    return _db2.RecordGetUInt32(_recordData, uint32(fieldIndex.first), uint32(fieldIndex.second));
+}
+
 int32 DB2Record::GetInt32(uint32 field, uint32 arrayIndex) const
 {
     return _db2.RecordGetInt32(_recordData, field, arrayIndex);
+}
+
+int32 DB2Record::GetInt32(char const* fieldName) const
+{
+    std::pair<int32, int32> fieldIndex = _db2.GetLoadInfo()->GetFieldIndexByName(fieldName);
+    ASSERT(fieldIndex.first != -1, "Field with name %s does not exist!", fieldName);
+    return _db2.RecordGetInt32(_recordData, uint32(fieldIndex.first), uint32(fieldIndex.second));
 }
 
 float DB2Record::GetFloat(uint32 field, uint32 arrayIndex) const
@@ -1210,9 +1268,23 @@ float DB2Record::GetFloat(uint32 field, uint32 arrayIndex) const
     return _db2.RecordGetFloat(_recordData, field, arrayIndex);
 }
 
+float DB2Record::GetFloat(char const* fieldName) const
+{
+    std::pair<int32, int32> fieldIndex = _db2.GetLoadInfo()->GetFieldIndexByName(fieldName);
+    ASSERT(fieldIndex.first != -1, "Field with name %s does not exist!", fieldName);
+    return _db2.RecordGetFloat(_recordData, uint32(fieldIndex.first), uint32(fieldIndex.second));
+}
+
 char const* DB2Record::GetString(uint32 field, uint32 arrayIndex) const
 {
     return _db2.RecordGetString(_recordData, field, arrayIndex);
+}
+
+char const* DB2Record::GetString(char const* fieldName) const
+{
+    std::pair<int32, int32> fieldIndex = _db2.GetLoadInfo()->GetFieldIndexByName(fieldName);
+    ASSERT(fieldIndex.first != -1, "Field with name %s does not exist!", fieldName);
+    return _db2.RecordGetString(_recordData, uint32(fieldIndex.first), uint32(fieldIndex.second));
 }
 
 void DB2Record::MakePersistent()
