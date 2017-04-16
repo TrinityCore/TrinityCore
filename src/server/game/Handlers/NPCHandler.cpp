@@ -127,8 +127,8 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle,
     {
         TrainerSpell const* tSpell = &itr->second;
 
-+        if (index && tSpell->Index != index)
-+            continue;
+        if (index && tSpell->Index != index)
+            continue;
 
         bool valid = true;
         for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
