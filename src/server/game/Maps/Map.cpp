@@ -2447,7 +2447,7 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
 {
     // find raw .map surface under Z coordinates
     float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
-	if (!isnan(x) && !isnan(y))
+	if (!std::isnan(x) && !std::isnan(y))
 	{
 		if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
 		{
