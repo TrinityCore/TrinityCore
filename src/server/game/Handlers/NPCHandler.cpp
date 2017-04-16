@@ -119,13 +119,13 @@ void WorldSession::HandleTrainerListOpcode(WorldPacket& recvData)
     SendTrainerList(guid);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid)
+void WorldSession::SendTrainerList(ObjectGuid guid, uint32 index)
 {
     std::string str = GetTrinityString(LANG_NPC_TAINER_HELLO);
-    SendTrainerList(guid, str);
+    SendTrainerList(guid, str, index);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
+void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle, uint32 index)
 {
     TC_LOG_DEBUG("network", "WORLD: SendTrainerList");
 
@@ -163,6 +163,9 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
     for (TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
     {
         TrainerSpell const* tSpell = &itr->second;
+
+        if (index && tSpell->Index != index) // *** Added Index check here
+            continue;
 
         bool valid = true;
         bool primary_prof_first_rank = false;
