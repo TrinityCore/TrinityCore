@@ -42,6 +42,6 @@ bool DropQuestAction::Execute(Event event)
     bot->RemoveActiveQuest(entry, false);
     bot->RemoveRewardedQuest(entry);
 
-	bot->Say("Quest removed", LANG_UNIVERSAL);
+    ai->TellMaster("Quest removed");
     return true;
 }

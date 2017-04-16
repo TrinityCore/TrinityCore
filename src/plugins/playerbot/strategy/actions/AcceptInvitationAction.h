@@ -39,7 +39,7 @@ namespace ai
                 bot->GetPlayerbotAI()->SetMaster(inviter);
 
             ai->ResetStrategies();
-            ai->TellMaster("Hi!");
+            ai->TellMaster("Hello");
             return true;
         }
     };

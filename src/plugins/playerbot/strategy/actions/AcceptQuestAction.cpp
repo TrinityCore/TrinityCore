@@ -28,7 +28,7 @@ bool AcceptQuestAction::Execute(Event event)
         Unit* npc = master->GetSelectedUnit();
         if (!npc)
         {
-            bot->Say("Please select quest giver NPC", LANG_UNIVERSAL);
+            ai->TellMaster("Please select quest giver NPC");
             return false;
         }
     }
@@ -71,7 +71,7 @@ bool AcceptQuestShareAction::Execute(Event event)
     {
         // can't take quest
         bot->SetDivider( ObjectGuid() );
-        bot->Say("I can't take this quest", LANG_UNIVERSAL);
+        ai->TellMaster("I can't take this quest");
 
         return false;
     }
@@ -94,7 +94,7 @@ bool AcceptQuestShareAction::Execute(Event event)
         if( qInfo->GetSrcSpell() > 0 )
             bot->CastSpell( bot, qInfo->GetSrcSpell(), true );
 
-        bot->Say("Quest accepted", LANG_UNIVERSAL);
+        ai->TellMaster("Quest accepted");
         return true;
     }
 

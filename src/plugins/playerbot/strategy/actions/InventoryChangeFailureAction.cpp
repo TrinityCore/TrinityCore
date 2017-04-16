@@ -17,39 +17,39 @@ bool InventoryChangeFailureAction::Execute(Event event)
     switch (err)
     {
     case EQUIP_ERR_CANT_CARRY_MORE_OF_THIS:
-		bot->Say("I can't carry anymore of those.", LANG_UNIVERSAL);
+        ai->TellMaster("I can't carry anymore of those.");
         break;
     case EQUIP_ERR_MISSING_REAGENT:
-		bot->Say("I'm missing some reagents for that.", LANG_UNIVERSAL);
+        ai->TellMaster("I'm missing some reagents for that.");
         break;
     case EQUIP_ERR_ITEM_LOCKED:
-		bot->Say("That item is locked.", LANG_UNIVERSAL);
+        ai->TellMaster("That item is locked.");
         break;
     case EQUIP_ERR_ALREADY_LOOTED:
         break;
     case EQUIP_ERR_INVENTORY_FULL:
-		bot->Say("My inventory is full.", LANG_UNIVERSAL);
+        ai->TellMaster("My inventory is full.");
         break;
     case EQUIP_ERR_NOT_IN_COMBAT:
-		bot->Say("I can't use that in combat.", LANG_UNIVERSAL);
+        ai->TellMaster("I can't use that in combat.");
         break;
     case EQUIP_ERR_LOOT_CANT_LOOT_THAT_NOW:
-		bot->Say("I can't get that now.", LANG_UNIVERSAL);
+        ai->TellMaster("I can't get that now.");
         break;
     case EQUIP_ERR_ITEM_UNIQUE_EQUIPABLE:
-		bot->Say("I can only have one of those equipped.", LANG_UNIVERSAL);
+        ai->TellMaster("I can only have one of those equipped.");
         break;
     case EQUIP_ERR_BANK_FULL:
-		bot->Say("My bank is full.", LANG_UNIVERSAL);
+        ai->TellMaster("My bank is full.");
         break;
     case EQUIP_ERR_ITEM_NOT_FOUND:
-		bot->Say("I can't find the item.", LANG_UNIVERSAL);
+        ai->TellMaster("I can't find the item.");
         break;
     case EQUIP_ERR_TOO_FAR_AWAY_FROM_BANK:
-		bot->Say("I'm too far from the bank.", LANG_UNIVERSAL);
+        ai->TellMaster("I'm too far from the bank.");
         break;
     default:
-		bot->Say("I can't use that.", LANG_UNIVERSAL);
+        ai->TellMaster("I can't use that.");
     }
     return true;
 }

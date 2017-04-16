@@ -21,7 +21,7 @@ bool BankAction::Execute(Event event)
         return Execute(text, npc);
     }
 
-	bot->Say("Cannot find banker nearby", LANG_UNIVERSAL);
+    ai->TellMaster("Cannot find banker nearby");
     return false;
 }
 

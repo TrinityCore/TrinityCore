@@ -12,12 +12,12 @@ bool ChangeTalentsAction::Execute(Event event)
     if (text == "1" || text == "primary")
     {
         bot->ActivateSpec(0);
-		bot->Say("Primary talents activated", LANG_UNIVERSAL);
+        ai->TellMaster("Primary talents activated");
     }
     else if (text == "2" || text == "secondary")
     {
         bot->ActivateSpec(1);
-		bot->Say("Secondary talents activated", LANG_UNIVERSAL);
+        ai->TellMaster("Secondary talents activated");
     }
     else
     {
@@ -30,7 +30,7 @@ bool ChangeTalentsAction::Execute(Event event)
             break;
         }
         out << " talents are active";
-		ai->TellMaster(out);
+        ai->TellMaster(out);
     }
 
     return true;

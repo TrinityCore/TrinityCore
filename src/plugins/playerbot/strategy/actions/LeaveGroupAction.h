@@ -14,8 +14,8 @@ namespace ai
             if (!bot->GetGroup())
                 return false;
 
-            bot->Say("Ah, don't leave me here? :(", LANG_UNIVERSAL);
-			
+            ai->TellMaster("Goodbye!", PLAYERBOT_SECURITY_TALK);
+
             WorldPacket p;
             string member = bot->GetName();
             p << uint32(PARTY_OP_LEAVE) << member << uint32(0);
