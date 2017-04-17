@@ -1,6 +1,6 @@
-##########################################
-# MANGOS Ai Playerbot Configuration file #
-##########################################
+##############################################
+# SingleCore Ai Playerbot Configuration file #
+##############################################
 
 [AiPlayerbotConf]
 ConfVersion=2010102201
@@ -8,17 +8,52 @@ ConfVersion=2010102201
 # Enable or disable AI Playerbot
 AiPlayerbot.Enabled = 1
 
+# Enable random bot system
+AiPlayerbot.RandomBotAutologin = 1
+
 # AI Playerbots can join in Battlegrounds
 AiPlayerbot.RandomBotJoinBG = 1
 
-# AI Playerbots pick up the player level
+# Enable LFG for random bots (buggy, use it only if you not playing in party)
+AiPlayerbot.RandomBotJoinLfg = 0
+
+# Randombots level based on player characters level
 AIPlayerbot.RandomBotBracketPlayer = 0
 
-# Feels like NPCBots, but using AI playerbots code
+# Server won't randomize randombots inventory
 AiPlayerbot.NotSoRandom = 0
 
 # All race, all class mode for bots (need the client mod too)
 AiPlayerbot.ARAC = 0
+
+# Accounts to create for random bots
+AiPlayerbot.RandomBotAccountPrefix = rndbot
+AiPlayerbot.RandomBotAccountCount = 100
+
+# Random bot count
+AiPlayerbot.MinRandomBots = 200
+AiPlayerbot.MaxRandomBots = 200
+AiPlayerbot.RandomBotMinLevel = 1
+AiPlayerbot.RandomBotMaxLevel = 80 
+
+# Custom strategies (check in database)
+AiPlayerbot.CombatStrategies = +custom::say
+AiPlayerbot.NonCombatStrategies = +custom::say
+
+# Allow/deny bots from your guild
+AiPlayerbot.AllowGuildBots = 1
+
+# Delete all random bot accounts
+AiPlayerbot.DeleteRandomBotAccounts = 0
+
+# Delete all random bot guilds
+AiPlayerbot.DeleteRandomBotGuilds = 0
+
+
+##############################################
+# Nothing interested down below              #
+##############################################
+
 
 # Warrior
 AiPlayerbot.RandomClassSpecProbability.1.0 = 20
@@ -79,9 +114,6 @@ AiPlayerbot.CommandPrefix =
 # Max AI iterations per tick
 AiPlayerbot.IterationsPerTick = 100
 
-# Allow/deny bots from your guild
-AiPlayerbot.AllowGuildBots = 1
-
 # Delay between two short-time spells cast
 AiPlayerbot.GlobalCooldown = 500
 
@@ -116,30 +148,12 @@ AiPlayerbot.AlmostFullHealth = 85
 AiPlayerbot.LowMana = 15
 AiPlayerbot.MediumMana = 40
 
-# Enable random bot system
-AiPlayerbot.RandomBotAutologin = 1
-
 # Random bot default strategies (applied after defaults)
-AiPlayerbot.RandomBotCombatStrategies = +dps,+attack weak,-threat
+AiPlayerbot.RandomBotCombatStrategies = +dps,+dps assist,-threat
 AiPlayerbot.RandomBotNonCombatStrategies = +grind,+move random,+loot
-AiPlayerbot.CombatStrategies = +custom::say
-AiPlayerbot.NonCombatStrategies = +custom::say
 
 # Create random bot characters automatically
 AiPlayerbot.RandomBotAutoCreate = 1
-
-# Random bot count
-AiPlayerbot.MinRandomBots = 200
-AiPlayerbot.MaxRandomBots = 200
-AiPlayerbot.RandomBotMinLevel = 1
-AiPlayerbot.RandomBotMaxLevel = 80 
-
-# Accounts to create for random bots
-AiPlayerbot.RandomBotAccountPrefix = rndbot
-AiPlayerbot.RandomBotAccountCount = 100
-
-# Delete all random bot accounts
-AiPlayerbot.DeleteRandomBotAccounts = 0
 
 # Random bot guild count
 AiPlayerbot.RandomBotGuildCount = 50
@@ -157,9 +171,6 @@ AiPlayerbot.MaxGuildTaskAdvertisementTime = 345600
 AiPlayerbot.MinGuildTaskRewardTime = 60
 AiPlayerbot.MaxGuildTaskRewardTime = 600
 
-# Delete all random bot guilds
-AiPlayerbot.DeleteRandomBotGuilds = 0
-
 # Maps to teleport random bots (0,1,530,571)
 AiPlayerbot.RandomBotMaps = 0,1,530,571
 
@@ -174,9 +185,6 @@ AiPlayerbot.RandomBotQuestItems = 6948,5175,5176,5177,5178
 
 # Spells every random bot will learn on randomize (54197 - cold weather flying)
 AiPlayerbot.RandomBotSpellIds = 54197
-
-# Enable LFG for random bots
-AiPlayerbot.RandomBotJoinLfg = 0
 
 # Level diff between random bots and nearby creatures for random teleports
 AiPlayerbot.RandomBotTeleLevel = 3
@@ -197,10 +205,10 @@ AiPlayerbot.MinRandomBotReviveTime = 60
 AiPlayerbot.MaxRandomReviveTime = 300
 
 # Log on all random bots on start
-AiPlayerbot.RandomBotLoginAtStartup = 0
+AiPlayerbot.RandomBotLoginAtStartup = 1
 
 # How far random bots are teleported after death
-AiPlayerbot.RandomBotTeleportDistance = 1000
+AiPlayerbot.RandomBotTeleportDistance = 133
 
 # Debug switches
 AiPlayerbot.SpellDump = 0
