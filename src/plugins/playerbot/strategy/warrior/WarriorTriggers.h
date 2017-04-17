@@ -38,7 +38,13 @@ namespace ai
     public:
         ShieldBashInterruptSpellTrigger(PlayerbotAI* ai) : InterruptSpellTrigger(ai, "shield bash") {}
     };
-
+	
+	class PummelInterruptSpellTrigger : public InterruptSpellTrigger
+	{
+	public:
+		PummelInterruptSpellTrigger(PlayerbotAI* ai) : InterruptSpellTrigger(ai, "pummel") {}
+	};
+	
     class VictoryRushTrigger : public HasAuraTrigger
     {
     public:
@@ -67,6 +73,12 @@ namespace ai
     {
     public:
         DeathWishTrigger(PlayerbotAI* ai) : BoostTrigger(ai, "death wish") {}
+    };
+
+	class SweepingStrikesTrigger : public BoostTrigger
+    {
+    public:
+		SweepingStrikesTrigger(PlayerbotAI* ai) : BoostTrigger(ai, "sweeping strikes") {}
     };
 
     class ShieldBashInterruptEnemyHealerSpellTrigger : public InterruptEnemyHealerTrigger

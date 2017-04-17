@@ -40,9 +40,9 @@ namespace ai
 		virtual bool IsActive()
 		{
 			Unit* target = AI_VALUE(Unit*, "current target");
-			return target && AI_VALUE2(float, "distance", "current target") <= sPlayerbotAIConfig.tooCloseDistance;
-		}
-	};
+            return target && AI_VALUE2(float, "distance", "current target") <= sPlayerbotAIConfig.tooCloseDistance;
+        }
+    };
 
     class OutOfRangeTrigger : public Trigger {
     public:
@@ -93,4 +93,9 @@ namespace ai
         float distance;
     };
 
+    class OutOfReactRangeTrigger : public FarFromMasterTrigger
+    {
+    public:
+        OutOfReactRangeTrigger(PlayerbotAI* ai) : FarFromMasterTrigger(ai, "out of react range", sPlayerbotAIConfig.reactDistance / 2, 10) {}
+    };
 }

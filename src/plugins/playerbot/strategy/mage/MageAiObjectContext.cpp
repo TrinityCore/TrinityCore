@@ -27,15 +27,19 @@ namespace ai
             {
                 creators["nc"] = &mage::StrategyFactoryInternal::nc;
                 creators["pull"] = &mage::StrategyFactoryInternal::pull;
+				creators["arcane aoe"] = &mage::StrategyFactoryInternal::arcane_aoe;
                 creators["fire aoe"] = &mage::StrategyFactoryInternal::fire_aoe;
                 creators["frost aoe"] = &mage::StrategyFactoryInternal::frost_aoe;
+                creators["cure"] = &mage::StrategyFactoryInternal::cure;
             }
 
         private:
             static Strategy* nc(PlayerbotAI* ai) { return new GenericMageNonCombatStrategy(ai); }
             static Strategy* pull(PlayerbotAI* ai) { return new PullStrategy(ai, "shoot"); }
+			static Strategy* arcane_aoe(PlayerbotAI* ai) { return new ArcaneMageAoeStrategy(ai); }
             static Strategy* fire_aoe(PlayerbotAI* ai) { return new FireMageAoeStrategy(ai); }
             static Strategy* frost_aoe(PlayerbotAI* ai) { return new FrostMageAoeStrategy(ai); }
+            static Strategy* cure(PlayerbotAI* ai) { return new MageCureStrategy(ai); }
         };
 
         class MageStrategyFactoryInternal : public NamedObjectContext<Strategy>
@@ -155,6 +159,8 @@ namespace ai
                 creators["counterspell"] = &AiObjectContextInternal::counterspell;
                 creators["remove curse"] = &AiObjectContextInternal::remove_curse;
                 creators["remove curse on party"] = &AiObjectContextInternal::remove_curse_on_party;
+                creators["remove lesser curse"] = &AiObjectContextInternal::remove_lesser_curse;
+                creators["remove lesser curse on party"] = &AiObjectContextInternal::remove_lesser_curse_on_party;
                 creators["icy veins"] = &AiObjectContextInternal::icy_veins;
                 creators["combustion"] = &AiObjectContextInternal::combustion;
                 creators["ice block"] = &AiObjectContextInternal::ice_block;
@@ -169,6 +175,7 @@ namespace ai
                 creators["arcane barrage"] = &AiObjectContextInternal::arcane_barrage;
                 creators["arcane missiles"] = &AiObjectContextInternal::arcane_missiles;
                 creators["counterspell on enemy healer"] = &AiObjectContextInternal::counterspell_on_enemy_healer;
+				creators["arcane explosion"] = &AiObjectContextInternal::arcane_explosion;
             }
 
         private:
@@ -194,6 +201,8 @@ namespace ai
             static Action* counterspell(PlayerbotAI* ai) { return new CastCounterspellAction(ai); }
             static Action* remove_curse(PlayerbotAI* ai) { return new CastRemoveCurseAction(ai); }
             static Action* remove_curse_on_party(PlayerbotAI* ai) { return new CastRemoveCurseOnPartyAction(ai); }
+            static Action* remove_lesser_curse(PlayerbotAI* ai) { return new CastRemoveLesserCurseAction(ai); }
+            static Action* remove_lesser_curse_on_party(PlayerbotAI* ai) { return new CastRemoveLesserCurseOnPartyAction(ai); }
             static Action* icy_veins(PlayerbotAI* ai) { return new CastIcyVeinsAction(ai); }
             static Action* combustion(PlayerbotAI* ai) { return new CastCombustionAction(ai); }
             static Action* ice_block(PlayerbotAI* ai) { return new CastIceBlockAction(ai); }
@@ -205,6 +214,7 @@ namespace ai
             static Action* invisibility(PlayerbotAI* ai) { return new CastInvisibilityAction(ai); }
             static Action* evocation(PlayerbotAI* ai) { return new CastEvocationAction(ai); }
             static Action* counterspell_on_enemy_healer(PlayerbotAI* ai) { return new CastCounterspellOnEnemyHealerAction(ai); }
+			static Action* arcane_explosion(PlayerbotAI* ai) { return new CastArcaneExplosionAction(ai); }
         };
     };
 };

@@ -114,27 +114,6 @@ void CasterDruidStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
         "enemy out of spell",
         NextAction::array(0, new NextAction("reach spell", ACTION_MOVE), NULL)));
 
-    triggers.push_back(new TriggerNode(
-        "medium health",
-        NextAction::array(0, new NextAction("regrowth", ACTION_MEDIUM_HEAL + 2), NULL)));
-
-    triggers.push_back(new TriggerNode(
-        "party member medium health",
-        NextAction::array(0, new NextAction("regrowth on party", ACTION_MEDIUM_HEAL + 1), NULL)));
-
-    triggers.push_back(new TriggerNode(
-        "almost full health",
-        NextAction::array(0, new NextAction("rejuvenation", ACTION_LIGHT_HEAL + 2), NULL)));
-
-    triggers.push_back(new TriggerNode(
-        "party member almost full health",
-        NextAction::array(0, new NextAction("rejuvenation on party", ACTION_LIGHT_HEAL + 1), NULL)));
-
-
-	triggers.push_back(new TriggerNode(
-		"insect swarm",
-		NextAction::array(0, new NextAction("insect swarm", ACTION_NORMAL + 5), NULL)));
-
 	triggers.push_back(new TriggerNode(
 		"moonfire",
 		NextAction::array(0, new NextAction("moonfire", ACTION_NORMAL + 4), NULL)));
@@ -167,6 +146,15 @@ void CasterDruidAoeStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 	triggers.push_back(new TriggerNode(
 		"high aoe",
 		NextAction::array(0, new NextAction("starfall", ACTION_HIGH + 1), NULL)));
+	
+	triggers.push_back(new TriggerNode(
+		"medium aoe",
+		NextAction::array(0, new NextAction("hurricane", ACTION_HIGH + 1), NULL)));
+	
+	triggers.push_back(new TriggerNode(
+		"low health",
+		NextAction::array(0, new NextAction("barkskin", ACTION_HIGH + 1), NULL)));
+
 }
 
 void CasterDruidDebuffStrategy::InitTriggers(std::list<TriggerNode*> &triggers)

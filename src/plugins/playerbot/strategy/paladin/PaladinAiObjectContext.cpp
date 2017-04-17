@@ -24,10 +24,12 @@ namespace ai
             StrategyFactoryInternal()
             {
                 creators["nc"] = &paladin::StrategyFactoryInternal::nc;
+                creators["cure"] = &paladin::StrategyFactoryInternal::cure;
             }
 
         private:
             static Strategy* nc(PlayerbotAI* ai) { return new GenericPaladinNonCombatStrategy(ai); }
+            static Strategy* cure(PlayerbotAI* ai) { return new PaladinCureStrategy(ai); }
         };
 
         class ResistanceStrategyFactoryInternal : public NamedObjectContext<Strategy>
@@ -97,6 +99,7 @@ namespace ai
         public:
             TriggerFactoryInternal()
             {
+                creators["judgement"] = &TriggerFactoryInternal::judgement;
                 creators["judgement of wisdom"] = &TriggerFactoryInternal::judgement_of_wisdom;
                 creators["judgement of light"] = &TriggerFactoryInternal::judgement_of_light;
                 creators["blessing"] = &TriggerFactoryInternal::blessing;
@@ -125,6 +128,7 @@ namespace ai
         private:
             static Trigger* holy_shield(PlayerbotAI* ai) { return new HolyShieldTrigger(ai); }
             static Trigger* righteous_fury(PlayerbotAI* ai) { return new RighteousFuryTrigger(ai); }
+            static Trigger* judgement(PlayerbotAI* ai) { return new JudgementTrigger(ai); }
             static Trigger* judgement_of_wisdom(PlayerbotAI* ai) { return new JudgementOfWisdomTrigger(ai); }
             static Trigger* judgement_of_light(PlayerbotAI* ai) { return new JudgementOfLightTrigger(ai); }
             static Trigger* blessing(PlayerbotAI* ai) { return new BlessingTrigger(ai); }
@@ -162,6 +166,7 @@ namespace ai
             AiObjectContextInternal()
             {
                 creators["seal of command"] = &AiObjectContextInternal::seal_of_command;
+                creators["seal of the crusader"] = &AiObjectContextInternal::seal_of_the_crusader;
                 creators["seal of vengeance"] = &AiObjectContextInternal::seal_of_vengeance;
                 creators["blessing of might"] = &AiObjectContextInternal::blessing_of_might;
                 creators["blessing of wisdom"] = &AiObjectContextInternal::blessing_of_wisdom;
@@ -222,6 +227,7 @@ namespace ai
             static Action* righteous_fury(PlayerbotAI* ai) { return new CastRighteousFuryAction(ai); }
             static Action* seal_of_command(PlayerbotAI* ai) { return new CastSealOfCommandAction(ai); }
             static Action* seal_of_vengeance(PlayerbotAI* ai) { return new CastSealOfVengeanceAction(ai); }
+            static Action* seal_of_the_crusader(PlayerbotAI* ai) { return new CastSealOfTheCrusaderAction(ai); }
             static Action* blessing_of_sanctuary(PlayerbotAI* ai) { return new CastBlessingOfSanctuaryAction(ai); }
             static Action* blessing_of_might(PlayerbotAI* ai) { return new CastBlessingOfMightAction(ai); }
             static Action* blessing_of_wisdom(PlayerbotAI* ai) { return new CastBlessingOfWisdomAction(ai); }

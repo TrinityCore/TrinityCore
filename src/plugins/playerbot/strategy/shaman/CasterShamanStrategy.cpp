@@ -18,7 +18,7 @@ private:
         return new ActionNode ("magma totem",
             /*P*/ NULL,
             /*A*/ NULL,
-            /*C*/ NextAction::array(0, new NextAction("fire nova"), NULL));
+            /*C*/ NextAction::array(0, new NextAction("fire nova totem"), NULL));
     }
 };
 
@@ -58,7 +58,7 @@ void CasterShamanStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
     triggers.push_back(new TriggerNode(
         "medium aoe",
-        NextAction::array(0, new NextAction("flametongue totem", ACTION_LIGHT_HEAL), NULL)));
+        NextAction::array(0, new NextAction("fire nova totem", ACTION_NORMAL + 2), NULL)));
 }
 
 void CasterAoeShamanStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
@@ -72,4 +72,5 @@ void CasterAoeShamanStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
     triggers.push_back(new TriggerNode(
         "medium aoe",
         NextAction::array(0, new NextAction("thunderstorm", 26.0f), NULL)));
+        
 }

@@ -156,4 +156,17 @@ void ShamanBuffManaStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
     triggers.push_back(new TriggerNode(
         "water shield",
         NextAction::array(0, new NextAction("water shield", 22.0f), NULL)));
+
+ triggers.push_back(new TriggerNode(
+        "Mana Spring Totem",
+        NextAction::array(0, new NextAction("Mana Spring Totem", 22.0f), NULL)));
+}
+
+void ShamanCureStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
+{
+    triggers.push_back(new TriggerNode(
+        "Disease Cleansing Totem",
+        NextAction::array(0, new NextAction("Disease Cleansing Totem", 21.0f), NULL)));
+
+
 }

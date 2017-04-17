@@ -9,6 +9,11 @@ namespace ai
         CastJudgementOfLightAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "judgement of light") {}
     };
 
+     class CastJudgementAction : public CastMeleeSpellAction
+    {
+    public:
+        CastJudgementAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "judgement") {}
+};
     class CastJudgementOfWisdomAction : public CastMeleeSpellAction
     {
     public:
@@ -116,6 +121,12 @@ namespace ai
 	{
 	public:
 	    CastSealOfVengeanceAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "seal of vengeance") {}
+	};
+	
+class CastSealOfTheCrusaderAction : public CastBuffSpellAction
+	{
+	public:
+		CastSealOfTheCrusaderAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "seal of the crusader") {}
 	};
 
 
