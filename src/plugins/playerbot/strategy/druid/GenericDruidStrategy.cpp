@@ -114,14 +114,6 @@ void GenericDruidStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
         NextAction::array(0,  new NextAction("regrowth on party", ACTION_CRITICAL_HEAL + 1), new NextAction("healing touch on party", ACTION_CRITICAL_HEAL + 1), NULL)));
 
 
-    triggers.push_back(new TriggerNode(
-        "cure poison",
-        NextAction::array(0, new NextAction("abolish poison", ACTION_DISPEL + 2), NULL)));
-
-    triggers.push_back(new TriggerNode(
-        "party member cure poison",
-        NextAction::array(0, new NextAction("abolish poison on party", ACTION_DISPEL + 1), NULL)));
-
 	triggers.push_back(new TriggerNode(
 		"party member dead",
 		NextAction::array(0, new NextAction("rebirth", ACTION_HIGH + 1), NULL)));
@@ -129,4 +121,15 @@ void GenericDruidStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
     triggers.push_back(new TriggerNode(
         "low mana",
         NextAction::array(0, new NextAction("innervate", ACTION_EMERGENCY + 5), NULL)));
+}
+
+void DruidCureStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
+{
+    triggers.push_back(new TriggerNode(
+        "cure poison",
+        NextAction::array(0, new NextAction("abolish poison", ACTION_DISPEL + 2), NULL)));
+
+    triggers.push_back(new TriggerNode(
+        "party member cure poison",
+        NextAction::array(0, new NextAction("abolish poison on party", ACTION_DISPEL + 1), NULL)));
 }

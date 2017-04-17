@@ -10,18 +10,18 @@ class DpsRogueStrategyActionNodeFactory : public NamedObjectFactory<ActionNode>
 public:
     DpsRogueStrategyActionNodeFactory()
     {
-        creators["riposte"] = &riposte;
         creators["mutilate"] = &mutilate;
         creators["sinister strike"] = &sinister_strike;
         creators["kick"] = &kick;
         creators["kidney shot"] = &kidney_shot;
         creators["rupture"] = &rupture;
         creators["backstab"] = &backstab;
+		creators["melee"] = &melee;
     }
 private:
-    static ActionNode* riposte(PlayerbotAI* ai)
+    static ActionNode* melee(PlayerbotAI* ai)
     {
-        return new ActionNode ("riposte",
+        return new ActionNode ("melee",
             /*P*/ NULL,
             /*A*/ NextAction::array(0, new NextAction("mutilate"), NULL),
             /*C*/ NULL);
@@ -58,9 +58,16 @@ private:
     {
         return new ActionNode ("rupture",
             /*P*/ NULL,
-            /*A*/ NextAction::array(0, new NextAction("eviscerate"), NULL),
+            /*A*/ NextAction::array(0, new NextAction("slice and dice"), NULL),
             /*C*/ NULL);
     }
+	static ActionNode* slice_and_dice(PlayerbotAI* ai)
+	{
+		return new ActionNode("slice and dice",
+			/*P*/ NULL,
+			/*A*/ NextAction::array(0, new NextAction("rupture"), NULL),
+			/*C*/ NULL);
+	}
     static ActionNode* backstab(PlayerbotAI* ai)
     {
         return new ActionNode ("backstab",
@@ -77,7 +84,7 @@ DpsRogueStrategy::DpsRogueStrategy(PlayerbotAI* ai) : MeleeCombatStrategy(ai)
 
 NextAction** DpsRogueStrategy::getDefaultActions()
 {
-    return NextAction::array(0, new NextAction("riposte", ACTION_NORMAL), NULL);
+    return NextAction::array(0, new NextAction("sinister strike", ACTION_NORMAL), NULL);
 }
 
 void DpsRogueStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
@@ -86,7 +93,8 @@ void DpsRogueStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
     triggers.push_back(new TriggerNode(
         "combo points available",
-        NextAction::array(0, new NextAction("rupture", ACTION_HIGH + 2), NULL)));
+        NextAction::array(0, new NextAction("slice and dice", ACTION_HIGH + 2),
+			new NextAction("rupture", ACTION_HIGH), NULL)));
 
 	triggers.push_back(new TriggerNode(
 		"medium threat",
@@ -107,4 +115,10 @@ void DpsRogueStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
     triggers.push_back(new TriggerNode(
         "behind target",
         NextAction::array(0, new NextAction("backstab", ACTION_NORMAL), NULL)));
+
+	triggers.push_back(new TriggerNode(
+		"light aoe",
+		NextAction::array(0, new NextAction("blade flurry", ACTION_HIGH + 3), NULL)));
+
+
 }

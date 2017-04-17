@@ -12,6 +12,16 @@ namespace ai
         }
     };
 
+
+	// berserker
+	class CastBerserkerMeleeSpellAction : public CastMeleeSpellAction {
+	public:
+		CastBerserkerMeleeSpellAction(PlayerbotAI* ai, string spell) : CastMeleeSpellAction(ai, spell) {}
+		virtual NextAction** getPrerequisites() {
+			return NextAction::merge(NextAction::array(0, new NextAction("berserker stance"), NULL), CastMeleeSpellAction::getPrerequisites());
+		}
+	};
+
     // defensive
     class CastDefensiveMeleeSpellAction : public CastMeleeSpellAction {
     public:
@@ -43,6 +53,21 @@ namespace ai
     public:
         CastBloodthirstAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "bloodthirst") {}
     };
+
+	class CastMortalStrikeAction : public CastMeleeSpellAction {
+	public:
+		CastMortalStrikeAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "mortal strike") {}
+	};
+
+	class CastWhirlwindAction : public CastMeleeSpellAction {
+	public:
+		CastWhirlwindAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "whirlwind") {}
+	};
+
+	class CastSweepingStrikesAction : public CastMeleeSpellAction {
+	public:
+		CastSweepingStrikesAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "sweeping strikes") {}
+	};
 
     // battle, berserker
     class CastExecuteAction : public CastMeleeSpellAction {
@@ -91,6 +116,11 @@ namespace ai
         CastBloodrageAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "bloodrage") {}
     };
 
+	class CastRecklessnessAction : public CastBuffSpellAction {
+	public:
+		CastRecklessnessAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "recklessness") {}
+	};
+
     // defensive
     class CastDevastateAction : public CastDefensiveMeleeSpellAction {
     public:
@@ -102,6 +132,11 @@ namespace ai
     public:
         CastSlamAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "slam") {}
     };
+
+	class CastPummelAction : public CastMeleeSpellAction {
+	public:
+		CastPummelAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "pummel") {}
+	};
 
 	// all
 	class CastShieldSlamAction : public CastMeleeSpellAction {
@@ -159,6 +194,11 @@ namespace ai
 	class CastDefensiveStanceAction : public CastBuffSpellAction {
 	public:
 		CastDefensiveStanceAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "defensive stance") {}
+	};
+
+	class CastBerserkerStanceAction : public CastBuffSpellAction {
+	public:
+		CastBerserkerStanceAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "berserker stance") {}
 	};
 
 	class CastBattleStanceAction : public CastBuffSpellAction {

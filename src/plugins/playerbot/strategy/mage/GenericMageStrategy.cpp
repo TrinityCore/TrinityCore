@@ -77,13 +77,29 @@ private:
             /*A*/ NextAction::array(0, new NextAction("blast wave"), NULL),
             /*C*/ NextAction::array(0, new NextAction("flamestrike", 71.0f), NULL));
     }
-    static ActionNode* blast_wave(PlayerbotAI* ai)
+    static ActionNode* remove_curse(PlayerbotAI* ai)
     {
+        return new ActionNode ("remove curse",
+            /*P*/ NULL,
+            /*A*/ NextAction::array(0, new NextAction("remove lesser curse"), NULL),
+            /*C*/ NULL);
+    }
+    static ActionNode* remove_curse_on_party(PlayerbotAI* ai)
+    {
+        return new ActionNode ("remove curse on party",
+            /*P*/ NULL,
+            /*A*/ NextAction::array(0, new NextAction("remove lesser curse on party"), NULL),
+            /*C*/ NULL);
+    
+     }
+    static ActionNode* blast_wave(PlayerbotAI* ai)
+     {
         return new ActionNode ("blast wave",
             /*P*/ NULL,
-            /*A*/ NextAction::array(0, new NextAction("frost nova"), NULL),
-            /*C*/ NextAction::array(0, new NextAction("flamestrike", 71.0f), NULL));
+            /*A*/ NextAction::array(0, new NextAction("flamestrike"), NULL),
+            /*C*/ NULL);
     }
+
 };
 
 GenericMageStrategy::GenericMageStrategy(PlayerbotAI* ai) : RangedCombatStrategy(ai)
@@ -138,4 +154,16 @@ void GenericMageStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
     triggers.push_back(new TriggerNode(
         "low mana",
         NextAction::array(0, new NextAction("evocation", ACTION_EMERGENCY + 5), NULL)));
+}
+
+void MageCureStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
+{
+	triggers.push_back(new TriggerNode(
+		"remove curse",
+		NextAction::array(0, new NextAction("remove curse", 41.0f), NULL)));
+
+	triggers.push_back(new TriggerNode(
+		"remove curse on party",
+		NextAction::array(0, new NextAction("remove curse on party", 40.0f), NULL)));
+
 }

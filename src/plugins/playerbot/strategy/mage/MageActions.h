@@ -29,6 +29,12 @@ namespace ai
         virtual string GetTargetName() { return "current target"; }
     };
 
+	class CastArcaneExplosionAction : public CastSpellAction
+	{
+	public:
+		CastArcaneExplosionAction(PlayerbotAI* ai) : CastSpellAction(ai, "arcane explosion") {}
+	};
+
     class CastArcaneBarrageAction : public CastSpellAction
     {
     public:
@@ -39,7 +45,7 @@ namespace ai
     {
     public:
         CastArcaneMissilesAction(PlayerbotAI* ai) : CastSpellAction(ai, "arcane missiles") {}
-    };
+	};
 
     class CastPyroblastAction : public CastSpellAction
     {
@@ -90,6 +96,12 @@ namespace ai
 		CastRemoveCurseAction(PlayerbotAI* ai) : CastCureSpellAction(ai, "remove curse") {}
 	};
 
+	class CastRemoveLesserCurseAction : public CastCureSpellAction
+    {
+	public:
+		CastRemoveLesserCurseAction(PlayerbotAI* ai) : CastCureSpellAction(ai, "remove lesser curse") {}
+	};
+
 	class CastIcyVeinsAction : public CastBuffSpellAction
     {
 	public:
@@ -105,10 +117,17 @@ namespace ai
     BEGIN_SPELL_ACTION(CastCounterspellAction, "counterspell")
     END_SPELL_ACTION()
 
+
     class CastRemoveCurseOnPartyAction : public CurePartyMemberAction
     {
     public:
         CastRemoveCurseOnPartyAction(PlayerbotAI* ai) : CurePartyMemberAction(ai, "remove curse", DISPEL_CURSE) {}
+    };
+
+    class CastRemoveLesserCurseOnPartyAction : public CurePartyMemberAction
+    {
+    public:
+        CastRemoveLesserCurseOnPartyAction(PlayerbotAI* ai) : CurePartyMemberAction(ai, "remove lesser curse", DISPEL_CURSE) {}
     };
 
 	class CastConjureFoodAction : public CastBuffSpellAction
