@@ -23355,7 +23355,15 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
 
     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spell_id);
     if (bounds.first == bounds.second)
+    {
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id))
+        {
+            ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(getClass());
+            if (spellInfo->SpellFamilyName == classEntry->spellfamily)
+                return false;
+        }
         return true;
+    }
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
