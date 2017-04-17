@@ -128,8 +128,8 @@ namespace VMAP
         iTilesY = other.iTilesY;
         iCorner = other.iCorner;
         iType = other.iType;
-        delete iHeight;
-        delete iFlags;
+        delete[] iHeight;
+        delete[] iFlags;
         if (other.iHeight)
         {
             iHeight = new float[(iTilesX+1)*(iTilesY+1)];

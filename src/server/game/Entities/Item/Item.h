@@ -230,14 +230,6 @@ class TC_GAME_API Item : public Object
         virtual void DeleteFromDB(SQLTransaction& trans);
         static void DeleteFromInventoryDB(SQLTransaction& trans, ObjectGuid::LowType itemGuid);
 
-        // Lootable items and their contents
-        void ItemContainerSaveLootToDB();
-        bool ItemContainerLoadLootFromDB();
-        void ItemContainerDeleteLootItemsFromDB();
-        void ItemContainerDeleteLootItemFromDB(uint32 itemID);
-        void ItemContainerDeleteLootMoneyFromDB();
-        void ItemContainerDeleteLootMoneyAndLootItemsFromDB();
-
         void DeleteFromInventoryDB(SQLTransaction& trans);
         void SaveRefundDataToDB();
         void DeleteRefundDataFromDB(SQLTransaction* trans);
