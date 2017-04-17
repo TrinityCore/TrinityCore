@@ -26,9 +26,7 @@ void PlayerbotAIBase::UpdateAI(uint32 elapsed)
 void PlayerbotAIBase::SetNextCheckDelay(const uint32 delay)
 {
     if(nextAICheckDelay < delay)
-        sLog->outMessage("playerbot", LOG_LEVEL_TRACE, "Setting lesser delay %d -> %d", nextAICheckDelay, delay);
-
-        nextAICheckDelay = delay;
+		nextAICheckDelay = delay;
 
     if (nextAICheckDelay > sPlayerbotAIConfig.globalCoolDown)
         sLog->outMessage("playerbot", LOG_LEVEL_TRACE, "set next check delay: %d", nextAICheckDelay);
