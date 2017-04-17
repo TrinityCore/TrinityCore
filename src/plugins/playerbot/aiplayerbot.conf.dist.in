@@ -23,6 +23,9 @@ AIPlayerbot.RandomBotBracketPlayer = 0
 # Server won't randomize randombots inventory
 AiPlayerbot.NotSoRandom = 0
 
+# Randombots can get quests (do more lag on first run)
+AiPlayerbot.randomBotInitQuest = 0
+
 # All race, all class mode for bots (need the client mod too)
 AiPlayerbot.ARAC = 0
 

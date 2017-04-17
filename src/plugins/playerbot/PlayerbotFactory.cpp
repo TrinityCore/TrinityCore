@@ -96,8 +96,11 @@ void PlayerbotFactory::Randomize(bool incremental)
     ClearInventory();
     bot->SaveToDB();
 
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing quests...");
-    InitQuests();
+	if (sPlayerbotAIConfig.randomBotInitQuest)
+	{
+		sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing quests...");
+		InitQuests();
+	}
     bot->SetLevel(level); // quest rewards boost bot level, so reduce back
 
     //thesawolf - refill hp/sp since level resets can leave a vacuum
