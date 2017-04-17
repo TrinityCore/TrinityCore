@@ -257,6 +257,11 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     SetReactState(ReactStates(fields[6].GetUInt8()));
     SetCanModifyStats(true);
 
+    InitTalentForLevel();                                   // set original talents points before spell loading
+
+    uint32 timediff = uint32(time(NULL) - fields[14].GetUInt32());
+    _LoadAuras(timediff);
+    
     if (getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
     else
@@ -313,11 +318,6 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
     owner->SetMinion(this, true);
     map->AddToMap(this->ToCreature());
-
-    InitTalentForLevel();                                   // set original talents points before spell loading
-
-    uint32 timediff = uint32(time(NULL) - fields[14].GetUInt32());
-    _LoadAuras(timediff);
 
     // load action bar, if data broken will fill later by default spells.
     if (!isTemporarySummon)
