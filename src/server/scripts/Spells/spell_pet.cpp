@@ -67,7 +67,6 @@ enum DKPetCalculate
     SPELL_DEATH_KNIGHT_PET_SCALING_03   = 61697,
     SPELL_NIGHT_OF_THE_DEAD             = 55620,
     ENTRY_ARMY_OF_THE_DEAD_GHOUL        = 24207,
-    SPELL_DEATH_KNIGHT_GLYPH_OF_GHOUL   = 58686,
 };
 
 enum ShamanPetCalculate
@@ -1458,17 +1457,7 @@ public:
                 {
                     if (Unit* owner = pet->GetOwner())
                     {
-                        float mod = 0.3f;
-
-                        // Ravenous Dead. Check just if owner has Ravenous Dead since it's effect is not an aura
-                        if (AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0))
-                            mod += aurEff->GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue()/100;                   // Ravenous Dead edits the original scale
-
-                        // Glyph of the Ghoul
-                        if (AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_DEATH_KNIGHT_GLYPH_OF_GHOUL, 0))
-                            mod += aurEff->GetAmount()/100;
-
-                        float ownerBonus = float(owner->GetStat(STAT_STAMINA)) * mod;
+                        float ownerBonus = float(owner->GetStat(STAT_STAMINA)) * 0.3f;
                         amount += ownerBonus;
                     }
                 }
@@ -1499,21 +1488,7 @@ public:
                 if (!owner)
                     return;
 
-                float mod = 0.7f;
-
-                // Ravenous Dead
-                AuraEffect const* aurEff = NULL;
-                // Check just if owner has Ravenous Dead since it's effect is not an aura
-                aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
-                if (aurEff)
-                {
-                    mod += CalculatePct(mod, aurEff->GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue());                   // Ravenous Dead edits the original scale
-                }
-                // Glyph of the Ghoul
-                aurEff = owner->GetAuraEffect(58686, 0);
-                if (aurEff)
-                    mod += CalculatePct(1.0f, aurEff->GetAmount());                                                    // Glyph of the Ghoul adds a flat value to the scale mod
-                float ownerBonus = float(owner->GetStat(STAT_STRENGTH)) * mod;
+                float ownerBonus = float(owner->GetStat(STAT_STRENGTH)) * 0.7f;
                 amount += ownerBonus;
             }
         }

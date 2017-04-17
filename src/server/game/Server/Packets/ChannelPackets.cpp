@@ -129,12 +129,10 @@ void WorldPackets::Channel::ChannelPlayerCommand::Read()
         case CMSG_CHAT_CHANNEL_MUTE:
         case CMSG_CHAT_CHANNEL_SET_OWNER:
         case CMSG_CHAT_CHANNEL_SILENCE_ALL:
-        case CMSG_CHAT_CHANNEL_SILENCE_VOICE:
         case CMSG_CHAT_CHANNEL_UNBAN:
         case CMSG_CHAT_CHANNEL_UNMODERATOR:
         case CMSG_CHAT_CHANNEL_UNMUTE:
         case CMSG_CHAT_CHANNEL_UNSILENCE_ALL:
-        case CMSG_CHAT_CHANNEL_UNSILENCE_VOICE:
         {
             uint32 channelNameLength = _worldPacket.ReadBits(7);
             uint32 nameLength = _worldPacket.ReadBits(9);
@@ -148,8 +146,6 @@ void WorldPackets::Channel::ChannelPlayerCommand::Read()
         case CMSG_CHAT_CHANNEL_LIST:
         case CMSG_CHAT_CHANNEL_MODERATE:
         case CMSG_CHAT_CHANNEL_OWNER:
-        case CMSG_CHAT_CHANNEL_VOICE_OFF:
-        case CMSG_CHAT_CHANNEL_VOICE_ON:
         {
             ChannelName = _worldPacket.ReadString(_worldPacket.ReadBits(7));
             break;

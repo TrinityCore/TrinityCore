@@ -1104,7 +1104,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
                 uint32 damage = (uint32(GetEffectValue() / _targetCount) * randomResist) / 10;
 
-                SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
+                SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpell()->m_SpellVisual, GetSpellInfo()->SchoolMask);
                 damageInfo.damage = damage;
                 GetCaster()->DealSpellDamage(&damageInfo, false);
                 GetCaster()->SendSpellNonMeleeDamageLog(&damageInfo);

@@ -248,6 +248,7 @@ namespace WorldPackets
         {
             uint32 Type = 0;
             int16 PlayerLevelDelta = 0;
+            uint16 PlayerItemLevel = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;
             uint8 Class = 1;
@@ -265,13 +266,13 @@ namespace WorldPackets
             uint32 ActiveFlags = 0;
             uint16 CastLevel = 1;
             uint8 Applications = 1;
+            Optional<SandboxScalingData> SandboxScaling;
             Optional<ObjectGuid> CastUnit;
             Optional<int32> Duration;
             Optional<int32> Remaining;
             Optional<float> TimeMod;
             std::vector<float> Points;
             std::vector<float> EstimatedPoints;
-            Optional<SandboxScalingData> SandboxScaling;
         };
 
         struct AuraInfo
@@ -504,7 +505,7 @@ namespace WorldPackets
 
             ObjectGuid CasterUnit;
             uint32 SpellID  = 0;
-            uint32 SpelXSpellVisualID = 0;
+            uint32 SpellXSpellVisualID = 0;
             uint16 Reason   = 0;
             ObjectGuid CastID;
         };
@@ -518,7 +519,7 @@ namespace WorldPackets
 
             ObjectGuid CasterUnit;
             uint32 SpellID  = 0;
-            uint32 SpelXSpellVisualID = 0;
+            uint32 SpellXSpellVisualID = 0;
             uint8 Reason    = 0;
             ObjectGuid CastID;
         };
@@ -834,6 +835,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 SpellID = 0;
+            int32 SpellXSpellVisualID = 0;
             Optional<SpellChannelStartInterruptImmunities> InterruptImmunities;
             ObjectGuid CasterGUID;
             Optional<SpellTargetedHealPrediction> HealPrediction;

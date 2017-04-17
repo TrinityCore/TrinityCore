@@ -215,7 +215,7 @@ public:
                     endPoint = campPathSize;
                     break;
                 case NPC_SHARPBEAK_JINTHAALOR:
-                    me->GetMotionMaster()->MoveSmoothPath(jinthaalorPathSize, jinthaalorPath, jinthaalorPathSize, false);
+                    me->GetMotionMaster()->MoveSmoothPath(jinthaalorPathSize, jinthaalorPath, jinthaalorPathSize, false, true);
                     endPoint = jinthaalorPathSize;
                     break;
             }
