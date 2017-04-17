@@ -748,33 +748,6 @@ class spell_pri_mana_leech : public SpellScriptLoader
         }
 };
 
-// 49821 - Mind Sear
-class spell_pri_mind_sear : public SpellScriptLoader
-{
-    public:
-        spell_pri_mind_sear() : SpellScriptLoader("spell_pri_mind_sear") { }
-
-        class spell_pri_mind_sear_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pri_mind_sear_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& unitList)
-            {
-                unitList.remove_if(Trinity::ObjectGUIDCheck(GetCaster()->GetChannelObjectGuid()));
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_mind_sear_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pri_mind_sear_SpellScript();
-        }
-};
-
 // 47948 - Pain and Suffering (Proc)
 class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
 {
@@ -1309,7 +1282,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();
     new spell_pri_mana_leech();
-    new spell_pri_mind_sear();
     new spell_pri_pain_and_suffering_proc();
     new spell_pri_penance();
     new spell_pri_phantasm();

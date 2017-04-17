@@ -493,7 +493,7 @@ enum SpellAttr3
     SPELL_ATTR3_REQ_WAND                         = 0x00400000, // 22 Req wand
     SPELL_ATTR3_UNK23                            = 0x00800000, // 23
     SPELL_ATTR3_REQ_OFFHAND                      = 0x01000000, // 24 Req offhand weapon
-    SPELL_ATTR3_UNK25                            = 0x02000000, // 25 no cause spell pushback ?
+    SPELL_ATTR3_TREAT_AS_PERIODIC                = 0x02000000, // 25 Makes the spell appear as periodic in client combat logs - used by spells that trigger another spell on each tick
     SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736 + 52999)
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
@@ -1179,7 +1179,7 @@ enum SpellEffectName
     SPELL_EFFECT_DISCOVER_TAXI                      = 154,
     SPELL_EFFECT_TITAN_GRIP                         = 155,
     SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC             = 156,
-    SPELL_EFFECT_CREATE_ITEM_2                      = 157,
+    SPELL_EFFECT_CREATE_LOOT                        = 157, // crafting loot
     SPELL_EFFECT_MILLING                            = 158,
     SPELL_EFFECT_ALLOW_RENAME_PET                   = 159,
     SPELL_EFFECT_FORCE_CAST_2                       = 160,
