@@ -82,10 +82,6 @@ void WorldPacketHandlerStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
     triggers.push_back(new TriggerNode(
         "seldom",
         NextAction::array(0, new NextAction("lfg leave", relevance), NULL)));
-	
-	triggers.push_back(new TriggerNode(
-		"no non bot players around",
-		NextAction::array(0, new NextAction("delay", relevance), NULL)));
 
 }
 
