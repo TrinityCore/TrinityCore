@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "Group.h"
+#include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "Object.h"
@@ -212,7 +213,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
         // Delete the money loot record from the DB
         if (loot->containerID > 0)
-            loot->DeleteLootMoneyFromContainerItemDB();
+            sLootItemStorage->RemoveStoredMoneyForContainer(loot->containerID);
 
         // Delete container if empty
         if (loot->isLooted() && guid.IsItem())
