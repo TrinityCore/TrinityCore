@@ -508,7 +508,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 QuestObjective const* obj = sObjectMgr->GetQuestObjective(ConditionValue1);
                 if (!obj)
                     break;
-                
+
                 condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(*obj));
             }
             break;
@@ -2589,6 +2589,19 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->LifetimeMaxPVPRank && player->GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK) != condition->LifetimeMaxPVPRank)
         return false;
+
+    if (condition->MovementFlags[0] && !(player->GetUnitMovementFlags() & condition->MovementFlags[0]))
+        return false;
+
+    if (condition->MovementFlags[1] && !(player->GetExtraUnitMovementFlags() & condition->MovementFlags[1]))
+        return false;
+
+    if (condition->MainHandItemSubclassMask)
+    {
+        Item* mainHand = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        if (!mainHand || !((1 << mainHand->GetTemplate()->GetSubClass()) & condition->MainHandItemSubclassMask))
+            return false;
+    }
 
     if (condition->PartyStatus)
     {

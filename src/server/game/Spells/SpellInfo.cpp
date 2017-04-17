@@ -1024,8 +1024,8 @@ SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const&
     Speed = _misc ? _misc->Speed : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
     AttributesCu = 0;
-    SpellIconID = _misc ? _misc->SpellIconID : 0;
-    ActiveIconID = _misc ? _misc->ActiveIconID : 0;
+    IconFileDataId = _misc ? _misc->IconFileDataID : 0;
+    ActiveIconFileDataId = _misc ? _misc->ActiveIconFileDataID : 0;
 
     _visuals = std::move(visuals);
     // sort all visuals so that the ones without a condition requirement are last on the list
@@ -1224,18 +1224,14 @@ bool SpellInfo::IsExplicitDiscovery() const
     SpellEffectInfo const* effect0 = GetEffect(DIFFICULTY_NONE, EFFECT_0);
     SpellEffectInfo const* effect1 = GetEffect(DIFFICULTY_NONE, EFFECT_1);
 
-    return ((effect0 && (effect0->Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM || effect0->Effect == SPELL_EFFECT_CREATE_ITEM_2))
+    return ((effect0 && (effect0->Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM || effect0->Effect == SPELL_EFFECT_CREATE_LOOT))
         && effect1 && effect1->Effect == SPELL_EFFECT_SCRIPT_EFFECT)
         || Id == 64323;
 }
 
 bool SpellInfo::IsLootCrafting() const
 {
-    SpellEffectInfo const* effect0 = GetEffect(DIFFICULTY_NONE, EFFECT_0);
-    return effect0 && (effect0->Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
-        // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
-        (effect0->Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
-        ((TotemCategory[0] != 0 || (Totem[0] != 0 && SpellIconID == 1)) || effect0->ItemType == 0)));
+    return HasEffect(SPELL_EFFECT_CREATE_RANDOM_ITEM) || HasEffect(SPELL_EFFECT_CREATE_LOOT);
 }
 
 bool SpellInfo::IsQuestTame() const
@@ -3016,10 +3012,10 @@ uint32 SpellInfo::GetSpellVisual(Unit const* caster /*= nullptr*/) const
 {
     if (SpellXSpellVisualEntry const* visual = sSpellXSpellVisualStore.LookupEntry(GetSpellXSpellVisualId(caster)))
     {
-        //if (visual->SpellVisualID[1] && forPlayer->GetViolenceLevel() operator 2)
-        //    return visual->SpellVisualID[1];
+        //if (visual->LowViolenceSpellVisualID && forPlayer->GetViolenceLevel() operator 2)
+        //    return visual->LowViolenceSpellVisualID;
 
-        return visual->SpellVisualID[0];
+        return visual->SpellVisualID;
     }
 
     return 0;

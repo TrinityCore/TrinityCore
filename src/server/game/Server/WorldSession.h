@@ -255,6 +255,11 @@ namespace WorldPackets
         class ChatReportIgnored;
     }
 
+    namespace Collections
+    {
+        class CollectionItemSetFavorite;
+    }
+
     namespace Combat
     {
         class AttackSwing;
@@ -448,6 +453,7 @@ namespace WorldPackets
         class MoveTeleportAck;
         class MovementAckMessage;
         class MovementSpeedAck;
+        class MoveKnockBackAck;
         class SetActiveMover;
         class MoveSetCollisionHeightAck;
         class MoveTimeSkipped;
@@ -583,7 +589,6 @@ namespace WorldPackets
     {
         class AccountToysUpdate;
         class AddToy;
-        class ToySetFavorite;
         class UseToy;
     }
 
@@ -689,7 +694,6 @@ namespace WorldPackets
     namespace Transmogrification
     {
         class TransmogrifyItems;
-        class TransmogAppearanceSetFavorite;
     }
 
     namespace Vehicle
@@ -703,12 +707,6 @@ namespace WorldPackets
         class EjectPassenger;
         class RequestVehicleExit;
         class MoveSetVehicleRecIdAck;
-    }
-
-    namespace Voice
-    {
-        class VoiceSessionEnable;
-        class SetActiveVoiceChannel;
     }
 
     namespace VoidStorage
@@ -996,8 +994,8 @@ class TC_GAME_API WorldSession
 
         void SendNameQueryOpcode(ObjectGuid guid);
 
-        void SendTrainerList(ObjectGuid guid);
-        void SendTrainerList(ObjectGuid guid, std::string const& strTitle);
+        void SendTrainerList(ObjectGuid guid, uint32 index = 0);
+        void SendTrainerList(ObjectGuid guid, std::string const& strTitle, uint32 index = 0);
         void SendListInventory(ObjectGuid guid);
         void SendShowBank(ObjectGuid guid);
         bool CanOpenMailBox(ObjectGuid guid);
@@ -1187,7 +1185,7 @@ class TC_GAME_API WorldSession
         void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);
 
         // Knockback
-        void HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& movementAck);
+        void HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackAck& movementAck);
 
         void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
         void HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet);
@@ -1516,9 +1514,6 @@ class TC_GAME_API WorldSession
         template<void(Channel::*CommandFunction)(Player const*, std::string const&)>
         void HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlayerCommand& packet);
 
-        void HandleVoiceSessionEnable(WorldPackets::Voice::VoiceSessionEnable& packet);
-        void HandleSetActiveVoiceChannel(WorldPackets::Voice::SetActiveVoiceChannel& packet);
-
         void HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& packet);
         void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
         void HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& packet);
@@ -1672,9 +1667,11 @@ class TC_GAME_API WorldSession
         void HandleVoidSwapItem(WorldPackets::VoidStorage::SwapVoidItem& swapVoidItem);
         void SendVoidStorageTransferResult(VoidTransferError result);
 
+        // Collections
+        void HandleCollectionItemSetFavorite(WorldPackets::Collections::CollectionItemSetFavorite& collectionItemSetFavorite);
+
         // Transmogrification
         void HandleTransmogrifyItems(WorldPackets::Transmogrification::TransmogrifyItems& transmogrifyItems);
-        void HandleTransmogAppearanceSetFavorite(WorldPackets::Transmogrification::TransmogAppearanceSetFavorite& transmogAppearanceSetFavorite);
 
         // Miscellaneous
         void HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick);
@@ -1693,7 +1690,6 @@ class TC_GAME_API WorldSession
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);
-        void HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet);
         void HandleUseToy(WorldPackets::Toy::UseToy& packet);
 
         void HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite);

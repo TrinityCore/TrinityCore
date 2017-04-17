@@ -140,6 +140,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingDat
 {
     data.WriteBits(sandboxScalingData.Type, 3);
     data << int16(sandboxScalingData.PlayerLevelDelta);
+    data << uint16(sandboxScalingData.PlayerItemLevel);
     data << uint8(sandboxScalingData.TargetLevel);
     data << uint8(sandboxScalingData.Expansion);
     data << uint8(sandboxScalingData.Class);
@@ -166,6 +167,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo cons
     data.WriteBits(auraData.EstimatedPoints.size(), 6);
     data.WriteBit(auraData.SandboxScaling.is_initialized());
 
+    if (auraData.SandboxScaling)
+        data << *auraData.SandboxScaling;
+
     if (auraData.CastUnit)
         data << *auraData.CastUnit;
 
@@ -183,9 +187,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo cons
 
     if (!auraData.EstimatedPoints.empty())
         data.append(auraData.EstimatedPoints.data(), auraData.EstimatedPoints.size());
-
-    if (auraData.SandboxScaling)
-        data << *auraData.SandboxScaling;
 
     return data;
 }
@@ -521,7 +522,7 @@ WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
     _worldPacket << CasterUnit;
     _worldPacket << CastID;
     _worldPacket << int32(SpellID);
-    _worldPacket << uint32(SpelXSpellVisualID);
+    _worldPacket << uint32(SpellXSpellVisualID);
     _worldPacket << uint16(Reason);
 
     return &_worldPacket;
@@ -532,7 +533,7 @@ WorldPacket const* WorldPackets::Spells::SpellFailedOther::Write()
     _worldPacket << CasterUnit;
     _worldPacket << CastID;
     _worldPacket << uint32(SpellID);
-    _worldPacket << uint32(SpelXSpellVisualID);
+    _worldPacket << uint32(SpellXSpellVisualID);
     _worldPacket << uint8(Reason);
 
     return &_worldPacket;
@@ -814,6 +815,7 @@ WorldPacket const* WorldPackets::Spells::SpellChannelStart::Write()
 {
     _worldPacket << CasterGUID;
     _worldPacket << int32(SpellID);
+    _worldPacket << int32(SpellXSpellVisualID);
     _worldPacket << uint32(ChannelDuration);
     _worldPacket.WriteBit(InterruptImmunities.is_initialized());
     _worldPacket.WriteBit(HealPrediction.is_initialized());

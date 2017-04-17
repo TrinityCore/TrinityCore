@@ -387,6 +387,7 @@ class TC_GAME_API Quest
         uint32 GetRewardSkillPoints() const { return RewardSkillPoints; }
         uint32 GetRewardReputationMask() const { return RewardReputationMask; }
         uint32 GetRewardId() const { return QuestRewardID; }
+        int32 GetExpansion() const { return Expansion; }
         uint32 GetQuestGiverPortrait() const { return QuestGiverPortrait; }
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
         bool   IsDaily() const { return (Flags & QUEST_FLAGS_DAILY) != 0; }
@@ -473,6 +474,7 @@ class TC_GAME_API Quest
         uint32 LimitTime;
         int32  AllowableRaces;
         uint32 QuestRewardID;
+        int32 Expansion;
         QuestObjectives Objectives;
         std::string LogTitle;
         std::string LogDescription;
