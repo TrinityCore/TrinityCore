@@ -2141,6 +2141,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanPrestige() const;
         bool IsMaxPrestige() const;
         bool IsMaxHonorLevelAndPrestige() const { return IsMaxPrestige() && GetHonorLevel() == PLAYER_MAX_HONOR_LEVEL; }
+        // Updates PLAYER_FIELD_HONOR_NEXT_LEVEL based on PLAYER_FIELD_HONOR_LEVEL and the smallest value of PLAYER_FIELD_PRESTIGE and (PRESTIGE_COLUMN_COUNT - 1)
+        void UpdateHonorNextLevel();
         //End of PvP System
 
         void RewardPlayerWithRewardPack(uint32 rewardPackID);

@@ -50,12 +50,3 @@ CREATE TABLE `reward_pack_x_item` (
   `VerifiedBuild` smallint(6) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-DELETE FROM `prestige_level_info` WHERE `ID`=11;
-INSERT INTO `prestige_level_info` (`ID`, `IconID`, `PrestigeText`, `PrestigeLevel`, `Flags`, `VerifiedBuild`) VALUES
-(11, 1567394, 'Prestige Level 9', 9, 0, 23420);
-
--- is this needed ? I can't see it listed without this.
-DELETE FROM `hotfix_data` WHERE `TableHash`=1362239809 AND `RecordID`=11;
-INSERT INTO `hotfix_data` (`TableHash`, `RecordID`, `TimeStamp`, `Deleted`) VALUES
-(1362239809, 11, 0, 0);

@@ -29,7 +29,7 @@ GameTable<GtBarberShopCostBaseEntry>            sBarberShopCostBaseGameTable;
 GameTable<GtBaseMPEntry>                        sBaseMPGameTable;
 GameTable<GtCombatRatingsEntry>                 sCombatRatingsGameTable;
 GameTable<GtCombatRatingsMultByILvl>            sCombatRatingsMultByILvlGameTable;
-GameTable<GtHonorLevelEntry>                sHonorLevelGameTable;
+GameTable<GtHonorLevelEntry>                    sHonorLevelGameTable;
 GameTable<GtHpPerStaEntry>                      sHpPerStaGameTable;
 GameTable<GtItemSocketCostPerLevelEntry>        sItemSocketCostPerLevelGameTable;
 GameTable<GtNpcDamageByClassEntry>              sNpcDamageByClassGameTable[MAX_EXPANSIONS];

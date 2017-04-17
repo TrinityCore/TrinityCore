@@ -2508,7 +2508,7 @@ void Player::GiveLevel(uint8 level)
     }
 
     if (level >= PLAYER_LEVEL_MIN_HONOR)
-        SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, sHonorLevelGameTable.GetRow(GetHonorLevel())->Total);
+        UpdateHonorNextLevel();
 
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
@@ -6470,7 +6470,7 @@ void Player::_InitHonorLevelOnLoadFromDB(uint32 honor, uint32 honorLevel, uint32
     SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, honorLevel);
     SetUInt32Value(PLAYER_FIELD_PRESTIGE, prestigeLevel);
     if (getLevel() >= PLAYER_LEVEL_MIN_HONOR)
-        SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, sHonorLevelGameTable.GetRow(honorLevel)->Total);
+        UpdateHonorNextLevel();
 
     AddHonorXP(honor);
     if (CanPrestige())
@@ -6531,7 +6531,7 @@ void Player::SetHonorLevel(uint8 level)
     RewardPlayerWithRewardPack(rewardPackID);
 
     SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, level);
-    SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, sHonorLevelGameTable.GetRow(level)->Total);
+    UpdateHonorNextLevel();
 
     UpdateCriteria(CRITERIA_TYPE_HONOR_LEVEL_REACHED);
 
@@ -6552,7 +6552,7 @@ void Player::Prestige()
 {
     SetUInt32Value(PLAYER_FIELD_PRESTIGE, GetPrestigeLevel() + 1);
     SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, 1);
-    SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, sHonorLevelGameTable.GetRow(1)->Total);
+    UpdateHonorNextLevel();
 
     UpdateCriteria(CRITERIA_TYPE_PRESTIGE_REACHED);
 }
@@ -6568,6 +6568,12 @@ bool Player::CanPrestige() const
 bool Player::IsMaxPrestige() const
 {
     return GetPrestigeLevel() == sDB2Manager.GetMaxPrestige();
+}
+
+void Player::UpdateHonorNextLevel()
+{
+    uint32 prestige = std::min(static_cast<uint32>(PRESTIGE_COLUMN_COUNT - 1), GetPrestigeLevel());
+    SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, sHonorLevelGameTable.GetRow(GetHonorLevel())->Prestige[prestige]);
 }
 
 void Player::_LoadCurrency(PreparedQueryResult result)
