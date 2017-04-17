@@ -457,17 +457,21 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     init.Launch();
 }
 
-void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk)
+void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk, bool fly)
 {
     Movement::PointsArray path(pathPoints, pathPoints + pathSize);
-    MoveSmoothPath(pointId, path, walk);
+    MoveSmoothPath(pointId, path, walk, fly);
 }
 
-void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& path, bool walk)
+void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& path, bool walk, bool fly)
 {
     Movement::MoveSplineInit init(_owner);
-    if (_owner->CanFly())
+    if (fly)
+    {
+        init.SetFly();
         init.SetUncompressed();
+    }
+
     init.MovebyPath(path);
     init.SetSmooth();
     init.SetWalk(walk);

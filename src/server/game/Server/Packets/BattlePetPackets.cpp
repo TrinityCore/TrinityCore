@@ -115,7 +115,6 @@ void WorldPackets::BattlePet::BattlePetModifyName::Read()
     _worldPacket >> PetGuid;
     uint32 nameLength = _worldPacket.ReadBits(7);
     bool hasDeclinedNames = _worldPacket.ReadBit();
-    Name = _worldPacket.ReadString(nameLength);
 
     if (hasDeclinedNames)
     {
@@ -127,6 +126,8 @@ void WorldPackets::BattlePet::BattlePetModifyName::Read()
         for (uint8 i = 0; i < 5; ++i)
             Declined.name[i] = _worldPacket.ReadString(declinedNameLengths[i]);
     }
+
+    Name = _worldPacket.ReadString(nameLength);
 }
 
 void WorldPackets::BattlePet::BattlePetDeletePet::Read()

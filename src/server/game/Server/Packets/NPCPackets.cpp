@@ -54,7 +54,6 @@ WorldPacket const* WorldPackets::NPC::GossipMessage::Write()
         _worldPacket << int32(text.QuestFlags[1]);
 
         _worldPacket.WriteBit(text.Repeatable);
-        _worldPacket.WriteBit(text.Ignored);
         _worldPacket.WriteBits(text.QuestTitle.size(), 9);
         _worldPacket.FlushBits();
 
