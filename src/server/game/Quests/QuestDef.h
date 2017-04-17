@@ -316,7 +316,6 @@ class TC_GAME_API Quest
         WorldPacket BuildQueryData(LocaleConstant loc) const;
 
         std::vector<uint32> DependentPreviousQuests;
-        std::vector<uint32> PrevChainQuests;
         WorldPacket QueryData[TOTAL_LOCALES];
 
         // cached data

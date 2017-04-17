@@ -1360,7 +1360,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SatisfyQuestTimed(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestNextChain(Quest const* qInfo, bool msg) const;
-        bool SatisfyQuestPrevChain(Quest const* qInfo, bool msg);
         bool SatisfyQuestDay(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestWeek(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestMonth(Quest const* qInfo, bool msg) const;
@@ -1550,7 +1549,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
-        bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
+        bool HandlePassiveSpellLearn(SpellInfo const* spellInfo);
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const;
         void SendInitialSpells();
