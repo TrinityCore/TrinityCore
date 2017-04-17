@@ -688,8 +688,8 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
                 if (!m_SelectionPools[j].AddGroup(*(itr_team[j]), m_SelectionPools[(j + 1) % BG_TEAMS_COUNT].GetPlayerCount()))
                     break;
         }
-        // do not allow to start bg with more than 2 players more on 1 faction
-        if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() - m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 2)
+        // do not allow to start bg with more than CONFIG_BATTLEGROUND_INVITATION_DIFF players more on 1 faction
+        if (static_cast<uint32>(abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() - m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount()))) > sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_DIFF))
             return false;
     }
     //allow 1v0 if debug bg

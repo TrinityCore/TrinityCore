@@ -2425,6 +2425,14 @@ Battleground.TrackDeserters.Enable = 0
 Battleground.InvitationType = 0
 
 #
+#    Battleground.InvitationDiff
+#        Description: When Battleground.InvitationType = 1, do not allow to start BG 
+#                     with more than Battleground.InvitationDiff players more on one faction
+#        Default:     2
+
+Battleground.InvitationDiff = 2
+
+#
 #    Battleground.PrematureFinishTimer
 #        Description: Time (in milliseconds) before battleground will end prematurely if there are
 #                     not enough players on one team. (Values defined in battleground template)
