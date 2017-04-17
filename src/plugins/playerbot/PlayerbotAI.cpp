@@ -149,13 +149,7 @@ void PlayerbotAI::UpdateAI(uint32 elapsed)
         if (spell && !spell->GetSpellInfo()->IsPositive())
         {
             InterruptSpell();
-            SetNextCheckDelay(sPlayerbotAIConfig.globalCoolDown);
         }
-    }
-
-    if (nextAICheckDelay > sPlayerbotAIConfig.maxWaitForMove && bot->IsInCombat() && !bot->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-    {
-        nextAICheckDelay = sPlayerbotAIConfig.maxWaitForMove;
     }
 
     PlayerbotAIBase::UpdateAI(elapsed);
@@ -200,7 +194,7 @@ void PlayerbotAI::HandleTeleportAck()
 	{
 	    WorldPacket p;
 		bot->GetSession()->HandleMoveWorldportAckOpcode(p);
-		SetNextCheckDelay(1000);
+		SetNextCheckDelay(sPlayerbotAIConfig.globalCoolDown);
 	}
 }
 
@@ -305,20 +299,6 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
             bot->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FLYING);
             return;
         }
-    case SMSG_CAST_FAILED:
-        {
-            WorldPacket p(packet);
-            p.rpos(0);
-            uint8 castCount, result;
-            uint32 spellId;
-            p >> castCount >> spellId >> result;
-            if (result != SPELL_CAST_OK)
-            {
-                SpellInterrupted(spellId);
-                botOutgoingPacketHandlers.AddPacket(packet);
-            }
-            return;
-        }
     case SMSG_SPELL_FAILURE:
         {
             WorldPacket p(packet);
@@ -359,7 +339,7 @@ void PlayerbotAI::HandleBotOutgoingPacket(const WorldPacket& packet)
 void PlayerbotAI::SpellInterrupted(uint32 spellid)
 {
     LastSpellCast& lastSpell = aiObjectContext->GetValue<LastSpellCast&>("last spell cast")->Get();
-    if (lastSpell.id != spellid)
+    if (!spellid || lastSpell.id != spellid)
         return;
 
     lastSpell.Reset();
@@ -374,7 +354,7 @@ void PlayerbotAI::SpellInterrupted(uint32 spellid)
     if (castTimeSpent < globalCooldown)
         SetNextCheckDelay(globalCooldown - castTimeSpent);
     else
-        SetNextCheckDelay(0);
+        SetNextCheckDelay(sPlayerbotAIConfig.reactDelay);
 
     lastSpell.id = 0;
 }
@@ -1330,7 +1310,6 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
         return true;
     }
 
-    aiObjectContext->GetValue<LastSpellCast&>("last spell cast")->Get().Set(spellId, target->GetGUID(), time(0));
     aiObjectContext->GetValue<LastMovement&>("last movement")->Get().Set(NULL);
 
     MotionMaster &mm = *bot->GetMotionMaster();
@@ -1347,6 +1326,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
     if (bot->isMoving() && spell->GetCastTime())
     {
         delete spell;
+        spell->cancel();
         return false;
     }
 
@@ -1374,6 +1354,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
         LootObject loot = *aiObjectContext->GetValue<LootObject>("loot target");
         if (!loot.IsLootPossible(bot))
         {
+            spell->cancel();
             delete spell;
             return false;
         }
@@ -1402,6 +1383,7 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
     if (!bot->isInFront(faceTo, M_PI / 2))
     {
         bot->SetFacingTo(bot->GetAngle(faceTo));
+        spell->cancel();
         delete spell;
         SetNextCheckDelay(sPlayerbotAIConfig.globalCoolDown);
         return false;
@@ -1410,10 +1392,10 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
 		bot->GetMotionMaster()->MovementExpired();
 	spell->prepare(&targets);
 	WaitForSpellCast(spell);
+    aiObjectContext->GetValue<LastSpellCast&>("last spell cast")->Get().Set(spellId, target->GetGUID(), time(0));
 	if (oldSel)
 		bot->SetSelection(oldSel->GetGUID());
-	LastSpellCast& lastSpell = aiObjectContext->GetValue<LastSpellCast&>("last spell cast")->Get();
-	return lastSpell.id == spellId;
+    return true;
 }
 
 void PlayerbotAI::WaitForSpellCast(Spell *spell)
