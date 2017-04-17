@@ -85,10 +85,12 @@ function(IsDynamicLinkingRequired variable)
   set(${variable} ${IS_REQUIRED} PARENT_SCOPE)
 endfunction()
 
-# Stores the native variable name 
+# Stores the native variable name
 function(GetNativeSharedLibraryName module variable)
   if(WIN32)
     set(${variable} "${module}.dll" PARENT_SCOPE)
+  elseif(APPLE)
+    set(${variable} "lib${module}.dylib" PARENT_SCOPE)
   else()
     set(${variable} "lib${module}.so" PARENT_SCOPE)
   endif()

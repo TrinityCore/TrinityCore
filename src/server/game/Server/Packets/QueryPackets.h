@@ -207,16 +207,6 @@ namespace WorldPackets
             ByteBuffer Data;
         };
 
-        class HotfixNotifyBlob final : public ServerPacket
-        {
-        public:
-            HotfixNotifyBlob() : ServerPacket(SMSG_HOTFIX_NOTIFY_BLOB, 4) { }
-
-            WorldPacket const* Write() override;
-
-            HotfixData const* Hotfixes = nullptr;
-        };
-
         class QueryGameObject final : public ClientPacket
         {
         public:
