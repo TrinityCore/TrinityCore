@@ -7178,6 +7178,11 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                 if (AuraEffect* aurEff = GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 196, 0))
                     if (victim->GetDiseasesByCaster(owner->GetGUID()) > 0)
                         AddPct(DoneTotalMod, aurEff->GetAmount());
+
+            // Diseases should make 15% more damage with patch 3.2.0
+            if (spellProto->SpellFamilyFlags[1] & 0x6000000 && spellProto->SpellFamilyFlags[1] & 0x800)
+                AddPct(DoneTotalMod, 15);
+
             break;
     }
 
