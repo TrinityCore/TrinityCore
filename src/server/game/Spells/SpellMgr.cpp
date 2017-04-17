@@ -3255,6 +3255,10 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 12721: // Deep Wounds shouldnt ignore resillience or damage taken auras because its damage is not based off a spell.
                 spellInfo->AttributesEx4 = 0;
                 break;
+            case 15290: // Vampiric Embrace
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
             case 8145: // Tremor Totem (instant pulse)
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
                 /*no break*/
