@@ -97,7 +97,7 @@ void PlayerbotFactory::Randomize(bool incremental)
     bot->SaveToDB();
 
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing quests...");
-    //InitQuests(); //thesawolf - causing segfault CHECK
+    InitQuests();
     bot->SetLevel(level); // quest rewards boost bot level, so reduce back
 
     //thesawolf - refill hp/sp since level resets can leave a vacuum
@@ -1244,6 +1244,7 @@ void AddPrevQuests(uint32 questId, list<uint32>& questIds)
     {
         uint32 prevId = abs(*iter);
         AddPrevQuests(prevId, questIds);
+		questIds.remove(prevId);
         questIds.push_back(prevId);
     }
 }
@@ -1263,6 +1264,7 @@ void PlayerbotFactory::InitQuests()
             continue;
 
         AddPrevQuests(questId, questIds);
+		questIds.remove(questId);
         questIds.push_back(questId);
     }
 
