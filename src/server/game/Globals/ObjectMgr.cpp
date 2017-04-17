@@ -4579,8 +4579,6 @@ void ObjectMgr::LoadQuests()
                     qinfo->GetQuestId(), qinfo->_rewardNextQuest, qinfo->_rewardNextQuest);
                 qinfo->_rewardNextQuest = 0;
             }
-            else
-                qNextItr->second->PrevChainQuests.push_back(qinfo->GetQuestId());
         }
 
         // fill additional data stores
@@ -4592,9 +4590,9 @@ void ObjectMgr::LoadQuests()
 
         if (qinfo->_nextQuestId)
         {
-            auto qNextItr = _questTemplates.find(qinfo->GetNextQuestId());
+            auto qNextItr = _questTemplates.find(qinfo->_nextQuestId);
             if (qNextItr == _questTemplates.end())
-                TC_LOG_ERROR("sql.sql", "Quest %u has NextQuestId %u, but no such quest", qinfo->GetQuestId(), qinfo->GetNextQuestId());
+                TC_LOG_ERROR("sql.sql", "Quest %u has NextQuestId %u, but no such quest", qinfo->GetQuestId(), qinfo->_nextQuestId);
             else
                 qNextItr->second->DependentPreviousQuests.push_back(qinfo->GetQuestId());
         }
