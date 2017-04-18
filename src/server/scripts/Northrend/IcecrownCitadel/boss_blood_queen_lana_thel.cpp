@@ -50,6 +50,7 @@ enum Spells
     SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL   = 70872,
     SPELL_FRENZIED_BLOODTHIRST              = 70877,
     SPELL_UNCONTROLLABLE_FRENZY             = 70923,
+    SPELL_UNCONTROLLABLE_FRENZY_EFFECTS     = 70924,
     SPELL_PRESENCE_OF_THE_DARKFALLEN        = 70994,
     SPELL_PRESENCE_OF_THE_DARKFALLEN_2      = 71952,
     SPELL_BLOOD_MIRROR_DAMAGE               = 70821,
@@ -863,6 +864,32 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScriptLo
         }
 };
 
+class spell_blood_queen_uncontrollable_frenzy : public SpellScriptLoader
+{
+public:
+    spell_blood_queen_uncontrollable_frenzy() : SpellScriptLoader("spell_blood_queen_uncontrollable_frenzy") { }
+
+    class spell_blood_queen_uncontrollable_frenzy_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_blood_queen_uncontrollable_frenzy_SpellScript);
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            GetHitUnit()->CastSpell(GetHitUnit(), SPELL_UNCONTROLLABLE_FRENZY_EFFECTS, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_blood_queen_uncontrollable_frenzy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_blood_queen_uncontrollable_frenzy_SpellScript();
+    }
+};
+
 class achievement_once_bitten_twice_shy_n : public AchievementCriteriaScript
 {
     public:
@@ -905,6 +932,7 @@ void AddSC_boss_blood_queen_lana_thel()
     new spell_blood_queen_pact_of_the_darkfallen();
     new spell_blood_queen_pact_of_the_darkfallen_dmg();
     new spell_blood_queen_pact_of_the_darkfallen_dmg_target();
+    new spell_blood_queen_uncontrollable_frenzy();
     new achievement_once_bitten_twice_shy_n();
     new achievement_once_bitten_twice_shy_v();
 }
