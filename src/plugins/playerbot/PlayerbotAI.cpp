@@ -141,18 +141,6 @@ void PlayerbotAI::UpdateAI(uint32 elapsed)
 
 	//EOD
 
-    if (nextAICheckDelay > sPlayerbotAIConfig.globalCoolDown &&
-            bot->IsNonMeleeSpellCast(true, true, false) &&
-            *GetAiObjectContext()->GetValue<bool>("invalid target", "current target"))
-    {
-        Spell* spell = bot->GetCurrentSpell(CURRENT_GENERIC_SPELL);
-        if (spell && !spell->GetSpellInfo()->IsPositive())
-        {
-            InterruptSpell();
-            SetNextCheckDelay(sPlayerbotAIConfig.globalCoolDown);
-        }
-    }
-
     if (nextAICheckDelay > sPlayerbotAIConfig.maxWaitForMove && bot->IsInCombat() && !bot->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
     {
         nextAICheckDelay = sPlayerbotAIConfig.maxWaitForMove;
@@ -1440,11 +1428,6 @@ void PlayerbotAI::WaitForSpellCast(Spell *spell)
 
 void PlayerbotAI::InterruptSpell()
 {
-    if (bot->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-        return;
-
-    LastSpellCast& lastSpell = aiObjectContext->GetValue<LastSpellCast&>("last spell cast")->Get();
-
     for (int type = CURRENT_MELEE_SPELL; type < CURRENT_CHANNELED_SPELL; type++)
     {
         Spell* spell = bot->GetCurrentSpell((CurrentSpellTypes)type);
@@ -1472,8 +1455,6 @@ void PlayerbotAI::InterruptSpell()
 
         SpellInterrupted(spell->m_spellInfo->Id);
     }
-
-    SpellInterrupted(lastSpell.id);
 }
 
 
