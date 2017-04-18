@@ -1363,7 +1363,7 @@ class TC_GAME_API ObjectMgr
         GraveYardContainer GraveYardStore;
 
         static void AddLocaleString(std::string const& value, LocaleConstant localeConstant, StringVector& data);
-        static inline void GetLocaleString(const StringVector const& data, LocaleConstant localeConstant, std::string& value)
+        static inline void GetLocaleString(StringVector const& data, LocaleConstant localeConstant, std::string& value)
         {
             if (data.size() > size_t(localeConstant) && !data[localeConstant].empty())
                 value = data[localeConstant];

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,7 +52,7 @@ inline void LoadDB2(uint32& availableDb2Locales, DB2StoreProblemList& errlist, D
     ++DB2FilesCount;
 
     std::string db2_filename = db2_path + filename;
-    if (storage.Load(db2_filename.c_str(), uint32(sWorld->GetDefaultDbcLocale())))
+    if (storage.Load(db2_filename.c_str(), LocaleConstant(sWorld->GetDefaultDbcLocale())))
     {
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         {

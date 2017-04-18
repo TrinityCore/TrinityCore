@@ -346,14 +346,14 @@ public:
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";
                 phase = (!p->IsGameMaster() ? p->GetPhaseMask() : -1);
-                uint32 locale = handler->GetSessionDbcLocale();
+                LocaleConstant localeConstant = handler->GetSessionDbcLocale();
 
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
                 if (area)
                 {
                     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone);
                     if (zone)
-                        zoneName = zone->area_name[locale];
+                        zoneName = zone->area_name[localeConstant];
                 }
             }
             else

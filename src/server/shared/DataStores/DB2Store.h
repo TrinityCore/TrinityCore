@@ -33,7 +33,7 @@ public:
 
     virtual bool HasRecord(uint32 id) const = 0;
 
-    virtual void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const = 0;
+    virtual void WriteRecord(uint32 id, LocaleConstant localeConstant, ByteBuffer& buffer) const = 0;
 
 protected:
     uint32 tableHash;
@@ -103,7 +103,7 @@ class DB2Storage : public DB2StorageBase
     typedef std::list<char*> StringPoolList;
     typedef std::vector<T*> DataTableEx;
     typedef bool(*EntryChecker)(DB2Storage<T> const&, uint32);
-    typedef void(*PacketWriter)(DB2Storage<T> const&, uint32, uint32, ByteBuffer&);
+    typedef void(*PacketWriter)(DB2Storage<T> const&, uint32, LocaleConstant, ByteBuffer&);
 public:
     DB2Storage(char const* f, EntryChecker checkEntry = NULL, PacketWriter writePacket = NULL) :
         nCount(0), fieldCount(0), fmt(f), m_dataTable(NULL)
@@ -120,9 +120,9 @@ public:
     uint32 GetNumRows() const { return nCount; }
     char const* GetFormat() const { return fmt; }
     uint32 GetFieldCount() const { return fieldCount; }
-    void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const
+    void WriteRecord(uint32 id, LocaleConstant localeConstant, ByteBuffer& buffer) const
     {
-        WritePacket(*this, id, locale, buffer);
+        WritePacket(*this, id, localeConstant, buffer);
     }
 
     T* CreateEntry(uint32 id, bool evenIfExists = false)
@@ -149,7 +149,7 @@ public:
 
     void EraseEntry(uint32 id) { indexTable.asT[id] = NULL; }
 
-    bool Load(char const* fn, uint32 locale)
+    bool Load(char const* fn, LocaleConstant localeConstant)
     {
         DB2FileLoader db2;
         // Check if load was sucessful, only then continue
@@ -166,7 +166,7 @@ public:
         m_stringPoolList.push_back(db2.AutoProduceStringsArrayHolders(fmt, (char*)m_dataTable));
 
         // load strings from dbc data
-        m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
+        m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, localeConstant));
 
         // error in dbc file at loading if NULL
         return indexTable.asT != NULL;

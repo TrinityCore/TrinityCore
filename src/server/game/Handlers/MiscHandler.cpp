@@ -1801,7 +1801,7 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
 
         size_t sizePos = data.wpos();
         data << uint32(0);              // size of next block
-        store->WriteRecord(entry, uint32(GetSessionDbcLocale()), data);
+        store->WriteRecord(entry, LocaleConstant(GetSessionDbcLocale()), data);
         data.put<uint32>(sizePos, data.wpos() - sizePos - 4);
 
         SendPacket(&data);
