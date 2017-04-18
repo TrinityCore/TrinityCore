@@ -18,8 +18,8 @@ bool UseItemAction::Execute(Event event)
         if (items.size() > 1)
         {
             list<Item*>::iterator i = items.begin();
-            Item* itemTarget = *i++;
-            Item* item = *i;
+            Item* item = *i++;
+            Item* itemTarget = *i;
             return UseItemOnItem(item, itemTarget);
         }
         else if (!items.empty())
@@ -70,9 +70,6 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
         return false;
 
     if (bot->IsNonMeleeSpellCast(true))
-        return false;
-
-    if (bot->IsInCombat() && item->IsPotion() && bot->GetLastPotionId())
         return false;
 
     uint8 bagIndex = item->GetBagSlot();

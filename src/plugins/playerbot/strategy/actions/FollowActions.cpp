@@ -10,9 +10,10 @@ bool FollowAction::Execute(Event event)
 {
     Formation* formation = AI_VALUE(Formation*, "formation");
     string target = formation->GetTargetName();
+	bool moved = false;
     if (!target.empty())
     {
-        return Follow(AI_VALUE(Unit*, target));
+		moved = Follow(AI_VALUE(Unit*, target));
     }
     else
     {
@@ -20,7 +21,7 @@ bool FollowAction::Execute(Event event)
         if (loc == Formation::NullLocation || loc.GetMapId() == -1)
             return false;
 
-        return MoveTo(loc.GetMapId(), loc.m_positionX, loc.m_positionY, loc.m_positionZ);
+		moved = MoveTo(loc.GetMapId(), loc.m_positionX, loc.m_positionY, loc.m_positionZ);
     }
 }
 

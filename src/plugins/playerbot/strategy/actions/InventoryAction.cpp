@@ -14,9 +14,7 @@ public:
 
     virtual bool Accept(const ItemTemplate* proto)
     {
-        if (proto->Class == ITEM_CLASS_CONSUMABLE &&
-            proto->SubClass == ITEM_SUBCLASS_POTION &&
-            proto->Spells[0].SpellCategory == 4)
+        if (proto->Class == ITEM_CLASS_CONSUMABLE && (proto->SubClass == ITEM_SUBCLASS_POTION || proto->SubClass == ITEM_SUBCLASS_FLASK))
         {
             for (int j = 0; j < MAX_ITEM_PROTO_SPELLS; j++)
             {
