@@ -397,7 +397,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
             std::string Text = pageText->Text;
 
             LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-            if (localeConstant >= LOCALE_ENUS)
+            if (localeConstant >= LOCALE_enUS)
                 if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
                     ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, Text);
 

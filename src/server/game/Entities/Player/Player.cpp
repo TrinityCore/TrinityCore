@@ -14633,7 +14633,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                     title = gossiptext->Options[0].Text_0;
 
                     LocaleConstant localeConstant = GetSession()->GetSessionDbLocaleIndex();
-                    if (localeConstant >= LOCALE_ENUS)
+                    if (localeConstant >= LOCALE_enUS)
                         if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
                             ObjectMgr::GetLocaleString(nl->Text_0[0], localeConstant, title);
                 }
@@ -14642,7 +14642,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                     title = gossiptext->Options[0].Text_1;
 
                     LocaleConstant localeConstant = GetSession()->GetSessionDbLocaleIndex();
-                    if (localeConstant >= LOCALE_ENUS)
+                    if (localeConstant >= LOCALE_enUS)
                         if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
                             ObjectMgr::GetLocaleString(nl->Text_1[0], localeConstant, title);
                 }
@@ -16814,7 +16814,7 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver) const
         std::string strTitle = quest->GetTitle();
 
         LocaleConstant localeConstant = pReceiver->GetSession()->GetSessionDbLocaleIndex();
-        if (localeConstant >= LOCALE_ENUS)
+        if (localeConstant >= LOCALE_enUS)
             if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
                 ObjectMgr::GetLocaleString(pLocale->Title, localeConstant, strTitle);
 
