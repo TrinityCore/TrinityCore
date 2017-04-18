@@ -10,35 +10,35 @@ CREATE TABLE IF NOT EXISTS `points_of_interest_locale` (
 
 -- koKR
 INSERT INTO `points_of_interest_locale` (`ID`, `locale`, `Name`)
-    (SELECT `entry`, "koKR", `icon_name_loc1` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc1) > 0);
+    (SELECT `ID`, "koKR", `Name_loc1` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc1) > 0);
 
 -- frFR
 INSERT INTO `points_of_interest_locale` (`ID`, `locale`, `Name`)
-    (SELECT `entry`, "frFR", `icon_name_loc2` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc2) > 0);
+    (SELECT `ID`, "frFR", `Name_loc2` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc2) > 0);
 
 -- deDE
 INSERT INTO `points_of_interest_locale` (`ID`, `locale`, `Name`)
-    (SELECT `entry`, "deDE", `icon_name_loc3` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc3) > 0);
+    (SELECT `ID`, "deDE", `Name_loc3` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc3) > 0);
 
 -- zhCN
 INSERT INTO `points_of_interest_locale` (`ID`, `locale`, `Name`)
-    (SELECT `entry`, "zhCN", `icon_name_loc4` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc4) > 0);
+    (SELECT `ID`, "zhCN", `Name_loc4` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc4) > 0);
 
 -- zhTW
 INSERT INTO `points_of_interest_locale` (`ID`, `locale`, `Name`)
-    (SELECT `entry`, "zhTW", `icon_name_loc5` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc5) > 0);
+    (SELECT `ID`, "zhTW", `Name_loc5` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc5) > 0);
 
 -- esES
 INSERT INTO `points_of_interest_locale` (`ID`, `locale`, `Name`)
-    (SELECT `entry`, "esES", `icon_name_loc6` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc6) > 0);
+    (SELECT `ID`, "esES", `Name_loc6` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc6) > 0);
 
 -- esMX
 INSERT INTO `points_of_interest_locale` (`ID`, `locale`, `Name`)
-    (SELECT `entry`, "esMX", `icon_name_loc7` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc7) > 0);
+    (SELECT `ID`, "esMX", `Name_loc7` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc7) > 0);
 
 -- ruRU
 INSERT INTO `points_of_interest_locale` (`ID`, `locale`, `Name`)
-    (SELECT `entry`, "ruRU", `icon_name_loc8` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc8) > 0);
+    (SELECT `ID`, "ruRU", `Name_loc8` FROM `locales_points_of_interest` WHERE LENGTH(Name_loc8) > 0);
 
 DROP TABLE IF EXISTS `locales_points_of_interest`;
 
@@ -53,34 +53,34 @@ CREATE TABLE IF NOT EXISTS `page_text_locale` (
 
 -- koKR
 INSERT INTO `page_text_locale` (`ID`, `locale`, `Text`)
-    (SELECT `entry`, "koKR", `text_loc1` FROM `locales_page_text` WHERE LENGTH(Text_loc1) > 0);
+    (SELECT `ID`, "koKR", `Text_loc1` FROM `locales_page_text` WHERE LENGTH(Text_loc1) > 0);
 
 -- frFR
 INSERT INTO `page_text_locale` (`ID`, `locale`, `Text`)
-    (SELECT `entry`, "frFR", `text_loc2` FROM `locales_page_text` WHERE LENGTH(Text_loc2) > 0);
+    (SELECT `ID`, "frFR", `Text_loc2` FROM `locales_page_text` WHERE LENGTH(Text_loc2) > 0);
 
 -- deDE
 INSERT INTO `page_text_locale` (`ID`, `locale`, `Text`)
-    (SELECT `entry`, "deDE", `text_loc3` FROM `locales_page_text` WHERE LENGTH(Text_loc3) > 0);
+    (SELECT `ID`, "deDE", `Text_loc3` FROM `locales_page_text` WHERE LENGTH(Text_loc3) > 0);
 
 -- zhCN
 INSERT INTO `page_text_locale` (`ID`, `locale`, `Text`)
-    (SELECT `entry`, "zhCN", `text_loc4` FROM `locales_page_text` WHERE LENGTH(Text_loc4) > 0);
+    (SELECT `ID`, "zhCN", `Text_loc4` FROM `locales_page_text` WHERE LENGTH(Text_loc4) > 0);
 
 -- zhTW
 INSERT INTO `page_text_locale` (`ID`, `locale`, `Text`)
-    (SELECT `entry`, "zhTW", `text_loc5` FROM `locales_page_text` WHERE LENGTH(Text_loc5) > 0);
+    (SELECT `ID`, "zhTW", `Text_loc5` FROM `locales_page_text` WHERE LENGTH(Text_loc5) > 0);
 
 -- esES
 INSERT INTO `page_text_locale` (`ID`, `locale`, `Text`)
-    (SELECT `entry`, "esES", `text_loc6` FROM `locales_page_text` WHERE LENGTH(Text_loc6) > 0);
+    (SELECT `ID`, "esES", `Text_loc6` FROM `locales_page_text` WHERE LENGTH(Text_loc6) > 0);
 
 -- esMX
 INSERT INTO `page_text_locale` (`ID`, `locale`, `Text`)
-    (SELECT `entry`, "esMX", `text_loc7` FROM `locales_page_text` WHERE LENGTH(Text_loc7) > 0);
+    (SELECT `ID`, "esMX", `Text_loc7` FROM `locales_page_text` WHERE LENGTH(Text_loc7) > 0);
 
 -- ruRU
 INSERT INTO `page_text_locale` (`ID`, `locale`, `Text`)
-    (SELECT `entry`, "ruRU", `text_loc8` FROM `locales_page_text` WHERE LENGTH(Text_loc8) > 0);
+    (SELECT `ID`, "ruRU", `Text_loc8` FROM `locales_page_text` WHERE LENGTH(Text_loc8) > 0);
 
 DROP TABLE IF EXISTS `locales_page_text`;
