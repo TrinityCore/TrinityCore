@@ -12,6 +12,7 @@
 #include "strategy/druid/DruidAiObjectContext.h"
 #include "strategy/hunter/HunterAiObjectContext.h"
 #include "strategy/rogue/RogueAiObjectContext.h"
+#include "strategy/DK/DKAiObjectContext.h"
 #include "../Entities/Player/Player.h"
 #include "PlayerbotAIConfig.h"
 #include "RandomPlayerbotMgr.h"
@@ -39,6 +40,9 @@ AiObjectContext* AiFactory::createAiObjectContext(Player* player, PlayerbotAI* a
     case CLASS_PALADIN:
         return new PaladinAiObjectContext(ai);
         break;
+	case CLASS_DEATH_KNIGHT:
+		return new DKAiObjectContext(ai);
+		break;
     case CLASS_DRUID:
         return new DruidAiObjectContext(ai);
         break;
@@ -124,6 +128,12 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
             else
                 engine->addStrategies("dps", "dps assist", "threat", NULL);
             break;
+		case CLASS_DEATH_KNIGHT:
+			if (tab == 0)
+				engine->addStrategies("tank", "tank aoe", NULL);
+			else
+				engine->addStrategies("dps", "dps assist", "threat", NULL);
+			break;
         case CLASS_SHAMAN:
             if (tab == 0)
                 engine->addStrategies("caster", "caster aoe", "bmana", "threat", "flee", NULL);
@@ -241,6 +251,14 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
             break;
         case CLASS_WARRIOR:
             if (tab == 2)
+                nonCombatEngine->addStrategy("tank aoe");
+            else
+                nonCombatEngine->addStrategy("dps assist");
+            break;
+            nonCombatEngine->addStrategy("dps assist");
+            break;
+        case CLASS_DEATH_KNIGHT:
+            if (tab == 0)
                 nonCombatEngine->addStrategy("tank aoe");
             else
                 nonCombatEngine->addStrategy("dps assist");
