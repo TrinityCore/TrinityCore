@@ -58,7 +58,7 @@ namespace ai
             creators["grind"] = &ChatTriggerContext::grind;
             creators["tank attack"] = &ChatTriggerContext::tank_attack;
             creators["talk"] = &ChatTriggerContext::talk;
-            creators["cast"] = &ChatTriggerContext::talk;
+            creators["cast"] = &ChatTriggerContext::cast;
             creators["invite"] = &ChatTriggerContext::invite;
             creators["spell"] = &ChatTriggerContext::spell;
             creators["rti"] = &ChatTriggerContext::rti;

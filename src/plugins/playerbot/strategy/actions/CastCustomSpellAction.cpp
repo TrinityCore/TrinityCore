@@ -1,6 +1,7 @@
 #include "../../../pchdef.h"
 #include "../../playerbot.h"
 #include "CastCustomSpellAction.h"
+#include "../../PlayerbotAIConfig.h"
 
 using namespace ai;
 
@@ -20,6 +21,15 @@ bool CastCustomSpellAction::Execute(Event event)
     uint32 spell = chat->parseSpell(text);
 
     ostringstream msg;
+	if (target != bot && !bot->isInFront(target, M_PI / 2))
+	{
+		bot->SetFacingTo(bot->GetAngle(target));
+		ai->SetNextCheckDelay(sPlayerbotAIConfig.globalCoolDown);
+		msg << "cast " << text;
+		ai->HandleCommand(CHAT_MSG_WHISPER, msg.str(), *master);
+		return true;
+	}
+
     if (!ai->CanCastSpell(spell, target))
     {
         msg << "Cannot cast " << text << " on " << target->GetName();
@@ -27,11 +37,7 @@ bool CastCustomSpellAction::Execute(Event event)
         return false;
     }
 
-    bool result = false;
-    if (spell)
-        result = ai->CastSpell(spell, target);
-    else
-        ai->CastSpell(text, target);
+	bool result = spell ? ai->CastSpell(spell, target) : ai->CastSpell(text, target);
 
     if (result)
     {
