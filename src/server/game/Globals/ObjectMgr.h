@@ -1062,7 +1062,7 @@ class TC_GAME_API ObjectMgr
 
         void LoadVendors();
         void LoadTrainerSpell();
-        void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel, uint32 Index);
+        void AddSpellToTrainer(uint32 ID, uint32 SpellID, uint32 MoneyCost, uint32 ReqSkillLine, uint32 ReqSkillRank, uint32 ReqLevel, uint32 Index);
 
         void LoadTerrainPhaseInfo();
         void LoadTerrainSwapDefaults();
@@ -1210,9 +1210,9 @@ class TC_GAME_API ObjectMgr
             if (itr == _gossipMenuItemsLocaleStore.end()) return nullptr;
             return &itr->second;
         }
-        PointOfInterestLocale const* GetPointOfInterestLocale(uint32 poi_id) const
+        PointOfInterestLocale const* GetPointOfInterestLocale(uint32 id) const
         {
-            PointOfInterestLocaleContainer::const_iterator itr = _pointOfInterestLocaleStore.find(poi_id);
+            PointOfInterestLocaleContainer::const_iterator itr = _pointOfInterestLocaleStore.find(id);
             if (itr == _pointOfInterestLocaleStore.end()) return nullptr;
             return &itr->second;
         }
@@ -1362,11 +1362,11 @@ class TC_GAME_API ObjectMgr
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
 
-        static void AddLocaleString(std::string const& s, LocaleConstant locale, StringVector& data);
-        static inline void GetLocaleString(const StringVector& data, int loc_idx, std::string& value)
+        static void AddLocaleString(std::string const& value, LocaleConstant localeConstant, StringVector& data);
+        static inline void GetLocaleString(const StringVector const& data, LocaleConstant localeConstant, std::string& value)
         {
-            if (data.size() > size_t(loc_idx) && !data[loc_idx].empty())
-                value = data[loc_idx];
+            if (data.size() > size_t(localeConstant) && !data[localeConstant].empty())
+                value = data[localeConstant];
         }
 
         CharacterConversionMap FactionChangeAchievements;

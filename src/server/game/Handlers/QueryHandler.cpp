@@ -396,10 +396,10 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket& recvData)
         {
             std::string Text = pageText->Text;
 
-            int loc_idx = GetSessionDbLocaleIndex();
-            if (loc_idx >= 0)
-                if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(player->Text, loc_idx, Text);
+            LocaleConstant localeConstant = GetSessionDbLocaleIndex();
+            if (localeConstant >= LOCALE_ENUS)
+                if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
+                    ObjectMgr::GetLocaleString(pageTextLocale->Text, localeConstant, Text);
 
             data << Text;
             data << uint32(pageText->NextPageID);
