@@ -4149,10 +4149,10 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
     bool hasSpell = true;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (!trainer_spell->learnedSpell[i])
+        if (!trainer_spell->ReqAbility[i])
             continue;
 
-        if (!HasSpell(trainer_spell->learnedSpell[i]))
+        if (!HasSpell(trainer_spell->ReqAbility[i]))
         {
             hasSpell = false;
             break;
@@ -4163,30 +4163,30 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
         return TRAINER_SPELL_GRAY;
 
     // check skill requirement
-    if (trainer_spell->reqSkill && GetBaseSkillValue(trainer_spell->reqSkill) < trainer_spell->reqSkillValue)
+    if (trainer_spell->ReqSkillLine && GetBaseSkillValue(trainer_spell->ReqSkillLine) < trainer_spell->ReqSkillRank)
         return TRAINER_SPELL_RED;
 
     // check level requirement
-    if (getLevel() < trainer_spell->reqLevel)
+    if (getLevel() < trainer_spell->ReqLevel)
         return TRAINER_SPELL_RED;
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (!trainer_spell->learnedSpell[i])
+        if (!trainer_spell->ReqAbility[i])
             continue;
 
         // check race/class requirement
-        if (!IsSpellFitByClassAndRace(trainer_spell->learnedSpell[i]))
+        if (!IsSpellFitByClassAndRace(trainer_spell->ReqAbility[i]))
             return TRAINER_SPELL_RED;
 
-        if (uint32 prevSpell = sSpellMgr->GetPrevSpellInChain(trainer_spell->learnedSpell[i]))
+        if (uint32 prevSpell = sSpellMgr->GetPrevSpellInChain(trainer_spell->ReqAbility[i]))
         {
             // check prev.rank requirement
             if (prevSpell && !HasSpell(prevSpell))
                 return TRAINER_SPELL_RED;
         }
 
-        SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(trainer_spell->learnedSpell[i]);
+        SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(trainer_spell->ReqAbility[i]);
         for (SpellsRequiringSpellMap::const_iterator itr = spellsRequired.first; itr != spellsRequired.second; ++itr)
         {
             // check additional spell requirement
@@ -4199,9 +4199,9 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
     // first rank of primary profession spell when there are no professions available is disabled
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (!trainer_spell->learnedSpell[i])
+        if (!trainer_spell->ReqAbility[i])
             continue;
-        SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainer_spell->learnedSpell[i]);
+        SpellInfo const* learnedSpellInfo = sSpellMgr->GetSpellInfo(trainer_spell->ReqAbility[i]);
         if (learnedSpellInfo && learnedSpellInfo->IsPrimaryProfessionFirstRank() && (GetFreePrimaryProfessionPoints() == 0))
             return TRAINER_SPELL_GREEN_DISABLED;
     }
@@ -14697,19 +14697,19 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                 {
                     title = gossiptext->Options[0].Text_0;
 
-                    int loc_idx = GetSession()->GetSessionDbLocaleIndex();
-                    if (loc_idx >= 0)
+                    LocaleConstant localeConstant = GetSession()->GetSessionDbLocaleIndex();
+                    if (localeConstant >= LOCALE_enUS)
                         if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
-                            ObjectMgr::GetLocaleString(nl->Text_0[0], loc_idx, title);
+                            ObjectMgr::GetLocaleString(nl->Text_0[0], localeConstant, title);
                 }
                 else
                 {
                     title = gossiptext->Options[0].Text_1;
 
-                    int loc_idx = GetSession()->GetSessionDbLocaleIndex();
-                    if (loc_idx >= 0)
+                    LocaleConstant localeConstant = GetSession()->GetSessionDbLocaleIndex();
+                    if (localeConstant >= LOCALE_enUS)
                         if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textid))
-                            ObjectMgr::GetLocaleString(nl->Text_1[0], loc_idx, title);
+                            ObjectMgr::GetLocaleString(nl->Text_1[0], localeConstant, title);
                 }
             }
         }
@@ -16782,10 +16782,10 @@ void Player::SendQuestConfirmAccept(const Quest* quest, Player* pReceiver) const
     {
         std::string strTitle = quest->GetTitle();
 
-        int loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        LocaleConstant localeConstant = pReceiver->GetSession()->GetSessionDbLocaleIndex();
+        if (localeConstant >= LOCALE_enUS)
             if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
-                ObjectMgr::GetLocaleString(pLocale->Title, loc_idx, strTitle);
+                ObjectMgr::GetLocaleString(pLocale->Title, localeConstant, strTitle);
 
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
         data << uint32(quest->GetQuestId());
