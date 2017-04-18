@@ -1346,15 +1346,14 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
     {
         targets.SetDst(target->GetPosition());
     }
+	else if (pSpellInfo->Targets & TARGET_FLAG_ITEM)
+	{
+		spell->m_CastItem = aiObjectContext->GetValue<Item*>("item for spell", spellId)->Get();
+		targets.SetItemTarget(spell->m_CastItem);
+	}
     else
     {
         targets.SetUnitTarget(target);
-    }
-
-    if (pSpellInfo->Targets & TARGET_FLAG_ITEM)
-    {
-        spell->m_CastItem = aiObjectContext->GetValue<Item*>("item for spell", spellId)->Get();
-        targets.SetItemTarget(spell->m_CastItem);
     }
 
     if (pSpellInfo->Effects[0].Effect == SPELL_EFFECT_OPEN_LOCK ||
