@@ -10457,9 +10457,6 @@ InventoryResult Player::CanStoreItem_InSpecificSlot(uint8 bag, uint8 slot, ItemP
 
     uint32 need_space;
 
-    if (pSrcItem && pSrcItem->IsNotEmptyBag() && !IsBagPos(uint16(bag) << 8 | slot))
-        return EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS;
-
     // empty specific slot - check item fit to slot
     if (!pItem2 || swap)
     {
