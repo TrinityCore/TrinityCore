@@ -963,50 +963,45 @@ void DB2Manager::LoadHotfixData()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = HotfixDatabase.Query("SELECT TableHash, RecordID, `Timestamp`, Deleted FROM hotfix_data");
+    QueryResult result = HotfixDatabase.Query("SELECT Id, TableHash, RecordId, Deleted FROM hotfix_data ORDER BY Id");
 
     if (!result)
     {
-        TC_LOG_INFO("misc", ">> Loaded 0 hotfix info entries.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 hotfix info entries.");
         return;
     }
 
     uint32 count = 0;
 
-    _hotfixData.reserve(result->GetRowCount());
+    std::map<std::pair<uint32, int32>, bool> deletedRecords;
 
     do
     {
         Field* fields = result->Fetch();
 
-        HotfixNotify info;
-        info.TableHash = fields[0].GetUInt32();
-        info.Entry = fields[1].GetUInt32();
-        info.Timestamp = fields[2].GetUInt32();
-        _hotfixData.push_back(info);
-
-        if (fields[3].GetBool())
+        int32 id = fields[0].GetInt32();
+        uint32 tableHash = fields[1].GetUInt32();
+        int32 recordId = fields[2].GetInt32();
+        bool deleted = fields[3].GetBool();
+        if (_stores.find(tableHash) == _stores.end())
         {
-            auto itr = _stores.find(info.TableHash);
-            if (itr != _stores.end())
-                itr->second->EraseRecord(info.Entry);
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_data` references unknown DB2 store by hash 0x%X in hotfix id %d", tableHash, id);
+            continue;
         }
 
+        HotfixData& data = _hotfixData[id];
+        data.Id = id;
+        data.Records.emplace_back(tableHash, recordId);
+        deletedRecords[std::make_pair(tableHash, recordId)] = deleted;
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("misc", ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
+    for (auto itr = deletedRecords.begin(); itr != deletedRecords.end(); ++itr)
+        if (itr->second)
+            if (DB2StorageBase* store = Trinity::Containers::MapGetValuePtr(_stores, itr->first.first))
+                store->EraseRecord(itr->first.second);
 
-time_t DB2Manager::GetHotfixDate(uint32 entry, uint32 type) const
-{
-    time_t ret = 0;
-    for (HotfixNotify const& hotfix : _hotfixData)
-        if (hotfix.Entry == entry && hotfix.TableHash == type)
-            if (time_t(hotfix.Timestamp) > ret)
-                ret = time_t(hotfix.Timestamp);
-
-    return ret ? ret : time(nullptr);
+    TC_LOG_INFO("server.loading", ">> Loaded %u hotfix records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const
