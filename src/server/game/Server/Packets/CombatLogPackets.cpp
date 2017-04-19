@@ -33,6 +33,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     *this << CasterGUID;
     *this << CastID;
     *this << int32(SpellID);
+    *this << int32(SpellXSpellVisualID);
     *this << int32(Damage);
     *this << int32(Overkill);
     *this << uint8(SchoolMask);
@@ -168,13 +169,13 @@ WorldPacket const* WorldPackets::CombatLog::SpellHealLog::Write()
     WriteBit(SandboxScaling.is_initialized());
     FlushBits();
 
+    WriteLogData();
+
     if (CritRollMade)
         *this << *CritRollMade;
 
     if (CritRollNeeded)
         *this << *CritRollNeeded;
-
-    WriteLogData();
 
     if (SandboxScaling)
         *this << *SandboxScaling;
@@ -188,6 +189,8 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
     *this << CasterGUID;
     *this << int32(SpellID);
     *this << uint32(Effects.size());
+    WriteLogDataBit();
+    FlushBits();
 
     for (SpellLogEffect const& effect : Effects)
     {
@@ -213,8 +216,6 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
 
     }
 
-    WriteLogDataBit();
-    FlushBits();
     WriteLogData();
 
     return &_worldPacket;
@@ -264,6 +265,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellEnergizeLog::Write()
     *this << int32(SpellID);
     *this << int32(Type);
     *this << int32(Amount);
+    *this << int32(OverEnergize);
 
     WriteLogDataBit();
     FlushBits();
@@ -411,6 +413,7 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     attackRoundInfo << uint8(SandboxScaling.TargetMaxScalingLevel);
     attackRoundInfo << int16(SandboxScaling.PlayerLevelDelta);
     attackRoundInfo << int8(SandboxScaling.TargetScalingLevelDelta);
+    attackRoundInfo << uint16(SandboxScaling.PlayerItemLevel);
 
     WriteLogDataBit();
     FlushBits();

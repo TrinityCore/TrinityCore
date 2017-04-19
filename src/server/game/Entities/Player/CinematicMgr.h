@@ -20,12 +20,12 @@
 
 #include "Define.h"
 #include "Object.h"
-#include "M2Stores.h"
 
 #define CINEMATIC_LOOKAHEAD (2 * IN_MILLISECONDS)
 #define CINEMATIC_UPDATEDIFF 500
 
 class Player;
+struct FlyByCamera;
 
 class TC_GAME_API CinematicMgr
 {
@@ -50,9 +50,9 @@ protected:
     uint32      m_lastCinematicCheck;
     uint32      m_activeCinematicCameraId;
     uint32      m_cinematicLength;
-    FlyByCameraCollection* m_cinematicCamera;
+    std::vector<FlyByCamera> const* m_cinematicCamera;
     Position    m_remoteSightPosition;
-    TempSummon*   m_CinematicObject;
+    TempSummon* m_CinematicObject;
 };
 
 #endif // CinematicMgr_h__

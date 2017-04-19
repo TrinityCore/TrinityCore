@@ -86,8 +86,9 @@ namespace Movement
 
     protected:
         MySpline::ControlArray const& getPath() const { return spline.getPoints(); }
-        void computeParabolicElevation(float& el, float u) const;
-        void computeFallElevation(float& el) const;
+        Location computePosition(int32 time_point, int32 point_index) const;
+        void computeParabolicElevation(int32 time_point, float& el) const;
+        void computeFallElevation(int32 time_point, float& el) const;
 
         UpdateResult _updateState(int32& ms_time_diff);
         int32 next_timestamp() const { return spline.length(point_Idx + 1); }
@@ -125,6 +126,7 @@ namespace Movement
         }
 
         Location ComputePosition() const;
+        Location ComputePosition(int32 time_offset) const;
 
         uint32 GetId() const { return m_Id; }
         bool Finalized() const { return splineflags.done; }

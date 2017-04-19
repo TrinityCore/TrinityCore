@@ -40,6 +40,7 @@ namespace WorldPackets
             ObjectGuid CasterGUID;
             ObjectGuid CastID;
             int32 SpellID = 0;
+            int32 SpellXSpellVisualID = 0;
             int32 Damage = 0;
             int32 Overkill = 0;
             uint8 SchoolMask = 0;
@@ -48,7 +49,7 @@ namespace WorldPackets
             bool Periodic = false;
             int32 Absorbed = 0;
             int32 Flags = 0;
-            // Optional<SpellNonMeleeDamageLogDebugInfo> Debug Info;
+            // Optional<SpellNonMeleeDamageLogDebugInfo> DebugInfo;
             Optional<Spells::SandboxScalingData> SandboxScaling;
         };
 
@@ -192,6 +193,7 @@ namespace WorldPackets
             int32 SpellID = 0;
             int32 Type = 0;
             int32 Amount = 0;
+            int32 OverEnergize = 0;
         };
 
         class SpellInstakillLog final : public ServerPacket

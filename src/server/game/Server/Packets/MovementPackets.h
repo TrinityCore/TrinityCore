@@ -263,7 +263,6 @@ namespace WorldPackets
             ObjectGuid ID;
             G3D::Vector3 Origin;
             G3D::Vector3 Direction;
-            G3D::Vector3 TransportPosition;
             uint32 TransportID  = 0;
             float Magnitude     = 0;
             uint8 Type          = 0;
@@ -370,6 +369,12 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
         };
 
+        struct MoveKnockBackSpeeds
+        {
+            float HorzSpeed = 0.0f;
+            float VertSpeed = 0.0f;
+        };
+
         class MoveKnockBack final : public ServerPacket
         {
         public:
@@ -379,9 +384,8 @@ namespace WorldPackets
 
             ObjectGuid MoverGUID;
             G3D::Vector2 Direction;
-            float HorzSpeed = 0.0f;
+            MoveKnockBackSpeeds Speeds;
             uint32 SequenceIndex = 0;
-            float VertSpeed = 0.0f;
         };
 
         class MoveUpdateKnockBack final : public ServerPacket
@@ -392,6 +396,17 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             MovementInfo* movementInfo = nullptr;
+        };
+
+        class MoveKnockBackAck final : public ClientPacket
+        {
+        public:
+            MoveKnockBackAck(WorldPacket&& packet) : ClientPacket(CMSG_MOVE_KNOCK_BACK_ACK, std::move(packet)) { }
+
+            void Read() override;
+
+            MovementAck Ack;
+            Optional<MoveKnockBackSpeeds> Speeds;
         };
 
         enum UpdateCollisionHeightReason : uint8

@@ -17,4 +17,6 @@
 #
 
 add_subdirectory(Detour)
-add_subdirectory(Recast)
+if(TOOLS)
+  add_subdirectory(Recast)
+endif()
