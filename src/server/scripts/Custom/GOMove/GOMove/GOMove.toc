@@ -1,0 +1,10 @@
+## Interface: 30300
+## Title: GOMove UI Interface Addon
+## Author: Rochet2
+
+## SavedVariables: GOMoveSV
+# change SavedVariables to SavedVariablesPerCharacter if you want favourite list per char
+
+GOMoveFunctions.lua
+GOMoveScripts.lua
+MapButton.xml
