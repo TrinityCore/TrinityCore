@@ -179,7 +179,7 @@ std::string Transmogrification::GetItemLink(Item* item, WorldSession* session) c
 {
     TC_LOG_DEBUG("custom.transmog", "Transmogrification::GetItemLink");
 
-    int loc_idx = session->GetSessionDbLocaleIndex();
+    LocaleConstant loc_idx = session->GetSessionDbLocaleIndex();
     const ItemTemplate* temp = item->GetTemplate();
     std::string name = temp->Name1;
     if (ItemLocale const* il = sObjectMgr->GetItemLocale(temp->ItemId))
@@ -230,7 +230,7 @@ std::string Transmogrification::GetItemLink(uint32 entry, WorldSession* session)
     TC_LOG_DEBUG("custom.transmog", "Transmogrification::GetItemLink");
 
     const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
-    int loc_idx = session->GetSessionDbLocaleIndex();
+    LocaleConstant loc_idx = session->GetSessionDbLocaleIndex();
     std::string name = temp->Name1;
     if (ItemLocale const* il = sObjectMgr->GetItemLocale(entry))
         ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
