@@ -16875,25 +16875,21 @@ void Player::SendQuestGiverStatusMultiple()
                 continue;
             if (!questgiver->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER))
                 continue;
-
-            questStatus = GetQuestDialogStatus(questgiver);
-
-            data << uint64(questgiver->GetGUID());
-            data << uint8(questStatus);
-            ++count;
         }
         else if (itr->IsGameObject())
         {
             GameObject* questgiver = GetMap()->GetGameObject(*itr);
             if (!questgiver || questgiver->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
                 continue;
-
-            questStatus = GetQuestDialogStatus(questgiver);
-
-            data << uint64(questgiver->GetGUID());
-            data << uint8(questStatus);
-            ++count;
         }
+        else
+            continue;
+        
+        questStatus = GetQuestDialogStatus(questgiver);
+
+        data << uint64(questgiver->GetGUID());
+        data << uint8(questStatus);
+        ++count;
     }
 
     data.put<uint32>(0, count);                             // write real count
