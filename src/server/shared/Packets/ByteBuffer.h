@@ -67,7 +67,7 @@ class TC_SHARED_API ByteBuffer
             _storage.reserve(reserve);
         }
 
-        ByteBuffer(ByteBuffer&& buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+        ByteBuffer(ByteBuffer&& buf) noexcept : _rpos(buf._rpos), _wpos(buf._wpos),
             _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf.Move()) { }
 
         ByteBuffer(ByteBuffer const& right) : _rpos(right._rpos), _wpos(right._wpos),
@@ -75,7 +75,7 @@ class TC_SHARED_API ByteBuffer
 
         ByteBuffer(MessageBuffer&& buffer);
 
-        std::vector<uint8>&& Move()
+        std::vector<uint8>&& Move() noexcept
         {
             _rpos = 0;
             _wpos = 0;
