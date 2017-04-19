@@ -44,6 +44,7 @@
 #include "GarrisonPackets.h"
 #include "GuildFinderPackets.h"
 #include "GuildPackets.h"
+#include "HotfixPackets.h"
 #include "InspectPackets.h"
 #include "InstancePackets.h"
 #include "ItemPackets.h"
