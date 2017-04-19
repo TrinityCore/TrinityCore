@@ -16,14 +16,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DB2.h"
-#include "model.h"
 #include "adtfile.h"
-#include "vmapexport.h"
+#include "DB2CascFileSource.h"
+#include "DB2Meta.h"
+#include "Errors.h"
+#include "model.h"
 #include "StringFormat.h"
-
+#include "vmapexport.h"
+#include <CascLib.h>
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
 
 bool ExtractSingleModel(std::string& fname)
 {
@@ -55,14 +57,29 @@ bool ExtractSingleModel(std::string& fname)
 
 extern CASC::StorageHandle CascStorage;
 
-struct GameObjectDisplayInfoMeta
+struct GameobjectDisplayInfoLoadInfo
 {
-    static DB2Meta const* Instance()
+    static DB2FileLoadInfo const* Instance()
     {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "FileDataID" },
+            { false, FT_FLOAT, "GeoBoxMinX" },
+            { false, FT_FLOAT, "GeoBoxMinY" },
+            { false, FT_FLOAT, "GeoBoxMinZ" },
+            { false, FT_FLOAT, "GeoBoxMaxX" },
+            { false, FT_FLOAT, "GeoBoxMaxY" },
+            { false, FT_FLOAT, "GeoBoxMaxZ" },
+            { false, FT_FLOAT, "OverrideLootEffectScale" },
+            { false, FT_FLOAT, "OverrideNameScale" },
+            { false, FT_SHORT, "ObjectEffectPackageID" },
+        };
         static char const* types = "ifffh";
         static uint8 const arraySizes[5] = { 1, 6, 1, 1, 1 };
-        static DB2Meta instance(-1, 5, 0xE2D6FAB7, types, arraySizes);
-        return &instance;
+        static DB2Meta const meta(-1, 5, 0xE2D6FAB7, types, arraySizes);
+        static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
+        return &loadInfo;
     }
 };
 
@@ -89,15 +106,11 @@ bool GetHeaderMagic(std::string const& fileName, uint32* magic)
 
 void ExtractGameobjectModels()
 {
-    printf("Extracting GameObject models...");
-    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.db2", CASC_LOCALE_NONE, true);
-    if (!dbcFile)
-    {
-        exit(1);
-    }
+    printf("Extracting GameObject models...\n");
 
+    DB2CascFileSource source(CascStorage, "DBFilesClient\\GameObjectDisplayInfo.db2");
     DB2FileLoader db2;
-    if (!db2.Load(dbcFile, GameObjectDisplayInfoMeta::Instance()))
+    if (!db2.Load(&source, GameobjectDisplayInfoLoadInfo::Instance()))
     {
         printf("Fatal error: Invalid GameObjectDisplayInfo.db2 file format!\n");
         exit(1);
@@ -114,9 +127,10 @@ void ExtractGameobjectModels()
         return;
     }
 
-    for (uint32 rec = 0; rec < db2.GetNumRows(); ++rec)
+    for (uint32 rec = 0; rec < db2.GetRecordCount(); ++rec)
     {
-        uint32 fileId = db2.getRecord(rec).getUInt(0, 0);
+        DB2Record record = db2.GetRecord(rec);
+        uint32 fileId = record.GetUInt32(0, 0);
         if (!fileId)
             continue;
 
@@ -135,7 +149,7 @@ void ExtractGameobjectModels()
 
         if (result)
         {
-            uint32 displayId = db2.getId(rec);
+            uint32 displayId = record.GetId();
             uint32 path_length = fileName.length();
             fwrite(&displayId, sizeof(uint32), 1, model_list);
             fwrite(&path_length, sizeof(uint32), 1, model_list);
