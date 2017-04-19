@@ -1047,6 +1047,7 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQue
     SendSetTimeZoneInformation();
     SendFeatureSystemStatusGlueScreen();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
+    SendHotfixList(int32(sWorld->getIntConfig(CONFIG_HOTFIX_CACHE_VERSION)));
     SendTutorialsData();
 
     if (PreparedQueryResult characterCountsResult = holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))

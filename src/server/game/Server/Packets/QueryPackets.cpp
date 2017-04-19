@@ -254,32 +254,6 @@ WorldPacket const* WorldPackets::Query::QueryNPCTextResponse::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Query::DBQueryBulk::Read()
-{
-    _worldPacket >> TableHash;
-
-    uint32 count = _worldPacket.ReadBits(13);
-
-    Queries.resize(count);
-    for (uint32 i = 0; i < count; ++i)
-    {
-        _worldPacket >> Queries[i].GUID;
-        _worldPacket >> Queries[i].RecordID;
-    }
-}
-
-WorldPacket const* WorldPackets::Query::DBReply::Write()
-{
-    _worldPacket << uint32(TableHash);
-    _worldPacket << uint32(RecordID);
-    _worldPacket << uint32(Timestamp);
-    _worldPacket.WriteBit(Allow);
-    _worldPacket << uint32(Data.size());
-    _worldPacket.append(Data);
-
-    return &_worldPacket;
-}
-
 void WorldPackets::Query::QueryGameObject::Read()
 {
     _worldPacket >> GameObjectID;

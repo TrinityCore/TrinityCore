@@ -176,37 +176,6 @@ namespace WorldPackets
             uint32 BroadcastTextID[MAX_NPC_TEXT_OPTIONS];
         };
 
-        class DBQueryBulk final : public ClientPacket
-        {
-        public:
-            struct DBQueryRecord
-            {
-                ObjectGuid GUID;
-                uint32 RecordID = 0;
-            };
-
-            DBQueryBulk(WorldPacket&& packet) : ClientPacket(CMSG_DB_QUERY_BULK, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 TableHash = 0;
-            std::vector<DBQueryRecord> Queries;
-        };
-
-        class DBReply final : public ServerPacket
-        {
-        public:
-            DBReply() : ServerPacket(SMSG_DB_REPLY, 12) { }
-
-            WorldPacket const* Write() override;
-
-            uint32 TableHash = 0;
-            uint32 Timestamp = 0;
-            uint32 RecordID = 0;
-            bool Allow = false;
-            ByteBuffer Data;
-        };
-
         class QueryGameObject final : public ClientPacket
         {
         public:

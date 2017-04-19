@@ -393,37 +393,6 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
-{
-    DB2StorageBase const* store = sDB2Manager.GetStorage(packet.TableHash);
-    if (!store)
-    {
-        TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: %s requested unsupported unknown hotfix type: %u", GetPlayerInfo().c_str(), packet.TableHash);
-        return;
-    }
-
-    for (WorldPackets::Query::DBQueryBulk::DBQueryRecord const& rec : packet.Queries)
-    {
-        WorldPackets::Query::DBReply response;
-        response.TableHash = packet.TableHash;
-        response.RecordID = rec.RecordID;
-
-        if (store->HasRecord(rec.RecordID))
-        {
-            response.Allow = true;
-            response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
-            store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
-        }
-        else
-        {
-            TC_LOG_TRACE("network", "CMSG_DB_QUERY_BULK: %s requested non-existing entry %u in datastore: %u", GetPlayerInfo().c_str(), rec.RecordID, packet.TableHash);
-            response.Timestamp = time(NULL);
-        }
-
-        SendPacket(response.Write());
-    }
-}
-
 /**
 * Handles the packet sent by the client when requesting information about item text.
 *
