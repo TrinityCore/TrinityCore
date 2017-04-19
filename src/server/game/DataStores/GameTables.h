@@ -105,7 +105,7 @@ struct GtCombatRatingsMultByILvl
 uint8 const PRESTIGE_COLUMN_COUNT = 16;
 struct GtHonorLevelEntry
 {
-    float Prestige[PRESTIGE_COLUMN_COUNT] = {};
+    float Prestige[PRESTIGE_COLUMN_COUNT] = { };
 };
 
 struct GtHpPerStaEntry
