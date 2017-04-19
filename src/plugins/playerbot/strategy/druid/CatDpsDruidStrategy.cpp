@@ -81,7 +81,7 @@ private:
     {
         return new ActionNode ("rip",
             /*P*/ NULL,
-            /*A*/ NULL,
+            /*A*/ NextAction::array(0, new NextAction("ferocious bite"), NULL),
             /*C*/ NULL);
     }
 };
@@ -93,7 +93,8 @@ CatDpsDruidStrategy::CatDpsDruidStrategy(PlayerbotAI* ai) : FeralDruidStrategy(a
 
 NextAction** CatDpsDruidStrategy::getDefaultActions()
 {
-    return NextAction::array(0, new NextAction("mangle (cat)", ACTION_NORMAL + 1), NULL);
+    return NextAction::array(0, new NextAction("mangle (cat)", ACTION_NORMAL + 1),
+    new NextAction("claw", ACTION_NORMAL + 1), NULL);
 }
 
 void CatDpsDruidStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
@@ -110,7 +111,8 @@ void CatDpsDruidStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
     triggers.push_back(new TriggerNode(
         "combo points available",
-        NextAction::array(0, new NextAction("ferocious bite", ACTION_NORMAL + 9), NULL)));
+        NextAction::array(0, new NextAction("ferocious bite", ACTION_NORMAL + 9),
+        new NextAction("rip", ACTION_NORMAL + 9), NULL)));
 
     triggers.push_back(new TriggerNode(
         "medium threat",
@@ -127,6 +129,10 @@ void CatDpsDruidStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
     triggers.push_back(new TriggerNode(
         "entangling roots",
         NextAction::array(0, new NextAction("entangling roots on cc", ACTION_HIGH + 1), NULL)));
+	
+	triggers.push_back(new TriggerNode(
+		"low health",
+		NextAction::array(0, new NextAction("barkskin", ACTION_HIGH + 1), NULL)));
 
 }
 

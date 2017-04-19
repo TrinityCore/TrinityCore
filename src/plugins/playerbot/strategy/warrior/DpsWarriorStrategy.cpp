@@ -10,20 +10,20 @@ class DpsWarriorStrategyActionNodeFactory : public NamedObjectFactory<ActionNode
 public:
     DpsWarriorStrategyActionNodeFactory()
     {
-        creators["overpower"] = &overpower;
-        creators["melee"] = &melee;
-        creators["charge"] = &charge;
-        creators["bloodthirst"] = &bloodthirst;
-        creators["rend"] = &rend;
-        creators["mocking blow"] = &mocking_blow;
-        creators["death wish"] = &death_wish;
-        creators["execute"] = &execute;
+		creators["overpower"] = &overpower;
+		creators["melee"] = &melee;
+		creators["charge"] = &charge;
+		creators["bloodthirst"] = &bloodthirst;
+		creators["mortal strike"] = &mortal_strike;
+		creators["whirlwind"] = &whirlwind;
+		creators["death wish"] = &death_wish;
+		creators["execute"] = &execute;
     }
 private:
     static ActionNode* overpower(PlayerbotAI* ai)
     {
         return new ActionNode ("overpower",
-            /*P*/ NULL,
+            /*P*/ NextAction::array(0, new NextAction("battle stance"), NULL),
             /*A*/ NextAction::array(0, new NextAction("melee"), NULL),
             /*C*/ NULL);
     }
@@ -48,19 +48,19 @@ private:
             /*A*/ NextAction::array(0, new NextAction("heroic strike"), NULL),
             /*C*/ NULL);
     }
-    static ActionNode* rend(PlayerbotAI* ai)
-    {
-        return new ActionNode ("rend",
-            /*P*/ NextAction::array(0, new NextAction("battle stance"), NULL),
-            /*A*/ NULL,
-            /*C*/ NULL);
+	static ActionNode* mortal_strike(PlayerbotAI* ai)
+	{
+		return new ActionNode("mortal strike",
+			/*P*/ NextAction::array(0, new NextAction("berserker stance"), NULL),
+			/*A*/ NextAction::array(0, new NextAction("heroic strike"), NULL),
+			/*C*/ NULL);
     }
-    static ActionNode* mocking_blow(PlayerbotAI* ai)
-    {
-        return new ActionNode ("mocking blow",
-            /*P*/ NextAction::array(0, new NextAction("battle stance"), NULL),
-            /*A*/ NextAction::array(0, NULL),
-            /*C*/ NULL);
+	static ActionNode* whirlwind(PlayerbotAI* ai)
+	{
+		return new ActionNode("whirlwind",
+			/*P*/ NextAction::array(0, new NextAction("berserker stance"), NULL),
+			/*A*/ NextAction::array(0, new NextAction("bloodthirst"), NULL),
+			/*C*/ NULL);
     }
     static ActionNode* death_wish(PlayerbotAI* ai)
     {
@@ -85,7 +85,7 @@ DpsWarriorStrategy::DpsWarriorStrategy(PlayerbotAI* ai) : GenericWarriorStrategy
 
 NextAction** DpsWarriorStrategy::getDefaultActions()
 {
-    return NextAction::array(0, new NextAction("bloodthirst", ACTION_NORMAL + 1), NULL);
+	return NextAction::array(0, new NextAction("bloodthirst", ACTION_HIGH + 1), new NextAction("whirlwind", ACTION_HIGH + 1), NULL);
 }
 
 void DpsWarriorStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
@@ -94,7 +94,8 @@ void DpsWarriorStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
     triggers.push_back(new TriggerNode(
         "enemy out of melee",
-        NextAction::array(0, new NextAction("charge", ACTION_NORMAL + 9), NULL)));
+        NextAction::array(0, new NextAction("charge", ACTION_NORMAL + 9), 
+			new NextAction("intercept", ACTION_NORMAL + 9), NULL)));
 
     triggers.push_back(new TriggerNode(
         "target critical health",
@@ -122,9 +123,11 @@ void DpsWarrirorAoeStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
     triggers.push_back(new TriggerNode(
         "light aoe",
-        NextAction::array(0, new NextAction("thunder clap", ACTION_HIGH + 2), new NextAction("demoralizing shout", ACTION_HIGH + 2), NULL)));
+		NextAction::array(0, new NextAction("thunder clap", ACTION_HIGH + 2),
+			new NextAction("demoralizing shout", ACTION_HIGH + 2),
+			new NextAction("cleave", ACTION_HIGH + 2), NULL)));
 
     triggers.push_back(new TriggerNode(
         "medium aoe",
-        NextAction::array(0, new NextAction("cleave", ACTION_HIGH + 3), NULL)));
+        NextAction::array(0, new NextAction("sweeping strikes", ACTION_HIGH + 3), new NextAction("recklessness", ACTION_HIGH + 2), NULL)));
 }

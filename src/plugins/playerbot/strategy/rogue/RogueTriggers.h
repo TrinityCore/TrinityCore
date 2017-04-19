@@ -33,4 +33,11 @@ namespace ai
     public:
         KickInterruptEnemyHealerSpellTrigger(PlayerbotAI* ai) : InterruptEnemyHealerTrigger(ai, "kick") {}
     };
+
+	class StealthTrigger : public BuffTrigger
+	{
+	public:
+		StealthTrigger(PlayerbotAI* ai) : BuffTrigger(ai, "stealth") {}
+		virtual bool IsActive() { return !ai->HasAura("stealth", bot); }
+	};
 }

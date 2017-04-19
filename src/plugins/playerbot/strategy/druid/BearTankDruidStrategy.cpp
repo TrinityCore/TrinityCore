@@ -127,6 +127,7 @@ NextAction** BearTankDruidStrategy::getDefaultActions()
     return NextAction::array(0,
             new NextAction("lacerate", ACTION_NORMAL + 4),
             new NextAction("mangle (bear)", ACTION_NORMAL + 3),
+            new NextAction("swipe", ACTION_NORMAL + 3),
             new NextAction("maul", ACTION_NORMAL + 2),
             new NextAction("faerie fire (feral)", ACTION_NORMAL + 1),
             new NextAction("melee", ACTION_NORMAL),
@@ -151,7 +152,7 @@ void BearTankDruidStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
     triggers.push_back(new TriggerNode(
         "lose aggro",
-        NextAction::array(0, new NextAction("growl", ACTION_HIGH + 8), NULL)));
+        NextAction::array(0, new NextAction("enrage", ACTION_HIGH + 8), new NextAction("growl", ACTION_HIGH + 8), NULL)));
 
     triggers.push_back(new TriggerNode(
         "medium aoe",

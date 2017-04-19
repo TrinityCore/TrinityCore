@@ -14,10 +14,10 @@ namespace ai {
 	};
 
 
-	class CastBerserkAction : public CastBuffSpellAction
+	class CastEnrageAction : public CastBuffSpellAction
 	{
 	public:
-		CastBerserkAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "berserk") {}
+		CastEnrageAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "enrage") {}
 	};
 
 	class CastTigersFuryAction : public CastBuffSpellAction
@@ -31,7 +31,6 @@ namespace ai {
 	public:
 		CastRakeAction(PlayerbotAI* ai) : CastDebuffSpellAction(ai, "rake") {}
 	};
-
 
 	class CastClawAction : public CastMeleeSpellAction {
 	public:

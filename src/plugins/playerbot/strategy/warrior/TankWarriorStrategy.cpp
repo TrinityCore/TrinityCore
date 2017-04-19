@@ -12,7 +12,7 @@ public:
     {
         creators["melee"] = &melee;
         creators["shield wall"] = &shield_wall;
-        creators["rend"] = &rend;
+        creators["shield slam"] = &shield_slam;
         creators["revenge"] = &revenge;
         creators["devastate"] = &devastate;
         creators["shockwave"] = &shockwave;
@@ -29,24 +29,24 @@ private:
     static ActionNode* shield_wall(PlayerbotAI* ai)
     {
         return new ActionNode ("shield wall",
-            /*P*/ NULL,
+			/*P*/ NextAction::array(0, new NextAction("defensive stance"), NULL),
             /*A*/ NextAction::array(0, new NextAction("shield block"), NULL),
             /*C*/ NULL);
     }
-    static ActionNode* rend(PlayerbotAI* ai)
-    {
-        return new ActionNode ("rend",
-            /*P*/ NextAction::array(0, new NextAction("defensive stance"), NULL),
-            /*A*/ NULL,
-            /*C*/ NULL);
+	static ActionNode* shield_slam(PlayerbotAI* ai)
+	{
+		return new ActionNode("shield slam",
+			/*P*/ NextAction::array(0, new NextAction("defensive stance"), NULL),
+			/*A*/ NULL,
+			/*C*/ NULL);
     }
-    static ActionNode* revenge(PlayerbotAI* ai)
-    {
-        return new ActionNode ("revenge",
-            /*P*/ NULL,
-            /*A*/ NextAction::array(0, new NextAction("melee"), NULL),
-            /*C*/ NULL);
-    }
+	static ActionNode* revenge(PlayerbotAI* ai)
+	{
+		return new ActionNode("revenge",
+		/*P*/ NextAction::array(0, new NextAction("defensive stance"), NULL),
+		/*A*/ NULL,
+		/*C*/ NULL);
+	}
     static ActionNode* devastate(PlayerbotAI* ai)
     {
         return new ActionNode ("devastate",
@@ -97,7 +97,7 @@ void TankWarriorStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
         NextAction::array(0, new NextAction("taunt", ACTION_HIGH + 9), NULL)));
 
     triggers.push_back(new TriggerNode(
-        "medium health",
+        "low health",
         NextAction::array(0, new NextAction("shield wall", ACTION_MEDIUM_HEAL), NULL)));
 
 	triggers.push_back(new TriggerNode(

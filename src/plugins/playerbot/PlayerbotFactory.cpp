@@ -389,6 +389,7 @@ bool PlayerbotFactory::CheckItemStats(uint8 sp, uint8 ap, uint8 tank)
         break;
     case CLASS_PALADIN:
     case CLASS_WARRIOR:
+	case CLASS_DEATH_KNIGHT:
         if ((!ap && !tank) || sp > ap || sp > tank)
             return false;
         break;
@@ -513,6 +514,14 @@ bool PlayerbotFactory::CanEquipWeapon(ItemTemplate const* proto)
                 proto->SubClass != ITEM_SUBCLASS_WEAPON_SWORD)
             return false;
         break;
+	case CLASS_DEATH_KNIGHT:
+		if (proto->SubClass != ITEM_SUBCLASS_WEAPON_MACE2 &&
+			proto->SubClass != ITEM_SUBCLASS_WEAPON_SWORD2 &&
+			proto->SubClass != ITEM_SUBCLASS_WEAPON_AXE2 &&
+			proto->SubClass != ITEM_SUBCLASS_WEAPON_MACE &&
+			proto->SubClass != ITEM_SUBCLASS_WEAPON_SWORD)
+			return false;
+		break;
     case CLASS_SHAMAN:
         if (proto->SubClass != ITEM_SUBCLASS_WEAPON_MACE &&
                 proto->SubClass != ITEM_SUBCLASS_WEAPON_MACE2 &&
@@ -971,6 +980,7 @@ void PlayerbotFactory::InitTradeSkills()
     switch (bot->getClass())
     {
     case CLASS_WARRIOR:
+	case CLASS_DEATH_KNIGHT:
     case CLASS_PALADIN:
         firstSkills.push_back(SKILL_MINING);
         secondSkills.push_back(SKILL_BLACKSMITHING);

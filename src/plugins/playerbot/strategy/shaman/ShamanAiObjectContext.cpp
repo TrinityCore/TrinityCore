@@ -29,6 +29,7 @@ namespace ai
                 creators["totems"] = &shaman::StrategyFactoryInternal::totems;
                 creators["melee aoe"] = &shaman::StrategyFactoryInternal::melee_aoe;
                 creators["caster aoe"] = &shaman::StrategyFactoryInternal::caster_aoe;
+                creators["cure"] = &shaman::StrategyFactoryInternal::cure;
             }
 
         private:
@@ -36,6 +37,7 @@ namespace ai
             static Strategy* totems(PlayerbotAI* ai) { return new TotemsShamanStrategy(ai); }
             static Strategy* melee_aoe(PlayerbotAI* ai) { return new MeleeAoeShamanStrategy(ai); }
             static Strategy* caster_aoe(PlayerbotAI* ai) { return new CasterAoeShamanStrategy(ai); }
+            static Strategy* cure(PlayerbotAI* ai) { return new ShamanCureStrategy(ai); }
         };
 
         class BuffStrategyFactoryInternal : public NamedObjectContext<Strategy>
@@ -183,8 +185,8 @@ namespace ai
                 creators["riptide"] = &AiObjectContextInternal::riptide;
                 creators["riptide on party"] = &AiObjectContextInternal::riptide_on_party;
                 creators["stormstrike"] = &AiObjectContextInternal::stormstrike;
+                creators["fire nova totem"] = &AiObjectContextInternal::fire_nova_totem;
                 creators["lava lash"] = &AiObjectContextInternal::lava_lash;
-                creators["fire nova"] = &AiObjectContextInternal::fire_nova;
                 creators["ancestral spirit"] = &AiObjectContextInternal::ancestral_spirit;
                 creators["water walking"] = &AiObjectContextInternal::water_walking;
                 creators["water breathing"] = &AiObjectContextInternal::water_breathing;
@@ -227,7 +229,7 @@ namespace ai
             static Action* flametongue_totem(PlayerbotAI* ai) { return new CastFlametongueTotemAction(ai); }
             static Action* magma_totem(PlayerbotAI* ai) { return new CastMagmaTotemAction(ai); }
             static Action* searing_totem(PlayerbotAI* ai) { return new CastSearingTotemAction(ai); }
-            static Action* fire_nova(PlayerbotAI* ai) { return new CastFireNovaAction(ai); }
+            static Action* fire_nova_totem(PlayerbotAI* ai) { return new CastFireNovaTotemAction(ai); }
             static Action* windfury_totem(PlayerbotAI* ai) { return new CastWindfuryTotemAction(ai); }
             static Action* mana_spring_totem(PlayerbotAI* ai) { return new CastManaSpringTotemAction(ai); }
             static Action* mana_tide_totem(PlayerbotAI* ai) { return new CastManaTideTotemAction(ai); }

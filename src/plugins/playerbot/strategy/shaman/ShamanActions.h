@@ -167,14 +167,9 @@ namespace ai
         virtual bool isUseful() { return CastMeleeSpellAction::isUseful() && !AI_VALUE2(bool, "has totem", name); }
     };
 
-    class CastFireNovaAction : public CastSpellAction {
+    class CastFireNovaTotemAction : public CastSpellAction {
     public:
-        CastFireNovaAction(PlayerbotAI* ai) : CastSpellAction(ai, "fire nova") {}
-    };
-
-    class CastWindShearAction : public CastSpellAction {
-    public:
-        CastWindShearAction(PlayerbotAI* ai) : CastSpellAction(ai, "wind shear") {}
+        CastFireNovaTotemAction(PlayerbotAI* ai) : CastSpellAction(ai, "fire nova totem") {}
     };
 
 	class CastAncestralSpiritAction : public ResurrectPartyMemberAction
@@ -183,6 +178,10 @@ namespace ai
 		CastAncestralSpiritAction(PlayerbotAI* ai) : ResurrectPartyMemberAction(ai, "ancestral spirit") {}
 	};
 
+	class CastWindShearAction : public CastSpellAction {
+	public:
+		CastWindShearAction(PlayerbotAI* ai) : CastSpellAction(ai, "wind shear") {}
+	};
 
 	class CastPurgeAction : public CastSpellAction
 	{
