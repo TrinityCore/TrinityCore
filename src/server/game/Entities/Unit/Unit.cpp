@@ -9579,7 +9579,13 @@ void Unit::UpdateDamageDoneMods(WeaponAttackType attackType)
             break;
     }
 
-    float amount = GetTotalAuraModifier(SPELL_AURA_MOD_DAMAGE_DONE, std::bind(&Unit::CheckAttackFitToAuraRequirement, this, attackType, std::placeholders::_1));
+    float amount = GetTotalAuraModifier(SPELL_AURA_MOD_DAMAGE_DONE, [&](AuraEffect const* aurEff) -> bool
+    {
+        if (!(aurEff->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL))
+            return false;
+
+        return CheckAttackFitToAuraRequirement(attackType, aurEff);
+    });
 
     SetStatFlatModifier(unitMod, TOTAL_VALUE, amount);
 }
