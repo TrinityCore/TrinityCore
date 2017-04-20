@@ -2907,6 +2907,16 @@ void SpellMgr::LoadSpellInfoCorrections()
 
         switch (spellInfo->Id)
         {
+            case 26022: // Pursuit of Justice rank 1
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK;
+                spellInfo->Effects[EFFECT_1].BasePoints = 8;
+                break;
+            case 26023: // Pursuit of Justice rank 2
+                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK;
+                spellInfo->Effects[EFFECT_1].BasePoints = 15;
+                break;
             case 63026: // Force Cast (HACK: Target shouldn't be changed)
             case 63137: // Force Cast (HACK: Target shouldn't be changed; summon position should be untied from spell destination)
                 spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
