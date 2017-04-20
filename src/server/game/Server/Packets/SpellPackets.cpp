@@ -143,7 +143,7 @@ void WorldPackets::Spells::SandboxScalingData::GenerateDataForNpcToNpc(Creature*
 {
     CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
 
-    if (!creatureTemplate->levelScalingDelta.is_initialized)
+    if (!creatureTemplate->levelScalingDelta.is_initialized())
         creatureTemplate = attacker->GetCreatureTemplate();
 
     Type                    = TYPE_CREATURE_TO_CREATURE_DAMAGE;
