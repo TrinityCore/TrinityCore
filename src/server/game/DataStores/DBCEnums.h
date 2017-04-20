@@ -971,7 +971,7 @@ enum SceneFlags
 
 enum PrestigeLevelInfoFlags
 {
-    PRESTIGE_FLAG_DONT_LIST = 0x01 // Don't list prestige level when hovering over prestige icon in honor talents.
+    PRESTIGE_FLAG_DISABLED = 0x01 // Prestige levels witht this flag won't be included to calculate max prestigelevel.
 };
 
 #endif

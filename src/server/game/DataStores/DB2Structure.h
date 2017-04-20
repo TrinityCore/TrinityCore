@@ -2015,7 +2015,7 @@ struct PrestigeLevelInfoEntry
     uint8 PrestigeLevel;
     uint8 Flags;
 
-    bool IsListed() const { return (Flags & PRESTIGE_FLAG_DONT_LIST) == 0; }
+    bool IsDisabled() const { return (Flags & PRESTIGE_FLAG_DISABLED) != 0; }
 };
 
 struct PvpDifficultyEntry

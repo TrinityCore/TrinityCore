@@ -1917,7 +1917,7 @@ uint8 DB2Manager::GetMaxPrestige() const
 {
     uint8 max = 0;
     for (PrestigeLevelInfoEntry const* prestigeLevelInfo : sPrestigeLevelInfoStore)
-        if (prestigeLevelInfo->IsListed())
+        if (!prestigeLevelInfo->IsDisabled())
             max = std::max(prestigeLevelInfo->PrestigeLevel, max);
 
     return max;
