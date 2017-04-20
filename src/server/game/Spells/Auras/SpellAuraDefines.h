@@ -235,7 +235,7 @@ enum AuraType
     SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT            = 175,
     SPELL_AURA_SPIRIT_OF_REDEMPTION                         = 176,
     SPELL_AURA_AOE_CHARM                                    = 177,
-    SPELL_AURA_178                                          = 178,  // old SPELL_AURA_MOD_DEBUFF_RESISTANCE, unused
+    SPELL_AURA_MOD_POWER_PCT                                = 178,
     SPELL_AURA_MOD_POWER_DISPLAY                            = 179,
     SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS                 = 180,
     SPELL_AURA_181                                          = 181,  // old SPELL_AURA_MOD_FLAT_SPELL_CRIT_DAMAGE_VERSUS - possible flat spell crit damage versus
