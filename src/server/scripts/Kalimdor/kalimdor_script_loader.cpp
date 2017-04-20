@@ -91,7 +91,9 @@ void AddSC_boss_temple_guardian_anhuur();
 void AddSC_boss_earthrager_ptah();
 void AddSC_boss_anraphet();
 void AddSC_instance_firelands();
+void AddSC_firelands();
 void AddSC_boss_alysrazor();
+void AddSC_boss_baleroc();
 
 void AddSC_ashenvale();
 void AddSC_azshara();
@@ -220,5 +222,7 @@ void AddKalimdorScripts()
     AddSC_boss_anraphet();
 
     AddSC_instance_firelands();
+    AddSC_firelands();
     AddSC_boss_alysrazor();
+    AddSC_boss_baleroc();
 }

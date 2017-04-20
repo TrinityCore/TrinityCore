@@ -3468,6 +3468,19 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             // ENDOF ISLE OF CONQUEST SPELLS
             //
+            // FIRELANDS SPELLS
+            //
+            case 99253: // Torment Searcher
+                const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_15_YARDS);
+                break;
+            case 99256: // Torment Damage
+                spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+                break;
+            case 99252: // Blaze of Glory
+                spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CHANGE_MAP;
+                break;
+            // ENDOF FIRELANDS SPELLS
+            //
             case 102445: // Summon Master Li Fei
                 const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
                 break;
