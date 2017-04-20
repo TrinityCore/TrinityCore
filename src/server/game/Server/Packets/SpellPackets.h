@@ -65,12 +65,6 @@ namespace WorldPackets
             WorldPacket const* GetFullLogPacket() const { return &_fullLogPacket; }
             WorldPacket const* GetBasicLogPacket() const { return &_worldPacket; }
 
-            void Clear()
-            {
-                _fullLogPacket.clear();
-                _worldPacket.clear();
-            }
-
             Spells::SpellCastLogData LogData;
 
         protected:
@@ -252,6 +246,15 @@ namespace WorldPackets
 
         class SandboxScalingData
         {
+            enum SandboxScalingDataType
+            {
+                TYPE_PLAYER_TO_PLAYER_HEALING    = 1, // NYI
+                TYPE_CREATURE_TO_PLAYER_DAMAGE   = 2,
+                TYPE_PLAYER_TO_CREATURE_DAMAGE   = 3,
+                TYPE_CREATURE_TO_CREATURE_DAMAGE = 4,
+                TYPE_PLAYER_TO_PLAYER_DAMAGE     = 32 // NYI
+            };
+
         public:
             uint32 Type = 0;
             int16 PlayerLevelDelta = 0;
@@ -266,6 +269,7 @@ namespace WorldPackets
             bool GenerateDataFromUnits(Unit* attacker, Unit* target);
             void GenerateDataForNpcToPlayer(Creature* attacker, Player* target);
             void GenerateDataForPlayerToNpc(Player* attacker, Creature* target);
+            void GenerateDataForNpcToNpc(Creature* attacker, Creature* target);
         };
 
         struct AuraDataInfo

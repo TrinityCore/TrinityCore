@@ -103,6 +103,8 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataFromUnits(Unit* attac
         GenerateDataForNpcToPlayer(attacker->ToCreature(), target->ToPlayer());
     else if (attacker->IsPlayer() && target->IsCreature())
         GenerateDataForPlayerToNpc(attacker->ToPlayer(), target->ToCreature());
+    else
+        GenerateDataForNpcToNpc(attacker->ToCreature(), target->ToCreature());
 
     return true;
 }
@@ -111,7 +113,7 @@ void WorldPackets::Spells::SandboxScalingData::GenerateDataForNpcToPlayer(Creatu
 {
     CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
 
-    Type                    = 2;
+    Type                    = TYPE_CREATURE_TO_PLAYER_DAMAGE;
     PlayerLevelDelta        = target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
     PlayerItemLevel         = target->GetAverageItemLevel();
     TargetLevel             = target->getLevel();
@@ -126,9 +128,22 @@ void WorldPackets::Spells::SandboxScalingData::GenerateDataForPlayerToNpc(Player
 {
     CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
 
-    Type                    = 3;
+    Type                    = TYPE_PLAYER_TO_CREATURE_DAMAGE;
     PlayerLevelDelta        = attacker->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
     PlayerItemLevel         = attacker->GetAverageItemLevel();
+    TargetLevel             = target->getLevel();
+    Expansion               = creatureTemplate->RequiredExpansion;
+    Class                   = creatureTemplate->unit_class;
+    TargetMinScalingLevel   = creatureTemplate->minlevel;
+    TargetMaxScalingLevel   = creatureTemplate->maxlevel;
+    TargetScalingLevelDelta = (int8)creatureTemplate->levelScalingDelta.value();
+}
+
+void WorldPackets::Spells::SandboxScalingData::GenerateDataForNpcToNpc(Creature* attacker, Creature* target)
+{
+    CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
+
+    Type                    = TYPE_CREATURE_TO_CREATURE_DAMAGE;
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
