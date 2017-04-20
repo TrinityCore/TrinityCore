@@ -92,6 +92,51 @@ WorldPacket const* WorldPackets::Spells::SendUnlearnSpells::Write()
     return &_worldPacket;
 }
 
+bool WorldPackets::Spells::SandboxScalingData::GenerateDataFromUnits(Unit* attacker, Unit* target)
+{
+    // No scalable levels for any of them
+    if (   (!attacker->ToCreature() || !attacker->ToCreature()->HasScalableLevels())
+        && (!target->ToCreature()   || !target->ToCreature()->HasScalableLevels()))
+        return false;
+
+    if (attacker->IsCreature() && target->IsPlayer())
+        GenerateDataForNpcToPlayer(attacker->ToCreature(), target->ToPlayer());
+    else if (attacker->IsPlayer() && target->IsCreature())
+        GenerateDataForPlayerToNpc(attacker->ToPlayer(), target->ToCreature());
+
+    return true;
+}
+
+void WorldPackets::Spells::SandboxScalingData::GenerateDataForNpcToPlayer(Creature* attacker, Player* target)
+{
+    CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
+
+    Type                    = 2;
+    PlayerLevelDelta        = target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+    PlayerItemLevel         = target->GetAverageItemLevel();
+    TargetLevel             = target->getLevel();
+    Expansion               = creatureTemplate->RequiredExpansion;
+    Class                   = creatureTemplate->unit_class;
+    TargetMinScalingLevel   = creatureTemplate->minlevel;
+    TargetMaxScalingLevel   = creatureTemplate->maxlevel;
+    TargetScalingLevelDelta = (int8)creatureTemplate->levelScalingDelta.value();
+}
+
+void WorldPackets::Spells::SandboxScalingData::GenerateDataForPlayerToNpc(Player* attacker, Creature* target)
+{
+    CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
+
+    Type                    = 3;
+    PlayerLevelDelta        = attacker->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+    PlayerItemLevel         = attacker->GetAverageItemLevel();
+    TargetLevel             = target->getLevel();
+    Expansion               = creatureTemplate->RequiredExpansion;
+    Class                   = creatureTemplate->unit_class;
+    TargetMinScalingLevel   = creatureTemplate->minlevel;
+    TargetMaxScalingLevel   = creatureTemplate->maxlevel;
+    TargetScalingLevelDelta = (int8)creatureTemplate->levelScalingDelta.value();
+}
+
 void WorldPackets::Spells::SpellCastLogData::Initialize(Unit const* unit)
 {
     Health = unit->GetHealth();

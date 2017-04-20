@@ -18,15 +18,6 @@
 #include "CombatLogPackets.h"
 #include "SpellPackets.h"
 
-float WorldPackets::CombatLog::CombatLogServerPacket::GetMultiplierFor(Player* viewer, ObjectGuid targetGUID)
-{
-    if (Creature* target = ObjectAccessor::GetCreature(*viewer, targetGUID))
-        if (target->HasScalableLevels())
-            return target->GetHealthMultiplierForTarget(viewer);
-
-    return 0.0f;
-}
-
 WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
 {
     *this << Me;
@@ -51,38 +42,6 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
         *this << *SandboxScaling;
 
     return &_worldPacket;
-}
-
-WorldPackets::CombatLog::SpellNonMeleeDamageLog::SpellNonMeleeDamageLog(WorldPackets::CombatLog::SpellNonMeleeDamageLog const& right) : CombatLogServerPacket(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, 60)
-{
-    Me              = right.Me;
-    CasterGUID      = right.CasterGUID;
-    CastID          = right.CastID;
-    SpellID         = right.SpellID;
-    Damage          = right.Damage;
-    Overkill        = right.Overkill;
-    SchoolMask      = right.SchoolMask;
-    ShieldBlock     = right.ShieldBlock;
-    Resisted        = right.Resisted;
-    Absorbed        = right.Absorbed;
-    Periodic        = right.Periodic;
-    Flags           = right.Flags;
-    SandboxScaling  = right.SandboxScaling;
-}
-
-bool WorldPackets::CombatLog::SpellNonMeleeDamageLog::UpdateDamageForViewer(Player* viewer)
-{
-    if (float calculatedMultiplier = GetMultiplierFor(viewer, Me))
-    {
-        Damage      = ceil(Damage         / calculatedMultiplier);
-        Absorbed    = ceil(Absorbed       / calculatedMultiplier);
-        Overkill    = ceil(Overkill       / calculatedMultiplier);
-        Resisted    = ceil(Resisted       / calculatedMultiplier);
-        ShieldBlock = ceil(ShieldBlock    / calculatedMultiplier);
-        return true;
-    }
-
-    return false;
 }
 
 WorldPacket const* WorldPackets::CombatLog::EnvironmentalDamageLog::Write()
@@ -219,32 +178,6 @@ WorldPacket const* WorldPackets::CombatLog::SpellPeriodicAuraLog::Write()
     WriteLogData();
 
     return &_worldPacket;
-}
-
-WorldPackets::CombatLog::SpellPeriodicAuraLog::SpellPeriodicAuraLog(WorldPackets::CombatLog::SpellPeriodicAuraLog const& right) : CombatLogServerPacket(SMSG_SPELL_PERIODIC_AURA_LOG, 16 + 16 + 4 + 4 + 1)
-{
-    TargetGUID  = right.TargetGUID;
-    CasterGUID  = right.CasterGUID;
-    SpellID     = right.SpellID;
-    Effects     = right.Effects;
-}
-
-bool WorldPackets::CombatLog::SpellPeriodicAuraLog::UpdateDamageForViewer(Player* viewer)
-{
-    if (float calculatedMultiplier = GetMultiplierFor(viewer, TargetGUID))
-    {
-        for (auto& effect : Effects)
-        {
-            effect.Amount              = ceil(effect.Amount                 / calculatedMultiplier);
-            effect.AbsorbedOrAmplitude = ceil(effect.AbsorbedOrAmplitude    / calculatedMultiplier);
-            effect.OverHealOrKill      = ceil(effect.AbsorbedOrAmplitude    / calculatedMultiplier);
-            effect.Resisted            = ceil(effect.AbsorbedOrAmplitude    / calculatedMultiplier);
-        }
-
-        return true;
-    }
-
-    return false;
 }
 
 WorldPacket const* WorldPackets::CombatLog::SpellInterruptLog::Write()
@@ -424,46 +357,6 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     _fullLogPacket.append(attackRoundInfo);
 
     return &_worldPacket;
-}
-
-WorldPackets::CombatLog::AttackerStateUpdate::AttackerStateUpdate(WorldPackets::CombatLog::AttackerStateUpdate const& right) : CombatLogServerPacket(SMSG_ATTACKER_STATE_UPDATE, 70)
-{
-    HitInfo         = right.HitInfo;
-    AttackerGUID    = right.AttackerGUID;
-    VictimGUID      = right.VictimGUID;
-    Damage          = right.Damage;
-    OverDamage      = right.OverDamage;
-    SubDmg          = right.SubDmg;
-    VictimState     = right.VictimState;
-    AttackerState   = right.AttackerState;
-    MeleeSpellID    = right.MeleeSpellID;
-    BlockAmount     = right.BlockAmount;
-    RageGained      = right.RageGained;
-    UnkState        = right.UnkState;
-    Unk             = right.Unk;
-    SandboxScaling  = right.SandboxScaling;
-}
-
-bool WorldPackets::CombatLog::AttackerStateUpdate::UpdateDamageForViewer(Player* viewer)
-{
-    if (float calculatedMultiplier = GetMultiplierFor(viewer, VictimGUID))
-    {
-        Damage      = ceil(Damage       / calculatedMultiplier);
-        OverDamage  = ceil(OverDamage   / calculatedMultiplier);
-        BlockAmount = ceil(BlockAmount  / calculatedMultiplier);
-
-        if (SubDmg.is_initialized())
-        {
-            SubDmg->FDamage     = ceil(SubDmg->FDamage  / calculatedMultiplier);
-            SubDmg->Damage      = ceil(SubDmg->Damage   / calculatedMultiplier);
-            SubDmg->Absorbed    = ceil(SubDmg->Absorbed / calculatedMultiplier);
-            SubDmg->Resisted    = ceil(SubDmg->Resisted / calculatedMultiplier);
-        }
-
-        return true;
-    }
-
-    return false;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::CombatLog::SpellDispellData const& dispellData)

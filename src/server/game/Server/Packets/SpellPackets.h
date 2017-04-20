@@ -65,11 +65,6 @@ namespace WorldPackets
             WorldPacket const* GetFullLogPacket() const { return &_fullLogPacket; }
             WorldPacket const* GetBasicLogPacket() const { return &_worldPacket; }
 
-            // Scaling function, return true if damage depend of viewer
-            virtual bool UpdateDamageForViewer(Player* /*viewer*/) { return false; }
-
-            float GetMultiplierFor(Player* viewer, ObjectGuid target);
-
             void Clear()
             {
                 _fullLogPacket.clear();
@@ -255,8 +250,9 @@ namespace WorldPackets
             std::vector<uint32> Spells;
         };
 
-        struct SandboxScalingData
+        class SandboxScalingData
         {
+        public:
             uint32 Type = 0;
             int16 PlayerLevelDelta = 0;
             uint16 PlayerItemLevel = 0;
@@ -266,6 +262,10 @@ namespace WorldPackets
             uint8 TargetMinScalingLevel = 1;
             uint8 TargetMaxScalingLevel = 1;
             int8 TargetScalingLevelDelta = 1;
+
+            bool GenerateDataFromUnits(Unit* attacker, Unit* target);
+            void GenerateDataForNpcToPlayer(Creature* attacker, Player* target);
+            void GenerateDataForPlayerToNpc(Player* attacker, Creature* target);
         };
 
         struct AuraDataInfo

@@ -5041,6 +5041,11 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
     packet.Absorbed = log->absorb;
     packet.Periodic = log->periodicLog;
     packet.Flags = log->HitInfo;
+
+    WorldPackets::Spells::SandboxScalingData sandboxScalingData;
+    if (sandboxScalingData.GenerateDataFromUnits(log->attacker, log->target))
+        packet.SandboxScaling = sandboxScalingData;
+
     SendCombatLogMessage(&packet);
 }
 
@@ -5074,6 +5079,11 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
     spellLogEffect.Resisted = info->resist;
     spellLogEffect.Crit = info->critical;
     /// @todo: implement debug info
+
+    WorldPackets::Spells::SandboxScalingData sandboxScalingData;
+    if (Unit* caster = ObjectAccessor::GetUnit(*this, aura->GetCasterGUID()))
+        if (sandboxScalingData.GenerateDataFromUnits(caster, this))
+            spellLogEffect.SandboxScaling = sandboxScalingData;
 
     data.Effects.push_back(spellLogEffect);
 
@@ -5129,6 +5139,10 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     packet.BlockAmount = damageInfo->blocked_amount;
 
     packet.LogData.Initialize(damageInfo->attacker);
+
+    WorldPackets::Spells::SandboxScalingData sandboxScalingData;
+    if (sandboxScalingData.GenerateDataFromUnits(damageInfo->attacker, damageInfo->target))
+        packet.SandboxScaling = sandboxScalingData;
 
     SendCombatLogMessage(&packet);
 }
@@ -16064,52 +16078,10 @@ struct CombatLogSender
         if (!player->HaveAtClient(i_source))
             return;
 
-        if (WorldPackets::CombatLog::SpellNonMeleeDamageLog const* spellNonMeleeDamageLog = dynamic_cast<WorldPackets::CombatLog::SpellNonMeleeDamageLog const*>(i_message))
-        {
-            WorldPackets::CombatLog::SpellNonMeleeDamageLog tempLog(*spellNonMeleeDamageLog);
-
-            if (SendUpdatedDamageMessageIfNeeded(player, &tempLog))
-                return;
-        }
-
-        if (WorldPackets::CombatLog::SpellPeriodicAuraLog const* spellPeriodicAuraLogLog = dynamic_cast<WorldPackets::CombatLog::SpellPeriodicAuraLog const*>(i_message))
-        {
-            WorldPackets::CombatLog::SpellPeriodicAuraLog tempLog(*spellPeriodicAuraLogLog);
-
-            if (SendUpdatedDamageMessageIfNeeded(player, &tempLog))
-                return;
-        }
-
-        if (WorldPackets::CombatLog::AttackerStateUpdate const* attackerStateUpdate = dynamic_cast<WorldPackets::CombatLog::AttackerStateUpdate const*>(i_message))
-        {
-            WorldPackets::CombatLog::AttackerStateUpdate tempLog(*attackerStateUpdate);
-
-            if (SendUpdatedDamageMessageIfNeeded(player, &tempLog))
-                return;
-        }
-
-        SendDirectMessage(player, i_message);
-    }
-
-    bool SendUpdatedDamageMessageIfNeeded(Player* player, WorldPackets::CombatLog::CombatLogServerPacket* message)
-    {
-        if (message->UpdateDamageForViewer(player))
-        {
-            message->Clear();
-            message->Write();
-            SendDirectMessage(player, message);
-            return true;
-        }
-
-        return false;
-    }
-
-    void SendDirectMessage(Player* player, WorldPackets::CombatLog::CombatLogServerPacket const* message)
-    {
         if (player->IsAdvancedCombatLoggingEnabled())
-            player->SendDirectMessage(message->GetFullLogPacket());
+            player->SendDirectMessage(i_message->GetFullLogPacket());
         else
-            player->SendDirectMessage(message->GetBasicLogPacket());
+            player->SendDirectMessage(i_message->GetBasicLogPacket());
     }
 };
 

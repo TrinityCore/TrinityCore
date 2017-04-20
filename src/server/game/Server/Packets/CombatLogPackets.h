@@ -30,11 +30,8 @@ namespace WorldPackets
         {
         public:
             SpellNonMeleeDamageLog() : CombatLogServerPacket(SMSG_SPELL_NON_MELEE_DAMAGE_LOG, 60) { }
-            SpellNonMeleeDamageLog(SpellNonMeleeDamageLog const& right);
 
             WorldPacket const* Write() override;
-
-            bool UpdateDamageForViewer(Player* viewer) override;
 
             ObjectGuid Me;
             ObjectGuid CasterGUID;
@@ -133,11 +130,8 @@ namespace WorldPackets
             };
 
             SpellPeriodicAuraLog() : CombatLogServerPacket(SMSG_SPELL_PERIODIC_AURA_LOG, 16 + 16 + 4 + 4 + 1) { }
-            SpellPeriodicAuraLog(SpellPeriodicAuraLog const& right);
 
             WorldPacket const* Write() override;
-
-            bool UpdateDamageForViewer(Player* viewer) override;
 
             ObjectGuid TargetGUID;
             ObjectGuid CasterGUID;
@@ -307,11 +301,8 @@ namespace WorldPackets
         {
         public:
             AttackerStateUpdate() : CombatLogServerPacket(SMSG_ATTACKER_STATE_UPDATE, 70) { }
-            AttackerStateUpdate(AttackerStateUpdate const& right);
 
             WorldPacket const* Write() override;
-
-            bool UpdateDamageForViewer(Player* viewer) override;
 
             uint32 HitInfo = 0; // Flags
             ObjectGuid AttackerGUID;
