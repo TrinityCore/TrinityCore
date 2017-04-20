@@ -888,6 +888,9 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
         case TARGET_SELECT_CATEGORY_CONE:
             SelectImplicitConeTargets(effIndex, targetType, effectMask);
             break;
+        case TARGET_SELECT_CATEGORY_LINE:
+            SelectImplicitLineTargets(effIndex, targetType, effectMask);
+            break;
         case TARGET_SELECT_CATEGORY_AREA:
             SelectImplicitAreaTargets(effIndex, targetType, effectMask);
             break;
@@ -1156,6 +1159,47 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
             // Other special target selection goes here
             if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
                 Trinity::Containers::RandomResize(targets, maxTargets);
+
+            for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            {
+                if (Unit* unit = (*itr)->ToUnit())
+                    AddUnitTarget(unit, effMask, false);
+                else if (GameObject* gObjTarget = (*itr)->ToGameObject())
+                    AddGOTarget(gObjTarget, effMask);
+            }
+        }
+    }
+}
+
+void Spell::SelectImplicitLineTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask)
+{
+    if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
+    {
+        ASSERT(false && "Spell::SelectImplicitLineTargets: received not implemented target reference type");
+        return;
+    }
+    std::list<WorldObject*> targets;
+    SpellTargetObjectTypes objectType = targetType.GetObjectType();
+    SpellTargetCheckTypes selectionType = targetType.GetCheckType();
+    SpellEffectInfo const* effect = GetEffect(effIndex);
+    if (!effect)
+        return;
+    ConditionContainer* condList = effect->ImplicitTargetConditions;
+    float radius = effect->CalcRadius(m_caster) * m_spellValue->RadiusMod;
+
+    if (uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList))
+    {
+        Trinity::WorldObjectSpellLineTargetCheck check(radius, m_caster, m_spellInfo, selectionType, condList);
+        Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellLineTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
+        SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellLineTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius);
+
+        CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType);
+
+        if (!targets.empty())
+        {
+            // Other special target selection goes here
+            if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
+                Trinity::Containers::RandomResizeList(targets, maxTargets);
 
             for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
             {
@@ -7679,6 +7723,18 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
             if (!_caster->isInFront(target, _coneAngle))
                 return false;
     }
+    return WorldObjectSpellAreaTargetCheck::operator ()(target);
+}
+
+WorldObjectSpellLineTargetCheck::WorldObjectSpellLineTargetCheck(float range, Unit* caster,
+    SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionContainer* condList)
+    : WorldObjectSpellAreaTargetCheck(range, caster, caster, caster, spellInfo, selectionType, condList) { }
+
+bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target)
+{
+   if (!_caster->HasInLine(target, _caster->GetObjectSize() + target->GetObjectSize()))
+        return false;
+
     return WorldObjectSpellAreaTargetCheck::operator ()(target);
 }
 
