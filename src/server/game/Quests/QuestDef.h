@@ -242,6 +242,17 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_OBTAIN_CURRENCY         = 17    // requires the player to gain X currency after starting the quest but not required to keep it until the end (does not consume)
 };
 
+enum QuestObjectiveFlags
+{
+	QUEST_OBJECTIVE_FLAGS_UNK1 = 1,
+	QUEST_OBJECTIVE_FLAGS_UNK2 = 2,
+	QUEST_OBJECTIVE_FLAGS_UNK4 = 4,
+	QUEST_OBJECTIVE_FLAGS_UNK8 = 8,
+	QUEST_OBJECTIVE_FLAGS_UNK16 = 16,
+	QUEST_OBJECTIVE_FLAGS_UNK32 = 32,
+	QUEST_OBJECTIVE_FLAGS_UNK64 = 64,	   // Related to QUEST_OBJECTIVE_PROGRESS_BAR, subObjective
+};
+
 struct QuestTemplateLocale
 {
     StringVector LogTitle;
