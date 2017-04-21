@@ -102,7 +102,7 @@ bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conver
     if (!conversationTemplate)
         return false;
 
-    SetUInt32Value(CONVERSATION_FIELD_LAST_LINE_DURATION, conversationTemplate->LastLineDuration);
+    SetUInt32Value(CONVERSATION_LAST_LINE_END_TIME, conversationTemplate->LastLineDuration);
     _duration = conversationTemplate->LastLineDuration;
 
     uint16 actorsIndex = 0;
