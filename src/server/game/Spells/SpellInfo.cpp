@@ -3094,10 +3094,6 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
     if (HasAttribute(SPELL_ATTR0_NEGATIVE_1))
         return false;
 
-    // these spells must not be downscaled, thus marking them negative (see GetAuraRankForLevel)
-    if (HasAttribute(SPELL_ATTR2_UNK3))
-        return false;
-
     switch (SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -3169,6 +3165,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                 case SPELL_AURA_MOD_STEALTH:
                     return true;
                 case SPELL_AURA_CHANNEL_DEATH_ITEM:
+                case SPELL_AURA_EMPATHY:
                     return false;
             }
         }
