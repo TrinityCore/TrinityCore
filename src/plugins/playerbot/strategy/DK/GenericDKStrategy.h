@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../Strategy.h"
-#include "../generic/CombatStrategy.h"
+#include "../generic/MeleeCombatStrategy.h"
 
 namespace ai
 {
-    class GenericDKStrategy : public CombatStrategy
+    class GenericDKStrategy : public MeleeCombatStrategy
     {
     public:
         GenericDKStrategy(PlayerbotAI* ai);

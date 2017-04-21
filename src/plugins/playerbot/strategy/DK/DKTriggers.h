@@ -7,6 +7,19 @@ namespace ai
     BUFF_TRIGGER(HornOfWinterTrigger, "horn of winter", "horn of winter")
 	BUFF_TRIGGER(BoneShieldTrigger, "bone shield", "bone shield")
 	BUFF_TRIGGER(ImprovedIcyTalonsTrigger, "improved icy talons", "improved icy talons")
+	DEBUFF_TRIGGER(PlagueStrikeDebuffTrigger, "plague strike", "plague strike")
+	DEBUFF_TRIGGER(IcyTouchDebuffTrigger, "icy touch", "icy touch")
+
+		class PlagueStrikeDebuffOnAttackerTrigger : public DebuffOnAttackerTrigger
+	{
+	public:
+		PlagueStrikeDebuffOnAttackerTrigger(PlayerbotAI* ai) : DebuffOnAttackerTrigger(ai, "plague strike") {}
+	};
+		class IcyTouchDebuffOnAttackerTrigger : public DebuffOnAttackerTrigger
+	{
+	public:
+		IcyTouchDebuffOnAttackerTrigger(PlayerbotAI* ai) : DebuffOnAttackerTrigger(ai, "icy touch") {}
+	};
 
     class DKPresenceTrigger : public BuffTrigger {
     public:
@@ -14,10 +27,6 @@ namespace ai
         virtual bool IsActive();
     };
 
-    class PlagueStrikeTrigger : public DebuffTrigger {
-    public:
-		PlagueStrikeTrigger(PlayerbotAI* ai) : DebuffTrigger(ai, "plague strike") {}
-	};
 
 	class PestilenceTrigger : public DebuffTrigger {
 	public:
@@ -29,10 +38,6 @@ namespace ai
 		BloodStrikeTrigger(PlayerbotAI* ai) : DebuffTrigger(ai, "blood strike") {}
 	};
 
-    class IcyTouchTrigger : public DebuffTrigger {
-    public:
-		IcyTouchTrigger(PlayerbotAI* ai) : DebuffTrigger(ai, "icy touch") {}
-    };
 
 	class HowlingBlastTrigger : public DebuffTrigger {
 	public:

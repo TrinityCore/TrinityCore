@@ -43,6 +43,10 @@ void GenericDKNonCombatStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
         "horn of winter",
         NextAction::array(0, new NextAction("horn of winter", 21.0f), NULL)));
 
+	triggers.push_back(new TriggerNode(
+		"bone shield",
+		NextAction::array(0, new NextAction("bone shield", 21.0f), NULL)));
+
 }
 
 
