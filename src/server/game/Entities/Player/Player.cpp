@@ -6613,7 +6613,8 @@ bool Player::IsQuestObjectiveProgressComplete(Quest const* quest) const
 {
     float progress = 0;
     for (QuestObjective const& obj : quest->GetObjectives())
-        if (obj.Flags & QUEST_OBJECTIVE_FLAGS_UNK64) {
+        if (obj.Flags & QUEST_OBJECTIVE_FLAGS_UNK64)
+        {
             progress += GetQuestObjectiveData(quest, obj.StorageIndex) * obj.ProgressBarWeight;
             if (progress >= 100)
                 return true;
