@@ -6611,16 +6611,14 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
 
 bool Player::IsQuestObjectiveProgressComplete(Quest const* quest) const
 {
-	float progress = 0;
-	for (QuestObjective const& obj : quest->GetObjectives())
-	{
-		if (obj.Flags & 64) {
-			progress += GetQuestObjectiveData(quest, obj.StorageIndex) * obj.ProgressBarWeight;
-			if (progress >= 100)
-				return true;
-		}
-	}
-	return false;
+    float progress = 0;
+    for (QuestObjective const& obj : quest->GetObjectives())
+        if (obj.Flags & 64) {
+            progress += GetQuestObjectiveData(quest, obj.StorageIndex) * obj.ProgressBarWeight;
+            if (progress >= 100)
+                return true;
+        }
+    return false;
 }
 
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/)
@@ -16775,8 +16773,8 @@ bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
     Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID);
     ASSERT(quest);
 
-	if (objective.Flags & 64)
-		return true;
+    if (objective.Flags & 64)
+        return true;
 
     switch (objective.Type)
     {
@@ -16815,10 +16813,10 @@ bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
             if (!HasCurrency(objective.ObjectID, objective.Amount))
                 return false;
             break;
-		case QUEST_OBJECTIVE_PROGRESS_BAR:
-			if (!IsQuestObjectiveProgressComplete(quest))
-				return false;
-			break;
+        case QUEST_OBJECTIVE_PROGRESS_BAR:
+            if (!IsQuestObjectiveProgressComplete(quest))
+                return false;
+            break;
         default:
             TC_LOG_ERROR("entities.player.quest", "Player::CanCompleteQuest: Player '%s' (%s) tried to complete a quest (ID: %u) with an unknown objective type %u",
                 GetName().c_str(), GetGUID().ToString().c_str(), objective.QuestID, objective.Type);
