@@ -58,7 +58,6 @@
 #include "LastSaidValue.h"
 #include "RandomBotUpdateValue.h"
 #include "NearestFriendlyPlayersValue.h"
-#include "NearestNonBotPlayersValue.h"
 
 namespace ai
 {
@@ -150,7 +149,6 @@ namespace ai
             creators["last said"] = &ValueContext::last_said;
             creators["last emote"] = &ValueContext::last_emote;
 			creators["random bot update"] = &ValueContext::random_bot_update_value;
-			creators["nearest non bot players"] = &ValueContext::nearest_non_bot_players;
         }
 
     private:
@@ -236,6 +234,5 @@ namespace ai
         static UntypedValue* last_said(PlayerbotAI* ai) { return new LastSaidValue(ai); }
         static UntypedValue* last_emote(PlayerbotAI* ai) { return new LastEmoteValue(ai); }
 		static UntypedValue* random_bot_update_value(PlayerbotAI* ai) { return new RandomBotUpdateValue(ai); }
-		static UntypedValue* nearest_non_bot_players(PlayerbotAI* ai) { return new NearestNonBotPlayersValue(ai); }
     };
 };
