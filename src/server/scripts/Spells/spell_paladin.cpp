@@ -407,7 +407,7 @@ class spell_pal_divine_storm : public SpellScriptLoader
             void HandleOnCast()
             {
                 Unit* caster = GetCaster();
-                caster->SendPlaySpellVisualKit(PALADIN_VISUAL_KIT_DIVINE_STORM, 0);
+                caster->SendPlaySpellVisualKit(PALADIN_VISUAL_KIT_DIVINE_STORM, 0, 0);
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
