@@ -840,27 +840,11 @@ void Channel::SilenceAll(Player const* /*player*/, std::string const& /*name*/)
 {
 }
 
-void Channel::SilenceVoice(Player const* /*player*/, std::string const& /*name*/)
-{
-}
-
 void Channel::UnsilenceAll(Player const* /*player*/, std::string const& /*name*/)
 {
 }
 
-void Channel::UnsilenceVoice(Player const* /*player*/, std::string const& /*name*/)
-{
-}
-
 void Channel::DeclineInvite(Player const* /*player*/)
-{
-}
-
-void Channel::Voice(Player const* /*player*/)
-{
-}
-
-void Channel::DeVoice(Player const* /*player*/)
 {
 }
 

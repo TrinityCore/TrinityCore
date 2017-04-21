@@ -191,8 +191,8 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
 void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
 {
     _worldPacket >> Header;
-    _worldPacket >> ChatLog;
     _worldPacket >> TargetCharacterGUID;
+    _worldPacket >> ChatLog;
     ComplaintType = _worldPacket.ReadBits(5);
 
     uint32 noteLength = _worldPacket.ReadBits(10);

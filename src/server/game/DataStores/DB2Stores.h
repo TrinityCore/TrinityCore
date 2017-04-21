@@ -210,14 +210,19 @@ TC_GAME_API extern TaxiMask                                         sAllianceTax
 TC_GAME_API extern TaxiPathSetBySource                              sTaxiPathSetBySource;
 TC_GAME_API extern TaxiPathNodesByPath                              sTaxiPathNodesByPath;
 
-struct HotfixNotify
+struct HotfixRecord
 {
+    HotfixRecord(uint32 tableHash, int32 recordId) : TableHash(tableHash), RecordId(recordId) { }
+
     uint32 TableHash;
-    uint32 Timestamp;
-    uint32 Entry;
+    int32 RecordId;
 };
 
-typedef std::vector<HotfixNotify> HotfixData;
+struct HotfixData
+{
+    int32 Id;
+    std::vector<HotfixRecord> Records;
+};
 
 #define DEFINE_DB2_SET_COMPARATOR(structure) \
     struct structure ## Comparator \
@@ -261,6 +266,8 @@ public:
     typedef std::unordered_map<uint32, MountEntry const*> MountContainer;
     typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
     typedef std::unordered_map<uint32, MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
+    typedef std::vector<MountXDisplayEntry const*> MountXDisplayContainer;
+    typedef std::unordered_map<uint32, MountXDisplayContainer> MountDisplaysCointainer;
     typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
     typedef std::array<std::vector<Trinity::wregex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
     typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
@@ -284,8 +291,7 @@ public:
     DB2StorageBase const* GetStorage(uint32 type) const;
 
     void LoadHotfixData();
-    HotfixData const* GetHotfixData() const { return &_hotfixData; }
-    time_t GetHotfixDate(uint32 entry, uint32 type) const;
+    std::map<int32, HotfixData> const& GetHotfixData() const { return _hotfixData; }
 
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
     std::vector<ArtifactPowerEntry const*> GetArtifactPowers(uint8 artifactId) const;
@@ -328,6 +334,7 @@ public:
     MountEntry const* GetMount(uint32 spellId) const;
     MountEntry const* GetMountById(uint32 id) const;
     MountTypeXCapabilitySet const* GetMountCapabilities(uint32 mountType) const;
+    MountXDisplayContainer const* GetMountDisplays(uint32 mountId) const;
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
     std::set<uint32> GetPhasesForGroup(uint32 group) const;
     PowerTypeEntry const* GetPowerTypeEntry(Powers power) const;
@@ -352,7 +359,7 @@ public:
 
 private:
     StorageMap _stores;
-    HotfixData _hotfixData;
+    std::map<int32, HotfixData> _hotfixData;
 
     AreaGroupMemberContainer _areaGroupMembers;
     ArtifactPowersContainer _artifactPowers;
@@ -383,6 +390,7 @@ private:
     MapDifficultyContainer _mapDifficulties;
     MountContainer _mountsBySpellId;
     MountCapabilitiesByTypeContainer _mountCapabilitiesByType;
+    MountDisplaysCointainer _mountDisplays;
     NameGenContainer _nameGenData;
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;

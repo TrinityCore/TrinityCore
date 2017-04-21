@@ -39,7 +39,6 @@ enum HunterSpells
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
     SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
     SPELL_HUNTER_INSANITY                           = 95809,
-    SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
     SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
@@ -272,43 +271,6 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_hun_improved_mend_pet_AuraScript();
-        }
-};
-
-// 53412 - Invigoration
-class spell_hun_invigoration : public SpellScriptLoader
-{
-    public:
-        spell_hun_invigoration() : SpellScriptLoader("spell_hun_invigoration") { }
-
-        class spell_hun_invigoration_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_invigoration_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_INVIGORATION_TRIGGERED))
-                    return false;
-                return true;
-            }
-
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* unitTarget = GetHitUnit())
-                    if (AuraEffect* aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 3487, 0))
-                        if (roll_chance_i(aurEff->GetAmount()))
-                            unitTarget->CastSpell(unitTarget, SPELL_HUNTER_INVIGORATION_TRIGGERED, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_invigoration_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_hun_invigoration_SpellScript();
         }
 };
 
@@ -1107,7 +1069,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_cobra_shot();
     new spell_hun_disengage();
     new spell_hun_improved_mend_pet();
-    new spell_hun_invigoration();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
     new spell_hun_misdirection();

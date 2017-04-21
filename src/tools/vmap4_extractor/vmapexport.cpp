@@ -85,6 +85,8 @@ struct MapLoadInfo
             { false, FT_STRING, "MapName" },
             { false, FT_STRING, "MapDescription0" },
             { false, FT_STRING, "MapDescription1" },
+            { false, FT_STRING, "ShortDescription" },
+            { false, FT_STRING, "LongDescription" },
             { false, FT_SHORT, "AreaTableID" },
             { false, FT_SHORT, "LoadingScreenID" },
             { true, FT_SHORT, "CorpseMapID" },
@@ -98,9 +100,10 @@ struct MapLoadInfo
             { false, FT_BYTE, "MaxPlayers" },
             { false, FT_BYTE, "TimeOffset" },
         };
-        static char const* types = "siffssshhhhhhhbbbbb";
-        static uint8 const arraySizes[19] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2Meta const meta(-1, 19, 0xF7CF2DA2, types, arraySizes);
+        static char const* types = "siffssssshhhhhhhbbbbb";
+        static uint8 const arraySizes[21] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        static DB2FieldDefault const fieldDefaults[21] = { "", uint32(0), float(0), float(0), "", "", "", "", "", uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint8(0), uint8(0), uint8(0), uint8(0), uint8(0) };
+        static DB2Meta const meta(-1, 21, 0xC34CD39B, types, arraySizes, fieldDefaults);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }
@@ -479,7 +482,7 @@ int main(int argc, char ** argv)
             DB2Record record = db2.GetRecord(x);
             map_ids[x].id = record.GetId();
 
-            const char* map_name = record.GetString(0, 0);
+            const char* map_name = record.GetString("Directory");
             size_t max_map_name_length = sizeof(map_ids[x].name);
             if (strlen(map_name) >= max_map_name_length)
             {

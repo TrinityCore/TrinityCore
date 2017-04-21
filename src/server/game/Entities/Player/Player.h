@@ -681,7 +681,7 @@ enum QuestSaveType
 typedef std::map<uint32, QuestSaveType> QuestStatusSaveMap;
 
 // Size of client completed quests bit map
-#define QUESTS_COMPLETED_BITS_SIZE 1000
+#define QUESTS_COMPLETED_BITS_SIZE 1750
 
 enum QuestSlotOffsets
 {
@@ -838,6 +838,7 @@ struct EquipmentSetInfo
         uint64 Guid       = 0; ///< Set Identifier
         uint32 SetID      = 0; ///< Index
         uint32 IgnoreMask = 0; ///< Mask of EquipmentSlot
+        int32 AssignedSpecIndex = -1; ///< Index of character specialization that this set is automatically equipped for
         std::string SetName;
         std::string SetIcon;
         std::array<ObjectGuid, EQUIPMENT_SLOT_END> Pieces;
@@ -1209,6 +1210,15 @@ private:
     SpecializationInfo(SpecializationInfo const&) = delete;
     SpecializationInfo& operator=(SpecializationInfo const&) = delete;
 };
+
+#pragma pack(push, 1)
+struct PlayerDynamicFieldSpellModByLabel
+{
+    uint32 Mod;
+    float Value;
+    uint32 Label;
+};
+#pragma pack(pop)
 
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
@@ -1618,7 +1628,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanShareQuest(uint32 questId) const;
 
         int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;
-        bool IsQuestObjectiveComplete(Quest const* quest, QuestObjective const& objective) const;
+        bool IsQuestObjectiveComplete(QuestObjective const& objective) const;
         void SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data);
         void SendQuestComplete(Quest const* quest) const;
         void SendQuestReward(Quest const* quest, uint32 XP) const;
