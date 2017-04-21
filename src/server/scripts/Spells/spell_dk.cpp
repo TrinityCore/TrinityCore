@@ -2163,16 +2163,24 @@ class spell_dk_scourge_strike : public SpellScriptLoader
             spell_dk_scourge_strike_SpellScript()
             {
                 multiplier = 1.0f;
+                damageDone = 0;
             }
 
         private:
             float multiplier;
+            int32 damageDone;
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DK_SCOURGE_STRIKE_TRIGGERED))
                     return false;
                 return true;
+            }
+
+            void HandleBeforeHit()
+            {
+                // Save calculated damage before hit, so we can do shadow damage even if absorbed
+                damageDone = GetHitDamage();
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2192,7 +2200,7 @@ class spell_dk_scourge_strike : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Unit* unitTarget = GetHitUnit())
                 {
-                    int32 bp = GetHitDamage() * multiplier;
+                    int32 bp = damageDone * multiplier;
 
                     if (AuraEffect* aurEff = caster->GetAuraEffectOfRankedSpell(SPELL_DK_BLACK_ICE_R1, EFFECT_0))
                         AddPct(bp, aurEff->GetAmount());
@@ -2203,6 +2211,7 @@ class spell_dk_scourge_strike : public SpellScriptLoader
 
             void Register() override
             {
+                BeforeHit += SpellHitFn(spell_dk_scourge_strike_SpellScript::HandleBeforeHit);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_scourge_strike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
                 AfterHit += SpellHitFn(spell_dk_scourge_strike_SpellScript::HandleAfterHit);
             }
