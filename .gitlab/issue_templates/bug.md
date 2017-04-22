@@ -1,6 +1,6 @@
 **Description**:
 
-**Current behaviour**: Tell us what happens
+**Current behaviour**: Tell us what happens, suppy ids of afected creatures, quests, gameobjects, etc
 
 **Expected behaviour**: Tell us what should happen instead
 
