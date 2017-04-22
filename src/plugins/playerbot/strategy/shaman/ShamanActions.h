@@ -119,6 +119,7 @@ namespace ai
     {
     public:
         CastManaSpringTotemAction(PlayerbotAI* ai) : CastTotemAction(ai, "mana spring totem") {}
+        virtual bool isUseful() { return CastTotemAction::isUseful() && !AI_VALUE2(bool, "has totem", "healing stream totem"); }
     };
 
 	class CastManaTideTotemAction : public CastTotemAction
