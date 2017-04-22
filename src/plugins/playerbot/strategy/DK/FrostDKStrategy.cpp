@@ -33,35 +33,35 @@ public:
 		static ActionNode* icy_touch(PlayerbotAI* ai)
 		{
 			return new ActionNode("icy touch",
-				/*P*/ NextAction::array(0, new NextAction("frost presence"), NULL),
+				/*P*/ NextAction::array(0, new NextAction("blood presence"), NULL),
 				/*A*/ NextAction::array(0, new NextAction("howling blast"), NULL),
 				/*C*/ NULL);
 		}
 		static ActionNode* obliterate(PlayerbotAI* ai)
 		{
 		return new ActionNode("obliterate",
-			/*P*/ NextAction::array(0, new NextAction("frost presence"), NULL),
+			/*P*/ NextAction::array(0, new NextAction("blood presence"), NULL),
 			/*A*/ NextAction::array(0, new NextAction("frost strike"), NULL),
 			/*C*/ NULL);
 		}
 		static ActionNode* rune_strike(PlayerbotAI* ai)
 		{
 		return new ActionNode("rune strike",
-			/*P*/ NextAction::array(0, new NextAction("frost presence"), NULL),
+			/*P*/ NextAction::array(0, new NextAction("blood presence"), NULL),
 			/*A*/ NextAction::array(0, new NextAction("melee"), NULL),
 			/*C*/ NULL);
 		}
 		static ActionNode* frost_strike(PlayerbotAI* ai)
 		{
 		return new ActionNode("frost strike",
-			/*P*/ NextAction::array(0, new NextAction("frost presence"), NULL),
+			/*P*/ NextAction::array(0, new NextAction("blood presence"), NULL),
 			/*A*/ NULL,
 			/*C*/ NULL);
 		}
 		static ActionNode* howling_blast(PlayerbotAI* ai)
 		{
 		return new ActionNode("howling blast",
-			/*P*/ NextAction::array(0, new NextAction("frost presence"), NULL),
+			/*P*/ NextAction::array(0, new NextAction("blood presence"), NULL),
 			/*A*/ NextAction::array(0, new NextAction("icy touch"), NULL),
 			/*C*/ NULL);	
 		}

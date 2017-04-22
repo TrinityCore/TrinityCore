@@ -27,6 +27,16 @@ namespace ai
         virtual bool IsActive();
     };
 
+	class BloodTapTrigger : public BuffTrigger {
+	public:
+		BloodTapTrigger(PlayerbotAI* ai) : BuffTrigger(ai, "blood tap") {}
+	};
+
+
+	class RuneStrikeTrigger : public SpellCanBeCastTrigger {
+	public:
+		RuneStrikeTrigger(PlayerbotAI* ai) : SpellCanBeCastTrigger(ai, "rune strike") {}
+	};
 
 	class PestilenceTrigger : public DebuffTrigger {
 	public:
