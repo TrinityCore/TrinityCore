@@ -1,8 +1,8 @@
 **Description**:
 
-**Current behaviour**: Tell us what happens, suppy ids of afected creatures, quests, gameobjects, etc
+**Current behavior**: Tell us what happens, supply ids of affected creatures, quests, gameobjects, etc
 
-**Expected behaviour**: Tell us what should happen instead
+**Expected behavior**: Tell us what should happen instead
 
 **Steps to reproduce the problem**:
 
