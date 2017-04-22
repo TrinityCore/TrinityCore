@@ -90,30 +90,45 @@ private:
     }
 };
 
-GenericDKStrategy::GenericDKStrategy(PlayerbotAI* ai) : CombatStrategy(ai)
+GenericDKStrategy::GenericDKStrategy(PlayerbotAI* ai) : MeleeCombatStrategy(ai)
 {
     actionNodeFactories.Add(new GenericDKStrategyActionNodeFactory());
 }
 
 void GenericDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 {
-    CombatStrategy::InitTriggers(triggers);
+	MeleeCombatStrategy::InitTriggers(triggers);
+
+	triggers.push_back(new TriggerNode(
+		"enemy out of melee",
+		NextAction::array(0, new NextAction("reach melee", ACTION_NORMAL + 9), NULL)));
+
+	//triggers.push_back(new TriggerNode(
+		//"icy touch",
+		//NextAction::array(0, new NextAction("icy touch", ACTION_NORMAL + 2), NULL)));
+
+//	triggers.push_back(new TriggerNode(
+		//"plague strike",
+		//NextAction::array(0, new NextAction("plague strike", ACTION_NORMAL + 2), NULL)));
 
     triggers.push_back(new TriggerNode(
         "mind freeze",
-        NextAction::array(0, new NextAction("mind freeze", 49.0f), NULL)));
+        NextAction::array(0, new NextAction("mind freeze", ACTION_HIGH + 1), NULL)));
 
     triggers.push_back(new TriggerNode(
-        "horn of winter",
-        NextAction::array(0, new NextAction("horn of winter", 50.0f), NULL)));
+        "bone shield",
+        NextAction::array(0, new NextAction("bone shield", ACTION_NORMAL + 1), NULL)));
 
+	triggers.push_back(new TriggerNode(
+		"horn of winter",
+		NextAction::array(0, new NextAction("horn of winter", ACTION_NORMAL + 1), NULL)));
 
     triggers.push_back(new TriggerNode(
         "mind freeze on enemy healer",
-        NextAction::array(0, new NextAction("mind freeze on enemy healer", 40.0f), NULL)));
+        NextAction::array(0, new NextAction("mind freeze on enemy healer", ACTION_HIGH + 1), NULL)));
 
 	triggers.push_back(new TriggerNode(
 		"low health",
-		NextAction::array(0, new NextAction("vampiric blood", 80.0f), NULL)));
+		NextAction::array(0, new NextAction("vampiric blood", ACTION_NORMAL + 9), NULL)));
 
 }

@@ -11,16 +11,10 @@ namespace ai
 
     public:
         virtual void InitTriggers(std::list<TriggerNode*> &triggers);
-        virtual string getName() { return "blood"; }
+        virtual string getName() { return "tank"; }
         virtual NextAction** getDefaultActions();
-    };
-	class BloodDKAoeStrategy : public CombatStrategy
-	{
-	public:
-		BloodDKAoeStrategy(PlayerbotAI* ai) : CombatStrategy(ai) {}
-
-	public:
-		virtual void InitTriggers(std::list<TriggerNode*> &triggers);
-		virtual string getName() { return "blood aoe"; }
+		virtual int GetType() { return STRATEGY_TYPE_TANK | STRATEGY_TYPE_MELEE; }
 	};
+
+
 }

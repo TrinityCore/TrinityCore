@@ -78,9 +78,27 @@ namespace ai
 	BEGIN_DEBUFF_ACTION(CastHowlingBlastAction, "howling blast")
 	END_SPELL_ACTION()
 
-	//debuff
+	//debuff it
 	BEGIN_DEBUFF_ACTION(CastIcyTouchAction, "icy touch")
 	END_SPELL_ACTION()
+
+
+		class CastIcyTouchOnAttackerAction : public CastDebuffSpellOnAttackerAction
+	{
+	public:
+		CastIcyTouchOnAttackerAction(PlayerbotAI* ai) : CastDebuffSpellOnAttackerAction(ai, "icy touch") {}
+	};
+
+	//debuff ps
+	BEGIN_DEBUFF_ACTION(CastPlagueStrikeAction, "plague strike")
+	END_SPELL_ACTION()
+
+
+		class CastPlagueStrikeOnAttackerAction : public CastDebuffSpellOnAttackerAction
+	{
+	public:
+		CastPlagueStrikeOnAttackerAction(PlayerbotAI* ai) : CastDebuffSpellOnAttackerAction(ai, "plague strike") {}
+	};
 
 	//debuff
 	BEGIN_DEBUFF_ACTION(CastMarkOfBloodAction, "mark of blood")
@@ -148,12 +166,6 @@ namespace ai
 	class CastDeathStrikeAction : public CastMeleeSpellAction {
 	public:
 		CastDeathStrikeAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "death strike") {}
-	};
-
-	
-	class CastPlagueStrikeAction : public CastMeleeSpellAction {
-	public:
-		CastPlagueStrikeAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "plague strike") {}
 	};
 
 	class CastScourgeStrikeAction : public CastMeleeSpellAction {
@@ -256,5 +268,10 @@ namespace ai
 	class CastRuneTapAction : public CastMeleeSpellAction {
 	public:
 		CastRuneTapAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "rune tap") {}
+
+	};
+	class CastBloodTapAction : public CastMeleeSpellAction {
+	public:
+		CastBloodTapAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "blood tap") {}
 	};
 }
