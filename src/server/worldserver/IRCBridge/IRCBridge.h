@@ -18,6 +18,75 @@
 #ifndef TRINITY_IRCBRIDGE_H
 #define TRINITY_IRCBRIDGE_H
 
+#include "Common.h"
 
+#include <boost/asio/ip/tcp.hpp>
+
+enum IRCBridgeConfigurationUintValues
+{
+    CONFIGURATION_IRCBRIDGE_PORT,
+    CONFIGURATION_IRCBRIDGE_AUTHENTICATION_METHOD,
+    CONFIGURATION_IRCBRIDGE_CONNECTION_CODE,
+    CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT,
+    CONFIGURATION_IRCBRIDGE_CONNECTION_ATTEMPTS,
+    CONFIGURATION_IRCBRIDGE_UINT_COUNT
+};
+
+enum IRCBridgeConfigurationStringValues
+{
+    CONFIGURATION_IRCBRIDGE_HOST,
+    CONFIGURATION_IRCBRIDGE_USERNAME,
+    CONFIGURATION_IRCBRIDGE_NICKNAME,
+    CONFIGURATION_IRCBRIDGE_PASSWORD,
+    CONFIGURATION_IRCBRIDGE_AUTHENTICATION_NICKNAME,
+    CONFIGURATION_IRCBRIDGE_STRING_COUNT
+};
+
+class IRCBridgeConnectionHandler
+{
+public:
+    void Connect();
+    void Disconnect();
+
+private:
+    boost::asio::ip::tcp::socket _socket;
+};
+
+class IRCBridge
+{
+    public:
+        IRCBridge();
+        ~IRCBridge();
+
+        static IRCBridge* instance()
+        {
+            static IRCBridge instance;
+            return &instance;
+        }
+
+        void Run();
+        void Stop();
+
+        bool IsActive() const { return _active; }
+        bool IsConnected() const { return _connected; }
+
+        bool LoadConfigurations();
+        uint32 GetConfiguration(IRCBridgeConfigurationUintValues index) const { return _configurationUintValues[index]; }
+        std::string GetConfiguration(IRCBridgeConfigurationStringValues index) const { return _configurationStringValues[index]; }
+
+    private:
+        uint32 LoadConfiguration(IRCBridgeConfigurationUintValues index, char const* fieldname, uint32 defvalue) const;
+        std::string LoadConfiguration(IRCBridgeConfigurationStringValues index, char const* fieldname, std::string defvalue) const;
+        void SetConfiguration(IRCBridgeConfigurationUintValues index, uint32 value) { _configurationUintValues[index] = value; }
+        void SetConfiguration(IRCBridgeConfigurationStringValues index, std::string value) { _configurationStringValues[index] = value; }
+
+        uint32 _configurationUintValues[CONFIGURATION_IRCBRIDGE_UINT_COUNT];
+        std::string _configurationStringValues[CONFIGURATION_IRCBRIDGE_STRING_COUNT];
+
+        bool _active;
+        bool _connected;
+};
+
+#define sIRCBridge IRCBridge::instance()
 
 #endif // TRINITY_IRCBRIDGE_H

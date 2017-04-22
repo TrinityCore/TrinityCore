@@ -3984,3 +3984,76 @@ Metric.OverallStatusInterval = 1
 
 #
 ###################################################################################################
+
+###################################################################################################
+# IRCBRIDGE SETTINGS
+#
+#    IRCBridge.Active
+#        Description: Enable/Disable IRCBridge
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+IRCBridge.Active = 0
+
+#    IRCBridge.Host
+#        Description: IRC hostname
+#        Default:     ""
+
+IRCBridge.Host = ""
+
+#    IRCBridge.Port
+#        Description: IRC port
+#        Default:     6667
+
+IRCBridge.Port = 6667
+
+#    IRCBridge.Username
+#    IRCBridge.Nickname
+#    IRCBridge.Password
+#        Description: IRC username, nickname & password
+#        Default:     "IRCBridge" (User)
+#                     "IRCBridge" (Nick)
+#                     ""          (Pass)
+
+IRCBridge.Username = "IRCBridge"
+IRCBridge.Nickname = "IRCBridge"
+IRCBridge.Password = ""
+
+#    IRCBridge.Authentication.Method
+#        Description: IRC authentication method
+#        Default:     0 - (Disabled)
+#                     1 - (NickServ - normal method - PRIVMSG NickServ :IDENTIFY Password)
+#                     2 - (NickServ - alternate method to identify to a different nick - PRIVMSG NickServ :IDENTIFY IRCBridge.Authentication.Nickname Password)
+#                     3 - (QuakeNet - normal method - PRIVMSG Q@CServe.quakenet.org :AUTH IRCBridge.Nickname Password)
+#                     4 - (QuakeNet - alternate method to identify to a different nick - PRIVMSG Q@CServe.quakenet.org :AUTH IRCBridge.Authentication.Nickname Password)
+
+IRCBridge.Authentication.Method = 0
+
+#    IRCBridge.Authentication.Nickname
+#        Description: IRC nickname to use for authentication method 2 & 4
+#        Default:     "NickServ"
+
+IRCBridge.Authentication.Nickname = "NickServ"
+
+#    IRCBridge.Connection.Code
+#        Description: IRC connection code
+#        Default:     001 - (Welcome to network msg)
+#                     375 - (Beginning of MOTD)
+#                     376 - (End of MOTD)
+
+IRCBridge.Connection.Code = 001
+
+#    IRCBridge.Connection.Wait
+#        Description: Time to wait before (re)attemptimg connection to IRC server
+#        Default:     10000 - (10 Seconds)
+
+IRCBridge.Connection.Wait = 10000
+
+#    IRCBridge.Connection.Attempts
+#        Description: Max attempts to connect to IRC server
+#        Default:     20
+
+IRCBridge.Connection.Attempts = 20
+
+#
+###################################################################################################
