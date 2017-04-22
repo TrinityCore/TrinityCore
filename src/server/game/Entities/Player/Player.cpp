@@ -21395,13 +21395,14 @@ void Player::_SaveSpells(CharacterDatabaseTransaction& trans)
         if (itr->second->state == PLAYERSPELL_REMOVED)
         {
             delete itr->second;
-            m_spells.erase(itr++);
+            itr = m_spells.erase(itr);
+            continue;
         }
-        else
-        {
+
+        if (itr->second->state != PLAYERSPELL_TEMPORARY)
             itr->second->state = PLAYERSPELL_UNCHANGED;
-            ++itr;
-        }
+
+        ++itr;
     }
 }
 
