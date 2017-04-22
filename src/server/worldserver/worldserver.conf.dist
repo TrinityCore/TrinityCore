@@ -3843,6 +3843,7 @@ Logger.scripts.hotswap=3,Console Server
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
 Logger.mmaps=3,Server
+Logger.IRCBridge=3,Server
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server
