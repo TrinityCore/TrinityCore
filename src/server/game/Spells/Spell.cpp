@@ -3299,9 +3299,6 @@ void Spell::_cast(bool skipCheck)
 
     SetExecutedCurrently(false);
 
-    if (Creature* creatureCaster = m_caster->ToCreature())
-        creatureCaster->ReleaseFocus(this);
-
     if (!m_originalCaster)
         return;
 
@@ -4460,7 +4457,16 @@ void Spell::SendChannelStart(uint32 duration)
 
     m_timer = duration;
     for (TargetInfo const& target : m_UniqueTargetInfo)
+    {
         m_caster->AddChannelObject(target.targetGUID);
+
+        if (m_UniqueTargetInfo.size() == 1 && m_UniqueGOTargetInfo.empty())
+        {
+            if (Creature* creatureCaster = m_caster->ToCreature())
+                if (!creatureCaster->IsFocusing(this))
+                    creatureCaster->FocusTarget(this, ObjectAccessor::GetWorldObject(*creatureCaster, target.targetGUID));
+        }
+    }
 
     for (GOTargetInfo const& target : m_UniqueGOTargetInfo)
         m_caster->AddChannelObject(target.targetGUID);
