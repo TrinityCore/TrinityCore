@@ -1,0 +1,1 @@
+#include "IRCBridgeCommand.h"
