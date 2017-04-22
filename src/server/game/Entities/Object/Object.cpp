@@ -1956,6 +1956,8 @@ void WorldObject::SetZoneScript()
         {
             if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
                 m_zoneScript = bf;
+            else if (LocationScript* locationScript = sObjectMgr->GetLocationScript(GetZoneId()))
+                m_zoneScript = locationScript;
             else
                 m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
         }

@@ -9496,6 +9496,13 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4882) << uint32(0);              // 10 WORLD_STATE_HOR_WAVE_COUNT
             }
             break;
+        case 85:    // Tirisfal Glades
+        case 1497:  // Undercity
+        {
+            if (LocationScript* location = sObjectMgr->GetLocationScript(85))
+                location->FillInitialWorldStates(data);
+            break;
+        }
         // Wintergrasp
         case 4197:
             if (bf && bf->GetTypeId() == BATTLEFIELD_WG)
