@@ -133,17 +133,16 @@ public:
         }
 
         // Dump camera locations
-        std::unordered_map<uint32, FlyByCameraCollection>::const_iterator itr = sFlyByCameraStore.find(cineSeq->Camera[0]);
-        if (itr != sFlyByCameraStore.end())
+        if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(cineSeq->Camera[0]))
         {
             handler->PSendSysMessage("Waypoints for sequence %u, camera %u", id, cineSeq->Camera[0]);
             uint32 count = 1;
-            for (FlyByCamera cam : itr->second)
+            for (FlyByCamera const& cam : *flyByCameras)
             {
                 handler->PSendSysMessage("%02u - %7ums [%f, %f, %f] Facing %f (%f degrees)", count, cam.timeStamp, cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w, cam.locations.w * (180 / M_PI));
                 count++;
             }
-            handler->PSendSysMessage("%u waypoints dumped", itr->second.size());
+            handler->PSendSysMessage(SZFMTD " waypoints dumped", flyByCameras->size());
         }
 
         handler->GetSession()->GetPlayer()->SendCinematicStart(id);

@@ -22,7 +22,7 @@
 #include "PacketUtilities.h"
 #include "AchievementPackets.h"
 
-#define MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE 35
+#define MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE 40
 
 struct ScenarioPOI;
 

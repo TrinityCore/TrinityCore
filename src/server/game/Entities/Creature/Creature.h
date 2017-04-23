@@ -415,7 +415,7 @@ struct TC_GAME_API CreatureTemplate
             case DIFFICULTY_HEROIC_RAID:
                 return 0;
             case DIFFICULTY_10_HC:
-            case DIFFICULTY_CHALLENGE:
+            case DIFFICULTY_MYTHIC_KEYSTONE:
             case DIFFICULTY_MYTHIC_RAID:
                 return 1;
             case DIFFICULTY_25_HC:
@@ -672,6 +672,7 @@ struct TrainerSpell
     uint32 ReqSkillRank;
     uint32 ReqLevel;
     uint32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
+    uint32 Index;
 
     // helpers
     bool IsCastable() const { return ReqAbility[0] != SpellID; }

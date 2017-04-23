@@ -65,7 +65,7 @@ WorldPacket const* WorldPackets::Artifact::ArtifactRespecConfirm::Write()
 WorldPacket const* WorldPackets::Artifact::ArtifactXpGain::Write()
 {
     _worldPacket << ArtifactGUID;
-    _worldPacket << int32(Amount);
+    _worldPacket << uint64(Amount);
 
     return &_worldPacket;
 }

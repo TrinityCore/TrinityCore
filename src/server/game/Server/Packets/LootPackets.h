@@ -71,7 +71,6 @@ namespace WorldPackets
             uint32 Coins         = 0;
             std::vector<LootItemData> Items;
             std::vector<LootCurrency> Currencies;
-            bool PersonalLooting = false;
             bool Acquired        = false;
             bool AELooting       = false;
         };
@@ -183,6 +182,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Owner;
+            ObjectGuid LootObj;
             Optional<ObjectGuid> Master;
             Optional<ObjectGuid> RoundRobinWinner;
         };

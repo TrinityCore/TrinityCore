@@ -1,2 +1,0 @@
---
-UPDATE `quest_offer_reward` SET `RewardText`="Do not distress the bewilderment shown by those you have helped. It is common for those recently brought back to the world of the living to experience disorientation, but imagine the shock of meeting with a strange being at the same time.$B$BThe young shaman is blessed to have survived such a harsh lesson thanks to you, and it is befitting you be allowed to call upon this power as you see fit." WHERE `ID`=9600;

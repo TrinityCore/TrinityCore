@@ -1734,7 +1734,8 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
                     return;
 
                 Unit* caster = GetCaster();
-                if (Unit* channelTarget = ObjectAccessor::GetUnit(*caster, caster->GetChannelObjectGuid()))
+                DynamicFieldStructuredView<ObjectGuid> channelObjects = caster->GetChannelObjects();
+                if (Unit* channelTarget = (channelObjects.size() == 1 ? ObjectAccessor::GetUnit(*caster, *channelObjects.begin()) : nullptr))
                 {
                     unitList.remove_if(TwilightCutterSelector(caster, channelTarget));
                     return;
