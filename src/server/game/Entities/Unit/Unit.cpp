@@ -15017,14 +15017,14 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
-void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
+void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration)
 {
     ObjectGuid guid = GetGUID();
 
     WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
-    data << uint32(0);
+    data << uint32(duration);
     data << uint32(id);     // SpellVisualKit.dbc index
-    data << uint32(unkParam);
+    data << uint32(type);
     data.WriteBit(guid[4]);
     data.WriteBit(guid[7]);
     data.WriteBit(guid[5]);
