@@ -10,7 +10,7 @@ class FrostDKStrategyActionNodeFactory : public NamedObjectFactory<ActionNode>
 public:
 	FrostDKStrategyActionNodeFactory()
 	{
-		creators["icy touch"] = &icy_touch;
+		//creators["icy touch"] = &icy_touch;
 		creators["obliterate"] = &obliterate;
 		creators["howling blast"] = &howling_blast;
 		creators["frost strike"] = &frost_strike;
@@ -30,13 +30,8 @@ public:
 	}
 
 	private:
-		static ActionNode* icy_touch(PlayerbotAI* ai)
-		{
-			return new ActionNode("icy touch",
-				/*P*/ NextAction::array(0, new NextAction("blood presence"), NULL),
-				/*A*/ NextAction::array(0, new NextAction("howling blast"), NULL),
-				/*C*/ NULL);
-		}
+		
+		
 		static ActionNode* obliterate(PlayerbotAI* ai)
 		{
 		return new ActionNode("obliterate",
@@ -75,7 +70,8 @@ public:
 
 	NextAction** FrostDKStrategy::getDefaultActions()
 	{
-    return NextAction::array(0, new NextAction("frost strike", 7.0f), NULL);
+    return NextAction::array(0, new NextAction("frost strike", 7.0f),
+		new NextAction("obliterate", 7.0f), NULL);
 	}
 
 void FrostDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
