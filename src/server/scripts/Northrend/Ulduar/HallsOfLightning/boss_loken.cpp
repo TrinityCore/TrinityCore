@@ -161,7 +161,6 @@ public:
                         break;
                     case EVENT_RESUME_PULSING_SHOCKWAVE:
                         DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
-                        me->ClearUnitState(UNIT_STATE_CASTING); // This flag breaks movement.
                         DoCast(me, SPELL_PULSING_SHOCKWAVE, true);
                         break;
                     case EVENT_INTRO_DIALOGUE:

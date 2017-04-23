@@ -1675,7 +1675,7 @@ bool SpellInfo::IsChanneled() const
 
 bool SpellInfo::IsMoveAllowedChannel() const
 {
-    return IsChanneled() && HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING);
+    return IsChanneled() && (HasAttribute(SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING) || (!(ChannelInterruptFlags[0] & (AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING))));
 }
 
 bool SpellInfo::NeedsComboPoints() const

@@ -1304,7 +1304,6 @@ class npc_mimiron_assault_bot : public CreatureScript
                     {
                         case EVENT_MAGNETIC_FIELD:
                             DoCastVictim(SPELL_MAGNETIC_FIELD);
-                            me->ClearUnitState(UNIT_STATE_CASTING);
                             events.RescheduleEvent(EVENT_MAGNETIC_FIELD, 30000);
                             break;
                         default:
