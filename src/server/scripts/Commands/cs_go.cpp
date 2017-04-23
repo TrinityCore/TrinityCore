@@ -166,11 +166,11 @@ public:
         if (!*args)
             return false;
 
-        char* gyId = strtok((char*)args, " ");
-        if (!gyId)
+        char* wslId = strtok((char*)args, " ");
+        if (!wslId)
             return false;
 
-        uint32 worldSafeLocationId = atoul(gyId);
+        uint32 worldSafeLocationId = atoul(wslId);
 
         if (!worldSafeLocationId)
             return false;
