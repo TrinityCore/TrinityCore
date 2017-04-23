@@ -60,7 +60,7 @@ void IRCBridge::Stop()
 }
 
 template<ConfigurationType T, typename N>
-N IRCBridge::LoadConfiguration(char const* fieldname, N defvalue) const
+N IRCBridge::LoadConfiguration(char const* /*fieldname*/, N /*defvalue*/) const
 {
     return N();
 }
