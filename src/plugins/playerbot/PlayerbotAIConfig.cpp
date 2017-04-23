@@ -109,7 +109,6 @@ bool PlayerbotAIConfig::Initialize()
     fleeingEnabled = config.GetBoolDefault("AiPlayerbot.FleeingEnabled", true);
     randomBotMinLevel = config.GetIntDefault("AiPlayerbot.RandomBotMinLevel", 1);
     randomBotMaxLevel = config.GetIntDefault("AiPlayerbot.RandomBotMaxLevel", 255);
-	randomBotBracketPlayer = config.GetBoolDefault("AIPlayerbot.RandomBotBracketPlayer", true);
     randomBotLoginAtStartup = config.GetBoolDefault("AiPlayerbot.RandomBotLoginAtStartup", true);
     randomBotTeleLevel = config.GetIntDefault("AiPlayerbot.RandomBotTeleLevel", 3);
 	randomBotInitQuest = config.GetBoolDefault("AiPlayerbot.randomBotInitQuest", true);
