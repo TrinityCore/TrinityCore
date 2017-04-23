@@ -1678,8 +1678,8 @@ uint32 Unit::CalcSpellResistedDamage(Unit* victim, uint32 damage, SpellSchoolMas
         if (spellInfo->HasAttribute(SPELL_ATTR4_IGNORE_RESISTANCES))
             return 0;
 
-        // Binary spells can't have damage part resisted
-        if (spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
+        // Damage dealt by binary spells cast by players cannot be partially resisted
+        if (GetTypeId() == TYPEID_PLAYER && spellInfo->HasAttribute(SPELL_ATTR0_CU_BINARY_SPELL))
             return 0;
     }
 
