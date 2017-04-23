@@ -244,13 +244,13 @@ enum QuestObjectiveType
 
 enum QuestObjectiveFlags
 {
-    QUEST_OBJECTIVE_FLAGS_UNK1 = 1,
-    QUEST_OBJECTIVE_FLAGS_UNK2 = 2,
-    QUEST_OBJECTIVE_FLAGS_UNK4 = 4,
-    QUEST_OBJECTIVE_FLAGS_UNK8 = 8,
-    QUEST_OBJECTIVE_FLAGS_UNK16 = 16,
-    QUEST_OBJECTIVE_FLAGS_UNK32 = 32,
-    QUEST_OBJECTIVE_FLAGS_UNK64 = 64,	   // Related to QUEST_OBJECTIVE_PROGRESS_BAR, subObjective
+    QUEST_OBJECTIVE_FLAGS_UNK1                          = 1,
+    QUEST_OBJECTIVE_FLAGS_UNK2                          = 2,
+    QUEST_OBJECTIVE_FLAGS_UNK4                          = 4,
+    QUEST_OBJECTIVE_FLAGS_UNK8                          = 8,
+    QUEST_OBJECTIVE_FLAGS_UNK16                         = 16,
+    QUEST_OBJECTIVE_FLAGS_UNK32                         = 32,
+    QUEST_OBJECTIVE_FLAGS_CONTRIBUTE_TO_PROGRESS_BAR    = 64,	   // Related to QUEST_OBJECTIVE_PROGRESS_BAR, subObjective
 };
 
 struct QuestTemplateLocale
