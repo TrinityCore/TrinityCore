@@ -24,7 +24,6 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <thread>
-#include <functional>
 
 enum ConfigurationType
 {
@@ -51,8 +50,6 @@ enum IRCBridgeConfigurationStringValues
     CONFIGURATION_IRCBRIDGE_AUTHENTICATION_NICKNAME,
     CONFIGURATION_IRCBRIDGE_STRING_COUNT
 };
-
-void IRCBridgeThread();
 
 class IRCBridgeSocket : public Socket<IRCBridgeSocket>
 {

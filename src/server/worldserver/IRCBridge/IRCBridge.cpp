@@ -8,11 +8,6 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <thread>
 
-void IRCBridgeThread()
-{
-    sIRCBridge->Run();
-}
-
 IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr), _active(false), _connected(false)
 {
 }
@@ -30,7 +25,7 @@ void IRCBridge::Initialize(boost::asio::io_service * service)
 
     _ioService = service;
     _strand = new boost::asio::strand(*_ioService);
-    _thread = std::thread(IRCBridgeThread);
+    _thread = std::thread(std::bind(&IRCBridge::Run, this));
 }
 
 void IRCBridge::Run()
@@ -62,6 +57,12 @@ void IRCBridge::Stop()
     _active = false;
 
     _socket->CloseSocket();
+}
+
+template<ConfigurationType T, typename N>
+N IRCBridge::LoadConfiguration(char const* fieldname, N defvalue) const
+{
+    return N();
 }
 
 template<>
