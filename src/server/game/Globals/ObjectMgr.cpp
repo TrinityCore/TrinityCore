@@ -2254,7 +2254,7 @@ void ObjectMgr::LoadItemLocales()
         std::string Name        = fields[2].GetString();
         std::string Description = fields[3].GetString();
 
-        ItemLocale& data        = _itemLocaleStore[entry];
+        ItemLocale& data        = _itemLocaleStore[id];
         LocaleConstant locale   = GetLocaleByName(localeName);
 
         AddLocaleString(Name, locale, data.Name);
