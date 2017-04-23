@@ -17,6 +17,9 @@ AiPlayerbot.RandomBotJoinBG = 1
 # Enable LFG for random bots (buggy, use it only if you not playing in party)
 AiPlayerbot.RandomBotJoinLfg = 0
 
+# Randombots level based on player characters level
+AIPlayerbot.RandomBotBracketPlayer = 0
+
 # Server won't randomize randombots inventory
 AiPlayerbot.NotSoRandom = 0
 
