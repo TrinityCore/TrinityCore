@@ -1,8 +1,9 @@
 #include "Config.h"
 #include "Log.h"
 #include "World.h"
-#include "AsyncAcceptor.h"
 #include "IRCBridge.h"
+
+#include <boost\asio.hpp>
 
 IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _active(false), _connected(false)
 {

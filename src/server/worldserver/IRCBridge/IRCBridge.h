@@ -21,6 +21,12 @@
 #include "Common.h"
 #include "Socket.h"
 
+enum ConfigurationType
+{
+    CONFIGURATIONTYPE_UINT,
+    CONFIGURATIONTYPE_STRING
+};
+
 enum IRCBridgeConfigurationUintValues
 {
     CONFIGURATION_IRCBRIDGE_PORT,
@@ -83,11 +89,6 @@ class IRCBridge
         void StartNetwork(boost::asio::io_service& service, std::string const& bindIp, std::string const& port);
         void OnConnect(tcp::socket&& socket);
 
-        enum ConfigurationType
-        {
-            CONFIGURATIONTYPE_UINT,
-            CONFIGURATIONTYPE_STRING
-        };
         template<ConfigurationType T, typename N>
         N LoadConfiguration(char const* fieldname, N defvalue) const;
 
