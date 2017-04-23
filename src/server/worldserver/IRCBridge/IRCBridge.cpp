@@ -3,7 +3,7 @@
 #include "World.h"
 #include "IRCBridge.h"
 
-#include <boost\asio.hpp>
+#include <boost\asio\connect.hpp>
 
 IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _active(false), _connected(false)
 {
