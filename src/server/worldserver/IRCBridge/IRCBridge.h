@@ -19,8 +19,7 @@
 #define TRINITY_IRCBRIDGE_H
 
 #include "Common.h"
-
-#include <boost/asio/ip/tcp.hpp>
+#include "Socket.h"
 
 enum IRCBridgeConfigurationUintValues
 {
@@ -42,14 +41,20 @@ enum IRCBridgeConfigurationStringValues
     CONFIGURATION_IRCBRIDGE_STRING_COUNT
 };
 
-class IRCBridgeConnectionHandler
+class IRCBridgeSocket : public Socket<IRCBridgeSocket>
 {
-public:
-    void Connect();
-    void Disconnect();
+    public:
+        IRCBridgeSocket(tcp::socket&& socket);
+        ~IRCBridgeSocket();
 
-private:
-    boost::asio::ip::tcp::socket _socket;
+        void Start() override;
+        bool Update() override;
+        void OnClose() override;
+        void ReadHandler() override;
+
+        void Send(MessageBuffer message);
+    private:
+
 };
 
 class IRCBridge
@@ -64,7 +69,7 @@ class IRCBridge
             return &instance;
         }
 
-        void Run();
+        void Run(boost::asio::io_service* service);
         void Stop();
 
         bool IsActive() const { return _active; }
@@ -75,13 +80,26 @@ class IRCBridge
         std::string GetConfiguration(IRCBridgeConfigurationStringValues index) const { return _configurationStringValues[index]; }
 
     private:
-        uint32 LoadConfiguration(IRCBridgeConfigurationUintValues index, char const* fieldname, uint32 defvalue) const;
-        std::string LoadConfiguration(IRCBridgeConfigurationStringValues index, char const* fieldname, std::string defvalue) const;
+        void StartNetwork(boost::asio::io_service& service, std::string const& bindIp, std::string const& port);
+        void OnConnect(tcp::socket&& socket);
+
+        enum ConfigurationType
+        {
+            CONFIGURATIONTYPE_UINT,
+            CONFIGURATIONTYPE_STRING
+        };
+        template<ConfigurationType T, typename N>
+        N LoadConfiguration(char const* fieldname, N defvalue) const;
+
         void SetConfiguration(IRCBridgeConfigurationUintValues index, uint32 value) { _configurationUintValues[index] = value; }
         void SetConfiguration(IRCBridgeConfigurationStringValues index, std::string value) { _configurationStringValues[index] = value; }
 
         uint32 _configurationUintValues[CONFIGURATION_IRCBRIDGE_UINT_COUNT];
         std::string _configurationStringValues[CONFIGURATION_IRCBRIDGE_STRING_COUNT];
+
+        boost::asio::io_service* _ioService;
+        boost::asio::strand* _strand;
+        IRCBridgeSocket* _socket;
 
         bool _active;
         bool _connected;
