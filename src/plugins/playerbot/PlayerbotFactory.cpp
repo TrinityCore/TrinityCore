@@ -1136,7 +1136,9 @@ void PlayerbotFactory::InitSpecialSpells()
     }
 	//to leave DK starting area 
 	if (bot->getClass() == CLASS_DEATH_KNIGHT)
+	{
 		bot->LearnSpell(50977, false);
+	}
 
 	//Mounts
 	if (bot->getLevel() > 20 && bot->GetTeamId()==TeamId::TEAM_ALLIANCE)

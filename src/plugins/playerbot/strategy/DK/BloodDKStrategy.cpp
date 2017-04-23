@@ -11,14 +11,14 @@ public:
     BloodDKStrategyActionNodeFactory()
     {
         //creators["melee"] = &melee;
-		creators["blood strike"] = &blood_strike;
+		//creators["blood strike"] = &blood_strike;
 		creators["rune strike"] = &rune_strike;
 		creators["heart strike"] = &heart_strike;
 		creators["death strike"] = &death_strike;
-		creators["death grip"] = &death_grip;
-		creators["plague strike"] = &plague_strike;
-		creators["pestilence"] = &pestilence;
-		creators["icy touch"] = &icy_touch;
+		//creators["death grip"] = &death_grip;
+		//creators["plague strike"] = &plague_strike;
+		//creators["pestilence"] = &pestilence;
+		//creators["icy touch"] = &icy_touch;
 		//creators["obliterate"] = &obliterate;
 		//creators["blood boil"] = &blood_boil;
 		//creators["mark of_blood"] = &mark_of_blood;
@@ -32,13 +32,6 @@ public:
 		//creators["dark command"] = &dark_command;
     }
 private:
-	static ActionNode* death_grip(PlayerbotAI* ai)
-	{
-		return new ActionNode("death grip",
-			/*P*/ NextAction::array(0, new NextAction("frost presence"), NULL),
-			/*A*/ NextAction::array(0, new NextAction("icy touch"), NULL),
-			/*C*/ NULL);
-	}
 	static ActionNode* rune_strike(PlayerbotAI* ai)
 	{
 		return new ActionNode("rune strike",
@@ -53,34 +46,6 @@ private:
             /*A*/ NextAction::array(0, new NextAction("death strike"), NULL),
             /*C*/ NULL);
 	}
-	static ActionNode* plague_strike(PlayerbotAI* ai)
-	{
-		return new ActionNode("plague strike",
-			/*P*/ NextAction::array(0, new NextAction("frost presence"), NULL),
-			/*A*/ NULL,
-			/*C*/ NULL);
-	}
-	static ActionNode* icy_touch(PlayerbotAI* ai)
-	{
-		return new ActionNode("icy touch",
-			/*P*/ NextAction::array(0, new NextAction("frost presence"), NULL),
-			/*A*/ NULL,
-			/*C*/ NULL);
-    }
-	static ActionNode* blood_strike(PlayerbotAI* ai)
-    {
-        return new ActionNode ("blood strike",
-            /*P*/ NextAction::array(0, new NextAction("frost presence"), NULL),
-            /*A*/ NextAction::array(0, new NextAction("death strike"), NULL),
-            /*C*/ NULL);
-    }
-	static ActionNode* pestilence(PlayerbotAI* ai)
-    {
-        return new ActionNode ("pestilence",
-            /*P*/ NextAction::array(0, new NextAction("frost presence"), NULL),
-            /*A*/ NULL,
-            /*C*/ NULL);
-    }
 	static ActionNode* death_strike(PlayerbotAI* ai)
 	{
 		return new ActionNode("death strike",
@@ -107,24 +72,6 @@ void BloodDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 {
     GenericDKStrategy::InitTriggers(triggers);
 
-	triggers.push_back(new TriggerNode(
-		"enemy out of melee",
-		NextAction::array(0, new NextAction("icy touch", ACTION_NORMAL + 9),
-			new NextAction("death grip", ACTION_NORMAL + 9),
-			new NextAction("reach melee", ACTION_NORMAL + 8), NULL)));
-	
-triggers.push_back(new TriggerNode(
-		"low health",
-		NextAction::array(0, 
-			new NextAction("blood tap", ACTION_HIGH + 5),
-			new NextAction("vampiric blood", ACTION_HIGH + 3), 
-			new NextAction("death strike", ACTION_HIGH + 4), NULL)));
-
-triggers.push_back(new TriggerNode(
-	"medium health",
-	NextAction::array(0, new NextAction("rune tap", ACTION_NORMAL + 4),
-		new NextAction("death strike", ACTION_NORMAL + 3), NULL)));
-
 triggers.push_back(new TriggerNode(
 	"rune strike",
 	NextAction::array(0, new NextAction("rune strike", ACTION_NORMAL + 2), NULL)));
@@ -138,21 +85,6 @@ triggers.push_back(new TriggerNode(
 	"lose aggro",
 	NextAction::array(0, new NextAction("dark command", ACTION_HIGH + 3), NULL)));
 
-triggers.push_back(new TriggerNode(
-	"icy touch on attacker",
-	NextAction::array(0, new NextAction("icy touch", ACTION_HIGH + 1), NULL)));
-
-triggers.push_back(new TriggerNode(
-	"icy touch",
-	NextAction::array(0, new NextAction("icy touch", ACTION_HIGH + 1), NULL)));
-
-triggers.push_back(new TriggerNode(
-	"plague strike",
-	NextAction::array(0, new NextAction("plague strike", ACTION_HIGH + 1), NULL)));
-
-triggers.push_back(new TriggerNode(
-	"plague strike on attacker",
-	NextAction::array(0, new NextAction("plague strike", ACTION_HIGH + 1), NULL)));
 
 	triggers.push_back(new TriggerNode(
 		"high aoe",

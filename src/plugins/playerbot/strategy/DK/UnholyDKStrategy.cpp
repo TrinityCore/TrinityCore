@@ -12,9 +12,9 @@ public:
 	{
 		// Unholy
 		//creators["bone shield"] = &bone_shield;
-		creators["plague strike"] = &plague_strike;
-		creators["death grip"] = &death_grip;
-		creators["death coil"] = &death_coil;
+		//creators["plague strike"] = &plague_strike;
+		//creators["death grip"] = &death_grip;
+		//creators["death coil"] = &death_coil;
 		creators["death strike"] = &death_strike;
 		creators["unholy blight"] = &unholy_blight;
 		creators["scourge strike"] = &scourge_strike;
@@ -29,20 +29,8 @@ public:
 		//creators["corpse explosion"] = &corpse_explosion;
 	}
 private:
-	static ActionNode* plague_strike(PlayerbotAI* ai)
-	{
-		return new ActionNode("plague strike",
-			/*P*/ NextAction::array(0, new NextAction("unholy pressence"), NULL),
-			/*A*/ NextAction::array(0, new NextAction("melee"), NULL),
-			/*C*/ NULL);
-	}
-	static ActionNode* death_coil(PlayerbotAI* ai)
-	{
-		return new ActionNode("death coil",
-			/*P*/ NextAction::array(0, new NextAction("unholy pressence"), NULL),
-			/*A*/ NextAction::array(0, new NextAction("death strike"), NULL),
-			/*C*/ NULL);
-	}
+	
+	
 	static ActionNode* death_strike(PlayerbotAI* ai)
 	{
 		return new ActionNode("death strike",
@@ -53,13 +41,6 @@ private:
 	static ActionNode* unholy_blight(PlayerbotAI* ai)
 	{
 		return new ActionNode("unholy blight",
-			/*P*/ NextAction::array(0, new NextAction("unholy pressence"), NULL),
-			/*A*/ NULL,
-			/*C*/ NULL);
-	}
-	static ActionNode* death_grip(PlayerbotAI* ai)
-	{
-		return new ActionNode("death grip",
 			/*P*/ NextAction::array(0, new NextAction("unholy pressence"), NULL),
 			/*A*/ NULL,
 			/*C*/ NULL);
