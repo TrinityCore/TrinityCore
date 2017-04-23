@@ -21,6 +21,11 @@
 #include "Common.h"
 #include "Socket.h"
 
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <thread>
+#include <functional>
+
 enum ConfigurationType
 {
     CONFIGURATIONTYPE_UINT,
@@ -46,6 +51,8 @@ enum IRCBridgeConfigurationStringValues
     CONFIGURATION_IRCBRIDGE_AUTHENTICATION_NICKNAME,
     CONFIGURATION_IRCBRIDGE_STRING_COUNT
 };
+
+void IRCBridgeThread();
 
 class IRCBridgeSocket : public Socket<IRCBridgeSocket>
 {
@@ -95,8 +102,6 @@ class IRCBridge
 
         template<ConfigurationType T, typename N>
         N LoadConfiguration(char const* fieldname, N defvalue) const;
-        template<> uint32 LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>(char const* fieldname, uint32 defvalue) const;
-        template<> std::string LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>(char const* fieldname, std::string defvalue) const;
 
         void SetConfiguration(IRCBridgeConfigurationUintValues index, uint32 value) { _configurationUintValues[index] = value; }
         void SetConfiguration(IRCBridgeConfigurationStringValues index, std::string value) { _configurationStringValues[index] = value; }
@@ -106,7 +111,7 @@ class IRCBridge
 
         boost::asio::io_service* _ioService;
         boost::asio::strand* _strand;
-        IRCBridgeSocket* _socket;
+        std::shared_ptr<IRCBridgeSocket> _socket;
         std::thread _thread;
 
         bool _active;
