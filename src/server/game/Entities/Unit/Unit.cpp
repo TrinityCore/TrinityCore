@@ -13842,13 +13842,13 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
-void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type)
+void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration)
 {
     WorldPackets::Spells::PlaySpellVisualKit playSpellVisualKit;
     playSpellVisualKit.Unit = GetGUID();
     playSpellVisualKit.KitRecID = id;
     playSpellVisualKit.KitType = type;
-    playSpellVisualKit.Duration = 0;
+    playSpellVisualKit.Duration = duration;
     SendMessageToSet(playSpellVisualKit.Write(), true);
 }
 
