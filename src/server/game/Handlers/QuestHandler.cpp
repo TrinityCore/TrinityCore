@@ -318,13 +318,11 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
                     if (!sScriptMgr->OnQuestReward(_player, questgiver, quest, reward))
                         questgiver->AI()->sQuestReward(_player, quest, reward);
-
                     break;
                 }
                 case TYPEID_GAMEOBJECT:
                 {
                     GameObject* questGiver = object->ToGameObject();
-
                     // Send next quest
                     if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                     {
@@ -340,7 +338,6 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
                     if (!sScriptMgr->OnQuestReward(_player, questGiver, quest, reward))
                         questGiver->AI()->QuestReward(_player, quest, reward);
-
                     break;
                 }
                 default:
