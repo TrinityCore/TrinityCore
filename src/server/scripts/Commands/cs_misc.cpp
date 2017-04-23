@@ -1055,7 +1055,7 @@ public:
         if (!px)
             return false;
 
-        uint32 graveyardId = uint32(atoi(px));
+        uint32 worldSafeLocationId = uint32(atoi(px));
 
         uint32 team;
 
@@ -1070,11 +1070,11 @@ public:
         else
             return false;
 
-        WorldSafeLocsEntry const* graveyard = sWorldSafeLocsStore.LookupEntry(graveyardId);
+        WorldSafeLocsEntry const* worldSafeLocation = sWorldSafeLocsStore.LookupEntry(worldSafeLocationId);
 
-        if (!graveyard)
+        if (!worldSafeLocation)
         {
-            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNOEXIST, graveyardId);
+            handler->PSendSysMessage(LANG_COMMAND_WORLDSAFELOCNOEXIST, worldSafeLocationId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -1086,15 +1086,15 @@ public:
         AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(zoneId);
         if (!areaEntry || areaEntry->ParentAreaID !=0)
         {
-            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDWRONGZONE, graveyardId, zoneId);
+            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDWRONGZONE, worldSafeLocationId, zoneId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (sObjectMgr->AddGraveYardLink(graveyardId, zoneId, team))
-            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDLINKED, graveyardId, zoneId);
+        if (sObjectMgr->AddGraveYardLink(worldSafeLocationId, zoneId, team))
+            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDLINKED, worldSafeLocationId, zoneId);
         else
-            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDALRLINKED, graveyardId, zoneId);
+            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDALRLINKED, worldSafeLocationId, zoneId);
 
         return true;
     }
@@ -1117,15 +1117,15 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zone_id = player->GetZoneId();
 
-        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team);
-        if (graveyard)
+        WorldSafeLocsEntry const* worldSafeLocation = sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team);
+        if (worldSafeLocation)
         {
-            uint32 graveyardId = graveyard->ID;
+            uint32 worldSafeLocationId = worldSafeLocation->ID;
 
-            GraveYardData const* data = sObjectMgr->FindGraveYardData(graveyardId, zone_id);
+            GraveYardData const* data = sObjectMgr->FindGraveYardData(worldSafeLocationId, zone_id);
             if (!data)
             {
-                handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDERROR, graveyardId);
+                handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDERROR, worldSafeLocationId);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -1141,7 +1141,7 @@ public:
             else if (team == ALLIANCE)
                 team_name = handler->GetTrinityString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
 
-            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNEAREST, graveyardId, team_name.c_str(), zone_id);
+            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNEAREST, worldSafeLocationId, team_name.c_str(), zone_id);
         }
         else
         {

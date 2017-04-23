@@ -41,7 +41,7 @@ public:
         static std::vector<ChatCommand> goCommandTable =
         {
             { "creature",           rbac::RBAC_PERM_COMMAND_GO_CREATURE,            false, &HandleGoCreatureCommand,                    "" },
-            { "graveyard",          rbac::RBAC_PERM_COMMAND_GO_GRAVEYARD,           false, &HandleGoGraveyardCommand,                   "" },
+            { "worldsafelocation",  rbac::RBAC_PERM_COMMAND_GO_WORLDSAFELOCATION,   false, &HandleGoWorldSafeLocationCommand,           "" },
             { "grid",               rbac::RBAC_PERM_COMMAND_GO_GRID,                false, &HandleGoGridCommand,                        "" },
             { "object",             rbac::RBAC_PERM_COMMAND_GO_OBJECT,              false, &HandleGoObjectCommand,                      "" },
             { "quest",              rbac::RBAC_PERM_COMMAND_GO_QUEST,               false, &HandleGoQuestCommand,                       "" },
@@ -159,7 +159,7 @@ public:
         return true;
     }
 
-    static bool HandleGoGraveyardCommand(ChatHandler* handler, char const* args)
+    static bool HandleGoWorldSafeLocationCommand(ChatHandler* handler, char const* args)
     {
         Player* player = handler->GetSession()->GetPlayer();
 
@@ -170,22 +170,22 @@ public:
         if (!gyId)
             return false;
 
-        uint32 graveyardId = atoul(gyId);
+        uint32 worldSafeLocationId = atoul(gyId);
 
-        if (!graveyardId)
+        if (!worldSafeLocationId)
             return false;
 
-        WorldSafeLocsEntry const* gy = sWorldSafeLocsStore.LookupEntry(graveyardId);
-        if (!gy)
+        WorldSafeLocsEntry const* worldSafeLocation = sWorldSafeLocsStore.LookupEntry(worldSafeLocationId);
+        if (!worldSafeLocation)
         {
-            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNOEXIST, graveyardId);
-            handler->SetSentErrorMessage(true);
+            handler->PSendSysMessage(LANG_COMMAND_WORLDSAFELOCNOEXIST, worldSafeLocationId);
+            handler->SetSentErrorMessage(true); 
             return false;
         }
 
-        if (!MapManager::IsValidMapCoord(gy->MapID, gy->Loc.X, gy->Loc.Y, gy->Loc.Z))
+        if (!MapManager::IsValidMapCoord(worldSafeLocation->MapID, worldSafeLocation->Loc.X, worldSafeLocation->Loc.Y, worldSafeLocation->Loc.Z))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, gy->Loc.X, gy->Loc.Y, gy->MapID);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, worldSafeLocation->Loc.X, worldSafeLocation->Loc.Y, worldSafeLocation->MapID);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -200,7 +200,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(gy->MapID, gy->Loc.X, gy->Loc.Y, gy->Loc.Z, (gy->Facing * M_PI) / 180); // Orientation is initially in degrees
+        player->TeleportTo(worldSafeLocation->MapID, worldSafeLocation->Loc.X, worldSafeLocation->Loc.Y, worldSafeLocation->Loc.Z, (worldSafeLocation->Facing * M_PI) / 180); // Orientation is initially in degrees
         return true;
     }
 

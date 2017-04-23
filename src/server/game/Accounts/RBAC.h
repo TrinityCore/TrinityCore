@@ -283,7 +283,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GM_VISIBLE                             = 376,
     RBAC_PERM_COMMAND_GO                                     = 377,
     RBAC_PERM_COMMAND_GO_CREATURE                            = 378,
-    RBAC_PERM_COMMAND_GO_GRAVEYARD                           = 379,
+    RBAC_PERM_COMMAND_GO_WORLDSAFELOCATION                   = 379,
     RBAC_PERM_COMMAND_GO_GRID                                = 380,
     RBAC_PERM_COMMAND_GO_OBJECT                              = 381,
     RBAC_PERM_COMMAND_GO_TAXINODE                            = 382,
