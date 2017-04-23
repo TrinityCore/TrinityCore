@@ -3,9 +3,10 @@
 #include "World.h"
 #include "IRCBridge.h"
 
-#include <boost\asio\connect.hpp>
+#include <boost/asio/connect.hpp>
+#include <thread>
 
-IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _active(false), _connected(false)
+IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _thread(nullptr), _active(false), _connected(false)
 {
 }
 
@@ -15,19 +16,45 @@ IRCBridge::~IRCBridge()
     delete _strand;
 }
 
-void IRCBridge::Run(boost::asio::io_service* service)
+void IRCBridge::Initialize(boost::asio::io_service * service)
+{
+    if (_active)
+        return;
+
+    _ioService = service;
+    _strand = new boost::asio::strand(*_ioService);
+    _thread = std::thread(std::bind(&IRCBridge::Run, this));
+}
+
+void IRCBridge::Run()
 {
     if (!LoadConfigurations())
         return;
 
-    _ioService = service;
+    _active = true;
 
-    StartNetwork(*service, GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
+    StartNetwork(*_ioService, GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
+
+    uint32 connectionAttempts = 0;
+    while (_active && !World::IsStopped())
+    {
+        if (_connected)
+        {
+            // Testing
+            if (connectionAttempts == 0)
+            {
+                Login();
+                ++connectionAttempts;
+            }
+        }
+    }
 }
 
 void IRCBridge::Stop()
 {
+    _active = false;
 
+    _socket->CloseSocket();
 }
 
 bool IRCBridge::LoadConfigurations()
@@ -54,6 +81,24 @@ bool IRCBridge::LoadConfigurations()
     SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_ATTEMPTS, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Connection.Attempts", 20));
 
     return true;
+}
+
+void IRCBridge::Send(std::string const message)
+{
+    if (_connected)
+    {
+        MessageBuffer buffer;
+        buffer.Write(message.data(), message.size());
+        _socket->Send(buffer);
+    }
+}
+
+void IRCBridge::Login()
+{
+    Send("HELLO");
+    Send("PASS " + GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD));
+    Send("NICK " + GetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME));
+    Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " " + GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST));
 }
 
 void IRCBridge::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, std::string const& port)
@@ -97,39 +142,40 @@ void IRCBridge::OnConnect(tcp::socket&& socket)
 {
     _socket = new IRCBridgeSocket(std::move(socket));
     _socket->Start();
+
+    _connected = true;
 }
 
 template<ConfigurationType T, typename N>
-N IRCBridge::LoadConfiguration<T, N>(char const * fieldname, N defvalue) const
+N IRCBridge::LoadConfiguration(char const* fieldname, N defvalue) const
 {
-    switch (T)
+    return N();
+}
+
+template<>
+uint32 IRCBridge::LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>(char const* fieldname, uint32 defvalue) const
+{
+    int32 temp = sConfigMgr->GetIntDefault(fieldname, defvalue);
+    if (temp < 0)
     {
-        case CONFIGURATIONTYPE_UINT:
-        {
-            int32 temp = sConfigMgr->GetIntDefault(fieldname, defvalue);
-            if (temp < 0)
-            {
-                TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: %s value (%i) can't be negative, using default value %u instead.", fieldname, temp, defvalue);
-                temp = defvalue;
-            }
-
-            return uint32(temp);
-        }
-        case CONFIGURATIONTYPE_STRING:
-        {
-            std::string temp = sConfigMgr->GetStringDefault(fieldname, defvalue);
-            if (temp.empty())
-            {
-                TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: %s value is empty, using default value %u instead.", fieldname, defvalue);
-                temp = defvalue;
-            }
-
-            return temp;
-        }
-        default:
-            return nullptr;
-            break;
+        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: %s value (%i) can't be negative, using default value %u instead.", fieldname, temp, defvalue);
+        temp = defvalue;
     }
+
+    return uint32(temp);
+}
+
+template<>
+std::string IRCBridge::LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>(char const* fieldname, std::string defvalue) const
+{
+    std::string temp = sConfigMgr->GetStringDefault(fieldname, defvalue);
+    if (temp.empty())
+    {
+        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: %s value is empty, using default value %u instead.", fieldname, defvalue);
+        temp = defvalue;
+    }
+
+    return temp;
 }
 
 IRCBridgeSocket::IRCBridgeSocket(tcp::socket&& socket) : Socket<IRCBridgeSocket>(std::move(socket))
@@ -145,11 +191,6 @@ IRCBridgeSocket::~IRCBridgeSocket()
 void IRCBridgeSocket::Start()
 {
 
-}
-
-bool IRCBridgeSocket::Update()
-{
-    return false;
 }
 
 void IRCBridgeSocket::OnClose()

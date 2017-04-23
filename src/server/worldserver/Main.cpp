@@ -33,6 +33,7 @@
 #include "GitRevision.h"
 #include "InstanceSaveMgr.h"
 #include "IoContext.h"
+#include "IRCBridge.h"
 #include "MapManager.h"
 #include "Metric.h"
 #include "MySQLThreading.h"
@@ -327,11 +328,20 @@ extern int main(int argc, char** argv)
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
 
+    if (sConfigMgr->GetBoolDefault("IRCBridge.Active", false))
+    {
+        TC_LOG_INFO("server.worldserver", "Starting up IRCBridge...");
+        sIRCBridge->Initialize(&_ioService);
+    }
+
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     sScriptMgr->OnStartup();
 
     WorldUpdateLoop();
+
+    if (sIRCBridge->IsActive())
+        sIRCBridge->Stop();
 
     // Shutdown starts here
     threadPool.reset();

@@ -54,7 +54,6 @@ class IRCBridgeSocket : public Socket<IRCBridgeSocket>
         ~IRCBridgeSocket();
 
         void Start() override;
-        bool Update() override;
         void OnClose() override;
         void ReadHandler() override;
 
@@ -75,7 +74,8 @@ class IRCBridge
             return &instance;
         }
 
-        void Run(boost::asio::io_service* service);
+        void Initialize(boost::asio::io_service* service);
+        void Run();
         void Stop();
 
         bool IsActive() const { return _active; }
@@ -85,12 +85,18 @@ class IRCBridge
         uint32 GetConfiguration(IRCBridgeConfigurationUintValues index) const { return _configurationUintValues[index]; }
         std::string GetConfiguration(IRCBridgeConfigurationStringValues index) const { return _configurationStringValues[index]; }
 
+        void Send(std::string const message);
+
+        void Login();
+
     private:
         void StartNetwork(boost::asio::io_service& service, std::string const& bindIp, std::string const& port);
         void OnConnect(tcp::socket&& socket);
 
         template<ConfigurationType T, typename N>
         N LoadConfiguration(char const* fieldname, N defvalue) const;
+        template<> uint32 LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>(char const* fieldname, uint32 defvalue) const;
+        template<> std::string LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>(char const* fieldname, std::string defvalue) const;
 
         void SetConfiguration(IRCBridgeConfigurationUintValues index, uint32 value) { _configurationUintValues[index] = value; }
         void SetConfiguration(IRCBridgeConfigurationStringValues index, std::string value) { _configurationStringValues[index] = value; }
@@ -101,6 +107,7 @@ class IRCBridge
         boost::asio::io_service* _ioService;
         boost::asio::strand* _strand;
         IRCBridgeSocket* _socket;
+        std::thread _thread;
 
         bool _active;
         bool _connected;
