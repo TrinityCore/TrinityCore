@@ -303,45 +303,44 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                 case TYPEID_UNIT:
                 {
                     Creature* questgiver = object->ToCreature();
-                    if (!sScriptMgr->OnQuestReward(_player, questgiver, quest, reward))
+                    // Send next quest
+                    if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                     {
-                        // Send next quest
-                        if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
+                        // Only send the quest to the player if the conditions are met
+                        if (_player->CanTakeQuest(nextQuest, false))
                         {
-                            // Only send the quest to the player if the conditions are met
-                            if (_player->CanTakeQuest(nextQuest, false))
-                            {
-                                if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                                    _player->AddQuestAndCheckCompletion(nextQuest, object);
+                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                                _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                                _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
-                            }
+                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
                         }
-
-                        questgiver->AI()->sQuestReward(_player, quest, reward);
                     }
+
+                    if (!sScriptMgr->OnQuestReward(_player, questgiver, quest, reward))
+                        questgiver->AI()->sQuestReward(_player, quest, reward);
+
                     break;
                 }
                 case TYPEID_GAMEOBJECT:
                 {
                     GameObject* questGiver = object->ToGameObject();
-                    if (!sScriptMgr->OnQuestReward(_player, questGiver, quest, reward))
+
+                    // Send next quest
+                    if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
                     {
-                        // Send next quest
-                        if (Quest const* nextQuest = _player->GetNextQuest(guid, quest))
+                        // Only send the quest to the player if the conditions are met
+                        if (_player->CanTakeQuest(nextQuest, false))
                         {
-                            // Only send the quest to the player if the conditions are met
-                            if (_player->CanTakeQuest(nextQuest, false))
-                            {
-                                if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
-                                    _player->AddQuestAndCheckCompletion(nextQuest, object);
+                            if (nextQuest->IsAutoAccept() && _player->CanAddQuest(nextQuest, true))
+                                _player->AddQuestAndCheckCompletion(nextQuest, object);
 
-                                _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
-                            }
+                            _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextQuest, guid, true);
                         }
-
-                        questGiver->AI()->QuestReward(_player, quest, reward);
                     }
+
+                    if (!sScriptMgr->OnQuestReward(_player, questGiver, quest, reward))
+                        questGiver->AI()->QuestReward(_player, quest, reward);
+
                     break;
                 }
                 default:
