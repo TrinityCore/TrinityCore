@@ -98,7 +98,7 @@ std::string IRCBridge::LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>(
     std::string temp = sConfigMgr->GetStringDefault(fieldname, defvalue);
     if (temp.empty())
     {
-        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: %s value is empty, using default value %u instead.", fieldname, defvalue);
+        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: %s value is empty, using default value %s instead.", fieldname, defvalue.c_str());
         temp = defvalue;
     }
 
