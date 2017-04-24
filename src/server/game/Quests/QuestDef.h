@@ -73,7 +73,8 @@ enum QuestShareMessages : uint8
     QUEST_PARTY_MSG_FINISH_QUEST            = 7,
     QUEST_PARTY_MSG_CANT_BE_SHARED_TODAY    = 8,
     QUEST_PARTY_MSG_SHARING_TIMER_EXPIRED   = 9,
-    QUEST_PARTY_MSG_NOT_IN_PARTY            = 10
+    QUEST_PARTY_MSG_NOT_IN_PARTY            = 10,
+    QUEST_PARTY_MSG_NOT_ELIGIBLE_TODAY      = 11
 };
 
 enum QuestTradeSkill
