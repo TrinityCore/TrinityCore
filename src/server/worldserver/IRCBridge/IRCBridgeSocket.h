@@ -24,7 +24,20 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-class ByteBuffer;
+enum IRCCommandType : uint8
+{
+    IRCCOMMAND_PING,
+    IRCCOMMAND_PONG,
+    IRCCOMMAND_ERROR,
+    IRCCOMMAND_MAX
+};
+
+struct IRCCommand
+{
+    IRCCommandType type;
+    std::string data;
+    size_t size;
+};
 
 class IRCBridgeSocket : public Socket<IRCBridgeSocket>
 {
@@ -36,8 +49,9 @@ class IRCBridgeSocket : public Socket<IRCBridgeSocket>
         void OnClose() override;
         void ReadHandler() override;
 
-        void Send(ByteBuffer const& message);
+        void Send(std::string const& message);
     private:
+        void HandleMessage(std::string const& message);
 
 };
 

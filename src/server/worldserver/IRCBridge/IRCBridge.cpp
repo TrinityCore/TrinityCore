@@ -2,7 +2,6 @@
 #include "Log.h"
 #include "IRCBridgeHandler.h"
 #include "World.h"
-#include "ByteBuffer.h"
 #include "IRCBridge.h"
 #include "IRCBridgeSocket.h"
 
@@ -134,9 +133,7 @@ void IRCBridge::Send(std::string message)
     if (_connected)
     {
         message.append("\r\n");
-        ByteBuffer buffer;
-        buffer.append(message.data(), message.size());
-        _socket->Send(buffer);
+        _socket->Send(message);
     }
 }
 
