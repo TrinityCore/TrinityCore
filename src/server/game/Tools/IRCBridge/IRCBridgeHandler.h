@@ -20,7 +20,7 @@
 
 #include "Common.h"
 
-class IRCBridgeHandler
+class TC_GAME_API IRCBridgeHandler
 {
     public:
         IRCBridgeHandler();
