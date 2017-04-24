@@ -42,20 +42,21 @@ void IRCBridge::Run()
 
     _active = true;
 
-    StartNetwork(*_ioService, GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
+    StartNetwork(GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
 
     uint32 connectionAttempts = 0;
-    while (_active && !World::IsStopped())
+    while (_active)
     {
         if (_connected)
         {
             // Testing
+            /*
             if (connectionAttempts == 0)
             {
                 Login();
                 ++connectionAttempts;
             }
-
+            */
             auto queue = sIRCBridgeHandler->GetQueue();
             while (!queue.empty())
             {
@@ -68,9 +69,9 @@ void IRCBridge::Run()
 
 void IRCBridge::Stop()
 {
-    _active = false;
-
+    _connected = false;
     _socket->CloseSocket();
+    _active = false;
 }
 
 template<ConfigurationType T, typename N>
@@ -149,17 +150,17 @@ void IRCBridge::Login()
     Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 8 * :TrinityCore - IRCBridge");
 }
 
-void IRCBridge::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, std::string const& port)
+void IRCBridge::StartNetwork(std::string const& bindIp, std::string const& port)
 {
-    std::shared_ptr<tcp::socket> socket = std::make_shared<tcp::socket>(service);
-    std::shared_ptr<tcp::resolver> resolver = std::make_shared<tcp::resolver>(service);
+    std::shared_ptr<tcp::socket> socket = std::make_shared<tcp::socket>(*_ioService);
+    std::shared_ptr<tcp::resolver> resolver = std::make_shared<tcp::resolver>(*_ioService);
     boost::asio::ip::tcp::resolver::query query(ip::tcp::v4(), bindIp, port);
 
     auto connectHandler = [socket, this] (const boost::system::error_code& errorCode, const tcp::resolver::iterator& it)
     {
         if (errorCode)
         {
-            TC_LOG_ERROR("IRCBridge", "IRCBridge::StartNetwork: could not connect (%s).", errorCode.message().c_str());
+            TC_LOG_ERROR("IRCBridge", "IRCBridge::StartNetwork: could not connect: %s.", errorCode.message().c_str());
         }
         else if (it == tcp::resolver::iterator())
         {

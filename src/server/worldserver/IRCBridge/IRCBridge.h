@@ -90,7 +90,7 @@ class IRCBridge
         void Login();
 
     private:
-        void StartNetwork(boost::asio::io_service& service, std::string const& bindIp, std::string const& port);
+        void StartNetwork(std::string const& bindIp, std::string const& port);
         void OnConnect(tcp::socket&& socket);
 
         template<ConfigurationType T, typename N>
