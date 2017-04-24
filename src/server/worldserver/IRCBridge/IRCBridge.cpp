@@ -1,5 +1,6 @@
 #include "Config.h"
 #include "Log.h"
+#include "IRCBridgeHandler.h"
 #include "World.h"
 #include "IRCBridge.h"
 
@@ -16,6 +17,12 @@ IRCBridge::~IRCBridge()
 {
     Stop();
     delete _strand;
+}
+
+IRCBridge* IRCBridge::instance()
+{
+    static IRCBridge instance;
+    return &instance;
 }
 
 void IRCBridge::Initialize(boost::asio::io_service * service)
@@ -47,6 +54,13 @@ void IRCBridge::Run()
             {
                 Login();
                 ++connectionAttempts;
+            }
+
+            auto queue = sIRCBridgeHandler->GetQueue();
+            while (!queue.empty())
+            {
+                Send(queue.front());
+                queue.pop();
             }
         }
     }
@@ -121,8 +135,8 @@ void IRCBridge::Send(std::string const message)
 {
     if (_connected)
     {
-        MessageBuffer buffer;
-        buffer.Write(message.data(), message.size());
+        ByteBuffer buffer;
+        buffer << message;
         _socket->Send(buffer);
     }
 }
@@ -132,7 +146,7 @@ void IRCBridge::Login()
     Send("HELLO");
     Send("PASS " + GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD));
     Send("NICK " + GetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME));
-    Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " " + GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST));
+    Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 8 * :TrinityCore - IRCBridge");
 }
 
 void IRCBridge::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, std::string const& port)
@@ -201,12 +215,31 @@ void IRCBridgeSocket::OnClose()
 
 void IRCBridgeSocket::ReadHandler()
 {
+    if (!IsOpen())
+        return;
+
+    MessageBuffer& message = GetReadBuffer();
+    std::size_t readSize = message.GetActiveSize();
+
+    ByteBuffer buffer(std::move(message));
+    std::string result;
+    buffer >> result;
+    TC_LOG_ERROR("asd", "This is what I got: %s", result.c_str());
+
+    message.ReadCompleted(readSize);
+
+    AsyncRead();
 }
 
-void IRCBridgeSocket::Send(MessageBuffer message)
+void IRCBridgeSocket::Send(ByteBuffer message)
 {
     if (!IsOpen())
         return;
 
-    QueuePacket(std::move(message));
+    if (!message.empty())
+    {
+        MessageBuffer buffer;
+        buffer.Write(message.contents(), message.size());
+        QueuePacket(std::move(buffer));
+    }
 }

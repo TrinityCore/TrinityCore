@@ -36,6 +36,7 @@ void AddSC_group_commandscript();
 void AddSC_guild_commandscript();
 void AddSC_honor_commandscript();
 void AddSC_instance_commandscript();
+void AddSC_ircbridge_commandscript();
 void AddSC_learn_commandscript();
 void AddSC_lfg_commandscript();
 void AddSC_list_commandscript();
@@ -81,6 +82,7 @@ void AddCommandsScripts()
     AddSC_guild_commandscript();
     AddSC_honor_commandscript();
     AddSC_instance_commandscript();
+    AddSC_ircbridge_commandscript();
     AddSC_learn_commandscript();
     AddSC_lookup_commandscript();
     AddSC_lfg_commandscript();

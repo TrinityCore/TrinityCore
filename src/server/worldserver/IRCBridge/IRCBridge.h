@@ -61,7 +61,7 @@ class IRCBridgeSocket : public Socket<IRCBridgeSocket>
         void OnClose() override;
         void ReadHandler() override;
 
-        void Send(MessageBuffer message);
+        void Send(ByteBuffer message);
     private:
 
 };
@@ -72,11 +72,7 @@ class IRCBridge
         IRCBridge();
         ~IRCBridge();
 
-        static IRCBridge* instance()
-        {
-            static IRCBridge instance;
-            return &instance;
-        }
+        static IRCBridge* instance();
 
         void Initialize(boost::asio::io_service* service);
         void Run();
