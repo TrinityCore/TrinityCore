@@ -15,7 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
+#include "SpellAuraEffects.h"
 
 enum Spells
 {
