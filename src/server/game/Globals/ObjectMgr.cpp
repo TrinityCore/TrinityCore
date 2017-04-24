@@ -4621,7 +4621,7 @@ void ObjectMgr::LoadQuests()
             {
                 for (uint8 j = 0; j < QUEST_ITEM_OBJECTIVES_COUNT; ++j)
                 {
-                    if (qinfo->RequiredItemId[j] != 0 && (qinfo->RequiredItemId[j] != qinfo->StartItem || qinfo->RequiredItemCount[j] > qinfo->StartItemCount))
+                    if (qinfo->RequiredItemId[j] != 0 && (qinfo->RequiredItemId[j] != qinfo->GetSrcItemId() || qinfo->RequiredItemCount[j] > qinfo->GetSrcItemCount()))
                     {
                         addFlag = false;
                         break;
