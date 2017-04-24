@@ -16550,12 +16550,12 @@ bool Player::CanShareQuest(uint32 quest_id) const
         QuestStatusMap::const_iterator itr = m_QuestStatus.find(quest_id);
         if (itr != m_QuestStatus.end())
         {
-            if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
-                return false;
-
             // in pool and not currently available (wintergrasp weekly, dalaran weekly) - can't share
             if (sPoolMgr->IsPartOfAPool<Quest>(quest_id) && !sPoolMgr->IsSpawnedObject<Quest>(quest_id))
+            {
+                SendPushToPartyResponse(this, QUEST_PUSH_NOT_DAILY);
                 return false;
+            }
 
             return true;
         }
@@ -17654,7 +17654,7 @@ void Player::SendQuestConfirmAccept(Quest const* quest, Player* receiver) const
     receiver->GetSession()->SendPacket(packet.Write());
 }
 
-void Player::SendPushToPartyResponse(Player* player, QuestPushReason reason) const
+void Player::SendPushToPartyResponse(Player const* player, QuestPushReason reason) const
 {
     if (player)
     {
