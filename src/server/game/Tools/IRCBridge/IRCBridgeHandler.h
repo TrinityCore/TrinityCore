@@ -29,7 +29,7 @@ class IRCBridgeHandler
         static IRCBridgeHandler* instance();
 
         void Send(std::string const message) { _data.push(message); }
-        std::queue<std::string>& GetQueue() { return _data; }
+        std::string GetNext();
 
     private:
         std::queue<std::string> _data;

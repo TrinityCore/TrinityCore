@@ -2,6 +2,8 @@
 #include "Log.h"
 #include "IRCBridgeHandler.h"
 #include "World.h"
+#include "ByteBuffer.h"
+#include "MessageBuffer.h"
 #include "IRCBridge.h"
 
 #include <boost/asio/connect.hpp>
@@ -44,25 +46,17 @@ void IRCBridge::Run()
 
     StartNetwork(GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
 
-    uint32 connectionAttempts = 0;
+    bool login = false;
     while (_active)
     {
         if (_connected)
         {
-            // Testing
-            /*
-            if (connectionAttempts == 0)
-            {
+            if (!login)
                 Login();
-                ++connectionAttempts;
-            }
-            */
-            auto queue = sIRCBridgeHandler->GetQueue();
-            while (!queue.empty())
-            {
-                Send(queue.front());
-                queue.pop();
-            }
+
+            auto temp = sIRCBridgeHandler->GetNext();
+            if (!temp.empty())
+                Send(temp);
         }
     }
 }
@@ -132,10 +126,11 @@ bool IRCBridge::LoadConfigurations()
     return true;
 }
 
-void IRCBridge::Send(std::string const message)
+void IRCBridge::Send(std::string message)
 {
     if (_connected)
     {
+        message.append("\r\n");
         ByteBuffer buffer;
         buffer << message;
         _socket->Send(buffer);
@@ -152,17 +147,17 @@ void IRCBridge::Login()
 
 void IRCBridge::StartNetwork(std::string const& bindIp, std::string const& port)
 {
-    std::shared_ptr<tcp::socket> socket = std::make_shared<tcp::socket>(*_ioService);
-    std::shared_ptr<tcp::resolver> resolver = std::make_shared<tcp::resolver>(*_ioService);
-    boost::asio::ip::tcp::resolver::query query(ip::tcp::v4(), bindIp, port);
+    std::shared_ptr<boost::asio::ip::tcp::socket> socket = std::make_shared<boost::asio::ip::tcp::socket>(*_ioService);
+    std::shared_ptr<boost::asio::ip::tcp::resolver> resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*_ioService);
+    boost::asio::ip::tcp::resolver::query query(boost::asio::ip::tcp::v4(), bindIp, port);
 
-    auto connectHandler = [socket, this] (const boost::system::error_code& errorCode, const tcp::resolver::iterator& it)
+    auto connectHandler = [socket, this] (const boost::system::error_code& errorCode, const boost::asio::ip::tcp::resolver::iterator& it)
     {
         if (errorCode)
         {
             TC_LOG_ERROR("IRCBridge", "IRCBridge::StartNetwork: could not connect: %s.", errorCode.message().c_str());
         }
-        else if (it == tcp::resolver::iterator())
+        else if (it == boost::asio::ip::tcp::resolver::iterator())
         {
             TC_LOG_ERROR("IRCBridge", "IRCBridge::StartNetwork: could not connect.");
         }
@@ -172,7 +167,7 @@ void IRCBridge::StartNetwork(std::string const& bindIp, std::string const& port)
         }
     };
 
-    auto resolveHandler = [socket, resolver, connectHandler] (const boost::system::error_code& errorCode, const tcp::resolver::iterator& it)
+    auto resolveHandler = [socket, resolver, connectHandler] (const boost::system::error_code& errorCode, const boost::asio::ip::tcp::resolver::iterator& it)
     {
         if (errorCode)
         {
@@ -180,22 +175,24 @@ void IRCBridge::StartNetwork(std::string const& bindIp, std::string const& port)
         }
         else
         {
-            boost::asio::async_connect(*socket, it, tcp::resolver::iterator(), connectHandler);
+            boost::asio::async_connect(*socket, it, boost::asio::ip::tcp::resolver::iterator(), connectHandler);
         }
     };
 
     resolver->async_resolve(query, resolveHandler);
 }
 
-void IRCBridge::OnConnect(tcp::socket&& socket)
+void IRCBridge::OnConnect(boost::asio::ip::tcp::socket&& socket)
 {
+    TC_LOG_INFO("IRCBridge", "IRCBridge::OnConnect: connected to %s port %u", socket.remote_endpoint().address().to_string().c_str(), socket.remote_endpoint().port());
+    
     _socket = std::make_shared<IRCBridgeSocket>(std::move(socket));
     _socket->Start();
 
     _connected = true;
 }
 
-IRCBridgeSocket::IRCBridgeSocket(tcp::socket&& socket) : Socket<IRCBridgeSocket>(std::move(socket))
+IRCBridgeSocket::IRCBridgeSocket(boost::asio::ip::tcp::socket&& socket) : Socket<IRCBridgeSocket>(std::move(socket))
 {
 
 }
@@ -225,6 +222,7 @@ void IRCBridgeSocket::ReadHandler()
     ByteBuffer buffer(std::move(message));
     std::string result;
     buffer >> result;
+
     TC_LOG_ERROR("asd", "This is what I got: %s", result.c_str());
 
     message.ReadCompleted(readSize);
@@ -232,7 +230,7 @@ void IRCBridgeSocket::ReadHandler()
     AsyncRead();
 }
 
-void IRCBridgeSocket::Send(ByteBuffer message)
+void IRCBridgeSocket::Send(ByteBuffer const& message)
 {
     if (!IsOpen())
         return;

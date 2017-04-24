@@ -54,14 +54,14 @@ enum IRCBridgeConfigurationStringValues
 class IRCBridgeSocket : public Socket<IRCBridgeSocket>
 {
     public:
-        IRCBridgeSocket(tcp::socket&& socket);
+        IRCBridgeSocket(boost::asio::ip::tcp::socket&& socket);
         ~IRCBridgeSocket();
 
         void Start() override;
         void OnClose() override;
         void ReadHandler() override;
 
-        void Send(ByteBuffer message);
+        void Send(ByteBuffer const& message);
     private:
 
 };
@@ -91,7 +91,7 @@ class IRCBridge
 
     private:
         void StartNetwork(std::string const& bindIp, std::string const& port);
-        void OnConnect(tcp::socket&& socket);
+        void OnConnect(boost::asio::ip::tcp::socket&& socket);
 
         template<ConfigurationType T, typename N>
         N LoadConfiguration(char const* fieldname, N defvalue) const;
