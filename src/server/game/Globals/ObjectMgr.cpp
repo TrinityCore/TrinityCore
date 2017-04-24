@@ -4626,6 +4626,27 @@ void ObjectMgr::LoadQuests()
             _exclusiveQuestGroups.insert(std::pair<int32, uint32>(qinfo->_exclusiveGroup, qinfo->GetQuestId()));
         if (qinfo->_limitTime)
             qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED);
+
+        // Special flag to determine if quest is completed from the start, used to determine if we can fail timed quest if it is completed
+        if (!qinfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_KILL | QUEST_SPECIAL_FLAGS_CAST | QUEST_SPECIAL_FLAGS_SPEAKTO | QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT))
+        {
+            bool addFlag = true;
+            if (qinfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER))
+            {
+                for (QuestObjective const& obj : qinfo->GetObjectives())
+                {
+                    if (obj.Type == QUEST_OBJECTIVE_ITEM)
+                        if (static_cast<uint32>(obj.ObjectID) != qinfo->GetSrcItemId() || static_cast<uint32>(obj.Amount) > qinfo->GetSrcItemCount())
+                        {
+                            addFlag = false;
+                            break;
+                        }
+                }
+            }
+
+            if (addFlag)
+                qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_COMPLETED_AT_START);
+        }
     }
 
     // check QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT for spell with SPELL_EFFECT_QUEST_COMPLETE
