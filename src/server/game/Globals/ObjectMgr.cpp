@@ -2377,7 +2377,6 @@ void ObjectMgr::LoadItemLocales()
 
     //                                               0   1       2     3
     QueryResult result = WorldDatabase.Query("SELECT ID, locale, Name, Description FROM item_template_locale");
-
     if (!result)
         return;
 
@@ -2392,6 +2391,8 @@ void ObjectMgr::LoadItemLocales()
 
         ItemLocale& data        = _itemLocaleStore[id];
         LocaleConstant locale   = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(Name, locale, data.Name);
         AddLocaleString(Description, locale, data.Description);
@@ -4777,7 +4778,6 @@ void ObjectMgr::LoadQuestLocales()
 
     //                                               0   1       2      3        4           5                6                 7        8              9               10              11              12              13                    14                    15                   16
     QueryResult result = WorldDatabase.Query("SELECT ID, locale, Title, Details, Objectives, OfferRewardText, RequestItemsText, EndText, CompletedText, QuestGiverTextWindow, QuestGiverTargetName, QuestTurnTextWindow, QuestTurnTargetName ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4, FROM quest_template_locale");
-
     if (!result)
         return;
 
@@ -5441,6 +5441,9 @@ void ObjectMgr::LoadPageTextLocales()
 
         PageTextLocale& data = _pageTextLocaleStore[id];
         LocaleConstant locale = GetLocaleByName(localeName);
+
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(text, locale, data.Text);
     } while (result->NextRow());
@@ -8983,7 +8986,6 @@ void ObjectMgr::LoadBroadcastTextLocales()
 
     //                                               0   1       2         3
     QueryResult result = WorldDatabase.Query("SELECT ID, locale, MaleText, FemaleText FROM broadcast_text_locale");
-
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 broadcast text locales. DB table `broadcast_text_locale` is empty.");
@@ -9007,6 +9009,8 @@ void ObjectMgr::LoadBroadcastTextLocales()
         }
 
         LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
         AddLocaleString(MaleText, locale, bct->second.MaleText);
         AddLocaleString(FemaleText, locale, bct->second.FemaleText);
