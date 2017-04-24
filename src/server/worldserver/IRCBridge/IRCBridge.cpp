@@ -133,8 +133,9 @@ void IRCBridge::Send(std::string message)
 {
     if (_connected)
     {
+        message.append("\r\n");
         ByteBuffer buffer;
-        buffer << message;
+        buffer.append(message.data(), message.size());
         _socket->Send(buffer);
     }
 }
@@ -144,7 +145,7 @@ void IRCBridge::Login()
     Send("HELLO");
     Send("PASS " + GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD));
     Send("NICK " + GetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME));
-    Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 8 * :TrinityCore - IRCBridge");
+    Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 0 * :TrinityCore - IRCBridge");
 }
 
 void IRCBridge::StartNetwork(std::string const& bindIp, std::string const& port)
