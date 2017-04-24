@@ -52,7 +52,10 @@ void IRCBridge::Run()
         if (_connected)
         {
             if (!login)
+            {
                 Login();
+                login = true;
+            }
 
             auto temp = sIRCBridgeHandler->GetNext();
             if (!temp.empty())
@@ -130,7 +133,6 @@ void IRCBridge::Send(std::string message)
 {
     if (_connected)
     {
-        message.append("\r\n");
         ByteBuffer buffer;
         buffer << message;
         _socket->Send(buffer);
