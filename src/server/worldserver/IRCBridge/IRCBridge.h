@@ -19,7 +19,7 @@
 #define TRINITY_IRCBRIDGE_H
 
 #include "Common.h"
-#include "Socket.h"
+#include "IRCBridgeSocket.h"
 
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -49,21 +49,6 @@ enum IRCBridgeConfigurationStringValues
     CONFIGURATION_IRCBRIDGE_PASSWORD,
     CONFIGURATION_IRCBRIDGE_AUTHENTICATION_NICKNAME,
     CONFIGURATION_IRCBRIDGE_STRING_COUNT
-};
-
-class IRCBridgeSocket : public Socket<IRCBridgeSocket>
-{
-    public:
-        IRCBridgeSocket(boost::asio::ip::tcp::socket&& socket);
-        ~IRCBridgeSocket();
-
-        void Start() override;
-        void OnClose() override;
-        void ReadHandler() override;
-
-        void Send(ByteBuffer const& message);
-    private:
-
 };
 
 class IRCBridge

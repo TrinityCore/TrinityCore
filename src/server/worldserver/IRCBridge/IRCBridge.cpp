@@ -3,8 +3,8 @@
 #include "IRCBridgeHandler.h"
 #include "World.h"
 #include "ByteBuffer.h"
-#include "MessageBuffer.h"
 #include "IRCBridge.h"
+#include "IRCBridgeSocket.h"
 
 #include <boost/asio/connect.hpp>
 #include <boost/asio/io_service.hpp>
@@ -143,7 +143,8 @@ void IRCBridge::Send(std::string message)
 void IRCBridge::Login()
 {
     Send("HELLO");
-    Send("PASS " + GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD));
+    if (!GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD).empty())
+        Send("PASS " + GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD));
     Send("NICK " + GetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME));
     Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 0 * :TrinityCore - IRCBridge");
 }
@@ -193,55 +194,4 @@ void IRCBridge::OnConnect(boost::asio::ip::tcp::socket&& socket)
     _socket->Start();
 
     _connected = true;
-}
-
-IRCBridgeSocket::IRCBridgeSocket(boost::asio::ip::tcp::socket&& socket) : Socket<IRCBridgeSocket>(std::move(socket))
-{
-
-}
-
-IRCBridgeSocket::~IRCBridgeSocket()
-{
-
-}
-
-void IRCBridgeSocket::Start()
-{
-
-}
-
-void IRCBridgeSocket::OnClose()
-{
-}
-
-void IRCBridgeSocket::ReadHandler()
-{
-    if (!IsOpen())
-        return;
-
-    MessageBuffer& message = GetReadBuffer();
-    std::size_t readSize = message.GetActiveSize();
-
-    ByteBuffer buffer(std::move(message));
-    std::string result;
-    buffer >> result;
-
-    TC_LOG_ERROR("asd", "This is what I got: %s", result.c_str());
-
-    message.ReadCompleted(readSize);
-
-    AsyncRead();
-}
-
-void IRCBridgeSocket::Send(ByteBuffer const& message)
-{
-    if (!IsOpen())
-        return;
-
-    if (!message.empty())
-    {
-        MessageBuffer buffer;
-        buffer.Write(message.contents(), message.size());
-        QueuePacket(std::move(buffer));
-    }
 }
