@@ -933,6 +933,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
 
             void StartAttack()
             {
+                GetCaster()->ClearUnitState(UNIT_STATE_CASTING);
                 GetCaster()->DeleteThreatList();
                 GetCaster()->ToCreature()->AI()->AttackStart(GetHitUnit());
                 GetCaster()->AddThreat(GetHitUnit(), 500000000.0f);    // value seen in sniff
