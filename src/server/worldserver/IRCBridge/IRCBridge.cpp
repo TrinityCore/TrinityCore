@@ -146,8 +146,8 @@ void IRCBridge::HandleMessage(std::string const& message)
     std::string temp = message.substr(0, 1);
     if (!temp.empty() && temp.compare(":") == 0)
     {
-        size_t firstWordPosition = message.find(" ");
-        size_t secondWordPosition = message.find(" ", firstWordPosition + 1);
+        size_t firstWordPosition = message.find(' ');
+        size_t secondWordPosition = message.find(' ', firstWordPosition + 1);
 
         // Get command
         std::string temp = message.substr(firstWordPosition + 1, secondWordPosition - firstWordPosition - 1);
@@ -164,7 +164,9 @@ void IRCBridge::HandleMessage(std::string const& message)
             size_t userPosition = temp.find("!");
             std::string user = MakeStringUpper(temp.substr(0, userPosition));
 
-            TC_LOG_INFO("IRCBridge", "IRCBridge::HandleMessage: user: %s, command %s", user.c_str(), command.c_str());
+            temp = message.substr(secondWordPosition + 2, message.size() - secondWordPosition - 3);
+
+            TC_LOG_INFO("IRCBridge", "IRCBridge::HandleMessage: user: %s, command %s, rest: '%s'", user.c_str(), command.c_str(), temp.c_str());
         }
     }
 }
