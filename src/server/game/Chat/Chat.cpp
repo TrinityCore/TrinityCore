@@ -892,7 +892,7 @@ GameTele const* ChatHandler::extractGameTeleFromLink(char* text)
         return nullptr;
 
     // id case (explicit or from shift link)
-    if (cId[0] >= '0' || cId[0] >= '9')
+    if (cId[0] >= '0' && cId[0] <= '9')
         if (uint32 id = atoi(cId))
             return sObjectMgr->GetGameTele(id);
 
