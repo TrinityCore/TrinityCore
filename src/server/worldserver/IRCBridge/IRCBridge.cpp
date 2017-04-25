@@ -8,6 +8,7 @@
 #include <boost/asio/connect.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <functional>
 #include <thread>
 
 IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr), _active(false), _connected(false)
