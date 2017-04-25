@@ -251,8 +251,7 @@ namespace WorldPackets
                 TYPE_PLAYER_TO_PLAYER_HEALING    = 1, // NYI
                 TYPE_CREATURE_TO_PLAYER_DAMAGE   = 2,
                 TYPE_PLAYER_TO_CREATURE_DAMAGE   = 3,
-                TYPE_CREATURE_TO_CREATURE_DAMAGE = 4,
-                TYPE_PLAYER_TO_PLAYER_DAMAGE     = 32 // NYI
+                TYPE_CREATURE_TO_CREATURE_DAMAGE = 4
             };
 
         public:
