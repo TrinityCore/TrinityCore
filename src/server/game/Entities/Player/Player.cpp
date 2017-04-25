@@ -6609,6 +6609,19 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
     return itr != _currencyStorage.end() && itr->second.Quantity >= count;
 }
 
+bool Player::IsQuestObjectiveProgressComplete(Quest const* quest) const
+{
+    float progress = 0;
+    for (QuestObjective const& obj : quest->GetObjectives())
+        if (obj.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR)
+        {
+            progress += GetQuestObjectiveData(quest, obj.StorageIndex) * obj.ProgressBarWeight;
+            if (progress >= 100)
+                return true;
+        }
+    return false;
+}
+
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/)
 {
     if (!count)
@@ -16761,6 +16774,9 @@ bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
     Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID);
     ASSERT(quest);
 
+    if (objective.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR)
+        return true;
+
     switch (objective.Type)
     {
         case QUEST_OBJECTIVE_MONSTER:
@@ -16796,6 +16812,10 @@ bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
             break;
         case QUEST_OBJECTIVE_CURRENCY:
             if (!HasCurrency(objective.ObjectID, objective.Amount))
+                return false;
+            break;
+        case QUEST_OBJECTIVE_PROGRESS_BAR:
+            if (!IsQuestObjectiveProgressComplete(quest))
                 return false;
             break;
         default:
