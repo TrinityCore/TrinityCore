@@ -5,6 +5,7 @@
 #include "IRCBridge.h"
 #include "IRCBridgeSocket.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/asio/connect.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -256,6 +257,7 @@ void IRCBridge::Login()
 
 std::string IRCBridge::MakeStringUpper(std::string string)
 {
-    std::transform(string.begin(), string.end(), string.begin(), ::toupper);
-    return string;
+    std::string temp = string;
+    boost::to_upper(temp);
+    return temp;
 }
