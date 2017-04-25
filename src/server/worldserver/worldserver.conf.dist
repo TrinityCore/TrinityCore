@@ -4020,22 +4020,6 @@ IRCBridge.Username = "IRCBridge"
 IRCBridge.Nickname = "IRCBridge"
 IRCBridge.Password = ""
 
-#    IRCBridge.Authentication.Method
-#        Description: IRC authentication method
-#        Default:     0 - (Disabled)
-#                     1 - (NickServ - normal method - PRIVMSG NickServ :IDENTIFY Password)
-#                     2 - (NickServ - alternate method to identify to a different nick - PRIVMSG NickServ :IDENTIFY IRCBridge.Authentication.Nickname Password)
-#                     3 - (QuakeNet - normal method - PRIVMSG Q@CServe.quakenet.org :AUTH IRCBridge.Nickname Password)
-#                     4 - (QuakeNet - alternate method to identify to a different nick - PRIVMSG Q@CServe.quakenet.org :AUTH IRCBridge.Authentication.Nickname Password)
-
-IRCBridge.Authentication.Method = 0
-
-#    IRCBridge.Authentication.Nickname
-#        Description: IRC nickname to use for authentication method 2 & 4
-#        Default:     "NickServ"
-
-IRCBridge.Authentication.Nickname = "NickServ"
-
 #    IRCBridge.Connection.Code
 #        Description: IRC connection code
 #        Default:     "001" - (Welcome to network msg)
@@ -4055,6 +4039,22 @@ IRCBridge.Connection.Wait = 10000
 #        Default:     20
 
 IRCBridge.Connection.Attempts = 20
+
+#    IRCBridge.Authentication.Method
+#        Description: IRC authentication method
+#        Default:     0 - (Disabled)
+#                     1 - (NickServ - normal method - PRIVMSG NickServ :IDENTIFY Password)
+#                     2 - (NickServ - alternate method to identify to a different nick - PRIVMSG NickServ :IDENTIFY IRCBridge.Authentication.Nickname Password)
+#                     3 - (QuakeNet - normal method - PRIVMSG Q@CServe.quakenet.org :AUTH IRCBridge.Nickname Password)
+#                     4 - (QuakeNet - alternate method to identify to a different nick - PRIVMSG Q@CServe.quakenet.org :AUTH IRCBridge.Authentication.Nickname Password)
+
+IRCBridge.Authentication.Method = 0
+
+#    IRCBridge.Authentication.Nickname
+#        Description: IRC nickname to use for authentication method 2 & 4
+#        Default:     "NickServ"
+
+IRCBridge.Authentication.Nickname = "NickServ"
 
 #
 ###################################################################################################
