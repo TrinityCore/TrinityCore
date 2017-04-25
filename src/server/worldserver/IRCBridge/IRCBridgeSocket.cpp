@@ -1,5 +1,4 @@
 #include "Log.h"
-#include "ByteBuffer.h"
 #include "MessageBuffer.h"
 #include "IRCBridge.h"
 #include "IRCBridgeSocket.h"
@@ -14,9 +13,9 @@ IRCCommand const commands[IRCCOMMAND_MAX] =
     { IRCCOMMAND_ERROR, "ERROR", 5 }
 };
 
-IRCBridgeSocket::IRCBridgeSocket(boost::asio::ip::tcp::socket&& socket) : Socket<IRCBridgeSocket>(std::move(socket))
+IRCBridgeSocket::IRCBridgeSocket(IRCBridge* master, boost::asio::ip::tcp::socket&& socket) : Socket<IRCBridgeSocket>(std::move(socket))
 {
-
+    _master = master;
 }
 
 IRCBridgeSocket::~IRCBridgeSocket()

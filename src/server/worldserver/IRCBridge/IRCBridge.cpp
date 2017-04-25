@@ -17,6 +17,10 @@ IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr)
 IRCBridge::~IRCBridge()
 {
     Stop();
+
+    if (_thread.joinable())
+        _thread.join();
+
     delete _strand;
 }
 
@@ -56,7 +60,7 @@ void IRCBridge::Run()
                 login = true;
             }
 
-            auto temp = sIRCBridgeHandler->GetNext();
+            std::string temp = sIRCBridgeHandler->GetNext();
             if (!temp.empty())
                 Send(temp);
         }
@@ -65,9 +69,12 @@ void IRCBridge::Run()
 
 void IRCBridge::Stop()
 {
-    _connected = false;
-    _socket->CloseSocket();
-    _active = false;
+    if (_active)
+    {
+        _connected = false;
+        _socket->CloseSocket();
+        _active = false;
+    }
 }
 
 template<ConfigurationType T, typename N>
@@ -187,7 +194,7 @@ void IRCBridge::OnConnect(boost::asio::ip::tcp::socket&& socket)
 {
     TC_LOG_INFO("IRCBridge", "IRCBridge::OnConnect: connected to %s port %u", socket.remote_endpoint().address().to_string().c_str(), socket.remote_endpoint().port());
     
-    _socket = std::make_shared<IRCBridgeSocket>(std::move(socket));
+    _socket = std::make_shared<IRCBridgeSocket>(this, std::move(socket));
     _socket->Start();
 
     _connected = true;

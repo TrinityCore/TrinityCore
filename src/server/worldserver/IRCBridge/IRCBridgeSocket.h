@@ -39,10 +39,12 @@ struct IRCCommand
     size_t size;
 };
 
+class IRCBridge;
+
 class IRCBridgeSocket : public Socket<IRCBridgeSocket>
 {
     public:
-        IRCBridgeSocket(boost::asio::ip::tcp::socket&& socket);
+        IRCBridgeSocket(IRCBridge* master, boost::asio::ip::tcp::socket&& socket);
         ~IRCBridgeSocket();
 
         void Start() override;
@@ -53,6 +55,7 @@ class IRCBridgeSocket : public Socket<IRCBridgeSocket>
     private:
         void HandleMessage(std::string const& message);
 
+        IRCBridge* _master;
 };
 
 #endif // TRINITY_IRCBRIDGESOCKET_H

@@ -340,8 +340,7 @@ extern int main(int argc, char** argv)
 
     WorldUpdateLoop();
 
-    if (sIRCBridge->IsActive())
-        sIRCBridge->Stop();
+    sIRCBridge->Stop();
 
     // Shutdown starts here
     threadPool.reset();
