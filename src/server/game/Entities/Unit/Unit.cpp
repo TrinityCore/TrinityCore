@@ -5141,15 +5141,12 @@ void Unit::SendAttackStateUpdate(uint32 HitInfo, Unit* target, uint8 /*SwingType
 bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx)
 {
     SpellInfo const* dummySpell = triggeredByAura->GetSpellInfo();
-    int32  triggerAmount = triggeredByAura->GetAmount();
 
     Item* castItem = !triggeredByAura->GetBase()->GetCastItemGUID().IsEmpty() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
 
     uint32 triggered_spell_id = 0;
     Unit* target = victim;
-    int32 basepoints0 = 0;
-    ObjectGuid originalCaster;
 
     switch (dummySpell->SpellFamilyName)
     {
@@ -5192,10 +5189,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         return false;
     }
 
-    if (basepoints0)
-        CastCustomSpell(target, triggered_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura, originalCaster);
-    else
-        CastSpell(target, triggered_spell_id, true, castItem, triggeredByAura, originalCaster);
+    CastSpell(target, triggered_spell_id, true, castItem, triggeredByAura);
 
     return true;
 }
