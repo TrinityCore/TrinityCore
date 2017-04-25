@@ -133,7 +133,7 @@ namespace Movement
 
         /* Inverses unit model orientation. Disabled by default
          */
-        void SetOrientationInversed();
+        void SetBackward();
 
         /* Fixes unit's model rotation. Disabled by default
          */
@@ -145,6 +145,8 @@ namespace Movement
          * velocity shouldn't be negative
          */
         void SetVelocity(float velocity);
+
+        void SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData);
 
         PointsArray& Path() { return args.path; }
 
@@ -158,12 +160,12 @@ namespace Movement
     };
 
     inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
-    inline void MoveSplineInit::SetWalk(bool enable) { args.flags.walkmode = enable; }
+    inline void MoveSplineInit::SetWalk(bool enable) { args.walk = enable; }
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
     inline void MoveSplineInit::SetUncompressed() { args.flags.uncompressedPath = true; }
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
-    inline void MoveSplineInit::SetOrientationInversed() { args.flags.orientationInversed = true;}
+    inline void MoveSplineInit::SetBackward() { args.flags.backward = true; }
     inline void MoveSplineInit::SetTransportEnter() { args.flags.EnableTransportEnter(); }
     inline void MoveSplineInit::SetTransportExit() { args.flags.EnableTransportExit(); }
     inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.orientationFixed = enable; }
@@ -200,9 +202,14 @@ namespace Movement
         args.facing.f.x = finalSpot.x;
         args.facing.f.y = finalSpot.y;
         args.facing.f.z = finalSpot.z;
-        args.flags.EnableFacingPoint();
+        args.facing.type = MONSTER_MOVE_FACING_SPOT;
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
+
+    inline void MoveSplineInit::SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData)
+    {
+        args.spellEffectExtra = spellEffectExtraData;
+    }
 }
 #endif // TRINITYSERVER_MOVESPLINEINIT_H

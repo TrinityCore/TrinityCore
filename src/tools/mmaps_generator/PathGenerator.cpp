@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,9 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <boost/filesystem.hpp>
+
 #include "PathCommon.h"
 #include "MapBuilder.h"
 #include "Timer.h"
+#include "Banner.h"
 
 using namespace MMAP;
 
@@ -41,10 +44,7 @@ bool checkDirectories(bool debugOutput)
 
     dirFiles.clear();
     if (getDirContents(dirFiles, "mmaps") == LISTFILE_DIRECTORY_NOT_FOUND)
-    {
-        printf("'mmaps' directory does not exist\n");
-        return false;
-    }
+        return boost::filesystem::create_directory("mmaps");
 
     dirFiles.clear();
     if (debugOutput)
@@ -73,7 +73,7 @@ bool handleArgs(int argc, char** argv,
                bool &bigBaseUnit,
                char* &offMeshInputPath,
                char* &file,
-               int& threads)
+               unsigned int& threads)
 {
     char* param = NULL;
     for (int i = 1; i < argc; ++i)
@@ -95,8 +95,7 @@ bool handleArgs(int argc, char** argv,
             param = argv[++i];
             if (!param)
                 return false;
-            threads = atoi(param);
-            printf("Using %i threads to extract mmaps\n", threads);
+            threads = static_cast<unsigned int>(std::max(0, atoi(param)));
         }
         else if (strcmp(argv[i], "--file") == 0)
         {
@@ -242,7 +241,10 @@ int finish(const char* message, int returnValue)
 
 int main(int argc, char** argv)
 {
-    int threads = 3, mapnum = -1;
+    Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
+
+    unsigned int threads = std::thread::hardware_concurrency();
+    int mapnum = -1;
     float maxAngle = 70.0f;
     int tileX = -1, tileY = -1;
     bool skipLiquid = false,

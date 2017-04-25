@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "Unit.h"
-#include "UpdateMask.h"
 #include "ItemTemplate.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"
@@ -36,6 +35,230 @@ class Quest;
 class Player;
 class SpellInfo;
 class WorldSession;
+
+enum CreatureDifficultyFlags
+{
+    CREATURE_DIFFICULTYFLAGS_UNK1                              = 0x00000001, // Related to mounts
+    CREATURE_DIFFICULTYFLAGS_NO_EXPERIENCE                     = 0x00000002,
+    CREATURE_DIFFICULTYFLAGS_NO_LOOT                           = 0x00000004,
+    CREATURE_DIFFICULTYFLAGS_UNKILLABLE                        = 0x00000008,
+    CREATURE_DIFFICULTYFLAGS_TAMEABLE                          = 0x00000010, // CREATURE_TYPEFLAGS_TAMEABLE
+    CREATURE_DIFFICULTYFLAGS_IMMUNE_TO_PC                      = 0x00000020, // UNIT_FLAG_IMMUNE_TO_PC
+    CREATURE_DIFFICULTYFLAGS_IMMUNE_TO_NPC                     = 0x00000040, // UNIT_FLAG_IMMUNE_TO_NPC
+    CREATURE_DIFFICULTYFLAGS_UNK2                              = 0x00000080,
+    CREATURE_DIFFICULTYFLAGS_SESSILE                           = 0x00000100, // Creature is rooted
+    CREATURE_DIFFICULTYFLAGS_NOT_SELECTABLE                    = 0x00000200, // UNIT_FLAG_NOT_SELECTABLE
+    CREATURE_DIFFICULTYFLAGS_UNK3                              = 0x00000400, // Related to health - it seems similar to CREATURE_DIFFICULTYFLAGS_2_KEEP_HEALTH_POINTS_AT_RESET
+    CREATURE_DIFFICULTYFLAGS_NO_CORPSE_UPON_DEATH              = 0x00000800, // Creature instantly disappear when killed
+    CREATURE_DIFFICULTYFLAGS_UNK5                              = 0x00001000,
+    CREATURE_DIFFICULTYFLAGS_UNK6                              = 0x00002000,
+    CREATURE_DIFFICULTYFLAGS_UNK7                              = 0x00004000,
+    CREATURE_DIFFICULTYFLAGS_UNK8                              = 0x00008000,
+    CREATURE_DIFFICULTYFLAGS_BOSS                              = 0x00010000, // CREATURE_TYPEFLAGS_BOSS
+    CREATURE_DIFFICULTYFLAGS_UNK9                              = 0x00020000,
+    CREATURE_DIFFICULTYFLAGS_WATER_BOUND                       = 0x00040000,
+    CREATURE_DIFFICULTYFLAGS_CAN_PENETRATE_WATER               = 0x00080000,
+    CREATURE_DIFFICULTYFLAGS_UNK10                             = 0x00100000,
+    CREATURE_DIFFICULTYFLAGS_GHOST                             = 0x00200000, // CREATURE_TYPEFLAGS_GHOST
+    CREATURE_DIFFICULTYFLAGS_UNK11                             = 0x00400000,
+    CREATURE_DIFFICULTYFLAGS_DO_NOT_PLAY_WOUND_PARRY_ANIMATION = 0x00800000, // CREATURE_TYPEFLAGS_DO_NOT_PLAY_WOUND_PARRY_ANIMATION
+    CREATURE_DIFFICULTYFLAGS_HIDE_FACTION_TOOLTIP              = 0x01000000, // CREATURE_TYPEFLAGS_HIDE_FACTION_TOOLTIP
+    CREATURE_DIFFICULTYFLAGS_IGNORE_COMBAT                     = 0x02000000,
+    CREATURE_DIFFICULTYFLAGS_UNK12                             = 0x04000000,
+    CREATURE_DIFFICULTYFLAGS_SUMMON_GUARD_IF_IN_AGGRO_RANGE    = 0x08000000, // Creature will summon a guard if player is within its aggro range (even if creature doesn't attack per se)
+    CREATURE_DIFFICULTYFLAGS_ONLY_SWIM                         = 0x10000000, // UNIT_FLAG_UNK_15
+    CREATURE_DIFFICULTYFLAGS_UNK13                             = 0x20000000, // Related to gravity
+    CREATURE_DIFFICULTYFLAGS_TFLAG_UNK5                        = 0x40000000, // CREATURE_TYPEFLAGS_UNK5
+    CREATURE_DIFFICULTYFLAGS_LARGE_AOI                         = 0x80000000  // UnitFlags2 0x200000
+};
+
+enum CreatureDifficultyFlags2
+{
+    CREATURE_DIFFICULTYFLAGS_2_UNK1                            = 0x00000001,
+    CREATURE_DIFFICULTYFLAGS_2_FORCE_PARTY_MEMBERS_INTO_COMBAT = 0x00000002,
+    CREATURE_DIFFICULTYFLAGS_2_UNK2                            = 0x00000004,
+    CREATURE_DIFFICULTYFLAGS_2_SPELL_ATTACKABLE                = 0x00000008, // CREATURE_TYPEFLAGS_SPELL_ATTACKABLE
+    CREATURE_DIFFICULTYFLAGS_2_UNK3                            = 0x00000010,
+    CREATURE_DIFFICULTYFLAGS_2_UNK4                            = 0x00000020,
+    CREATURE_DIFFICULTYFLAGS_2_UNK5                            = 0x00000040,
+    CREATURE_DIFFICULTYFLAGS_2_UNK6                            = 0x00000080,
+    CREATURE_DIFFICULTYFLAGS_2_UNK7                            = 0x00000100,
+    CREATURE_DIFFICULTYFLAGS_2_UNK8                            = 0x00000200,
+    CREATURE_DIFFICULTYFLAGS_2_UNK9                            = 0x00000400,
+    CREATURE_DIFFICULTYFLAGS_2_DEAD_INTERACT                   = 0x00000800, // CREATURE_TYPEFLAGS_DEAD_INTERACT
+    CREATURE_DIFFICULTYFLAGS_2_UNK10                           = 0x00001000,
+    CREATURE_DIFFICULTYFLAGS_2_UNK11                           = 0x00002000,
+    CREATURE_DIFFICULTYFLAGS_2_HERBLOOT                        = 0x00004000, // CREATURE_TYPEFLAGS_HERBLOOT
+    CREATURE_DIFFICULTYFLAGS_2_MININGLOOT                      = 0x00008000, // CREATURE_TYPEFLAGS_MININGLOOT
+    CREATURE_DIFFICULTYFLAGS_2_DONT_LOG_DEATH                  = 0x00010000, // CREATURE_TYPEFLAGS_DONT_LOG_DEATH
+    CREATURE_DIFFICULTYFLAGS_2_UNK12                           = 0x00020000,
+    CREATURE_DIFFICULTYFLAGS_2_MOUNTED_COMBAT                  = 0x00040000, // CREATURE_TYPEFLAGS_MOUNTED_COMBAT
+    CREATURE_DIFFICULTYFLAGS_2_UNK13                           = 0x00080000,
+    CREATURE_DIFFICULTYFLAGS_2_UNK14                           = 0x00100000, // This flag seems similar to CREATURE_DIFFICULTYFLAGS_IGNORE_COMBAT
+    CREATURE_DIFFICULTYFLAGS_2_UNK15                           = 0x00200000,
+    CREATURE_DIFFICULTYFLAGS_2_UNK16                           = 0x00400000,
+    CREATURE_DIFFICULTYFLAGS_2_UNK17                           = 0x00800000,
+    CREATURE_DIFFICULTYFLAGS_2_UNK18                           = 0x01000000,
+    CREATURE_DIFFICULTYFLAGS_2_HIDE_BODY                       = 0x02000000, // UNIT_FLAG2_UNK1
+    CREATURE_DIFFICULTYFLAGS_2_UNK19                           = 0x04000000,
+    CREATURE_DIFFICULTYFLAGS_2_SERVER_ONLY                     = 0x08000000,
+    CREATURE_DIFFICULTYFLAGS_2_CAN_SAFE_FALL                   = 0x10000000,
+    CREATURE_DIFFICULTYFLAGS_2_CAN_ASSIST                      = 0x20000000, // CREATURE_TYPEFLAGS_CAN_ASSIST
+    CREATURE_DIFFICULTYFLAGS_2_KEEP_HEALTH_POINTS_AT_RESET     = 0x40000000,
+    CREATURE_DIFFICULTYFLAGS_2_IS_PET_BAR_USED                 = 0x80000000  // CREATURE_TYPEFLAGS_IS_PET_BAR_USED
+};
+
+enum CreatureDifficultyFlags3
+{
+    CREATURE_DIFFICULTYFLAGS_3_UNK1                           = 0x00000001,
+    CREATURE_DIFFICULTYFLAGS_3_UNK2                           = 0x00000002,
+    CREATURE_DIFFICULTYFLAGS_3_INSTANTLY_APPEAR_MODEL         = 0x00000004, // UNIT_FLAG2_INSTANTLY_APPEAR_MODEL
+    CREATURE_DIFFICULTYFLAGS_3_MASK_UID                       = 0x00000008, // CREATURE_TYPEFLAG_MASK_UID
+    CREATURE_DIFFICULTYFLAGS_3_ENGINEERLOOT                   = 0x00000010, // CREATURE_TYPEFLAGS_ENGINEERLOOT
+    CREATURE_DIFFICULTYFLAGS_3_UNK3                           = 0x00000020,
+    CREATURE_DIFFICULTYFLAGS_3_UNK4                           = 0x00000040,
+    CREATURE_DIFFICULTYFLAGS_3_UNK5                           = 0x00000080,
+    CREATURE_DIFFICULTYFLAGS_3_CANNOT_SWIM                    = 0x00000100, // UNIT_FLAG_UNK_14
+    CREATURE_DIFFICULTYFLAGS_3_EXOTIC                         = 0x00000200, // CREATURE_TYPEFLAGS_EXOTIC
+    CREATURE_DIFFICULTYFLAGS_3_GIGANTIC_AOI                   = 0x00000400, // Since MoP, creatures with that flag have UnitFlags2 0x400000
+    CREATURE_DIFFICULTYFLAGS_3_INFINITE_AOI                   = 0x00000800, // Since MoP, creatures with that flag have UnitFlags2 0x40000000
+    CREATURE_DIFFICULTYFLAGS_3_WATERWALKING                   = 0x00001000,
+    CREATURE_DIFFICULTYFLAGS_3_HIDE_NAMEPLATE                 = 0x00002000, // CREATURE_TYPEFLAGS_HIDE_NAMEPLATE
+    CREATURE_DIFFICULTYFLAGS_3_UNK6                           = 0x00004000,
+    CREATURE_DIFFICULTYFLAGS_3_UNK7                           = 0x00008000,
+    CREATURE_DIFFICULTYFLAGS_3_USE_DEFAULT_COLLISION_BOX      = 0x00010000, // CREATURE_TYPEFLAGS_USE_DEFAULT_COLLISION_BOX
+    CREATURE_DIFFICULTYFLAGS_3_UNK8                           = 0x00020000,
+    CREATURE_DIFFICULTYFLAGS_3_IS_SIEGE_WEAPON                = 0x00040000, // CREATURE_TYPEFLAGS_IS_SIEGE_WEAPON
+    CREATURE_DIFFICULTYFLAGS_3_UNK9                           = 0x00080000,
+    CREATURE_DIFFICULTYFLAGS_3_UNK10                          = 0x00100000,
+    CREATURE_DIFFICULTYFLAGS_3_UNK11                          = 0x00200000,
+    CREATURE_DIFFICULTYFLAGS_3_PROJECTILE_COLLISION           = 0x00400000, // CREATURE_TYPEFLAGS_PROJECTILE_COLLISION
+    CREATURE_DIFFICULTYFLAGS_3_CAN_BE_MULTITAPPED             = 0x00800000,
+    CREATURE_DIFFICULTYFLAGS_3_DO_NOT_PLAY_MOUNTED_ANIMATIONS = 0x01000000, // CREATURE_TYPEFLAGS_DO_NOT_PLAY_MOUNTED_ANIMATIONS
+    CREATURE_DIFFICULTYFLAGS_3_DISABLE_TURN                   = 0x02000000, // UNIT_FLAG2_DISABLE_TURN
+    CREATURE_DIFFICULTYFLAGS_3_UNK12                          = 0x04000000,
+    CREATURE_DIFFICULTYFLAGS_3_UNK13                          = 0x08000000,
+    CREATURE_DIFFICULTYFLAGS_3_UNK14                          = 0x10000000,
+    CREATURE_DIFFICULTYFLAGS_3_IS_LINK_ALL                    = 0x20000000, // CREATURE_TYPEFLAGS_IS_LINK_ALL
+    CREATURE_DIFFICULTYFLAGS_3_UNK15                          = 0x40000000,
+    CREATURE_DIFFICULTYFLAGS_3_UNK16                          = 0x80000000
+};
+
+enum CreatureDifficultyFlags4
+{
+    CREATURE_DIFFICULTYFLAGS_4_HAS_NO_BIRTH_ANIMATION              = 0x00000001, // SMSG_UPDATE_OBJECT's "NoBirthAnim"
+    CREATURE_DIFFICULTYFLAGS_4_UNK1                                = 0x00000002,
+    CREATURE_DIFFICULTYFLAGS_4_UNK2                                = 0x00000004,
+    CREATURE_DIFFICULTYFLAGS_4_INTERACT_ONLY_WITH_CREATOR          = 0x00000008, // CREATURE_TYPEFLAGS_INTERACT_ONLY_WITH_CREATOR
+    CREATURE_DIFFICULTYFLAGS_4_DO_NOT_PLAY_UNIT_EVENT_SOUNDS       = 0x00000010, // CREATURE_TYPEFLAGS_DO_NOT_PLAY_UNIT_EVENT_SOUNDS
+    CREATURE_DIFFICULTYFLAGS_4_HAS_NO_SHADOW_BLOB                  = 0x00000020, // CREATURE_TYPEFLAGS_HAS_NO_SHADOW_BLOB
+    CREATURE_DIFFICULTYFLAGS_4_UNK3                                = 0x00000040,
+    CREATURE_DIFFICULTYFLAGS_4_UNK4                                = 0x00000080,
+    CREATURE_DIFFICULTYFLAGS_4_UNK5                                = 0x00000100,
+    CREATURE_DIFFICULTYFLAGS_4_UNK6                                = 0x00000200,
+    CREATURE_DIFFICULTYFLAGS_4_UNK7                                = 0x00000400,
+    CREATURE_DIFFICULTYFLAGS_4_UNK8                                = 0x00000800,
+    CREATURE_DIFFICULTYFLAGS_4_UNK9                                = 0x00001000,
+    CREATURE_DIFFICULTYFLAGS_4_UNK10                               = 0x00002000,
+    CREATURE_DIFFICULTYFLAGS_4_UNK11                               = 0x00004000,
+    CREATURE_DIFFICULTYFLAGS_4_UFLAG2_UNK20                        = 0x00008000, // UnitFlags2 0x100000
+    CREATURE_DIFFICULTYFLAGS_4_UNK12                               = 0x00010000,
+    CREATURE_DIFFICULTYFLAGS_4_UNK13                               = 0x00020000,
+    CREATURE_DIFFICULTYFLAGS_4_UNK14                               = 0x00040000,
+    CREATURE_DIFFICULTYFLAGS_4_FORCE_GOSSIP                        = 0x00080000, // CREATURE_TYPEFLAGS_FORCE_GOSSIP
+    CREATURE_DIFFICULTYFLAGS_4_UNK15                               = 0x00100000,
+    CREATURE_DIFFICULTYFLAGS_4_DO_NOT_SHEATHE                      = 0x00200000, // CREATURE_TYPEFLAGS_DO_NOT_SHEATHE
+    CREATURE_DIFFICULTYFLAGS_4_IGNORE_SPELL_MIN_RANGE_RESTRICTIONS = 0x00400000, // UnitFlags2 0x8000000
+    CREATURE_DIFFICULTYFLAGS_4_UNK16                               = 0x00800000,
+    CREATURE_DIFFICULTYFLAGS_4_PREVENT_SWIM                        = 0x01000000, // UnitFlags2 0x1000000
+    CREATURE_DIFFICULTYFLAGS_4_HIDE_IN_COMBAT_LOG                  = 0x02000000, // UnitFlags2 0x2000000
+    CREATURE_DIFFICULTYFLAGS_4_UNK17                               = 0x04000000,
+    CREATURE_DIFFICULTYFLAGS_4_UNK18                               = 0x08000000,
+    CREATURE_DIFFICULTYFLAGS_4_UNK19                               = 0x10000000,
+    CREATURE_DIFFICULTYFLAGS_4_DO_NOT_TARGET_ON_INTERACTION        = 0x20000000, // CREATURE_TYPEFLAGS_DO_NOT_TARGET_ON_INTERACTION
+    CREATURE_DIFFICULTYFLAGS_4_DO_NOT_RENDER_OBJECT_NAME           = 0x40000000, // CREATURE_TYPEFLAGS_DO_NOT_RENDER_OBJECT_NAME
+    CREATURE_DIFFICULTYFLAGS_4_UNIT_IS_QUEST_BOSS                  = 0x80000000  // CREATURE_TYPEFLAGS_UNIT_IS_QUEST_BOSS
+};
+
+enum CreatureDifficultyFlags5
+{
+    CREATURE_DIFFICULTYFLAGS_5_CANNOT_SWITCH_TARGETS        = 0x00000001, // UnitFlags2 0x4000000
+    CREATURE_DIFFICULTYFLAGS_5_UNK1                         = 0x00000002,
+    CREATURE_DIFFICULTYFLAGS_5_UFLAG2_UNK30                 = 0x00000004, // UnitFlags2 0x10000000
+    CREATURE_DIFFICULTYFLAGS_5_UNK2                         = 0x00000008,
+    CREATURE_DIFFICULTYFLAGS_5_UNK3                         = 0x00000010,
+    CREATURE_DIFFICULTYFLAGS_5_UNK4                         = 0x00000020,
+    CREATURE_DIFFICULTYFLAGS_5_UNK5                         = 0x00000040,
+    CREATURE_DIFFICULTYFLAGS_5_UNK6                         = 0x00000080,
+    CREATURE_DIFFICULTYFLAGS_5_CAN_INTERACT_EVEN_IF_HOSTILE = 0x00000100, // UNIT_FLAG2_ALLOW_ENEMY_INTERACT
+    CREATURE_DIFFICULTYFLAGS_5_UNK7                         = 0x00000200,
+    CREATURE_DIFFICULTYFLAGS_5_TFLAG2_UNK1                  = 0x00000400, // CREATURE_TYPEFLAGS_2_UNK1
+    CREATURE_DIFFICULTYFLAGS_5_TFLAG2_UNK2                  = 0x00000800, // CREATURE_TYPEFLAGS_2_UNK2
+    CREATURE_DIFFICULTYFLAGS_5_TFLAG2_UNK3                  = 0x00001000, // CREATURE_TYPEFLAGS_2_UNK3
+    CREATURE_DIFFICULTYFLAGS_5_UFLAG2_UNK19                 = 0x00002000, // UnitFlags2 0x80000
+    CREATURE_DIFFICULTYFLAGS_5_UNK8                         = 0x00004000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK9                         = 0x00008000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK10                        = 0x00010000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK11                        = 0x00020000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK12                        = 0x00040000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK13                        = 0x00080000,
+    CREATURE_DIFFICULTYFLAGS_5_TFLAG2_UNK4                  = 0x00100000, // CREATURE_TYPEFLAGS_2_UNK4
+    CREATURE_DIFFICULTYFLAGS_5_UNK14                        = 0x00200000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK15                        = 0x00400000,
+    CREATURE_DIFFICULTYFLAGS_5_TFLAG2_UNK5                  = 0x00800000, // CREATURE_TYPEFLAGS_2_UNK5
+    CREATURE_DIFFICULTYFLAGS_5_UNK16                        = 0x01000000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK17                        = 0x02000000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK18                        = 0x04000000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK19                        = 0x08000000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK20                        = 0x10000000,
+    CREATURE_DIFFICULTYFLAGS_5_UNK21                        = 0x20000000,
+    CREATURE_DIFFICULTYFLAGS_5_TFLAG2_UNK6                  = 0x40000000, // CREATURE_TYPEFLAGS_2_UNK6
+    CREATURE_DIFFICULTYFLAGS_5_UNK22                        = 0x80000000
+};
+
+enum CreatureDifficultyFlags6
+{
+    CREATURE_DIFFICULTYFLAGS_6_UNK1         = 0x00000001,
+    CREATURE_DIFFICULTYFLAGS_6_UNK2         = 0x00000002,
+    CREATURE_DIFFICULTYFLAGS_6_UNK3         = 0x00000004,
+    CREATURE_DIFFICULTYFLAGS_6_UNK4         = 0x00000008,
+    CREATURE_DIFFICULTYFLAGS_6_UNK5         = 0x00000010,
+    CREATURE_DIFFICULTYFLAGS_6_UNK6         = 0x00000020,
+    CREATURE_DIFFICULTYFLAGS_6_UNK7         = 0x00000040,
+    CREATURE_DIFFICULTYFLAGS_6_TFLAG2_UNK7  = 0x00000080,
+    CREATURE_DIFFICULTYFLAGS_6_UNK8         = 0x00000100,
+    CREATURE_DIFFICULTYFLAGS_6_UNK9         = 0x00000200,
+    CREATURE_DIFFICULTYFLAGS_6_UNK10        = 0x00000400,
+    CREATURE_DIFFICULTYFLAGS_6_UNK11        = 0x00000800,
+    CREATURE_DIFFICULTYFLAGS_6_UNK12        = 0x00001000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK13        = 0x00002000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK14        = 0x00004000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK15        = 0x00008000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK16        = 0x00010000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK17        = 0x00020000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK18        = 0x00040000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK19        = 0x00080000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK20        = 0x00100000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK21        = 0x00200000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK22        = 0x00400000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK23        = 0x00800000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK24        = 0x01000000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK25        = 0x02000000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK26        = 0x04000000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK27        = 0x08000000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK28        = 0x10000000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK29        = 0x20000000,
+    CREATURE_DIFFICULTYFLAGS_6_UNK30        = 0x40000000,
+    CREATURE_DIFFICULTYFLAGS_6_TFLAG2_UNK14 = 0x80000000
+};
+
+enum CreatureDifficultyFlags7
+{
+    CREATURE_DIFFICULTYFLAGS_7_TFLAG2_UNK15 = 0x00000001,
+    CREATURE_DIFFICULTYFLAGS_7_TFLAG2_UNK16 = 0x00000002,
+    CREATURE_DIFFICULTYFLAGS_7_TFLAG2_UNK17 = 0x00000004,
+    CREATURE_DIFFICULTYFLAGS_7_UNK1         = 0x00000008
+};
 
 enum CreatureFlagsExtra
 {
@@ -67,13 +290,14 @@ enum CreatureFlagsExtra
     CREATURE_FLAG_EXTRA_NO_SKILLGAIN | CREATURE_FLAG_EXTRA_TAUNT_DIMINISH | CREATURE_FLAG_EXTRA_ALL_DIMINISH | \
     CREATURE_FLAG_EXTRA_GUARD | CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING | CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ | CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK)
 
-#define CREATURE_REGEN_INTERVAL 2 * IN_MILLISECONDS
+const uint32 CREATURE_REGEN_INTERVAL = 2 * IN_MILLISECONDS;
+const uint32 CREATURE_NOPATH_EVADE_TIME = 5 * IN_MILLISECONDS;
 
-#define MAX_KILL_CREDIT 2
-#define MAX_CREATURE_MODELS 4
-#define MAX_CREATURE_NAMES 4
-#define CREATURE_MAX_SPELLS 8
-#define MAX_CREATURE_DIFFICULTIES 3
+const uint8 MAX_KILL_CREDIT = 2;
+const uint32 MAX_CREATURE_MODELS = 4;
+const uint32 MAX_CREATURE_NAMES = 4;
+const uint32 MAX_CREATURE_SPELLS = 8;
+const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
@@ -92,8 +316,9 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
-    int32   expansion;
-    uint32  expansionUnknown;                               // either 0 or 3, sent to the client / wdb
+    int32   HealthScalingExpansion;
+    uint32  RequiredExpansion;
+    uint32  VignetteID;                                     /// @todo Read Vignette.db2
     uint32  faction;
     uint64  npcflag;
     float   speed_walk;
@@ -109,7 +334,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  unit_flags;                                     // enum UnitFlags mask values
     uint32  unit_flags2;                                    // enum UnitFlags2 mask values
     uint32  dynamicflags;
-    uint32  family;                                         // enum CreatureFamily values (optional)
+    CreatureFamily  family;                                 // enum CreatureFamily values (optional)
     uint32  trainer_type;
     uint32  trainer_class;
     uint32  trainer_race;
@@ -120,7 +345,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  pickpocketLootId;
     uint32  SkinLootId;
     int32   resistance[MAX_SPELL_SCHOOL];
-    uint32  spells[CREATURE_MAX_SPELLS];
+    uint32  spells[MAX_CREATURE_SPELLS];
     uint32  VehicleId;
     uint32  mingold;
     uint32  maxgold;
@@ -149,11 +374,11 @@ struct TC_GAME_API CreatureTemplate
     // helpers
     SkillType GetRequiredLootSkill() const
     {
-        if (type_flags & CREATURE_TYPEFLAGS_HERBLOOT)
+        if (type_flags & CREATURE_TYPE_FLAG_HERB_SKINNING_SKILL)
             return SKILL_HERBALISM;
-        else if (type_flags & CREATURE_TYPEFLAGS_MININGLOOT)
+        else if (type_flags & CREATURE_TYPE_FLAG_MINING_SKINNING_SKILL)
             return SKILL_MINING;
-        else if (type_flags & CREATURE_TYPEFLAGS_ENGINEERLOOT)
+        else if (type_flags & CREATURE_TYPE_FLAG_ENGINEERING_SKINNING_SKILL)
             return SKILL_ENGINEERING;
         else
             return SKILL_SKINNING;                          // normal case
@@ -161,12 +386,12 @@ struct TC_GAME_API CreatureTemplate
 
     bool IsExotic() const
     {
-        return (type_flags & CREATURE_TYPEFLAGS_EXOTIC) != 0;
+        return (type_flags & CREATURE_TYPE_FLAG_EXOTIC_PET) != 0;
     }
 
     bool IsTameable(bool canTameExotic) const
     {
-        if (type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE) == 0)
+        if (type != CREATURE_TYPE_BEAST || family == CREATURE_FAMILY_NONE || (type_flags & CREATURE_TYPE_FLAG_TAMEABLE_PET) == 0)
             return false;
 
         // if can tame exotic then can tame any tameable
@@ -181,16 +406,16 @@ struct TC_GAME_API CreatureTemplate
             case DIFFICULTY_NORMAL:
             case DIFFICULTY_10_N:
             case DIFFICULTY_40:
-            case DIFFICULTY_N_SCENARIO:
+            case DIFFICULTY_3_MAN_SCENARIO_N:
             case DIFFICULTY_NORMAL_RAID:
                 return -1;
             case DIFFICULTY_HEROIC:
             case DIFFICULTY_25_N:
-            case DIFFICULTY_HC_SCENARIO:
+            case DIFFICULTY_3_MAN_SCENARIO_HC:
             case DIFFICULTY_HEROIC_RAID:
                 return 0;
             case DIFFICULTY_10_HC:
-            case DIFFICULTY_CHALLENGE:
+            case DIFFICULTY_MYTHIC_KEYSTONE:
             case DIFFICULTY_MYTHIC_RAID:
                 return 1;
             case DIFFICULTY_25_HC:
@@ -228,7 +453,7 @@ struct TC_GAME_API CreatureBaseStats
 
     uint32 GenerateHealth(CreatureTemplate const* info) const
     {
-        return uint32(ceil(BaseHealth[info->expansion] * info->ModHealth * info->ModHealthExtra));
+        return uint32(ceil(BaseHealth[info->HealthScalingExpansion] * info->ModHealth * info->ModHealthExtra));
     }
 
     uint32 GenerateMana(CreatureTemplate const* info) const
@@ -247,7 +472,7 @@ struct TC_GAME_API CreatureBaseStats
 
     float GenerateBaseDamage(CreatureTemplate const* info) const
     {
-        return BaseDamage[info->expansion];
+        return BaseDamage[info->HealthScalingExpansion];
     }
 
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);
@@ -274,9 +499,16 @@ struct PointOfInterestLocale
     StringVector Name;
 };
 
+struct EquipmentItem
+{
+    uint32 ItemId = 0;
+    uint16 AppearanceModId = 0;
+    uint16 ItemVisual = 0;
+};
+
 struct EquipmentInfo
 {
-    uint32  ItemEntry[MAX_EQUIPMENT_ITEMS];
+    EquipmentItem Items[MAX_EQUIPMENT_ITEMS];
 };
 
 // Benchmarked: Faster than std::map (insert/find)
@@ -311,6 +543,7 @@ struct CreatureData
     uint32 dynamicflags;
     uint32 phaseid;
     uint32 phaseGroup;
+    uint32 ScriptId;
     bool dbData;
 };
 
@@ -324,14 +557,15 @@ struct CreatureModelInfo
 };
 
 // Benchmarked: Faster than std::map (insert/find)
-typedef std::unordered_map<uint16, CreatureModelInfo> CreatureModelContainer;
+typedef std::unordered_map<uint32, CreatureModelInfo> CreatureModelContainer;
 
 enum InhabitTypeValues
 {
     INHABIT_GROUND = 1,
     INHABIT_WATER  = 2,
     INHABIT_AIR    = 4,
-    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR
+    INHABIT_ROOT   = 8,
+    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR | INHABIT_ROOT
 };
 
 // Enums used by StringTextData::Type (CreatureEventAI)
@@ -357,6 +591,9 @@ struct CreatureAddon
     uint32 bytes1;
     uint32 bytes2;
     uint32 emote;
+    uint16 aiAnimKit;
+    uint16 movementAnimKit;
+    uint16 meleeAnimKit;
     std::vector<uint32> auras;
 };
 
@@ -376,7 +613,7 @@ struct VendorItem
     uint8  Type;
 
     //helpers
-    bool IsGoldRequired(ItemTemplate const* pProto) const { return pProto->GetFlags2() & ITEM_FLAG2_EXT_COST_REQUIRES_GOLD || !ExtendedCost; }
+    bool IsGoldRequired(ItemTemplate const* pProto) const { return pProto->GetFlags2() & ITEM_FLAG2_DONT_IGNORE_BUY_PRICE || !ExtendedCost; }
 };
 typedef std::vector<VendorItem*> VendorItemList;
 
@@ -435,6 +672,7 @@ struct TrainerSpell
     uint32 ReqSkillRank;
     uint32 ReqLevel;
     uint32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
+    uint32 Index;
 
     // helpers
     bool IsCastable() const { return ReqAbility[0] != SpellID; }
@@ -482,7 +720,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool LoadCreaturesAddon();
         void SelectLevel();
+        void UpdateLevelDependantStats();
         void LoadEquipment(int8 id = 1, bool force = false);
+        void SetSpawnHealth();
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
@@ -496,7 +736,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
         bool CanWalk() const { return (GetCreatureTemplate()->InhabitType & INHABIT_GROUND) != 0; }
-        bool CanSwim() const { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
+        bool CanSwim() const override { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
         bool CanFly()  const override { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
@@ -518,6 +758,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
+        bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
 
         bool AIM_Destroy();
         bool AIM_Initialize(CreatureAI* ai = NULL);
@@ -530,7 +771,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool HasSpell(uint32 spellID) const override;
 
-        bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr);
+        bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr, bool updateLevel = true);
 
         void UpdateMovementFlags();
 
@@ -600,7 +841,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         SpellInfo const* reachWithSpellAttack(Unit* victim);
         SpellInfo const* reachWithSpellCure(Unit* victim);
 
-        uint32 m_spells[CREATURE_MAX_SPELLS];
+        uint32 m_spells[MAX_CREATURE_SPELLS];
 
         bool CanStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* player) const;
@@ -627,7 +868,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void RemoveCorpse(bool setSpawnTime = true);
 
-        void DespawnOrUnsummon(uint32 msTimeToDespawn = 0);
+        void DespawnOrUnsummon(uint32 msTimeToDespawn = 0, Seconds const& forceRespawnTime = Seconds(0));
+        void DespawnOrUnsummon(Milliseconds const& time, Seconds const& forceRespawnTime = Seconds(0)) { DespawnOrUnsummon(uint32(time.count()), forceRespawnTime); }
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
@@ -664,6 +906,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void setRegeneratingHealth(bool regenHealth) { m_regenHealth = regenHealth; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
+
+        void SetCannotReachTarget(bool cannotReach) { if (cannotReach == m_cannotReachTarget) return; m_cannotReachTarget = cannotReach; m_cannotReachTimer = 0; }
+        bool CanNotReachTarget() const { return m_cannotReachTarget; }
 
         void SetPosition(float x, float y, float z, float o);
         void SetPosition(const Position &pos) { SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()); }
@@ -708,7 +953,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         // Handling caster facing during spellcast
         void SetTarget(ObjectGuid const& guid) override;
-        bool FocusTarget(Spell const* focusSpell, WorldObject const* target);
+        void MustReacquireTarget() { m_shouldReacquireTarget = true; } // flags the Creature for forced (client displayed) target reacquisition in the next ::Update call
+        void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false);
         void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
 
@@ -752,6 +998,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;
         bool m_regenHealth;
+        bool m_cannotReachTarget;
+        uint32 m_cannotReachTimer;
         bool m_AI_locked;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
@@ -771,7 +1019,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
     private:
-        void ForcedDespawn(uint32 timeMSToDespawn = 0);
+        void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
         bool CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
 
         //WaypointMovementGenerator vars
@@ -782,8 +1030,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureGroup* m_formation;
         bool m_TriggerJustRespawned;
 
-        Spell const* m_focusSpell;   ///> Locks the target during spell cast for proper facing
+        /* Spell focus system */
+        Spell const* m_focusSpell;   // Locks the target during spell cast for proper facing
         uint32 m_focusDelay;
+        bool m_shouldReacquireTarget;
+        ObjectGuid m_suppressedTarget; // Stores the creature's "real" target while casting
+        float m_suppressedOrientation; // Stores the creature's "real" orientation while casting
 
         CreatureTextRepeatGroup m_textRepeat;
 };
@@ -806,11 +1058,12 @@ class TC_GAME_API AssistDelayEvent : public BasicEvent
 class TC_GAME_API ForcedDespawnDelayEvent : public BasicEvent
 {
     public:
-        ForcedDespawnDelayEvent(Creature& owner) : BasicEvent(), m_owner(owner) { }
+        ForcedDespawnDelayEvent(Creature& owner, Seconds const& respawnTimer) : BasicEvent(), m_owner(owner), m_respawnTimer(respawnTimer) { }
         bool Execute(uint64 e_time, uint32 p_time) override;
 
     private:
         Creature& m_owner;
+        Seconds const m_respawnTimer;
 };
 
 #endif

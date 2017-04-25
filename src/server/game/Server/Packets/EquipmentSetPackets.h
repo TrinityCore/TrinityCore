@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,6 +33,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 GUID  = 0; ///< Set Identifier
+            int32 Type = 0;
             uint32 SetID = 0; ///< Index
         };
 
@@ -82,6 +83,7 @@ namespace WorldPackets
 
             WorldPackets::Item::InvUpdate Inv;
             EquipmentSetItem Items[EQUIPMENT_SLOT_END];
+            uint64 GUID = 0; ///< Set Identifier
         };
 
         class UseEquipmentSetResult final : public ServerPacket
@@ -91,6 +93,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            uint64 GUID = 0; ///< Set Identifier
             uint8 Reason = 0;
         };
     }

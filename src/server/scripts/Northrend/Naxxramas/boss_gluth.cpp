@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -200,7 +200,7 @@ public:
                         if (zombie)
                         {
                             zombieToBeEatenGUID = zombie->GetGUID(); // save for later use
-                            
+
                             // the soon-to-be-eaten zombie should stop moving and stop attacking
                             zombie->AI()->SetData(DATA_ZOMBIE_STATE, STATE_ZOMBIE_TOBE_EATEN);
 
@@ -225,7 +225,7 @@ public:
                     case EVENT_KILL_ZOMBIE_SINGLE:
                     {
                         Creature* zombieToBeEaten = ObjectAccessor::GetCreature(*me, zombieToBeEatenGUID);
-                        if (zombieToBeEaten && zombieToBeEaten->IsAlive() && zombieToBeEaten->IsWithinDistInMap(me, 10.0)) 
+                        if (zombieToBeEaten && zombieToBeEaten->IsAlive() && zombieToBeEaten->IsWithinDistInMap(me, 10.0))
                             DoCast(zombieToBeEaten, SPELL_ZOMBIE_CHOW_SEARCH_SINGLE); // do the killing + healing in done inside by spell script see below.
 
                         zombieToBeEatenGUID = ObjectGuid::Empty;
@@ -249,15 +249,18 @@ public:
                             if (zombie && zombie->IsAlive() && zombie->GetExactDist2d(me) > 18.0)
                                 zombie = nullptr;
                         }
-                            
+
                         if (zombie) // cast the aoe spell only if at least one zombie is found nearby
                         {
                             Talk(EMOTE_DEVOURS_ALL);
-                            DoCastAOE(SPELL_ZOMBIE_CHOW_SEARCH_MULTI); 
+                            DoCastAOE(SPELL_ZOMBIE_CHOW_SEARCH_MULTI);
                         }
                         break;
                     }
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -269,7 +272,7 @@ public:
                 me->GetMotionMaster()->MoveIdle();
                 events.ScheduleEvent(EVENT_KILL_ZOMBIE_SINGLE, Seconds(1));
             }
-            
+
         }
 
         void DoAction(int32 action) override
@@ -405,17 +408,19 @@ public:
             if (state == STATE_ZOMBIE_DECIMATED)
             {
                 timer += diff;
-                Creature* gluth = ObjectAccessor::GetCreature(*me, GluthGUID);
-                // Putting this in the UpdateAI loop fixes an issue where death gripping a decimated zombie would make the zombie stand still until the rest of the fight.
-                // Also fix the issue where if one or more zombie is rooted when decimates hits (and MovePoint() is called), the zombie teleport to the boss. pretty weird behavior.
-                if (gluth && timer>1600 && me->GetExactDist2d(gluth) > 10.0 && me->CanFreeMove()) // it takes about 1600 ms for the animation to cycle. This way, the animation looks relatively smooth.
+                if (Creature* gluth = ObjectAccessor::GetCreature(*me, GluthGUID))
                 {
-                    me->GetMotionMaster()->MovePoint(0, gluth->GetPosition()); // isn't dynamic. So, to take into account Gluth's movement, it must be called periodicly.
-                    timer = 0;
-                }
+                    // Putting this in the UpdateAI loop fixes an issue where death gripping a decimated zombie would make the zombie stand still until the rest of the fight.
+                    // Also fix the issue where if one or more zombie is rooted when decimates hits (and MovePoint() is called), the zombie teleport to the boss. pretty weird behavior.
+                    if (timer > 1600 && me->GetExactDist2d(gluth) > 10.0f && me->CanFreeMove()) // it takes about 1600 ms for the animation to cycle. This way, the animation looks relatively smooth.
+                    {
+                        me->GetMotionMaster()->MovePoint(0, gluth->GetPosition()); // isn't dynamic. So, to take into account Gluth's movement, it must be called periodicly.
+                        timer = 0;
+                    }
 
-                if (me->GetExactDist2d(gluth) <= 10.0)
-                    me->StopMoving();
+                    if (me->GetExactDist2d(gluth) <= 10.0f)
+                        me->StopMoving();
+                }
             }
             else if (state == STATE_ZOMBIE_NORMAL)
                 DoMeleeAttackIfReady();
@@ -430,10 +435,10 @@ public:
                 {
                     me->SetReactState(ReactStates::REACT_PASSIVE);
                     me->AttackStop();
-                    me->SetTarget(ObjectGuid::Empty); 
+                    me->SetTarget(ObjectGuid::Empty);
                     // at this point, the zombie should be non attacking and non moving.
 
-                    me->SetWalk(true); // it doesnt seem to work with MoveFollow() (but it does work with MovePoint()). 
+                    me->SetWalk(true); // it doesnt seem to work with MoveFollow() (but it does work with MovePoint()).
 
                     timer = 1000;
                 }

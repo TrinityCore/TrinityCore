@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "VMapDefinitions.h"
 #include "Log.h"
 #include "Errors.h"
+#include "Metric.h"
 
 #include <string>
 #include <sstream>
@@ -415,6 +416,8 @@ namespace VMAP
         }
         else
             iLoadedTiles[packTileID(tileX, tileY)] = false;
+        TC_METRIC_EVENT("map_events", "LoadMapTile",
+            "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
         return result;
     }
 
@@ -473,6 +476,8 @@ namespace VMAP
             }
         }
         iLoadedTiles.erase(tile);
+        TC_METRIC_EVENT("map_events", "UnloadMapTile",
+            "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
     }
 
     void StaticMapTree::getModelInstances(ModelInstance* &models, uint32 &count)

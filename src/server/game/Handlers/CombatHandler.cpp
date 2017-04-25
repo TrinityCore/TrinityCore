@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -51,7 +51,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& pa
     {
         VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(_player);
         ASSERT(seat);
-        if (!(seat->Flags & VEHICLE_SEAT_FLAG_CAN_ATTACK))
+        if (!(seat->Flags[0] & VEHICLE_SEAT_FLAG_CAN_ATTACK))
         {
             SendAttackStop(enemy);
             return;

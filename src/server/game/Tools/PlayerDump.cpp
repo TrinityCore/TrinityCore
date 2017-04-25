@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,20 +19,19 @@
 #include "Common.h"
 #include "PlayerDump.h"
 #include "DatabaseEnv.h"
-#include "UpdateFields.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "AccountMgr.h"
 #include "World.h"
 
-#define DUMP_TABLE_COUNT 30
+#define DUMP_TABLE_COUNT 35
 struct DumpTable
 {
     char const* name;
     DumpTableType type;
 };
 
-static DumpTable dumpTables[DUMP_TABLE_COUNT] =
+DumpTable const dumpTables[DUMP_TABLE_COUNT] =
 {
     { "characters",                       DTT_CHARACTER  },
     { "character_account_data",           DTT_CHAR_TABLE },
@@ -45,6 +44,7 @@ static DumpTable dumpTables[DUMP_TABLE_COUNT] =
     { "character_currency",               DTT_CURRENCY   },
     { "character_declinedname",           DTT_CHAR_TABLE },
     { "character_equipmentsets",          DTT_EQSET_TABLE},
+    { "character_fishingsteps",           DTT_CHAR_TABLE },
     { "character_glyphs",                 DTT_CHAR_TABLE },
     { "character_homebind",               DTT_CHAR_TABLE },
     { "character_inventory",              DTT_INVENTORY  },
@@ -52,6 +52,10 @@ static DumpTable dumpTables[DUMP_TABLE_COUNT] =
     { "character_pet_declinedname",       DTT_PET        },
     { "character_queststatus",            DTT_CHAR_TABLE },
     { "character_queststatus_objectives", DTT_CHAR_TABLE },
+    { "character_queststatus_daily",      DTT_CHAR_TABLE },
+    { "character_queststatus_weekly",     DTT_CHAR_TABLE },
+    { "character_queststatus_monthly",    DTT_CHAR_TABLE },
+    { "character_queststatus_seasonal",   DTT_CHAR_TABLE },
     { "character_queststatus_rewarded",   DTT_CHAR_TABLE },
     { "character_reputation",             DTT_CHAR_TABLE },
     { "character_skills",                 DTT_CHAR_TABLE },

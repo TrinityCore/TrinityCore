@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -218,9 +218,8 @@ namespace WorldPackets
             ComplaintOffender Offender;
             uint32 MailID = 0;
             ComplaintChat Chat;
-            ObjectGuid EventGuid;
-            ObjectGuid InviteGuid;
-
+            uint64 EventGuid;
+            uint64 InviteGuid;
         };
 
         class ComplaintResult final : public ServerPacket

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,6 +29,9 @@ WorldPacket const* WorldPackets::Totem::TotemCreated::Write()
     _worldPacket << Totem;
     _worldPacket << int32(Duration);
     _worldPacket << int32(SpellID);
+    _worldPacket << float(TimeMod);
+    _worldPacket.WriteBit(CannotDismiss);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

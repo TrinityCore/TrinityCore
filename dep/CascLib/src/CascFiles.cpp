@@ -522,14 +522,16 @@ static int ParseFile_BuildInfo(TCascStorage * hs, void * pvListFile)
     QUERY_KEY TagString = {NULL, 0};
     QUERY_KEY CdnHost = {NULL, 0};
     QUERY_KEY CdnPath = {NULL, 0};
-    char szOneLine1[0x200];
-    char szOneLine2[0x400];
+    const char * szLinePtr1;
+    const char * szLineEnd1;
+    const char * szLinePtr2;
+    const char * szLineEnd2;
     size_t nLength1;
     size_t nLength2;
     int nError = ERROR_BAD_FORMAT;
 
     // Extract the first line, cotaining the headers
-    nLength1 = ListFile_GetNextLine(pvListFile, szOneLine1, _maxchars(szOneLine1));
+    nLength1 = ListFile_GetNextLine(pvListFile, &szLinePtr1, &szLineEnd1);
     if(nLength1 == 0)
         return ERROR_BAD_FORMAT;
 
@@ -537,16 +539,10 @@ static int ParseFile_BuildInfo(TCascStorage * hs, void * pvListFile)
     // with "Active" set to 1
     for(;;)
     {
-        const char * szLinePtr1 = szOneLine1;
-        const char * szLineEnd1 = szOneLine1 + nLength1;
-        const char * szLinePtr2 = szOneLine2;
-        const char * szLineEnd2;
-
         // Read the next line
-        nLength2 = ListFile_GetNextLine(pvListFile, szOneLine2, _maxchars(szOneLine2));
+        nLength2 = ListFile_GetNextLine(pvListFile, &szLinePtr2, &szLineEnd2);
         if(nLength2 == 0)
             break;
-        szLineEnd2 = szLinePtr2 + nLength2;
 
         // Parse all variables
         while(szLinePtr1 < szLineEnd1)
@@ -586,6 +582,9 @@ static int ParseFile_BuildInfo(TCascStorage * hs, void * pvListFile)
         FreeCascBlob(&CdnHost);
         FreeCascBlob(&CdnPath);
         FreeCascBlob(&TagString);
+
+        // Rewind column names pointer back to start of line
+        szLinePtr1 = szLineEnd1 - nLength1;
     }
 
     // All four must be present
@@ -696,7 +695,7 @@ static int LoadCdnConfigFile(TCascStorage * hs, void * pvListFile)
         szVarBegin = CheckLineVariable(szLineBegin, szLineEnd, "patch-archive-group");
         if(szVarBegin != NULL)
         {
-            LoadSingleBlob(&hs->PatchArchivesKey, szVarBegin, szLineEnd);
+            LoadSingleBlob(&hs->PatchArchivesGroup, szVarBegin, szLineEnd);
             continue;
         }
 
@@ -862,15 +861,14 @@ int LoadBuildInfo(TCascStorage * hs)
     // proceed with loading the CDN config file and CDN build file
     if(nError == ERROR_SUCCESS)
     {
-        // Load the configuration file
+        // Load the configuration file. Note that we don't
+        // need it for anything, really, so we don't care if it fails
         pvListFile = FetchAndVerifyConfigFile(hs, &hs->CdnConfigKey);
         if(pvListFile != NULL)
         {
             nError = LoadCdnConfigFile(hs, pvListFile);
             ListFile_Free(pvListFile);
         }
-        else
-            nError = ERROR_FILE_NOT_FOUND;
     }
 
     // Load the build file
@@ -903,9 +901,9 @@ int LoadBuildInfo(TCascStorage * hs)
     return nError;
 }
 
-// Checks whether there is a ".agent.db". If yes, the function
-// sets "szRootPath" and "szDataPath" in the storage structure
-// and returns ERROR_SUCCESS
+// Checks whether there is a ".build.info" or ".build.db".
+// If yes, the function sets "szRootPath" and "szDataPath"
+// in the storage structure and returns ERROR_SUCCESS
 int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory)
 {
     TFileStream * pStream;
@@ -920,7 +918,7 @@ int CheckGameDirectory(TCascStorage * hs, TCHAR * szDirectory)
         if(szBuildFile != NULL)
         {
             // Attempt to open the file
-            pStream = FileStream_OpenFile(szBuildFile, 0);
+            pStream = FileStream_OpenFile(szBuildFile, STREAM_FLAG_READ_ONLY);
             if(pStream != NULL)
             {
                 // Free the stream

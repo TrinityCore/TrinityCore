@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
+#include "BattlefieldTB.h"
 #include "Player.h"
 
 BattlefieldMgr::BattlefieldMgr()
@@ -53,8 +54,6 @@ void BattlefieldMgr::InitBattlefield()
         TC_LOG_INFO("bg.battlefield", "Battlefield: Wintergrasp successfully initiated.");
     }
 
-    /*
-    For Cataclysm: Tol Barad
     Battlefield* tb = new BattlefieldTB;
     // respawn, init variables
     if (!tb->SetupBattlefield())
@@ -67,7 +66,6 @@ void BattlefieldMgr::InitBattlefield()
         _battlefieldSet.push_back(tb);
         TC_LOG_DEBUG("bg.battlefield", "Battlefield: Tol Barad successfully initiated.");
     }
-    */
 }
 
 void BattlefieldMgr::AddZone(uint32 zoneId, Battlefield* bf)
@@ -109,11 +107,11 @@ Battlefield* BattlefieldMgr::GetBattlefieldToZoneId(uint32 zoneId)
     if (itr == _battlefieldMap.end())
     {
         // no handle for this zone, return
-        return NULL;
+        return nullptr;
     }
 
     if (!itr->second->IsEnabled())
-        return NULL;
+        return nullptr;
 
     return itr->second;
 }
@@ -125,7 +123,7 @@ Battlefield* BattlefieldMgr::GetBattlefieldByBattleId(uint32 battleId)
         if ((*itr)->GetBattleId() == battleId)
             return *itr;
     }
-    return NULL;
+    return nullptr;
 }
 
 Battlefield* BattlefieldMgr::GetBattlefieldByQueueId(uint64 queueId)
@@ -143,7 +141,7 @@ ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId)
     if (itr != _battlefieldMap.end())
         return itr->second;
 
-    return NULL;
+    return nullptr;
 }
 
 void BattlefieldMgr::Update(uint32 diff)

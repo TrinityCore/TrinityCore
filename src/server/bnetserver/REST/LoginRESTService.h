@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,10 +32,16 @@
 struct soap;
 struct soap_plugin;
 
+enum class BanMode
+{
+    BAN_IP = 0,
+    BAN_ACCOUNT = 1
+};
+
 class LoginRESTService
 {
 public:
-    LoginRESTService() : _stopped(false), _port(0) { }
+    LoginRESTService() : _stopped(false), _port(0), _loginTicketCleanupTimer(nullptr) { }
 
     static LoginRESTService& Instance();
 

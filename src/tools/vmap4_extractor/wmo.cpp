@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,24 +26,23 @@
 #include <fstream>
 #undef min
 #undef max
-#include "mpqfile.h"
+#include "cascfile.h"
 
 using namespace std;
-extern uint16 *LiqType;
 
 WMORoot::WMORoot(std::string &filename)
-    : filename(filename), col(0), nTextures(0), nGroups(0), nP(0), nLights(0),
-    nModels(0), nDoodads(0), nDoodadSets(0), RootWMOID(0), liquidType(0)
+    : filename(filename), color(0), nTextures(0), nGroups(0), nPortals(0), nLights(0),
+    nDoodadNames(0), nDoodadDefs(0), nDoodadSets(0), RootWMOID(0), flags(0), numLod(0)
 {
     memset(bbcorn1, 0, sizeof(bbcorn1));
     memset(bbcorn2, 0, sizeof(bbcorn2));
 }
 
-extern HANDLE CascStorage;
+extern CASC::StorageHandle CascStorage;
 
 bool WMORoot::open()
 {
-    MPQFile f(CascStorage, filename.c_str());
+    CASCFile f(CascStorage, filename.c_str());
     if(f.isEof ())
     {
         printf("No such file.\n");
@@ -67,17 +66,43 @@ bool WMORoot::open()
         {
             f.read(&nTextures, 4);
             f.read(&nGroups, 4);
-            f.read(&nP, 4);
+            f.read(&nPortals, 4);
             f.read(&nLights, 4);
-            f.read(&nModels, 4);
-            f.read(&nDoodads, 4);
+            f.read(&nDoodadNames, 4);
+            f.read(&nDoodadDefs, 4);
             f.read(&nDoodadSets, 4);
-            f.read(&col, 4);
+            f.read(&color, 4);
             f.read(&RootWMOID, 4);
             f.read(bbcorn1, 12);
             f.read(bbcorn2, 12);
-            f.read(&liquidType, 4);
-            break;
+            f.read(&flags, 2);
+            f.read(&numLod, 2);
+        }
+        else if (!strcmp(fourcc, "GFID"))
+        {
+            // full LOD reading code for reference
+            // commented out as we are not interested in any of them beyond first, most detailed
+
+            //uint16 lodCount = 1;
+            //if (flags & 0x10)
+            //{
+            //    if (numLod)
+            //        lodCount = numLod;
+            //    else
+            //        lodCount = 3;
+            //}
+
+            //for (uint32 lod = 0; lod < lodCount; ++lod)
+            //{
+                for (uint32 gp = 0; gp < nGroups; ++gp)
+                {
+                    uint32 fileDataId;
+                    f.read(&fileDataId, 4);
+                    if (fileDataId)
+                        groupFileDataIDs.push_back(fileDataId);
+                }
+            //    break;
+            //}
         }
         /*
         else if (!strcmp(fourcc,"MOTX"))
@@ -151,7 +176,7 @@ WMOGroup::WMOGroup(const std::string &filename) :
 
 bool WMOGroup::open()
 {
-    MPQFile f(CascStorage, filename.c_str());
+    CASCFile f(CascStorage, filename.c_str());
     if(f.isEof ())
     {
         printf("No such file.\n");
@@ -409,7 +434,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
 
         // according to WoW.Dev Wiki:
         uint32 liquidEntry;
-        if (rootWMO->liquidType & 4)
+        if (rootWMO->flags & 4)
             liquidEntry = liquidType;
         else if (liquidType == 15)
             liquidEntry = 0;
@@ -460,7 +485,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
 
         /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
         llog << filename;
-        llog << ":\nliquidEntry: " << liquidEntry << " type: " << hlq->type << " (root:" << rootWMO->liquidType << " group:" << liquidType << ")\n";
+        llog << ":\nliquidEntry: " << liquidEntry << " type: " << hlq->type << " (root:" << rootWMO->flags << " group:" << flags << ")\n";
         llog.close(); */
 
         fwrite(hlq, sizeof(WMOLiquidHeader), 1, output);
@@ -485,7 +510,7 @@ WMOGroup::~WMOGroup()
     delete [] LiquBytes;
 }
 
-WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
+WMOInstance::WMOInstance(CASCFile& f, char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
     : currx(0), curry(0), wmo(NULL), doodadset(0), pos(), indx(0), id(0), d2(0), d3(0)
 {
     float ff[3];

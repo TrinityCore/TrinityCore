@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -213,7 +213,41 @@ namespace WorldPackets
 
             std::vector<EarnedAchievement> Earned;
         };
+
+        class GuildGetAchievementMembers final : public ClientPacket
+        {
+        public:
+            GuildGetAchievementMembers(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PlayerGUID;
+            ObjectGuid GuildGUID;
+            int32 AchievementID = 0;
+        };
+
+        struct GuildAchievementMember
+        {
+            GuildAchievementMember() = default;
+            GuildAchievementMember(ObjectGuid guid) : MemberGUID(guid) { }
+
+            ObjectGuid MemberGUID;
+        };
+
+        class GuildAchievementMembers final : public ServerPacket
+        {
+        public:
+            GuildAchievementMembers() : ServerPacket(SMSG_GUILD_ACHIEVEMENT_MEMBERS) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GuildGUID;
+            int32 AchievementID = 0;
+            std::vector<GuildAchievementMember> Member;
+        };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Achievement::CriteriaProgress const& criteria);
 
 #endif // game_AchievementPackets_h__

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -198,8 +198,8 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 if (!target || me->GetVictim() != target)
                 {
                     Unit* ownerTarget = nullptr;
-                    if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
-                        ownerTarget = owner->GetSelectedUnit();
+                    if (Player* ownerPlayer = me->GetCharmerOrOwner()->ToPlayer())
+                        ownerTarget = ownerPlayer->GetSelectedUnit();
 
                     // recognize which victim will be choosen
                     if (ownerTarget && ownerTarget->GetTypeId() == TYPEID_PLAYER)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -149,7 +149,7 @@ public:
 
         void TeleportPlayers()
         {
-            uint32 random = urand(0, 7);
+            uint32 random = urand(0, 6);
             float X = TeleportPoint[random].x;
             float Y = TeleportPoint[random].y;
             float Z = TeleportPoint[random].z;
@@ -210,7 +210,7 @@ public:
                     break;
                 case EVENT_PRISMATIC_SHIELD:
                     // Random Prismatic Shield every 15 seconds.
-                    DoCast(me, PrismaticAuras[urand(0, 6)]);
+                    DoCast(me, PrismaticAuras[urand(0, 5)]);
                     events.ScheduleEvent(EVENT_PRISMATIC_SHIELD, 15000);
                     break;
                 case EVENT_FATAL_ATTRACTION:

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,8 +23,9 @@
 
 #include <string>
 #include <set>
+#include <vector>
 #include "vec3d.h"
-#include "mpqfile.h"
+#include "cascfile.h"
 
 // MOPY flags
 #define WMO_MATERIAL_NOCAMCOLLIDE    0x01
@@ -37,7 +38,7 @@
 
 class WMOInstance;
 class WMOManager;
-class MPQFile;
+class CASCFile;
 
 /* for whatever reason a certain company just can't stick to one coordinate system... */
 static inline Vec3D fixCoords(const Vec3D &v){ return Vec3D(v.z, v.x, v.y); }
@@ -47,10 +48,13 @@ class WMORoot
 private:
     std::string filename;
 public:
-    unsigned int col;
-    uint32 nTextures, nGroups, nP, nLights, nModels, nDoodads, nDoodadSets, RootWMOID, liquidType;
+    unsigned int color;
+    uint32 nTextures, nGroups, nPortals, nLights, nDoodadNames, nDoodadDefs, nDoodadSets, RootWMOID;
     float bbcorn1[3];
     float bbcorn2[3];
+    uint16 flags, numLod;
+
+    std::vector<uint32> groupFileDataIDs;
 
     WMORoot(std::string& filename);
 
@@ -130,9 +134,7 @@ public:
     Vec3D pos2, pos3, rot;
     uint32 indx, id, d2, d3;
 
-    WMOInstance(MPQFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
-
-    static void reset();
+    WMOInstance(CASCFile&f , char const* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
 };
 
 #endif

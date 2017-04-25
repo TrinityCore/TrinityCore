@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,7 +50,7 @@
 
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
-    m_ArenaTesting(false), m_Testing(false)
+    m_UpdateTimer(0), m_ArenaTesting(false), m_Testing(false)
 { }
 
 BattlegroundMgr::~BattlegroundMgr()
@@ -84,28 +84,34 @@ BattlegroundMgr* BattlegroundMgr::instance()
 // used to update running battlegrounds, and delete finished ones
 void BattlegroundMgr::Update(uint32 diff)
 {
-    for (BattlegroundDataContainer::iterator itr1 = bgDataStore.begin(); itr1 != bgDataStore.end(); ++itr1)
+    m_UpdateTimer += diff;
+    if (m_UpdateTimer > BATTLEGROUND_OBJECTIVE_UPDATE_INTERVAL)
     {
-        BattlegroundContainer& bgs = itr1->second.m_Battlegrounds;
-        BattlegroundContainer::iterator itrDelete = bgs.begin();
-        // first one is template and should not be deleted
-        for (BattlegroundContainer::iterator itr = ++itrDelete; itr != bgs.end();)
+        for (BattlegroundDataContainer::iterator itr1 = bgDataStore.begin(); itr1 != bgDataStore.end(); ++itr1)
         {
-            itrDelete = itr++;
-            Battleground* bg = itrDelete->second;
-
-            bg->Update(diff);
-            if (bg->ToBeDeleted())
+            BattlegroundContainer& bgs = itr1->second.m_Battlegrounds;
+            BattlegroundContainer::iterator itrDelete = bgs.begin();
+            // first one is template and should not be deleted
+            for (BattlegroundContainer::iterator itr = ++itrDelete; itr != bgs.end();)
             {
-                itrDelete->second = NULL;
-                bgs.erase(itrDelete);
-                BattlegroundClientIdsContainer& clients = itr1->second.m_ClientBattlegroundIds[bg->GetBracketId()];
-                if (!clients.empty())
-                     clients.erase(bg->GetClientInstanceID());
+                itrDelete = itr++;
+                Battleground* bg = itrDelete->second;
 
-                delete bg;
+                bg->Update(m_UpdateTimer);
+                if (bg->ToBeDeleted())
+                {
+                    itrDelete->second = nullptr;
+                    bgs.erase(itrDelete);
+                    BattlegroundClientIdsContainer& clients = itr1->second.m_ClientBattlegroundIds[bg->GetBracketId()];
+                    if (!clients.empty())
+                        clients.erase(bg->GetClientInstanceID());
+
+                    delete bg;
+                }
             }
         }
+
+        m_UpdateTimer = 0;
     }
 
     // update events timer
@@ -281,7 +287,7 @@ uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeI
 }
 
 // create a new battleground that will really be used to play
-Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvPDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
+Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId originalBgTypeId, PvpDifficultyEntry const* bracketEntry, uint8 arenaType, bool isRated)
 {
     BattlegroundTypeId bgTypeId = GetRandomBG(originalBgTypeId);
 
@@ -446,7 +452,7 @@ bool BattlegroundMgr::CreateBattleground(BattlegroundTemplate const* bgTemplate)
     }
 
     bg->SetMapId(bgTemplate->BattlemasterEntry->MapID[0]);
-    bg->SetName(bgTemplate->BattlemasterEntry->Name_lang);
+    bg->SetName(bgTemplate->BattlemasterEntry->Name->Str[sWorld->GetDefaultDbcLocale()]);
     bg->SetInstanceID(0);
     bg->SetArenaorBGType(bgTemplate->IsArena());
     bg->SetMinPlayersPerTeam(bgTemplate->MinPlayersPerTeam);
@@ -578,8 +584,6 @@ void BattlegroundMgr::SendBattlegroundList(Player* player, ObjectGuid const& gui
     battlefieldList.MaxLevel = bgTemplate->MaxLevel;
     battlefieldList.PvpAnywhere = guid.IsEmpty();
     battlefieldList.HasRandomWinToday = player->GetRandomWinner();
-    battlefieldList.HasHolidayWinToday = false;
-    battlefieldList.IsRandomBG = bgTypeId == BATTLEGROUND_RB;
     player->SendDirectMessage(battlefieldList.Write());
 }
 
@@ -734,7 +738,7 @@ void BattlegroundMgr::ScheduleQueueUpdate(uint32 arenaMatchmakerRating, uint8 ar
 {
     //This method must be atomic, @todo add mutex
     //we will use only 1 number created of bgTypeId and bracket_id
-    uint64 const scheduleId = ((uint64)arenaMatchmakerRating << 32) | (uint32(arenaType) << 24) | (bgQueueTypeId << 16) | (bgTypeId << 8) | bracket_id;
+    uint64 const scheduleId = ((uint64)arenaMatchmakerRating << 32) | ((uint64)arenaType << 24) | ((uint64)bgQueueTypeId << 16) | ((uint64)bgTypeId << 8) | (uint64)bracket_id;
     if (std::find(m_QueueUpdateScheduler.begin(), m_QueueUpdateScheduler.end(), scheduleId) == m_QueueUpdateScheduler.end())
         m_QueueUpdateScheduler.push_back(scheduleId);
 }

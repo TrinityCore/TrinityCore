@@ -166,13 +166,26 @@ static bool CutLastPathPart(TCHAR * szWorkPath)
 {
     size_t nLength = _tcslen(szWorkPath);
 
-    for(nLength = _tcslen(szWorkPath); nLength > 0; nLength--)
+    // Go one character back
+    if(nLength > 0)
+        nLength--;
+
+    // Cut ending (back)slashes, if any
+    while(nLength > 0 && (szWorkPath[nLength] == _T('\\') || szWorkPath[nLength] == _T('/')))
+        nLength--;
+
+    // Cut the last path part
+    while(nLength > 0)
     {
-        if(szWorkPath[nLength] == '\\' || szWorkPath[nLength] == '/')
+        // End of path?
+        if(szWorkPath[nLength] == _T('\\') || szWorkPath[nLength] == _T('/'))
         {
             szWorkPath[nLength] = 0;
             return true;
         }
+
+        // Go one character back
+        nLength--;
     }
 
     return false;
@@ -507,7 +520,7 @@ static int LoadKeyMapping(PCASC_MAPPING_TABLE pKeyMapping, DWORD KeyIndex)
     {
         // Retrieve the file size
         FileStream_GetSize(pStream, &FileSize);
-        if(0 < FileSize && FileSize <= 0x100000)
+        if(0 < FileSize && FileSize <= 0x200000)
         {
             // WoW6 actually reads THE ENTIRE file to memory
             // Verified on Mac build (x64)
@@ -991,6 +1004,7 @@ static TCascStorage * FreeCascStorage(TCascStorage * hs)
         FreeCascBlob(&hs->ArchivesGroup);
         FreeCascBlob(&hs->ArchivesKey);
         FreeCascBlob(&hs->PatchArchivesKey);
+        FreeCascBlob(&hs->PatchArchivesGroup);
         FreeCascBlob(&hs->RootKey);
         FreeCascBlob(&hs->PatchKey);
         FreeCascBlob(&hs->DownloadKey);

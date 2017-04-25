@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
 #include "Chat.h"
+#include "Channel.h"
 #include "ChannelMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -98,7 +99,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
 
     if (lang == LANG_UNIVERSAL && type != CHAT_MSG_EMOTE)
     {
-        TC_LOG_ERROR("network", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
+        TC_LOG_ERROR("entities.player.cheat", "CMSG_MESSAGECHAT: Possible hacking-attempt: %s tried to send a message in universal language", GetPlayerInfo().c_str());
         SendNotification(LANG_UNKNOWN_LANGUAGE);
         return;
     }
@@ -204,8 +205,6 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
     switch (type)
     {
         case CHAT_MSG_SAY:
-        case CHAT_MSG_EMOTE:
-        case CHAT_MSG_YELL:
         {
             // Prevent cheating
             if (!sender->IsAlive())
@@ -217,12 +216,37 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
                 return;
             }
 
-            if (type == CHAT_MSG_SAY)
-                sender->Say(msg, Language(lang));
-            else if (type == CHAT_MSG_EMOTE)
-                sender->TextEmote(msg);
-            else if (type == CHAT_MSG_YELL)
-                sender->Yell(msg, Language(lang));
+            sender->Say(msg, Language(lang));
+            break;
+        }
+        case CHAT_MSG_EMOTE:
+        {
+            // Prevent cheating
+            if (!sender->IsAlive())
+                return;
+
+            if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_EMOTE_LEVEL_REQ))
+            {
+                SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_EMOTE_LEVEL_REQ));
+                return;
+            }
+
+            sender->TextEmote(msg);
+            break;
+        }
+        case CHAT_MSG_YELL:
+        {
+            // Prevent cheating
+            if (!sender->IsAlive())
+                return;
+
+            if (sender->getLevel() < sWorld->getIntConfig(CONFIG_CHAT_YELL_LEVEL_REQ))
+            {
+                SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld->getIntConfig(CONFIG_CHAT_YELL_LEVEL_REQ));
+                return;
+            }
+
+            sender->Yell(msg, Language(lang));
             break;
         }
         case CHAT_MSG_WHISPER:
@@ -357,13 +381,10 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
                 }
             }
 
-            if (ChannelMgr* cMgr = ChannelMgr::ForTeam(sender->GetTeam()))
+            if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(target, sender))
             {
-                if (Channel* chn = cMgr->GetChannel(target, sender))
-                {
-                    sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
-                    chn->Say(sender->GetGUID(), msg.c_str(), lang);
-                }
+                sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
+                chn->Say(sender->GetGUID(), msg.c_str(), lang);
             }
             break;
         }
@@ -488,9 +509,8 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         }
         case CHAT_MSG_CHANNEL:
         {
-            if (ChannelMgr* cMgr = ChannelMgr::ForTeam(sender->GetTeam()))
-                if (Channel* chn = cMgr->GetChannel(target, sender, false))
-                    chn->Say(sender->GetGUID(), text.c_str(), uint32(LANG_ADDON));
+            if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(target, sender))
+                chn->Say(sender->GetGUID(), text.c_str(), uint32(LANG_ADDON));
             break;
         }
         default:

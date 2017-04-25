@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,11 +22,9 @@
   #include <winsock2.h>
 #endif
 #include <mysql.h>
-#include <mysqld_error.h>
 #include <errmsg.h>
 
 #include "MySQLConnection.h"
-#include "MySQLThreading.h"
 #include "QueryResult.h"
 #include "SQLOperation.h"
 #include "PreparedStatement.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,6 +52,33 @@ namespace WorldPackets
                 int32 DisplayTime = 0;
             };
 
+            struct SocialQueueConfig
+            {
+                bool ToastsDisabled = false;
+                float ToastDuration = 0.0f;
+                float DelayDuration = 0.0f;
+                float QueueMultiplier = 0.0f;
+                float PlayerMultiplier = 0.0f;
+                float PlayerFriendValue = 0.0f;
+                float PlayerGuildValue = 0.0f;
+                float ThrottleInitialThreshold = 0.0f;
+                float ThrottleDecayTime = 0.0f;
+                float ThrottlePrioritySpike = 0.0f;
+                float ThrottleMinThreshold = 0.0f;
+                float ThrottlePvPPriorityNormal = 0.0f;
+                float ThrottlePvPPriorityLow = 0.0f;
+                float ThrottlePvPHonorThreshold = 0.0f;
+                float ThrottleLfgListPriorityDefault = 0.0f;
+                float ThrottleLfgListPriorityAbove = 0.0f;
+                float ThrottleLfgListPriorityBelow = 0.0f;
+                float ThrottleLfgListIlvlScalingAbove = 0.0f;
+                float ThrottleLfgListIlvlScalingBelow = 0.0f;
+                float ThrottleRfPriorityAbove = 0.0f;
+                float ThrottleRfIlvlScalingAbove = 0.0f;
+                float ThrottleDfMaxItemLevel = 0.0f;
+                float ThrottleDfBestPriority = 0.0f;
+            };
+
             FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 48) { }
 
             WorldPacket const* Write() override;
@@ -69,10 +96,11 @@ namespace WorldPackets
             uint32 CfgRealmID                            = 0;
             uint8 ComplaintStatus                        = 0;
             int32 CfgRealmRecID                          = 0;
-            int32 TwitterPostThrottleLimit               = 0; ///< Number of twitter posts the client can send before they start being throttled
-            int32 TwitterPostThrottleCooldown            = 0; ///< Time in seconds the client has to wait before posting again after hitting post limit
-            int32 TokenPollTimeSeconds                   = 0;
-            int32 TokenRedeemIndex                       = 0;
+            uint32 TwitterPostThrottleLimit              = 0; ///< Number of twitter posts the client can send before they start being throttled
+            uint32 TwitterPostThrottleCooldown           = 0; ///< Time in seconds the client has to wait before posting again after hitting post limit
+            uint32 TokenPollTimeSeconds                  = 0;
+            uint32 TokenRedeemIndex                      = 0;
+            int64 TokenBalanceAmount                     = 0;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -84,7 +112,12 @@ namespace WorldPackets
             bool RestrictedAccount                   = false;
             bool TutorialsEnabled                    = false;
             bool NPETutorialsEnabled                 = false;
-            bool UnkBit61                            = false;
+            bool KioskModeEnabled                    = false;
+            bool CompetitiveModeEnabled              = false;
+            bool TokenBalanceEnabled                 = false;
+
+            Optional<std::vector<uint8>> RaceClassExpansionLevels;
+            SocialQueueConfig QuickJoinConfig;
         };
 
         class FeatureSystemStatusGlueScreen final : public ServerPacket
@@ -101,9 +134,14 @@ namespace WorldPackets
             bool CommerceSystemEnabled               = false; // NYI
             bool Unk14                               = false; // NYI
             bool WillKickFromWorld                   = false; // NYI
-            bool IsExpansionPreorderInStore          = false;
+            bool IsExpansionPreorderInStore          = false; // NYI
+            bool KioskModeEnabled                    = false; // NYI
+            bool CompetitiveModeEnabled              = false; // NYI
+            bool TrialBoostEnabled                   = false; // NYI
+            bool TokenBalanceEnabled                 = false; // NYI
             int32 TokenPollTimeSeconds               = 0;     // NYI
             int32 TokenRedeemIndex                   = 0;     // NYI
+            int64 TokenBalanceAmount                 = 0;     // NYI
         };
 
         class MOTD final : public ServerPacket

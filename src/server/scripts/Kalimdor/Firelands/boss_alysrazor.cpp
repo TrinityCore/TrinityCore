@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -179,8 +179,9 @@ class npc_harbinger_of_flame : public CreatureScript
 
             void EnterCombat(Unit* /*target*/) override
             {
-                if (Creature* bird = ObjectAccessor::GetCreature(*me, me->GetChannelObjectGuid()))
-                    DoZoneInCombat(bird, 200.0f);
+                for (ObjectGuid const& birdGuid : me->GetChannelObjects())
+                    if (Creature* bird = ObjectAccessor::GetCreature(*me, birdGuid))
+                        DoZoneInCombat(bird, 200.0f);
 
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 _events.Reset();

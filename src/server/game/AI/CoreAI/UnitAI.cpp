@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -60,12 +60,14 @@ void UnitAI::DoMeleeAttackIfReady()
     if (me->isAttackReady())
     {
         me->AttackerStateUpdate(victim);
+
         me->resetAttackTimer();
     }
 
     if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK))
     {
         me->AttackerStateUpdate(victim, OFF_ATTACK);
+
         me->resetAttackTimer(OFF_ATTACK);
     }
 }
@@ -243,28 +245,55 @@ bool SpellTargetSelector::operator()(Unit const* target) const
         return false;
 
     // copypasta from Spell::CheckRange
-    uint32 range_type = _spellInfo->RangeEntry ? _spellInfo->RangeEntry->Flags : 0;
-    float max_range = _caster->GetSpellMaxRangeForTarget(target, _spellInfo);
-    float min_range = _caster->GetSpellMinRangeForTarget(target, _spellInfo);
-
-
-    if (target && target != _caster)
+    float minRange = 0.0f;
+    float maxRange = 0.0f;
+    float rangeMod = 0.0f;
+    if (_spellInfo->RangeEntry)
     {
-        if (range_type == SPELL_RANGE_MELEE)
+        if (_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE)
         {
-            // Because of lag, we can not check too strictly here.
-            if (!_caster->IsWithinMeleeRange(target, max_range))
-                return false;
+            rangeMod = _caster->GetCombatReach() + 4.0f / 3.0f;
+            rangeMod += target->GetCombatReach();
+
+            rangeMod = std::max(rangeMod, NOMINAL_MELEE_RANGE);
         }
-        else if (!_caster->IsWithinCombatRange(target, max_range))
+        else
+        {
+            float meleeRange = 0.0f;
+            if (_spellInfo->RangeEntry->Flags & SPELL_RANGE_RANGED)
+            {
+                meleeRange = _caster->GetCombatReach() + 4.0f / 3.0f;
+                meleeRange += target->GetCombatReach();
+
+                meleeRange = std::max(meleeRange, NOMINAL_MELEE_RANGE);
+            }
+
+            minRange = _caster->GetSpellMinRangeForTarget(target, _spellInfo) + meleeRange;
+            maxRange = _caster->GetSpellMaxRangeForTarget(target, _spellInfo);
+
+            rangeMod = _caster->GetCombatReach();
+            rangeMod += target->GetCombatReach();
+
+            if (minRange > 0.0f && !(_spellInfo->RangeEntry->Flags & SPELL_RANGE_RANGED))
+                minRange += rangeMod;
+        }
+
+        if (_caster->isMoving() && target->isMoving() && !_caster->IsWalking() && !target->IsWalking() &&
+            (_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE || target->GetTypeId() == TYPEID_PLAYER))
+            rangeMod += 8.0f / 3.0f;
+    }
+
+    maxRange += rangeMod;
+
+    minRange *= minRange;
+    maxRange *= maxRange;
+
+    if (target != _caster)
+    {
+        if (_caster->GetExactDistSq(target) > maxRange)
             return false;
 
-        if (range_type == SPELL_RANGE_RANGED)
-        {
-            if (_caster->IsWithinMeleeRange(target))
-                return false;
-        }
-        else if (min_range && _caster->IsWithinCombatRange(target, min_range)) // skip this check if min_range = 0
+        if (minRange > 0.0f && _caster->GetExactDistSq(target) < minRange)
             return false;
     }
 

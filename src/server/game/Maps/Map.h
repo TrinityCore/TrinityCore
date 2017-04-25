@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,6 @@
 
 #include "Define.h"
 
-#include "DBCStructure.h"
 #include "GridDefines.h"
 #include "Cell.h"
 #include "Timer.h"
@@ -36,24 +35,29 @@
 #include <list>
 #include <memory>
 
-class Unit;
-class WorldPacket;
-class InstanceScript;
-class Group;
-class InstanceSave;
-class Object;
-class WorldObject;
-class TempSummon;
-class Player;
-class CreatureGroup;
-struct ScriptInfo;
-struct ScriptAction;
-struct Position;
 class Battleground;
-class MapInstanced;
 class BattlegroundMap;
+class CreatureGroup;
+class Group;
 class InstanceMap;
+class InstanceSave;
+class InstanceScript;
+class InstanceScenario;
+class MapInstanced;
+class Object;
+class Player;
+class TempSummon;
+class Unit;
+class WorldObject;
+class WorldPacket;
+struct MapDifficultyEntry;
+struct MapEntry;
+struct Position;
+struct ScriptAction;
+struct ScriptInfo;
+struct SummonPropertiesEntry;
 class Transport;
+enum Difficulty : uint8;
 enum WeatherState : uint32;
 
 namespace Trinity { struct ObjectUpdater; }
@@ -295,6 +299,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void CreatureRelocation(Creature* creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true);
         void GameObjectRelocation(GameObject* go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true);
         void DynamicObjectRelocation(DynamicObject* go, float x, float y, float z, float orientation);
+        void AreaTriggerRelocation(AreaTrigger* at, float x, float y, float z, float orientation);
 
         template<class T, class CONTAINER>
         void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
@@ -322,8 +327,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             grid.ResetTimeTracker(time_t(float(i_gridExpiry)*factor));
         }
 
-        time_t GetGridExpiry(void) const { return i_gridExpiry; }
-        uint32 GetId(void) const { return i_mapEntry->ID; }
+        time_t GetGridExpiry() const { return i_gridExpiry; }
 
         static bool ExistMap(uint32 mapid, int gx, int gy);
         static bool ExistVMap(uint32 mapid, int gx, int gy);
@@ -356,6 +360,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void MoveAllCreaturesInMoveList();
         void MoveAllGameObjectsInMoveList();
         void MoveAllDynamicObjectsInMoveList();
+        void MoveAllAreaTriggersInMoveList();
         void RemoveAllObjectsInRemoveList();
         virtual void RemoveAllPlayers();
 
@@ -392,23 +397,19 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         MapDifficultyEntry const* GetMapDifficulty() const;
         uint32 GetDifficultyLootBonusTreeMod() const;
 
-        bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
-        bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
-        bool IsNonRaidDungeon() const { return i_mapEntry && i_mapEntry->IsNonRaidDungeon(); }
-        bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
-        bool IsRaidOrHeroicDungeon() const { return IsRaid() || IsHeroic(); }
+        uint32 GetId() const;
+        bool Instanceable() const;
+        bool IsDungeon() const;
+        bool IsNonRaidDungeon() const;
+        bool IsRaid() const;
+        bool IsRaidOrHeroicDungeon() const;
         bool IsHeroic() const;
-        bool Is25ManRaid() const { return IsRaid() && (i_spawnMode == DIFFICULTY_25_N || i_spawnMode == DIFFICULTY_25_HC); }   // since 25man difficulties are 1 and 3, we can check them like that
-        bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
-        bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
-        bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
-        bool IsGarrison() const { return i_mapEntry && i_mapEntry->IsGarrison(); }
-        bool GetEntrancePos(int32 &mapid, float &x, float &y)
-        {
-            if (!i_mapEntry)
-                return false;
-            return i_mapEntry->GetEntrancePos(mapid, x, y);
-        }
+        bool Is25ManRaid() const;   // since 25man difficulties are 1 and 3, we can check them like that
+        bool IsBattleground() const;
+        bool IsBattleArena() const;
+        bool IsBattlegroundOrArena() const;
+        bool IsGarrison() const;
+        bool GetEntrancePos(int32 &mapid, float &x, float &y);
 
         void AddObjectToRemoveList(WorldObject* obj);
         void AddObjectToSwitchList(WorldObject* obj, bool on);
@@ -499,7 +500,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         BattlegroundMap* ToBattlegroundMap() { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap*>(this); else return NULL;  }
         BattlegroundMap const* ToBattlegroundMap() const { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap const*>(this); return NULL; }
 
-        float GetWaterOrGroundLevel(float x, float y, float z, float* ground = NULL, bool swim = false) const;
+        float GetWaterOrGroundLevel(uint32 phasemask, float x, float y, float z, float* ground = NULL, bool swim = false) const;
         float GetHeight(uint32 phasemask, float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
         bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const;
         void Balance() { _dynamicTree.balance(); }
@@ -589,6 +590,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);
         bool GameObjectCellRelocation(GameObject* go, Cell new_cell);
         bool DynamicObjectCellRelocation(DynamicObject* go, Cell new_cell);
+        bool AreaTriggerCellRelocation(AreaTrigger* at, Cell new_cell);
 
         template<class T> void InitializeObject(T* obj);
         void AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang);
@@ -597,6 +599,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RemoveGameObjectFromMoveList(GameObject* go);
         void AddDynamicObjectToMoveList(DynamicObject* go, float x, float y, float z, float ang);
         void RemoveDynamicObjectFromMoveList(DynamicObject* go);
+        void AddAreaTriggerToMoveList(AreaTrigger* at, float x, float y, float z, float ang);
+        void RemoveAreaTriggerFromMoveList(AreaTrigger* at);
 
         bool _creatureToMoveLock;
         std::vector<Creature*> _creaturesToMove;
@@ -606,6 +610,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         bool _dynamicObjectsToMoveLock;
         std::vector<DynamicObject*> _dynamicObjectsToMove;
+
+        bool _areaTriggersToMoveLock;
+        std::vector<AreaTrigger*> _areaTriggersToMove;
 
         bool IsGridLoaded(const GridCoord &) const;
         void EnsureGridCreated(const GridCoord &);
@@ -768,7 +775,11 @@ class TC_GAME_API InstanceMap : public Map
         bool Reset(uint8 method);
         uint32 GetScriptId() const { return i_script_id; }
         InstanceScript* GetInstanceScript() { return i_data; }
-        void PermBindAllPlayers(Player* source);
+        InstanceScript const* GetInstanceScript() const { return i_data; }
+        InstanceScenario* GetInstanceScenario() { return i_scenario; }
+        InstanceScenario const* GetInstanceScenario() const { return i_scenario; }
+        void SetInstanceScenario(InstanceScenario* scenario) { i_scenario = scenario; }
+        void PermBindAllPlayers();
         void UnloadAll() override;
         EnterState CannotEnter(Player* player) override;
         void SendResetWarnings(uint32 timeLeft) const;
@@ -786,6 +797,7 @@ class TC_GAME_API InstanceMap : public Map
         bool m_unloadWhenEmpty;
         InstanceScript* i_data;
         uint32 i_script_id;
+        InstanceScenario* i_scenario;
 };
 
 class TC_GAME_API BattlegroundMap : public Map

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +16,34 @@
  */
 
 #include "AuthenticationPackets.h"
+#include "CharacterTemplateDataStore.h"
 #include "HmacHash.h"
+
+bool WorldPackets::Auth::EarlyProcessClientPacket::ReadNoThrow()
+{
+    try
+    {
+        Read();
+        return true;
+    }
+    catch (ByteBufferPositionException const& /*ex*/)
+    {
+    }
+
+    return false;
+}
+
+void WorldPackets::Auth::Ping::Read()
+{
+    _worldPacket >> Serial;
+    _worldPacket >> Latency;
+}
+
+const WorldPacket* WorldPackets::Auth::Pong::Write()
+{
+    _worldPacket << uint32(Serial);
+    return &_worldPacket;
+}
 
 WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
 {
@@ -28,8 +55,9 @@ WorldPacket const* WorldPackets::Auth::AuthChallenge::Write()
 
 void WorldPackets::Auth::AuthSession::Read()
 {
-    uint32 addonDataSize, realmJoinTicketSize;
+    uint32 realmJoinTicketSize;
 
+    _worldPacket >> DosResponse;
     _worldPacket >> Build;
     _worldPacket >> BuildType;
     _worldPacket >> RegionID;
@@ -37,22 +65,23 @@ void WorldPackets::Auth::AuthSession::Read()
     _worldPacket >> RealmID;
     _worldPacket.read(LocalChallenge.data(), LocalChallenge.size());
     _worldPacket.read(Digest.data(), Digest.size());
-    _worldPacket >> DosResponse;
-    _worldPacket >> addonDataSize;
-    if (addonDataSize)
-    {
-        AddonInfo.resize(std::min(addonDataSize, uint32(_worldPacket.size() - _worldPacket.rpos())));
-        _worldPacket.read(AddonInfo.contents(), AddonInfo.size());
-    }
-
+    UseIPv6 = _worldPacket.ReadBit();
     _worldPacket >> realmJoinTicketSize;
     if (realmJoinTicketSize)
     {
         RealmJoinTicket.resize(std::min(realmJoinTicketSize, uint32(_worldPacket.size() - _worldPacket.rpos())));
         _worldPacket.read(reinterpret_cast<uint8*>(&RealmJoinTicket[0]), RealmJoinTicket.size());
     }
+}
 
-    UseIPv6 = _worldPacket.ReadBit();           // UseIPv6
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const& waitInfo)
+{
+    data << uint32(waitInfo.WaitCount);
+    data << uint32(waitInfo.WaitTime);
+    data.WriteBit(waitInfo.HasFCM);
+    data.FlushBits();
+
+    return data;
 }
 
 WorldPackets::Auth::AuthResponse::AuthResponse()
@@ -79,6 +108,25 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint32(SuccessInfo->AvailableClasses->size());
         _worldPacket << uint32(SuccessInfo->Templates.size());
         _worldPacket << uint32(SuccessInfo->CurrencyID);
+        _worldPacket << int32(SuccessInfo->Time);
+
+        for (auto const& race : *SuccessInfo->AvailableRaces)
+        {
+            _worldPacket << uint8(race.first); /// the current race
+            _worldPacket << uint8(race.second); /// the required Expansion
+        }
+
+        for (auto const& klass : *SuccessInfo->AvailableClasses)
+        {
+            _worldPacket << uint8(klass.first); /// the current class
+            _worldPacket << uint8(klass.second); /// the required Expansion
+        }
+
+        _worldPacket.WriteBit(SuccessInfo->IsExpansionTrial);
+        _worldPacket.WriteBit(SuccessInfo->ForceCharacterTemplate);
+        _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.is_initialized());
+        _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.is_initialized());
+        _worldPacket.FlushBits();
 
         {
             _worldPacket << uint32(SuccessInfo->Billing.BillingPlan);
@@ -90,7 +138,13 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
             _worldPacket.FlushBits();
         }
 
-        for (auto& virtualRealm : SuccessInfo->VirtualRealms)
+        if (SuccessInfo->NumPlayersHorde)
+            _worldPacket << uint16(*SuccessInfo->NumPlayersHorde);
+
+        if (SuccessInfo->NumPlayersAlliance)
+            _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
+
+        for (auto const& virtualRealm : SuccessInfo->VirtualRealms)
         {
             _worldPacket << uint32(virtualRealm.RealmAddress);
             _worldPacket.WriteBit(virtualRealm.IsLocal);
@@ -103,56 +157,34 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
             _worldPacket.WriteString(virtualRealm.RealmNameNormalized);
         }
 
-        for (auto& race : *SuccessInfo->AvailableRaces)
+        for (CharacterTemplate const* templat : SuccessInfo->Templates)
         {
-            _worldPacket << uint8(race.first); /// the current race
-            _worldPacket << uint8(race.second); /// the required Expansion
-        }
-
-        for (auto& klass : *SuccessInfo->AvailableClasses)
-        {
-            _worldPacket << uint8(klass.first); /// the current class
-            _worldPacket << uint8(klass.second); /// the required Expansion
-        }
-
-        for (auto& templat : SuccessInfo->Templates)
-        {
-            _worldPacket << uint32(templat.TemplateSetId);
-            _worldPacket << uint32(templat.Classes.size());
-            for (auto& templateClass : templat.Classes)
+            _worldPacket << uint32(templat->TemplateSetId);
+            _worldPacket << uint32(templat->Classes.size());
+            for (CharacterTemplateClass const& templateClass : templat->Classes)
             {
                 _worldPacket << uint8(templateClass.ClassID);
                 _worldPacket << uint8(templateClass.FactionGroup);
             }
 
-            _worldPacket.WriteBits(templat.Name.length(), 7);
-            _worldPacket.WriteBits(templat.Description.length(), 10);
+            _worldPacket.WriteBits(templat->Name.length(), 7);
+            _worldPacket.WriteBits(templat->Description.length(), 10);
             _worldPacket.FlushBits();
 
-            _worldPacket.WriteString(templat.Name);
-            _worldPacket.WriteString(templat.Description);
+            _worldPacket.WriteString(templat->Name);
+            _worldPacket.WriteString(templat->Description);
         }
-
-        _worldPacket.WriteBit(SuccessInfo->IsExpansionTrial);
-        _worldPacket.WriteBit(SuccessInfo->ForceCharacterTemplate);
-        _worldPacket.WriteBit(SuccessInfo->NumPlayersHorde.is_initialized());
-        _worldPacket.WriteBit(SuccessInfo->NumPlayersAlliance.is_initialized());
-        _worldPacket.FlushBits();
-
-        if (SuccessInfo->NumPlayersHorde)
-            _worldPacket << uint16(*SuccessInfo->NumPlayersHorde);
-
-        if (SuccessInfo->NumPlayersAlliance)
-            _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
     }
 
     if (WaitInfo)
-    {
-        _worldPacket << uint32(WaitInfo->WaitCount);
-        _worldPacket << uint32(WaitInfo->WaitTime);
-        _worldPacket.WriteBit(WaitInfo->HasFCM);
-        _worldPacket.FlushBits();
-    }
+        _worldPacket << *WaitInfo;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Auth::WaitQueueUpdate::Write()
+{
+    _worldPacket << WaitInfo;
 
     return &_worldPacket;
 }

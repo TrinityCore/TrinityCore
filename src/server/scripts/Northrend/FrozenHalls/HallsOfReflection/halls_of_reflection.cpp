@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -349,7 +349,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
             if (InstanceScript* instance = creature->GetInstanceScript())
                 if (instance->GetData(DATA_QUEL_DELAR_EVENT) == IN_PROGRESS || instance->GetData(DATA_QUEL_DELAR_EVENT) == SPECIAL)
                 {
-                    player->PlayerTalkClass->ClearMenus();
+                    ClearGossipMenuFor(player);
                     return true;
                 }
 
@@ -366,7 +366,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
 
             void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
-                player->PlayerTalkClass->ClearMenus();
+                ClearGossipMenuFor(player);
 
                 switch (gossipListId)
                 {
@@ -860,7 +860,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
 
             void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
-                player->PlayerTalkClass->ClearMenus();
+                ClearGossipMenuFor(player);
 
                 switch (gossipListId)
                 {
@@ -1113,7 +1113,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_HARVEST_SOUL);
                             if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                 Talk(SAY_JAINA_ESCAPE_9);
-                            if (Transport* gunship = ObjectAccessor::GetTransport(*me, _instance->GetGuidData(DATA_GUNSHIP)))
+                            if (Transport* gunship = ObjectAccessor::GetTransportOnMap(*me, _instance->GetGuidData(DATA_GUNSHIP)))
                                 gunship->EnableMovement(true);
                             _instance->SetBossState(DATA_THE_LICH_KING_ESCAPE, DONE);
                             break;
@@ -1185,7 +1185,7 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                             if (Creature* target = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ESCAPE_LEADER)))
                                 DoCast(target, SPELL_HARVEST_SOUL);
 
-                            if (Transport* gunship = ObjectAccessor::GetTransport(*me, _instance->GetGuidData(DATA_GUNSHIP)))
+                            if (Transport* gunship = ObjectAccessor::GetTransportOnMap(*me, _instance->GetGuidData(DATA_GUNSHIP)))
                                 gunship->EnableMovement(true);
                             break;
                         default:
@@ -1921,6 +1921,7 @@ class npc_frostsworn_general : public CreatureScript
                 {
                     if (Creature* reflection = me->SummonCreature(NPC_REFLECTION, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000))
                     {
+                        reflection->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         target->CastSpell(reflection, SPELL_CLONE, true);
                         target->CastSpell(reflection, SPELL_GHOST_VISUAL, true);
                         reflection->AI()->AttackStart(target);
@@ -2155,6 +2156,7 @@ struct npc_escape_event_trash : public ScriptedAI
         DoZoneInCombat(me, 0.0f);
         if (Creature* leader = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ESCAPE_LEADER)))
         {
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetInCombatWith(leader);
             leader->SetInCombatWith(me);
             me->AddThreat(leader, 0.0f);

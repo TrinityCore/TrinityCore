@@ -1,24 +1,38 @@
-**Description**:
+[//]: # (**********************************)
+[//]: # (** Fill in the following fields **)
+[//]: # (**********************************)
 
-**Current behaviour**: Tell us what happens
+**Description:**
 
-**Expected behaviour**: Tell us what should happen instead
+CHANGEME Description of the problem or issue here.
 
-**Steps to reproduce the problem**:
+**Current behaviour:**
 
-1. 
-2. 
-3. 
+CHANGEME Tell us what happens.
+If this is a crash, post the crashlog (upload to https://gist.github.com/).
 
-**Branch(es)**: 3.3.5 / 6.x (Select the branch(es) affected by this issue) 
+**Expected behaviour:**
 
-**TC hash/commit**:  
+CHANGEME Tell us what should happen instead.
 
-**TDB version**:  
+**Steps to reproduce the problem:**
 
-**Operating system**:  
+1. CHANGEME Step 1
+2. Step 2
+3. Step 3
 
+**Branch(es):**
 
-[//]: # (This template is for problem reports, for other type of reports edit it accordingly)
-[//]: # (If this is a crash report, include the crashlog with https://gist.github.com/)
-[//]: # (For fixes containing c++ create a Pull Request)
+CHANGEME 3.3.5, master or both
+
+**TC rev. hash/commit:** 
+
+CHANGEME Copy the first line of the `worldserver`, `authserver` or `bnetserver` startup.
+For example: TrinityCore rev. 0000000000 2000-01-09 11:31:41 +0100 (my branch) (Win64, RelWithDebInfo, Static) (bnetserver)
+
+**TDB version:**  CHANGEME Version of the TrinityCore database
+
+**Operating system:** CHANGEME OS
+
+[//]: # (This template is for problem reports. For other types of report, edit it accordingly.)
+[//]: # (For fixes containing C++, create a Pull Request.)

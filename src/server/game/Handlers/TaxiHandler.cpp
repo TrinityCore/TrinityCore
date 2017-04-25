@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,10 @@
  */
 
 #include "Common.h"
+#include "ConditionMgr.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
@@ -63,8 +66,6 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
         data.Status = TAXISTATUS_NOT_ELIGIBLE;
 
     SendPacket(data.Write());
-
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_TAXI_NODE_STATUS");
 }
 
 void WorldSession::HandleTaxiQueryAvailableNodesOpcode(WorldPackets::Taxi::TaxiQueryAvailableNodes& taxiQueryAvailableNodes)
@@ -184,9 +185,31 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
         }
     }
 
+    uint32 preferredMountDisplay = 0;
+    if (MountEntry const* mount = sMountStore.LookupEntry(activateTaxi.FlyingMountID))
+    {
+        if (GetPlayer()->HasSpell(mount->SpellId))
+        {
+            if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mount->ID))
+            {
+                DB2Manager::MountXDisplayContainer usableDisplays;
+                std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [this](MountXDisplayEntry const* mountDisplay)
+                {
+                    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
+                        return sConditionMgr->IsPlayerMeetingCondition(GetPlayer(), playerCondition);
+
+                    return true;
+                });
+
+                if (!usableDisplays.empty())
+                    preferredMountDisplay = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->DisplayID;
+            }
+        }
+    }
+
     std::vector<uint32> nodes;
     sTaxiPathGraph.GetCompleteNodeRoute(from, to, GetPlayer(), nodes);
-    GetPlayer()->ActivateTaxiPathTo(nodes, unit);
+    GetPlayer()->ActivateTaxiPathTo(nodes, unit, 0, preferredMountDisplay);
 }
 
 void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
@@ -194,7 +217,6 @@ void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
     WorldPackets::Taxi::ActivateTaxiReply data;
     data.Reply = reply;
     SendPacket(data.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_ACTIVATETAXIREPLY");
 }
 
 void WorldSession::HandleTaxiRequestEarlyLanding(WorldPackets::Taxi::TaxiRequestEarlyLanding& /*taxiRequestEarlyLanding*/)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,6 @@
 #include "CriteriaHandler.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
@@ -67,6 +66,8 @@ bool CriteriaData::IsValid(Criteria const* criteria)
         case CRITERIA_TYPE_GET_KILLING_BLOWS:
         case CRITERIA_TYPE_REACH_LEVEL:
         case CRITERIA_TYPE_ON_LOGIN:
+        case CRITERIA_TYPE_LOOT_EPIC_ITEM:
+        case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             break;
         default:
             if (DataType != CRITERIA_DATA_TYPE_SCRIPT)
@@ -220,10 +221,10 @@ bool CriteriaData::IsValid(Criteria const* criteria)
         }
         case CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE:
             return true;                                    // not check correctness node indexes
-        case CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
+        case CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
             if (EquippedItem.Quality >= MAX_ITEM_QUALITY)
             {
-                TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_EQUIPED_ITEM (%u) contains an unknown quality state value in value1 (%u), ignored.",
+                TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM (%u) contains an unknown quality state value in value2 (%u), ignored.",
                     criteria->ID, criteria->Entry->Type, DataType, EquippedItem.Quality);
                 return false;
             }
@@ -260,6 +261,14 @@ bool CriteriaData::IsValid(Criteria const* criteria)
             {
                 TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_KNOWN_TITLE (%u) contains an unknown title_id in value1 (%u), ignore.",
                     criteria->ID, criteria->Entry->Type, DataType, KnownTitle.Id);
+                return false;
+            }
+            return true;
+        case CRITERIA_DATA_TYPE_S_ITEM_QUALITY:
+            if (ItemQuality.Quality >= MAX_ITEM_QUALITY)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_ITEM_QUALITY (%u) contains an unknown quality state value in value1 (%u), ignored.",
+                    criteria->ID, criteria->Entry->Type, DataType, ItemQuality.Quality);
                 return false;
             }
             return true;
@@ -356,7 +365,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
             }
             return instance->CheckAchievementCriteriaMeet(criteriaId, source, target, miscValue1);
         }
-        case CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
+        case CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
         {
             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
             if (!pProto)
@@ -371,6 +380,13 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
                 return source && source->HasTitle(titleInfo->MaskID);
 
             return false;
+        }
+        case CRITERIA_DATA_TYPE_S_ITEM_QUALITY:
+        {
+            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
+            if (!pProto)
+                return false;
+            return pProto->GetQuality() == ItemQuality.Quality;
         }
         default:
             break;
@@ -728,6 +744,36 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_OWN_TOY:
             case CRITERIA_TYPE_OWN_TOY_COUNT:
             case CRITERIA_TYPE_OWN_HEIRLOOMS:
+            case CRITERIA_TYPE_SURVEY_GAMEOBJECT:
+            case CRITERIA_TYPE_CLEAR_DIGSITE:
+            case CRITERIA_TYPE_MANUAL_COMPLETE_CRITERIA:
+            case CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE_GUILD:
+            case CRITERIA_TYPE_DEFEAT_CREATURE_GROUP:
+            case CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE:
+            case CRITERIA_TYPE_SEND_EVENT:
+            case CRITERIA_TYPE_COOK_RECIPES_GUILD:
+            case CRITERIA_TYPE_EARN_PET_BATTLE_ACHIEVEMENT_POINTS:
+            case CRITERIA_TYPE_SEND_EVENT_SCENARIO:
+            case CRITERIA_TYPE_RELEASE_SPIRIT:
+            case CRITERIA_TYPE_OWN_PET:
+            case CRITERIA_TYPE_GARRISON_COMPLETE_DUNGEON_ENCOUNTER:
+            case CRITERIA_TYPE_COMPLETE_LFG_DUNGEON:
+            case CRITERIA_TYPE_LFG_VOTE_KICKS_INITIATED_BY_PLAYER:
+            case CRITERIA_TYPE_LFG_VOTE_KICKS_NOT_INIT_BY_PLAYER:
+            case CRITERIA_TYPE_BE_KICKED_FROM_LFG:
+            case CRITERIA_TYPE_LFG_LEAVES:
+            case CRITERIA_TYPE_COUNT_OF_LFG_QUEUE_BOOSTS_BY_TANK:
+            case CRITERIA_TYPE_REACH_AREATRIGGER_WITH_ACTIONSET:
+            case CRITERIA_TYPE_START_ORDER_HALL_MISSION:
+            case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_WITH_QUALITY:
+            case CRITERIA_TYPE_ARTIFACT_POWER_EARNED:
+            case CRITERIA_TYPE_ARTIFACT_TRAITS_UNLOCKED:
+            case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
+            case CRITERIA_TYPE_PRESTIGE_REACHED:
+            case CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED:
+            case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
+            case CRITERIA_TYPE_ORDER_HALL_RECRUIT_TROOP:
+            case CRITERIA_TYPE_COMPLETE_WORLD_QUEST:
                 break;                                   // Not implemented yet :(
         }
 
@@ -780,7 +826,7 @@ void CriteriaHandler::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, 
             if (_timeCriteriaTrees.find(tree->ID) == _timeCriteriaTrees.end() && !IsCompletedCriteriaTree(tree))
             {
                 // Start the timer
-                if (criteria->Entry->StartTimer * IN_MILLISECONDS > timeLost)
+                if (criteria->Entry->StartTimer * uint32(IN_MILLISECONDS) > timeLost)
                 {
                     _timeCriteriaTrees[tree->ID] = criteria->Entry->StartTimer * IN_MILLISECONDS - timeLost;
                     canStart = true;
@@ -936,37 +982,91 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
         return false;
 
     uint64 requiredCount = tree->Entry->Amount;
-    uint64 completedCount = 0;
-    uint32 op = tree->Entry->Operator;
-    bool hasAll = true;
-
-    // Check criteria we depend on first
-    for (CriteriaTree const* node : tree->Children)
+    switch (tree->Entry->Operator)
     {
-        if (IsCompletedCriteriaTree(node))
-            ++completedCount;
-        else
-            hasAll = false;
-
-        if (op & CRITERIA_TREE_OPERATOR_ANY && completedCount >= requiredCount)
+        case CRITERIA_TREE_OPERATOR_SINGLE:
+            return tree->Criteria && IsCompletedCriteria(tree->Criteria, requiredCount);
+        case CRITERIA_TREE_OPERATOR_SINGLE_NOT_COMPLETED:
+            return !tree->Criteria || !IsCompletedCriteria(tree->Criteria, requiredCount);
+        case CRITERIA_TREE_OPERATOR_ALL:
+            for (CriteriaTree const* node : tree->Children)
+                if (!IsCompletedCriteriaTree(node))
+                    return false;
+            return true;
+        case CRITERIA_TREE_OPERAROR_SUM_CHILDREN:
         {
-            if (!tree->Criteria)
-                return true;
-
-            break;
+            uint64 progress = 0;
+            CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
+            {
+                if (criteriaTree->Criteria)
+                    if (CriteriaProgress const* criteriaProgress = GetCriteriaProgress(criteriaTree->Criteria))
+                        progress += criteriaProgress->Counter;
+            });
+            return progress >= requiredCount;
         }
+        case CRITERIA_TREE_OPERATOR_MAX_CHILD:
+        {
+            uint64 progress = 0;
+            CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
+            {
+                if (criteriaTree->Criteria)
+                    if (CriteriaProgress const* criteriaProgress = GetCriteriaProgress(criteriaTree->Criteria))
+                        if (criteriaProgress->Counter > progress)
+                            progress = criteriaProgress->Counter;
+            });
+            return progress >= requiredCount;
+        }
+        case CRITERIA_TREE_OPERATOR_COUNT_DIRECT_CHILDREN:
+        {
+            uint64 progress = 0;
+            for (CriteriaTree const* node : tree->Children)
+                if (node->Criteria)
+                    if (CriteriaProgress const* criteriaProgress = GetCriteriaProgress(node->Criteria))
+                        if (criteriaProgress->Counter >= 1)
+                            if (++progress >= requiredCount)
+                                return true;
+
+            return false;
+        }
+        case CRITERIA_TREE_OPERATOR_ANY:
+        {
+            uint64 progress = 0;
+            for (CriteriaTree const* node : tree->Children)
+                if (IsCompletedCriteriaTree(node))
+                    if (++progress >= requiredCount)
+                        return true;
+
+            return false;
+        }
+        case CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT:
+        {
+            uint64 progress = 0;
+            CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
+            {
+                if (criteriaTree->Criteria)
+                    if (CriteriaProgress const* criteriaProgress = GetCriteriaProgress(criteriaTree->Criteria))
+                        progress += criteriaProgress->Counter * criteriaTree->Entry->Amount;
+            });
+            return progress >= requiredCount;
+        }
+        default:
+            break;
     }
 
-    if (op & CRITERIA_TREE_OPERATOR_ANY && completedCount < requiredCount)
+    return false;
+}
+
+bool CriteriaHandler::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const
+{
+    if ((tree->Entry->Flags & CRITERIA_TREE_FLAG_HORDE_ONLY && referencePlayer->GetTeam() != HORDE) ||
+        (tree->Entry->Flags & CRITERIA_TREE_FLAG_ALLIANCE_ONLY && referencePlayer->GetTeam() != ALLIANCE))
+    {
+        TC_LOG_TRACE("criteria", "CriteriaHandler::CanUpdateCriteriaTree: (Id: %u Type %s CriteriaTree %u) Wrong faction",
+            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), tree->Entry->ID);
         return false;
+    }
 
-    if (op & CRITERIA_TREE_OPERATOR_ALL && !hasAll)
-        return false;
-
-    if (!tree->Criteria)
-        return true;
-
-    return IsCompletedCriteria(tree->Criteria, requiredCount);
+    return true;
 }
 
 bool CriteriaHandler::CanCompleteCriteriaTree(CriteriaTree const* /*tree*/)
@@ -1211,10 +1311,13 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         case CRITERIA_TYPE_WIN_BG:
+        case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
+        case CRITERIA_TYPE_DEATH_AT_MAP:
             if (!miscValue1 || criteria->Entry->Asset.MapID != referencePlayer->GetMapId())
                 return false;
             break;
         case CRITERIA_TYPE_KILL_CREATURE:
+        case CRITERIA_TYPE_KILLED_BY_CREATURE:
             if (!miscValue1 || criteria->Entry->Asset.CreatureID != miscValue1)
                 return false;
             break;
@@ -1226,11 +1329,6 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             break;
         case CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
             if (miscValue1 && miscValue1 != criteria->Entry->Asset.ZoneID)
-                return false;
-            break;
-        case CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
-        case CRITERIA_TYPE_DEATH_AT_MAP:
-            if (!miscValue1 || referencePlayer->GetMapId() != criteria->Entry->Asset.MapID)
                 return false;
             break;
         case CRITERIA_TYPE_DEATH:
@@ -1253,10 +1351,6 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
                 return false;
             break;
         }
-        case CRITERIA_TYPE_KILLED_BY_CREATURE:
-            if (!miscValue1 || miscValue1 != criteria->Entry->Asset.CreatureID)
-                return false;
-            break;
         case CRITERIA_TYPE_KILLED_BY_PLAYER:
             if (!miscValue1 || !unit || unit->GetTypeId() != TYPEID_PLAYER)
                 return false;
@@ -1458,6 +1552,14 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
 
     switch (CriteriaAdditionalCondition(reqType))
     {
+        case CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL: // 3
+        {
+            // miscValue1 is itemid
+            ItemTemplate const* const item = sObjectMgr->GetItemTemplate(uint32(miscValue1));
+            if (!item || item->GetBaseItemLevel() < reqValue)
+                return false;
+            break;
+        }
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_ENTRY: // 4
             if (!unit || unit->GetEntry() != reqValue)
                 return false;
@@ -1519,11 +1621,14 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
                 return false;
             break;
         }
-        case CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY: // 20
-            if (uint32(referencePlayer->GetMap()->GetDifficultyID()) != reqValue)
+        case CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY_OLD: // 20
+        {
+            DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(referencePlayer->GetMap()->GetDifficultyID());
+            if (!difficulty || difficulty->OldEnumValue == -1 || uint32(difficulty->OldEnumValue) != reqValue)
                 return false;
             break;
-        case CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE:
+        }
+        case CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE: // 24
         {
             Battleground* bg = referencePlayer->GetBattleground();
             if (!bg || !bg->isArena() || bg->GetArenaType() != reqValue)
@@ -1584,10 +1689,26 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
             if (!unit || unit->GetHealthPct() >= reqValue)
                 return false;
             break;
+        case CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND_RATING: // 64
+            if (referencePlayer->GetRBGPersonalRating() < reqValue)
+                return false;
+            break;
         case CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES: // 91
             if (miscValue1 != reqValue)
                 return false;
             break;
+        case CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY: // 144
+        {
+            if (!referencePlayer)
+                return false;
+            Garrison* garrison = referencePlayer->GetGarrison();
+            if (!garrison)
+                return false;
+            Garrison::Follower const* follower = garrison->GetFollower(miscValue1);
+            if (!follower || follower->PacketInfo.GarrFollowerID != reqValue)
+                return false;
+            break;
+        }
         case CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY: // 145
         {
             if (!referencePlayer)
@@ -1647,8 +1768,12 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "TYPE_WIN_BG";
         case CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS:
             return "COMPLETE_RESEARCH";
+        case CRITERIA_TYPE_SURVEY_GAMEOBJECT:
+            return "SURVEY_GAMEOBJECT";
         case CRITERIA_TYPE_REACH_LEVEL:
             return "REACH_LEVEL";
+        case CRITERIA_TYPE_CLEAR_DIGSITE:
+            return "CLEAR_DIGSITE";
         case CRITERIA_TYPE_REACH_SKILL_LEVEL:
             return "REACH_SKILL_LEVEL";
         case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
@@ -1677,6 +1802,10 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "COMPLETE_RAID";
         case CRITERIA_TYPE_KILLED_BY_CREATURE:
             return "KILLED_BY_CREATURE";
+        case CRITERIA_TYPE_MANUAL_COMPLETE_CRITERIA:
+            return "MANUAL_COMPLETE_CRITERIA";
+        case CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE_GUILD:
+            return "COMPLETE_CHALLENGE_MODE_GUILD";
         case CRITERIA_TYPE_KILLED_BY_PLAYER:
             return "KILLED_BY_PLAYER";
         case CRITERIA_TYPE_FALL_WITHOUT_DYING:
@@ -1755,6 +1884,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "MONEY_FROM_QUEST_REWARD";
         case CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING:
             return "GOLD_SPENT_FOR_TRAVELLING";
+        case CRITERIA_TYPE_DEFEAT_CREATURE_GROUP:
+            return "DEFEAT_CREATURE_GROUP";
         case CRITERIA_TYPE_GOLD_SPENT_AT_BARBER:
             return "GOLD_SPENT_AT_BARBER";
         case CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL:
@@ -1767,8 +1898,12 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "BE_SPELL_TARGET2";
         case CRITERIA_TYPE_SPECIAL_PVP_KILL:
             return "SPECIAL_PVP_KILL";
+        case CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE:
+            return "COMPLETE_CHALLENGE_MODE";
         case CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
             return "FISH_IN_GAMEOBJECT";
+        case CRITERIA_TYPE_SEND_EVENT:
+            return "SEND_EVENT";
         case CRITERIA_TYPE_ON_LOGIN:
             return "ON_LOGIN";
         case CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
@@ -1779,8 +1914,12 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "LOSE_DUEL";
         case CRITERIA_TYPE_KILL_CREATURE_TYPE:
             return "KILL_CREATURE_TYPE";
+        case CRITERIA_TYPE_COOK_RECIPES_GUILD:
+            return "COOK_RECIPE_GUILD";
         case CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS:
             return "GOLD_EARNED_BY_AUCTIONS";
+        case CRITERIA_TYPE_EARN_PET_BATTLE_ACHIEVEMENT_POINTS:
+            return "EARN_PET_BATTLE_ACHIEVEMENT_POINTS";
         case CRITERIA_TYPE_CREATE_AUCTION:
             return "CREATE_AUCTION";
         case CRITERIA_TYPE_HIGHEST_AUCTION_BID:
@@ -1801,10 +1940,18 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "LOOT_EPIC_ITEM";
         case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             return "RECEIVE_EPIC_ITEM";
+        case CRITERIA_TYPE_SEND_EVENT_SCENARIO:
+            return "SEND_EVENT_SCENARIO";
         case CRITERIA_TYPE_ROLL_NEED:
             return "ROLL_NEED";
         case CRITERIA_TYPE_ROLL_GREED:
             return "ROLL_GREED";
+        case CRITERIA_TYPE_RELEASE_SPIRIT:
+            return "RELEASE_SPIRIT";
+        case CRITERIA_TYPE_OWN_PET:
+            return "OWN_PET";
+        case CRITERIA_TYPE_GARRISON_COMPLETE_DUNGEON_ENCOUNTER:
+            return "GARRISON_COMPLETE_DUNGEON_ENCOUNTER";
         case CRITERIA_TYPE_HIGHEST_HIT_DEALT:
             return "HIT_DEALT";
         case CRITERIA_TYPE_HIGHEST_HIT_RECEIVED:
@@ -1833,8 +1980,18 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "ACCEPTED_SUMMONINGS";
         case CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
             return "EARN_ACHIEVEMENT_POINTS";
+        case CRITERIA_TYPE_COMPLETE_LFG_DUNGEON:
+            return "COMPLETE_LFG_DUNGEON";
         case CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
             return "USE_LFD_TO_GROUP_WITH_PLAYERS";
+        case CRITERIA_TYPE_LFG_VOTE_KICKS_INITIATED_BY_PLAYER:
+            return "LFG_VOTE_KICKS_INITIATED_BY_PLAYER";
+        case CRITERIA_TYPE_LFG_VOTE_KICKS_NOT_INIT_BY_PLAYER:
+            return "LFG_VOTE_KICKS_NOT_INIT_BY_PLAYER";
+        case CRITERIA_TYPE_BE_KICKED_FROM_LFG:
+            return "BE_KICKED_FROM_LFG";
+        case CRITERIA_TYPE_LFG_LEAVES:
+            return "LFG_LEAVES";
         case CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
             return "SPENT_GOLD_GUILD_REPAIRS";
         case CRITERIA_TYPE_REACH_GUILD_LEVEL:
@@ -1859,6 +2016,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "HONORABLE_KILLS_GUILD";
         case CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
             return "KILL_CREATURE_TYPE_GUILD";
+        case CRITERIA_TYPE_COUNT_OF_LFG_QUEUE_BOOSTS_BY_TANK:
+            return "COUNT_OF_LFG_QUEUE_BOOSTS_BY_TANK";
         case CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE:
             return "GUILD_CHALLENGE_TYPE";
         case CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE:
@@ -1879,6 +2038,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "COMPLETE_SCENARIO_COUNT";
         case CRITERIA_TYPE_COMPLETE_SCENARIO:
             return "COMPLETE_SCENARIO";
+        case CRITERIA_TYPE_REACH_AREATRIGGER_WITH_ACTIONSET:
+            return "REACH_AREATRIGGER_WITH_ACTIONSET";
         case CRITERIA_TYPE_OWN_BATTLE_PET:
             return "OWN_BATTLE_PET";
         case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
@@ -1909,12 +2070,16 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "UPGRADE_GARRISON";
         case CRITERIA_TYPE_START_GARRISON_MISSION:
             return "START_GARRISON_MISSION";
+        case CRITERIA_TYPE_START_ORDER_HALL_MISSION:
+            return "START_ORDER_HALL_MISSION";
         case CRITERIA_TYPE_COMPLETE_GARRISON_MISSION_COUNT:
             return "COMPLETE_GARRISON_MISSION_COUNT";
         case CRITERIA_TYPE_COMPLETE_GARRISON_MISSION:
             return "COMPLETE_GARRISON_MISSION";
         case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_COUNT:
             return "RECRUIT_GARRISON_FOLLOWER_COUNT";
+        case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
+            return "RECRUIT_GARRISON_FOLLOWER";
         case CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINT_COUNT:
             return "LEARN_GARRISON_BLUEPRINT_COUNT";
         case CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT:
@@ -1927,10 +2092,26 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "OWN_TOY";
         case CRITERIA_TYPE_OWN_TOY_COUNT:
             return "OWN_TOY_COUNT";
-        case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
-            return "RECRUIT_GARRISON_FOLLOWER";
+        case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_WITH_QUALITY:
+            return "RECRUIT_GARRISON_FOLLOWER_WITH_QUALITY";
         case CRITERIA_TYPE_OWN_HEIRLOOMS:
             return "OWN_HEIRLOOMS";
+        case CRITERIA_TYPE_ARTIFACT_POWER_EARNED:
+            return "ARTIFACT_POWER_EARNED";
+        case CRITERIA_TYPE_ARTIFACT_TRAITS_UNLOCKED:
+            return "ARTIFACT_TRAITS_UNLOCKED";
+        case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
+            return "HONOR_LEVEL_REACHED";
+        case CRITERIA_TYPE_PRESTIGE_REACHED:
+            return "PRESTIGE_REACHED";
+        case CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED:
+            return "ORDER_HALL_TALENT_LEARNED";
+        case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
+            return "APPEARANCE_UNLOCKED_BY_SLOT";
+        case CRITERIA_TYPE_ORDER_HALL_RECRUIT_TROOP:
+            return "ORDER_HALL_RECRUIT_TROOP";
+        case CRITERIA_TYPE_COMPLETE_WORLD_QUEST:
+            return "COMPLETE_WORLD_QUEST";
     }
     return "MISSING_TYPE";
 }
@@ -2029,9 +2210,9 @@ void CriteriaMgr::LoadCriteriaList()
             achievementCriteriaTreeIds[achievement->CriteriaTree] = achievement;
 
     std::unordered_map<uint32 /*criteriaTreeID*/, ScenarioStepEntry const*> scenarioCriteriaTreeIds;
-    //for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
-    //    if (scenarioStep->CriteriaTreeID)
-    //        scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
+    for (ScenarioStepEntry const* scenarioStep : sScenarioStepStore)
+        if (scenarioStep->CriteriaTreeID)
+            scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
 
     // Load criteria tree nodes
     for (CriteriaTreeEntry const* tree : sCriteriaTreeStore)
@@ -2082,6 +2263,9 @@ void CriteriaMgr::LoadCriteriaList()
     uint32 scenarioCriterias = 0;
     for (CriteriaEntry const* criteriaEntry : sCriteriaStore)
     {
+        ASSERT(criteriaEntry->Type < CRITERIA_TYPE_TOTAL, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
+            criteriaEntry->Type + 1, CRITERIA_TYPE_TOTAL);
+
         auto treeItr = _criteriaTreeByCriteria.find(criteriaEntry->ID);
         if (treeItr == _criteriaTreeByCriteria.end())
             continue;
@@ -2215,4 +2399,13 @@ Criteria const* CriteriaMgr::GetCriteria(uint32 criteriaId) const
         return nullptr;
 
     return itr->second;
+}
+
+ModifierTreeNode const* CriteriaMgr::GetModifierTree(uint32 modifierTreeId) const
+{
+    auto itr = _criteriaModifiers.find(modifierTreeId);
+    if (itr != _criteriaModifiers.end())
+        return itr->second;
+
+    return nullptr;
 }

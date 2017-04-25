@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -88,19 +88,20 @@ enum CriteriaDataType
     CRITERIA_DATA_TYPE_T_LEVEL              = 9,  // Minlevel                     minlevel of target
     CRITERIA_DATA_TYPE_T_GENDER             = 10, // Gender                       0=male; 1=female
     CRITERIA_DATA_TYPE_SCRIPT               = 11, // Scripted requirement
-    // REUSE
+    CRITERIA_DATA_TYPE_MAP_DIFFICULTY       = 12, // used on 3.3.5a branch
     CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT     = 13, // Count                        "with less than %u people in the zone"
     CRITERIA_DATA_TYPE_T_TEAM               = 14, // Team                         HORDE(67), ALLIANCE(469)
     CRITERIA_DATA_TYPE_S_DRUNK              = 15, // DrunkenState   0             (enum DrunkenState) of player
     CRITERIA_DATA_TYPE_HOLIDAY              = 16, // HolidayId      0             event in holiday time
     CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE   = 17, // MinScore       MaxScore      player's team win bg and opposition team have team score in range
     CRITERIA_DATA_TYPE_INSTANCE_SCRIPT      = 18, // 0              0             maker instance script call for check current criteria requirements fit
-    CRITERIA_DATA_TYPE_S_EQUIPED_ITEM       = 19, // ItemLevel      Quality       for equipped item in slot to check item level and quality
+    CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM      = 19, // ItemLevel      Quality       for equipped item in slot to check item level and quality
     CRITERIA_DATA_TYPE_MAP_ID               = 20, // MapId          0             player must be on map with id in map_id
     CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE  = 21, // Class          Race
-    // REUSE
+    CRITERIA_DATA_TYPE_NTH_BIRTHDAY         = 22, // used on 3.3.5a branch
     CRITERIA_DATA_TYPE_S_KNOWN_TITLE        = 23, // TitleId                      known (pvp) title, values from dbc
     CRITERIA_DATA_TYPE_GAME_EVENT           = 24, // GameEventId    0
+    CRITERIA_DATA_TYPE_S_ITEM_QUALITY       = 25, // ItemQuality    0
 
     MAX_CRITERIA_DATA_TYPE
 };
@@ -179,7 +180,7 @@ struct CriteriaData
             uint32 Max;
         } BattlegroundScore;
         // CRITERIA_DATA_TYPE_INSTANCE_SCRIPT   = 18 (no data)
-        // CRITERIA_DATA_TYPE_S_EQUIPED_ITEM    = 19
+        // CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM   = 19
         struct
         {
             uint32 ItemLevel;
@@ -190,16 +191,21 @@ struct CriteriaData
         {
             uint32 Id;
         } Map;
-        // CRITERIA_DATA_TYPE_KNOWN_TITLE       = 22
+        // CRITERIA_DATA_TYPE_KNOWN_TITLE       = 23
         struct
         {
             uint32 Id;
         } KnownTitle;
-        // CRITERIA_DATA_TYPE_GAME_EVENT           = 24
+        // CRITERIA_DATA_TYPE_GAME_EVENT        = 25
         struct
         {
             uint32 Id;
         } GameEvent;
+        // CRITERIA_DATA_TYPE_S_ITEM_QUALITY    = 24
+        struct
+        {
+            uint32 Quality;
+        } ItemQuality;
         // raw
         struct
         {
@@ -273,7 +279,7 @@ protected:
     virtual void SendCriteriaProgressRemoved(uint32 criteriaId) = 0;
 
     bool IsCompletedCriteriaTree(CriteriaTree const* tree);
-    virtual bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const = 0;
+    virtual bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const;
     virtual bool CanCompleteCriteriaTree(CriteriaTree const* tree);
     virtual void CompletedCriteriaTree(CriteriaTree const* tree, Player* referencePlayer) = 0;
     virtual void AfterCriteriaTreeUpdate(CriteriaTree const* /*tree*/, Player* /*referencePlayer*/) { }
@@ -370,6 +376,7 @@ public:
     void LoadCriteriaData();
     CriteriaTree const* GetCriteriaTree(uint32 criteriaTreeId) const;
     Criteria const* GetCriteria(uint32 criteriaId) const;
+    ModifierTreeNode const* GetModifierTree(uint32 modifierTreeId) const;
 
 private:
     CriteriaDataMap _criteriaDataMap;

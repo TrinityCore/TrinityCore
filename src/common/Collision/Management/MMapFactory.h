@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,7 +43,6 @@ namespace MMAP
         public:
             static MMapManager* createOrGetMMapManager();
             static void clear();
-            static bool IsPathfindingEnabled(uint32 mapId);
     };
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1361,7 +1361,7 @@ public:
                         DoCastVictim(SPELL_SR_SHOOT, false);
                         uiTimer[2] = urand(4000, 6000);
                     }
-                    if (me->IsWithinMeleeRange(me->GetVictim(), 6))
+                    if (me->IsWithinMeleeRange(me->GetVictim()))
                     {
                         if (uiTimer[0] <= diff)
                         {

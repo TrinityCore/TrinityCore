@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -160,7 +160,6 @@ namespace WorldPackets
             uint8 Type = 0;
             uint32 MapID = 0;
             uint32 DifficultyID = 0;
-            int32 TimeLeft = 0;
             bool Locked = false;
             bool Extended = false;
         };
@@ -235,6 +234,15 @@ namespace WorldPackets
 
             int32 InCombatResCount = 0;
             uint32 CombatResChargeRecovery = 0;
+        };
+
+        class BossKillCredit final : public ServerPacket
+        {
+        public:
+            BossKillCredit() : ServerPacket(SMSG_BOSS_KILL_CREDIT, 4) { }
+
+            WorldPacket const* Write() override;
+            uint32 DungeonEncounterID = 0;
         };
     }
 }

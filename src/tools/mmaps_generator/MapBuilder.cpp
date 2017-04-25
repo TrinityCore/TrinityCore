@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,7 +29,7 @@
 #include "DetourCommon.h"
 
 #define MMAP_MAGIC 0x4d4d4150   // 'MMAP'
-#define MMAP_VERSION 7
+#define MMAP_VERSION 8
 
 struct MmapTileHeader
 {
@@ -37,11 +37,21 @@ struct MmapTileHeader
     uint32 dtVersion;
     uint32 mmapVersion;
     uint32 size;
-    bool usesLiquids : 1;
+    char usesLiquids;
+    char padding[3];
 
     MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) {}
+        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true), padding() {}
 };
+
+// All padding fields must be handled and initialized to ensure mmaps_generator will produce binary-identical *.mmtile files
+static_assert(sizeof(MmapTileHeader) == 20, "MmapTileHeader size is not correct, adjust the padding field size");
+static_assert(sizeof(MmapTileHeader) == (sizeof(MmapTileHeader::mmapMagic) +
+                                         sizeof(MmapTileHeader::dtVersion) +
+                                         sizeof(MmapTileHeader::mmapVersion) +
+                                         sizeof(MmapTileHeader::size) +
+                                         sizeof(MmapTileHeader::usesLiquids) +
+                                         sizeof(MmapTileHeader::padding)), "MmapTileHeader has uninitialized padding fields");
 
 namespace MMAP
 {
@@ -56,6 +66,8 @@ namespace MMAP
         m_skipBattlegrounds  (skipBattlegrounds),
         m_maxWalkableAngle   (maxWalkableAngle),
         m_bigBaseUnit        (bigBaseUnit),
+        m_totalTiles         (0u),
+        m_totalTilesProcessed(0u),
         m_rcContext          (NULL),
         _cancelationToken    (false)
     {
@@ -142,6 +154,8 @@ namespace MMAP
             }
         }
         printf("found %u.\n\n", count);
+
+        m_totalTiles.store(count, std::memory_order_relaxed);
     }
 
     /**************************************************************************/
@@ -173,9 +187,11 @@ namespace MMAP
         }
     }
 
-    void MapBuilder::buildAllMaps(int threads)
+    void MapBuilder::buildAllMaps(unsigned int threads)
     {
-        for (int i = 0; i < threads; ++i)
+        printf("Using %u threads to extract mmaps\n", threads);
+
+        for (unsigned int i = 0; i < threads; ++i)
         {
             _workerThreads.push_back(std::thread(&MapBuilder::WorkerThread, this));
         }
@@ -374,7 +390,8 @@ namespace MMAP
             // add all tiles within bounds to tile list.
             for (uint32 i = minX; i <= maxX; ++i)
                 for (uint32 j = minY; j <= maxY; ++j)
-                    tiles->insert(StaticMapTree::packTileID(i, j));
+                    if (tiles->insert(StaticMapTree::packTileID(i, j)).second)
+                        ++m_totalTiles;
         }
 
         if (!tiles->empty())
@@ -385,6 +402,7 @@ namespace MMAP
             if (!navMesh)
             {
                 printf("[Map %04i] Failed creating navmesh!\n", mapID);
+                m_totalTilesProcessed += tiles->size();
                 return;
             }
 
@@ -397,6 +415,7 @@ namespace MMAP
                 // unpack tile coords
                 StaticMapTree::unpackTileID((*it), tileX, tileY);
 
+                ++m_totalTilesProcessed;
                 if (shouldSkipTile(mapID, tileX, tileY))
                     continue;
 
@@ -412,7 +431,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
-        printf("[Map %04i] Building tile [%02u,%02u]\n", mapID, tileX, tileY);
+        printf("%u%% [Map %04i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesProcessed), mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -459,7 +478,7 @@ namespace MMAP
         //if (tileBits < 1) tileBits = 1;                                     // need at least one bit!
         //int polyBits = sizeof(dtPolyRef)*8 - SALT_MIN_BITS - tileBits;
 
-        int polyBits = STATIC_POLY_BITS;
+        int polyBits = DT_POLY_BITS;
 
         int maxTiles = tiles->size();
         int maxPolysPerTile = 1 << polyBits;
@@ -897,6 +916,7 @@ namespace MMAP
                 case 571:
                 case 870:
                 case 1116:
+                case 1220:
                     return true;
                 default:
                     break;
@@ -920,7 +940,33 @@ namespace MMAP
                 case 1181:  // PattyMackTestGarrisonBldgMap.wdt
                 case 1264:  // Propland-DevOnly.wdt
                 case 1270:  // devland3.wdt
+                case 1310:  // Expansion5QAModelMap.wdt
+                case 1407:  // GorgrondFinaleScenarioMap.wdt (zzzOld)
                 case 1427:  // PattyMackTestGarrisonBldgMap2.wdt
+                case 1451:  // TanaanLegionTest.wdt
+                case 1454:  // ArtifactAshbringerOrigin.wdt
+                case 1457:  // FXlDesignLand-DevOnly.wdt
+                case 1471:  // 1466.wdt (Dungeon Test Map 1466)
+                case 1499:  // Artifact-Warrior Fury Acquisition.wdt (oldArtifact - Warrior Fury Acquisition)
+                case 1537:  // BoostExperience.wdt (zzOLD - Boost Experience)
+                case 1538:  // Karazhan Scenario.wdt (test)
+                case 1549:  // TechTestSeamlessWorldTransitionA.wdt
+                case 1550:  // TechTestSeamlessWorldTransitionB.wdt
+                case 1555:  // TransportBoostExperienceAllianceGunship.wdt
+                case 1556:  // TransportBoostExperienceHordeGunship.wdt
+                case 1561:  // TechTestCosmeticParentPerformance.wdt
+                case 1582:  // Artifact�DalaranVaultAcquisition.wdt // no, this weird symbol is not an encoding error.
+                case 1584:  // JulienTestLand-DevOnly.wdt
+                case 1586:  // AssualtOnStormwind.wdt (Assault on Stormwind - Dev Map)
+                case 1588:  // DevMapA.wdt
+                case 1589:  // DevMapB.wdt
+                case 1590:  // DevMapC.wdt
+                case 1591:  // DevMapD.wdt
+                case 1592:  // DevMapE.wdt
+                case 1593:  // DevMapF.wdt
+                case 1594:  // DevMapG.wdt
+                case 1603:  // AbyssalMaw_Interior_Scenario.wdt
+                case 1670:  // BrokenshorePristine.wdt
                     return true;
                 default:
                     if (isTransportMap(mapID))
@@ -1012,6 +1058,19 @@ namespace MMAP
             case 1173:
             case 1192:
             case 1231:
+            case 1459:
+            case 1476:
+            case 1484:
+            case 1555:
+            case 1556:
+            case 1559:
+            case 1560:
+            case 1628:
+            case 1637:
+            case 1638:
+            case 1639:
+            case 1649:
+            case 1650:
                 return true;
             default:
                 return false;
@@ -1040,6 +1099,15 @@ namespace MMAP
             return false;
 
         return true;
+    }
+
+    /**************************************************************************/
+    uint32 MapBuilder::percentageDone(uint32 totalTiles, uint32 totalTilesBuilt)
+    {
+        if (totalTiles)
+            return totalTilesBuilt * 100 / totalTiles;
+
+        return 0;
     }
 
 }

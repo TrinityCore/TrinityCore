@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,6 +69,13 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
         return;
     }
 
+    // player trying to invite himself (most likely cheating)
+    if (player == GetPlayer())
+    {
+        SendPartyResult(PARTY_OP_INVITE, player->GetName(), ERR_BAD_PLAYER_NAME_S);
+        return;
+    }
+
     // restrict invite to GMs
     if (!sWorld->getBoolConfig(CONFIG_ALLOW_GM_GROUP) && !GetPlayer()->IsGameMaster() && player->IsGameMaster())
     {
@@ -97,6 +104,12 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
     if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUID()))
     {
         SendPartyResult(PARTY_OP_INVITE, player->GetName(), ERR_IGNORING_YOU_S);
+        return;
+    }
+
+    if (!player->GetSocial()->HasFriend(GetPlayer()->GetGUID()) && GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_PARTY_LEVEL_REQ))
+    {
+        SendPartyResult(PARTY_OP_INVITE, player->GetName(), ERR_INVITE_RESTRICTED);
         return;
     }
 
@@ -154,6 +167,7 @@ void WorldSession::HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClien
         }
         if (!group->AddInvite(player))
         {
+            group->RemoveAllInvites();
             delete group;
             return;
         }
@@ -348,8 +362,16 @@ void WorldSession::HandleSetLootMethodOpcode(WorldPackets::Party::SetLootMethod&
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
 
-    if (packet.LootMethod > PERSONAL_LOOT)
-        return;
+    switch (packet.LootMethod)
+    {
+        case FREE_FOR_ALL:
+        case MASTER_LOOT:
+        case GROUP_LOOT:
+        case PERSONAL_LOOT:
+            break;
+        default:
+            return;
+    }
 
     if (packet.LootThreshold < ITEM_QUALITY_UNCOMMON || packet.LootThreshold > ITEM_QUALITY_ARTIFACT)
         return;
@@ -371,7 +393,7 @@ void WorldSession::HandleLootRoll(WorldPackets::Loot::LootRoll& packet)
     if (!group)
         return;
 
-    group->CountRollVote(GetPlayer()->GetGUID(), packet.LootObj, packet.RollType);
+    group->CountRollVote(GetPlayer()->GetGUID(), packet.LootObj, packet.LootListID - 1, packet.RollType);
 
     switch (packet.RollType)
     {
@@ -561,12 +583,12 @@ void WorldSession::HandleReadyCheckResponseOpcode(WorldPackets::Party::ReadyChec
 
 void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPackets::Party::RequestPartyMemberStats& packet)
 {
-    WorldPackets::Party::PartyMemberStats partyMemberStats;
+    WorldPackets::Party::PartyMemberState partyMemberStats;
 
     Player* player = ObjectAccessor::FindConnectedPlayer(packet.TargetGUID);
     if (!player)
     {
-        partyMemberStats.MemberStats.GUID = packet.TargetGUID;
+        partyMemberStats.MemberGuid = packet.TargetGUID;
         partyMemberStats.MemberStats.Status = MEMBER_STATUS_OFFLINE;
     }
     else

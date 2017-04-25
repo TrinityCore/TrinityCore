@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -115,6 +115,7 @@ class boss_archavon : public CreatureScript
                             DoCastVictim(SPELL_STOMP);
                             events.ScheduleEvent(EVENT_IMPALE, 3000);
                             events.ScheduleEvent(EVENT_STOMP, 45000);
+                            Talk(EMOTE_LEAP, me->GetVictim());
                             break;
                         case EVENT_IMPALE:
                             DoCastVictim(SPELL_IMPALE);
@@ -126,6 +127,9 @@ class boss_archavon : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -197,6 +201,9 @@ class npc_archavon_warder : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

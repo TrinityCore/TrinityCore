@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,12 +28,15 @@
 
 enum MonkSpells
 {
-    SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL = 117952,
-    SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC = 123333,
-    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE = 154436,
-
-    SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK = 117962,
-    SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD = 117953,
+    SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL         = 117952,
+    SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC        = 123333,
+    SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK       = 117962,
+    SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
+    SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
+    SPELL_MONK_PROVOKE_AOE                              = 118635,
+    SPELL_MONK_SOOTHING_MIST                            = 115175,
+    SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
+    SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
 };
 
 // 117952 - Crackling Jade Lightning
@@ -96,7 +99,7 @@ public:
             if (GetTarget()->HasAura(SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD))
                 return false;
 
-            if (eventInfo.GetActor()->GetGUID() != GetTarget()->GetChannelObjectGuid())
+            if (eventInfo.GetActor()->HasAura(SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL, GetTarget()->GetGUID()))
                 return false;
 
             Spell* currentChanneledSpell = GetTarget()->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
@@ -125,8 +128,69 @@ public:
     }
 };
 
+// 115546 - Provoke
+class spell_monk_provoke : public SpellScriptLoader
+{
+public:
+    spell_monk_provoke() : SpellScriptLoader("spell_monk_provoke") { }
+
+    class spell_monk_provoke_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_provoke_SpellScript);
+
+        static uint32 const BlackOxStatusEntry = 61146;
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            if (!(spellInfo->GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK)) // ensure GetExplTargetUnit() will return something meaningful during CheckCast
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_PROVOKE_SINGLE_TARGET))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_MONK_PROVOKE_AOE))
+                return false;
+            return true;
+        }
+
+        SpellCastResult CheckExplicitTarget()
+        {
+            if (GetExplTargetUnit()->GetEntry() != BlackOxStatusEntry)
+            {
+                SpellInfo const* singleTarget = sSpellMgr->AssertSpellInfo(SPELL_MONK_PROVOKE_SINGLE_TARGET);
+                SpellCastResult singleTargetExplicitResult = singleTarget->CheckExplicitTarget(GetCaster(), GetExplTargetUnit());
+                if (singleTargetExplicitResult != SPELL_CAST_OK)
+                    return singleTargetExplicitResult;
+            }
+            else if (GetExplTargetUnit()->GetOwnerGUID() != GetCaster()->GetGUID())
+                return SPELL_FAILED_BAD_TARGETS;
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            if (GetHitUnit()->GetEntry() != BlackOxStatusEntry)
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_PROVOKE_SINGLE_TARGET, true);
+            else
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_PROVOKE_AOE, true);
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_monk_provoke_SpellScript::CheckExplicitTarget);
+            OnEffectHitTarget += SpellEffectFn(spell_monk_provoke_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_monk_provoke_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     new spell_monk_crackling_jade_lightning();
     new spell_monk_crackling_jade_lightning_knockback_proc_aura();
+    new spell_monk_provoke();
 }

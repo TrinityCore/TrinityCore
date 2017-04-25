@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012-2014 Arctium Emulation <http://arctium.org>
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,14 +25,15 @@
 #include "Patterns/Mac.hpp"
 #include "Patterns/Windows.hpp"
 
-#include <CompilerDefs.h>
+#include "Banner.h"
+#include "CompilerDefs.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/program_options.hpp>
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include <Shlobj.h>
-#elif PLATFORM == PLATFORM_UNIX
+#elif TRINITY_PLATFORM == TRINITY_PLATFORM_UNIX
 #include <pwd.h>
 #endif
 
@@ -131,6 +132,8 @@ int main(int argc, char** argv)
 
     try
     {
+        Trinity::Banner::Show("connection_patcher", [](char const* text) { std::cout << text << std::endl; }, nullptr);
+
         auto vm = GetConsoleArguments(argc, argv);
 
         // exit if help is enabled

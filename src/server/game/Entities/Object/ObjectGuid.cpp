@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -82,6 +82,7 @@ namespace
         SET_GUID_NAME(BattlePet);
         SET_GUID_NAME(CommerceObj);
         SET_GUID_NAME(ClientSession);
+        SET_GUID_NAME(Cast);
 
 #undef SET_GUID_NAME
     }
@@ -221,3 +222,4 @@ GUID_TRAIT_INSTANTIATE_GUID(HighGuid::CallForHelp)
 GUID_TRAIT_INSTANTIATE_GUID(HighGuid::AIResource)
 GUID_TRAIT_INSTANTIATE_GUID(HighGuid::AILock)
 GUID_TRAIT_INSTANTIATE_GUID(HighGuid::AILockTicket)
+GUID_TRAIT_INSTANTIATE_GUID(HighGuid::Cast)

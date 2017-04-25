@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,16 +84,18 @@ WorldPacket const* WorldPackets::Trade::TradeStatus::Write()
 
 ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::Trade::TradeUpdated::UnwrappedTradeItem const& unwrappedTradeItem)
 {
-    buffer << unwrappedTradeItem.Item;
     buffer << int32(unwrappedTradeItem.EnchantID);
     buffer << int32(unwrappedTradeItem.OnUseEnchantmentID);
-    buffer.append(unwrappedTradeItem.SocketEnchant, MAX_GEM_SOCKETS);
     buffer << unwrappedTradeItem.Creator;
     buffer << int32(unwrappedTradeItem.Charges);
     buffer << uint32(unwrappedTradeItem.MaxDurability);
     buffer << uint32(unwrappedTradeItem.Durability);
+    buffer.WriteBits(unwrappedTradeItem.Gems.size(), 2);
     buffer.WriteBit(unwrappedTradeItem.Lock);
     buffer.FlushBits();
+
+    for (WorldPackets::Item::ItemGemData const& gem : unwrappedTradeItem.Gems)
+        buffer << gem;
 
     return buffer;
 }
@@ -101,10 +103,12 @@ ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::Trade::TradeUpdated::Un
 ByteBuffer& operator<<(ByteBuffer& buffer, WorldPackets::Trade::TradeUpdated::TradeItem const& tradeItem)
 {
     buffer << uint8(tradeItem.Slot);
-    buffer << uint32(tradeItem.EntryID);
     buffer << uint32(tradeItem.StackCount);
     buffer << tradeItem.GiftCreator;
-    if (buffer.WriteBit(tradeItem.Unwrapped.is_initialized()))
+    buffer << tradeItem.Item;
+    buffer.WriteBit(tradeItem.Unwrapped.is_initialized());
+    buffer.FlushBits();
+    if (tradeItem.Unwrapped)
         buffer << *tradeItem.Unwrapped;
 
     return buffer;

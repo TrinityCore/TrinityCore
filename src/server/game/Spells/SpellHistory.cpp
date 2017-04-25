@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -204,7 +204,6 @@ void SpellHistory::SaveToDB(SQLTransaction& trans)
 
 void SpellHistory::Update()
 {
-    SQLTransaction t;
     Clock::time_point now = Clock::now();
     for (auto itr = _categoryCooldowns.begin(); itr != _categoryCooldowns.end();)
     {
@@ -237,7 +236,7 @@ void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, Item const* item,
 
 void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 itemID, Spell* spell /*= nullptr*/)
 {
-    if (ConsumeCharge(spellInfo->ChargeCategoryEntry))
+    if (ConsumeCharge(spellInfo->ChargeCategoryId))
         return;
 
     if (Player* player = _owner->ToPlayer())
@@ -261,14 +260,14 @@ void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 itemID, Sp
 
 bool SpellHistory::IsReady(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, bool ignoreCategoryCooldown /*= false*/) const
 {
-    if (spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
+    if (spellInfo->PreventionType & SPELL_PREVENTION_TYPE_SILENCE)
         if (IsSchoolLocked(spellInfo->GetSchoolMask()))
             return false;
 
     if (HasCooldown(spellInfo->Id, itemId, ignoreCategoryCooldown))
         return false;
 
-    if (!HasCharge(spellInfo->ChargeCategoryEntry))
+    if (!HasCharge(spellInfo->ChargeCategoryId))
         return false;
 
     return true;
@@ -407,10 +406,10 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
     }
     else
     {
-        // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
+        // shoot spells used equipped item cooldown values already assigned in SetBaseAttackTime(RANGED_ATTACK)
         // prevent 0 cooldowns set by another way
         if (cooldown <= 0 && categoryCooldown <= 0 && (categoryId == 76 || (spellInfo->IsAutoRepeatRangedSpell() && spellInfo->Id != 75)))
-            cooldown = _owner->GetAttackTime(RANGED_ATTACK);
+            cooldown = _owner->GetUInt32Value(UNIT_FIELD_RANGEDATTACKTIME);
 
         // Now we have cooldown data (if found any), time to apply mods
         if (Player* modOwner = _owner->GetSpellModOwner())
@@ -538,12 +537,18 @@ void SpellHistory::AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point 
 
 void SpellHistory::ModifyCooldown(uint32 spellId, int32 cooldownModMs)
 {
+    Clock::duration offset = std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(cooldownModMs));
+    ModifyCooldown(spellId, offset);
+}
+
+void SpellHistory::ModifyCooldown(uint32 spellId, Clock::duration offset)
+{
     auto itr = _spellCooldowns.find(spellId);
-    if (!cooldownModMs || itr == _spellCooldowns.end())
+    if (!offset.count() || itr == _spellCooldowns.end())
         return;
 
     Clock::time_point now = Clock::now();
-    Clock::duration offset = std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(cooldownModMs));
+
     if (itr->second.CooldownEnd + offset > now)
         itr->second.CooldownEnd += offset;
     else
@@ -554,7 +559,7 @@ void SpellHistory::ModifyCooldown(uint32 spellId, int32 cooldownModMs)
         WorldPackets::Spells::ModifyCooldown modifyCooldown;
         modifyCooldown.IsPet = _owner != playerOwner;
         modifyCooldown.SpellID = spellId;
-        modifyCooldown.DeltaTime = cooldownModMs;
+        modifyCooldown.DeltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(offset).count();
         playerOwner->SendDirectMessage(modifyCooldown.Write());
     }
 }
@@ -669,7 +674,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
     else
     {
         Creature* creatureOwner = _owner->ToCreature();
-        for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+        for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
             if (creatureOwner->m_spells[i])
                 knownSpells.insert(creatureOwner->m_spells[i]);
     }
@@ -683,7 +688,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
         if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
-        if (spellInfo->PreventionType != SPELL_PREVENTION_TYPE_SILENCE)
+        if (!(spellInfo->PreventionType & SPELL_PREVENTION_TYPE_SILENCE))
             continue;
 
         if ((schoolMask & spellInfo->GetSchoolMask()) && GetRemainingCooldown(spellInfo) < lockoutTime)
@@ -709,16 +714,16 @@ bool SpellHistory::IsSchoolLocked(SpellSchoolMask schoolMask) const
     return false;
 }
 
-bool SpellHistory::ConsumeCharge(SpellCategoryEntry const* chargeCategoryEntry)
+bool SpellHistory::ConsumeCharge(uint32 chargeCategoryId)
 {
-    if (!chargeCategoryEntry)
+    if (!sSpellCategoryStore.LookupEntry(chargeCategoryId))
         return false;
 
-    int32 chargeRecovery = GetChargeRecoveryTime(chargeCategoryEntry);
-    if (chargeRecovery > 0 && GetMaxCharges(chargeCategoryEntry) > 0)
+    int32 chargeRecovery = GetChargeRecoveryTime(chargeCategoryId);
+    if (chargeRecovery > 0 && GetMaxCharges(chargeCategoryId) > 0)
     {
         Clock::time_point recoveryStart;
-        std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryEntry->ID];
+        std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryId];
         if (charges.empty())
             recoveryStart = Clock::now();
         else
@@ -731,12 +736,9 @@ bool SpellHistory::ConsumeCharge(SpellCategoryEntry const* chargeCategoryEntry)
     return false;
 }
 
-void SpellHistory::RestoreCharge(SpellCategoryEntry const* chargeCategoryEntry)
+void SpellHistory::RestoreCharge(uint32 chargeCategoryId)
 {
-    if (!chargeCategoryEntry)
-        return;
-
-    auto itr = _categoryCharges.find(chargeCategoryEntry->ID);
+    auto itr = _categoryCharges.find(chargeCategoryId);
     if (itr != _categoryCharges.end() && !itr->second.empty())
     {
         itr->second.pop_back();
@@ -744,7 +746,7 @@ void SpellHistory::RestoreCharge(SpellCategoryEntry const* chargeCategoryEntry)
         if (Player* player = GetPlayerOwner())
         {
             WorldPackets::Spells::SetSpellCharges setSpellCharges;
-            setSpellCharges.Category = chargeCategoryEntry->ID;
+            setSpellCharges.Category = chargeCategoryId;
             if (!itr->second.empty())
                 setSpellCharges.NextRecoveryTime = uint32(std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.front().RechargeEnd - Clock::now()).count());
             setSpellCharges.ConsumedCharges = uint8(itr->second.size());
@@ -755,12 +757,9 @@ void SpellHistory::RestoreCharge(SpellCategoryEntry const* chargeCategoryEntry)
     }
 }
 
-void SpellHistory::ResetCharges(SpellCategoryEntry const* chargeCategoryEntry)
+void SpellHistory::ResetCharges(uint32 chargeCategoryId)
 {
-    if (!chargeCategoryEntry)
-        return;
-
-    auto itr = _categoryCharges.find(chargeCategoryEntry->ID);
+    auto itr = _categoryCharges.find(chargeCategoryId);
     if (itr != _categoryCharges.end())
     {
         _categoryCharges.erase(itr);
@@ -769,7 +768,7 @@ void SpellHistory::ResetCharges(SpellCategoryEntry const* chargeCategoryEntry)
         {
             WorldPackets::Spells::ClearSpellCharges clearSpellCharges;
             clearSpellCharges.IsPet = _owner != player;
-            clearSpellCharges.Category = chargeCategoryEntry->ID;
+            clearSpellCharges.Category = chargeCategoryId;
             player->SendDirectMessage(clearSpellCharges.Write());
         }
     }
@@ -787,40 +786,42 @@ void SpellHistory::ResetAllCharges()
     }
 }
 
-bool SpellHistory::HasCharge(SpellCategoryEntry const* chargeCategoryEntry) const
+bool SpellHistory::HasCharge(uint32 chargeCategoryId) const
 {
-    if (!chargeCategoryEntry)
+    if (!sSpellCategoryStore.LookupEntry(chargeCategoryId))
         return true;
 
     // Check if the spell is currently using charges (untalented warlock Dark Soul)
-    int32 maxCharges = GetMaxCharges(chargeCategoryEntry);
+    int32 maxCharges = GetMaxCharges(chargeCategoryId);
     if (maxCharges <= 0)
         return true;
 
-    auto itr = _categoryCharges.find(chargeCategoryEntry->ID);
+    auto itr = _categoryCharges.find(chargeCategoryId);
     return itr == _categoryCharges.end() || int32(itr->second.size()) < maxCharges;
 }
 
-int32 SpellHistory::GetMaxCharges(SpellCategoryEntry const* chargeCategoryEntry) const
+int32 SpellHistory::GetMaxCharges(uint32 chargeCategoryId) const
 {
+    SpellCategoryEntry const* chargeCategoryEntry = sSpellCategoryStore.LookupEntry(chargeCategoryId);
     if (!chargeCategoryEntry)
         return 0;
 
     uint32 charges = chargeCategoryEntry->MaxCharges;
-    charges += _owner->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MAX_CHARGES, chargeCategoryEntry->ID);
+    charges += _owner->GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_MAX_CHARGES, chargeCategoryId);
     return charges;
 }
 
-int32 SpellHistory::GetChargeRecoveryTime(SpellCategoryEntry const* chargeCategoryEntry) const
+int32 SpellHistory::GetChargeRecoveryTime(uint32 chargeCategoryId) const
 {
+    SpellCategoryEntry const* chargeCategoryEntry = sSpellCategoryStore.LookupEntry(chargeCategoryId);
     if (!chargeCategoryEntry)
         return 0;
 
     int32 recoveryTime = chargeCategoryEntry->ChargeRecoveryTime;
-    recoveryTime += _owner->GetTotalAuraModifierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MOD, chargeCategoryEntry->ID);
+    recoveryTime += _owner->GetTotalAuraModifierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MOD, chargeCategoryId);
 
     float recoveryTimeF = float(recoveryTime);
-    recoveryTimeF *= _owner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, chargeCategoryEntry->ID);
+    recoveryTimeF *= _owner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, chargeCategoryId);
 
     if (_owner->HasAuraType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE))
         recoveryTimeF *= _owner->GetFloatValue(UNIT_MOD_CAST_HASTE);

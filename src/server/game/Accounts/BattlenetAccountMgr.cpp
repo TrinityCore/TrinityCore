@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 
 using GameAccountMgr = AccountMgr;
 
-AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email, std::string password, bool withGameAccount /*= true*/)
+AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email, std::string password, bool withGameAccount, std::string* gameAccountName)
 {
     if (utf8length(email) > MAX_BNET_EMAIL_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;
@@ -35,7 +35,7 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     Utf8ToUpperOnlyLatin(password);
 
     if (GetId(email))
-         return AccountOpResult::AOR_NAME_ALREADY_EXIST;
+        return AccountOpResult::AOR_NAME_ALREADY_EXIST;
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT);
     stmt->setString(0, email);
@@ -46,7 +46,10 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     ASSERT(newAccountId);
 
     if (withGameAccount)
-        GameAccountMgr::instance()->CreateAccount(std::to_string(newAccountId) + "#1", password, email, newAccountId, 1);
+    {
+        *gameAccountName = std::to_string(newAccountId) + "#1";
+        GameAccountMgr::instance()->CreateAccount(*gameAccountName, password, email, newAccountId, 1);
+    }
 
     return AccountOpResult::AOR_OK;
 }

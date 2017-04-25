@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,6 @@
 #include "SpellMgr.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
-#include "DBCStores.h"
 #include "AchievementMgr.h"
 
 // Supported shift-links (client generated and server side)
@@ -71,7 +70,7 @@ inline std::string ReadSkip(std::istringstream& iss, char term)
     return res;
 }
 
-inline bool CheckDelimiter(std::istringstream& iss, char delimiter, const char* context)
+inline bool CheckDelimiter(std::istringstream& iss, char delimiter, char const* context)
 {
     char c = iss.peek();
     if (c != delimiter)
@@ -96,13 +95,13 @@ inline bool ReadHex(std::istringstream& iss, uint32& res, uint32 length)
 #define DELIMITER ':'
 #define PIPE_CHAR '|'
 
-bool ChatLink::ValidateName(char* buffer, const char* /*context*/)
+bool ChatLink::ValidateName(char* buffer, char const* /*context*/)
 {
     _name = buffer;
     return true;
 }
 
-// |color|Hitem:item_id:perm_ench_id:gem1:gem2:gem3:0:random_property:property_seed:reporter_level:upgrade_id:context:numBonusListIDs|h[name]|h|r
+// |color|Hitem:item_id:perm_ench_id:gem1:gem2:gem3:0:random_property:property_seed:reporter_level:reporter_spec:modifiers_mask:context:numBonusListIDs:bonusListIDs(%d):mods(%d):gem1numBonusListIDs:gem1bonusListIDs(%d):gem2numBonusListIDs:gem2bonusListIDs(%d):gem3numBonusListIDs:gem3bonusListIDs(%d)|h[name]|h|r
 // |cffa335ee|Hitem:124382:0:0:0:0:0:0:0:0:0:0:0:4:42:562:565:567|h[Edict of Argus]|h|r");
 bool ItemChatLink::Initialize(std::istringstream& iss)
 {
@@ -124,7 +123,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
 
     // Validate item's color
     uint32 colorQuality = _item->GetQuality();
-    if (_item->GetFlags3() & ITEM_FLAG3_HEIRLOOM_QUALITY)
+    if (_item->GetFlags3() & ITEM_FLAG3_DISPLAY_AS_HEIRLOOM)
         colorQuality = ITEM_QUALITY_HEIRLOOM;
 
     if (_color != ItemQualityColors[colorQuality])
@@ -133,59 +132,145 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         return false;
     }
 
-    // Number of various item properties after item entry
-    uint8 const propsCount = 11;
-    uint8 const randomPropertyPosition = 5;
-    uint8 const numBonusListIDsPosition = 10;
-    uint8 const maxBonusListIDs = 100;
-    for (uint8 index = 0; index < propsCount; ++index)
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    if (HasValue(iss) && !ReadInt32(iss, _enchantId))
     {
-        if (!CheckDelimiter(iss, DELIMITER, "item"))
-            return false;
-
-        int32 id = 0;
-        if (!ReadInt32(iss, id))
-        {
-            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item property (%u)", iss.str().c_str(), index);
-            return false;
-        }
-        if (id && (index == randomPropertyPosition))
-        {
-            // Validate random property
-            if (id > 0)
-            {
-                _property = sItemRandomPropertiesStore.LookupEntry(id);
-                if (!_property)
-                {
-                    TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item property id %u in |item command", iss.str().c_str(), id);
-                    return false;
-                }
-            }
-            else if (id < 0)
-            {
-                _suffix = sItemRandomSuffixStore.LookupEntry(-id);
-                if (!_suffix)
-                {
-                    TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item suffix id %u in |item command", iss.str().c_str(), -id);
-                    return false;
-                }
-            }
-        }
-        if (index == numBonusListIDsPosition)
-        {
-            if (id > maxBonusListIDs)
-            {
-                TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): too many item bonus list IDs %u in |item command", iss.str().c_str(), id);
-                return false;
-            }
-
-            _bonusListIDs.resize(id);
-        }
-
-        _data[index] = id;
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item enchantId", iss.str().c_str());
+        return false;
     }
 
-    for (uint32 index = 0; index < _bonusListIDs.size(); ++index)
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    if (HasValue(iss) && !ReadInt32(iss, _gemItemId[0]))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item gem id 1", iss.str().c_str());
+        return false;
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    if (HasValue(iss) && !ReadInt32(iss, _gemItemId[1]))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item gem id 2", iss.str().c_str());
+        return false;
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    if (HasValue(iss) && !ReadInt32(iss, _gemItemId[2]))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item gem id 3", iss.str().c_str());
+        return false;
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    int32 zero = 0;
+    if (HasValue(iss) && !ReadInt32(iss, zero))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading zero", iss.str().c_str());
+        return false;
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    if (HasValue(iss) && !ReadInt32(iss, _randomPropertyId))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item random property id", iss.str().c_str());
+        return false;
+    }
+
+    if (_randomPropertyId > 0)
+    {
+        _property = sItemRandomPropertiesStore.LookupEntry(_randomPropertyId);
+        if (!_property)
+        {
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item property id %u in |item command", iss.str().c_str(), _randomPropertyId);
+            return false;
+        }
+    }
+    else if (_randomPropertyId < 0)
+    {
+        _suffix = sItemRandomSuffixStore.LookupEntry(-_randomPropertyId);
+        if (!_suffix)
+        {
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item suffix id %u in |item command", iss.str().c_str(), -_randomPropertyId);
+            return false;
+        }
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    if (HasValue(iss) && !ReadInt32(iss, _randomPropertySeed))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item random property seed", iss.str().c_str());
+        return false;
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    if (HasValue(iss) && !ReadInt32(iss, _reporterLevel))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item owner level", iss.str().c_str());
+        return false;
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    if (HasValue(iss) && !ReadInt32(iss, _reporterSpec))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item owner spec", iss.str().c_str());
+        return false;
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    int32 modifiersMask = 0;
+    if (HasValue(iss) && !ReadInt32(iss, modifiersMask))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item modifiers mask", iss.str().c_str());
+        return false;
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    if (HasValue(iss) && !ReadInt32(iss, _context))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item context", iss.str().c_str());
+        return false;
+    }
+
+    if (!CheckDelimiter(iss, DELIMITER, "item"))
+        return false;
+
+    uint32 numBonusListIDs = 0;
+    if (HasValue(iss) && !ReadUInt32(iss, numBonusListIDs))
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item bonus lists size", iss.str().c_str());
+        return false;
+    }
+
+    uint32 const maxBonusListIDs = 16;
+    if (numBonusListIDs > maxBonusListIDs)
+    {
+        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): too many item bonus list IDs %u in |item command", iss.str().c_str(), numBonusListIDs);
+        return false;
+    }
+
+    _bonusListIDs.resize(numBonusListIDs);
+    for (uint32 index = 0; index < numBonusListIDs; ++index)
     {
         if (!CheckDelimiter(iss, DELIMITER, "item"))
             return false;
@@ -193,7 +278,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         int32 id = 0;
         if (!ReadInt32(iss, id))
         {
-            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item bonus list id (%u)", iss.str().c_str(), index);
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item bonus list id (index %u)", iss.str().c_str(), index);
             return false;
         }
 
@@ -206,6 +291,65 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
         _bonusListIDs[index] = id;
     }
 
+    for (uint32 i = 0; i < MAX_ITEM_MODIFIERS; ++i)
+    {
+        if (modifiersMask & (1 << i))
+        {
+            if (!CheckDelimiter(iss, DELIMITER, "item"))
+                return false;
+
+            int32 id = 0;
+            if (!ReadInt32(iss, id))
+            {
+                TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item modifier id (index %u)", iss.str().c_str(), i);
+                return false;
+            }
+
+            _modifiers.push_back(std::make_pair(i, id));
+        }
+    }
+
+    for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
+    {
+        if (!CheckDelimiter(iss, DELIMITER, "item"))
+            return false;
+
+        numBonusListIDs = 0;
+        if (HasValue(iss) && !ReadUInt32(iss, numBonusListIDs))
+        {
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item bonus lists size for gem %u", iss.str().c_str(), i);
+            return false;
+        }
+
+        if (numBonusListIDs > maxBonusListIDs)
+        {
+            TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): too many item bonus list IDs %u in |item command for gem %u", iss.str().c_str(), numBonusListIDs, i);
+            return false;
+        }
+
+        _gemBonusListIDs[i].resize(numBonusListIDs);
+        for (uint32 index = 0; index < numBonusListIDs; ++index)
+        {
+            if (!CheckDelimiter(iss, DELIMITER, "item"))
+                return false;
+
+            int32 id = 0;
+            if (!ReadInt32(iss, id))
+            {
+                TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): sequence finished unexpectedly while reading item bonus list id (index %u) for gem %u", iss.str().c_str(), index, i);
+                return false;
+            }
+
+            if (!sDB2Manager.GetItemBonusList(id))
+            {
+                TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid item bonus list id %d in |item command for gem %u", iss.str().c_str(), id, i);
+                return false;
+            }
+
+            _gemBonusListIDs[i][index] = id;
+        }
+    }
+
     return true;
 }
 
@@ -214,16 +358,25 @@ std::string ItemChatLink::FormatName(uint8 index, LocalizedString* suffixStrings
     std::stringstream ss;
     ss << _item->GetName(LocaleConstant(index));
 
-    if (suffixStrings)
-        ss << ' ' << suffixStrings->Str[index];
+    if (!(_item->GetFlags3() & ITEM_FLAG3_HIDE_NAME_SUFFIX))
+        if (suffixStrings)
+            ss << ' ' << suffixStrings->Str[index];
+
     return ss.str();
 }
 
-bool ItemChatLink::ValidateName(char* buffer, const char* context)
+// item links are compacted to remove all zero values
+bool ItemChatLink::HasValue(std::istringstream& iss) const
+{
+    char next = iss.peek();
+    return next != DELIMITER && next != PIPE_CHAR;
+}
+
+bool ItemChatLink::ValidateName(char* buffer, char const* context)
 {
     ChatLink::ValidateName(buffer, context);
 
-    LocalizedString* suffixStrings = _suffix ? _suffix->Name : (_property ? _property->Name : NULL);
+    LocalizedString* suffixStrings = _suffix ? _suffix->Name : (_property ? _property->Name : nullptr);
 
     bool res = (FormatName(LOCALE_enUS, suffixStrings) == buffer);
     if (!res)
@@ -281,7 +434,7 @@ bool QuestChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-bool QuestChatLink::ValidateName(char* buffer, const char* context)
+bool QuestChatLink::ValidateName(char* buffer, char const* context)
 {
     ChatLink::ValidateName(buffer, context);
 
@@ -322,7 +475,7 @@ bool SpellChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-bool SpellChatLink::ValidateName(char* buffer, const char* context)
+bool SpellChatLink::ValidateName(char* buffer, char const* context)
 {
     ChatLink::ValidateName(buffer, context);
 
@@ -348,18 +501,23 @@ bool SpellChatLink::ValidateName(char* buffer, const char* context)
             return false;
         }
 
-        uint32 skillLineNameLength = strlen(skillLine->DisplayName_lang);
-        if (skillLineNameLength > 0 && strncmp(skillLine->DisplayName_lang, buffer, skillLineNameLength) == 0)
+        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            // found the prefix, remove it to perform spellname validation below
-            // -2 = strlen(": ")
-            uint32 spellNameLength = strlen(buffer) - skillLineNameLength - 2;
-            memmove(buffer, buffer + skillLineNameLength + 2, spellNameLength + 1);
+            uint32 skillLineNameLength = strlen(skillLine->DisplayName->Str[i]);
+            if (skillLineNameLength > 0 && strncmp(skillLine->DisplayName->Str[i], buffer, skillLineNameLength) == 0)
+            {
+                // found the prefix, remove it to perform spellname validation below
+                // -2 = strlen(": ")
+                uint32 spellNameLength = strlen(buffer) - skillLineNameLength - 2;
+                memmove(buffer, buffer + skillLineNameLength + 2, spellNameLength + 1);
+                break;
+            }
         }
     }
 
-    if (*_spell->SpellName && strcmp(_spell->SpellName, buffer) == 0)
-        return true;
+    for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+        if (*_spell->SpellName->Str[i] && strcmp(_spell->SpellName->Str[i], buffer) == 0)
+            return true;
 
     TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked spell (id: %u) name wasn't found in any localization", context, _spell->Id);
     return false;
@@ -410,7 +568,7 @@ bool AchievementChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-bool AchievementChatLink::ValidateName(char* buffer, const char* context)
+bool AchievementChatLink::ValidateName(char* buffer, char const* context)
 {
     ChatLink::ValidateName(buffer, context);
 
@@ -579,7 +737,7 @@ bool GlyphChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-LinkExtractor::LinkExtractor(const char* msg) : _iss(msg) { }
+LinkExtractor::LinkExtractor(char const* msg) : _iss(msg) { }
 
 LinkExtractor::~LinkExtractor()
 {
@@ -591,19 +749,19 @@ LinkExtractor::~LinkExtractor()
 bool LinkExtractor::IsValidMessage()
 {
     const char validSequence[6] = "cHhhr";
-    const char* validSequenceIterator = validSequence;
+    char const* validSequenceIterator = validSequence;
 
     char buffer[256];
 
     std::istringstream::pos_type startPos = 0;
     uint32 color = 0;
 
-    ChatLink* link = NULL;
+    ChatLink* link = nullptr;
     while (!_iss.eof())
     {
         if (validSequence == validSequenceIterator)
         {
-            link = NULL;
+            link = nullptr;
             _iss.ignore(255, PIPE_CHAR);
             startPos = _iss.tellg() - std::istringstream::pos_type(1);
         }

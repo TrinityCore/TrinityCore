@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,10 +21,10 @@
 
 #include "Common.h"
 #include "Position.h"
-#include "UpdateMask.h"
 #include "GridReference.h"
 #include "ObjectDefines.h"
 #include "Map.h"
+#include "UpdateFields.h"
 
 #include <set>
 #include <string>
@@ -82,6 +82,7 @@ class DynamicObject;
 class GameObject;
 class InstanceScript;
 class Player;
+class Scenario;
 class TempSummon;
 class Transport;
 class Unit;
@@ -91,6 +92,64 @@ class WorldPacket;
 class ZoneScript;
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
+
+namespace UpdateMask
+{
+    typedef uint32 BlockType;
+
+    enum DynamicFieldChangeType : uint16
+    {
+        UNCHANGED               = 0,
+        VALUE_CHANGED           = 0x7FFF,
+        VALUE_AND_SIZE_CHANGED  = 0x8000
+    };
+
+    inline std::size_t GetBlockCount(std::size_t bitCount)
+    {
+        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(BlockType) * 8>;
+        return (bitCount + BitsPerBlock::value - 1) / BitsPerBlock::value;
+    }
+
+    inline std::size_t EncodeDynamicFieldChangeType(std::size_t blockCount, DynamicFieldChangeType changeType, uint8 updateType)
+    {
+        return blockCount | ((changeType & VALUE_AND_SIZE_CHANGED) * ((3 - updateType /*this part evaluates to 0 if update type is not VALUES*/) / 3));
+    }
+
+    template<typename T>
+    inline void SetUpdateBit(T* data, std::size_t bitIndex)
+    {
+        static_assert(std::is_integral<T>::value && std::is_unsigned<T>::value, "Type used for SetUpdateBit data arg is not an unsigned integer");
+        using BitsPerBlock = std::integral_constant<std::size_t, sizeof(T) * 8>;
+        data[bitIndex / BitsPerBlock::value] |= T(1) << (bitIndex % BitsPerBlock::value);
+    }
+}
+
+// Helper class used to iterate object dynamic fields while interpreting them as a structure instead of raw int array
+template<class T>
+class DynamicFieldStructuredView
+{
+public:
+    explicit DynamicFieldStructuredView(std::vector<uint32> const& data) : _data(data) { }
+
+    T const* begin() const
+    {
+        return reinterpret_cast<T const*>(_data.data());
+    }
+
+    T const* end() const
+    {
+        return reinterpret_cast<T const*>(_data.data() + _data.size());
+    }
+
+    std::size_t size() const
+    {
+        using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+        return _data.size() / BlockCount::value;
+    }
+
+private:
+    std::vector<uint32> const& _data;
+};
 
 class TC_GAME_API Object
 {
@@ -168,10 +227,57 @@ class TC_GAME_API Object
         void ApplyModFlag64(uint16 index, uint64 flag, bool apply);
 
         std::vector<uint32> const& GetDynamicValues(uint16 index) const;
+        uint32 GetDynamicValue(uint16 index, uint16 offset) const;
         void AddDynamicValue(uint16 index, uint32 value);
         void RemoveDynamicValue(uint16 index, uint32 value);
         void ClearDynamicValue(uint16 index);
-        void SetDynamicValue(uint16 index, uint8 offset, uint32 value);
+        void SetDynamicValue(uint16 index, uint16 offset, uint32 value);
+
+        template<class T>
+        DynamicFieldStructuredView<T> GetDynamicStructuredValues(uint16 index) const
+        {
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+            std::vector<uint32> const& values = _dynamicValues[index];
+            ASSERT((values.size() % BlockCount::value) == 0, "Dynamic field value count must exactly fit into structure");
+            return DynamicFieldStructuredView<T>(values);
+        }
+
+        template<class T>
+        T const* GetDynamicStructuredValue(uint16 index, uint16 offset) const
+        {
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
+            std::vector<uint32> const& values = _dynamicValues[index];
+            ASSERT((values.size() % BlockCount::value) == 0, "Dynamic field value count must exactly fit into structure");
+            if (offset * BlockCount::value >= values.size())
+                return nullptr;
+            return reinterpret_cast<T const*>(&values[offset * BlockCount::value]);
+        }
+
+        template<class T>
+        void SetDynamicStructuredValue(uint16 index, uint16 offset, T const* value)
+        {
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            SetDynamicValue(index, (offset + 1) * BlockCount::value - 1, 0); // reserve space
+            for (uint16 i = 0; i < BlockCount::value; ++i)
+                SetDynamicValue(index, offset * BlockCount::value + i, *(reinterpret_cast<uint32 const*>(value) + i));
+        }
+
+        template<class T>
+        void AddDynamicStructuredValue(uint16 index, T const* value)
+        {
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            std::vector<uint32> const& values = _dynamicValues[index];
+            uint16 offset = uint16(values.size() / BlockCount::value);
+            SetDynamicValue(index, (offset + 1) * BlockCount::value - 1, 0); // reserve space
+            for (uint16 i = 0; i < BlockCount::value; ++i)
+                SetDynamicValue(index, offset * BlockCount::value + i, *(reinterpret_cast<uint32 const*>(value) + i));
+        }
 
         void ClearUpdateMask(bool remove);
 
@@ -238,9 +344,9 @@ class TC_GAME_API Object
 
         std::vector<uint32>* _dynamicValues;
 
-        UpdateMask _changesMask;
-        UpdateMask _dynamicChangesMask;
-        UpdateMask* _dynamicChangesArrayMask;
+        std::vector<uint8> _changesMask;
+        std::vector<UpdateMask::DynamicFieldChangeType> _dynamicChangesMask;
+        std::vector<uint8>* _dynamicChangesArrayMask;
 
         uint16 m_valuesCount;
         uint16 _dynamicValuesCount;
@@ -269,7 +375,7 @@ struct MovementInfo
     // common
     ObjectGuid guid;
     uint32 flags;
-    uint16 flags2;
+    uint32 flags2;
     Position pos;
     uint32 time;
 
@@ -329,11 +435,11 @@ struct MovementInfo
     void RemoveMovementFlag(uint32 flag) { flags &= ~flag; }
     bool HasMovementFlag(uint32 flag) const { return (flags & flag) != 0; }
 
-    uint16 GetExtraMovementFlags() const { return flags2; }
-    void SetExtraMovementFlags(uint16 flag) { flags2 = flag; }
-    void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
-    void RemoveExtraMovementFlag(uint16 flag) { flags2 &= ~flag; }
-    bool HasExtraMovementFlag(uint16 flag) const { return (flags2 & flag) != 0; }
+    uint32 GetExtraMovementFlags() const { return flags2; }
+    void SetExtraMovementFlags(uint32 flag) { flags2 = flag; }
+    void AddExtraMovementFlag(uint32 flag) { flags2 |= flag; }
+    void RemoveExtraMovementFlag(uint32 flag) { flags2 &= ~flag; }
+    bool HasExtraMovementFlag(uint32 flag) const { return (flags2 & flag) != 0; }
 
     uint32 GetFallTime() const { return jump.fallTime; }
     void SetFallTime(uint32 fallTime) { jump.fallTime = fallTime; }
@@ -499,6 +605,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D = true) const;
         bool IsWithinLOS(float x, float y, float z) const;
         bool IsWithinLOSInMap(WorldObject const* obj) const;
+        Position GetHitSpherePointFor(Position const& dest) const;
+        void GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;
         bool IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D = true) const;
         bool IsInRange2d(float x, float y, float minRange, float maxRange) const;
@@ -506,7 +614,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool isInFront(WorldObject const* target, float arc = float(M_PI)) const;
         bool isInBack(WorldObject const* target, float arc = float(M_PI)) const;
 
-        bool IsInBetween(WorldObject const* obj1, WorldObject const* obj2, float size = 0) const;
+        bool IsInBetween(Position const& pos1, Position const& pos2, float size = 0) const;
+        bool IsInBetween(WorldObject const* obj1, WorldObject const* obj2, float size = 0) const { return obj1 && obj2 && IsInBetween(obj1->GetPosition(), obj2->GetPosition(), size); }
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
@@ -516,10 +625,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         virtual uint8 getLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
-        void PlayDistanceSound(uint32 sound_id, Player* target = NULL);
-        void PlayDirectSound(uint32 sound_id, Player* target = NULL);
-
-        void SendObjectDeSpawnAnim(ObjectGuid guid);
+        void PlayDistanceSound(uint32 soundId, Player* target = nullptr);
+        void PlayDirectSound(uint32 soundId, Player* target = nullptr);
 
         virtual void SaveRespawnTime() { }
         void AddObjectToRemoveList();
@@ -550,9 +657,12 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 id, Position const &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
+        Scenario* GetScenario() const;
+
+        TempSummon* SummonCreature(uint32 id, Position const& pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
         TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0) const;
-        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime /* s */);
+        GameObject* SummonGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot, uint32 respawnTime /* s */);
+        GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, G3D::Quat const& rot, uint32 respawnTime /* s */);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
 
@@ -560,8 +670,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
 
-        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
-        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
+        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry = 0, float fMaxSearchRange = 250.0f) const;
+        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry = 0, float fMaxSearchRange = 250.0f) const;
         void GetPlayerListInGrid(std::list<Player*>& lList, float fMaxSearchRange) const;
 
         void DestroyForNearbyPlayers();
@@ -589,17 +699,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool IsPermanentWorldObject() const { return m_isWorldObject; }
         bool IsWorldObject() const;
 
-        template<class NOTIFIER> void VisitNearbyObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitAll(GetPositionX(), GetPositionY(), radius, notifier); }
-        template<class NOTIFIER> void VisitNearbyGridObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitGrid(GetPositionX(), GetPositionY(), radius, notifier); }
-        template<class NOTIFIER> void VisitNearbyWorldObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitWorld(GetPositionX(), GetPositionY(), radius, notifier); }
-
-#ifdef MAP_BASED_RAND_GEN
-        int32 irand(int32 min, int32 max) const     { return int32 (GetMap()->mtRand.randInt(max - min)) + min; }
-        uint32 urand(uint32 min, uint32 max) const  { return GetMap()->mtRand.randInt(max - min) + min;}
-        int32 rand32() const                        { return GetMap()->mtRand.randInt();}
-        double rand_norm() const                    { return GetMap()->mtRand.randExc();}
-        double rand_chance() const                  { return GetMap()->mtRand.randExc(100.0);}
-#endif
+        template<class NOTIFIER> void VisitNearbyObject(float radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitAll(GetPositionX(), GetPositionY(), radius, notifier); }
+        template<class NOTIFIER> void VisitNearbyGridObject(float radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitGrid(GetPositionX(), GetPositionY(), radius, notifier); }
+        template<class NOTIFIER> void VisitNearbyWorldObject(float radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitWorld(GetPositionX(), GetPositionY(), radius, notifier); }
 
         uint32  LastUsedScriptID;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,11 +16,33 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DBCStores.h"
 #include "DB2Stores.h"
 #include "World.h"
 #include "ItemTemplate.h"
 #include "Player.h"
+
+uint32 const SocketColorToGemTypeMask[19] =
+{
+    0,
+    SOCKET_COLOR_META,
+    SOCKET_COLOR_RED,
+    SOCKET_COLOR_YELLOW,
+    SOCKET_COLOR_BLUE,
+    SOCKET_COLOR_HYDRAULIC,
+    SOCKET_COLOR_COGWHEEL,
+    SOCKET_COLOR_PRISMATIC,
+    SOCKET_COLOR_RELIC_IRON,
+    SOCKET_COLOR_RELIC_BLOOD,
+    SOCKET_COLOR_RELIC_SHADOW,
+    SOCKET_COLOR_RELIC_FEL,
+    SOCKET_COLOR_RELIC_ARCANE,
+    SOCKET_COLOR_RELIC_FROST,
+    SOCKET_COLOR_RELIC_FIRE,
+    SOCKET_COLOR_RELIC_WATER,
+    SOCKET_COLOR_RELIC_LIFE,
+    SOCKET_COLOR_RELIC_WIND,
+    SOCKET_COLOR_RELIC_HOLY
+};
 
 char const* ItemTemplate::GetName(LocaleConstant locale) const
 {
@@ -35,19 +57,19 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
 {
     switch (GetInventoryType())
     {
-    case INVTYPE_RELIC:
-    case INVTYPE_SHIELD:
-    case INVTYPE_HOLDABLE:
-        return true;
-    default:
-        break;
+        case INVTYPE_RELIC:
+        case INVTYPE_SHIELD:
+        case INVTYPE_HOLDABLE:
+            return true;
+        default:
+            break;
     }
 
     switch (GetClass())
     {
-    case ITEM_CLASS_WEAPON:
-    case ITEM_CLASS_PROJECTILE:
-        return true;
+        case ITEM_CLASS_WEAPON:
+        case ITEM_CLASS_PROJECTILE:
+            return true;
     }
 
     return false;
@@ -55,16 +77,16 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
 
 uint32 ItemTemplate::GetSkill() const
 {
-    const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =
+    static uint32 const itemWeaponSkills[MAX_ITEM_SUBCLASS_WEAPON] =
     {
-        SKILL_AXES,     SKILL_2H_AXES,  SKILL_BOWS,          SKILL_GUNS,      SKILL_MACES,
-        SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS,        SKILL_2H_SWORDS, 0,
-        SKILL_STAVES,   0,              0,                   SKILL_FIST_WEAPONS,   0,
-        SKILL_DAGGERS,  SKILL_THROWN,   SKILL_ASSASSINATION, SKILL_CROSSBOWS, SKILL_WANDS,
+        SKILL_AXES,             SKILL_TWO_HANDED_AXES, SKILL_BOWS,   SKILL_GUNS,              SKILL_MACES,
+        SKILL_TWO_HANDED_MACES, SKILL_POLEARMS,        SKILL_SWORDS, SKILL_TWO_HANDED_SWORDS, SKILL_WARGLAIVES,
+        SKILL_STAVES,           0,                     0,            SKILL_FIST_WEAPONS,      0,
+        SKILL_DAGGERS,          0,                     0,            SKILL_CROSSBOWS,         SKILL_WANDS,
         SKILL_FISHING
     };
 
-    const static uint32 item_armor_skills[MAX_ITEM_SUBCLASS_ARMOR] =
+    static uint32 const itemArmorSkills[MAX_ITEM_SUBCLASS_ARMOR] =
     {
         0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
     };
@@ -72,20 +94,20 @@ uint32 ItemTemplate::GetSkill() const
 
     switch (GetClass())
     {
-    case ITEM_CLASS_WEAPON:
-        if (GetSubClass() >= MAX_ITEM_SUBCLASS_WEAPON)
-            return 0;
-        else
-            return item_weapon_skills[GetSubClass()];
+        case ITEM_CLASS_WEAPON:
+            if (GetSubClass() >= MAX_ITEM_SUBCLASS_WEAPON)
+                return 0;
+            else
+                return itemWeaponSkills[GetSubClass()];
 
-    case ITEM_CLASS_ARMOR:
-        if (GetSubClass() >= MAX_ITEM_SUBCLASS_ARMOR)
-            return 0;
-        else
-            return item_armor_skills[GetSubClass()];
+        case ITEM_CLASS_ARMOR:
+            if (GetSubClass() >= MAX_ITEM_SUBCLASS_ARMOR)
+                return 0;
+            else
+                return itemArmorSkills[GetSubClass()];
 
-    default:
-        return 0;
+        default:
+            return 0;
     }
 }
 
@@ -137,21 +159,21 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
     if (GetClass() != ITEM_CLASS_WEAPON || quality > ITEM_QUALITY_ARTIFACT)
         return;
 
-    DBCStorage<ItemDamageEntry>* store = NULL;
     // get the right store here
     if (GetInventoryType() > INVTYPE_RANGEDRIGHT)
         return;
 
+    float dps = 0.0f;
     switch (GetInventoryType())
     {
         case INVTYPE_AMMO:
-            store = &sItemDamageAmmoStore;
+            dps = sItemDamageAmmoStore.AssertEntry(itemLevel)->DPS[quality];
             break;
         case INVTYPE_2HWEAPON:
             if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-                store = &sItemDamageTwoHandCasterStore;
+                dps = sItemDamageTwoHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
             else
-                store = &sItemDamageTwoHandStore;
+                dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->DPS[quality];
             break;
         case INVTYPE_RANGED:
         case INVTYPE_THROWN:
@@ -159,15 +181,15 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
             switch (GetSubClass())
             {
                 case ITEM_SUBCLASS_WEAPON_WAND:
-                    store = &sItemDamageWandStore;
-                    break;
-                case ITEM_SUBCLASS_WEAPON_THROWN:
-                    store = &sItemDamageThrownStore;
+                    dps = sItemDamageOneHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
                     break;
                 case ITEM_SUBCLASS_WEAPON_BOW:
                 case ITEM_SUBCLASS_WEAPON_GUN:
                 case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                    store = &sItemDamageRangedStore;
+                    if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
+                        dps = sItemDamageTwoHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
+                    else
+                        dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->DPS[quality];
                     break;
                 default:
                     return;
@@ -177,39 +199,41 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
         case INVTYPE_WEAPONMAINHAND:
         case INVTYPE_WEAPONOFFHAND:
             if (GetFlags2() & ITEM_FLAG2_CASTER_WEAPON)
-                store = &sItemDamageOneHandCasterStore;
+                dps = sItemDamageOneHandCasterStore.AssertEntry(itemLevel)->DPS[quality];
             else
-                store = &sItemDamageOneHandStore;
+                dps = sItemDamageOneHandStore.AssertEntry(itemLevel)->DPS[quality];
             break;
         default:
             return;
     }
 
-    ASSERT(store);
-
-    ItemDamageEntry const* damageInfo = store->LookupEntry(itemLevel);
-    if (!damageInfo)
-        return;
-
-    float dps = damageInfo->DPS[quality];
     float avgDamage = dps * GetDelay() * 0.001f;
     minDamage = (GetStatScalingFactor() * -0.5f + 1.0f) * avgDamage;
     maxDamage = floor(float(avgDamage * (GetStatScalingFactor() * 0.5f + 1.0f) + 0.5f));
 }
 
-bool ItemTemplate::CanWinForPlayer(Player const* player) const
+bool ItemTemplate::IsUsableByLootSpecialization(Player const* player) const
 {
-    std::unordered_set<uint32> const& specs = Specializations[player->getLevel() > 40];
-    if (specs.empty())
-        return true;
-
-    uint32 spec = player->GetSpecId(player->GetActiveTalentGroup());
+    uint32 spec = player->GetUInt32Value(PLAYER_FIELD_LOOT_SPEC_ID);
+    if (!spec)
+        spec = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
     if (!spec)
         spec = player->GetDefaultSpecId();
 
-    if (!spec)
+    ChrSpecializationEntry const* chrSpecialization = sChrSpecializationStore.LookupEntry(spec);
+    if (!chrSpecialization)
         return false;
 
-    auto itr = specs.find(spec);
-    return itr != specs.end();
+    std::size_t levelIndex = 0;
+    if (player->getLevel() >= 110)
+        levelIndex = 2;
+    else if (player->getLevel() > 40)
+        levelIndex = 1;
+
+    return Specializations[levelIndex].test(CalculateItemSpecBit(chrSpecialization));
+}
+
+std::size_t ItemTemplate::CalculateItemSpecBit(ChrSpecializationEntry const* spec)
+{
+    return (spec->ClassID - 1) * MAX_SPECIALIZATIONS + spec->OrderIndex;
 }

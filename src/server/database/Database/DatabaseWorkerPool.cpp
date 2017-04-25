@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "DatabaseWorkerPool.h"
 #include "DatabaseEnv.h"
+#include "QueryCallback.h"
 
 #define MIN_MYSQL_SERVER_VERSION 50100u
 #define MIN_MYSQL_CLIENT_VERSION 50100u
@@ -28,7 +29,7 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool()
 {
     WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
     WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
-    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s) does not match the version used to compile TrinityCore (%s).",
+    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s) does not match the version used to compile TrinityCore (%s). Search on forum for TCE00011.",
         mysql_get_client_info(), MYSQL_SERVER_VERSION);
 }
 
@@ -146,23 +147,23 @@ PreparedQueryResult DatabaseWorkerPool<T>::Query(PreparedStatement* stmt)
 }
 
 template <class T>
-QueryResultFuture DatabaseWorkerPool<T>::AsyncQuery(const char* sql)
+QueryCallback DatabaseWorkerPool<T>::AsyncQuery(const char* sql)
 {
     BasicStatementTask* task = new BasicStatementTask(sql, true);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
     QueryResultFuture result = task->GetFuture();
     Enqueue(task);
-    return result;
+    return QueryCallback(std::move(result));
 }
 
 template <class T>
-PreparedQueryResultFuture DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement* stmt)
+QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement* stmt)
 {
     PreparedStatementTask* task = new PreparedStatementTask(stmt, true);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
     PreparedQueryResultFuture result = task->GetFuture();
     Enqueue(task);
-    return result;
+    return QueryCallback(std::move(result));
 }
 
 template <class T>
@@ -308,7 +309,7 @@ T* DatabaseWorkerPool<T>::GetFreeConnection()
     //! Block forever until a connection is free
     for (;;)
     {
-        connection = _connections[IDX_SYNCH][++i % num_cons].get();
+        connection = _connections[IDX_SYNCH][i++ % num_cons].get();
         //! Must be matched with t->Unlock() or you will get deadlocks
         if (connection->LockIfReady())
             break;

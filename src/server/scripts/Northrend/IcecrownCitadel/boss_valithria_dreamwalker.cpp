@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1264,7 +1264,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
                 std::list<Creature*> summoners;
                 GetCreatureListWithEntryInGrid(summoners, caster, NPC_WORLD_TRIGGER, 100.0f);
                 summoners.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
-                Trinity::Containers::RandomResizeList(summoners, 2);
+                Trinity::Containers::RandomResize(summoners, 2);
                 if (summoners.empty())
                     return;
 

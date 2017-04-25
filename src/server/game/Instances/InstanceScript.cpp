@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,6 +32,7 @@
 #include "Opcodes.h"
 #include "ScriptReloadMgr.h"
 #include "ScriptMgr.h"
+#include "InstanceScenario.h"
 
 BossBoundaryData::~BossBoundaryData()
 {
@@ -40,7 +41,7 @@ BossBoundaryData::~BossBoundaryData()
 }
 
 InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0),
-_combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
+_entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
@@ -54,6 +55,9 @@ _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionT
 
 void InstanceScript::SaveToDB()
 {
+    if (InstanceScenario* scenario = instance->ToInstanceMap()->GetInstanceScenario())
+        scenario->SaveToDB();
+
     std::string data = GetSaveData();
     if (data.empty())
         return;
@@ -61,7 +65,8 @@ void InstanceScript::SaveToDB()
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_INSTANCE_DATA);
     stmt->setUInt32(0, GetCompletedEncounterMask());
     stmt->setString(1, data);
-    stmt->setUInt32(2, instance->GetInstanceId());
+    stmt->setUInt32(2, _entranceId);
+    stmt->setUInt32(3, instance->GetInstanceId());
     CharacterDatabase.Execute(stmt);
 }
 
@@ -393,7 +398,7 @@ void InstanceScript::ReadSaveDataBossStates(std::istringstream& data)
     {
         uint32 buff;
         data >> buff;
-        if (buff == IN_PROGRESS || buff == SPECIAL)
+        if (buff == IN_PROGRESS || buff == FAIL || buff == SPECIAL)
             buff = NOT_STARTED;
 
         if (buff < TO_BE_DECIDED)
@@ -606,6 +611,13 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
     return false;
 }
 
+void InstanceScript::SetEntranceLocation(uint32 worldSafeLocationId)
+{
+    _entranceId = worldSafeLocationId;
+    if (_temporaryEntranceId)
+        _temporaryEntranceId = 0;
+}
+
 void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8 priority)
 {
     switch (type)
@@ -664,6 +676,14 @@ void InstanceScript::SendEncounterEnd()
     instance->SendToPlayers(encounterEndMessage.Write());
 }
 
+void InstanceScript::SendBossKillCredit(uint32 encounterId)
+{
+    WorldPackets::Instance::BossKillCredit bossKillCreditMessage;
+    bossKillCreditMessage.DungeonEncounterID = encounterId;
+
+    instance->SendToPlayers(bossKillCreditMessage.Write());
+}
+
 void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* /*source*/)
 {
     DungeonEncounterList const* encounters = sObjectMgr->GetDungeonEncounterList(instance->GetId(), instance->GetDifficultyID());
@@ -677,11 +697,12 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         DungeonEncounter const* encounter = *itr;
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
-            completedEncounters |= 1 << encounter->dbcEntry->OrderIndex;
+            completedEncounters |= 1 << encounter->dbcEntry->Bit;
             if (encounter->lastEncounterDungeon)
             {
                 dungeonId = encounter->lastEncounterDungeon;
-                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->Name_lang, dungeonId);
+                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u",
+                    instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->Name->Str[sWorld->GetDefaultDbcLocale()], dungeonId);
                 break;
             }
         }

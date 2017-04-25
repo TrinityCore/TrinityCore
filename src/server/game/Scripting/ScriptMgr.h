@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,14 +21,17 @@
 
 #include "Common.h"
 #include <atomic>
-#include "DBCStores.h"
+#include "DB2Stores.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"
 #include "World.h"
 #include "Weather.h"
 
 class AccountMgr;
+class AreaTrigger;
+class AreaTriggerAI;
 class AuctionHouseObject;
+class Aura;
 class AuraScript;
 class Battleground;
 class BattlegroundMap;
@@ -62,11 +65,16 @@ class WorldSocket;
 class WorldObject;
 class WorldSession;
 
+struct AreaTriggerEntry;
 struct AuctionEntry;
 struct ConditionSourceInfo;
 struct Condition;
+struct CreatureTemplate;
+struct CreatureData;
 struct ItemTemplate;
+struct MapEntry;
 struct OutdoorPvPData;
+struct SceneTemplate;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
@@ -367,7 +375,7 @@ class TC_GAME_API ItemScript : public ScriptObject
         virtual bool OnQuestAccept(Player* /*player*/, Item* /*item*/, Quest const* /*quest*/) { return false; }
 
         // Called when a player uses the item.
-        virtual bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/) { return false; }
+        virtual bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) { return false; }
 
         // Called when the item expires (is destroyed).
         virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
@@ -430,6 +438,9 @@ class TC_GAME_API CreatureScript : public UnitScript, public UpdatableScript<Cre
 
         // Called when the dialog status between a player and the creature is requested.
         virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
+
+        // Called when the creature tries to spawn. Return false to block spawn and re-evaluate on next tick.
+        virtual bool CanSpawn(ObjectGuid::LowType /*spawnId*/, uint32 /*entry*/, CreatureTemplate const* /*baseTemplate*/, CreatureTemplate const* /*actTemplate*/, CreatureData const* /*cData*/, Map const* /*map*/) const { return true; }
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const { return NULL; }
@@ -734,7 +745,10 @@ class TC_GAME_API PlayerScript : public UnitScript
         virtual void OnMapChanged(Player* /*player*/) { }
 
         // Called after a player's quest status has been changed
-        virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/, QuestStatus /*status*/) { }
+        virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
+
+        // Called when a player completes a movie
+        virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -829,6 +843,38 @@ class TC_GAME_API GroupScript : public ScriptObject
         virtual void OnDisband(Group* /*group*/) { }
 };
 
+class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
+{
+    protected:
+
+        AreaTriggerEntityScript(const char* name);
+
+    public:
+
+        // Called when a AreaTriggerAI object is needed for the areatrigger.
+        virtual AreaTriggerAI* GetAI(AreaTrigger* /*at*/) const { return nullptr; }
+};
+
+class TC_GAME_API SceneScript : public ScriptObject
+{
+    protected:
+
+        SceneScript(const char* name);
+
+    public:
+        // Called when a player start a scene
+        virtual void OnSceneStart(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+
+        // Called when a player receive trigger from scene
+        virtual void OnSceneTriggerEvent(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/, std::string const& /*triggerName*/) { }
+
+        // Called when a scene is canceled
+        virtual void OnSceneCancel(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+
+        // Called when a scene is completed
+        virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) { }
+};
+
 // Manages registration, loading, and execution of scripts.
 class TC_GAME_API ScriptMgr
 {
@@ -875,6 +921,9 @@ class TC_GAME_API ScriptMgr
         /// calls for better performance (bulk changes).
         void SwapScriptContext(bool initialize = false);
 
+        /// Returns the context name of the static context provided by the worldserver
+        static std::string const& GetNameOfStaticContext();
+
         /// Acquires a strong module reference to the module containing the given script name,
         /// which prevents the shared library which contains the script from unloading.
         /// The shared library is lazy unloaded as soon as all references to it are released.
@@ -887,8 +936,8 @@ class TC_GAME_API ScriptMgr
 
     public: /* SpellScriptLoader */
 
-        void CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scriptVector);
-        void CreateAuraScripts(uint32 spellId, std::list<AuraScript*>& scriptVector);
+        void CreateSpellScripts(uint32 spellId, std::vector<SpellScript*>& scriptVector, Spell* invoker) const;
+        void CreateAuraScripts(uint32 spellId, std::vector<AuraScript*>& scriptVector, Aura* invoker) const;
         SpellScriptLoader* GetSpellScriptLoader(uint32 scriptId);
 
     public: /* ServerScript */
@@ -939,7 +988,7 @@ class TC_GAME_API ScriptMgr
 
         bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target);
         bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
-        bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets);
+        bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid castId);
         bool OnItemExpire(Player* player, ItemTemplate const* proto);
         bool OnItemRemove(Player* player, Item* item);
 
@@ -953,6 +1002,7 @@ class TC_GAME_API ScriptMgr
         bool OnQuestSelect(Player* player, Creature* creature, Quest const* quest);
         bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt);
         uint32 GetDialogStatus(Player* player, Creature* creature);
+        bool CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemplate const* actTemplate, CreatureData const* cData, Map const* map);
         CreatureAI* GetCreatureAI(Creature* creature);
         void OnCreatureUpdate(Creature* creature, uint32 diff);
 
@@ -1060,7 +1110,8 @@ class TC_GAME_API ScriptMgr
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
-        void OnQuestStatusChange(Player* player, uint32 questId, QuestStatus status);
+        void OnQuestStatusChange(Player* player, uint32 questId);
+        void OnMovieComplete(Player* player, uint32 movieId);
 
     public: /* AccountScript */
 
@@ -1101,6 +1152,16 @@ class TC_GAME_API ScriptMgr
         void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
         void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
         void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
+
+    public: /* AreaTriggerEntityScript */
+
+        AreaTriggerAI* GetAreaTriggerAI(AreaTrigger* areaTrigger);
+
+    public: /* SceneScript */
+        void OnSceneStart(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+        void OnSceneTrigger(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate, std::string const& triggerName);
+        void OnSceneCancel(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
+        void OnSceneComplete(Player* player, uint32 sceneInstanceID, SceneTemplate const* sceneTemplate);
 
     private:
         uint32 _scriptCount;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -437,7 +437,7 @@ class boss_algalon_the_observer : public CreatureScript
                     me->SetDisableGravity(false);
                 else if (pointId == POINT_ALGALON_OUTRO)
                 {
-                    me->SetFacingTo(1.605703f);
+                    me->SetFacingTo(1.605703f, true);
                     events.ScheduleEvent(EVENT_OUTRO_3, 1200);
                     events.ScheduleEvent(EVENT_OUTRO_4, 2400);
                     events.ScheduleEvent(EVENT_OUTRO_5, 8500);
@@ -693,6 +693,9 @@ class boss_algalon_the_observer : public CreatureScript
                             me->DespawnOrUnsummon(1500);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING) && !events.IsInPhase(PHASE_ROLE_PLAY))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1366,17 +1369,6 @@ class spell_algalon_supermassive_fail : public SpellScriptLoader
         }
 };
 
-class achievement_he_feeds_on_your_tears : public AchievementCriteriaScript
-{
-    public:
-        achievement_he_feeds_on_your_tears() : AchievementCriteriaScript("achievement_he_feeds_on_your_tears") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            return !target->GetAI()->GetData(DATA_HAS_FED_ON_TEARS);
-        }
-};
-
 void AddSC_boss_algalon_the_observer()
 {
     new boss_algalon_the_observer();
@@ -1393,5 +1385,4 @@ void AddSC_boss_algalon_the_observer()
     new spell_algalon_cosmic_smash();
     new spell_algalon_cosmic_smash_damage();
     new spell_algalon_supermassive_fail();
-    new achievement_he_feeds_on_your_tears();
 }

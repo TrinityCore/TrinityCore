@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -264,6 +264,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_PROFESSOR_PUTRICIDE:
                         ProfessorPutricideGUID = creature->GetGUID();
                         break;
+                    case NPC_VOLATILE_OOZE:
+                    case NPC_GAS_CLOUD:
+                        //! These creatures are summoned by something else than Professor Putricide
+                        //! but need to be controlled/despawned by him - so they need to be
+                        //! registered on his summon list
+                        if (Creature* professorPutricide = instance->GetCreature(ProfessorPutricideGUID))
+                            professorPutricide->AI()->JustSummoned(creature);
+                        break;
                     case NPC_PRINCE_KELESETH:
                         BloodCouncilGUIDs[0] = creature->GetGUID();
                         break;
@@ -384,8 +392,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_ZAFOD_BOOMBOX:
                         if (GameObjectTemplate const* go = sObjectMgr->GetGameObjectTemplate(GO_THE_SKYBREAKER_A))
-                            if ((TeamInInstance == ALLIANCE && data->mapid == go->moTransport.mapID) ||
-                                (TeamInInstance == HORDE && data->mapid != go->moTransport.mapID))
+                            if ((TeamInInstance == ALLIANCE && data->mapid == go->moTransport.SpawnMap) ||
+                                (TeamInInstance == HORDE && data->mapid != go->moTransport.SpawnMap))
                                 return entry;
                         return 0;
                     case NPC_IGB_MURADIN_BRONZEBEARD:
@@ -400,7 +408,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return entry;
             }
 
-            uint32 GetGameObjectEntry(ObjectGuid::LowType /*guidLow*/, uint32 entry) override
+            uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry) override
             {
                 switch (entry)
                 {
@@ -628,7 +636,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_CACHE_OF_THE_DREAMWALKER_10H:
                     case GO_CACHE_OF_THE_DREAMWALKER_25H:
                         if (Creature* valithria = instance->GetCreature(ValithriaDreamwalkerGUID))
-                            go->SetLootRecipient(valithria->GetLootRecipient());
+                            go->SetLootRecipient(valithria->GetLootRecipient(), valithria->GetLootRecipientGroup());
                         go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                         break;
                     case GO_ARTHAS_PLATFORM:
@@ -857,7 +865,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 if (GameObject* loot = instance->GetGameObject(DeathbringersCacheGUID))
                                 {
                                     if (Creature* deathbringer = instance->GetCreature(DeathbringerSaurfangGUID))
-                                        loot->SetLootRecipient(deathbringer->GetLootRecipient());
+                                        loot->SetLootRecipient(deathbringer->GetLootRecipient(), deathbringer->GetLootRecipientGroup());
                                     loot->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                                 }
 

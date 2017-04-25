@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "Weather.h"
 #include "CollectionMgr.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -98,12 +99,13 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool SuppressChatLog = false;
-            Optional<int32> TrackedQuantity;
+            int32 Type = 0;
             int32 Quantity = 0;
             uint32 Flags = 0;
-            int32 Type = 0;
             Optional<int32> WeeklyQuantity;
+            Optional<int32> TrackedQuantity;
+            Optional<int32> MaxQuantity;
+            bool SuppressChatLog = false;
         };
 
         class SetSelection final : public ClientPacket
@@ -126,6 +128,7 @@ namespace WorldPackets
                 Optional<int32> WeeklyQuantity;       // Currency count obtained this Week.
                 Optional<int32> MaxWeeklyQuantity;    // Weekly Currency cap.
                 Optional<int32> TrackedQuantity;
+                Optional<int32> MaxQuantity;
                 uint8 Flags = 0;                      // 0 = none,
             };
 
@@ -236,26 +239,12 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            Optional<uint32> IneligibleForLootMask; ///< Encountermask?
-            uint32 WeeklyReset      = 0; ///< UnixTime of last Weekly Reset Time
-            Optional<uint32> InstanceGroupSize;
+            uint32 DifficultyID     = 0;
             uint8 IsTournamentRealm = 0;
+            bool XRealmPvpAlert     = false;
             Optional<uint32> RestrictedAccountMaxLevel;
             Optional<uint32> RestrictedAccountMaxMoney;
-            uint32 DifficultyID     = 0;
-            bool XRealmPvpAlert     = false;
-        };
-
-        class AreaTrigger final : public ClientPacket
-        {
-        public:
-            AreaTrigger(WorldPacket&& packet) : ClientPacket(CMSG_AREA_TRIGGER, std::move(packet)) { }
-
-            void Read() override;
-
-            int32 AreaTriggerID = 0;
-            bool Entered = false;
-            bool FromClient = false;
+            Optional<uint32> InstanceGroupSize;
         };
 
         class SetDungeonDifficulty final : public ClientPacket
@@ -389,15 +378,7 @@ namespace WorldPackets
             uint32 Response = 0;
         };
 
-        class AreaTriggerNoCorpse final : public ServerPacket
-        {
-        public:
-            AreaTriggerNoCorpse() : ServerPacket(SMSG_AREA_TRIGGER_NO_CORPSE, 0) { }
-
-            WorldPacket const* Write() override { return &_worldPacket; }
-        };
-
-        class TC_GAME_API  Weather final : public ServerPacket
+        class TC_GAME_API Weather final : public ServerPacket
         {
         public:
             Weather();
@@ -598,6 +579,19 @@ namespace WorldPackets
             ObjectGuid ObjectGUID;
         };
 
+        class PlayObjectSound final : public ServerPacket
+        {
+        public:
+            PlayObjectSound() : ServerPacket(SMSG_PLAY_OBJECT_SOUND, 16 + 16 + 4 + 4 * 3) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid TargetObjectGUID;
+            ObjectGuid SourceObjectGUID;
+            int32 SoundKitID = 0;
+            G3D::Vector3 Position;
+        };
+
         class TC_GAME_API PlaySound final : public ServerPacket
         {
         public:
@@ -607,6 +601,19 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid SourceObjectGuid;
+            int32 SoundKitID = 0;
+        };
+
+        class TC_GAME_API PlaySpeakerbotSound final : public ServerPacket
+        {
+        public:
+            PlaySpeakerbotSound() : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 20) { }
+            PlaySpeakerbotSound(ObjectGuid const& sourceObjectGUID, int32 soundKitID)
+                : ServerPacket(SMSG_PLAY_SPEAKERBOT_SOUND, 20), SourceObjectGUID(sourceObjectGUID), SoundKitID(soundKitID) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid SourceObjectGUID;
             int32 SoundKitID = 0;
         };
 
@@ -622,6 +629,14 @@ namespace WorldPackets
         {
         public:
             NextCinematicCamera(WorldPacket&& packet) : ClientPacket(CMSG_NEXT_CINEMATIC_CAMERA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CompleteMovie final : public ClientPacket
+        {
+        public:
+            CompleteMovie(WorldPacket&& packet) : ClientPacket(CMSG_COMPLETE_MOVIE, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -653,7 +668,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::vector<std::unique_ptr<CUFProfile>> CUFProfiles;
+            Array<std::unique_ptr<CUFProfile>, MAX_CUF_PROFILES> CUFProfiles;
         };
 
         class LoadCUFProfiles final : public ServerPacket
@@ -758,6 +773,7 @@ namespace WorldPackets
             ObjectGuid TransportGUID;
             G3D::Vector3 Pos;
             float Facing = 0.0f;
+            int32 LfgDungeonID = 0;
         };
 
         class AccountHeirloomUpdate final : public ServerPacket
@@ -822,6 +838,42 @@ namespace WorldPackets
             int32 AreaLightID = 0;
             int32 TransitionMilliseconds = 0;
             int32 OverrideLightID = 0;
+        };
+
+        class DisplayGameError final : public ServerPacket
+        {
+        public:
+            DisplayGameError(GameError error) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1), Error(error) { }
+            DisplayGameError(GameError error, int32 arg) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1 + 4), Error(error), Arg(arg) { }
+            DisplayGameError(GameError error, int32 arg1, int32 arg2) : ServerPacket(SMSG_DISPLAY_GAME_ERROR, 4 + 1 + 4 + 4), Error(error), Arg(arg1), Arg2(arg2) { }
+
+            WorldPacket const* Write() override;
+
+            GameError Error;
+            Optional<int32> Arg;
+            Optional<int32> Arg2;
+        };
+
+        class AccountMountUpdate final : public ServerPacket
+        {
+        public:
+            AccountMountUpdate() : ServerPacket(SMSG_ACCOUNT_MOUNT_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsFullUpdate = false;
+            MountContainer const* Mounts = nullptr;
+        };
+
+        class MountSetFavorite final : public ClientPacket
+        {
+        public:
+            MountSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_MOUNT_SET_FAVORITE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 MountSpellID = 0;
+            bool IsFavorite = false;
         };
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -462,6 +462,9 @@ class boss_flame_leviathan : public CreatureScript
                             events.CancelEvent(EVENT_FREYA_S_WARD);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoBatteringRamIfReady();
@@ -1517,8 +1520,11 @@ class spell_auto_repair : public SpellScriptLoader
         {
             PrepareSpellScript(spell_auto_repair_SpellScript);
 
-            void CheckCooldownForTarget()
+            void CheckCooldownForTarget(SpellMissInfo missInfo)
             {
+                if (missInfo != SPELL_MISS_NONE)
+                    return;
+
                 if (GetHitUnit()->HasAuraEffect(SPELL_AUTO_REPAIR, EFFECT_2))   // Check presence of dummy aura indicating cooldown
                 {
                     PreventHitEffect(EFFECT_0);
@@ -1559,7 +1565,7 @@ class spell_auto_repair : public SpellScriptLoader
             void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_auto_repair_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                BeforeHit += SpellHitFn(spell_auto_repair_SpellScript::CheckCooldownForTarget);
+                BeforeHit += BeforeSpellHitFn(spell_auto_repair_SpellScript::CheckCooldownForTarget);
             }
         };
 

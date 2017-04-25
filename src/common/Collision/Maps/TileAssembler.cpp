@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@
 #include <set>
 #include <iomanip>
 #include <sstream>
+#include <boost/filesystem.hpp>
 
 using G3D::Vector3;
 using G3D::AABox;
@@ -55,7 +56,7 @@ namespace VMAP
     TileAssembler::TileAssembler(const std::string& pSrcDirName, const std::string& pDestDirName)
         : iDestDir(pDestDirName), iSrcDir(pSrcDirName), iFilterMethod(NULL), iCurrentUniqueNameId(0)
     {
-        //mkdir(iDestDir);
+        boost::filesystem::create_directory(iDestDir);
         //init();
     }
 

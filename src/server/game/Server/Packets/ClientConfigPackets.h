@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,26 +19,12 @@
 #define ClientConfigPackets_h__
 
 #include "Packet.h"
-#include "AddonMgr.h"
 #include "WorldSession.h"
 
 namespace WorldPackets
 {
     namespace ClientConfig
     {
-        class AddonInfo final : public ServerPacket
-        {
-            static uint8 const PublicKey[256];
-
-        public:
-            AddonInfo() : ServerPacket(SMSG_ADDON_INFO) { }
-
-            WorldPacket const* Write() override;
-
-            std::list< ::AddonInfo> const* Addons = nullptr;
-            std::list<BannedAddon> const* BannedAddons = nullptr;
-        };
-
         class AccountDataTimes final : public ServerPacket
         {
         public:

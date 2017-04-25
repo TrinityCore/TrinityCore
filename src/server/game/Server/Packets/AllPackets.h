@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,8 @@
 #define AllPackets_h__
 
 #include "AchievementPackets.h"
+#include "AreaTriggerPackets.h"
+#include "ArtifactPackets.h"
 #include "AuctionHousePackets.h"
 #include "AuthenticationPackets.h"
 #include "BankPackets.h"
@@ -33,6 +35,7 @@
 #include "CharacterPackets.h"
 #include "ChatPackets.h"
 #include "ClientConfigPackets.h"
+#include "CollectionPackets.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
 #include "DuelPackets.h"
@@ -41,6 +44,7 @@
 #include "GarrisonPackets.h"
 #include "GuildFinderPackets.h"
 #include "GuildPackets.h"
+#include "HotfixPackets.h"
 #include "InspectPackets.h"
 #include "InstancePackets.h"
 #include "ItemPackets.h"
@@ -59,6 +63,7 @@
 #include "QuestPackets.h"
 #include "ReferAFriendPackets.h"
 #include "ReputationPackets.h"
+#include "ScenarioPackets.h"
 #include "ScenePackets.h"
 #include "SocialPackets.h"
 #include "SpellPackets.h"
@@ -70,8 +75,8 @@
 #include "TotemPackets.h"
 #include "ToyPackets.h"
 #include "TradePackets.h"
+#include "TransmogrificationPackets.h"
 #include "VehiclePackets.h"
-#include "VoicePackets.h"
 #include "VoidStoragePackets.h"
 #include "WardenPackets.h"
 #include "WhoPackets.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -100,15 +100,14 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubm
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLog& chatlog)
 {
     uint32 linesCount = data.read<uint32>();
+    bool hasReportLineIndex = data.ReadBit();
+    data.ResetBitPos();
 
     for (uint32 i = 0; i < linesCount; i++)
         chatlog.Lines.emplace_back(data);
 
-    bool hasReportLineIndex = data.ReadBit();
     if (hasReportLineIndex)
         chatlog.ReportLineIndex = data.read<uint32>();
-
-    data.ResetBitPos();
 
     return data;
 }
@@ -192,8 +191,8 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
 void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
 {
     _worldPacket >> Header;
-    _worldPacket >> ChatLog;
     _worldPacket >> TargetCharacterGUID;
+    _worldPacket >> ChatLog;
     ComplaintType = _worldPacket.ReadBits(5);
 
     uint32 noteLength = _worldPacket.ReadBits(10);
@@ -206,10 +205,10 @@ void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
 
     _worldPacket.ResetBitPos();
 
-    Note = _worldPacket.ReadString(noteLength);
-
     if (hasMailInfo)
         _worldPacket >> MailInfo;
+
+    Note = _worldPacket.ReadString(noteLength);
 
     if (hasCalendarInfo)
         _worldPacket >> CalenderInfo;

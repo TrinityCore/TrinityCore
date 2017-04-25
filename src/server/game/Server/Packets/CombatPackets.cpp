@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -130,7 +130,7 @@ WorldPacket const* WorldPackets::Combat::CancelAutoRepeat::Write()
 WorldPacket const* WorldPackets::Combat::HealthUpdate::Write()
 {
     _worldPacket << Guid;
-    _worldPacket << int32(Health);
+    _worldPacket << int64(Health);
 
     return &_worldPacket;
 }
@@ -143,6 +143,7 @@ WorldPacket const* WorldPackets::Combat::ThreatClear::Write()
 
 WorldPacket const* WorldPackets::Combat::PvPCredit::Write()
 {
+    _worldPacket << int32(OriginalHonor);
     _worldPacket << int32(Honor);
     _worldPacket << Target;
     _worldPacket << int32(Rank);

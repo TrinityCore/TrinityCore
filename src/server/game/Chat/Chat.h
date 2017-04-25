@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -60,7 +60,7 @@ class TC_GAME_API ChatHandler
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
-        static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = NULL; return start; }
+        static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
@@ -115,38 +115,39 @@ class TC_GAME_API ChatHandler
         // Returns either the selected player or self if there is no selected player
         Player*   getSelectedPlayerOrSelf();
 
-        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = NULL);
-        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);
+        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
+        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
 
-        // if args have single value then it return in arg2 and arg1 == NULL
+        // if args have single value then it return in arg2 and arg1 == nullptr
         void      extractOptFirstArg(char* args, char** arg1, char** arg2);
         char*     extractQuotedArg(char* args);
 
         uint32    extractSpellIdFromLink(char* text);
-        ObjectGuid extractGuidFromLink(char* text);
+        ObjectGuid::LowType extractLowGuidFromLink(char* text, HighGuid& guidHigh);
         GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
         // select by arg (name/link) or in-game selection online/offline player or self if a creature is selected
-        bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = NULL, std::string* player_name = NULL);
+        bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = nullptr, std::string* player_name = nullptr);
 
         std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
         std::string GetNameLink(Player* chr) const;
 
         GameObject* GetNearbyGameObject();
-        GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry);
+        GameObject* GetObjectFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
+        Creature* GetCreatureFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
         bool HasSentErrorMessage() const { return sentErrorMessage; }
         void SetSentErrorMessage(bool val){ sentErrorMessage = val; }
 
         bool ShowHelpForCommand(std::vector<ChatCommand> const& table, const char* cmd);
     protected:
-        explicit ChatHandler() : m_session(NULL), sentErrorMessage(false) { }     // for CLI subclass
+        explicit ChatHandler() : m_session(nullptr), sentErrorMessage(false) { }     // for CLI subclass
         static bool SetDataForCommandInTable(std::vector<ChatCommand>& table, const char* text, uint32 permission, std::string const& help, std::string const& fullcommand);
         bool ExecuteCommandInTable(std::vector<ChatCommand> const& table, const char* text, std::string const& fullcmd);
         bool ShowHelpForSubCommands(std::vector<ChatCommand> const& table, char const* cmd, char const* subcmd);
 
     private:
-        WorldSession* m_session;                           // != NULL for chat command call and NULL for CLI command
+        WorldSession* m_session;                           // != nullptr for chat command call and nullptr for CLI command
 
         // common global flag
         bool sentErrorMessage;

@@ -5,7 +5,7 @@
 //==========================================
 #include "CompilerDefs.h"
 
-#if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && !defined(__MINGW32__)
 #define WIN32_LEAN_AND_MEAN
 #pragma warning(disable:4996)
 #pragma warning(disable:4312)
@@ -50,8 +50,11 @@ inline LPTSTR ErrorMessage(DWORD dw)
 //============================== Global Variables =============================
 
 //
-// Declare the static variables of the WheatyExceptionReport class
+// Declare the static variables of the WheatyExceptionReport class and force their initialization before any other static in the program
 //
+#pragma warning(push)
+#pragma warning(disable: 4073) // C4073: initializers put in library initialization area
+#pragma init_seg(lib)
 TCHAR WheatyExceptionReport::m_szLogFileName[MAX_PATH];
 TCHAR WheatyExceptionReport::m_szDumpFileName[MAX_PATH];
 LPTOP_LEVEL_EXCEPTION_FILTER WheatyExceptionReport::m_previousFilter;
@@ -65,9 +68,9 @@ bool WheatyExceptionReport::alreadyCrashed;
 std::mutex WheatyExceptionReport::alreadyCrashedLock;
 WheatyExceptionReport::pRtlGetVersion WheatyExceptionReport::RtlGetVersion;
 
-
 // Declare global instance of class
 WheatyExceptionReport g_WheatyExceptionReport;
+#pragma warning(pop)
 
 //============================== Class Methods =============================
 
@@ -901,7 +904,7 @@ unsigned /*cbBuffer*/)
     // will return true.
     bool bHandled;
     pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, pSym->ModBase, pSym->TypeIndex,
-        0, pVariable, bHandled, pSym->Name, "", false, true);
+        pVariable, bHandled, pSym->Name, "", false, true);
 
     if (!bHandled)
     {
@@ -934,7 +937,6 @@ char * WheatyExceptionReport::DumpTypeIndex(
 char * pszCurrBuffer,
 DWORD64 modBase,
 DWORD dwTypeIndex,
-unsigned nestingLevel,
 DWORD_PTR offset,
 bool & bHandled,
 const char* Name,
@@ -1022,14 +1024,14 @@ bool logChildren)
                 FormatOutputValue(buffer, btVoid, sizeof(PVOID), (PVOID)offset, sizeof(buffer));
                 symbolDetails.top().Value = buffer;
 
-                if (nestingLevel >= WER_MAX_NESTING_LEVEL)
+                if (symbolDetails.size() >= WER_MAX_NESTING_LEVEL)
                     logChildren = false;
 
                 // no need to log any children since the address is invalid anyway
                 if (address == NULL || address == DWORD_PTR(-1))
                     logChildren = false;
 
-                pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
+                pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID,
                     address, bHandled, Name, addressStr, false, logChildren);
 
                 if (!bHandled)
@@ -1074,19 +1076,19 @@ bool logChildren)
                 switch (innerTypeTag)
                 {
                     case SymTagUDT:
-                        if (nestingLevel >= WER_MAX_NESTING_LEVEL)
+                        if (symbolDetails.size() >= WER_MAX_NESTING_LEVEL)
                             logChildren = false;
-                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
+                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID,
                             offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
                         break;
                     case SymTagPointerType:
                         if (Name != NULL && Name[0] != '\0')
                             symbolDetails.top().Name = Name;
-                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
+                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID,
                             offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
                         break;
                     case SymTagArrayType:
-                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
+                        pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID,
                             offset, bHandled, symbolDetails.top().Name.c_str(), "", false, logChildren);
                         break;
                     default:
@@ -1100,7 +1102,7 @@ bool logChildren)
                 symbolDetails.top().HasChildren = true;
 
                 BasicType basicType = btNoType;
-                pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID, nestingLevel + 1,
+                pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase, innerTypeID,
                     offset, bHandled, Name, "", false, false);
 
                 // Set Value back to an empty string since the Array object itself has no value, only its elements have
@@ -1222,7 +1224,7 @@ bool logChildren)
         DWORD_PTR dwFinalOffset = offset + dwMemberOffset;
 
         pszCurrBuffer = DumpTypeIndex(pszCurrBuffer, modBase,
-            children.ChildId[i], nestingLevel+1,
+            children.ChildId[i],
             dwFinalOffset, bHandled2, ""/*Name */, "", true, true);
 
         // If the child wasn't a UDT, format it appropriately

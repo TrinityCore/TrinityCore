@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,6 +47,8 @@ namespace WorldPackets
             int32 SpellID = 0;
             int32 Duration = 0;
             int8 Slot = 0;
+            float TimeMod = 1.0f;
+            bool CannotDismiss = false;
         };
 
         class TotemMoved final : public ServerPacket

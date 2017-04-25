@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,6 +20,7 @@
 #define DBCENUMS_H
 
 #include "Define.h"
+#include <array>
 
 #pragma pack(push, 1)
 
@@ -43,11 +44,11 @@ enum LevelLimit
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"
     // use as default max player level, must be fit max level for used client
     // also see MAX_LEVEL and STRONG_MAX_LEVEL define
-    DEFAULT_MAX_LEVEL = 100,
+    DEFAULT_MAX_LEVEL = 110,
 
     // client supported max level for player/pets/etc. Avoid overflow or client stability affected.
     // also see GT_MAX_LEVEL define
-    MAX_LEVEL = 100,
+    MAX_LEVEL = 110,
 
     // Server side limitation. Base at used code requirements.
     // also see MAX_LEVEL and GT_MAX_LEVEL define
@@ -57,7 +58,7 @@ enum LevelLimit
 enum BattlegroundBracketId                                  // bracketId for level ranges
 {
     BG_BRACKET_ID_FIRST          = 0,
-    BG_BRACKET_ID_LAST           = 10,
+    BG_BRACKET_ID_LAST           = 11,
 
     // must be max value in PvPDificulty slot + 1
     MAX_BATTLEGROUND_BRACKETS
@@ -137,6 +138,17 @@ enum AreaFlags
     AREA_FLAG_UNK9                  = 0x40000000
 };
 
+enum ArtifactPowerFlag : uint8
+{
+    ARTIFACT_POWER_FLAG_GOLD                        = 0x01,
+    ARTIFACT_POWER_FLAG_FIRST                       = 0x02,
+    ARTIFACT_POWER_FLAG_FINAL                       = 0x04,
+    ARTIFACT_POWER_FLAG_SCALES_WITH_NUM_POWERS      = 0x08,
+    ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
+};
+
+#define BATTLE_PET_SPECIES_MAX_ID 2051
+
 enum ChrSpecializationFlag
 {
     CHR_SPECIALIZATION_FLAG_CASTER                  = 0x01,
@@ -179,7 +191,7 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_UNK16                         = 16,
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_AREA_OR_ZONE           = 17,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_AREA_OR_ZONE           = 18,
-    CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY                = 20,
+    CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY_OLD            = 20,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_YIELDS_XP     = 21, // NYI
     CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE                    = 24,
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_RACE                   = 25,
@@ -205,14 +217,33 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_REQUIRES_GUILD_GROUP          = 61, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GUILD_REPUTATION              = 62, // NYI
     CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND            = 63, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND_RATING     = 64,
     CRITERIA_ADDITIONAL_CONDITION_PROJECT_RARITY                = 65,
     CRITERIA_ADDITIONAL_CONDITION_PROJECT_RACE                  = 66,
+    CRITERIA_ADDITIONAL_CONDITION_WORLD_STATE                   = 67, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY                = 68, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_PLAYER_LEVEL                  = 69, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_PLAYER_LEVEL           = 70, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_PLAYER_LEVEL_ON_ACCOUNT       = 71, // Not verified
+    //CRITERIA_ADDITIONAL_CONDITION_UNK73       = 73, // References another modifier tree id
+    CRITERIA_ADDITIONAL_CONDITION_SCENARIO_ID                   = 74, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_FAMILY             = 78, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_HEALTH_PCT         = 79, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK80                         = 80 // Something to do with world bosses
+    CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_ENTRY              = 81, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_ENTRY_ID           = 82, // Some sort of data id?
+    CRITERIA_ADDITIONAL_CONDITION_CHALLENGE_MODE_MEDAL          = 83, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK84                         = 84, // Quest id
+    //CRITERIA_ADDITIONAL_CONDITION_UNK86                         = 86, // Some external event id
+    //CRITERIA_ADDITIONAL_CONDITION_UNK87                         = 87, // Achievement id
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES            = 91,
+    CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY       = 144,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY     = 145,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_LEVEL       = 146,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_RARE_MISSION         = 147, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_BUILDING_LEVEL       = 149, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_MISSION_TYPE         = 167, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_PLAYER_ITEM_LEVEL             = 169, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ILVL        = 184,
 };
 
@@ -245,8 +276,11 @@ enum CriteriaTypes
 {
     CRITERIA_TYPE_KILL_CREATURE                         = 0,
     CRITERIA_TYPE_WIN_BG                                = 1,
+    // 2 - unused (Legion - 23420)
     CRITERIA_TYPE_COMPLETE_ARCHAEOLOGY_PROJECTS         = 3, // struct { uint32 itemCount; }
+    CRITERIA_TYPE_SURVEY_GAMEOBJECT                     = 4,
     CRITERIA_TYPE_REACH_LEVEL                           = 5,
+    CRITERIA_TYPE_CLEAR_DIGSITE                         = 6,
     CRITERIA_TYPE_REACH_SKILL_LEVEL                     = 7,
     CRITERIA_TYPE_COMPLETE_ACHIEVEMENT                  = 8,
     CRITERIA_TYPE_COMPLETE_QUEST_COUNT                  = 9,
@@ -261,8 +295,11 @@ enum CriteriaTypes
     CRITERIA_TYPE_DEATH_IN_DUNGEON                      = 18,
     CRITERIA_TYPE_COMPLETE_RAID                         = 19,
     CRITERIA_TYPE_KILLED_BY_CREATURE                    = 20,
+    CRITERIA_TYPE_MANUAL_COMPLETE_CRITERIA              = 21,
+    CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE_GUILD         = 22,
     CRITERIA_TYPE_KILLED_BY_PLAYER                      = 23,
     CRITERIA_TYPE_FALL_WITHOUT_DYING                    = 24,
+    // 25 - unused (Legion - 23420)
     CRITERIA_TYPE_DEATHS_FROM                           = 26,
     CRITERIA_TYPE_COMPLETE_QUEST                        = 27,
     CRITERIA_TYPE_BE_SPELL_TARGET                       = 28,
@@ -295,25 +332,30 @@ enum CriteriaTypes
     CRITERIA_TYPE_HEALING_DONE                          = 55,
     CRITERIA_TYPE_GET_KILLING_BLOWS                     = 56, /// @todo in some cases map not present, and in some cases need do without die
     CRITERIA_TYPE_EQUIP_ITEM                            = 57,
+    // 58 - unused (Legion - 23420)
     CRITERIA_TYPE_MONEY_FROM_VENDORS                    = 59,
     CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS                = 60,
     CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS               = 61,
     CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD               = 62,
     CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING             = 63,
+    CRITERIA_TYPE_DEFEAT_CREATURE_GROUP                 = 64,
     CRITERIA_TYPE_GOLD_SPENT_AT_BARBER                  = 65,
     CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL                   = 66,
     CRITERIA_TYPE_LOOT_MONEY                            = 67,
     CRITERIA_TYPE_USE_GAMEOBJECT                        = 68,
     CRITERIA_TYPE_BE_SPELL_TARGET2                      = 69,
     CRITERIA_TYPE_SPECIAL_PVP_KILL                      = 70,
+    CRITERIA_TYPE_COMPLETE_CHALLENGE_MODE               = 71,
     CRITERIA_TYPE_FISH_IN_GAMEOBJECT                    = 72,
-    /// @todo 73: Achievements 1515, 1241, 1103 (Name: Mal'Ganis)
+    CRITERIA_TYPE_SEND_EVENT                            = 73,
     CRITERIA_TYPE_ON_LOGIN                              = 74,
     CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS                = 75,
     CRITERIA_TYPE_WIN_DUEL                              = 76,
     CRITERIA_TYPE_LOSE_DUEL                             = 77,
     CRITERIA_TYPE_KILL_CREATURE_TYPE                    = 78,
+    CRITERIA_TYPE_COOK_RECIPES_GUILD                    = 79,
     CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS               = 80,
+    CRITERIA_TYPE_EARN_PET_BATTLE_ACHIEVEMENT_POINTS    = 81,
     CRITERIA_TYPE_CREATE_AUCTION                        = 82,
     CRITERIA_TYPE_HIGHEST_AUCTION_BID                   = 83,
     CRITERIA_TYPE_WON_AUCTIONS                          = 84,
@@ -324,8 +366,15 @@ enum CriteriaTypes
     CRITERIA_TYPE_KNOWN_FACTIONS                        = 89,
     CRITERIA_TYPE_LOOT_EPIC_ITEM                        = 90,
     CRITERIA_TYPE_RECEIVE_EPIC_ITEM                     = 91,
+    CRITERIA_TYPE_SEND_EVENT_SCENARIO                   = 92,
     CRITERIA_TYPE_ROLL_NEED                             = 93,
     CRITERIA_TYPE_ROLL_GREED                            = 94,
+    CRITERIA_TYPE_RELEASE_SPIRIT                        = 95,
+    CRITERIA_TYPE_OWN_PET                               = 96,
+    CRITERIA_TYPE_GARRISON_COMPLETE_DUNGEON_ENCOUNTER   = 97,
+    // 98 - unused (Legion - 23420)
+    // 99 - unused (Legion - 23420)
+    // 100 - unused (Legion - 23420)
     CRITERIA_TYPE_HIGHEST_HIT_DEALT                     = 101,
     CRITERIA_TYPE_HIGHEST_HIT_RECEIVED                  = 102,
     CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED                 = 103,
@@ -336,11 +385,19 @@ enum CriteriaTypes
     CRITERIA_TYPE_FLIGHT_PATHS_TAKEN                    = 108,
     CRITERIA_TYPE_LOOT_TYPE                             = 109,
     CRITERIA_TYPE_CAST_SPELL2                           = 110, /// @todo target entry is missing
+    // 111 - unused (Legion - 23420)
     CRITERIA_TYPE_LEARN_SKILL_LINE                      = 112,
     CRITERIA_TYPE_EARN_HONORABLE_KILL                   = 113,
     CRITERIA_TYPE_ACCEPTED_SUMMONINGS                   = 114,
     CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS               = 115,
+    // 116 - unused (Legion - 23420)
+    // 117 - unused (Legion - 23420)
+    CRITERIA_TYPE_COMPLETE_LFG_DUNGEON                  = 118,
     CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS         = 119,
+    CRITERIA_TYPE_LFG_VOTE_KICKS_INITIATED_BY_PLAYER    = 120,
+    CRITERIA_TYPE_LFG_VOTE_KICKS_NOT_INIT_BY_PLAYER     = 121,
+    CRITERIA_TYPE_BE_KICKED_FROM_LFG                    = 122,
+    CRITERIA_TYPE_LFG_LEAVES                            = 123,
     CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS              = 124,
     CRITERIA_TYPE_REACH_GUILD_LEVEL                     = 125,
     CRITERIA_TYPE_CRAFT_ITEMS_GUILD                     = 126,
@@ -348,18 +405,20 @@ enum CriteriaTypes
     CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS                  = 128,
     CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS         = 129,
     CRITERIA_TYPE_WIN_RATED_BATTLEGROUND                = 130,
+    // 131 - unused (Legion - 23420)
     CRITERIA_TYPE_REACH_BG_RATING                       = 132,
     CRITERIA_TYPE_BUY_GUILD_TABARD                      = 133,
     CRITERIA_TYPE_COMPLETE_QUESTS_GUILD                 = 134,
     CRITERIA_TYPE_HONORABLE_KILLS_GUILD                 = 135,
     CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD              = 136,
+    CRITERIA_TYPE_COUNT_OF_LFG_QUEUE_BOOSTS_BY_TANK     = 137,
     CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE         = 138, //struct { Flag flag; uint32 count; } 1: Guild Dungeon, 2:Guild Challenge, 3:Guild battlefield
     CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE              = 139, //struct { uint32 count; } Guild Challenge
-    // 140 unk
-    // 141 unk
-    // 142 unk
-    // 143 unk
-    // 144 unk
+    // 140 - 1 criteria (16883), unused (Legion - 23420)
+    // 141 - 1 criteria (16884), unused (Legion - 23420)
+    // 142 - 1 criteria (16881), unused (Legion - 23420)
+    // 143 - 1 criteria (16882), unused (Legion - 23420)
+    // 144 - 1 criteria (17386), unused (Legion - 23420)
     CRITERIA_TYPE_LFR_DUNGEONS_COMPLETED                = 145,
     CRITERIA_TYPE_LFR_LEAVES                            = 146,
     CRITERIA_TYPE_LFR_VOTE_KICKS_INITIATED_BY_PLAYER    = 147,
@@ -368,74 +427,141 @@ enum CriteriaTypes
     CRITERIA_TYPE_COUNT_OF_LFR_QUEUE_BOOSTS_BY_TANK     = 150,
     CRITERIA_TYPE_COMPLETE_SCENARIO_COUNT               = 151,
     CRITERIA_TYPE_COMPLETE_SCENARIO                     = 152,
-    // CRITERIA_TYPE_REACH_SOMETHING_LIKE_AREATRIGGER   = 153,
-    // 154
+    CRITERIA_TYPE_REACH_AREATRIGGER_WITH_ACTIONSET      = 153,
+    // 154 - unused (Legion - 23420)
     CRITERIA_TYPE_OWN_BATTLE_PET                        = 155,
     CRITERIA_TYPE_OWN_BATTLE_PET_COUNT                  = 156,
     CRITERIA_TYPE_CAPTURE_BATTLE_PET                    = 157,
     CRITERIA_TYPE_WIN_PET_BATTLE                        = 158,
-    // 159
+    // 159 - 2 criterias (22312,22314), unused (Legion - 23420)
     CRITERIA_TYPE_LEVEL_BATTLE_PET                      = 160,
     CRITERIA_TYPE_CAPTURE_BATTLE_PET_CREDIT             = 161, // triggers a quest credit
     CRITERIA_TYPE_LEVEL_BATTLE_PET_CREDIT               = 162, // triggers a quest credit
     CRITERIA_TYPE_ENTER_AREA                            = 163, // triggers a quest credit
     CRITERIA_TYPE_LEAVE_AREA                            = 164, // triggers a quest credit
     CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER            = 165,
+    // 166 - unused (Legion - 23420)
     CRITERIA_TYPE_PLACE_GARRISON_BUILDING               = 167,
     CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING             = 168,
     CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING           = 169,
     CRITERIA_TYPE_UPGRADE_GARRISON                      = 170,
     CRITERIA_TYPE_START_GARRISON_MISSION                = 171,
-    // 172
+    CRITERIA_TYPE_START_ORDER_HALL_MISSION              = 172,
     CRITERIA_TYPE_COMPLETE_GARRISON_MISSION_COUNT       = 173,
     CRITERIA_TYPE_COMPLETE_GARRISON_MISSION             = 174,
     CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_COUNT       = 175,
-    // 176
-    // 177
+    CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER             = 176,
+    // 177 - 0 criterias (Legion - 23420)
     CRITERIA_TYPE_LEARN_GARRISON_BLUEPRINT_COUNT        = 178,
-    // 179
-    // 180
-    // 181
+    // 179 - 0 criterias (Legion - 23420)
+    // 180 - 0 criterias (Legion - 23420)
+    // 181 - 0 criterias (Legion - 23420)
     CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT            = 182,
     CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_ITEM_LEVEL    = 183,
     CRITERIA_TYPE_RAISE_GARRISON_FOLLOWER_LEVEL         = 184,
     CRITERIA_TYPE_OWN_TOY                               = 185,
     CRITERIA_TYPE_OWN_TOY_COUNT                         = 186,
-    CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER             = 187,
-    CRITERIA_TYPE_OWN_HEIRLOOMS                         = 189
+    CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_WITH_QUALITY= 187,
+    // 188 - 0 criterias (Legion - 23420)
+    CRITERIA_TYPE_OWN_HEIRLOOMS                         = 189,
+    CRITERIA_TYPE_ARTIFACT_POWER_EARNED                 = 190,
+    CRITERIA_TYPE_ARTIFACT_TRAITS_UNLOCKED              = 191,
+    CRITERIA_TYPE_HONOR_LEVEL_REACHED                   = 194,
+    CRITERIA_TYPE_PRESTIGE_REACHED                      = 195,
+    // 196 - CRITERIA_TYPE_REACH_LEVEL_2 or something
+    // 197 - Order Hall Advancement related
+    CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED             = 198,
+    CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT           = 199,
+    CRITERIA_TYPE_ORDER_HALL_RECRUIT_TROOP              = 200,
+    // 201 - 0 criterias (Legion - 23420)
+    // 202 - 0 criterias (Legion - 23420)
+    CRITERIA_TYPE_COMPLETE_WORLD_QUEST                  = 203,
+    // 204 - Special criteria type to award players for some external events? Comes with what looks like an identifier, so guessing it's not unique.
 };
 
-#define CRITERIA_TYPE_TOTAL 190
+#define CRITERIA_TYPE_TOTAL 207
 
-enum CriteriaTreeOperator
+enum CriteriaTreeFlags : uint16
 {
-    CRITERIA_TREE_OPERATOR_ALL  = 4,
-    CRITERIA_TREE_OPERATOR_ANY  = 8
+    CRITERIA_TREE_FLAG_PROGRESS_BAR         = 0x0001,
+    CRITERIA_TREE_FLAG_PROGRESS_IS_DATE     = 0x0004,
+    CRITERIA_TREE_FLAG_SHOW_CURRENCY_ICON   = 0x0008,
+    CRITERIA_TREE_FLAG_ALLIANCE_ONLY        = 0x0200,
+    CRITERIA_TREE_FLAG_HORDE_ONLY           = 0x0400,
+    CRITERIA_TREE_FLAG_SHOW_REQUIRED_COUNT  = 0x0800
+};
+
+enum CriteriaTreeOperator : uint8
+{
+    CRITERIA_TREE_OPERATOR_SINGLE                   = 0,
+    CRITERIA_TREE_OPERATOR_SINGLE_NOT_COMPLETED     = 1,
+    CRITERIA_TREE_OPERATOR_ALL                      = 4,
+    CRITERIA_TREE_OPERAROR_SUM_CHILDREN             = 5,
+    CRITERIA_TREE_OPERATOR_MAX_CHILD                = 6,
+    CRITERIA_TREE_OPERATOR_COUNT_DIRECT_CHILDREN    = 7,
+    CRITERIA_TREE_OPERATOR_ANY                      = 8,
+    CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT      = 9
+};
+
+enum CharSectionFlags
+{
+    SECTION_FLAG_PLAYER = 0x01,
+    SECTION_FLAG_DEATH_KNIGHT = 0x04,
+    SECTION_FLAG_DEMON_HUNTER = 0x20
+};
+
+enum CharSectionType
+{
+    SECTION_TYPE_SKIN_LOW_RES = 0,
+    SECTION_TYPE_FACE_LOW_RES = 1,
+    SECTION_TYPE_FACIAL_HAIR_LOW_RES = 2,
+    SECTION_TYPE_HAIR_LOW_RES = 3,
+    SECTION_TYPE_UNDERWEAR_LOW_RES = 4,
+    SECTION_TYPE_SKIN = 5,
+    SECTION_TYPE_FACE = 6,
+    SECTION_TYPE_FACIAL_HAIR = 7,
+    SECTION_TYPE_HAIR = 8,
+    SECTION_TYPE_UNDERWEAR = 9,
+    SECTION_TYPE_CUSTOM_DISPLAY_1_LOW_RES = 10,
+    SECTION_TYPE_CUSTOM_DISPLAY_1 = 11,
+    SECTION_TYPE_CUSTOM_DISPLAY_2_LOW_RES = 12,
+    SECTION_TYPE_CUSTOM_DISPLAY_2 = 13,
+    SECTION_TYPE_CUSTOM_DISPLAY_3_LOW_RES = 14,
+    SECTION_TYPE_CUSTOM_DISPLAY_3 = 15
+};
+
+enum Curves
+{
+    CURVE_ID_ARTIFACT_RELIC_ITEM_LEVEL_BONUS = 1718
 };
 
 enum Difficulty : uint8
 {
-    DIFFICULTY_NONE           = 0,
-    DIFFICULTY_NORMAL         = 1,
-    DIFFICULTY_HEROIC         = 2,
-    DIFFICULTY_10_N           = 3,
-    DIFFICULTY_25_N           = 4,
-    DIFFICULTY_10_HC          = 5,
-    DIFFICULTY_25_HC          = 6,
-    DIFFICULTY_LFR            = 7,
-    DIFFICULTY_CHALLENGE      = 8,
-    DIFFICULTY_40             = 9,
-    DIFFICULTY_HC_SCENARIO    = 11,
-    DIFFICULTY_N_SCENARIO     = 12,
-    DIFFICULTY_NORMAL_RAID    = 14,
-    DIFFICULTY_HEROIC_RAID    = 15,
-    DIFFICULTY_MYTHIC_RAID    = 16,
-    DIFFICULTY_LFR_NEW        = 17,
-    DIFFICULTY_EVENT_RAID     = 18,
-    DIFFICULTY_EVENT_DUNGEON  = 19,
-    DIFFICULTY_EVENT_SCENARIO = 20,
-    DIFFICULTY_MYTHIC         = 23,
-    DIFFICULTY_TIMEWALKER     = 24,
+    DIFFICULTY_NONE                 = 0,
+    DIFFICULTY_NORMAL               = 1,
+    DIFFICULTY_HEROIC               = 2,
+    DIFFICULTY_10_N                 = 3,
+    DIFFICULTY_25_N                 = 4,
+    DIFFICULTY_10_HC                = 5,
+    DIFFICULTY_25_HC                = 6,
+    DIFFICULTY_LFR                  = 7,
+    DIFFICULTY_MYTHIC_KEYSTONE      = 8,
+    DIFFICULTY_40                   = 9,
+    DIFFICULTY_3_MAN_SCENARIO_HC    = 11,
+    DIFFICULTY_3_MAN_SCENARIO_N     = 12,
+    DIFFICULTY_NORMAL_RAID          = 14,
+    DIFFICULTY_HEROIC_RAID          = 15,
+    DIFFICULTY_MYTHIC_RAID          = 16,
+    DIFFICULTY_LFR_NEW              = 17,
+    DIFFICULTY_EVENT_RAID           = 18,
+    DIFFICULTY_EVENT_DUNGEON        = 19,
+    DIFFICULTY_EVENT_SCENARIO       = 20,
+    DIFFICULTY_MYTHIC               = 23,
+    DIFFICULTY_TIMEWALKER           = 24,
+    DIFFICULTY_WORLD_PVP_SCENARIO   = 25,
+    DIFFICULTY_5_MAN_SCENARIO_N     = 26,
+    DIFFICULTY_20_MAN_SCENARIO_N    = 27,
+    DIFFICULTY_PVEVP_SCENARIO       = 29,
 
     MAX_DIFFICULTY
 };
@@ -520,15 +646,19 @@ enum GlyphSlotType
 
 enum ItemEnchantmentType
 {
-    ITEM_ENCHANTMENT_TYPE_NONE             = 0,
-    ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL     = 1,
-    ITEM_ENCHANTMENT_TYPE_DAMAGE           = 2,
-    ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL      = 3,
-    ITEM_ENCHANTMENT_TYPE_RESISTANCE       = 4,
-    ITEM_ENCHANTMENT_TYPE_STAT             = 5,
-    ITEM_ENCHANTMENT_TYPE_TOTEM            = 6,
-    ITEM_ENCHANTMENT_TYPE_USE_SPELL        = 7,
-    ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET = 8
+    ITEM_ENCHANTMENT_TYPE_NONE                              = 0,
+    ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL                      = 1,
+    ITEM_ENCHANTMENT_TYPE_DAMAGE                            = 2,
+    ITEM_ENCHANTMENT_TYPE_EQUIP_SPELL                       = 3,
+    ITEM_ENCHANTMENT_TYPE_RESISTANCE                        = 4,
+    ITEM_ENCHANTMENT_TYPE_STAT                              = 5,
+    ITEM_ENCHANTMENT_TYPE_TOTEM                             = 6,
+    ITEM_ENCHANTMENT_TYPE_USE_SPELL                         = 7,
+    ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET                  = 8,
+    ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_TYPE = 9,
+    ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID   = 10,
+    ITEM_ENCHANTMENT_TYPE_BONUS_LIST_ID                     = 11,
+    ITEM_ENCHANTMENT_TYPE_BONUS_LIST_CURVE                  = 12
 };
 
 enum ItemExtendedCostFlags
@@ -543,24 +673,31 @@ enum ItemExtendedCostFlags
 
 enum ItemBonusType
 {
-    ITEM_BONUS_ITEM_LEVEL                = 1,
-    ITEM_BONUS_STAT                      = 2,
-    ITEM_BONUS_QUALITY                   = 3,
-    ITEM_BONUS_DESCRIPTION               = 4,
-    ITEM_BONUS_SUFFIX                    = 5,
-    ITEM_BONUS_SOCKET                    = 6,
-    ITEM_BONUS_APPEARANCE                = 7,
-    ITEM_BONUS_REQUIRED_LEVEL            = 8,
-    ITEM_BONUS_DISPLAY_TOAST_METHOD      = 9,
-    ITEM_BONUS_REPAIR_COST_MULTIPLIER    = 10,
-    ITEM_BONUS_SCALING_STAT_DISTRIBUTION = 11,
-    ITEM_BONUS_UNK_12                    = 12
+    ITEM_BONUS_ITEM_LEVEL                   = 1,
+    ITEM_BONUS_STAT                         = 2,
+    ITEM_BONUS_QUALITY                      = 3,
+    ITEM_BONUS_DESCRIPTION                  = 4,
+    ITEM_BONUS_SUFFIX                       = 5,
+    ITEM_BONUS_SOCKET                       = 6,
+    ITEM_BONUS_APPEARANCE                   = 7,
+    ITEM_BONUS_REQUIRED_LEVEL               = 8,
+    ITEM_BONUS_DISPLAY_TOAST_METHOD         = 9,
+    ITEM_BONUS_REPAIR_COST_MULTIPLIER       = 10,
+    ITEM_BONUS_SCALING_STAT_DISTRIBUTION    = 11,
+    ITEM_BONUS_DISENCHANT_LOOT_ID           = 12,
+    ITEM_BONUS_SCALING_STAT_DISTRIBUTION_2  = 13,
+    ITEM_BONUS_ITEM_LEVEL_OVERRIDE          = 14
 };
 
 enum ItemLimitCategoryMode
 {
     ITEM_LIMIT_CATEGORY_MODE_HAVE       = 0,                      // limit applied to amount items in inventory/bank
     ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1                       // limit applied to amount equipped items (including used gems)
+};
+
+enum ItemSetFlags
+{
+    ITEM_SET_FLAG_LEGACY_INACTIVE = 0x01,
 };
 
 enum ItemSpecStat
@@ -593,8 +730,20 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_HASTE            = 25,
     ITEM_SPEC_STAT_BONUS_ARMOR      = 26,
     ITEM_SPEC_STAT_CLOAK            = 27,
+    ITEM_SPEC_STAT_WARGLAIVES       = 28,
+    ITEM_SPEC_STAT_RELIC_IRON       = 29,
+    ITEM_SPEC_STAT_RELIC_BLOOD      = 30,
+    ITEM_SPEC_STAT_RELIC_SHADOW     = 31,
+    ITEM_SPEC_STAT_RELIC_FEL        = 32,
+    ITEM_SPEC_STAT_RELIC_ARCANE     = 33,
+    ITEM_SPEC_STAT_RELIC_FROST      = 34,
+    ITEM_SPEC_STAT_RELIC_FIRE       = 35,
+    ITEM_SPEC_STAT_RELIC_WATER      = 36,
+    ITEM_SPEC_STAT_RELIC_LIFE       = 37,
+    ITEM_SPEC_STAT_RELIC_WIND       = 38,
+    ITEM_SPEC_STAT_RELIC_HOLY       = 39,
 
-    ITEM_SPEC_STAT_NONE             = 28
+    ITEM_SPEC_STAT_NONE             = 40
 };
 
 enum MountCapabilityFlags
@@ -618,6 +767,12 @@ enum QuestPackageFilter
     QUEST_PACKAGE_FILTER_CLASS                  = 1,    // Players can select this quest reward if it matches their class
     QUEST_PACKAGE_FILTER_UNMATCHED              = 2,    // Players can select this quest reward if no class/loot_spec rewards are available
     QUEST_PACKAGE_FILTER_EVERYONE               = 3     // Players can always select this quest reward
+};
+
+enum ScenarioStepFlags
+{
+    SCENARIO_STEP_FLAG_BONUS_OBJECTIVE      = 0x1,
+    SCENARIO_STEP_FLAG_HEROIC_ONLY          = 0x2
 };
 
 enum SkillRaceClassInfoFlags
@@ -647,6 +802,22 @@ enum SpellProcsPerMinuteModType
     SPELL_PPM_MOD_ITEM_LEVEL    = 6,
     SPELL_PPM_MOD_BATTLEGROUND  = 7
 };
+
+enum SpellShapeshiftFormFlags
+{
+    SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT         = 0x0001,
+    SHAPESHIFT_FORM_CANNOT_CANCEL               = 0x0002,   // player cannot cancel the aura giving this shapeshift
+    SHAPESHIFT_FORM_CAN_INTERACT                = 0x0008,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag must be present to allow NPC interaction
+    SHAPESHIFT_FORM_CAN_EQUIP_ITEMS             = 0x0040,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag allows equipping items without ITEM_FLAG_USABLE_WHEN_SHAPESHIFTED
+    SHAPESHIFT_FORM_CAN_USE_ITEMS               = 0x0080,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag allows using items without ITEM_FLAG_USABLE_WHEN_SHAPESHIFTED
+    SHAPESHIFT_FORM_CAN_AUTO_UNSHIFT            = 0x0100,   // clientside
+    SHAPESHIFT_FORM_PREVENT_LFG_TELEPORT        = 0x0200,
+    SHAPESHIFT_FORM_PREVENT_USING_OWN_SKILLS    = 0x0400,   // prevents using spells that don't have any shapeshift requirement
+    SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
+};
+
+#define TaxiMaskSize 243
+typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
 {
@@ -717,8 +888,9 @@ enum SummonPropFlags
 
 enum TaxiNodeFlags
 {
-    TAXI_NODE_FLAG_ALLIANCE = 0x1,
-    TAXI_NODE_FLAG_HORDE    = 0x2
+    TAXI_NODE_FLAG_ALLIANCE             = 0x01,
+    TAXI_NODE_FLAG_HORDE                = 0x02,
+    TAXI_NODE_FLAG_USE_FAVORITE_MOUNT   = 0x10
 };
 
 enum TaxiPathNodeFlags
@@ -780,13 +952,19 @@ enum VehicleSeatFlagsB
 // CurrencyTypes.dbc
 enum CurrencyTypes
 {
-    CURRENCY_TYPE_CONQUEST_POINTS       = 390,
-    CURRENCY_TYPE_HONOR_POINTS          = 392,
     CURRENCY_TYPE_JUSTICE_POINTS        = 395,
     CURRENCY_TYPE_VALOR_POINTS          = 396,
-    CURRENCY_TYPE_CONQUEST_META_ARENA   = 483,
-    CURRENCY_TYPE_CONQUEST_META_RBG     = 484,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
+    CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
+};
+
+enum SceneFlags
+{
+    SCENEFLAG_UNK1              = 0x01,
+    SCENEFLAG_UNK2              = 0x02,
+    SCENEFLAG_NOT_CANCELABLE    = 0x04,
+    SCENEFLAG_UNK8              = 0x08,
+    SCENEFLAG_UNK16             = 0x10, // 16, most common value
 };
 
 #endif

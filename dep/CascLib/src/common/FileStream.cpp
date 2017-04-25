@@ -1,7 +1,7 @@
 /*****************************************************************************/
 /* FileStream.cpp                         Copyright (c) Ladislav Zezula 2010 */
 /*---------------------------------------------------------------------------*/
-/* File stream support for CascLib                                           */
+/* File stream support                                                       */
 /*                                                                           */
 /* Windows support: Written by Ladislav Zezula                               */
 /* Mac support:     Written by Sam Wilkins                                   */
@@ -74,6 +74,7 @@ static bool BaseFile_Create(TFileStream * pStream)
         handle = open(pStream->szFileName, O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if(handle == -1)
         {
+            pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             SetLastError(errno);
             return false;
         }
@@ -123,6 +124,7 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         intptr_t handle;
 
         // Open the file
+        pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
         handle = open(szFileName, oflag | O_LARGEFILE);
         if(handle == -1)
         {
@@ -134,6 +136,7 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         if(fstat64(handle, &fileinfo) == -1)
         {
             SetLastError(errno);
+            close(handle);
             return false;
         }
 
@@ -162,7 +165,7 @@ static bool BaseFile_Read(
 
 #ifdef PLATFORM_WINDOWS
     {
-        // Note: CascLib no longer supports Windows 9x.
+        // Note: We no longer support Windows 9x.
         // Thus, we can use the OVERLAPPED structure to specify
         // file offset to read from file. This allows us to skip
         // one system call to SetFilePointer
@@ -192,7 +195,11 @@ static bool BaseFile_Read(
         // we have to update the file position
         if(ByteOffset != pStream->Base.File.FilePos)
         {
-            lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET);
+            if(lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET) == (off64_t)-1)
+            {
+                SetLastError(errno);
+                return false;
+            }
             pStream->Base.File.FilePos = ByteOffset;
         }
 
@@ -233,7 +240,7 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
 
 #ifdef PLATFORM_WINDOWS
     {
-        // Note: CascLib no longer supports Windows 9x.
+        // Note: We no longer support Windows 9x.
         // Thus, we can use the OVERLAPPED structure to specify
         // file offset to read from file. This allows us to skip
         // one system call to SetFilePointer
@@ -263,7 +270,11 @@ static bool BaseFile_Write(TFileStream * pStream, ULONGLONG * pByteOffset, const
         // we have to update the file position
         if(ByteOffset != pStream->Base.File.FilePos)
         {
-            lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET);
+            if(lseek64((intptr_t)pStream->Base.File.hFile, (off64_t)(ByteOffset), SEEK_SET) == (off64_t)-1)
+            {
+                SetLastError(errno);
+                return false;
+            }
             pStream->Base.File.FilePos = ByteOffset;
         }
 
@@ -2097,7 +2108,7 @@ static TFileStream * EncrStream_Open(const TCHAR * szFileName, DWORD dwStreamFla
 
     // Cleanup the stream and return
     FileStream_Close(pStream);
-    SetLastError(ERROR_UNKNOWN_FILE_KEY);
+    SetLastError(ERROR_FILE_ENCRYPTED);
     return NULL;
 }
 

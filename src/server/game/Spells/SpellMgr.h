@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,7 +22,6 @@
 // For static or at-server-startup loaded spell data
 
 #include "Define.h"
-#include "DBCStructure.h"
 #include "SharedDefines.h"
 #include "Util.h"
 
@@ -36,6 +35,22 @@ class Player;
 class Unit;
 class ProcEventInfo;
 struct SkillLineAbilityEntry;
+struct SpellEntry;
+struct SpellAuraOptionsEntry;
+struct SpellAuraRestrictionsEntry;
+struct SpellCastingRequirementsEntry;
+struct SpellCategoriesEntry;
+struct SpellClassOptionsEntry;
+struct SpellCooldownsEntry;
+struct SpellEquippedItemsEntry;
+struct SpellInterruptsEntry;
+struct SpellLevelsEntry;
+struct SpellMiscEntry;
+struct SpellReagentsEntry;
+struct SpellScalingEntry;
+struct SpellShapeshiftEntry;
+struct SpellTargetRestrictionsEntry;
+struct SpellTotemsEntry;
 
 // only used in code
 enum SpellCategories
@@ -146,6 +161,9 @@ enum ProcFlags
 
     PROC_FLAG_DEATH                           = 0x01000000,    // 24 Died in any way
     PROC_FLAG_JUMP                            = 0x02000000,    // 25 Jumped
+
+    PROC_FLAG_ENTER_COMBAT                    = 0x08000000,    // 27 Entered combat
+    PROC_FLAG_ENCOUNTER_START                 = 0x10000000,    // 28 Encounter started
 
     // flag masks
     AUTO_ATTACK_PROC_FLAG_MASK                = PROC_FLAG_DONE_MELEE_AUTO_ATTACK | PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK
@@ -265,7 +283,7 @@ enum ProcFlagsHit
     PROC_HIT_REFLECT             = 0x0000800,
     PROC_HIT_INTERRUPT           = 0x0001000, // (not used atm)
     PROC_HIT_FULL_BLOCK          = 0x0002000,
-    PROC_HIT_MASK_ALL            = 0x2FFF
+    PROC_HIT_MASK_ALL            = 0x0003FFF
 };
 
 enum ProcAttributes
@@ -289,18 +307,18 @@ typedef std::unordered_map<uint32, SpellProcEventEntry> SpellProcEventMap;
 
 struct SpellProcEntry
 {
-    uint32      schoolMask;                                 // if nonzero - bitmask for matching proc condition based on spell's school
-    uint32      spellFamilyName;                            // if nonzero - for matching proc condition based on candidate spell's SpellFamilyName
-    flag128     spellFamilyMask;                            // if nonzero - bitmask for matching proc condition based on candidate spell's SpellFamilyFlags
-    uint32      typeMask;                                   // if nonzero - owerwrite procFlags field for given Spell.dbc entry, bitmask for matching proc condition, see enum ProcFlags
-    uint32      spellTypeMask;                              // if nonzero - bitmask for matching proc condition based on candidate spell's damage/heal effects, see enum ProcFlagsSpellType
-    uint32      spellPhaseMask;                             // if nonzero - bitmask for matching phase of a spellcast on which proc occurs, see enum ProcFlagsSpellPhase
-    uint32      hitMask;                                    // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
-    uint32      attributesMask;                             // bitmask, see ProcAttributes
-    float       ratePerMinute;                              // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
-    float       chance;                                     // if nonzero - owerwrite procChance field for given Spell.dbc entry, defines chance of proc to occur, not used if perMinuteRate set
-    uint32      cooldown;                                   // if nonzero - cooldown in secs for aura proc, applied to aura
-    uint32      charges;                                    // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
+    uint32 SchoolMask;       // if nonzero - bitmask for matching proc condition based on spell's school
+    uint32 SpellFamilyName;  // if nonzero - for matching proc condition based on candidate spell's SpellFamilyName
+    flag128 SpellFamilyMask; // if nonzero - bitmask for matching proc condition based on candidate spell's SpellFamilyFlags
+    uint32 ProcFlags;        // if nonzero - owerwrite procFlags field for given Spell.dbc entry, bitmask for matching proc condition, see enum ProcFlags
+    uint32 SpellTypeMask;    // if nonzero - bitmask for matching proc condition based on candidate spell's damage/heal effects, see enum ProcFlagsSpellType
+    uint32 SpellPhaseMask;   // if nonzero - bitmask for matching phase of a spellcast on which proc occurs, see enum ProcFlagsSpellPhase
+    uint32 HitMask;          // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
+    uint32 AttributesMask;   // bitmask, see ProcAttributes
+    float ProcsPerMinute;    // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
+    float Chance;            // if nonzero - owerwrite procChance field for given Spell.dbc entry, defines chance of proc to occur, not used if ProcsPerMinute set
+    Milliseconds Cooldown;   // if nonzero - cooldown in secs for aura proc, applied to aura
+    uint32 Charges;          // if nonzero - owerwrite procCharges field for given Spell.dbc entry, defines how many times proc can occur before aura remove, 0 - infinite
 };
 
 typedef std::unordered_map<uint32, SpellProcEntry> SpellProcMap;
@@ -498,10 +516,12 @@ typedef std::multimap<uint32, SpellArea> SpellAreaMap;
 typedef std::multimap<uint32, SpellArea const*> SpellAreaForQuestMap;
 typedef std::multimap<uint32, SpellArea const*> SpellAreaForAuraMap;
 typedef std::multimap<uint32, SpellArea const*> SpellAreaForAreaMap;
+typedef std::multimap<std::pair<uint32, uint32>, SpellArea const*> SpellAreaForQuestAreaMap;
 typedef std::pair<SpellAreaMap::const_iterator, SpellAreaMap::const_iterator> SpellAreaMapBounds;
 typedef std::pair<SpellAreaForQuestMap::const_iterator, SpellAreaForQuestMap::const_iterator> SpellAreaForQuestMapBounds;
 typedef std::pair<SpellAreaForAuraMap::const_iterator, SpellAreaForAuraMap::const_iterator>  SpellAreaForAuraMapBounds;
 typedef std::pair<SpellAreaForAreaMap::const_iterator, SpellAreaForAreaMap::const_iterator>  SpellAreaForAreaMapBounds;
+typedef std::pair<SpellAreaForQuestAreaMap::const_iterator, SpellAreaForQuestAreaMap::const_iterator> SpellAreaForQuestAreaMapBounds;
 
 // Spell rank chain  (accessed using SpellMgr functions)
 struct SpellChainNode
@@ -532,7 +552,7 @@ struct SpellLearnSkillNode
     uint16 maxvalue;                                        // 0  - max skill value for player level
 };
 
-typedef std::map<uint32, SpellLearnSkillNode> SpellLearnSkillMap;
+typedef std::unordered_map<uint32, SpellLearnSkillNode> SpellLearnSkillMap;
 
 struct SpellLearnSpellNode
 {
@@ -596,6 +616,27 @@ TC_GAME_API DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup gro
 TC_GAME_API int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto);
 
 TC_GAME_API extern PetFamilySpellsStore                         sPetFamilySpellsStore;
+
+struct SpellInfoLoadHelper
+{
+    SpellEntry const* Entry = nullptr;
+
+    SpellAuraOptionsEntry const* AuraOptions = nullptr;
+    SpellAuraRestrictionsEntry const* AuraRestrictions = nullptr;
+    SpellCastingRequirementsEntry const* CastingRequirements = nullptr;
+    SpellCategoriesEntry const* Categories = nullptr;
+    SpellClassOptionsEntry const* ClassOptions = nullptr;
+    SpellCooldownsEntry const* Cooldowns = nullptr;
+    SpellEquippedItemsEntry const* EquippedItems = nullptr;
+    SpellInterruptsEntry const* Interrupts = nullptr;
+    SpellLevelsEntry const* Levels = nullptr;
+    SpellMiscEntry const* Misc = nullptr;
+    SpellReagentsEntry const* Reagents = nullptr;
+    SpellScalingEntry const* Scaling = nullptr;
+    SpellShapeshiftEntry const* Shapeshift = nullptr;
+    SpellTargetRestrictionsEntry const* TargetRestrictions = nullptr;
+    SpellTotemsEntry const* Totems = nullptr;
+};
 
 class TC_GAME_API SpellMgr
 {
@@ -677,6 +718,7 @@ class TC_GAME_API SpellMgr
         SpellAreaForQuestMapBounds GetSpellAreaForQuestEndMapBounds(uint32 quest_id) const;
         SpellAreaForAuraMapBounds GetSpellAreaForAuraMapBounds(uint32 spell_id) const;
         SpellAreaForAreaMapBounds GetSpellAreaForAreaMapBounds(uint32 area_id) const;
+        SpellAreaForQuestAreaMapBounds GetSpellAreaForQuestAreaMapBounds(uint32 area_id, uint32 quest_id) const;
 
         // SpellInfo object management
         SpellInfo const* GetSpellInfo(uint32 spellId) const { return spellId < GetSpellInfoStoreSize() ?  mSpellInfoMap[spellId] : NULL; }
@@ -747,6 +789,7 @@ class TC_GAME_API SpellMgr
         SpellAreaForQuestMap       mSpellAreaForQuestEndMap;
         SpellAreaForAuraMap        mSpellAreaForAuraMap;
         SpellAreaForAreaMap        mSpellAreaForAreaMap;
+        SpellAreaForQuestAreaMap   mSpellAreaForQuestAreaMap;
         SkillLineAbilityMap        mSkillLineAbilityMap;
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry

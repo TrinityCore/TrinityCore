@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Pet.h"
 #include "ReputationMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
@@ -104,7 +105,13 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "Realm Achievement",    true, false, false },
     { "In Water",            false, false, false },
     { "Terrain Swap",         true, false, false },
-    { "Sit/stand state",      true,  true, false }
+    { "Sit/stand state",      true,  true, false },
+    { "Daily Quest Completed",true, false, false },
+    { "Charmed",             false, false, false },
+    { "Pet type",             true, false, false },
+    { "On Taxi",             false, false, false },
+    { "Quest state mask",     true,  true, false },
+    { "Objective Complete",   true,  false, false }
 };
 
 // Checks if object meets the condition
@@ -381,7 +388,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_HP_VAL:
         {
             if (Unit* unit = object->ToUnit())
-                condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), unit->GetHealth(), static_cast<uint32>(ConditionValue1));
+                condMeets = CompareValues(static_cast<ComparisionType>(ConditionValue2), unit->GetHealth(), static_cast<uint64>(ConditionValue1));
             break;
         }
         case CONDITION_HP_PCT:
@@ -446,11 +453,63 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
             if (Unit* unit = object->ToUnit())
             {
                 if (ConditionValue1 == 0)
-                    condMeets = (unit->GetStandState() == ConditionValue2);
+                    condMeets = (unit->GetStandState() == UnitStandStateType(ConditionValue2));
                 else if (ConditionValue2 == 0)
                     condMeets = unit->IsStandState();
                 else if (ConditionValue2 == 1)
                     condMeets = unit->IsSitState();
+            }
+            break;
+        }
+        case CONDITION_DAILY_QUEST_DONE:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->IsDailyQuestDone(ConditionValue1);
+            break;
+        }
+        case CONDITION_CHARMED:
+        {
+            if (Unit* unit = object->ToUnit())
+                condMeets = unit->IsCharmed();
+            break;
+        }
+        case CONDITION_PET_TYPE:
+        {
+            if (Player* player = object->ToPlayer())
+                if (Pet* pet = player->GetPet())
+                    condMeets = (((1 << pet->getPetType()) & ConditionValue1) != 0);
+            break;
+        }
+        case CONDITION_TAXI:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->IsInFlight();
+            break;
+        }
+        case CONDITION_QUESTSTATE:
+        {
+            if (Player* player = object->ToPlayer())
+            {
+                if (
+                    ((ConditionValue2 & (1 << QUEST_STATUS_NONE)) && (player->GetQuestStatus(ConditionValue1) == QUEST_STATUS_NONE)) ||
+                    ((ConditionValue2 & (1 << QUEST_STATUS_COMPLETE)) && (player->GetQuestStatus(ConditionValue1) == QUEST_STATUS_COMPLETE)) ||
+                    ((ConditionValue2 & (1 << QUEST_STATUS_INCOMPLETE)) && (player->GetQuestStatus(ConditionValue1) == QUEST_STATUS_INCOMPLETE)) ||
+                    ((ConditionValue2 & (1 << QUEST_STATUS_FAILED)) && (player->GetQuestStatus(ConditionValue1) == QUEST_STATUS_FAILED)) ||
+                    ((ConditionValue2 & (1 << QUEST_STATUS_REWARDED)) && player->GetQuestRewardStatus(ConditionValue1))
+                )
+                    condMeets = true;
+            }
+            break;
+        }
+        case CONDITION_QUEST_OBJECTIVE_COMPLETE:
+        {
+            if (Player* player = object->ToPlayer())
+            {
+                QuestObjective const* obj = sObjectMgr->GetQuestObjective(ConditionValue1);
+                if (!obj)
+                    break;
+
+                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(*obj));
             }
             break;
         }
@@ -635,6 +694,24 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
         case CONDITION_STAND_STATE:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
             break;
+        case CONDITION_DAILY_QUEST_DONE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_CHARMED:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_PET_TYPE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_TAXI:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_QUESTSTATE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_QUEST_OBJECTIVE_COMPLETE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
             break;
@@ -752,7 +829,7 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
             //! If not found, add an entry in the store and set to true (placeholder)
             if (itr == elseGroupStore.end())
                 elseGroupStore[condition->ElseGroup] = true;
-            else if (!(*itr).second)
+            else if (!(*itr).second) //! If another condition in this group was unmatched before this, don't bother checking (the group is false anyway)
                 continue;
 
             if (condition->ReferenceId)//handle reference
@@ -1888,10 +1965,18 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_QUESTSTATE:
+            if (cond->ConditionValue2 >= (1 << MAX_QUEST_STATUS))
+            {
+                TC_LOG_ERROR("sql.sql", "%s has invalid state mask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
+                return false;
+            }
+            // intentional missing break
         case CONDITION_QUESTREWARDED:
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUEST_NONE:
         case CONDITION_QUEST_COMPLETE:
+        case CONDITION_DAILY_QUEST_DONE:
         {
             if (!sObjectMgr->GetQuestTemplate(cond->ConditionValue1))
             {
@@ -2223,8 +2308,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
-        case CONDITION_IN_WATER:
-            break;
         case CONDITION_STAND_STATE:
         {
             bool valid = false;
@@ -2247,6 +2330,26 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_QUEST_OBJECTIVE_COMPLETE:
+        {
+            QuestObjective const* obj = sObjectMgr->GetQuestObjective(cond->ConditionValue1);
+            if (!obj)
+            {
+                TC_LOG_ERROR("sql.sql", "%s points to non-existing quest objective (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
+        case CONDITION_PET_TYPE:
+            if (cond->ConditionValue1 >= (1 << MAX_PET_TYPE))
+            {
+                TC_LOG_ERROR("sql.sql", "%s has non-existing pet type %u, skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
+                return false;
+            }
+            break;
+        case CONDITION_IN_WATER:
+        case CONDITION_CHARMED:
+        case CONDITION_TAXI:
         default:
             break;
     }
@@ -2368,7 +2471,7 @@ inline bool PlayerConditionLogic(uint32 logic, std::array<bool, N>& results)
     return result;
 }
 
-bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry const* condition)
+bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)
 {
     if (condition->MinLevel && player->getLevel() < condition->MinLevel)
         return false;
@@ -2397,7 +2500,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
 
     if (condition->ChrSpecializationIndex >= 0 || condition->ChrSpecializationRole >= 0)
     {
-        if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(player->GetSpecId(player->GetActiveTalentGroup())))
+        if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID)))
         {
             if (condition->ChrSpecializationIndex >= 0 && spec->OrderIndex != uint32(condition->ChrSpecializationIndex))
                 return false;
@@ -2487,9 +2590,22 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
     if (condition->LifetimeMaxPVPRank && player->GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK) != condition->LifetimeMaxPVPRank)
         return false;
 
+    if (condition->MovementFlags[0] && !(player->GetUnitMovementFlags() & condition->MovementFlags[0]))
+        return false;
+
+    if (condition->MovementFlags[1] && !(player->GetExtraUnitMovementFlags() & condition->MovementFlags[1]))
+        return false;
+
+    if (condition->MainHandItemSubclassMask)
+    {
+        Item* mainHand = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        if (!mainHand || !((1 << mainHand->GetTemplate()->GetSubClass()) & condition->MainHandItemSubclassMask))
+            return false;
+    }
+
     if (condition->PartyStatus)
     {
-        Group* group = player->GetGroup();
+        Group const* group = player->GetGroup();
         switch (condition->PartyStatus)
         {
             case 1:
@@ -2621,8 +2737,15 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
         std::array<bool, AuraCount::value> results;
         results.fill(true);
         for (std::size_t i = 0; i < AuraCount::value; ++i)
+        {
             if (condition->AuraSpellID[i])
-                results[i] = player->HasAura(condition->AuraSpellID[i]);
+            {
+                if (condition->AuraCount[i])
+                    results[i] = player->GetAuraCount(condition->AuraSpellID[i]) >= condition->AuraCount[i];
+                else
+                    results[i] = player->HasAura(condition->AuraSpellID[i]);
+            }
+        }
 
         if (!PlayerConditionLogic(condition->AuraSpellLogic, results))
             return false;
@@ -2726,6 +2849,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player* player, PlayerConditionEntry
         return false;
 
     if (condition->MaxAvgEquippedItemLevel && uint32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + 1))) > condition->MaxAvgEquippedItemLevel)
+        return false;
+
+    if (condition->ModifierTreeID && !player->ModifierTreeSatisfied(condition->ModifierTreeID))
         return false;
 
     return true;

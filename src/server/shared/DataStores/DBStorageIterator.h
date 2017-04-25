@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,8 +35,8 @@ public:
         }
     }
 
-    T* operator->() { return _index[_pos]; }
-    T* operator*() { return _index[_pos]; }
+    T const* operator->() { return _index[_pos]; }
+    T const* operator*() { return _index[_pos]; }
 
     bool operator==(DBStorageIterator const& right) const { /*ASSERT(_index == right._index, "Iterator belongs to a different container")*/ return _pos == right._pos; }
     bool operator!=(DBStorageIterator const& right) const { return !(*this == right); }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,6 +40,16 @@ namespace WorldPackets
             Position Location;
         };
 
+        class TC_GAME_API CancelScene final : public ServerPacket
+        {
+        public:
+            CancelScene() : ServerPacket(SMSG_CANCEL_SCENE, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SceneInstanceID = 0;
+        };
+
         class SceneTriggerEvent final : public ClientPacket
         {
         public:
@@ -48,7 +58,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 SceneInstanceID = 0;
-            std::string _Event;
+            std::string Event;
         };
 
         class ScenePlaybackComplete final : public ClientPacket

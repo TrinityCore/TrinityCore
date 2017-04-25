@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -750,7 +750,7 @@ public:
             if (target)
                 handler->SendSysMessage(LANG_WAYPOINT_CREATSELECTED);
 
-            pathid = atoi((char*)guid_str);
+            pathid = atoul(guid_str);
         }
 
         std::string show = show_str;
@@ -769,12 +769,12 @@ public:
             }
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
-            stmt->setUInt64(0, target->GetGUID().GetCounter());
+            stmt->setUInt64(0, target->GetSpawnId());
             PreparedQueryResult result = WorldDatabase.Query(stmt);
 
             if (!result)
             {
-                handler->SendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM);
+                handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDDBPROBLEM, target->GetSpawnId());
                 return true;
             }
 
@@ -825,12 +825,11 @@ public:
             if (result2)
             {
                 bool hasError = false;
-                Map* map = handler->GetSession()->GetPlayer()->GetMap();
                 do
                 {
                     Field* fields = result2->Fetch();
                     ObjectGuid::LowType wpguid = fields[0].GetUInt64();
-                    Creature* creature = map->GetCreature(ObjectGuid::Create<HighGuid::Creature>(map->GetId(), VISUAL_WAYPOINT, wpguid));
+                    Creature* creature = handler->GetCreatureFromPlayerMapByDbGuid(wpguid);
 
                     if (!creature)
                     {
@@ -1028,19 +1027,19 @@ public:
                 return false;
             }
             bool hasError = false;
-            Map* map = handler->GetSession()->GetPlayer()->GetMap();
             do
             {
                 Field* fields = result->Fetch();
-                ObjectGuid::LowType guid = fields[0].GetUInt64();
-                Creature* creature = map->GetCreature(ObjectGuid::Create<HighGuid::Creature>(map->GetId(), VISUAL_WAYPOINT, guid));
+                ObjectGuid::LowType lowguid = fields[0].GetUInt64();
+
+                Creature* creature = handler->GetCreatureFromPlayerMapByDbGuid(lowguid);
                 if (!creature)
                 {
-                    handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, guid);
+                    handler->PSendSysMessage(LANG_WAYPOINT_NOTREMOVED, lowguid);
                     hasError = true;
 
                     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
-                    stmt->setUInt64(0, guid);
+                    stmt->setUInt64(0, lowguid);
                     WorldDatabase.Execute(stmt);
                 }
                 else

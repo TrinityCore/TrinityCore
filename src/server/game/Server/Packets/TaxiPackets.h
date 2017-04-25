@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
-#include "DB2Structure.h"
+#include "DBCEnums.h"
 
 namespace WorldPackets
 {
@@ -93,6 +93,8 @@ namespace WorldPackets
 
             ObjectGuid Vendor;
             uint32 Node = 0;
+            uint32 GroundMountID = 0;
+            uint32 FlyingMountID = 0;
         };
 
         class NewTaxiPath final : public ServerPacket

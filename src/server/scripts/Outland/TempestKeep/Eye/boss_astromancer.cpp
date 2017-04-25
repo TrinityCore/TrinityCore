@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -389,7 +389,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     else
                         VoidBolt_Timer -= diff;
                 }
-                
+
                 //When Solarian reaches 20% she will transform into a huge void walker.
                 if (Phase != 4 && me->HealthBelowPct(20))
                 {
@@ -403,7 +403,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     me->SetDisplayId(MODEL_VOIDWALKER);
                     me->SetObjectScale(defaultsize*2.5f);
                 }
-                
+
                 DoMeleeAttackIfReady();
             }
         };

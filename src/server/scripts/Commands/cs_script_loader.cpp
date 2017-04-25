@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,6 +51,7 @@ void AddSC_quest_commandscript();
 void AddSC_rbac_commandscript();
 void AddSC_reload_commandscript();
 void AddSC_reset_commandscript();
+void AddSC_scene_commandscript();
 void AddSC_send_commandscript();
 void AddSC_server_commandscript();
 void AddSC_tele_commandscript();
@@ -97,6 +98,7 @@ void AddCommandsScripts()
     AddSC_rbac_commandscript();
     AddSC_reload_commandscript();
     AddSC_reset_commandscript();
+    AddSC_scene_commandscript();
     AddSC_send_commandscript();
     AddSC_server_commandscript();
     AddSC_tele_commandscript();

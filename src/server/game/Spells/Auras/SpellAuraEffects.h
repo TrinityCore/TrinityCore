@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -94,8 +94,6 @@ class TC_GAME_API AuraEffect
 
         void HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
-        void CleanupTriggeredSpells(Unit* target);
-
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
 
@@ -167,6 +165,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPacifyAndSilence(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraAllowOnlyAbility(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModNoActions(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  tracking
         void HandleAuraTrackResources(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraTrackCreatures(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -183,6 +182,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraHover(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleWaterBreathing(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleForceMoveForward(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraCanTurnWhileFalling(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  threat
         void HandleModThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModTotalThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -206,6 +206,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModIncreaseSwimSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDecreaseSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModUseNormalSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModMinimumSpeedRate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  immunity
         void HandleModStateImmunityMask(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMechanicImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -216,7 +217,6 @@ class TC_GAME_API AuraEffect
         void HandleAuraModDispelImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  modify stats
         //   resistance
-        void HandleAuraModResistanceExclusive(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModResistance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModBaseResistancePCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModResistancePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -247,6 +247,8 @@ class TC_GAME_API AuraEffect
         void HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseBaseManaPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   fight
         void HandleAuraModParryPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDodgePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -256,7 +258,6 @@ class TC_GAME_API AuraEffect
         void HandleModHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCritChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModSpellCritChanceShool(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   attack speed
         void HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -268,6 +269,7 @@ class TC_GAME_API AuraEffect
         //   combat rating
         void HandleModRating(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModRatingFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModRatingPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   attack power
         void HandleAuraModAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -293,7 +295,6 @@ class TC_GAME_API AuraEffect
         void HandleAuraEmpathy(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModFaction(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleComprehendLanguage(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOpenStable(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -307,6 +308,8 @@ class TC_GAME_API AuraEffect
         void HandleShowConfirmationPrompt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverridePetSpecs(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAllowUsingGameobjectsWhileMounted(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandlePlayScene(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
@@ -342,32 +345,10 @@ namespace Trinity
                 SpellInfo const* spellProtoA = aurEffA->GetSpellInfo();
                 SpellInfo const* spellProtoB = aurEffB->GetSpellInfo();
 
-                // Wards
-                if ((spellProtoA->SpellFamilyName == SPELLFAMILY_MAGE) ||
-                    (spellProtoA->SpellFamilyName == SPELLFAMILY_WARLOCK))
-                    if (spellProtoA->GetCategory() == 56)
-                        return true;
-                if ((spellProtoB->SpellFamilyName == SPELLFAMILY_MAGE) ||
-                    (spellProtoB->SpellFamilyName == SPELLFAMILY_WARLOCK))
-                    if (spellProtoB->GetCategory() == 56)
-                        return false;
-
-                // Sacred Shield
-                if (spellProtoA->Id == 58597)
-                    return true;
-                if (spellProtoB->Id == 58597)
-                    return false;
-
                 // Fel Blossom
                 if (spellProtoA->Id == 28527)
                     return true;
                 if (spellProtoB->Id == 28527)
-                    return false;
-
-                // Divine Aegis
-                if (spellProtoA->Id == 47753)
-                    return true;
-                if (spellProtoB->Id == 47753)
                     return false;
 
                 // Ice Barrier
@@ -377,11 +358,9 @@ namespace Trinity
                     return false;
 
                 // Sacrifice
-                if ((spellProtoA->SpellFamilyName == SPELLFAMILY_WARLOCK) &&
-                    (spellProtoA->SpellIconID == 693))
+                if (spellProtoA->Id == 7812)
                     return true;
-                if ((spellProtoB->SpellFamilyName == SPELLFAMILY_WARLOCK) &&
-                    (spellProtoB->SpellIconID == 693))
+                if (spellProtoB->Id == 7812)
                     return false;
 
                 return false;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,7 @@
 
 #include "CompilerDefs.h"
 
-#if COMPILER == COMPILER_GNU
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
 #  if !defined(__STDC_FORMAT_MACROS)
 #    define __STDC_FORMAT_MACROS
 #  endif
@@ -55,7 +55,7 @@
 #  endif
 #endif
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #  define TRINITY_PATH_MAX MAX_PATH
 #  define _USE_MATH_DEFINES
 #  ifndef DECLSPEC_NORETURN
@@ -64,11 +64,11 @@
 #  ifndef DECLSPEC_DEPRECATED
 #    define DECLSPEC_DEPRECATED __declspec(deprecated)
 #  endif //DECLSPEC_DEPRECATED
-#else //PLATFORM != PLATFORM_WINDOWS
+#else // TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 #  define TRINITY_PATH_MAX PATH_MAX
 #  define DECLSPEC_NORETURN
 #  define DECLSPEC_DEPRECATED
-#endif //PLATFORM
+#endif // TRINITY_PLATFORM
 
 #if !defined(COREDEBUG)
 #  define TRINITY_INLINE inline
@@ -79,27 +79,21 @@
 #  define TRINITY_INLINE
 #endif //!COREDEBUG
 
-#if COMPILER == COMPILER_GNU
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
 #  define ATTR_NORETURN __attribute__((__noreturn__))
 #  define ATTR_PRINTF(F, V) __attribute__ ((__format__ (__printf__, F, V)))
 #  define ATTR_DEPRECATED __attribute__((__deprecated__))
-#  define TRINITY_CONSTEXPR constexpr
-#else //COMPILER != COMPILER_GNU
+#else //TRINITY_COMPILER != TRINITY_COMPILER_GNU
 #  define ATTR_NORETURN
 #  define ATTR_PRINTF(F, V)
 #  define ATTR_DEPRECATED
-#if _MSC_VER >= 1900
-#  define TRINITY_CONSTEXPR constexpr
-#else
-#  define TRINITY_CONSTEXPR
-#endif
-#endif //COMPILER == COMPILER_GNU
+#endif //TRINITY_COMPILER == TRINITY_COMPILER_GNU
 
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
-#  if COMPILER == COMPILER_MICROSOFT
+#  if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
 #    define TC_API_EXPORT __declspec(dllexport)
 #    define TC_API_IMPORT __declspec(dllimport)
-#  elif COMPILER == COMPILER_GNU
+#  elif TRINITY_COMPILER == TRINITY_COMPILER_GNU
 #    define TC_API_EXPORT __attribute__((visibility("default")))
 #    define TC_API_IMPORT
 #  else
@@ -159,18 +153,12 @@ typedef uint8_t uint8;
 
 enum DBCFormer
 {
-    FT_NA = 'x',                                            //not used or unknown, 4 byte size
-    FT_NA_BYTE = 'X',                                       //not used or unknown, byte
-    FT_STRING = 's',                                        //char*
-    FT_STRING_NOT_LOCALIZED = 'S',                          //char* but without locale in DB2
-    FT_FLOAT = 'f',                                         //float
-    FT_INT = 'i',                                           //uint32
-    FT_BYTE = 'b',                                          //uint8
-    FT_LONG = 'l',                                          //uint64
-    FT_SORT = 'd',                                          //sorted by this field, field is not included
-    FT_IND = 'n',                                           //the same, but parsed to data
-    FT_SQL_PRESENT = 'p',                                   //Used in sql format to mark column present in sql dbc
-    FT_SQL_ABSENT = 'a'                                     //Used in sql format to mark column absent in sql dbc
+    FT_STRING = 's',                                        // LocalizedString*
+    FT_STRING_NOT_LOCALIZED = 'S',                          // char*
+    FT_FLOAT = 'f',                                         // float
+    FT_INT = 'i',                                           // uint32
+    FT_BYTE = 'b',                                          // uint8
+    FT_SHORT = 'h'                                          // uint16
 };
 
 #endif //TRINITY_DEFINE_H

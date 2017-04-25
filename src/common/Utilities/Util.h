@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,11 +25,10 @@
 
 #include <algorithm>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <list>
 #include <map>
-#include <stdarg.h>
-#include <cstring>
 #include <ctime>
 
 // Searcher for map of structs
@@ -54,7 +53,7 @@ public:
     typedef StorageType::const_reference const_reference;
 
 public:
-    Tokenizer(const std::string &src, char const sep, uint32 vectorReserve = 0);
+    Tokenizer(const std::string &src, char const sep, uint32 vectorReserve = 0, bool keepEmptyStrings = true);
     ~Tokenizer() { delete[] m_str; }
 
     const_iterator begin() const { return m_storage.begin(); }
@@ -327,35 +326,64 @@ TC_COMMON_API void HexStrToByteArray(std::string const& str, uint8* out, bool re
 
 TC_COMMON_API bool StringToBool(std::string const& str);
 
+template<class Container>
+std::string StringJoin(Container const& c, std::string delimiter)
+{
+    if (c.empty())
+        return "";
+
+    std::ostringstream os;
+    auto itr = c.begin();
+    os << *itr++;
+
+    for (; itr != c.end(); ++itr)
+        os << delimiter << *itr;
+
+    return os.str();
+}
+
 // simple class for not-modifyable list
 template <typename T>
-class HookList
+class HookList final
 {
-    typedef typename std::list<T>::iterator ListIterator;
     private:
-        typename std::list<T> m_list;
+        typedef std::vector<T> ContainerType;
+
+        ContainerType _container;
+
     public:
-        HookList<T> & operator+=(T t)
+        typedef typename ContainerType::const_iterator const_iterator;
+        typedef typename ContainerType::iterator iterator;
+
+        HookList<T>& operator+=(T t)
         {
-            m_list.push_back(t);
+            _container.push_back(t);
             return *this;
         }
-        HookList<T> & operator-=(T t)
+
+        size_t size() const
         {
-            m_list.remove(t);
-            return *this;
+            return _container.size();
         }
-        size_t size()
+
+        iterator begin()
         {
-            return m_list.size();
+            return _container.begin();
         }
-        ListIterator begin()
+
+        iterator end()
         {
-            return m_list.begin();
+            return _container.end();
         }
-        ListIterator end()
+
+        const_iterator begin() const
         {
-            return m_list.end();
+            return _container.begin();
+        }
+
+        const_iterator end() const
+        {
+            return _container.end();
         }
 };
 

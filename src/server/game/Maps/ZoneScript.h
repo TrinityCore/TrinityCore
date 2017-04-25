@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +30,7 @@ class ZoneScript
         virtual ~ZoneScript() { }
 
         virtual uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) { return data->id; }
-        virtual uint32 GetGameObjectEntry(ObjectGuid::LowType /*guidLow*/, uint32 entry) { return entry; }
+        virtual uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry) { return entry; }
 
         virtual void OnCreatureCreate(Creature* ) { }
         virtual void OnCreatureRemove(Creature* ) { }

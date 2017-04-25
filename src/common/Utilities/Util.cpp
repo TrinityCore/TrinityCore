@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,13 +24,13 @@
 #include <stdarg.h>
 #include <boost/algorithm/string/case_conv.hpp>
 
-#if COMPILER == COMPILER_GNU
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
   #include <sys/socket.h>
   #include <netinet/in.h>
   #include <arpa/inet.h>
 #endif
 
-Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
+Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve /*= 0*/, bool keepEmptyStrings /*= true*/)
 {
     m_str = new char[src.length() + 1];
     memcpy(m_str, src.c_str(), src.length() + 1);
@@ -45,9 +45,10 @@ Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserv
     {
         if (*posnew == sep)
         {
-            m_storage.push_back(posold);
-            posold = posnew + 1;
+            if (keepEmptyStrings || posold != posnew)
+                m_storage.push_back(posold);
 
+            posold = posnew + 1;
             *posnew = '\0';
         }
         else if (*posnew == '\0')
@@ -420,7 +421,7 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 
 bool utf8ToConsole(const std::string& utf8str, std::string& conStr)
 {
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     std::wstring wstr;
     if (!Utf8toWStr(utf8str, wstr))
         return false;
@@ -437,7 +438,7 @@ bool utf8ToConsole(const std::string& utf8str, std::string& conStr)
 
 bool consoleToUtf8(const std::string& conStr, std::string& utf8str)
 {
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     std::wstring wstr;
     wstr.resize(conStr.size());
     OemToCharBuffW(&conStr[0], &wstr[0], uint32(conStr.size()));
@@ -476,7 +477,7 @@ void utf8printf(FILE* out, const char *str, ...)
 
 void vutf8printf(FILE* out, const char *str, va_list* ap)
 {
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     char temp_buf[32 * 1024];
     wchar_t wtemp_buf[32 * 1024];
 
