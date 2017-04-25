@@ -386,6 +386,7 @@ bool Engine::HasStrategy(string name)
 
 void Engine::ProcessTriggers()
 {
+    map<Trigger*, Event> fires;
     for (list<TriggerNode*>::iterator i = triggers.begin(); i != triggers.end(); i++)
     {
         TriggerNode* node = *i;
@@ -407,11 +408,20 @@ void Engine::ProcessTriggers()
             Event event = trigger->Check();
             if (!event)
                 continue;
-
+            fires[trigger] = event;
             LogAction("T:%s", trigger->getName().c_str());
-            MultiplyAndPush(node->getHandlers(), 0.0f, false, event, "trigger");
         }
     }
+	for (list<TriggerNode*>::iterator i = triggers.begin(); i != triggers.end(); i++)
+	{
+		TriggerNode* node = *i;
+		Trigger* trigger = node->getTrigger();
+		Event event = fires[trigger];
+		if (!event)
+			continue;
+
+		MultiplyAndPush(node->getHandlers(), 0.0f, false, event, "trigger");
+	}
     for (list<TriggerNode*>::iterator i = triggers.begin(); i != triggers.end(); i++)
     {
         Trigger* trigger = (*i)->getTrigger();

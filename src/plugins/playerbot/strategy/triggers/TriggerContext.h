@@ -145,9 +145,9 @@ namespace ai
 		static Trigger* player_has_no_flag(PlayerbotAI* ai) { return new PlayerHasNoFlag(ai); }
 		static Trigger* player_is_in_battleground(PlayerbotAI *ai) { return new PlayerIsInBattleground(ai); }
 		static Trigger* player_is_in_battleground_no_flag(PlayerbotAI *ai) { return new PlayerIsInBattlegroundWithoutFlag(ai); }
-		static Trigger* Random(PlayerbotAI* ai) { return new RandomTrigger(ai); }
-        static Trigger* seldom(PlayerbotAI* ai) { return new SeldomTrigger(ai); }
-        static Trigger* often(PlayerbotAI* ai) { return new OftenTrigger(ai); }
+		static Trigger* Random(PlayerbotAI* ai) { return new RandomTrigger(ai, "random", 7); }
+		static Trigger* seldom(PlayerbotAI* ai) { return new RandomTrigger(ai, "seldom", 15); }
+		static Trigger* often(PlayerbotAI* ai) { return new RandomTrigger(ai, "often", 5); }
         static Trigger* EnemyOutOfMelee(PlayerbotAI* ai) { return new EnemyOutOfMeleeTrigger(ai); }
         static Trigger* EnemyOutOfSpell(PlayerbotAI* ai) { return new EnemyOutOfSpellRangeTrigger(ai); }
         static Trigger* enemy_too_close_for_spell(PlayerbotAI* ai) { return new EnemyTooCloseForSpellTrigger(ai); }

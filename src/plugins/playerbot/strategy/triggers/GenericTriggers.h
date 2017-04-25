@@ -297,30 +297,17 @@ namespace ai
     class RandomTrigger : public Trigger
     {
     public:
-        RandomTrigger(PlayerbotAI* ai, int probability = 200) : Trigger(ai)
+		RandomTrigger(PlayerbotAI* ai, string name, int probability = 7) : Trigger(ai, name)
         {
             this->probability = probability;
+			lastCheck = time(0);
         }
     public:
         virtual bool IsActive();
-        virtual string getName() { return "random"; }
 
     protected:
         int probability;
-    };
-
-    class SeldomTrigger : public RandomTrigger
-    {
-    public:
-        SeldomTrigger(PlayerbotAI* ai) : RandomTrigger(ai, 9000) {}
-        virtual string getName() { return "seldom"; }
-    };
-
-    class OftenTrigger : public RandomTrigger
-    {
-    public:
-        OftenTrigger(PlayerbotAI* ai) : RandomTrigger(ai, 50) {}
-        virtual string getName() { return "often"; }
+		time_t lastCheck;
     };
 
     class AndTrigger : public Trigger
@@ -568,7 +555,7 @@ namespace ai
 	class RandomBotUpdateTrigger : public RandomTrigger
 	{
 	public:
-		RandomBotUpdateTrigger(PlayerbotAI* ai) : RandomTrigger(ai, 15) {}
+		RandomBotUpdateTrigger(PlayerbotAI* ai) : RandomTrigger(ai, "random bot update", 30) {}
 		
 	public:
 		virtual bool IsActive()

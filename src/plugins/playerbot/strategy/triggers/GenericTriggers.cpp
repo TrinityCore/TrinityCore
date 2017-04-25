@@ -109,8 +109,13 @@ bool SpellCanBeCastTrigger::IsActive()
 
 bool RandomTrigger::IsActive()
 {
-    int vl  = rand() % (int)(1 + probability * 10 / sPlayerbotAIConfig.randomChangeMultiplier);
-    return vl == 0;
+	if (time(0) - lastCheck < sPlayerbotAIConfig.maxWaitForMove / 1000)
+		return false;
+
+		lastCheck = time(0);
+	int k = (int)(probability / sPlayerbotAIConfig.randomChangeMultiplier);
+	if (k < 1) k = 1;
+	return (rand() % k) == 0;
 }
 
 bool AndTrigger::IsActive()

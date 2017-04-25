@@ -60,6 +60,7 @@ namespace ai
 			creators["bg"] = &StrategyContext::bg;
 			creators["warsong"] = &StrategyContext::warsong;
 			creators["custom"] = &StrategyContext::custom;
+			creators["reveal"] = &StrategyContext::reveal;
         }
 
     private:
@@ -87,6 +88,7 @@ namespace ai
 		static Strategy* bg(PlayerbotAI* ai) { return new BGStrategy(ai); }
 		static Strategy* warsong(PlayerbotAI* ai) { return new WarsongStrategy(ai); }
 		static Strategy* custom(PlayerbotAI* ai) { return new CustomStrategy(ai); }
+		static Strategy* reveal(PlayerbotAI* ai) { return new RevealStrategy(ai); }
     };
 
     class MovementStrategyContext : public NamedObjectContext<Strategy>
