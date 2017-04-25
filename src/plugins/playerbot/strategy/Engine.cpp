@@ -209,16 +209,6 @@ bool Engine::DoNextAction(Unit* unit, int depth)
             return DoNextAction(unit, depth + 1);
     }
 
-	do {
-		basket = queue.Peek();
-		if (basket) {
-			// NOTE: queue.Pop() deletes basket
-			delete queue.Pop();
-
-		}
-
-	} while (basket);
-
     if (time(0) - currentTime > 1) {
         LogAction("too long execution");
     }
