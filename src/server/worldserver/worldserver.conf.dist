@@ -4038,11 +4038,11 @@ IRCBridge.Authentication.Nickname = "NickServ"
 
 #    IRCBridge.Connection.Code
 #        Description: IRC connection code
-#        Default:     001 - (Welcome to network msg)
-#                     375 - (Beginning of MOTD)
-#                     376 - (End of MOTD)
+#        Default:     "001" - (Welcome to network msg)
+#                     "375" - (Beginning of MOTD)
+#                     "376" - (End of MOTD)
 
-IRCBridge.Connection.Code = 001
+IRCBridge.Connection.Code = "001"
 
 #    IRCBridge.Connection.Wait
 #        Description: Time to wait before (re)attemptimg connection to IRC server

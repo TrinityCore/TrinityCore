@@ -6,11 +6,11 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-IRCCommand const commands[IRCCOMMAND_MAX] =
+IRCCommand const commands[IRCSOCKETCOMMAND_MAX] =
 {
-    { IRCCOMMAND_PING,  "PING",  4 },
-    { IRCCOMMAND_PONG,  "PONG",  4 },
-    { IRCCOMMAND_ERROR, "ERROR", 5 }
+    { IRCSOCKETCOMMAND_PING,  "PING",  4 },
+    { IRCSOCKETCOMMAND_PONG,  "PONG",  4 },
+    { IRCSOCKETCOMMAND_ERROR, "ERROR", 5 }
 };
 
 IRCBridgeSocket::IRCBridgeSocket(IRCBridge* master, boost::asio::ip::tcp::socket&& socket) : Socket<IRCBridgeSocket>(std::move(socket))
@@ -20,7 +20,6 @@ IRCBridgeSocket::IRCBridgeSocket(IRCBridge* master, boost::asio::ip::tcp::socket
 
 IRCBridgeSocket::~IRCBridgeSocket()
 {
-
 }
 
 void IRCBridgeSocket::Start()
@@ -66,10 +65,8 @@ void IRCBridgeSocket::Send(std::string const& message)
 
 void IRCBridgeSocket::HandleMessage(std::string const& message)
 {
-    TC_LOG_INFO("IRCBridge", "IRCBridgeSocket::ReadHandler: message received: %s", message.c_str());
-
     uint8 type = 0;
-    while (type < IRCCOMMAND_MAX)
+    while (type < IRCSOCKETCOMMAND_MAX)
     {
         size_t size = commands[type].size;
         std::string temp = message.substr(0, size);
@@ -80,12 +77,14 @@ void IRCBridgeSocket::HandleMessage(std::string const& message)
 
     switch (type)
     {
-        case IRCCOMMAND_PING:
-            Send(commands[IRCCOMMAND_PONG].data + message.substr(commands[IRCCOMMAND_PONG].size, message.size() - commands[IRCCOMMAND_PONG].size) + "\r\n");
+        case IRCSOCKETCOMMAND_PING:
+            Send(commands[IRCSOCKETCOMMAND_PONG].data + message.substr(commands[IRCSOCKETCOMMAND_PONG].size, message.size() - commands[IRCSOCKETCOMMAND_PONG].size) + "\r\n");
             break;
-        case IRCCOMMAND_ERROR:
+        case IRCSOCKETCOMMAND_ERROR:
+            _master->Report(REPORTTYPE_ERROR);
             break;
         default:
+            _master->HandleMessage(message);
             break;
     }
 }

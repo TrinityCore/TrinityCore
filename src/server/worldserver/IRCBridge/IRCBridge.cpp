@@ -11,7 +11,7 @@
 #include <functional>
 #include <thread>
 
-IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr), _active(false), _connected(false)
+IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr), _status(IRCBRIDGESTATUS_IDLE), _active(false)
 {
 }
 
@@ -47,30 +47,13 @@ void IRCBridge::Run()
         return;
 
     _active = true;
-
-    StartNetwork(GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
-
-    bool login = false;
     while (_active)
-    {
-        if (_connected)
-        {
-            if (!login)
-            {
-                Login();
-                login = true;
-            }
-
-            std::string temp = sIRCBridgeHandler->GetNext();
-            if (!temp.empty())
-                Send(temp);
-        }
-    }
+        ThreadLoop();
 }
 
 void IRCBridge::Stop()
 {
-    _connected = false;
+    _status = IRCBRIDGESTATUS_SHUTDOWN;
 
     if (_socket)
         _socket->CloseSocket();
@@ -129,7 +112,7 @@ bool IRCBridge::LoadConfigurations()
         SetConfiguration(CONFIGURATION_IRCBRIDGE_AUTHENTICATION_METHOD, 0);
     }
     SetConfiguration(CONFIGURATION_IRCBRIDGE_AUTHENTICATION_NICKNAME, LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>("IRCBridge.Authentication.Nickname", "NickServ"));
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_CODE, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Connection.Code", 001));
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_CODE, LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>("IRCBridge.Connection.Code", "001"));
     SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Connection.Wait", 10000));
     SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_ATTEMPTS, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Connection.Attempts", 20));
 
@@ -138,20 +121,79 @@ bool IRCBridge::LoadConfigurations()
 
 void IRCBridge::Send(std::string message)
 {
-    if (_connected)
+    if (IsConnected())
     {
         message.append("\r\n");
         _socket->Send(message);
     }
 }
 
-void IRCBridge::Login()
+void IRCBridge::Report(IRCBridgeReportType report)
 {
-    Send("HELLO");
-    if (!GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD).empty())
-        Send("PASS " + GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD));
-    Send("NICK " + GetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME));
-    Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 0 * :TrinityCore - IRCBridge");
+    switch (report)
+    {
+        case REPORTTYPE_ERROR:
+            _socket->CloseSocket();
+            _status = IRCBRIDGESTATUS_IDLE;
+            break;
+        default:
+            break;
+    }
+}
+
+void IRCBridge::HandleMessage(std::string const& message)
+{
+    std::string temp = message.substr(0, 1);
+    if (!temp.empty() && temp.compare(":") == 0)
+    {
+        size_t firstWordPosition = message.find(" ");
+        size_t secondWordPosition = message.find(" ", firstWordPosition + 1);
+
+        // Get command
+        std::string temp = message.substr(firstWordPosition + 1, secondWordPosition - firstWordPosition - 1);
+        std::string command = MakeStringUpper(temp);
+
+        if (command.compare(GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_CODE)) == 0 && _status == IRCBRIDGESTATUS_WAITING_CONFIRMATION)
+        {
+            _status = IRCBRIDGESTATUS_LOGGED;
+        }
+        else
+        {
+            // Get user
+            temp = message.substr(1, firstWordPosition - 1);
+            size_t userPosition = temp.find("!");
+            std::string user = MakeStringUpper(temp.substr(0, userPosition));
+
+            TC_LOG_INFO("IRCBridge", "IRCBridge::HandleMessage: user: %s, command %s", user.c_str(), command.c_str());
+        }
+    }
+}
+
+void IRCBridge::ThreadLoop()
+{
+    switch (_status)
+    {
+        case IRCBRIDGESTATUS_IDLE:
+            StartNetwork(GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
+            _status = IRCBRIDGESTATUS_WAITING_CONNECTION;
+            break;
+        case IRCBRIDGESTATUS_CONNECTED:
+            Login();
+            _status = IRCBRIDGESTATUS_WAITING_CONFIRMATION;
+            break;
+        case IRCBRIDGESTATUS_LOGGED:
+        {
+            std::string temp = sIRCBridgeHandler->GetNext();
+            if (!temp.empty())
+                Send(temp);
+            break;
+        }
+        case IRCBRIDGESTATUS_SHUTDOWN:
+        case IRCBRIDGESTATUS_WAITING_CONNECTION:
+        case IRCBRIDGESTATUS_WAITING_CONFIRMATION:
+        default:
+            break;
+    }
 }
 
 void IRCBridge::StartNetwork(std::string const& bindIp, std::string const& port)
@@ -198,5 +240,20 @@ void IRCBridge::OnConnect(boost::asio::ip::tcp::socket&& socket)
     _socket = std::make_shared<IRCBridgeSocket>(this, std::move(socket));
     _socket->Start();
 
-    _connected = true;
+    _status = IRCBRIDGESTATUS_CONNECTED;
+}
+
+void IRCBridge::Login()
+{
+    Send("HELLO");
+    if (!GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD).empty())
+        Send("PASS " + GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD));
+    Send("NICK " + GetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME));
+    Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 0 * :TrinityCore - IRCBridge");
+}
+
+std::string IRCBridge::MakeStringUpper(std::string string)
+{
+    std::transform(string.begin(), string.end(), string.begin(), ::toupper);
+    return string;
 }

@@ -24,19 +24,12 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-enum IRCCommandType : uint8
+enum IRCSocketCommandType : uint8
 {
-    IRCCOMMAND_PING,
-    IRCCOMMAND_PONG,
-    IRCCOMMAND_ERROR,
-    IRCCOMMAND_MAX
-};
-
-struct IRCCommand
-{
-    IRCCommandType type;
-    std::string data;
-    size_t size;
+    IRCSOCKETCOMMAND_PING,
+    IRCSOCKETCOMMAND_PONG,
+    IRCSOCKETCOMMAND_ERROR,
+    IRCSOCKETCOMMAND_MAX
 };
 
 class IRCBridge;
