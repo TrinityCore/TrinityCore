@@ -1,3 +1,4 @@
+/*
 -- 
 SET @BETHOR := 1498;
 SET @GUNTHER := 5666;
@@ -22,3 +23,4 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (@GUNTHER, 1, 0, "When time permits, we must speak at length.  For we have much to discuss.", 12, 0, 100, 1, 0, 0, 1974, 0, "Gunther's Visage"),
 (@GUNTHER, 2, 0, "And thank you, $n.  Without your aid I may never have found my way to the Forsaken.", 12, 0, 100, 1, 0, 0, 1975, 0, "Gunther's Visage"),
 (@BETHOR, 0, 0, "Farewell, my friend.", 12, 0, 100, 1, 0, 0, 1976, 0, "Bethor Iceshard");
+*/
