@@ -65,9 +65,9 @@ bool CastAuraSpellAction::isUseful()
 	return CastSpellAction::isUseful() && !ai->HasAura(spell, GetTarget());
 }
 
-bool CastEnchantItemAction::isUseful()
+bool CastEnchantItemAction::isPossible()
 {
-    if (!CastSpellAction::isUseful())
+    if (!CastSpellAction::isPossible())
         return false;
 
     uint32 spellId = AI_VALUE2(uint32, "spell id", spell);
