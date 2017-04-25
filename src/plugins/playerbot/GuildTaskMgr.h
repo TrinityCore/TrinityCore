@@ -24,6 +24,7 @@ class GuildTaskMgr
         bool IsGuildTaskItem(uint32 itemId, uint32 guildId);
         void CheckItemTask(uint32 itemId, uint32 obtained, Player* owner, Player* bot, bool byMail = false);
         void CheckKillTask(Player* owner, Unit* victim);
+		void CheckKillTaskInternal(Player* owner, Unit* victim);
 
     private:
         map<uint32,uint32> GetTaskValues(uint32 owner, string type, uint32 *validIn = NULL);

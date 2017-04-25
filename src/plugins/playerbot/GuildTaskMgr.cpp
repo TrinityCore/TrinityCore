@@ -727,6 +727,22 @@ bool GuildTaskMgr::Reward(uint32 owner, uint32 guildId)
 
 void GuildTaskMgr::CheckKillTask(Player* player, Unit* victim)
 {
+	Group *group = player->GetGroup();
+	if (group)
+	{
+		for (GroupReference *gr = group->GetFirstMember(); gr->hasNext(); gr = gr->next())
+		{
+			CheckKillTaskInternal(gr->GetSource(), victim);
+		}
+	}
+	else
+	{
+		CheckKillTaskInternal(player, victim);
+	}
+}
+
+void GuildTaskMgr::CheckKillTaskInternal(Player* player, Unit* victim)
+{
     uint32 owner = player->GetGUID().GetCounter();
     Creature* creature = victim->ToCreature();
     if (!creature)
