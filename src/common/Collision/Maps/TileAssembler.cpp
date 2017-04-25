@@ -202,13 +202,12 @@ namespace VMAP
             return false;
         }
         printf("Read coordinate mapping...\n");
-        uint32 mapID, check=0;
+        uint32 mapID, check;
         std::map<uint32, MapSpawns> data;
         while (!feof(dirf))
         {
-            check = 0;
             // read mapID, Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
-            check += fread(&mapID, sizeof(uint32), 1, dirf);
+            check = fread(&mapID, sizeof(uint32), 1, dirf);
             if (check == 0) // EoF...
                 break;
 
