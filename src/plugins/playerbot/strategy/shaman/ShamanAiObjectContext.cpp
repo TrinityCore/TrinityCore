@@ -111,6 +111,10 @@ namespace ai
                 creators["bloodlust"] = &TriggerFactoryInternal::bloodlust;
                 creators["maelstrom weapon"] = &TriggerFactoryInternal::maelstrom_weapon;
                 creators["wind shear on enemy healer"] = &TriggerFactoryInternal::wind_shear_on_enemy_healer;
+				creators["cure poison"] = &TriggerFactoryInternal::cure_poison;
+				creators["party member cure poison"] = &TriggerFactoryInternal::party_member_cure_poison;
+				creators["cure disease"] = &TriggerFactoryInternal::cure_disease;
+				creators["party member cure disease"] = &TriggerFactoryInternal::party_member_cure_disease;
             }
 
         private:
@@ -141,6 +145,10 @@ namespace ai
             static Trigger* shock(PlayerbotAI* ai) { return new ShockTrigger(ai); }
             static Trigger* frost_shock_snare(PlayerbotAI* ai) { return new FrostShockSnareTrigger(ai); }
             static Trigger* wind_shear_on_enemy_healer(PlayerbotAI* ai) { return new WindShearInterruptEnemyHealerSpellTrigger(ai); }
+			static Trigger* cure_poison(PlayerbotAI* ai) { return new CurePoisonTrigger(ai); }
+			static Trigger* party_member_cure_poison(PlayerbotAI* ai) { return new PartyMemberCurePoisonTrigger(ai); }
+			static Trigger* cure_disease(PlayerbotAI* ai) { return new CureDiseaseTrigger(ai); }
+			static Trigger* party_member_cure_disease(PlayerbotAI* ai) { return new PartyMemberCureDiseaseTrigger(ai); }
         };
     };
 };
@@ -204,6 +212,10 @@ namespace ai
                 creators["thunderstorm"] = &AiObjectContextInternal::thunderstorm;
                 creators["heroism"] = &AiObjectContextInternal::heroism;
                 creators["bloodlust"] = &AiObjectContextInternal::bloodlust;
+				creators["cure disease"] = &AiObjectContextInternal::cure_disease;
+				creators["cure disease on party"] = &AiObjectContextInternal::cure_disease_on_party;
+				creators["cure poison"] = &AiObjectContextInternal::cure_poison;
+				creators["cure poison on party"] = &AiObjectContextInternal::cure_poison_on_party;
             }
 
         private:
@@ -254,6 +266,10 @@ namespace ai
             static Action* lava_lash(PlayerbotAI* ai) { return new CastLavaLashAction(ai); }
             static Action* ancestral_spirit(PlayerbotAI* ai) { return new CastAncestralSpiritAction(ai); }
             static Action* wind_shear_on_enemy_healer(PlayerbotAI* ai) { return new CastWindShearOnEnemyHealerAction(ai); }
+			static Action* cure_poison(PlayerbotAI* ai) { return new CastCurePoisonAction(ai); }
+			static Action* cure_poison_on_party(PlayerbotAI* ai) { return new CastCurePoisonOnPartyAction(ai); }
+			static Action* cure_disease(PlayerbotAI* ai) { return new CastCureDiseaseAction(ai); }
+			static Action* cure_disease_on_party(PlayerbotAI* ai) { return new CastCureDiseaseOnPartyAction(ai); }
         };
     };
 };

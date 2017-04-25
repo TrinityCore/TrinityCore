@@ -194,4 +194,28 @@ namespace ai
     public:
         WindShearInterruptEnemyHealerSpellTrigger(PlayerbotAI* ai) : InterruptEnemyHealerTrigger(ai, "wind shear") {}
     };
+
+	class CurePoisonTrigger : public NeedCureTrigger
+	{
+	public:
+		CurePoisonTrigger(PlayerbotAI* ai) : NeedCureTrigger(ai, "cure poison", DISPEL_POISON) {}
+	};
+
+	class PartyMemberCurePoisonTrigger : public PartyMemberNeedCureTrigger
+	{
+	public:
+		PartyMemberCurePoisonTrigger(PlayerbotAI* ai) : PartyMemberNeedCureTrigger(ai, "cure poison", DISPEL_POISON) {}
+	};
+
+	class CureDiseaseTrigger : public NeedCureTrigger
+	{
+	public:
+		CureDiseaseTrigger(PlayerbotAI* ai) : NeedCureTrigger(ai, "cure disease", DISPEL_DISEASE) {}
+	};
+
+	class PartyMemberCureDiseaseTrigger : public PartyMemberNeedCureTrigger
+	{
+	public:
+		PartyMemberCureDiseaseTrigger(PlayerbotAI* ai) : PartyMemberNeedCureTrigger(ai, "cure disease", DISPEL_DISEASE) {}
+	};
 }

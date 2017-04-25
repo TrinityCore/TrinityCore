@@ -301,4 +301,28 @@ namespace ai
     public:
         CastWindShearOnEnemyHealerAction(PlayerbotAI* ai) : CastSpellOnEnemyHealerAction(ai, "wind shear") {}
     };
+
+	class CastCurePoisonAction : public CastCureSpellAction
+	{
+	public:
+		CastCurePoisonAction(PlayerbotAI* ai) : CastCureSpellAction(ai, "cure poison") {}
+	};
+
+	class CastCurePoisonOnPartyAction : public CurePartyMemberAction
+	{
+	public:
+		CastCurePoisonOnPartyAction(PlayerbotAI* ai) : CurePartyMemberAction(ai, "cure poison", DISPEL_POISON) {}
+	};
+
+	class CastCureDiseaseAction : public CastCureSpellAction {
+	public:
+		CastCureDiseaseAction(PlayerbotAI* ai) : CastCureSpellAction(ai, "cure disease") {}
+	};
+
+	class CastCureDiseaseOnPartyAction : public CurePartyMemberAction
+	{
+	public:
+		CastCureDiseaseOnPartyAction(PlayerbotAI* ai) : CurePartyMemberAction(ai, "cure disease", DISPEL_DISEASE) {}
+		virtual string getName() { return "cure disease on party"; }
+	};
 }
