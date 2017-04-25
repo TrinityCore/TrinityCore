@@ -333,7 +333,7 @@ class spell_mage_hot_streak : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
             }
 

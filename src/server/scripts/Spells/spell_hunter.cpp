@@ -252,7 +252,7 @@ class spell_hun_hunting_party : public SpellScriptLoader
                 });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_HUNTER_EXHILARATION, Seconds(aurEff->GetAmount()));
