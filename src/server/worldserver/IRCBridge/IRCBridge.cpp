@@ -69,12 +69,12 @@ void IRCBridge::Run()
 
 void IRCBridge::Stop()
 {
-    if (_active)
-    {
-        _connected = false;
+    _connected = false;
+
+    if (_socket)
         _socket->CloseSocket();
-        _active = false;
-    }
+
+    _active = false;
 }
 
 template<ConfigurationType T, typename N>
