@@ -257,7 +257,6 @@ void IRCBridge::Login()
 
 std::string IRCBridge::MakeStringUpper(std::string string)
 {
-    std::string temp = string;
-    boost::to_upper(temp);
-    return temp;
+    boost::to_upper(string);
+    return string;
 }
