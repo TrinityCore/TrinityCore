@@ -48,7 +48,7 @@ void UnitAI::AttackStartCaster(Unit* victim, float dist)
 
 void UnitAI::DoMeleeAttackIfReady()
 {
-    if (me->HasUnitState(UNIT_STATE_CASTING))
+    if (me->HasUnitState(UNIT_STATE_CASTING) && !me->CanMoveDuringChannel())
         return;
 
     Unit* victim = me->GetVictim();
