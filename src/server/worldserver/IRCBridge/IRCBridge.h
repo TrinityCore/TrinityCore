@@ -98,7 +98,6 @@ class IRCBridge
         void ThreadLoop();
         void StartNetwork(std::string const& bindIp, std::string const& port);
         void OnConnect(boost::asio::ip::tcp::socket&& socket);
-        void Login();
         void Reconnect();
 
         template<ConfigurationType T, typename N>

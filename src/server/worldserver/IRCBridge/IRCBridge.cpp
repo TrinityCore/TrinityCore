@@ -78,9 +78,7 @@ void IRCBridge::Report(IRCBridgeReportType report)
     switch (report)
     {
         case REPORTTYPE_ERROR:
-            _socket->CloseSocket();
-            _reconnectTimer = GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT);
-            _status = IRCBRIDGESTATUS_IDLE;
+            Reconnect();
             break;
         default:
             break;
@@ -131,7 +129,12 @@ void IRCBridge::ThreadLoop()
                 _reconnectTimer -= UPDATE_CONST;
             break;
         case IRCBRIDGESTATUS_CONNECTED:
-            Login();
+            Send("HELLO");
+            if (!GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD).empty())
+                Send("PASS " + GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD));
+            Send("NICK " + GetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME));
+            Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 0 * :TrinityCore - IRCBridge");
+
             _status = IRCBRIDGESTATUS_WAITING_CONFIRMATION;
             break;
         case IRCBRIDGESTATUS_LOGGED:
@@ -155,32 +158,31 @@ void IRCBridge::StartNetwork(std::string const& bindIp, std::string const& port)
     std::shared_ptr<boost::asio::ip::tcp::resolver> resolver = std::make_shared<boost::asio::ip::tcp::resolver>(*_ioService);
     boost::asio::ip::tcp::resolver::query query(boost::asio::ip::tcp::v4(), bindIp, port);
 
-    auto connectHandler = [socket, this] (const boost::system::error_code& errorCode, const boost::asio::ip::tcp::resolver::iterator& it)
+    auto connectHandler = [this, socket] (const boost::system::error_code& errorCode, const boost::asio::ip::tcp::resolver::iterator& it)
     {
         if (errorCode)
         {
             TC_LOG_ERROR("IRCBridge", "IRCBridge::StartNetwork: could not connect: %s.", errorCode.message().c_str());
+            this->Reconnect();
         }
         else if (it == boost::asio::ip::tcp::resolver::iterator())
         {
             TC_LOG_ERROR("IRCBridge", "IRCBridge::StartNetwork: could not connect.");
+            this->Reconnect();
         }
         else
-        {
             this->OnConnect(std::move(*socket));
-        }
     };
 
-    auto resolveHandler = [socket, resolver, connectHandler] (const boost::system::error_code& errorCode, const boost::asio::ip::tcp::resolver::iterator& it)
+    auto resolveHandler = [this, socket, resolver, connectHandler] (const boost::system::error_code& errorCode, const boost::asio::ip::tcp::resolver::iterator& it)
     {
         if (errorCode)
         {
             TC_LOG_ERROR("IRCBridge", "IRCBridge::StartNetwork: could not resolve address: %s.", errorCode.message().c_str());
+            this->Reconnect();
         }
         else
-        {
             boost::asio::async_connect(*socket, it, boost::asio::ip::tcp::resolver::iterator(), connectHandler);
-        }
     };
 
     resolver->async_resolve(query, resolveHandler);
@@ -196,17 +198,13 @@ void IRCBridge::OnConnect(boost::asio::ip::tcp::socket&& socket)
     _status = IRCBRIDGESTATUS_CONNECTED;
 }
 
-void IRCBridge::Login()
-{
-    Send("HELLO");
-    if (!GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD).empty())
-        Send("PASS " + GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD));
-    Send("NICK " + GetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME));
-    Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 0 * :TrinityCore - IRCBridge");
-}
-
 void IRCBridge::Reconnect()
 {
+    if (_socket)
+        _socket->CloseSocket();
+
+    _reconnectTimer = GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT);
+    _status = IRCBRIDGESTATUS_IDLE;
 }
 
 template<ConfigurationType T, typename N>
