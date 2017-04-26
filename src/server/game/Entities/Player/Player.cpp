@@ -17326,6 +17326,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // overwrite possible wrong/corrupted guid
     SetGuidValue(OBJECT_FIELD_GUID, guid);
+    SetGuidValue(PLAYER_WOW_ACCOUNT, GetSession()->GetAccountGUID());
 
     uint8 gender = fields[5].GetUInt8();
     if (!IsValidGender(gender))
