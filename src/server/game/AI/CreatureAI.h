@@ -82,7 +82,6 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         bool CheckBoundary(Position const* who = nullptr) const;
 
-        void SetBoundary(CreatureBoundary const* boundary) { _boundary = boundary; me->DoImmediateBoundaryCheck(); }
     public:
         enum EvadeReason
         {
@@ -95,7 +94,7 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         void Talk(uint8 id, WorldObject const* whisperTarget = nullptr);
 
-        explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), m_MoveInLineOfSight_locked(false) { }
+        explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false) { }
 
         virtual ~CreatureAI() { }
 
@@ -200,11 +199,12 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual PlayerAI* GetAIForCharmedPlayer(Player* /*who*/) { return nullptr; }
 
         // intended for encounter design/debugging. do not use for other purposes. expensive.
-        int32 VisualizeBoundary(uint32 duration, Unit* owner=nullptr, bool fill=false) const;
+        int32 VisualizeBoundary(uint32 duration, Unit* owner = nullptr, bool fill = false) const;
         virtual bool CheckInRoom();
         CreatureBoundary const* GetBoundary() const { return _boundary; }
+        void SetBoundary(CreatureBoundary const* boundary, bool negativeBoundaries = false);
 
-        static bool IsInBounds(CreatureBoundary const* boundary, Position const* who);
+        static bool IsInBounds(CreatureBoundary const& boundary, Position const* who);
 
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);
@@ -212,6 +212,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         bool _EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
         CreatureBoundary const* _boundary;
+        bool _negateBoundary;
 
     private:
         bool m_MoveInLineOfSight_locked;
