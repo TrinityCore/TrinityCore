@@ -12,7 +12,9 @@
 #include <functional>
 #include <thread>
 
-IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr), _status(IRCBRIDGESTATUS_IDLE), _active(false)
+#define UPDATE_CONST 50
+
+IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr), _status(IRCBRIDGESTATUS_IDLE), _reconnectTimer(0), _active(false)
 {
 }
 
@@ -135,6 +137,7 @@ void IRCBridge::Report(IRCBridgeReportType report)
     {
         case REPORTTYPE_ERROR:
             _socket->CloseSocket();
+            _reconnectTimer = GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT);
             _status = IRCBRIDGESTATUS_IDLE;
             break;
         default:
@@ -177,8 +180,13 @@ void IRCBridge::ThreadLoop()
     switch (_status)
     {
         case IRCBRIDGESTATUS_IDLE:
-            StartNetwork(GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
-            _status = IRCBRIDGESTATUS_WAITING_CONNECTION;
+            if (_reconnectTimer <= UPDATE_CONST)
+            {
+                StartNetwork(GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
+                _status = IRCBRIDGESTATUS_WAITING_CONNECTION;
+            }
+            else
+                _reconnectTimer -= UPDATE_CONST;
             break;
         case IRCBRIDGESTATUS_CONNECTED:
             Login();

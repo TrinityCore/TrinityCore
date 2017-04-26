@@ -70,7 +70,6 @@ struct IRCCommand
 {
     uint8 type;
     std::string data;
-    size_t size;
 };
 
 class IRCBridge
@@ -119,6 +118,7 @@ class IRCBridge
         std::thread _thread;
 
         IRCBridgeStatus _status;
+        uint32 _reconnectTimer;
         bool _active;
 };
 
