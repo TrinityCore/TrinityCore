@@ -766,7 +766,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (NamesReservedLocaleEntry const* namesReserved : sNamesReservedLocaleStore)
     {
-        ASSERT(!(namesReserved->LocaleMask & ~((1 << TOTAL_LOCALES) - 1)));
+        ASSERT(!(namesReserved->LocaleMask & ~((1u << TOTAL_LOCALES) - 1)));
         std::wstring name;
         ASSERT(Utf8toWStr(namesReserved->Name, name));
         for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
