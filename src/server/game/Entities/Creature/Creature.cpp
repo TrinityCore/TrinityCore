@@ -148,7 +148,6 @@ uint32 CreatureTemplate::GetFirstVisibleModel() const
     return 17519;
 }
 
-
 bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
     if (Unit* victim = ObjectAccessor::GetUnit(m_owner, m_victim))
@@ -359,10 +358,9 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     SetOutfit(ObjectMgr::ChooseDisplayId(GetCreatureTemplate(), data));
     uint32 displayID = sObjectMgr->GetCreatureDisplay(GetOutfit());
-    if (GetOutfit() < 0 && displayID)
-        SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
-    else
-        RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+    if (IsMirrorImage())
+        displayID = 11686; // invisible in beginning if a mirror image
+    RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
 
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
     if (!minfo)                                             // Cancel load if no model defined
@@ -439,10 +437,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         SetUInt64Value(UNIT_NPC_FLAGS, npcflag);
 
     SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
-    if (GetOutfit() < 0 && GetDisplayId())
-        SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2 | UNIT_FLAG2_MIRROR_IMAGE);
-    else
-        SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
+    SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
+    if (IsMirrorImage())
+        new MirrorImageUpdate(this);
 
     SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicflags);
 
@@ -1099,6 +1096,8 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     CreatureData& data = sObjectMgr->NewOrExistCreatureData(m_spawnId);
 
     uint32 displayId = GetNativeDisplayId();
+    if (IsMirrorImage())
+        displayId = 0; // For mirror images dont save displayid, it comes from outfit
     uint64 npcflag = GetUInt64Value(UNIT_NPC_FLAGS);
     uint32 unit_flags = GetUInt32Value(UNIT_FIELD_FLAGS);
     uint32 dynamicflags = GetUInt32Value(OBJECT_DYNAMIC_FLAGS);
@@ -1797,6 +1796,8 @@ void Creature::Respawn(bool force)
         {
             SetDisplayId(displayID);
             SetNativeDisplayId(displayID);
+            if (IsMirrorImage())
+                new MirrorImageUpdate(this);
             SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
         }
 
@@ -2914,4 +2915,32 @@ void Creature::ClearTextRepeatGroup(uint8 textGroup)
     CreatureTextRepeatGroup::iterator groupItr = m_textRepeat.find(textGroup);
     if (groupItr != m_textRepeat.end())
         groupItr->second.clear();
+}
+
+MirrorImageUpdate::MirrorImageUpdate(Creature* creature) : BasicEvent(), creature(creature)
+{
+    static uint32 delay = 1;
+    creature->m_Events.AddEvent(this, creature->m_Events.CalculateTime(delay));
+    creature->SetDisplayId(11686); // invisible in beginning if a mirror image
+    creature->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+}
+
+bool MirrorImageUpdate::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
+{
+    // From AuraEffect::HandleAuraCloneCaster
+    int32 outfitId = creature->GetOutfit();
+    if (outfitId < 0)
+    {
+        const CreatureOutfitContainer& outfits = sObjectMgr->GetCreatureOutfitMap();
+        auto it = outfits.find(-outfitId);
+        if (it != outfits.end())
+        {
+            creature->SetDisplayId(it->second.displayId);
+            creature->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+            return true;
+        }
+    }
+    creature->SetDisplayId(creature->GetNativeDisplayId());
+    creature->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+    return true;
 }

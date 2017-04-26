@@ -506,33 +506,30 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
             if (it != outfits.end())
             {
                 CreatureOutfit const& outfit = it->second;
-                if (creature->GetDisplayId() == outfit.displayId)
-                {
-                    WorldPackets::Spells::MirrorImageComponentedData mirrorImageComponentedData;
-                    mirrorImageComponentedData.UnitGUID = guid;
-                    mirrorImageComponentedData.DisplayID = outfit.displayId;
-                    mirrorImageComponentedData.RaceID = outfit.race;
-                    mirrorImageComponentedData.Gender = outfit.gender;
-                    mirrorImageComponentedData.ClassID = outfit.Class;
+                WorldPackets::Spells::MirrorImageComponentedData mirrorImageComponentedData;
+                mirrorImageComponentedData.UnitGUID = guid;
+                mirrorImageComponentedData.DisplayID = outfit.displayId;
+                mirrorImageComponentedData.RaceID = outfit.race;
+                mirrorImageComponentedData.Gender = outfit.gender;
+                mirrorImageComponentedData.ClassID = outfit.Class;
 
-                    mirrorImageComponentedData.SkinColor = outfit.skin;
-                    mirrorImageComponentedData.FaceVariation = outfit.face;
-                    mirrorImageComponentedData.HairVariation = outfit.hair;
-                    mirrorImageComponentedData.HairColor = outfit.haircolor;
-                    mirrorImageComponentedData.BeardVariation = outfit.facialhair;
+                mirrorImageComponentedData.SkinColor = outfit.skin;
+                mirrorImageComponentedData.FaceVariation = outfit.face;
+                mirrorImageComponentedData.HairVariation = outfit.hair;
+                mirrorImageComponentedData.HairColor = outfit.haircolor;
+                mirrorImageComponentedData.BeardVariation = outfit.facialhair;
 
-                    static_assert(CreatureOutfit::max_custom_displays == PLAYER_CUSTOM_DISPLAY_SIZE, "Amount of custom displays for player has changed - change it for dressnpcs as well");
-                    for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
-                        mirrorImageComponentedData.CustomDisplay[i] = outfit.customdisplay[i];
-                    mirrorImageComponentedData.GuildGUID = ObjectGuid::Empty;
+                static_assert(CreatureOutfit::max_custom_displays == PLAYER_CUSTOM_DISPLAY_SIZE, "Amount of custom displays for player has changed - change it for dressnpcs as well");
+                for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
+                    mirrorImageComponentedData.CustomDisplay[i] = outfit.customdisplay[i];
+                mirrorImageComponentedData.GuildGUID = ObjectGuid::Empty;
 
-                    mirrorImageComponentedData.ItemDisplayID.reserve(11);
-                    for (auto const& display : it->second.outfit)
-                        mirrorImageComponentedData.ItemDisplayID.push_back(display);
+                mirrorImageComponentedData.ItemDisplayID.reserve(11);
+                for (auto const& display : it->second.outfit)
+                    mirrorImageComponentedData.ItemDisplayID.push_back(display);
 
-                    SendPacket(mirrorImageComponentedData.Write());
-                    return;
-                }
+                SendPacket(mirrorImageComponentedData.Write());
+                return;
             }
         }
     }

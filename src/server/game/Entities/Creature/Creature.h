@@ -717,6 +717,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void SetOutfit(int32 outfit) { outfitId = outfit; };
         int32 GetOutfit() const { return outfitId; };
+        bool IsMirrorImage() const { return outfitId < 0; };
 
         void DisappearAndDie();
 
@@ -1069,6 +1070,13 @@ class TC_GAME_API ForcedDespawnDelayEvent : public BasicEvent
     private:
         Creature& m_owner;
         Seconds const m_respawnTimer;
+};
+
+struct MirrorImageUpdate : BasicEvent
+{
+    MirrorImageUpdate(Creature* creature);
+    bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override;
+    Creature* creature;
 };
 
 #endif

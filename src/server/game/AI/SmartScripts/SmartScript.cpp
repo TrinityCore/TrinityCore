@@ -276,15 +276,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             Creature* crea = (*itr)->ToCreature();
                             ASSERT(crea);
                             crea->SetOutfit(ObjectMgr::ChooseDisplayId(ci));
-                            uint32 displayId = sObjectMgr->GetCreatureDisplay(crea->GetOutfit());
-                            if (crea->GetOutfit() < 0 && displayId)
-                                (*itr)->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+                            if (crea->IsMirrorImage())
+                            {
+                                new MirrorImageUpdate(crea);
+                            }
                             else
+                            {
                                 (*itr)->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
 
-                            (*itr)->ToCreature()->SetDisplayId(displayId);
-                            TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry %u, %s set displayid to %u",
-                                (*itr)->GetEntry(), (*itr)->GetGUID().ToString().c_str(), displayId);
+                                uint32 displayId = sObjectMgr->GetCreatureDisplay(crea->GetOutfit());
+                                (*itr)->ToCreature()->SetDisplayId(displayId);
+                                TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry %u, %s set displayid to %u",
+                                    (*itr)->GetEntry(), (*itr)->GetGUID().ToString().c_str(), displayId);
+                            }
                         }
                     }
                     //if no param1, then use value from param2 (modelId)

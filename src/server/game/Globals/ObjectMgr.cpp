@@ -9605,7 +9605,7 @@ uint32 ObjectMgr::GetCreatureDisplay(int32 modelid) const
     const CreatureOutfitContainer& outfits = GetCreatureOutfitMap();
     CreatureOutfitContainer::const_iterator it = outfits.find(-modelid);
     if (it != outfits.end())
-        return it->second.displayId;
+        return 11686; // invisible for mirror image
 
     return 0;
 }
