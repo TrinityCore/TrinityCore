@@ -354,23 +354,18 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
 
 bool CreatureAI::CheckBoundary(Position const* who) const
 {
+    if (!_boundary)
+        return true;
+
     if (!who)
         who = me;
 
-    if (_boundary)
-        for (AreaBoundary const* areaBoundary : *_boundary)
-            if (!areaBoundary->IsWithinBoundary(who))
-                return false;
-
-    return true;
+    return (CreatureAI::IsInBounds(*_boundary, who) != _negateBoundary);
 }
 
-bool CreatureAI::IsInBounds(CreatureBoundary const* boundary, Position const* pos)
+bool CreatureAI::IsInBounds(CreatureBoundary const& boundary, Position const* pos)
 {
-    if (!boundary)
-        return true;
-
-    for (AreaBoundary const* areaBoundary : *boundary)
+    for (AreaBoundary const* areaBoundary : boundary)
         if (!areaBoundary->IsWithinBoundary(pos))
             return false;
 
@@ -386,6 +381,13 @@ bool CreatureAI::CheckInRoom()
         EnterEvadeMode(EVADE_REASON_BOUNDARY);
         return false;
     }
+}
+
+void CreatureAI::SetBoundary(CreatureBoundary const* boundary, bool negateBoundaries /*= false*/)
+{
+    _boundary = boundary;
+    _negateBoundary = negateBoundaries;
+    me->DoImmediateBoundaryCheck();
 }
 
 Creature* CreatureAI::DoSummon(uint32 entry, const Position& pos, uint32 despawnTime, TempSummonType summonType)
