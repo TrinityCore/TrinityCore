@@ -499,7 +499,7 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
                     Position jumpTo;
                     do
                         jumpTo = GetRandomPositionAround(anubarak);
-                    while (!CreatureAI::IsInBounds(boundary, &jumpTo));
+                    while (!CreatureAI::IsInBounds(*boundary, &jumpTo));
                     me->GetMotionMaster()->MoveJump(jumpTo, 40.0f, 40.0f);
                     DoCastSelf(SPELL_ASSASSIN_VISUAL, true);
                 }

@@ -44,7 +44,7 @@ void CreatureAI::OnCharmed(bool apply)
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
 
-CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), m_MoveInLineOfSight_locked(false)
+CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false)
 {
 }
 
@@ -364,32 +364,28 @@ int32 CreatureAI::VisualizeBoundary(uint32 duration, Unit* owner, bool fill) con
 
 bool CreatureAI::CheckBoundary(Position const* who) const
 {
+    if (!_boundary)
+        return true;
+
     if (!who)
         who = me;
 
-    if (_boundary)
-        for (AreaBoundary const* areaBoundary : *_boundary)
-            if (!areaBoundary->IsWithinBoundary(who))
-                return false;
-
-    return true;
+    return (CreatureAI::IsInBounds(*_boundary, who) != _negateBoundary);
 }
 
-bool CreatureAI::IsInBounds(CreatureBoundary const* boundary, Position const* pos)
+bool CreatureAI::IsInBounds(CreatureBoundary const& boundary, Position const* pos)
 {
-    if (!boundary)
-        return true;
-
-    for (AreaBoundary const* areaBoundary : *boundary)
+    for (AreaBoundary const* areaBoundary : boundary)
         if (!areaBoundary->IsWithinBoundary(pos))
             return false;
 
     return true;
 }
 
-void CreatureAI::SetBoundary(CreatureBoundary const* boundary)
+void CreatureAI::SetBoundary(CreatureBoundary const* boundary, bool negateBoundaries /*= false*/)
 {
     _boundary = boundary;
+    _negateBoundary = negateBoundaries;
     me->DoImmediateBoundaryCheck();
 }
 
