@@ -130,7 +130,7 @@ namespace MMAP
             mapID = (*itr).m_mapId;
 
             files.clear();
-            getDirContents(files, "vmaps", Trinity::StringFormat("%04u*.vmtile", mapID));
+            getDirContents(files, "vmaps", Trinity::StringFormat("%04u_*.vmtile", mapID));
             for (uint32 i = 0; i < files.size(); ++i)
             {
                 tileX = uint32(atoi(files[i].substr(8, 2).c_str()));
@@ -375,7 +375,7 @@ namespace MMAP
     void MapBuilder::buildMap(uint32 mapID)
     {
 #ifndef __APPLE__
-        //printf("[Thread %u] Building map %03u:\n", uint32(ACE_Thread::self()), mapID);
+        //printf("[Thread %u] Building map %04u:\n", uint32(ACE_Thread::self()), mapID);
 #endif
 
         std::set<uint32>* tiles = getTileList(mapID);
