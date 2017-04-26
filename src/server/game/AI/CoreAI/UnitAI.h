@@ -290,6 +290,8 @@ class TC_GAME_API UnitAI
 
         float DoGetSpellMaxRange(uint32 spellId, bool positive = false);
 
+        virtual bool ShouldSparWith(Unit const* /*target*/) const { return false; }
+
         void DoMeleeAttackIfReady();
         bool DoSpellAttackIfReady(uint32 spell);
 
