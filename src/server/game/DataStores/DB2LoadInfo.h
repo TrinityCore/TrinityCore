@@ -3565,7 +3565,7 @@ struct RewardPackLoadInfo
             { false, FT_BYTE, "ArtifactXPDifficulty" },
             { false, FT_BYTE, "ArtifactCategoryID" },
             { false, FT_INT, "TitleID" },
-            { false, FT_INT, "Unk" },
+            { false, FT_INT, "Unused" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RewardPackMeta::Instance(), HOTFIX_SEL_REWARD_PACK);
         return &loadInfo;
