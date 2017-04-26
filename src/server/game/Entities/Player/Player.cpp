@@ -27112,7 +27112,7 @@ float Player::GetAverageItemLevel() const
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_OFFHAND || i == EQUIPMENT_SLOT_BODY)
             continue;
 
-        if (m_items[i] && m_items[i]->GetTemplate())
+        if (m_items[i])
             sum += m_items[i]->GetTemplate()->GetItemLevelIncludingQuality();
 
         ++count;
