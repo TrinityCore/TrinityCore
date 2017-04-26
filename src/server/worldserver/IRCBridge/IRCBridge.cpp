@@ -64,64 +64,6 @@ void IRCBridge::Stop()
     _active = false;
 }
 
-template<ConfigurationType T, typename N>
-N IRCBridge::LoadConfiguration(char const* /*fieldname*/, N /*defvalue*/) const
-{
-    return N();
-}
-
-template<>
-uint32 IRCBridge::LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>(char const* fieldname, uint32 defvalue) const
-{
-    int32 temp = sConfigMgr->GetIntDefault(fieldname, defvalue);
-    if (temp < 0)
-    {
-        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: %s value (%i) can't be negative, using default value %u instead.", fieldname, temp, defvalue);
-        temp = defvalue;
-    }
-
-    return uint32(temp);
-}
-
-template<>
-std::string IRCBridge::LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>(char const* fieldname, std::string defvalue) const
-{
-    std::string temp = sConfigMgr->GetStringDefault(fieldname, defvalue);
-    if (temp.empty())
-    {
-        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: %s value is empty, using default value %s instead.", fieldname, defvalue.c_str());
-        temp = defvalue;
-    }
-
-    return temp;
-}
-
-bool IRCBridge::LoadConfigurations()
-{
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_HOST, sConfigMgr->GetStringDefault("IRCBridge.Host", ""));
-    if (GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST).empty())
-    {
-        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: missing IRCBridge.Host value on configuration file.");
-        return false;
-    }
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_PORT, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Port", 6667));
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME, LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>("IRCBridge.Username", "IRCBridge"));
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME, LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>("IRCBridge.Nickname", "IRCBridge"));
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD, sConfigMgr->GetStringDefault("IRCBridge.Password", ""));
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_CODE, LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>("IRCBridge.Connection.Code", "001"));
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Connection.Wait", 10000));
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_ATTEMPTS, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Connection.Attempts", 20));
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_AUTHENTICATION_METHOD, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Authentication.Method", 0));
-    if (uint32 temp = GetConfiguration(CONFIGURATION_IRCBRIDGE_AUTHENTICATION_METHOD) > 4)
-    {
-        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: incorrect IRCBridge.Authentication.Method value (%u) on configuration file, using default value instead.", temp);
-        SetConfiguration(CONFIGURATION_IRCBRIDGE_AUTHENTICATION_METHOD, 0);
-    }
-    SetConfiguration(CONFIGURATION_IRCBRIDGE_AUTHENTICATION_NICKNAME, LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>("IRCBridge.Authentication.Nickname", "NickServ"));
-
-    return true;
-}
-
 void IRCBridge::Send(std::string message)
 {
     if (IsConnected())
@@ -247,7 +189,7 @@ void IRCBridge::StartNetwork(std::string const& bindIp, std::string const& port)
 void IRCBridge::OnConnect(boost::asio::ip::tcp::socket&& socket)
 {
     TC_LOG_INFO("IRCBridge", "IRCBridge::OnConnect: connected to %s port %u", socket.remote_endpoint().address().to_string().c_str(), socket.remote_endpoint().port());
-    
+
     _socket = std::make_shared<IRCBridgeSocket>(this, std::move(socket));
     _socket->Start();
 
@@ -261,6 +203,68 @@ void IRCBridge::Login()
         Send("PASS " + GetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD));
     Send("NICK " + GetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME));
     Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 0 * :TrinityCore - IRCBridge");
+}
+
+void IRCBridge::Reconnect()
+{
+}
+
+template<ConfigurationType T, typename N>
+N IRCBridge::LoadConfiguration(char const* /*fieldname*/, N /*defvalue*/) const
+{
+    return N();
+}
+
+template<>
+uint32 IRCBridge::LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>(char const* fieldname, uint32 defvalue) const
+{
+    int32 temp = sConfigMgr->GetIntDefault(fieldname, defvalue);
+    if (temp < 0)
+    {
+        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: %s value (%i) can't be negative, using default value %u instead.", fieldname, temp, defvalue);
+        temp = defvalue;
+    }
+
+    return uint32(temp);
+}
+
+template<>
+std::string IRCBridge::LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>(char const* fieldname, std::string defvalue) const
+{
+    std::string temp = sConfigMgr->GetStringDefault(fieldname, defvalue);
+    if (temp.empty())
+    {
+        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: %s value is empty, using default value %s instead.", fieldname, defvalue.c_str());
+        temp = defvalue;
+    }
+
+    return temp;
+}
+
+bool IRCBridge::LoadConfigurations()
+{
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_HOST, sConfigMgr->GetStringDefault("IRCBridge.Host", ""));
+    if (GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST).empty())
+    {
+        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: missing IRCBridge.Host value on configuration file.");
+        return false;
+    }
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_PORT, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Port", 6667));
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME, LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>("IRCBridge.Username", "IRCBridge"));
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME, LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>("IRCBridge.Nickname", "IRCBridge"));
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_PASSWORD, sConfigMgr->GetStringDefault("IRCBridge.Password", ""));
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_CODE, LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>("IRCBridge.Connection.Code", "001"));
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Connection.Wait", 10000));
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_ATTEMPTS, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Connection.Attempts", 20));
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_AUTHENTICATION_METHOD, LoadConfiguration<CONFIGURATIONTYPE_UINT, uint32>("IRCBridge.Authentication.Method", 0));
+    if (uint32 temp = GetConfiguration(CONFIGURATION_IRCBRIDGE_AUTHENTICATION_METHOD) > 4)
+    {
+        TC_LOG_ERROR("IRCBridge", "IRCBridge::LoadConfigurations: incorrect IRCBridge.Authentication.Method value (%u) on configuration file, using default value instead.", temp);
+        SetConfiguration(CONFIGURATION_IRCBRIDGE_AUTHENTICATION_METHOD, 0);
+    }
+    SetConfiguration(CONFIGURATION_IRCBRIDGE_AUTHENTICATION_NICKNAME, LoadConfiguration<CONFIGURATIONTYPE_STRING, std::string>("IRCBridge.Authentication.Nickname", "NickServ"));
+
+    return true;
 }
 
 std::string IRCBridge::MakeStringUpper(std::string string)

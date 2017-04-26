@@ -87,7 +87,6 @@ class IRCBridge
         bool IsActive() const { return _active; }
         bool IsConnected() const { return _status >= IRCBRIDGESTATUS_CONNECTED; }
 
-        bool LoadConfigurations();
         uint32 GetConfiguration(IRCBridgeConfigurationUintValues index) const { return _configurationUintValues[index]; }
         std::string GetConfiguration(IRCBridgeConfigurationStringValues index) const { return _configurationStringValues[index]; }
 
@@ -100,12 +99,13 @@ class IRCBridge
         void StartNetwork(std::string const& bindIp, std::string const& port);
         void OnConnect(boost::asio::ip::tcp::socket&& socket);
         void Login();
+        void Reconnect();
 
         template<ConfigurationType T, typename N>
         N LoadConfiguration(char const* fieldname, N defvalue) const;
-
         void SetConfiguration(IRCBridgeConfigurationUintValues index, uint32 value) { _configurationUintValues[index] = value; }
         void SetConfiguration(IRCBridgeConfigurationStringValues index, std::string value) { _configurationStringValues[index] = value; }
+        bool LoadConfigurations();
 
         std::string MakeStringUpper(std::string string);
 
