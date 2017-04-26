@@ -25,9 +25,6 @@ extern Position const ObservationRingKeepersPos[4];
 extern Position const YSKeepersPos[4];
 extern Position const AlgalonLandPos;
 
-extern CreatureBoundary const ThorimInArenaBoundaries;
-extern CreatureBoundary const ThorimOutOfArenaBoundaries;
-
 enum UlduarBosses
 {
     MAX_ENCOUNTER            = 17,

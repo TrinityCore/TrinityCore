@@ -101,8 +101,9 @@ UPDATE `creature_template` SET `ScriptName`='boss_thorim' WHERE `entry`=32865;
 UPDATE `creature_template` SET `ScriptName`='npc_sif' WHERE `entry`=33196;
 UPDATE `creature_template` SET `ScriptName`='npc_thorim_pre_phase' WHERE `entry` IN (32885,32883,32908,32907,32882,32886);
 UPDATE `creature_template` SET `ScriptName`='npc_thorim_arena_phase' WHERE `entry` IN (32876,32904,32878,32877,32874,32875,33110);
-UPDATE `creature_template` SET `flags_extra`=`flags_extra`|0x40000000, `ScriptName`='npc_runic_colossus' WHERE `entry`=32872;
-UPDATE `creature_template` SET `flags_extra`=`flags_extra`|0x40000000, `ScriptName`='npc_ancient_rune_giant' WHERE `entry`=32873;
+UPDATE `creature_template` SET `ScriptName`='npc_runic_colossus' WHERE `entry`=32872;
+UPDATE `creature_template` SET `ScriptName`='npc_ancient_rune_giant' WHERE `entry`=32873;
+UPDATE `creature_template` SET `flags_extra`=`flags_extra`|0x40000000 WHERE `entry` IN (32872, 32873, 33148, 33149);
 UPDATE `creature_template` SET `difficulty_entry_1`=33150 WHERE `entry`=32908; -- Swapped Difficulty entry npcs
 UPDATE `creature_template` SET `difficulty_entry_1`=33151 WHERE `entry`=32907; -- Caused swapped displayIDs in 25n
 UPDATE `creature_template` SET `InhabitType`=4, `flags_extra`=128, `ScriptName`='' WHERE `entry` IN (33140,33141);
@@ -110,7 +111,7 @@ UPDATE `creature_template` SET `InhabitType`=4, `flags_extra`=128 WHERE `entry` 
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry` IN (32892);
 UPDATE `creature_template` SET `faction`=1692 WHERE `entry` IN (32885,32883,33152,33153,32908,33150,32907,33151);
 UPDATE `creature_template` SET `faction`=1693 WHERE `entry` IN (32882,33154);
-UPDATE `creature_template` SET `speed_walk`=2.5/2.5, `speed_run`=14.0/7.0, `BaseAttackTime`=1500, `RangeAttackTime`=1500 WHERE `entry` IN (32865,33147);
+UPDATE `creature_template` SET `speed_walk`=2.5/2.5, `speed_run`=14.0/7.0, `BaseAttackTime`=1500, `RangeAttackTime`=1500, `flags_extra`=`flags_extra`|0x00000200 WHERE `entry` IN (32865,33147);
 
 SET @THORIM_BLIZZARD_BUNNY := 136515;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (62577,62603,62016,62976,63238,64098,62466,62565,62942,64767,62560,61964,61934);

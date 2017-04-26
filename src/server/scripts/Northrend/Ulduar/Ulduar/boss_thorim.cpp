@@ -309,7 +309,9 @@ enum Data
     ACHIEVEMENT_DONT_STAND_IN_THE_LIGHTNING = 29712972,
     ACHIEVEMENT_SIFFED                      = 29772978,
     ACHIEVEMENT_LOSE_YOUR_ILLUSION          = 31763183,
-    DATA_CHARGED_PILLAR                     = 1
+    DATA_CHARGED_PILLAR                     = 1,
+
+    FACTION_FRIENDLY                        = 35
 };
 
 enum DisplayIds
@@ -330,8 +332,37 @@ G3D::Vector3 const LightningOrbPath[LightningOrbPathSize] =
     { 2182.310059f, -263.233093f, 414.739410f }
 };
 
-Position const ArenaCenter = { 2135.0f, -263.0f, 420.0f, 0.0f }; // used for trash jump calculation
-Position const LightningFieldCenter = { 2135.0f, -312.5f, 438.0f, 0.0f }; // used for lightning field calculation
+// used for trash jump calculation
+Position const ArenaCenter = { 2134.77f, -262.307f };
+
+// used for lightning field calculation
+Position const LightningFieldCenter = { 2135.178f, -321.122f };
+
+CircleBoundary const ArenaFloorCircle(ArenaCenter, 45.4);
+CircleBoundary const InvertedBalconyCircle(LightningFieldCenter, 32.0, true);
+
+CreatureBoundary const ArenaBoundaries =
+{
+    &ArenaFloorCircle,
+    &InvertedBalconyCircle
+};
+
+class HeightPositionCheck
+{
+    public:
+        HeightPositionCheck(bool ret) : _ret(ret) { }
+
+        bool operator()(Position const* pos) const
+        {
+            return pos->GetPositionZ() > THORIM_BALCONY_Z_CHECK == _ret;
+        }
+
+    private:
+        bool _ret;
+
+        static float const THORIM_BALCONY_Z_CHECK;
+};
+float const HeightPositionCheck::THORIM_BALCONY_Z_CHECK = 428.0f;
 
 class RunicSmashExplosionEvent : public BasicEvent
 {
@@ -365,6 +396,7 @@ class TrashJumpEvent : public BasicEvent
                 case 1:
                     _owner->SetReactState(REACT_AGGRESSIVE);
                     _owner->AI()->DoZoneInCombat(_owner);
+                    _owner->AI()->SetBoundary(&ArenaBoundaries);
                     return true;
                 default:
                     break;
@@ -431,11 +463,13 @@ class boss_thorim : public CreatureScript
                 if (_encounterFinished)
                     return;
 
+                SetBoundary(nullptr);
                 _Reset();
                 Initialize();
 
                 me->SetReactState(REACT_PASSIVE);
-                SetCombatMovement(false);
+                me->SetDisableGravity(true);
+                me->SetControlled(true, UNIT_STATE_ROOT);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
                 events.SetPhase(PHASE_NULL);
@@ -537,7 +571,7 @@ class boss_thorim : public CreatureScript
                 me->InterruptNonMeleeSpells(true);
                 me->RemoveAllAttackers();
                 me->AttackStop();
-                me->setFaction(35);
+                me->setFaction(FACTION_FRIENDLY);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME);
 
                 if (Creature* controller = instance->GetCreature(DATA_THORIM_CONTROLLER))
@@ -562,6 +596,15 @@ class boss_thorim : public CreatureScript
                 events.ScheduleEvent(EVENT_OUTRO_3, _hardMode ? 19000 : 21000);
 
                 me->m_Events.AddEvent(new KeeperDespawnEvent(me), me->m_Events.CalculateTime(35000));
+            }
+
+            void MovementInform(uint32 type, uint32 id) override
+            {
+                if (type != EFFECT_MOTION_TYPE || id != EVENT_JUMP)
+                    return;
+
+                me->getThreatManager().resetAllAggro();
+                SetBoundary(&ArenaBoundaries);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -673,8 +716,9 @@ class boss_thorim : public CreatureScript
                                     sif->AI()->DoAction(ACTION_START_HARD_MODE);
                             me->RemoveAurasDueToSpell(SPELL_SHEATH_OF_LIGHTNING);
                             me->SetReactState(REACT_AGGRESSIVE);
-                            SetCombatMovement(true);
-                            me->GetMotionMaster()->MoveJump(2134.79f, -263.03f, 419.84f, me->GetOrientation(), 30.0f, 20.0f);
+                            me->SetDisableGravity(false);
+                            me->SetControlled(false, UNIT_STATE_ROOT);
+                            me->GetMotionMaster()->MoveJump(2134.8f, -263.056f, 419.983f, me->GetOrientation(), 30.0f, 20.0f);
                             events.ScheduleEvent(EVENT_START_PERIODIC_CHARGE, 2000, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 15000, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 20000, 0, PHASE_2);
@@ -715,9 +759,9 @@ class boss_thorim : public CreatureScript
                             me->GetCreatureListWithEntryInGrid(triggers, NPC_THORIM_EVENT_BUNNY, 100.0f);
                             triggers.remove_if([](Creature* bunny)
                             {
-                                if (bunny->GetPositionZ() < 430.0f)
+                                if (HeightPositionCheck(false)(bunny))
                                     return true;
-                                return LightningFieldCenter.GetExactDist2dSq(bunny) > 1225.0f;
+                                return LightningFieldCenter.GetExactDist2dSq(bunny) > 1296.0f;
                             });
 
                             uint64 timer = 1000;
@@ -726,7 +770,7 @@ class boss_thorim : public CreatureScript
 
                             triggers.remove_if([](Creature* bunny)
                             {
-                                return LightningFieldCenter.GetExactDist2dSq(bunny) < 400.0f;
+                                return LightningFieldCenter.GetExactDist2dSq(bunny) < 576.0f;
                             });
 
                             triggers.sort([](Creature* a, Creature* b)
@@ -759,6 +803,9 @@ class boss_thorim : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -796,7 +843,7 @@ class boss_thorim : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(triggerList, NPC_THORIM_EVENT_BUNNY, 100.0f);
                 triggerList.remove_if([](Creature* bunny)
                 {
-                    if (bunny->GetPositionZ() < 430.0f)
+                    if (HeightPositionCheck(false)(bunny))
                         return true;
                     return ArenaCenter.GetExactDist2dSq(bunny) < 3025.0f;
                 });
@@ -933,32 +980,14 @@ struct npc_thorim_trashAI : public ScriptedAI
             return heal;
         }
 
-        /// returns heal amount of the given spell including hots
-        static uint32 GetTotalHeal(uint32 spellId, Unit const* caster)
-        {
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-                return GetTotalHeal(spellInfo, caster);
-            return 0;
-        }
-
         /// returns remaining heal amount on given target
         static uint32 GetRemainingHealOn(Unit* target)
         {
             uint32 heal = 0;
-            Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
-            for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-            {
-                Aura const* aura = itr->second->GetBase();
+            Unit::AuraEffectList const& auras = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
+            for (AuraEffect const* aurEff : auras)
+                heal += aurEff->GetAmount() * (aurEff->GetTotalTicks() - aurEff->GetTickNumber());
 
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                {
-                    if (AuraEffect const* aurEff = aura->GetEffect(i))
-                    {
-                        if (aurEff->GetAuraType() == SPELL_AURA_PERIODIC_HEAL)
-                            heal += aurEff->GetAmount() * (aurEff->GetTotalTicks() - aurEff->GetTickNumber());
-                    }
-                }
-            }
             return heal;
         }
 
@@ -999,8 +1028,9 @@ struct npc_thorim_trashAI : public ScriptedAI
 
         static Unit* GetUnitWithMostMissingHp(SpellInfo const* spellInfo, Unit* caster)
         {
-            float range = spellInfo->GetMaxRange(false);
-            uint32 heal = GetTotalHeal(spellInfo, caster);
+            // use positive range, it's a healing spell
+            float const range = spellInfo->GetMaxRange(true);
+            uint32 const heal = GetTotalHeal(spellInfo, caster);
 
             Unit* target = nullptr;
             MostHPMissingInRange checker(caster, range, heal);
@@ -1010,17 +1040,13 @@ struct npc_thorim_trashAI : public ScriptedAI
             return target;
         }
 
-        static Unit* GetHealTarget(uint32 spellId, Unit* caster)
+        static Unit* GetHealTarget(SpellInfo const* spellInfo, Unit* caster)
         {
             Unit* healTarget = nullptr;
-
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-            {
-                if (!spellInfo->HasAttribute(SPELL_ATTR1_CANT_TARGET_SELF) && !roll_chance_f(caster->GetHealthPct()) && !((caster->GetHealth() + GetRemainingHealOn(caster) + GetTotalHeal(spellInfo, caster)) > caster->GetMaxHealth()))
-                    healTarget = caster;
-                else
-                    healTarget = GetUnitWithMostMissingHp(spellInfo, caster);
-            }
+            if (!spellInfo->HasAttribute(SPELL_ATTR1_CANT_TARGET_SELF) && !roll_chance_f(caster->GetHealthPct()) && ((caster->GetHealth() + GetRemainingHealOn(caster) + GetTotalHeal(spellInfo, caster)) <= caster->GetMaxHealth()))
+                healTarget = caster;
+            else
+                healTarget = GetUnitWithMostMissingHp(spellInfo, caster);
 
             return healTarget;
         }
@@ -1028,31 +1054,40 @@ struct npc_thorim_trashAI : public ScriptedAI
 
     bool UseAbility(uint32 spellId)
     {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        if (!spellInfo)
+            return false;
+
         Unit* target = nullptr;
-        if (AIHelper::GetTotalHeal(spellId, me))
-            target = AIHelper::GetHealTarget(spellId, me);
+        if (AIHelper::GetTotalHeal(spellInfo, me))
+            target = AIHelper::GetHealTarget(spellInfo, me);
         else
             target = me->GetVictim();
 
-        if (target)
-        {
-            if (_info->Type == MERCENARY_SOLDIER)
-            {
-                bool allowMove = true;
-                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-                {
-                    if (me->IsInRange(target, spellInfo->GetMinRange(false), spellInfo->GetMaxRange(false))
-                        && me->IsWithinLOSInMap(target))
-                        allowMove = false;
-                }
-                SetCombatMovement(allowMove);
-            }
+        if (!target)
+            return false;
 
-            DoCast(target, spellId);
-            return true;
+        if (_info->Type == MERCENARY_SOLDIER)
+        {
+            bool allowMove = true;
+            if (me->IsInRange(target, spellInfo->GetMinRange(), spellInfo->GetMaxRange()))
+                allowMove = false;
+
+            if (IsCombatMovementAllowed() != allowMove)
+            {
+                SetCombatMovement(allowMove);
+
+                // need relaunch movement
+                ScriptedAI::AttackStart(target);
+
+                // give some time to allow reposition, try again in a second
+                if (allowMove)
+                    return false;
+            }
         }
 
-        return false;
+        DoCast(target, spellId);
+        return true;
     }
 
     void UpdateAI(uint32 diff) final override
@@ -1066,7 +1101,12 @@ struct npc_thorim_trashAI : public ScriptedAI
             return;
 
         while (uint32 eventId = _events.ExecuteEvent())
+        {
             ExecuteEvent(eventId);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
 
         if (_info->Type == DARK_RUNE_ACOLYTE)
             DoSpellAttackIfReady(SPELL_HOLY_SMITE);
@@ -1114,8 +1154,14 @@ class npc_thorim_pre_phase : public CreatureScript
                     thorim->AI()->DoAction(ACTION_INCREASE_PREADDS_COUNT);
             }
 
+            bool ShouldSparWith(Unit const* target) const override
+            {
+                return !target->GetAffectingPlayer();
+            }
+
             void DamageTaken(Unit* attacker, uint32& damage) override
             {
+                // nullify spell damage
                 if (!attacker->GetAffectingPlayer())
                     damage = 0;
             }
@@ -1172,23 +1218,21 @@ class npc_thorim_arena_phase : public CreatureScript
                         _isInArena = true;
                         break;
                     case DARK_RUNE_ACOLYTE:
+                    {
                         _isInArena = (_info->Entry == NPC_DARK_RUNE_ACOLYTE_PRE);
+                        SetBoundary(&ArenaBoundaries, !_isInArena);
                         break;
+                    }
                     default:
                         _isInArena = false;
                         break;
                 }
-
-                if (_isInArena)
-                    SetBoundary(&ThorimInArenaBoundaries);
-                else
-                    SetBoundary(&ThorimOutOfArenaBoundaries);
             }
 
             bool CanAIAttack(Unit const* who) const override
             {
                 // don't try to attack players in balcony
-                if (_isInArena && who->GetPositionZ() > 428.0f)
+                if (_isInArena && HeightPositionCheck(true)(who))
                     return false;
 
                 return CheckBoundary(who);
@@ -1278,6 +1322,13 @@ struct npc_thorim_minibossAI : public ScriptedAI
     npc_thorim_minibossAI(Creature* creature) : ScriptedAI(creature), _summons(me)
     {
         _instance = creature->GetInstanceScript();
+
+        SetBoundary(&ArenaBoundaries, true);
+    }
+
+    bool CanAIAttack(Unit const* who) const final override
+    {
+        return CheckBoundary(who);
     }
 
     void JustSummoned(Creature* summon) final override
@@ -1313,12 +1364,19 @@ class npc_runic_colossus : public CreatureScript
 
         struct npc_runic_colossusAI : public npc_thorim_minibossAI
         {
-            npc_runic_colossusAI(Creature* creature) : npc_thorim_minibossAI(creature) { }
+            npc_runic_colossusAI(Creature* creature) : npc_thorim_minibossAI(creature)
+            {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _runicActive = false;
+            }
 
             void Reset() override
             {
-                _runicActive = false;
-
+                Initialize();
                 _events.Reset();
 
                 // close the Runic Door
@@ -1371,7 +1429,6 @@ class npc_runic_colossus : public CreatureScript
                 _events.ScheduleEvent(EVENT_RUNIC_BARRIER, urand(12000, 15000));
                 _events.ScheduleEvent(EVENT_SMASH, urand(15000, 18000));
                 _events.ScheduleEvent(EVENT_RUNIC_CHARGE, urand(20000, 24000));
-                me->InterruptNonMeleeSpells(true);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1409,6 +1466,9 @@ class npc_runic_colossus : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!UpdateVictim())
@@ -1494,6 +1554,9 @@ class npc_ancient_rune_giant : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -1588,6 +1651,9 @@ class npc_sif : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 // no melee attack
@@ -1602,20 +1668,6 @@ class npc_sif : public CreatureScript
         {
             return GetUlduarAI<npc_sifAI>(creature);
         }
-};
-
-class HeightPositionCheck
-{
-    public:
-        HeightPositionCheck(bool ret) : _ret(ret) { }
-
-        bool operator()(WorldObject* obj) const
-        {
-            return obj->GetPositionZ() > 425.0f == _ret;
-        }
-
-    private:
-        bool _ret;
 };
 
 // 62576 - Blizzard
@@ -1794,13 +1846,13 @@ class spell_thorim_arena_leap : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitDest())
-                    GetCaster()->ToCreature()->SetHomePosition(*GetHitDest());
+                if (Position const* pos = GetHitDest())
+                    GetCaster()->ToCreature()->SetHomePosition(*pos);
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_thorim_arena_leap_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
+                OnEffectLaunch += SpellEffectFn(spell_thorim_arena_leap_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
             }
         };
 
@@ -1814,7 +1866,7 @@ struct OutOfArenaCheck
 {
     bool operator()(Position const* who) const
     {
-        return CreatureAI::IsInBounds(&ThorimOutOfArenaBoundaries, who);
+        return !CreatureAI::IsInBounds(ArenaBoundaries, who);
     }
 };
 
@@ -1838,7 +1890,7 @@ class spell_thorim_stormhammer : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if([](WorldObject* target) -> bool { return target->GetPositionZ() > 428.0f || OutOfArenaCheck()(target); });
+                targets.remove_if([](WorldObject* target) -> bool { return HeightPositionCheck(true)(target) || OutOfArenaCheck()(target); });
 
                 if (targets.empty())
                 {

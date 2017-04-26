@@ -24,13 +24,6 @@
 #include "WorldPacket.h"
 #include "ulduar.h"
 
-CircleBoundary const* const ThorimBoundaries = new CircleBoundary(Position(2134.73f, -263.2f), 50.0);
-CreatureBoundary const ThorimInArenaBoundaries = { ThorimBoundaries };
-
-// this is used to check targets outside arena, as we aren't adding it into BossBoundaryData, it needs to be a smart pointer to avoid leaking memory
-std::unique_ptr<CircleBoundary const> const ThorimBoundariesInverted = Trinity::make_unique<CircleBoundary const>(Position(2134.73f, -263.2f), 50.0, true);
-CreatureBoundary const ThorimOutOfArenaBoundaries = { ThorimBoundariesInverted.get() };
-
 static BossBoundaryData const boundaries =
 {
     { BOSS_LEVIATHAN, new RectangleBoundary(148.0f, 401.3f, -155.0f, 90.0f) },
@@ -41,7 +34,7 @@ static BossBoundaryData const boundaries =
     { BOSS_ALGALON, new CircleBoundary(Position(1632.668f, -307.7656f), 45.0) },
     { BOSS_ALGALON, new ZRangeBoundary(410.0f, 440.0f) },
     { BOSS_HODIR, new EllipseBoundary(Position(2001.5f, -240.0f), 50.0, 75.0) },
-    { BOSS_THORIM, ThorimBoundaries },
+    // Thorim sets boundaries dinamically
     { BOSS_FREYA, new RectangleBoundary(2094.6f, 2520.0f, -250.0f, 200.0f) },
     { BOSS_MIMIRON, new CircleBoundary(Position(2744.0f, 2569.0f), 70.0) },
     { BOSS_VEZAX, new RectangleBoundary(1740.0f, 1930.0f, 31.0f, 228.0f) },
@@ -61,10 +54,10 @@ static DoorData const doorData[] =
     { GO_MIMIRON_DOOR_2,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
     { GO_MIMIRON_DOOR_3,                BOSS_MIMIRON,           DOOR_TYPE_ROOM },
     { GO_THORIM_ENCOUNTER_DOOR,         BOSS_THORIM,            DOOR_TYPE_ROOM },
-    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_HODIR,             DOOR_TYPE_ROOM },
-    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_MIMIRON,           DOOR_TYPE_ROOM },
-    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_THORIM,            DOOR_TYPE_ROOM },
-    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_FREYA,             DOOR_TYPE_ROOM },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_HODIR,             DOOR_TYPE_PASSAGE },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_MIMIRON,           DOOR_TYPE_PASSAGE },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_THORIM,            DOOR_TYPE_PASSAGE },
+    { GO_ANCIENT_GATE_OF_THE_KEEPERS,   BOSS_FREYA,             DOOR_TYPE_PASSAGE },
     { GO_VEZAX_DOOR,                    BOSS_VEZAX,             DOOR_TYPE_PASSAGE },
     { GO_YOGG_SARON_DOOR,               BOSS_YOGG_SARON,        DOOR_TYPE_ROOM },
     { GO_DOODAD_UL_SIGILDOOR_03,        BOSS_ALGALON,           DOOR_TYPE_ROOM },
@@ -346,13 +339,13 @@ class instance_ulduar : public InstanceMapScript
                         break;
 
                     // Thorim
-                    case NPC_MERCENARY_CAPTAIN_A:
+                    case NPC_MERCENARY_CAPTAIN_H:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_MERCENARY_CAPTAIN_H);
+                            creature->UpdateEntry(NPC_MERCENARY_CAPTAIN_A);
                         break;
-                    case NPC_MERCENARY_SOLDIER_A:
+                    case NPC_MERCENARY_SOLDIER_H:
                         if (TeamInInstance == HORDE)
-                            creature->UpdateEntry(NPC_MERCENARY_SOLDIER_H);
+                            creature->UpdateEntry(NPC_MERCENARY_SOLDIER_A);
                         break;
 
                     // Freya
