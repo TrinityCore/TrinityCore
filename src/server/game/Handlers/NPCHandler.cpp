@@ -249,8 +249,8 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
 
     _player->ModifyMoney(-int64(nSpellCost));
 
-    trainer->SendPlaySpellVisualKit(179, 0);    // 53 SpellCastDirected
-    _player->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
+    trainer->SendPlaySpellVisualKit(179, 0, 0);    // 53 SpellCastDirected
+    _player->SendPlaySpellVisualKit(362, 1, 0);    // 113 EmoteSalute
 
     // learn explicitly or cast explicitly
     if (trainerSpell->IsCastable())
