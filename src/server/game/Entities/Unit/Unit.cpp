@@ -13207,14 +13207,11 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form) const
                             break;
                     }
                 }
-                else
-                {
-                    if (Player::TeamForRace(getRace()) == ALLIANCE)
-                        return (getRace() == RACE_WORGEN ? 37729 : 21243);
-                    if (getRace() == RACE_TROLL)
-                        return 37730;
-                    return 21244;
-                }
+                if (Player::TeamForRace(getRace()) == ALLIANCE)
+                    return (getRace() == RACE_WORGEN ? 37729 : 21243);
+                if (getRace() == RACE_TROLL)
+                    return 37730;
+                return 21244;
             case FORM_MOONKIN_FORM:
             {
                 switch (getRace())

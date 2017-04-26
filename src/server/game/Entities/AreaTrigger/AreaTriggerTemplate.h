@@ -105,6 +105,7 @@ public:
     AreaTriggerTemplate()
     {
         Id                  = 0;
+        Type                = AREATRIGGER_TYPE_MAX;
         Flags               = 0;
         ScriptId            = 0;
         MaxSearchRadius     = 0.0f;
