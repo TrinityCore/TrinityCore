@@ -420,7 +420,7 @@ public:
         {
             if (me->IsWithinLOS(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()) && me->IsWithinDistInMap(player, 30.0f))
             {
-                me->SetInFront(player);
+                me->SetFacingToObject(player);
                 Active = false;
 
                 switch (emote)

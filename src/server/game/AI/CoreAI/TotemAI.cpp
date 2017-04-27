@@ -83,8 +83,7 @@ void TotemAI::UpdateAI(uint32 /*diff*/)
         i_victimGuid = victim->GetGUID();
 
         // attack
-        me->SetInFront(victim);                         // client change orientation by self
-        me->CastSpell(victim, me->ToTotem()->GetSpell(), false);
+        me->CastSpell(victim, me->ToTotem()->GetSpell());
     }
     else
         i_victimGuid.Clear();
