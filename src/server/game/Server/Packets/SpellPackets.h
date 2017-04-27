@@ -260,10 +260,10 @@ namespace WorldPackets
             uint16 PlayerItemLevel = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;
-            uint8 Class = 1;
-            uint8 TargetMinScalingLevel = 1;
-            uint8 TargetMaxScalingLevel = 1;
-            int8 TargetScalingLevelDelta = 1;
+            uint8 Class = 0;
+            uint8 TargetMinScalingLevel = 0;
+            uint8 TargetMaxScalingLevel = 0;
+            int8 TargetScalingLevelDelta = 0;
 
             template<class T, class U>
             bool GenerateDataForUnits(T* attacker, U* target);
