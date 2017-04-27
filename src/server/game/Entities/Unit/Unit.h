@@ -1999,6 +1999,9 @@ class TC_GAME_API Unit : public WorldObject
         ObjectGuid GetTarget() const { return m_unitData->Target; }
         virtual void SetTarget(ObjectGuid const& /*guid*/) = 0;
 
+        void SetInstantCast(bool set) { _instantCast = set; }
+        bool CanInstantCast() const { return _instantCast; }
+
         // Movement info
         Movement::MoveSpline * movespline;
 
@@ -2151,6 +2154,7 @@ class TC_GAME_API Unit : public WorldObject
 
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
+        bool _instantCast;
 
         uint32 _oldFactionId;           ///< faction before charm
         bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
