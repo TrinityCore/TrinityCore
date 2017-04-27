@@ -16,7 +16,7 @@
 
 #define UPDATE_CONST 50
 
-IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr), _status(IRCBRIDGESTATUS_IDLE), _reconnectTimer(0), _reconnectCounter(0), _active(false)
+IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr), _status(IRCBRIDGESTATUS_IDLE), _relayType(RELAYTARGETTYPE_IRCBRIDGE), _reconnectTimer(0), _reconnectCounter(0), _active(false)
 {
 }
 
@@ -66,24 +66,24 @@ void IRCBridge::Stop()
         _thread.join();
 }
 
+void IRCBridge::Reconnect()
+{
+    _status = IRCBRIDGESTATUS_SHUTDOWN;
+
+    if (_socket)
+        _socket->CloseSocket();
+
+    _reconnectTimer.Reset(GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT));
+
+    _status = IRCBRIDGESTATUS_IDLE;
+}
+
 void IRCBridge::Send(std::string message)
 {
     if (IsConnected())
     {
         message.append("\r\n");
         _socket->Send(message);
-    }
-}
-
-void IRCBridge::Report(IRCBridgeReportType report)
-{
-    switch (report)
-    {
-        case REPORTTYPE_ERROR:
-            Reconnect();
-            break;
-        default:
-            break;
     }
 }
 
@@ -206,15 +206,6 @@ void IRCBridge::OnConnect(boost::asio::ip::tcp::socket&& socket)
 
     _reconnectCounter = 0;
     _status = IRCBRIDGESTATUS_CONNECTED;
-}
-
-void IRCBridge::Reconnect()
-{
-    if (_socket)
-        _socket->CloseSocket();
-
-    _reconnectTimer.Reset(GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT));
-    _status = IRCBRIDGESTATUS_IDLE;
 }
 
 template<ConfigurationType T, typename N>

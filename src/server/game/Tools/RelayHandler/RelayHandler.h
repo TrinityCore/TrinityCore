@@ -20,6 +20,18 @@
 
 #include "Common.h"
 
+enum RelayTargetType
+{
+    RELAYTARGETTYPE_IRCBRIDGE,
+    RELAYTARGETTYPE_MAX
+};
+
+enum RelayReportType
+{
+    RELAYREPORTTYPE_RECONNECT,
+    RELAYREPORTTYPE_ERROR
+};
+
 class TC_GAME_API RelayHandler
 {
     public:

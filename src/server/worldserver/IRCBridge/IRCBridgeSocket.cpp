@@ -81,7 +81,7 @@ void IRCBridgeSocket::HandleMessage(std::string const& message)
             Send(commands[IRCSOCKETCOMMAND_PONG].data + message.substr(commands[IRCSOCKETCOMMAND_PONG].data.size(), message.size() - commands[IRCSOCKETCOMMAND_PONG].data.size()) + "\r\n");
             break;
         case IRCSOCKETCOMMAND_ERROR:
-            _master->Report(REPORTTYPE_ERROR);
+            _master->Reconnect();
             break;
         default:
             _master->HandleMessage(message);

@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "Timer.h"
+#include "RelayHandler.h"
 #include "IRCBridgeSocket.h"
 
 #include <boost/asio/io_service.hpp>
@@ -34,11 +35,6 @@ enum IRCBridgeStatus
     IRCBRIDGESTATUS_CONNECTED,
     IRCBRIDGESTATUS_WAITING_CONFIRMATION,
     IRCBRIDGESTATUS_LOGGED
-};
-
-enum IRCBridgeReportType
-{
-    REPORTTYPE_ERROR
 };
 
 enum ConfigurationType
@@ -91,15 +87,14 @@ class IRCBridge
         uint32 GetConfiguration(IRCBridgeConfigurationUintValues index) const { return _configurationUintValues[index]; }
         std::string GetConfiguration(IRCBridgeConfigurationStringValues index) const { return _configurationStringValues[index]; }
 
+        void Reconnect();
         void Send(std::string message);
-        void Report(IRCBridgeReportType report);
         void HandleMessage(std::string const& message);
 
     private:
         void ThreadLoop();
         void StartNetwork(std::string const& bindIp, std::string const& port);
         void OnConnect(boost::asio::ip::tcp::socket&& socket);
-        void Reconnect();
 
         template<ConfigurationType T, typename N>
         N LoadConfiguration(char const* fieldname, N defvalue) const;
@@ -118,6 +113,7 @@ class IRCBridge
         std::thread _thread;
 
         IRCBridgeStatus _status;
+        RelayTargetType _relayType;
         TimeTrackerSmall _reconnectTimer;
         uint32 _reconnectCounter;
         bool _active;
