@@ -1,3 +1,5 @@
+#include "Common.h"
+#include "Timer.h"
 #include "Config.h"
 #include "Log.h"
 #include "IRCBridgeHandler.h"
@@ -126,14 +128,14 @@ void IRCBridge::ThreadLoop()
                 return;
             }
 
-            if (_reconnectTimer <= UPDATE_CONST)
+            if (_reconnectTimer.Passed())
             {
                 ++_reconnectCounter;
                 StartNetwork(GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
                 _status = IRCBRIDGESTATUS_WAITING_CONNECTION;
             }
             else
-                _reconnectTimer -= UPDATE_CONST;
+                _reconnectTimer.Update(UPDATE_CONST);
             break;
         case IRCBRIDGESTATUS_CONNECTED:
             Send("HELLO");
@@ -211,7 +213,7 @@ void IRCBridge::Reconnect()
     if (_socket)
         _socket->CloseSocket();
 
-    _reconnectTimer = GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT);
+    _reconnectTimer.Reset(GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_WAIT));
     _status = IRCBRIDGESTATUS_IDLE;
 }
 

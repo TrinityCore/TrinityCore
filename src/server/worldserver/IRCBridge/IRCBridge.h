@@ -19,6 +19,7 @@
 #define TRINITY_IRCBRIDGE_H
 
 #include "Common.h"
+#include "Timer.h"
 #include "IRCBridgeSocket.h"
 
 #include <boost/asio/io_service.hpp>
@@ -117,7 +118,7 @@ class IRCBridge
         std::thread _thread;
 
         IRCBridgeStatus _status;
-        uint32 _reconnectTimer;
+        TimeTrackerSmall _reconnectTimer;
         uint32 _reconnectCounter;
         bool _active;
 };
