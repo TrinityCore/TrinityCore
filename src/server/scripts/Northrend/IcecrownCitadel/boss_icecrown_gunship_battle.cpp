@@ -635,7 +635,8 @@ protected:
         if (!me->HasReactState(REACT_PASSIVE))
         {
             if (Unit* victim = me->SelectVictim())
-                AttackStart(victim);
+                if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
+                    AttackStart(victim);
 
             return me->GetVictim() != nullptr;
         }
