@@ -207,7 +207,7 @@ uint32 DamageInfo::GetHitMask() const
 }
 
 HealInfo::HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask)
-    : _healer(healer), _target(target), _heal(heal), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask), _hitMask(0)
+    : _healer(healer), _target(target), _heal(heal), _effectiveHeal(0), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask), _hitMask(0)
 {
 }
 
@@ -216,6 +216,8 @@ void HealInfo::AbsorbHeal(uint32 amount)
     amount = std::min(amount, GetHeal());
     _absorb += amount;
     _heal -= amount;
+    amount = std::min(amount, GetEffectiveHeal());
+    _effectiveHeal -= amount;
     _hitMask |= PROC_HIT_ABSORB;
 }
 

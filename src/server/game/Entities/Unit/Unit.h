@@ -992,6 +992,7 @@ private:
     Unit* const _healer;
     Unit* const _target;
     uint32 _heal;
+    uint32 _effectiveHeal;
     uint32 _absorb;
     SpellInfo const* const _spellInfo;
     SpellSchoolMask const _schoolMask;
@@ -1001,10 +1002,12 @@ public:
     explicit HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
 
     void AbsorbHeal(uint32 amount);
+    void SetEffectiveHeal(uint32 amount) { _effectiveHeal = amount; }
 
     Unit* GetHealer() const { return _healer; }
     Unit* GetTarget() const { return _target; }
     uint32 GetHeal() const { return _heal; }
+    uint32 GetEffectiveHeal() const { return _effectiveHeal; }
     uint32 GetAbsorb() const { return _absorb; }
     SpellInfo const* GetSpellInfo() const { return _spellInfo; };
     SpellSchoolMask GetSchoolMask() const { return _schoolMask; };
