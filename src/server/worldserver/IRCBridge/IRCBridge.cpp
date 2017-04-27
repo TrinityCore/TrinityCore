@@ -41,6 +41,8 @@ void IRCBridge::Initialize(boost::asio::io_service * service)
     _ioService = service;
     _strand = new boost::asio::strand(*_ioService);
     _thread = std::thread(std::bind(&IRCBridge::Run, this));
+
+    TC_LOG_DEBUG("IRCBridge", "IRCBridge::Initialize: thread initialized");
 }
 
 void IRCBridge::Run()
@@ -68,6 +70,8 @@ void IRCBridge::Stop()
 
 void IRCBridge::Reconnect()
 {
+    TC_LOG_INFO("IRCBridge", "IRCBridge::Reconnect: reconnecting...");
+
     _status = IRCBRIDGESTATUS_SHUTDOWN;
 
     if (_socket)
@@ -102,6 +106,7 @@ void IRCBridge::HandleMessage(std::string const& message)
         if (command.compare(GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_CODE)) == 0 && _status == IRCBRIDGESTATUS_WAITING_CONFIRMATION)
         {
             _status = IRCBRIDGESTATUS_LOGGED;
+            TC_LOG_INFO("IRCBridge", "IRCBridge: connection code received, logged in");
         }
         else
         {
@@ -112,7 +117,7 @@ void IRCBridge::HandleMessage(std::string const& message)
 
             temp = message.substr(secondWordPosition + 2, message.size() - secondWordPosition - 3);
 
-            TC_LOG_INFO("IRCBridge", "IRCBridge::HandleMessage: user: %s, command %s, rest: '%s'", user.c_str(), command.c_str(), temp.c_str());
+            TC_LOG_DEBUG("IRCBridge", "IRCBridge::HandleMessage: user: %s, command %s", user.c_str(), command.c_str());
         }
     }
 }
@@ -124,6 +129,7 @@ void IRCBridge::ThreadLoop()
         case IRCBRIDGESTATUS_IDLE:
             if (_reconnectCounter > GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_ATTEMPTS))
             {
+                TC_LOG_ERROR("IRCBridge", "IRCBridge: reached maximum connection attempts, stopping...");
                 Stop();
                 return;
             }
@@ -144,6 +150,7 @@ void IRCBridge::ThreadLoop()
             Send("NICK " + GetConfiguration(CONFIGURATION_IRCBRIDGE_NICKNAME));
             Send("USER " + GetConfiguration(CONFIGURATION_IRCBRIDGE_USERNAME) + " 0 * :TrinityCore - IRCBridge");
 
+            TC_LOG_INFO("IRCBridge", "IRCBridge: login commands sent");
             _status = IRCBRIDGESTATUS_WAITING_CONFIRMATION;
             break;
         case IRCBRIDGESTATUS_LOGGED:

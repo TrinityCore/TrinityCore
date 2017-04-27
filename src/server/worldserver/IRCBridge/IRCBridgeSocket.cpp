@@ -78,9 +78,11 @@ void IRCBridgeSocket::HandleMessage(std::string const& message)
     switch (type)
     {
         case IRCSOCKETCOMMAND_PING:
+            TC_LOG_DEBUG("IRCBridge", "IRCBridgeSocket::HandleMessage: PING command received");
             Send(commands[IRCSOCKETCOMMAND_PONG].data + message.substr(commands[IRCSOCKETCOMMAND_PONG].data.size(), message.size() - commands[IRCSOCKETCOMMAND_PONG].data.size()) + "\r\n");
             break;
         case IRCSOCKETCOMMAND_ERROR:
+            TC_LOG_INFO("IRCBridge", "IRCBridgeSocket::HandleMessage: ERROR command received");
             _master->Reconnect();
             break;
         default:
