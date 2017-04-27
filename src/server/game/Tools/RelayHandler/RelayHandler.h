@@ -20,7 +20,7 @@
 
 #include "Common.h"
 
-enum RelayTargetType
+enum RelayTargetType : uint8
 {
     RELAYTARGETTYPE_IRCBRIDGE,
     RELAYTARGETTYPE_MAX
@@ -40,11 +40,11 @@ class TC_GAME_API RelayHandler
 
         static RelayHandler* instance();
 
-        void Send(std::string const message) { _data.push(message); }
-        std::string GetNext();
+        void Send(RelayTargetType const type, std::string const message);
+        std::string GetNextMessage(RelayTargetType const type);
 
     private:
-        std::queue<std::string> _data;
+        std::vector<std::queue<std::string>> _data;
 };
 
 #define sRelayHandler RelayHandler::instance()

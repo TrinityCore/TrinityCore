@@ -155,7 +155,7 @@ void IRCBridge::ThreadLoop()
             break;
         case IRCBRIDGESTATUS_LOGGED:
         {
-            std::string temp = sRelayHandler->GetNext();
+            std::string temp = sRelayHandler->GetNextMessage(_relayType);
             if (!temp.empty())
                 Send(temp);
             break;

@@ -25,9 +25,14 @@ public:
 
     std::vector<ChatCommand> GetCommands() const override
     {
+        static std::vector<ChatCommand> IRCBridgeCommandTable =
+        {
+            { "ircbridge", 0, true, &HandleRelaySendCommand, "" },
+        };
+
         static std::vector<ChatCommand> RelayCommandTable =
         {
-            { "send", 0, true, &HandleRelaySendCommand, "" },
+            { "send", 0, true, nullptr, "", IRCBridgeCommandTable },
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -39,7 +44,7 @@ public:
 
     static bool HandleRelaySendCommand(ChatHandler* /*handler*/, char const* args)
     {
-        sRelayHandler->Send(args);
+        sRelayHandler->Send(RELAYTARGETTYPE_IRCBRIDGE, args);
         return true;
     }
 };
