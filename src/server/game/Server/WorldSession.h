@@ -52,6 +52,7 @@ struct BlackMarketTemplate;
 struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
+struct Petition;
 struct Position;
 enum class AuctionCommand : int8;
 enum class AuctionResult : int8;
@@ -840,14 +841,6 @@ enum ChatRestrictionType
     ERR_CHAT_RAID_RESTRICTED = 4
 };
 
-enum CharterTypes
-{
-    GUILD_CHARTER_TYPE                            = 4,
-    ARENA_TEAM_CHARTER_2v2_TYPE                   = 2,
-    ARENA_TEAM_CHARTER_3v3_TYPE                   = 3,
-    ARENA_TEAM_CHARTER_5v5_TYPE                   = 5,
-};
-
 enum DeclinedNameResult
 {
     DECLINED_NAMES_RESULT_SUCCESS = 0,
@@ -1293,13 +1286,14 @@ class TC_GAME_API WorldSession
         void HandleSetEveryoneIsAssistant(WorldPackets::Party::SetEveryoneIsAssistant& packet);
         void HandleClearRaidMarker(WorldPackets::Party::ClearRaidMarker& packet);
 
-        void HandleDeclinePetition(WorldPackets::Petition::DeclinePetition& packet);
-        void HandleOfferPetition(WorldPackets::Petition::OfferPetition& packet);
         void HandlePetitionBuy(WorldPackets::Petition::PetitionBuy& packet);
         void HandlePetitionShowSignatures(WorldPackets::Petition::PetitionShowSignatures& packet);
+        void SendPetitionSigns(Petition const* petition, Player* sendTo);
         void HandleQueryPetition(WorldPackets::Petition::QueryPetition& packet);
         void HandlePetitionRenameGuild(WorldPackets::Petition::PetitionRenameGuild& packet);
         void HandleSignPetition(WorldPackets::Petition::SignPetition& packet);
+        void HandleDeclinePetition(WorldPackets::Petition::DeclinePetition& packet);
+        void HandleOfferPetition(WorldPackets::Petition::OfferPetition& packet);
         void HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& packet);
 
         void HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& query);

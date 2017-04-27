@@ -142,7 +142,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
 
     // Remove all player signatures from other petitions
     // This will prevent player from joining too many arena teams and corrupt arena team data integrity
-    //Player::RemovePetitionsAndSigns(playerGuid, GetType()); /// @todo arena teams removed in 5.4
+    //Player::RemovePetitionsAndSigns(playerGuid, static_cast<CharterTypes>(GetType())); /// @todo arena teams removed in 5.4
 
     // Feed data to the struct
     ArenaTeamMember newMember;

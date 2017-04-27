@@ -92,6 +92,7 @@
 #include "Pet.h"
 #include "PetPackets.h"
 #include "PoolMgr.h"
+#include "PetitionMgr.h"
 #include "PhasingHandler.h"
 #include "QueryCallback.h"
 #include "QueryHolder.h"
@@ -22429,42 +22430,8 @@ void Player::SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const
 
 void Player::RemovePetitionsAndSigns(ObjectGuid guid)
 {
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIG_BY_GUID);
-    stmt->setUInt64(0, guid.GetCounter());
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-    if (result)
-    {
-        do                                                  // this part effectively does nothing, since the deletion / modification only takes place _after_ the PetitionQuery. Though I don't know if the result remains intact if I execute the delete query beforehand.
-        {                                                   // and SendPetitionQueryOpcode reads data from the DB
-            Field* fields = result->Fetch();
-            ObjectGuid ownerguid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
-            ObjectGuid petitionguid = ObjectGuid::Create<HighGuid::Item>(fields[1].GetUInt64());
-
-            // send update if charter owner in game
-            Player* owner = ObjectAccessor::FindConnectedPlayer(ownerguid);
-            if (owner)
-                owner->GetSession()->SendPetitionQueryOpcode(petitionguid);
-        } while (result->NextRow());
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_PETITION_SIGNATURES);
-
-        stmt->setUInt64(0, guid.GetCounter());
-
-        CharacterDatabase.Execute(stmt);
-    }
-
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_BY_OWNER);
-    stmt->setUInt64(0, guid.GetCounter());
-    trans->Append(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PETITION_SIGNATURE_BY_OWNER);
-    stmt->setUInt64(0, guid.GetCounter());
-    trans->Append(stmt);
-
-    CharacterDatabase.CommitTransaction(trans);
+    sPetitionMgr->RemoveSignaturesBySigner(guid);
+    sPetitionMgr->RemovePetitionsByOwner(guid);
 }
 
 void Player::LeaveAllArenaTeams(ObjectGuid guid)
