@@ -32,10 +32,20 @@ namespace ai
 		BloodTapTrigger(PlayerbotAI* ai) : BuffTrigger(ai, "blood tap") {}
 	};
 
+	class RaiseDeadTrigger : public BuffTrigger {
+	public:
+		RaiseDeadTrigger(PlayerbotAI* ai) : BuffTrigger(ai, "raise dead") {}
+	};
+
 
 	class RuneStrikeTrigger : public SpellCanBeCastTrigger {
 	public:
 		RuneStrikeTrigger(PlayerbotAI* ai) : SpellCanBeCastTrigger(ai, "rune strike") {}
+	};
+
+	class DeathCoilTrigger : public SpellCanBeCastTrigger {
+	public:
+		DeathCoilTrigger(PlayerbotAI* ai) : SpellCanBeCastTrigger(ai, "death coil") {}
 	};
 
 	class PestilenceTrigger : public DebuffTrigger {

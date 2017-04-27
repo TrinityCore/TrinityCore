@@ -87,6 +87,7 @@ namespace ai
 				creators["plague strike"] = &TriggerFactoryInternal::plague_strike;
 				creators["plague strike on attacker"] = &TriggerFactoryInternal::plague_strike_on_attacker;
                 creators["icy touch"] = &TriggerFactoryInternal::icy_touch;
+				creators["death coil"] = &TriggerFactoryInternal::death_coil;
 				creators["icy touch on attacker"] = &TriggerFactoryInternal::icy_touch_on_attacker;
                 creators["improved icy talons"] = &TriggerFactoryInternal::improved_icy_talons;
                 creators["plague strike"] = &TriggerFactoryInternal::plague_strike;
@@ -96,6 +97,7 @@ namespace ai
 				creators["strangulate"] = &TriggerFactoryInternal::strangulate;
 				creators["strangulate on enemy healer"] = &TriggerFactoryInternal::strangulate_on_enemy_healer;
 				creators["blood tap"] = &TriggerFactoryInternal::blood_tap;
+				creators["raise dead"] = &TriggerFactoryInternal::raise_dead;
             }
 
         private:
@@ -105,6 +107,7 @@ namespace ai
 			static Trigger* plague_strike(PlayerbotAI* ai) { return new PlagueStrikeDebuffTrigger(ai); }
 			static Trigger* plague_strike_on_attacker(PlayerbotAI* ai) { return new PlagueStrikeDebuffOnAttackerTrigger(ai); }
             static Trigger* icy_touch(PlayerbotAI* ai) { return new IcyTouchDebuffTrigger(ai); }
+			static Trigger* death_coil(PlayerbotAI* ai) { return new DeathCoilTrigger(ai); }
 			static Trigger* icy_touch_on_attacker(PlayerbotAI* ai) { return new IcyTouchDebuffOnAttackerTrigger(ai); }
             static Trigger* improved_icy_talons(PlayerbotAI* ai) { return new ImprovedIcyTalonsTrigger(ai); }
             static Trigger* horn_of_winter(PlayerbotAI* ai) { return new HornOfWinterTrigger(ai); }
@@ -113,6 +116,8 @@ namespace ai
 			static Trigger* strangulate(PlayerbotAI* ai) { return new StrangulateInterruptSpellTrigger(ai); }
 			static Trigger* strangulate_on_enemy_healer(PlayerbotAI* ai) { return new StrangulateOnEnemyHealerTrigger(ai); }
 			static Trigger* blood_tap(PlayerbotAI* ai) { return new BloodTapTrigger(ai); }
+			static Trigger* raise_dead(PlayerbotAI* ai) { return new RaiseDeadTrigger(ai); }
+
 
 		};
     };

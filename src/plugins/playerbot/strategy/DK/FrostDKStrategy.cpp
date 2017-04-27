@@ -70,8 +70,8 @@ public:
 
 	NextAction** FrostDKStrategy::getDefaultActions()
 	{
-    return NextAction::array(0, new NextAction("frost strike", 7.0f),
-		new NextAction("obliterate", 7.0f), NULL);
+    return NextAction::array(0, new NextAction("frost strike", ACTION_NORMAL + 4),
+		new NextAction("obliterate", ACTION_NORMAL + 4), NULL);
 	}
 
 void FrostDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
@@ -80,12 +80,12 @@ void FrostDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
     triggers.push_back(new TriggerNode(
         "empower weapon",
-        NextAction::array(0, new NextAction("empower weapon", 50.0f), NULL)));
+        NextAction::array(0, new NextAction("empower weapon", ACTION_NORMAL + 4), NULL)));
 }
 
 void FrostDKAoeStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 {
 	triggers.push_back(new TriggerNode(
 		"light aoe",
-		NextAction::array(0, new NextAction("howling blast", 40.0f), NULL)));
+		NextAction::array(0, new NextAction("howling blast", ACTION_NORMAL + 4), NULL)));
 }
