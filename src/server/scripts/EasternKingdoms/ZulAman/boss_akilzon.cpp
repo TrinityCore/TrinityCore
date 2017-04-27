@@ -242,7 +242,6 @@ class boss_akilzon : public CreatureScript
                             {
                                 TargetGUID = target->GetGUID();
                                 DoCast(target, SPELL_STATIC_DISRUPTION, false);
-                                me->SetInFront(me->GetVictim());
                             }
                             /*if (float dist = me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
                             SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/

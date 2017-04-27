@@ -65,7 +65,7 @@ public:
                     me->SummonCreature(NPC_GRIMTOTEM_SORCERER, -36.37f, -496.23f, -45.71f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                     break;
                 case 18:
-                    me->SetInFront(player);
+                    me->SetFacingToObject(player);
                     Talk(SAY_END);
                     player->GroupEventHappens(QUEST_PROTECT_KAYA, me);
                     break;
