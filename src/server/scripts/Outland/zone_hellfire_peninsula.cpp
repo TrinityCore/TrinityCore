@@ -957,7 +957,7 @@ public:
         void StartFight(Player* player)
         {
             me->Dismount();
-            me->SetFacingToObject(player, true);
+            me->SetFacingToObject(player);
             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             _playerGUID = player->GetGUID();
             _events.ScheduleEvent(EVENT_TALK, Seconds(2));

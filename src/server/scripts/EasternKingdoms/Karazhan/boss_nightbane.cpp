@@ -328,7 +328,7 @@ public:
                     DoResetThreat();
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     {
-                        me->SetFacingToObject(target, true);
+                        me->SetFacingToObject(target);
                         DoCast(target, SPELL_RAIN_OF_BONES);
                     }
                     break;

@@ -499,7 +499,7 @@ public:
                         _events.Repeat(Seconds(3), Seconds(7));
                         break;
                     case EVENT_START_SOUL_RETRIEVE:
-                        me->SetFacingTo(FACE_THE_DOOR, true);
+                        me->SetFacingTo(FACE_THE_DOOR);
                         DoCast(SPELL_AKAMA_SOUL_RETRIEVE);
                         _events.ScheduleEvent(EVENT_START_BROKEN_FREE, Seconds(15));
                         break;

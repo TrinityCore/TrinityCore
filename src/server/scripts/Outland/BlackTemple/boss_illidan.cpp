@@ -865,7 +865,7 @@ public:
                         events.ScheduleEvent(EVENT_FLY_TO_RANDOM_PILLAR, Seconds(2), GROUP_PHASE_ALL);
                         break;
                     case EVENT_CHANGE_ORIENTATION:
-                        me->SetFacingTo(_orientation, true);
+                        me->SetFacingTo(_orientation);
                         break;
                     case EVENT_FLY:
                         ChangeOrientation(3.137039f);
@@ -882,7 +882,7 @@ public:
                     case EVENT_FACE_MIDDLE:
                     {
                         float angle = me->GetAngle(IllidanMiddlePoint);
-                        me->SetFacingTo(angle, true);
+                        me->SetFacingTo(angle);
                         break;
                     }
                     case EVENT_EYE_BLAST:
@@ -1299,7 +1299,7 @@ public:
                         me->SetEmoteState(EMOTE_STATE_READY1H);
                         break;
                     case EVENT_CHANGE_ORIENTATION:
-                        me->SetFacingTo(_orientation, true);
+                        me->SetFacingTo(_orientation);
                         break;
                     case EVENT_HEALING_POTION:
                         if (me->HealthBelowPct(20))
