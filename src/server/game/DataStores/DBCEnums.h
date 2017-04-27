@@ -971,7 +971,7 @@ enum SceneFlags
 
 enum PrestigeLevelInfoFlags
 {
-    PRESTIGE_FLAG_DISABLED = 0x01 // Prestige levels witht this flag won't be included to calculate max prestigelevel.
+    PRESTIGE_FLAG_DISABLED = 0x01 // Prestige levels with this flag won't be included to calculate max prestigelevel.
 };
 
 #endif
