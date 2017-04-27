@@ -76,9 +76,7 @@ void PetitionMgr::LoadSignatures()
 
         Petition* petition = GetPetition(ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt32()));
         if (!petition)
-        {
             continue;
-        }
 
         petition->AddSignature(petition->petitionGuid, fields[1].GetUInt32(), ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt32()), true);
         ++count;
@@ -150,10 +148,10 @@ void PetitionMgr::RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTyp
         if (itr->second.ownerGuid == ownerGuid)
         {
             if (type == CHARTER_TYPE_ANY)
-                _petitionStore.erase(itr++);
+                itr = _petitionStore.erase(itr);
             else if (type == itr->second.petitionType)
             {
-                _petitionStore.erase(itr++);
+                itr = _petitionStore.erase(itr);
                 break;
             }
         }
@@ -250,6 +248,7 @@ void Petition::UpdateName(std::string const& newName)
 void Petition::RemoveSignatureBySigner(ObjectGuid playerGuid)
 {
     for (auto itr = signatures.begin(); itr != signatures.end(); ++itr)
+    {
         if (itr->second == playerGuid)
         {
             signatures.erase(itr);
@@ -260,4 +259,5 @@ void Petition::RemoveSignatureBySigner(ObjectGuid playerGuid)
 
             break;
         }
+    }
 }
