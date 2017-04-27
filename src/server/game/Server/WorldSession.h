@@ -55,6 +55,7 @@ struct AuctionEntry;
 struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
+struct Petition;
 
 namespace lfg
 {
@@ -310,14 +311,6 @@ enum ChatRestrictionType
     ERR_CHAT_THROTTLED  = 1,
     ERR_USER_SQUELCHED  = 2,
     ERR_YELL_RESTRICTED = 3
-};
-
-enum CharterTypes
-{
-    GUILD_CHARTER_TYPE                            = 4,
-    ARENA_TEAM_CHARTER_2v2_TYPE                   = 2,
-    ARENA_TEAM_CHARTER_3v3_TYPE                   = 3,
-    ARENA_TEAM_CHARTER_5v5_TYPE                   = 5,
 };
 
 #define DB2_REPLY_SPARSE 2442913102
@@ -814,6 +807,7 @@ class TC_GAME_API WorldSession
 
         void HandlePetitionBuyOpcode(WorldPacket& recvData);
         void HandlePetitionShowSignOpcode(WorldPacket& recvData);
+        void SendPetitionSigns(Petition const* petition, Player* sendTo);
         void HandlePetitionQueryOpcode(WorldPacket& recvData);
         void HandlePetitionRenameOpcode(WorldPacket& recvData);
         void HandlePetitionSignOpcode(WorldPacket& recvData);
