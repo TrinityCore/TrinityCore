@@ -3154,26 +3154,6 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
     m_focusDelay = (!IsPet() && withDelay) ? GameTime::GetGameTimeMS() : 0; // don't allow re-target right away to prevent visual bugs
 }
 
-bool Creature::IsMovementPreventedByCasting() const
-{
-    // first check if currently a movement allowed channel is active and we're not casting
-    if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-    {
-        if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
-            if (spell->GetSpellInfo()->IsMoveAllowedChannel())
-                if (HasUnitState(UNIT_STATE_CASTING))
-                    return true;
-    }
-
-    if (const_cast<Creature*>(this)->IsFocusing(nullptr, true))
-        return true;
-
-    if (HasUnitState(UNIT_STATE_CASTING))
-        return true;
-
-    return false;
-}
-
 void Creature::StartPickPocketRefillTimer()
 {
     _pickpocketLootRestore = time(nullptr) + sWorld->getIntConfig(CONFIG_CREATURE_PICKPOCKET_REFILL);

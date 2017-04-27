@@ -331,8 +331,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsFocusing(Spell const* focusSpell = nullptr, bool withDelay = false) override;
         void ReleaseFocus(Spell const* focusSpell = nullptr, bool withDelay = true);
 
-        bool IsMovementPreventedByCasting() const override;
-
         // Part of Evade mechanics
         time_t GetLastDamagedTime() const { return _lastDamagedTime; }
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
