@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_IRCBRIDGESCRIPTS_H
-#define TRINITY_IRCBRIDGESCRIPTS_H
+#ifndef TRINITY_RELAYSCRIPTS_H
+#define TRINITY_RELAYSCRIPTS_H
 
 
 
-#endif // TRINITY_IRCBRIDGESCRIPTS_H
+#endif // TRINITY_RELAYSCRIPTS_H

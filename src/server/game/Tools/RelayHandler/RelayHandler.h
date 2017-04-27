@@ -15,18 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_IRCBRIDGEHANDLER_H
-#define TRINITY_IRCBRIDGEHANDLER_H
+#ifndef TRINITY_RELAYHANDLER_H
+#define TRINITY_RELAYHANDLER_H
 
 #include "Common.h"
 
-class TC_GAME_API IRCBridgeHandler
+class TC_GAME_API RelayHandler
 {
     public:
-        IRCBridgeHandler();
-        ~IRCBridgeHandler();
+        RelayHandler();
+        ~RelayHandler();
 
-        static IRCBridgeHandler* instance();
+        static RelayHandler* instance();
 
         void Send(std::string const message) { _data.push(message); }
         std::string GetNext();
@@ -35,6 +35,6 @@ class TC_GAME_API IRCBridgeHandler
         std::queue<std::string> _data;
 };
 
-#define sIRCBridgeHandler IRCBridgeHandler::instance()
+#define sRelayHandler RelayHandler::instance()
 
-#endif // TRINITY_IRCBRIDGEHANDLER_H
+#endif // TRINITY_RELAYHANDLER_H

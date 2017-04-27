@@ -2,7 +2,7 @@
 #include "Timer.h"
 #include "Config.h"
 #include "Log.h"
-#include "IRCBridgeHandler.h"
+#include "RelayHandler.h"
 #include "World.h"
 #include "IRCBridge.h"
 #include "IRCBridgeSocket.h"
@@ -148,7 +148,7 @@ void IRCBridge::ThreadLoop()
             break;
         case IRCBRIDGESTATUS_LOGGED:
         {
-            std::string temp = sIRCBridgeHandler->GetNext();
+            std::string temp = sRelayHandler->GetNext();
             if (!temp.empty())
                 Send(temp);
             break;

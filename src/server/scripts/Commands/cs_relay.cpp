@@ -16,35 +16,35 @@
  */
 
 #include "ScriptMgr.h"
-#include "IRCBridgeHandler.h"
+#include "RelayHandler.h"
 
-class ircbridge_commandscript : public CommandScript
+class relay_commandscript : public CommandScript
 {
 public:
-    ircbridge_commandscript() : CommandScript("server_commandscript") { }
+    relay_commandscript() : CommandScript("relay_commandscript") { }
 
     std::vector<ChatCommand> GetCommands() const override
     {
-        static std::vector<ChatCommand> IRCBridgeCommandTable =
+        static std::vector<ChatCommand> RelayCommandTable =
         {
-            { "send", 0, true, &HandleIRCBridgeSendCommand, "" },
+            { "send", 0, true, &HandleRelaySendCommand, "" },
         };
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "ircbridge", 0, true, nullptr, "", IRCBridgeCommandTable },
+            { "relayhandler", 0, true, nullptr, "", RelayCommandTable },
         };
         return commandTable;
     }
 
-    static bool HandleIRCBridgeSendCommand(ChatHandler* /*handler*/, char const* args)
+    static bool HandleRelaySendCommand(ChatHandler* /*handler*/, char const* args)
     {
-        sIRCBridgeHandler->Send(args);
+        sRelayHandler->Send(args);
         return true;
     }
 };
 
-void AddSC_ircbridge_commandscript()
+void AddSC_relay_commandscript()
 {
-    new ircbridge_commandscript();
+    new relay_commandscript();
 }
