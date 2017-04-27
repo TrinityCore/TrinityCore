@@ -118,6 +118,7 @@ class IRCBridge
 
         IRCBridgeStatus _status;
         uint32 _reconnectTimer;
+        uint32 _reconnectCounter;
         bool _active;
 };
 

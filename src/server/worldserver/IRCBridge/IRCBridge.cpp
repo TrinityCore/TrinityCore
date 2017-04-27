@@ -14,16 +14,13 @@
 
 #define UPDATE_CONST 50
 
-IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr), _status(IRCBRIDGESTATUS_IDLE), _reconnectTimer(0), _active(false)
+IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr), _status(IRCBRIDGESTATUS_IDLE), _reconnectTimer(0), _reconnectCounter(0), _active(false)
 {
 }
 
 IRCBridge::~IRCBridge()
 {
     Stop();
-
-    if (_thread.joinable())
-        _thread.join();
 
     delete _strand;
 }
@@ -62,6 +59,9 @@ void IRCBridge::Stop()
         _socket->CloseSocket();
 
     _active = false;
+
+    if (_thread.joinable())
+        _thread.join();
 }
 
 void IRCBridge::Send(std::string message)
@@ -120,8 +120,15 @@ void IRCBridge::ThreadLoop()
     switch (_status)
     {
         case IRCBRIDGESTATUS_IDLE:
+            if (_reconnectCounter > GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_ATTEMPTS))
+            {
+                Stop();
+                return;
+            }
+
             if (_reconnectTimer <= UPDATE_CONST)
             {
+                ++_reconnectCounter;
                 StartNetwork(GetConfiguration(CONFIGURATION_IRCBRIDGE_HOST), std::to_string(GetConfiguration(CONFIGURATION_IRCBRIDGE_PORT)));
                 _status = IRCBRIDGESTATUS_WAITING_CONNECTION;
             }
@@ -195,6 +202,7 @@ void IRCBridge::OnConnect(boost::asio::ip::tcp::socket&& socket)
     _socket = std::make_shared<IRCBridgeSocket>(this, std::move(socket));
     _socket->Start();
 
+    _reconnectCounter = 0;
     _status = IRCBRIDGESTATUS_CONNECTED;
 }
 
