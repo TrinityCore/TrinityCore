@@ -93,7 +93,7 @@ WorldPacket const* WorldPackets::Spells::SendUnlearnSpells::Write()
 }
 
 template<class T, class U>
-bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits(T* attacker, U* target)
+bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits(T*, U*)
 {
     return false;
 }
