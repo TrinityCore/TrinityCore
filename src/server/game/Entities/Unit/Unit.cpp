@@ -3325,9 +3325,6 @@ bool Unit::IsMovementPreventedByCasting() const
             if (spell->GetSpellInfo()->IsMoveAllowedChannel())
                 return false;
 
-    if (const_cast<Unit*>(this)->IsFocusing(nullptr, true))
-        return false;
-
     // prohibit movement for all other spell casts
     return true;
 }
