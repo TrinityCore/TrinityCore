@@ -154,6 +154,8 @@ void PetitionMgr::RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTyp
                 itr = _petitionStore.erase(itr);
                 break;
             }
+            else
+                ++itr;
         }
         else
             ++itr;
