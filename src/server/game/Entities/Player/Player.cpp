@@ -15217,7 +15217,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
 {
     if (!DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this) && SatisfyQuestClass(quest, false) && SatisfyQuestRace(quest, false) &&
         SatisfyQuestSkill(quest, false) && SatisfyQuestExclusiveGroup(quest, false) && SatisfyQuestReputation(quest, false) &&
-        SatisfyQuestDependentQuests(quest, false) && SatisfyQuestNextChain(quest, false) &&
+        SatisfyQuestDependentQuests(quest, false) &&
         SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
         SatisfyQuestMonth(quest, false) && SatisfyQuestSeasonal(quest, false))
     {
@@ -15234,7 +15234,6 @@ bool Player::CanTakeQuest(Quest const* quest, bool msg)
         && SatisfyQuestClass(quest, msg) && SatisfyQuestRace(quest, msg) && SatisfyQuestLevel(quest, msg)
         && SatisfyQuestSkill(quest, msg) && SatisfyQuestReputation(quest, msg)
         && SatisfyQuestDependentQuests(quest, msg) && SatisfyQuestTimed(quest, msg)
-        && SatisfyQuestNextChain(quest, msg)
         && SatisfyQuestDay(quest, msg) && SatisfyQuestWeek(quest, msg)
         && SatisfyQuestMonth(quest, msg) && SatisfyQuestSeasonal(quest, msg)
         && SatisfyQuestConditions(quest, msg);
@@ -16367,30 +16366,6 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg) const
             return false;
         }
     }
-    return true;
-}
-
-bool Player::SatisfyQuestNextChain(Quest const* qInfo, bool msg) const
-{
-    uint32 nextQuest = qInfo->GetNextQuestInChain();
-    if (!nextQuest)
-        return true;
-
-    // next quest in chain already started or completed
-    if (GetQuestStatus(nextQuest) != QUEST_STATUS_NONE) // GetQuestStatus returns QUEST_STATUS_COMPLETED for rewarded quests
-    {
-        if (msg)
-        {
-            SendCanTakeQuestResponse(QUEST_ERR_NONE);
-            TC_LOG_DEBUG("misc", "Player::SatisfyQuestNextChain: Sent QUEST_ERR_NONE (QuestID: %u) because player '%s' (%s) already did or started next quest in chain.",
-                qInfo->GetQuestId(), GetName().c_str(), GetGUID().ToString().c_str());
-        }
-        return false;
-    }
-
-    // check for all quests further up the chain
-    // only necessary if there are quest chains with more than one quest that can be skipped
-    //return SatisfyQuestNextChain(qInfo->GetNextQuestInChain(), msg);
     return true;
 }
 
