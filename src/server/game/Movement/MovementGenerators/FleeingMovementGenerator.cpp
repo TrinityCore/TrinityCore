@@ -207,17 +207,17 @@ bool TimedFleeingMovementGenerator::Update(Unit* owner, uint32 time_diff)
     return MovementGeneratorMedium< Creature, FleeingMovementGenerator<Creature> >::Update(owner, time_diff);
 }
 
-void TimedFleeingMovementGenerator::Finalize(Unit* owner)
+void TimedFleeingMovementGenerator::Finalize(WorldObject* owner)
 {
-    owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
-    owner->ClearUnitState(UNIT_STATE_FLEEING);
-    owner->StopMoving();
+    ((Unit *)owner)->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
+    ((Unit *)owner)ner->ClearUnitState(UNIT_STATE_FLEEING);
+    ((Unit *)owner)->StopMoving();
     if (Unit* victim = owner->GetVictim())
     {
-        if (owner->IsAlive())
+		if (((Unit *)owner)->IsAlive())
         {
-            owner->AttackStop();
-            owner->ToCreature()->AI()->AttackStart(victim);
+			((Unit *)owner)->AttackStop();
+			((Unit *)owner)->ToCreature()->AI()->AttackStart(victim);
         }
     }
 }

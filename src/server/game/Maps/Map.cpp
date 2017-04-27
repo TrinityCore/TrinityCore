@@ -459,7 +459,7 @@ void Map::EnsureGridCreated(const GridCoord &p)
 //But object data is not loaded here
 void Map::EnsureGridCreated_i(const GridCoord &p)
 {
-    if (!getNGrid(p.x_coord, p.y_coord))
+	if (p.x_coord<MAX_NUMBER_OF_GRIDS && p.y_coord<MAX_NUMBER_OF_GRIDS && !getNGrid(p.x_coord, p.y_coord))
     {
         TC_LOG_DEBUG("maps", "Creating grid[%u, %u] for map %u instance %u", p.x_coord, p.y_coord, GetId(), i_InstanceId);
 
@@ -2335,13 +2335,18 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
 {
     // find raw .map surface under Z coordinates
     float mapHeight = VMAP_INVALID_HEIGHT_VALUE;
-    if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
-    {
-        float gridHeight = gmap->getHeight(x, y);
-        // look from a bit higher pos to find the floor, ignore under surface case
-        if (z + 2.0f > gridHeight)
-            mapHeight = gridHeight;
-    }
+	if (!std::isnan(x) && !std::isnan(y))
+	{
+		if (GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
+		{
+			float gridHeight = gmap->getHeight(x, y);
+			// look from a bit higher pos to find the floor, ignore under surface case
+			if (z + 2.0f > gridHeight)
+				mapHeight = gridHeight;
+		}
+	}
+	else
+		return 0.0f;
 
     float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
     if (checkVMap)

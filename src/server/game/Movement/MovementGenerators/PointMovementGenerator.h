@@ -53,7 +53,7 @@ class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
         explicit AssistanceMovementGenerator(float _x, float _y, float _z) : PointMovementGenerator<Creature>(0, _x, _y, _z, true) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_MOTION_TYPE; }
-        void Finalize(Unit*) override;
+        void Finalize(WorldObject*) override;
 };
 
 class EffectMovementGenerator : public MovementGenerator
@@ -61,10 +61,10 @@ class EffectMovementGenerator : public MovementGenerator
     public:
         explicit EffectMovementGenerator(uint32 id) : _pointId(id) { }
 
-        void Initialize(Unit*) override { }
-        void Finalize(Unit*) override;
-        void Reset(Unit*) override { }
-        bool Update(Unit*, uint32) override;
+		void Initialize(WorldObject*) override { }
+		void Finalize(WorldObject*) override;
+		void Reset(WorldObject*) override { }
+		bool Update(WorldObject*, uint32) override;
         MovementGeneratorType GetMovementGeneratorType() const override { return EFFECT_MOTION_TYPE; }
 
     private:

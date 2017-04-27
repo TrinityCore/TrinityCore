@@ -2084,8 +2084,8 @@ void Player::ProcessDelayedOperations()
     if (m_DelayedOperations & DELAYED_SAVE_PLAYER)
         SaveToDB();
 
-    if (m_DelayedOperations & DELAYED_SPELL_CAST_DESERTER)
-        CastSpell(this, 26013, true);               // Deserter
+//  if (m_DelayedOperations & DELAYED_SPELL_CAST_DESERTER)
+//      CastSpell(this, 26013, true);               // Deserter
 
     if (m_DelayedOperations & DELAYED_BG_MOUNT_RESTORE)
     {
@@ -3891,13 +3891,16 @@ bool Player::Has310Flyer(bool checkAllSpells, uint32 excludeSpellId)
                     break;  // We can break because mount spells belong only to one skillline (at least 310 flyers do)
 
                 spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
-                        spellInfo->Effects[i].CalcValue() == 310)
-                    {
-                        SetHas310Flyer(true);
-                        return true;
-                    }
+				if (spellInfo != NULL)
+				{
+					for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+						if (spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
+							spellInfo->Effects[i].CalcValue() == 310)
+						{
+							SetHas310Flyer(true);
+							return true;
+						}
+				}
             }
         }
     }
@@ -3911,6 +3914,8 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
     GetSpellHistory()->ResetCooldowns([](SpellHistory::CooldownStorageType::iterator itr) -> bool
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
+		if (spellInfo == NULL)
+			return false;		
         return spellInfo->RecoveryTime < 10 * MINUTE * IN_MILLISECONDS && spellInfo->CategoryRecoveryTime < 10 * MINUTE * IN_MILLISECONDS;
     }, true);
 
@@ -22094,11 +22099,11 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
                 //lets check if player was teleported from BG and schedule delayed Deserter spell cast
                 if (IsBeingTeleportedFar())
                 {
-                    ScheduleDelayedOperation(DELAYED_SPELL_CAST_DESERTER);
+//                  ScheduleDelayedOperation(DELAYED_SPELL_CAST_DESERTER);
                     return;
                 }
 
-                CastSpell(this, 26013, true);               // Deserter
+                //CastSpell(this, 26013, true);               // Deserter
             }
         }
 
@@ -24837,7 +24842,7 @@ void Player::_LoadSkills(PreparedQueryResult result)
             }
 
             uint16 skillStep = 0;
-            if (SkillTiersEntry const* skillTier = sSkillTiersStore.LookupEntry(rcEntry->SkillTier))
+            if (SkillTiersEntry const* skillTier = sSkillTiersStore.LookupEntry(skill))
             {
                 for (uint32 i = 0; i < MAX_SKILL_STEP; ++i)
                 {

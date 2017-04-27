@@ -26,7 +26,7 @@
 class TargetedMovementGeneratorBase
 {
     public:
-        TargetedMovementGeneratorBase(Unit* target)
+        TargetedMovementGeneratorBase(WorldObject* target)
         {
             _target.link(target, this);
         }
@@ -75,7 +75,7 @@ template<class T>
 class ChaseMovementGenerator : public TargetedMovementGenerator<T, ChaseMovementGenerator<T> >
 {
     public:
-        explicit ChaseMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGenerator<T, ChaseMovementGenerator<T> >(target, offset, angle) { }
+        explicit ChaseMovementGenerator(WorldObject* target, float offset, float angle) : TargetedMovementGenerator<T, ChaseMovementGenerator<T> >(target, offset, angle) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return CHASE_MOTION_TYPE; }
 
@@ -94,7 +94,7 @@ template<class T>
 class FollowMovementGenerator : public TargetedMovementGenerator<T, FollowMovementGenerator<T> >
 {
     public:
-        explicit FollowMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGenerator<T, FollowMovementGenerator<T> >(target, offset, angle) { }
+        explicit FollowMovementGenerator(WorldObject* target, float offset, float angle) : TargetedMovementGenerator<T, FollowMovementGenerator<T> >(target, offset, angle) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
 

@@ -1,6 +1,10 @@
 #pragma once
 #include "../Trigger.h"
 #include "../../PlayerbotAIConfig.h"
+#include "../../../Battlegrounds/Battleground.h"
+#include "../../../Battlegrounds/BattlegroundMgr.h"
+#include "../../../Battlegrounds/BattlegroundQueue.h"
+#include "../../../Battlegrounds/Zones/BattlegroundWS.h"
 
 #define BUFF_TRIGGER(clazz, spell, action) \
     class clazz : public BuffTrigger \
@@ -487,6 +491,34 @@ namespace ai
     public:
         virtual bool IsActive();
     };
+	
+	class PlayerHasNoFlag : public Trigger
+	{
+	public:
+		PlayerHasNoFlag(PlayerbotAI* ai) : Trigger(ai, "player has no flag") {}
+
+	public:
+		virtual bool IsActive();
+	};
+
+	class PlayerIsInBattleground : public Trigger
+	{
+	public:
+		PlayerIsInBattleground(PlayerbotAI* ai) : Trigger(ai, "in battleground") {}
+
+	public:
+		virtual bool IsActive();
+	};
+
+	class PlayerIsInBattlegroundWithoutFlag : public Trigger
+	{
+	public:
+		PlayerIsInBattlegroundWithoutFlag(PlayerbotAI* ai) : Trigger(ai, "in battleground without flag") {}
+
+	public:
+		virtual bool IsActive();
+	};
+
 
     class IsSwimmingTrigger : public Trigger
     {

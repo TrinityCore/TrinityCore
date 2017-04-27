@@ -18,7 +18,7 @@ AuctionHouseBot.Buyer.Enabled = 0
 AhBot.Enabled = 0
 
 # Should be used only if random bots are disabled
-# AhBot.GUID = 0
+AhBot.GUID = 0
 
 # 199 for 80, 80 for 70, 70 for 60, ..., 25 for 20
 AhBot.MaxItemLevel = 199
@@ -28,6 +28,7 @@ AhBot.MaxRequiredLevel = 80
 # Ignore items by ID
 AhBot.IgnoreItemIds = 49283,52200,8494,6345,6891,2460
 
+# AhBot Settings
 AhBot.UpdateIntervalInSeconds = 300
 AhBot.History.Days = 30
 AhBot.MaxSellInterval = 28800

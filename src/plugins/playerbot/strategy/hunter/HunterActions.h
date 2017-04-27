@@ -96,7 +96,8 @@ namespace ai
 	class CastRevivePetAction : public CastBuffSpellAction
 	{
 	public:
-		CastRevivePetAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "revive pet") {}
+		CastRevivePetAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "revive pet") {};
+
 	};
 
     class CastTrueshotAuraAction : public CastBuffSpellAction

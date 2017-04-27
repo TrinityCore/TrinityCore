@@ -20,11 +20,12 @@
 #define _FOLLOWERREFERENCE_H
 
 #include "Reference.h"
+#include "Object.h"
 
 class TargetedMovementGeneratorBase;
 class Unit;
 
-class FollowerReference : public Reference<Unit, TargetedMovementGeneratorBase>
+class FollowerReference : public Reference<WorldObject, TargetedMovementGeneratorBase>
 {
     protected:
         void targetObjectBuildLink() override;

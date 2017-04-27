@@ -32,39 +32,39 @@ class TC_GAME_API MovementGenerator
     public:
         virtual ~MovementGenerator();
 
-        virtual void Initialize(Unit*) = 0;
-        virtual void Finalize(Unit*) = 0;
-        virtual void Reset(Unit*) = 0;
-        virtual bool Update(Unit*, uint32 diff) = 0;
+        virtual void Initialize(WorldObject*) = 0;
+		virtual void Finalize(WorldObject*) = 0;
+		virtual void Reset(WorldObject*) = 0;
+        virtual bool Update(WorldObjectit*, uint32 diff) = 0;
 
         virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 
         virtual void UnitSpeedChanged() { }
 
         // used by Evade code for select point to evade with expected restart default movement
-        virtual bool GetResetPosition(Unit*, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }
+		virtual bool GetResetPosition(WorldObject*, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }
 };
 
 template<class T, class D>
 class MovementGeneratorMedium : public MovementGenerator
 {
     public:
-        void Initialize(Unit* u) override
+        void Initialize(WorldObject* u) override
         {
             (static_cast<D*>(this))->DoInitialize(static_cast<T*>(u));
         }
 
-        void Finalize(Unit* u) override
+        void Finalize(WorldObject* u) override
         {
             (static_cast<D*>(this))->DoFinalize(static_cast<T*>(u));
         }
 
-        void Reset(Unit* u) override
+        void Reset(WorldObject* u) override
         {
             (static_cast<D*>(this))->DoReset(static_cast<T*>(u));
         }
 
-        bool Update(Unit* u, uint32 time_diff) override
+        bool Update(WorldObject* u, uint32 time_diff) override
         {
             return (static_cast<D*>(this))->DoUpdate(static_cast<T*>(u), time_diff);
         }

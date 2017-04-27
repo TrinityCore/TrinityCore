@@ -220,6 +220,7 @@ class BattlegroundWS : public Battleground
         void HandleAreaTrigger(Player* player, uint32 trigger) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
         bool SetupBattleground() override;
+		int GetBracketCreature();		
         void Reset() override;
         void EndBattleground(uint32 winner) override;
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;

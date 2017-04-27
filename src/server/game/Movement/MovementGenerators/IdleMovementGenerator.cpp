@@ -22,33 +22,33 @@
 
 // StopMoving is needed to make unit stop if its last movement generator expires
 // But it should not be sent otherwise there are many redundent packets
-void IdleMovementGenerator::Initialize(Unit* owner)
+void IdleMovementGenerator::Initialize(WorldObject* owner)
 {
     Reset(owner);
 }
 
-void IdleMovementGenerator::Reset(Unit* owner)
+void IdleMovementGenerator::Reset(WorldObject* owner)
 {
-    if (!owner->IsStopped())
-        owner->StopMoving();
+	if (!((Unit *)owner)->IsStopped())
+		((Unit *)owner)->StopMoving();
 }
 
 //----------------------------------------------------//
 
-void RotateMovementGenerator::Initialize(Unit* owner)
+void RotateMovementGenerator::Initialize(WorldObject* owner)
 {
-    if (!owner->IsStopped())
-        owner->StopMoving();
+	if (!((Unit *)owner)->IsStopped())
+		((Unit *)owner)->StopMoving();
 
-    if (owner->GetVictim())
-        owner->SetInFront(owner->GetVictim());
+	if (((Unit *)owner)->GetVictim())
+		((Unit *)owner)->SetInFront(((Unit *)owner)->GetVictim());;
 
-    owner->AddUnitState(UNIT_STATE_ROTATING);
+	((Unit *)owner)->AddUnitState(UNIT_STATE_ROTATING);
 
-    owner->AttackStop();
+	((Unit *)owner)->AttackStop();
 }
 
-bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
+bool RotateMovementGenerator::Update(WorldObject* owner, uint32 diff)
 {
     float angle = owner->GetOrientation();
     if (_direction == ROTATE_DIRECTION_LEFT)
@@ -64,7 +64,7 @@ bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
             angle += float(M_PI) * 2.f;
     }
 
-    owner->SetFacingTo(angle);
+	((Unit *)owner)->SetFacingTo(angle);
 
     if (_duration > diff)
         _duration -= diff;
@@ -74,37 +74,37 @@ bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
     return true;
 }
 
-void RotateMovementGenerator::Finalize(Unit* owner)
+void RotateMovementGenerator::Finalize(WorldObject* unit)
 {
-    owner->ClearUnitState(UNIT_STATE_ROTATING);
+    ((Unit *)owner)->ClearUnitState(UNIT_STATE_ROTATING);
     if (owner->GetTypeId() == TYPEID_UNIT)
         owner->ToCreature()->AI()->MovementInform(ROTATE_MOTION_TYPE, 0);
 }
 
 //----------------------------------------------------//
 
-void DistractMovementGenerator::Initialize(Unit* owner)
+void DistractMovementGenerator::Initialize(WorldObject* owner)
 {
     // Distracted creatures stand up if not standing
-    if (!owner->IsStandState())
-        owner->SetStandState(UNIT_STAND_STATE_STAND);
+	if (!((Unit *)owner)->IsStandState())
+		((Unit *)owner)->SetStandState(UNIT_STAND_STATE_STAND);
 
-    owner->AddUnitState(UNIT_STATE_DISTRACTED);
+    ((Unit *)owner)->AddUnitState(UNIT_STATE_DISTRACTED);
 }
 
-void DistractMovementGenerator::Finalize(Unit* owner)
+void DistractMovementGenerator::Finalize(WorldObject* owner)
 {
-    owner->ClearUnitState(UNIT_STATE_DISTRACTED);
+	((Unit *)owner)->ClearUnitState(UNIT_STATE_DISTRACTED);
 
     // If this is a creature, then return orientation to original position (for idle movement creatures)
     if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature())
     {
         float angle = owner->ToCreature()->GetHomePosition().GetOrientation();
-        owner->SetFacingTo(angle);
+		((Unit *)owner)->SetFacingTo(angle);
     }
 }
 
-bool DistractMovementGenerator::Update(Unit* /*owner*/, uint32 diff)
+bool DistractMovementGenerator::Update(WorldObject* /*owner*/, uint32 diff)
 {
     if (diff > _timer)
         return false;
@@ -115,8 +115,8 @@ bool DistractMovementGenerator::Update(Unit* /*owner*/, uint32 diff)
 
 //----------------------------------------------------//
 
-void AssistanceDistractMovementGenerator::Finalize(Unit* owner)
+void AssistanceDistractMovementGenerator::Finalize(WorldObject* owner)
 {
-    owner->ClearUnitState(UNIT_STATE_DISTRACTED);
+    ((Unit *)owner)->ClearUnitState(UNIT_STATE_DISTRACTED);
     owner->ToCreature()->SetReactState(REACT_AGGRESSIVE);
 }

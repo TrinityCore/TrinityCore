@@ -8,6 +8,7 @@
 #include "../../game/Maps/MapManager.h"
 #include "PlayerbotCommandServer.h"
 #include "GuildTaskMgr.h"
+#include "../../game/Battlegrounds/Battleground.h"
 
 RandomPlayerbotMgr::RandomPlayerbotMgr() : PlayerbotHolder(), processTicks(0)
 {
@@ -101,7 +102,7 @@ void RandomPlayerbotMgr::ScheduleTeleport(uint32 bot)
 
 bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
 {
-    uint32 isValid = GetEventValue(bot, "add");
+	uint32 isValid = GetEventValue(bot, "add");
     if (!isValid)
     {
 		Player* player = GetPlayerBot(bot);
@@ -126,7 +127,34 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
     Player* player = GetPlayerBot(bot);
     if (!player)
         return false;
+	
+	if (player->InBattleground() && player->isDead())
+	{
+		Battleground *bg = player->GetBattleground();
+		const WorldSafeLocsEntry *pos= bg->GetClosestGraveYard(player);
+		if (!player->IsWithinDist3d(pos->x,pos->y,pos->z,3.0))
+		{
+			// Special handle for battleground maps
+			sLog->outMessage("playerbot", LOG_LEVEL_INFO, "bot %s died in a battleground. Try to resurrect.", player->GetName().c_str());
+			SetEventValue(bot, "dead", 1, 5);
+			//this is spirit release confirm?
+			player->RemoveGhoul();
+			player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+			player->BuildPlayerRepop();
+			player->SpawnCorpseBones();
+			player->RepopAtGraveyard();
+		}
+		else {
+			player->ResurrectPlayer(1.0f);
+		}
+		return false;
+	}
 
+	if (player->InBattleground())
+	{
+		return false;
+	}
+	
     PlayerbotAI* ai = player->GetPlayerbotAI();
     if (!ai)
         return false;
@@ -172,6 +200,36 @@ bool RandomPlayerbotMgr::ProcessBot(Player* player)
             sGuildTaskMgr.Update(*i, player);
     }
 
+	bool takePlayerLevel = sPlayerbotAIConfig.randomBotBracketPlayer;
+	if (takePlayerLevel)
+	{
+		uint32 maxLevel = sPlayerbotAIConfig.randomBotMaxLevel;
+		uint32 minLevel = sPlayerbotAIConfig.randomBotMinLevel;
+		uint32 level = 0;
+		if (maxLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+			maxLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+		if (minLevel < 1)
+			minLevel = 1;
+		if (takePlayerLevel)
+		{
+			level = GetMasterLevel();
+			if (level == 0)
+			{
+				level = urand(minLevel, maxLevel);
+			}
+			minLevel = level - level % 10;
+			maxLevel = level - (level % 10) + 9;
+			level = urand(minLevel, maxLevel);
+		}
+		if (player->getLevel() < minLevel)
+		{
+			int oldlevel = player->getLevel();
+			player->SetLevel(level - 1);
+			IncreaseLevel(player);
+			sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Bot %d was leveled from %d to %d", bot, oldlevel, player->getLevel());
+		}
+	}
+		
     uint32 randomize = GetEventValue(bot, "randomize");
     if (!randomize)
     {
@@ -205,15 +263,18 @@ bool RandomPlayerbotMgr::ProcessBot(Player* player)
 
 void RandomPlayerbotMgr::Revive(Player* player)
 {
-	uint32 bot = player->GetGUID();
-	sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Reviving dead bot %d", bot);
-	SetEventValue(bot, "dead", 0, 0);
-	SetEventValue(bot, "revive", 0, 0);
-	RandomTeleport(player, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+    uint32 bot = player->GetGUID();
+    sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Reviving dead bot %d", bot);
+    SetEventValue(bot, "dead", 0, 0);
+    SetEventValue(bot, "revive", 0, 0);
+    RandomTeleportForLevel(ai->GetBot());
 }
 
 void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs)
 {
+	if (bot->InBattleground())
+		return;
+	
     if (bot->IsBeingTeleported())
         return;
 
@@ -265,7 +326,9 @@ void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs
 
 void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
 {
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Preparing location to random teleporting bot %s for level %u", bot->GetName().c_str(), bot->getLevel());
+	if (bot->InBattleground())
+		return;
+	sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Preparing location to random teleporting bot %s for level %u", bot->GetName().c_str(), bot->getLevel());
 
     if (locsPerLevelCache[bot->getLevel()].empty()) {
         QueryResult results = WorldDatabase.PQuery("select map, position_x, position_y, position_z "
@@ -313,7 +376,9 @@ void RandomPlayerbotMgr::RandomTeleportForLevel(Player* bot)
 
 void RandomPlayerbotMgr::RandomTeleport(Player* bot, uint16 mapId, float teleX, float teleY, float teleZ)
 {
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Preparing location to random teleporting bot %s", bot->GetName().c_str());
+	if (bot->InBattleground())
+		return;
+	sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Preparing location to random teleporting bot %s", bot->GetName().c_str());
 
     vector<WorldLocation> locs;
     QueryResult results = WorldDatabase.PQuery("select position_x, position_y, position_z from creature where map = '%u' and abs(position_x - '%f') < '%u' and abs(position_y - '%f') < '%u' limit 50",
@@ -357,44 +422,80 @@ void RandomPlayerbotMgr::IncreaseLevel(Player* bot)
 
 void RandomPlayerbotMgr::RandomizeFirst(Player* bot)
 {
+	bool takePlayerLevel = sPlayerbotAIConfig.randomBotBracketPlayer;	
     uint32 maxLevel = sPlayerbotAIConfig.randomBotMaxLevel;
+	uint32 minLevel = sPlayerbotAIConfig.randomBotMinLevel;
+	uint32 level = 0;	
     if (maxLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         maxLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
 
-    for (int attempt = 0; attempt < 10; ++attempt)
-    {
-        int index = urand(0, sPlayerbotAIConfig.randomBotMaps.size() - 1);
-        uint16 mapId = sPlayerbotAIConfig.randomBotMaps[index];
+	if (minLevel < 1)
+		minLevel = 1;
+	if (takePlayerLevel)
+	{
+		level = GetMasterLevel();
+		if (level == 0)
+		{
+			level = urand(minLevel, maxLevel);
+		}
+		minLevel = level - level % 10;
+		maxLevel = level - (level % 10) + 9;
+	}
+	for (int attempt = 0; attempt < 10; ++attempt)
+	{
+		vector<GameTele const*> locs;
+		int index = urand(0, sPlayerbotAIConfig.randomBotMaps.size() - 1);
 
-        vector<GameTele const*> locs;
-        GameTeleContainer const & teleMap = sObjectMgr->GetGameTeleMap();
-        for(GameTeleContainer::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
-        {
-            GameTele const* tele = &itr->second;
-            if (tele->mapId == mapId)
-                locs.push_back(tele);
-        }
+		uint16 mapId = sPlayerbotAIConfig.randomBotMaps[index];
+
+		GameTeleContainer const & teleMap = sObjectMgr->GetGameTeleMap();
+		for (GameTeleContainer::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
+		{
+			GameTele const* tele = &itr->second;
+			if (tele->mapId == mapId)
+				locs.push_back(tele);
+		}
 
         index = urand(0, locs.size() - 1);
         GameTele const* tele = locs[index];
-        uint32 level = GetZoneLevel(tele->mapId, tele->position_x, tele->position_y, tele->position_z);
-        if (level > maxLevel + 5)
-            continue;
+		//caching.. if not, it will create excessive database load
+		if (mapIdToLevel.find(tele->mapId) == mapIdToLevel.end())
+		{
+			level = GetZoneLevel(tele->mapId, tele->position_x, tele->position_y, tele->position_z);
+			mapIdToLevel.emplace(tele->mapId, level);
+		}
+		else {
+			level = mapIdToLevel[tele->mapId];
+		}
+		if (level > maxLevel || level < minLevel)
+			continue;
 
-        level = min(level, maxLevel);
-        if (!level) level = 1;
-
-        if (urand(0, 100) < 100 * sPlayerbotAIConfig.randomBotMaxLevelChance)
-            level = maxLevel;
-
-        if (level < sPlayerbotAIConfig.randomBotMinLevel)
-            continue;
+        if (level<=0) level = 1;
+		if (!takePlayerLevel)
+		{
+			if (urand(0, 100) < 100 * sPlayerbotAIConfig.randomBotMaxLevelChance)
+				level = maxLevel;
+		}
 
         PlayerbotFactory factory(bot, level);
         factory.CleanRandomize();
 		RandomTeleportForLevel(bot);
         break;
     }
+}
+
+uint32 RandomPlayerbotMgr::GetMasterLevel()
+{
+	if (masterLevel==0)
+	{
+		QueryResult results = CharacterDatabase.PQuery("select level from characters where cinematic = 1 order by online desc limit 1");
+		if (results)
+		{
+			Field* fields = results->Fetch();
+			masterLevel = fields[0].GetUInt8();
+		}
+	}
+	return masterLevel;
 }
 
 uint32 RandomPlayerbotMgr::GetZoneLevel(uint16 mapId, float teleX, float teleY, float teleZ)
@@ -426,23 +527,25 @@ uint32 RandomPlayerbotMgr::GetZoneLevel(uint16 mapId, float teleX, float teleY, 
 
 void RandomPlayerbotMgr::Refresh(Player* bot)
 {
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Refreshing bot %s", bot->GetName().c_str());
-    if (bot->isDead())
-    {
-        bot->ResurrectPlayer(1.0f);
-        bot->SpawnCorpseBones();
-        bot->SaveToDB();
-        bot->GetPlayerbotAI()->ResetStrategies();
-    }
+	if (bot->InBattleground())
+		return;
+	sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Refreshing bot %s", bot->GetName().c_str());
+	if (bot->isDead())
+	{
+		bot->ResurrectPlayer(1.0f);
+		bot->SpawnCorpseBones();
+		bot->SaveToDB();
+		bot->GetPlayerbotAI()->ResetStrategies();
+	}
 
     bot->GetPlayerbotAI()->Reset();
 
-    HostileReference *ref = bot->getHostileRefManager().getFirst();
-    while( ref )
-    {
-        ThreatManager *threatManager = ref->GetSource();
-        Unit *unit = threatManager->GetOwner();
-        float threat = ref->getThreat();
+	HostileReference *ref = bot->getHostileRefManager().getFirst();
+	while (ref)
+	{
+		ThreatManager *threatManager = ref->GetSource();
+		Unit *unit = threatManager->GetOwner();
+		float threat = ref->getThreat();
 
         unit->RemoveAllAttackers();
         unit->ClearInCombat();
@@ -696,8 +799,9 @@ void RandomPlayerbotMgr::OnPlayerLogout(Player* player)
         PlayerbotAI* ai = bot->GetPlayerbotAI();
         if (player == ai->GetMaster())
         {
-            ai->SetMaster(NULL);
-            ai->ResetStrategies();
+			ai->SetMaster(NULL);
+			if (!bot->InBattleground())
+				ai->ResetStrategies();
         }
     }
 
@@ -727,9 +831,12 @@ void RandomPlayerbotMgr::OnPlayerLogin(Player* player)
             PlayerbotAI* ai = bot->GetPlayerbotAI();
             if (member == player && (!ai->GetMaster() || ai->GetMaster()->GetPlayerbotAI()))
             {
-                ai->SetMaster(player);
-                ai->ResetStrategies();
-                ai->TellMaster("Hello");
+				if (!bot->InBattleground())
+				{
+					ai->SetMaster(player);
+					ai->ResetStrategies();
+					ai->TellMaster("Hello");
+				}
                 break;
             }
         }

@@ -185,6 +185,7 @@ namespace ai
                 creators["innervate"] = &AiObjectContextInternal::innervate;
                 creators["tranquility"] = &AiObjectContextInternal::tranquility;
                 creators["bash on enemy healer"] = &AiObjectContextInternal::bash_on_enemy_healer;
+				creators["prowl"] = &AiObjectContextInternal::prowl;				
             }
 
         private:
@@ -245,6 +246,7 @@ namespace ai
             static Action* hurricane(PlayerbotAI* ai) { return new CastHurricaneAction(ai); }
             static Action* innervate(PlayerbotAI* ai) { return new CastInnervateAction(ai); }
             static Action* bash_on_enemy_healer(PlayerbotAI* ai) { return new CastBashOnEnemyHealerAction(ai); }
+			static Action* prowl(PlayerbotAI *ai) { return new CastProwlAction(ai); }			
         };
     };
 };

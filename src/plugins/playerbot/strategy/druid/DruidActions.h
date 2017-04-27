@@ -196,7 +196,15 @@ namespace ai
 
         virtual string GetTargetName() { return "self target"; }
     };
+	
+	class CastProwlAction : public CastSpellAction
+	{
+	public:
+		CastProwlAction(PlayerbotAI* ai) : CastSpellAction(ai, "prowl") {}
 
+		virtual string GetTargetName() { return "self target"; }
+	};
+	
     class CastTranquilityAction : public CastAoeHealSpellAction
     {
     public:

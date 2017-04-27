@@ -508,7 +508,11 @@ void Engine::LogAction(const char* format, ...)
 
     if (testMode)
     {
-        FILE* file = fopen("test.log", "a");
+		FILE* file;
+		if (testPrefix.length()>0)
+			file = fopen((testPrefix+".log").c_str(), "a");
+		else
+			file = fopen("test.log", "a");
         fprintf(file, buf);
         fprintf(file, "\n");
         fclose(file);

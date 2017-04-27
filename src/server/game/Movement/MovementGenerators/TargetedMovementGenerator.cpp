@@ -117,7 +117,7 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
         return;
     }
 
-    if (owner->GetTypeId() == TYPEID_UNIT && !GetTarget()->isInAccessiblePlaceFor(owner->ToCreature()))
+    if (GetTarget.getTarget()->GetTypeId() == TYPEID_UNIT && !((Unit *)GetTarget())->isInAccessiblePlaceFor(owner->ToCreature()))
     {
         owner->ToCreature()->SetCannotReachTarget(true);
         return;
@@ -164,9 +164,14 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
 
     // allow pets to use shortcut if no path found when following their master
     bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsPet() && owner->HasUnitState(UNIT_STATE_FOLLOW));
+	bool warsongFlag = false;
+	if (i_target->GetName() == "Warsong Flag")
+	{
+		warsongFlag = true;
+	}		
 
     bool result = _path->CalculatePath(x, y, z, forceDest);
-    if (!result || (_path->GetPathType() & PATHFIND_NOPATH))
+    if (!result || (!warsongFlag && (_path->GetPathType() & PATHFIND_NOPATH)))
     {
         // can't reach target
         _recalculateTravel = true;
@@ -204,6 +209,17 @@ bool TargetedMovementGenerator<T, D>::IsReachable() const
 //---- ChaseMovementGenerator
 
 template<class T>
+void ChaseMovementGenerator<T>::_reachTarget(T* owner)
+{
+    _clearUnitStateMove(owner);
+	if (this->GetTarget()!=NULL && this->GetTarget()->GetTypeId() == TYPEID_UNIT)
+	{
+		if (((Unit *)owner)->IsWithinMeleeRange((Unit *)this->i_target.getTarget()))
+			((Unit *)owner)->Attack((Unit *)this->i_target.getTarget(), true);
+	}
+	if (((Unit *)owner)->GetTypeId() == TYPEID_UNIT)
+		((Unit *)owner)->ToCreature()->SetCannotReachTarget(false);
+}
 void ChaseMovementGenerator<T>::DoInitialize(T*) { }
 
 template<>

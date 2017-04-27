@@ -13,6 +13,7 @@ public:
         creators["mark of the wild"] = &mark_of_the_wild;
         creators["mark of the wild on party"] = &mark_of_the_wild_on_party;
         creators["innervate"] = &innervate;
+		creators["prowl"] = &prowl;		
     }
 private:
     static ActionNode* mark_of_the_wild(PlayerbotAI* ai)
@@ -22,7 +23,14 @@ private:
             /*A*/ NULL,
             /*C*/ NULL);
     }
-    static ActionNode* mark_of_the_wild_on_party(PlayerbotAI* ai)
+	static ActionNode* prowl(PlayerbotAI* ai)
+	{
+		return new ActionNode("prowl",
+			/*P*/ NextAction::array(0, new NextAction("cat form"), NULL),
+			/*A*/ NULL,
+			/*C*/ NULL);
+	}
+	static ActionNode* mark_of_the_wild_on_party(PlayerbotAI* ai)
     {
         return new ActionNode ("mark of the wild on party",
             /*P*/ NextAction::array(0, new NextAction("caster form"), NULL),

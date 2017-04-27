@@ -53,7 +53,7 @@ void SplineChainMovementGenerator::SendSplineFor(Unit* me, uint32 index, uint32&
     }
 }
 
-void SplineChainMovementGenerator::Initialize(Unit* me)
+void SplineChainMovementGenerator::Initialize(WorldObject* me)
 {
     if (_chainSize)
     {
@@ -68,7 +68,7 @@ void SplineChainMovementGenerator::Initialize(Unit* me)
                 _nextFirstWP = thisLink.Points.size()-1;
             }
             Movement::PointsArray partial(thisLink.Points.begin() + (_nextFirstWP-1), thisLink.Points.end());
-            SendPathSpline(me, partial);
+            SendPathSpline(((Unit *)me), partial);
             TC_LOG_DEBUG("movement.splinechain", "%s: Resumed spline chain generator from resume state.", me->GetGUID().ToString().c_str());
             ++_nextIndex;
             if (!_msToNext)
@@ -78,7 +78,7 @@ void SplineChainMovementGenerator::Initialize(Unit* me)
         else
         {
             _msToNext = std::max(_chain[_nextIndex].TimeToNext, 1u);
-            SendSplineFor(me, _nextIndex, _msToNext);
+            SendSplineFor(((Unit *)me), _nextIndex, _msToNext);
             ++_nextIndex;
             if (_nextIndex >= _chainSize)
                 _msToNext = 0;
@@ -90,7 +90,7 @@ void SplineChainMovementGenerator::Initialize(Unit* me)
     }
 }
 
-void SplineChainMovementGenerator::Finalize(Unit* me)
+void SplineChainMovementGenerator::Finalize(WorldObject* me)
 {
     if (!finished)
         return;
@@ -99,7 +99,7 @@ void SplineChainMovementGenerator::Finalize(Unit* me)
         cMe->AI()->MovementInform(SPLINE_CHAIN_MOTION_TYPE, _id);
 }
 
-bool SplineChainMovementGenerator::Update(Unit* me, uint32 diff)
+bool SplineChainMovementGenerator::Update(WorldObject* me, uint32 diff)
 {
     if (finished)
         return false;
@@ -107,7 +107,7 @@ bool SplineChainMovementGenerator::Update(Unit* me, uint32 diff)
     // _msToNext being zero here means we're on the final spline
     if (!_msToNext)
     {
-        finished = me->movespline->Finalized();
+        finished = ((Unit *)me)->movespline->Finalized();
         return !finished;
     }
 
@@ -116,7 +116,7 @@ bool SplineChainMovementGenerator::Update(Unit* me, uint32 diff)
         // Send next spline
         TC_LOG_DEBUG("movement.splinechain", "%s: Should send spline %u (%u ms late).", me->GetGUID().ToString().c_str(), _nextIndex, diff - _msToNext);
         _msToNext = std::max(_chain[_nextIndex].TimeToNext, 1u);
-        SendSplineFor(me, _nextIndex, _msToNext);
+        SendSplineFor(((Unit *)me), _nextIndex, _msToNext);
         ++_nextIndex;
         if (_nextIndex >= _chainSize)
         {

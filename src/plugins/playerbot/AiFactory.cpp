@@ -86,7 +86,13 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
 {
     int tab = GetPlayerSpecTab(player);
 
-    engine->addStrategies("racials", "chat", "default", "aoe", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+	if (player->InBattleground() && player->GetBattlegroundTypeId()==BattlegroundTypeId::BATTLEGROUND_WS)
+	{
+		engine->addStrategies("grind","warsong", "attack weak", "racials", "chat", "default", "dps", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+	}
+	else {
+		engine->addStrategies("attack weak", "racials", "chat", "default", "dps", "potions", "cast time", "conserve mana", "duel", "pvp", NULL);
+	}
 
     switch (player->getClass())
     {
@@ -151,6 +157,8 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
             if (player->getLevel() > 19)
                 engine->addStrategy("dps debuff");
             break;
+			engine->addStrategy("flee");
+			break;
         case CLASS_ROGUE:
             engine->addStrategies("dps", "threat", "dps assist", NULL);
             break;
@@ -220,7 +228,12 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
 
             nonCombatEngine->addStrategy("dps assist");
             break;
-        case CLASS_DRUID:
+		case CLASS_ROGUE:
+			nonCombatEngine->addStrategy("stealth");
+			break;
+		case CLASS_DRUID:
+			if (tab == 2)
+				nonCombatEngine->addStrategy("stealth");			
             if (tab == 1)
                 nonCombatEngine->addStrategy("tank aoe");
             else
@@ -236,8 +249,16 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
             nonCombatEngine->addStrategy("dps assist");
             break;
     }
-    nonCombatEngine->addStrategies("nc", "food", "stay", "chat",
-            "default", "quest", "loot", "gather", "duel", "emote", "lfg", NULL);
+	
+	if (player->InBattleground())
+	{
+		nonCombatEngine->addStrategies("grind","warsong", "nc", "attack weak", "food", "chat",
+			"default", "quest", "loot", "gather", "duel", "emote", "lfg", "bg", NULL);
+	}
+	else {
+		nonCombatEngine->addStrategies("nc", "attack weak", "food", "stay", "chat",
+			"default", "quest", "loot", "gather", "duel", "emote", "follow", "lfg", "bg", NULL);
+	}
 
     if (sRandomPlayerbotMgr.IsRandomBot(player))
     {

@@ -254,6 +254,20 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlo
     }
 }
 
+void MotionMaster::MoveChase(WorldObject *target, float dist, float angle)
+{
+	// ignore movement request if target not exist
+	if (!target || target == _owner)
+		return;
+
+	//_owner->ClearUnitState(UNIT_STATE_FOLLOW);
+	TC_LOG_DEBUG("misc", "Player (GUID: %u) chase to %s (GUID: %u)",
+		_owner->GetGUID().GetCounter(),
+		"object",
+		target->GetGUID().GetCounter());
+	Mutate(new ChaseMovementGenerator<Player>(target, dist, angle), MOTION_SLOT_ACTIVE);
+}
+
 void MotionMaster::MoveChase(Unit* target, float dist, float angle)
 {
     // ignore movement request if target not exist

@@ -771,7 +771,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         // should remove spirit of redemption
         if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
-            player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+			player->RemoveAurasByType(SPELL_AURA_SPIRIT_OF_REDEMPTION);
 
         if (!player->IsAlive())
         {

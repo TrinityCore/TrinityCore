@@ -65,8 +65,11 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         void RandomTeleport(Player* bot, uint16 mapId, float teleX, float teleY, float teleZ);
         void RandomTeleport(Player* bot, vector<WorldLocation> &locs);
         uint32 GetZoneLevel(uint16 mapId, float teleX, float teleY, float teleZ);
+		uint32 GetMasterLevel();		
 
     private:
+		int masterLevel = 0;
+		map<int, int> mapIdToLevel;
         vector<Player*> players;
         int processTicks;
         map<uint8, vector<WorldLocation> > locsPerLevelCache;

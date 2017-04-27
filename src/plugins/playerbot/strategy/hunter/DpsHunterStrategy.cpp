@@ -69,6 +69,10 @@ NextAction** DpsHunterStrategy::getDefaultActions()
 void DpsHunterStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 {
     GenericHunterStrategy::InitTriggers(triggers);
+	
+	triggers.push_back(new TriggerNode(
+		"enemy too close for spell",
+		NextAction::array(0, new NextAction("wing clip", 50.0f), new NextAction("flee", 49.0f), new NextAction("concussive shot", 48.0f), NULL)));
 
     triggers.push_back(new TriggerNode(
         "black arrow",

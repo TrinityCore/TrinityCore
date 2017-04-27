@@ -61,6 +61,8 @@ namespace ai
 
 		virtual NextAction** getPrerequisites()
 		{
+			if (spell == "mount")
+				return NULL;			
 			if (range > sPlayerbotAIConfig.spellDistance)
 				return NULL;
 			else if (range > ATTACK_DISTANCE)

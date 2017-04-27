@@ -16,5 +16,10 @@ void GrindingStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
         "no target",
         NextAction::array(0,
         new NextAction("attack anything", 5.0f), NULL)));
+
+	triggers.push_back(new TriggerNode(
+		"in battleground without flag",
+		NextAction::array(0,
+		new NextAction("attack anything", 5.0f), NULL)));		
 }
 

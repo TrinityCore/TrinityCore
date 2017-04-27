@@ -28,7 +28,6 @@ namespace ai
             creators["activate taxi"] = &WorldPacketTriggerContext::taxi;
             creators["trade status"] = &WorldPacketTriggerContext::trade_status;
             creators["loot response"] = &WorldPacketTriggerContext::loot_response;
-            creators["out of react range"] = &WorldPacketTriggerContext::out_of_react_range;
             creators["quest objective completed"] = &WorldPacketTriggerContext::quest_objective_completed;
             creators["item push result"] = &WorldPacketTriggerContext::item_push_result;
             creators["party command"] = &WorldPacketTriggerContext::party_command;
@@ -42,7 +41,9 @@ namespace ai
             creators["lfg proposal"] = &WorldPacketTriggerContext::lfg_proposal;
             creators["lfg role check"] = &WorldPacketTriggerContext::lfg_role_check;
             creators["lfg leave"] = &WorldPacketTriggerContext::lfg_leave;
-            creators["guild invite"] = &WorldPacketTriggerContext::guild_invite;
+			creators["bg join"] = &WorldPacketTriggerContext::bg_update;
+			creators["bg status"] = &WorldPacketTriggerContext::bg_status;
+			creators["guild invite"] = &WorldPacketTriggerContext::guild_invite;
             creators["lfg teleport"] = &WorldPacketTriggerContext::lfg_teleport;
         }
 
@@ -53,7 +54,10 @@ namespace ai
         static Trigger* lfg_proposal(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "lfg proposal"); }
         static Trigger* lfg_role_check(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "lfg role check"); }
         static Trigger* lfg_update(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "lfg join"); }
-        static Trigger* uninvite(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "uninvite"); }
+		static Trigger* bg_update(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "bg join"); }
+		static Trigger* bg_leave(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "bg leave"); }
+		static Trigger* bg_status(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "bg status"); }
+		static Trigger* uninvite(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "uninvite"); }
         static Trigger* ready_check_finished(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "ready check finished"); }
         static Trigger* ready_check(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "ready check"); }
         static Trigger* duel_requested(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "duel requested"); }
@@ -62,7 +66,6 @@ namespace ai
         static Trigger* party_command(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "party command"); }
         static Trigger* item_push_result(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "item push result"); }
         static Trigger* quest_objective_completed(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "quest objective completed"); }
-        static Trigger* out_of_react_range(PlayerbotAI* ai) { return new OutOfReactRangeTrigger(ai); }
         static Trigger* loot_response(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "loot response"); }
         static Trigger* trade_status(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "trade status"); }
         static Trigger* cannot_equip(PlayerbotAI* ai) { return new WorldPacketTrigger(ai, "cannot equip"); }

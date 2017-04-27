@@ -50,7 +50,8 @@
 
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
-    m_NextAutoDistributionTime(0),
+	m_NextBGUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
+	m_NextAutoDistributionTime(0),
     m_AutoDistributionTimeChecker(0), m_UpdateTimer(0), m_ArenaTesting(false), m_Testing(false)
 { }
 
@@ -135,7 +136,19 @@ void BattlegroundMgr::Update(uint32 diff)
             m_BattlegroundQueues[bgQueueTypeId].BattlegroundQueueUpdate(diff, bgTypeId, bracket_id, arenaType, arenaMMRating > 0, arenaMMRating);
         }
     }
-
+	
+	// forced update for battlegrounds
+	if (m_NextBGUpdate < diff)
+	{
+		for (int qtype = BATTLEGROUND_QUEUE_WS; qtype <= BATTLEGROUND_QUEUE_AB; ++qtype)
+			for (int bracket = BG_BRACKET_ID_FIRST; bracket < MAX_BATTLEGROUND_BRACKETS; ++bracket)
+				m_BattlegroundQueues[qtype].BattlegroundQueueUpdate(diff,
+				(BattlegroundTypeId)qtype, BattlegroundBracketId(bracket),
+				BattlegroundMgr::BGArenaType(BattlegroundQueueTypeId(qtype)), false, 0);
+		}
+	else
+		m_NextBGUpdate -= diff;
+	
     // if rating difference counts, maybe force-update queues
     if (sWorld->getIntConfig(CONFIG_ARENA_MAX_RATING_DIFFERENCE) && sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER))
     {
