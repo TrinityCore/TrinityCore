@@ -5043,7 +5043,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
     packet.Flags = log->HitInfo;
 
     WorldPackets::Spells::SandboxScalingData sandboxScalingData;
-    if (sandboxScalingData.GenerateDataFromUnits(log->attacker, log->target))
+    if (sandboxScalingData.GenerateDataForUnits(log->attacker, log->target))
         packet.SandboxScaling = sandboxScalingData;
 
     SendCombatLogMessage(&packet);
@@ -5082,7 +5082,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
 
     WorldPackets::Spells::SandboxScalingData sandboxScalingData;
     if (Unit* caster = ObjectAccessor::GetUnit(*this, aura->GetCasterGUID()))
-        if (sandboxScalingData.GenerateDataFromUnits(caster, this))
+        if (sandboxScalingData.GenerateDataForUnits(caster, this))
             spellLogEffect.SandboxScaling = sandboxScalingData;
 
     data.Effects.push_back(spellLogEffect);
@@ -5141,7 +5141,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     packet.LogData.Initialize(damageInfo->attacker);
 
     WorldPackets::Spells::SandboxScalingData sandboxScalingData;
-    if (sandboxScalingData.GenerateDataFromUnits(damageInfo->attacker, damageInfo->target))
+    if (sandboxScalingData.GenerateDataForUnits(damageInfo->attacker, damageInfo->target))
         packet.SandboxScaling = sandboxScalingData;
 
     SendCombatLogMessage(&packet);

@@ -265,10 +265,8 @@ namespace WorldPackets
             uint8 TargetMaxScalingLevel = 1;
             int8 TargetScalingLevelDelta = 1;
 
-            bool GenerateDataFromUnits(Unit* attacker, Unit* target);
-            void GenerateDataForNpcToPlayer(Creature* attacker, Player* target);
-            void GenerateDataForPlayerToNpc(Player* attacker, Creature* target);
-            void GenerateDataForNpcToNpc(Creature* attacker, Creature* target);
+            template<class T, class U>
+            bool GenerateDataForUnits(T* attacker, U* target);
         };
 
         struct AuraDataInfo

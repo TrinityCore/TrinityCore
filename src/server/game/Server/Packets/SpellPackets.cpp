@@ -92,7 +92,14 @@ WorldPacket const* WorldPackets::Spells::SendUnlearnSpells::Write()
     return &_worldPacket;
 }
 
-bool WorldPackets::Spells::SandboxScalingData::GenerateDataFromUnits(Unit* attacker, Unit* target)
+template<class T, class U>
+bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits(T* attacker, U* target)
+{
+    return false;
+}
+
+template<>
+bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
 {
     // No scalable levels for any of them
     if (   (!attacker->ToCreature() || !attacker->ToCreature()->HasScalableLevels())
@@ -100,21 +107,21 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataFromUnits(Unit* attac
         return false;
 
     if (attacker->IsCreature() && target->IsPlayer())
-        GenerateDataForNpcToPlayer(attacker->ToCreature(), target->ToPlayer());
+        GenerateDataForUnits(attacker->ToCreature(), target->ToPlayer());
     else if (attacker->IsPlayer() && target->IsCreature())
-        GenerateDataForPlayerToNpc(attacker->ToPlayer(), target->ToCreature());
+        GenerateDataForUnits(attacker->ToPlayer(), target->ToCreature());
     else
-        GenerateDataForNpcToNpc(attacker->ToCreature(), target->ToCreature());
+        GenerateDataForUnits(attacker->ToCreature(), target->ToCreature());
 
     return true;
 }
 
-void WorldPackets::Spells::SandboxScalingData::GenerateDataForNpcToPlayer(Creature* attacker, Player* target)
+template<>
+bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Creature, Player>(Creature* attacker, Player* target)
 {
     CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
 
     Type                    = TYPE_CREATURE_TO_PLAYER_DAMAGE;
-    PlayerLevelDelta        = target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
     PlayerItemLevel         = target->GetAverageItemLevel();
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
@@ -122,24 +129,26 @@ void WorldPackets::Spells::SandboxScalingData::GenerateDataForNpcToPlayer(Creatu
     TargetMinScalingLevel   = creatureTemplate->minlevel;
     TargetMaxScalingLevel   = creatureTemplate->maxlevel;
     TargetScalingLevelDelta = (int8)creatureTemplate->levelScalingDelta.get();
+    return true;
 }
 
-void WorldPackets::Spells::SandboxScalingData::GenerateDataForPlayerToNpc(Player* attacker, Creature* target)
+template<>
+bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Player, Creature>(Player* attacker, Creature* target)
 {
     CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
 
     Type                    = TYPE_PLAYER_TO_CREATURE_DAMAGE;
-    PlayerLevelDelta        = attacker->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
     PlayerItemLevel         = attacker->GetAverageItemLevel();
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
     TargetMinScalingLevel   = creatureTemplate->minlevel;
     TargetMaxScalingLevel   = creatureTemplate->maxlevel;
-    TargetScalingLevelDelta = (int8)creatureTemplate->levelScalingDelta.get();
+    return true;
 }
 
-void WorldPackets::Spells::SandboxScalingData::GenerateDataForNpcToNpc(Creature* attacker, Creature* target)
+template<>
+bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Creature, Creature>(Creature* attacker, Creature* target)
 {
     CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
 
@@ -153,6 +162,7 @@ void WorldPackets::Spells::SandboxScalingData::GenerateDataForNpcToNpc(Creature*
     TargetMinScalingLevel   = creatureTemplate->minlevel;
     TargetMaxScalingLevel   = creatureTemplate->maxlevel;
     TargetScalingLevelDelta = (int8)creatureTemplate->levelScalingDelta.get();
+    return true;
 }
 
 void WorldPackets::Spells::SpellCastLogData::Initialize(Unit const* unit)
