@@ -99,24 +99,6 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits(T*, U*)
 }
 
 template<>
-bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
-{
-    // No scalable levels for any of them
-    if (   (!attacker->ToCreature() || !attacker->ToCreature()->HasScalableLevels())
-        && (!target->ToCreature()   || !target->ToCreature()->HasScalableLevels()))
-        return false;
-
-    if (attacker->IsCreature() && target->IsPlayer())
-        GenerateDataForUnits(attacker->ToCreature(), target->ToPlayer());
-    else if (attacker->IsPlayer() && target->IsCreature())
-        GenerateDataForUnits(attacker->ToPlayer(), target->ToCreature());
-    else
-        GenerateDataForUnits(attacker->ToCreature(), target->ToCreature());
-
-    return true;
-}
-
-template<>
 bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Creature, Player>(Creature* attacker, Player* target)
 {
     CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
@@ -162,6 +144,24 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Creature, Cr
     TargetMinScalingLevel   = creatureTemplate->minlevel;
     TargetMaxScalingLevel   = creatureTemplate->maxlevel;
     TargetScalingLevelDelta = (int8)creatureTemplate->levelScalingDelta.get();
+    return true;
+}
+
+template<>
+bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
+{
+    // No scalable levels for any of them
+    if (   (!attacker->ToCreature() || !attacker->ToCreature()->HasScalableLevels())
+        && (!target->ToCreature()   || !target->ToCreature()->HasScalableLevels()))
+        return false;
+
+    if (attacker->IsCreature() && target->IsPlayer())
+        GenerateDataForUnits(attacker->ToCreature(), target->ToPlayer());
+    else if (attacker->IsPlayer() && target->IsCreature())
+        GenerateDataForUnits(attacker->ToPlayer(), target->ToCreature());
+    else
+        GenerateDataForUnits(attacker->ToCreature(), target->ToCreature());
+
     return true;
 }
 
