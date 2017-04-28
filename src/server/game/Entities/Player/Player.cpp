@@ -17429,6 +17429,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // overwrite possible wrong/corrupted guid
     SetGuidValue(OBJECT_FIELD_GUID, guid);
+    SetGuidValue(PLAYER_WOW_ACCOUNT, GetSession()->GetAccountGUID());
 
     uint8 gender = fields[5].GetUInt8();
     if (!IsValidGender(gender))
@@ -26881,14 +26882,12 @@ float Player::GetAverageItemLevel() const
         if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_OFFHAND || i == EQUIPMENT_SLOT_BODY)
             continue;
 
-        if (m_items[i] && m_items[i]->GetTemplate())
+        if (m_items[i])
             sum += m_items[i]->GetItemLevel(this);
 
         ++count;
     }
 
-    if (count == 0)
-        return 0;
     return ((float)sum) / count;
 }
 

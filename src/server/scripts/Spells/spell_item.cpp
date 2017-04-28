@@ -1205,7 +1205,7 @@ class spell_item_crystal_spire_of_karabor : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return spellInfo->GetEffect(EFFECT_0);
+                return spellInfo->GetEffect(EFFECT_0) != nullptr;
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1213,7 +1213,7 @@ class spell_item_crystal_spire_of_karabor : public SpellScriptLoader
                 int32 pct = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
                 if (HealInfo* healInfo = eventInfo.GetHealInfo())
                     if (Unit* healTarget = healInfo->GetTarget())
-                        // @todo: fix me if (healTarget->GetHealth() - healInfo->GetEffectiveHeal() <= healTarget->CountPctFromMaxHealth(pct))
+                        if (healTarget->GetHealth() - healInfo->GetEffectiveHeal() <= healTarget->CountPctFromMaxHealth(pct))
                             return true;
 
                 return false;
