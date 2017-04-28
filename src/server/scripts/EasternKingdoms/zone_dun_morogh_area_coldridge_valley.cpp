@@ -364,7 +364,6 @@ public:
     private:
         EventMap _events;
         ObjectGuid miloGUID;
-        uint8 endPoint;
         bool waitBeforePath;
     };
 
