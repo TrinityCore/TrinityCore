@@ -420,6 +420,9 @@ ElunaRegister<Unit> UnitMethods[] =
     { "DealHeal", &LuaUnit::DealHeal },
     { "AddThreat", &LuaUnit::AddThreat },
 
+	{ "CastSpellRAI", &LuaUnit::CastSpellRAI },
+    { "PatrolArea", &LuaUnit::PatrolArea },
+    { "ReInitialize", &LuaUnit::ReInitialize },
     { NULL, NULL }
 };
 

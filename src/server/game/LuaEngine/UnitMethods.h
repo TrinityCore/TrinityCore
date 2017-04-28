@@ -2759,5 +2759,32 @@ namespace LuaUnit
     Eluna::Push(L, summon);
     return 1;
     }*/
+	int CastSpellRAI(Eluna* /*E*/, lua_State* L, Unit* unit)
+    {
+        Unit* target = Eluna::CHECKOBJ<Unit>(L, 2, NULL);
+        uint32 spell = Eluna::CHECKVAL<uint32>(L, 3);
+        if (sSpellStore.LookupEntry(spell))
+            unit->CastSpell(target, spell, TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+        return 0;
+    }
+
+    int PatrolArea(Eluna* /*E*/, lua_State* L, Unit* unit)
+    {
+        float radius = Eluna::CHECKVAL<float>(L, 2);
+        Creature* creature = unit->ToCreature();
+        if (!creature)
+            return 0;
+        creature->SetDefaultMovementType(RANDOM_MOTION_TYPE);
+        creature->SetRespawnRadius(radius);
+        return 0;
+    }
+
+    int ReInitialize(Eluna* /*E*/, lua_State* /*L*/, Unit* unit)
+    {
+        Creature* creature = unit->ToCreature();
+        if (creature && creature->IsInWorld())
+            creature->AIM_Initialize();
+        return 0;
+    }
 };
 #endif

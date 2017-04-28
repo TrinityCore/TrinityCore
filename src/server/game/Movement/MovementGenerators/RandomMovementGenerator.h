@@ -26,6 +26,7 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
 {
     public:
         RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), wander_distance(spawn_dist) { }
+        ~RandomMovementGenerator() { if (i_path != nullptr) delete i_path; };
 
         void _setRandomLocation(T*);
         void DoInitialize(T*);
@@ -38,5 +39,7 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
         TimeTrackerSmall i_nextMoveTime;
 
         float wander_distance;
+        PathGenerator* i_path = nullptr;
+        bool i_recalculateTravel;
 };
 #endif
