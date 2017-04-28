@@ -59,6 +59,8 @@ void IRCBridge::Stop()
 {
     _status = IRCBRIDGESTATUS_SHUTDOWN;
 
+    sRelayHandler->Enable(_relayType, false);
+
     if (_socket)
         _socket->CloseSocket();
 
@@ -73,6 +75,8 @@ void IRCBridge::Reconnect()
     TC_LOG_INFO("IRCBridge", "IRCBridge::Reconnect: reconnecting...");
 
     _status = IRCBRIDGESTATUS_SHUTDOWN;
+
+    sRelayHandler->Enable(_relayType, false);
 
     if (_socket)
         _socket->CloseSocket();
@@ -105,6 +109,7 @@ void IRCBridge::HandleMessage(std::string const& message)
 
         if (command.compare(GetConfiguration(CONFIGURATION_IRCBRIDGE_CONNECTION_CODE)) == 0 && _status == IRCBRIDGESTATUS_WAITING_CONFIRMATION)
         {
+            sRelayHandler->Enable(_relayType, true);
             _status = IRCBRIDGESTATUS_LOGGED;
             TC_LOG_INFO("IRCBridge", "IRCBridge: connection code received, logged in");
         }

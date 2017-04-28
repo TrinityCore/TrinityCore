@@ -32,6 +32,15 @@ enum RelayReportType
     RELAYREPORTTYPE_ERROR
 };
 
+struct RelayData
+{
+    public:
+        RelayData() : enabled(false) { }
+
+        std::queue<std::string> data;
+        bool enabled;
+};
+
 class TC_GAME_API RelayHandler
 {
     public:
@@ -40,11 +49,12 @@ class TC_GAME_API RelayHandler
 
         static RelayHandler* instance();
 
-        void Send(RelayTargetType const type, std::string const message);
-        std::string GetNextMessage(RelayTargetType const type);
+        void Enable(RelayTargetType type, bool value);
+        void Send(RelayTargetType type, std::string const& message);
+        std::string GetNextMessage(RelayTargetType type);
 
     private:
-        std::vector<std::queue<std::string>> _data;
+        std::vector<RelayData> _data;
 };
 
 #define sRelayHandler RelayHandler::instance()
