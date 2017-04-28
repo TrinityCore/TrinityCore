@@ -30,48 +30,48 @@ gets instead the deserter debuff.
 class instance_the_stockade : public InstanceMapScript
 {
 public:
-	instance_the_stockade() : InstanceMapScript("instance_the_stockade", 34) { }
+    instance_the_stockade() : InstanceMapScript("instance_the_stockade", 34) { }
 
-	struct instance_the_stockade_InstanceMapScript : public InstanceScript
-	{
-		instance_the_stockade_InstanceMapScript(Map* map) : InstanceScript(map)
-		{
-			SetHeaders(DataHeader);
-			SetBossNumber(EncounterCount);
-		}
+    struct instance_the_stockade_InstanceMapScript : public InstanceScript
+    {
+        instance_the_stockade_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            SetBossNumber(EncounterCount);
+        }
 
-		void OnCreatureCreate(Creature* creature) override
-		{
-			switch (creature->GetEntry())
-			{
-			case NPC_RANDOLPH_MOLOCH:
-				RandolphMolochGuid = creature->GetGUID();
-				break;
-			case NPC_LORD_OVERHEAT:
-				LordOverheatGuid = creature->GetGUID();
-				break;
-			case NPC_HOGGER:
-				HoggerGUID = creature->GetGUID();
-				break;
-			default:
-				break;
-			}
-		}
+        void OnCreatureCreate(Creature* creature) override
+        {
+            switch (creature->GetEntry())
+            {
+            case NPC_RANDOLPH_MOLOCH:
+                RandolphMolochGuid = creature->GetGUID();
+                break;
+            case NPC_LORD_OVERHEAT:
+                LordOverheatGuid = creature->GetGUID();
+                break;
+            case NPC_HOGGER:
+                HoggerGUID = creature->GetGUID();
+                break;
+            default:
+                break;
+            }
+        }
 
-	protected:
-		ObjectGuid RandolphMolochGuid;
-		ObjectGuid LordOverheatGuid;
-		ObjectGuid HoggerGUID;
-	};
+    protected:
+        ObjectGuid RandolphMolochGuid;
+        ObjectGuid LordOverheatGuid;
+        ObjectGuid HoggerGUID;
+    };
 
-	InstanceScript* GetInstanceScript(InstanceMap* map) const override
-	{
-		return new instance_the_stockade_InstanceMapScript(map);
-	}
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
+    {
+        return new instance_the_stockade_InstanceMapScript(map);
+    }
 
 };
 
 void AddSC_instance_the_stockade()
 {
-	new instance_the_stockade();
+    new instance_the_stockade();
 }

@@ -25,28 +25,28 @@ uint32 const EncounterCount = 3;
 
 enum SSDataTypes
 {
-	DATA_RANDOLPH_MOLOCH = 0,
-	DATA_LORD_OVERHEAT = 1,
-	DATA_HOGGER = 2
+    DATA_RANDOLPH_MOLOCH = 0,
+    DATA_LORD_OVERHEAT = 1,
+    DATA_HOGGER = 2
 };
 
 enum SSCreatureIds
 {
-	NPC_RANDOLPH_MOLOCH = 46383,
-	NPC_LORD_OVERHEAT = 46264,
-	NPC_HOGGER = 46254,
-	NPC_WARDEN_THELWATER = 46409,
-	NPC_MORTIMER_MOLOCH = 46482
+    NPC_RANDOLPH_MOLOCH = 46383,
+    NPC_LORD_OVERHEAT = 46264,
+    NPC_HOGGER = 46254,
+    NPC_WARDEN_THELWATER = 46409,
+    NPC_MORTIMER_MOLOCH = 46482
 };
 
 template<class AI>
 CreatureAI* GetStormwindStockadeAI(Creature* creature)
 {
-	if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-		if (instance->GetInstanceScript())
-			if (instance->GetScriptId() == sObjectMgr->GetScriptId(StormwindStockadeScriptName))
-				return new AI(creature);
-	return NULL;
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(StormwindStockadeScriptName))
+                return new AI(creature);
+    return NULL;
 }
 
 #endif
