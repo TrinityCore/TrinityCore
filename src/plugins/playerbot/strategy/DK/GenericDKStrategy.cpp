@@ -146,7 +146,15 @@ void GenericDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 {
 	MeleeCombatStrategy::InitTriggers(triggers);
 
-	
+	triggers.push_back(new TriggerNode(
+		"death coil",
+		NextAction::array(0, new NextAction("death coil", ACTION_NORMAL + 3), NULL)));
+
+
+	triggers.push_back(new TriggerNode(
+		"no pet",
+		NextAction::array(0, new NextAction("raise dead", ACTION_NORMAL + 5), NULL)));
+
     triggers.push_back(new TriggerNode(
         "mind freeze",
         NextAction::array(0, new NextAction("mind freeze", ACTION_HIGH + 1), NULL)));
@@ -172,10 +180,9 @@ void GenericDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
 	triggers.push_back(new TriggerNode(
 		"low health",
-		NextAction::array(0,
-			new NextAction("blood tap", ACTION_HIGH + 5),
-			new NextAction("vampiric blood", ACTION_HIGH + 3),
-			new NextAction("death strike", ACTION_HIGH + 4), NULL)));
+		NextAction::array(0, new NextAction("icebound fortitude", ACTION_HIGH + 5),
+			new NextAction("rune tap", ACTION_HIGH + 4), NULL)));
+
 
 	triggers.push_back(new TriggerNode(
 		"medium health",
@@ -203,7 +210,7 @@ void GenericDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 		NextAction::array(0,
 			new NextAction("howling blast", ACTION_HIGH + 1),
 			new NextAction("plague strike", ACTION_HIGH + 1),
-			new NextAction("army of the dead", ACTION_NORMAL + 5),
+			new NextAction("death and decay", ACTION_NORMAL + 5),
 			new NextAction("pestilence", ACTION_NORMAL + 4),
 			new NextAction("blood boil", ACTION_NORMAL + 3), NULL)));
 
@@ -212,6 +219,7 @@ void GenericDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 		NextAction::array(0,
 			new NextAction("howling blast", ACTION_HIGH + 1),
 			new NextAction("plague strike", ACTION_HIGH + 1),
+			new NextAction("death and decay", ACTION_NORMAL + 5),
 			new NextAction("pestilence", ACTION_NORMAL + 4),
 			new NextAction("blood boil", ACTION_NORMAL + 3), NULL)));
 
@@ -219,6 +227,7 @@ void GenericDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 		NextAction::array(0,
 			new NextAction("howling blast", ACTION_HIGH + 1),
 			new NextAction("plague strike", ACTION_HIGH + 1),
+			new NextAction("death and decay", ACTION_NORMAL + 5),
 			new NextAction("pestilence", ACTION_NORMAL + 4),
 			new NextAction("hearth strike", ACTION_NORMAL + 3),
 			new NextAction("blood boil", ACTION_NORMAL + 3), NULL)));

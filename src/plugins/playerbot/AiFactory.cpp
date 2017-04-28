@@ -257,7 +257,7 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
             break;
 		case CLASS_DEATH_KNIGHT:
 			if (tab == 0)
-				nonCombatEngine->addStrategy("tank aoe");
+				nonCombatEngine->addStrategy("tank");
 			else
 				nonCombatEngine->addStrategy("dps assist");
 			break;

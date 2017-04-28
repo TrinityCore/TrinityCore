@@ -104,14 +104,8 @@ namespace ai
 	BEGIN_DEBUFF_ACTION(CastMarkOfBloodAction, "mark of blood")
 	END_SPELL_ACTION()
 
-	BEGIN_MELEE_SPELL_ACTION(CastRaiseDeadAction, "raise dead")
-	END_SPELL_ACTION()
-
 	BEGIN_MELEE_SPELL_ACTION(CastUnholyBlightAction, "unholy blight")
 		END_SPELL_ACTION()
-
-	BEGIN_MELEE_SPELL_ACTION(CastArmyOfTheDeadAction, "army of the dead")
-	END_SPELL_ACTION()
 
 	BEGIN_MELEE_SPELL_ACTION(CastSummonGargoyleAction, "summon gargoyle")
 	END_SPELL_ACTION()
@@ -129,9 +123,6 @@ namespace ai
 	BEGIN_MELEE_SPELL_ACTION(CastAntiMagicZoneAction, "anti magic zone")
 	END_SPELL_ACTION()
 
-
-	BEGIN_MELEE_SPELL_ACTION(CastDeathCoilAction, "death coil")
-	END_SPELL_ACTION()
 
 	class CastChainsOfIceAction : public CastMeleeSpellAction {
 	public:
@@ -173,14 +164,19 @@ namespace ai
 		CastScourgeStrikeAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "scorgue strike") {}
 	};
 
-	class CastBloodBoilAction : public CastMeleeSpellAction {
+	class CastDeathCoilAction : public CastSpellAction {
 	public:
-		CastBloodBoilAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "blood boil") {}
+		CastDeathCoilAction(PlayerbotAI* ai) : CastSpellAction(ai, "death coill") {}
 	};
 
-	class CastDeathAndDecayAction : public CastMeleeSpellAction {
+	class CastBloodBoilAction : public CastSpellAction {
 	public:
-		CastDeathAndDecayAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "death and decay") {}
+		CastBloodBoilAction(PlayerbotAI* ai) : CastSpellAction(ai, "blood boil") {}
+	};
+
+	class CastDeathAndDecayAction : public CastSpellAction {
+	public:
+		CastDeathAndDecayAction(PlayerbotAI* ai) : CastSpellAction(ai, "death and decay") {}
 	};
 
 	class CastHornOfWinterAction : public CastBuffSpellAction
@@ -223,6 +219,19 @@ namespace ai
 	{
 	public:
 		CastEmpowerRuneWeaponAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "empower rune weapon") {}
+	};
+
+	class CastArmyOfTheDeadAction : public CastBuffSpellAction
+	{
+	public:
+		CastArmyOfTheDeadAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "army of the dead") {}
+	};
+
+
+	class CastRaiseDeadAction : public CastBuffSpellAction
+	{
+	public:
+		CastRaiseDeadAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "raise dead") {}
 	};
 
 	class CastKillingMachineAction : public CastBuffSpellAction

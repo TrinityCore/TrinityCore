@@ -58,7 +58,7 @@ private:
 	static ActionNode* whirlwind(PlayerbotAI* ai)
 	{
 		return new ActionNode("whirlwind",
-			/*P*/ NextAction::array(0, new NextAction("berserker stance"), NULL),
+			/*P*/ NULL,
 			/*A*/ NextAction::array(0, new NextAction("bloodthirst"), NULL),
 			/*C*/ NULL);
     }
@@ -72,7 +72,7 @@ private:
     static ActionNode* execute(PlayerbotAI* ai)
     {
         return new ActionNode ("execute",
-            /*P*/ NextAction::array(0, new NextAction("battle stance"), NULL),
+            /*P*/ NULL,
             /*A*/ NextAction::array(0, new NextAction("heroic strike"), NULL),
             /*C*/ NULL);
     }
@@ -99,7 +99,7 @@ void DpsWarriorStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
     triggers.push_back(new TriggerNode(
         "target critical health",
-        NextAction::array(0, new NextAction("execute", ACTION_HIGH + 4), NULL)));
+        NextAction::array(0, new NextAction("execute", ACTION_HIGH + 9), NULL)));
 
 	triggers.push_back(new TriggerNode(
 		"hamstring",

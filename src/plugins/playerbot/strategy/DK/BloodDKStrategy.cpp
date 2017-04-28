@@ -86,28 +86,13 @@ triggers.push_back(new TriggerNode(
 	NextAction::array(0, new NextAction("dark command", ACTION_HIGH + 3), NULL)));
 
 
-	triggers.push_back(new TriggerNode(
-		"high aoe",
-		NextAction::array(0, 
-			new NextAction("howling blast", ACTION_HIGH + 1),
-			new NextAction("plague strike", ACTION_HIGH + 1), 
-			new NextAction("army of the dead", ACTION_NORMAL + 5),
-			new NextAction("pestilence", ACTION_NORMAL + 4),
-			new NextAction("blood boil", ACTION_NORMAL + 3), NULL)));
+triggers.push_back(new TriggerNode(
+	"low health",
+	NextAction::array(0,
+		new NextAction("blood tap", ACTION_HIGH + 5),
+		new NextAction("vampiric blood", ACTION_HIGH + 3),
+		new NextAction("death strike", ACTION_HIGH + 4), NULL)));
 
-	triggers.push_back(new TriggerNode(
-		"medium aoe",
-		NextAction::array(0, 
-			new NextAction("howling blast", ACTION_HIGH + 1),
-			new NextAction("plague strike", ACTION_HIGH + 1),
-			new NextAction("pestilence", ACTION_NORMAL + 4),
-			new NextAction("blood boil", ACTION_NORMAL + 3), NULL)));
 
-	triggers.push_back(new TriggerNode("light aoe",
-		NextAction::array(0,
-		new NextAction("howling blast", ACTION_HIGH + 1),
-		new NextAction("plague strike", ACTION_HIGH + 1),
-		new NextAction("pestilence", ACTION_NORMAL + 4), 
-			new NextAction("hearth strike", ACTION_NORMAL + 3),
-			new NextAction("blood boil", ACTION_NORMAL + 3), NULL)));
+
 }
