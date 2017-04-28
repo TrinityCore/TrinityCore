@@ -52,7 +52,7 @@ enum Events
 
 enum Points
 {
-    POINT_FINISH = 0
+	POINT_FINISH = 0
 };
 
 Position const wardenthelwatermovepos = { 152.019f, 106.198f, -35.1896f, 1.082104f };
@@ -65,17 +65,17 @@ public:
 
 	struct boss_hoggerAI : public BossAI
 	{
-        boss_hoggerAI(Creature* creature) : BossAI(creature, DATA_HOGGER) {}
-		
+		boss_hoggerAI(Creature* creature) : BossAI(creature, DATA_HOGGER) {}
+
 		void Reset() override
 		{
-            		_Reset();
+			_Reset();
 			isEnraged = false;
 		}
 
 		void EnterCombat(Unit* /*who*/) override
 		{
-            		_EnterCombat();
+			_EnterCombat();
 			Talk(SAY_PULL);
 			events.ScheduleEvent(EVENT_VICIOUS_SLICE, randtime(Seconds(3), Seconds(4)));
 			events.ScheduleEvent(EVENT_MADDENING_CALL, randtime(Seconds(1), Seconds(2)));
@@ -85,18 +85,18 @@ public:
 		{
 			Talk(SAY_DEATH);
 			_JustDied();
-          		me->SummonCreature(NPC_WARDEN_THELWATER, wardenthelwaterpos);
+			me->SummonCreature(NPC_WARDEN_THELWATER, wardenthelwaterpos);
 		}
 
-        	void JustSummoned(Creature* summon) override
-        	{
-             		BossAI::JustSummoned(summon);
-             		if (summon->GetEntry() == NPC_WARDEN_THELWATER)
-                		 summon->GetMotionMaster()->MovePoint(POINT_FINISH, wardenthelwatermovepos);
+		void JustSummoned(Creature* summon) override
+		{
+			BossAI::JustSummoned(summon);
+			if (summon->GetEntry() == NPC_WARDEN_THELWATER)
+				summon->GetMotionMaster()->MovePoint(POINT_FINISH, wardenthelwatermovepos);
 
-            		summons.Summon(summon);
- 
-         	}
+			summons.Summon(summon);
+
+		}
 
 		void UpdateAI(uint32 diff) override
 		{
@@ -151,21 +151,21 @@ public:
 
 	struct npc_warden_thelwaterAI : public ScriptedAI
 	{
-        npc_warden_thelwaterAI(Creature* creature) : ScriptedAI(creature) {}
-	
+		npc_warden_thelwaterAI(Creature* creature) : ScriptedAI(creature) {}
 
-        	void MovementInform(uint32 type, uint32 id) override
-        	{
-            		if (type == POINT_MOTION_TYPE)
-            		{
-                		switch (id)
-                		{
-                		case POINT_FINISH:
-                    		events.ScheduleEvent(EVENT_WARDEN_SAY_1, Seconds(1));
-                    		break;
-                		}
-            		}
-        	}
+
+		void MovementInform(uint32 type, uint32 id) override
+		{
+			if (type == POINT_MOTION_TYPE)
+			{
+				switch (id)
+				{
+				case POINT_FINISH:
+					events.ScheduleEvent(EVENT_WARDEN_SAY_1, Seconds(1));
+					break;
+				}
+			}
+		}
 
 		void UpdateAI(uint32 diff) override
 		{
