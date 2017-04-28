@@ -343,9 +343,9 @@ void AddEasternKingdomsScripts()
     AddSC_boss_kiljaeden();
     AddSC_sunwell_plateau();
     AddSC_instance_the_stockade();          //The Stockade
-	AddSC_boss_hogger();
-	AddSC_boss_randolph_moloch();
-	AddSC_boss_lord_overheat();
+    AddSC_boss_hogger();
+    AddSC_boss_randolph_moloch();
+    AddSC_boss_lord_overheat();
     AddSC_boss_archaedas();                 //Uldaman
     AddSC_boss_ironaya();
     AddSC_uldaman();
