@@ -616,15 +616,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
     // normal DB scripted effect
     TC_LOG_DEBUG("spells", "Spell ScriptStart spellid %u in EffectDummy(%u)", m_spellInfo->Id, effIndex);
     m_caster->GetMap()->ScriptsStart(sSpellScripts, uint32(m_spellInfo->Id | (effIndex << 24)), m_caster, unitTarget);
-
-    // Script based implementation. Must be used only for not good for implementation in core spell effects
-    // So called only for not proccessed cases
-    if (gameObjTarget)
-        sScriptMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, gameObjTarget);
-    else if (unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, unitTarget->ToCreature());
-    else if (itemTarget)
-        sScriptMgr->OnDummyEffect(m_caster, m_spellInfo->Id, effIndex, itemTarget);
 }
 
 void Spell::EffectTriggerSpell(SpellEffIndex /*effIndex*/)
