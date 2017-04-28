@@ -15,6 +15,14 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+This placeholder for the instance is needed for dungeon finding to be able
+to give credit after the boss defined in lastEncounterDungeon is killed.
+Without it, the party doing random dungeon won't get satchel of spoils and
+gets instead the deserter debuff.
+*/
+
+
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "the_stockade.h"
@@ -51,7 +59,6 @@ public:
 		}
 
 	protected:
-		EventMap events;
 		ObjectGuid RandolphMolochGuid;
 		ObjectGuid LordOverheatGuid;
 		ObjectGuid HoggerGUID;
