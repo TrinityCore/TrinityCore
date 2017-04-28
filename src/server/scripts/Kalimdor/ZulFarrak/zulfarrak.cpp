@@ -131,7 +131,7 @@ public:
         {
             Initialize();
 
-            me->setFaction(FACTION_FRIENDLY);
+            me->SetFaction(FACTION_FRIENDLY);
         }
 
         void UpdateAI(uint32 diff) override
@@ -154,7 +154,7 @@ public:
                             Text_Timer = 5000;
                             break;
                         case 3:
-                            me->setFaction(FACTION_HOSTILE);
+                            me->SetFaction(FACTION_HOSTILE);
                             if (Player* target = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(target);
 
@@ -199,7 +199,7 @@ public:
         {
            if (Creature* crew = ObjectAccessor::GetCreature(*me, instance->GetGuidData(entry)))
                if (crew->IsAlive())
-                   crew->setFaction(FACTION_HOSTILE);
+                   crew->SetFaction(FACTION_HOSTILE);
         }
     };
 
@@ -238,7 +238,7 @@ private:
             crew->SetWalk(true);
             crew->SetHomePosition(x, y, z, 0);
             crew->GetMotionMaster()->MovePoint(1, x, y, z);
-            crew->setFaction(FACTION_FREED);
+            crew->SetFaction(FACTION_FREED);
         }
     }
 };
@@ -387,7 +387,7 @@ public:
         {
             if (me->IsAlive())
             {
-                me->setFaction(FACTION_FRIENDLY);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->GetMotionMaster()->MovePoint(0, 1858.57f, 1146.35f, 14.745f);
                 me->SetHomePosition(1858.57f, 1146.35f, 14.745f, 3.85f); // in case he gets interrupted
                 Talk(SAY_WEEGLI_OK_I_GO);
@@ -454,7 +454,7 @@ public:
         if (!pZumrah)
             return false;
 
-        pZumrah->setFaction(ZUMRAH_HOSTILE_FACTION);
+        pZumrah->SetFaction(ZUMRAH_HOSTILE_FACTION);
         return true;
     }
 

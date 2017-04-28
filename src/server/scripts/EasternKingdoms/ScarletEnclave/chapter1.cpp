@@ -128,7 +128,7 @@ public:
         {
             Initialize();
             events.Reset();
-            me->setFaction(7);
+            me->SetFaction(7);
             me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
             me->LoadEquipment(0, true);
@@ -234,7 +234,7 @@ public:
                         wait_timer -= diff;
                     else
                     {
-                        me->setFaction(14);
+                        me->SetFaction(14);
                         me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                         phase = PHASE_ATTACKING;
 
@@ -594,7 +594,7 @@ public:
                 {
                     if (m_uiDuelTimer <= uiDiff)
                     {
-                        me->setFaction(FACTION_HOSTILE);
+                        me->SetFaction(FACTION_HOSTILE);
 
                         if (Unit* unit = ObjectAccessor::GetUnit(*me, m_uiDuelerGUID))
                             AttackStart(unit);
@@ -780,7 +780,7 @@ public:
                         {
                             charmer->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
                             caster->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-                            caster->setFaction(35);
+                            caster->SetFaction(35);
                             DoCast(caster, SPELL_CALL_DARK_RIDER, true);
                             if (Creature* Dark_Rider = me->FindNearestCreature(NPC_DARK_RIDER_OF_ACHERUS, 15))
                                 ENSURE_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
@@ -872,7 +872,7 @@ public:
             {
                 deathcharger->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
                 deathcharger->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                deathcharger->setFaction(2096);
+                deathcharger->SetFaction(2096);
             }
         }
     };

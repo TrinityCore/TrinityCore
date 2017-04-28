@@ -164,7 +164,7 @@ public:
                         break;
                     case EVENT_START_ESCORT:
                         events.Reset();
-                        me->setFaction(FACTION_ESCORTEE_H);
+                        me->SetFaction(FACTION_ESCORTEE_H);
                         me->SetReactState(REACT_AGGRESSIVE);
                         ENSURE_AI(npc_escortAI, (me->AI()))->Start(true, true, _player);
                         break;

@@ -105,7 +105,7 @@ public:
     bool OnQuestAccept(Player* /*player*/, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
-            creature->setFaction(FACTION_HOSTILE);
+            creature->SetFaction(FACTION_HOSTILE);
 
         return true;
     }

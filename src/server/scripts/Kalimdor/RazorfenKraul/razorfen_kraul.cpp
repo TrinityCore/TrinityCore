@@ -58,7 +58,7 @@ public:
             {
                 Start(true, false, player->GetGUID());
                 Talk(SAY_READY, player);
-                me->setFaction(113);
+                me->SetFaction(113);
             }
         }
 

@@ -75,7 +75,7 @@ public:
         {
             Initialize();
             creature->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-            creature->setFaction(35);
+            creature->SetFaction(35);
             creature->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -153,7 +153,7 @@ public:
                             events.ScheduleEvent(EVENT_SPEECH_4, 16000);
                             break;
                         case EVENT_SPEECH_4:
-                            me->setFaction(103);
+                            me->SetFaction(103);
                             if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
                                 AttackStart(player);
                             break;
