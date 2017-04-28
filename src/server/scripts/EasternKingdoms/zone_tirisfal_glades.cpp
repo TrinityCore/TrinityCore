@@ -54,7 +54,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_590)
         {
-            creature->setFaction(FACTION_HOSTILE);
+            creature->SetFaction(FACTION_HOSTILE);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             ENSURE_AI(npc_calvin_montague::npc_calvin_montagueAI, creature->AI())->AttackStart(player);
         }

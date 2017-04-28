@@ -180,7 +180,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         return false;
 
     setPetType(petType);
-    setFaction(owner->getFaction());
+    SetFaction(owner->GetFaction());
     SetUInt32Value(UNIT_CREATED_BY_SPELL, summonSpellId);
 
     if (IsCritter())

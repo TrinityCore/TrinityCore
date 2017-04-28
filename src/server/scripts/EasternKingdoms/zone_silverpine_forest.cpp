@@ -256,7 +256,7 @@ public:
                 if (!target)
                     target = me;
 
-                summoned->setFaction(FACTION_ENEMY);
+                summoned->SetFaction(FACTION_ENEMY);
                 summoned->AddThreat(target, 32.0f);
                 summoned->AI()->AttackStart(target);
             }

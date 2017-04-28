@@ -93,7 +93,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->setFaction(35);
+            me->SetFaction(35);
         }
 
         void SendItem(Unit* receiver)
@@ -123,7 +123,7 @@ public:
             {
                 if (SwitchFactionTimer <= diff)
                 {
-                    me->setFaction(91);
+                    me->SetFaction(91);
                     isFriendly = false;
                 } else SwitchFactionTimer -= diff;
             }
@@ -322,7 +322,7 @@ public:
     {
         if (quest->GetQuestId() == Q_OOX17)
         {
-            creature->setFaction(113);
+            creature->SetFaction(113);
             creature->SetFullHealth();
             creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);

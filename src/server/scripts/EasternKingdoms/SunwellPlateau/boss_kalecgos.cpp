@@ -155,7 +155,7 @@ public:
             if (Creature* Sath = ObjectAccessor::GetCreature(*me, SathGUID))
                 Sath->AI()->EnterEvadeMode();
 
-            me->setFaction(14);
+            me->SetFaction(14);
             if (!bJustReset) //first reset at create
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
@@ -379,7 +379,7 @@ public:
             switch (TalkSequence)
             {
                 case 1:
-                    me->setFaction(35);
+                    me->SetFaction(35);
                     TalkTimer = 1000;
                     break;
                 case 2:

@@ -115,7 +115,7 @@ public:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         DoCast(me, SPELL_SUMMON_CART, true);
                         if (GameObject* cart = me->FindNearestGameObject(GO_EXPLOSIVES_CART, 3.0f))
-                            cart->SetUInt32Value(GAMEOBJECT_FACTION, 14);
+                            cart->SetFaction(14);
                         phaseTimer = 3000;
                         phase = 2;
                         break;
@@ -667,11 +667,11 @@ public:
             switch (player->GetTeam())
             {
                 case ALLIANCE:
-                    creature->setFaction(FACTION_ESCORTEE_A);
+                    creature->SetFaction(FACTION_ESCORTEE_A);
                     break;
                 default:
                 case HORDE:
-                    creature->setFaction(FACTION_ESCORTEE_H);
+                    creature->SetFaction(FACTION_ESCORTEE_H);
                     break;
             }
 
@@ -709,7 +709,7 @@ public:
             owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
             owner->CastSpell(owner, SPELL_SUBDUED, true);
             GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
-            owner->setFaction(35);
+            owner->SetFaction(35);
             owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
             owner->DespawnOrUnsummon(3 * MINUTE*IN_MILLISECONDS);
         }
@@ -890,7 +890,7 @@ public:
                         if (talbot)
                         {
                             talbot->UpdateEntry(NPC_PRINCE_VALANAR);
-                            talbot->setFaction(14);
+                            talbot->SetFaction(14);
                             talbot->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             talbot->SetReactState(REACT_PASSIVE);
                         }
@@ -1628,10 +1628,10 @@ public:
             switch (player->GetTeam())
             {
             case ALLIANCE:
-                creature->setFaction(FACTION_ESCORTEE_A);
+                creature->SetFaction(FACTION_ESCORTEE_A);
                 break;
             case HORDE:
-                creature->setFaction(FACTION_ESCORTEE_H);
+                creature->SetFaction(FACTION_ESCORTEE_H);
                 break;
             }
             creature->SetStandState(UNIT_STAND_STATE_STAND);
@@ -2216,7 +2216,7 @@ public:
 
         void AttackPlayer()
         {
-            me->setFaction(14);
+            me->SetFaction(14);
             if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
                 AttackStart(player);
         }
