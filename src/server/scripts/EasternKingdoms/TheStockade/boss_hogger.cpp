@@ -14,6 +14,7 @@
 * You should have received a copy of the GNU General Public License along
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
@@ -68,13 +69,13 @@ public:
 		
 		void Reset() override
 		{
-            _Reset();
+            		_Reset();
 			isEnraged = false;
 		}
 
 		void EnterCombat(Unit* /*who*/) override
 		{
-            _EnterCombat();
+            		_EnterCombat();
 			Talk(SAY_PULL);
 			events.ScheduleEvent(EVENT_VICIOUS_SLICE, randtime(Seconds(3), Seconds(4)));
 			events.ScheduleEvent(EVENT_MADDENING_CALL, randtime(Seconds(1), Seconds(2)));
@@ -84,18 +85,18 @@ public:
 		{
 			Talk(SAY_DEATH);
 			_JustDied();
-            me->SummonCreature(NPC_WARDEN_THELWATER, wardenthelwaterpos);
+          		me->SummonCreature(NPC_WARDEN_THELWATER, wardenthelwaterpos);
 		}
 
-        void JustSummoned(Creature* summon) override
-         {
-             BossAI::JustSummoned(summon);
-             if (summon->GetEntry() == NPC_WARDEN_THELWATER)
-                 summon->GetMotionMaster()->MovePoint(POINT_FINISH, wardenthelwatermovepos);
+        	void JustSummoned(Creature* summon) override
+        	{
+             		BossAI::JustSummoned(summon);
+             		if (summon->GetEntry() == NPC_WARDEN_THELWATER)
+                		 summon->GetMotionMaster()->MovePoint(POINT_FINISH, wardenthelwatermovepos);
 
-             summons.Summon(summon);
+            		summons.Summon(summon);
  
-         }
+         	}
 
 		void UpdateAI(uint32 diff) override
 		{
@@ -153,18 +154,18 @@ public:
         npc_warden_thelwaterAI(Creature* creature) : ScriptedAI(creature) {}
 	
 
-        void MovementInform(uint32 type, uint32 id) override
-        {
-            if (type == POINT_MOTION_TYPE)
-            {
-                switch (id)
-                {
-                case POINT_FINISH:
-                    events.ScheduleEvent(EVENT_WARDEN_SAY_1, Seconds(1));
-                    break;
-                }
-            }
-        }
+        	void MovementInform(uint32 type, uint32 id) override
+        	{
+            		if (type == POINT_MOTION_TYPE)
+            		{
+                		switch (id)
+                		{
+                		case POINT_FINISH:
+                    		events.ScheduleEvent(EVENT_WARDEN_SAY_1, Seconds(1));
+                    		break;
+                		}
+            		}
+        	}
 
 		void UpdateAI(uint32 diff) override
 		{
