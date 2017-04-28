@@ -1205,7 +1205,7 @@ class spell_item_crystal_spire_of_karabor : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return spellInfo->GetEffect(EFFECT_0);
+                return spellInfo->GetEffect(EFFECT_0) != nullptr;
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
