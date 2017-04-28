@@ -46,7 +46,7 @@ CreatureAI* GetStormwindStockadeAI(Creature* creature)
         if (instance->GetInstanceScript())
             if (instance->GetScriptId() == sObjectMgr->GetScriptId(StormwindStockadeScriptName))
                 return new AI(creature);
-    return NULL;
+    return nullptr;
 }
 
 #endif

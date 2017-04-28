@@ -37,7 +37,6 @@ enum Says
 {
     SAY_PULL, //Yell: ALL MUST BURN!
     SAY_DEATH, //Yell: FIRE... EXTINGUISHED!
-
 };
 
 class boss_lord_overheat : public CreatureScript
@@ -47,19 +46,20 @@ public:
 
     struct boss_lord_overheatAI : public BossAI
     {
-        boss_lord_overheatAI(Creature* creature) : BossAI(creature, DATA_LORD_OVERHEAT) {}
+        boss_lord_overheatAI(Creature* creature) : BossAI(creature, DATA_LORD_OVERHEAT) { }
 
         void Reset() override
         {
             _Reset();
         }
+
         void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
             Talk(SAY_PULL);
             events.ScheduleEvent(EVENT_FIREBALL, Seconds(2));
-            events.ScheduleEvent(EVENT_OVERHEAT, randtime(Seconds(9), Seconds(11)));
-            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, randtime(Seconds(10), Seconds(13)));
+            events.ScheduleEvent(EVENT_OVERHEAT, Seconds(9), Seconds(11));
+            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, Seconds(10), Seconds(13));
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -89,11 +89,11 @@ public:
                 case EVENT_OVERHEAT:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         DoCast(target, SPELL_OVERHEAT);
-                    events.Repeat(randtime(Seconds(9), Seconds(10)));
+                    events.Repeat(Seconds(9), Seconds(10));
                     break;
                 case EVENT_RAIN_OF_FIRE:
                     DoCastAOE(SPELL_RAIN_OF_FIRE);
-                    events.Repeat(randtime(Seconds(15), Seconds(20)));
+                    events.Repeat(Seconds(15), Seconds(20));
                     break;
                 default:
                     break;
@@ -106,7 +106,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 
     CreatureAI* GetAI(Creature* creature) const override
     {

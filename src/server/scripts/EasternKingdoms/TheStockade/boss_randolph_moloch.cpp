@@ -63,11 +63,8 @@ public:
 
     struct boss_randolph_molochAI : public BossAI
     {
-        boss_randolph_molochAI(Creature* creature) : BossAI(creature, DATA_RANDOLPH_MOLOCH) {}
-
-        void Reset() override
+        boss_randolph_molochAI(Creature* creature) : BossAI(creature, DATA_RANDOLPH_MOLOCH) 
         {
-            _Reset();
             firstVanish = false;
             secondVanish = false;
         }
@@ -90,7 +87,6 @@ public:
             }
 
             summons.Summon(summon);
-
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -143,15 +139,15 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (me->HealthBelowPct(71) && me->HealthAbovePct(59) && !firstVanish)
+            if (me->HealthBelowPctDamaged(71, damage) && me->HealthAbovePct(59) && !firstVanish)
             {
                 firstVanish = true;
                 events.ScheduleEvent(EVENT_VANISH, Seconds(1));
             }
 
-            if (me->HealthBelowPct(41) && me->HealthAbovePct(29) && !secondVanish)
+            if (me->HealthBelowPctDamaged(41, damage) && me->HealthAbovePct(29) && !secondVanish)
             {
                 secondVanish = true;
                 events.ScheduleEvent(EVENT_VANISH, Seconds(1));
@@ -185,19 +181,8 @@ public:
         void MovementInform(uint32 type, uint32 id) override
         {
             if (type == POINT_MOTION_TYPE)
-            {
-                switch (id)
-                {
-                case POINT_FINISH:
+                if(id == POINT_FINISH)
                     events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_EMOTE, Seconds(4));
-                    break;
-                }
-            }
-        }
-
-        void JustRespawned() override
-        {
-            ScriptedAI::Reset();
         }
 
         void UpdateAI(uint32 diff) override

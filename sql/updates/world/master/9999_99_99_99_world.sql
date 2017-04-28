@@ -1,6 +1,5 @@
 UPDATE `creature_template` SET `ScriptName` = 'boss_hogger' WHERE `entry` = 46254;
 DELETE from `creature_text` WHERE `entry` = 46254;
-DELETE FROM `creature_text` WHERE entry = 46254;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (46254, 0, 0, 'Forest just setback!', 14, 0, 100, 0, 0, 0, 46474, 3, 'Hogger - Stockades - SAY_PULL'),
 (46254, 1, 0, '%s Enrages!', 41, 0, 100, 0, 0, 0, 46631, 3, 'Hogger - Stockades - SAY_ENRAGE'),

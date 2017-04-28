@@ -20,6 +20,17 @@
 #include "InstanceScript.h"
 #include "the_stockade.h"
 
+enum Says
+{
+    SAY_PULL = 0, // Forest just setback!
+    SAY_ENRAGE = 1, // AreaTriggerMessage: Hogger Enrages!
+    SAY_DEATH = 2, // Yiipe!
+
+    WARDEN_SAY_1 = 0, // Yell - This ends here, Hogger!
+    WARDEN_SAY_2 = 1, // Say - He's...he's dead?
+    WARDEN_SAY_3 = 2 // Say - It's simply too good to be true. You couldn't have killed him so easily!
+};
+
 enum Spells
 {
     SPELL_VICIOUS_SLICE = 86604,
@@ -27,23 +38,10 @@ enum Spells
     SPELL_ENRAGE = 86736
 };
 
-enum Says
-{
-    SAY_PULL = 0, // Forest just setback!
-    SAY_ENRAGE = 1, // AreaTriggerMessage: Hogger Enrages!
-    SAY_DEATH = 2, // Yiipe!
-
-
-    WARDEN_SAY_1 = 0, // Yell - This ends here, Hogger!
-    WARDEN_SAY_2 = 1, // Say - He's...he's dead?
-    WARDEN_SAY_3 = 2, // Say - It's simply too good to be true. You couldn't have killed him so easily!
-};
-
 enum Events
 {
     EVENT_VICIOUS_SLICE = 1,
     EVENT_MADDENING_CALL,
-
 
     EVENT_WARDEN_SAY_1,
     EVENT_WARDEN_SAY_2,
@@ -65,12 +63,9 @@ public:
 
     struct boss_hoggerAI : public BossAI
     {
-        boss_hoggerAI(Creature* creature) : BossAI(creature, DATA_HOGGER) {}
-
-        void Reset() override
+        boss_hoggerAI(Creature* creature) : BossAI(creature, DATA_HOGGER) 
         {
-            _Reset();
-            isEnraged = false;
+            hasEnraged = false;
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -95,7 +90,6 @@ public:
                 summon->GetMotionMaster()->MovePoint(POINT_FINISH, wardenthelwatermovepos);
 
             summons.Summon(summon);
-
         }
 
         void UpdateAI(uint32 diff) override
@@ -105,37 +99,39 @@ public:
 
             events.Update(diff);
 
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                case EVENT_VICIOUS_SLICE:
-                    DoCastVictim(SPELL_VICIOUS_SLICE);
-                    events.Repeat(randtime(Seconds(10), Seconds(14)));
-                    break;
-                case EVENT_MADDENING_CALL:
-                    DoCast(SPELL_MADDENING_CALL);
-                    events.Repeat(randtime(Seconds(15), Seconds(20)));
-                    break;
+                    case EVENT_VICIOUS_SLICE:
+                        DoCastVictim(SPELL_VICIOUS_SLICE);
+                        events.Repeat(randtime(Seconds(10), Seconds(14)));
+                        break;
+                    case EVENT_MADDENING_CALL:
+                        DoCast(SPELL_MADDENING_CALL);
+                        events.Repeat(randtime(Seconds(15), Seconds(20)));
+                        break;
                 }
             }
 
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (me->HealthBelowPct(30) && !isEnraged)
+            if (me->HealthBelowPctDamaged(30, damage) && !hasEnraged)
             {
+                hasEnraged = true;
                 Talk(SAY_ENRAGE);
-                DoCast(SPELL_ENRAGE);
-                isEnraged = true;
+                DoCastSelf(SPELL_ENRAGE);
             }
         }
 
     private:
-        bool isEnraged;
-
+        bool hasEnraged;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -153,7 +149,6 @@ public:
     {
         npc_warden_thelwaterAI(Creature* creature) : ScriptedAI(creature) {}
 
-
         void MovementInform(uint32 type, uint32 id) override
         {
             if (type == POINT_MOTION_TYPE)
@@ -169,8 +164,10 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-
             events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -198,7 +195,6 @@ public:
     {
         return GetStormwindStockadeAI<npc_warden_thelwaterAI>(creature);
     }
-
 };
 
 void AddSC_boss_hogger()
