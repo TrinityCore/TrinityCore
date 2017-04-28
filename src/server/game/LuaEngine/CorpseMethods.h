@@ -19,7 +19,7 @@ namespace LuaCorpse
      *
      * @return uint64 ownerGUID
      */
-    int GetOwnerGUID(Eluna* /*E*/, lua_State* L, Corpse* corpse)
+    int GetOwnerGUID(lua_State* L, Corpse* corpse)
     {
 #ifndef TRINITY
         Eluna::Push(L, corpse->GetOwnerGuid());
@@ -34,7 +34,7 @@ namespace LuaCorpse
      *
      * @return uint32 ghostTime
      */
-    int GetGhostTime(Eluna* /*E*/, lua_State* L, Corpse* corpse)
+    int GetGhostTime(lua_State* L, Corpse* corpse)
     {
         Eluna::Push(L, corpse->GetGhostTime());
         return 1;
@@ -52,7 +52,7 @@ namespace LuaCorpse
      *
      * @return [CorpseType] corpseType
      */
-    int GetType(Eluna* /*E*/, lua_State* L, Corpse* corpse)
+    int GetType(lua_State* L, Corpse* corpse)
     {
         Eluna::Push(L, corpse->GetType());
         return 1;
@@ -63,7 +63,7 @@ namespace LuaCorpse
      *
      * See [Corpse:GetGhostTime].
      */
-    int ResetGhostTime(Eluna* /*E*/, lua_State* /*L*/, Corpse* corpse)
+    int ResetGhostTime(lua_State* /*L*/, Corpse* corpse)
     {
         corpse->ResetGhostTime();
         return 0;
@@ -72,7 +72,7 @@ namespace LuaCorpse
     /**
      * Saves the [Corpse] to the database.
      */
-    int SaveToDB(Eluna* /*E*/, lua_State* /*L*/, Corpse* corpse)
+    int SaveToDB(lua_State* /*L*/, Corpse* corpse)
     {
         corpse->SaveToDB();
         return 0;

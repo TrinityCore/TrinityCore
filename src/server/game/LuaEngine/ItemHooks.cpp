@@ -66,7 +66,11 @@ bool Eluna::OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
     data << ObjectGuid(guid);
     data << ObjectGuid(uint64(0));
     data << uint8(0);
+#ifdef CMANGOS
+    pPlayer->GetSession()->SendPacket(data);
+#else
     pPlayer->GetSession()->SendPacket(&data);
+#endif
     return false;
 }
 

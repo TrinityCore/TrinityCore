@@ -62,7 +62,7 @@ bool Eluna::OnQuestReward(Player* pPlayer, Creature* pCreature, Quest const* pQu
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-uint32 Eluna::GetDialogStatus(Player* pPlayer, Creature* pCreature)
+uint32 Eluna::GetDialogStatus(const Player* pPlayer, const Creature* pCreature)
 {
     START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_DIALOG_STATUS, pCreature, DIALOG_STATUS_SCRIPTED_NO_STATUS);
     Push(pPlayer);

@@ -20,10 +20,8 @@
 #include "World.h"
 #include "Hooks.h"
 #include "ElunaUtility.h"
-
-#ifndef USING_BOOST
-#include <ace/Recursive_Thread_Mutex.h>
-#endif
+#include <mutex>
+#include <memory>
 
 extern "C"
 {
@@ -114,6 +112,7 @@ struct LuaScript
 };
 
 #define ELUNA_OBJECT_STORE  "Eluna Object Store"
+#define ELUNA_STATE_PTR     "Eluna State Ptr"
 #define LOCK_ELUNA Eluna::Guard __guard(Eluna::GetLock())
 
 #ifndef TRINITY
@@ -123,13 +122,9 @@ class TC_GAME_API Eluna
 {
 public:
     typedef std::list<LuaScript> ScriptList;
-#ifdef TRINITY
+
     typedef std::recursive_mutex LockType;
     typedef std::lock_guard<LockType> Guard;
-#else
-    typedef ACE_Recursive_Thread_Mutex LockType;
-    typedef ACE_Guard<LockType> Guard;
-#endif
 
 private:
     static bool reload;
@@ -160,8 +155,8 @@ private:
     ~Eluna();
 
     // Prevent copy
-    Eluna(Eluna const&);
-    Eluna& operator=(const Eluna&);
+    Eluna(Eluna const&) = delete;
+    Eluna& operator=(const Eluna&) = delete;
 
     void OpenLua();
     void CloseLua();
@@ -253,6 +248,17 @@ public:
     static void ReloadEluna() { LOCK_ELUNA; reload = true; }
     static LockType& GetLock() { return lock; };
     static bool IsInitialized() { return initialized; }
+    // Never returns nullptr
+    static Eluna* GetEluna(lua_State* L)
+    {
+        lua_pushstring(L, ELUNA_STATE_PTR);
+        lua_rawget(L, LUA_REGISTRYINDEX);
+        ASSERT(lua_islightuserdata(L, -1));
+        Eluna* E = static_cast<Eluna*>(lua_touserdata(L, -1));
+        lua_pop(L, 1);
+        ASSERT(E);
+        return E;
+    }
 
     // Static pushes, can be used by anything, including methods.
     static void Push(lua_State* luastate); // nil
@@ -358,7 +364,7 @@ public:
     bool OnGossipSelectCode(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action, const char* code);
     bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest);
     bool OnQuestReward(Player* pPlayer, Creature* pCreature, Quest const* pQuest, uint32 opt);
-    uint32 GetDialogStatus(Player* pPlayer, Creature* pCreature);
+    uint32 GetDialogStatus(const Player* pPlayer, const Creature* pCreature);
 
     bool OnSummoned(Creature* creature, Unit* summoner);
     bool UpdateAI(Creature* me, const uint32 diff);
@@ -392,7 +398,7 @@ public:
     bool OnGossipSelectCode(Player* pPlayer, GameObject* pGameObject, uint32 sender, uint32 action, const char* code);
     bool OnQuestAccept(Player* pPlayer, GameObject* pGameObject, Quest const* pQuest);
     bool OnQuestReward(Player* pPlayer, GameObject* pGameObject, Quest const* pQuest, uint32 opt);
-    uint32 GetDialogStatus(Player* pPlayer, GameObject* pGameObject);
+    uint32 GetDialogStatus(const Player* pPlayer, const GameObject* pGameObject);
 #ifndef CLASSIC
 #ifndef TBC
     void OnDestroyed(GameObject* pGameObject, Player* pPlayer);

@@ -68,7 +68,7 @@ bool Eluna::OnQuestReward(Player* pPlayer, GameObject* pGameObject, Quest const*
     return CallAllFunctionsBool(GameObjectEventBindings, key);
 }
 
-uint32 Eluna::GetDialogStatus(Player* pPlayer, GameObject* pGameObject)
+uint32 Eluna::GetDialogStatus(const Player* pPlayer, const GameObject* pGameObject)
 {
     START_HOOK_WITH_RETVAL(GAMEOBJECT_EVENT_ON_DIALOG_STATUS, pGameObject->GetEntry(), false);
     Push(pPlayer);

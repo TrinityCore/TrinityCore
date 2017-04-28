@@ -24,8 +24,14 @@ namespace LuaQuery
 {
     static void CheckFields(lua_State* L, ElunaQuery* result)
     {
-        if (Eluna::CHECKVAL<uint32>(L, 2) >= RESULT->GetFieldCount())
-            luaL_argerror(L, 2, "invalid field index");
+        uint32 field = Eluna::CHECKVAL<uint32>(L, 2);
+        uint32 count = RESULT->GetFieldCount();
+        if (field >= count)
+        {
+            char arr[256];
+            sprintf(arr, "trying to access invalid field index %u. There are %u fields available and the indexes start from 0", field, count);
+            luaL_argerror(L, 2, arr);
+        }
     }
 
     /**
@@ -34,7 +40,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return bool isNull
      */
-    int IsNull(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int IsNull(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -52,7 +58,7 @@ namespace LuaQuery
      *
      * @return uint32 columnCount
      */
-    int GetColumnCount(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetColumnCount(lua_State* L, ElunaQuery* result)
     {
         Eluna::Push(L, RESULT->GetFieldCount());
         return 1;
@@ -63,7 +69,7 @@ namespace LuaQuery
      *
      * @return uint32 rowCount
      */
-    int GetRowCount(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetRowCount(lua_State* L, ElunaQuery* result)
     {
         if (RESULT->GetRowCount() > (uint32)-1)
             Eluna::Push(L, (uint32)-1);
@@ -78,7 +84,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return bool data
      */
-    int GetBool(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetBool(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -92,7 +98,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return uint8 data
      */
-    int GetUInt8(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetUInt8(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -106,7 +112,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return uint16 data
      */
-    int GetUInt16(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetUInt16(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -120,7 +126,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return uint32 data
      */
-    int GetUInt32(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetUInt32(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -134,7 +140,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return uint64 data
      */
-    int GetUInt64(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetUInt64(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -148,7 +154,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return int8 data
      */
-    int GetInt8(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetInt8(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -162,7 +168,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return int16 data
      */
-    int GetInt16(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetInt16(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -176,7 +182,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return int32 data
      */
-    int GetInt32(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetInt32(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -190,7 +196,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return int64 data
      */
-    int GetInt64(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetInt64(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -204,7 +210,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return float data
      */
-    int GetFloat(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetFloat(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -218,7 +224,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return double data
      */
-    int GetDouble(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetDouble(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -232,7 +238,7 @@ namespace LuaQuery
      * @param uint32 column
      * @return string data
      */
-    int GetString(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetString(lua_State* L, ElunaQuery* result)
     {
         uint32 col = Eluna::CHECKVAL<uint32>(L, 2);
         CheckFields(L, result);
@@ -254,7 +260,7 @@ namespace LuaQuery
      *
      * @return bool hadNextRow
      */
-    int NextRow(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int NextRow(lua_State* L, ElunaQuery* result)
     {
         Eluna::Push(L, RESULT->NextRow());
         return 1;
@@ -277,13 +283,13 @@ namespace LuaQuery
      *
      * @return table rowData : table filled with row columns and data where `T[column] = data`
      */
-    int GetRow(Eluna* /*E*/, lua_State* L, ElunaQuery* result)
+    int GetRow(lua_State* L, ElunaQuery* result)
     {
-        lua_newtable(L);
-        int tbl = lua_gettop(L);
-
         uint32 col = RESULT->GetFieldCount();
         Field* row = RESULT->Fetch();
+
+        lua_createtable(L, 0, col);
+        int tbl = lua_gettop(L);
 
 #ifndef TRINITY
         const QueryFieldNames& names = RESULT->GetFieldNames();
@@ -323,7 +329,7 @@ namespace LuaQuery
                 }
             }
 
-            lua_settable(L, tbl);
+            lua_rawset(L, tbl);
         }
 
         lua_settop(L, tbl);

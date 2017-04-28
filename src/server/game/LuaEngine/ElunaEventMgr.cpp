@@ -18,7 +18,7 @@ ElunaEventProcessor::ElunaEventProcessor(Eluna** _E, WorldObject* _obj) : m_time
 {
     if (obj)
     {
-        EventMgr::WriteGuard guard((*E)->eventMgr->GetLock());
+        EventMgr::Guard guard((*E)->eventMgr->GetLock());
         (*E)->eventMgr->processors.insert(this);
     }
 }
@@ -29,7 +29,7 @@ ElunaEventProcessor::~ElunaEventProcessor()
 
     if (obj && Eluna::IsInitialized())
     {
-        EventMgr::WriteGuard guard((*E)->eventMgr->GetLock());
+        EventMgr::Guard guard((*E)->eventMgr->GetLock());
         (*E)->eventMgr->processors.erase(this);
     }
 }
@@ -124,7 +124,7 @@ EventMgr::EventMgr(Eluna** _E) : globalProcessor(new ElunaEventProcessor(_E, NUL
 EventMgr::~EventMgr()
 {
     {
-        ReadGuard guard(GetLock());
+        Guard guard(GetLock());
         if (!processors.empty())
             for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
                 (*it)->RemoveEvents_internal();
@@ -136,7 +136,7 @@ EventMgr::~EventMgr()
 
 void EventMgr::SetStates(LuaEventState state)
 {
-    ReadGuard guard(GetLock());
+    Guard guard(GetLock());
     if (!processors.empty())
         for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
             (*it)->SetStates(state);
@@ -145,7 +145,7 @@ void EventMgr::SetStates(LuaEventState state)
 
 void EventMgr::SetState(int eventId, LuaEventState state)
 {
-    ReadGuard guard(GetLock());
+    Guard guard(GetLock());
     if (!processors.empty())
         for (ProcessorSet::const_iterator it = processors.begin(); it != processors.end(); ++it) // loop processors
             (*it)->SetState(eventId, state);

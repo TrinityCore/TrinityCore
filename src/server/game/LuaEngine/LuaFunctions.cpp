@@ -37,7 +37,7 @@ extern "C"
 #include "VehicleMethods.h"
 #include "BattleGroundMethods.h"
 
-ElunaGlobal::ElunaRegister GlobalMethods[] =
+luaL_Reg GlobalMethods[] =
 {
     // Hooks
     { "RegisterPacketEvent", &LuaGlobalFunctions::RegisterPacketEvent },
@@ -419,10 +419,11 @@ ElunaRegister<Unit> UnitMethods[] =
     { "DealDamage", &LuaUnit::DealDamage },
     { "DealHeal", &LuaUnit::DealHeal },
     { "AddThreat", &LuaUnit::AddThreat },
-
-	{ "CastSpellRAI", &LuaUnit::CastSpellRAI },
+	
+    { "CastSpellRAI", &LuaUnit::CastSpellRAI },
     { "PatrolArea", &LuaUnit::PatrolArea },
     { "ReInitialize", &LuaUnit::ReInitialize },
+
     { NULL, NULL }
 };
 
@@ -642,7 +643,6 @@ ElunaRegister<Player> PlayerMethods[] =
     { "GossipClearMenu", &LuaPlayer::GossipClearMenu },
 
     // Other
-    { "SendClearCooldowns", &LuaPlayer::SendClearCooldowns },
     { "SendBroadcastMessage", &LuaPlayer::SendBroadcastMessage },
     { "SendAreaTriggerMessage", &LuaPlayer::SendAreaTriggerMessage },
     { "SendNotification", &LuaPlayer::SendNotification },
@@ -1265,9 +1265,6 @@ ElunaRegister<BattleGround> BattleGroundMethods[] =
 
     { NULL, NULL }
 };
-
-template<typename T> const char* ElunaTemplate<T>::tname = NULL;
-template<typename T> bool ElunaTemplate<T>::manageMemory = false;
 
 #if (!defined(TBC) && !defined(CLASSIC))
 // fix compile error about accessing vehicle destructor

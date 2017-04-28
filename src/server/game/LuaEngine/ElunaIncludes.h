@@ -49,7 +49,11 @@
 #include "SpellHistory.h"
 #else
 #include "Config/Config.h"
+#ifdef CMANGOS
+#include "AI/AggressorAI.h"
+#else
 #include "AggressorAI.h"
+#endif
 #include "BattleGroundMgr.h"
 #include "SQLStorages.h"
 #include "revision.h"
@@ -122,6 +126,10 @@ typedef ThreatContainer::StorageType ThreatList;
 
 #ifdef TBC
 #define SPELL_AURA_MOD_KILL_XP_PCT  SPELL_AURA_MOD_XP_PCT
+#endif
+
+#if defined(WOTLK) && !defined(MANGOS)
+#define UNIT_BYTE2_FLAG_SANCTUARY   UNIT_BYTE2_FLAG_SUPPORTABLE
 #endif
 
 typedef TemporarySummon TempSummon;

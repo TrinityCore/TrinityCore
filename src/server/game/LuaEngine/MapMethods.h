@@ -23,7 +23,7 @@ namespace LuaMap
      *
      * @return bool isArena
      */
-    int IsArena(Eluna* /*E*/, lua_State* L, Map* map)
+    int IsArena(lua_State* L, Map* map)
     {
         Eluna::Push(L, map->IsBattleArena());
         return 1;
@@ -35,7 +35,7 @@ namespace LuaMap
      *
      * @return bool isBattleGround
      */
-    int IsBattleground(Eluna* /*E*/, lua_State* L, Map* map)
+    int IsBattleground(lua_State* L, Map* map)
     {
 #ifndef TRINITY
         Eluna::Push(L, map->IsBattleGround());
@@ -50,7 +50,7 @@ namespace LuaMap
      *
      * @return bool isDungeon
      */
-    int IsDungeon(Eluna* /*E*/, lua_State* L, Map* map)
+    int IsDungeon(lua_State* L, Map* map)
     {
         Eluna::Push(L, map->IsDungeon());
         return 1;
@@ -61,7 +61,7 @@ namespace LuaMap
      *
      * @return bool isEmpty
      */
-    int IsEmpty(Eluna* /*E*/, lua_State* L, Map* map)
+    int IsEmpty(lua_State* L, Map* map)
     {
         Eluna::Push(L, map->isEmpty());
         return 1;
@@ -73,7 +73,7 @@ namespace LuaMap
      *
      * @return bool isHeroic
      */
-    int IsHeroic(Eluna* /*E*/, lua_State* L, Map* map)
+    int IsHeroic(lua_State* L, Map* map)
     {
         Eluna::Push(L, map->IsHeroic());
         return 1;
@@ -85,7 +85,7 @@ namespace LuaMap
      *
      * @return bool isRaid
      */
-    int IsRaid(Eluna* /*E*/, lua_State* L, Map* map)
+    int IsRaid(lua_State* L, Map* map)
     {
         Eluna::Push(L, map->IsRaid());
         return 1;
@@ -96,7 +96,7 @@ namespace LuaMap
      *
      * @return string mapName
      */
-    int GetName(Eluna* /*E*/, lua_State* L, Map* map)
+    int GetName(lua_State* L, Map* map)
     {
         Eluna::Push(L, map->GetMapName());
         return 1;
@@ -111,7 +111,7 @@ namespace LuaMap
      * @param float y
      * @return float z
      */
-    int GetHeight(Eluna* /*E*/, lua_State* L, Map* map)
+    int GetHeight(lua_State* L, Map* map)
     {
         float x = Eluna::CHECKVAL<float>(L, 2);
         float y = Eluna::CHECKVAL<float>(L, 3);
@@ -133,7 +133,7 @@ namespace LuaMap
      *
      * @return int32 difficulty
      */
-    int GetDifficulty(Eluna* /*E*/, lua_State* L, Map* map)
+    int GetDifficulty(lua_State* L, Map* map)
     {
 #ifndef CLASSIC
         Eluna::Push(L, map->GetDifficulty());
@@ -148,7 +148,7 @@ namespace LuaMap
      *
      * @return uint32 instanceId
      */
-    int GetInstanceId(Eluna* /*E*/, lua_State* L, Map* map)
+    int GetInstanceId(lua_State* L, Map* map)
     {
         Eluna::Push(L, map->GetInstanceId());
         return 1;
@@ -159,7 +159,7 @@ namespace LuaMap
      *
      * @return uint32 playerCount
      */
-    int GetPlayerCount(Eluna* /*E*/, lua_State* L, Map* map)
+    int GetPlayerCount(lua_State* L, Map* map)
     {
         Eluna::Push(L, map->GetPlayersCountExceptGMs());
         return 1;
@@ -170,7 +170,7 @@ namespace LuaMap
      *
      * @return uint32 mapId
      */
-    int GetMapId(Eluna* /*E*/, lua_State* L, Map* map)
+    int GetMapId(lua_State* L, Map* map)
     {
         Eluna::Push(L, map->GetId());
         return 1;
@@ -184,7 +184,7 @@ namespace LuaMap
      * @param float z
      * @return uint32 areaId
      */
-    int GetAreaId(Eluna* /*E*/, lua_State* L, Map* map)
+    int GetAreaId(lua_State* L, Map* map)
     {
         float x = Eluna::CHECKVAL<float>(L, 2);
         float y = Eluna::CHECKVAL<float>(L, 3);
@@ -203,7 +203,7 @@ namespace LuaMap
      *
      * @param uint64 guid
      */
-    int GetWorldObject(Eluna* /*E*/, lua_State* L, Map* map)
+    int GetWorldObject(lua_State* L, Map* map)
     {
         uint64 guid = Eluna::CHECKVAL<uint64>(L, 2);
 
@@ -257,7 +257,7 @@ namespace LuaMap
      * @param [WeatherType] type : the [WeatherType], see above available weather types
      * @param float grade : the intensity/grade of the [Weather], ranges from 0 to 1
      */
-    int SetWeather(Eluna* /*E*/, lua_State* L, Map* map)
+    int SetWeather(lua_State* L, Map* map)
     {
         uint32 zoneId = Eluna::CHECKVAL<uint32>(L, 2);
         uint32 weatherType = Eluna::CHECKVAL<uint32>(L, 3);
@@ -284,7 +284,7 @@ namespace LuaMap
      *
      * @return table instance_data : instance data table, or `nil`
      */
-    int GetInstanceData(Eluna* E, lua_State* L, Map* map)
+    int GetInstanceData(lua_State* L, Map* map)
     {
 #ifdef TRINITY
         ElunaInstanceAI* iAI = NULL;
@@ -295,7 +295,7 @@ namespace LuaMap
 #endif
 
         if (iAI)
-            sEluna->PushInstanceData(L, iAI, false);
+            Eluna::GetEluna(L)->PushInstanceData(L, iAI, false);
         else
             Eluna::Push(L); // nil
 
@@ -305,7 +305,7 @@ namespace LuaMap
     /**
      * Saves the [Map]'s instance data to the database.
      */
-    int SaveInstanceData(Eluna* E, lua_State* L, Map* map)
+    int SaveInstanceData(lua_State* /*L*/, Map* map)
     {
 #ifdef TRINITY
         ElunaInstanceAI* iAI = NULL;

@@ -35,9 +35,21 @@ bool Eluna::OnAddonMessage(Player* sender, uint32 type, std::string& msg, Player
     START_HOOK_WITH_RETVAL(ADDON_EVENT_ON_MESSAGE, true);
     Push(sender);
     Push(type);
-    const char* c_msg = msg.c_str();
-    Push(strtok((char*)c_msg, "\t")); // prefix
-    Push(strtok(NULL, "")); // msg
+
+    auto delimeter_position = msg.find('\t');
+    if (delimeter_position == std::string::npos)
+    {
+        Push(msg); // prefix
+        Push(); // msg
+    }
+    else
+    {
+        std::string prefix = msg.substr(0, delimeter_position);
+        std::string content = msg.substr(delimeter_position + 1, std::string::npos);
+        Push(prefix);
+        Push(content);
+    }
+
     if (receiver)
         Push(receiver);
     else if (guild)
@@ -95,7 +107,7 @@ bool Eluna::OnAreaTrigger(Player* pPlayer, AreaTriggerEntry const* pTrigger)
 }
 
 // Weather
-void Eluna::OnChange(Weather* weather, uint32 zone, WeatherState state, float grade)
+void Eluna::OnChange(Weather* /*weather*/, uint32 zone, WeatherState state, float grade)
 {
     START_HOOK(WEATHER_EVENT_ON_CHANGE);
     Push(zone);

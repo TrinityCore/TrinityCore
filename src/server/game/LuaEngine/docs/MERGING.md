@@ -1,4 +1,4 @@
-#Merging Eluna
+# Merging Eluna
 Eluna can be added to various sources by applying the core changes required for Eluna to function.  
 Below you find the guides for merging Eluna with each core or a fork of it.  
 If you choose to merge you should be able to maintain and update yourself - we do not maintain your core. View Unofficial Merging below.
@@ -7,13 +7,10 @@ We also do not fix any merging errors you may have, but you are free to ask abou
 We recommend using the [installation guide](INSTALL.md) especially if you are not familiar with git and updating the code.  
 It allows you to simply use `git pull` followed by `git submodule update` to update your source and we will handle the merging and maintenance with the official core source. Naturally you still need to handle updating the database as instructed by the core's wiki or instructions.
 
-###Unofficial Merging
-We do not support unofficial merging. View [Unofficial Merging](http://emudevs.com/showthread.php/5000) thread.
-
-###Merging Eluna with MaNGOS
+### Merging Eluna with MaNGOS
 Eluna is merged with [official MaNGOS](http://getmangos.eu/) by default.
 
-###Merging Eluna with cMaNGOS
+### Merging Eluna with cMaNGOS
 ```
 git clone https://github.com/cmangos/mangos-wotlk.git
 cd mangos-wotlk
@@ -29,7 +26,7 @@ Steps explained:
     * [Eluna cMaNGOS TBC](https://github.com/ElunaLuaEngine/ElunaMangosTbc)
     * [Eluna cMaNGOS WotLK](https://github.com/ElunaLuaEngine/ElunaMangosWotlk)
 
-###Merging Eluna with TrinityCore
+### Merging Eluna with TrinityCore
 ```
 git clone https://github.com/TrinityCore/TrinityCore.git -b3.3.5
 cd TrinityCore

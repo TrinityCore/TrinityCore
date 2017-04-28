@@ -9,6 +9,8 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <mutex>
+#include <memory>
 #include "Common.h"
 #include "SharedDefines.h"
 #include "ObjectGuid.h"
@@ -19,20 +21,6 @@
 #endif
 #else
 #include "Database/QueryResult.h"
-#endif
-
-// Some dummy includes containing BOOST_VERSION:
-// ObjectAccessor.h Config.h Log.h
-#ifdef BOOST_VERSION
-#define USING_BOOST
-#endif
-
-#ifdef USING_BOOST
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#else
-#include <ace/RW_Thread_Mutex.h>
-#include <ace/Guard_T.h>
 #endif
 
 #ifdef TRINITY
@@ -133,25 +121,15 @@ namespace ElunaUtil
     /*
      * Usage:
      * Inherit this class, then when needing lock, use
-     * ReadGuard guard(GetLock());
-     * or
-     * WriteGuard guard(GetLock());
+     * Guard guard(GetLock());
      *
      * The lock is automatically released at end of scope
      */
-    class RWLockable
+    class Lockable
     {
     public:
-
-#ifdef USING_BOOST
-        typedef boost::shared_mutex LockType;
-        typedef boost::shared_lock<LockType> ReadGuard;
-        typedef boost::unique_lock<LockType> WriteGuard;
-#else
-        typedef ACE_RW_Thread_Mutex LockType;
-        typedef ACE_Read_Guard<LockType> ReadGuard;
-        typedef ACE_Write_Guard<LockType> WriteGuard;
-#endif
+        typedef std::mutex LockType;
+        typedef std::lock_guard<LockType> Guard;
 
         LockType& GetLock() { return _lock; }
 

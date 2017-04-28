@@ -20,43 +20,34 @@ extern "C"
 class ElunaGlobal
 {
 public:
-    struct ElunaRegister
-    {
-        const char* name;
-        int(*mfunc)(Eluna*, lua_State*);
-    };
-
     static int thunk(lua_State* L)
     {
-        ElunaRegister* l = static_cast<ElunaRegister*>(lua_touserdata(L, lua_upvalueindex(1)));
-        Eluna* E = static_cast<Eluna*>(lua_touserdata(L, lua_upvalueindex(2)));
-        int args = lua_gettop(L);
-        int expected = l->mfunc(E, L);
-        args = lua_gettop(L) - args;
+        luaL_Reg* l = static_cast<luaL_Reg*>(lua_touserdata(L, lua_upvalueindex(1)));
+        int top = lua_gettop(L);
+        int expected = l->func(L);
+        int args = lua_gettop(L) - top;
         if (args < 0 || args > expected)
         {
             ELUNA_LOG_ERROR("[Eluna]: %s returned unexpected amount of arguments %i out of %i. Report to devs", l->name, args, expected);
             ASSERT(false);
         }
-        for (; args < expected; ++args)
-            lua_pushnil(L);
+        lua_settop(L, top + expected);
         return expected;
     }
 
-    static void SetMethods(Eluna* E, ElunaRegister* methodTable)
+    static void SetMethods(Eluna* E, luaL_Reg* methodTable)
     {
         ASSERT(E);
         ASSERT(methodTable);
 
         lua_pushglobaltable(E->L);
 
-        for (; methodTable && methodTable->name && methodTable->mfunc; ++methodTable)
+        for (; methodTable && methodTable->name && methodTable->func; ++methodTable)
         {
             lua_pushstring(E->L, methodTable->name);
             lua_pushlightuserdata(E->L, (void*)methodTable);
-            lua_pushlightuserdata(E->L, (void*)E);
-            lua_pushcclosure(E->L, thunk, 2);
-            lua_settable(E->L, -3);
+            lua_pushcclosure(E->L, thunk, 1);
+            lua_rawset(E->L, -3);
         }
 
         lua_remove(E->L, -1);
@@ -118,7 +109,7 @@ template<typename T>
 struct ElunaRegister
 {
     const char* name;
-    int(*mfunc)(Eluna*, lua_State*, T*);
+    int(*mfunc)(lua_State*, T*);
 };
 
 template<typename T>
@@ -247,9 +238,8 @@ public:
         {
             lua_pushstring(E->L, methodTable->name);
             lua_pushlightuserdata(E->L, (void*)methodTable);
-            lua_pushlightuserdata(E->L, (void*)E);
-            lua_pushcclosure(E->L, CallMethod, 2);
-            lua_settable(E->L, -3);
+            lua_pushcclosure(E->L, CallMethod, 1);
+            lua_rawset(E->L, -3);
         }
 
         lua_pop(E->L, 1);
@@ -356,19 +346,16 @@ public:
         if (!obj)
             return 0;
         ElunaRegister<T>* l = static_cast<ElunaRegister<T>*>(lua_touserdata(L, lua_upvalueindex(1)));
-        Eluna* E = static_cast<Eluna*>(lua_touserdata(L, lua_upvalueindex(2)));
         int top = lua_gettop(L);
-        int expected = l->mfunc(E, L, obj);
+        int expected = l->mfunc(L, obj);
         int args = lua_gettop(L) - top;
         if (args < 0 || args > expected)
         {
             ELUNA_LOG_ERROR("[Eluna]: %s returned unexpected amount of arguments %i out of %i. Report to devs", l->name, args, expected);
             ASSERT(false);
         }
-        if (args == expected)
-            return expected;
-        lua_settop(L, top);
-        return 0;
+        lua_settop(L, top + expected);
+        return expected;
     }
 
     // Metamethods ("virtual")
@@ -413,5 +400,8 @@ ElunaObject::ElunaObject(T * obj, bool manageMemory) : _isvalid(false), _invalid
 {
     SetValid(true);
 }
+
+template<typename T> const char* ElunaTemplate<T>::tname = NULL;
+template<typename T> bool ElunaTemplate<T>::manageMemory = false;
 
 #endif

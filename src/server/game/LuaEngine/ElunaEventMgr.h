@@ -77,7 +77,7 @@ private:
     Eluna** E;
 };
 
-class EventMgr : public ElunaUtil::RWLockable
+class EventMgr : public ElunaUtil::Lockable
 {
 public:
     typedef std::unordered_set<ElunaEventProcessor*> ProcessorSet;

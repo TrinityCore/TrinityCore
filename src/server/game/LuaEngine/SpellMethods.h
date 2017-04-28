@@ -19,7 +19,7 @@ namespace LuaSpell
      *
      * @return bool isAutoRepeating
      */
-    int IsAutoRepeat(Eluna* /*E*/, lua_State* L, Spell* spell)
+    int IsAutoRepeat(lua_State* L, Spell* spell)
     {
         Eluna::Push(L, spell->IsAutoRepeat());
         return 1;
@@ -30,7 +30,7 @@ namespace LuaSpell
      *
      * @return [Unit] caster
      */
-    int GetCaster(Eluna* /*E*/, lua_State* L, Spell* spell)
+    int GetCaster(lua_State* L, Spell* spell)
     {
         Eluna::Push(L, spell->GetCaster());
         return 1;
@@ -41,7 +41,7 @@ namespace LuaSpell
      *
      * @return int32 castTime
      */
-    int GetCastTime(Eluna* /*E*/, lua_State* L, Spell* spell)
+    int GetCastTime(lua_State* L, Spell* spell)
     {
         Eluna::Push(L, spell->GetCastTime());
         return 1;
@@ -52,7 +52,7 @@ namespace LuaSpell
      *
      * @return uint32 entryId
      */
-    int GetEntry(Eluna* /*E*/, lua_State* L, Spell* spell)
+    int GetEntry(lua_State* L, Spell* spell)
     {
         Eluna::Push(L, spell->m_spellInfo->Id);
         return 1;
@@ -63,7 +63,7 @@ namespace LuaSpell
      *
      * @return uint32 powerCost
      */
-    int GetPowerCost(Eluna* /*E*/, lua_State* L, Spell* spell)
+    int GetPowerCost(lua_State* L, Spell* spell)
     {
         Eluna::Push(L, spell->GetPowerCost());
         return 1;
@@ -74,7 +74,7 @@ namespace LuaSpell
      *
      * @return int32 duration
      */
-    int GetDuration(Eluna* /*E*/, lua_State* L, Spell* spell)
+    int GetDuration(lua_State* L, Spell* spell)
     {
 #ifndef TRINITY
         Eluna::Push(L, GetSpellDuration(spell->m_spellInfo));
@@ -91,7 +91,7 @@ namespace LuaSpell
      * @return float y : y coordinate of the [Spell]
      * @return float z : z coordinate of the [Spell]
      */
-    int GetTargetDest(Eluna* /*E*/, lua_State* L, Spell* spell)
+    int GetTargetDest(lua_State* L, Spell* spell)
     {
 #ifndef TRINITY
         if (!(spell->m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION))
@@ -122,7 +122,7 @@ namespace LuaSpell
      *
      * @return [Object] target
      */
-    int GetTarget(Eluna* /*E*/, lua_State* L, Spell* spell)
+    int GetTarget(lua_State* L, Spell* spell)
     {
 #ifndef TRINITY
         if (GameObject* target = spell->m_targets.getGOTarget())
@@ -153,7 +153,7 @@ namespace LuaSpell
      *
      * @param bool repeat : set variable to 'true' for spell to automatically repeat
      */
-    int SetAutoRepeat(Eluna* /*E*/, lua_State* L, Spell* spell)
+    int SetAutoRepeat(lua_State* L, Spell* spell)
     {
         bool repeat = Eluna::CHECKVAL<bool>(L, 2);
         spell->SetAutoRepeat(repeat);
@@ -165,7 +165,7 @@ namespace LuaSpell
      *
      * @param bool skipCheck = false : skips initial checks to see if the [Spell] can be casted or not, this is optional
      */
-    int Cast(Eluna* /*E*/, lua_State* L, Spell* spell)
+    int Cast(lua_State* L, Spell* spell)
     {
         bool skipCheck = Eluna::CHECKVAL<bool>(L, 2, false);
         spell->cast(skipCheck);
@@ -175,7 +175,7 @@ namespace LuaSpell
     /**
      * Cancels the [Spell].
      */
-    int Cancel(Eluna* /*E*/, lua_State* /*L*/, Spell* spell)
+    int Cancel(lua_State* /*L*/, Spell* spell)
     {
         spell->cancel();
         return 0;
@@ -184,7 +184,7 @@ namespace LuaSpell
     /**
      * Finishes the [Spell].
      */
-    int Finish(Eluna* /*E*/, lua_State* /*L*/, Spell* spell)
+    int Finish(lua_State* /*L*/, Spell* spell)
     {
         spell->finish();
         return 0;
