@@ -4613,13 +4613,12 @@ class spell_gen_kings_guard_reflective_shield : public SpellScriptLoader
 
             void OnProc(const AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
-                Unit* caster = GetCaster();
                 Unit* target = GetTarget();
                 
                 if (eventInfo.GetDamageInfo()->GetAttacker() == target)
                     return;
                 int32 reflectiveshielddmg = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
-                caster->CastCustomSpell(SPELL_KING_GUARD_REFLECTIVE_SHIELD_DAMAGE, SPELLVALUE_BASE_POINT0, reflectiveshielddmg, eventInfo.GetDamageInfo()->GetAttacker(), true, NULL, aurEff);
+                GetCaster()->CastCustomSpell(SPELL_KING_GUARD_REFLECTIVE_SHIELD_DAMAGE, SPELLVALUE_BASE_POINT0, reflectiveshielddmg, eventInfo.GetDamageInfo()->GetAttacker(), true, nullptr, aurEff);
             }
 
             void Register() override
