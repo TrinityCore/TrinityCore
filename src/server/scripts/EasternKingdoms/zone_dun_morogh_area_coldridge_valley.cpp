@@ -144,13 +144,13 @@ public:
         void Initialize()
         {
             hitBySpell = false;
-            PercentHP = urand(15, 55);
+            percentHP = urand(15, 55);
         }
 
         void Reset() override
         {
             Initialize();
-            me->SetHealth(me->CountPctFromMaxHealth(PercentHP));
+            me->SetHealth(me->CountPctFromMaxHealth(percentHP));
         }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
@@ -162,7 +162,7 @@ public:
             }
             if (spell->Id == SPELL_FLASH_HEAL)
                 if (caster->GetTypeId() == TYPEID_PLAYER)
-                        caster->ToPlayer()->KilledMonsterCredit(QUEST_KILL_CREDIT);
+                    caster->ToPlayer()->KilledMonsterCredit(QUEST_KILL_CREDIT);
         }
 
         void UpdateAI(uint32 diff) override
@@ -177,7 +177,7 @@ public:
                 switch (eventId)
                 {
                 case EVENT_RESET_HEALTH:
-                    me->SetHealth(me->CountPctFromMaxHealth(PercentHP));
+                    me->SetHealth(me->CountPctFromMaxHealth(percentHP));
                     hitBySpell = false;
                     break;
                 default:
@@ -187,7 +187,7 @@ public:
         }
     private:
         EventMap _events;
-        int8 PercentHP;
+        int8 percentHP;
         bool hitBySpell;
     };
 
@@ -261,7 +261,6 @@ public:
     struct npc_milos_gyro_AI : public VehicleAI
     {
         npc_milos_gyro_AI(Creature* creature) : VehicleAI(creature)
-
         {
             Initialize();
         }
