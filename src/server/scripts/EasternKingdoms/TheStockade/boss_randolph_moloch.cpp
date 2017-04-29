@@ -21,10 +21,10 @@
 
 enum Spells
 {
-    SPELL_WILDLY_STABBING = 86726,
-    SPELL_SWEEP = 86729,
-    SPELL_VANISH = 55964,
-    SPELL_SHADOWSTEP = 55966
+    SPELL_WILDLY_STABBING           = 86726,
+    SPELL_SWEEP                     = 86729,
+    SPELL_VANISH                    = 55964,
+    SPELL_SHADOWSTEP                = 55966
 };
 
 enum Events
@@ -41,12 +41,12 @@ enum Events
 
 enum Says
 {
-    SAY_PULL = 0, //Allow me to introduce myself. I am Randolph Moloch and I will be killing you all today.
-    SAY_VANISH = 1, // Area Trigger: %s vanishes!
-    SAY_DEATH = 2, //My epic schemes, my great plans! Gone!
+    SAY_PULL                = 0, //Allow me to introduce myself. I am Randolph Moloch and I will be killing you all today.
+    SAY_VANISH              = 1, // Area Trigger: %s vanishes!
+    SAY_DEATH               = 2, //My epic schemes, my great plans! Gone!
 
-    MORTIMER_MOLOCH_DEATH = 0, // %s collapses from a heart attack!
-    MORTIMER_MOLOCH_EMOTE = 1, //Egad! My sophisticated heart!
+    MORTIMER_MOLOCH_DEATH   = 0, // %s collapses from a heart attack!
+    MORTIMER_MOLOCH_EMOTE   = 1, //Egad! My sophisticated heart!
 };
 
 enum Points
@@ -73,8 +73,8 @@ public:
         {
             _EnterCombat();
             Talk(SAY_PULL);
-            events.ScheduleEvent(EVENT_WILDLY_STABBING, randtime(Seconds(4), Seconds(5)));
-            events.ScheduleEvent(EVENT_SWEEP, randtime(Seconds(2), Seconds(3)));
+            events.ScheduleEvent(EVENT_WILDLY_STABBING, Seconds(4), Seconds(5));
+            events.ScheduleEvent(EVENT_SWEEP, Seconds(2), Seconds(3));
         }
 
         void JustSummoned(Creature* summon) override
@@ -112,11 +112,11 @@ public:
                 {
                 case EVENT_WILDLY_STABBING:
                     DoCastVictim(SPELL_WILDLY_STABBING);
-                    events.Repeat(randtime(Seconds(8), Seconds(12)));
+                    events.Repeat(Seconds(8), Seconds(12));
                     break;
                 case EVENT_SWEEP:
                     DoCastVictim(SPELL_SWEEP);
-                    events.ScheduleEvent(EVENT_SWEEP, randtime(Seconds(6), Seconds(7)));
+                    events.ScheduleEvent(EVENT_SWEEP, Seconds(6), Seconds(7));
                     break;
                 case EVENT_VANISH:
                     Talk(SAY_VANISH);
@@ -209,7 +209,7 @@ public:
 
     private:
         EventMap events;
-    };
+    }; 
 
     CreatureAI* GetAI(Creature* creature) const override
     {

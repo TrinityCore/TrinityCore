@@ -8,9 +8,9 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 UPDATE `creature_template` Set `ScriptName` = 'npc_warden_thelwater' WHERE `entry` = 46409;
 DELETE FROM `creature_text` WHERE entry = 46409;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(46409, 0, 0, 'This ends here, Hogger!', 14, 0, 100, 0, 0, 0, 46571, 3, 'Hogger - Stockades - Warden - EVENT_WARDEN_SAY_1'),
-(46409, 1, 0, 'He\'s...he\'s dead?', 12, 0, 100, 0, 0, 0, 46572, 3, 'Hogger - Stockades - Warden - EVENT_WARDEN_SAY_2'),
-(46409, 2, 0, 'It\'s simply too good to be true. You couldn\'t have killed him so easily!', 12, 0, 100, 0, 0, 0, 46573, 3, 'Hogger - Stockades - Warden - EVENT_WARDEN_SAY_3');
+(46409, 0, 0, 'This ends here, Hogger!', 14, 0, 100, 0, 0, 0, 46571, 3, 'Hogger - Stockades - Warden - EVENT_SAY_WARDEN_1'),
+(46409, 1, 0, 'He\'s...he\'s dead?', 12, 0, 100, 0, 0, 0, 46572, 3, 'Hogger - Stockades - Warden - EVENT_SAY_WARDEN_2'),
+(46409, 2, 0, 'It\'s simply too good to be true. You couldn\'t have killed him so easily!', 12, 0, 100, 0, 0, 0, 46573, 3, 'Hogger - Stockades - Warden - EVENT_SAY_WARDEN_3');
 
 UPDATE `creature_template` set `ScriptName` = 'boss_randolph_moloch' WHERE `entry` = 46383;
 DELETE FROM `creature_text` WHERE entry = 46383;

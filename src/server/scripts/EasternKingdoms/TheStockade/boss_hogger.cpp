@@ -22,20 +22,20 @@
 
 enum Says
 {
-    SAY_PULL = 0, // Forest just setback!
-    SAY_ENRAGE = 1, // AreaTriggerMessage: Hogger Enrages!
-    SAY_DEATH = 2, // Yiipe!
+    SAY_PULL       = 0, // Forest just setback!
+    SAY_ENRAGE     = 1, // AreaTriggerMessage: Hogger Enrages!
+    SAY_DEATH      = 2, // Yiipe!
 
-    WARDEN_SAY_1 = 0, // Yell - This ends here, Hogger!
-    WARDEN_SAY_2 = 1, // Say - He's...he's dead?
-    WARDEN_SAY_3 = 2 // Say - It's simply too good to be true. You couldn't have killed him so easily!
+    SAY_WARDEN_1   = 0, // Yell - This ends here, Hogger!
+    SAY_WARDEN_2   = 1, // Say - He's...he's dead?
+    SAY_WARDEN_3   = 2 // Say - It's simply too good to be true. You couldn't have killed him so easily!
 };
 
 enum Spells
 {
-    SPELL_VICIOUS_SLICE = 86604,
-    SPELL_MADDENING_CALL = 86620,
-    SPELL_ENRAGE = 86736
+    SPELL_VICIOUS_SLICE     = 86604,
+    SPELL_MADDENING_CALL    = 86620,
+    SPELL_ENRAGE            = 86736
 };
 
 enum Events
@@ -43,9 +43,9 @@ enum Events
     EVENT_VICIOUS_SLICE = 1,
     EVENT_MADDENING_CALL,
 
-    EVENT_WARDEN_SAY_1,
-    EVENT_WARDEN_SAY_2,
-    EVENT_WARDEN_SAY_3
+    EVENT_SAY_WARDEN_1,
+    EVENT_SAY_WARDEN_2,
+    EVENT_SAY_WARDEN_3
 };
 
 enum Points
@@ -72,8 +72,8 @@ public:
         {
             _EnterCombat();
             Talk(SAY_PULL);
-            events.ScheduleEvent(EVENT_VICIOUS_SLICE, randtime(Seconds(3), Seconds(4)));
-            events.ScheduleEvent(EVENT_MADDENING_CALL, randtime(Seconds(1), Seconds(2)));
+            events.ScheduleEvent(EVENT_VICIOUS_SLICE, Seconds(3), Seconds(4));
+            events.ScheduleEvent(EVENT_MADDENING_CALL, Seconds(1), Seconds(2));
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -108,11 +108,11 @@ public:
                 {
                     case EVENT_VICIOUS_SLICE:
                         DoCastVictim(SPELL_VICIOUS_SLICE);
-                        events.Repeat(randtime(Seconds(10), Seconds(14)));
+                        events.Repeat(Seconds(10), Seconds(14));
                         break;
                     case EVENT_MADDENING_CALL:
                         DoCast(SPELL_MADDENING_CALL);
-                        events.Repeat(randtime(Seconds(15), Seconds(20)));
+                        events.Repeat(Seconds(15), Seconds(20));
                         break;
                 }
             }
@@ -156,7 +156,7 @@ public:
                 switch (id)
                 {
                 case POINT_FINISH:
-                    events.ScheduleEvent(EVENT_WARDEN_SAY_1, Seconds(1));
+                    events.ScheduleEvent(EVENT_SAY_WARDEN_1, Seconds(1));
                     break;
                 }
             }
@@ -173,16 +173,16 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_WARDEN_SAY_1:
-                    Talk(WARDEN_SAY_1);
-                    events.ScheduleEvent(EVENT_WARDEN_SAY_2, Seconds(4));
+                case EVENT_SAY_WARDEN_1:
+                    Talk(SAY_WARDEN_1);
+                    events.ScheduleEvent(EVENT_SAY_WARDEN_2, Seconds(4));
                     break;
-                case EVENT_WARDEN_SAY_2:
-                    Talk(WARDEN_SAY_2);
-                    events.ScheduleEvent(EVENT_WARDEN_SAY_3, Seconds(3));
+                case EVENT_SAY_WARDEN_2:
+                    Talk(SAY_WARDEN_2);
+                    events.ScheduleEvent(EVENT_SAY_WARDEN_3, Seconds(3));
                     break;
-                case EVENT_WARDEN_SAY_3:
-                    Talk(WARDEN_SAY_3);
+                case EVENT_SAY_WARDEN_3:
+                    Talk(SAY_WARDEN_3);
                     break;
                 }
             }

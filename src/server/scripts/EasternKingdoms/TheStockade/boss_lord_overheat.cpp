@@ -21,9 +21,9 @@
 
 enum Spells
 {
-    SPELL_FIREBALL = 12466, //starts 1-2 secs from pull
-    SPELL_OVERHEAT = 86633, //probably cast every 10 secs, need to confirm.
-    SPELL_RAIN_OF_FIRE = 86636  //probably cast every 10 secs, need to confirm
+    SPELL_FIREBALL           = 12466, //starts 1-2 secs from pull
+    SPELL_OVERHEAT           = 86633, //probably cast every 10 secs, need to confirm.
+    SPELL_RAIN_OF_FIRE       = 86636  //probably cast every 10 secs, need to confirm
 };
 
 enum Events
