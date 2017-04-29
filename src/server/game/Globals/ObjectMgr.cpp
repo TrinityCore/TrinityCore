@@ -2232,7 +2232,6 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
     }
 }
 
-
 void ObjectMgr::LoadItemLocales()
 {
     uint32 oldMSTime = getMSTime();
