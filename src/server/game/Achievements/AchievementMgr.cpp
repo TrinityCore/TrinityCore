@@ -2687,7 +2687,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
     m_achievementRewardLocales.clear();                       // need for reload case
 
     //                                               0   1       2        3
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Subject, Text FROM achievement_reward_locale");
+    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, Subject, Text FROM achievement_reward_locale");
 
     if (!result)
     {
