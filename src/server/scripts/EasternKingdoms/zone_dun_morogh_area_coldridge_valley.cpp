@@ -42,34 +42,26 @@ public:
 
     struct npc_wounded_coldridge_mountaineerAI : public ScriptedAI
     {
-        npc_wounded_coldridge_mountaineerAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            tapped = false;
-        }
+        npc_wounded_coldridge_mountaineerAI(Creature* creature) : ScriptedAI(creature), _tapped(false) { }
 
         void Reset() override
         {
-            Initialize();
             _events.Reset();
-            me->CastSpell(me, SPELL_LOW_HEALTH);
+            DoCastSelf(SPELL_LOW_HEALTH);
+            _tapped = false;
         }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
-            if (tapped)
+            if (_tapped)
                 return;
 
             if (spell->Id == SPELL_HEAL_WOUNDED_MOUNTAINEER)
             {
                 if (caster->GetTypeId() == TYPEID_PLAYER)
                 {
-                    tapped = true;
-                    playerGUID = caster->GetGUID();
+                    _tapped = true;
+                    _playerGUID = caster->GetGUID();
                     me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                     me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
                     _events.ScheduleEvent(EVENT_TURN_TO_PLAYER, Seconds(2));
@@ -79,7 +71,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!tapped)
+            if (!_tapped)
                 return;
 
             _events.Update(diff);
@@ -89,11 +81,11 @@ public:
                 switch (eventId)
                 {
                 case EVENT_TURN_TO_PLAYER:
-                    me->SetFacingToObject(ObjectAccessor::GetUnit(*me, playerGUID));
+                    me->SetFacingToObject(ObjectAccessor::GetUnit(*me, _playerGUID));
                     _events.ScheduleEvent(EVENT_THANK_PLAYER, Seconds(1));
                     break;
                 case EVENT_THANK_PLAYER:
-                    Talk(SAY_THANK_PLAYER, ObjectAccessor::GetUnit(*me, playerGUID));
+                    Talk(SAY_THANK_PLAYER, ObjectAccessor::GetUnit(*me, _playerGUID));
                     _events.ScheduleEvent(EVENT_MOVE_TO_SAFETY, Seconds(5));
                     break;
                 case EVENT_MOVE_TO_SAFETY:
@@ -108,8 +100,8 @@ public:
         }
     private:
         EventMap _events;
-        ObjectGuid playerGUID;
-        bool tapped;
+        ObjectGuid _playerGUID;
+        bool _tapped;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -143,31 +135,32 @@ public:
 
         void Initialize()
         {
-            hitBySpell = false;
-            percentHP = urand(15, 55);
+            _hitBySpell = false;
+            _percentHP = urand(15, 55);
         }
 
         void Reset() override
         {
             Initialize();
-            me->SetHealth(me->CountPctFromMaxHealth(percentHP));
+            me->SetHealth(me->CountPctFromMaxHealth(_percentHP));
         }
 
         void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
-            if (!hitBySpell)
+            if (!_hitBySpell)
             {
-                hitBySpell = true;
+                _hitBySpell = true;
                 _events.ScheduleEvent(EVENT_RESET_HEALTH, Seconds(30));
             }
+
             if (spell->Id == SPELL_FLASH_HEAL)
-                if (caster->GetTypeId() == TYPEID_PLAYER)
-                    caster->ToPlayer()->KilledMonsterCredit(QUEST_KILL_CREDIT);
+                if (Player* player = caster->ToPlayer())
+                    player->KilledMonsterCredit(QUEST_KILL_CREDIT);
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (!hitBySpell)
+            if (!_hitBySpell)
                 return;
 
             _events.Update(diff);
@@ -176,19 +169,19 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_RESET_HEALTH:
-                    me->SetHealth(me->CountPctFromMaxHealth(percentHP));
-                    hitBySpell = false;
-                    break;
-                default:
-                    break;
+                    case EVENT_RESET_HEALTH:
+                        me->SetHealth(me->CountPctFromMaxHealth(_percentHP));
+                        _hitBySpell = false;
+                        break;
+                    default:
+                        break;
                 }
             }
         }
     private:
         EventMap _events;
-        int8 percentHP;
-        bool hitBySpell;
+        uint8 _percentHP;
+        bool _hitBySpell;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -227,25 +220,25 @@ enum MilosGyro
 uint32 const pathSize = 24;
 G3D::Vector3 const kharanosPath[pathSize] =
 {
-    { -6247.328f, 299.5365f, 390.266f },
-    { -6247.328f, 299.5365f, 390.266f },
-    { -6250.934f, 283.5417f, 393.46f },
-    { -6253.335f, 252.7066f, 403.0702f },
-    { -6257.292f, 217.4167f, 424.3807f },
-    { -6224.2f,   159.9861f, 447.0882f },
-    { -6133.597f, 164.3177f, 491.0316f },
-    { -6084.236f, 183.375f, 508.5401f },
-    { -6020.382f, 179.5052f, 521.5396f },
-    { -5973.592f, 161.7396f, 521.5396f },
-    { -5953.665f, 151.6111f, 514.5687f },
-    { -5911.031f, 146.4462f, 482.1806f },
-    { -5886.389f, 124.125f, 445.6252f },
-    { -5852.08f,  55.80903f, 406.7922f },
-    { -5880.707f, 12.59028f, 406.7922f },
+    { -6247.328f, 299.5365f, 390.266f   },
+    { -6247.328f, 299.5365f, 390.266f   },
+    { -6250.934f, 283.5417f, 393.46f    },
+    { -6253.335f, 252.7066f, 403.0702f  },
+    { -6257.292f, 217.4167f, 424.3807f  },
+    { -6224.2f,   159.9861f, 447.0882f  },
+    { -6133.597f, 164.3177f, 491.0316f  },
+    { -6084.236f, 183.375f, 508.5401f   },
+    { -6020.382f, 179.5052f, 521.5396f  },
+    { -5973.592f, 161.7396f, 521.5396f  },
+    { -5953.665f, 151.6111f, 514.5687f  },
+    { -5911.031f, 146.4462f, 482.1806f  },
+    { -5886.389f, 124.125f, 445.6252f   },
+    { -5852.08f,  55.80903f, 406.7922f  },
+    { -5880.707f, 12.59028f, 406.7922f  },
     { -5927.887f, -74.02257f, 406.7922f },
     { -5988.436f, -152.0174f, 425.6251f },
-    { -6015.274f, -279.467f, 449.528f },
-    { -5936.465f, -454.1875f, 449.528f },
+    { -6015.274f, -279.467f, 449.528f   },
+    { -5936.465f, -454.1875f, 449.528f  },
     { -5862.575f, -468.0504f, 444.3899f },
     { -5783.58f,  -458.6042f, 432.5026f },
     { -5652.707f, -463.4427f, 415.0308f },
@@ -260,21 +253,13 @@ public:
 
     struct npc_milos_gyro_AI : public VehicleAI
     {
-        npc_milos_gyro_AI(Creature* creature) : VehicleAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            miloGUID.Clear();
-            waitBeforePath = true;
-        }
+        npc_milos_gyro_AI(Creature* creature) : VehicleAI(creature), _waitBeforePath(true) { }
 
         void Reset() override
         {
             _events.Reset();
-            Initialize();
+            _miloGUID.Clear();
+            _waitBeforePath = true;
         }
 
         void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
@@ -283,8 +268,8 @@ public:
             {
                 if (Creature* milo = passenger->SummonCreature(NPC_MILO, me->GetPosition(), TEMPSUMMON_CORPSE_DESPAWN, 0))
                 {
-                    waitBeforePath = false;
-                    miloGUID = milo->GetGUID();
+                    _waitBeforePath = false;
+                    _miloGUID = milo->GetGUID();
                     milo->CastSpell(me, SPELL_RIDE_VEHICLE_HARD_CODED);
                     _events.ScheduleEvent(EVENT_START_PATH, Seconds(1));
                 }
@@ -299,7 +284,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (waitBeforePath)
+            if (_waitBeforePath)
                 return;
 
             _events.Update(diff);
@@ -311,59 +296,59 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_START_PATH:
-                    me->GetMotionMaster()->MoveSmoothPath(pathSize, kharanosPath, pathSize, false, true);
-                    _events.ScheduleEvent(EVENT_MILO_SAY_0, Seconds(5));
-                    break;
-                case EVENT_MILO_SAY_0:
-                    if (Creature* milo = ObjectAccessor::GetCreature(*me, miloGUID))
-                        milo->AI()->Talk(SAY_MILO_FLIGHT_1, me);
-                    _events.ScheduleEvent(EVENT_MILO_SAY_1, Seconds(6));
-                    break;
-                case EVENT_MILO_SAY_1:
-                    if (Creature* milo = ObjectAccessor::GetCreature(*me, miloGUID))
-                        milo->AI()->Talk(SAY_MILO_FLIGHT_2, me);
-                    _events.ScheduleEvent(EVENT_MILO_SAY_2, Seconds(11));
-                    break;
-                case EVENT_MILO_SAY_2:
-                    if (Creature* milo = ObjectAccessor::GetCreature(*me, miloGUID))
-                        milo->AI()->Talk(SAY_MILO_FLIGHT_3, me);
-                    _events.ScheduleEvent(EVENT_MILO_SAY_3, Seconds(11));
-                    break;
-                case EVENT_MILO_SAY_3:
-                    if (Creature* milo = ObjectAccessor::GetCreature(*me, miloGUID))
-                        milo->AI()->Talk(SAY_MILO_FLIGHT_4, me);
-                    _events.ScheduleEvent(EVENT_MILO_SAY_4, Seconds(18));
-                    break;
-                case EVENT_MILO_SAY_4:
-                    if (Creature* milo = ObjectAccessor::GetCreature(*me, miloGUID))
-                        milo->AI()->Talk(SAY_MILO_FLIGHT_5, me);
-                    _events.ScheduleEvent(EVENT_MILO_SAY_5, Seconds(11));
-                    break;
-                case EVENT_MILO_SAY_5:
-                    if (Creature* milo = ObjectAccessor::GetCreature(*me, miloGUID))
-                        milo->AI()->Talk(SAY_MILO_FLIGHT_6, me);
-                    _events.ScheduleEvent(EVENT_MILO_SAY_6, Seconds(14));
-                    break;
-                case EVENT_MILO_SAY_6:
-                    if (Creature* milo = ObjectAccessor::GetCreature(*me, miloGUID))
-                        milo->AI()->Talk(SAY_MILO_FLIGHT_7, me);
-                    break;
-                case EVENT_MILO_DESPAWN:
-                    me->RemoveAllAuras();
-                    if (Creature* milo = ObjectAccessor::GetCreature(*me, miloGUID))
-                        milo->DespawnOrUnsummon();
-                    waitBeforePath = true;
-                    break;
-                default:
-                    break;
+                    case EVENT_START_PATH:
+                        me->GetMotionMaster()->MoveSmoothPath(pathSize, kharanosPath, pathSize, false, true);
+                        _events.ScheduleEvent(EVENT_MILO_SAY_0, Seconds(5));
+                        break;
+                    case EVENT_MILO_SAY_0:
+                        if (Creature* milo = ObjectAccessor::GetCreature(*me, _miloGUID))
+                            milo->AI()->Talk(SAY_MILO_FLIGHT_1, me);
+                        _events.ScheduleEvent(EVENT_MILO_SAY_1, Seconds(6));
+                        break;
+                    case EVENT_MILO_SAY_1:
+                        if (Creature* milo = ObjectAccessor::GetCreature(*me, _miloGUID))
+                            milo->AI()->Talk(SAY_MILO_FLIGHT_2, me);
+                        _events.ScheduleEvent(EVENT_MILO_SAY_2, Seconds(11));
+                        break;
+                    case EVENT_MILO_SAY_2:
+                        if (Creature* milo = ObjectAccessor::GetCreature(*me, _miloGUID))
+                            milo->AI()->Talk(SAY_MILO_FLIGHT_3, me);
+                        _events.ScheduleEvent(EVENT_MILO_SAY_3, Seconds(11));
+                        break;
+                    case EVENT_MILO_SAY_3:
+                        if (Creature* milo = ObjectAccessor::GetCreature(*me, _miloGUID))
+                            milo->AI()->Talk(SAY_MILO_FLIGHT_4, me);
+                        _events.ScheduleEvent(EVENT_MILO_SAY_4, Seconds(18));
+                        break;
+                    case EVENT_MILO_SAY_4:
+                        if (Creature* milo = ObjectAccessor::GetCreature(*me, _miloGUID))
+                            milo->AI()->Talk(SAY_MILO_FLIGHT_5, me);
+                        _events.ScheduleEvent(EVENT_MILO_SAY_5, Seconds(11));
+                        break;
+                    case EVENT_MILO_SAY_5:
+                        if (Creature* milo = ObjectAccessor::GetCreature(*me, _miloGUID))
+                            milo->AI()->Talk(SAY_MILO_FLIGHT_6, me);
+                        _events.ScheduleEvent(EVENT_MILO_SAY_6, Seconds(14));
+                        break;
+                    case EVENT_MILO_SAY_6:
+                        if (Creature* milo = ObjectAccessor::GetCreature(*me, _miloGUID))
+                            milo->AI()->Talk(SAY_MILO_FLIGHT_7, me);
+                        break;
+                    case EVENT_MILO_DESPAWN:
+                        me->RemoveAllAuras();
+                        if (Creature* milo = ObjectAccessor::GetCreature(*me, _miloGUID))
+                            milo->DespawnOrUnsummon();
+                        _waitBeforePath = true;
+                        break;
+                    default:
+                        break;
                 }
             }
         }
     private:
         EventMap _events;
-        ObjectGuid miloGUID;
-        bool waitBeforePath;
+        ObjectGuid _miloGUID;
+        bool _waitBeforePath;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -374,6 +359,7 @@ public:
 
 /*######
 # spell_a_trip_to_ironforge_quest_complete
+# 70046 - A Trip to Ironforge - Quest Complete
 ######*/
 
 class spell_a_trip_to_ironforge_quest_complete : public SpellScriptLoader
@@ -405,6 +391,7 @@ public:
 
 /*######
 # spell_follow_that_gyrocopter_quest_start
+# 70047 - Follow That Gyro-Copter - Quest Start
 ######*/
 
 class spell_follow_that_gyrocopter_quest_start : public SpellScriptLoader
@@ -436,6 +423,7 @@ public:
 
 /*######
 # spell_low_health
+# 76143 - Low Health
 ######*/
 
 class spell_low_health: public SpellScriptLoader
@@ -449,10 +437,10 @@ public:
 
         void HandleDummyEffect(SpellEffIndex /*eff*/)
         {
-            if (GetHitUnit()->GetTypeId() == TYPEID_UNIT)
+            if (Creature* target = GetHitCreature())
             {
-                GetHitUnit()->ToCreature()->setRegeneratingHealth(false);
-                GetHitUnit()->SetHealth(GetHitUnit()->CountPctFromMaxHealth(10));
+                target->setRegeneratingHealth(false);
+                target->SetHealth(target->CountPctFromMaxHealth(10));
             }
         }
 
