@@ -4595,6 +4595,45 @@ class spell_gen_impatient_mind : public SpellScriptLoader
         }
 };
 
+enum AuraReflectiveShields
+{
+    SPELL_KING_GUARD_REFLECTIVE_SHIELD_AURA      = 119630,
+    SPELL_KING_GUARD_REFLECTIVE_SHIELD_DAMAGE    = 119632
+};
+
+// 119630 - Reflective Shield.
+class spell_gen_kings_guard_reflective_shield : public SpellScriptLoader
+{
+    public:
+        spell_gen_kings_guard_reflective_shield() : SpellScriptLoader("spell_gen_kings_guard_reflective_shield") { }
+
+        class spell_gen_kings_guard_reflective_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_kings_guard_reflective_shield_AuraScript);
+
+            void OnProc(const AuraEffect* aurEff, ProcEventInfo& eventInfo)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetTarget();
+                
+                if (eventInfo.GetDamageInfo()->GetAttacker() == target)
+                    return;
+                int32 reflectiveshielddmg = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
+                caster->CastCustomSpell(SPELL_KING_GUARD_REFLECTIVE_SHIELD_DAMAGE, SPELLVALUE_BASE_POINT0, reflectiveshielddmg, eventInfo.GetDamageInfo()->GetAttacker(), true, NULL, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_gen_kings_guard_reflective_shield_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_kings_guard_reflective_shield_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4699,4 +4738,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_azgalor_rain_of_fire_hellfire_citadel();
     new spell_gen_face_rage();
     new spell_gen_impatient_mind();
+    new spell_gen_kings_guard_reflective_shield();
 }
