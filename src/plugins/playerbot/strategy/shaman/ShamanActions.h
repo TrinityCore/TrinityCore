@@ -145,6 +145,7 @@ namespace ai
     {
     public:
         CastFlametongueTotemAction(PlayerbotAI* ai) : CastTotemAction(ai, "flametongue totem") {}
+		virtual bool isUseful() { return CastTotemAction::isUseful() && !AI_VALUE2(bool, "has totem", "magma totem"); }
     };
 
     class CastWindfuryTotemAction : public CastTotemAction
@@ -153,11 +154,18 @@ namespace ai
         CastWindfuryTotemAction(PlayerbotAI* ai) : CastTotemAction(ai, "windfury totem") {}
     };
 
+	class CastGraceOfAirTotemAction : public CastTotemAction
+	{
+	public:
+		CastGraceOfAirTotemAction(PlayerbotAI* ai) : CastTotemAction(ai, "grace of air totem") {}
+	};
+
     class CastSearingTotemAction : public CastTotemAction
     {
     public:
         CastSearingTotemAction(PlayerbotAI* ai) : CastTotemAction(ai, "searing totem") {}
         virtual string GetTargetName() { return "self target"; }
+		virtual bool isUseful() { return CastTotemAction::isUseful() && !AI_VALUE2(bool, "has totem", "flametongue totem"); }
     };
 
     class CastMagmaTotemAction : public CastMeleeSpellAction

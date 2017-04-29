@@ -29,6 +29,12 @@ namespace ai
         WindfuryTotemTrigger(PlayerbotAI* ai) : TotemTrigger(ai, "windfury totem") {}
     };
 
+	class GraceOfAirTotemTrigger : public TotemTrigger
+	{
+	public:
+		GraceOfAirTotemTrigger(PlayerbotAI* ai) : TotemTrigger(ai, "grace of air totem") {}
+	};
+
     class ManaSpringTotemTrigger : public TotemTrigger {
     public:
         ManaSpringTotemTrigger(PlayerbotAI* ai) : TotemTrigger(ai, "mana spring totem") {}
