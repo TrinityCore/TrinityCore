@@ -6,7 +6,10 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_wounded_coldridge_mountaineer'
 UPDATE `creature_template` SET `ScriptName`= 'npc_wounded_milita' WHERE `entry`=44405;
 UPDATE `creature_template` SET `ScriptName`= 'npc_milos_gyro' WHERE `entry`=37198;
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (70046,70047,76143);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_a_trip_to_ironforge_quest_complete',
+'spell_follow_that_gyrocopter_quest_start',
+'spell_low_health');
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (70046, 'spell_a_trip_to_ironforge_quest_complete'),
 (70047, 'spell_follow_that_gyrocopter_quest_start'),
