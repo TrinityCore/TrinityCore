@@ -1,4 +1,4 @@
-DELETE FROM `spell_script_names` WHERE `spell_id` = 119630;
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_gen_kings_guard_reflective_shield';
 INSERT INTO `spell_script_names` VALUES (119630,'spell_gen_kings_guard_reflective_shield');
 
 -- Kingsguard SAI
