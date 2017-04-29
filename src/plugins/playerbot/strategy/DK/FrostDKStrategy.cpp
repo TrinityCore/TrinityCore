@@ -70,7 +70,7 @@ public:
 
 	NextAction** FrostDKStrategy::getDefaultActions()
 	{
-    return NextAction::array(0, new NextAction("frost strike", ACTION_NORMAL + 4),
+    return NextAction::array(0, new NextAction("frost strike", ACTION_NORMAL + 5),
 		new NextAction("obliterate", ACTION_NORMAL + 4), NULL);
 	}
 

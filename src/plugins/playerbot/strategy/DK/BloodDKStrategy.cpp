@@ -64,7 +64,8 @@ BloodDKStrategy::BloodDKStrategy(PlayerbotAI* ai) : GenericDKStrategy(ai)
 NextAction** BloodDKStrategy::getDefaultActions()
 {
 	return NextAction::array(0,
-		new NextAction("heart strike", ACTION_NORMAL + 4), new NextAction("death strike", ACTION_NORMAL + 4),
+		new NextAction("heart strike", ACTION_NORMAL + 5),
+		new NextAction("death strike", ACTION_NORMAL + 4),
 		new NextAction("rune strike", ACTION_NORMAL + 3), NULL);
 }
 
@@ -74,11 +75,11 @@ void BloodDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 
 triggers.push_back(new TriggerNode(
 	"rune strike",
-	NextAction::array(0, new NextAction("rune strike", ACTION_NORMAL + 2), NULL)));
+	NextAction::array(0, new NextAction("rune strike", ACTION_NORMAL + 3), NULL)));
 
 triggers.push_back(new TriggerNode(
 	"blood tap",
-	NextAction::array(0, new NextAction("blood tap", ACTION_NORMAL + 2), NULL)));
+	NextAction::array(0, new NextAction("blood tap", ACTION_HIGH + 5), NULL)));
 
 
 triggers.push_back(new TriggerNode(

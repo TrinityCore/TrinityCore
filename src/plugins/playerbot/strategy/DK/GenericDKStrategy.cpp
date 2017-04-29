@@ -147,9 +147,17 @@ void GenericDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 	MeleeCombatStrategy::InitTriggers(triggers);
 
 	triggers.push_back(new TriggerNode(
+		"high aoe",
+		NextAction::array(0,
+			new NextAction("anti magic shell", ACTION_NORMAL + 3), NULL)));
+
+	triggers.push_back(new TriggerNode(
 		"death coil",
 		NextAction::array(0, new NextAction("death coil", ACTION_NORMAL + 3), NULL)));
 
+	triggers.push_back(new TriggerNode(
+		"critical aoe heal",
+		NextAction::array(0, new NextAction("anti magic zone", ACTION_EMERGENCY + 1), NULL)));
 
 	triggers.push_back(new TriggerNode(
 		"no pet",
@@ -208,8 +216,7 @@ void GenericDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 	triggers.push_back(new TriggerNode(
 		"high aoe",
 		NextAction::array(0,
-			new NextAction("howling blast", ACTION_HIGH + 1),
-			new NextAction("plague strike", ACTION_HIGH + 1),
+			new NextAction("unholy blight", ACTION_NORMAL + 6),
 			new NextAction("death and decay", ACTION_NORMAL + 5),
 			new NextAction("pestilence", ACTION_NORMAL + 4),
 			new NextAction("blood boil", ACTION_NORMAL + 3), NULL)));
@@ -217,17 +224,13 @@ void GenericDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 	triggers.push_back(new TriggerNode(
 		"medium aoe",
 		NextAction::array(0,
-			new NextAction("howling blast", ACTION_HIGH + 1),
-			new NextAction("plague strike", ACTION_HIGH + 1),
 			new NextAction("death and decay", ACTION_NORMAL + 5),
 			new NextAction("pestilence", ACTION_NORMAL + 4),
 			new NextAction("blood boil", ACTION_NORMAL + 3), NULL)));
 
 	triggers.push_back(new TriggerNode("light aoe",
 		NextAction::array(0,
-			new NextAction("howling blast", ACTION_HIGH + 1),
-			new NextAction("plague strike", ACTION_HIGH + 1),
-			new NextAction("death and decay", ACTION_NORMAL + 5),
+			new NextAction("howling blast", ACTION_NORMAL + 5),
 			new NextAction("pestilence", ACTION_NORMAL + 4),
 			new NextAction("hearth strike", ACTION_NORMAL + 3),
 			new NextAction("blood boil", ACTION_NORMAL + 3), NULL)));

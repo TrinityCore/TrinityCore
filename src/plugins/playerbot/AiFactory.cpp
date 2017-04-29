@@ -130,13 +130,11 @@ void AiFactory::AddDefaultCombatStrategies(Player* player, PlayerbotAI* const fa
             break;
 		case CLASS_DEATH_KNIGHT:
 			if (tab == 0)
-				engine->addStrategies("tank", NULL);
+				engine->addStrategies("blood", NULL);
 			else if (tab == 1)
-				engine->addStrategies("frost dps", "frost aoe", "dps assist", NULL);
+				engine->addStrategies("frost", "frost aoe", "dps assist", "threat", NULL);
 			else
-				engine->addStrategies("unholy dps", "unholy aoe", "dps assist", NULL);
-
-			engine->addStrategies("dps assist", "flee", NULL);
+				engine->addStrategies("unholy", "unholy aoe", "dps assist", "threat", NULL);
 			break;
         case CLASS_SHAMAN:
             if (tab == 0)

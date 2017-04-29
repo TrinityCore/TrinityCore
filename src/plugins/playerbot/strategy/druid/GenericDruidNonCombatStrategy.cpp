@@ -13,7 +13,6 @@ public:
         creators["mark of the wild"] = &mark_of_the_wild;
         creators["mark of the wild on party"] = &mark_of_the_wild_on_party;
         creators["innervate"] = &innervate;
-		creators["prowl"] = &prowl;
     }
 private:
     static ActionNode* mark_of_the_wild(PlayerbotAI* ai)
@@ -37,13 +36,7 @@ private:
             /*A*/ NextAction::array(0, new NextAction("drink"), NULL),
             /*C*/ NULL);
     }
-	static ActionNode* prowl(PlayerbotAI* ai)
-	{
-		return new ActionNode("prowl",
-			/*P*/ NextAction::array(0, new NextAction("cat form"), NULL),
-			/*A*/ NULL,
-			/*C*/ NULL);
-	}
+	
 };
 
 GenericDruidNonCombatStrategy::GenericDruidNonCombatStrategy(PlayerbotAI* ai) : NonCombatStrategy(ai)

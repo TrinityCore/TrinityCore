@@ -88,6 +88,12 @@ namespace ai
 		MindFreezeOnEnemyHealerTrigger(PlayerbotAI* ai) : InterruptEnemyHealerTrigger(ai, "mind freeze") {}
     };
 
+	class ChainsOfIceSnareTrigger : public SnareTargetTrigger
+	{
+	public:
+		ChainsOfIceSnareTrigger(PlayerbotAI* ai) : SnareTargetTrigger(ai, "chains of ice") {}
+	};
+
 	class StrangulateOnEnemyHealerTrigger : public InterruptEnemyHealerTrigger
 	{
 	public:
