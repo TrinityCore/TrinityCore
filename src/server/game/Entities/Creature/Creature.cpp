@@ -493,7 +493,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     if (!GetCreatureAddon())
         SetSheath(SHEATH_STATE_MELEE);
 
-    setFaction(cInfo->faction);
+    SetFaction(cInfo->faction);
 
     uint32 npcflag, unit_flags, dynamicflags;
     ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, unit_flags, dynamicflags, data);
@@ -542,7 +542,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     {
         if (Player* owner = Creature::GetCharmerOrOwnerPlayerOrPlayerItself()) // this check comes in case we don't have a player
         {
-            setFaction(owner->getFaction()); // vehicles should have same as owner faction
+            SetFaction(owner->GetFaction()); // vehicles should have same as owner faction
             owner->VehicleSpellInitialize();
         }
     }
@@ -667,10 +667,10 @@ void Creature::Update(uint32 diff)
                 if (m_suppressedTarget)
                 {
                     if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
-                        SetFacingToObject(objTarget);
+                        SetFacingToObject(objTarget, false);
                 }
                 else
-                    SetFacingTo(m_suppressedOrientation);
+                    SetFacingTo(m_suppressedOrientation, false);
                 m_shouldReacquireTarget = false;
             }
 
@@ -2257,7 +2257,7 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
     // only from same creature faction
     if (checkfaction)
     {
-        if (getFaction() != u->getFaction())
+        if (GetFaction() != u->GetFaction())
             return false;
     }
     else
@@ -3046,10 +3046,10 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
     bool const canTurnDuringCast = !spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
     // Face the target - we need to do this before the unit state is modified for no-turn spells
     if (target)
-        SetFacingToObject(target);
+        SetFacingToObject(target, false);
     else if (!canTurnDuringCast)
         if (Unit* victim = GetVictim())
-            SetFacingToObject(victim); // ensure orientation is correct at beginning of cast
+            SetFacingToObject(victim, false); // ensure orientation is correct at beginning of cast
 
     if (!canTurnDuringCast)
         AddUnitState(UNIT_STATE_CANNOT_TURN);
@@ -3095,10 +3095,10 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
         if (m_suppressedTarget)
         {
             if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
-                SetFacingToObject(objTarget);
+                SetFacingToObject(objTarget, false);
         }
         else
-            SetFacingTo(m_suppressedOrientation);
+            SetFacingTo(m_suppressedOrientation, false);
     }
     else
         // tell the creature that it should reacquire its actual target after the delay expires (this is handled in ::Update)
@@ -3110,6 +3110,26 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
 
     m_focusSpell = nullptr;
     m_focusDelay = (!IsPet() && withDelay) ? GameTime::GetGameTimeMS() : 0; // don't allow re-target right away to prevent visual bugs
+}
+
+bool Creature::IsMovementPreventedByCasting() const
+{
+    // first check if currently a movement allowed channel is active and we're not casting
+    if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+    {
+        if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
+            if (spell->GetSpellInfo()->IsMoveAllowedChannel())
+                if (HasUnitState(UNIT_STATE_CASTING))
+                    return true;
+    }
+
+    if (const_cast<Creature*>(this)->IsFocusing(nullptr, true))
+        return true;
+
+    if (HasUnitState(UNIT_STATE_CASTING))
+        return true;
+
+    return false;
 }
 
 void Creature::StartPickPocketRefillTimer()

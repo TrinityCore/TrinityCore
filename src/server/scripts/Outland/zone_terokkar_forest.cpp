@@ -87,7 +87,7 @@ public:
         {
             Initialize();
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->setFaction(FACTION_HOSTILE);
+            me->SetFaction(FACTION_HOSTILE);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -95,7 +95,7 @@ public:
         void DoNice()
         {
             Talk(SAY_SUBMIT);
-            me->setFaction(FACTION_FRIENDLY);
+            me->SetFaction(FACTION_FRIENDLY);
             me->SetStandState(UNIT_STAND_STATE_SIT);
             me->RemoveAllAuras();
             me->DeleteThreatList();
@@ -339,7 +339,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             CloseGossipMenuFor(player);
-            creature->setFaction(FACTION_HOSTILE_FLOON);
+            creature->SetFaction(FACTION_HOSTILE_FLOON);
             creature->AI()->Talk(SAY_FLOON_ATTACK, player);
             creature->AI()->AttackStart(player);
         }
@@ -365,7 +365,7 @@ public:
         npc_floonAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            m_uiNormFaction = creature->getFaction();
+            m_uiNormFaction = creature->GetFaction();
         }
 
         void Initialize()
@@ -383,8 +383,8 @@ public:
         void Reset() override
         {
             Initialize();
-            if (me->getFaction() != m_uiNormFaction)
-                me->setFaction(m_uiNormFaction);
+            if (me->GetFaction() != m_uiNormFaction)
+                me->SetFaction(m_uiNormFaction);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -470,7 +470,7 @@ public:
                         player->GroupEventHappens(ESCAPE_FROM_FIREWING_POINT_A, me);
                     else if (player->GetTeam() == HORDE)
                         player->GroupEventHappens(ESCAPE_FROM_FIREWING_POINT_H, me);
-                    me->SetInFront(player);
+                    me->SetFacingToObject(player);
                     break;
                 case 30:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
@@ -504,7 +504,7 @@ public:
         if (quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_H || quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_A)
         {
             ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-            creature->setFaction(FACTION_ESCORTEE);
+            creature->SetFaction(FACTION_ESCORTEE);
         }
         return true;
     }
@@ -644,9 +644,9 @@ public:
                 pEscortAI->Start(false, false, player->GetGUID());
 
             if (player->GetTeamId() == TEAM_ALLIANCE)
-                creature->setFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
+                creature->SetFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
             else
-                creature->setFaction(FACTION_ESCORT_H_NEUTRAL_PASSIVE);
+                creature->SetFaction(FACTION_ESCORT_H_NEUTRAL_PASSIVE);
         }
         return true;
     }

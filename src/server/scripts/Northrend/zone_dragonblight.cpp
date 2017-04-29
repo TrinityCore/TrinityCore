@@ -174,7 +174,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 {
                     if (id == 1)
                     {
-                        me->SetFacingTo(PosTalkLocations[talkWing].GetOrientation(), true);
+                        me->SetFacingTo(PosTalkLocations[talkWing].GetOrientation());
                         TurnAudience();
 
                         switch (talkWing)
@@ -414,7 +414,7 @@ public:
             else if (roll == 0) // enemy version
             {
                 tree->AI()->Talk(SAY_WALKER_ENEMY, player);
-                tree->setFaction(FACTION_WALKER_ENEMY);
+                tree->SetFaction(FACTION_WALKER_ENEMY);
                 tree->Attack(player, true);
             }
         }

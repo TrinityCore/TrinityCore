@@ -73,10 +73,10 @@ public:
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
             if (player->GetTeam() == ALLIANCE)
-                creature->setFaction(FACTION_ESCORTEE_A);
+                creature->SetFaction(FACTION_ESCORTEE_A);
 
             if (player->GetTeam() == HORDE)
-                creature->setFaction(FACTION_ESCORTEE_H);
+                creature->SetFaction(FACTION_ESCORTEE_H);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_oox22fe::npc_oox22feAI, creature->AI()))
                 pEscortAI->Start(true, false, player->GetGUID());

@@ -297,7 +297,7 @@ public:
             if (npc_escortAI* pEscortAI = CAST_AI(npc_prospector_remtravel::npc_prospector_remtravelAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID());
 
-            creature->setFaction(FACTION_ESCORTEE);
+            creature->SetFaction(FACTION_ESCORTEE);
         }
 
         return true;
@@ -352,7 +352,7 @@ public:
 
         void DoAtEnd()
         {
-            me->setFaction(FACTION_HOSTILE);
+            me->SetFaction(FACTION_HOSTILE);
 
             if (Player* pHolder = GetLeaderForFollower())
                 AttackStart(pHolder);

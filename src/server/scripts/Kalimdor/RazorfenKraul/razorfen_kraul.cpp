@@ -57,7 +57,7 @@ public:
             {
                 Start(true, false, player->GetGUID());
                 Talk(SAY_READY, player);
-                me->setFaction(113);
+                me->SetFaction(113);
             }
         }
 
@@ -113,9 +113,9 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void EnterCombat(Unit* who) override
         {
-            Talk(SAY_AGGRO1);
+            Talk(SAY_AGGRO1, who);
         }
 
         void JustSummoned(Creature* summoned) override

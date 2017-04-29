@@ -65,7 +65,7 @@ public:
                     me->SummonCreature(NPC_GRIMTOTEM_SORCERER, -36.37f, -496.23f, -45.71f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                     break;
                 case 18:
-                    me->SetInFront(player);
+                    me->SetFacingToObject(player);
                     Talk(SAY_END);
                     player->GroupEventHappens(QUEST_PROTECT_KAYA, me);
                     break;
@@ -88,7 +88,7 @@ public:
                 pEscortAI->Start(true, false, player->GetGUID());
 
             creature->AI()->Talk(SAY_START);
-            creature->setFaction(113);
+            creature->SetFaction(113);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
         return true;

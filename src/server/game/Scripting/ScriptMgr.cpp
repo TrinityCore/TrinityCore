@@ -1552,19 +1552,6 @@ InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
     return tmpscript->GetInstanceScript(map);
 }
 
-bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target)
-{
-    ASSERT(caster);
-    ASSERT(target);
-#ifdef ELUNA
-    if (sEluna->OnDummyEffect(caster, spellId, effIndex, target))
-        return false;
-#endif
-
-    GET_SCRIPT_RET(ItemScript, target->GetScriptId(), tmpscript, false);
-    return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
-}
-
 bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
 {
     ASSERT(player);
@@ -1652,19 +1639,6 @@ void ScriptMgr::OnGossipSelectCode(Player* player, Item* item, uint32 sender, ui
 
     GET_SCRIPT(ItemScript, item->GetScriptId(), tmpscript);
     tmpscript->OnGossipSelectCode(player, item, sender, action, code);
-}
-
-bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target)
-{
-    ASSERT(caster);
-    ASSERT(target);
-#ifdef ELUNA
-    if (sEluna->OnDummyEffect(caster, spellId, effIndex, target))
-        return false;
-#endif
-
-    GET_SCRIPT_RET(CreatureScript, target->GetScriptId(), tmpscript, false);
-    return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
 }
 
 bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
@@ -1957,19 +1931,6 @@ void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnUpdate(go, diff);
-}
-
-bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target)
-{
-    ASSERT(caster);
-    ASSERT(target);
-#ifdef ELUNA
-    if (sEluna->OnDummyEffect(caster, spellId, effIndex, target))
-        return false;
-#endif
-
-    GET_SCRIPT_RET(GameObjectScript, target->GetScriptId(), tmpscript, false);
-    return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
 }
 
 bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)

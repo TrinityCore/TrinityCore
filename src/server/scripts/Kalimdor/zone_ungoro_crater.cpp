@@ -65,7 +65,7 @@ public:
             creature->AI()->Talk(SAY_READY, player);
             creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             // Change faction so mobs attack
-            creature->setFaction(113);
+            creature->SetFaction(113);
         }
         return true;
     }
