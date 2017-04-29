@@ -18,6 +18,7 @@
 #include "CheckMountStateAction.h"
 #include "RandomBotUpdateAction.h"
 #include "RevealGatheringItemAction.h"
+#include "DelayAction.h"
 
 namespace ai
 {
@@ -72,6 +73,7 @@ namespace ai
 			creators["mount"] = &ActionContext::mount;
 			creators["random bot update"] = &ActionContext::random_bot_update;
 			creators["reveal gathering item"] = &ActionContext::reveal_gathering_item;
+			creators["delay"] = &ActionContext::delay;
         }
 
     private:
@@ -118,6 +120,7 @@ namespace ai
 		static Action* mount(PlayerbotAI *ai) { return new CastSpellAction(ai,"mount"); }
 		static Action* random_bot_update(PlayerbotAI* ai) { return new RandomBotUpdateAction(ai); }
 		static Action* reveal_gathering_item(PlayerbotAI* ai) { return new RevealGatheringItemAction(ai); }
+		static Action* delay(PlayerbotAI* ai) { return new DelayAction(ai); }
     };
 
 };

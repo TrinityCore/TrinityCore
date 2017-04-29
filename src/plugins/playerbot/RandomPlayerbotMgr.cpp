@@ -50,22 +50,8 @@ void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
             randomBotsPerInterval = bots.size();
     }
 
-    while (botCount++ < maxAllowedBotCount)
-    {
-        bool alliance = botCount % 2;
-        uint32 bot = AddRandomBot(alliance);
-        if (bot)
-        {
-            if (alliance)
-                allianceNewBots++;
-            else
-                hordeNewBots++;
-
-            bots.push_back(bot);
-        }
-        else
-            break;
-    }
+	if (botCount < maxAllowedBotCount)
+		AddRandomBots();
 
     int botProcessed = 0;
     for (list<uint32>::iterator i = bots.begin(); i != bots.end(); ++i)
@@ -88,19 +74,60 @@ void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
         PrintStats();
 }
 
-uint32 RandomPlayerbotMgr::AddRandomBot(bool alliance)
+uint32 RandomPlayerbotMgr::AddRandomBots()
 {
-    vector<uint32> bots = GetFreeBots(alliance);
-    if (bots.size() == 0)
-        return 0;
+	set<uint32> bots;
 
-    int index = urand(0, bots.size() - 1);
-    uint32 bot = bots[index];
-    SetEventValue(bot, "add", 1, urand(sPlayerbotAIConfig.minRandomBotInWorldTime, sPlayerbotAIConfig.maxRandomBotInWorldTime));
-    uint32 randomTime = 30 + urand(sPlayerbotAIConfig.randomBotUpdateInterval, sPlayerbotAIConfig.randomBotUpdateInterval * 3);
-    ScheduleRandomize(bot, randomTime);
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Random bot %d added", bot);
-    return bot;
+	QueryResult results = CharacterDatabase.PQuery(
+		"select `bot` from ai_playerbot_random_bots where event = 'add'");
+
+	if (results)
+	{
+		do
+		{
+			Field* fields = results->Fetch();
+			uint32 bot = fields[0].GetUInt32();
+			bots.insert(bot);
+		} while (results->NextRow());
+		//delete results;
+	}
+
+	vector<uint32> guids;
+	int maxAllowedBotCount = GetEventValue(0, "bot_count");
+	for (list<uint32>::iterator i = sPlayerbotAIConfig.randomBotAccounts.begin(); i != sPlayerbotAIConfig.randomBotAccounts.end(); i++)
+	{
+		uint32 accountId = *i;
+		if (!sAccountMgr->GetCharactersCount(accountId))
+			continue;
+
+		QueryResult result = CharacterDatabase.PQuery("SELECT guid, race FROM characters WHERE account = '%u'", accountId);
+		if (!result)
+			continue;
+
+		do
+		{
+			Field* fields = result->Fetch();
+			uint32 guid = fields[0].GetUInt32();
+			uint8 race = fields[1].GetUInt8();
+			bool alliance = guids.size() % 2 == 0;
+			if (bots.find(guid) == bots.end() &&
+				((alliance && IsAlliance(race)) || ((!alliance && !IsAlliance(race))
+					)))
+			{
+				guids.push_back(guid);
+				uint32 bot = guid;
+				SetEventValue(bot, "add", 1, urand(sPlayerbotAIConfig.minRandomBotInWorldTime, sPlayerbotAIConfig.maxRandomBotInWorldTime));
+				uint32 randomTime = 30 + urand(sPlayerbotAIConfig.randomBotUpdateInterval, sPlayerbotAIConfig.randomBotUpdateInterval * 3);
+				ScheduleRandomize(bot, randomTime);
+				bots.insert(bot);
+				sLog->outMessage("playerbot", LOG_LEVEL_INFO, "New random bot %d added", bot);
+				if (bots.size() >= maxAllowedBotCount) break;
+			}
+		} while (result->NextRow());
+		//delete result;
+	}
+
+	return guids.size();
 }
 
 void RandomPlayerbotMgr::ScheduleRandomize(uint32 bot, uint32 time)
@@ -621,49 +648,6 @@ list<uint32> RandomPlayerbotMgr::GetBots()
     }
 
     return bots;
-}
-
-vector<uint32> RandomPlayerbotMgr::GetFreeBots(bool alliance)
-{
-    set<uint32> bots;
-
-    QueryResult results = CharacterDatabase.PQuery(
-            "select `bot` from ai_playerbot_random_bots where event = 'add'");
-
-    if (results)
-    {
-        do
-        {
-            Field* fields = results->Fetch();
-            uint32 bot = fields[0].GetUInt32();
-            bots.insert(bot);
-        } while (results->NextRow());
-    }
-
-    vector<uint32> guids;
-    for (list<uint32>::iterator i = sPlayerbotAIConfig.randomBotAccounts.begin(); i != sPlayerbotAIConfig.randomBotAccounts.end(); i++)
-    {
-        uint32 accountId = *i;
-        if (!sAccountMgr->GetCharactersCount(accountId))
-            continue;
-
-        QueryResult result = CharacterDatabase.PQuery("SELECT guid, race FROM characters WHERE account = '%u'", accountId);
-        if (!result)
-            continue;
-
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 guid = fields[0].GetUInt32();
-            uint8 race = fields[1].GetUInt8();
-            if (bots.find(guid) == bots.end() &&
-                    ((alliance && IsAlliance(race)) || ((!alliance && !IsAlliance(race))
-            )))
-                guids.push_back(guid);
-        } while (result->NextRow());
-    }
-
-    return guids;
 }
 
 uint32 RandomPlayerbotMgr::GetEventValue(uint32 bot, string event)

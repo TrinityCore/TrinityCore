@@ -555,12 +555,24 @@ namespace ai
 	class RandomBotUpdateTrigger : public RandomTrigger
 	{
 	public:
-		RandomBotUpdateTrigger(PlayerbotAI* ai) : RandomTrigger(ai, "random bot update", 30) {}
+		RandomBotUpdateTrigger(PlayerbotAI* ai) : RandomTrigger(ai, "random bot update", 15) {}
 		
 	public:
 		virtual bool IsActive()
 		{
 			return RandomTrigger::IsActive() && AI_VALUE(bool, "random bot update");
+		}
+	};
+
+	class NoNonBotPlayersAroundTrigger : public Trigger
+	{
+	public:
+		NoNonBotPlayersAroundTrigger(PlayerbotAI* ai) : Trigger(ai, "no non bot players around", 5) {}
+
+	public:
+		virtual bool IsActive()
+		{
+			return AI_VALUE(list<ObjectGuid>, "nearest non bot players").empty();
 		}
 	};
 }
