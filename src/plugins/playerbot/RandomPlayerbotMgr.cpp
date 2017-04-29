@@ -242,37 +242,6 @@ bool RandomPlayerbotMgr::ProcessBot(Player* player)
             sGuildTaskMgr.Update(*i, player);
     }
 
-
-	bool takePlayerLevel = sPlayerbotAIConfig.randomBotBracketPlayer;
-	if (takePlayerLevel)
-	{
-		uint32 maxLevel = sPlayerbotAIConfig.randomBotMaxLevel;
-		uint32 minLevel = sPlayerbotAIConfig.randomBotMinLevel;
-		uint32 level = 0;
-		if (maxLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-			maxLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
-		if (minLevel < 1)
-			minLevel = 1;
-		if (takePlayerLevel)
-		{
-			level = GetMasterLevel();
-			if (level == 0)
-			{
-				level = urand(minLevel, maxLevel);
-			}
-			minLevel = level - level % 10;
-			maxLevel = level - (level % 10) + 9;
-			level = urand(minLevel, maxLevel);
-		}
-		if (player->getLevel() < minLevel)
-		{
-			int oldlevel = player->getLevel();
-			player->SetLevel(level - 1);
-			IncreaseLevel(player);
-			sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Bot %d was leveled from %d to %d", bot, oldlevel, player->getLevel());
-		}
-	}
-
     uint32 randomize = GetEventValue(bot, "randomize");
     if (!randomize)
     {
@@ -475,63 +444,42 @@ void RandomPlayerbotMgr::IncreaseLevel(Player* bot)
 
 void RandomPlayerbotMgr::RandomizeFirst(Player* bot)
 {
-	bool takePlayerLevel = sPlayerbotAIConfig.randomBotBracketPlayer;
     uint32 maxLevel = sPlayerbotAIConfig.randomBotMaxLevel;
-	uint32 minLevel = sPlayerbotAIConfig.randomBotMinLevel;
-	uint32 level = 0;
     if (maxLevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         maxLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
-	if (minLevel < 1)
-		minLevel = 1;
-	if (takePlayerLevel)
-	{
-		level = GetMasterLevel();
-		if (level == 0)
-		{
-			level = urand(minLevel, maxLevel);
-		}
-		minLevel = level - level % 10;
-		maxLevel = level - (level % 10) + 9;
-	}
-	for (int attempt = 0; attempt < 10; ++attempt)
-	{
-		vector<GameTele const*> locs;
-		int index = urand(0, sPlayerbotAIConfig.randomBotMaps.size() - 1);
 
-		uint16 mapId = sPlayerbotAIConfig.randomBotMaps[index];
+    for (int attempt = 0; attempt < 10; ++attempt)
+    {
+        int index = urand(0, sPlayerbotAIConfig.randomBotMaps.size() - 1);
+        uint16 mapId = sPlayerbotAIConfig.randomBotMaps[index];
 
-		GameTeleContainer const & teleMap = sObjectMgr->GetGameTeleMap();
-		for (GameTeleContainer::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
-		{
-			GameTele const* tele = &itr->second;
-			if (tele->mapId == mapId)
-				locs.push_back(tele);
-		}
+        vector<GameTele const*> locs;
+        GameTeleContainer const & teleMap = sObjectMgr->GetGameTeleMap();
+        for (GameTeleContainer::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
+        {
+            GameTele const* tele = &itr->second;
+            if (tele->mapId == mapId)
+                locs.push_back(tele);
+        }
 
         index = urand(0, locs.size() - 1);
         GameTele const* tele = locs[index];
-		//caching.. if not, it will create excessive database load
-		if (mapIdToLevel.find(tele->mapId) == mapIdToLevel.end())
-		{
-			level = GetZoneLevel(tele->mapId, tele->position_x, tele->position_y, tele->position_z);
-			mapIdToLevel.emplace(tele->mapId, level);
-		}
-		else {
-			level = mapIdToLevel[tele->mapId];
-		}
-		if (level > maxLevel || level < minLevel)
-			continue;
+        uint32 level = GetZoneLevel(tele->mapId, tele->position_x, tele->position_y, tele->position_z);
+        if (level > maxLevel + 5)
+            continue;
 
-        if (level<=0) level = 1;
-		if (!takePlayerLevel)
-		{
-			if (urand(0, 100) < 100 * sPlayerbotAIConfig.randomBotMaxLevelChance)
-				level = maxLevel;
-		}
+        level = min(level, maxLevel);
+        if (!level) level = 1;
+
+        if (urand(0, 100) < 100 * sPlayerbotAIConfig.randomBotMaxLevelChance)
+            level = maxLevel;
+
+        if (level < sPlayerbotAIConfig.randomBotMinLevel)
+            continue;
 
         PlayerbotFactory factory(bot, level);
         factory.CleanRandomize();
-		RandomTeleportForLevel(bot);
+        RandomTeleport(bot, tele->mapId, tele->position_x, tele->position_y, tele->position_z);
         break;
     }
 }
