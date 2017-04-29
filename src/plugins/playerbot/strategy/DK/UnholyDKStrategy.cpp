@@ -64,14 +64,22 @@ void UnholyDKStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 {
     GenericDKStrategy::InitTriggers(triggers);
 
+	triggers.push_back(new TriggerNode(
+		"often",
+		NextAction::array(0, new NextAction("ghoul frenzy", ACTION_NORMAL + 2), NULL)));
 
 	triggers.push_back(new TriggerNode(
 		"critical health",
 		NextAction::array(0, new NextAction("death pact", ACTION_EMERGENCY + 1), NULL)));
 }
 
+
 void UnholyDKAoeStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 {
+	triggers.push_back(new TriggerNode(
+		"loot available",
+		NextAction::array(0, new NextAction("corpse explosion", ACTION_NORMAL + 1), NULL)));
+
     triggers.push_back(new TriggerNode(
         "medium aoe",
         NextAction::array(0, new NextAction("death and decay", ACTION_NORMAL + 3),

@@ -120,5 +120,8 @@ void DpsRogueStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 		"light aoe",
 		NextAction::array(0, new NextAction("blade flurry", ACTION_HIGH + 3), NULL)));
 
+	triggers.push_back(new TriggerNode(
+		"enemy out of melee",
+		NextAction::array(0, new NextAction("stealth", ACTION_NORMAL + 9), new NextAction("reach melee", ACTION_NORMAL + 8), NULL)));
 
 }

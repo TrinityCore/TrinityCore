@@ -104,14 +104,29 @@ namespace ai
 	BEGIN_DEBUFF_ACTION(CastMarkOfBloodAction, "mark of blood")
 	END_SPELL_ACTION()
 
-	BEGIN_MELEE_SPELL_ACTION(CastUnholyBlightAction, "unholy blight")
-		END_SPELL_ACTION()
+		class CastMarkOfBloodOnAttackerAction : public CastDebuffSpellOnAttackerAction
+	{
+	public:
+		CastMarkOfBloodOnAttackerAction(PlayerbotAI* ai) : CastDebuffSpellOnAttackerAction(ai, "mark of blood") {}
+	};
 
-	BEGIN_MELEE_SPELL_ACTION(CastSummonGargoyleAction, "summon gargoyle")
-	END_SPELL_ACTION()
+		class CastUnholyBlightAction : public CastBuffSpellAction
+	{
+	public:
+		CastUnholyBlightAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "unholy blight") {}
+	};
 
-	BEGIN_MELEE_SPELL_ACTION(CastGhoulFrenzyAction, "ghoul frenzy")
-	END_SPELL_ACTION()
+		class CastSummonGargoyleAction : public CastBuffSpellAction
+	{
+	public:
+		CastSummonGargoyleAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "summon gargoyle") {}
+	};
+
+		class CastGhoulFrenzyAction : public CastBuffSpellAction
+	{
+	public:
+		CastGhoulFrenzyAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "ghoul frenzy") {}
+	};
 
 	BEGIN_MELEE_SPELL_ACTION(CastCorpseExplosionAction, "corpse explosion")
 	END_SPELL_ACTION()
@@ -124,9 +139,9 @@ namespace ai
 	END_SPELL_ACTION()
 
 
-	class CastChainsOfIceAction : public CastMeleeSpellAction {
+	class CastChainsOfIceAction : public CastSpellAction {
 	public:
-		CastChainsOfIceAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "chains of ice") {}
+		CastChainsOfIceAction(PlayerbotAI* ai) : CastSpellAction(ai, "chains of ice") {}
 	};
 
 	class CastHungeringColdAction : public CastMeleeSpellAction {
@@ -169,9 +184,9 @@ namespace ai
 		CastDeathCoilAction(PlayerbotAI* ai) : CastSpellAction(ai, "death coill") {}
 	};
 
-	class CastBloodBoilAction : public CastSpellAction {
+	class CastBloodBoilAction : public CastBuffSpellAction {
 	public:
-		CastBloodBoilAction(PlayerbotAI* ai) : CastSpellAction(ai, "blood boil") {}
+		CastBloodBoilAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "blood boil") {}
 	};
 
 	class CastDeathAndDecayAction : public CastSpellAction {

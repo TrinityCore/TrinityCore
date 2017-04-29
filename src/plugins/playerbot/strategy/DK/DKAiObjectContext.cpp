@@ -43,15 +43,17 @@ namespace ai
         public:
 			CombatStrategyFactoryInternal() : NamedObjectContext<Strategy>(false, true)
             {
-                creators["tank"] = &DK::CombatStrategyFactoryInternal::tank;
-                creators["frost dps"] = &DK::CombatStrategyFactoryInternal::frost_dps;
-				creators["unholy dps"] = &DK::CombatStrategyFactoryInternal::unholy_dps;
+                creators["tank"] = &DK::CombatStrategyFactoryInternal::blood;
+				creators["blood"] = &DK::CombatStrategyFactoryInternal::blood;
+                creators["frost"] = &DK::CombatStrategyFactoryInternal::frost_dps;
+				creators["unholy"] = &DK::CombatStrategyFactoryInternal::unholy_dps;
             }
 
         private:
             static Strategy* frost_dps(PlayerbotAI* ai) { return new FrostDKStrategy(ai); }
             static Strategy* unholy_dps(PlayerbotAI* ai) { return new UnholyDKStrategy(ai); }
             static Strategy* tank(PlayerbotAI* ai) { return new BloodDKStrategy(ai); }
+			static Strategy* blood(PlayerbotAI* ai) { return new BloodDKStrategy(ai); }
         };
 
         class DKBuffStrategyFactoryInternal : public NamedObjectContext<Strategy>
@@ -98,6 +100,7 @@ namespace ai
 				creators["strangulate on enemy healer"] = &TriggerFactoryInternal::strangulate_on_enemy_healer;
 				creators["blood tap"] = &TriggerFactoryInternal::blood_tap;
 				creators["raise dead"] = &TriggerFactoryInternal::raise_dead;
+				creators["chains of ice"] = &TriggerFactoryInternal::chains_of_ice;
             }
 
         private:
@@ -117,6 +120,7 @@ namespace ai
 			static Trigger* strangulate_on_enemy_healer(PlayerbotAI* ai) { return new StrangulateOnEnemyHealerTrigger(ai); }
 			static Trigger* blood_tap(PlayerbotAI* ai) { return new BloodTapTrigger(ai); }
 			static Trigger* raise_dead(PlayerbotAI* ai) { return new RaiseDeadTrigger(ai); }
+			static Trigger* chains_of_ice(PlayerbotAI* ai) { return new ChainsOfIceSnareTrigger(ai); }
 
 
 		};
