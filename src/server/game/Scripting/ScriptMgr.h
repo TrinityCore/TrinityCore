@@ -205,10 +205,10 @@ class TC_GAME_API SpellScriptLoader : public ScriptObject
     public:
 
         // Should return a fully valid SpellScript pointer.
-        virtual SpellScript* GetSpellScript() const { return NULL; }
+        virtual SpellScript* GetSpellScript() const { return nullptr; }
 
         // Should return a fully valid AuraScript pointer.
-        virtual AuraScript* GetAuraScript() const { return NULL; }
+        virtual AuraScript* GetAuraScript() const { return nullptr; }
 };
 
 class TC_GAME_API ServerScript : public ScriptObject
@@ -1174,6 +1174,55 @@ class TC_GAME_API ScriptMgr
 
         std::string _currentContext;
 };
+
+template <class S>
+struct GenericSpellScriptLoader : public SpellScriptLoader
+{
+    GenericSpellScriptLoader(char const* name) : SpellScriptLoader(name) { }
+    SpellScript* GetSpellScript() const override { return new S(); }
+};
+#define REGISTER_SPELL_SCRIPT(spell_script) new GenericSpellScriptLoader<spell_script>(#spell_script)
+
+template <class A>
+struct GenericAuraScriptLoader : public SpellScriptLoader
+{
+    GenericAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
+    AuraScript* GetAuraScript() const override { return new A(); }
+};
+#define REGISTER_AURA_SCRIPT(aura_script) new GenericAuraScriptLoader<aura_script>(#aura_script)
+
+template <class S, class A>
+struct GenericSpellAndAuraScriptLoader : public SpellScriptLoader
+{
+    GenericSpellAndAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
+    SpellScript* GetSpellScript() const override { return new S(); }
+    AuraScript* GetAuraScript() const override { return new A(); }
+};
+#define REGISTER_SPELL_AND_AURA_SCRIPT_PAIR(spell_script, aura_script) new GenericSpellAndAuraScriptLoader<spell_script, aura_script>(#spell_script)
+
+template <class AI>
+struct GenericCreatureScript : public CreatureScript
+{
+    GenericCreatureScript(char const* name) : CreatureScript(name) { }
+    CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
+};
+#define REGISTER_CREATURE_AI(ai_name) new GenericCreatureScript<ai_name>(#ai_name)
+
+template <class AI>
+struct GenericGameObjectScript : public GameObjectScript
+{
+    GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
+    GameObjectAI* GetAI(GameObject* go) const override { return new AI(go); }
+};
+#define REGISTER_GAMEOBJECT_AI(ai_name) new GenericGameObjectScript<ai_name>(#ai_name)
+
+template <class AI>
+struct GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
+{
+    GenericAreaTriggerEntityScript(char const* name) : AreaTriggerEntityScript(name) { }
+    AreaTriggerAI* GetAI(AreaTrigger* at) const override { return new AI(at); }
+};
+#define REGISTER_AREATRIGGER_AI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
 
 #define sScriptMgr ScriptMgr::instance()
 
