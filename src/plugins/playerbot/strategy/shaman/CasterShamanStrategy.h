@@ -17,10 +17,10 @@ namespace ai
         virtual int GetType() { return STRATEGY_TYPE_COMBAT | STRATEGY_TYPE_DPS | STRATEGY_TYPE_RANGED; }
     };
 
-    class CasterAoeShamanStrategy : public MeleeAoeShamanStrategy
+    class CasterAoeShamanStrategy : public CombatStrategy
     {
     public:
-        CasterAoeShamanStrategy(PlayerbotAI* ai) : MeleeAoeShamanStrategy(ai) {}
+        CasterAoeShamanStrategy(PlayerbotAI* ai) : CombatStrategy(ai) {}
 
     public:
         virtual void InitTriggers(std::list<TriggerNode*> &triggers);
