@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS `achievement_reward_locale` (
   `Locale` VARCHAR(4) NOT NULL,
   `Subject` TEXT,
   `Text` TEXT,
-  `VerifiedBuild` SMALLINT(5) DEFAULT '0',
   PRIMARY KEY (`ID`, `Locale`)
 ) ENGINE=MYISAM DEFAULT CHARSET=utf8;
 
