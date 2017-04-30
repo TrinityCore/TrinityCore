@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `creature_text_locale` (
   `Locale` VARCHAR(4) NOT NULL,
   `Text` TEXT,
   PRIMARY KEY (`CreatureID`, `GroupID`, `ID`)
-) ENGINE=MYISAM DEFAULT CHARSET=utf8mb4;
+) ENGINE=MYISAM DEFAULT CHARSET=utf8;
 
 -- deDE
 INSERT INTO `creature_text_locale` (`CreatureID`, `GroupID`, `ID`, `Locale`, `Text`)
