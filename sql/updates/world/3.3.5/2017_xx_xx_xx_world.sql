@@ -3,7 +3,7 @@ ALTER TABLE `gossip_menu` CHANGE `entry` `MenuID` smallint(5) unsigned NOT NULL 
 ALTER TABLE `gossip_menu` CHANGE `text_id` `TextID` mediumint(8) unsigned NOT NULL DEFAULT '0';
 
 -- gossip_menu_option
-ALTER TABLE `gossip_menu_option` CHANGE `entry` `MenuID` smallint(5) unsigned NOT NULL DEFAULT '0';
+ALTER TABLE `gossip_menu_option` CHANGE `menu_id` `MenuID` smallint(5) unsigned NOT NULL DEFAULT '0';
 ALTER TABLE `gossip_menu_option` CHANGE `id` `OptionID` mediumint(8) unsigned NOT NULL DEFAULT '0';
 ALTER TABLE `gossip_menu_option` CHANGE `option_icon` `OptionIcon` mediumint(8) unsigned NOT NULL DEFAULT '0';
 ALTER TABLE `gossip_menu_option` CHANGE `option_text` `OptionText` text;
