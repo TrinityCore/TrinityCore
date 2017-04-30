@@ -85,37 +85,37 @@ void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, ui
     for (GossipMenuItemsContainer::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
         /// Find the one with the given menu item id.
-        if (itr->second.OptionIndex != menuItemId)
+        if (itr->second.TextID != menuItemId)
             continue;
 
         /// Store texts for localization.
         std::string strOptionText, strBoxText;
-        BroadcastText const* optionBroadcastText = sObjectMgr->GetBroadcastText(itr->second.OptionBroadcastTextID);
-        BroadcastText const* boxBroadcastText = sObjectMgr->GetBroadcastText(itr->second.BoxBroadcastTextID);
+        BroadCastText const* optionBroadCastText = sObjectMgr->GetBroadCastText(itr->second.OptionBroadCastTextID);
+        BroadCastText const* boxBroadCastText = sObjectMgr->GetBroadCastText(itr->second.BoxBroadCastTextID);
 
         /// OptionText
-        if (optionBroadcastText)
-            strOptionText = optionBroadcastText->GetText(GetLocale());
+        if (optionBroadCastText)
+            strOptionText = optionBroadCastText->GetText(GetLocale());
         else
             strOptionText = itr->second.OptionText;
 
         /// BoxText
-        if (boxBroadcastText)
-            strBoxText = boxBroadcastText->GetText(GetLocale());
+        if (boxBroadCastText)
+            strBoxText = boxBroadCastText->GetText(GetLocale());
         else
             strBoxText = itr->second.BoxText;
 
         /// Check need of localization.
         if (GetLocale() != DEFAULT_LOCALE)
         {
-            if (!optionBroadcastText)
+            if (!optionBroadCastText)
             {
                 /// Find localizations from database.
                 if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, menuItemId)))
                     ObjectMgr::GetLocaleString(gossipMenuLocale->OptionText, GetLocale(), strOptionText);
             }
 
-            if (!boxBroadcastText)
+            if (!boxBroadCastText)
             {
                 /// Find localizations from database.
                 if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, menuItemId)))

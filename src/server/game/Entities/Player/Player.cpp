@@ -14318,39 +14318,39 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
         if (canTalk)
         {
             std::string strOptionText, strBoxText;
-            BroadcastText const* optionBroadcastText = sObjectMgr->GetBroadcastText(itr->second.OptionBroadcastTextID);
-            BroadcastText const* boxBroadcastText = sObjectMgr->GetBroadcastText(itr->second.BoxBroadcastTextID);
+            BroadCastText const* optionBroadCastText = sObjectMgr->GetBroadCastText(itr->second.OptionBroadCastTextID);
+            BroadCastText const* boxBroadCastText = sObjectMgr->GetBroadCastText(itr->second.BoxBroadCastTextID);
             LocaleConstant locale = GetSession()->GetSessionDbLocaleIndex();
 
-            if (optionBroadcastText)
-                strOptionText = optionBroadcastText->GetText(locale, getGender());
+            if (optionBroadCastText)
+                strOptionText = optionBroadCastText->GetText(locale, getGender());
             else
                 strOptionText = itr->second.OptionText;
 
-            if (boxBroadcastText)
-                strBoxText = boxBroadcastText->GetText(locale, getGender());
+            if (boxBroadCastText)
+                strBoxText = boxBroadCastText->GetText(locale, getGender());
             else
                 strBoxText = itr->second.BoxText;
 
             if (locale != DEFAULT_LOCALE)
             {
-                if (!optionBroadcastText)
+                if (!optionBroadCastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionIndex)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.TextID)))
                         ObjectMgr::GetLocaleString(gossipMenuLocale->OptionText, locale, strOptionText);
                 }
 
-                if (!boxBroadcastText)
+                if (!boxBroadCastText)
                 {
                     /// Find localizations from database.
-                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.OptionIndex)))
+                    if (GossipMenuItemsLocale const* gossipMenuLocale = sObjectMgr->GetGossipMenuItemsLocale(MAKE_PAIR32(menuId, itr->second.TextID)))
                         ObjectMgr::GetLocaleString(gossipMenuLocale->BoxText, locale, strBoxText);
                 }
             }
 
-            menu->GetGossipMenu().AddMenuItem(itr->second.OptionIndex, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
-            menu->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionIndex, itr->second.ActionMenuID, itr->second.ActionPoiID);
+            menu->GetGossipMenu().AddMenuItem(itr->second.TextID, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
+            menu->GetGossipMenu().AddGossipMenuItemData(itr->second.TextID, itr->second.ActionMenuID, itr->second.ActionPoiID);
         }
     }
 }
@@ -14548,7 +14548,7 @@ uint32 Player::GetGossipTextId(uint32 menuId, WorldObject* source)
     for (GossipMenusContainer::const_iterator itr = menuBounds.first; itr != menuBounds.second; ++itr)
     {
         if (sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.Conditions))
-            textId = itr->second.OptionIndex;
+            textId = itr->second.TextID;
     }
 
     return textId;
