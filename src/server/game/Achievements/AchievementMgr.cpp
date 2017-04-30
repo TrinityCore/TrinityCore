@@ -1527,20 +1527,20 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         if (!reward->MailTemplate)
         {
             // subject and text
-            std::string Subject = reward->Subject;
-            std::string Text = reward->Text;
+            std::string subject = reward->Subject;
+            std::string text = reward->Text;
 
             LocaleConstant localeConstant = GetPlayer()->GetSession()->GetSessionDbLocaleIndex();
             if (localeConstant >= LOCALE_enUS)
             {
                 if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
                 {
-                    ObjectMgr::GetLocaleString(loc->Subject, localeConstant, Subject);
-                    ObjectMgr::GetLocaleString(loc->Text,    localeConstant, Text);
+                    ObjectMgr::GetLocaleString(loc->Subject, localeConstant, subject);
+                    ObjectMgr::GetLocaleString(loc->Text,    localeConstant, text);
                 }
             }
 
-            draft = MailDraft(Subject, Text);
+            draft = MailDraft(subject, text);
         }
 
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -2697,8 +2697,8 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
         uint32 id               = fields[0].GetUInt32();
         std::string localeName  = fields[1].GetString();
-        std::string Subject     = fields[2].GetString();
-        std::string Text        = fields[3].GetString();
+        std::string subject     = fields[2].GetString();
+        std::string text        = fields[3].GetString();
 
         if (m_achievementRewards.find(id) == m_achievementRewards.end())
         {
@@ -2711,8 +2711,8 @@ void AchievementGlobalMgr::LoadRewardLocales()
         if (locale == LOCALE_enUS)
             continue;
 
-        ObjectMgr::AddLocaleString(Subject, locale, data.Subject);
-        ObjectMgr::AddLocaleString(Text, locale, data.Text);
+        ObjectMgr::AddLocaleString(subject, locale, data.Subject);
+        ObjectMgr::AddLocaleString(text, locale, data.Text);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement reward locale strings in %u ms.", uint32(m_achievementRewardLocales.size()), GetMSTimeDiffToNow(oldMSTime));
