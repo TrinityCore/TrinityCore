@@ -19,6 +19,8 @@
 #include "ScriptedCreature.h"
 #include "MoveSplineInit.h"
 #include "SpellScript.h"
+#include "CombatAI.h"
+#include "Player.h"
 
 enum WoundedColdridgeMountaineer
 {
