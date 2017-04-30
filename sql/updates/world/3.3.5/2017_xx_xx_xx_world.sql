@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS `gossip_menu_option_locale` (
   `Locale` varchar(4) NOT NULL,
   `OptionText` text,
   `BoxText` text,
-  `VerifiedBuild` SMALLINT(5) DEFAULT '0',
   PRIMARY KEY (`MenuID`, `OptionID`)
 ) ENGINE=MYISAM DEFAULT CHARSET=utf8;
 
