@@ -334,7 +334,7 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     _gossipMenuItemsLocaleStore.clear();                              // need for reload case
 
     //                                               0       1            2       3           4
-    QueryResult result = WorldDatabase.Query("SELECT MenuID, TextID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
+    QueryResult result = WorldDatabase.Query("SELECT MenuID, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
 
     if (!result)
         return;
@@ -343,19 +343,19 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
     {
         Field* fields = result->Fetch();
 
-        uint16 MenuID           = fields[0].GetUInt16();
-        uint16 TextID           = fields[1].GetUInt16();
+        uint16 menuId           = fields[0].GetUInt16();
+        uint16 optionId         = fields[1].GetUInt16();
         std::string localeName  = fields[2].GetString();
-        std::string OptionText  = fields[3].GetString();
-        std::string BoxText     = fields[4].GetString();
+        std::string optionText  = fields[3].GetString();
+        std::string boxText     = fields[4].GetString();
 
-        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(MenuID, TextID)];
+        GossipMenuItemsLocale& data = _gossipMenuItemsLocaleStore[MAKE_PAIR32(menuId, optionId)];
         LocaleConstant locale       = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(OptionText, locale, data.OptionText);
-        AddLocaleString(BoxText, locale, data.BoxText);
+        AddLocaleString(optionText, locale, data.OptionText);
+        AddLocaleString(boxText, locale, data.BoxText);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u gossip_menu_option locale strings in %u ms", uint32(_gossipMenuItemsLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
