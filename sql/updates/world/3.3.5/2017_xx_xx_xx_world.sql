@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS `creature_text_locale` (
   `ID` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
   `Locale` VARCHAR(4) NOT NULL,
   `Text` TEXT,
-  `VerifiedBuild` SMALLINT(5) DEFAULT '0',
   PRIMARY KEY (`CreatureID`, `GroupID`, `ID`)
 ) ENGINE=MYISAM DEFAULT CHARSET=utf8;
 
