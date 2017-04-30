@@ -1752,11 +1752,22 @@ class npc_brewfest_reveler : public CreatureScript
         }
 };
 
+/*####
+## npc_training_dummy
+####*/
+
 enum TrainingDummy
 {
     NPC_ADVANCED_TARGET_DUMMY                  = 2674,
     NPC_TARGET_DUMMY                           = 2673,
-
+    NPC_SPELL_PRACTICE_CREDIT                  = 44175,
+    SPELL_CHARGE                               = 100,
+    SPELL_JUDGEMENT                            = 29271,
+    SPELL_STEADY_SHOT                          = 56641,
+    SPELL_EVISCERATE                           = 2098,
+    SPELL_PRIMAL_STRIKE                        = 73899,
+    SPELL_IMMOLATE                             = 348,
+    SPELL_ARCANE_MISSILES                      = 5143,
     EVENT_TD_CHECK_COMBAT                      = 1,
     EVENT_TD_DESPAWN                           = 2
 };
@@ -1801,6 +1812,25 @@ public:
             me->AddThreat(doneBy, float(damage));    // just to create threat reference
             _damageTimes[doneBy->GetGUID()] = time(NULL);
             damage = 0;
+        }
+
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        {
+            switch (spell->Id)
+            {
+            case SPELL_CHARGE:   // Charge - Warrior
+            case SPELL_JUDGEMENT: // Judgement - Paladin
+            case SPELL_STEADY_SHOT: // Steady Shot - Hunter
+            case SPELL_EVISCERATE:  // Eviscerate - Rouge
+            case SPELL_PRIMAL_STRIKE: // Primal Strike - Shaman
+            case SPELL_IMMOLATE:   // Immolate - Warlock
+            case SPELL_ARCANE_MISSILES:  // Arcane Missiles - Mage
+                if (caster->GetTypeId() == TYPEID_PLAYER)
+                    caster->ToPlayer()->KilledMonsterCredit(NPC_SPELL_PRACTICE_CREDIT);
+                break;
+            default:
+                break;
+            }
         }
 
         void UpdateAI(uint32 diff) override
