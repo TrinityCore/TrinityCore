@@ -186,18 +186,18 @@ void CreatureTextMgr::LoadCreatureTextLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 CreatureID       = fields[0].GetUInt32();
-        uint32 GroupID          = fields[1].GetUInt8();
-        uint32 ID               = fields[2].GetUInt8();
-        std::string localeName  = fields[3].GetString();
-        std::string Text        = fields[4].GetString();
+        uint32 CreatureID        = fields[0].GetUInt32();
+        uint32 GroupID           = fields[1].GetUInt8();
+        uint32 ID                = fields[2].GetUInt8();
+        std::string localeName   = fields[3].GetString();
+        std::string Text         = fields[4].GetString();
 
-        CreatureTextLocale& ctl = mLocaleTextMap[CreatureTextId(CreatureID, GroupID, ID)];
-        LocaleConstant locale   = GetLocaleByName(localeName);
+        CreatureTextLocale& data = mLocaleTextMap[CreatureTextId(CreatureID, GroupID, ID)];
+        LocaleConstant locale    = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        ObjectMgr::AddLocaleString(Text, locale, ctl.Text);
+        ObjectMgr::AddLocaleString(Text, locale, data.Text);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature localized texts in %u ms", uint32(mLocaleTextMap.size()), GetMSTimeDiffToNow(oldMSTime));
