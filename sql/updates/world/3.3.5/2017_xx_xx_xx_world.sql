@@ -24,6 +24,6 @@ CREATE TABLE IF NOT EXISTS `gossip_menu_option_locale` (
   `OptionText` text,
   `BoxText` text,
   PRIMARY KEY (`MenuID`, `OptionIndex`)
-) ENGINE=MYISAM DEFAULT CHARSET=utf8;
+) ENGINE=MYISAM DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `locales_gossip_menu_option`;
