@@ -688,17 +688,30 @@ public:
 
                     switch (ExecuteSpeech_Counter)
                     {
-                        case 0: Talk(SAY_EXEC_START, player); break;
-                        case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
-                        case 2: Talk(SAY_EXEC_PROG, player); break;
-                        case 3: Talk(SAY_EXEC_NAME, player); break;
-                        case 4: Talk(SAY_EXEC_RECOG, player); break;
-                        case 5:                                 //case 5 unknown for Blood Elf
-                            if (player->getRace() != RACE_BLOODELF)
-                                Talk(SAY_EXEC_NOREM, player);
+                        case 0: 
+                            Talk(SAY_EXEC_START, player);
                             break;
-                        case 6: Talk(SAY_EXEC_THINK, player); break;
-                        case 7: Talk(SAY_EXEC_LISTEN, player); break;
+                        case 1:
+                            me->SetStandState(UNIT_STAND_STATE_STAND);
+                            break;
+                        case 2:
+                            Talk(SAY_EXEC_PROG, player);
+                            break;
+                        case 3:
+                            Talk(SAY_EXEC_NAME, player);
+                            break;
+                        case 4:
+                            Talk(SAY_EXEC_RECOG, player);
+                            break;
+                        case 5:
+                            Talk(SAY_EXEC_NOREM, player);
+                            break;
+                        case 6:
+                            Talk(SAY_EXEC_THINK, player);
+                            break;
+                        case 7:
+                            Talk(SAY_EXEC_LISTEN, player);
+                            break;
                         case 8:
                             if (Creature* Plaguefist = GetClosestCreatureWithEntry(me, NPC_PLAGUEFIST, 85.0f))
                                 Plaguefist->AI()->Talk(SAY_PLAGUEFIST, player);
