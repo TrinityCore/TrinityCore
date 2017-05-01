@@ -26,9 +26,6 @@ RestMgr::RestMgr(Player* player) : RestTime(0), InnTriggerID(0), RestFlagMask(0)
 
 void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
 {
-    if (_player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        restBonus = 0;
-
     uint8 rest_rested_offset;
     uint8 rest_state_offset;
     uint32 next_level_xp_field;
@@ -37,12 +34,17 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
     switch (restType)
     {
         case REST_TYPE_XP:
+            // Reset restBonus (XP only) for max level players 
+            if (_player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+                restBonus = 0;
+
             rest_rested_offset = REST_RESTED_XP;
             rest_state_offset = REST_STATE_XP;
             next_level_xp_field = PLAYER_NEXT_LEVEL_XP;
             affectedByRaF = true;
             break;
         case REST_TYPE_HONOR:
+            // Reset restBonus (Honor only) for players with max honor level.
             if (_player->IsMaxHonorLevelAndPrestige())
                 restBonus = 0;
 
@@ -81,7 +83,12 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
 
 void RestMgr::AddRestBonus(RestTypes restType, float restBonus)
 {
-    SetRestBonus(restType, GetRestBonus(restType) + restBonus);
+    // Don't add extra rest bonus to max level players. Note: Might need different condition in next expansion for honor XP (PLAYER_LEVEL_MIN_HONOR perhaps).
+    if (_player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        restBonus = 0;
+
+    float totalRestBonus = GetRestBonus(restType) + restBonus;
+    SetRestBonus(restType, totalRestBonus);
 }
 
 void RestMgr::SetRestFlag(RestFlag restFlag, uint32 triggerID)

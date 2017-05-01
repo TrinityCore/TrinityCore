@@ -2507,9 +2507,6 @@ void Player::GiveLevel(uint8 level)
         }
     }
 
-    if (level >= PLAYER_LEVEL_MIN_HONOR)
-        UpdateHonorNextLevel();
-
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
@@ -6469,8 +6466,7 @@ void Player::_InitHonorLevelOnLoadFromDB(uint32 honor, uint32 honorLevel, uint32
 {
     SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, honorLevel);
     SetUInt32Value(PLAYER_FIELD_PRESTIGE, prestigeLevel);
-    if (getLevel() >= PLAYER_LEVEL_MIN_HONOR)
-        UpdateHonorNextLevel();
+    UpdateHonorNextLevel();
 
     AddHonorXP(honor);
     if (CanPrestige())
