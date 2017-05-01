@@ -220,7 +220,7 @@ class TC_GAME_API Channel
         void UnsilenceAll(Player const* player, std::string const& name);
         void List(Player const* player);
         void Announce(Player const* player);
-        void Say(ObjectGuid const& guid, std::string const& what, uint32 lang) const;
+        void Say(ObjectGuid const& guid, std::string const& what, uint32 lang, std::string const& prefix) const;
         void DeclineInvite(Player const* player);
         void Invite(Player const* player, std::string const& newp);
         void JoinNotify(Player const* player);

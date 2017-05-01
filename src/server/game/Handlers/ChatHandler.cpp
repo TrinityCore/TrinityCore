@@ -384,7 +384,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(target, sender))
             {
                 sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
-                chn->Say(sender->GetGUID(), msg.c_str(), lang);
+                chn->Say(sender->GetGUID(), msg.c_str(), lang, nullptr);
             }
             break;
         }
@@ -510,7 +510,7 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         case CHAT_MSG_CHANNEL:
         {
             if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(target, sender))
-                chn->Say(sender->GetGUID(), text.c_str(), uint32(LANG_ADDON));
+                chn->Say(sender->GetGUID(), text.c_str(), uint32(LANG_ADDON), prefix);
             break;
         }
         default:
