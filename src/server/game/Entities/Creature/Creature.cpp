@@ -1830,7 +1830,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
         }
         else
         {
-            m_corpseRemoveTime = time(NULL);
+            m_corpseRemoveTime = time(nullptr);
             m_respawnTime = time(NULL) + forceRespawnTimer.count();
         }
     }
