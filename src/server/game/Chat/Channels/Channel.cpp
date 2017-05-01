@@ -695,7 +695,7 @@ void Channel::Announce(Player const* player)
     UpdateChannelInDB();
 }
 
-void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang, std::string const& prefix) const
+void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang, std::string const& prefix /*= ""*/) const
 {
     if (what.empty())
         return;
