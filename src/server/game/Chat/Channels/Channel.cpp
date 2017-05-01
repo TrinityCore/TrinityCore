@@ -704,6 +704,11 @@ void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang, 
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         lang = LANG_UNIVERSAL;
 
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+
+    if (!player->GetSession()->IsAddonRegistered(prefix))
+        return;
+
     if (!IsOn(guid))
     {
         NotMemberAppend appender;
@@ -726,7 +731,7 @@ void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang, 
         LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
 
         WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
-        if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
+        if (player)
             packet->Initialize(CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
         else
         {
