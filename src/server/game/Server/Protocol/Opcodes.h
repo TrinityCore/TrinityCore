@@ -1600,6 +1600,7 @@ enum OpcodeServer : uint32
     SMSG_SOCKET_GEMS                                  = 0x2768,
     SMSG_SOCKET_GEMS_FAILURE                          = 0x2769,
     SMSG_SOR_START_EXPERIENCE_INCOMPLETE              = 0x25F2,
+    SMSG_SORT_BAGS_RESULT                             = 0x2820,
     SMSG_SPECIALIZATION_CHANGED                       = 0x25EC,
     SMSG_SPECIAL_MOUNT_ANIM                           = 0x26C8,
     SMSG_SPEC_INVOLUNTARILY_CHANGED                   = 0x2757,
