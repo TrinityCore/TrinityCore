@@ -91,13 +91,12 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     // Stop the npc if moving
     creature->StopMoving();
 
-    if (sScriptMgr->OnGossipHello(_player, creature))
+    _player->PlayerTalkClass->ClearMenus();
+    if (creature->AI()->GossipHello(_player))
         return;
 
     _player->PrepareGossipMenu(creature, creature->GetCreatureTemplate()->GossipMenuId, true);
     _player->SendPreparedGossip(creature);
-
-    creature->AI()->sGossipHello(_player);
 }
 
 void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
@@ -316,8 +315,8 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         }
                     }
 
-                    if (!sScriptMgr->OnQuestReward(_player, questgiver, quest, reward))
-                        questgiver->AI()->sQuestReward(_player, quest, reward);
+                    _player->PlayerTalkClass->ClearMenus();
+                    questgiver->AI()->QuestReward(_player, quest, reward);
                     break;
                 }
                 case TYPEID_GAMEOBJECT:
@@ -336,8 +335,8 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         }
                     }
 
-                    if (!sScriptMgr->OnQuestReward(_player, questGiver, quest, reward))
-                        questGiver->AI()->QuestReward(_player, quest, reward);
+                    _player->PlayerTalkClass->ClearMenus();
+                    questGiver->AI()->QuestReward(_player, quest, reward);
                     break;
                 }
                 default:

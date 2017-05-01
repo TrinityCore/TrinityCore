@@ -494,33 +494,6 @@ class npc_wyrmrest_defender : public CreatureScript
     public:
         npc_wyrmrest_defender() : CreatureScript("npc_wyrmrest_defender") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
-            {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                SendGossipMenuFor(player, GOSSIP_TEXTID_DEF1, creature->GetGUID());
-            }
-            else
-                SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_INFO_DEF+1)
-            {
-                SendGossipMenuFor(player, GOSSIP_TEXTID_DEF2, creature->GetGUID());
-                // Makes player cast trigger spell for 49207 on self
-                player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
-                // The gossip should not auto close
-            }
-
-            return true;
-        }
-
         struct npc_wyrmrest_defenderAI : public VehicleAI
         {
             npc_wyrmrest_defenderAI(Creature* creature) : VehicleAI(creature)
@@ -591,6 +564,34 @@ class npc_wyrmrest_defender : public CreatureScript
                         renewRecoveryCanCheck = true;
                         break;
                 }
+            }
+
+            bool GossipHello(Player* player) override
+            {
+                if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
+                {
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_DEF1, me->GetGUID());
+                }
+                else
+                    SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+
+                return true;
+            }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            {
+                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+                ClearGossipMenuFor(player);
+                if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                {
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_DEF2, me->GetGUID());
+                    // Makes player cast trigger spell for 49207 on self
+                    player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
+                    // The gossip should not auto close
+                }
+
+                return true;
             }
         };
 

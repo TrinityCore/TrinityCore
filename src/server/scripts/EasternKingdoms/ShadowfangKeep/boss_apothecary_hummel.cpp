@@ -99,7 +99,7 @@ class boss_apothecary_hummel : public CreatureScript
         {
             boss_apothecary_hummelAI(Creature* creature) : BossAI(creature, DATA_APOTHECARY_HUMMEL), _deadCount(0), _isDead(false) { }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == GOSSIP_MENU_HUMMEL && gossipListId == GOSSIP_OPTION_START)
                 {
@@ -107,6 +107,7 @@ class boss_apothecary_hummel : public CreatureScript
                     CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
+                return false;
             }
 
             void Reset() override
@@ -261,6 +262,12 @@ class boss_apothecary_hummel : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
+            void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+            {
+                if (quest->GetQuestId() == QUEST_YOUVE_BEEN_SERVED)
+                    DoAction(ACTION_START_EVENT);
+            }
+
             private:
                 uint8 _deadCount;
                 bool _isDead;
@@ -269,14 +276,6 @@ class boss_apothecary_hummel : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             return GetInstanceAI<boss_apothecary_hummelAI>(creature);
-        }
-
-        bool OnQuestReward(Player* /*player*/, Creature* creature, Quest const* quest, uint32 /*opt*/) override
-        {
-            if (quest->GetQuestId() == QUEST_YOUVE_BEEN_SERVED)
-                creature->AI()->DoAction(ACTION_START_EVENT);
-
-            return true;
         }
 };
 
