@@ -29,9 +29,9 @@ class Unit;
 class TC_GAME_API GameObjectAI
 {
     protected:
-        GameObject* const go;
+        GameObject* const me;
     public:
-        explicit GameObjectAI(GameObject* g) : go(g) { }
+        explicit GameObjectAI(GameObject* g) : me(g) { }
         virtual ~GameObjectAI() { }
 
         virtual void UpdateAI(uint32 /*diff*/) { }
@@ -47,19 +47,35 @@ class TC_GAME_API GameObjectAI
 
         static int Permissible(GameObject const* go);
 
+        // Called when a player opens a gossip dialog with the gameobject.
         virtual bool GossipHello(Player* /*player*/, bool /*reportUse*/) { return false; }
-        virtual bool GossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) { return false; }
-        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) { return false; }
-        virtual bool QuestAccept(Player* /*player*/, Quest const* /*quest*/) { return false; }
-        virtual bool QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
+
+        // Called when a player selects a gossip item in the gameobject's gossip menu.
+        virtual bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) { return false; }
+
+        // Called when a player selects a gossip with a code in the gameobject's gossip menu.
+        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/) { return false; }
+
+        // Called when a player accepts a quest from the gameobject.
+        virtual void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
+
+        // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
+        virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
+
+        // Called when the dialog status between a player and the gameobject is requested.
         virtual uint32 GetDialogStatus(Player* /*player*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
+
         virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) { }
+        virtual void Damaged(Player* /*player*/, uint32 /*eventId*/) { }
+
         virtual uint32 GetData(uint32 /*id*/) const { return 0; }
         virtual void SetData64(uint32 /*id*/, uint64 /*value*/) { }
         virtual uint64 GetData64(uint32 /*id*/) const { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
+
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
-        virtual void OnStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
+        virtual void OnLootStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
+        virtual void OnStateChanged(uint32 /*state*/) { }
         virtual void EventInform(uint32 /*eventId*/) { }
         virtual void SpellHit(Unit* /*unit*/, const SpellInfo* /*spellInfo*/) { }
 };

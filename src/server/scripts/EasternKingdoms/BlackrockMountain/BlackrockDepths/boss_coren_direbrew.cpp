@@ -125,10 +125,10 @@ public:
     {
         boss_coren_direbrewAI(Creature* creature) : BossAI(creature, DATA_COREN) { }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId != GOSSIP_ID)
-                return;
+                return false;
 
             if (gossipListId == GOSSIP_OPTION_FIGHT)
             {
@@ -137,6 +137,8 @@ public:
             }
             else if (gossipListId == GOSSIP_OPTION_APOLOGIZE)
                 CloseGossipMenuFor(player);
+
+            return false;
         }
 
         void Reset() override
@@ -431,16 +433,16 @@ public:
 
         void Reset() override
         {
-            go->SetLootState(GO_READY);
+            me->SetLootState(GO_READY);
             _scheduler
                 .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
-                    go->UseDoorOrButton(8);
-                    go->CastSpell((Unit*)nullptr, SPELL_MOLE_MACHINE_EMERGE, true);
+                    me->UseDoorOrButton(8);
+                    me->CastSpell((Unit*)nullptr, SPELL_MOLE_MACHINE_EMERGE, true);
                 })
                 .Schedule(Seconds(4), [this](TaskContext /*context*/)
                 {
-                    if (GameObject* trap = go->FindNearestGameObject(GO_MOLE_MACHINE_TRAP, 3.0f))
+                    if (GameObject* trap = me->FindNearestGameObject(GO_MOLE_MACHINE_TRAP, 3.0f))
                     {
                         trap->SetLootState(GO_ACTIVATED);
                         trap->UseDoorOrButton();

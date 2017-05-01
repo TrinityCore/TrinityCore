@@ -107,7 +107,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void sQuestAccept(Player* player, Quest const* quest) override
+            void QuestAccept(Player* player, Quest const* quest) override
             {
                 if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
                 {

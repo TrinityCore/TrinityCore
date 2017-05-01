@@ -201,18 +201,6 @@ class npc_koltira_deathweaver : public CreatureScript
 public:
     npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_BREAKOUT)
-        {
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
-
-            if (npc_escortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
-                escortAI->Start(false, false, player->GetGUID());
-        }
-        return true;
-    }
-
     struct npc_koltira_deathweaverAI : public npc_escortAI
     {
         npc_koltira_deathweaverAI(Creature* creature) : npc_escortAI(creature)
@@ -353,6 +341,15 @@ public:
                 }
                 else
                     waveTimer -= uiDiff;
+            }
+        }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_BREAKOUT)
+            {
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                Start(false, false, player->GetGUID());
             }
         }
 

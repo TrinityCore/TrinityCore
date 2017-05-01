@@ -32,6 +32,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "sunwell_plateau.h"
 #include "TemporarySummon.h"
 #include <cmath>
@@ -365,25 +366,36 @@ public:
 
 class go_orb_of_the_blue_flight : public GameObjectScript
 {
-public:
-    go_orb_of_the_blue_flight() : GameObjectScript("go_orb_of_the_blue_flight") { }
+    public:
+        go_orb_of_the_blue_flight() : GameObjectScript("go_orb_of_the_blue_flight") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (go->GetFaction() == 35)
+        struct go_orb_of_the_blue_flightAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            player->SummonCreature(NPC_POWER_OF_THE_BLUE_DRAGONFLIGHT, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
-            player->CastSpell(player, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);
-            go->SetFaction(0);
+            go_orb_of_the_blue_flightAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            if (Creature* pKalec = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_KALECGOS_KJ)))
-                ENSURE_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalec->AI())->SetRingOfBlueFlames();
+            InstanceScript* instance;
 
-            go->Refresh();
+            bool GossipHello(Player* player, bool /*reportUse*/) override
+            {
+                if (me->GetFaction() == 35)
+                {
+                    player->SummonCreature(NPC_POWER_OF_THE_BLUE_DRAGONFLIGHT, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
+                    player->CastSpell(player, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);
+                    me->SetFaction(0);
+
+                    if (Creature* pKalec = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_KALECGOS_KJ)))
+                        ENSURE_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalec->AI())->SetRingOfBlueFlames();
+
+                    me->Refresh();
+                }
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetSunwellPlateauAI<go_orb_of_the_blue_flightAI>(go);
         }
-        return true;
-    }
 };
 
 //AI for Kil'jaeden Event Controller

@@ -183,24 +183,22 @@ public:
             _RavenousworgGUID.Clear();
         }
 
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_PERILOUS_ADVENTURE)
+            {
+                Talk(SAY_QUEST_ACCEPT);
+                if (Creature* Mrfloppy = GetClosestCreatureWithEntry(me, NPC_MRFLOPPY, 180.0f))
+                    Mrfloppy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+
+                Start(true, false, player->GetGUID());
+            }
+        }
+
         private:
             ObjectGuid   _RavenousworgGUID;
             ObjectGuid   _mrfloppyGUID;
     };
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_PERILOUS_ADVENTURE)
-        {
-            creature->AI()->Talk(SAY_QUEST_ACCEPT);
-            if (Creature* Mrfloppy = GetClosestCreatureWithEntry(creature, NPC_MRFLOPPY, 180.0f))
-                Mrfloppy->GetMotionMaster()->MoveFollow(creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (creature->AI())))
-                pEscortAI->Start(true, false, player->GetGUID());
-        }
-        return true;
-    }
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -761,9 +759,10 @@ public:
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 DoCast(player, SPELL_SUMMON_ASHWOOD_BRAND);
+                return false;
             }
 
         private:

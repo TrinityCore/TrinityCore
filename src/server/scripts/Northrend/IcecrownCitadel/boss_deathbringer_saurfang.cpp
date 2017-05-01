@@ -638,13 +638,14 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 _events.Reset();
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
                 if (menuId == GOSSIP_MENU_HIGH_OVERLORD_SAURFANG)
                 {
                     CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
+                return false;
             }
 
             void DoAction(int32 action) override
@@ -834,13 +835,14 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 _events.Reset();
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
                 if (menuId == GOSSIP_MENU_MURADIN_BRONZEBEARD)
                 {
                     CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
+                return false;
             }
 
             void DoAction(int32 action) override

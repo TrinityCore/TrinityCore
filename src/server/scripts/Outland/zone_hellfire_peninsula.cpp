@@ -277,7 +277,7 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
             {
@@ -517,15 +517,6 @@ class npc_colonel_jules : public CreatureScript
 public:
     npc_colonel_jules() : CreatureScript("npc_colonel_jules") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (ENSURE_AI(npc_colonel_jules::npc_colonel_julesAI, creature->AI())->success)
-            player->KilledMonsterCredit(NPC_COLONEL_JULES, ObjectGuid::Empty);
-
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
     struct npc_colonel_julesAI : public ScriptedAI
     {
         npc_colonel_julesAI(Creature* creature) : ScriptedAI(creature), summons(me)
@@ -641,6 +632,15 @@ public:
             }
         }
 
+        bool GossipHello(Player* player) override
+        {
+            if (success)
+                player->KilledMonsterCredit(NPC_COLONEL_JULES, ObjectGuid::Empty);
+
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            return true;
+        }
+
     private:
         EventMap events;
         SummonList summons;
@@ -686,7 +686,7 @@ public:
             me->RemoveUnitFlag(UNIT_FLAG_PACIFIED);
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             ClearGossipMenuFor(player);
             switch (gossipListId)
@@ -699,6 +699,7 @@ public:
                 default:
                     break;
             }
+            return false;
         }
 
         void DoAction(int32 action) override
@@ -942,14 +943,6 @@ class npc_magister_aledis : public CreatureScript
 public:
     npc_magister_aledis() : CreatureScript("npc_magister_aledis") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
-    {
-        CloseGossipMenuFor(player);
-        creature->StopMoving();
-        ENSURE_AI(npc_magister_aledis::npc_magister_aledisAI, creature->AI())->StartFight(player);
-        return true;
-    }
-
     struct npc_magister_aledisAI : public ScriptedAI
     {
         npc_magister_aledisAI(Creature* creature) : ScriptedAI(creature) { }
@@ -1028,6 +1021,14 @@ public:
                 return;
 
             DoMeleeAttackIfReady();
+        }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        {
+            CloseGossipMenuFor(player);
+            me->StopMoving();
+            StartFight(player);
+            return true;
         }
 
     private:

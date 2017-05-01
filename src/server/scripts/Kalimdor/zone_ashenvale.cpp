@@ -27,6 +27,7 @@ npc_ruul_snowhoof
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "GameObject.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
@@ -79,7 +80,7 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
             {
@@ -221,7 +222,7 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_VORSHA)
             {
@@ -328,20 +329,30 @@ class go_naga_brazier : public GameObjectScript
     public:
         go_naga_brazier() : GameObjectScript("go_naga_brazier") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_naga_brazierAI : public GameObjectAI
         {
-            if (Creature* creature = GetClosestCreatureWithEntry(go, NPC_MUGLASH, INTERACTION_DISTANCE*2))
+            go_naga_brazierAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
             {
-                if (npc_muglash::npc_muglashAI* pEscortAI = CAST_AI(npc_muglash::npc_muglashAI, creature->AI()))
+                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_MUGLASH, INTERACTION_DISTANCE * 2))
                 {
-                    creature->AI()->Talk(SAY_MUG_BRAZIER_WAIT);
+                    if (npc_muglash::npc_muglashAI* pEscortAI = CAST_AI(npc_muglash::npc_muglashAI, creature->AI()))
+                    {
+                        creature->AI()->Talk(SAY_MUG_BRAZIER_WAIT);
 
-                    pEscortAI->_isBrazierExtinguished = true;
-                    return false;
+                        pEscortAI->_isBrazierExtinguished = true;
+                        return false;
+                    }
                 }
-            }
 
-            return true;
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_naga_brazierAI(go);
         }
 };
 

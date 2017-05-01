@@ -373,7 +373,7 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
@@ -381,6 +381,7 @@ public:
                 Talk(SAY_GAMESBEGIN_1);
                 BeginEvent(player);
             }
+            return false;
         }
 
         private:

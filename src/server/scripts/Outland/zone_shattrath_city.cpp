@@ -56,39 +56,6 @@ class npc_raliq_the_drunk : public CreatureScript
 public:
     npc_raliq_the_drunk() : CreatureScript("npc_raliq_the_drunk") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            CloseGossipMenuFor(player);
-            creature->SetFaction(FACTION_OGRE_HOSTILE);
-            creature->AI()->Talk(SAY_RALIQ_ATTACK, player);
-            creature->AI()->AttackStart(player);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(CRACKIN_SOME_SKULLS) == QUEST_STATUS_INCOMPLETE)
-        {
-            AddGossipItemFor(player, MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            SendGossipMenuFor(player, NPC_TEXT_WUT_YOU_WANT, creature->GetGUID());
-        }
-        else
-        {
-            ClearGossipMenuFor(player);
-            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_raliq_the_drunkAI(creature);
-    }
-
     struct npc_raliq_the_drunkAI : public ScriptedAI
     {
         npc_raliq_the_drunkAI(Creature* creature) : ScriptedAI(creature)
@@ -122,7 +89,41 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                CloseGossipMenuFor(player);
+                me->SetFaction(FACTION_OGRE_HOSTILE);
+                Talk(SAY_RALIQ_ATTACK, player);
+                AttackStart(player);
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(CRACKIN_SOME_SKULLS) == QUEST_STATUS_INCOMPLETE)
+            {
+                AddGossipItemFor(player, MENU_ID_COLLECT_A_DEBT, OPTION_ID_COLLECT_A_DEBT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, NPC_TEXT_WUT_YOU_WANT, me->GetGUID());
+            }
+            else
+            {
+                ClearGossipMenuFor(player);
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            }
+            return true;
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_raliq_the_drunkAI(creature);
+    }
 };
 
 /*######
@@ -145,40 +146,6 @@ class npc_salsalabim : public CreatureScript
 {
 public:
     npc_salsalabim() : CreatureScript("npc_salsalabim") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            CloseGossipMenuFor(player);
-            creature->SetFaction(FACTION_DEMON_HOSTILE);
-            creature->AI()->Talk(SAY_DEMONIC_AGGRO, player);
-            creature->AI()->AttackStart(player);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(PATIENCE_AND_UNDERSTANDING) == QUEST_STATUS_INCOMPLETE)
-        {
-            AddGossipItemFor(player, MENU_ID_ALTRUIS_SENT_ME, OPTION_ID_ALTRUIS_SENT_ME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            SendGossipMenuFor(player, NPC_TEXT_SAL_GROWLS_AT_YOU, creature->GetGUID());
-        }
-        else
-        {
-            if (creature->IsQuestGiver())
-                player->PrepareQuestMenu(creature->GetGUID());
-            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_salsalabimAI(creature);
-    }
 
     struct npc_salsalabimAI : public ScriptedAI
     {
@@ -223,7 +190,42 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                CloseGossipMenuFor(player);
+                me->SetFaction(FACTION_DEMON_HOSTILE);
+                Talk(SAY_DEMONIC_AGGRO, player);
+                AttackStart(player);
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(PATIENCE_AND_UNDERSTANDING) == QUEST_STATUS_INCOMPLETE)
+            {
+                AddGossipItemFor(player, MENU_ID_ALTRUIS_SENT_ME, OPTION_ID_ALTRUIS_SENT_ME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, NPC_TEXT_SAL_GROWLS_AT_YOU, me->GetGUID());
+            }
+            else
+            {
+                if (me->IsQuestGiver())
+                    player->PrepareQuestMenu(me->GetGUID());
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            }
+            return true;
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_salsalabimAI(creature);
+    }
 };
 
 /*
@@ -255,46 +257,57 @@ class npc_shattrathflaskvendors : public CreatureScript
 public:
     npc_shattrathflaskvendors() : CreatureScript("npc_shattrathflaskvendors") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    struct npc_shattrathflaskvendorsAI : public ScriptedAI
     {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
+        npc_shattrathflaskvendorsAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->GetEntry() == HALDOR_THE_COMPULSIVE)
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            // Aldor vendor
-            if (creature->IsVendor() && (player->GetReputationRank(ALDOR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(THE_SHA_TAR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(CENARION_EXPEDITION_REP) == REP_EXALTED))
-            {
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                SendGossipMenuFor(player, NPC_TEXT_WELCOME_NAME, creature->GetGUID());
-            }
-            else
-            {
-                SendGossipMenuFor(player, NPC_TEXT_EXALTED_ALDOR, creature->GetGUID());
-            }
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_TRADE)
+                player->GetSession()->SendListInventory(me->GetGUID());
+
+            return true;
         }
 
-        if (creature->GetEntry() == ARCANIST_XORITH)
+        bool GossipHello(Player* player) override
         {
-            // Scryers vendor
-            if (creature->IsVendor() && (player->GetReputationRank(SCRYERS_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(THE_SHA_TAR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(CENARION_EXPEDITION_REP) == REP_EXALTED))
+            if (me->GetEntry() == HALDOR_THE_COMPULSIVE)
             {
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                SendGossipMenuFor(player, NPC_TEXT_WELCOME_NAME, creature->GetGUID());
+                // Aldor vendor
+                if (me->IsVendor() && (player->GetReputationRank(ALDOR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(THE_SHA_TAR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(CENARION_EXPEDITION_REP) == REP_EXALTED))
+                {
+                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                    SendGossipMenuFor(player, NPC_TEXT_WELCOME_NAME, me->GetGUID());
+                }
+                else
+                {
+                    SendGossipMenuFor(player, NPC_TEXT_EXALTED_ALDOR, me->GetGUID());
+                }
             }
-            else
-            {
-                SendGossipMenuFor(player, NPC_TEXT_EXALTED_SCRYERS, creature->GetGUID());
-            }
-        }
 
-        return true;
+            if (me->GetEntry() == ARCANIST_XORITH)
+            {
+                // Scryers vendor
+                if (me->IsVendor() && (player->GetReputationRank(SCRYERS_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(THE_SHA_TAR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(CENARION_EXPEDITION_REP) == REP_EXALTED))
+                {
+                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                    SendGossipMenuFor(player, NPC_TEXT_WELCOME_NAME, me->GetGUID());
+                }
+                else
+                {
+                    SendGossipMenuFor(player, NPC_TEXT_EXALTED_SCRYERS, me->GetGUID());
+                }
+            }
+
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_shattrathflaskvendorsAI(creature);
     }
 };
 
@@ -315,23 +328,34 @@ class npc_zephyr : public CreatureScript
 public:
     npc_zephyr() : CreatureScript("npc_zephyr") { }
 
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
+    struct npc_zephyrAI : public ScriptedAI
     {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-            player->CastSpell(player, TELEPORT_CAVERNS_OF_TIME, false);
+        npc_zephyrAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                player->CastSpell(player, TELEPORT_CAVERNS_OF_TIME, false);
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetReputationRank(KEEPERS_OF_TIME_REPUTATION) >= REP_REVERED)
+                AddGossipItemFor(player, MENU_ID_TAKE_ME_TO_C_O_T, OPTION_ID_TAKE_ME_TO_C_O_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        if (player->GetReputationRank(KEEPERS_OF_TIME_REPUTATION) >= REP_REVERED)
-            AddGossipItemFor(player, MENU_ID_TAKE_ME_TO_C_O_T, OPTION_ID_TAKE_ME_TO_C_O_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
+        return new npc_zephyrAI(creature);
     }
 };
 

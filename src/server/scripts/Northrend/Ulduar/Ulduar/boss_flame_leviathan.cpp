@@ -23,6 +23,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "CellImpl.h"
 #include "CombatAI.h"
 #include "GameObject.h"
@@ -1185,7 +1186,7 @@ class npc_brann_bronzebeard_ulduar_intro : public CreatureScript
                 _instance = creature->GetInstanceScript();
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == GOSSIP_MENU_BRANN_BRONZEBEARD && gossipListId == GOSSIP_OPTION_BRANN_BRONZEBEARD)
                 {
@@ -1194,6 +1195,7 @@ class npc_brann_bronzebeard_ulduar_intro : public CreatureScript
                     if (Creature* loreKeeper = _instance->GetCreature(DATA_LORE_KEEPER_OF_NORGANNON))
                         loreKeeper->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 }
+                return false;
             }
 
         private:
@@ -1238,7 +1240,7 @@ class npc_lorekeeper : public CreatureScript
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == GOSSIP_MENU_LORE_KEEPER && gossipListId == GOSSIP_OPTION_LORE_KEEPER)
                 {
@@ -1262,6 +1264,7 @@ class npc_lorekeeper : public CreatureScript
                         }
                     }
                 }
+                return false;
             }
 
         private:
@@ -1279,30 +1282,38 @@ class go_ulduar_tower : public GameObjectScript
     public:
         go_ulduar_tower() : GameObjectScript("go_ulduar_tower") { }
 
-        void OnDestroyed(GameObject* go, Player* /*player*/) override
+        struct go_ulduar_towerAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return;
+            go_ulduar_towerAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            switch (go->GetEntry())
+            InstanceScript* instance;
+
+            void Destroyed(Player* /*player*/, uint32 /*eventId*/) override
             {
-                case GO_TOWER_OF_STORMS:
-                    instance->ProcessEvent(go, EVENT_TOWER_OF_STORM_DESTROYED);
-                    break;
-                case GO_TOWER_OF_FLAMES:
-                    instance->ProcessEvent(go, EVENT_TOWER_OF_FLAMES_DESTROYED);
-                    break;
-                case GO_TOWER_OF_FROST:
-                    instance->ProcessEvent(go, EVENT_TOWER_OF_FROST_DESTROYED);
-                    break;
-                case GO_TOWER_OF_LIFE:
-                    instance->ProcessEvent(go, EVENT_TOWER_OF_LIFE_DESTROYED);
-                    break;
-            }
+                switch (me->GetEntry())
+                {
+                    case GO_TOWER_OF_STORMS:
+                        instance->ProcessEvent(me, EVENT_TOWER_OF_STORM_DESTROYED);
+                        break;
+                    case GO_TOWER_OF_FLAMES:
+                        instance->ProcessEvent(me, EVENT_TOWER_OF_FLAMES_DESTROYED);
+                        break;
+                    case GO_TOWER_OF_FROST:
+                        instance->ProcessEvent(me, EVENT_TOWER_OF_FROST_DESTROYED);
+                        break;
+                    case GO_TOWER_OF_LIFE:
+                        instance->ProcessEvent(me, EVENT_TOWER_OF_LIFE_DESTROYED);
+                        break;
+                }
 
-            if (Creature* trigger = go->FindNearestCreature(NPC_ULDUAR_GAUNTLET_GENERATOR, 15.0f, true))
-                trigger->DisappearAndDie();
+                if (Creature* trigger = me->FindNearestCreature(NPC_ULDUAR_GAUNTLET_GENERATOR, 15.0f, true))
+                    trigger->DisappearAndDie();
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetUlduarAI<go_ulduar_towerAI>(go);
         }
 };
 

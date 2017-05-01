@@ -49,31 +49,41 @@ class npc_nat_pagle : public CreatureScript
 public:
     npc_nat_pagle() : CreatureScript("npc_nat_pagle") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    struct npc_nat_pagleAI : public ScriptedAI
     {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
+        npc_nat_pagleAI(Creature* creature) : ScriptedAI(creature) { }
 
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->IsVendor() && player->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-            SendGossipMenuFor(player, 7640, creature->GetGUID());
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_TRADE)
+                player->GetSession()->SendListInventory(me->GetGUID());
+
+            return true;
         }
-        else
-            SendGossipMenuFor(player, 7638, creature->GetGUID());
 
-        return true;
+        bool GossipHello(Player* player) override
+        {
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (me->IsVendor() && player->GetQuestRewardStatus(QUEST_NATS_MEASURING_TAPE))
+            {
+                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+                SendGossipMenuFor(player, 7640, me->GetGUID());
+            }
+            else
+                SendGossipMenuFor(player, 7638, me->GetGUID());
+
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_nat_pagleAI(creature);
     }
-
 };
 
 /*######
@@ -101,19 +111,6 @@ class npc_private_hendel : public CreatureScript
 {
 public:
     npc_private_hendel() : CreatureScript("npc_private_hendel") { }
-
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
-            creature->SetFaction(FACTION_HOSTILE);
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_private_hendelAI(creature);
-    }
 
     struct npc_private_hendelAI : public ScriptedAI
     {
@@ -148,8 +145,18 @@ public:
                 EnterEvadeMode();
             }
         }
+
+        void QuestAccept(Player* /*player*/, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
+                me->SetFaction(FACTION_HOSTILE);
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_private_hendelAI(creature);
+    }
 };
 
 /*######

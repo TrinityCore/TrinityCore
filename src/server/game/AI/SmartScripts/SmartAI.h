@@ -176,13 +176,12 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetInvincibilityHpLevel(uint32 level) { mInvincibilityHpLevel = level; }
 
-        void sGossipHello(Player* player) override;
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
-        void sGossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, const char* code) override;
-        void sQuestAccept(Player* player, Quest const* quest) override;
-        //void sQuestSelect(Player* player, Quest const* quest) override;
-        void sQuestReward(Player* player, Quest const* quest, uint32 opt) override;
-        void sOnGameEvent(bool start, uint16 eventId) override;
+        bool GossipHello(Player* player) override;
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
+        bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, const char* code) override;
+        void QuestAccept(Player* player, Quest const* quest) override;
+        void QuestReward(Player* player, Quest const* quest, uint32 opt) override;
+        void OnGameEvent(bool start, uint16 eventId) override;
 
         uint32 mEscortQuestID;
 
@@ -257,15 +256,15 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         static int Permissible(const GameObject* g);
 
         bool GossipHello(Player* player, bool reportUse) override;
-        bool GossipSelect(Player* player, uint32 sender, uint32 action) override;
-        bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) override;
-        bool QuestAccept(Player* player, Quest const* quest) override;
-        bool QuestReward(Player* player, Quest const* quest, uint32 opt) override;
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
+        bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, const char* code) override;
+        void QuestAccept(Player* player, Quest const* quest) override;
+        void QuestReward(Player* player, Quest const* quest, uint32 opt) override;
         void Destroyed(Player* player, uint32 eventId) override;
         void SetData(uint32 id, uint32 value) override;
         void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         void OnGameEvent(bool start, uint16 eventId) override;
-        void OnStateChanged(uint32 state, Unit* unit) override;
+        void OnLootStateChanged(uint32 state, Unit* unit) override;
         void EventInform(uint32 eventId) override;
         void SpellHit(Unit* unit, const SpellInfo* spellInfo) override;
 

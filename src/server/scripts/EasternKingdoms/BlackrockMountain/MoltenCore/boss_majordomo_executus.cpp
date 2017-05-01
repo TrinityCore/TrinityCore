@@ -196,13 +196,14 @@ class boss_majordomo : public CreatureScript
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == MENU_OPTION_YOU_CHALLENGED_US && gossipListId == OPTION_ID_YOU_CHALLENGED_US)
                 {
                     CloseGossipMenuFor(player);
                     DoAction(ACTION_START_RAGNAROS);
                 }
+                return false;
             }
         };
 

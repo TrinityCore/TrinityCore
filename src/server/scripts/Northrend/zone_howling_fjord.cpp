@@ -81,15 +81,6 @@ class npc_apothecary_hanes : public CreatureScript
 public:
     npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
-        {
-            ENSURE_AI(npc_Apothecary_HanesAI, (creature->AI()))->StartEscort(player);
-        }
-        return true;
-    }
-
     struct npc_Apothecary_HanesAI : public npc_escortAI
     {
         npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature)
@@ -253,6 +244,12 @@ public:
                     break;
             }
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
+                StartEscort(player);
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -333,50 +330,63 @@ class npc_razael_and_lyana : public CreatureScript
 public:
     npc_razael_and_lyana() : CreatureScript("npc_razael_and_lyana") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    struct npc_razael_and_lyanaAI : public ScriptedAI
     {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+        npc_razael_and_lyanaAI(Creature* creature) : ScriptedAI(creature) { }
 
-        if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
-            switch (creature->GetEntry())
-            {
-                case NPC_RAZAEL:
-                    if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
-                    {
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                        SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL1, creature->GetGUID());
-                        return true;
-                    }
-                break;
-                case NPC_LYANA:
-                    if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
-                    {
-                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                        SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA1, creature->GetGUID());
-                        return true;
-                    }
-                break;
-            }
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        switch (action)
+        bool GossipHello(Player* player) override
         {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL2, creature->GetGUID());
-                player->TalkedToCreature(NPC_RAZAEL, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA2, creature->GetGUID());
-                player->TalkedToCreature(NPC_LYANA, creature->GetGUID());
-                break;
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
+            {
+                switch (me->GetEntry())
+                {
+                    case NPC_RAZAEL:
+                        if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
+                        {
+                            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                            SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL1, me->GetGUID());
+                            return true;
+                        }
+                        break;
+                    case NPC_LYANA:
+                        if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
+                        {
+                            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                            SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA1, me->GetGUID());
+                            return true;
+                        }
+                        break;
+                }
+            }
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            return true;
         }
-        return true;
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL2, me->GetGUID());
+                    player->TalkedToCreature(NPC_RAZAEL, me->GetGUID());
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA2, me->GetGUID());
+                    player->TalkedToCreature(NPC_LYANA, me->GetGUID());
+                    break;
+            }
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_razael_and_lyanaAI(creature);
     }
 };
 
@@ -405,17 +415,6 @@ class npc_daegarn : public CreatureScript
 {
 public:
     npc_daegarn() : CreatureScript("npc_daegarn") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_DEFEAT_AT_RING)
-        {
-            if (npc_daegarnAI* pDaegarnAI = CAST_AI(npc_daegarn::npc_daegarnAI, creature->AI()))
-                pDaegarnAI->StartEvent(player->GetGUID());
-        }
-
-        return true;
-    }
 
     /// @todo make prisoners help (unclear if summoned or using npc's from surrounding cages (summon inside small cages?))
     struct npc_daegarnAI : public ScriptedAI
@@ -484,6 +483,12 @@ public:
             }
 
             SummonGladiator(uiEntry);
+        }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_DEFEAT_AT_RING)
+                StartEvent(player->GetGUID());
         }
     };
 

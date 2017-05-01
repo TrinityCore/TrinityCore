@@ -222,13 +222,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_ID && gossipListId == 0)
             {
                 CloseGossipMenuFor(player);
                 BeginSpeech(player);
             }
+            return false;
         }
 
         private:

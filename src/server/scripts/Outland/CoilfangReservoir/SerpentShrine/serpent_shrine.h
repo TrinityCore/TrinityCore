@@ -59,10 +59,10 @@ enum SSDataTypes
     DATA_TRASH                      = 25,
 };
 
-template<typename AI>
-inline AI* GetSerpentshrineCavernAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetSerpentshrineCavernAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SSCScriptName);
+    return GetInstanceAI<AI>(obj, SSCScriptName);
 }
 
 #endif

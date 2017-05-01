@@ -314,27 +314,6 @@ class npc_OOX17 : public CreatureScript
 public:
     npc_OOX17() : CreatureScript("npc_OOX17") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == Q_OOX17)
-        {
-            creature->SetFaction(113);
-            creature->SetFullHealth();
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
-            creature->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-            creature->AI()->Talk(SAY_OOX_START);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_OOX17AI(creature);
-    }
-
     struct npc_OOX17AI : public npc_escortAI
     {
         npc_OOX17AI(Creature* creature) : npc_escortAI(creature) { }
@@ -378,7 +357,26 @@ public:
         {
             summoned->AI()->AttackStart(me);
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == Q_OOX17)
+            {
+                me->SetFaction(113);
+                me->SetFullHealth();
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                Talk(SAY_OOX_START);
+
+                Start(true, false, player->GetGUID());
+            }
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_OOX17AI(creature);
+    }
 };
 
 /*####
@@ -408,22 +406,6 @@ class npc_tooga : public CreatureScript
 {
 public:
     npc_tooga() : CreatureScript("npc_tooga") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_TOOGA)
-        {
-            if (npc_toogaAI* pToogaAI = CAST_AI(npc_tooga::npc_toogaAI, creature->AI()))
-                pToogaAI->StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_toogaAI(creature);
-    }
 
     struct npc_toogaAI : public FollowerAI
     {
@@ -547,8 +529,18 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_TOOGA)
+                StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_toogaAI(creature);
+    }
 };
 
 void AddSC_tanaris()

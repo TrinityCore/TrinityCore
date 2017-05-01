@@ -183,13 +183,13 @@ void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
         }
     }
 
-    if (!sScriptMgr->OnGossipHello(_player, unit))
+    _player->PlayerTalkClass->ClearMenus();
+    if (!unit->AI()->GossipHello(_player))
     {
 //        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
         _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);
         _player->SendPreparedGossip(unit);
     }
-    unit->AI()->sGossipHello(_player);
 }
 
 void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelectOption& packet)
@@ -248,14 +248,12 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
     {
         if (unit)
         {
-            unit->AI()->sGossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str());
-            if (!sScriptMgr->OnGossipSelectCode(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex), packet.PromotionCode.c_str()))
+            if (!unit->AI()->GossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str()))
                 _player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
         }
         else
         {
-            go->AI()->GossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str());
-            if (!sScriptMgr->OnGossipSelectCode(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex), packet.PromotionCode.c_str()))
+            if (!go->AI()->GossipSelectCode(_player, packet.GossipID, packet.GossipIndex, packet.PromotionCode.c_str()))
                 _player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
         }
     }
@@ -263,14 +261,12 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
     {
         if (unit)
         {
-            unit->AI()->sGossipSelect(_player, packet.GossipID, packet.GossipIndex);
-            if (!sScriptMgr->OnGossipSelect(_player, unit, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex)))
+            if (!unit->AI()->GossipSelect(_player, packet.GossipID, packet.GossipIndex))
                 _player->OnGossipSelect(unit, packet.GossipIndex, packet.GossipID);
         }
         else
         {
-            go->AI()->GossipSelect(_player, packet.GossipID, packet.GossipIndex);
-            if (!sScriptMgr->OnGossipSelect(_player, go, _player->PlayerTalkClass->GetGossipOptionSender(packet.GossipIndex), _player->PlayerTalkClass->GetGossipOptionAction(packet.GossipIndex)))
+            if (!go->AI()->GossipSelect(_player, packet.GossipID, packet.GossipIndex))
                 _player->OnGossipSelect(go, packet.GossipIndex, packet.GossipID);
         }
     }

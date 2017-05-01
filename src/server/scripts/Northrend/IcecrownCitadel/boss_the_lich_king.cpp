@@ -1206,7 +1206,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                     me->LoadEquipment(1); // remove glow on ashbringer
             }
 
-            void sGossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
             {
                 if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                 {
@@ -1215,6 +1215,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(POINT_TIRION_INTRO, TirionIntro);
                 }
+                return false;
             }
 
             void JustReachedHome() override

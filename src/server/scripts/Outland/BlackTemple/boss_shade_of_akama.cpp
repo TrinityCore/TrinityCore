@@ -550,13 +550,14 @@ public:
                     shade->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {
                 CloseGossipMenuFor(player);
                 _events.ScheduleEvent(EVENT_SHADE_START, Milliseconds(500));
             }
+            return false;
         }
 
     private:

@@ -124,7 +124,7 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {
@@ -135,6 +135,7 @@ public:
 
                 player->PlayerTalkClass->SendCloseGossip();
             }
+            return false;
         }
 
         void NextStep(uint32 uiTimerStep, bool bNextStep = true, uint8 uiPhaseStep = 0)

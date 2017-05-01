@@ -127,19 +127,16 @@ public:
             if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                 Cage->SetGoState(GO_STATE_READY);
         }
-    };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
+        void QuestAccept(Player* player, Quest const* quest) override
         {
-            creature->SetFaction(FACTION_QUEST_ESCAPE);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_ranger_lilatha::npc_ranger_lilathaAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
+            {
+                me->SetFaction(FACTION_QUEST_ESCAPE);
+                Start(true, false, player->GetGUID());
+            }
         }
-        return true;
-    }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {

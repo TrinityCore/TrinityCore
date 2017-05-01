@@ -32,6 +32,7 @@ npc_death_ravager
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
@@ -229,11 +230,12 @@ public:
             Talk(ATTACK_YELL, who);
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
             me->SetFaction(FACTION_HOSTILE);
             me->Attack(player, true);
+            return false;
         }
 
         void UpdateAI(uint32 diff) override
@@ -360,7 +362,7 @@ public:
             Talk(SAY_AGGRO, who);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_A_CRY_FOR_HELP)
             {
@@ -632,19 +634,29 @@ class go_ravager_cage : public GameObjectScript
 public:
     go_ravager_cage() : GameObjectScript("go_ravager_cage") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct go_ravager_cageAI : public GameObjectAI
     {
-        go->UseDoorOrButton();
-        if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
+        go_ravager_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+        bool GossipHello(Player* player, bool /*reportUse*/) override
         {
-            if (Creature* ravager = go->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+            me->UseDoorOrButton();
+            if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
             {
-                ravager->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                ravager->SetReactState(REACT_AGGRESSIVE);
-                ravager->AI()->AttackStart(player);
+                if (Creature* ravager = me->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+                {
+                    ravager->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                    ravager->SetReactState(REACT_AGGRESSIVE);
+                    ravager->AI()->AttackStart(player);
+                }
             }
+            return true;
         }
-        return true;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_ravager_cageAI(go);
     }
 };
 
@@ -802,19 +814,29 @@ class go_bristlelimb_cage : public GameObjectScript
     public:
         go_bristlelimb_cage() : GameObjectScript("go_bristlelimb_cage") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_bristlelimb_cageAI : public GameObjectAI
         {
-            go->SetGoState(GO_STATE_READY);
-            if (player->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
+            go_bristlelimb_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player, bool /*reportUse*/) override
             {
-                if (Creature* capitive = go->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true))
+                me->SetGoState(GO_STATE_READY);
+                if (player->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
                 {
-                    go->ResetDoorOrButton();
-                    ENSURE_AI(npc_stillpine_capitive::npc_stillpine_capitiveAI, capitive->AI())->StartMoving(player);
-                    return false;
+                    if (Creature* capitive = me->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true))
+                    {
+                        me->ResetDoorOrButton();
+                        ENSURE_AI(npc_stillpine_capitive::npc_stillpine_capitiveAI, capitive->AI())->StartMoving(player);
+                        return false;
+                    }
                 }
+                return true;
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_bristlelimb_cageAI(go);
         }
 };
 

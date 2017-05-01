@@ -25,6 +25,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include "GameObjectAI.h"
 #include "ulduar.h"
 #include "Vehicle.h"
 
@@ -1648,20 +1649,29 @@ class go_mimiron_hardmode_button : public GameObjectScript
     public:
         go_mimiron_hardmode_button() : GameObjectScript("go_mimiron_hardmode_button") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_mimiron_hardmode_buttonAI : public GameObjectAI
         {
-            if (go->HasFlag(GO_FLAG_NOT_SELECTABLE))
+            go_mimiron_hardmode_buttonAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
+
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            {
+                if (me->HasFlag(GO_FLAG_NOT_SELECTABLE))
+                    return true;
+
+                if (Creature* computer = instance->GetCreature(DATA_COMPUTER))
+                    computer->AI()->DoAction(DO_ACTIVATE_COMPUTER);
+
+                me->SetGoState(GO_STATE_ACTIVE);
+                me->AddFlag(GO_FLAG_NOT_SELECTABLE);
                 return true;
+            }
+        };
 
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return false;
-
-            if (Creature* computer = instance->GetCreature(DATA_COMPUTER))
-                computer->AI()->DoAction(DO_ACTIVATE_COMPUTER);
-            go->SetGoState(GO_STATE_ACTIVE);
-            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
-            return true;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetUlduarAI<go_mimiron_hardmode_buttonAI>(go);
         }
 };
 

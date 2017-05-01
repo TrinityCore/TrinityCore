@@ -34,6 +34,7 @@ EndContentData */
 #include "Player.h"
 #include "razorfen_downs.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 
@@ -129,7 +130,7 @@ public:
             me->DespawnOrUnsummon(5000);
         }
 
-        void sQuestAccept(Player* /*player*/, Quest const* quest) override
+        void QuestAccept(Player* /*player*/, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_EXTINGUISHING_THE_IDOL)
             {
@@ -376,19 +377,24 @@ class go_gong : public GameObjectScript
 public:
     go_gong() : GameObjectScript("go_gong") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    struct go_gongAI : public GameObjectAI
     {
-        InstanceScript* instance = go->GetInstanceScript();
+        go_gongAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-        if (instance)
+        InstanceScript* instance;
+
+        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
         {
-            go->SendCustomAnim(0);
+            me->SendCustomAnim(0);
             instance->SetData(DATA_WAVE, IN_PROGRESS);
             return true;
         }
-        return false;
-    }
+    };
 
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetRazorfenDownsAI<go_gongAI>(go);
+    }
 };
 
 void AddSC_razorfen_downs()
