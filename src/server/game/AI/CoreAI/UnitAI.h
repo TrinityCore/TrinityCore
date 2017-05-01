@@ -23,6 +23,7 @@
 #include "Unit.h"
 #include "Containers.h"
 #include "EventMap.h"
+#include "QuestDef.h"
 #include <list>
 
 class Player;
