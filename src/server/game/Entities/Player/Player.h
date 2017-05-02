@@ -52,6 +52,7 @@ class Group;
 class Guild;
 class OutdoorPvP;
 class Pet;
+class PetAura;
 class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
@@ -1324,6 +1325,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         Pet* GetPet() const;
         Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime);
         void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
+
+        // pet auras
+        std::unordered_set<PetAura const*> m_petAuras;
+        void AddPetAura(PetAura const* petSpell);
+        void RemovePetAura(PetAura const* petSpell);
 
         /// Handles said message in regular chat based on declared language and in config pre-defined Range.
         void Say(std::string const& text, Language language, WorldObject const* = nullptr) override;

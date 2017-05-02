@@ -364,7 +364,6 @@ class DynamicObject;
 class GameObject;
 class Item;
 class Pet;
-class PetAura;
 class Minion;
 class Guardian;
 class UnitAI;
@@ -2120,12 +2119,6 @@ class TC_GAME_API Unit : public WorldObject
         // proc trigger system
         bool CanProc() const {return !m_procDeep;}
         void SetCantProc(bool apply);
-
-        // pet auras
-        typedef std::set<PetAura const*> PetAuraSet;
-        PetAuraSet m_petAuras;
-        void AddPetAura(PetAura const* petSpell);
-        void RemovePetAura(PetAura const* petSpell);
 
         uint32 GetModelForForm(ShapeshiftForm form, uint32 spellId) const;
         uint32 GetModelForTotem(PlayerTotemType totemType);
