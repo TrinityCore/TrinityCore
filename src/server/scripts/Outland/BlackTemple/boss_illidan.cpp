@@ -519,6 +519,7 @@ public:
                     events.ScheduleEvent(EVENT_SHADOW_BLAST, Seconds(1), group);
                     events.ScheduleEvent(EVENT_FLAME_BURST, Seconds(6), group);
                     events.ScheduleEvent(EVENT_SHADOW_DEMON, Seconds(18), Seconds(30), group);
+                    break;
                 case GROUP_PHASE_4:
                     ScheduleEvents(GROUP_PHASE_3, group);
                     events.ScheduleEvent(EVENT_FRENZY, Seconds(40), group);
@@ -859,7 +860,7 @@ public:
                         events.ScheduleEvent(EVENT_FLY_TO_RANDOM_PILLAR, Seconds(2), GROUP_PHASE_ALL);
                         break;
                     case EVENT_CHANGE_ORIENTATION:
-                        me->SetFacingTo(_orientation, true);
+                        me->SetFacingTo(_orientation);
                         break;
                     case EVENT_FLY:
                         ChangeOrientation(3.137039f);
@@ -876,7 +877,7 @@ public:
                     case EVENT_FACE_MIDDLE:
                     {
                         float angle = me->GetAngle(IllidanMiddlePoint);
-                        me->SetFacingTo(angle, true);
+                        me->SetFacingTo(angle);
                         break;
                     }
                     case EVENT_EYE_BLAST:
@@ -1054,7 +1055,7 @@ public:
             _isTeleportToMinions = false;
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == GOSSIP_START_INTRO)
             {
@@ -1073,6 +1074,7 @@ public:
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 CloseGossipMenuFor(player);
             }
+            return false;
         }
 
         bool CanAIAttack(Unit const* who) const override
@@ -1293,7 +1295,7 @@ public:
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
                         break;
                     case EVENT_CHANGE_ORIENTATION:
-                        me->SetFacingTo(_orientation, true);
+                        me->SetFacingTo(_orientation);
                         break;
                     case EVENT_HEALING_POTION:
                         if (me->HealthBelowPct(20))
@@ -2321,7 +2323,6 @@ class spell_illidan_find_target : public SpellScriptLoader
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
                     caster->CastSpell(target, SPELL_PARALYZE, true);
-                    caster->ClearUnitState(UNIT_STATE_CASTING);
                     caster->AI()->SetGUID(target->GetGUID(), 0);
                 }
             }
