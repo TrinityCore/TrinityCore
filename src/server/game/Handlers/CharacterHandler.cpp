@@ -932,6 +932,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         return;
     }
 
+    pCurrChar->SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, GetVirtualRealmAddress());
+
     SendTutorialsData();
 
     pCurrChar->GetMotionMaster()->Initialize();

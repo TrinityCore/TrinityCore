@@ -173,6 +173,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     {
         WorldPackets::Query::CorpseLocation packet;
         packet.Valid = false;                               // corpse not found
+        packet.Player = queryCorpseLocation.Player;
         SendPacket(packet.Write());
         return;
     }

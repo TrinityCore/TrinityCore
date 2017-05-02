@@ -61,6 +61,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SHOCKWAVE                         = 46968,
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_SLAM                              = 50782,
+    SPELL_WARRIOR_STOICISM                          = 70845,
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
@@ -267,6 +268,7 @@ class spell_warr_concussion_blow : public SpellScriptLoader
         }
 };
 
+// 5308 - Execute
 /// Updated 4.3.4
 class spell_warr_execute : public SpellScriptLoader
 {
@@ -426,34 +428,6 @@ public:
     }
 };
 
-// 59725 - Improved Spell Reflection
-class spell_warr_improved_spell_reflection : public SpellScriptLoader
-{
-    public:
-        spell_warr_improved_spell_reflection() : SpellScriptLoader("spell_warr_improved_spell_reflection") { }
-
-        class spell_warr_improved_spell_reflection_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_improved_spell_reflection_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& unitList)
-            {
-                if (GetCaster())
-                    unitList.remove(GetCaster());
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_improved_spell_reflection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warr_improved_spell_reflection_SpellScript();
-        }
-};
-
 // 5246 - Intimidating Shout
 class spell_warr_intimidating_shout : public SpellScriptLoader
 {
@@ -479,6 +453,45 @@ class spell_warr_intimidating_shout : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_warr_intimidating_shout_SpellScript();
+        }
+};
+
+// 70844 - Item - Warrior T10 Protection 4P Bonus
+/// 7.1.5
+class spell_warr_item_t10_prot_4p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_warr_item_t10_prot_4p_bonus() : SpellScriptLoader("spell_warr_item_t10_prot_4p_bonus") { }
+
+        class spell_warr_item_t10_prot_4p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_item_t10_prot_4p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_STOICISM))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                Unit* target = eventInfo.GetActionTarget();
+                int32 bp0 = CalculatePct(target->GetMaxHealth(), GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue());
+                target->CastCustomSpell(SPELL_WARRIOR_STOICISM, SPELLVALUE_BASE_POINT0, bp0, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnProc += AuraProcFn(spell_warr_item_t10_prot_4p_bonus_AuraScript::HandleProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_item_t10_prot_4p_bonus_AuraScript();
         }
 };
 
@@ -1063,7 +1076,6 @@ class spell_warr_sword_and_board : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_sword_and_board_AuraScript);
 
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SHIELD_SLAM))
@@ -1071,7 +1083,7 @@ class spell_warr_sword_and_board : public SpellScriptLoader
                 return true;
             }
 
-            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 // Remove cooldown on Shield Slam
                 if (Player* player = GetTarget()->ToPlayer())
@@ -1080,13 +1092,48 @@ class spell_warr_sword_and_board : public SpellScriptLoader
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_warr_sword_and_board_AuraScript::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+                OnEffectProc += AuraEffectProcFn(spell_warr_sword_and_board_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
             return new spell_warr_sword_and_board_AuraScript();
+        }
+};
+
+// 28845 - Cheat Death
+class spell_warr_t3_prot_8p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_warr_t3_prot_8p_bonus() : SpellScriptLoader("spell_warr_t3_prot_8p_bonus") { }
+
+        class spell_warr_t3_prot_8p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_t3_prot_8p_bonus_AuraScript);
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetActionTarget()->HealthBelowPct(20))
+                    return true;
+
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (damageInfo && damageInfo->GetDamage())
+                    if (GetTarget()->HealthBelowPctDamaged(20, damageInfo->GetDamage()))
+                        return true;
+
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_warr_t3_prot_8p_bonus_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warr_t3_prot_8p_bonus_AuraScript();
         }
 };
 
@@ -1242,8 +1289,8 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_execute();
     new spell_warr_heroic_leap();
     new spell_warr_heroic_leap_jump();
-    new spell_warr_improved_spell_reflection();
     new spell_warr_intimidating_shout();
+    new spell_warr_item_t10_prot_4p_bonus();
     new spell_warr_lambs_to_the_slaughter();
     new spell_warr_last_stand();
     new spell_warr_overpower();
@@ -1259,6 +1306,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sudden_death();
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
+    new spell_warr_t3_prot_8p_bonus();
     new spell_warr_victory_rush();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
