@@ -676,7 +676,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_SATH_DEATH);
-            me->SetPosition(me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
+            me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
             TeleportAllPlayersBack();
             if (Creature* Kalecgos = ObjectAccessor::GetCreature(*me, KalecgosGUID))
             {

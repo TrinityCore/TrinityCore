@@ -227,8 +227,8 @@ struct boss_twinemperorsAI : public ScriptedAI
             thisPos.Relocate(me);
             Position otherPos;
             otherPos.Relocate(pOtherBoss);
-            pOtherBoss->SetPosition(thisPos);
-            me->SetPosition(otherPos);
+            pOtherBoss->UpdatePosition(thisPos);
+            me->UpdatePosition(otherPos);
 
             SetAfterTeleport();
             ENSURE_AI(boss_twinemperorsAI, pOtherBoss->AI())->SetAfterTeleport();
