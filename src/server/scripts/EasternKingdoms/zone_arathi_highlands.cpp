@@ -114,13 +114,13 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void sQuestAccept(Player* player, Quest const* quest) override
+            void QuestAccept(Player* player, Quest const* quest) override
             {
                 if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
                 {
                     Talk(SAY_PROGRESS_1, player);
                     npc_escortAI::Start(false, false, player->GetGUID(), quest);
-                    me->setFaction(FACTION_SUNKEN_TREASURE);
+                    me->SetFaction(FACTION_SUNKEN_TREASURE);
                 }
             }
 
