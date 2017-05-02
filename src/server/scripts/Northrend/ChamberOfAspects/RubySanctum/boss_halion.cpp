@@ -1379,7 +1379,7 @@ class go_twilight_portal : public GameObjectScript
                 if (!_deleted)
                 {
                     _deleted = true;
-                    go->Delete();
+                    me->Delete();
                 }
             }
 

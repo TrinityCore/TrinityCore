@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "sunwell_plateau.h"
 #include "Player.h"
 #include "WorldSession.h"
@@ -155,7 +156,7 @@ public:
             if (Creature* Sath = ObjectAccessor::GetCreature(*me, SathGUID))
                 Sath->AI()->EnterEvadeMode();
 
-            me->setFaction(14);
+            me->SetFaction(14);
             if (!bJustReset) //first reset at create
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
@@ -379,7 +380,7 @@ public:
             switch (TalkSequence)
             {
                 case 1:
-                    me->setFaction(35);
+                    me->SetFaction(35);
                     TalkTimer = 1000;
                     break;
                 case 2:
@@ -536,27 +537,35 @@ class kalecgos_teleporter : public GameObjectScript
 public:
     kalecgos_teleporter() : GameObjectScript("kalecgos_teleporter") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct kalecgos_teleporterAI : public GameObjectAI
     {
-#if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
-        uint8 SpectralPlayers = 0;
-        Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-        {
-            if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
-                ++SpectralPlayers;
-        }
+        kalecgos_teleporterAI(GameObject* go) : GameObjectAI(go) { }
 
-        if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM)
+        bool GossipHello(Player* player, bool /*reportUse*/) override
         {
-            return true;
-        }
-#else
-        (void)go;
+#if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
+            uint8 SpectralPlayers = 0;
+            Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            {
+                if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
+                    ++SpectralPlayers;
+            }
+
+            if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM)
+            {
+                return true;
+            }
 #endif
 
-        player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
-        return true;
+            player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
+            return true;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetSunwellPlateauAI<kalecgos_teleporterAI>(go);
     }
 };
 

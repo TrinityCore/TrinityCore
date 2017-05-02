@@ -28,6 +28,7 @@ EndScriptData */
 #include "serpent_shrine.h"
 #include "Player.h"
 #include "TemporarySummon.h"
+#include "GameObjectAI.h"
 
 #define MAX_ENCOUNTER 6
 
@@ -64,17 +65,23 @@ class go_bridge_console : public GameObjectScript
     public:
         go_bridge_console() : GameObjectScript("go_bridge_console") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_bridge_consoleAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
+            go_bridge_consoleAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            if (!instance)
-                return false;
+            InstanceScript* instance;
 
-            if (instance)
-                instance->SetData(DATA_CONTROL_CONSOLE, DONE);
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            {
+                if (instance)
+                    instance->SetData(DATA_CONTROL_CONSOLE, DONE);
+                return true;
+            }
+        };
 
-            return true;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetInstanceAI<go_bridge_consoleAI>(go);
         }
 };
 

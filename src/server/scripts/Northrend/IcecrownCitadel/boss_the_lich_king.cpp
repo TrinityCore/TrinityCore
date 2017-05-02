@@ -741,7 +741,6 @@ class boss_the_lich_king : public CreatureScript
                             summon->CastSpell(summon, SPELL_ICE_SPHERE, false);
                             summon->CastSpell(summon, SPELL_ICE_BURST_TARGET_SEARCH, false);
                             summon->CastSpell(target, SPELL_ICE_PULSE, false);
-                            summon->ClearUnitState(UNIT_STATE_CASTING);
                             summon->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
                         }
                         else
@@ -836,7 +835,7 @@ class boss_the_lich_king : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_TALK_1, 9000, 0, PHASE_INTRO);
                         break;
                     case POINT_CENTER_1:
-                        me->SetFacingTo(0.0f, true);
+                        me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_SPECIAL);
                         DoCast(me, SPELL_REMORSELESS_WINTER_1);
@@ -852,7 +851,7 @@ class boss_the_lich_king : public CreatureScript
                         events.ScheduleEvent(EVENT_SOUL_REAPER, 94000, 0, PHASE_TWO);
                         break;
                     case POINT_CENTER_2:
-                        me->SetFacingTo(0.0f, true);
+                        me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_SPECIAL);
                         DoCast(me, SPELL_REMORSELESS_WINTER_2);
@@ -1223,7 +1222,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                     me->LoadEquipment(1); // remove glow on ashbringer
             }
 
-            void sGossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
             {
                 if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                 {
@@ -1232,6 +1231,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(POINT_TIRION_INTRO, TirionIntro);
                 }
+                return false;
             }
 
             void JustReachedHome() override

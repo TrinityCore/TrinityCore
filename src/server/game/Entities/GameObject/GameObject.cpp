@@ -33,6 +33,7 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
+#include "GossipDef.h"
 
 #include "Packets/QueryPackets.h"
 
@@ -290,7 +291,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
     if (m_goTemplateAddon)
     {
-        SetUInt32Value(GAMEOBJECT_FACTION, m_goTemplateAddon->faction);
+        SetFaction(m_goTemplateAddon->faction);
         SetUInt32Value(GAMEOBJECT_FLAGS, m_goTemplateAddon->flags);
     }
 
@@ -750,7 +751,6 @@ void GameObject::Update(uint32 diff)
             break;
         }
     }
-    sScriptMgr->OnGameObjectUpdate(this, diff);
 }
 
 void GameObject::Refresh()
@@ -1252,9 +1252,7 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
-        if (sScriptMgr->OnGossipHello(playerUser, this))
-            return;
-
+        playerUser->PlayerTalkClass->ClearMenus();
         if (AI()->GossipHello(playerUser, false))
             return;
     }
@@ -1886,7 +1884,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
 
     if (Unit* owner = GetOwner())
     {
-        trigger->setFaction(owner->getFaction());
+        trigger->SetFaction(owner->GetFaction());
         if (owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
             trigger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
         // copy pvp state flags from owner
@@ -1897,7 +1895,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
     }
     else
     {
-        trigger->setFaction(spellInfo->IsPositive() ? 35 : 14);
+        trigger->SetFaction(spellInfo->IsPositive() ? 35 : 14);
         // Set owner guid for target if no owner available - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
         trigger->CastSpell(target ? target : trigger, spellInfo, triggered, nullptr, nullptr, target ? target->GetGUID() : ObjectGuid::Empty);
@@ -2081,7 +2079,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         case GO_DESTRUCTIBLE_DAMAGED:
         {
             EventInform(m_goInfo->building.damagedEvent, eventInvoker);
-            sScriptMgr->OnGameObjectDamaged(this, eventInvoker);
+            AI()->Damaged(eventInvoker, m_goInfo->building.damagedEvent);
 
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED);
@@ -2105,8 +2103,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         }
         case GO_DESTRUCTIBLE_DESTROYED:
         {
-            sScriptMgr->OnGameObjectDestroyed(this, eventInvoker);
             EventInform(m_goInfo->building.destroyedEvent, eventInvoker);
+            AI()->Destroyed(eventInvoker, m_goInfo->building.destroyedEvent);
+
             if (eventInvoker)
                 if (Battleground* bg = eventInvoker->GetBattleground())
                     bg->DestroyGate(eventInvoker, this);
@@ -2159,8 +2158,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     else
         m_lootStateUnitGUID.Clear();
 
-    AI()->OnStateChanged(state, unit);
-    sScriptMgr->OnGameObjectLootStateChanged(this, state, unit);
+    AI()->OnLootStateChanged(state, unit);
 
     if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
         return;
@@ -2179,7 +2177,8 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
-    sScriptMgr->OnGameObjectStateChanged(this, state);
+    if (AI())
+        AI()->OnStateChanged(state);
     if (m_model && !IsTransport())
     {
         if (!IsInWorld())

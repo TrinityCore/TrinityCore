@@ -136,42 +136,52 @@ class npc_zulaman_hostage : public CreatureScript
     public:
         npc_zulaman_hostage() : CreatureScript("npc_zulaman_hostage") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        struct npc_zulaman_hostageAI : public ScriptedAI
         {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-        }
+            npc_zulaman_hostageAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-        {
-            ClearGossipMenuFor(player);
+            InstanceScript* instance;
 
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                CloseGossipMenuFor(player);
-
-            if (!creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-                return true;
-
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-            if (InstanceScript* instance = creature->GetInstanceScript())
+            bool GossipHello(Player* player) override
             {
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+                return true;
+            }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            {
+                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+                ClearGossipMenuFor(player);
+
+                if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    CloseGossipMenuFor(player);
+
+                if (!me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                    return true;
+
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
                 //uint8 progress = instance->GetData(DATA_CHESTLOOTED);
                 instance->SetData(DATA_CHESTLOOTED, 0);
                 float x, y, z;
-                creature->GetPosition(x, y, z);
-                uint32 entry = creature->GetEntry();
+                me->GetPosition(x, y, z);
+                uint32 entry = me->GetEntry();
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     if (HostageEntry[i] == entry)
                     {
-                        creature->SummonGameObject(ChestEntry[i], Position(x - 2, y, z, 0.f), G3D::Quat(), 0);
+                        me->SummonGameObject(ChestEntry[i], Position(x - 2, y, z, 0.f), G3D::Quat(), 0);
                         break;
                     }
                 }
+                return true;
             }
-            return true;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetZulAmanAI<npc_zulaman_hostageAI>(creature);
         }
 };
 
@@ -268,7 +278,7 @@ class npc_harrison_jones : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override { }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                {
@@ -279,6 +289,7 @@ class npc_harrison_jones : public CreatureScript
                     _gongEvent = GONG_EVENT_1;
                     _gongTimer = 4000;
                }
+               return false;
             }
 
             void SpellHit(Unit*, const SpellInfo* spell) override

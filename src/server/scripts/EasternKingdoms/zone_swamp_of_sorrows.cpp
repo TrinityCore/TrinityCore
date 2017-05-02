@@ -61,7 +61,7 @@ public:
                 Talk(SAY_ATTACKED, who);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_GALENS_ESCAPE)
             {
