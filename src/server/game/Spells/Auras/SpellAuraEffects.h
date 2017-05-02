@@ -217,7 +217,6 @@ class TC_GAME_API AuraEffect
         void HandleAuraModDispelImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  modify stats
         //   resistance
-        void HandleAuraModResistanceExclusive(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModResistance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModBaseResistancePCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModResistancePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;

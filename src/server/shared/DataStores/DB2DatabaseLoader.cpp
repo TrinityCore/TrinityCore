@@ -19,7 +19,7 @@
 #include "Database/DatabaseEnv.h"
 #include "DB2Meta.h"
 
-DB2LoadInfo::DB2LoadInfo() : DB2FileLoadInfo()
+DB2LoadInfo::DB2LoadInfo() : DB2FileLoadInfo(), Statement(MAX_HOTFIXDATABASE_STATEMENTS)
 {
 }
 
