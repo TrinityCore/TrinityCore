@@ -94,13 +94,16 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     // Stop the npc if moving
     creature->StopMoving();
 
-    if (sScriptMgr->OnGossipHello(_player, creature))
+    _player->PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+    if (sEluna->OnGossipHello(_player, creature))
+        return;
+#endif
+    if (creature->AI()->GossipHello(_player))
         return;
 
     _player->PrepareGossipMenu(creature, creature->GetCreatureTemplate()->GossipMenuId, true);
     _player->SendPreparedGossip(creature);
-
-    creature->AI()->sGossipHello(_player);
 }
 
 void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
@@ -319,8 +322,11 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         }
                     }
 
-                    if (!sScriptMgr->OnQuestReward(_player, questgiver, quest, reward))
-                        questgiver->AI()->sQuestReward(_player, quest, reward);
+                    _player->PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+                    sEluna->OnQuestReward(_player, questgiver, quest, reward);
+#endif
+                    questgiver->AI()->QuestReward(_player, quest, reward);
                     break;
                 }
                 case TYPEID_GAMEOBJECT:
@@ -339,8 +345,11 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         }
                     }
 
-                    if (!sScriptMgr->OnQuestReward(_player, questGiver, quest, reward))
-                        questGiver->AI()->QuestReward(_player, quest, reward);
+                    _player->PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+                    sEluna->OnQuestReward(_player, questGiver, quest, reward);
+#endif
+                    questGiver->AI()->QuestReward(_player, quest, reward);
                     break;
                 }
                 default:

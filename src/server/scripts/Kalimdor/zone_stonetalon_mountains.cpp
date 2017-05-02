@@ -78,21 +78,19 @@ public:
         }
 
         void Reset() override { }
-    };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_PROTECT_KAYA)
+        void QuestAccept(Player* player, Quest const* quest) override
         {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_kaya_flathoof::npc_kaya_flathoofAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (quest->GetQuestId() == QUEST_PROTECT_KAYA)
+            {
+                Start(true, false, player->GetGUID());
 
-            creature->AI()->Talk(SAY_START);
-            creature->SetFaction(113);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                Talk(SAY_START);
+                me->SetFaction(113);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            }
         }
-        return true;
-    }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {

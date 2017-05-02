@@ -64,32 +64,6 @@ class npc_oox22fe : public CreatureScript
 public:
     npc_oox22fe() : CreatureScript("npc_oox22fe") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_RESCUE_OOX22FE)
-        {
-            creature->AI()->Talk(SAY_OOX_START);
-            //change that the npc is not lying dead on the ground
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
-
-            if (player->GetTeam() == ALLIANCE)
-                creature->SetFaction(FACTION_ESCORTEE_A);
-
-            if (player->GetTeam() == HORDE)
-                creature->SetFaction(FACTION_ESCORTEE_H);
-
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_oox22fe::npc_oox22feAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
-
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_oox22feAI(creature);
-    }
-
     struct npc_oox22feAI : public npc_escortAI
     {
         npc_oox22feAI(Creature* creature) : npc_escortAI(creature) { }
@@ -146,8 +120,30 @@ public:
         {
             summoned->AI()->AttackStart(me);
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_RESCUE_OOX22FE)
+            {
+                Talk(SAY_OOX_START);
+                //change that the npc is not lying dead on the ground
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+
+                if (player->GetTeam() == ALLIANCE)
+                    me->SetFaction(FACTION_ESCORTEE_A);
+
+                if (player->GetTeam() == HORDE)
+                    me->SetFaction(FACTION_ESCORTEE_H);
+
+                Start(true, false, player->GetGUID());
+            }
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_oox22feAI(creature);
+    }
 };
 
 /*######

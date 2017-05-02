@@ -14964,8 +14964,11 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
     switch (questGiver->GetTypeId())
     {
         case TYPEID_UNIT:
-            sScriptMgr->OnQuestAccept(this, questGiver->ToCreature(), quest);
-            questGiver->ToCreature()->AI()->sQuestAccept(this, quest);
+            PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+            sEluna->OnQuestAccept(this, questGiver->ToCreature(), quest);
+#endif
+            questGiver->ToCreature()->AI()->QuestAccept(this, quest);
             break;
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
@@ -14990,7 +14993,10 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
             break;
         }
         case TYPEID_GAMEOBJECT:
-            sScriptMgr->OnQuestAccept(this, questGiver->ToGameObject(), quest);
+            PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+            sEluna->OnQuestAccept(this, questGiver->ToGameObject(), quest);
+#endif
             questGiver->ToGameObject()->AI()->QuestAccept(this, quest);
             break;
         default:
@@ -16044,11 +16050,16 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
     QuestRelationBounds qr;
     QuestRelationBounds qir;
 
+    PlayerTalkClass->ClearMenus();
     switch (questgiver->GetTypeId())
     {
         case TYPEID_GAMEOBJECT:
         {
-            QuestGiverStatus questStatus = QuestGiverStatus(sScriptMgr->GetDialogStatus(this, questgiver->ToGameObject()));
+            QuestGiverStatus questStatus = QuestGiverStatus(questgiver->ToGameObject()->AI()->GetDialogStatus(this));
+#ifdef ELUNA
+            if (uint32 dialogid = sEluna->GetDialogStatus(this, questgiver->ToGameObject()))
+                questStatus = static_cast<QuestGiverStatus>(dialogid);
+#endif
             if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
                 return questStatus;
             qr = sObjectMgr->GetGOQuestRelationBounds(questgiver->GetEntry());
@@ -16057,7 +16068,11 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
         }
         case TYPEID_UNIT:
         {
-            QuestGiverStatus questStatus = QuestGiverStatus(sScriptMgr->GetDialogStatus(this, questgiver->ToCreature()));
+            QuestGiverStatus questStatus = QuestGiverStatus(questgiver->ToCreature()->AI()->GetDialogStatus(this));
+#ifdef ELUNA
+            if (uint32 dialogid = sEluna->GetDialogStatus(this, questgiver->ToCreature()))
+                questStatus = static_cast<QuestGiverStatus>(dialogid);
+#endif
             if (questStatus != DIALOG_STATUS_SCRIPTED_NO_STATUS)
                 return questStatus;
             qr = sObjectMgr->GetCreatureQuestRelationBounds(questgiver->GetEntry());

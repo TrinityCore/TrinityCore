@@ -36,6 +36,9 @@
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "SpellInfo.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
 
 enum StableResultCode
 {
@@ -337,13 +340,16 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
         }
     }
 
-    if (!sScriptMgr->OnGossipHello(_player, unit))
+    _player->PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+    if (!sEluna->OnGossipHello(_player, unit))
+#endif
+    if (!unit->AI()->GossipHello(_player))
     {
 //        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
         _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);
         _player->SendPreparedGossip(unit);
     }
-    unit->AI()->sGossipHello(_player);
 }
 
 void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)

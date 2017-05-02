@@ -259,12 +259,13 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
             me->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
             MustDieTimer = 3000;
             MustDie = true;
+            return false;
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -366,6 +367,15 @@ public:
             } else CheckTimer -= diff;
         }
 
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
+                return true;
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, 10811, me->GetGUID());
+            return true;
+        }
+
     private:
         ObjectGuid PlayerGUID;
         uint32 SpellEscapeTimer;
@@ -379,15 +389,6 @@ public:
         bool ContinueWP;
         bool Reached;
     };
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
-            return true;
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        SendGossipMenuFor(player, 10811, creature->GetGUID());
-        return true;
-    }
 
     CreatureAI* GetAI(Creature* creature) const override
     {
