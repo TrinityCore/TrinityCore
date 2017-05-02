@@ -1758,6 +1758,9 @@ class npc_terenas_menethil : public CreatureScript
             {
                 UpdateVictim();
 
+                Map* map = me->GetMap();
+                Map::PlayerList const &PlayerList = map->GetPlayers();
+
                 _events.Update(diff);
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -1780,6 +1783,10 @@ class npc_terenas_menethil : public CreatureScript
                             break;
                         case EVENT_OUTRO_TERENAS_TALK_2:
                             Talk(SAY_TERENAS_OUTRO_2);
+                            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                                if (Player* i_pl = i->getSource())
+                                    if (!me->IsInRange(i_pl,0.0f,30.0f,true)) // 30 yds to the closest edge. get all characters off the edge so as they dont ress in place and die.
+                                        DoTeleportPlayer(i_pl, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()); // move them to terenas NOTE: this seems to be blizzlike but im not entierly sure.
                             DoCastAOE(SPELL_MASS_RESURRECTION);
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
                             {
