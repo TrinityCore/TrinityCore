@@ -437,7 +437,7 @@ class boss_algalon_the_observer : public CreatureScript
                     me->SetDisableGravity(false);
                 else if (pointId == POINT_ALGALON_OUTRO)
                 {
-                    me->SetFacingTo(1.605703f, true);
+                    me->SetFacingTo(1.605703f);
                     events.ScheduleEvent(EVENT_OUTRO_3, 1200);
                     events.ScheduleEvent(EVENT_OUTRO_4, 2400);
                     events.ScheduleEvent(EVENT_OUTRO_5, 8500);
@@ -531,7 +531,7 @@ class boss_algalon_the_observer : public CreatureScript
                     damage = 0;
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->setFaction(35);
+                    me->SetFaction(35);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoCast(me, SPELL_SELF_STUN);
                     events.Reset();
@@ -976,17 +976,17 @@ class go_celestial_planetarium_access : public GameObjectScript
 
         struct go_celestial_planetarium_accessAI : public GameObjectAI
         {
-            go_celestial_planetarium_accessAI(GameObject* go) : GameObjectAI(go)
-            {
-            }
+            go_celestial_planetarium_accessAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
 
             bool GossipHello(Player* player, bool /*reportUse*/) override
             {
-                if (go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
+                if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
                     return true;
 
                 bool hasKey = true;
-                if (LockEntry const* lock = sLockStore.LookupEntry(go->GetGOInfo()->goober.lockId))
+                if (LockEntry const* lock = sLockStore.LookupEntry(me->GetGOInfo()->goober.lockId))
                 {
                     hasKey = false;
                     for (uint32 i = 0; i < MAX_LOCK_CASE; ++i)
@@ -1006,20 +1006,17 @@ class go_celestial_planetarium_access : public GameObjectScript
                     return false;
 
                 // Start Algalon event
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                 _events.ScheduleEvent(EVENT_DESPAWN_CONSOLE, 5000);
-                if (Creature* brann = go->SummonCreature(NPC_BRANN_BRONZBEARD_ALG, BrannIntroSpawnPos))
+                if (Creature* brann = me->SummonCreature(NPC_BRANN_BRONZBEARD_ALG, BrannIntroSpawnPos))
                     brann->AI()->DoAction(ACTION_START_INTRO);
 
-                if (InstanceScript* instance = go->GetInstanceScript())
-                {
-                    instance->SetData(DATA_ALGALON_SUMMON_STATE, 1);
-                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_SIGILDOOR_01)))
-                        sigil->SetGoState(GO_STATE_ACTIVE);
+                instance->SetData(DATA_ALGALON_SUMMON_STATE, 1);
+                if (GameObject* sigil = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_SIGILDOOR_01)))
+                    sigil->SetGoState(GO_STATE_ACTIVE);
 
-                    if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetGuidData(DATA_SIGILDOOR_02)))
-                        sigil->SetGoState(GO_STATE_ACTIVE);
-                }
+                if (GameObject* sigil = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_SIGILDOOR_02)))
+                    sigil->SetGoState(GO_STATE_ACTIVE);
 
                 return false;
             }
@@ -1036,7 +1033,7 @@ class go_celestial_planetarium_access : public GameObjectScript
                     switch (eventId)
                     {
                         case EVENT_DESPAWN_CONSOLE:
-                            go->Delete();
+                            me->Delete();
                             break;
                     }
                 }

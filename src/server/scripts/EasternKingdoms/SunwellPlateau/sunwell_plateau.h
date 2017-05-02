@@ -112,10 +112,10 @@ enum SWPGameObjectIds
     GO_MURUS_GATE_2                          = 188118
 };
 
-template<class AI>
-AI* GetSunwellPlateauAI(Creature* creature)
+template<class AI, class T>
+AI* GetSunwellPlateauAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, SunwellPlateauScriptName);
+    return GetInstanceAI<AI>(obj, SunwellPlateauScriptName);
 }
 
 #endif // SUNWELL_PLATEAU_H

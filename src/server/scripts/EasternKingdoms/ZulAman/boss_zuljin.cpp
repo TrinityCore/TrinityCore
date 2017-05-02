@@ -545,7 +545,7 @@ class boss_zuljin : public CreatureScript
                         if (Flame_Breath_Timer <= diff)
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                me->SetInFront(target);
+                                me->SetFacingToObject(target);
                             DoCast(me, SPELL_FLAME_BREATH);
                             Flame_Breath_Timer = 10000;
                         }

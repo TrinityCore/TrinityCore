@@ -75,12 +75,12 @@ public:
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_RESQUE_OOX_09)
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->setFaction(player->GetTeam() == ALLIANCE ? FACTION_ESCORTEE_A : FACTION_ESCORTEE_H);
+                me->SetFaction(player->GetTeam() == ALLIANCE ? FACTION_ESCORTEE_A : FACTION_ESCORTEE_H);
                 Talk(SAY_OOX_START, player);
                 npc_escortAI::Start(false, false, player->GetGUID(), quest);
             }
@@ -235,7 +235,7 @@ public:
             summoned->GetMotionMaster()->MovePoint(0, AmbushMoveTo[spawnId]);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_RINJI_TRAPPED)
             {

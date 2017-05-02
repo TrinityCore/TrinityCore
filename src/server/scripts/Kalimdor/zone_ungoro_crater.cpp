@@ -57,24 +57,6 @@ class npc_ame : public CreatureScript
 public:
     npc_ame() : CreatureScript("npc_ame") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_CHASING_AME)
-        {
-            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
-            creature->AI()->Talk(SAY_READY, player);
-            creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-            // Change faction so mobs attack
-            creature->setFaction(113);
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_ameAI(creature);
-    }
-
     struct npc_ameAI : public npc_escortAI
     {
         npc_ameAI(Creature* creature) : npc_escortAI(creature)
@@ -146,7 +128,24 @@ public:
                 DemoralizingShoutTimer = 70000;
             } else DemoralizingShoutTimer -= diff;
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_CHASING_AME)
+            {
+                Start(false, false, player->GetGUID());
+                Talk(SAY_READY, player);
+                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                // Change faction so mobs attack
+                me->SetFaction(113);
+            }
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_ameAI(creature);
+    }
 };
 
 /*####
@@ -180,25 +179,6 @@ class npc_ringo : public CreatureScript
 {
 public:
     npc_ringo() : CreatureScript("npc_ringo") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_A_LITTLE_HELP)
-        {
-            if (npc_ringoAI* ringoAI = CAST_AI(npc_ringo::npc_ringoAI, creature->AI()))
-            {
-                creature->SetStandState(UNIT_STAND_STATE_STAND);
-                ringoAI->StartFollow(player, FACTION_ESCORTEE, quest);
-            }
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_ringoAI(creature);
-    }
 
     struct npc_ringoAI : public FollowerAI
     {
@@ -355,7 +335,21 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_A_LITTLE_HELP)
+            {
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                StartFollow(player, FACTION_ESCORTEE, quest);
+            }
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_ringoAI(creature);
+    }
 };
 
 void AddSC_ungoro_crater()
