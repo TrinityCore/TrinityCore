@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "serpent_shrine.h"
 #include "Spell.h"
 #include "Player.h"
@@ -434,21 +435,32 @@ class go_strange_pool : public GameObjectScript
     public:
         go_strange_pool() : GameObjectScript("go_strange_pool") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_strange_poolAI : public GameObjectAI
         {
-            // 25%
-            if (InstanceScript* instanceScript = go->GetInstanceScript())
+            go_strange_poolAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
+
+            bool GossipHello(Player* player, bool /*reportUse*/) override
+            {
+                // 25%
                 if (!urand(0, 3))
                 {
-                    if (instanceScript->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
+                    if (instance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
                     {
-                        go->CastSpell(player, 54587);
-                        instanceScript->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
+                        me->CastSpell(player, 54587);
+                        instance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
                     }
                     return true;
                 }
 
-            return false;
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetInstanceAI<go_strange_poolAI>(go);
         }
 };
 

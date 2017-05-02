@@ -45,47 +45,47 @@ enum RaggedJohn
 
 class npc_ragged_john : public CreatureScript
 {
-public:
-    npc_ragged_john() : CreatureScript("npc_ragged_john") { }
+    public:
+        npc_ragged_john() : CreatureScript("npc_ragged_john") { }
 
-    struct npc_ragged_johnAI : public ScriptedAI
-    {
-        npc_ragged_johnAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-
-        void MoveInLineOfSight(Unit* who) override
+        struct npc_ragged_johnAI : public ScriptedAI
         {
-            if (who->HasAura(SPELL_MOTHERS_MILK))
+            npc_ragged_johnAI(Creature* creature) : ScriptedAI(creature) { }
+
+            void Reset() override { }
+
+            void MoveInLineOfSight(Unit* who) override
             {
-                if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 15) && who->isInAccessiblePlaceFor(me))
+                if (who->HasAura(SPELL_MOTHERS_MILK))
                 {
-                    DoCast(who, SPELL_WICKED_MILKING);
-                    if (Player* player = who->ToPlayer())
-                        player->AreaExploredOrEventHappens(QUEST_MOTHERS_MILK);
+                    if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 15) && who->isInAccessiblePlaceFor(me))
+                    {
+                        DoCast(who, SPELL_WICKED_MILKING);
+                        if (Player* player = who->ToPlayer())
+                            player->AreaExploredOrEventHappens(QUEST_MOTHERS_MILK);
+                    }
                 }
+
+                ScriptedAI::MoveInLineOfSight(who);
             }
 
-            ScriptedAI::MoveInLineOfSight(who);
-        }
+            void EnterCombat(Unit* /*who*/) override { }
 
-        void EnterCombat(Unit* /*who*/) override { }
-    };
+            bool GossipHello(Player* player) override
+            {
+                if (me->IsQuestGiver())
+                {
+                    player->PrepareQuestMenu(me->GetGUID());
+                    SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+                }
+                return true;
+            }
+        };
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            player->PrepareQuestMenu(creature->GetGUID());
-            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+            return new npc_ragged_johnAI(creature);
         }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_ragged_johnAI(creature);
-    }
 };
 
 void AddSC_burning_steppes()

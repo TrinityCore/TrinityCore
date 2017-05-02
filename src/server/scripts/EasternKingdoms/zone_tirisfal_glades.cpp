@@ -31,6 +31,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "Player.h"
 
 /*######
@@ -49,22 +50,6 @@ class npc_calvin_montague : public CreatureScript
 {
 public:
     npc_calvin_montague() : CreatureScript("npc_calvin_montague") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_590)
-        {
-            creature->setFaction(FACTION_HOSTILE);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            ENSURE_AI(npc_calvin_montague::npc_calvin_montagueAI, creature->AI())->AttackStart(player);
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_calvin_montagueAI(creature);
-    }
 
     struct npc_calvin_montagueAI : public ScriptedAI
     {
@@ -159,7 +144,22 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_590)
+            {
+                me->SetFaction(FACTION_HOSTILE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                AttackStart(player);
+            }
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_calvin_montagueAI(creature);
+    }
 };
 
 /*######
@@ -177,45 +177,65 @@ enum Mausoleum
 
 class go_mausoleum_door : public GameObjectScript
 {
-public:
-    go_mausoleum_door() : GameObjectScript("go_mausoleum_door") { }
+    public:
+        go_mausoleum_door() : GameObjectScript("go_mausoleum_door") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
-    {
-        if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
-            return false;
+        struct go_mausoleum_doorAI : public GameObjectAI
+        {
+            go_mausoleum_doorAI(GameObject* go) : GameObjectAI(go) { }
 
-        if (!player->FindNearestCreature(NPC_ULAG, 50.0f))
-            if (GameObject* pTrigger = player->FindNearestGameObject(GO_TRIGGER, 30.0f))
+            bool GossipHello(Player* player, bool /*reportUse*/) override
             {
-                pTrigger->SetGoState(GO_STATE_READY);
-                player->SummonCreature(NPC_ULAG, 2390.26f, 336.47f, 40.01f, 2.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
+                    return false;
+
+                if (!player->FindNearestCreature(NPC_ULAG, 50.0f))
+                {
+                    if (GameObject* pTrigger = player->FindNearestGameObject(GO_TRIGGER, 30.0f))
+                    {
+                        pTrigger->SetGoState(GO_STATE_READY);
+                        player->SummonCreature(NPC_ULAG, 2390.26f, 336.47f, 40.01f, 2.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                        return false;
+                    }
+                }
                 return false;
             }
+        };
 
-        return false;
-    }
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_mausoleum_doorAI(go);
+        }
 };
 
 class go_mausoleum_trigger : public GameObjectScript
 {
-public:
-    go_mausoleum_trigger() : GameObjectScript("go_mausoleum_trigger") { }
+    public:
+        go_mausoleum_trigger() : GameObjectScript("go_mausoleum_trigger") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
-            return false;
-
-        if (GameObject* pDoor = player->FindNearestGameObject(GO_DOOR, 30.0f))
+        struct go_mausoleum_triggerAI : public GameObjectAI
         {
-            go->SetGoState(GO_STATE_ACTIVE);
-            pDoor->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-            return true;
-        }
+            go_mausoleum_triggerAI(GameObject* go) : GameObjectAI(go) { }
 
-        return false;
-    }
+            bool GossipHello(Player* player, bool /*reportUse*/) override
+            {
+                if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
+                    return false;
+
+                if (GameObject* pDoor = player->FindNearestGameObject(GO_DOOR, 30.0f))
+                {
+                    me->SetGoState(GO_STATE_ACTIVE);
+                    pDoor->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_mausoleum_triggerAI(go);
+        }
 };
 
 void AddSC_tirisfal_glades()

@@ -461,7 +461,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     {
                         case EVENT_INTRO_ALLIANCE_2:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->setFaction(FACTION_SCOURGE);
+                            me->SetFaction(FACTION_SCOURGE);
                             Talk(SAY_INTRO_ALLIANCE_2);
                             break;
                         case EVENT_INTRO_ALLIANCE_3:
@@ -474,7 +474,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             break;
                         case EVENT_INTRO_HORDE_2:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->setFaction(FACTION_SCOURGE);
+                            me->SetFaction(FACTION_SCOURGE);
                             Talk(SAY_INTRO_HORDE_2);
                             break;
                         case EVENT_INTRO_HORDE_4:
@@ -636,13 +636,14 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 _events.Reset();
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
                 if (menuId == GOSSIP_MENU_HIGH_OVERLORD_SAURFANG)
                 {
                     player->PlayerTalkClass->SendCloseGossip();
                     DoAction(ACTION_START_EVENT);
                 }
+                return false;
             }
 
             void DoAction(int32 action) override
@@ -832,13 +833,14 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 _events.Reset();
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
                 if (menuId == GOSSIP_MENU_MURADIN_BRONZEBEARD)
                 {
                     player->PlayerTalkClass->SendCloseGossip();
                     DoAction(ACTION_START_EVENT);
                 }
+                return false;
             }
 
             void DoAction(int32 action) override

@@ -816,7 +816,7 @@ class npc_grandmother : public CreatureScript
         {
             npc_grandmotherAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == OPTION_WHAT_PHAT_LEWTS_YOU_HAVE && gossipListId == 0)
                 {
@@ -827,6 +827,7 @@ class npc_grandmother : public CreatureScript
 
                     me->DespawnOrUnsummon();
                 }
+                return false;
             }
         };
 
@@ -1377,7 +1378,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
         {
             Talk(SAY_JULIANNE_AGGRO);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->setFaction(16);
+            me->SetFaction(16);
             AggroYellTimer = 0;
         } else AggroYellTimer -= diff;
     }
@@ -1405,7 +1406,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
                 ENSURE_AI(boss_romulo::boss_romuloAI, pRomulo->AI())->Phase = PHASE_ROMULO;
                 DoZoneInCombat(pRomulo);
 
-                pRomulo->setFaction(16);
+                pRomulo->SetFaction(16);
             }
             SummonedRomulo = true;
         } else SummonRomuloTimer -= diff;
