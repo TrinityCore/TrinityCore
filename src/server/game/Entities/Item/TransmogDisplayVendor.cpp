@@ -73,7 +73,7 @@ const std::set<uint32> TransmogDisplayVendorMgr::NotAllowedItems = { };
 std::vector<uint32> TransmogDisplayVendorMgr::Allowed;
 std::vector<uint32> TransmogDisplayVendorMgr::NotAllowed;
 SelectionStore TransmogDisplayVendorMgr::selectionStore;
-TransmogDisplayVendorMgr::EntryVector* TransmogDisplayVendorMgr::optionMap[MAX_ITEM_SUBCLASS_WEAPON + MAX_ITEM_SUBCLASS_ARMOR][MAX_INVTYPE][MAX_ITEM_QUALITY];
+TransmogDisplayVendorMgr::EntryVector* TransmogDisplayVendorMgr::optionMap[MAX_ITEM_SUBCLASS_WEAPON + MAX_ITEM_SUBCLASS_ARMOR][MAX_INVTYPE][MAX_ITEM_QUALITY] = { nullptr };
 
 uint32 TransmogDisplayVendorMgr::GetFakeEntry(const Item* item)
 {
@@ -136,7 +136,7 @@ const char* TransmogDisplayVendorMgr::getSlotName(uint8 slot, WorldSession* /*se
         case EQUIPMENT_SLOT_OFFHAND: return  "Off hand";// session->GetTrinityString(LANG_SLOT_NAME_OFFHAND);
         case EQUIPMENT_SLOT_RANGED: return  "Ranged";// session->GetTrinityString(LANG_SLOT_NAME_RANGED);
         case EQUIPMENT_SLOT_TABARD: return  "Tabard";// session->GetTrinityString(LANG_SLOT_NAME_TABARD);
-        default: return NULL;
+        default: return nullptr;
     }
 }
 uint32 TransmogDisplayVendorMgr::GetSpecialPrice(ItemTemplate const* proto)
@@ -198,13 +198,13 @@ bool TransmogDisplayVendorMgr::CanTransmogrifyItemWithItem(Player* player, ItemT
     {
         if (source->Class == ITEM_CLASS_WEAPON && !((IsRangedWeapon(target->Class, target->SubClass) ||
             ((target->InventoryType == INVTYPE_WEAPON || target->InventoryType == INVTYPE_2HWEAPON) &&
-                (source->InventoryType == INVTYPE_WEAPON || source->InventoryType == INVTYPE_2HWEAPON)) ||
-            ((target->InventoryType == INVTYPE_WEAPONMAINHAND || target->InventoryType == INVTYPE_WEAPONOFFHAND) &&
-                (source->InventoryType == INVTYPE_WEAPON || source->InventoryType == INVTYPE_2HWEAPON)))))
+            (source->InventoryType == INVTYPE_WEAPON || source->InventoryType == INVTYPE_2HWEAPON)) ||
+                ((target->InventoryType == INVTYPE_WEAPONMAINHAND || target->InventoryType == INVTYPE_WEAPONOFFHAND) &&
+            (source->InventoryType == INVTYPE_WEAPON || source->InventoryType == INVTYPE_2HWEAPON)))))
             return false;
         if (source->Class == ITEM_CLASS_ARMOR &&
             !((source->InventoryType == INVTYPE_CHEST || source->InventoryType == INVTYPE_ROBE) &&
-                (target->InventoryType == INVTYPE_CHEST || target->InventoryType == INVTYPE_ROBE)))
+            (target->InventoryType == INVTYPE_CHEST || target->InventoryType == INVTYPE_ROBE)))
             return false;
     }
 
@@ -348,7 +348,7 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
         return; // LANG_ERR_TRANSMOG_INVALID_SLOT
     }
 
-    const ItemTemplate* itemTransmogrifier = NULL;
+    const ItemTemplate* itemTransmogrifier = nullptr;
     // guid of the transmogrifier item, if it's not 0
     if (itemEntry)
     {
@@ -521,15 +521,15 @@ const char * TransmogDisplayVendorMgr::getQualityName(uint32 quality)
 {
     switch (quality)
     {
-    case ITEM_QUALITY_POOR: return "|CFF9d9d9d[Poor]";
-    case ITEM_QUALITY_NORMAL: return "|CFFffffff[Common]";
-    case ITEM_QUALITY_UNCOMMON: return "|CFF1eff00[Uncommon]";
-    case ITEM_QUALITY_RARE: return "|CFF0070dd[Rare]";
-    case ITEM_QUALITY_EPIC: return "|CFFa335ee[Epic]";
-    case ITEM_QUALITY_LEGENDARY: return "|CFFff8000[Legendary]";
-    case ITEM_QUALITY_ARTIFACT: return "|CFFe6cc80[Artifact]";
-    case ITEM_QUALITY_HEIRLOOM: return "|CFFe5cc80[Heirloom]";
-    default: return "[Unknown]";
+        case ITEM_QUALITY_POOR: return "|CFF9d9d9d[Poor]";
+        case ITEM_QUALITY_NORMAL: return "|CFFffffff[Common]";
+        case ITEM_QUALITY_UNCOMMON: return "|CFF1eff00[Uncommon]";
+        case ITEM_QUALITY_RARE: return "|CFF0070dd[Rare]";
+        case ITEM_QUALITY_EPIC: return "|CFFa335ee[Epic]";
+        case ITEM_QUALITY_LEGENDARY: return "|CFFff8000[Legendary]";
+        case ITEM_QUALITY_ARTIFACT: return "|CFFe6cc80[Artifact]";
+        case ITEM_QUALITY_HEIRLOOM: return "|CFFe5cc80[Heirloom]";
+        default: return "[Unknown]";
     }
 }
 
@@ -547,14 +547,14 @@ uint32 TransmogDisplayVendorMgr::getCorrectInvType(uint32 inventorytype)
 {
     switch (inventorytype)
     {
-    case INVTYPE_WEAPONMAINHAND:
-    case INVTYPE_WEAPONOFFHAND:
-        return INVTYPE_WEAPON;
-    case INVTYPE_RANGEDRIGHT:
-        return INVTYPE_RANGED;
-    case INVTYPE_ROBE:
-        return INVTYPE_CHEST;
-    default:
-        return inventorytype;
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_WEAPONOFFHAND:
+            return INVTYPE_WEAPON;
+        case INVTYPE_RANGEDRIGHT:
+            return INVTYPE_RANGED;
+        case INVTYPE_ROBE:
+            return INVTYPE_CHEST;
+        default:
+            return inventorytype;
     }
 }
