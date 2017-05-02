@@ -660,7 +660,7 @@ typedef std::list<VendorItemCount> VendorItemCounts;
 
 struct TrainerSpell
 {
-    TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0)
+    TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0), Index(0)
     {
         for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
             ReqAbility[i] = 0;
