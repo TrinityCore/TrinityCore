@@ -970,7 +970,7 @@ public:
                     Merithra->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
                     Merithra->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                     Merithra->SetUInt32Value(UNIT_FIELD_DISPLAYID, MERITHRA_NIGHT_ELF_FORM);
-                    Merithra->setFaction(35);
+                    Merithra->SetFaction(35);
                 }
 
                 if (Caelestrasz)
@@ -978,7 +978,7 @@ public:
                     Caelestrasz->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
                     Caelestrasz->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                     Caelestrasz->SetUInt32Value(UNIT_FIELD_DISPLAYID, CAELESTRASZ_NIGHT_ELF_FORM);
-                    Caelestrasz->setFaction(35);
+                    Caelestrasz->SetFaction(35);
                 }
 
                 if (Arygos)
@@ -986,7 +986,7 @@ public:
                     Arygos->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
                     Arygos->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                     Arygos->SetUInt32Value(UNIT_FIELD_DISPLAYID, ARYGOS_GNOME_FORM);
-                    Arygos->setFaction(35);
+                    Arygos->SetFaction(35);
                 }
 
                 if (Anachronos)

@@ -187,7 +187,7 @@ public:
 
                 me->SetVisible(true);
                 me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
-                me->setFaction(35);
+                me->SetFaction(35);
                 me->SetStandState(UNIT_STAND_STATE_SIT_HIGH_CHAIR);
                 me->RemoveAura(SPELL_NEFARIANS_BARRIER);
             }
@@ -204,7 +204,7 @@ public:
 
             Talk(SAY_GAMESBEGIN_2);
 
-            me->setFaction(103);
+            me->SetFaction(103);
             me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
             DoCast(me, SPELL_NEFARIANS_BARRIER);
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -339,7 +339,7 @@ public:
                                     CreatureID = Entry[urand(0, 4)];
                                 if (Creature* dragon = me->SummonCreature(CreatureID, DrakeSpawnLoc[i]))
                                 {
-                                    dragon->setFaction(103);
+                                    dragon->SetFaction(103);
                                     dragon->AI()->AttackStart(me->GetVictim());
                                 }
 

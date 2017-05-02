@@ -3531,7 +3531,7 @@ class spell_gen_gm_freeze : public SpellScriptLoader
                 if (Player* player = GetTarget()->ToPlayer())
                 {
                     // stop combat + make player unattackable + duel stop + stop some spells
-                    player->setFaction(35);
+                    player->SetFaction(35);
                     player->CombatStop();
                     if (player->IsNonMeleeSpellCast(true))
                         player->InterruptNonMeleeSpells(true);
@@ -3557,7 +3557,7 @@ class spell_gen_gm_freeze : public SpellScriptLoader
                 if (Player* player = GetTarget()->ToPlayer())
                 {
                     // Reset player faction + allow combat + allow duels
-                    player->setFactionForRace(player->getRace());
+                    player->SetFactionForRace(player->getRace());
                     player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     // save player
                     player->SaveToDB();

@@ -294,7 +294,7 @@ class npc_blazing_monstrosity : public CreatureScript
 
                 // Our passenger is another vehicle (boardable by players)
                 DoCast(passenger, SPELL_SHARE_HEALTH, true);
-                passenger->setFaction(35);
+                passenger->SetFaction(35);
                 passenger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 // Hack to relocate vehicle on vehicle so exiting players are not moved under map

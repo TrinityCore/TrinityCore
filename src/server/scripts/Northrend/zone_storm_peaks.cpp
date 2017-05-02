@@ -90,7 +90,7 @@ public:
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
                 CloseGossipMenuFor(player);
-                me->setFaction(113);
+                me->SetFaction(113);
                 Start(true, true, player->GetGUID());
             }
         }

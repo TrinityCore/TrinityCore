@@ -98,7 +98,7 @@ public:
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
         pet->SetGuidValue(UNIT_FIELD_CREATEDBY, player->GetGUID());
-        pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
+        pet->SetFaction(player->GetFaction());
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
         {
