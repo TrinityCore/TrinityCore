@@ -695,7 +695,7 @@ void Channel::Announce(Player const* player)
     UpdateChannelInDB();
 }
 
-void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang) const
+void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang, std::string const& prefix /*= ""*/) const
 {
     if (what.empty())
         return;
@@ -703,6 +703,11 @@ void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang) 
     // TODO: Add proper RBAC check
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         lang = LANG_UNIVERSAL;
+
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+
+    if (!player->GetSession()->IsAddonRegistered(prefix))
+        return;
 
     if (!IsOn(guid))
     {
@@ -726,11 +731,11 @@ void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang) 
         LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
 
         WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
-        if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-            packet->Initialize(CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, GetName(localeIdx));
+        if (player)
+            packet->Initialize(CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
         else
         {
-            packet->Initialize(CHAT_MSG_CHANNEL, Language(lang), nullptr, nullptr, what, 0, GetName(localeIdx));
+            packet->Initialize(CHAT_MSG_CHANNEL, Language(lang), nullptr, nullptr, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
             packet->SenderGUID = guid;
             packet->TargetGUID = guid;
         }
