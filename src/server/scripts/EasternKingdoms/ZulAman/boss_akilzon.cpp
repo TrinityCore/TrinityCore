@@ -196,7 +196,7 @@ class boss_akilzon : public CreatureScript
                         y = 1380.0f + rand32() % 60;
                         if (Unit* trigger = me->SummonTrigger(x, y, z, 0, 2000))
                         {
-                            trigger->setFaction(35);
+                            trigger->SetFaction(35);
                             trigger->SetMaxHealth(100000);
                             trigger->SetHealth(100000);
                             trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -242,7 +242,6 @@ class boss_akilzon : public CreatureScript
                             {
                                 TargetGUID = target->GetGUID();
                                 DoCast(target, SPELL_STATIC_DISRUPTION, false);
-                                me->SetInFront(me->GetVictim());
                             }
                             /*if (float dist = me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
                             SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/
@@ -291,7 +290,7 @@ class boss_akilzon : public CreatureScript
                                         Cloud->SetDisableGravity(true);
                                         Cloud->StopMoving();
                                         Cloud->SetObjectScale(1.0f);
-                                        Cloud->setFaction(35);
+                                        Cloud->SetFaction(35);
                                         Cloud->SetMaxHealth(9999999);
                                         Cloud->SetHealth(9999999);
                                         Cloud->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

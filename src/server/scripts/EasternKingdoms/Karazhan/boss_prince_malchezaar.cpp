@@ -371,7 +371,7 @@ public:
             if (infernal)
             {
                 infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
-                infernal->setFaction(me->getFaction());
+                infernal->SetFaction(me->GetFaction());
                 if (point)
                     ENSURE_AI(netherspite_infernal::netherspite_infernalAI, infernal->AI())->point = point;
                 ENSURE_AI(netherspite_infernal::netherspite_infernalAI, infernal->AI())->malchezaar = me->GetGUID();
@@ -446,7 +446,7 @@ public:
                         if (axe)
                         {
                             axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            axe->setFaction(me->getFaction());
+                            axe->SetFaction(me->GetFaction());
                             axes[i] = axe->GetGUID();
                             if (target)
                             {

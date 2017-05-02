@@ -190,7 +190,7 @@ class boss_thekal : public CreatureScript
                                     if (Unit* pLorKhan = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LORKHAN)))
                                     {
                                         pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                                        pLorKhan->setFaction(14);
+                                        pLorKhan->SetFaction(14);
                                         pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                         pLorKhan->SetFullHealth();
                                         instance->SetData(DATA_LORKHAN, DONE);
@@ -203,7 +203,7 @@ class boss_thekal : public CreatureScript
                                     if (Unit* pZath = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ZATH)))
                                     {
                                         pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                                        pZath->setFaction(14);
+                                        pZath->SetFaction(14);
                                         pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                         pZath->SetFullHealth();
                                         instance->SetBossState(DATA_ZATH, DONE);
@@ -381,7 +381,7 @@ class npc_zealot_lorkhan : public CreatureScript
                         {
                             pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            pThekal->setFaction(14);
+                            pThekal->SetFaction(14);
                             pThekal->SetFullHealth();
                         }
                     }
@@ -393,7 +393,7 @@ class npc_zealot_lorkhan : public CreatureScript
                         {
                             pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            pZath->setFaction(14);
+                            pZath->SetFaction(14);
                             pZath->SetFullHealth();
                         }
                     }
@@ -408,7 +408,7 @@ class npc_zealot_lorkhan : public CreatureScript
                     me->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_SLEEP);
-                    me->setFaction(35);
+                    me->SetFaction(35);
                     me->AttackStop();
 
                     instance->SetBossState(DATA_LORKHAN, SPECIAL);
@@ -531,7 +531,7 @@ class npc_zealot_zath : public CreatureScript
                         {
                             pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            pLorKhan->setFaction(14);
+                            pLorKhan->SetFaction(14);
                             pLorKhan->SetFullHealth();
                         }
                     }
@@ -543,7 +543,7 @@ class npc_zealot_zath : public CreatureScript
                         {
                             pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            pThekal->setFaction(14);
+                            pThekal->SetFaction(14);
                             pThekal->SetFullHealth();
                         }
                     }
@@ -558,7 +558,7 @@ class npc_zealot_zath : public CreatureScript
                     me->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_SLEEP);
-                    me->setFaction(35);
+                    me->SetFaction(35);
                     me->AttackStop();
 
                     instance->SetBossState(DATA_ZATH, SPECIAL);

@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "karazhan.h"
@@ -319,7 +320,7 @@ public:
                     DoResetThreat();
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     {
-                        me->SetFacingToObject(target, true);
+                        me->SetFacingToObject(target);
                         DoCast(target, SPELL_RAIN_OF_BONES);
                     }
                     break;
@@ -415,25 +416,36 @@ class spell_rain_of_bones : public SpellScriptLoader
 
 class go_blackened_urn : public GameObjectScript
 {
-public:
-    go_blackened_urn() : GameObjectScript("go_blackened_urn") { }
+    public:
+        go_blackened_urn() : GameObjectScript("go_blackened_urn") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
-    {
-        if (go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
-            return false;
-
-        InstanceScript* instance = go->GetInstanceScript();
-        if (!instance || instance->GetBossState(DATA_NIGHTBANE) == DONE || instance->GetBossState(DATA_NIGHTBANE) == IN_PROGRESS)
-            return false;
-
-        if (Creature* nightbane = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_NIGHTBANE)))
+        struct go_blackened_urnAI : GameObjectAI
         {
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-            nightbane->AI()->DoAction(ACTION_SUMMON);
+            go_blackened_urnAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
+
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            {
+                if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
+                    return false;
+
+                if (instance->GetBossState(DATA_NIGHTBANE) == DONE || instance->GetBossState(DATA_NIGHTBANE) == IN_PROGRESS)
+                    return false;
+
+                if (Creature* nightbane = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NIGHTBANE)))
+                {
+                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                    nightbane->AI()->DoAction(ACTION_SUMMON);
+                }
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetKarazhanAI<go_blackened_urnAI>(go);
         }
-        return false;
-    }
 };
 
 void AddSC_boss_nightbane()
