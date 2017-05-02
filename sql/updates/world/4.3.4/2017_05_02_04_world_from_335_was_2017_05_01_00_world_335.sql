@@ -1,0 +1,3 @@
+-- Quest: Necklace Recovery, Take 2 (2284). Removed in patch 4.0.3a.
+-- Use correct NPC class reference (replace $C with paladin) for NPC 'Remains of a Paladin' (entry 6912)
+-- UPDATE `quest_offer_reward` SET `RewardText`= "You seem to have found the remains of the paladin that Dran had mentioned from before. Searching the remains uncovers what would appear to be his journal. The book is in poor condition, as dried blood has stained most of the text in the book. What you can read, however, is gibberish; it is written in the native tongue of the humans, to the best of your knowledge.$b$bYou will need the book translated if you are to glean any knowledge from it." WHERE `ID`= 2284;
