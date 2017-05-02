@@ -1929,12 +1929,14 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         // near teleport, triggering send MSG_MOVE_TELEPORT_ACK from client at landing
         if (!GetSession()->PlayerLogout())
         {
-            Position oldPos = GetPosition();
+            Position newPosition(x, y, z, orientation);
             if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-                z += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-            Relocate(x, y, z, orientation);
+                newPosition.m_positionZ += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+
+            UpdatePosition(newPosition, true);
             SendTeleportAckPacket();
-            SendTeleportPacket(oldPos); // this automatically relocates to oldPos in order to broadcast the packet in the right place
+            SendTeleportPacket();
+            UpdateObjectVisibility();
         }
     }
     else
