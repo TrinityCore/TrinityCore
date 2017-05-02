@@ -338,7 +338,7 @@ namespace MMAP
         {
             mmap->loadedTileRefs.erase(packedGridPos);
             --loadedTiles;
-            TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile %03i[%02i, %02i] from %04i", mapId, x, y, mapId);
+            TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile %04i[%02i, %02i] from %04i", mapId, x, y, mapId);
 
             PhaseChildMapContainer::const_iterator phasedMaps = phaseMapData.find(mapId);
             if (phasedMaps != phaseMapData.end())

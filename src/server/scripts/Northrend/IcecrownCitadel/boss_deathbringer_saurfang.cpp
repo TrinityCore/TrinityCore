@@ -431,7 +431,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     case 72445:
                     case 72446:
                         if (me->GetPower(POWER_ENERGY) != me->GetMaxPower(POWER_ENERGY))
-                            target->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, me, true);
+                            target->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, (Unit*)nullptr, true);
                         break;
                     default:
                         break;
@@ -1135,8 +1135,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);  // make this the default handler
-                if (GetCaster()->GetPower(POWER_ENERGY) != GetCaster()->GetMaxPower(POWER_ENERGY))
-                    GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, GetCaster(), true);
+                GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, (Unit*)nullptr, true);
             }
 
             void Register() override
@@ -1148,6 +1147,41 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_deathbringer_rune_of_blood_SpellScript();
+        }
+};
+
+// 72176 - Blood Beast's Blood Link
+class spell_deathbringer_blood_beast_blood_link : public SpellScriptLoader
+{
+    public:
+        spell_deathbringer_blood_beast_blood_link() : SpellScriptLoader("spell_deathbringer_blood_beast_blood_link") { }
+
+        class spell_deathbringer_blood_beast_blood_link_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_deathbringer_blood_beast_blood_link_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                eventInfo.GetProcTarget()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 3, (Unit*)nullptr, true, nullptr, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_deathbringer_blood_beast_blood_link_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_deathbringer_blood_beast_blood_link_AuraScript();
         }
 };
 
@@ -1170,8 +1204,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);  // make this the default handler
-                if (GetCaster()->GetPower(POWER_ENERGY) != GetCaster()->GetMaxPower(POWER_ENERGY))
-                    GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 2, GetCaster(), true);
+                GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 2, (Unit*)nullptr, true);
             }
 
             void Register() override
@@ -1349,6 +1382,7 @@ void AddSC_boss_deathbringer_saurfang()
     new spell_deathbringer_blood_link_aura();
     new spell_deathbringer_blood_power();
     new spell_deathbringer_rune_of_blood();
+    new spell_deathbringer_blood_beast_blood_link();
     new spell_deathbringer_blood_nova();
     new spell_deathbringer_blood_nova_targeting();
     new spell_deathbringer_boiling_blood();
