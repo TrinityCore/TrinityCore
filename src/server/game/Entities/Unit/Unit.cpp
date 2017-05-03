@@ -13809,18 +13809,26 @@ void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
     }
     else
     {
-        SendTeleportPacket();
+        SendTeleportPacket(pos);
         UpdatePosition(pos, true);
         UpdateObjectVisibility();
     }
 }
 
-void Unit::SendTeleportPacket()
+void Unit::SendTeleportPacket(Position const& pos)
 {
-    WorldPacket data(MSG_MOVE_TELEPORT, 38);
-    data << GetPackGUID();
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
+    Position oldPos = { GetPositionX(), GetPositionY(), GetPositionZMinusOffset(), GetOrientation() };
+    if (GetTypeId() == TYPEID_UNIT)
+        Relocate(&pos);
+
+    WorldPacket data2(MSG_MOVE_TELEPORT, 38);
+    data2 << GetPackGUID();
+    BuildMovementPacket(&data2);
+    if (GetTypeId() == TYPEID_UNIT)
+        Relocate(&oldPos);
+    if (GetTypeId() == TYPEID_PLAYER)
+        Relocate(&pos);
+    SendMessageToSet(&data2, false);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
