@@ -684,7 +684,7 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
 
             // title achievement rewards are retroactive
             if (AchievementReward const* reward = sAchievementMgr->GetAchievementReward(achievement))
-                if (uint32 titleId = reward->titleId[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
+                if (uint32 titleId = reward->TitleID[Player::TeamForRace(GetOwner()->getRace()) == ALLIANCE ? 0 : 1])
                     if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
                         GetOwner()->SetTitle(titleEntry);
 
@@ -697,7 +697,7 @@ void AchievementMgr<Player>::LoadFromDB(PreparedQueryResult achievementResult, P
         time_t now = time(NULL);
         do
         {
-            Field* fields = criteriaResult->Fetch();
+            Field* fields  = criteriaResult->Fetch();
             uint32 id      = fields[0].GetUInt16();
             uint64 counter = fields[1].GetUInt64();
             time_t date    = time_t(fields[2].GetUInt32());
@@ -1962,28 +1962,28 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
     //! Since no common attributes were found, (not even in titleRewardFlags field)
     //! we explicitly check by ID. Maybe in the future we could move the achievement_reward
     //! condition fields to the condition system.
-    if (uint32 titleId = reward->titleId[achievement->ID == 1793 ? GetOwner()->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER) : (GetOwner()->GetTeam() == ALLIANCE ? 0 : 1)])
+    if (uint32 titleId = reward->TitleID[achievement->ID == 1793 ? GetOwner()->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER) : (GetOwner()->GetTeam() == ALLIANCE ? 0 : 1)])
         if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
             GetOwner()->SetTitle(titleEntry);
 
     // mail
-    if (reward->sender)
+    if (reward->Sender)
     {
-        MailDraft draft(reward->mailTemplate);
+        MailDraft draft(reward->MailTemplateID);
 
-        if (!reward->mailTemplate)
+        if (!reward->MailTemplateID)
         {
             // subject and text
-            std::string subject = reward->subject;
-            std::string text = reward->text;
+            std::string subject = reward->Subject;
+            std::string text = reward->Text;
 
             LocaleConstant localeConstant = GetOwner()->GetSession()->GetSessionDbLocaleIndex();
             if (localeConstant >= LOCALE_enUS)
             {
                 if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
                 {
-                    ObjectMgr::GetLocaleString(loc->subject, localeConstant, subject);
-                    ObjectMgr::GetLocaleString(loc->text, localeConstant, text);
+                    ObjectMgr::GetLocaleString(loc->Subject, localeConstant, subject);
+                    ObjectMgr::GetLocaleString(loc->Text, localeConstant, text);
                 }
             }
 
@@ -1992,7 +1992,7 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
 
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        Item* item = reward->itemId ? Item::CreateItem(reward->itemId, 1, GetOwner()) : NULL;
+        Item* item = reward->ItemID ? Item::CreateItem(reward->ItemID, 1, GetOwner()) : NULL;
         if (item)
         {
             // save new item before send
@@ -2002,7 +2002,7 @@ void AchievementMgr<Player>::CompletedAchievement(AchievementEntry const* achiev
             draft.AddItem(item);
         }
 
-        draft.SendMailTo(trans, GetOwner(), MailSender(MAIL_CREATURE, reward->sender));
+        draft.SendMailTo(trans, GetOwner(), MailSender(MAIL_CREATURE, reward->Sender));
         CharacterDatabase.CommitTransaction(trans);
     }
 }
@@ -3332,8 +3332,9 @@ void AchievementGlobalMgr::LoadRewards()
 
     m_achievementRewards.clear();                           // need for reload case
 
-    //                                               0      1        2        3     4       5        6     7
-    QueryResult result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text, mailTemplate FROM achievement_reward");
+    //                                               0   1       2       3       4       5        6     7
+    QueryResult result = WorldDatabase.Query("SELECT ID, TitleA, TitleH, ItemID, Sender, Subject, Text, MailTemplateID FROM achievement_reward");
+
 
     if (!result)
     {
@@ -3341,108 +3342,104 @@ void AchievementGlobalMgr::LoadRewards()
         return;
     }
 
-    uint32 count = 0;
-
     do
     {
         Field* fields = result->Fetch();
-        uint32 entry = fields[0].GetUInt32();
-        AchievementEntry const* achievement = GetAchievement(entry);
+        uint32 id     = fields[0].GetUInt32();
+        AchievementEntry const* achievement = GetAchievement(id);
         if (!achievement)
         {
-            TC_LOG_ERROR("sql.sql", "Table `achievement_reward` contains a wrong achievement entry (Entry: %u), ignored.", entry);
+            TC_LOG_ERROR("sql.sql", "Table `achievement_reward` contains a wrong achievement ID (%u), ignored.", id);
             continue;
         }
 
         AchievementReward reward;
-        reward.titleId[0]   = fields[1].GetUInt32();
-        reward.titleId[1]   = fields[2].GetUInt32();
-        reward.itemId       = fields[3].GetUInt32();
-        reward.sender       = fields[4].GetUInt32();
-        reward.subject      = fields[5].GetString();
-        reward.text         = fields[6].GetString();
-        reward.mailTemplate = fields[7].GetUInt32();
+        reward.TitleID[0]     = fields[1].GetUInt32();
+        reward.TitleID[1]     = fields[2].GetUInt32();
+        reward.ItemID         = fields[3].GetUInt32();
+        reward.Sender         = fields[4].GetUInt32();
+        reward.Subject        = fields[5].GetString();
+        reward.Text           = fields[6].GetString();
+        reward.MailTemplateID = fields[7].GetUInt32();
 
         // must be title or mail at least
-        if (!reward.titleId[0] && !reward.titleId[1] && !reward.sender)
+        if (!reward.TitleID[0] && !reward.TitleID[1] && !reward.Sender)
         {
-            TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) does not contain title or item reward data. Ignored.", entry);
+            TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (ID: %u) does not contain title or item reward data. Ignored.", id);
             continue;
         }
 
-        if (achievement->requiredFaction == ACHIEVEMENT_FACTION_ANY && (!reward.titleId[0] ^ !reward.titleId[1]))
-            TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) contains the title (A: %u H: %u) for only one team.", entry, reward.titleId[0], reward.titleId[1]);
+        if (achievement->Faction == ACHIEVEMENT_FACTION_ANY && (!reward.TitleID[0] ^ !reward.TitleID[1]))
+            TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (ID: %u) contains the title (A: %u H: %u) for only one team.", id, reward.TitleID[0], reward.TitleID[1]);
 
-        if (reward.titleId[0])
+        if (reward.TitleID[0])
         {
-            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(reward.titleId[0]);
+            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(reward.TitleID[0]);
             if (!titleEntry)
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) contains an invalid title id (%u) in `title_A`, set to 0", entry, reward.titleId[0]);
-                reward.titleId[0] = 0;
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) contains an invalid title id (%u) in `title_A`, set to 0", id, reward.TitleID[0]);
+                reward.TitleID[0] = 0;
             }
         }
 
-        if (reward.titleId[1])
+        if (reward.TitleID[1])
         {
-            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(reward.titleId[1]);
+            CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(reward.TitleID[1]);
             if (!titleEntry)
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) contains an invalid title id (%u) in `title_H`, set to 0", entry, reward.titleId[1]);
-                reward.titleId[1] = 0;
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) contains an invalid title id (%u) in `title_H`, set to 0", id, reward.TitleID[1]);
+                reward.TitleID[1] = 0;
             }
         }
 
         //check mail data before item for report including wrong item case
-        if (reward.sender)
+        if (reward.Sender)
         {
-            if (!sObjectMgr->GetCreatureTemplate(reward.sender))
+            if (!sObjectMgr->GetCreatureTemplate(reward.Sender))
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) contains an invalid creature entry %u as sender, mail reward skipped.", entry, reward.sender);
-                reward.sender = 0;
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (ID: %u) contains an invalid creature ID %u as sender, mail reward skipped.", id, reward.Sender);
+                reward.Sender = 0;
             }
         }
         else
         {
-            if (reward.itemId)
-                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) does not have sender data, but contains an item reward. Item will not be rewarded.", entry);
+            if (reward.ItemID)
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (ID: %u) does not have sender data, but contains an item reward. Item will not be rewarded.", id);
 
-            if (!reward.subject.empty())
-                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) does not have sender data, but contains a mail subject.", entry);
+            if (!reward.Subject.empty())
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (ID: %u) does not have sender data, but contains a mail subject.", id);
 
-            if (!reward.text.empty())
-                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) does not have sender data, but contains mail text.", entry);
+            if (!reward.Text.empty())
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (ID: %u) does not have sender data, but contains mail text.", id);
 
-            if (reward.mailTemplate)
-                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) does not have sender data, but has a mailTemplate.", entry);
+            if (reward.MailTemplateID)
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (ID: %u) does not have sender data, but has a MailTemplate.", id);
         }
 
-        if (reward.mailTemplate)
+        if (reward.MailTemplateID)
         {
-            if (!sMailTemplateStore.LookupEntry(reward.mailTemplate))
+            if (!sMailTemplateStore.LookupEntry(reward.MailTemplateID))
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) is using an invalid mailTemplate (%u).", entry, reward.mailTemplate);
-                reward.mailTemplate = 0;
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (ID: %u) is using an invalid MailTemplate (%u).", id, reward.MailTemplateID);
+                reward.MailTemplateID = 0;
             }
-            else if (!reward.subject.empty() || !reward.text.empty())
-                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) is using mailTemplate (%u) and mail subject/text.", entry, reward.mailTemplate);
+            else if (!reward.Subject.empty() || !reward.Text.empty())
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (ID: %u) is using MailTemplate (%u) and mail subject/text.", id, reward.MailTemplateID);
         }
 
-        if (reward.itemId)
+        if (reward.ItemID)
         {
-            if (!sObjectMgr->GetItemTemplate(reward.itemId))
+            if (!sObjectMgr->GetItemTemplate(reward.ItemID))
             {
-                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (Entry: %u) contains an invalid item id %u, reward mail will not contain the rewarded item.", entry, reward.itemId);
-                reward.itemId = 0;
+                TC_LOG_ERROR("sql.sql", "Table `achievement_reward` (ID: %u) contains an invalid item id %u, reward mail will not contain the rewarded item.", id, reward.ItemID);
+                reward.ItemID = 0;
             }
         }
 
-        m_achievementRewards[entry] = reward;
-        ++count;
-    }
-    while (result->NextRow());
+        m_achievementRewards[id] = reward;
+    } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u achievement rewards in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u achievement rewards in %u ms.", uint32(m_achievementRewards.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void AchievementGlobalMgr::LoadRewardLocales()
@@ -3451,13 +3448,12 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
     m_achievementRewardLocales.clear();                       // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, subject_loc1, text_loc1, subject_loc2, text_loc2, subject_loc3, text_loc3, subject_loc4, text_loc4, "
-                                             "subject_loc5, text_loc5, subject_loc6, text_loc6, subject_loc7, text_loc7, subject_loc8, text_loc8"
-                                             " FROM locales_achievement_reward");
+    //                                               0   1       2        3
+    QueryResult result = WorldDatabase.Query("SELECT ID, Locale, Subject, Text FROM achievement_reward_locale");
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 achievement reward locale strings.  DB table `locales_achievement_reward` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 achievement reward locale strings.  DB table `achievement_reward_locale` is empty.");
         return;
     }
 
@@ -3465,24 +3461,25 @@ void AchievementGlobalMgr::LoadRewardLocales()
     {
         Field* fields = result->Fetch();
 
-        uint32 entry = fields[0].GetUInt32();
+        uint32 id               = fields[0].GetUInt32();
+        std::string localeName  = fields[1].GetString();
+        std::string subject     = fields[2].GetString();
+        std::string text        = fields[3].GetString();
 
-        if (m_achievementRewards.find(entry) == m_achievementRewards.end())
+        if (m_achievementRewards.find(id) == m_achievementRewards.end())
         {
-            TC_LOG_ERROR("sql.sql", "Table `locales_achievement_reward` (Entry: %u) contains locale strings for a non-existing achievement reward.", entry);
+            TC_LOG_ERROR("sql.sql", "Table `achievement_reward_locale` (ID: %u) contains locale strings for a non-existing achievement reward.", id);
             continue;
         }
 
-        AchievementRewardLocale& data = m_achievementRewardLocales[entry];
+        AchievementRewardLocale& data = m_achievementRewardLocales[id];
+        LocaleConstant locale         = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
 
-        for (uint8 i = TOTAL_LOCALES - 1; i > 0; --i)
-        {
-            LocaleConstant locale = (LocaleConstant) i;
-            ObjectMgr::AddLocaleString(fields[1 + 2 * (i - 1)].GetString(), locale, data.subject);
-            ObjectMgr::AddLocaleString(fields[1 + 2 * (i - 1) + 1].GetString(), locale, data.text);
-        }
-    }
-    while (result->NextRow());
+        ObjectMgr::AddLocaleString(subject, locale, data.Subject);
+        ObjectMgr::AddLocaleString(text, locale, data.Text);
+    } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u achievement reward locale strings in %u ms.", uint32(m_achievementRewardLocales.size()), GetMSTimeDiffToNow(oldMSTime));
 }
