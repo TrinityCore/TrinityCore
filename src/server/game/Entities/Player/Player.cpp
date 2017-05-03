@@ -1933,9 +1933,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
                 newPosition.m_positionZ += GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
 
-            UpdatePosition(newPosition, true);
             SendTeleportAckPacket();
             SendTeleportPacket();
+            UpdatePosition(newPosition, true);
             UpdateObjectVisibility();
         }
     }

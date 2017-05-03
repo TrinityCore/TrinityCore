@@ -13809,8 +13809,8 @@ void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
     }
     else
     {
-        UpdatePosition(pos, true);
         SendTeleportPacket();
+        UpdatePosition(pos, true);
         UpdateObjectVisibility();
     }
 }
