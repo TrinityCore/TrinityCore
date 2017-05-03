@@ -992,6 +992,7 @@ private:
     Unit* const _healer;
     Unit* const _target;
     uint32 _heal;
+    uint32 _effectiveHeal;
     uint32 _absorb;
     SpellInfo const* const _spellInfo;
     SpellSchoolMask const _schoolMask;
@@ -1001,10 +1002,12 @@ public:
     explicit HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
 
     void AbsorbHeal(uint32 amount);
+    void SetEffectiveHeal(uint32 amount) { _effectiveHeal = amount; }
 
     Unit* GetHealer() const { return _healer; }
     Unit* GetTarget() const { return _target; }
     uint32 GetHeal() const { return _heal; }
+    uint32 GetEffectiveHeal() const { return _effectiveHeal; }
     uint32 GetAbsorb() const { return _absorb; }
     SpellInfo const* GetSpellInfo() const { return _spellInfo; };
     SpellSchoolMask GetSchoolMask() const { return _schoolMask; };
@@ -1671,7 +1674,7 @@ class TC_GAME_API Unit : public WorldObject
         Aura* AddAura(uint32 spellId, Unit* target);
         Aura* AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
-        void SendPlaySpellVisualKit(uint32 id, uint32 type);
+        void SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration);
 
         void DeMorph();
 
@@ -2386,7 +2389,6 @@ class TC_GAME_API Unit : public WorldObject
         bool IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent);
         bool RollProcResult(Unit* victim, Aura* aura, WeaponAttackType attType, bool isVictim, SpellProcEventEntry const* spellProcEvent);
         bool HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx);
-        bool HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, bool* handled);
         bool HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx);
         bool HandleOverrideClassScriptAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell);
         bool HandleAuraRaidProcFromChargeWithValue(AuraEffect* triggeredByAura);

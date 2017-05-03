@@ -64,6 +64,8 @@ enum WarlockSpells
     SPELL_WARLOCK_NETHER_TALENT                     = 91713,
     SPELL_WARLOCK_RAIN_OF_FIRE                      = 5740,
     SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE               = 42223,
+    SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE         = 27285,
+    SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC        = 32865,
     SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
     SPELL_WARLOCK_SHADOW_WARD                       = 6229,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
@@ -72,7 +74,9 @@ enum WarlockSpells
     SPELL_WARLOCK_SOUL_SWAP_MOD_COST                = 92794,
     SPELL_WARLOCK_SOUL_SWAP_DOT_MARKER              = 92795,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION               = 30108,
-    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117,
+    SPELL_WARLOCK_SHADOWFLAME                       = 37378,
+    SPELL_WARLOCK_FLAMESHADOW                       = 37379,
 };
 
 enum MiscSpells
@@ -930,39 +934,114 @@ class spell_warl_seed_of_corruption : public SpellScriptLoader
         }
 };
 
-// -18094 - Nightfall
-// 56218 - Glyph of Corruption
-class spell_warl_shadow_trance_proc : public SpellScriptLoader
+// 27243 - Seed of Corruption
+class spell_warl_seed_of_corruption_dummy : public SpellScriptLoader
 {
     public:
-        spell_warl_shadow_trance_proc() : SpellScriptLoader("spell_warl_shadow_trance_proc") { }
+        spell_warl_seed_of_corruption_dummy() : SpellScriptLoader("spell_warl_seed_of_corruption_dummy") { }
 
-        class spell_warl_shadow_trance_proc_AuraScript : public AuraScript
+        class spell_warl_seed_of_corruption_dummy_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_warl_shadow_trance_proc_AuraScript);
+            PrepareAuraScript(spell_warl_seed_of_corruption_dummy_AuraScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SHADOW_TRANCE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE))
                     return false;
                 return true;
             }
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SHADOW_TRANCE, true, NULL, aurEff);
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo)
+                    return;
+
+                int32 amount = aurEff->GetAmount() - damageInfo->GetDamage();
+                if (amount > 0)
+                {
+                    const_cast<AuraEffect*>(aurEff)->SetAmount(amount);
+                    if (!GetTarget()->HealthBelowPctDamaged(1, damageInfo->GetDamage()))
+                        return;
+                }
+
+                Remove();
+
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                caster->CastSpell(eventInfo.GetActionTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE, true);
             }
 
             void Register() override
             {
-                OnEffectProc += AuraEffectProcFn(spell_warl_shadow_trance_proc_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_warl_seed_of_corruption_dummy_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
 
         AuraScript* GetAuraScript() const override
         {
-            return new spell_warl_shadow_trance_proc_AuraScript();
+            return new spell_warl_seed_of_corruption_dummy_AuraScript();
+        }
+};
+
+// 32863 - Seed of Corruption
+// 36123 - Seed of Corruption
+// 38252 - Seed of Corruption
+// 39367 - Seed of Corruption
+// 44141 - Seed of Corruption
+// 70388 - Seed of Corruption
+// Monster spells, triggered only on amount drop (not on death)
+class spell_warl_seed_of_corruption_generic : public SpellScriptLoader
+{
+    public:
+        spell_warl_seed_of_corruption_generic() : SpellScriptLoader("spell_warl_seed_of_corruption_generic") { }
+
+        class spell_warl_seed_of_corruption_generic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_seed_of_corruption_generic_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo)
+                    return;
+
+                int32 amount = aurEff->GetAmount() - damageInfo->GetDamage();
+                if (amount > 0)
+                {
+                    const_cast<AuraEffect*>(aurEff)->SetAmount(amount);
+                    return;
+                }
+
+                Remove();
+
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                caster->CastSpell(eventInfo.GetActionTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_seed_of_corruption_generic_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_seed_of_corruption_generic_AuraScript();
         }
 };
 
@@ -1275,6 +1354,45 @@ class spell_warl_soulshatter : public SpellScriptLoader
         }
 };
 
+// 37377 - Shadowflame
+// 39437 - Shadowflame Hellfire and RoF
+template <uint32 TriggerSpellId>
+class spell_warl_t4_2p_bonus : public SpellScriptLoader
+{
+    public:
+        spell_warl_t4_2p_bonus(char const* ScriptName) : SpellScriptLoader(ScriptName) { }
+
+        template <uint32 Trigger>
+        class spell_warl_t4_2p_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_t4_2p_bonus_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(Trigger))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                Unit* caster = eventInfo.GetActor();
+                caster->CastSpell(caster, Trigger, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_warl_t4_2p_bonus_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_warl_t4_2p_bonus_AuraScript<TriggerSpellId>();
+        }
+};
+
 // 30108, 34438, 34439, 35183 - Unstable Affliction
 /// Updated 4.3.4
 class spell_warl_unstable_affliction : public SpellScriptLoader
@@ -1377,7 +1495,8 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_nether_ward_overrride();
     new spell_warl_seduction();
     new spell_warl_seed_of_corruption();
-    new spell_warl_shadow_trance_proc();
+    new spell_warl_seed_of_corruption_dummy();
+    new spell_warl_seed_of_corruption_generic();
     new spell_warl_shadow_ward();
     new spell_warl_soul_leech();
     new spell_warl_soul_swap();
@@ -1385,6 +1504,8 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_soul_swap_exhale();
     new spell_warl_soul_swap_override();
     new spell_warl_soulshatter();
+    new spell_warl_t4_2p_bonus<SPELL_WARLOCK_FLAMESHADOW>("spell_warl_t4_2p_bonus_shadow");
+    new spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>("spell_warl_t4_2p_bonus_fire");
     new spell_warl_unstable_affliction();
     new spell_warl_rain_of_fire();
 }

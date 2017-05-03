@@ -383,24 +383,32 @@ function(_Boost_GUESS_COMPILER_PREFIX _ret)
     else()
       set (_boost_COMPILER "-il")
     endif()
-  elseif (MSVC14)
-    set(_boost_COMPILER "-vc140")
-  elseif (MSVC12)
-    set(_boost_COMPILER "-vc120")
-  elseif (MSVC11)
-    set(_boost_COMPILER "-vc110")
-  elseif (MSVC10)
-    set(_boost_COMPILER "-vc100")
-  elseif (MSVC90)
-    set(_boost_COMPILER "-vc90")
-  elseif (MSVC80)
-    set(_boost_COMPILER "-vc80")
-  elseif (MSVC71)
-    set(_boost_COMPILER "-vc71")
-  elseif (MSVC70) # Good luck!
-    set(_boost_COMPILER "-vc7") # yes, this is correct
-  elseif (MSVC60) # Good luck!
-    set(_boost_COMPILER "-vc6") # yes, this is correct
+  elseif("x${CMAKE_CXX_COMPILER_ID}" STREQUAL "xMSVC")
+    if (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
+      if(${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION} VERSION_LESS 1.64)
+        set(_boost_COMPILER "-vc140")
+      else()
+        set(_boost_COMPILER "-vc141")
+      endif()
+    elseif (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19)
+      set(_boost_COMPILER "-vc140")
+    elseif(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 18)
+      set(_boost_COMPILER "-vc120")
+    elseif(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 17)
+      set(_boost_COMPILER "-vc110")
+    elseif(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 16)
+      set(_boost_COMPILER "-vc100")
+    elseif(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 15)
+      set(_boost_COMPILER "-vc90")
+    elseif(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 14)
+      set(_boost_COMPILER "-vc80")
+    elseif(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13.10)
+      set(_boost_COMPILER "-vc71")
+    elseif(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13) # Good luck!
+      set(_boost_COMPILER "-vc7") # yes, this is correct
+    else() # VS 6.0 Good luck!
+      set(_boost_COMPILER "-vc6") # yes, this is correct
+    endif()
   elseif (BORLAND)
     set(_boost_COMPILER "-bcb")
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
@@ -478,7 +486,7 @@ else()
   # The user has not requested an exact version.  Among known
   # versions, find those that are acceptable to the user request.
   set(_Boost_KNOWN_VERSIONS ${Boost_ADDITIONAL_VERSIONS}
-    "1.63.0" "1.63" "1.62.0" "1.62" "1.61.0" "1.61" "1.60.0" "1.60"
+    "1.64.0" "1.64" "1.63.0" "1.63" "1.62.0" "1.62" "1.61.0" "1.61" "1.60.0" "1.60"
     "1.59.0" "1.59" "1.58.0" "1.58" "1.57.0" "1.57" "1.56.0" "1.56" "1.55.0" "1.55"
     "1.54.0" "1.54" "1.53.0" "1.53" "1.52.0" "1.52" "1.51.0" "1.51"
     "1.50.0" "1.50" "1.49.0" "1.49" "1.48.0" "1.48" "1.47.0" "1.47" "1.46.1"
