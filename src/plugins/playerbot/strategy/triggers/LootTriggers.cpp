@@ -6,7 +6,8 @@ using namespace ai;
 
 bool LootAvailableTrigger::IsActive()
 {
-    return AI_VALUE(bool, "has available loot") && AI_VALUE(uint8, "bag space") < 80;
+	return AI_VALUE(bool, "has available loot") && AI_VALUE(uint8, "bag space") < 80 &&
+		AI_VALUE(list<ObjectGuid>, "possible targets").empty();
 }
 
 bool FarFromCurrentLootTrigger::IsActive()
