@@ -741,6 +741,48 @@ void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang) 
     SendToAll(builder, !playerInfo.IsModerator() ? guid : ObjectGuid::Empty);
 }
 
+void Channel::AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what) const
+{
+    if (what.empty())
+        return;
+
+    if (!IsOn(guid))
+    {
+        NotMemberAppend appender;
+        ChannelNameBuilder<NotMemberAppend> builder(this, appender);
+        SendToOne(builder, guid);
+        return;
+    }
+
+    PlayerInfo const& playerInfo = _playersStore.at(guid);
+    if (playerInfo.IsMuted())
+    {
+        MutedAppend appender;
+        ChannelNameBuilder<MutedAppend> builder(this, appender);
+        SendToOne(builder, guid);
+        return;
+    }
+
+    auto builder = [&](LocaleConstant locale)
+    {
+        LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
+
+        WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
+            packet->Initialize(CHAT_MSG_CHANNEL, LANG_ADDON, player, player, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
+        else
+        {
+            packet->Initialize(CHAT_MSG_CHANNEL, LANG_ADDON, nullptr, nullptr, what, 0, GetName(localeIdx), DEFAULT_LOCALE, prefix);
+            packet->SenderGUID = guid;
+            packet->TargetGUID = guid;
+        }
+
+        return packet;
+    };
+
+    SendToAllWithAddon(builder, prefix, !playerInfo.IsModerator() ? guid : ObjectGuid::Empty);
+}
+
 void Channel::Invite(Player const* player, std::string const& newname)
 {
     ObjectGuid const& guid = player->GetGUID();
@@ -973,4 +1015,15 @@ void Channel::SendToOne(Builder& builder, ObjectGuid const& who) const
 
     if (Player* player = ObjectAccessor::FindConnectedPlayer(who))
         localizer(player);
+}
+
+template <class Builder>
+void Channel::SendToAllWithAddon(Builder& builder, std::string const& addonPrefix, ObjectGuid const& guid /*= ObjectGuid::Empty*/) const
+{
+    Trinity::LocalizedPacketDo<Builder> localizer(builder);
+
+    for (PlayerContainer::value_type const& i : _playersStore)
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(i.first))
+            if (player->GetSession()->IsAddonRegistered(addonPrefix) && (guid.IsEmpty() || !player->GetSocial()->HasIgnore(guid)))
+                localizer(player);
 }

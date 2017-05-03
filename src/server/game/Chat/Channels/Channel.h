@@ -221,6 +221,7 @@ class TC_GAME_API Channel
         void List(Player const* player);
         void Announce(Player const* player);
         void Say(ObjectGuid const& guid, std::string const& what, uint32 lang) const;
+        void AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what) const;
         void DeclineInvite(Player const* player);
         void Invite(Player const* player, std::string const& newp);
         void JoinNotify(Player const* player);
@@ -237,6 +238,9 @@ class TC_GAME_API Channel
 
         template <class Builder>
         void SendToOne(Builder& builder, ObjectGuid const& who) const;
+
+        template <class Builder>
+        void SendToAllWithAddon(Builder& builder, std::string const& addonPrefix, ObjectGuid const& guid = ObjectGuid::Empty) const;
 
         bool IsOn(ObjectGuid const& who) const { return _playersStore.count(who) != 0; }
         bool IsBanned(ObjectGuid const& guid) const { return _bannedStore.count(guid) != 0; }
