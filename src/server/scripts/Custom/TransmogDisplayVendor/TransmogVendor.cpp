@@ -41,14 +41,19 @@ http://rochet2.github.io/Transmogrification
 class NPC_TransmogDisplayVendor : public CreatureScript
 {
 public:
-    NPC_TransmogDisplayVendor() : CreatureScript("NPC_TransmogDisplayVendor") { } // If you change this, also change in Player.cpp: if (me->GetScriptName() == "NPC_TransmogDisplayVendor")
+    NPC_TransmogDisplayVendor() : CreatureScript("NPC_TransmogDisplayVendor") { } // If you change this, also change in Player.cpp: if (creature->GetScriptName() == "NPC_TransmogDisplayVendor")
 
     class TransmogVendorAI : public ScriptedAI
     {
     public:
-        TransmogVendorAI(Creature* me) : ScriptedAI(me) {}
+        TransmogVendorAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool GossipHello(Player* player) override
+        {
+            return OnGossipHello(player, me);
+        }
+
+        static bool OnGossipHello(Player* player, Creature* creature)
         {
             ClearGossipMenuFor(player);
             TransmogDisplayVendorMgr::selectionStore.RemoveSelection(player->GetGUID().GetCounter());
@@ -60,11 +65,18 @@ public:
                     AddGossipItemFor(player, GOSSIP_ICON_TRAINER, slotName, SENDER_SELECT_VENDOR, slot);
             }
             AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Remove transmogrifications", SENDER_REMOVE_MENU, 0);
-            SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
+            SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 sender, uint32 action) override
+        bool GossipSelect(Player* player, uint32 /*menu_id*/, uint32 gossipListId) override
+        {
+            uint32 sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
+            uint32 action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            return OnGossipSelect(player, me, sender, action);
+        }
+
+        static bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
         {
             WorldSession* session = player->GetSession();
             ClearGossipMenuFor(player);
@@ -77,7 +89,7 @@ public:
                         {
                             if (const char* slotname = TransmogDisplayVendorMgr::getSlotName(action, player->GetSession()))
                                 session->SendNotification("No item equipped in %s slot", slotname);
-                            GossipHello(player);
+                            OnGossipHello(player, creature);
                             return true;
                         }
                         const ItemTemplate * itemTemplate = item->GetTemplate();
@@ -132,18 +144,18 @@ public:
                         {
                             if (const char* slotname = TransmogDisplayVendorMgr::getSlotName(action, player->GetSession()))
                                 session->SendNotification("No transmogrifications available for %s", slotname);
-                            GossipHello(player);
+                            OnGossipHello(player, creature);
                             return true;
                         }
 
                         SelectionStore::Selection temp = { item->GetEntry(), static_cast<uint8>(action), 0, 0 }; // entry, slot, offset, quality
                         TransmogDisplayVendorMgr::selectionStore.SetSelection(player->GetGUID().GetCounter(), temp);
                         AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back..", SENDER_BACK, 0);
-                        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
+                        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
                     } break;
                 case SENDER_BACK: // Back
                     {
-                        GossipHello(player);
+                        OnGossipHello(player, creature);
                     } break;
                 case SENDER_REMOVE_ALL: // Remove TransmogDisplayVendorMgrs
                     {
@@ -167,7 +179,7 @@ public:
                         {
                             session->SendNotification("You have no transmogrified items equipped");
                         }
-                        GossipSelect(player, SENDER_REMOVE_MENU, 0);
+                        OnGossipSelect(player, creature, SENDER_REMOVE_MENU, 0);
                     } break;
                 case SENDER_REMOVE_ONE: // Remove TransmogDisplayVendorMgr from single item
                     {
@@ -190,7 +202,7 @@ public:
                         {
                             session->SendNotification("No item equipped in %s slot", slotname);
                         }
-                        GossipSelect(player, SENDER_REMOVE_MENU, 0);
+                        OnGossipSelect(player, creature, SENDER_REMOVE_MENU, 0);
                     } break;
                 case SENDER_REMOVE_MENU:
                     {
@@ -205,7 +217,7 @@ public:
                         }
                         AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, "Remove all transmogrifications", SENDER_REMOVE_ALL, 0, "Are you sure you want to remove all transmogrifications?", 0, false);
                         AddGossipItemFor(player, GOSSIP_ICON_TALK, "Back..", SENDER_BACK, 0);
-                        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, me->GetGUID());
+                        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
                     } break;
                 default: // Show items you can use
                     {
@@ -228,7 +240,7 @@ public:
                             if (!TransmogDisplayVendorMgr::SuitableForTransmogrification(player, itemTemplate))
                             {
                                 player->GetSession()->SendNotification("Equipped item is not suitable for transmogrification");
-                                GossipSelect(player, SENDER_SELECT_VENDOR, slot);
+                                OnGossipSelect(player, creature, SENDER_SELECT_VENDOR, slot);
                                 return true;
                             }
 
@@ -295,17 +307,17 @@ public:
                             if (!itemCount)
                             {
                                 session->SendAreaTriggerMessage("No items found");
-                                GossipSelect(player, SENDER_SELECT_VENDOR, slot);
+                                OnGossipSelect(player, creature, SENDER_SELECT_VENDOR, slot);
                                 return true;
                             }
                             CloseGossipMenuFor(player);
 
                             TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LIST_INVENTORY");
 
-                            Creature* vendor = player->GetNPCIfCanInteractWith(me->GetGUID(), UNIT_NPC_FLAG_VENDOR);
+                            Creature* vendor = player->GetNPCIfCanInteractWith(creature->GetGUID(), UNIT_NPC_FLAG_VENDOR);
                             if (!vendor)
                             {
-                                TC_LOG_DEBUG("network", "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", me->GetGUID().GetCounter());
+                                TC_LOG_DEBUG("network", "WORLD: SendListInventory - Unit (GUID: %u) not found or you can not interact with him.", creature->GetGUID().GetCounter());
                                 player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, nullptr, ObjectGuid::Empty, 0);
                                 return true;
                             }
@@ -319,7 +331,7 @@ public:
                             uint8 count = 0;
 
                             WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
-                            data << uint64(me->GetGUID());
+                            data << uint64(creature->GetGUID());
 
                             size_t countPos = data.wpos();
                             data << uint8(count);
@@ -349,7 +361,7 @@ public:
                             if (!item_amount)
                             {
                                 session->SendAreaTriggerMessage("No transmogrifications found for equipped item");
-                                GossipSelect(player, SENDER_SELECT_VENDOR, slot);
+                                OnGossipSelect(player, creature, SENDER_SELECT_VENDOR, slot);
                                 return true;
                             }
                             else
@@ -361,7 +373,7 @@ public:
                         else
                         {
                             session->SendNotification("Invalid item equipped");
-                            GossipSelect(player, SENDER_SELECT_VENDOR, slot);
+                            OnGossipSelect(player, creature, SENDER_SELECT_VENDOR, slot);
                             return true;
                         }
                     } break;
@@ -370,9 +382,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* me) const override
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new TransmogVendorAI(me);
+        return new TransmogVendorAI(creature);
     }
 };
 
