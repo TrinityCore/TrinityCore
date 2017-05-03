@@ -1028,6 +1028,9 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
 
     ChainEntry = NULL;
     ExplicitTargetMask = 0;
+
+    _spellSpecific = SPELL_SPECIFIC_NORMAL;
+    _auraState = AURA_STATE_NONE;
 }
 
 SpellInfo::~SpellInfo()
