@@ -461,10 +461,10 @@ namespace ai
         virtual bool IsActive();
     };
 
-    class NotDpsTargetActiveTrigger : public Trigger
+    class NotLeastHpTargetActiveTrigger : public Trigger
     {
     public:
-        NotDpsTargetActiveTrigger(PlayerbotAI* ai) : Trigger(ai, "not dps target active") {}
+        NotLeastHpTargetActiveTrigger(PlayerbotAI* ai) : Trigger(ai, "not least hp target active") {}
 
     public:
         virtual bool IsActive();

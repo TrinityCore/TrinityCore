@@ -1,15 +1,12 @@
 #include "../../../pchdef.h"
 #include "../../playerbot.h"
-#include "DpsAssistStrategy.h"
+#include "DpsAoeStrategy.h"
 
 using namespace ai;
 
-void DpsAssistStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
+void DpsAoeStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 {
     triggers.push_back(new TriggerNode(
-        "no attackers",
+        "timer",
         NextAction::array(0, new NextAction("dps assist", 50.0f), NULL)));
 }
-
-
-

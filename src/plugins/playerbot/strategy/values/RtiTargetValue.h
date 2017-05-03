@@ -1,14 +1,13 @@
 #pragma once
 #include "../Value.h"
 #include "../../../Groups/Group.h"
-#include "TargetValue.h"
 
 namespace ai
 {
-    class RtiTargetValue : public TargetValue
+    class RtiTargetValue : public UnitCalculatedValue
     {
     public:
-        RtiTargetValue(PlayerbotAI* ai) : TargetValue(ai)
+        RtiTargetValue(PlayerbotAI* ai) : UnitCalculatedValue(ai)
         {}
 
     public:

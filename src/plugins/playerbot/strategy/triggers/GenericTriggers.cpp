@@ -201,11 +201,11 @@ bool NoPossibleTargetsTrigger::IsActive()
     return !targets.size();
 }
 
-bool NotDpsTargetActiveTrigger::IsActive()
+bool NotLeastHpTargetActiveTrigger::IsActive()
 {
-    Unit* dps = AI_VALUE(Unit*, "dps target");
+    Unit* leastHp = AI_VALUE(Unit*, "least hp target");
     Unit* target = AI_VALUE(Unit*, "current target");
-    return dps && target != dps;
+    return leastHp && target != leastHp;
 }
 
 bool EnemyPlayerIsAttacking::IsActive()

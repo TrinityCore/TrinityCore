@@ -4,30 +4,42 @@
 
 using namespace ai;
 
-class FindLeastHpTargetStrategy : public FindTargetStrategy
+class FindTargetForDpsStrategy : public FindTargetStrategy
 {
 public:
-    FindLeastHpTargetStrategy(PlayerbotAI* ai) : FindTargetStrategy(ai)
+    FindTargetForDpsStrategy(PlayerbotAI* ai) : FindTargetStrategy(ai)
     {
-        minHealth = 0;
+        minThreat = 0;
+        maxTankCount = 0;
+        minDpsCount = 0;
     }
 
 public:
-    virtual void CheckAttacker(Unit* attacker, ThreatManager* threatManager)
+    virtual void CheckAttacker(Unit* creature, ThreatManager* threatManager)
     {
-        if (!result || result->GetHealth() > attacker->GetHealth())
-            result = attacker;
+        float threat = threatManager->getThreat(ai->GetBot());
+        int tankCount, dpsCount;
+        GetPlayerCount(creature, &tankCount, &dpsCount);
+
+        if (!result ||
+            minThreat >= threat && (maxTankCount <= tankCount || minDpsCount >= dpsCount))
+        {
+            minThreat = threat;
+            maxTankCount = tankCount;
+            minDpsCount = dpsCount;
+            result = creature;
+        }
     }
 
 protected:
-    float minHealth;
+    float minThreat;
+    int maxTankCount;
+    int minDpsCount;
 };
+
 
 Unit* DpsTargetValue::Calculate()
 {
-    Unit* rti = RtiTargetValue::Calculate();
-    if (rti) return rti;
-
-    FindLeastHpTargetStrategy strategy(ai);
-    return TargetValue::FindTarget(&strategy);
+    FindTargetForDpsStrategy strategy(ai);
+    return FindTarget(&strategy);
 }
