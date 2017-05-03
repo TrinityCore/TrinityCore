@@ -36,10 +36,9 @@ Using diff *(recommended)*:
 - use cmake and compile
 
 After compiling:
-- Navigate to `\src\server\scripts\Custom\TransmogDisplayVendor\sql\`
-- Run `characters.sql` to your characters database
- - This is same file as with the regular transmog
-- Optionally you can also insert a transmogrifier NPC to your database by running `world_NPC.sql` to your world database.
+- TrinityCore auto updater should run needed SQLs automatically.
+- If you do not use the auto updater then run files named `*_transmogvendor.sql` from `\sql\custom` to your databases.
+- Optionally you can also insert a transmogrifier NPC to your database by running `\src\server\scripts\Custom\TransmogDisplayVendor\sql\world_NPC.sql` to your world database.
 
 #### Usage
 Equip an item that is suitable for transmogrification.
