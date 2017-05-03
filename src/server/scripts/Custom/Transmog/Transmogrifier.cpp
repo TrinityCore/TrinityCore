@@ -79,7 +79,14 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 sender, uint32 action) override
+        bool GossipSelect(Player* player, uint32 /*menu_id*/, uint32 gossipListId) override
+        {
+            uint32 sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
+            uint32 action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            return OnGossipSelect(player, sender, action);
+        }
+
+        bool OnGossipSelect(Player* player, uint32 sender, uint32 action)
         {
             ClearGossipMenuFor(player);
             WorldSession* session = player->GetSession();
@@ -122,7 +129,7 @@ public:
                             else
                                 session->SendNotification(LANG_ERR_UNTRANSMOG_NO_TRANSMOGS);
                         }
-                        GossipSelect(player, EQUIPMENT_SLOT_END, action);
+                        OnGossipSelect(player, EQUIPMENT_SLOT_END, action);
                     } break;
 #ifdef PRESETS
                 case EQUIPMENT_SLOT_END + 4: // Presets menu
@@ -164,7 +171,7 @@ public:
                                 if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, it2->first))
                                     sTransmogrification->PresetTransmog(player, item, it2->second, it2->first);
                         }
-                        GossipSelect(player, EQUIPMENT_SLOT_END + 6, action);
+                        OnGossipSelect(player, EQUIPMENT_SLOT_END + 6, action);
                     } break;
                 case EQUIPMENT_SLOT_END + 6: // view preset
                     {
@@ -178,7 +185,7 @@ public:
                         PresetMapType::const_iterator it = player->presetMap.find(action);
                         if (it == player->presetMap.end())
                         {
-                            GossipSelect(player, EQUIPMENT_SLOT_END + 4, 0);
+                            OnGossipSelect(player, EQUIPMENT_SLOT_END + 4, 0);
                             return true;
                         }
 
@@ -201,7 +208,7 @@ public:
 
                         player->presetMap.erase(action);
 
-                        GossipSelect(player, EQUIPMENT_SLOT_END + 4, 0);
+                        OnGossipSelect(player, EQUIPMENT_SLOT_END + 4, 0);
                     } break;
                 case EQUIPMENT_SLOT_END + 8: // Save preset
                     {
@@ -268,15 +275,17 @@ public:
                             session->SendAreaTriggerMessage("%s", GTS(LANG_ERR_TRANSMOG_OK));
                         else
                             session->SendNotification(res);
-                        GossipSelect(player, EQUIPMENT_SLOT_END, sender);
+                        OnGossipSelect(player, EQUIPMENT_SLOT_END, sender);
                     } break;
             }
             return true;
         }
 
 #ifdef PRESETS
-        bool GossipSelectCode(Player* player, uint32 sender, uint32 action, const char* code) override
+        bool GossipSelectCode(Player* player, uint32 /*menu_id*/, uint32 gossipListId, const char* code) override
         {
+            uint32 sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
+            uint32 action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
             if (sender || action)
                 return true; // should never happen
@@ -292,7 +301,7 @@ public:
             if (!name.length() || name.find_first_not_of(allowedcharacters) != std::string::npos)
             {
                 player->GetSession()->SendNotification(LANG_PRESET_ERR_INVALID_NAME);
-                GossipSelect(player, EQUIPMENT_SLOT_END + 4, 0);
+                OnGossipSelect(player, EQUIPMENT_SLOT_END + 4, 0);
                 return true;
             }
 
@@ -354,7 +363,7 @@ public:
                 }
             }
 
-            GossipSelect(player, EQUIPMENT_SLOT_END + 4, 0);
+            OnGossipSelect(player, EQUIPMENT_SLOT_END + 4, 0);
             return true;
         }
 #endif
