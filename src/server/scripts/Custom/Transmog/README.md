@@ -33,11 +33,10 @@ Using diff:
 - use cmake and compile
 
 After compiling:
-- Navigate to `\src\server\scripts\Custom\Transmog\sql\`
-- Run `characters.sql` to your characters database
-- Run `world_texts.sql` to your world database
- - optionally you can also insert a transmogrifier NPC to your database by running `world_NPC.sql` to your world database.
-- Change the settings to your liking in `worldserver.conf` (Note that you should copy over the new config created)
+- TrinityCore auto updater should run needed SQLs automatically.
+- If you do not use the auto updater then run files named `*_transmog.sql` from `\sql\custom` to your databases.
+- Optionally you can also insert a transmogrifier NPC to your database by running `\src\server\scripts\Custom\Transmog\sql\world_NPC.sql` to your world database.
+- Change the settings to your liking in `worldserver.conf` (Note that you should copy over the new config created from compiling)
 
 #### Usage
 Equip an item that is suitable for transmogrification.
