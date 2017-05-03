@@ -984,6 +984,12 @@ bool Aura::CanBeSaved() const
         case 44413: // Incanter's Absorption
         case 40075: // Fel Flak Fire
         case 55849: // Power Spark
+        // Don't save special liquid auras
+        case 57634: // Magma, CoA Black / Chamber
+        case 42201: // Water, Hyjal Past
+        case 37025: // Water, Coilfang Raid
+        case 36444: // Water, Lake Wintergrasp
+        case 28801: // Slime, Naxxramas
             return false;
             break;
     }
