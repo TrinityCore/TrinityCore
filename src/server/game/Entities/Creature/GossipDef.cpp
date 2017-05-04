@@ -85,13 +85,13 @@ void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, ui
     for (GossipMenuItemsContainer::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
         /// Find the one with the given menu item id.
-        if (itr->second.OptionIndex != menuItemId)
+        if (itr->second.OptionID != menuItemId)
             continue;
 
         /// Store texts for localization.
         std::string strOptionText, strBoxText;
-        BroadcastText const* optionBroadcastText = sObjectMgr->GetBroadcastText(itr->second.OptionBroadcastTextId);
-        BroadcastText const* boxBroadcastText = sObjectMgr->GetBroadcastText(itr->second.BoxBroadcastTextId);
+        BroadcastText const* optionBroadcastText = sObjectMgr->GetBroadcastText(itr->second.OptionBroadcastTextID);
+        BroadcastText const* boxBroadcastText = sObjectMgr->GetBroadcastText(itr->second.BoxBroadcastTextID);
 
         /// OptionText
         if (optionBroadcastText)
