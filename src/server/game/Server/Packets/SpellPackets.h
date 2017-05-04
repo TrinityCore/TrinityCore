@@ -762,7 +762,35 @@ namespace WorldPackets
             int32 SpellVisualID = 0;
         };
 
-        class TC_GAME_API PlaySpellVisual final : public ServerPacket
+        class CancelSpellVisualKit final : public ServerPacket
+        {
+        public:
+            CancelSpellVisualKit() : ServerPacket(SMSG_CANCEL_SPELL_VISUAL_KIT, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Source;
+            int32 SpellVisualKitID = 0;
+        };
+
+        class PlayOrphanSpellVisual final : public ServerPacket
+        {
+        public:
+            PlayOrphanSpellVisual() : ServerPacket(SMSG_PLAY_ORPHAN_SPELL_VISUAL, 16 + 3 * 4 + 4 + 1 + 4 + 3 * 4 + 3 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target; // Exclusive with TargetLocation
+            G3D::Vector3 SourceLocation;
+            int32 SpellVisualID = 0;
+            bool SpeedAsTime = false;
+            float TravelSpeed = 0.0f;
+            float UnkZero = 0.0f; // Always zero
+            G3D::Vector3 SourceOrientation; // Orientation is z
+            G3D::Vector3 TargetLocation; // Exclusive with Target
+        };
+
+        class PlaySpellVisual final : public ServerPacket
         {
         public:
             PlaySpellVisual() : ServerPacket(SMSG_PLAY_SPELL_VISUAL, 16 + 16 + 2 + 4 + 1 + 2 + 4 + 4 * 4) { }
@@ -770,13 +798,13 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Source;
-            ObjectGuid Target;
+            ObjectGuid Target; // Exclusive with TargetPosition
             uint16 MissReason = 0;
             uint32 SpellVisualID = 0;
             bool SpeedAsTime = false;
             uint16 ReflectStatus = 0;
             float TravelSpeed = 0.0f;
-            G3D::Vector3 TargetPostion;
+            G3D::Vector3 TargetPosition; // Exclusive with Target
             float Orientation = 0.0f;
         };
 
