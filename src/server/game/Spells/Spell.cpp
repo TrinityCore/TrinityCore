@@ -3380,9 +3380,6 @@ void Spell::_cast(bool skipCheck)
 
     SetExecutedCurrently(false);
 
-    //if (Creature* creatureCaster = m_caster->ToCreature()) //TODO investigate
-    //    creatureCaster->ReleaseFocus(this);
-
     if (!m_originalCaster)
         return;
 
@@ -7741,9 +7738,6 @@ void Spell::TriggerGlobalCooldown()
         // Apply haste rating
         if (gcd > MIN_GCD && ((m_spellInfo->StartRecoveryCategory == 133 && !isMeleeOrRangedSpell)))
             gcd = std::min<int32>(std::max<int32>(int32(float(gcd) * m_caster->GetFloatValue(UNIT_MOD_CAST_HASTE)), MIN_GCD), MAX_GCD);
-
-        //gcd = int32(float(gcd) * m_caster->GetFloatValue(UNIT_MOD_CAST_SPEED)); //TODO investigate
-        //RoundToInterval<int32>(gcd, MIN_GCD, MAX_GCD);
     }
 
     m_caster->GetSpellHistory()->AddGlobalCooldown(m_spellInfo, gcd);
