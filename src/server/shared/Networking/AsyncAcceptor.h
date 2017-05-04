@@ -79,14 +79,14 @@ public:
         _acceptor.bind(_endpoint, errorCode);
         if (errorCode)
         {
-            TC_LOG_INFO("network", "Couldn't bind to %s:%u %s", _endpoint.address().to_string(), _endpoint.port(), errorCode.message().c_str());
+            TC_LOG_INFO("network", "Could not bind to %s:%u %s", _endpoint.address().to_string().c_str(), _endpoint.port(), errorCode.message().c_str());
             return false;
         }
 
         _acceptor.listen(boost::asio::socket_base::max_connections, errorCode);
         if (errorCode)
         {
-            TC_LOG_INFO("network", "Failed to start listening on %s:%u %s", _endpoint.address().to_string(), _endpoint.port(), errorCode.message().c_str());
+            TC_LOG_INFO("network", "Failed to start listening on %s:%u %s", _endpoint.address().to_string().c_str(), _endpoint.port(), errorCode.message().c_str());
             return false;
         }
 
