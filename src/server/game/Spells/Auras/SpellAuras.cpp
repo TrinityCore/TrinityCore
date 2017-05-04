@@ -1273,11 +1273,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             caster->CastSpell(target, 61634, true);
                     }
                 }
-                switch (GetId())
-                {
-                    default:
-                        break;
-                }
                 break;
             case SPELLFAMILY_PRIEST:
                 if (!caster)
