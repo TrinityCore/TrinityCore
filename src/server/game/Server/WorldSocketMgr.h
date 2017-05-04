@@ -47,6 +47,8 @@ public:
 
     void OnSocketOpen(tcp::socket&& sock, uint32 threadIndex) override;
 
+    std::size_t GetApplicationSendBufferSize() const { return _socketApplicationSendBufferSize; }
+
 protected:
     WorldSocketMgr();
 
@@ -54,8 +56,8 @@ protected:
 
 private:
     AsyncAcceptor* _instanceAcceptor;
-    int32 _socketSendBufferSize;
-    int32 m_SockOutUBuff;
+    int32 _socketSystemSendBufferSize;
+    int32 _socketApplicationSendBufferSize;
     bool _tcpNoDelay;
 };
 
