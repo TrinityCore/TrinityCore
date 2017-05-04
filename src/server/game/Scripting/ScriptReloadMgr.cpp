@@ -857,14 +857,14 @@ private:
         ASSERT(_running_script_module_names.find(path) == _running_script_module_names.end(),
                "Can't load a module which is running already!");
 
-        Optional<fs::path> cache_path;
+        fs::path cache_path;
 
         // Copy the shared library into a cache on platforms which lock files on use (windows).
         cache_path = GenerateUniquePathForLibraryInCache(path);
 
         {
             boost::system::error_code code;
-            fs::copy_file(path, *cache_path, fs::copy_option::fail_if_exists, code);
+            fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
             if (code)
             {
                 TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module "
