@@ -2011,7 +2011,6 @@ void Spell::prepareDataForTriggerSystem()
             m_spellInfo->SpellFamilyFlags[2] & 0x00024000)) // Explosive and Immolation Trap
     {
         m_procAttacker |= PROC_FLAG_DONE_TRAP_ACTIVATION;
-    }
 
         // also fill up other flags (DoAllEffectOnTarget only fills up flag if both are not set)
         m_procAttacker |= PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;

@@ -2680,6 +2680,26 @@ void SpellInfo::_LoadSpellDiminishInfo()
     _diminishInfoNonTriggered = normalInfo;
 }
 
+DiminishingGroup SpellInfo::GetDiminishingReturnsGroupForSpell(bool triggered) const
+{
+    return triggered ? _diminishInfoTriggered.DiminishGroup : _diminishInfoNonTriggered.DiminishGroup;
+}
+
+DiminishingReturnsType SpellInfo::GetDiminishingReturnsGroupType(bool triggered) const
+{
+    return triggered ? _diminishInfoTriggered.DiminishReturnType : _diminishInfoNonTriggered.DiminishReturnType;
+}
+
+DiminishingLevels SpellInfo::GetDiminishingReturnsMaxLevel(bool triggered) const
+{
+    return triggered ? _diminishInfoTriggered.DiminishMaxLevel : _diminishInfoNonTriggered.DiminishMaxLevel;
+}
+
+int32 SpellInfo::GetDiminishingReturnsLimitDuration(bool triggered) const
+{
+    return triggered ? _diminishInfoTriggered.DiminishDurationLimit : _diminishInfoNonTriggered.DiminishDurationLimit;
+}
+
 void SpellInfo::_LoadImmunityInfo()
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
