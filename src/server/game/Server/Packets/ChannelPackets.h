@@ -159,14 +159,10 @@ namespace WorldPackets
                     case CMSG_CHAT_CHANNEL_PASSWORD:
                     case CMSG_CHAT_CHANNEL_SET_OWNER:
                     case CMSG_CHAT_CHANNEL_SILENCE_ALL:
-                    case CMSG_CHAT_CHANNEL_SILENCE_VOICE:
                     case CMSG_CHAT_CHANNEL_UNBAN:
                     case CMSG_CHAT_CHANNEL_UNMODERATOR:
                     case CMSG_CHAT_CHANNEL_UNMUTE:
                     case CMSG_CHAT_CHANNEL_UNSILENCE_ALL:
-                    case CMSG_CHAT_CHANNEL_UNSILENCE_VOICE:
-                    case CMSG_CHAT_CHANNEL_VOICE_OFF:
-                    case CMSG_CHAT_CHANNEL_VOICE_ON:
                         break;
                 }
             }

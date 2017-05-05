@@ -248,6 +248,7 @@ namespace WorldPackets
         {
             uint32 Type = 0;
             int16 PlayerLevelDelta = 0;
+            uint16 PlayerItemLevel = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;
             uint8 Class = 1;
@@ -265,13 +266,13 @@ namespace WorldPackets
             uint32 ActiveFlags = 0;
             uint16 CastLevel = 1;
             uint8 Applications = 1;
+            Optional<SandboxScalingData> SandboxScaling;
             Optional<ObjectGuid> CastUnit;
             Optional<int32> Duration;
             Optional<int32> Remaining;
             Optional<float> TimeMod;
             std::vector<float> Points;
             std::vector<float> EstimatedPoints;
-            Optional<SandboxScalingData> SandboxScaling;
         };
 
         struct AuraInfo
@@ -504,7 +505,7 @@ namespace WorldPackets
 
             ObjectGuid CasterUnit;
             uint32 SpellID  = 0;
-            uint32 SpelXSpellVisualID = 0;
+            uint32 SpellXSpellVisualID = 0;
             uint16 Reason   = 0;
             ObjectGuid CastID;
         };
@@ -518,7 +519,7 @@ namespace WorldPackets
 
             ObjectGuid CasterUnit;
             uint32 SpellID  = 0;
-            uint32 SpelXSpellVisualID = 0;
+            uint32 SpellXSpellVisualID = 0;
             uint8 Reason    = 0;
             ObjectGuid CastID;
         };
@@ -761,7 +762,35 @@ namespace WorldPackets
             int32 SpellVisualID = 0;
         };
 
-        class TC_GAME_API PlaySpellVisual final : public ServerPacket
+        class CancelSpellVisualKit final : public ServerPacket
+        {
+        public:
+            CancelSpellVisualKit() : ServerPacket(SMSG_CANCEL_SPELL_VISUAL_KIT, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Source;
+            int32 SpellVisualKitID = 0;
+        };
+
+        class PlayOrphanSpellVisual final : public ServerPacket
+        {
+        public:
+            PlayOrphanSpellVisual() : ServerPacket(SMSG_PLAY_ORPHAN_SPELL_VISUAL, 16 + 3 * 4 + 4 + 1 + 4 + 3 * 4 + 3 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target; // Exclusive with TargetLocation
+            G3D::Vector3 SourceLocation;
+            int32 SpellVisualID = 0;
+            bool SpeedAsTime = false;
+            float TravelSpeed = 0.0f;
+            float UnkZero = 0.0f; // Always zero
+            G3D::Vector3 SourceOrientation; // Vector of rotations, Orientation is z
+            G3D::Vector3 TargetLocation; // Exclusive with Target
+        };
+
+        class PlaySpellVisual final : public ServerPacket
         {
         public:
             PlaySpellVisual() : ServerPacket(SMSG_PLAY_SPELL_VISUAL, 16 + 16 + 2 + 4 + 1 + 2 + 4 + 4 * 4) { }
@@ -769,13 +798,13 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Source;
-            ObjectGuid Target;
+            ObjectGuid Target; // Exclusive with TargetPosition
             uint16 MissReason = 0;
             uint32 SpellVisualID = 0;
             bool SpeedAsTime = false;
             uint16 ReflectStatus = 0;
             float TravelSpeed = 0.0f;
-            G3D::Vector3 TargetPostion;
+            G3D::Vector3 TargetPosition; // Exclusive with Target
             float Orientation = 0.0f;
         };
 
@@ -834,6 +863,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 SpellID = 0;
+            int32 SpellXSpellVisualID = 0;
             Optional<SpellChannelStartInterruptImmunities> InterruptImmunities;
             ObjectGuid CasterGUID;
             Optional<SpellTargetedHealPrediction> HealPrediction;

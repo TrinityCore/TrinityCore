@@ -242,6 +242,17 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_OBTAIN_CURRENCY         = 17    // requires the player to gain X currency after starting the quest but not required to keep it until the end (does not consume)
 };
 
+enum QuestObjectiveFlags
+{
+    QUEST_OBJECTIVE_FLAG_TRACKED_ON_MINIMAP                 = 0x01, // client displays large yellow blob on minimap for creature/gameobject
+    QUEST_OBJECTIVE_FLAG_SEQUENCED                          = 0x02, // client will not see the objective displayed until all previous objectives are completed
+    QUEST_OBJECTIVE_FLAG_OPTIONAL                           = 0x04, // not required to complete the quest
+    QUEST_OBJECTIVE_FLAG_HIDDEN                             = 0x08, // never displayed in quest log
+    QUEST_OBJECTIVE_FLAG_HIDE_ITEM_GAINS                    = 0x10, // skip showing item objective progress
+    QUEST_OBJECTIVE_FLAG_PROGRESS_COUNTS_ITEMS_IN_INVENTORY = 0x20, // item objective progress counts items in inventory instead of reading it from updatefields
+    QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR               = 0x40, // hidden objective used to calculate progress bar percent (quests are limited to a single progress bar objective)
+};
+
 struct QuestTemplateLocale
 {
     StringVector LogTitle;
@@ -387,6 +398,7 @@ class TC_GAME_API Quest
         uint32 GetRewardSkillPoints() const { return RewardSkillPoints; }
         uint32 GetRewardReputationMask() const { return RewardReputationMask; }
         uint32 GetRewardId() const { return QuestRewardID; }
+        int32 GetExpansion() const { return Expansion; }
         uint32 GetQuestGiverPortrait() const { return QuestGiverPortrait; }
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
         bool   IsDaily() const { return (Flags & QUEST_FLAGS_DAILY) != 0; }
@@ -473,6 +485,7 @@ class TC_GAME_API Quest
         uint32 LimitTime;
         int32  AllowableRaces;
         uint32 QuestRewardID;
+        int32 Expansion;
         QuestObjectives Objectives;
         std::string LogTitle;
         std::string LogDescription;

@@ -1,6 +1,6 @@
-[//]: # (**********************************)
-[//]: # (** Fill in the following fields **)
-[//]: # (**********************************)
+<!--- (**********************************)
+      (** Fill in the following fields **)
+      (**********************************) --->
 
 **Description:**
 
@@ -17,7 +17,7 @@ CHANGEME Tell us what should happen instead.
 
 **Steps to reproduce the problem:**
 
-1. CHANGEME Step 1
+1. CHANGEME Step 1 include entries of affected creatures / items / quests with a link to the relevant wowhead page.  
 2. Step 2
 3. Step 3
 
@@ -34,5 +34,8 @@ For example: TrinityCore rev. 0000000000 2000-01-09 11:31:41 +0100 (my branch) (
 
 **Operating system:** CHANGEME OS
 
-[//]: # (This template is for problem reports. For other types of report, edit it accordingly.)
-[//]: # (For fixes containing C++, create a Pull Request.)
+
+<!--- Notes
+- This template is for problem reports. For other types of report, edit it accordingly.
+- For fixes containing C++ changes, create a Pull Request.
+--->

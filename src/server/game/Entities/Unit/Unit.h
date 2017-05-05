@@ -992,6 +992,7 @@ private:
     Unit* const _healer;
     Unit* const _target;
     uint32 _heal;
+    uint32 _effectiveHeal;
     uint32 _absorb;
     SpellInfo const* const _spellInfo;
     SpellSchoolMask const _schoolMask;
@@ -1001,10 +1002,12 @@ public:
     explicit HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
 
     void AbsorbHeal(uint32 amount);
+    void SetEffectiveHeal(uint32 amount) { _effectiveHeal = amount; }
 
     Unit* GetHealer() const { return _healer; }
     Unit* GetTarget() const { return _target; }
     uint32 GetHeal() const { return _heal; }
+    uint32 GetEffectiveHeal() const { return _effectiveHeal; }
     uint32 GetAbsorb() const { return _absorb; }
     SpellInfo const* GetSpellInfo() const { return _spellInfo; };
     SpellSchoolMask GetSchoolMask() const { return _schoolMask; };
@@ -1072,12 +1075,13 @@ struct CalcDamageInfo
 // Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
 struct TC_GAME_API SpellNonMeleeDamage
 {
-    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask, ObjectGuid _castId = ObjectGuid::Empty);
+    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _SpellXSpellVisualID, uint32 _schoolMask, ObjectGuid _castId = ObjectGuid::Empty);
 
     Unit   *target;
     Unit   *attacker;
     ObjectGuid castId;
     uint32 SpellID;
+    uint32 SpellXSpellVisualID;
     uint32 damage;
     uint32 schoolMask;
     uint32 absorb;
@@ -1653,7 +1657,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 overHeal, uint32 absorbed, bool crit = false);
         int32 HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical = false);
-        void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, Powers powertype);
+        void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, int32 overEnergize, Powers powertype);
         void EnergizeBySpell(Unit* victim, uint32 SpellID, int32 Damage, Powers powertype);
 
         void CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, ObjectGuid originalCaster = ObjectGuid::Empty);
@@ -1670,7 +1674,15 @@ class TC_GAME_API Unit : public WorldObject
         Aura* AddAura(uint32 spellId, Unit* target);
         Aura* AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
-        void SendPlaySpellVisualKit(uint32 id, uint32 type);
+
+        void SendCancelOrphanSpellVisual(uint32 id);
+        void SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
+        void SendPlayOrphanSpellVisual(G3D::Vector3 const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
+        void SendCancelSpellVisual(uint32 id);
+        void SendPlaySpellVisual(ObjectGuid const& target, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime = false);
+        void SendPlaySpellVisual(G3D::Vector3 const& targetPosition, float o, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime = false);
+        void SendCancelSpellVisualKit(uint32 id);
+        void SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration);
 
         void DeMorph();
 
@@ -1883,9 +1895,7 @@ class TC_GAME_API Unit : public WorldObject
 
         AuraEffect* GetAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
         AuraEffect* GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
-        AuraEffect* GetAuraEffect(AuraType type, SpellFamilyNames name, uint32 iconId, uint8 effIndex) const; // spell mustn't have familyflags
         AuraEffect* GetAuraEffect(AuraType type, SpellFamilyNames family, flag128 const& familyFlag, ObjectGuid casterGUID = ObjectGuid::Empty) const;
-        AuraEffect* GetDummyAuraEffect(SpellFamilyNames name, uint32 iconId, uint8 effIndex) const;
 
         AuraApplication * GetAuraApplication(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0, AuraApplication * except = NULL) const;
         Aura* GetAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0) const;
@@ -1949,8 +1959,8 @@ class TC_GAME_API Unit : public WorldObject
         float GetNegStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_NEGSTAT+stat); }
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
 
-        ObjectGuid GetChannelObjectGuid() const { return GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT); }
-        void SetChannelObjectGuid(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, guid); }
+        DynamicFieldStructuredView<ObjectGuid> GetChannelObjects() const { return GetDynamicStructuredValues<ObjectGuid>(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS); }
+        void AddChannelObject(ObjectGuid guid) { AddDynamicStructuredValue(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS, &guid); }
 
         void SetCurrentCastSpell(Spell* pSpell);
         void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
@@ -2387,7 +2397,6 @@ class TC_GAME_API Unit : public WorldObject
         bool IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent);
         bool RollProcResult(Unit* victim, Aura* aura, WeaponAttackType attType, bool isVictim, SpellProcEventEntry const* spellProcEvent);
         bool HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx);
-        bool HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, bool* handled);
         bool HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx);
         bool HandleOverrideClassScriptAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell);
         bool HandleAuraRaidProcFromChargeWithValue(AuraEffect* triggeredByAura);

@@ -1039,9 +1039,9 @@ void GameObject::SaveRespawnTime()
         GetMap()->SaveGORespawnTime(m_spawnId, m_respawnTime);
 }
 
-bool GameObject::IsNeverVisible() const
+bool GameObject::IsNeverVisibleFor(WorldObject const* seer) const
 {
-    if (WorldObject::IsNeverVisible())
+    if (WorldObject::IsNeverVisibleFor(seer))
         return true;
 
     if (GetGoType() == GAMEOBJECT_TYPE_SPELL_FOCUS && GetGOInfo()->spellFocus.serverOnly == 1)

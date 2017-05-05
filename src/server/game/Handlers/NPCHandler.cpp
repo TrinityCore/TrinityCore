@@ -88,13 +88,13 @@ void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
     SendTrainerList(packet.Unit);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid)
+void WorldSession::SendTrainerList(ObjectGuid guid, uint32 index)
 {
     std::string str = GetTrinityString(LANG_NPC_TAINER_HELLO);
-    SendTrainerList(guid, str);
+    SendTrainerList(guid, str, index);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
+void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle, uint32 index)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
@@ -126,6 +126,9 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
     for (TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
     {
         TrainerSpell const* tSpell = &itr->second;
+
+        if (index && tSpell->Index != index)
+            continue;
 
         bool valid = true;
         for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
@@ -246,8 +249,8 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
 
     _player->ModifyMoney(-int64(nSpellCost));
 
-    trainer->SendPlaySpellVisualKit(179, 0);    // 53 SpellCastDirected
-    _player->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
+    trainer->SendPlaySpellVisualKit(179, 0, 0);    // 53 SpellCastDirected
+    _player->SendPlaySpellVisualKit(362, 1, 0);    // 113 EmoteSalute
 
     // learn explicitly or cast explicitly
     if (trainerSpell->IsCastable())

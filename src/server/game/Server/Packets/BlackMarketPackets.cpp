@@ -114,8 +114,8 @@ void WorldPackets::BlackMarket::BlackMarketBidOnItem::Read()
 {
     _worldPacket >> Guid;
     _worldPacket >> MarketID;
-    _worldPacket >> Item;
     _worldPacket >> BidAmount;
+    _worldPacket >> Item;
 }
 
 WorldPacket const* WorldPackets::BlackMarket::BlackMarketBidOnItemResult::Write()

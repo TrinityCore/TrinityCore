@@ -135,13 +135,3 @@ void WorldPackets::Social::DelIgnore::Read()
 {
     _worldPacket >> Player;
 }
-
-void WorldPackets::Social::VoiceAddIgnore::Read()
-{
-    OffenderName = _worldPacket.ReadString(_worldPacket.ReadBits(9));
-}
-
-void WorldPackets::Social::VoiceDelIgnore::Read()
-{
-    _worldPacket >> Player;
-}
