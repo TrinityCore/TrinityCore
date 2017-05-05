@@ -180,7 +180,7 @@ class boss_apothecary_hummel : public CreatureScript
                 {
                     if (Group* group = players.begin()->GetSource()->GetGroup())
                         if (group->isLFGGroup())
-                            sLFGMgr->FinishDungeon(group->GetGUID(), 288);
+                            sLFGMgr->FinishDungeon(group->GetGUID(), 288, me->GetMap());
                 }
             }
 
