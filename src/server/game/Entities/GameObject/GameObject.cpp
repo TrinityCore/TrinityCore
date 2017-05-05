@@ -2265,15 +2265,6 @@ void GameObject::SetDisplayId(uint32 displayid)
     UpdateModel();
 }
 
-bool GameObject::SetInPhase(uint32 id, bool update, bool apply)
-{
-    bool res = WorldObject::SetInPhase(id, update, apply);
-    if (m_model && m_model->isEnabled())
-        EnableCollision(true);
-
-    return res;
-}
-
 void GameObject::EnableCollision(bool enable)
 {
     if (!m_model)
@@ -2282,7 +2273,7 @@ void GameObject::EnableCollision(bool enable)
     /*if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
         GetMap()->InsertGameObjectModel(*m_model);*/
 
-    m_model->enable(enable ? GetPhaseMask() : 0);
+    m_model->enableCollision(enable);
 }
 
 void GameObject::UpdateModel()
@@ -2537,7 +2528,7 @@ public:
 
     virtual bool IsSpawned() const override { return _owner->isSpawned(); }
     virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
-    virtual uint32 GetPhaseMask() const override { return _owner->GetPhaseMask(); }
+    virtual bool IsInPhase(std::set<uint32> const& phases) const override { return _owner->IsInPhase(phases); }
     virtual G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
     virtual float GetOrientation() const override { return _owner->GetOrientation(); }
     virtual float GetScale() const override { return _owner->GetObjectScale(); }

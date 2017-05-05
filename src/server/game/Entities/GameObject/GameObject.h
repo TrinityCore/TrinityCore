@@ -1041,7 +1041,6 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
         static void SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
 
-        bool SetInPhase(uint32 id, bool update, bool apply) override;
         void EnableCollision(bool enable);
 
         void Use(Unit* user);
