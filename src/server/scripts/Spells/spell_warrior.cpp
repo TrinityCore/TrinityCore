@@ -71,7 +71,8 @@ enum WarriorSpells
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
     SPELL_WARRIOR_VENGEANCE                         = 76691,
-    SPELL_WARRIOR_VICTORIOUS                        = 32216
+    SPELL_WARRIOR_VICTORIOUS                        = 32216,
+    SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779
 };
 
 enum WarriorMisc
