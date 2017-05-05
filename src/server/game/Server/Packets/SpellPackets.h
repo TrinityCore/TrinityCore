@@ -786,7 +786,7 @@ namespace WorldPackets
             bool SpeedAsTime = false;
             float TravelSpeed = 0.0f;
             float UnkZero = 0.0f; // Always zero
-            G3D::Vector3 SourceOrientation; // Orientation is z
+            G3D::Vector3 SourceOrientation; // Vector of rotations, Orientation is z
             G3D::Vector3 TargetLocation; // Exclusive with Target
         };
 
