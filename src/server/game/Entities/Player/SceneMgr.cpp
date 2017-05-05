@@ -141,7 +141,7 @@ void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
 
     if (sceneTemplate->SceneId != 0)
         RemoveAurasDueToSceneId(sceneTemplate->SceneId);
-    
+
     sScriptMgr->OnSceneComplete(GetPlayer(), sceneInstanceID, sceneTemplate);
     
     if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
