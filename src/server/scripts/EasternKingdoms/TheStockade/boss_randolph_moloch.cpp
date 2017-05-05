@@ -182,20 +182,20 @@ public:
         {
             if (type == POINT_MOTION_TYPE)
                 if(id == POINT_FINISH)
-                    events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_EMOTE, Seconds(4));
+                    _events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_EMOTE, Seconds(4));
         }
 
         void UpdateAI(uint32 diff) override
         {
-            events.Update(diff);
+            _events.Update(diff);
 
-            while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
                 case EVENT_MORTIMER_MOLOCH_EMOTE:
                     Talk(MORTIMER_MOLOCH_EMOTE);
-                    events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_DEATH, Seconds(3));
+                    _events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_DEATH, Seconds(3));
                     break;
                 case EVENT_MORTIMER_MOLOCH_DEATH:
                     Talk(MORTIMER_MOLOCH_DEATH);
@@ -208,8 +208,8 @@ public:
         }
 
     private:
-        EventMap events;
-    }; 
+        EventMap _events;
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {

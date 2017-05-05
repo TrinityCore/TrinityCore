@@ -48,11 +48,6 @@ public:
     {
         boss_lord_overheatAI(Creature* creature) : BossAI(creature, DATA_LORD_OVERHEAT) { }
 
-        void Reset() override
-        {
-            _Reset();
-        }
-
         void EnterCombat(Unit* /*who*/) override
         {
             _EnterCombat();
@@ -101,7 +96,7 @@ public:
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-            }            
+            }
 
             DoMeleeAttackIfReady();
         }

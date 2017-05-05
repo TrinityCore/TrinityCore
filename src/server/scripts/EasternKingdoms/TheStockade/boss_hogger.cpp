@@ -63,10 +63,7 @@ public:
 
     struct boss_hoggerAI : public BossAI
     {
-        boss_hoggerAI(Creature* creature) : BossAI(creature, DATA_HOGGER) 
-        {
-            hasEnraged = false;
-        }
+        boss_hoggerAI(Creature* creature) : BossAI(creature, DATA_HOGGER), _hasEnraged(false) { }
 
         void EnterCombat(Unit* /*who*/) override
         {
@@ -122,16 +119,16 @@ public:
 
         void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (me->HealthBelowPctDamaged(30, damage) && !hasEnraged)
+            if (me->HealthBelowPctDamaged(30, damage) && !_hasEnraged)
             {
-                hasEnraged = true;
+                _hasEnraged = true;
                 Talk(SAY_ENRAGE);
                 DoCastSelf(SPELL_ENRAGE);
             }
         }
 
     private:
-        bool hasEnraged;
+        bool _hasEnraged;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -155,40 +152,40 @@ public:
             {
                 switch (id)
                 {
-                case POINT_FINISH:
-                    events.ScheduleEvent(EVENT_SAY_WARDEN_1, Seconds(1));
-                    break;
+                    case POINT_FINISH:
+                        _events.ScheduleEvent(EVENT_SAY_WARDEN_1, Seconds(1));
+                        break;
                 }
             }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            events.Update(diff);
+            _events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                case EVENT_SAY_WARDEN_1:
-                    Talk(SAY_WARDEN_1);
-                    events.ScheduleEvent(EVENT_SAY_WARDEN_2, Seconds(4));
-                    break;
-                case EVENT_SAY_WARDEN_2:
-                    Talk(SAY_WARDEN_2);
-                    events.ScheduleEvent(EVENT_SAY_WARDEN_3, Seconds(3));
-                    break;
-                case EVENT_SAY_WARDEN_3:
-                    Talk(SAY_WARDEN_3);
-                    break;
+                    case EVENT_SAY_WARDEN_1:
+                        Talk(SAY_WARDEN_1);
+                        _events.ScheduleEvent(EVENT_SAY_WARDEN_2, Seconds(4));
+                        break;
+                    case EVENT_SAY_WARDEN_2:
+                        Talk(SAY_WARDEN_2);
+                        _events.ScheduleEvent(EVENT_SAY_WARDEN_3, Seconds(3));
+                        break;
+                    case EVENT_SAY_WARDEN_3:
+                        Talk(SAY_WARDEN_3);
+                        break;
                 }
             }
         }
     private:
-        EventMap events;
+        EventMap _events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
