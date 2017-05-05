@@ -541,7 +541,7 @@ public:
 
             float x = caster->GetPositionX() + dist * std::cos(angle);
             float y = caster->GetPositionY() + dist * std::sin(angle);
-            float z = caster->GetMap()->GetHeight(x, y, caster->GetPositionZ());
+            float z = caster->GetMap()->GetHeight(caster->GetPhases(), x, y, caster->GetPositionZ());
 
             const_cast<WorldLocation*>(GetExplTargetDest())->Relocate(x, y, z);
             GetHitDest()->Relocate(x, y, z);

@@ -26,6 +26,7 @@
 
 #include "Define.h"
 #include <memory>
+#include <set>
 
 namespace VMAP
 {
@@ -41,7 +42,7 @@ class TC_COMMON_API GameObjectModelOwnerBase
 public:
     virtual bool IsSpawned() const { return false; }
     virtual uint32 GetDisplayId() const { return 0; }
-    virtual uint32 GetPhaseMask() const { return 0; }
+    virtual bool IsInPhase(std::set<uint32> const& phases) const { return false; }
     virtual G3D::Vector3 GetPosition() const { return G3D::Vector3::zero(); }
     virtual float GetOrientation() const { return 0.0f; }
     virtual float GetScale() const { return 1.0f; }
@@ -50,7 +51,7 @@ public:
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
-    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(NULL) { }
+    GameObjectModel() : _collisionEnabled(false), iInvScale(0), iScale(0), iModel(nullptr) { }
 public:
     std::string name;
 
@@ -60,13 +61,11 @@ public:
 
     const G3D::Vector3& getPosition() const { return iPos;}
 
-    /**    Enables\disables collision. */
-    void disable() { phasemask = 0;}
-    void enable(uint32 ph_mask) { phasemask = ph_mask;}
+    /* Enables/disables collision */
+    void enableCollision(bool enable) { _collisionEnabled = enable; }
+    bool isCollisionEnabled() const { return _collisionEnabled; }
 
-    bool isEnabled() const {return phasemask != 0;}
-
-    bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask, VMAP::ModelIgnoreFlags ignoreFlags) const;
+    bool intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, std::set<uint32> const& phases) const;
 
     static GameObjectModel* Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 
@@ -75,7 +74,7 @@ public:
 private:
     bool initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 
-    uint32 phasemask;
+    bool _collisionEnabled;
     G3D::AABox iBound;
     G3D::Matrix3 iInvRot;
     G3D::Vector3 iPos;

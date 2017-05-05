@@ -266,7 +266,7 @@ class boss_slabhide : public CreatureScript
                         case EVENT_LAND:
                         {
                             Position pos = me->GetPosition();
-                            pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                            pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
                             me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_LAND, pos);
                             break;
                         }
@@ -479,7 +479,7 @@ public:
         {
             Unit* caster = GetCaster();
             Position pos = caster->GetPosition();
-            pos.m_positionZ = caster->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 100.0f);
+            pos.m_positionZ = caster->GetMap()->GetHeight(caster->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), true, 100.0f);
             dest.Relocate(pos);
         }
 
