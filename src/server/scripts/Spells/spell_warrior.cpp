@@ -73,7 +73,7 @@ enum WarriorSpells
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_2     = 64850,
     SPELL_WARRIOR_VENGEANCE                         = 76691,
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
-    SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779
+    SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
 };
 
 enum WarriorMisc
@@ -1309,6 +1309,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sword_and_board();
     new spell_warr_t3_prot_8p_bonus();
     new spell_warr_victory_rush();
-    new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
 }
