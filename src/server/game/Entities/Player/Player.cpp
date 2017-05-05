@@ -14644,8 +14644,11 @@ bool Player::CanCompleteQuest(uint32 quest_id)
         {
             for (QuestObjective const& obj : qInfo->GetObjectives())
             {
-                if (!IsQuestObjectiveComplete(obj))
-                    return false;
+                if (!(obj.Flags & QUEST_OBJECTIVE_FLAG_OPTIONAL) && !(obj.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR))
+                {
+                    if (!IsQuestObjectiveComplete(obj))
+                        return false;
+                }
             }
 
             if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) && q_status.Timer == 0)
@@ -16774,9 +16777,6 @@ bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
 {
     Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID);
     ASSERT(quest);
-
-    if (objective.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR)
-        return true;
 
     switch (objective.Type)
     {
