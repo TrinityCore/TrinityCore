@@ -24687,18 +24687,17 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
 uint32 Player::CalculateTalentsPoints() const
 {
-    uint32 base_talent = getLevel() < 10 ? 0 : getLevel()-9;
-
-    if (getClass() != CLASS_DEATH_KNIGHT || GetMapId() != 609)
-        return uint32(base_talent * sWorld->getRate(RATE_TALENT));
-
-    uint32 talentPointsForLevel = getLevel() < 56 ? 0 : getLevel() - 55;
-    talentPointsForLevel += m_questRewardTalentCount;
-
-    if (talentPointsForLevel > base_talent)
-        talentPointsForLevel = base_talent;
-
-    return uint32(talentPointsForLevel * sWorld->getRate(RATE_TALENT));
+	if (getLevel() < 10) return 0;
+	if (getLevel() < 20) return (getLevel() - 9);
+	if (getLevel() < 30) return (getLevel() - 9 + 1);
+	if (getLevel() < 40) return (getLevel() - 9 + 2 + 1);
+	if (getLevel() < 50) return (getLevel() - 9 + 3 + 2 + 1);
+	if (getLevel() < 60) return (getLevel() - 9 + 4 + 3 + 2 + 1);
+	if (getLevel() < 70) return (getLevel() - 9 + 5 + 4 + 3 + 2 + 1);
+	if (getLevel() < 80) return (getLevel() - 9 + 6 + 5 + 4 + 3 + 2 + 1);
+	if (getLevel() == 80) return (getLevel() - 9 + 7 + 6 + 5 + 4 + 3 + 2 + 1);
+	
+	return 0;
 }
 
 bool Player::CanFlyInZone(uint32 mapid, uint32 zone, SpellInfo const* bySpell) const
@@ -26628,6 +26627,8 @@ void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const
 
 bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHair, uint8 skinColor, bool create /*=false*/)
 {
+    return true;
+    
     // Check skin color
     // For Skin type is always 0
     if (CharSectionsEntry const* entry = GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor))
