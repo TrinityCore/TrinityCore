@@ -24192,12 +24192,10 @@ bool Player::isHonorOrXPTarget(Unit const* victim) const
     if (v_level <= k_grey)
         return false;
 
-    if (victim->GetTypeId() == TYPEID_UNIT)
+    if (Creature const* creature = victim->ToCreature())
     {
-        if (victim->IsTotem() ||
-            victim->IsPet() ||
-            victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)
-                return false;
+        if (!creature->CanGiveExperience())
+            return false;
     }
     return true;
 }
