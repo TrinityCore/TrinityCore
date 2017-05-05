@@ -63,7 +63,7 @@ public:
 
     struct boss_randolph_molochAI : public BossAI
     {
-        boss_randolph_molochAI(Creature* creature) : BossAI(creature, DATA_RANDOLPH_MOLOCH) 
+        boss_randolph_molochAI(Creature* creature) : BossAI(creature, DATA_RANDOLPH_MOLOCH)
         {
             firstVanish = false;
             secondVanish = false;
