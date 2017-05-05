@@ -89,6 +89,12 @@ public:
         return storage_.size();
     }
 
+    // Clear the underlying storage. This does NOT despawn the creatures - use DespawnAll for that!
+    void clear()
+    {
+        storage_.clear();
+    }
+
     void Summon(Creature const* summon) { storage_.push_back(summon->GetGUID()); }
     void Despawn(Creature const* summon) { storage_.remove(summon->GetGUID()); }
     void DespawnEntry(uint32 entry);
@@ -101,11 +107,11 @@ public:
     }
 
     template <class Predicate>
-    void DoAction(int32 info, Predicate& predicate, uint16 max = 0)
+    void DoAction(int32 info, Predicate&& predicate, uint16 max = 0)
     {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         StorageType listCopy = storage_;
-        Trinity::Containers::RandomResizeList<ObjectGuid, Predicate>(listCopy, predicate, max);
+        Trinity::Containers::RandomResize<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), max);
         for (StorageType::iterator i = listCopy.begin(); i != listCopy.end(); )
         {
             Creature* summon = ObjectAccessor::GetCreature(*me, *i++);
@@ -127,7 +133,7 @@ class TC_GAME_API EntryCheckPredicate
 {
     public:
         EntryCheckPredicate(uint32 entry) : _entry(entry) { }
-        bool operator()(ObjectGuid guid) { return guid.GetEntry() == _entry; }
+        bool operator()(ObjectGuid const& guid) const { return guid.GetEntry() == _entry; }
 
     private:
         uint32 _entry;
@@ -136,7 +142,7 @@ class TC_GAME_API EntryCheckPredicate
 class TC_GAME_API DummyEntryCheckPredicate
 {
     public:
-        bool operator()(ObjectGuid) { return true; }
+        bool operator()(ObjectGuid const&) const { return true; }
 };
 
 struct TC_GAME_API ScriptedAI : public CreatureAI
@@ -358,7 +364,6 @@ class TC_GAME_API BossAI : public ScriptedAI
         void JustReachedHome() override { _JustReachedHome(); }
 
         bool CanAIAttack(Unit const* target) const override { return CheckBoundary(target); }
-        bool CanRespawn() override;
 
     protected:
         void _Reset();

@@ -786,6 +786,7 @@ enum NPCFlags : uint64
     UNIT_NPC_FLAG_BLACK_MARKET          = 0x0080000000,     // black market
     UNIT_NPC_FLAG_ITEM_UPGRADE_MASTER   = 0x0100000000,
     UNIT_NPC_FLAG_GARRISON_ARCHITECT    = 0x0200000000,
+    UNIT_NPC_FLAG_STEERING              = 0x0400000000,
     UNIT_NPC_FLAG_SHIPMENT_CRAFTER      = 0x1000000000,
     UNIT_NPC_FLAG_GARRISON_MISSION_NPC  = 0x2000000000,
     UNIT_NPC_FLAG_TRADESKILL_NPC        = 0x4000000000,
@@ -828,8 +829,7 @@ enum MovementFlags
 
     MOVEMENTFLAG_MASK_MOVING =
         MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD | MOVEMENTFLAG_STRAFE_LEFT | MOVEMENTFLAG_STRAFE_RIGHT |
-        MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING |
-        MOVEMENTFLAG_SPLINE_ELEVATION,
+        MOVEMENTFLAG_FALLING | MOVEMENTFLAG_ASCENDING | MOVEMENTFLAG_DESCENDING,
 
     MOVEMENTFLAG_MASK_TURNING =
         MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT | MOVEMENTFLAG_PITCH_UP | MOVEMENTFLAG_PITCH_DOWN,
@@ -854,24 +854,31 @@ enum MovementFlags
 
 enum MovementFlags2
 {
-    MOVEMENTFLAG2_NONE                     = 0x00000000,
-    MOVEMENTFLAG2_NO_STRAFE                = 0x00000001,
-    MOVEMENTFLAG2_NO_JUMPING               = 0x00000002,
-    MOVEMENTFLAG2_FULL_SPEED_TURNING       = 0x00000004,
-    MOVEMENTFLAG2_FULL_SPEED_PITCHING      = 0x00000008,
-    MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING    = 0x00000010,
-    MOVEMENTFLAG2_UNK5                     = 0x00000020,
-    MOVEMENTFLAG2_UNK6                     = 0x00000040,
-    MOVEMENTFLAG2_UNK7                     = 0x00000080,
-    MOVEMENTFLAG2_UNK8                     = 0x00000100,
-    MOVEMENTFLAG2_UNK9                     = 0x00000200,
-    MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS    = 0x00000400,
-    MOVEMENTFLAG2_UNK11                    = 0x00000800,
-    MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING   = 0x00001000,
-    MOVEMENTFLAG2_INTERPOLATED_MOVEMENT    = 0x00002000,
-    MOVEMENTFLAG2_INTERPOLATED_TURNING     = 0x00004000,
-    MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00008000,
-    MOVEMENTFLAG2_DOUBLE_JUMP              = 0x00010000
+    MOVEMENTFLAG2_NONE                                      = 0x00000000,
+    MOVEMENTFLAG2_NO_STRAFE                                 = 0x00000001,
+    MOVEMENTFLAG2_NO_JUMPING                                = 0x00000002,
+    MOVEMENTFLAG2_FULL_SPEED_TURNING                        = 0x00000004,
+    MOVEMENTFLAG2_FULL_SPEED_PITCHING                       = 0x00000008,
+    MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING                     = 0x00000010,
+    MOVEMENTFLAG2_IS_VEHICLE_EXIT_VOLUNTARY                 = 0x00000020,
+    MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR                        = 0x00000040,
+    MOVEMENTFLAG2_ANIM_TIER_IN_TRANS                        = 0x00000080,
+    MOVEMENTFLAG2_WATERWALKING_FULL_PITCH                   = 0x00000100, // will always waterwalk, even if facing the camera directly down
+    MOVEMENTFLAG2_VEHICLE_PASSENGER_IS_TRANSITION_ALLOWED   = 0x00000200,
+    MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS                     = 0x00000400,
+    MOVEMENTFLAG2_UNK11                                     = 0x00000800, // terrain normal calculation is disabled if this flag is not present, client automatically handles setting this flag
+    MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING                    = 0x00001000,
+    MOVEMENTFLAG2_UNK13                                     = 0x00002000, // set automatically by the client for aura 373
+    MOVEMENTFLAG2_IGNORE_MOVEMENT_FORCES                    = 0x00004000,
+    MOVEMENTFLAG2_UNK15                                     = 0x00008000,
+    MOVEMENTFLAG2_CAN_DOUBLE_JUMP                           = 0x00010000,
+    MOVEMENTFLAG2_DOUBLE_JUMP                               = 0x00020000,
+    // these flags cannot be sent (18 bits in packet)
+    MOVEMENTFLAG2_UNK18                                     = 0x00040000,
+    MOVEMENTFLAG2_UNK19                                     = 0x00080000,
+    MOVEMENTFLAG2_INTERPOLATED_MOVEMENT                     = 0x00100000,
+    MOVEMENTFLAG2_INTERPOLATED_TURNING                      = 0x00200000,
+    MOVEMENTFLAG2_INTERPOLATED_PITCHING                     = 0x00400000
 };
 
 enum UnitTypeMask
@@ -939,6 +946,7 @@ struct CleanDamage
 };
 
 struct CalcDamageInfo;
+struct SpellNonMeleeDamage;
 
 class TC_GAME_API DamageInfo
 {
@@ -953,9 +961,11 @@ private:
     uint32 m_absorb;
     uint32 m_resist;
     uint32 m_block;
+    uint32 m_hitMask;
 public:
-    explicit DamageInfo(Unit* _attacker, Unit* _victim, uint32 _damage, SpellInfo const* _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType);
-    explicit DamageInfo(CalcDamageInfo& dmgInfo);
+    DamageInfo(Unit* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType);
+    explicit DamageInfo(CalcDamageInfo const& dmgInfo);
+    DamageInfo(SpellNonMeleeDamage const& spellNonMeleeDamage, DamageEffectType damageType, WeaponAttackType attackType);
 
     void ModifyDamage(int32 amount);
     void AbsorbDamage(uint32 amount);
@@ -972,35 +982,37 @@ public:
     uint32 GetAbsorb() const { return m_absorb; }
     uint32 GetResist() const { return m_resist; }
     uint32 GetBlock() const { return m_block; }
+
+    uint32 GetHitMask() const;
 };
 
-class HealInfo
+class TC_GAME_API HealInfo
 {
 private:
     Unit* const _healer;
     Unit* const _target;
     uint32 _heal;
+    uint32 _effectiveHeal;
     uint32 _absorb;
     SpellInfo const* const _spellInfo;
     SpellSchoolMask const _schoolMask;
+    uint32 _hitMask;
 
 public:
-    explicit HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask)
-        : _healer(healer), _target(target), _heal(heal), _absorb(0), _spellInfo(spellInfo), _schoolMask(schoolMask) { }
+    explicit HealInfo(Unit* healer, Unit* target, uint32 heal, SpellInfo const* spellInfo, SpellSchoolMask schoolMask);
 
-    void AbsorbHeal(uint32 amount)
-    {
-        amount = std::min(amount, GetHeal());
-        _absorb += amount;
-        _heal -= amount;
-    }
+    void AbsorbHeal(uint32 amount);
+    void SetEffectiveHeal(uint32 amount) { _effectiveHeal = amount; }
 
     Unit* GetHealer() const { return _healer; }
     Unit* GetTarget() const { return _target; }
     uint32 GetHeal() const { return _heal; }
+    uint32 GetEffectiveHeal() const { return _effectiveHeal; }
     uint32 GetAbsorb() const { return _absorb; }
     SpellInfo const* GetSpellInfo() const { return _spellInfo; };
     SpellSchoolMask GetSchoolMask() const { return _schoolMask; };
+
+    uint32 GetHitMask() const;
 };
 
 class TC_GAME_API ProcEventInfo
@@ -1063,12 +1075,13 @@ struct CalcDamageInfo
 // Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
 struct TC_GAME_API SpellNonMeleeDamage
 {
-    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _schoolMask, ObjectGuid _castId = ObjectGuid::Empty);
+    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _SpellXSpellVisualID, uint32 _schoolMask, ObjectGuid _castId = ObjectGuid::Empty);
 
     Unit   *target;
     Unit   *attacker;
     ObjectGuid castId;
     uint32 SpellID;
+    uint32 SpellXSpellVisualID;
     uint32 damage;
     uint32 schoolMask;
     uint32 absorb;
@@ -1570,15 +1583,15 @@ class TC_GAME_API Unit : public WorldObject
         void ApplyResilience(Unit const* victim, int32* damage) const;
 
         float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, uint32 spellId) const;
-        SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo);
-        SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo);
+        SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
+        SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false);
 
-        float GetUnitDodgeChanceAgainst(Unit const* attacker) const;
-        float GetUnitParryChanceAgainst(Unit const* attacker) const;
-        float GetUnitBlockChanceAgainst(Unit const* attacker) const;
+        float GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) const;
+        float GetUnitParryChance(WeaponAttackType attType, Unit const* victim) const;
+        float GetUnitBlockChance(WeaponAttackType attType, Unit const* victim) const;
         float GetUnitMissChance(WeaponAttackType attType) const;
-        float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
+        float GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victim) const;
         int32 GetMechanicResistChance(SpellInfo const* spellInfo) const;
         bool CanUseAttackType(uint8 attacktype) const;
 
@@ -1644,7 +1657,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void SendHealSpellLog(Unit* victim, uint32 spellID, uint32 health, uint32 overHeal, uint32 absorbed, bool crit = false);
         int32 HealBySpell(Unit* victim, SpellInfo const* spellInfo, uint32 addHealth, bool critical = false);
-        void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, Powers powertype);
+        void SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, int32 overEnergize, Powers powertype);
         void EnergizeBySpell(Unit* victim, uint32 SpellID, int32 Damage, Powers powertype);
 
         void CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, ObjectGuid originalCaster = ObjectGuid::Empty);
@@ -1661,7 +1674,15 @@ class TC_GAME_API Unit : public WorldObject
         Aura* AddAura(uint32 spellId, Unit* target);
         Aura* AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
-        void SendPlaySpellVisualKit(uint32 id, uint32 type);
+
+        void SendCancelOrphanSpellVisual(uint32 id);
+        void SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
+        void SendPlayOrphanSpellVisual(G3D::Vector3 const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
+        void SendCancelSpellVisual(uint32 id);
+        void SendPlaySpellVisual(ObjectGuid const& target, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime = false);
+        void SendPlaySpellVisual(G3D::Vector3 const& targetPosition, float o, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime = false);
+        void SendCancelSpellVisualKit(uint32 id);
+        void SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration);
 
         void DeMorph();
 
@@ -1706,12 +1727,12 @@ class TC_GAME_API Unit : public WorldObject
         bool SetCollision(bool disable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
         bool SetCanTurnWhileFalling(bool enable);
-        bool SetDoubleJump(bool enable);
+        bool SetCanDoubleJump(bool enable);
         void SendSetVehicleRecId(uint32 vehicleId);
 
         void SetInFront(WorldObject const* target);
-        void SetFacingTo(float ori);
-        void SetFacingToObject(WorldObject const* object);
+        void SetFacingTo(float ori, bool force = false);
+        void SetFacingToObject(WorldObject const* object, bool force = false);
 
         void SendChangeCurrentVictimOpcode(HostileReference* pHostileReference);
         void SendClearThreatListOpcode();
@@ -1874,9 +1895,7 @@ class TC_GAME_API Unit : public WorldObject
 
         AuraEffect* GetAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
         AuraEffect* GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
-        AuraEffect* GetAuraEffect(AuraType type, SpellFamilyNames name, uint32 iconId, uint8 effIndex) const; // spell mustn't have familyflags
         AuraEffect* GetAuraEffect(AuraType type, SpellFamilyNames family, flag128 const& familyFlag, ObjectGuid casterGUID = ObjectGuid::Empty) const;
-        AuraEffect* GetDummyAuraEffect(SpellFamilyNames name, uint32 iconId, uint8 effIndex) const;
 
         AuraApplication * GetAuraApplication(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0, AuraApplication * except = NULL) const;
         Aura* GetAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0) const;
@@ -1940,8 +1959,8 @@ class TC_GAME_API Unit : public WorldObject
         float GetNegStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_NEGSTAT+stat); }
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
 
-        ObjectGuid GetChannelObjectGuid() const { return GetGuidValue(UNIT_FIELD_CHANNEL_OBJECT); }
-        void SetChannelObjectGuid(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CHANNEL_OBJECT, guid); }
+        DynamicFieldStructuredView<ObjectGuid> GetChannelObjects() const { return GetDynamicStructuredValues<ObjectGuid>(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS); }
+        void AddChannelObject(ObjectGuid guid) { AddDynamicStructuredValue(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS, &guid); }
 
         void SetCurrentCastSpell(Spell* pSpell);
         void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
@@ -2246,6 +2265,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool CanFly() const = 0;
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsFalling() const;
+        virtual bool CanSwim() const;
 
         void RewardRage(uint32 baseRage);
 
@@ -2377,7 +2397,6 @@ class TC_GAME_API Unit : public WorldObject
         bool IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const*& spellProcEvent);
         bool RollProcResult(Unit* victim, Aura* aura, WeaponAttackType attType, bool isVictim, SpellProcEventEntry const* spellProcEvent);
         bool HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx);
-        bool HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, bool* handled);
         bool HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx);
         bool HandleOverrideClassScriptAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell);
         bool HandleAuraRaidProcFromChargeWithValue(AuraEffect* triggeredByAura);

@@ -236,7 +236,7 @@ class TC_GAME_API Object
         template<class T>
         DynamicFieldStructuredView<T> GetDynamicStructuredValues(uint16 index) const
         {
-            static_assert(std::is_pod<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a POD type");
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
             using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
             ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
             std::vector<uint32> const& values = _dynamicValues[index];
@@ -247,7 +247,7 @@ class TC_GAME_API Object
         template<class T>
         T const* GetDynamicStructuredValue(uint16 index, uint16 offset) const
         {
-            static_assert(std::is_pod<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a POD type");
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
             using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
             ASSERT(index < _dynamicValuesCount || PrintIndexError(index, false));
             std::vector<uint32> const& values = _dynamicValues[index];
@@ -260,8 +260,20 @@ class TC_GAME_API Object
         template<class T>
         void SetDynamicStructuredValue(uint16 index, uint16 offset, T const* value)
         {
-            static_assert(std::is_pod<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a POD type");
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
             using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            SetDynamicValue(index, (offset + 1) * BlockCount::value - 1, 0); // reserve space
+            for (uint16 i = 0; i < BlockCount::value; ++i)
+                SetDynamicValue(index, offset * BlockCount::value + i, *(reinterpret_cast<uint32 const*>(value) + i));
+        }
+
+        template<class T>
+        void AddDynamicStructuredValue(uint16 index, T const* value)
+        {
+            static_assert(std::is_standard_layout<T>::value && std::is_trivially_destructible<T>::value, "T used for Object::SetDynamicStructuredValue<T> is not a trivially destructible standard layout type");
+            using BlockCount = std::integral_constant<uint16, sizeof(T) / sizeof(uint32)>;
+            std::vector<uint32> const& values = _dynamicValues[index];
+            uint16 offset = uint16(values.size() / BlockCount::value);
             SetDynamicValue(index, (offset + 1) * BlockCount::value - 1, 0); // reserve space
             for (uint16 i = 0; i < BlockCount::value; ++i)
                 SetDynamicValue(index, offset * BlockCount::value + i, *(reinterpret_cast<uint32 const*>(value) + i));
@@ -554,6 +566,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool HasInPhaseList(uint32 phase);
         uint32 GetPhaseMask() const { return m_phaseMask; }
         bool IsInPhase(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
+        bool IsInPhase(std::set<uint32> const& phases) const;
         bool IsInPhase(WorldObject const* obj) const;
         bool IsInTerrainSwap(uint32 terrainSwap) const { return _terrainSwaps.find(terrainSwap) != _terrainSwaps.end(); }
         std::set<uint32> const& GetPhases() const { return _phases; }
@@ -602,7 +615,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool isInFront(WorldObject const* target, float arc = float(M_PI)) const;
         bool isInBack(WorldObject const* target, float arc = float(M_PI)) const;
 
-        bool IsInBetween(WorldObject const* obj1, WorldObject const* obj2, float size = 0) const;
+        bool IsInBetween(Position const& pos1, Position const& pos2, float size = 0) const;
+        bool IsInBetween(WorldObject const* obj1, WorldObject const* obj2, float size = 0) const { return obj1 && obj2 && IsInBetween(obj1->GetPosition(), obj2->GetPosition(), size); }
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
@@ -729,7 +743,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
         void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
 
-        virtual bool IsNeverVisible() const { return !IsInWorld(); }
+        virtual bool IsNeverVisibleFor(WorldObject const* /*seer*/) const { return !IsInWorld(); }
         virtual bool IsAlwaysVisibleFor(WorldObject const* /*seer*/) const { return false; }
         virtual bool IsInvisibleDueToDespawn() const { return false; }
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer

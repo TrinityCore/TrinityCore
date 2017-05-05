@@ -54,7 +54,7 @@ public:
             if (!apply)
                 return;
 
-            me->GetMotionMaster()->MoveSmoothPath(EagleSpiritflightPathSize, EagleSpiritflightPath, EagleSpiritflightPathSize, false);
+            me->GetMotionMaster()->MoveSmoothPath(EagleSpiritflightPathSize, EagleSpiritflightPath, EagleSpiritflightPathSize, false, true);
             me->CastSpell(me, SPELL_SPIRIT_FORM);
         }
 

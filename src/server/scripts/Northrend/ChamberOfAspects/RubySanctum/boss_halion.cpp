@@ -1734,7 +1734,8 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
                     return;
 
                 Unit* caster = GetCaster();
-                if (Unit* channelTarget = ObjectAccessor::GetUnit(*caster, caster->GetChannelObjectGuid()))
+                DynamicFieldStructuredView<ObjectGuid> channelObjects = caster->GetChannelObjects();
+                if (Unit* channelTarget = (channelObjects.size() == 1 ? ObjectAccessor::GetUnit(*caster, *channelObjects.begin()) : nullptr))
                 {
                     unitList.remove_if(TwilightCutterSelector(caster, channelTarget));
                     return;
@@ -1831,7 +1832,7 @@ class spell_halion_spawn_living_embers : public SpellScriptLoader
             void SelectMeteorFlames(std::list<WorldObject*>& unitList)
             {
                 if (!unitList.empty())
-                    Trinity::Containers::RandomResizeList(unitList, 10);
+                    Trinity::Containers::RandomResize(unitList, 10);
             }
 
             void HandleScript(SpellEffIndex /* effIndex */)

@@ -2476,12 +2476,12 @@ inline GridMap* Map::GetGrid(float x, float y)
     return GridMaps[gx][gy];
 }
 
-float Map::GetWaterOrGroundLevel(uint32 phasemask, float x, float y, float z, float* ground /*= NULL*/, bool /*swim = false*/) const
+float Map::GetWaterOrGroundLevel(std::set<uint32> const& phases, float x, float y, float z, float* ground /*= nullptr*/, bool /*swim = false*/) const
 {
     if (const_cast<Map*>(this)->GetGrid(x, y))
     {
         // we need ground level (including grid height version) for proper return water level in point
-        float ground_z = GetHeight(phasemask, x, y, z, true, 50.0f);
+        float ground_z = GetHeight(phases, x, y, z, true, 50.0f);
         if (ground)
             *ground = ground_z;
 
@@ -2770,19 +2770,19 @@ float Map::GetWaterLevel(float x, float y) const
         return 0;
 }
 
-bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const
+bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, std::set<uint32> const& phases) const
 {
     return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2)
-        && _dynamicTree.isInLineOfSight(x1, y1, z1, x2, y2, z2, phasemask);
+        && _dynamicTree.isInLineOfSight({ x1, y1, z1 }, { x2, y2, z2 }, phases);
 }
 
-bool Map::getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
+bool Map::getObjectHitPos(std::set<uint32> const& phases, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
 {
     G3D::Vector3 startPos(x1, y1, z1);
     G3D::Vector3 dstPos(x2, y2, z2);
 
     G3D::Vector3 resultPos;
-    bool result = _dynamicTree.getObjectHitPos(phasemask, startPos, dstPos, resultPos, modifyDist);
+    bool result = _dynamicTree.getObjectHitPos(phases, startPos, dstPos, resultPos, modifyDist);
 
     rx = resultPos.x;
     ry = resultPos.y;
@@ -2790,9 +2790,9 @@ bool Map::getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float 
     return result;
 }
 
-float Map::GetHeight(uint32 phasemask, float x, float y, float z, bool vmap/*=true*/, float maxSearchDist/*=DEFAULT_HEIGHT_SEARCH*/) const
+float Map::GetHeight(std::set<uint32> const& phases, float x, float y, float z, bool vmap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
-    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phasemask));
+    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phases));
 }
 
 bool Map::IsInWater(float x, float y, float pZ, LiquidData* data) const
@@ -3524,7 +3524,7 @@ bool InstanceMap::Reset(uint8 method)
     return m_mapRefManager.isEmpty();
 }
 
-void InstanceMap::PermBindAllPlayers(Player* source)
+void InstanceMap::PermBindAllPlayers()
 {
     if (!IsDungeon())
         return;
@@ -3532,31 +3532,43 @@ void InstanceMap::PermBindAllPlayers(Player* source)
     InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
     if (!save)
     {
-        TC_LOG_ERROR("maps", "Cannot bind player (%s, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!", source->GetGUID().ToString().c_str(), source->GetName().c_str(), source->GetMap()->GetMapName(), source->GetMapId(), GetInstanceId());
+        TC_LOG_ERROR("maps", "Cannot bind players to instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) because no instance save is available!", GetMapName(), GetId(), GetDifficultyID(), GetInstanceId());
         return;
     }
 
-    Group* group = source->GetGroup();
-    // group members outside the instance group don't get bound
+    // perm bind all players that are currently inside the instance
     for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
     {
         Player* player = itr->GetSource();
-        // players inside an instance cannot be bound to other instances
-        // some players may already be permanently bound, in this case nothing happens
+        // never instance bind GMs with GM mode enabled
+        if (player->IsGameMaster())
+            continue;
+
         InstancePlayerBind* bind = player->GetBoundInstance(save->GetMapId(), save->GetDifficultyID());
-        if (!bind || !bind->perm)
+        if (bind && bind->perm)
+        {
+            if (bind->save && bind->save->GetInstanceId() != save->GetInstanceId())
+            {
+                TC_LOG_ERROR("maps", "Player (GUID: " UI64FMTD ", Name: %s) is in instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) that is being bound, but already has a save for the map on ID %u!", player->GetGUID().GetCounter(), player->GetName().c_str(), GetMapName(), save->GetMapId(), save->GetDifficultyID(), save->GetInstanceId(), bind->save->GetInstanceId());
+            }
+            else if (!bind->save)
+            {
+                TC_LOG_ERROR("maps", "Player (GUID: " UI64FMTD ", Name: %s) is in instance map (Name: %s, Entry: %u, Difficulty: %u, ID: %u) that is being bound, but already has a bind (without associated save) for the map!", player->GetGUID().GetCounter(), player->GetName().c_str(), GetMapName(), save->GetMapId(), save->GetDifficultyID(), save->GetInstanceId());
+            }
+        }
+        else
         {
             player->BindToInstance(save, true);
             WorldPackets::Instance::InstanceSaveCreated data;
             data.Gm = player->IsGameMaster();
             player->GetSession()->SendPacket(data.Write());
-            if (!player->IsGameMaster())
-                player->GetSession()->SendCalendarRaidLockout(save, true);
-        }
+            player->GetSession()->SendCalendarRaidLockout(save, true);
 
-        // if the leader is not in the instance the group will not get a perm bind
-        if (group && group->GetLeaderGUID() == player->GetGUID())
-            group->BindToInstance(save, true);
+            // if group leader is in instance, group also gets bound
+            if (Group* group = player->GetGroup())
+                if (group->GetLeaderGUID() == player->GetGUID())
+                    group->BindToInstance(save, true);
+        }
     }
 }
 
@@ -4084,13 +4096,7 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones->SetCellCoord(corpse->GetCellCoord());
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());
 
-        bones->SetUInt32Value(CORPSE_FIELD_FLAGS, CORPSE_FLAG_UNK2 | CORPSE_FLAG_BONES);
-        bones->SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid::Empty);
-        bones->SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
-
-        for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            if (corpse->GetUInt32Value(CORPSE_FIELD_ITEM + i))
-                bones->SetUInt32Value(CORPSE_FIELD_ITEM + i, 0);
+        bones->SetUInt32Value(CORPSE_FIELD_FLAGS, corpse->GetUInt32Value(CORPSE_FIELD_FLAGS) | CORPSE_FLAG_BONES);
 
         bones->CopyPhaseFrom(corpse);
 

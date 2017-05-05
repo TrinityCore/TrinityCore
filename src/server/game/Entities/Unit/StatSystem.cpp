@@ -569,8 +569,9 @@ const float m_diminishing_k[MAX_CLASSES] =
     0.9880f,  // Shaman
     0.9830f,  // Mage
     0.9830f,  // Warlock
-    0.0f,     // ??
-    0.9720f   // Druid
+    0.9830f,  // Monk
+    0.9720f,  // Druid
+    0.9830f   // Demon Hunter
 };
 
 void Player::UpdateParryPercentage()
@@ -586,8 +587,9 @@ void Player::UpdateParryPercentage()
         145.560408f,    // Shaman
         0.0f,           // Mage
         0.0f,           // Warlock
-        0.0f,           // ??
-        0.0f            // Druid
+        90.6425f,       // Monk
+        0.0f,           // Druid
+        65.631440f      // Demon Hunter
     };
 
     // No parry
@@ -624,8 +626,9 @@ void Player::UpdateDodgePercentage()
         145.560408f,    // Shaman
         150.375940f,    // Mage
         150.375940f,    // Warlock
-        0.0f,           // ??
-        116.890707f     // Druid
+        145.560408f,    // Monk
+        116.890707f,    // Druid
+        145.560408f     // Demon Hunter
     };
 
     float diminishing = 0.0f, nondiminishing = 0.0f;
@@ -957,18 +960,6 @@ bool Guardian::UpdateStats(Stats stat)
         else
             mod = 0.7f; // Default Owner's Strength scale
 
-        // Check just if owner has Ravenous Dead since it's effect is not an aura
-        AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
-        if (aurEff)
-        {
-            SpellInfo const* spellInfo = aurEff->GetSpellInfo();                                               // Then get the SpellProto and add the dummy effect value
-            if (SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), EFFECT_1))
-                AddPct(mod, effect->CalcValue(owner));                                                         // Ravenous Dead edits the original scale
-        }
-        // Glyph of the Ghoul
-        aurEff = owner->GetAuraEffect(58686, 0);
-        if (aurEff)
-            mod += CalculatePct(1.0f, aurEff->GetAmount());                                                    // Glyph of the Ghoul adds a flat value to the scale mod
         ownersBonus = float(owner->GetStat(stat)) * mod;
         value += ownersBonus;
     }

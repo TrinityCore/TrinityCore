@@ -401,6 +401,10 @@ bool LootItem::AllowedForPlayer(Player const* player) const
     if (!(pProto->FlagsCu & ITEM_FLAGS_CU_IGNORE_QUEST_STATUS) && ((needs_quest || (pProto->GetStartQuest() && player->GetQuestStatus(pProto->GetStartQuest()) != QUEST_STATUS_NONE)) && !player->HasQuestForItem(itemid)))
         return false;
 
+    // Don't show bind-when-picked-up unique items if player already has the maximum allowed quantity.
+    if (pProto->GetBonding() == BIND_ON_ACQUIRE && pProto->GetMaxCount() && player->GetItemCount(itemid, true) >= pProto->GetMaxCount())
+        return false;
+
     return true;
 }
 
@@ -1813,6 +1817,7 @@ void LoadLootTemplates_Skinning()
 
 void LoadLootTemplates_Spell()
 {
+    // TODO: change this to use MiscValue from spell effect as id instead of spell id
     TC_LOG_INFO("server.loading", "Loading spell loot templates...");
 
     uint32 oldMSTime = getMSTime();

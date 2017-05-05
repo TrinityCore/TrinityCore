@@ -885,7 +885,7 @@ class boss_prince_valanar_icc : public CreatureScript
                     {
                         float x, y, z;
                         summon->GetPosition(x, y, z);
-                        float ground_Z = summon->GetMap()->GetHeight(summon->GetPhaseMask(), x, y, z, true, 500.0f);
+                        float ground_Z = summon->GetMap()->GetHeight(summon->GetPhases(), x, y, z, true, 500.0f);
                         summon->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, x, y, ground_Z);
                         summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         break;
@@ -1245,7 +1245,7 @@ class npc_kinetic_bomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->GetPosition(_x, _y, _groundZ);
                 me->DespawnOrUnsummon(60000);
-                _groundZ = me->GetMap()->GetHeight(me->GetPhaseMask(), _x, _y, _groundZ, true, 500.0f);
+                _groundZ = me->GetMap()->GetHeight(me->GetPhases(), _x, _y, _groundZ, true, 500.0f);
             }
 
             void DoAction(int32 action) override
@@ -1497,6 +1497,26 @@ class spell_taldaram_ball_of_inferno_flame : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_taldaram_ball_of_inferno_flame_SpellScript();
+        }
+
+        class spell_taldaram_ball_of_inferno_flame_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_taldaram_ball_of_inferno_flame_AuraScript);
+
+            void HandleStackDrop(ProcEventInfo& /*eventInfo*/)
+            {
+                ModStackAmount(-1);
+            }
+
+            void Register() override
+            {
+                OnProc += AuraProcFn(spell_taldaram_ball_of_inferno_flame_AuraScript::HandleStackDrop);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_taldaram_ball_of_inferno_flame_AuraScript();
         }
 };
 

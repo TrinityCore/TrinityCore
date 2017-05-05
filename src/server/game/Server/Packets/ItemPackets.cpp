@@ -39,10 +39,10 @@ void WorldPackets::Item::BuyItem::Read()
 {
     _worldPacket >> VendorGUID;
     _worldPacket >> ContainerGUID;
-    _worldPacket >> Item;
     _worldPacket >> Quantity;
     _worldPacket >> Muid;
     _worldPacket >> Slot;
+    _worldPacket >> Item;
     ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(2));
 }
 
@@ -216,6 +216,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemI
 
     bool hasItemBonus = data.ReadBit();
     bool hasModifications = data.ReadBit();
+    data.ResetBitPos();
 
     if (hasItemBonus)
     {

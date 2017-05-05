@@ -543,6 +543,7 @@ void Garrison::SendInfo()
     garrison.GarrSiteID = _siteLevel->SiteID;
     garrison.GarrSiteLevelID = _siteLevel->ID;
     garrison.NumFollowerActivationsRemaining = _followerActivationsRemainingToday;
+    garrison.FollowerSoftCap = 20;
     for (auto& p : _plots)
     {
         Plot& plot = p.second;

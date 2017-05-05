@@ -1039,9 +1039,9 @@ void GameObject::SaveRespawnTime()
         GetMap()->SaveGORespawnTime(m_spawnId, m_respawnTime);
 }
 
-bool GameObject::IsNeverVisible() const
+bool GameObject::IsNeverVisibleFor(WorldObject const* seer) const
 {
-    if (WorldObject::IsNeverVisible())
+    if (WorldObject::IsNeverVisibleFor(seer))
         return true;
 
     if (GetGoType() == GAMEOBJECT_TYPE_SPELL_FOCUS && GetGOInfo()->spellFocus.serverOnly == 1)
@@ -1525,8 +1525,12 @@ void GameObject::Use(Unit* user)
 
                     player->UpdateFishingSkill();
 
-                    // but you will likely cause junk in areas that require a high fishing skill
-                    if (chance >= roll)
+                    /// @todo find reasonable value for fishing hole search
+                    GameObject* fishingPool = LookupFishingHoleAround(20.0f + CONTACT_DISTANCE);
+
+                    // If fishing skill is high enough, or if fishing on a pool, send correct loot.
+                    // Fishing pools have no skill requirement as of patch 3.3.0 (undocumented change).
+                    if (chance >= roll || fishingPool)
                     {
                         /// @todo I do not understand this hack. Need some explanation.
                         // prevent removing GO at spell cancel
@@ -1534,17 +1538,15 @@ void GameObject::Use(Unit* user)
                         SetOwnerGUID(player->GetGUID());
                         SetSpellId(0); // prevent removing unintended auras at Unit::RemoveGameObject
 
-                        /// @todo find reasonable value for fishing hole search
-                        GameObject* ok = LookupFishingHoleAround(20.0f + CONTACT_DISTANCE);
-                        if (ok)
+                        if (fishingPool)
                         {
-                            ok->Use(player);
+                            fishingPool->Use(player);
                             SetLootState(GO_JUST_DEACTIVATED);
                         }
                         else
                             player->SendLoot(GetGUID(), LOOT_FISHING);
                     }
-                    else // else: junk
+                    else // If fishing skill is too low, send junk loot.
                         player->SendLoot(GetGUID(), LOOT_FISHING_JUNK);
                     break;
                 }
@@ -1986,6 +1988,14 @@ void GameObject::EventInform(uint32 eventId, WorldObject* invoker /*= nullptr*/)
             bgMap->GetBG()->ProcessEvent(this, eventId, invoker);
 }
 
+uint32 GameObject::GetScriptId() const
+{
+    if (GameObjectData const* gameObjectData = GetGOData())
+        return gameObjectData->ScriptId;
+
+    return GetGOInfo()->ScriptId;
+}
+
 // overwrite WorldObject function for proper name localization
 std::string const & GameObject::GetNameForLocaleIdx(LocaleConstant loc_idx) const
 {
@@ -2255,15 +2265,6 @@ void GameObject::SetDisplayId(uint32 displayid)
     UpdateModel();
 }
 
-bool GameObject::SetInPhase(uint32 id, bool update, bool apply)
-{
-    bool res = WorldObject::SetInPhase(id, update, apply);
-    if (m_model && m_model->isEnabled())
-        EnableCollision(true);
-
-    return res;
-}
-
 void GameObject::EnableCollision(bool enable)
 {
     if (!m_model)
@@ -2272,7 +2273,7 @@ void GameObject::EnableCollision(bool enable)
     /*if (enable && !GetMap()->ContainsGameObjectModel(*m_model))
         GetMap()->InsertGameObjectModel(*m_model);*/
 
-    m_model->enable(enable ? GetPhaseMask() : 0);
+    m_model->enableCollision(enable);
 }
 
 void GameObject::UpdateModel()
@@ -2302,7 +2303,7 @@ Group* GameObject::GetLootRecipientGroup() const
     return sGroupMgr->GetGroupByGUID(m_lootRecipientGroup);
 }
 
-void GameObject::SetLootRecipient(Unit* unit)
+void GameObject::SetLootRecipient(Unit* unit, Group* group)
 {
     // set the player whose group should receive the right
     // to loot the creature after it dies
@@ -2311,7 +2312,7 @@ void GameObject::SetLootRecipient(Unit* unit)
     if (!unit)
     {
         m_lootRecipient.Clear();
-        m_lootRecipientGroup.Clear();
+        m_lootRecipientGroup = group ? group->GetGUID() : ObjectGuid::Empty;
         return;
     }
 
@@ -2323,8 +2324,12 @@ void GameObject::SetLootRecipient(Unit* unit)
         return;
 
     m_lootRecipient = player->GetGUID();
-    if (Group* group = player->GetGroup())
+
+    // either get the group from the passed parameter or from unit's one
+    if (group)
         m_lootRecipientGroup = group->GetGUID();
+    else if (Group* unitGroup = player->GetGroup())
+        m_lootRecipientGroup = unitGroup->GetGUID();
 }
 
 bool GameObject::IsLootAllowedFor(Player const* player) const
@@ -2523,7 +2528,7 @@ public:
 
     virtual bool IsSpawned() const override { return _owner->isSpawned(); }
     virtual uint32 GetDisplayId() const override { return _owner->GetDisplayId(); }
-    virtual uint32 GetPhaseMask() const override { return _owner->GetPhaseMask(); }
+    virtual bool IsInPhase(std::set<uint32> const& phases) const override { return _owner->IsInPhase(phases); }
     virtual G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
     virtual float GetOrientation() const override { return _owner->GetOrientation(); }
     virtual float GetScale() const override { return _owner->GetObjectScale(); }

@@ -1843,8 +1843,10 @@ void ObjectMgr::LoadCreatures()
 
     //                                               0              1   2    3        4             5           6           7           8            9              10
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
-    //   11               12         13       14            15         16          17          18                19                   20                     21                22
-        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.phaseid, creature.phasegroup "
+    //   11               12         13       14            15         16          17          18                19                   20                     21
+        "currentwaypoint, curhealth, curmana, MovementType, spawnMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.dynamicflags, creature.phaseid, "
+    //   22                   23
+        "creature.phasegroup, creature.ScriptName "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1901,6 +1903,9 @@ void ObjectMgr::LoadCreatures()
         data.dynamicflags   = fields[20].GetUInt32();
         data.phaseid        = fields[21].GetUInt32();
         data.phaseGroup     = fields[22].GetUInt32();
+        data.ScriptId       = GetScriptId(fields[23].GetString());
+        if (!data.ScriptId)
+            data.ScriptId = cInfo->ScriptID;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -2172,8 +2177,10 @@ void ObjectMgr::LoadGameobjects()
 
     //                                                0                1   2    3           4           5           6
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
-    //   7          8          9          10         11             12            13     14         15          16          17       18
-        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, eventEntry, pool_entry, phaseid, phasegroup "
+    //   7          8          9          10         11             12            13     14         15          16
+        "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, eventEntry, pool_entry, "
+    //   17       18          19
+        "phaseid, phasegroup, ScriptName "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
         "LEFT OUTER JOIN pool_gameobject ON gameobject.guid = pool_gameobject.guid");
 
@@ -2313,6 +2320,10 @@ void ObjectMgr::LoadGameobjects()
                 data.phaseGroup = 0;
             }
         }
+
+        data.ScriptId = GetScriptId(fields[19].GetString());
+        if (!data.ScriptId)
+            data.ScriptId = gInfo->ScriptId;
 
         if (std::abs(data.orientation) > 2 * float(M_PI))
         {
@@ -3852,6 +3863,7 @@ void ObjectMgr::LoadQuests()
     for (QuestMap::const_iterator itr=_questTemplates.begin(); itr != _questTemplates.end(); ++itr)
         delete itr->second;
     _questTemplates.clear();
+    _questObjectives.clear();
 
     mExclusiveQuestGroups.clear();
 
@@ -3882,9 +3894,9 @@ void ObjectMgr::LoadQuests()
         "RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, RewardFactionCapIn5, RewardFactionFlags, "
         //92                93                  94                 95                  96                 97                  98                 99
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
-        //100                101                 102          103          104             105
-        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, QuestRewardID, "
-        //106      107             108               109              110                111                112                 113                 114
+        //100                101                 102          103          104             105            106
+        "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, QuestRewardID, Expansion, "
+        //107      108             109               110              111                112                113                 114                 115
         "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog"
         " FROM quest_template");
     if (!result)
@@ -4297,6 +4309,9 @@ void ObjectMgr::LoadQuests()
 
         for (QuestObjective const& obj : qinfo->GetObjectives())
         {
+            // Store objective for lookup by id
+            _questObjectives[obj.ID] = &obj;
+
             // Check storage index for objectives which store data
             if (obj.StorageIndex < 0)
             {
@@ -4377,9 +4392,7 @@ void ObjectMgr::LoadQuests()
                         TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing criteria tree id %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
                     break;
                 case QUEST_OBJECTIVE_AREATRIGGER:
-                    if (sAreaTriggerStore.LookupEntry(uint32(obj.ObjectID)))
-                        _questAreaTriggerStore[obj.ObjectID].insert(qinfo->ID);
-                    else if (obj.ObjectID != -1)
+                    if (!sAreaTriggerStore.LookupEntry(uint32(obj.ObjectID)) && obj.ObjectID != -1)
                         TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing areatrigger id %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
                     break;
                 case QUEST_OBJECTIVE_MONEY:
@@ -4700,7 +4713,7 @@ void ObjectMgr::LoadQuests()
         }
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %lu quests definitions in %u ms", (unsigned long)_questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " quests definitions in %u ms", _questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadQuestTemplateLocale()
@@ -4749,7 +4762,7 @@ void ObjectMgr::LoadQuestTemplateLocale()
         AddLocaleString(questCompletionLog,     locale, data.QuestCompletionLog);
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Quest Tempalate locale strings in %u ms", uint32(_questTemplateLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Template locale strings in %u ms", _questTemplateLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadQuestObjectivesLocale()
@@ -4780,7 +4793,67 @@ void ObjectMgr::LoadQuestObjectivesLocale()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Quest Objectives locale strings in %u ms", uint32(_questObjectivesLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Objectives locale strings in %u ms", _questObjectivesLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadQuestOfferRewardLocale()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _questOfferRewardLocaleStore.clear(); // need for reload case
+    //                                               0     1          2
+    QueryResult result = WorldDatabase.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id = fields[0].GetUInt32();
+        std::string localeName = fields[1].GetString();
+
+        std::string RewardText = fields[2].GetString();
+
+        QuestOfferRewardLocale& data = _questOfferRewardLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
+
+        AddLocaleString(RewardText, locale, data.RewardText);
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Offer Reward locale strings in %u ms", _questOfferRewardLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadQuestRequestItemsLocale()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _questRequestItemsLocaleStore.clear(); // need for reload case
+    //                                               0     1          2
+    QueryResult result = WorldDatabase.Query("SELECT Id, locale, CompletionText FROM quest_request_items_locale");
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id = fields[0].GetUInt32();
+        std::string localeName = fields[1].GetString();
+
+        std::string completionText = fields[2].GetString();
+
+        QuestRequestItemsLocale& data = _questRequestItemsLocaleStore[id];
+        LocaleConstant locale = GetLocaleByName(localeName);
+        if (locale == LOCALE_enUS)
+            continue;
+
+        AddLocaleString(completionText, locale, data.CompletionText);
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Quest Request Items locale strings in %u ms", _questRequestItemsLocaleStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadScripts(ScriptsType type)
@@ -5817,6 +5890,13 @@ void ObjectMgr::LoadQuestAreaTriggers()
         _questAreaTriggerStore[trigger_ID].insert(quest_ID);
 
     } while (result->NextRow());
+
+    for (auto const& pair : _questObjectives)
+    {
+        QuestObjective const* objective = pair.second;
+        if (objective->Type == QUEST_OBJECTIVE_AREATRIGGER)
+            _questAreaTriggerStore[objective->ObjectID].insert(objective->QuestID);
+    }
 
     TC_LOG_INFO("server.loading", ">> Loaded %u quest trigger points in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -8384,7 +8464,7 @@ void ObjectMgr::LoadMailLevelRewards()
     TC_LOG_INFO("server.loading", ">> Loaded %u level dependent mail rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddSpellToTrainer(uint32 ID, uint32 SpellID, uint32 MoneyCost, uint32 ReqSkillLine, uint32 ReqSkillRank, uint32 ReqLevel)
+void ObjectMgr::AddSpellToTrainer(uint32 ID, uint32 SpellID, uint32 MoneyCost, uint32 ReqSkillLine, uint32 ReqSkillRank, uint32 ReqLevel, uint32 Index)
 {
     if (ID >= TRINITY_TRAINER_START_REF)
         return;
@@ -8423,6 +8503,7 @@ void ObjectMgr::AddSpellToTrainer(uint32 ID, uint32 SpellID, uint32 MoneyCost, u
     trainerSpell.ReqSkillLine  = ReqSkillLine;
     trainerSpell.ReqSkillRank  = ReqSkillRank;
     trainerSpell.ReqLevel      = ReqLevel;
+    trainerSpell.Index         = Index;
 
     if (!trainerSpell.ReqLevel)
         trainerSpell.ReqLevel = spellinfo->SpellLevel;
@@ -8463,7 +8544,7 @@ void ObjectMgr::LoadTrainerSpell()
     // For reload case
     _cacheTrainerSpellStore.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT b.ID, a.SpellID, a.MoneyCost, a.ReqSkillLine, a.ReqSkillRank, a.Reqlevel FROM npc_trainer AS a "
+    QueryResult result = WorldDatabase.Query("SELECT b.ID, a.SpellID, a.MoneyCost, a.ReqSkillLine, a.ReqSkillRank, a.Reqlevel, a.Index FROM npc_trainer AS a "
                                              "INNER JOIN npc_trainer AS b ON a.ID = -(b.SpellID) "
                                              "UNION SELECT * FROM npc_trainer WHERE SpellID > 0");
 
@@ -8486,8 +8567,9 @@ void ObjectMgr::LoadTrainerSpell()
         uint32 ReqSkillLine = fields[3].GetUInt16();
         uint32 ReqSkillRank = fields[4].GetUInt16();
         uint32 ReqLevel     = fields[5].GetUInt8();
+        uint32 Index        = fields[6].GetUInt8();
 
-        AddSpellToTrainer(ID, SpellID, MoneyCost, ReqSkillLine, ReqSkillRank, ReqLevel);
+        AddSpellToTrainer(ID, SpellID, MoneyCost, ReqSkillLine, ReqSkillRank, ReqLevel, Index);
 
         ++count;
     }
@@ -8851,9 +8933,13 @@ void ObjectMgr::LoadScriptNames()
     QueryResult result = WorldDatabase.Query(
         "SELECT DISTINCT(ScriptName) FROM battleground_template WHERE ScriptName <> '' "
         "UNION "
+        "SELECT DISTINCT(ScriptName) FROM creature WHERE ScriptName <> '' "
+        "UNION "
         "SELECT DISTINCT(ScriptName) FROM creature_template WHERE ScriptName <> '' "
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM criteria_data WHERE ScriptName <> '' AND type = 11 "
+        "UNION "
+        "SELECT DISTINCT(ScriptName) FROM gameobject WHERE ScriptName <> '' "
         "UNION "
         "SELECT DISTINCT(ScriptName) FROM gameobject_template WHERE ScriptName <> '' "
         "UNION "

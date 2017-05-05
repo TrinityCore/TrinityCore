@@ -415,7 +415,7 @@ struct TC_GAME_API CreatureTemplate
             case DIFFICULTY_HEROIC_RAID:
                 return 0;
             case DIFFICULTY_10_HC:
-            case DIFFICULTY_CHALLENGE:
+            case DIFFICULTY_MYTHIC_KEYSTONE:
             case DIFFICULTY_MYTHIC_RAID:
                 return 1;
             case DIFFICULTY_25_HC:
@@ -543,6 +543,7 @@ struct CreatureData
     uint32 dynamicflags;
     uint32 phaseid;
     uint32 phaseGroup;
+    uint32 ScriptId;
     bool dbData;
 };
 
@@ -659,7 +660,7 @@ typedef std::list<VendorItemCount> VendorItemCounts;
 
 struct TrainerSpell
 {
-    TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0)
+    TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0), Index(0)
     {
         for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
             ReqAbility[i] = 0;
@@ -671,6 +672,7 @@ struct TrainerSpell
     uint32 ReqSkillRank;
     uint32 ReqLevel;
     uint32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
+    uint32 Index;
 
     // helpers
     bool IsCastable() const { return ReqAbility[0] != SpellID; }
@@ -718,6 +720,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, float x, float y, float z, float ang, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool LoadCreaturesAddon();
         void SelectLevel();
+        void UpdateLevelDependantStats();
         void LoadEquipment(int8 id = 1, bool force = false);
         void SetSpawnHealth();
 
@@ -733,7 +736,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
         bool CanWalk() const { return (GetCreatureTemplate()->InhabitType & INHABIT_GROUND) != 0; }
-        bool CanSwim() const { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
+        bool CanSwim() const override { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
         bool CanFly()  const override { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
@@ -958,6 +961,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
+
+        bool CanGiveExperience() const;
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);

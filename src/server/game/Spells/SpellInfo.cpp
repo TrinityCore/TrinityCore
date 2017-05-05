@@ -303,7 +303,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 90 TARGET_UNIT_TARGET_MINIPET
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_RANDOM},      // 91 TARGET_DEST_DEST_RADIUS
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 92 TARGET_UNIT_SUMMONER
-    {TARGET_OBJECT_TYPE_CORPSE, TARGET_REFERENCE_TYPE_SRC,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},       // 93 TARGET_CORPSE_SRC_AREA_ENEMY
+    {TARGET_OBJECT_TYPE_CORPSE, TARGET_REFERENCE_TYPE_SRC,  TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 93 TARGET_CORPSE_SRC_AREA_ENEMY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 94 TARGET_UNIT_VEHICLE
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_PASSENGER, TARGET_DIR_NONE},       // 95 TARGET_UNIT_TARGET_PASSENGER
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 96 TARGET_UNIT_PASSENGER_0
@@ -1024,8 +1024,8 @@ SpellInfo::SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const&
     Speed = _misc ? _misc->Speed : 0;
     SchoolMask = _misc ? _misc->SchoolMask : 0;
     AttributesCu = 0;
-    SpellIconID = _misc ? _misc->SpellIconID : 0;
-    ActiveIconID = _misc ? _misc->ActiveIconID : 0;
+    IconFileDataId = _misc ? _misc->IconFileDataID : 0;
+    ActiveIconFileDataId = _misc ? _misc->ActiveIconFileDataID : 0;
 
     _visuals = std::move(visuals);
     // sort all visuals so that the ones without a condition requirement are last on the list
@@ -1224,18 +1224,14 @@ bool SpellInfo::IsExplicitDiscovery() const
     SpellEffectInfo const* effect0 = GetEffect(DIFFICULTY_NONE, EFFECT_0);
     SpellEffectInfo const* effect1 = GetEffect(DIFFICULTY_NONE, EFFECT_1);
 
-    return ((effect0 && (effect0->Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM || effect0->Effect == SPELL_EFFECT_CREATE_ITEM_2))
+    return ((effect0 && (effect0->Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM || effect0->Effect == SPELL_EFFECT_CREATE_LOOT))
         && effect1 && effect1->Effect == SPELL_EFFECT_SCRIPT_EFFECT)
         || Id == 64323;
 }
 
 bool SpellInfo::IsLootCrafting() const
 {
-    SpellEffectInfo const* effect0 = GetEffect(DIFFICULTY_NONE, EFFECT_0);
-    return effect0 && (effect0->Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
-        // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
-        (effect0->Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
-        ((TotemCategory[0] != 0 || (Totem[0] != 0 && SpellIconID == 1)) || effect0->ItemType == 0)));
+    return HasEffect(SPELL_EFFECT_CREATE_RANDOM_ITEM) || HasEffect(SPELL_EFFECT_CREATE_LOOT);
 }
 
 bool SpellInfo::IsQuestTame() const
@@ -2546,8 +2542,19 @@ uint32 SpellInfo::GetMaxTicks(uint32 difficulty) const
             switch (effect->ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
                 case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_OBS_MOD_HEALTH:
+                case SPELL_AURA_OBS_MOD_POWER:
+                case SPELL_AURA_48:
+                case SPELL_AURA_POWER_BURN:
                 case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_PERIODIC_DUMMY:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
                     if (effect->ApplyAuraPeriod != 0)
                         return DotDuration / effect->ApplyAuraPeriod;
                     break;
@@ -3005,10 +3012,10 @@ uint32 SpellInfo::GetSpellVisual(Unit const* caster /*= nullptr*/) const
 {
     if (SpellXSpellVisualEntry const* visual = sSpellXSpellVisualStore.LookupEntry(GetSpellXSpellVisualId(caster)))
     {
-        //if (visual->SpellVisualID[1] && forPlayer->GetViolenceLevel() operator 2)
-        //    return visual->SpellVisualID[1];
+        //if (visual->LowViolenceSpellVisualID && forPlayer->GetViolenceLevel() operator 2)
+        //    return visual->LowViolenceSpellVisualID;
 
-        return visual->SpellVisualID[0];
+        return visual->SpellVisualID;
     }
 
     return 0;
@@ -3074,11 +3081,6 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                 default:
                     break;
             }
-            break;
-        case SPELLFAMILY_MAGE:
-            // Ignite
-            if (SpellIconID == 45)
-                return true;
             break;
         case SPELLFAMILY_PRIEST:
             switch (Id)

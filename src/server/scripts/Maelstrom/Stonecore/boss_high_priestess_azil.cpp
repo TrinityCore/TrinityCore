@@ -267,7 +267,7 @@ class boss_high_priestess_azil : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_EARTH_FURY_CASTING_VISUAL);
                             me->RemoveAurasDueToSpell(SPELL_EARTH_FURY_ENERGY_SHIELD);
                             Position pos = me->GetPosition();
-                            pos.m_positionZ = me->GetMap()->GetHeight(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                            pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
                             me->GetMotionMaster()->MovePoint(POINT_GROUND, pos);
                             break;
                         }

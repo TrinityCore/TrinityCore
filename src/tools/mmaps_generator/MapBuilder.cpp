@@ -66,16 +66,14 @@ namespace MMAP
         m_skipBattlegrounds  (skipBattlegrounds),
         m_maxWalkableAngle   (maxWalkableAngle),
         m_bigBaseUnit        (bigBaseUnit),
+        m_totalTiles         (0u),
+        m_totalTilesProcessed(0u),
         m_rcContext          (NULL),
         _cancelationToken    (false)
     {
         m_terrainBuilder = new TerrainBuilder(skipLiquid);
 
         m_rcContext = new rcContext(false);
-
-        // percentageDone - Initializing
-        m_totalTiles = 0;
-        m_totalTilesBuilt = 0;
 
         discoverTiles();
     }
@@ -132,7 +130,7 @@ namespace MMAP
             mapID = (*itr).m_mapId;
 
             files.clear();
-            getDirContents(files, "vmaps", Trinity::StringFormat("%04u*.vmtile", mapID));
+            getDirContents(files, "vmaps", Trinity::StringFormat("%04u_*.vmtile", mapID));
             for (uint32 i = 0; i < files.size(); ++i)
             {
                 tileX = uint32(atoi(files[i].substr(8, 2).c_str()));
@@ -157,8 +155,7 @@ namespace MMAP
         }
         printf("found %u.\n\n", count);
 
-        // percentageDone - total tiles to process
-        m_totalTiles = count;
+        m_totalTiles.store(count, std::memory_order_relaxed);
     }
 
     /**************************************************************************/
@@ -190,9 +187,11 @@ namespace MMAP
         }
     }
 
-    void MapBuilder::buildAllMaps(int threads)
+    void MapBuilder::buildAllMaps(unsigned int threads)
     {
-        for (int i = 0; i < threads; ++i)
+        printf("Using %u threads to extract mmaps\n", threads);
+
+        for (unsigned int i = 0; i < threads; ++i)
         {
             _workerThreads.push_back(std::thread(&MapBuilder::WorkerThread, this));
         }
@@ -376,7 +375,7 @@ namespace MMAP
     void MapBuilder::buildMap(uint32 mapID)
     {
 #ifndef __APPLE__
-        //printf("[Thread %u] Building map %03u:\n", uint32(ACE_Thread::self()), mapID);
+        //printf("[Thread %u] Building map %04u:\n", uint32(ACE_Thread::self()), mapID);
 #endif
 
         std::set<uint32>* tiles = getTileList(mapID);
@@ -391,7 +390,8 @@ namespace MMAP
             // add all tiles within bounds to tile list.
             for (uint32 i = minX; i <= maxX; ++i)
                 for (uint32 j = minY; j <= maxY; ++j)
-                    tiles->insert(StaticMapTree::packTileID(i, j));
+                    if (tiles->insert(StaticMapTree::packTileID(i, j)).second)
+                        ++m_totalTiles;
         }
 
         if (!tiles->empty())
@@ -402,6 +402,7 @@ namespace MMAP
             if (!navMesh)
             {
                 printf("[Map %04i] Failed creating navmesh!\n", mapID);
+                m_totalTilesProcessed += tiles->size();
                 return;
             }
 
@@ -414,6 +415,7 @@ namespace MMAP
                 // unpack tile coords
                 StaticMapTree::unpackTileID((*it), tileX, tileY);
 
+                ++m_totalTilesProcessed;
                 if (shouldSkipTile(mapID, tileX, tileY))
                     continue;
 
@@ -429,8 +431,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
-        // percentageDone - added, now it will show addional reference percentage done of the overall process
-        printf("%u%% [Map %04i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesBuilt), mapID, tileX, tileY);
+        printf("%u%% [Map %04i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesProcessed), mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -464,9 +465,6 @@ namespace MMAP
 
         // build navmesh tile
         buildMoveMapTile(mapID, tileX, tileY, meshData, bmin, bmax, navMesh);
-
-        // percentageDone - increment tiles built
-        m_totalTilesBuilt++;
     }
 
     /**************************************************************************/

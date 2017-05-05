@@ -445,10 +445,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     if (updateLevel)
         SelectLevel();
 
+    UpdateLevelDependantStats();
+
     SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cInfo->unit_class);
-    float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
-    SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, armor);
     SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_HOLY]));
     SetModifierValue(UNIT_MOD_RESISTANCE_FIRE,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_FIRE]));
     SetModifierValue(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_NATURE]));
@@ -525,9 +524,9 @@ void Creature::Update(uint32 diff)
             time_t now = time(NULL);
             if (m_respawnTime <= now)
             {
-                bool allowed = IsAIEnabled ? AI()->CanRespawn() : true;     // First check if there are any scripts that object to us respawning
-                if (!allowed)                                               // Will be rechecked on next Update call
-                    break;
+                // First check if there are any scripts that object to us respawning
+                if (!sScriptMgr->CanSpawn(GetSpawnId(), GetEntry(), GetCreatureTemplate(), GetCreatureData(), GetMap()))
+                    break; // Will be rechecked on next Update call
 
                 ObjectGuid dbtableHighGuid = ObjectGuid::Create<HighGuid::Creature>(GetMapId(), GetEntry(), m_spawnId);
                 time_t linkedRespawntime = GetMap()->GetLinkedRespawnTime(dbtableHighGuid);
@@ -937,7 +936,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 /*phaseMask*
         SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_GENDER, minfo->gender);
     }
 
-    LastUsedScriptID = GetCreatureTemplate()->ScriptID;
+    LastUsedScriptID = GetScriptId();
 
     /// @todo Replace with spell, handle from DB
     if (IsSpiritHealer() || IsSpiritGuide())
@@ -1190,15 +1189,18 @@ void Creature::SelectLevel()
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
 
-    uint32 rank = IsPet() ? 0 : cInfo->rank;
-
     // level
     uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
     uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
     uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
     SetLevel(level);
+}
 
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+void Creature::UpdateLevelDependantStats()
+{
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    uint32 rank = IsPet() ? 0 : cInfo->rank;
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cInfo->unit_class);
 
     // health
     float healthmod = _GetHealthMod(rank);
@@ -1250,6 +1252,9 @@ void Creature::SelectLevel()
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, stats->AttackPower);
     SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, stats->RangedAttackPower);
+
+    float armor = (float)stats->GenerateArmor(cInfo); /// @todo Why is this treated as uint32 when it's a float?
+    SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, armor);
 }
 
 float Creature::_GetHealthMod(int32 Rank)
@@ -1412,12 +1417,17 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
     m_deathState = ALIVE;
 
     m_respawnTime  = GetMap()->GetCreatureRespawnTime(m_spawnId);
+
+    // Is the creature script objecting to us spawning? If yes, delay by one second (then re-check in ::Update)
+    if (!m_respawnTime && !sScriptMgr->CanSpawn(spawnId, GetEntry(), GetCreatureTemplate(), GetCreatureData(), map))
+        m_respawnTime = time(NULL)+1;
+
     if (m_respawnTime)                          // respawn on Update
     {
         m_deathState = DEAD;
         if (CanFly())
         {
-            float tz = map->GetHeight(GetPhaseMask(), data->posX, data->posY, data->posZ, true, MAX_FALL_DISTANCE);
+            float tz = map->GetHeight(GetPhases(), data->posX, data->posY, data->posZ, true, MAX_FALL_DISTANCE);
             if (data->posZ - tz > 0.1f && Trinity::IsValidMapCoord(tz))
                 Relocate(data->posX, data->posY, tz);
         }
@@ -1811,22 +1821,27 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
         return;
     }
 
-    if (IsAlive())
+    if (forceRespawnTimer > Seconds::zero())
     {
-        if (forceRespawnTimer > Seconds::zero())
+        if (IsAlive())
         {
             uint32 respawnDelay = m_respawnDelay;
             uint32 corpseDelay = m_corpseDelay;
             m_respawnDelay = forceRespawnTimer.count();
             m_corpseDelay = 0;
             setDeathState(JUST_DIED);
-
             m_respawnDelay = respawnDelay;
             m_corpseDelay = corpseDelay;
         }
         else
-            setDeathState(JUST_DIED);
+        {
+            m_corpseRemoveTime = time(NULL);
+            m_respawnTime = time(NULL) + forceRespawnTimer.count();
+        }
     }
+    else
+        if (IsAlive())
+            setDeathState(JUST_DIED);
 
     RemoveCorpse(false);
 }
@@ -2490,6 +2505,9 @@ std::string Creature::GetScriptName() const
 
 uint32 Creature::GetScriptId() const
 {
+    if (CreatureData const* creatureData = GetCreatureData())
+        return creatureData->ScriptId;
+
     return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
 }
 
@@ -2691,7 +2709,7 @@ void Creature::UpdateMovementFlags()
         return;
 
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
-    float ground = GetMap()->GetHeight(GetPhaseMask(), GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+    float ground = GetMap()->GetHeight(GetPhases(), GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
 
     bool isInAir = (G3D::fuzzyGt(GetPositionZMinusOffset(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZMinusOffset(), ground - 0.05f)); // Can be underground too, prevent the falling
 
@@ -2795,10 +2813,10 @@ void Creature::FocusTarget(Spell const* focusSpell, WorldObject const* target)
     bool canTurnDuringCast = !focusSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
     // Face the target - we need to do this before the unit state is modified for no-turn spells
     if (target)
-        SetFacingTo(GetAngle(target));
+        SetFacingToObject(target);
     else if (!canTurnDuringCast)
         if (Unit* victim = GetVictim())
-            SetFacingTo(GetAngle(victim)); // ensure orientation is correct at beginning of cast
+            SetFacingToObject(victim); // ensure orientation is correct at beginning of cast
 
     if (!canTurnDuringCast)
         AddUnitState(UNIT_STATE_CANNOT_TURN);
@@ -2844,7 +2862,7 @@ void Creature::ReleaseFocus(Spell const* focusSpell, bool withDelay)
         if (!m_suppressedTarget.IsEmpty())
         {
             if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, m_suppressedTarget))
-                SetFacingTo(GetAngle(objTarget));
+                SetFacingToObject(objTarget);
         }
         else
             SetFacingTo(m_suppressedOrientation);
@@ -2891,4 +2909,12 @@ void Creature::ClearTextRepeatGroup(uint8 textGroup)
     CreatureTextRepeatGroup::iterator groupItr = m_textRepeat.find(textGroup);
     if (groupItr != m_textRepeat.end())
         groupItr->second.clear();
+}
+
+bool Creature::CanGiveExperience() const
+{
+    return !IsCritter()
+        && !IsPet()
+        && !IsTotem()
+        && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL);
 }

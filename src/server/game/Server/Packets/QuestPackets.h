@@ -157,6 +157,7 @@ namespace WorldPackets
             int32 AreaGroupID               = 0;
             int32 TimeAllowed               = 0;
             int32 QuestRewardID             = 0;
+            int32 Expansion                 = 0;
             std::vector<QuestObjective> Objectives;
             int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = {};
             int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = {};
@@ -362,8 +363,6 @@ namespace WorldPackets
             bool DisplayPopup = false;
             bool StartCheat = false;
             bool AutoLaunched = false;
-            bool CanIgnoreQuest = false;
-            bool IsQuestIgnored = false;
         };
 
         struct QuestObjectiveCollect
@@ -402,8 +401,6 @@ namespace WorldPackets
             uint32 QuestFlags[2]        = {};
             std::string QuestTitle;
             std::string CompletionText;
-            bool CanIgnoreQuest         = false;
-            bool IsQuestIgnored         = false;
         };
 
         class QuestGiverRequestReward final : public ClientPacket
@@ -453,15 +450,14 @@ namespace WorldPackets
 
         struct GossipTextData
         {
-            GossipTextData(uint32 questID, uint32 questType, uint32 questLevel, uint32 questFlags, uint32 questFlagsEx, bool repeatable, bool ignored, std::string questTitle) :
-                QuestID(questID), QuestType(questType), QuestLevel(questLevel), QuestFlags(questFlags), QuestFlagsEx(questFlagsEx), Repeatable(repeatable), IsQuestIgnored(ignored), QuestTitle(questTitle) { }
+            GossipTextData(uint32 questID, uint32 questType, uint32 questLevel, uint32 questFlags, uint32 questFlagsEx, bool repeatable, std::string questTitle) :
+                QuestID(questID), QuestType(questType), QuestLevel(questLevel), QuestFlags(questFlags), QuestFlagsEx(questFlagsEx), Repeatable(repeatable), QuestTitle(questTitle) { }
             uint32 QuestID;
             uint32 QuestType;
             uint32 QuestLevel;
             uint32 QuestFlags;
             uint32 QuestFlagsEx;
             bool Repeatable;
-            bool IsQuestIgnored;
             std::string QuestTitle;
         };
 
@@ -550,6 +546,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Reason = 0;
+            int32 ContributionRewardID = 0;
             bool SendErrorMessage = false;
             std::string ReasonText;
         };

@@ -281,13 +281,3 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
         }
     }
 }
-
-void WorldSession::HandleTransmogAppearanceSetFavorite(WorldPackets::Transmogrification::TransmogAppearanceSetFavorite& transmogAppearanceSetFavorite)
-{
-    bool hasAppearance, isTemporary;
-    std::tie(hasAppearance, isTemporary) = GetCollectionMgr()->HasItemAppearance(transmogAppearanceSetFavorite.ItemModifiedAppearanceID);
-    if (!hasAppearance || isTemporary)
-        return;
-
-    GetCollectionMgr()->SetAppearanceIsFavorite(transmogAppearanceSetFavorite.ItemModifiedAppearanceID, transmogAppearanceSetFavorite.IsFavorite);
-}

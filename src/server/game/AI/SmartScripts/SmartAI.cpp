@@ -449,12 +449,15 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
         AddEscortState(SMART_ESCORT_RETURNING);
         ReturnToLastOOCPos();
     }
-    else if (!mFollowGuid.IsEmpty())
+    else if (Unit* target = !mFollowGuid.IsEmpty() ? ObjectAccessor::GetUnit(*me, mFollowGuid) : nullptr)
     {
-        if (Unit* target = ObjectAccessor::GetUnit(*me, mFollowGuid))
-            me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
-
+        me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
         // evade is not cleared in MoveFollow, so we can't keep it
+        me->ClearUnitState(UNIT_STATE_EVADE);
+    }
+    else if (Unit* owner = me->GetCharmerOrOwner())
+    {
+        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         me->ClearUnitState(UNIT_STATE_EVADE);
     }
     else
@@ -976,7 +979,42 @@ class SmartTrigger : public AreaTriggerScript
         }
 };
 
+class SmartScene : public SceneScript
+{
+public:
+    SmartScene() : SceneScript("SmartScene") { }
+
+    void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
+    {
+        SmartScript smartScript;
+        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_START, player);
+    }
+
+    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate, std::string const& triggerName) override
+    {
+        SmartScript smartScript;
+        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_TRIGGER, player, 0, 0, false, nullptr, nullptr, triggerName);
+    }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
+    {
+        SmartScript smartScript;
+        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_CANCEL, player);
+    }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
+    {
+        SmartScript smartScript;
+        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_COMPLETE, player);
+    }
+};
+
 void AddSC_SmartScripts()
 {
     new SmartTrigger();
+    new SmartScene();
 }

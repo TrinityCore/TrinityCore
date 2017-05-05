@@ -42,6 +42,7 @@ SmartScript::SmartScript()
     go = nullptr;
     me = nullptr;
     trigger = nullptr;
+    sceneTemplate = nullptr;
     mEventPhase = 0;
     mPathId = 0;
     mTargetStorage = new ObjectListMap();
@@ -80,7 +81,7 @@ void SmartScript::OnReset()
     mCounterList.clear();
 }
 
-void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
+void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob, std::string const& varString)
 {
     for (SmartAIEventList::iterator i = mEvents.begin(); i != mEvents.end(); ++i)
     {
@@ -90,11 +91,11 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
 
         if (eventType == e /*&& (!i->event.event_phase_mask || IsInPhase(i->event.event_phase_mask)) && !(i->event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE && i->runOnce)*/)
             if (sConditionMgr->IsObjectMeetingSmartEventConditions(i->entryOrGuid, i->event_id, i->source_type, unit, GetBaseObject()))
-                ProcessEvent(*i, unit, var0, var1, bvar, spell, gob);
+                ProcessEvent(*i, unit, var0, var1, bvar, spell, gob, varString);
     }
 }
 
-void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
+void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob, std::string const& varString)
 {
     //calc random
     if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance)
@@ -470,7 +471,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 if (IsPlayer(*itr))
                 {
-                    (*itr)->ToPlayer()->GroupEventHappens(e.action.quest.quest, me);
+                    (*itr)->ToPlayer()->AreaExploredOrEventHappens(e.action.quest.quest);
 
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: %s credited quest %u",
                         (*itr)->GetGUID().ToString().c_str(), e.action.quest.quest);
@@ -1264,7 +1265,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SUMMON_CREATURE:
         {
+            WorldObject* summoner = GetBaseObjectOrUnit(unit);
+            if (!summoner)
+                break;
+
             ObjectList* targets = GetTargets(e, unit);
+
             if (targets)
             {
                 float x, y, z, o;
@@ -1275,7 +1281,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     y += e.target.y;
                     z += e.target.z;
                     o += e.target.o;
-                    if (Creature* summon = GetBaseObject()->SummonCreature(e.action.summonCreature.creature, x, y, z, o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
+                    if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, x, y, z, o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
                         if (e.action.summonCreature.attackInvoker)
                             summon->AI()->AttackStart((*itr)->ToUnit());
                 }
@@ -1286,14 +1292,15 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            if (Creature* summon = GetBaseObject()->SummonCreature(e.action.summonCreature.creature, e.target.x, e.target.y, e.target.z, e.target.o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
+            if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, e.target.x, e.target.y, e.target.z, e.target.o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
                 if (unit && e.action.summonCreature.attackInvoker)
                     summon->AI()->AttackStart(unit);
             break;
         }
         case SMART_ACTION_SUMMON_GO:
         {
-            if (!GetBaseObject())
+            WorldObject* summoner = GetBaseObjectOrUnit(unit);
+            if (!summoner)
                 break;
 
             ObjectList* targets = GetTargets(e, unit);
@@ -1306,7 +1313,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                     Position pos = (*itr)->GetPositionWithOffset(Position(e.target.x, e.target.y, e.target.z, e.target.o));
                     G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
-                    GetBaseObject()->SummonGameObject(e.action.summonGO.entry, pos, rot, e.action.summonGO.despawnTime);
+                    summoner->SummonGameObject(e.action.summonGO.entry, pos, rot, e.action.summonGO.despawnTime);
                 }
 
                 delete targets;
@@ -1316,7 +1323,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(e.target.o, 0.f, 0.f);
-            GetBaseObject()->SummonGameObject(e.action.summonGO.entry, Position(e.target.x, e.target.y, e.target.z, e.target.o), rot, e.action.summonGO.despawnTime);
+            summoner->SummonGameObject(e.action.summonGO.entry, Position(e.target.x, e.target.y, e.target.z, e.target.o), rot, e.action.summonGO.despawnTime);
             break;
         }
         case SMART_ACTION_KILL_UNIT:
@@ -2433,6 +2440,62 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ENSURE_AI(SmartAI, me->AI())->SetEvadeDisabled(e.action.disableEvade.disable != 0);
             break;
         }
+        case SMART_ACTION_PLAY_ANIMKIT:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (IsCreature(*itr))
+                {
+                    if (e.action.animKit.type == 0)
+                        (*itr)->ToCreature()->PlayOneShotAnimKitId(e.action.animKit.animKit);
+                    else if (e.action.animKit.type == 1)
+                        (*itr)->ToCreature()->SetAIAnimKitId(e.action.animKit.animKit);
+                    else if (e.action.animKit.type == 2)
+                        (*itr)->ToCreature()->SetMeleeAnimKitId(e.action.animKit.animKit);
+                    else if (e.action.animKit.type == 3)
+                        (*itr)->ToCreature()->SetMovementAnimKitId(e.action.animKit.animKit);
+                    else
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartScript: Invalid type for SMART_ACTION_PLAY_ANIMKIT, skipping");
+                        break;
+                    }
+
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_ANIMKIT: target: %s (%s), AnimKit: %u, Type: %u",
+                        (*itr)->GetName().c_str(), (*itr)->GetGUID().ToString().c_str(), e.action.animKit.animKit, e.action.animKit.type);
+                }
+            }
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_SCENE_PLAY:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (WorldObject* target : *targets)
+                if (Player* playerTarget = target->ToPlayer())
+                    playerTarget->GetSceneMgr().PlayScene(e.action.scene.sceneId);
+
+            break;
+        }
+        case SMART_ACTION_SCENE_CANCEL:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (WorldObject* target : *targets)
+                if (Player* playerTarget = target->ToPlayer())
+                    playerTarget->GetSceneMgr().CancelSceneBySceneId(e.action.scene.sceneId);
+
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry " SI64FMTD " SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
@@ -2442,16 +2505,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     {
         SmartScriptHolder& linked = SmartAIMgr::FindLinkedEvent(mEvents, e.link);
         if (linked)
-            ProcessEvent(linked, unit, var0, var1, bvar, spell, gob);
+            ProcessEvent(linked, unit, var0, var1, bvar, spell, gob, varString);
         else
             TC_LOG_DEBUG("sql.sql", "SmartScript::ProcessAction: Entry " SI64FMTD " SourceType %u, Event %u, Link Event %u not found or invalid, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
     }
 }
 
-void SmartScript::ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
+void SmartScript::ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob, std::string const& varString)
 {
     if (sConditionMgr->IsObjectMeetingSmartEventConditions(e.entryOrGuid, e.event_id, e.source_type, unit, GetBaseObject()))
-        ProcessAction(e, unit, var0, var1, bvar, spell, gob);
+        ProcessAction(e, unit, var0, var1, bvar, spell, gob, varString);
 
     RecalcTimer(e, min, max);
 }
@@ -2849,6 +2912,16 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                         l->push_back(recipient);
                 }
             }
+            break;
+        }
+        case SMART_TARGET_VEHICLE_ACCESSORY:
+        {
+            if (me && me->IsVehicle())
+            {
+                if (Unit* target = me->GetVehicleKit()->GetPassenger(e.target.vehicle.seat))
+                    l->push_back(target);
+            }
+            break;
         }
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
@@ -2878,7 +2951,7 @@ ObjectList* SmartScript::GetWorldObjectsInDist(float dist)
     return targets;
 }
 
-void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
+void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob, std::string const& varString)
 {
     if (!e.active && e.GetEventType() != SMART_EVENT_LINK)
         return;
@@ -3416,6 +3489,21 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (GetCounterId(e.event.counter.id) != 0 && GetCounterValue(e.event.counter.id) == e.event.counter.value)
                 ProcessTimedAction(e, e.event.counter.cooldownMin, e.event.counter.cooldownMax);
             break;
+        case SMART_EVENT_SCENE_START:
+        case SMART_EVENT_SCENE_CANCEL:
+        case SMART_EVENT_SCENE_COMPLETE:
+        {
+            ProcessAction(e, unit);
+            break;
+        }
+        case SMART_EVENT_SCENE_TRIGGER:
+        {
+            if (e.event.param_string != varString)
+                return;
+
+            ProcessAction(e, unit, var0, 0, false, nullptr, nullptr, varString);
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessEvent: Unhandled Event type %u", e.GetEventType());
             break;
@@ -3601,7 +3689,7 @@ void SmartScript::OnUpdate(uint32 const diff)
     }
 }
 
-void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at)
+void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene)
 {
     if (e.empty())
     {
@@ -3609,6 +3697,8 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
             TC_LOG_DEBUG("scripts.ai", "SmartScript: EventMap for Entry %u is empty but is using SmartScript.", obj->GetEntry());
         if (at)
             TC_LOG_DEBUG("scripts.ai", "SmartScript: EventMap for AreaTrigger %u is empty but is using SmartScript.", at->ID);
+        if (scene)
+            TC_LOG_DEBUG("scripts.ai", "SmartScript: EventMap for SceneId %u is empty but is using SmartScript.", scene->SceneId);
         return;
     }
     for (SmartAIEventList::iterator i = e.begin(); i != e.end(); ++i)
@@ -3635,6 +3725,8 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
         TC_LOG_ERROR("sql.sql", "SmartScript: Entry %u has events but no events added to list because of instance flags.", obj->GetEntry());
     if (mEvents.empty() && at)
         TC_LOG_ERROR("sql.sql", "SmartScript: AreaTrigger %u has events but no events added to list because of instance flags. NOTE: triggers can not handle any instance flags.", at->ID);
+    if (mEvents.empty() && scene)
+        TC_LOG_ERROR("sql.sql", "SmartScript: SceneId %u has events but no events added to list because of instance flags. NOTE: scenes can not handle any instance flags.", scene->SceneId);
 }
 
 void SmartScript::GetScript()
@@ -3645,23 +3737,28 @@ void SmartScript::GetScript()
         e = sSmartScriptMgr->GetScript(-((int32)me->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)me->GetEntry(), mScriptType);
-        FillScript(e, me, nullptr);
+        FillScript(e, me, nullptr, nullptr);
     }
     else if (go)
     {
         e = sSmartScriptMgr->GetScript(-((int32)go->GetSpawnId()), mScriptType);
         if (e.empty())
             e = sSmartScriptMgr->GetScript((int32)go->GetEntry(), mScriptType);
-        FillScript(e, go, nullptr);
+        FillScript(e, go, nullptr, nullptr);
     }
     else if (trigger)
     {
         e = sSmartScriptMgr->GetScript((int32)trigger->ID, mScriptType);
-        FillScript(e, nullptr, trigger);
+        FillScript(e, nullptr, trigger, nullptr);
+    }
+    else if (sceneTemplate)
+    {
+        e = sSmartScriptMgr->GetScript(sceneTemplate->SceneId, mScriptType);
+        FillScript(e, nullptr, nullptr, sceneTemplate);
     }
 }
 
-void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at)
+void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene)
 {
     if (obj)//handle object based scripts
     {
@@ -3681,11 +3778,18 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at)
                 TC_LOG_ERROR("misc", "SmartScript::OnInitialize: Unhandled TypeID !WARNING!");
                 return;
         }
-    } else if (at)
+    }
+    else if (at)
     {
         mScriptType = SMART_SCRIPT_TYPE_AREATRIGGER;
         trigger = at;
         TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger %u", trigger->ID);
+    }
+    else if (scene)
+    {
+        mScriptType = SMART_SCRIPT_TYPE_SCENE;
+        sceneTemplate = scene;
+        TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is Scene with id %u", scene->SceneId);
     }
     else
     {

@@ -537,12 +537,18 @@ void SpellHistory::AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point 
 
 void SpellHistory::ModifyCooldown(uint32 spellId, int32 cooldownModMs)
 {
+    Clock::duration offset = std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(cooldownModMs));
+    ModifyCooldown(spellId, offset);
+}
+
+void SpellHistory::ModifyCooldown(uint32 spellId, Clock::duration offset)
+{
     auto itr = _spellCooldowns.find(spellId);
-    if (!cooldownModMs || itr == _spellCooldowns.end())
+    if (!offset.count() || itr == _spellCooldowns.end())
         return;
 
     Clock::time_point now = Clock::now();
-    Clock::duration offset = std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(cooldownModMs));
+
     if (itr->second.CooldownEnd + offset > now)
         itr->second.CooldownEnd += offset;
     else
@@ -553,7 +559,7 @@ void SpellHistory::ModifyCooldown(uint32 spellId, int32 cooldownModMs)
         WorldPackets::Spells::ModifyCooldown modifyCooldown;
         modifyCooldown.IsPet = _owner != playerOwner;
         modifyCooldown.SpellID = spellId;
-        modifyCooldown.DeltaTime = cooldownModMs;
+        modifyCooldown.DeltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(offset).count();
         playerOwner->SendDirectMessage(modifyCooldown.Write());
     }
 }
