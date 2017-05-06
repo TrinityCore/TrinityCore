@@ -6,7 +6,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "lib${PLATFORM}-msvc*"
 
 if(WIN32)
  set(BOOST_DEBUG ON)
@@ -15,8 +15,17 @@ if(WIN32)
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
       set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-12.0)
     else()
-      set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
+	  # new boost 64.* upped the version to 14.1 from 14.0
+	  # adding logic to detect version automatically
+	  file(GLOB MSVC_LIB_DIRECTORIES ${BOOST_ROOT}/lib${PLATFORM}-msvc*)
+	  if(DEFINED MSVC_LIB_DIRECTORIES)
+		list(GET MSVC_LIB_DIRECTORIES 0 BOOST_LIBRARYDIR)
+	  else()
+		set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
+	  endif()
+	  
     endif()
+	message("BOOST_LIBRARYDIR is set to ${BOOST_LIBRARYDIR}")
   else()
     message(FATAL_ERROR "No BOOST_ROOT environment variable could be found! Please make sure it is set and the points to your Boost installation.")
   endif()
