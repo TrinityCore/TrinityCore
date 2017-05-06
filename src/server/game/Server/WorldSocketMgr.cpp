@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2008  MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,6 +34,7 @@ class WorldSocketThread : public NetworkThread<WorldSocket>
 public:
     void SocketAdded(std::shared_ptr<WorldSocket> sock) override
     {
+        sock->SetSendBufferSize(sWorldSocketMgr.GetApplicationSendBufferSize());
         sScriptMgr->OnSocketOpen(sock);
     }
 
@@ -43,7 +44,7 @@ public:
     }
 };
 
-WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _instanceAcceptor(nullptr), _socketSendBufferSize(-1), m_SockOutUBuff(65536), _tcpNoDelay(true)
+WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _instanceAcceptor(nullptr), _socketSystemSendBufferSize(-1), _socketApplicationSendBufferSize(65536), _tcpNoDelay(true)
 {
 }
 
@@ -66,18 +67,37 @@ bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string 
     TC_LOG_DEBUG("misc", "Max allowed socket connections %d", max_connections);
 
     // -1 means use default
-    _socketSendBufferSize = sConfigMgr->GetIntDefault("Network.OutKBuff", -1);
+    _socketSystemSendBufferSize = sConfigMgr->GetIntDefault("Network.OutKBuff", -1);
 
-    m_SockOutUBuff = sConfigMgr->GetIntDefault("Network.OutUBuff", 65536);
+    _socketApplicationSendBufferSize = sConfigMgr->GetIntDefault("Network.OutUBuff", 65536);
 
-    if (m_SockOutUBuff <= 0)
+    if (_socketApplicationSendBufferSize <= 0)
     {
         TC_LOG_ERROR("misc", "Network.OutUBuff is wrong in your config file");
         return false;
     }
 
-    BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount);
-    _instanceAcceptor = new AsyncAcceptor(service, bindIp, uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE)));
+    if (!BaseSocketMgr::StartNetwork(service, bindIp, port, threadCount))
+        return false;
+
+    AsyncAcceptor* instanceAcceptor = nullptr;
+    try
+    {
+        instanceAcceptor = new AsyncAcceptor(service, bindIp, uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE)));
+    }
+    catch (boost::system::system_error const& err)
+    {
+        TC_LOG_ERROR("network", "Exception caught in WorldSocketMgr::StartNetwork (%s:%u): %s", bindIp.c_str(), port, err.what());
+        return false;
+    }
+
+    if (!instanceAcceptor->Bind())
+    {
+        TC_LOG_ERROR("network", "StartNetwork failed to bind instance socket acceptor");
+        return false;
+    }
+
+    _instanceAcceptor = instanceAcceptor;
 
     _acceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
     _instanceAcceptor->SetSocketFactory(std::bind(&BaseSocketMgr::GetSocketForAccept, this));
@@ -91,7 +111,9 @@ bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string 
 
 void WorldSocketMgr::StopNetwork()
 {
-    _instanceAcceptor->Close();
+    if (_instanceAcceptor)
+        _instanceAcceptor->Close();
+
     BaseSocketMgr::StopNetwork();
 
     delete _instanceAcceptor;
@@ -103,10 +125,10 @@ void WorldSocketMgr::StopNetwork()
 void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
 {
     // set some options here
-    if (_socketSendBufferSize >= 0)
+    if (_socketSystemSendBufferSize >= 0)
     {
         boost::system::error_code err;
-        sock.set_option(boost::asio::socket_base::send_buffer_size(_socketSendBufferSize), err);
+        sock.set_option(boost::asio::socket_base::send_buffer_size(_socketSystemSendBufferSize), err);
         if (err && err != boost::system::errc::not_supported)
         {
             TC_LOG_ERROR("misc", "WorldSocketMgr::OnSocketOpen sock.set_option(boost::asio::socket_base::send_buffer_size) err = %s", err.message().c_str());

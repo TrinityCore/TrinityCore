@@ -1630,6 +1630,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;
         bool IsQuestObjectiveComplete(QuestObjective const& objective) const;
         void SetQuestObjectiveData(Quest const* quest, int8 storageIndex, int32 data);
+        bool IsQuestObjectiveProgressComplete(Quest const* quest) const;
         void SendQuestComplete(Quest const* quest) const;
         void SendQuestReward(Quest const* quest, uint32 XP) const;
         void SendQuestFailed(uint32 questID, InventoryResult reason = EQUIP_ERR_OK) const;
@@ -2345,7 +2346,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool HaveAtClient(Object const* u) const;
 
-        bool IsNeverVisible() const override;
+        bool IsNeverVisibleFor(WorldObject const* seer) const override;
 
         bool IsVisibleGloballyFor(Player const* player) const;
 

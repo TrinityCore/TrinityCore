@@ -110,12 +110,6 @@ void WorldSession::SendAuctionOwnerBidNotification(AuctionEntry const* auction, 
 //this void creates new auction and adds auction to some auctionhouse
 void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSellItem& packet)
 {
-    if (packet.Items.size() > MAX_AUCTION_ITEMS)
-    {
-        SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
-        return;
-    }
-
     for (auto const& item : packet.Items)
         if (!item.Guid || !item.UseCount || item.UseCount > 1000)
             return;

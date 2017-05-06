@@ -360,7 +360,7 @@ bool Quest::IsAutoComplete() const
 
 bool Quest::IsRaidQuest(Difficulty difficulty) const
 {
-    switch (Type)
+    switch (QuestInfoID)
     {
         case QUEST_INFO_RAID:
             return true;
