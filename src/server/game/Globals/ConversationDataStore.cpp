@@ -56,9 +56,9 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationActor.Id = id;
             conversationActor.CreatureId = fields[1].GetUInt32();
             conversationActor.CreatureModelId = fields[2].GetUInt32();
-            conversationActor.Unk2 = fields[3].GetUInt32();
-            conversationActor.Unk3 = fields[4].GetUInt32();
-            conversationActor.Unk4 = fields[5].GetUInt32();
+            conversationActor.Unk3 = fields[3].GetUInt32();
+            conversationActor.Unk4 = fields[4].GetUInt32();
+            conversationActor.Unk5 = fields[5].GetUInt32();
         }
         while (actorTemplates->NextRow());
 
@@ -69,7 +69,7 @@ void ConversationDataStore::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation template actors. DB table `conversation_actor_template` is empty.");
     }
 
-    if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, PreviousLineDuration, Unk2, Unk3 FROM conversation_line_template"))
+    if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, StartTime, UiCameraID, ActorIdx FROM conversation_line_template"))
     {
         uint32 oldMSTime = getMSTime();
         uint32 count = 0;
@@ -86,10 +86,10 @@ void ConversationDataStore::LoadConversationTemplates()
             }
 
             ConversationLineTemplate& conversationLine = _conversationLineTemplateStore[id];
-            conversationLine.Id                     = id;
-            conversationLine.PreviousLineDuration   = fields[1].GetUInt32();
-            conversationLine.Unk2                   = fields[2].GetUInt32();
-            conversationLine.Unk3                   = fields[3].GetUInt32();
+            conversationLine.Id         = id;
+            conversationLine.StartTime  = fields[1].GetUInt32();
+            conversationLine.UiCameraID = fields[2].GetUInt32();
+            conversationLine.ActorIdx   = fields[3].GetUInt32();
 
             ++count;
         }
@@ -102,7 +102,7 @@ void ConversationDataStore::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation template lines. DB table `conversation_line_template` is empty.");
     }
 
-    if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, LastLineDuration, VerifiedBuild FROM conversation_template"))
+    if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, LastLineEndTime, VerifiedBuild FROM conversation_template"))
     {
         uint32 oldMSTime = getMSTime();
 
@@ -111,9 +111,9 @@ void ConversationDataStore::LoadConversationTemplates()
             Field* fields = templates->Fetch();
 
             ConversationTemplate conversationTemplate;
-            conversationTemplate.Id = fields[0].GetUInt32();
-            conversationTemplate.FirstLineId = fields[1].GetUInt32();
-            conversationTemplate.LastLineDuration = fields[2].GetUInt32();
+            conversationTemplate.Id                 = fields[0].GetUInt32();
+            conversationTemplate.FirstLineId        = fields[1].GetUInt32();
+            conversationTemplate.LastLineEndTime    = fields[2].GetUInt32();
 
             if (QueryResult actors = WorldDatabase.PQuery("SELECT ConversationActorId FROM conversation_actors WHERE ConversationId = %u ORDER BY Idx", conversationTemplate.Id))
             {

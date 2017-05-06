@@ -20,7 +20,7 @@
 
 #include "Define.h"
 
-class ConversationTemplate;
+struct ConversationTemplate;
 
 class TC_GAME_API ConversationDataStore
 {

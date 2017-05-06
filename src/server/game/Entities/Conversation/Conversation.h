@@ -19,7 +19,6 @@
 #define TRINITYCORE_CONVERSATION_H
 
 #include "Object.h"
-#include "ObjectAccessor.h"
 
 class Unit;
 class SpellInfo;
@@ -29,24 +28,24 @@ struct ConversationActorTemplate
     uint32 Id;
     uint32 CreatureId;
     uint32 CreatureModelId;
-    uint32 Unk2;
     uint32 Unk3;
     uint32 Unk4;
+    uint32 Unk5;
 };
 
 struct ConversationLineTemplate
 {
-    uint32 Id;      // Link to ConversationLine.db2
-    uint32 PreviousLineDuration;
-    uint32 Unk2;
-    uint32 Unk3;
+    uint32 Id;          // Link to ConversationLine.db2
+    uint32 StartTime;   // Time in ms after conversation creation the line is displayed
+    uint32 UiCameraID;  // Link to UiCamera.db2
+    uint32 ActorIdx;    // Index from conversation_actors
 };
 
 struct ConversationTemplate
 {
     uint32 Id;
-    uint32 FirstLineId;
-    uint32 LastLineDuration;
+    uint32 FirstLineId;     // Link to ConversationLine.db2
+    uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
 
     std::vector<ConversationActorTemplate> Actors;
     std::vector<ConversationLineTemplate> Lines;
@@ -65,12 +64,18 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void Remove();
         int32 GetDuration() const { return _duration; }
 
-        bool CreateConversation(uint32 conversationEntry, Unit* caster, SpellInfo const* spell, Position const& pos);
+        bool CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, SpellInfo const* spellInfo);
 
-        ObjectGuid GetCasterGuid() const { return _casterGuid; }
+        ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
+
+        float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
+        float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }
+        float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
+        float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
 
     private:
-        ObjectGuid _casterGuid;
+        Position _stationaryPosition;
+        ObjectGuid _creatorGuid;
         uint32 _duration;
 };
 #endif

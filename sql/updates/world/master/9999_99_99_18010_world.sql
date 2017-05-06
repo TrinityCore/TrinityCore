@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS `conversation_template`;
 CREATE TABLE `conversation_template` (
   `Id` INT (10) UNSIGNED NOT NULL,
   `FirstLineId` INT (10) UNSIGNED NOT NULL,
-  `LastLineDuration` INT (10) UNSIGNED NOT NULL,
+  `LastLineEndTime` INT (10) UNSIGNED NOT NULL,
   `VerifiedBuild` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -22,9 +22,9 @@ CREATE TABLE `conversation_actor_template` (
 DROP TABLE IF EXISTS `conversation_line_template`;
 CREATE TABLE `conversation_line_template` (
   `Id` INT (10) UNSIGNED NOT NULL,
-  `PreviousLineDuration` INT (10) UNSIGNED NOT NULL DEFAULT 0,
-  `Unk2` INT (10) UNSIGNED NOT NULL DEFAULT 0,
-  `Unk3` INT (10) UNSIGNED NOT NULL DEFAULT 0,
+  `StartTime` INT (10) UNSIGNED NOT NULL DEFAULT 0,
+  `UiCameraID` INT (10) UNSIGNED NOT NULL DEFAULT 0,
+  `ActorIdx` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   `VerifiedBuild` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -38,7 +38,7 @@ CREATE TABLE `conversation_actors` (
   PRIMARY KEY (`ConversationId`, `ConversationActorId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-
+/*
 INSERT INTO `conversation_actor_template`(`Id`,`CreatureId`,`CreatureModelId`,`Unk2`,`Unk3`,`Unk4`,`VerifiedBuild`) VALUES
 (49825, 93221, 65308, 0, 1, 0, 22624),
 (50124, 98075, 21135, 0, 1, 0, 22624);
@@ -47,12 +47,18 @@ INSERT INTO `conversation_actors`(`ConversationId`,`ConversationActorId`,`Idx`,`
 (705, 49825, 0, 22624),
 (1025, 50124, 0, 22624);
 
-INSERT INTO `conversation_line_template`(`Id`,`PreviousLineDuration`,`Unk2`,`Unk3`,`VerifiedBuild`) VALUES
+INSERT INTO `conversation_line_template`(`Id`,`StartTime`,`UiCameraID`,`ActorIdx`,`VerifiedBuild`) VALUES
 (1445, 0, 254, 0, 22624),
 (1446, 4924, 254, 540016640, 22624),
 (1683, 0, 296, 0, 22624),
 (1684, 6151, 296, 0, 22624);
 
-INSERT INTO `conversation_template`(`Id`,`FirstLineId`,`LastLineDuration`,`VerifiedBuild`) VALUES
+INSERT INTO `conversation_template`(`Id`,`FirstLineId`,`LastLineEndTime`,`VerifiedBuild`) VALUES
 (705, 1445, 6544, 22624),
 (1025, 1683, 3458, 22624);
+*/
+
+DELETE FROM `command` WHERE `name` IN ('debug conversation', 'reload conversation_template');
+INSERT INTO `command` (`name`, `permission`, `help`) VALUES
+('debug conversation', 854, 'Syntax: .debug conversation $conversationId\r\nPlay given conversation.'),
+('reload conversation_template', 853, 'Syntax: .reload conversation_template\r\nReload conversation tables.');

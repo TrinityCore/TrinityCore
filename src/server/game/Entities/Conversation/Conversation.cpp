@@ -16,14 +16,7 @@
  */
 
 #include "Conversation.h"
-#include "CellImpl.h"
-#include "Chat.h"
 #include "ConversationDataStore.h"
-#include "DB2Stores.h"
-#include "GridNotifiersImpl.h"
-#include "Log.h"
-#include "Object.h"
-#include "Player.h"
 #include "Unit.h"
 #include "UpdateData.h"
 
@@ -76,31 +69,30 @@ void Conversation::Remove()
 {
     if (IsInWorld())
     {
-        RemoveFromWorld();
-        AddObjectToRemoveList();
+        AddObjectToRemoveList(); // calls RemoveFromWorld
     }
 }
 
-bool Conversation::CreateConversation(uint32 conversationEntry, Unit* caster, SpellInfo const* /*spellInfo*/, Position const& pos)
+bool Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, SpellInfo const* /*spellInfo*/)
 {
     ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
     if (!conversationTemplate)
         return false;
 
-    _casterGuid = caster->GetGUID();
+    _creatorGuid = creator->GetGUID();
 
-    SetMap(caster->GetMap());
+    SetMap(creator->GetMap());
     Relocate(pos);
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, caster->GetMap()->GenerateLowGuid<HighGuid::Conversation>()));
-    SetPhaseMask(caster->GetPhaseMask(), false);
-    CopyPhaseFrom(caster);
+    Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, creator->GetMap()->GenerateLowGuid<HighGuid::Conversation>()));
+    SetPhaseMask(creator->GetPhaseMask(), false);
+    CopyPhaseFrom(creator);
 
     SetEntry(conversationEntry);
     SetObjectScale(1.0f);
 
-    SetUInt32Value(CONVERSATION_LAST_LINE_END_TIME, conversationTemplate->LastLineDuration);
-    _duration = conversationTemplate->LastLineDuration;
+    SetUInt32Value(CONVERSATION_LAST_LINE_END_TIME, conversationTemplate->LastLineEndTime);
+    _duration = conversationTemplate->LastLineEndTime;
 
     uint16 actorsIndex = 0;
     for (ConversationActorTemplate const& actor : conversationTemplate->Actors)
@@ -108,12 +100,7 @@ bool Conversation::CreateConversation(uint32 conversationEntry, Unit* caster, Sp
 
     uint16 linesIndex = 0;
     for (ConversationLineTemplate const& line : conversationTemplate->Lines)
-    {
-        ConversationLineEntry const* lineEntry = sConversationLineStore.LookupEntry(line.Id);
-        _duration += line.PreviousLineDuration + lineEntry->LineIntervalMS;
-
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, &line);
-    }
 
     if (!GetMap()->AddToMap(this))
         return false;
