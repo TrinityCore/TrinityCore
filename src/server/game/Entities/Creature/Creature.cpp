@@ -2733,20 +2733,6 @@ float Creature::GetPetChaseDistance() const
     return range;
 }
 
-void Creature::SetPosition(float x, float y, float z, float o)
-{
-    // prevent crash when a bad coord is sent by the client
-    if (!Trinity::IsValidMapCoord(x, y, z, o))
-    {
-        TC_LOG_DEBUG("entities.unit", "Creature::SetPosition(%f, %f, %f) .. bad coordinates!", x, y, z);
-        return;
-    }
-
-    GetMap()->CreatureRelocation(this, x, y, z, o);
-    if (IsVehicle())
-        GetVehicleKit()->RelocatePassengers();
-}
-
 bool Creature::SetWalk(bool enable)
 {
     if (!Unit::SetWalk(enable))
@@ -3108,8 +3094,7 @@ bool Creature::IsMovementPreventedByCasting() const
     {
         if (spell->getState() != SPELL_STATE_FINISHED && spell->IsChannelActive())
             if (spell->GetSpellInfo()->IsMoveAllowedChannel())
-                if (HasUnitState(UNIT_STATE_CASTING))
-                    return true;
+                return false;
     }
 
     if (const_cast<Creature*>(this)->IsFocusing(nullptr, true))
