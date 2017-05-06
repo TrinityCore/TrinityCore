@@ -208,8 +208,8 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
 
     recvData >> guid.ReadAsPacked();
 
-    uint32 flags, time;
-    recvData >> flags >> time;
+    uint32 sequenceIndex, time;
+    recvData >> sequenceIndex >> time;
 
     Player* plMover = _player->m_unitMovedByMe->ToPlayer();
 
