@@ -87,6 +87,7 @@ public:
 
     void SendAuthResponseError(uint32 code);
     void SetWorldSession(WorldSession* session);
+    void SetSendBufferSize(std::size_t sendBufferSize) { _sendBufferSize = sendBufferSize; }
 
 protected:
     void OnClose() override;
@@ -142,6 +143,7 @@ private:
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
     MPSCQueue<EncryptablePacket> _bufferQueue;
+    std::size_t _sendBufferSize;
 
     z_stream_s* _compressionStream;
 
