@@ -138,15 +138,13 @@ void WorldPackets::AuctionHouse::AuctionSellItem::Read()
     _worldPacket >> BuyoutPrice;
     _worldPacket >> RunTime;
 
-    uint8 ItemsCount = _worldPacket.ReadBits(5);
-    _worldPacket.FlushBits();
+    Items.resize(_worldPacket.ReadBits(5));
+    _worldPacket.ResetBitPos();
 
-    for (uint8 i = 0; i < ItemsCount; i++)
+    for (WorldPackets::AuctionHouse::AuctionSellItem::AuctionItemForSale& item : Items)
     {
-        WorldPackets::AuctionHouse::AuctionSellItem::AuctionItemForSale item;
         _worldPacket >> item.Guid;
         _worldPacket >> item.UseCount;
-        Items.emplace_back(item);
     }
 }
 
@@ -162,7 +160,7 @@ void WorldPackets::AuctionHouse::AuctionListBidderItems::Read()
     _worldPacket >> Auctioneer;
     _worldPacket >> Offset;
     uint8 auctionItemIDsCount = _worldPacket.ReadBits(7);
-    _worldPacket.FlushBits();
+    _worldPacket.ResetBitPos();
 
     for (uint8 i = 0; i < auctionItemIDsCount; i++)
     {

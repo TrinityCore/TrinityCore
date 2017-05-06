@@ -2482,6 +2482,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Player* playerTarget = target->ToPlayer())
                     playerTarget->GetSceneMgr().PlayScene(e.action.scene.sceneId);
 
+            delete targets;
             break;
         }
         case SMART_ACTION_SCENE_CANCEL:
@@ -2494,6 +2495,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Player* playerTarget = target->ToPlayer())
                     playerTarget->GetSceneMgr().CancelSceneBySceneId(e.action.scene.sceneId);
 
+            delete targets;
             break;
         }
         default:

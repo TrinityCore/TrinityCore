@@ -133,7 +133,7 @@ namespace WorldPackets
             ObjectGuid Auctioneer;
             uint64 MinBid = 0;
             uint32 RunTime = 0;
-            std::vector<AuctionItemForSale> Items;
+            Array<AuctionItemForSale, 32> Items;
         };
 
         class AuctionPlaceBid final : public ClientPacket

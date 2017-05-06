@@ -2346,7 +2346,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool HaveAtClient(Object const* u) const;
 
-        bool IsNeverVisible() const override;
+        bool IsNeverVisibleFor(WorldObject const* seer) const override;
 
         bool IsVisibleGloballyFor(Player const* player) const;
 

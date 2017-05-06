@@ -962,6 +962,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
 
+        bool CanGiveExperience() const;
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
