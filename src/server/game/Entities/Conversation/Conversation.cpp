@@ -18,13 +18,12 @@
 #include "Conversation.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "ConversationDataStore.h"
 #include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "Object.h"
-#include "ObjectMgr.h"
 #include "Player.h"
-#include "SpellInfo.h"
 #include "Unit.h"
 #include "UpdateData.h"
 
@@ -63,14 +62,14 @@ void Conversation::RemoveFromWorld()
     }
 }
 
-void Conversation::Update(uint32 p_time)
+void Conversation::Update(uint32 diff)
 {
-    if (GetDuration() > int32(p_time))
-        _duration -= p_time;
+    if (GetDuration() > int32(diff))
+        _duration -= diff;
     else
         Remove(); // expired
 
-    WorldObject::Update(p_time);
+    WorldObject::Update(diff);
 }
 
 void Conversation::Remove()
@@ -82,25 +81,23 @@ void Conversation::Remove()
     }
 }
 
-
-bool Conversation::CreateConversation(ObjectGuid::LowType guidlow, uint32 conversationEntry, Unit* caster, SpellInfo const* /*spell*/, Position const& pos)
+bool Conversation::CreateConversation(uint32 conversationEntry, Unit* caster, SpellInfo const* /*spellInfo*/, Position const& pos)
 {
+    ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
+    if (!conversationTemplate)
+        return false;
+
     _casterGuid = caster->GetGUID();
 
     SetMap(caster->GetMap());
     Relocate(pos);
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, guidlow));
+    Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, caster->GetMap()->GenerateLowGuid<HighGuid::Conversation>()));
     SetPhaseMask(caster->GetPhaseMask(), false);
     CopyPhaseFrom(caster);
 
     SetEntry(conversationEntry);
-    SetObjectScale(1);
-
-    ConversationTemplate const* conversationTemplate = sObjectMgr->GetConversationTemplate(conversationEntry);
-
-    if (!conversationTemplate)
-        return false;
+    SetObjectScale(1.0f);
 
     SetUInt32Value(CONVERSATION_LAST_LINE_END_TIME, conversationTemplate->LastLineDuration);
     _duration = conversationTemplate->LastLineDuration;

@@ -29,6 +29,7 @@ EndScriptData */
 #include "BattlegroundMgr.h"
 #include "CharacterTemplateDataStore.h"
 #include "Chat.h"
+#include "ConversationDataStore.h"
 #include "CreatureTextMgr.h"
 #include "DisableMgr.h"
 #include "Language.h"
@@ -1154,7 +1155,7 @@ public:
     static bool HandleReloadConversationTemplateCommand(ChatHandler* handler, const char* /*args*/)
     {
         TC_LOG_INFO("misc", "Reloading conversation_* tables...");
-        sObjectMgr->LoadConversationTemplates();
+        sConversationDataStore->LoadConversationTemplates();
         handler->SendGlobalGMSysMessage("Conversation templates reloaded.");
         return true;
     }

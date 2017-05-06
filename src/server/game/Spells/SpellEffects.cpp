@@ -5665,16 +5665,11 @@ void Spell::EffectCreateConversation(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    Position pos;
     if (!m_targets.HasDst())
-        pos = GetCaster()->GetPosition();
-    else
-        pos = destTarget->GetPosition();
+        return;
 
-    uint32 conversationEntry = effectInfo->MiscValue;
-
-    Conversation* conversation = new Conversation;
-    if (!conversation->CreateConversation(GetCaster()->GetMap()->GenerateLowGuid<HighGuid::Conversation>(), conversationEntry, GetCaster(), GetSpellInfo(), pos))
+    Conversation* conversation = new Conversation();
+    if (!conversation->CreateConversation(effectInfo->MiscValue, GetCaster(), GetSpellInfo(), destTarget->GetPosition()))
         delete conversation;
 }
 

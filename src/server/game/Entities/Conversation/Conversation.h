@@ -61,11 +61,11 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        void Update(uint32 p_time) override;
+        void Update(uint32 diff) override;
         void Remove();
         int32 GetDuration() const { return _duration; }
 
-        bool CreateConversation(ObjectGuid::LowType guidlow, uint32 triggerEntry, Unit* caster, SpellInfo const* spell, Position const& pos);
+        bool CreateConversation(uint32 conversationEntry, Unit* caster, SpellInfo const* spell, Position const& pos);
 
         ObjectGuid GetCasterGuid() const { return _casterGuid; }
 

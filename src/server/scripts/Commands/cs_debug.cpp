@@ -29,6 +29,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "ConversationDataStore.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "GossipDef.h"
@@ -1591,11 +1592,11 @@ public:
             return false;
         }
 
-        if (!sObjectMgr->GetConversationTemplate(conversationEntry))
+        if (!sConversationDataStore->GetConversationTemplate(conversationEntry))
             return false;
 
-        Conversation* conversation = new Conversation;
-        if (!conversation->CreateConversation(target->GetMap()->GenerateLowGuid<HighGuid::Conversation>(), conversationEntry, target, nullptr, target->GetPosition()))
+        Conversation* conversation = new Conversation();
+        if (!conversation->CreateConversation(conversationEntry, target, nullptr, *target))
         {
             delete conversation;
             return false;

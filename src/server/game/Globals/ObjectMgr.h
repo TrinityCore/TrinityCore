@@ -625,10 +625,6 @@ struct SceneTemplate
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
 
-typedef std::unordered_map<uint32, ConversationTemplate>        ConversationTemplateContainer;
-typedef std::unordered_map<uint32, ConversationActorTemplate>   ConversationActorTemplateContainer;
-typedef std::unordered_map<uint32, ConversationLineTemplate>    ConversationLineTemplateContainer;
-
 enum SkillRangeType
 {
     SKILL_RANGE_LANGUAGE,                                   // 300..300
@@ -1084,7 +1080,6 @@ class TC_GAME_API ObjectMgr
         void LoadAreaPhases();
 
         void LoadSceneTemplates();
-        void LoadConversationTemplates();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
@@ -1430,15 +1425,6 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
-        ConversationTemplate const* GetConversationTemplate(uint32 id) const
-        {
-            auto itr = _conversationTemplateStore.find(id);
-            if (itr != _conversationTemplateStore.end())
-                return &itr->second;
-
-            return nullptr;
-        }
-
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1595,10 +1581,6 @@ class TC_GAME_API ObjectMgr
         RealmNameContainer _realmNameStore;
 
         SceneTemplateContainer _sceneTemplateStore;
-
-        ConversationTemplateContainer       _conversationTemplateStore;
-        ConversationActorTemplateContainer  _conversationActorTemplateStore;
-        ConversationLineTemplateContainer   _conversationLineTemplateStore;
 
         enum CreatureLinkedRespawnType
         {
