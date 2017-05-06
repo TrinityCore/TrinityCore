@@ -716,7 +716,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `population` float unsigned NOT NULL DEFAULT '0',
-  `gamebuild` int(10) unsigned NOT NULL DEFAULT '23937',
+  `gamebuild` int(10) unsigned NOT NULL DEFAULT '24015',
   `Region` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `Battlegroup` tinyint(3) unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -730,7 +730,7 @@ CREATE TABLE `realmlist` (
 
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
-INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,2,1,0,0,23937,2,1);
+INSERT INTO `realmlist` VALUES (1,'Trinity','127.0.0.1','127.0.0.1','255.255.255.0',8085,0,2,1,0,0,24015,2,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -77,7 +77,7 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
         return false;
     }
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(GetMapId(), 0, guidlow));
+    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(owner->GetMapId(), 0, guidlow));
     SetPhaseMask(owner->GetPhaseMask(), false);
 
     SetObjectScale(1.0f);
@@ -164,6 +164,8 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[9].GetUInt8());
     SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[10].GetUInt8());
     SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid::Create<HighGuid::Player>(fields[14].GetUInt64()));
+    if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(GetGuidValue(CORPSE_FIELD_OWNER)))
+        SetUInt32Value(CORPSE_FIELD_FACTIONTEMPLATE, sChrRacesStore.AssertEntry(characterInfo->Race)->FactionID);
 
     m_time = time_t(fields[11].GetUInt32());
 

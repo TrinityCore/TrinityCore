@@ -202,7 +202,7 @@ void WorldSocket::InitializeHandler(boost::system::error_code error, std::size_t
 bool WorldSocket::Update()
 {
     EncryptablePacket* queued;
-    MessageBuffer buffer;
+    MessageBuffer buffer(_sendBufferSize);
     while (_bufferQueue.Dequeue(queued))
     {
         uint32 packetSize = queued->size();
@@ -212,7 +212,7 @@ bool WorldSocket::Update()
         if (buffer.GetRemainingSpace() < packetSize + SizeOfServerHeader)
         {
             QueuePacket(std::move(buffer));
-            buffer.Resize(4096);
+            buffer.Resize(_sendBufferSize);
         }
 
         if (buffer.GetRemainingSpace() >= packetSize + SizeOfServerHeader)
