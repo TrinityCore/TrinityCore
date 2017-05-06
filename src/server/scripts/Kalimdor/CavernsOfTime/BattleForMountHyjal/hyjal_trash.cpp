@@ -1172,7 +1172,7 @@ public:
             me->GetPosition(x, y, z);
             z = me->GetMap()->GetHeight(me->GetPhaseMask(), x, y, z);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
-            me->SetPosition(x, y, z, 0);
+            me->UpdatePosition(x, y, z, 0);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -1290,7 +1290,7 @@ public:
             me->GetPosition(x, y, z);
             z = me->GetMap()->GetHeight(me->GetPhaseMask(), x, y, z);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
-            me->SetPosition(x, y, z, 0);
+            me->UpdatePosition(x, y, z, 0);
             hyjal_trashAI::JustDied(killer);
         }
 

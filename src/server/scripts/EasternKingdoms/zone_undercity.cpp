@@ -150,7 +150,7 @@ public:
                 if (Creature* target = ObjectAccessor::GetCreature(*summoned, targetGUID))
                 {
                     target->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ() + 15.0f, me->GetOrientation(), 0);
-                    target->SetPosition(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
+                    target->UpdatePosition(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
                     summoned->CastSpell(target, SPELL_RIBBON_OF_SOULS, false);
                 }
 
@@ -298,7 +298,7 @@ public:
                 {
                     me->SetDisableGravity(true);
                     me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetDistance(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW) / (5000 * 0.001f));
-                    me->SetPosition(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetOrientation());
+                    me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), HIGHBORNE_LOC_Y_NEW, me->GetOrientation());
                     EventMove = false;
                 } else EventMoveTimer -= diff;
             }
