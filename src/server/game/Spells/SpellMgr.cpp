@@ -3121,6 +3121,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         47977, // Magic Broom
         48025, // Headless Horseman's Mount
         54729, // Winged Steed of the Ebon Blade
+        58983, // Big Blizzard Bear
         71342, // Big Love Rocket
         72286, // Invincible
         74856, // Blazing Hippogryph

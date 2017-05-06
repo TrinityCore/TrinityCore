@@ -262,7 +262,7 @@ class ValithriaDespawner : public BasicEvent
             creature->SetRespawnDelay(10);
 
             if (CreatureData const* data = creature->GetCreatureData())
-                creature->SetPosition(data->posX, data->posY, data->posZ, data->orientation);
+                creature->UpdatePosition(data->posX, data->posY, data->posZ, data->orientation);
             creature->DespawnOrUnsummon();
 
             creature->SetCorpseDelay(corpseDelay);
