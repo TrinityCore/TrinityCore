@@ -19,7 +19,16 @@
 #define SceneMgr_h__
 
 #include "Common.h"
-#include "DBCEnums.h"
+
+enum SceneFlags
+{
+    SCENEFLAG_UNK1           = 0x01,
+    SCENEFLAG_CANCEL_AT_END  = 0x02,
+    SCENEFLAG_NOT_CANCELABLE = 0x04,
+    SCENEFLAG_UNK8           = 0x08,
+    SCENEFLAG_UNK16          = 0x10, // 16, most common value
+    SCENEFLAG_UNK32          = 0x20,
+};
 
 class Player;
 struct Position;
