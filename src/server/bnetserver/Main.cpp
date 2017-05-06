@@ -58,22 +58,15 @@ char serviceDescription[] = "TrinityCore Battle.net emulator authentication serv
 */
 int m_ServiceStatus = -1;
 
-static boost::asio::deadline_timer* _serviceStatusWatchTimer;
-void ServiceStatusWatcher(boost::system::error_code const& error);
+void ServiceStatusWatcher(std::weak_ptr<boost::asio::deadline_timer> serviceStatusWatchTimerRef, std::weak_ptr<boost::asio::io_service> ioServiceRef, boost::system::error_code const& error);
 #endif
 
 bool StartDB();
 void StopDB();
-void SignalHandler(boost::system::error_code const& error, int signalNumber);
-void KeepDatabaseAliveHandler(boost::system::error_code const& error);
-void BanExpiryHandler(boost::system::error_code const& error);
+void SignalHandler(std::weak_ptr<boost::asio::io_service> ioServiceRef, boost::system::error_code const& error, int signalNumber);
+void KeepDatabaseAliveHandler(std::weak_ptr<boost::asio::deadline_timer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error);
+void BanExpiryHandler(std::weak_ptr<boost::asio::deadline_timer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error);
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& configService);
-
-static boost::asio::io_service* _ioService;
-static boost::asio::deadline_timer* _dbPingTimer;
-static uint32 _dbPingInterval;
-static boost::asio::deadline_timer* _banExpiryCheckTimer;
-static uint32 _banExpiryCheckInterval;
 
 int main(int argc, char** argv)
 {
@@ -87,6 +80,8 @@ int main(int argc, char** argv)
         return 0;
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+    std::shared_ptr<void> protobufHandle(nullptr, [](void*) { google::protobuf::ShutdownProtobufLibrary(); });
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     if (configService.compare("install") == 0)
@@ -150,86 +145,85 @@ int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
-    _ioService = new boost::asio::io_service();
+    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
+
+    std::shared_ptr<boost::asio::io_service> ioService = std::make_shared<boost::asio::io_service>();
 
     // Start the listening port (acceptor) for auth connections
     int32 bnport = sConfigMgr->GetIntDefault("BattlenetPort", 1119);
     if (bnport < 0 || bnport > 0xFFFF)
     {
         TC_LOG_ERROR("server.bnetserver", "Specified battle.net port (%d) out of allowed range (1-65535)", bnport);
-        StopDB();
-        delete _ioService;
         return 1;
     }
 
-    if (!sLoginService.Start(*_ioService))
+    if (!sLoginService.Start(*ioService))
     {
-        StopDB();
-        delete _ioService;
         TC_LOG_ERROR("server.bnetserver", "Failed to initialize login service");
         return 1;
     }
 
+    std::shared_ptr<void> sLoginServiceHandle(nullptr, [](void*) { sLoginService.Stop(); });
+
     // Get the list of realms for the server
-    sRealmList->Initialize(*_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
+    sRealmList->Initialize(*ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
+
+    std::shared_ptr<void> sRealmListHandle(nullptr, [](void*) { sRealmList->Close(); });
 
     std::string bindIp = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
-    sSessionMgr.StartNetwork(*_ioService, bindIp, bnport);
+    if (!sSessionMgr.StartNetwork(*ioService, bindIp, bnport))
+    {
+        TC_LOG_ERROR("server.bnetserver", "Failed to initialize network");
+        return 1;
+    }
+
+    std::shared_ptr<void> sSessionMgrHandle(nullptr, [](void*) { sSessionMgr.StopNetwork(); });
 
     // Set signal handlers
-    boost::asio::signal_set signals(*_ioService, SIGINT, SIGTERM);
+    boost::asio::signal_set signals(*ioService, SIGINT, SIGTERM);
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
-    signals.async_wait(SignalHandler);
+    signals.async_wait(std::bind(&SignalHandler, std::weak_ptr<boost::asio::io_service>(ioService), std::placeholders::_1, std::placeholders::_2));
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.bnetserver");
 
     // Enabled a timed callback for handling the database keep alive ping
-    _dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
-    _dbPingTimer = new boost::asio::deadline_timer(*_ioService);
-    _dbPingTimer->expires_from_now(boost::posix_time::minutes(_dbPingInterval));
-    _dbPingTimer->async_wait(KeepDatabaseAliveHandler);
+    int32 dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
+    std::shared_ptr<boost::asio::deadline_timer> dbPingTimer = std::make_shared<boost::asio::deadline_timer>(*ioService);
+    dbPingTimer->expires_from_now(boost::posix_time::minutes(dbPingInterval));
+    dbPingTimer->async_wait(std::bind(&KeepDatabaseAliveHandler, std::weak_ptr<boost::asio::deadline_timer>(dbPingTimer), dbPingInterval, std::placeholders::_1));
 
-    _banExpiryCheckInterval = sConfigMgr->GetIntDefault("BanExpiryCheckInterval", 60);
-    _banExpiryCheckTimer = new boost::asio::deadline_timer(*_ioService);
-    _banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(_banExpiryCheckInterval));
-    _banExpiryCheckTimer->async_wait(BanExpiryHandler);
+    int32 banExpiryCheckInterval = sConfigMgr->GetIntDefault("BanExpiryCheckInterval", 60);
+    std::shared_ptr<boost::asio::deadline_timer> banExpiryCheckTimer = std::make_shared<boost::asio::deadline_timer>(*ioService);
+    banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(banExpiryCheckInterval));
+    banExpiryCheckTimer->async_wait(std::bind(&BanExpiryHandler, std::weak_ptr<boost::asio::deadline_timer>(banExpiryCheckTimer), banExpiryCheckInterval, std::placeholders::_1));
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    std::shared_ptr<boost::asio::deadline_timer> serviceStatusWatchTimer;
     if (m_ServiceStatus != -1)
     {
-        _serviceStatusWatchTimer = new boost::asio::deadline_timer(*_ioService);
-        _serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
-        _serviceStatusWatchTimer->async_wait(ServiceStatusWatcher);
+        serviceStatusWatchTimer = std::make_shared<boost::asio::deadline_timer>(*ioService);
+        serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
+        serviceStatusWatchTimer->async_wait(std::bind(&ServiceStatusWatcher,
+            std::weak_ptr<boost::asio::deadline_timer>(serviceStatusWatchTimer),
+            std::weak_ptr<boost::asio::io_service>(ioService),
+            std::placeholders::_1));
     }
 #endif
 
     // Start the io service worker loop
-    _ioService->run();
+    ioService->run();
 
-    _banExpiryCheckTimer->cancel();
-    _dbPingTimer->cancel();
-
-    sLoginService.Stop();
-
-    sSessionMgr.StopNetwork();
-
-    sRealmList->Close();
-
-    // Close the Database Pool and library
-    StopDB();
+    banExpiryCheckTimer->cancel();
+    dbPingTimer->cancel();
 
     TC_LOG_INFO("server.bnetserver", "Halting process...");
 
     signals.cancel();
 
-    delete _banExpiryCheckTimer;
-    delete _dbPingTimer;
-    delete _ioService;
-    google::protobuf::ShutdownProtobufLibrary();
     return 0;
 }
 
@@ -258,51 +252,60 @@ void StopDB()
     MySQL::Library_End();
 }
 
-void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
+void SignalHandler(std::weak_ptr<boost::asio::io_service> ioServiceRef, boost::system::error_code const& error, int /*signalNumber*/)
 {
     if (!error)
-        _ioService->stop();
+        if (std::shared_ptr<boost::asio::io_service> ioService = ioServiceRef.lock())
+            ioService->stop();
 }
 
-void KeepDatabaseAliveHandler(boost::system::error_code const& error)
+void KeepDatabaseAliveHandler(std::weak_ptr<boost::asio::deadline_timer> dbPingTimerRef, int32 dbPingInterval, boost::system::error_code const& error)
 {
     if (!error)
     {
-        TC_LOG_INFO("server.bnetserver", "Ping MySQL to keep connection alive");
-        LoginDatabase.KeepAlive();
+        if (std::shared_ptr<boost::asio::deadline_timer> dbPingTimer = dbPingTimerRef.lock())
+        {
+            TC_LOG_INFO("server.bnetserver", "Ping MySQL to keep connection alive");
+            LoginDatabase.KeepAlive();
 
-        _dbPingTimer->expires_from_now(boost::posix_time::minutes(_dbPingInterval));
-        _dbPingTimer->async_wait(KeepDatabaseAliveHandler);
+            dbPingTimer->expires_from_now(boost::posix_time::minutes(dbPingInterval));
+            dbPingTimer->async_wait(std::bind(&KeepDatabaseAliveHandler, dbPingTimerRef, dbPingInterval, std::placeholders::_1));
+        }
     }
 }
 
-void BanExpiryHandler(boost::system::error_code const& error)
+void BanExpiryHandler(std::weak_ptr<boost::asio::deadline_timer> banExpiryCheckTimerRef, int32 banExpiryCheckInterval, boost::system::error_code const& error)
 {
     if (!error)
     {
-        LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
-        LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
-        LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_EXPIRED_ACCOUNT_BANNED));
+        if (std::shared_ptr<boost::asio::deadline_timer> banExpiryCheckTimer = banExpiryCheckTimerRef.lock())
+        {
+            LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
+            LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
+            LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_EXPIRED_ACCOUNT_BANNED));
 
-        _banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(_banExpiryCheckInterval));
-        _banExpiryCheckTimer->async_wait(BanExpiryHandler);
+            banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(banExpiryCheckInterval));
+            banExpiryCheckTimer->async_wait(std::bind(&BanExpiryHandler, banExpiryCheckTimerRef, banExpiryCheckInterval, std::placeholders::_1));
+        }
     }
 }
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-void ServiceStatusWatcher(boost::system::error_code const& error)
+void ServiceStatusWatcher(std::weak_ptr<boost::asio::deadline_timer> serviceStatusWatchTimerRef, std::weak_ptr<boost::asio::io_service> ioServiceRef, boost::system::error_code const& error)
 {
     if (!error)
     {
-        if (m_ServiceStatus == 0)
+        if (std::shared_ptr<boost::asio::io_service> ioService = ioServiceRef.lock())
         {
-            _ioService->stop();
-            delete _serviceStatusWatchTimer;
-        }
-        else
-        {
-            _serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
-            _serviceStatusWatchTimer->async_wait(ServiceStatusWatcher);
+            if (m_ServiceStatus == 0)
+            {
+                ioService->stop();
+            }
+            else if (std::shared_ptr<boost::asio::deadline_timer> serviceStatusWatchTimer = serviceStatusWatchTimerRef.lock())
+            {
+                serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
+                serviceStatusWatchTimer->async_wait(std::bind(&ServiceStatusWatcher, serviceStatusWatchTimerRef, ioService, std::placeholders::_1));
+            }
         }
     }
 }

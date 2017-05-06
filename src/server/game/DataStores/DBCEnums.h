@@ -958,13 +958,4 @@ enum CurrencyTypes
     CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
 };
 
-enum SceneFlags
-{
-    SCENEFLAG_UNK1              = 0x01,
-    SCENEFLAG_UNK2              = 0x02,
-    SCENEFLAG_NOT_CANCELABLE    = 0x04,
-    SCENEFLAG_UNK8              = 0x08,
-    SCENEFLAG_UNK16             = 0x10, // 16, most common value
-};
-
 #endif

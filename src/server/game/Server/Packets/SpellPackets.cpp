@@ -759,11 +759,34 @@ WorldPacket const* WorldPackets::Spells::CancelSpellVisual::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Spells::CancelSpellVisualKit::Write()
+{
+    _worldPacket << Source;
+    _worldPacket << int32(SpellVisualKitID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::PlayOrphanSpellVisual::Write()
+{
+    _worldPacket << SourceLocation;
+    _worldPacket << SourceOrientation;
+    _worldPacket << TargetLocation;
+    _worldPacket << Target;
+    _worldPacket << int32(SpellVisualID);
+    _worldPacket << float(TravelSpeed);
+    _worldPacket << float(UnkZero);
+    _worldPacket.WriteBit(SpeedAsTime);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Spells::PlaySpellVisual::Write()
 {
     _worldPacket << Source;
     _worldPacket << Target;
-    _worldPacket << TargetPostion;
+    _worldPacket << TargetPosition;
     _worldPacket << SpellVisualID;
     _worldPacket << TravelSpeed;
     _worldPacket << MissReason;

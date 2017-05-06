@@ -171,8 +171,7 @@ namespace Trinity
             Creature* creature = u->ToCreature();
             uint32 gain = 0;
 
-            if (!creature || (!creature->IsTotem() && !creature->IsPet() && !creature->IsCritter() &&
-                !(creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)))
+            if (!creature || creature->CanGiveExperience())
             {
                 float xpMod = 1.0f;
 

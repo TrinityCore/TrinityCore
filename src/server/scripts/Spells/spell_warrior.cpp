@@ -27,7 +27,6 @@
 #include "SpellHistory.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "SpellPackets.h"
 
 enum WarriorSpells
 {
@@ -173,16 +172,8 @@ class spell_warr_charge_drop_fire_periodic : public SpellScriptLoader
                     for (uint32 i = 0; i < 5; ++i)
                     {
                         int32 timeOffset = 6 * i * aurEff->GetPeriod() / 25;
-                        WorldPackets::Spells::PlaySpellVisual playSpellVisual;
-                        playSpellVisual.Source = GetTarget()->GetGUID();
-                        playSpellVisual.TargetPostion = static_cast<G3D::Vector3>(GetTarget()->movespline->ComputePosition(timeOffset)); // slices
-                        playSpellVisual.SpellVisualID = SPELL_VISUAL_BLAZING_CHARGE;
-                        playSpellVisual.TravelSpeed = 1.0f;
-                        playSpellVisual.MissReason = 0;
-                        playSpellVisual.ReflectStatus = 0;
-                        playSpellVisual.Orientation = 0.0f;
-                        playSpellVisual.SpeedAsTime = true;
-                        GetTarget()->SendMessageToSet(playSpellVisual.Write(), true);
+                        Movement::Location loc = GetTarget()->movespline->ComputePosition(timeOffset);
+                        GetTarget()->SendPlaySpellVisual(loc, 0.f, SPELL_VISUAL_BLAZING_CHARGE, 0, 0, 1.f, true);
                     }
                 }
             }
