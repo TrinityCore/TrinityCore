@@ -49,6 +49,7 @@ class TC_GAME_API RelayHandler
 
         static RelayHandler* instance();
 
+        bool IsEnabled(RelayTargetType type);
         void Enable(RelayTargetType type, bool value);
         void Send(RelayTargetType type, std::string const& message);
         std::string GetNextMessage(RelayTargetType type);

@@ -159,12 +159,13 @@ void IRCBridge::ThreadLoop()
             _status = IRCBRIDGESTATUS_WAITING_CONFIRMATION;
             break;
         case IRCBRIDGESTATUS_LOGGED:
-        {
-            std::string temp = sRelayHandler->GetNextMessage(_relayType);
-            if (!temp.empty())
-                Send(temp);
+            if (sRelayHandler->IsEnabled(_relayType))
+            {
+                std::string temp = sRelayHandler->GetNextMessage(_relayType);
+                if (!temp.empty())
+                    Send(temp);
+            }
             break;
-        }
         case IRCBRIDGESTATUS_SHUTDOWN:
         case IRCBRIDGESTATUS_WAITING_CONNECTION:
         case IRCBRIDGESTATUS_WAITING_CONFIRMATION:

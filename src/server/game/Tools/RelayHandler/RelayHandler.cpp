@@ -15,6 +15,14 @@ RelayHandler* RelayHandler::instance()
     return &instance;
 }
 
+bool RelayHandler::IsEnabled(RelayTargetType type)
+{
+    if (type >= RELAYTARGETTYPE_MAX)
+        return false;
+
+    return _data[type].enabled;
+}
+
 void RelayHandler::Enable(RelayTargetType type, bool value)
 {
     if (type >= RELAYTARGETTYPE_MAX)
