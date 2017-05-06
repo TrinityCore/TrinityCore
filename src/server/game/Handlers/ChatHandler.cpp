@@ -472,10 +472,13 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         }
         case CHAT_MSG_WHISPER:
         {
-            if (!normalizePlayerName(target))
+            /// @todo implement cross realm whispers (someday)
+            ExtendedPlayerName extName = ExtractExtendedPlayerName(target);
+
+            if (!normalizePlayerName(extName.Name))
                 break;
 
-            Player* receiver = ObjectAccessor::FindPlayerByName(target);
+            Player* receiver = ObjectAccessor::FindPlayerByName(extName.Name);
             if (!receiver)
                 break;
 
@@ -510,7 +513,7 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
         case CHAT_MSG_CHANNEL:
         {
             if (Channel* chn = ChannelMgr::GetChannelForPlayerByNamePart(target, sender))
-                chn->Say(sender->GetGUID(), text.c_str(), uint32(LANG_ADDON));
+                chn->AddonSay(sender->GetGUID(), prefix, text.c_str());
             break;
         }
         default:
