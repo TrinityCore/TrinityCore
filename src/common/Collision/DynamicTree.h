@@ -21,6 +21,7 @@
 #define _DYNTREE_H
 
 #include "Define.h"
+#include <set>
 
 namespace G3D
 {
