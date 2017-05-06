@@ -382,7 +382,6 @@ private:
     ItemClassByOldEnumContainer _itemClassByOldEnum;
     std::unordered_set<uint32> _itemsWithCurrencyCost;
     ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
-    ItemModifiedAppearanceByItemContainer _itemDefaultAppearancesByItem;
     ItemToBonusTreeContainer _itemToBonusTree;
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;

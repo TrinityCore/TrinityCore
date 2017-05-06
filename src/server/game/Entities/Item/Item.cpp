@@ -2469,9 +2469,6 @@ void BonusData::Initialize(ItemTemplate const* proto)
     }
 
     AppearanceModID = 0;
-    if (ItemModifiedAppearanceEntry const* defaultAppearance = sDB2Manager.GetDefaultItemModifiedAppearance(proto->GetId()))
-        AppearanceModID = defaultAppearance->AppearanceModID;
-
     RepairCostMultiplier = 1.0f;
     ScalingStatDistribution = proto->GetScalingStatDistribution();
     ItemLevelOverride = 0;
