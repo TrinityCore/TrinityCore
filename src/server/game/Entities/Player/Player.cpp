@@ -23807,15 +23807,19 @@ void Player::ResurrectUsingRequestData()
 
 void Player::ResurrectUsingRequestDataImpl()
 {
+    // save health and mana before resurrecting, _resurrectionData can be erased
+    uint32 resurrectHealth = _resurrectionData->Health;
+    uint32 resurrectMana = _resurrectionData->Mana;
+
     ResurrectPlayer(0.0f, false);
 
-    if (GetMaxHealth() > _resurrectionData->Health)
-        SetHealth(_resurrectionData->Health);
+    if (GetMaxHealth() > resurrectHealth)
+        SetHealth(resurrectHealth);
     else
         SetFullHealth();
 
-    if (GetMaxPower(POWER_MANA) > _resurrectionData->Mana)
-        SetPower(POWER_MANA, _resurrectionData->Mana);
+    if (GetMaxPower(POWER_MANA) > resurrectMana)
+        SetPower(POWER_MANA, resurrectMana);
     else
         SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
 
