@@ -37,7 +37,7 @@ struct RelayData
     public:
         RelayData() : enabled(false) { }
 
-        std::queue<std::string> data;
+        std::deque<std::string> data;
         bool enabled;
 };
 
