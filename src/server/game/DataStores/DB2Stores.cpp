@@ -708,9 +708,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     {
         ASSERT(appearanceMod->ItemID <= 0xFFFFFF);
         _itemModifiedAppearancesByItem[appearanceMod->ItemID | (appearanceMod->AppearanceModID << 24)] = appearanceMod;
-        auto defaultAppearance = _itemDefaultAppearancesByItem.find(appearanceMod->ItemID);
-        if (defaultAppearance == _itemDefaultAppearancesByItem.end() || defaultAppearance->second->Index > appearanceMod->Index)
-            _itemDefaultAppearancesByItem[appearanceMod->ItemID] = appearanceMod;
     }
 
     for (ItemSetSpellEntry const* itemSetSpell : sItemSetSpellStore)
@@ -1404,17 +1401,20 @@ ItemModifiedAppearanceEntry const* DB2Manager::GetItemModifiedAppearance(uint32 
         return itr->second;
 
     // Fall back to unmodified appearance
-    itr = _itemDefaultAppearancesByItem.find(itemId);
-    if (itr != _itemDefaultAppearancesByItem.end())
-        return itr->second;
+    if (appearanceModId)
+    {
+        itr = _itemModifiedAppearancesByItem.find(itemId);
+        if (itr != _itemModifiedAppearancesByItem.end())
+            return itr->second;
+    }
 
     return nullptr;
 }
 
 ItemModifiedAppearanceEntry const* DB2Manager::GetDefaultItemModifiedAppearance(uint32 itemId) const
 {
-    auto itr = _itemDefaultAppearancesByItem.find(itemId);
-    if (itr != _itemDefaultAppearancesByItem.end())
+    auto itr = _itemModifiedAppearancesByItem.find(itemId);
+    if (itr != _itemModifiedAppearancesByItem.end())
         return itr->second;
 
     return nullptr;
