@@ -151,7 +151,7 @@ struct DynamicTreeIntersectionCallback
 
     bool operator()(G3D::Ray const& r, GameObjectModel const& obj, float& distance)
     {
-        _didHit = obj.intersectRay(r, distance, true, _phases);
+        _didHit = obj.intersectRay(r, distance, true, _phases, VMAP::ModelIgnoreFlags::Nothing);
         return _didHit;
     }
 
