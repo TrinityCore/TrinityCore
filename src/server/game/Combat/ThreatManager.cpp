@@ -351,7 +351,7 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* attacker, HostileR
 
         if (attacker->CanCreatureAttack(target))           // skip non attackable currently targets
         {
-            if (currentVictim)                              // select 1.3/1.1 better target in comparison current target
+            if (currentVictim && attacker->canCreatureAttack(currentVictim->getTarget()))   // select 1.3/1.1 better target in comparison current target
             {
                 // list sorted and and we check current target, then this is best case
                 if (currentVictim == currentRef || currentRef->getThreat() <= 1.1f * currentVictim->getThreat())
