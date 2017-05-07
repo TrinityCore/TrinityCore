@@ -5702,8 +5702,8 @@ void ObjectMgr::LoadNpcTextLocales()
 
         for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
-            AddLocaleString(fields[2 + i * 2].GetString(), locale, data.Text_0[i - 1]);
-            AddLocaleString(fields[3 + i * 2].GetString(), locale, data.Text_1[i - 1]);
+            AddLocaleString(fields[2 + i * 2].GetString(), locale, data.Text_0[i]);
+            AddLocaleString(fields[3 + i * 2].GetString(), locale, data.Text_1[i]);
         }
     } while (result->NextRow());
 
