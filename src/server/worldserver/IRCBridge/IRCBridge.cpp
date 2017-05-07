@@ -22,7 +22,15 @@ IRCBridge::IRCBridge() : _ioService(nullptr), _strand(nullptr), _socket(nullptr)
 
 IRCBridge::~IRCBridge()
 {
-    Stop();
+    _status = IRCBRIDGESTATUS_SHUTDOWN;
+
+    if (_socket)
+        _socket->CloseSocket();
+
+    _active = false;
+
+    if (_thread.joinable())
+        _thread.join();
 
     delete _strand;
 }
