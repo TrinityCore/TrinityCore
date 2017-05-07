@@ -36,6 +36,7 @@ DB2Storage<ArtifactAppearanceSetEntry>          sArtifactAppearanceSetStore("Art
 DB2Storage<ArtifactCategoryEntry>               sArtifactCategoryStore("ArtifactCategory.db2", ArtifactCategoryLoadInfo::Instance());
 DB2Storage<ArtifactPowerEntry>                  sArtifactPowerStore("ArtifactPower.db2", ArtifactPowerLoadInfo::Instance());
 DB2Storage<ArtifactPowerLinkEntry>              sArtifactPowerLinkStore("ArtifactPowerLink.db2", ArtifactPowerLinkLoadInfo::Instance());
+DB2Storage<ArtifactPowerPickerEntry>            sArtifactPowerPickerStore("ArtifactPowerPicker.db2", ArtifactPowerPickerLoadInfo::Instance());
 DB2Storage<ArtifactPowerRankEntry>              sArtifactPowerRankStore("ArtifactPowerRank.db2", ArtifactPowerRankLoadInfo::Instance());
 DB2Storage<ArtifactQuestXPEntry>                sArtifactQuestXPStore("ArtifactQuestXP.db2", ArtifactQuestXpLoadInfo::Instance());
 DB2Storage<AuctionHouseEntry>                   sAuctionHouseStore("AuctionHouse.db2", AuctionHouseLoadInfo::Instance());
@@ -332,6 +333,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sArtifactCategoryStore);
     LOAD_DB2(sArtifactPowerStore);
     LOAD_DB2(sArtifactPowerLinkStore);
+    LOAD_DB2(sArtifactPowerPickerStore);
     LOAD_DB2(sArtifactPowerRankStore);
     LOAD_DB2(sAuctionHouseStore);
     LOAD_DB2(sBankBagSlotPricesStore);
