@@ -14,7 +14,7 @@ namespace ai
             if (!bot->GetGroup())
                 return false;
 
-            bot->Say("Ah, don't leave me here? :(", LANG_UNIVERSAL);
+            bot->Say("Alright, see you next time!", LANG_UNIVERSAL);
 			
             WorldPacket p;
             string member = bot->GetName();
