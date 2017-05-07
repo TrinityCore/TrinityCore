@@ -6,7 +6,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. "lib${PLATFORM}-msvc*"
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 if(WIN32)
  set(BOOST_DEBUG ON)
@@ -19,7 +19,10 @@ if(WIN32)
 	  # adding logic to detect version automatically
 	  file(GLOB MSVC_LIB_DIRECTORIES ${BOOST_ROOT}/lib${PLATFORM}-msvc*)
 	  if(DEFINED MSVC_LIB_DIRECTORIES)
-		list(GET MSVC_LIB_DIRECTORIES 0 BOOST_LIBRARYDIR)
+		list(LENGTH MSVC_LIB_DIRECTORIES MSVC_LIB_DIRECTORIES_LENGTH)
+		math(EXPR MSVC_LAST_ELEMENT "${MSVC_LIB_DIRECTORIES_LENGTH}-1")
+		list(SORT MSVC_LIB_DIRECTORIES)
+		list(GET MSVC_LIB_DIRECTORIES ${MSVC_LAST_ELEMENT} BOOST_LIBRARYDIR)
 	  else()
 		set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
 	  endif()
