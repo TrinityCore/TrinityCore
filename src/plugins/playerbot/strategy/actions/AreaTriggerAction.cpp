@@ -39,7 +39,7 @@ bool ReachAreaTriggerAction::Execute(Event event)
 	mm.MovePoint(atEntry->mapid, atEntry->x, atEntry->y, atEntry->z);
     float distance = bot->GetDistance(atEntry->x, atEntry->y, atEntry->z);
     float delay = 1000.0f * distance / bot->GetSpeed(MOVE_RUN) + sPlayerbotAIConfig.reactDelay;
-    ai->TellMaster("Wait for me");
+    bot->Say("Wait for me", LANG_UNIVERSAL);
     ai->SetNextCheckDelay(delay);
     context->GetValue<LastMovement&>("last movement")->Get().lastAreaTrigger = triggerId;
 
@@ -68,6 +68,6 @@ bool AreaTriggerAction::Execute(Event event)
     p.rpos(0);
     bot->GetSession()->HandleAreaTriggerOpcode(p);
 
-    ai->TellMaster("Hello");
+    ai->TellMaster("Hi!");
     return true;
 }

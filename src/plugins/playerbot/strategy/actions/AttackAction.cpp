@@ -27,7 +27,7 @@ bool AttackMyTargetAction::Execute(Event event)
     Unit* target = master->GetSelectedUnit();
     if (!target)
     {
-        if (verbose) ai->TellMaster("You have no target");
+        if (verbose) bot->Say("You have no target", LANG_UNIVERSAL);
         return false;
     }
 
@@ -39,13 +39,13 @@ bool AttackAction::Attack(Unit* target)
     MotionMaster &mm = *bot->GetMotionMaster();
     if (bot->IsFlying())
     {
-        if (verbose) ai->TellMaster("I cannot attack in flight");
+        if (verbose) bot->Say("I cannot attack in flight", LANG_UNIVERSAL);
         return false;
     }
 
     if (!target)
     {
-        if (verbose) ai->TellMaster("I have no target");
+        if (verbose) bot->Say("I have no target", LANG_UNIVERSAL);
         return false;
     }
 
@@ -54,19 +54,19 @@ bool AttackAction::Attack(Unit* target)
     if (bot->IsFriendlyTo(target))
     {
         msg << " is friendly to me";
-        if (verbose) ai->TellMaster(msg.str());
+        if (verbose) bot->Say(msg.str(), LANG_UNIVERSAL);
         return false;
     }
 	if (target->isDead())
 	{
 		msg << " is dead";
-		if (verbose) ai->TellMaster(msg.str());
+		if (verbose) bot->Say(msg.str(), LANG_UNIVERSAL);
 		return false;
 	}
     if (!bot->InBattleground() && !bot->IsWithinLOSInMap(target))
     {
         msg << " is not on my sight";
-        if (verbose) ai->TellMaster(msg.str());
+        if (verbose) bot->Say(msg.str(), LANG_UNIVERSAL);
         return false;
     }
 
