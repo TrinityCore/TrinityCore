@@ -29,7 +29,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Cell.h"
 #include "CellImpl.h"
-#include "ConversationDataStore.h"
+#include "Conversation.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "GossipDef.h"
@@ -39,8 +39,6 @@ EndScriptData */
 #include "MapManager.h"
 #include "MovementPackets.h"
 #include "SpellPackets.h"
-#include "ScenePackets.h"
-#include "Conversation.h"
 
 #include <fstream>
 #include <limits>
@@ -1592,17 +1590,7 @@ public:
             return false;
         }
 
-        if (!sConversationDataStore->GetConversationTemplate(conversationEntry))
-            return false;
-
-        Conversation* conversation = new Conversation();
-        if (!conversation->CreateConversation(conversationEntry, target, *target))
-        {
-            delete conversation;
-            return false;
-        }
-
-        return true;
+        return Conversation::CreateConversation(conversationEntry, target, *target, { target->GetGUID() }) != nullptr;
     }
 };
 

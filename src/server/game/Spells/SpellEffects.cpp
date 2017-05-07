@@ -5668,9 +5668,7 @@ void Spell::EffectCreateConversation(SpellEffIndex /*effIndex*/)
     if (!m_targets.HasDst())
         return;
 
-    Conversation* conversation = new Conversation();
-    if (!conversation->CreateConversation(effectInfo->MiscValue, GetCaster(), destTarget->GetPosition(), GetSpellInfo()))
-        delete conversation;
+    Conversation::CreateConversation(effectInfo->MiscValue, GetCaster(), destTarget->GetPosition(), { GetCaster()->GetGUID() }, GetSpellInfo());
 }
 
 void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)

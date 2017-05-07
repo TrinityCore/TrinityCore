@@ -86,12 +86,16 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
+        bool IsNeverVisibleFor(WorldObject const* seer) const override;
+
         void Update(uint32 diff) override;
         void Remove();
         int32 GetDuration() const { return _duration; }
 
-        bool CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, SpellInfo const* spellInfo = nullptr);
+        static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo = nullptr);
+        bool Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo = nullptr);
         void AddActor(ObjectGuid const& actorGuid, int16 actorIdx = -1);
+        void AddParticipant(ObjectGuid const& participantGuid);
 
         ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
 
@@ -105,5 +109,6 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         Position _stationaryPosition;
         ObjectGuid _creatorGuid;
         uint32 _duration;
+        GuidUnorderedSet _participants;
 };
 #endif

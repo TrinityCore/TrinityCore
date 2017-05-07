@@ -472,14 +472,14 @@ struct CinematicSequencesEntry
 struct ConversationLineEntry
 {
     uint32 ID;
-    uint32 BroadcastTextId;
+    uint32 BroadcastTextID;
     uint32 SpellVisualKitID;
-    uint32 LineIntervalMS;
+    uint32 Duration;
     uint16 NextLineID;
-    uint16 Unk4; // Flag ?
-    uint8 UnkBoolean;
-    uint8 Unk5;
-    uint8 Unk6;
+    uint16 Unk1;
+    uint8 Yell;
+    uint8 Unk2;
+    uint8 Unk3;
 };
 
 struct CreatureDisplayInfoEntry

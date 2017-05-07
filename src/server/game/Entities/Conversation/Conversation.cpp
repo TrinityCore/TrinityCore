@@ -55,6 +55,14 @@ void Conversation::RemoveFromWorld()
     }
 }
 
+bool Conversation::IsNeverVisibleFor(WorldObject const* seer) const
+{
+    if (_participants.find(seer->GetGUID()) == _participants.end())
+        return true;
+
+    return WorldObject::IsNeverVisibleFor(seer);
+}
+
 void Conversation::Update(uint32 diff)
 {
     if (GetDuration() > int32(diff))
@@ -73,18 +81,36 @@ void Conversation::Remove()
     }
 }
 
-bool Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, SpellInfo const* /*spellInfo = nullptr*/)
+Conversation* Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo /*= nullptr*/)
 {
     ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
     if (!conversationTemplate)
-        return false;
+        return nullptr;
+
+    ObjectGuid::LowType lowGuid = creator->GetMap()->GenerateLowGuid<HighGuid::Conversation>();
+
+    Conversation* conversation = new Conversation();
+    if (!conversation->Create(lowGuid, conversationEntry, creator->GetMap(), creator, pos, std::move(participants), spellInfo))
+    {
+        delete conversation;
+        return nullptr;
+    }
+
+    return conversation;
+}
+
+bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* /*spellInfo = nullptr*/)
+{
+    ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
+    ASSERT(conversationTemplate);
 
     _creatorGuid = creator->GetGUID();
+    _participants = std::move(participants);
 
-    SetMap(creator->GetMap());
+    SetMap(map);
     Relocate(pos);
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, creator->GetMap()->GenerateLowGuid<HighGuid::Conversation>()));
+    Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
     SetPhaseMask(creator->GetPhaseMask(), false);
     CopyPhaseFrom(creator);
 
@@ -127,4 +153,9 @@ void Conversation::AddActor(ObjectGuid const& actorGuid, int16 actorIdx /*= -1*/
         AddDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, &actorField);
     else
         SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx, &actorField);
+}
+
+void Conversation::AddParticipant(ObjectGuid const& participantGuid)
+{
+    _participants.insert(participantGuid);
 }
