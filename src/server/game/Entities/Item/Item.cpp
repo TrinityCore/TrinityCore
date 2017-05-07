@@ -822,7 +822,7 @@ void Item::LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceI
                                 if (ArtifactPowerPickerEntry const* artifactPowerPicker = sArtifactPowerPickerStore.LookupEntry(enchant->EffectSpellID[i]))
                                 {
                                     PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactPowerPicker->PlayerConditionID);
-                                    if (!playerCondition || sConditionMgr->IsPlayerMeetingCondition(GetOwner(), playerCondition))
+                                    if (!playerCondition || sConditionMgr->IsPlayerMeetingCondition(owner, playerCondition))
                                         if (artifactPower->RelicType == _bonusData.GemRelicType[e - SOCK_ENCHANTMENT_SLOT])
                                             power.CurrentRankWithBonus += enchant->EffectPointsMin[i];
                                 }
