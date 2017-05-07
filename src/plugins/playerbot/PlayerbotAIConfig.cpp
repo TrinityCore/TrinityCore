@@ -106,6 +106,7 @@ bool PlayerbotAIConfig::Initialize()
 	randomBotBracketPlayer = config.GetBoolDefault("AIPlayerbot.RandomBotBracketPlayer", true);
     randomBotLoginAtStartup = config.GetBoolDefault("AiPlayerbot.RandomBotLoginAtStartup", true);
     randomBotTeleLevel = config.GetIntDefault("AiPlayerbot.RandomBotTeleLevel", 3);
+	randomBotShowHelmet = config.GetBoolDefault("AiPlayerbot.randomBotShowHelmet", true);
 
     randomChangeMultiplier = config.GetFloatDefault("AiPlayerbot.RandomChangeMultiplier", 1.0);
 

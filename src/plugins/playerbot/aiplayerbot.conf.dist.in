@@ -8,10 +8,59 @@ ConfVersion=2010102201
 # Enable or disable AI Playerbot
 AiPlayerbot.Enabled = 1
 
-# Unknown
-AiPlayerbot.RandomClassSpecProbability.0.0 = 33
-AiPlayerbot.RandomClassSpecProbability.0.1 = 33
-AiPlayerbot.RandomClassSpecProbability.0.2 = 33
+# Enable random bot system
+AiPlayerbot.RandomBotAutologin = 1
+
+# AI Playerbots can join in Battlegrounds
+AiPlayerbot.RandomBotJoinBG = 1
+
+# Enable LFG for random bots (buggy, use it only if you not playing in party)
+AiPlayerbot.RandomBotJoinLfg = 0
+
+# Randombots level based on player characters level
+AIPlayerbot.RandomBotBracketPlayer = 0
+
+# Server won't randomize randombots inventory
+AiPlayerbot.NotSoRandom = 0
+
+# Randombots can get quests (do more lag on first run)
+AiPlayerbot.randomBotInitQuest = 0
+
+# Show helmet and cloak on randombots
+AiPlayerbot.randomBotShowHelmet = 1
+
+# All race, all class mode for bots (need the client mod too)
+AiPlayerbot.ARAC = 0
+
+# Accounts to create for random bots
+AiPlayerbot.RandomBotAccountPrefix = rndbot
+AiPlayerbot.RandomBotAccountCount = 100
+
+# Random bot count
+AiPlayerbot.MinRandomBots = 200
+AiPlayerbot.MaxRandomBots = 200
+AiPlayerbot.RandomBotMinLevel = 1
+AiPlayerbot.RandomBotMaxLevel = 80 
+
+# Custom strategies (check in database)
+AiPlayerbot.CombatStrategies = +custom::say
+AiPlayerbot.NonCombatStrategies = +custom::say
+
+# Allow/deny bots from your guild
+AiPlayerbot.AllowGuildBots = 1
+
+# Delete all random bot accounts
+AiPlayerbot.DeleteRandomBotAccounts = 0
+
+# Delete all random bot guilds
+AiPlayerbot.DeleteRandomBotGuilds = 0
+
+
+##############################################
+# Nothing interested down below              #
+##############################################
+
+
 # Warrior
 AiPlayerbot.RandomClassSpecProbability.1.0 = 33
 AiPlayerbot.RandomClassSpecProbability.1.1 = 33
