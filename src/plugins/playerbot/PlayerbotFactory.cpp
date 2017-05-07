@@ -81,8 +81,11 @@ void PlayerbotFactory::Prepare()
     bot->SetHealth(bot->GetMaxHealth());
     bot->SetPower(POWER_MANA, bot->GetMaxPower(POWER_MANA));    
 
-    bot->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
-    bot->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
+	if (sPlayerbotAIConfig.randomBotShowHelmet)
+    {
+        bot->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM);
+        bot->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK);
+    }
 }
 
 void PlayerbotFactory::Randomize(bool incremental)

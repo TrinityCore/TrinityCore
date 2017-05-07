@@ -26,6 +26,9 @@ AiPlayerbot.NotSoRandom = 0
 # Randombots can get quests (do more lag on first run)
 AiPlayerbot.randomBotInitQuest = 0
 
+# Show helmet and cloak on randombots
+AiPlayerbot.randomBotShowHelmet = 1
+
 # All race, all class mode for bots (need the client mod too)
 AiPlayerbot.ARAC = 0
 
