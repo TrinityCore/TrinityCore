@@ -12,9 +12,6 @@ CREATE TABLE `conversation_actor_template` (
   `Id` INT (10) UNSIGNED NOT NULL,
   `CreatureId` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   `CreatureModelId` INT (10) UNSIGNED NOT NULL DEFAULT 0,
-  `Unk2` INT (10) UNSIGNED NOT NULL DEFAULT 0,
-  `Unk3` INT (10) UNSIGNED NOT NULL DEFAULT 0,
-  `Unk4` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   `VerifiedBuild` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -39,9 +36,9 @@ CREATE TABLE `conversation_actors` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 /*
-INSERT INTO `conversation_actor_template`(`Id`,`CreatureId`,`CreatureModelId`,`Unk2`,`Unk3`,`Unk4`,`VerifiedBuild`) VALUES
-(49825, 93221, 65308, 0, 1, 0, 22624),
-(50124, 98075, 21135, 0, 1, 0, 22624);
+INSERT INTO `conversation_actor_template`(`Id`,`CreatureId`,`CreatureModelId`,`VerifiedBuild`) VALUES
+(49825, 93221, 65308, 22624),
+(50124, 98075, 21135, 22624);
 
 INSERT INTO `conversation_actors`(`ConversationId`,`ConversationActorId`,`Idx`,`VerifiedBuild`) VALUES
 (705, 49825, 0, 22624),

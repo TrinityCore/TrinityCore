@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,9 +28,35 @@ struct ConversationActorTemplate
     uint32 Id;
     uint32 CreatureId;
     uint32 CreatureModelId;
-    uint32 Unk3;
-    uint32 Unk4;
-    uint32 Unk5;
+};
+
+struct ConversationDynamicFieldActor
+{
+    ConversationDynamicFieldActor() : Type(0), Padding(0)
+    {
+        memset(Raw.Data, 0, sizeof(Raw.Data));
+    }
+
+    enum ActorType
+    {
+        WorldObjectActor = 0,
+        CreatureActor = 1
+    };
+
+    union
+    {
+        ObjectGuid ActorGuid;
+
+        ConversationActorTemplate ActorTemplate;
+
+        struct
+        {
+            uint32 Data[4];
+        } Raw;
+    };
+
+    uint32 Type;
+    uint32 Padding;
 };
 
 struct ConversationLineTemplate
@@ -47,8 +73,8 @@ struct ConversationTemplate
     uint32 FirstLineId;     // Link to ConversationLine.db2
     uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
 
-    std::vector<ConversationActorTemplate> Actors;
-    std::vector<ConversationLineTemplate> Lines;
+    std::vector<ConversationActorTemplate const*> Actors;
+    std::vector<ConversationLineTemplate const*> Lines;
 };
 
 class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversation>
@@ -64,7 +90,8 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         void Remove();
         int32 GetDuration() const { return _duration; }
 
-        bool CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, SpellInfo const* spellInfo);
+        bool CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, SpellInfo const* spellInfo = nullptr);
+        void AddActor(ObjectGuid const& actorGuid, int16 actorIdx = -1);
 
         ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
 
@@ -72,6 +99,7 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }
         float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
         float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
+        void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
     private:
         Position _stationaryPosition;

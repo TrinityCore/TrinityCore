@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -73,7 +73,7 @@ void Conversation::Remove()
     }
 }
 
-bool Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, SpellInfo const* /*spellInfo*/)
+bool Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, SpellInfo const* /*spellInfo = nullptr*/)
 {
     ConversationTemplate const* conversationTemplate = sConversationDataStore->GetConversationTemplate(conversationEntry);
     if (!conversationTemplate)
@@ -95,15 +95,36 @@ bool Conversation::CreateConversation(uint32 conversationEntry, Unit* creator, P
     _duration = conversationTemplate->LastLineEndTime;
 
     uint16 actorsIndex = 0;
-    for (ConversationActorTemplate const& actor : conversationTemplate->Actors)
-        SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorsIndex++, &actor);
+    for (ConversationActorTemplate const* actor : conversationTemplate->Actors)
+    {
+        if (actor)
+        {
+            ConversationDynamicFieldActor actorField;
+            actorField.ActorTemplate = *actor;
+            actorField.Type = ConversationDynamicFieldActor::ActorType::CreatureActor;
+            SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorsIndex++, &actorField);
+        }
+        else
+            ++actorsIndex;
+    }
 
     uint16 linesIndex = 0;
-    for (ConversationLineTemplate const& line : conversationTemplate->Lines)
-        SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, &line);
+    for (ConversationLineTemplate const* line : conversationTemplate->Lines)
+        SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_LINES, linesIndex++, line);
 
     if (!GetMap()->AddToMap(this))
         return false;
 
     return true;
+}
+
+void Conversation::AddActor(ObjectGuid const& actorGuid, int16 actorIdx /*= -1*/)
+{
+    ConversationDynamicFieldActor actorField;
+    actorField.ActorGuid = actorGuid;
+    actorField.Type = ConversationDynamicFieldActor::ActorType::WorldObjectActor;
+    if (actorIdx < 0)
+        AddDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, &actorField);
+    else
+        SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx, &actorField);
 }

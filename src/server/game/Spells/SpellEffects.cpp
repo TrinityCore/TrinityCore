@@ -5669,7 +5669,7 @@ void Spell::EffectCreateConversation(SpellEffIndex /*effIndex*/)
         return;
 
     Conversation* conversation = new Conversation();
-    if (!conversation->CreateConversation(effectInfo->MiscValue, GetCaster(), GetSpellInfo(), destTarget->GetPosition()))
+    if (!conversation->CreateConversation(effectInfo->MiscValue, GetCaster(), destTarget->GetPosition(), GetSpellInfo()))
         delete conversation;
 }
 

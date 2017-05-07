@@ -1596,7 +1596,7 @@ public:
             return false;
 
         Conversation* conversation = new Conversation();
-        if (!conversation->CreateConversation(conversationEntry, target, nullptr, *target))
+        if (!conversation->CreateConversation(conversationEntry, target, *target))
         {
             delete conversation;
             return false;

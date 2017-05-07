@@ -1015,7 +1015,7 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
             flags = ConversationDynamicUpdateFieldFlags;
 
             if (Conversation const* conversation = ToConversation())
-                if (conversation->GetCasterGuid() == target->GetGUID())
+                if (conversation->GetCreatorGuid() == target->GetGUID())
                     visibleFlag |= UF_FLAG_0x100;
             break;
         default:

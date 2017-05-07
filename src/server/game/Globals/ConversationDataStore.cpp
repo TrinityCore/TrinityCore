@@ -40,10 +40,9 @@ void ConversationDataStore::LoadConversationTemplates()
     _conversationLineTemplateStore.clear();
     _conversationTemplateStore.clear();
 
-    //std::unordered_map<uint32, std::vector<ConversationActorTemplate>> actorsByConversation;
-    //std::unordered_map<uint32, std::vector<ConversationLineTemplate>> linesByConversation;
+    std::unordered_map<uint32, std::vector<ConversationActorTemplate const*>> actorsByConversation;
 
-    if (QueryResult actorTemplates = WorldDatabase.Query("SELECT Id, CreatureId, CreatureModelId, Unk2, Unk3, Unk4 FROM conversation_actor_template"))
+    if (QueryResult actorTemplates = WorldDatabase.Query("SELECT Id, CreatureId, CreatureModelId FROM conversation_actor_template"))
     {
         uint32 oldMSTime = getMSTime();
 
@@ -56,9 +55,6 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationActor.Id = id;
             conversationActor.CreatureId = fields[1].GetUInt32();
             conversationActor.CreatureModelId = fields[2].GetUInt32();
-            conversationActor.Unk3 = fields[3].GetUInt32();
-            conversationActor.Unk4 = fields[4].GetUInt32();
-            conversationActor.Unk5 = fields[5].GetUInt32();
         }
         while (actorTemplates->NextRow());
 
@@ -102,6 +98,31 @@ void ConversationDataStore::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation template lines. DB table `conversation_line_template` is empty.");
     }
 
+    if (QueryResult actors = WorldDatabase.Query("SELECT ConversationId, ConversationActorId, Idx FROM conversation_actors"))
+    {
+        uint32 oldMSTime = getMSTime();
+
+        do
+        {
+            Field* fields = actors->Fetch();
+
+            uint32 conversationId = fields[0].GetUInt32();
+            uint32 actorId = fields[1].GetUInt32();
+            uint32 idx = fields[2].GetUInt32();
+
+            if (ConversationActorTemplate const* conversationActorTemplate = Trinity::Containers::MapGetValuePtr(_conversationActorTemplateStore, actorId))
+            {
+                std::vector<ConversationActorTemplate const*>& actors = actorsByConversation[conversationId];
+                if (actors.size() <= idx)
+                    actors.resize(idx + 1);
+                actors[idx] = conversationActorTemplate;
+            }
+            else
+                TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid actor (ID: %u) for Conversation %u, skipped", actorId, conversationId);
+        }
+        while (actors->NextRow());
+    }
+
     if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, LastLineEndTime, VerifiedBuild FROM conversation_template"))
     {
         uint32 oldMSTime = getMSTime();
@@ -115,30 +136,18 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationTemplate.FirstLineId        = fields[1].GetUInt32();
             conversationTemplate.LastLineEndTime    = fields[2].GetUInt32();
 
-            if (QueryResult actors = WorldDatabase.PQuery("SELECT ConversationActorId FROM conversation_actors WHERE ConversationId = %u ORDER BY Idx", conversationTemplate.Id))
-            {
-                do
-                {
-                    Field* fields = actors->Fetch();
-                    uint32 actorId = fields[0].GetUInt32();
-                    if (ConversationActorTemplate const* conversationActorTemplate = Trinity::Containers::MapGetValuePtr(_conversationActorTemplateStore, actorId))
-                        conversationTemplate.Actors.push_back(*conversationActorTemplate);
-                    else
-                        TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid actor (ID: %u) for Conversation %u, skipped", actorId, conversationTemplate.Id);
-                }
-                while (actors->NextRow());
-            }
+            conversationTemplate.Actors = std::move(actorsByConversation[conversationTemplate.Id]);
 
             ConversationLineEntry const* currentConversationLine = sConversationLineStore.LookupEntry(conversationTemplate.FirstLineId);
             if (!currentConversationLine)
-                TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid line (ID: %u) for Conversation %u, skipped", conversationTemplate.FirstLineId, conversationTemplate.Id);
+                TC_LOG_ERROR("sql.sql", "Table `conversation_template` references an invalid line (ID: %u) for Conversation %u, skipped", conversationTemplate.FirstLineId, conversationTemplate.Id);
 
             while (currentConversationLine != nullptr)
             {
                 if (ConversationLineTemplate const* conversationLineTemplate = Trinity::Containers::MapGetValuePtr(_conversationLineTemplateStore, currentConversationLine->ID))
-                    conversationTemplate.Lines.push_back(*conversationLineTemplate);
+                    conversationTemplate.Lines.push_back(conversationLineTemplate);
                 else
-                    TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid line (ID: %u) for Conversation %u, skipped", currentConversationLine->ID, conversationTemplate.Id);
+                    TC_LOG_ERROR("sql.sql", "Table `conversation_line_template` has missing template for line (ID: %u) in Conversation %u, skipped", currentConversationLine->ID, conversationTemplate.Id);
 
                 if (!currentConversationLine->NextLineID)
                     break;
