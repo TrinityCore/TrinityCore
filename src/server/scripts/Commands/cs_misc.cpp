@@ -1958,9 +1958,21 @@ public:
             return true;
         }
 
+        // First handle any creatures that still have a corpse around
         Trinity::RespawnDo u_do;
         Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(player, u_do);
         Cell::VisitGridObjects(player, worker, player->GetGridActivationRange());
+
+        // Now handle any that had despawned, but had respawn time logged.
+        RespawnVector data;
+        player->GetMap()->GetRespawnInfo(data, SPAWN_TYPEMASK_ALL, 0);
+        if (!data.empty())
+        {
+            uint32 const gridId = Trinity::ComputeGridCoord(player->GetPositionX(), player->GetPositionY()).GetId();
+            for (RespawnInfo* info : data)
+                if (info->gridId == gridId)
+                    player->GetMap()->RemoveRespawnTime(info, true);
+        }
 
         return true;
     }

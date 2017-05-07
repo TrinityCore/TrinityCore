@@ -98,7 +98,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
     private:
-        bool Create(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit);
+        bool Create(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit, bool dynamic, ObjectGuid::LowType spawnid);
     public:
         static GameObject* CreateGameObject(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit = 0);
         static GameObject* CreateGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
@@ -106,7 +106,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void Update(uint32 p_time) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectTemplateAddon const* GetTemplateAddon() const { return m_goTemplateAddon; }
-        GameObjectData const* GetGOData() const { return m_goData; }
+        GameObjectData const* GetGameObjectData() const { return m_goData; }
         GameObjectValue const* GetGOValue() const { return &m_goValue; }
 
         bool IsTransport() const;
@@ -126,10 +126,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
-        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadGameObjectFromDB(spawnId, map, false); }
-    private:
-        bool LoadGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap);
-    public:
+        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool = true); // arg4 is unused, only present to match the signature on Creature
         void DeleteFromDB();
 
         void SetOwnerGUID(ObjectGuid owner)
@@ -229,7 +226,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetUseCount() const { return m_usetimes; }
         uint32 GetUniqueUseCount() const { return uint32(m_unique_users.size()); }
 
-        void SaveRespawnTime() override;
+        void SaveRespawnTime(uint32 forceDelay = 0, bool savetodb = true) override;
 
         Loot        loot;
 
@@ -279,6 +276,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         }
 
         void EventInform(uint32 eventId, WorldObject* invoker = nullptr);
+
+        // There's many places not ready for dynamic spawns. This allows them to live on for now.
+        void SetRespawnCompatibilityMode(bool mode = true) { m_respawnCompatibilityMode = mode; }
+        bool GetRespawnCompatibilityMode() {return m_respawnCompatibilityMode; }
 
         uint32 GetScriptId() const;
         GameObjectAI* AI() const { return m_AI; }
@@ -370,6 +371,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         }
 
         GameObjectAI* m_AI;
+        bool m_respawnCompatibilityMode;
         uint16 _animKitId;
         uint32 _worldEffectID;
 };

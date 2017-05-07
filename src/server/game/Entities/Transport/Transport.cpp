@@ -300,16 +300,14 @@ Creature* Transport::CreateNPCPassenger(ObjectGuid::LowType guid, CreatureData c
 {
     Map* map = GetMap();
 
-    Creature* creature = Creature::CreateCreatureFromDB(guid, map, false);
+    Creature* creature = Creature::CreateCreatureFromDB(guid, map, false, true);
     if (!creature)
         return nullptr;
 
     ASSERT(data);
 
-    float x = data->posX;
-    float y = data->posY;
-    float z = data->posZ;
-    float o = data->orientation;
+    float x, y, z, o;
+    data->spawnPoint.GetPosition(x, y, z, o);
 
     creature->SetTransport(this);
     creature->m_movementInfo.transport.guid = GetGUID();
@@ -355,10 +353,8 @@ GameObject* Transport::CreateGOPassenger(ObjectGuid::LowType guid, GameObjectDat
 
     ASSERT(data);
 
-    float x = data->posX;
-    float y = data->posY;
-    float z = data->posZ;
-    float o = data->orientation;
+    float x, y, z, o;
+    data->spawnPoint.GetPosition(x, y, z, o);
 
     go->SetTransport(this);
     go->m_movementInfo.transport.guid = GetGUID();
@@ -466,7 +462,7 @@ TempSummon* Transport::SummonPassenger(uint32 entry, Position const& pos, TempSu
     pos.GetPosition(x, y, z, o);
     CalculatePassengerPosition(x, y, z, &o);
 
-    if (!summon->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, entry, x, y, z, o, nullptr, vehId))
+    if (!summon->Create(map->GenerateLowGuid<HighGuid::Creature>(), map, entry, { x, y, z, o }, nullptr, vehId))
     {
         delete summon;
         return nullptr;
@@ -545,7 +541,7 @@ void Transport::LoadStaticPassengers()
             // GameObjects on transport
             guidEnd = cellItr->second.gameobjects.end();
             for (CellGuidSet::const_iterator guidItr = cellItr->second.gameobjects.begin(); guidItr != guidEnd; ++guidItr)
-                CreateGOPassenger(*guidItr, sObjectMgr->GetGOData(*guidItr));
+                CreateGOPassenger(*guidItr, sObjectMgr->GetGameObjectData(*guidItr));
         }
     }
 }

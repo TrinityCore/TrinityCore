@@ -161,7 +161,6 @@ public:
             player->SaveRecallPosition();
 
         player->TeleportTo(mapId, x, y, z, o);
-
         return true;
     }
 
@@ -272,28 +271,18 @@ public:
         if (!guidLow)
             return false;
 
-        float x, y, z, o;
-        uint32 mapId;
-
         // by DB guid
-        if (GameObjectData const* goData = sObjectMgr->GetGOData(guidLow))
-        {
-            x = goData->posX;
-            y = goData->posY;
-            z = goData->posZ;
-            o = goData->orientation;
-            mapId = goData->mapid;
-        }
-        else
+        GameObjectData const* goData = sObjectMgr->GetGameObjectData(guidLow);
+        if (!goData)
         {
             handler->SendSysMessage(LANG_COMMAND_GOOBJNOTFOUND);
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
+        
+        if (!MapManager::IsValidMapCoord(goData->spawnPoint) || sObjectMgr->IsTransportMap(goData->spawnPoint.GetMapId()))
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, goData->spawnPoint.GetPositionX(), goData->spawnPoint.GetPositionY(), goData->spawnPoint.GetMapId());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -308,7 +297,7 @@ public:
         else
             player->SaveRecallPosition();
 
-        player->TeleportTo(mapId, x, y, z, o);
+        player->TeleportTo(goData->spawnPoint);
         return true;
     }
 
