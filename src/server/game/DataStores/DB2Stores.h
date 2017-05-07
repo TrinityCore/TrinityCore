@@ -33,6 +33,7 @@ TC_GAME_API extern DB2Storage<ArtifactCategoryEntry>                sArtifactCat
 TC_GAME_API extern DB2Storage<ArtifactAppearanceEntry>              sArtifactAppearanceStore;
 TC_GAME_API extern DB2Storage<ArtifactAppearanceSetEntry>           sArtifactAppearanceSetStore;
 TC_GAME_API extern DB2Storage<ArtifactPowerEntry>                   sArtifactPowerStore;
+TC_GAME_API extern DB2Storage<ArtifactPowerPickerEntry>             sArtifactPowerPickerStore;
 TC_GAME_API extern DB2Storage<AuctionHouseEntry>                    sAuctionHouseStore;
 TC_GAME_API extern DB2Storage<BankBagSlotPricesEntry>               sBankBagSlotPricesStore;
 TC_GAME_API extern DB2Storage<BannedAddOnsEntry>                    sBannedAddOnsStore;

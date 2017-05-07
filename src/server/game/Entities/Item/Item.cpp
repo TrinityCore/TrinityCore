@@ -324,7 +324,7 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owne
 
     if (itemProto->GetArtifactID())
     {
-        InitArtifactPowers(itemProto->GetArtifactID());
+        InitArtifactPowers(itemProto->GetArtifactID(), 0);
         for (ArtifactAppearanceEntry const* artifactAppearance : sArtifactAppearanceStore)
         {
             if (ArtifactAppearanceSetEntry const* artifactAppearanceSet = sArtifactAppearanceSetStore.LookupEntry(artifactAppearance->ArtifactAppearanceSetID))
@@ -677,12 +677,6 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
             SetSpellCharges(i, atoi(tokens[i]));
 
     SetUInt32Value(ITEM_FIELD_FLAGS, itemFlags);
-    // Remove bind flag for items vs BIND_NONE set
-    if (IsSoulBound() && proto->GetBonding() == BIND_NONE)
-    {
-        ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, false);
-        need_save = true;
-    }
 
     _LoadIntoDataField(fields[8].GetString(), ITEM_FIELD_ENCHANTMENT, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
     m_randomEnchantment.Type = ItemRandomEnchantmentType(fields[9].GetUInt8());
@@ -769,6 +763,13 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, fields[42].GetUInt32());
     SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[43].GetUInt32());
 
+    // Remove bind flag for items vs BIND_NONE set
+    if (IsSoulBound() && GetBonding() == BIND_NONE)
+    {
+        ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, false);
+        need_save = true;
+    }
+
     if (need_save)                                           // normal item changed state set not work at loading
     {
         uint8 index = 0;
@@ -784,9 +785,9 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     return true;
 }
 
-void Item::LoadArtifactData(uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers)
+void Item::LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers)
 {
-    InitArtifactPowers(GetTemplate()->GetArtifactID());
+    InitArtifactPowers(GetTemplate()->GetArtifactID(), 0);
     SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, xp);
     SetModifier(ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID, artifactAppearanceId);
     if (ArtifactAppearanceEntry const* artifactAppearance = sArtifactAppearanceStore.LookupEntry(artifactAppearanceId))
@@ -814,6 +815,18 @@ void Item::LoadArtifactData(uint64 xp, uint32 artifactAppearanceId, std::vector<
                         case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID:
                             if (artifactPower->ID == enchant->EffectSpellID[i])
                                 power.CurrentRankWithBonus += enchant->EffectPointsMin[i];
+                            break;
+                        case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_PICKER:
+                            if (_bonusData.GemRelicType[e - SOCK_ENCHANTMENT_SLOT] != -1)
+                            {
+                                if (ArtifactPowerPickerEntry const* artifactPowerPicker = sArtifactPowerPickerStore.LookupEntry(enchant->EffectSpellID[i]))
+                                {
+                                    PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactPowerPicker->PlayerConditionID);
+                                    if (!playerCondition || sConditionMgr->IsPlayerMeetingCondition(GetOwner(), playerCondition))
+                                        if (artifactPower->RelicType == _bonusData.GemRelicType[e - SOCK_ENCHANTMENT_SLOT])
+                                            power.CurrentRankWithBonus += enchant->EffectPointsMin[i];
+                                }
+                            }
                             break;
                         default:
                             break;
@@ -1190,8 +1203,8 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
             owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetEntry(), id);
     }
 
-    ApplyArtifactPowerEnchantmentBonuses(GetEnchantmentId(slot), false, owner);
-    ApplyArtifactPowerEnchantmentBonuses(id, true, owner);
+    ApplyArtifactPowerEnchantmentBonuses(slot, GetEnchantmentId(slot), false, owner);
+    ApplyArtifactPowerEnchantmentBonuses(slot, id, true, owner);
 
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET, id);
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot * MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET, duration);
@@ -1261,6 +1274,8 @@ void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem, uint32 gemScalin
                 if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(gemBonus.ScalingStatDistribution))
                     if (uint32 scaledIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, gemScalingLevel)))
                         gemBaseItemLevel = scaledIlvl;
+
+                _bonusData.GemRelicType[slot] = gemBonus.RelicType;
 
                 for (uint32 i = 0; i < MAX_ITEM_ENCHANTMENT_EFFECTS; ++i)
                 {
@@ -2325,10 +2340,13 @@ void Item::SetArtifactPower(ItemDynamicFieldArtifactPowers const* artifactPower,
     SetDynamicStructuredValue(ITEM_DYNAMIC_FIELD_ARTIFACT_POWERS, index, artifactPower);
 }
 
-void Item::InitArtifactPowers(uint8 artifactId)
+void Item::InitArtifactPowers(uint8 artifactId, uint8 artifactTier)
 {
     for (ArtifactPowerEntry const* artifactPower : sDB2Manager.GetArtifactPowers(artifactId))
     {
+        if (artifactPower->ArtifactTier != artifactTier)
+            continue;
+
         if (m_artifactPowerIdToIndex.find(artifactPower->ID) != m_artifactPowerIdToIndex.end())
             continue;
 
@@ -2350,7 +2368,7 @@ uint32 Item::GetTotalPurchasedArtifactPowers() const
     return purchasedRanks;
 }
 
-void Item::ApplyArtifactPowerEnchantmentBonuses(uint32 enchantId, bool apply, Player* owner)
+void Item::ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enchantId, bool apply, Player* owner)
 {
     if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId))
     {
@@ -2391,6 +2409,35 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(uint32 enchantId, bool apply, Pl
                                 owner->ApplyArtifactPowerRank(this, artifactPowerRank, newPower.CurrentRankWithBonus != 0);
 
                         SetArtifactPower(&newPower);
+                    }
+                    break;
+                case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_PICKER:
+                    if (slot >= SOCK_ENCHANTMENT_SLOT && slot <= SOCK_ENCHANTMENT_SLOT_3 && _bonusData.GemRelicType[slot - SOCK_ENCHANTMENT_SLOT] != -1)
+                    {
+                        if (ArtifactPowerPickerEntry const* artifactPowerPicker = sArtifactPowerPickerStore.LookupEntry(enchant->EffectSpellID[i]))
+                        {
+                            PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(artifactPowerPicker->PlayerConditionID);
+                            if (!playerCondition || sConditionMgr->IsPlayerMeetingCondition(owner, playerCondition))
+                            {
+                                for (ItemDynamicFieldArtifactPowers const& artifactPower : GetArtifactPowers())
+                                {
+                                    if (sArtifactPowerStore.AssertEntry(artifactPower.ArtifactPowerId)->RelicType == _bonusData.GemRelicType[slot - SOCK_ENCHANTMENT_SLOT])
+                                    {
+                                        ItemDynamicFieldArtifactPowers newPower = artifactPower;
+                                        if (apply)
+                                            newPower.CurrentRankWithBonus += enchant->EffectPointsMin[i];
+                                        else
+                                            newPower.CurrentRankWithBonus -= enchant->EffectPointsMin[i];
+
+                                        if (IsEquipped())
+                                            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(artifactPower.ArtifactPowerId, newPower.CurrentRankWithBonus ? newPower.CurrentRankWithBonus - 1 : 0))
+                                                owner->ApplyArtifactPowerRank(this, artifactPowerRank, newPower.CurrentRankWithBonus != 0);
+
+                                        SetArtifactPower(&newPower);
+                                    }
+                                }
+                            }
+                        }
                     }
                     break;
                 default:
@@ -2466,12 +2513,17 @@ void BonusData::Initialize(ItemTemplate const* proto)
     {
         SocketColor[i] = proto->GetSocketColor(i);
         GemItemLevelBonus[i] = 0;
+        GemRelicType[i] = -1;
+        GemRelicRankBonus[i] = 0;
     }
+
+    Bonding = proto->GetBonding();
 
     AppearanceModID = 0;
     RepairCostMultiplier = 1.0f;
     ScalingStatDistribution = proto->GetScalingStatDistribution();
     ItemLevelOverride = 0;
+    RelicType = -1;
     HasItemLevelBonus = false;
 
     _state.AppearanceModPriority = std::numeric_limits<int32>::max();
@@ -2566,6 +2618,12 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
                 ItemLevelOverride = static_cast<uint32>(values[0]);
                 _state.ItemLevelOverridePriority = values[1];
             }
+            break;
+        case ITEM_BONUS_BONDING:
+            Bonding = ItemBondingType(values[0]);
+            break;
+        case ITEM_BONUS_RELIC_TYPE:
+            RelicType = values[0];
             break;
     }
 }
