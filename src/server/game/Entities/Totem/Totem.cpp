@@ -123,6 +123,10 @@ void Totem::UnSummon(uint32 msTime)
     if (GetEntry() == SENTRY_TOTEM_ENTRY)
         GetOwner()->RemoveAurasDueToSpell(SENTRY_TOTEM_SPELLID);
 
+    // Remove Glyph of Stoneclaw shield
+    if (GetEntry() == STONECLAW_TOTEM_ENTRY)
+        GetOwner()->RemoveAurasDueToSpell(55277);
+
     //remove aura all party members too
     if (Player* owner = GetOwner()->ToPlayer())
     {
