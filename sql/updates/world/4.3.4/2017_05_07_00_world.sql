@@ -1,0 +1,11 @@
+UPDATE command SET name = 'reload achievement_reward_locale', help = 'Syntax: .reload achievement_reward_locale\nReload achievement_reward_locale table.' WHERE permission = 657;
+UPDATE command SET name = 'reload creature_template_locale', help = 'Syntax: .reload creature_template_locale\nReload creature_template_locale table.'  WHERE permission = 658;
+UPDATE command SET name = 'reload creature_text_locale', help = 'Syntax: .reload creature_text_locale\nReload creature_text_locale Table.'  WHERE permission = 659;
+UPDATE command SET name = 'reload gameobject_template_locale', help = 'Syntax: .reload gameobject_template_locale\nReload gameobject_template_locale table.'  WHERE permission = 660;
+UPDATE command SET name = 'reload gossip_menu_option_locale', help = 'Syntax: .reload gossip_menu_option_locale\nReload gossip_menu_option_locale table.'  WHERE permission = 661;
+UPDATE command SET name = 'reload item_template_locale', help = 'Syntax: .reload item_template_locale\nReload item_template_locale table.'  WHERE permission = 662;
+UPDATE command SET name = 'reload item_set_name_locale', help = 'Syntax: .reload item_set_name_locale\nReload item_set_name_locale table.'  WHERE permission = 663;
+UPDATE command SET name = 'reload npc_text_locale', help = 'Syntax: .reload npc_text_locale\nReload npc_text_locale table.'  WHERE permission = 664;
+UPDATE command SET name = 'reload page_text_locale', help = 'Syntax: .reload page_text_locale\nReload page_text_locale table.'  WHERE permission = 665;
+UPDATE command SET name = 'reload points_of_interest_locale', help = 'Syntax: .reload points_of_interest_locale\nReload points_of_interest_locale table.'  WHERE permission = 666;
+UPDATE command SET name = 'reload quest_template_locale', help = 'Syntax: .reload quest_template_locale\nReload quest_template_locale table.'  WHERE permission = 667;
