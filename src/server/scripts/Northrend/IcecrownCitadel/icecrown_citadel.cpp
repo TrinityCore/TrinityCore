@@ -354,7 +354,7 @@ class FrostwingGauntletRespawner
             creature->SetRespawnDelay(2);
 
             if (CreatureData const* data = creature->GetCreatureData())
-                creature->UpdatePosition(data->posX, data->posY, data->posZ, data->orientation);
+                creature->UpdatePosition(data->spawnPoint);
             creature->DespawnOrUnsummon();
 
             creature->SetCorpseDelay(corpseDelay);
