@@ -82,6 +82,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // ArtifactPowerLink.db2
     PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER_LINK, "SELECT ID, FromArtifactPowerID, ToArtifactPowerID FROM artifact_power_link ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // ArtifactPowerPicker.db2
+    PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER_PICKER, "SELECT ID, PlayerConditionID FROM artifact_power_picker ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // ArtifactPowerRank.db2
     PrepareStatement(HOTFIX_SEL_ARTIFACT_POWER_RANK, "SELECT ID, SpellID, Value, ArtifactPowerID, Unknown, Rank FROM artifact_power_rank"
         " ORDER BY ID DESC", CONNECTION_SYNCH);

@@ -4343,7 +4343,7 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
     else if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
         if (effectInfo->TriggerSpell)
-            m_caster->CastSpell(unitTarget, effectInfo->TriggerSpell, true, nullptr, nullptr, m_originalCasterGUID);
+            m_caster->CastSpell(destTarget->GetPositionX(), destTarget->GetPositionY(), destTarget->GetPositionZ(), effectInfo->TriggerSpell, true, nullptr, nullptr, m_originalCasterGUID);
     }
 }
 
