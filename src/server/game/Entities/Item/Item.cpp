@@ -420,6 +420,7 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA));
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL));
             stmt->setUInt32(++index, GetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID));
+            stmt->setUInt8(++index, uint8(GetUInt32Value(ITEM_FIELD_CONTEXT)));
 
             std::ostringstream bonusListIDs;
             for (uint32 bonusListID : GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS))
@@ -620,15 +621,15 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 {
     //           0          1            2                3      4         5        6      7             8                   9                10          11          12    13
     // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyType, randomPropertyId, durability, playedTime, text,
-    //               14                  15                  16              17                  18            19
-    //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs,
-    //                                    20                           21                           22                           23                           24
+    //               14                  15                  16              17                  18       19            20
+    //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs,
+    //                                   21                            22                           23                           24                           25
     //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
-    //                                  25                        26                          27                         28                         29
+    //                                  26                        27                          28                         29                         30
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-    //                30           31           32                33          34           35           36                37          38           39           40                41
+    //                31           32           33                34          35           36           37                38          39           40           41                42
     //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-    //                       42                      43
+    //                       43                      44
     //        fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
 
     // create item before any checks for store correct guid
@@ -724,44 +725,44 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[17].GetUInt16());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[18].GetUInt32());
 
-    Tokenizer bonusListIDs(fields[19].GetString(), ' ');
+    Tokenizer bonusListIDs(fields[20].GetString(), ' ');
     for (char const* token : bonusListIDs)
     {
         uint32 bonusListID = atoul(token);
         AddBonuses(bonusListID);
     }
 
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[20].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[21].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2, fields[22].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3, fields[23].GetUInt32());
-    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4, fields[24].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[21].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[22].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2, fields[23].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3, fields[24].GetUInt32());
+    SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4, fields[25].GetUInt32());
 
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS, fields[25].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1, fields[26].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2, fields[27].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3, fields[28].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4, fields[29].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS, fields[26].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1, fields[27].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2, fields[28].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3, fields[29].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4, fields[30].GetUInt32());
 
     uint32 const gemFields = 4;
     ItemDynamicFieldGems gemData[MAX_GEM_SOCKETS];
     memset(gemData, 0, sizeof(gemData));
     for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
     {
-        gemData[i].ItemId = fields[30 + i * gemFields].GetUInt32();
-        Tokenizer gemBonusListIDs(fields[31 + i * gemFields].GetString(), ' ');
+        gemData[i].ItemId = fields[31 + i * gemFields].GetUInt32();
+        Tokenizer gemBonusListIDs(fields[32 + i * gemFields].GetString(), ' ');
         uint32 b = 0;
         for (char const* token : gemBonusListIDs)
             if (uint32 bonusListID = atoul(token))
                 gemData[i].BonusListIDs[b++] = bonusListID;
 
-        gemData[i].Context = fields[32 + i * gemFields].GetUInt8();
+        gemData[i].Context = fields[33 + i * gemFields].GetUInt8();
         if (gemData[i].ItemId)
-            SetGem(i, &gemData[i], fields[33 + i * gemFields].GetUInt32());
+            SetGem(i, &gemData[i], fields[34 + i * gemFields].GetUInt32());
     }
 
-    SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, fields[42].GetUInt32());
-    SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[43].GetUInt32());
+    SetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL, fields[43].GetUInt32());
+    SetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL, fields[44].GetUInt32());
 
     // Remove bind flag for items vs BIND_NONE set
     if (IsSoulBound() && GetBonding() == BIND_NONE)
@@ -2047,7 +2048,7 @@ void Item::ItemContainerSaveLootToDB()
 
             stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
 
-            // container_id, item_id, item_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, rnd_suffix
+            // container_id, item_id, item_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_type, rnd_prop, rnd_suffix, context, bonus_list_ids
             stmt_items->setUInt64(0, loot.containerID.GetCounter());
             stmt_items->setUInt32(1, _li->itemid);
             stmt_items->setUInt32(2, _li->count);
@@ -2060,6 +2061,11 @@ void Item::ItemContainerSaveLootToDB()
             stmt_items->setUInt8(9, uint8(_li->randomPropertyId.Type));
             stmt_items->setUInt32(10, _li->randomPropertyId.Id);
             stmt_items->setUInt32(11, _li->randomSuffix);
+            stmt_items->setUInt8(12, _li->context);
+            std::ostringstream bonusListIDs;
+            for (int32 bonusListID : _li->BonusListIDs)
+                bonusListIDs << bonusListID << ' ';
+            stmt_items->setString(13, bonusListIDs.str());
             trans->Append(stmt_items);
         }
     }
@@ -2107,7 +2113,7 @@ bool Item::ItemContainerLoadLootFromDB()
                 // Fill in the rest of the LootItem from the DB
                 Field* fields = item_result->Fetch();
 
-                // item_id, itm_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, rnd_suffix
+                // item_id, itm_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_type, rnd_prop, rnd_suffix, context, bonus_list_ids
                 loot_item.itemid = fields[0].GetUInt32();
                 loot_item.count = fields[1].GetUInt32();
                 loot_item.follow_loot_rules = fields[2].GetBool();
@@ -2119,6 +2125,12 @@ bool Item::ItemContainerLoadLootFromDB()
                 loot_item.needs_quest = fields[7].GetBool();
                 loot_item.randomPropertyId = { ItemRandomEnchantmentType(fields[8].GetUInt8()), fields[9].GetUInt32() };
                 loot_item.randomSuffix = fields[10].GetUInt32();
+                loot_item.context = fields[11].GetUInt8();
+                Tokenizer bonusLists(fields[12].GetString(), ' ');
+                std::transform(bonusLists.begin(), bonusLists.end(), std::back_inserter(loot_item.BonusListIDs), [](char const* token)
+                {
+                    return int32(strtol(token, NULL, 10));
+                });
 
                 // Copy the extra loot conditions from the item in the loot template
                 lt->CopyConditions(&loot_item);

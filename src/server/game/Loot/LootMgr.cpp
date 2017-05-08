@@ -367,6 +367,7 @@ LootItem::LootItem(LootStoreItem const& li)
     randomSuffix = GenerateEnchSuffixFactor(itemid);
     randomPropertyId = Item::GenerateItemRandomPropertyId(itemid);
     upgradeId = sDB2Manager.GetRulesetItemUpgrade(itemid);
+    context = 0;
     count = 0;
     is_looted = 0;
     is_blocked = 0;
@@ -433,6 +434,7 @@ void Loot::AddItem(LootStoreItem const& item)
     for (uint32 i = 0; i < stacks && lootItems.size() < limit; ++i)
     {
         LootItem generatedLoot(item);
+        generatedLoot.context = _difficultyBonusTreeMod;
         generatedLoot.count = std::min(count, proto->GetMaxStackSize());
         if (_difficultyBonusTreeMod)
         {

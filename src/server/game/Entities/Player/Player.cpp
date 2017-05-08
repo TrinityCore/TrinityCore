@@ -11548,7 +11548,8 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
 }
 
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomEnchantmentId const& randomPropertyId /*= {}*/, GuidSet const& allowedLooters /*= GuidSet()*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
+Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool update, ItemRandomEnchantmentId const& randomPropertyId /*= {}*/,
+    GuidSet const& allowedLooters /*= GuidSet()*/, uint8 context /*= 0*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/, bool addToCollection /*= true*/)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = pos.begin(); itr != pos.end(); ++itr)
@@ -11566,6 +11567,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         if (uint32 upgradeID = sDB2Manager.GetRulesetItemUpgrade(itemId))
             item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, upgradeID);
 
+        item->SetUInt32Value(ITEM_FIELD_CONTEXT, context);
         for (int32 bonusListID : bonusListIDs)
             item->AddBonuses(bonusListID);
 
@@ -11599,7 +11601,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
             {
                 ItemPosCountVec childDest;
                 CanStoreItem_InInventorySlots(CHILD_EQUIPMENT_SLOT_START, CHILD_EQUIPMENT_SLOT_END, childDest, childTemplate, count, false, nullptr, NULL_BAG, NULL_SLOT);
-                if (Item* childItem = StoreNewItem(childDest, childTemplate->GetId(), update, {}, {}, {}, addToCollection))
+                if (Item* childItem = StoreNewItem(childDest, childTemplate->GetId(), update, {}, {}, context, {}, addToCollection))
                 {
                     childItem->SetGuidValue(ITEM_FIELD_CREATOR, item->GetGUID());
                     childItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_CHILD);
@@ -18261,17 +18263,17 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
 {
     //           0          1            2                3      4         5        6      7             8                   9                10          11          12    13
     // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyType, randomPropertyId, durability, playedTime, text,
-    //               14                  15                  16              17                  18            19
-    //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, bonusListIDs,
-    //                                    20                           21                           22                           23                           24
+    //               14                  15                  16              17                  18       19            20
+    //        upgradeId, battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs,
+    //                                   21                            22                           23                           24                           25
     //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
-    //                                  25                        26                          27                         28                         29
+    //                                  26                        27                          28                         29                         30
     //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
-    //                30           31           32                33          34           35           36                37          38           39           40                41
+    //                31           32           33                34          35           36           37                38          39           40           41                42
     //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
-    //                       42                      43
-    //        fixedScalingLevel, artifactKnowledgeLevel
-    //         44    45
+    //                       43                      44
+    //        fixedScalingLevel, artifactKnowledgeLevel FROM item_instance
+    //         45    46
     //        bag, slot
     // FROM character_inventory ci
     // JOIN item_instance ii ON ci.item = ii.guid
@@ -18334,8 +18336,8 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                 if (item->GetTemplate()->GetArtifactID() && artifactDataItr != artifactData.end())
                     item->LoadArtifactData(this, std::get<0>(artifactDataItr->second), std::get<1>(artifactDataItr->second), std::get<2>(artifactDataItr->second));
 
-                ObjectGuid bagGuid = fields[44].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[44].GetUInt64()) : ObjectGuid::Empty;
-                uint8 slot = fields[45].GetUInt8();
+                ObjectGuid bagGuid = fields[45].GetUInt64() ? ObjectGuid::Create<HighGuid::Item>(fields[45].GetUInt64()) : ObjectGuid::Empty;
+                uint8 slot = fields[46].GetUInt8();
 
                 GetSession()->GetCollectionMgr()->CheckHeirloomUpgrades(item);
                 GetSession()->GetCollectionMgr()->AddItemAppearance(item);
@@ -18462,7 +18464,7 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
 
     do
     {
-        // SELECT itemId, itemEntry, slot, creatorGuid, randomProperty, suffixFactor, upgradeId, fixedScalingLevel, artifactKnowledgeLevel, bonusListIDs FROM character_void_storage WHERE playerGuid = ?
+        // SELECT itemId, itemEntry, slot, creatorGuid, randomProperty, suffixFactor, upgradeId, fixedScalingLevel, artifactKnowledgeLevel, context, bonusListIDs FROM character_void_storage WHERE playerGuid = ?
         Field* fields = result->Fetch();
 
         uint64 itemId = fields[0].GetUInt64();
@@ -18474,8 +18476,9 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
         uint32 upgradeId = fields[7].GetUInt32();
         uint32 fixedScalingLevel = fields[8].GetUInt32();
         uint32 artifactKnowledgeLevel = fields[9].GetUInt32();
+        uint8 context = fields[10].GetUInt8();
         std::vector<uint32> bonusListIDs;
-        Tokenizer bonusListIdTokens(fields[10].GetString(), ' ');
+        Tokenizer bonusListIdTokens(fields[11].GetString(), ' ');
         for (char const* token : bonusListIdTokens)
             bonusListIDs.push_back(atoul(token));
 
@@ -18500,7 +18503,8 @@ void Player::_LoadVoidStorage(PreparedQueryResult result)
             continue;
         }
 
-        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor, upgradeId, fixedScalingLevel, artifactKnowledgeLevel, bonusListIDs);
+        _voidStorageItems[slot] = new VoidStorageItem(itemId, itemEntry, creatorGuid, randomProperty, suffixFactor, upgradeId, fixedScalingLevel, artifactKnowledgeLevel,
+            context, bonusListIDs);
 
         WorldPackets::Item::ItemInstance voidInstance;
         voidInstance.Initialize(_voidStorageItems[slot]);
@@ -18676,7 +18680,7 @@ void Player::_LoadMailedItems(Mail* mail)
 
         Item* item = NewItemOrBag(proto);
 
-        ObjectGuid ownerGuid = fields[44].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[44].GetUInt64()) : ObjectGuid::Empty;
+        ObjectGuid ownerGuid = fields[45].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[45].GetUInt64()) : ObjectGuid::Empty;
         if (!item->LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
         {
             TC_LOG_ERROR("entities.player", "Player::_LoadMailedItems: Item (GUID: " UI64FMTD ") in mail (%u) doesn't exist, deleted from mail.", itemGuid, mail->messageID);
@@ -20235,10 +20239,11 @@ void Player::_SaveVoidStorage(SQLTransaction& trans)
             stmt->setUInt32(8, _voidStorageItems[i]->ItemUpgradeId);
             stmt->setUInt32(9, _voidStorageItems[i]->FixedScalingLevel);
             stmt->setUInt32(10, _voidStorageItems[i]->ArtifactKnowledgeLevel);
+            stmt->setUInt8(11, _voidStorageItems[i]->Context);
             std::ostringstream bonusListIDs;
             for (int32 bonusListID : _voidStorageItems[i]->BonusListIDs)
                 bonusListIDs << bonusListID << ' ';
-            stmt->setString(11, bonusListIDs.str());
+            stmt->setString(12, bonusListIDs.str());
         }
 
         trans->Append(stmt);
@@ -22118,7 +22123,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
     }
 
     Item* it = bStore ?
-        StoreNewItem(vDest, item, true, Item::GenerateItemRandomPropertyId(item), {}, {}, false) :
+        StoreNewItem(vDest, item, true, Item::GenerateItemRandomPropertyId(item), {}, 0, {}, false) :
         EquipNewItem(uiDest, item, true);
     if (it)
     {
@@ -25426,7 +25431,7 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
             continue;
         }
 
-        Item* pItem = StoreNewItem(dest, lootItem->itemid, true, lootItem->randomPropertyId, GuidSet(), lootItem->BonusListIDs);
+        Item* pItem = StoreNewItem(dest, lootItem->itemid, true, lootItem->randomPropertyId, GuidSet(), lootItem->context, lootItem->BonusListIDs);
         SendNewItem(pItem, lootItem->count, false, false, broadcast);
     }
 }
@@ -25462,7 +25467,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* 
     InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
     if (msg == EQUIP_ERR_OK)
     {
-        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, item->GetAllowedLooters(), item->BonusListIDs);
+        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
 
         if (qitem)
         {

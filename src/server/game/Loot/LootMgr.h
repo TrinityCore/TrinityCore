@@ -161,6 +161,7 @@ struct TC_GAME_API LootItem
     ItemRandomEnchantmentId randomPropertyId;
     int32   upgradeId;
     std::vector<int32> BonusListIDs;
+    uint8   context;
     ConditionContainer conditions;                               // additional loot condition
     GuidSet allowedGUIDs;
     uint8   count             : 8;
@@ -178,7 +179,7 @@ struct TC_GAME_API LootItem
     explicit LootItem(LootStoreItem const& li);
 
     // Empty constructor for creating an empty LootItem to be filled in with DB data
-    LootItem() : itemid(0), randomSuffix(0), randomPropertyId(), upgradeId(0), count(0), is_looted(false), is_blocked(false),
+    LootItem() : itemid(0), randomSuffix(0), randomPropertyId(), upgradeId(0), context(0), count(0), is_looted(false), is_blocked(false),
                  freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false),
                  canSave(true){ };
 
@@ -414,7 +415,7 @@ private:
 
     // Loot GUID
     ObjectGuid _GUID;
-    uint32 _difficultyBonusTreeMod;
+    uint8 _difficultyBonusTreeMod;
 };
 
 class TC_GAME_API AELootResult

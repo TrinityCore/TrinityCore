@@ -1344,7 +1344,7 @@ void Spell::EffectHealthLeech(SpellEffIndex /*effIndex*/)
     }
 }
 
-void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, std::vector<int32> const& bonusListIDs)
+void Spell::DoCreateItem(uint32 i, uint32 itemtype, uint8 context /*= 0*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -1441,7 +1441,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, std::vector<int32> const
     if (num_to_add)
     {
         // create the new item and store it
-        Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid), GuidSet(), bonusListIDs);
+        Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid), GuidSet(), context, bonusListIDs);
 
         // was it successful? return error if not
         if (!pItem)
@@ -5687,7 +5687,7 @@ void Spell::EffectCreateHeirloomItem(SpellEffIndex effIndex)
     std::vector<int32> bonusList;
     bonusList.push_back(collectionMgr->GetHeirloomBonus(m_misc.Raw.Data[0]));
 
-    DoCreateItem(effIndex, m_misc.Raw.Data[0], bonusList);
+    DoCreateItem(effIndex, m_misc.Raw.Data[0], 0, bonusList);
     ExecuteLogEffectCreateItem(effIndex, m_misc.Raw.Data[0]);
 }
 
