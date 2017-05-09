@@ -20,7 +20,35 @@
 
 #include "Define.h"
 
-struct ConversationTemplate;
+#include <vector>
+
+struct ConversationActorTemplate
+{
+    uint32 Id;
+    uint32 CreatureId;
+    uint32 CreatureModelId;
+};
+
+#pragma pack(push, 1)
+struct ConversationLineTemplate
+{
+    uint32 Id;          // Link to ConversationLine.db2
+    uint32 StartTime;   // Time in ms after conversation creation the line is displayed
+    uint32 UiCameraID;  // Link to UiCamera.db2
+    uint16 ActorIdx;    // Index from conversation_actors
+    uint16 Unk;
+};
+#pragma pack(pop)
+
+struct ConversationTemplate
+{
+    uint32 Id;
+    uint32 FirstLineId;     // Link to ConversationLine.db2
+    uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
+
+    std::vector<ConversationActorTemplate const*> Actors;
+    std::vector<ConversationLineTemplate const*> Lines;
+};
 
 class TC_GAME_API ConversationDataStore
 {

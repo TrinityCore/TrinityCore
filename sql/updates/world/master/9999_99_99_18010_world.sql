@@ -21,7 +21,8 @@ CREATE TABLE `conversation_line_template` (
   `Id` INT (10) UNSIGNED NOT NULL,
   `StartTime` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   `UiCameraID` INT (10) UNSIGNED NOT NULL DEFAULT 0,
-  `ActorIdx` INT (10) UNSIGNED NOT NULL DEFAULT 0,
+  `ActorIdx` SMALLINT (5) UNSIGNED NOT NULL DEFAULT 0,
+  `Unk` SMALLINT (5) UNSIGNED NOT NULL DEFAULT 0,
   `VerifiedBuild` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -30,7 +31,7 @@ DROP TABLE IF EXISTS `conversation_actors`;
 CREATE TABLE `conversation_actors` (
   `ConversationId` INT (10) UNSIGNED NOT NULL,
   `ConversationActorId` INT (10) UNSIGNED NOT NULL,
-  `Idx` INT (10) UNSIGNED NOT NULL DEFAULT 0,
+  `Idx` SMALLINT (5) UNSIGNED NOT NULL DEFAULT 0,
   `VerifiedBuild` INT (10) UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (`ConversationId`, `ConversationActorId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -44,11 +45,11 @@ INSERT INTO `conversation_actors`(`ConversationId`,`ConversationActorId`,`Idx`,`
 (705, 49825, 0, 22624),
 (1025, 50124, 0, 22624);
 
-INSERT INTO `conversation_line_template`(`Id`,`StartTime`,`UiCameraID`,`ActorIdx`,`VerifiedBuild`) VALUES
-(1445, 0, 254, 0, 22624),
-(1446, 4924, 254, 540016640, 22624),
-(1683, 0, 296, 0, 22624),
-(1684, 6151, 296, 0, 22624);
+INSERT INTO `conversation_line_template`(`Id`,`StartTime`,`UiCameraID`,`ActorIdx`,`Unk`,`VerifiedBuild`) VALUES
+(1445, 0, 254, 0, 0, 22624),
+(1446, 4924, 254, 0, ‭8240‬, 22624),
+(1683, 0, 296, 0, 0, 22624),
+(1684, 6151, 296, 0, 0, 22624);
 
 INSERT INTO `conversation_template`(`Id`,`FirstLineId`,`LastLineEndTime`,`VerifiedBuild`) VALUES
 (705, 1445, 6544, 22624),

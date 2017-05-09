@@ -23,13 +23,6 @@
 class Unit;
 class SpellInfo;
 
-struct ConversationActorTemplate
-{
-    uint32 Id;
-    uint32 CreatureId;
-    uint32 CreatureModelId;
-};
-
 struct ConversationDynamicFieldActor
 {
     ConversationDynamicFieldActor() : Type(0), Padding(0)
@@ -57,24 +50,6 @@ struct ConversationDynamicFieldActor
 
     uint32 Type;
     uint32 Padding;
-};
-
-struct ConversationLineTemplate
-{
-    uint32 Id;          // Link to ConversationLine.db2
-    uint32 StartTime;   // Time in ms after conversation creation the line is displayed
-    uint32 UiCameraID;  // Link to UiCamera.db2
-    uint32 ActorIdx;    // Index from conversation_actors
-};
-
-struct ConversationTemplate
-{
-    uint32 Id;
-    uint32 FirstLineId;     // Link to ConversationLine.db2
-    uint32 LastLineEndTime; // Time in ms after conversation creation the last line fades out
-
-    std::vector<ConversationActorTemplate const*> Actors;
-    std::vector<ConversationLineTemplate const*> Lines;
 };
 
 class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversation>
@@ -111,4 +86,5 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         uint32 _duration;
         GuidUnorderedSet _participants;
 };
-#endif
+
+#endif // TRINITYCORE_CONVERSATION_H

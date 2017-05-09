@@ -17,7 +17,6 @@
 
 #include "ConversationDataStore.h"
 #include "Containers.h"
-#include "Conversation.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
@@ -65,7 +64,7 @@ void ConversationDataStore::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation template actors. DB table `conversation_actor_template` is empty.");
     }
 
-    if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, StartTime, UiCameraID, ActorIdx FROM conversation_line_template"))
+    if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, StartTime, UiCameraID, ActorIdx, Unk FROM conversation_line_template"))
     {
         uint32 oldMSTime = getMSTime();
         uint32 count = 0;
@@ -85,13 +84,14 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationLine.Id         = id;
             conversationLine.StartTime  = fields[1].GetUInt32();
             conversationLine.UiCameraID = fields[2].GetUInt32();
-            conversationLine.ActorIdx   = fields[3].GetUInt32();
+            conversationLine.ActorIdx   = fields[3].GetUInt16();
+            conversationLine.Unk        = fields[4].GetUInt16();
 
             ++count;
         }
         while (lineTemplates->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u conversation template lines in %u ms", _conversationLineTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " conversation template lines in %u ms", _conversationLineTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
     }
     else
     {
@@ -108,7 +108,7 @@ void ConversationDataStore::LoadConversationTemplates()
 
             uint32 conversationId = fields[0].GetUInt32();
             uint32 actorId = fields[1].GetUInt32();
-            uint32 idx = fields[2].GetUInt32();
+            uint16 idx = fields[2].GetUInt16();
 
             if (ConversationActorTemplate const* conversationActorTemplate = Trinity::Containers::MapGetValuePtr(_conversationActorTemplateStore, actorId))
             {
