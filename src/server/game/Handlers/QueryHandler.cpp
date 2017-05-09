@@ -371,17 +371,8 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
                     questPOIBlobData.PlayerConditionID  = data->PlayerConditionID;
                     questPOIBlobData.UnkWoD1            = data->UnkWoD1;
 
-                    for (auto points = data->points.begin(); points != data->points.end(); ++points)
-                    {
-                        WorldPackets::Query::QuestPOIBlobPoint questPOIBlobPoint;
-
-                        questPOIBlobPoint.X = points->X;
-                        questPOIBlobPoint.Y = points->Y;
-
-                        TC_LOG_ERROR("misc", "Quest: %i BlobIndex: %i X/Y: %i/%i", QuestID, data->BlobIndex, points->X, points->Y);
-
-                        questPOIBlobData.QuestPOIBlobPointStats.push_back(questPOIBlobPoint);
-                    }
+                    for (QuestPOIPoint const& point : data->points)
+                        questPOIBlobData.QuestPOIBlobPointStats.push_back({ point.X, point.Y });
 
                     questPOIData.QuestPOIBlobDataStats.push_back(questPOIBlobData);
                 }
