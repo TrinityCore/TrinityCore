@@ -819,7 +819,7 @@ void Spell::EffectForceCast(SpellEffIndex /*effIndex*/)
     SpellCastTargets targets;
     targets.SetUnitTarget(m_caster);
 
-    unitTarget->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK);
+    unitTarget->CastSpell(targets, spellInfo, &values, TRIGGERED_FULL_MASK, NULL, NULL, m_originalCasterGUID);
 }
 
 void Spell::EffectTriggerRitualOfSummoning(SpellEffIndex /*effIndex*/)
