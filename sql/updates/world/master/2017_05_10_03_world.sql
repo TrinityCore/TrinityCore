@@ -1,1 +1,1 @@
-DELETE FROM `npc_trainer` WHERE `spell`=56474;
+DELETE FROM `npc_trainer` WHERE `SpellID`=56474;
