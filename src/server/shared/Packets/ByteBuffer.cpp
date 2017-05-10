@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,42 +17,29 @@
  */
 
 #include "ByteBuffer.h"
+#include "MessageBuffer.h"
 #include "Common.h"
 #include "Log.h"
-
-#include <ace/Stack_Trace.h>
 #include <sstream>
 
-ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos,
-                                                         size_t size, size_t valueSize)
+ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0), _storage(buffer.Move())
 {
-    std::ostringstream ss;
-    ACE_Stack_Trace trace;
-
-    ss << "Attempted to " << (add ? "put" : "get") << " value with size: "
-       << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
-       << ")\n\n" << trace.c_str();
-
-    message().assign(ss.str());
 }
 
-ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
-                                                     size_t valueSize)
+ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size, size_t valueSize)
 {
     std::ostringstream ss;
-    ACE_Stack_Trace trace;
 
-    ss << "Attempted to put a "
-       << (valueSize > 0 ? "NULL-pointer" : "zero-sized value")
-       << " in ByteBuffer (pos: " << pos << " size: " << size << ")\n\n"
-       << trace.c_str();
+    ss << "Attempted to get value with size: "
+       << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
+       << ")";
 
     message().assign(ss.str());
 }
 
 void ByteBuffer::print_storage() const
 {
-    if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network", LOG_LEVEL_TRACE)) // optimize disabled trace output
         return;
 
     std::ostringstream o;
@@ -61,29 +48,29 @@ void ByteBuffer::print_storage() const
         o << read<uint8>(i) << " - ";
     o << " ";
 
-    TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "%s", o.str().c_str());
 }
 
 void ByteBuffer::textlike() const
 {
-    if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network", LOG_LEVEL_TRACE)) // optimize disabled trace output
         return;
 
     std::ostringstream o;
     o << "STORAGE_SIZE: " << size();
     for (uint32 i = 0; i < size(); ++i)
     {
-        char buf[1];
-        snprintf(buf, 1, "%c", read<uint8>(i));
+        char buf[2];
+        snprintf(buf, 2, "%c", read<uint8>(i));
         o << buf;
     }
     o << " ";
-    TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "%s", o.str().c_str());
 }
 
 void ByteBuffer::hexlike() const
 {
-    if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network", LOG_LEVEL_TRACE)) // optimize disabled trace output
         return;
 
     uint32 j = 1, k = 1;
@@ -94,7 +81,7 @@ void ByteBuffer::hexlike() const
     for (uint32 i = 0; i < size(); ++i)
     {
         char buf[3];
-        snprintf(buf, 1, "%2X ", read<uint8>(i));
+        snprintf(buf, 3, "%2X ", read<uint8>(i));
         if ((i == (j * 8)) && ((i != (k * 16))))
         {
             o << "| ";
@@ -110,5 +97,5 @@ void ByteBuffer::hexlike() const
         o << buf;
     }
     o << " ";
-    TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+    TC_LOG_TRACE("network", "%s", o.str().c_str());
 }

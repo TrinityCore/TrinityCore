@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,37 +36,41 @@ EndContentData */
 ## npc_professor_phizzlethorpe
 ######*/
 
-enum eEnums
+enum ProfessorPhizzlethorpe
 {
-    SAY_PROGRESS_1      = 0,
-    SAY_PROGRESS_2      = 1,
-    SAY_PROGRESS_3      = 2,
-    EMOTE_PROGRESS_4    = 3,
-    SAY_AGGRO           = 4,
-    SAY_PROGRESS_5      = 5,
-    SAY_PROGRESS_6      = 6,
-    SAY_PROGRESS_7      = 7,
-    EMOTE_PROGRESS_8    = 8,
-    SAY_PROGRESS_9      = 9,
+    // Yells
+    SAY_PROGRESS_1          = 0,
+    SAY_PROGRESS_2          = 1,
+    SAY_PROGRESS_3          = 2,
+    EMOTE_PROGRESS_4        = 3,
+    SAY_AGGRO               = 4,
+    SAY_PROGRESS_5          = 5,
+    SAY_PROGRESS_6          = 6,
+    SAY_PROGRESS_7          = 7,
+    EMOTE_PROGRESS_8        = 8,
+    SAY_PROGRESS_9          = 9,
+    EVENT_SAY_3         = 1,
+    EVENT_SAY_6         = 2,
+    EVENT_SAY_8         = 3,
 
+    // Quests
     QUEST_SUNKEN_TREASURE   = 665,
-    MOB_VENGEFUL_SURGE      = 2776
+    QUEST_GOGGLE_BOGGLE     = 26050,
+    // Creatures
+    NPC_VENGEFUL_SURGE      = 2776,
+    FACTION_SUNKEN_TREASURE = 113
 };
 
 class npc_professor_phizzlethorpe : public CreatureScript
 {
     public:
-
-        npc_professor_phizzlethorpe()
-            : CreatureScript("npc_professor_phizzlethorpe")
-        {
-        }
+        npc_professor_phizzlethorpe() : CreatureScript("npc_professor_phizzlethorpe") { }
 
         struct npc_professor_phizzlethorpeAI : public npc_escortAI
         {
-            npc_professor_phizzlethorpeAI(Creature* creature) : npc_escortAI(creature) {}
+            npc_professor_phizzlethorpeAI(Creature* creature) : npc_escortAI(creature) { }
 
-            void WaypointReached(uint32 waypointId)
+            void WaypointReached(uint32 waypointId) override
             {
                 Player* player = GetPlayerForEscort();
                 if (!player)
@@ -74,70 +78,82 @@ class npc_professor_phizzlethorpe : public CreatureScript
 
                 switch (waypointId)
                 {
-                    case 4:
-                        Talk(SAY_PROGRESS_2, player->GetGUID());
-                        break;
-                    case 5:
-                        Talk(SAY_PROGRESS_3, player->GetGUID());
+                    case 6:
+                        Talk(SAY_PROGRESS_2, player);
+                        events.ScheduleEvent(EVENT_SAY_3, 3000);
                         break;
                     case 8:
                         Talk(EMOTE_PROGRESS_4);
-                        break;
-                    case 9:
-                        me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                        break;
-                    case 10:
-                        Talk(SAY_PROGRESS_5, player->GetGUID());
+                        me->SummonCreature(NPC_VENGEFUL_SURGE, -2065.505f, -2136.88f, 22.20362f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        me->SummonCreature(NPC_VENGEFUL_SURGE, -2059.249f, -2134.88f, 21.51582f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         break;
                     case 11:
-                        Talk(SAY_PROGRESS_6, player->GetGUID());
-                        SetRun();
+                        Talk(SAY_PROGRESS_5, player);
+                        events.ScheduleEvent(EVENT_SAY_6, 11000);
                         break;
-                    case 19:
-                        Talk(SAY_PROGRESS_7, player->GetGUID());
-                        break;
-                    case 20:
-                        Talk(EMOTE_PROGRESS_8);
-                        Talk(SAY_PROGRESS_9, player->GetGUID());
-                        player->GroupEventHappens(QUEST_SUNKEN_TREASURE, me);
+                    case 17:
+                        Talk(SAY_PROGRESS_7, player);
+                        events.ScheduleEvent(EVENT_SAY_8, 6000);
                         break;
                 }
             }
 
-            void JustSummoned(Creature* summoned)
+            void JustSummoned(Creature* summoned) override
             {
                 summoned->AI()->AttackStart(me);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 diff)
+            void sQuestAccept(Player* player, Quest const* quest) override
             {
+                if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
+                {
+                    Talk(SAY_PROGRESS_1, player);
+                    npc_escortAI::Start(false, false, player->GetGUID(), quest);
+                    me->setFaction(FACTION_SUNKEN_TREASURE);
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                Player* player = GetPlayerForEscort();
+                if (!player)
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 event = events.ExecuteEvent())
+                {
+                    switch (event)
+                    {
+                        case EVENT_SAY_3:
+                            Talk(SAY_PROGRESS_3, player);
+                            break;
+                        case EVENT_SAY_6:
+                            Talk(SAY_PROGRESS_6, player);
+                            SetRun();
+                            break;
+                        case EVENT_SAY_8:
+                            Talk(EMOTE_PROGRESS_8);
+                            Talk(SAY_PROGRESS_9, player);
+                            player->GroupEventHappens(QUEST_GOGGLE_BOGGLE, me);
+                            break;
+                    }
+                }
                 npc_escortAI::UpdateAI(diff);
             }
+
+            EventMap events;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_professor_phizzlethorpeAI(creature);
-        }
-
-        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
-        {
-            if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
-            {
-                creature->AI()->Talk(SAY_PROGRESS_1, player->GetGUID());
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_professor_phizzlethorpeAI, (creature->AI())))
-                    pEscortAI->Start(false, false, player->GetGUID(), quest);
-
-                creature->setFaction(113);
-            }
-            return true;
-        }
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_professor_phizzlethorpeAI(creature);
+    }
 };
 
 void AddSC_arathi_highlands()

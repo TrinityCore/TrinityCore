@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,17 +33,15 @@ class achievement_commandscript : public CommandScript
 public:
     achievement_commandscript() : CommandScript("achievement_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand achievementCommandTable[] =
+        static std::vector<ChatCommand> achievementCommandTable =
         {
-            { "add",            SEC_ADMINISTRATOR,  false,  &HandleAchievementAddCommand,      "", NULL },
-            { NULL,             0,                  false,  NULL,                              "", NULL }
+            { "add", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, false, &HandleAchievementAddCommand, "" },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "achievement",    SEC_ADMINISTRATOR,  false, NULL,            "", achievementCommandTable },
-            { NULL,             0,                  false, NULL,                               "", NULL }
+            { "achievement", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT,  false, NULL, "", achievementCommandTable },
         };
         return commandTable;
     }
@@ -57,7 +55,7 @@ public:
         if (!achievementId)
         {
             if (char* id = handler->extractKeyFromLink((char*)args, "Hachievement"))
-                achievementId = atoi(id);
+                achievementId = atoul(id);
             if (!achievementId)
                 return false;
         }
@@ -70,7 +68,7 @@ public:
             return false;
         }
 
-        if (AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(achievementId))
+        if (AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievementId))
             target->CompletedAchievement(achievementEntry);
 
         return true;

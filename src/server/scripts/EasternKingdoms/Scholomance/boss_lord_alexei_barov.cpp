@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,8 +28,9 @@ EndScriptData */
 
 enum Spells
 {
-    SPELL_IMMOLATE                  = 20294, // Old ID  was 15570
-    SPELL_VEILOFSHADOW              = 17820
+    SPELL_IMMOLATE                  = 20294,
+    SPELL_VEILOFSHADOW              = 17820,
+    SPELL_UNHOLY_AURA               = 17467
 };
 
 enum Events
@@ -44,22 +45,24 @@ class boss_lord_alexei_barov : public CreatureScript
 
         struct boss_lordalexeibarovAI : public BossAI
         {
-            boss_lordalexeibarovAI(Creature* creature) : BossAI(creature, DATA_LORDALEXEIBAROV) {}
+            boss_lordalexeibarovAI(Creature* creature) : BossAI(creature, DATA_LORDALEXEIBAROV) { }
 
-            void Reset()
+            void Reset() override
             {
                 _Reset();
-                me->LoadCreaturesAddon();
+
+                if (!me->HasAura(SPELL_UNHOLY_AURA))
+                    DoCast(me, SPELL_UNHOLY_AURA);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_IMMOLATE, 7000);
                 events.ScheduleEvent(EVENT_VEILOFSHADOW, 15000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -84,15 +87,18 @@ class boss_lord_alexei_barov : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_lordalexeibarovAI (creature);
+            return new boss_lordalexeibarovAI(creature);
         }
 };
 

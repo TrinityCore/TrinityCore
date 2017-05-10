@@ -33,19 +33,19 @@ Vector3 Line::intersection(const Plane& plane) const {
 
 
 Line::Line(class BinaryInput& b) {
-	deserialize(b);
+    deserialize(b);
 }
 
 
 void Line::serialize(class BinaryOutput& b) const {
-	_point.serialize(b);
-	_direction.serialize(b);
+    _point.serialize(b);
+    _direction.serialize(b);
 }
 
 
 void Line::deserialize(class BinaryInput& b) {
-	_point.deserialize(b);
-	_direction.deserialize(b);
+    _point.deserialize(b);
+    _direction.deserialize(b);
 }
 
 
@@ -80,7 +80,7 @@ Vector3 Line::closestPoint(const Line& B, float& minDist) const {
     
     float t1 = R.dot(U2);
     
-    minDist = abs(P21.dot(M)) / sqrt(m2);
+    minDist = (float)abs(P21.dot(M)) / sqrt(m2);
 
     return P1 + t1 * U1;
 }

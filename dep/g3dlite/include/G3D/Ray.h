@@ -25,78 +25,85 @@ class Ray {
 private:
     friend class Intersect;
 
-	Vector3			m_origin;
+    Point3  m_origin;
 
-	/** Unit length */
-	Vector3			m_direction;
+    /** Unit length */
+    Vector3 m_direction;
 
-	/** 1.0 / direction */
-	Vector3         m_invDirection;
+    /** 1.0 / direction */
+    Vector3 m_invDirection;
 
+    
+    /** The following are for the "ray slope" optimization from
+      "Fast Ray / Axis-Aligned Bounding Box Overlap Tests using Ray Slopes" 
+      by Martin Eisemann, Thorsten Grosch, Stefan MÅ¸ller and Marcus Magnor
+      Computer Graphics Lab, TU Braunschweig, Germany and
+      University of Koblenz-Landau, Germany */
+    enum Classification {MMM, MMP, MPM, MPP, PMM, PMP, PPM, PPP, POO, MOO, OPO, OMO, OOP, OOM, OMM, OMP, OPM, OPP, MOM, MOP, POM, POP, MMO, MPO, PMO, PPO};    
 
-	// The following are for the "ray slope" optimization from
-	//  "Fast Ray / Axis-Aligned Bounding Box Overlap Tests using Ray Slopes" 
-	//  by Martin Eisemann, Thorsten Grosch, Stefan M¸ller and Marcus Magnor
-	//  Computer Graphics Lab, TU Braunschweig, Germany and
-	//  University of Koblenz-Landau, Germany*/
-	enum Classification {MMM, MMP, MPM, MPP, PMM, PMP, PPM, PPP, POO, MOO, OPO, OMO, OOP, OOM, OMM, OMP, OPM, OPP, MOM, MOP, POM, POP, MMO, MPO, PMO, PPO};	Classification classification;
-	// ray slope
-	float ibyj, jbyi, kbyj, jbyk, ibyk, kbyi;
-	// Precomputed components
-	float c_xy, c_xz, c_yx, c_yz, c_zx, c_zy;
+    Classification classification;
+
+    /** ray slope */
+    float ibyj, jbyi, kbyj, jbyk, ibyk, kbyi;
+
+    /** Precomputed components */
+    float c_xy, c_xz, c_yx, c_yz, c_zx, c_zy;
 
 public:
+    /** \param direction Assumed to have unit length */
+    void set(const Point3& origin, const Vector3& direction);
 
-	void set(const Vector3& origin, const Vector3& direction);
-
-	inline const Vector3& origin() const {
-		return m_origin;
-	}
-
-	/** Unit direction vector. */
-	inline const Vector3& direction() const {
-		return m_direction;
-	}
-
-	/** Component-wise inverse of direction vector.  May have inf() components */
-	inline const Vector3& invDirection() const {
-		return m_invDirection;
-	}
-
-	inline Ray() {
-		set(Vector3::zero(), Vector3::unitX());
-	}
-
-	inline Ray(const Vector3& origin, const Vector3& direction) {
-		set(origin, direction);
-	}
-
-	Ray(class BinaryInput& b);
-
-	void serialize(class BinaryOutput& b) const;
-	void deserialize(class BinaryInput& b);
-
-    /**
-     Creates a Ray from a origin and a (nonzero) unit direction.
-     */
-    static Ray fromOriginAndDirection(const Vector3& point, const Vector3& direction) {
-        return Ray(point, direction);
+    const Point3& origin() const {
+        return m_origin;
+    }
+    
+    /** Unit direction vector. */
+    const Vector3& direction() const {
+        return m_direction;
     }
 
-	/** Advances the origin along the direction by @a distance */
-	inline Ray bump(float distance) const {
-		return Ray(m_origin + m_direction * distance, m_direction);
-	}
+    /** Component-wise inverse of direction vector.  May have inf() components */
+    const Vector3& invDirection() const {
+        return m_invDirection;
+    }
+    
+    Ray() {
+        set(Point3::zero(), Vector3::unitX());
+    }
 
-	/** Advances the origin along the @a bumpDirection by @a distance and returns the new ray*/
-	inline Ray bump(float distance, const Vector3& bumpDirection) const {
-		return Ray(m_origin + bumpDirection * distance, m_direction);
-	}
+    /** \param direction Assumed to have unit length */
+    Ray(const Point3& origin, const Vector3& direction) {
+        set(origin, direction);
+    }
+
+    Ray(class BinaryInput& b);
+    
+    void serialize(class BinaryOutput& b) const;
+    void deserialize(class BinaryInput& b);
+    
+    /**
+       Creates a Ray from a origin and a (nonzero) unit direction.
+    */
+    static Ray fromOriginAndDirection(const Point3& point, const Vector3& direction) {
+        return Ray(point, direction);
+    }
+    
+    /** Returns a new ray which has the same direction but an origin
+        advanced along direction by @a distance */
+    Ray bumpedRay(float distance) const {
+        return Ray(m_origin + m_direction * distance, m_direction);
+    }
+
+    /** Returns a new ray which has the same direction but an origin
+        advanced by \a distance * \a bumpDirection */
+    Ray bumpedRay(float distance, const Vector3& bumpDirection) const {
+        return Ray(m_origin + bumpDirection * distance, m_direction);
+    }
 
     /**
-     Returns the closest point on the Ray to point.
-     */
-    Vector3 closestPoint(const Vector3& point) const {
+       \brief Returns the closest point on the Ray to point.
+    */
+    Point3 closestPoint(const Point3& point) const {
         float t = m_direction.dot(point - m_origin);
         if (t < 0) {
             return m_origin;
@@ -108,7 +115,7 @@ public:
     /**
      Returns the closest distance between point and the Ray
      */
-    float distance(const Vector3& point) const {
+    float distance(const Point3& point) const {
         return (closestPoint(point) - point).magnitude();
     }
 
@@ -119,7 +126,7 @@ public:
       Planes are considered one-sided, so the ray will not intersect
       a plane where the normal faces in the traveling direction.
     */
-    Vector3 intersection(const class Plane& plane) const;
+    Point3 intersection(const class Plane& plane) const;
 
     /**
      Returns the distance until intersection with the sphere or the (solid) ball bounded by the sphere.
@@ -151,54 +158,56 @@ public:
     float intersectionTime(
         const Vector3& v0, const Vector3& v1, const Vector3& v2,
         const Vector3& edge01, const Vector3& edge02,
-        double& w0, double& w1, double& w2) const;
+        float& w0, float& w1, float& w2) const;
 
      /**
      Ray-triangle intersection for a 1-sided triangle.  Fastest version.
        @cite http://www.acm.org/jgt/papers/MollerTrumbore97/
        http://www.graphics.cornell.edu/pubs/1997/MT97.html
      */
-    inline float intersectionTime(
-        const Vector3& vert0,
-        const Vector3& vert1,
-        const Vector3& vert2,
+    float intersectionTime(
+        const Point3& vert0,
+        const Point3& vert1,
+        const Point3& vert2,
         const Vector3& edge01,
         const Vector3& edge02) const;
 
 
-    inline float intersectionTime(
-        const Vector3& vert0,
-        const Vector3& vert1,
-        const Vector3& vert2) const {
+    float intersectionTime(
+        const Point3& vert0,
+        const Point3& vert1,
+        const Point3& vert2) const {
 
         return intersectionTime(vert0, vert1, vert2, vert1 - vert0, vert2 - vert0);
     }
 
 
-    inline float intersectionTime(
-        const Vector3&  vert0,
-        const Vector3&  vert1,
-        const Vector3&  vert2,
-        double&         w0,
-        double&         w1,
-        double&         w2) const {
+    float intersectionTime(
+        const Point3&  vert0,
+        const Point3&  vert1,
+        const Point3&  vert2,
+        float&         w0,
+        float&         w1,
+        float&         w2) const {
 
         return intersectionTime(vert0, vert1, vert2, vert1 - vert0, vert2 - vert0, w0, w1, w2);
     }
 
+
     /* One-sided triangle 
        */
-    inline float intersectionTime(const Triangle& triangle) const {
+    float intersectionTime(const Triangle& triangle) const {
         return intersectionTime(
             triangle.vertex(0), triangle.vertex(1), triangle.vertex(2),
             triangle.edge01(), triangle.edge02());
     }
 
-    inline float intersectionTime(
-        const Triangle& triangle,
-        double&         w0,
-        double&         w1,
-        double&         w2) const {
+
+    float intersectionTime
+    (const Triangle& triangle,
+     float&         w0,
+     float&         w1,
+     float&         w2) const {
         return intersectionTime(triangle.vertex(0), triangle.vertex(1), triangle.vertex(2),
             triangle.edge01(), triangle.edge02(), w0, w1, w2);
     }
@@ -236,9 +245,9 @@ public:
           dest[2]=v1[2]-v2[2]; 
 
 inline float Ray::intersectionTime(
-    const Vector3& vert0,
-    const Vector3& vert1,
-    const Vector3& vert2,
+    const Point3& vert0,
+    const Point3& vert1,
+    const Point3& vert2,
     const Vector3& edge1,
     const Vector3& edge2) const {
 
@@ -294,15 +303,15 @@ inline float Ray::intersectionTime(
 }
 
 
-inline float Ray::intersectionTime(
-    const Vector3&  vert0,
-    const Vector3&  vert1,
-    const Vector3&  vert2,
-    const Vector3&  edge1,
-    const Vector3&  edge2,
-    double&         w0,
-    double&         w1,
-    double&         w2) const {
+inline float Ray::intersectionTime
+(const Point3&  vert0,
+ const Point3&  vert1,
+ const Point3&  vert2,
+ const Vector3&  edge1,
+ const Vector3&  edge2,
+ float&         w0,
+ float&         w1,
+ float&         w2) const {
 
     (void)vert1;
     (void)vert2;

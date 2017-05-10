@@ -1,0 +1,16 @@
+ALTER TABLE `character_social` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_social` CHANGE `friend` `friend` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_spell` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_spell_cooldown` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_stats` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_talent` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_void_storage` CHANGE `playerGuid` `playerGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `character_void_storage` CHANGE `creatorGuid` `creatorGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `corpse` CHANGE `corpseGuid` `corpseGuid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `corpse` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `gm_surveys` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `gm_tickets` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `gm_tickets` CHANGE `closedBy` `closedBy` BIGINT(20) NOT NULL DEFAULT '0';
+ALTER TABLE `gm_tickets` CHANGE `assignedTo` `assignedTo` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `characters` CHANGE `guid` `guid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `characters` CHANGE `transguid` `transguid` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';

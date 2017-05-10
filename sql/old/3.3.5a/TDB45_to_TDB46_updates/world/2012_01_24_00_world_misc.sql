@@ -1,5 +1,5 @@
 -- Make Dame Evniki Kapsalis show vendor gossip option only to players with Crusader title
-UPDATE `creature_template` SET `AIName` = 'SmartAI',`ScriptName` = '' WHERE `entry` = 34885;
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 34885;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=10598;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`COMMENT`) VALUES
 (15,10598,0,0,17,2816,0,0,0,'',"Evniki Kapsalis should only sell to Crusaders"),

@@ -1,0 +1,22 @@
+-- 
+UPDATE `creature_text` SET `sound`=14211 WHERE `BroadcastTextID`=25357;
+UPDATE `creature_text` SET `sound`=14212 WHERE `BroadcastTextID`=25358;
+UPDATE `creature_text` SET `sound`=14756 WHERE `BroadcastTextID`=25362;
+UPDATE `creature_text` SET `sound`=14212 WHERE `BroadcastTextID`=28189;
+UPDATE `creature_text` SET `sound`=14664 WHERE `BroadcastTextID`=25359;
+UPDATE `creature_text` SET `sound`=14665 WHERE `BroadcastTextID`=25360;
+UPDATE `creature_text` SET `sound`=14757 WHERE `BroadcastTextID`=25363;
+UPDATE `creature_text` SET `sound`=14666 WHERE `BroadcastTextID`=25366;
+UPDATE `creature_text` SET `sound`=14213 WHERE `BroadcastTextID`=25361;
+UPDATE `creature_text` SET `sound`=14758 WHERE `BroadcastTextID`=25364;
+UPDATE `creature_text` SET `sound`=14214 WHERE `BroadcastTextID`=25365;
+UPDATE `creature_text` SET `sound`=14196 WHERE `BroadcastTextID`=25841;
+UPDATE `creature_text` SET `sound`=14489 WHERE `BroadcastTextID`=25842;
+UPDATE `creature_text` SET `sound`=14197 WHERE `BroadcastTextID`=25847;
+UPDATE `creature_text` SET `sound`=14667 WHERE `BroadcastTextID`=25844;
+UPDATE `creature_text` SET `sound`=14490 WHERE `BroadcastTextID`=25843;
+UPDATE `creature_text` SET `sound`=14668 WHERE `BroadcastTextID`=25845;
+UPDATE `creature_text` SET `sound`=14491 WHERE `BroadcastTextID`=25848;
+UPDATE `creature_text` SET `sound`=14669 WHERE `BroadcastTextID`=25846;
+UPDATE `creature_text` SET `sound`=14492 WHERE `BroadcastTextID`=25849;
+UPDATE `creature_text` SET `sound`=14670 WHERE `BroadcastTextID`=25850;

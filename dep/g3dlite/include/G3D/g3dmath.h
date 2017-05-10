@@ -7,9 +7,9 @@
  @cite highestBit by Jukka Liimatta
  
  @created 2001-06-02
- @edited  2009-04-07
+ @edited  2013-01-27
 
- Copyright 2000-2006, Morgan McGuire.
+ Copyright 2000-2013, Morgan McGuire.
  All rights reserved.
  */
 
@@ -29,8 +29,9 @@
 #include <float.h>
 #include <limits>
 #include <stdlib.h>
+#include <stdint.h>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && (_MSC_VER < 1000)
     // Visual Studio is missing inttypes.h
 #   ifndef PRId64
 #       define PRId64 "I64d"
@@ -58,6 +59,16 @@
 #undef min
 #undef max
 
+/**
+\def G3D_DECLARE_SYMBOL(s)
+Defines SYMBOL_s as a static const std::string with the value s.
+Useful for avoiding heap allocation from C-string constants being
+converted at runtime.
+*/
+#define G3D_DECLARE_SYMBOL(s) \
+    static const std::string SYMBOL_##s = #s
+
+
 namespace G3D {
 
 #ifdef _MSC_VER
@@ -65,59 +76,61 @@ inline double __fastcall drand48() {
     return ::rand() / double(RAND_MAX);
 }
 
-#if !defined(_WIN64)
-
-/**
-   Win32 implementation of the C99 fast rounding routines.
+#   ifdef _M_IX86
+    // 32-bit
+        /**
+           Win32 implementation of the C99 fast rounding routines.
    
-   @cite routines are
-   Copyright (C) 2001 Erik de Castro Lopo <erikd AT mega-nerd DOT com>
+           @cite routines are
+           Copyright (C) 2001 Erik de Castro Lopo <erikd AT mega-nerd DOT com>
    
-   Permission to use, copy, modify, distribute, and sell this file for any 
-   purpose is hereby granted without fee, provided that the above copyright 
-   and this permission notice appear in all copies.  No representations are
-   made about the suitability of this software for any purpose.  It is 
-   provided "as is" without express or implied warranty.
-*/
+           Permission to use, copy, modify, distribute, and sell this file for any 
+           purpose is hereby granted without fee, provided that the above copyright 
+           and this permission notice appear in all copies.  No representations are
+           made about the suitability of this software for any purpose.  It is 
+           provided "as is" without express or implied warranty.
+        */
 
-__inline long int lrint (double flt) {
-    int intgr;
 
-    _asm {
-        fld flt
-        fistp intgr
-    };
+         __inline long int lrint (double flt) {
+            int intgr;
 
-    return intgr;
-}
+            _asm {
+                fld flt
+                fistp intgr
+            };
 
-__inline long int lrintf(float flt) {
-    int intgr;
+            return intgr;
+        }
 
-    _asm {
-        fld flt
-        fistp intgr
-    };
+        __inline long int lrintf(float flt) {
+            int intgr;
 
-    return intgr;
-}
+            _asm {
+                fld flt
+                fistp intgr
+            };
 
-#else
+            return intgr;
+        }
+#   else
+    // 64-bit
+
+    __inline long int lrintf(float flt) {        
+        return (long int)(flt + 0.5f);
+    }
 
     __inline long int lrint (double flt) {
-        return (long int)floor(flt+0.5f);
+        return (long int)(flt + 0.5);
     }
 
-    __inline long int lrintf(float flt) {
-        return (long int)floorf(flt+0.5f);
-    }
-
-#endif
-
+#   endif
 #endif
 
 
-#define fuzzyEpsilon (0.00001f)
+#define fuzzyEpsilon64 (0.0000005)
+#define fuzzyEpsilon32 (0.00001f)
+
 /** 
     This value should not be tested against directly, instead
     G3D::isNan() and G3D::isFinite() will return reliable results. */
@@ -147,23 +160,14 @@ inline double twoPi() {
     return 6.28318531;
 }
 
-typedef signed char     int8;
-typedef unsigned char	uint8;
-typedef short           int16;
-typedef unsigned short  uint16;
-typedef int             int32;
-typedef unsigned int    uint32;
-
-#ifdef _MSC_EXTENSIONS
-    typedef __int64             int64;
-    typedef unsigned __int64    uint64;
-#elif ! defined(_MSC_VER)
-    typedef int64_t             int64;
-    typedef uint64_t            uint64;
-#else
-    typedef long long           int64;
-    typedef unsigned long long  uint64;
-#endif
+typedef int8_t      int8;
+typedef uint8_t     uint8;
+typedef int16_t     int16;
+typedef uint16_t    uint16;
+typedef int32_t     int32;
+typedef uint32_t    uint32;
+typedef int64_t     int64;
+typedef uint64_t    uint64;
 
 typedef float           float32;
 typedef double          float64;
@@ -207,7 +211,14 @@ inline int iSign(float f) {
     return iSign((double)f);
 }
 
+inline double round(double f) {
+    return floor(f + 0.5f);
+}
 
+inline float round(float f) {
+    return floor(f + 0.5f);
+}
+    
 /** 
     Fast round to integer using the lrint routine.
     Typically 6x faster than casting to integer.
@@ -252,6 +263,11 @@ bool isFinite(double x);
 bool isNaN(double x);
 bool isNaN(float x);
 inline bool isNaN(int x) {
+    (void)x;
+    return false;
+}
+
+inline bool isNaN(uint64 x) {
     (void)x;
     return false;
 }
@@ -339,6 +355,7 @@ int highestBit(uint32 x);
  */
 bool fuzzyEq(double a, double b);
 
+
 /** True if a is definitely not equal to b.  
     Guaranteed false if a == b. 
     Possibly false when a != b.*/
@@ -393,6 +410,7 @@ inline double log2(int x) {
  * True if num is a power of two.
  */
 bool isPow2(int num);
+bool isPow2(uint64 num);
 
 bool isOdd(int num);
 bool isEven(int num);
@@ -455,7 +473,7 @@ inline double rsqrt(double x) {
 /** @deprecated Use rsq */
 inline float rsqrt(float x) {
     // TODO: default this to using the SSE2 instruction
-    return 1.0 / sqrtf(x);
+    return 1.0f / sqrtf(x);
 }
 
 /**
@@ -526,59 +544,59 @@ inline int iCeil (double fValue) {
 
 inline int iClamp(int val, int low, int hi) {
     debugAssert(low <= hi);
-	if (val <= low) {
-		return low;
-	} else if (val >= hi) {
-		return hi;
-	} else {
-		return val;
-	}
+    if (val <= low) {
+        return low;
+    } else if (val >= hi) {
+        return hi;
+    } else {
+        return val;
+    }
 }
 
 //----------------------------------------------------------------------------
 
 inline int16 iClamp(int16 val, int16 low, int16 hi) {
     debugAssert(low <= hi);
-	if (val <= low) {
-		return low;
-	} else if (val >= hi) {
-		return hi;
-	} else {
-		return val;
-	}
+    if (val <= low) {
+        return low;
+    } else if (val >= hi) {
+        return hi;
+    } else {
+        return val;
+    }
 }
 
 //----------------------------------------------------------------------------
 
 inline double clamp(double val, double low, double hi) {
     debugAssert(low <= hi);
-	if (val <= low) {
-		return low;
-	} else if (val >= hi) {
-		return hi;
-	} else {
-		return val;
-	}
+    if (val <= low) {
+        return low;
+    } else if (val >= hi) {
+        return hi;
+    } else {
+        return val;
+    }
 }
 
 inline float clamp(float val, float low, float hi) {
     debugAssert(low <= hi);
-	if (val <= low) {
-		return low;
-	} else if (val >= hi) {
-		return hi;
-	} else {
-		return val;
-	}
+    if (val <= low) {
+        return low;
+    } else if (val >= hi) {
+        return hi;
+    } else {
+        return val;
+    }
 }
 //----------------------------------------------------------------------------
 
 inline int iWrap(int val, int hi) {
-	if (val < 0) {
-		return ((val % hi) + hi) % hi;
-	} else {
-		return val % hi;
-	}
+    if (val < 0) {
+        return ((val % hi) + hi) % hi;
+    } else {
+        return val % hi;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -651,11 +669,11 @@ inline double aTan2 (double fY, double fX) {
 inline double sign (double fValue) {
     if (fValue > 0.0) {
         return 1.0;
-	}
+    }
 
     if (fValue < 0.0) {
         return -1.0;
-	}
+    }
 
     return 0.0;
 }
@@ -663,11 +681,11 @@ inline double sign (double fValue) {
 inline float sign (float fValue) {
     if (fValue > 0.0f) {
         return 1.0f;
-	}
+    }
 
     if (fValue < 0.0f) {
         return -1.0f;
-	}
+    }
 
     return 0.0f;
 }
@@ -759,6 +777,16 @@ inline bool isPow2(int num) {
     return ((num & -num) == num);
 }
 
+inline bool isPow2(uint64 x) {
+    // See http://www.exploringbinary.com/ten-ways-to-check-if-an-integer-is-a-power-of-two-in-c/, method #9
+    return ((x != 0) && !(x & (x - 1)));
+}
+
+inline bool isPow2(uint32 x) {
+    // See http://www.exploringbinary.com/ten-ways-to-check-if-an-integer-is-a-power-of-two-in-c/, method #9
+    return ((x != 0) && !(x & (x - 1)));
+}
+
 inline bool isOdd(int num) {
     return (num & 1) == 1;
 }
@@ -801,10 +829,29 @@ inline double eps(double a, double b) {
     (void)b;
     const double aa = abs(a) + 1.0;
     if (aa == inf()) {
-        return fuzzyEpsilon;
+        return fuzzyEpsilon64;
     } else {
-        return fuzzyEpsilon * aa;
+        return fuzzyEpsilon64 * aa;
     }
+}
+
+inline float eps(float a, float b) {
+    // For a and b to be nearly equal, they must have nearly
+    // the same magnitude.  This means that we can ignore b
+    // since it either has the same magnitude or the comparison
+    // will fail anyway.
+    (void)b;
+    const float aa = (float)abs(a) + 1.0f;
+    if (aa == inf()) {
+        return fuzzyEpsilon32;
+    } else {
+        return fuzzyEpsilon32 * aa;
+    }
+}
+
+
+inline bool fuzzyEq(float a, float b) {
+    return (a == b) || (abs(a - b) <= eps(a, b));
 }
 
 inline bool fuzzyEq(double a, double b) {
@@ -850,9 +897,47 @@ inline uint16 flipEndian16(const uint16 x) {
     return (x << 8) | ((x & 0xFF00) >> 8);
 }
 
+/** The GLSL smoothstep function */
+inline float smoothstep(float edge0, float edge1, float x) {
+    // Scale, bias and saturate x to 0..1 range
+    x = clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+
+    // Evaluate polynomial
+    return x * x * (3 - 2 * x);
+}
+
+
+/** Perlin's C2 continous variation on smoothstep() */
+inline float smootherstep(float edge0, float edge1, float x) {
+
+    // Scale, and saturate x to 0..1 range
+    x = clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+
+    // Evaluate polynomial
+    return x * x * x * (x * (x * 6 - 15) + 10);
+}
+
+
+/** Computes |b|^e * sign(b) */
+inline float signedPow(float b, float e) {
+    return sign(b) * powf(fabsf(b), e);
+}
+
+
+/** Computes |b|^e * sign(b) */
+inline double signedPow(double b, double e) {
+    return sign(b) * pow(abs(b), e);
+}
+
 
 } // namespace
 
+namespace std {
+inline int pow(int a, int b) {
+    return (int)::pow(double(a), double(b));
+}
+
+}
 #ifdef _MSC_VER
 #   pragma warning (pop)
 #endif

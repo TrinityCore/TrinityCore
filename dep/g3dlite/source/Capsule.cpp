@@ -22,7 +22,7 @@
 namespace G3D {
 
 Capsule::Capsule(class BinaryInput& b) {
-	deserialize(b);
+    deserialize(b);
 }
 
 
@@ -31,47 +31,47 @@ Capsule::Capsule() {
 
 
 Capsule::Capsule(const Vector3& _p1, const Vector3& _p2, float _r) 
-	: p1(_p1), p2(_p2), _radius(_r) {
+    : p1(_p1), p2(_p2), _radius(_r) {
 }
 
 
 void Capsule::serialize(class BinaryOutput& b) const {
-	p1.serialize(b);
-	p2.serialize(b);
-	b.writeFloat64(_radius);
+    p1.serialize(b);
+    p2.serialize(b);
+    b.writeFloat64(_radius);
 }
 
 
 void Capsule::deserialize(class BinaryInput& b) {
-	p1.deserialize(b);
-	p2.deserialize(b);
-	_radius = b.readFloat64();
+    p1.deserialize(b);
+    p2.deserialize(b);
+    _radius = (float)b.readFloat64();
 }
 
 
 Line Capsule::axis() const {
-	return Line::fromTwoPoints(p1, p2);
+    return Line::fromTwoPoints(p1, p2);
 }
 
 
 float Capsule::volume() const {
-	return 
-		// Sphere volume
-		pow(_radius, 3) * pi() * 4 / 3 +
+    return 
+        // Sphere volume
+        pow(_radius, 3) * (float)pi() * 4 / 3 +
 
-		// Cylinder volume
-		pow(_radius, 2) * (p1 - p2).magnitude();
+        // Cylinder volume
+        pow(_radius, 2) * (p1 - p2).magnitude();
 }
 
 
 float Capsule::area() const {
 
-	return
-		// Sphere area
-		pow(_radius, 2) * 4 * pi() +
+    return
+        // Sphere area
+        pow(_radius, 2) * 4 * (float)pi() +
 
-		// Cylinder area
-		twoPi() * _radius * (p1 - p2).magnitude();
+        // Cylinder area
+        (float)twoPi() * _radius * (p1 - p2).magnitude();
 }
 
 
@@ -147,10 +147,10 @@ Vector3 Capsule::randomInteriorPoint() const {
 
     Vector3 p;
 
-    float hemiVolume = pi() * (r*r*r) * 4 / 6.0;
-    float cylVolume = pi() * square(r) * h;
+    float hemiVolume = (float)pi() * (r*r*r) * 4 / 6.0f;
+    float cylVolume = (float)pi() * square(r) * h;
     
-    float r1 = uniformRandom(0, 2.0 * hemiVolume + cylVolume);
+    float r1 = uniformRandom(0, 2.0f * hemiVolume + cylVolume);
 
     if (r1 < 2.0 * hemiVolume) {
 

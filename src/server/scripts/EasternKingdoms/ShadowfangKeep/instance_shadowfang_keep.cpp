@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,21 +31,30 @@ EndScriptData */
 
 #define MAX_ENCOUNTER              4
 
-enum eEnums
+enum Yells
 {
     SAY_BOSS_DIE_AD         = 4,
     SAY_BOSS_DIE_AS         = 3,
-    SAY_ARCHMAGE            = 0,
+    SAY_ARCHMAGE            = 0
+};
 
+enum Creatures
+{
     NPC_ASH                 = 3850,
     NPC_ADA                 = 3849,
     NPC_ARCHMAGE_ARUGAL     = 4275,
-    NPC_ARUGAL_VOIDWALKER   = 4627,
+    NPC_ARUGAL_VOIDWALKER   = 4627
+};
 
-    GO_COURTYARD_DOOR       = 18895,                        //door to open when talking to NPC's
-    GO_SORCERER_DOOR        = 18972,                        //door to open when Fenrus the Devourer
-    GO_ARUGAL_DOOR          = 18971,                        //door to open when Wolf Master Nandos
+enum GameObjects
+{
+    GO_COURTYARD_DOOR       = 18895, //door to open when talking to NPC's
+    GO_SORCERER_DOOR        = 18972, //door to open when Fenrus the Devourer
+    GO_ARUGAL_DOOR          = 18971  //door to open when Wolf Master Nandos
+};
 
+enum Spells
+{
     SPELL_ASHCROMBE_TELEPORT    = 15742
 };
 
@@ -62,46 +71,37 @@ class instance_shadowfang_keep : public InstanceMapScript
 public:
     instance_shadowfang_keep() : InstanceMapScript("instance_shadowfang_keep", 33) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_shadowfang_keep_InstanceMapScript(map);
     }
 
     struct instance_shadowfang_keep_InstanceMapScript : public InstanceScript
     {
-        instance_shadowfang_keep_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
-        std::string str_data;
-
-        uint64 uiAshGUID;
-        uint64 uiAdaGUID;
-        uint64 uiArchmageArugalGUID;
-
-        uint64 DoorCourtyardGUID;
-        uint64 DoorSorcererGUID;
-        uint64 DoorArugalGUID;
-
-        uint8 uiPhase;
-        uint16 uiTimer;
-
-        void Initialize()
+        instance_shadowfang_keep_InstanceMapScript(Map* map) : InstanceScript(map)
         {
+            SetHeaders(DataHeader);
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            uiAshGUID = 0;
-            uiAdaGUID = 0;
-            uiArchmageArugalGUID = 0;
-
-            DoorCourtyardGUID = 0;
-            DoorSorcererGUID = 0;
-            DoorArugalGUID = 0;
 
             uiPhase = 0;
             uiTimer = 0;
         }
 
-        void OnCreatureCreate(Creature* creature)
+        uint32 m_auiEncounter[MAX_ENCOUNTER];
+        std::string str_data;
+
+        ObjectGuid uiAshGUID;
+        ObjectGuid uiAdaGUID;
+        ObjectGuid uiArchmageArugalGUID;
+
+        ObjectGuid DoorCourtyardGUID;
+        ObjectGuid DoorSorcererGUID;
+        ObjectGuid DoorArugalGUID;
+
+        uint8 uiPhase;
+        uint16 uiTimer;
+
+        void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
@@ -111,24 +111,24 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* go)
+        void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
             {
                 case GO_COURTYARD_DOOR:
                     DoorCourtyardGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_SORCERER_DOOR:
                     DoorSorcererGUID = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_ARUGAL_DOOR:
                     DoorArugalGUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
             }
         }
@@ -145,7 +145,7 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
@@ -193,7 +193,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
@@ -209,12 +209,12 @@ public:
             return 0;
         }
 
-        std::string GetSaveData()
+        std::string GetSaveData() override
         {
             return str_data;
         }
 
-        void Load(const char* in)
+        void Load(const char* in) override
         {
             if (!in)
             {
@@ -236,7 +236,7 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-        void Update(uint32 uiDiff)
+        void Update(uint32 uiDiff) override
         {
             if (GetData(TYPE_FENRUS) != DONE)
                 return;

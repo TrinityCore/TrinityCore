@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,9 @@
 #ifndef DEF_RUINS_OF_AHNQIRAJ_H
 #define DEF_RUINS_OF_AHNQIRAJ_H
 
-enum DataTypes
+#define DataHeader "AQR"
+
+enum AQRDataTypes
 {
     DATA_KURINNAXX          = 0,
     DATA_RAJAXX             = 1,
@@ -31,7 +33,7 @@ enum DataTypes
     DATA_PARALYZED          = 7
 };
 
-enum Creatures
+enum AQRCreatures
 {
     NPC_KURINAXX                = 15348,
     NPC_RAJAXX                  = 15341,
@@ -50,7 +52,7 @@ enum Creatures
     NPC_HORNET                  = 15934
 };
 
-enum GameObjects
+enum AQRGameObjectIds
 {
     GO_OSSIRIAN_CRYSTAL         = 180619
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@ namespace lfg
 {
 
 LfgGroupData::LfgGroupData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE),
-    m_Leader(0), m_Dungeon(0), m_KicksLeft(LFG_GROUP_MAX_KICKS)
+    m_Leader(), m_Dungeon(0), m_KicksLeft(LFG_GROUP_MAX_KICKS), m_VoteKickActive(false)
 { }
 
 LfgGroupData::~LfgGroupData()
@@ -54,14 +54,14 @@ void LfgGroupData::RestoreState()
     m_State = m_OldState;
 }
 
-void LfgGroupData::AddPlayer(uint64 guid)
+void LfgGroupData::AddPlayer(ObjectGuid guid)
 {
     m_Players.insert(guid);
 }
 
-uint8 LfgGroupData::RemovePlayer(uint64 guid)
+uint8 LfgGroupData::RemovePlayer(ObjectGuid guid)
 {
-    LfgGuidSet::iterator it = m_Players.find(guid);
+    GuidSet::iterator it = m_Players.find(guid);
     if (it != m_Players.end())
         m_Players.erase(it);
     return uint8(m_Players.size());
@@ -72,7 +72,7 @@ void LfgGroupData::RemoveAllPlayers()
     m_Players.clear();
 }
 
-void LfgGroupData::SetLeader(uint64 guid)
+void LfgGroupData::SetLeader(ObjectGuid guid)
 {
     m_Leader = guid;
 }
@@ -98,7 +98,7 @@ LfgState LfgGroupData::GetOldState() const
     return m_OldState;
 }
 
-LfgGuidSet const& LfgGroupData::GetPlayers() const
+GuidSet const& LfgGroupData::GetPlayers() const
 {
     return m_Players;
 }
@@ -108,7 +108,7 @@ uint8 LfgGroupData::GetPlayerCount() const
     return m_Players.size();
 }
 
-uint64 LfgGroupData::GetLeader() const
+ObjectGuid LfgGroupData::GetLeader() const
 {
     return m_Leader;
 }
@@ -124,6 +124,16 @@ uint32 LfgGroupData::GetDungeon(bool asId /* = true */) const
 uint8 LfgGroupData::GetKicksLeft() const
 {
     return m_KicksLeft;
+}
+
+void LfgGroupData::SetVoteKick(bool active)
+{
+    m_VoteKickActive = active;
+}
+
+bool LfgGroupData::IsVoteKickActive() const
+{
+    return m_VoteKickActive;
 }
 
 } // namespace lfg

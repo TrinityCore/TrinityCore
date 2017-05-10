@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,18 +28,20 @@ TempSummon::TempSummon(SummonPropertiesEntry const* properties, Unit* owner, boo
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
 m_timer(0), m_lifetime(0)
 {
-    m_summonerGUID = owner ? owner->GetGUID() : 0;
+    if (owner)
+        m_summonerGUID = owner->GetGUID();
+
     m_unitTypeMask |= UNIT_MASK_SUMMON;
 }
 
 Unit* TempSummon::GetSummoner() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL;
 }
 
 Creature* TempSummon::GetSummonerCreatureBase() const
 {
-    return m_summonerGUID ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : NULL;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : NULL;
 }
 
 void TempSummon::Update(uint32 diff)
@@ -166,7 +168,7 @@ void TempSummon::Update(uint32 diff)
         }
         default:
             UnSummon();
-            TC_LOG_ERROR(LOG_FILTER_UNITS, "Temporary summoned creature (entry: %u) have unknown type %u of ", GetEntry(), m_type);
+            TC_LOG_ERROR("entities.unit", "Temporary summoned creature (entry: %u) have unknown type %u of ", GetEntry(), m_type);
             break;
     }
 }
@@ -196,9 +198,10 @@ void TempSummon::InitStats(uint32 duration)
 
     if (owner)
     {
-        if (uint32 slot = m_Properties->Slot)
+        int32 slot = m_Properties->Slot;
+        if (slot > 0)
         {
-            if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
+            if (!owner->m_SummonSlot[slot].IsEmpty() && owner->m_SummonSlot[slot] != GetGUID())
             {
                 Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
                 if (oldSummon && oldSummon->IsSummon())
@@ -224,6 +227,11 @@ void TempSummon::InitSummon()
         if (IsAIEnabled)
             AI()->IsSummonedBy(owner);
     }
+}
+
+void TempSummon::UpdateObjectVisibilityOnCreate()
+{
+    WorldObject::UpdateObjectVisibility(true);
 }
 
 void TempSummon::SetTempSummonType(TempSummonType type)
@@ -268,13 +276,16 @@ void TempSummon::RemoveFromWorld()
         return;
 
     if (m_Properties)
-        if (uint32 slot = m_Properties->Slot)
+    {
+        int32 slot = m_Properties->Slot;
+        if (slot > 0)
             if (Unit* owner = GetSummoner())
                 if (owner->m_SummonSlot[slot] == GetGUID())
-                    owner->m_SummonSlot[slot] = 0;
+                    owner->m_SummonSlot[slot].Clear();
+    }
 
     //if (GetOwnerGUID())
-    //    TC_LOG_ERROR(LOG_FILTER_UNITS, "Unit %u has owner guid when removed from world", GetEntry());
+    //    TC_LOG_ERROR("entities.unit", "Unit %u has owner guid when removed from world", GetEntry());
 
     Creature::RemoveFromWorld();
 }
@@ -285,6 +296,8 @@ Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorl
     ASSERT(m_owner);
     m_unitTypeMask |= UNIT_MASK_MINION;
     m_followAngle = PET_FOLLOW_ANGLE;
+    /// @todo: Find correct way
+    InitCharmInfo();
 }
 
 void Minion::InitStats(uint32 duration)
@@ -318,7 +331,7 @@ Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool is
 {
     memset(m_statFromOwner, 0, sizeof(float)*MAX_STATS);
     m_unitTypeMask |= UNIT_MASK_GUARDIAN;
-    if (properties && properties->Type == SUMMON_TYPE_PET)
+    if (properties && (properties->Type == SUMMON_TYPE_PET || properties->Category == SUMMON_CATEGORY_PET))
     {
         m_unitTypeMask |= UNIT_MASK_CONTROLABLE_GUARDIAN;
         InitCharmInfo();
@@ -367,7 +380,7 @@ void Puppet::InitSummon()
 {
     Minion::InitSummon();
     if (!SetCharmedBy(GetOwner(), CHARM_TYPE_POSSESS))
-        ASSERT(false);
+        ABORT();
 }
 
 void Puppet::Update(uint32 time)

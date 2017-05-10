@@ -50,7 +50,7 @@ void MeshAlg::generateGrid(
 
             texCoord.append(t);
 
-            if (height.notNull()) {
+            if (height) {
                 v.y = height->nearest(v.x * (height->width() - 1), v.z * (height->height() - 1)).value;
             }
             if (spaceCentered) {
@@ -253,7 +253,7 @@ void MeshAlg::identifyBackfaces(
 
     backface.resize(faceArray.size());
 
-    if (fuzzyEq(HP.w, 0.0)) {
+    if (fuzzyEq(HP.w, 0.0f)) {
         // Infinite case
         for (int f = faceArray.size() - 1; f >= 0; --f) {
             const MeshAlg::Face& face = faceArray[f];
@@ -294,7 +294,7 @@ void MeshAlg::identifyBackfaces(
 
     backface.resize(faceArray.size());
 
-    if (fuzzyEq(HP.w, 0.0)) {
+    if (fuzzyEq(HP.w, 0.0f)) {
         // Infinite case
         for (int f = faceArray.size() - 1; f >= 0; --f) {
             const Vector3& N = faceNormals[f];
@@ -417,6 +417,7 @@ void MeshAlg::computeBounds(
     AABox&                  box, 
     Sphere&                 sphere) {
 
+    // Makes a copy so as to re-use the existing computebounds code
     Array<Vector3> newArray;
     newArray.resize(indexArray.size());
     for (int i = 0; i < indexArray.size(); ++i) {
@@ -441,54 +442,54 @@ void MeshAlg::computeBounds(
         const Vector3& vertex = vertexArray[v];
 
         if (vertex.x < xmin.x) {
-    		xmin = vertex;
+            xmin = vertex;
         }
 
         if (vertex.x > xmax.x) {
-    		xmax = vertex;
+            xmax = vertex;
         }
 
         if (vertex.y < ymin.y) {
-    		ymin = vertex;
+            ymin = vertex;
         }
 
         if (vertex.y > ymax.y) {
-		    ymax = vertex;
+            ymax = vertex;
         }
 
         if (vertex.z < zmin.z) {
-		    zmin = vertex;
+            zmin = vertex;
         }
 
         if (vertex.z > zmax.z) {
-		    zmax = vertex;
+            zmax = vertex;
         }
-	}
+    }
 
     // Set points dia1 & dia2 to the maximally separated pair
     Vector3 dia1 = xmin; 
     Vector3 dia2 = xmax;
     {
         // Set xspan = distance between the 2 points xmin & xmax (squared)
-        double xspan = (xmax - xmin).squaredMagnitude();
+        float xspan = (xmax - xmin).squaredMagnitude();
 
         // Same for y & z spans
-        double yspan = (ymax - ymin).squaredMagnitude();
-        double zspan = (zmax - zmin).squaredMagnitude();
+        float yspan = (ymax - ymin).squaredMagnitude();
+        float zspan = (zmax - zmin).squaredMagnitude();
     
-        double maxspan = xspan;
+        float maxspan = xspan;
 
         if (yspan > maxspan) {
-	        maxspan = yspan;
-	        dia1    = ymin;
+            maxspan = yspan;
+            dia1    = ymin;
             dia2    = ymax;
-	    }
+        }
 
         if (zspan > maxspan) {
             maxspan = zspan;
-    	    dia1    = zmin;
+            dia1    = zmin;
             dia2    = zmax;
-	    }
+        }
     }
 
 
@@ -500,52 +501,52 @@ void MeshAlg::computeBounds(
     // calculate initial radius^2 and radius 
     Vector3 d = dia2 - sphere.center;
 
-    double radSq = d.squaredMagnitude();
-    double rad  = sqrt(radSq);
+    float radSq = d.squaredMagnitude();
+    float rad  = sqrt(radSq);
 
     // SECOND PASS: increment current sphere
-    double old_to_p, old_to_new;
+    float old_to_p, old_to_new;
 
     for (int v = 0; v < vertexArray.size(); ++v) {
         const Vector3& vertex = vertexArray[v];
 
         d = vertex - center;
 
-        double old_to_p_sq = d.squaredMagnitude();
+        float old_to_p_sq = d.squaredMagnitude();
 
-    	// do r^2 test first 
+        // do r^2 test first 
         if (old_to_p_sq > radSq) {
-		 	// this point is outside of current sphere
-    		old_to_p = sqrt(old_to_p_sq);
+             // this point is outside of current sphere
+            old_to_p = sqrt(old_to_p_sq);
 
-    		// calc radius of new sphere
-		    rad = (rad + old_to_p) / 2.0;
+            // calc radius of new sphere
+            rad = (rad + old_to_p) / 2.0f;
 
             // for next r^2 compare
-		    radSq = rad * rad; 	
-		    old_to_new = old_to_p - rad;
+            radSq = rad * rad;     
+            old_to_new = old_to_p - rad;
 
-		    // calc center of new sphere
+            // calc center of new sphere
             center = (rad * center + old_to_new * vertex) / old_to_p;
-		}	
-	}
+        }    
+    }
 
-	const Vector3 min(xmin.x, ymin.y, zmin.z);
-	const Vector3 max(xmax.x, ymax.y, zmax.z);
+    const Vector3 min(xmin.x, ymin.y, zmin.z);
+    const Vector3 max(xmax.x, ymax.y, zmax.z);
 
-        box = AABox(min, max);
+   box = AABox(min, max);
 
-	const float boxRadSq = (max - min).squaredMagnitude() * 0.25f;
+    const float boxRadSq = (max - min).squaredMagnitude() * 0.25f;
 
-	if (boxRadSq >= radSq){
-            if (isNaN(center.x) || ! isFinite(rad)) {
-                sphere = Sphere(Vector3::zero(), finf());
-            } else {
-                sphere = Sphere(center, rad);
-            }
-	} else {
-            sphere = Sphere((max + min) * 0.5f, sqrt(boxRadSq));
-	}
+    if (boxRadSq >= radSq){
+        if (isNaN(center.x) || ! isFinite(rad)) {
+            sphere = Sphere(Vector3::zero(), finf());
+        } else {
+            sphere = Sphere(center, rad);
+        }
+    } else {
+        sphere = Sphere((max + min) * 0.5f, sqrt(boxRadSq));
+    }
 }
 
 void MeshAlg::computeTangentSpaceBasis(
@@ -600,7 +601,10 @@ void MeshAlg::computeTangentSpaceBasis(
         float r = te1.x * te2.y - te1.y * te2.x;
         if (r == 0.0) {
             // degenerate case
-            Vector3::generateOrthonormalBasis(t, b, n, true);
+            if (! n.isFinite() || n.isZero()) {
+                n = Vector3::unitY();
+            }
+            n.getTangents(t, b);
         } else {
             r = 1.0f / r;        
             t = (te2.y * ve1 - te1.y * ve2) * r;

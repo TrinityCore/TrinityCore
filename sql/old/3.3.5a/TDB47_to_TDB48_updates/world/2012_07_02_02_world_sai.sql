@@ -141,7 +141,7 @@ DELETE FROM `spell_target_position` WHERE `id`=57897; -- there was none, but jus
 INSERT INTO `spell_target_position` (`id`,`target_map`,`target_position_x`,`target_position_y`,`target_position_z`,`target_orientation`) VALUES
 (57897,571,6383.445801,229.091522,397.031127,1.660376);
 -- Add info for Munch's Death Gate spell click
-UPDATE `creature_template` SET `unit_flags`=567296,`exp`=2,`speed_run`=1,`minlevel`=80, `maxlevel`=80,`AIName`="SmartAI",`npcflag`=16777216 WHERE `entry`=30850;
+UPDATE `creature_template` SET `unit_flags`=567296,`exp`=2,`speed_run`=1,`minlevel`=80, `maxlevel`=80,`npcflag`=16777216 WHERE `entry`=30850;
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=30850;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
 (30850,57897,2,1);
@@ -150,7 +150,7 @@ DELETE FROM `creature_template_addon` WHERE `entry`=30850;
 INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (30850,0,0,1,0, NULL); -- Death Gate (Munch)
 -- Add info for Jayde's Death Gate spell click
-UPDATE `creature_template` SET `exp`=2,`speed_run`=1,`unit_flags`=567296,`minlevel`=80, `maxlevel`=80,`unit_flags`=567296, `speed_run`=1,`AIName`="SmartAI",`npcflag`=16777216 WHERE `entry`=30852;
+UPDATE `creature_template` SET `exp`=2,`speed_run`=1,`unit_flags`=567296,`minlevel`=80, `maxlevel`=80,`unit_flags`=567296, `speed_run`=1,`npcflag`=16777216 WHERE `entry`=30852;
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=30852;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
 (30852,57897,2,1);
@@ -161,7 +161,7 @@ DELETE FROM `creature_template_addon` WHERE `entry`=30852;
 INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (30852,0,0,1,0, NULL); -- Death Gate (Jayde)
 -- Add info for Mograine's Death Gate spell click
-UPDATE `creature_template` SET `unit_flags`=567296,`exp`=2,`speed_run`=1,`minlevel`=80, `maxlevel`=80,`AIName`="SmartAI",`npcflag`=16777216 WHERE `entry`=30841;
+UPDATE `creature_template` SET `unit_flags`=567296,`exp`=2,`speed_run`=1,`minlevel`=80, `maxlevel`=80,`npcflag`=16777216 WHERE `entry`=30841;
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=30841;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
 (30841,57897,2,1);

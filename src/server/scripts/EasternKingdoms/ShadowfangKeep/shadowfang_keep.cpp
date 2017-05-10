@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +40,7 @@ EndContentData */
 ## npc_shadowfang_prisoner
 ######*/
 
-enum eEnums
+enum Yells
 {
     SAY_FREE_AS             = 0,
     SAY_OPEN_DOOR_AS        = 1,
@@ -48,32 +48,37 @@ enum eEnums
     SAY_FREE_AD             = 0,
     SAY_OPEN_DOOR_AD        = 1,
     SAY_POST1_DOOR_AD       = 2,
-    SAY_POST2_DOOR_AD       = 3,
+    SAY_POST2_DOOR_AD       = 3
+};
 
+enum Spells
+{
     SPELL_UNLOCK            = 6421,
-    NPC_ASH                 = 3850,
 
     SPELL_DARK_OFFERING     = 7154
 };
 
-#define GOSSIP_ITEM_DOOR        "Thanks, I'll follow you to the door."
+enum Creatures
+{
+    NPC_ASH                 = 3850
+};
 
 class npc_shadowfang_prisoner : public CreatureScript
 {
 public:
     npc_shadowfang_prisoner() : CreatureScript("npc_shadowfang_prisoner") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_shadowfang_prisonerAI(creature);
+        return GetInstanceAI<npc_shadowfang_prisonerAI>(creature);
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_shadowfang_prisoner::npc_shadowfang_prisonerAI, creature->AI()))
                 pEscortAI->Start(false, false);
@@ -81,14 +86,14 @@ public:
         return true;
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         InstanceScript* instance = creature->GetInstanceScript();
 
         if (instance && instance->GetData(TYPE_FREE_NPC) != DONE && instance->GetData(TYPE_RETHILGORE) == DONE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
@@ -102,7 +107,7 @@ public:
 
         InstanceScript* instance;
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -128,8 +133,7 @@ public:
                     else
                         Talk(SAY_POST1_DOOR_AD);
 
-                    if (instance)
-                        instance->SetData(TYPE_FREE_NPC, DONE);
+                    instance->SetData(TYPE_FREE_NPC, DONE);
                     break;
                 case 13:
                     if (me->GetEntry() != NPC_ASH)
@@ -138,8 +142,8 @@ public:
             }
         }
 
-        void Reset() {}
-        void EnterCombat(Unit* /*who*/) {}
+        void Reset() override { }
+        void EnterCombat(Unit* /*who*/) override { }
     };
 
 };
@@ -149,28 +153,34 @@ class npc_arugal_voidwalker : public CreatureScript
 public:
     npc_arugal_voidwalker() : CreatureScript("npc_arugal_voidwalker") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_arugal_voidwalkerAI(creature);
+        return GetInstanceAI<npc_arugal_voidwalkerAI>(creature);
     }
 
     struct npc_arugal_voidwalkerAI : public ScriptedAI
     {
         npc_arugal_voidwalkerAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            uiDarkOffering = urand(200, 1000);
         }
 
         InstanceScript* instance;
 
         uint32 uiDarkOffering;
 
-        void Reset()
+        void Reset() override
         {
-            uiDarkOffering = urand(200, 1000);
+            Initialize();
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -187,10 +197,9 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
-            if (instance)
-                instance->SetData(TYPE_FENRUS, instance->GetData(TYPE_FENRUS) + 1);
+            instance->SetData(TYPE_FENRUS, instance->GetData(TYPE_FENRUS) + 1);
         }
     };
 
@@ -221,7 +230,7 @@ class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
                 aurEff->CalculatePeriodic(GetCaster());
             }
 
-            void Register()
+            void Register() override
             {
                 DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_shadowfang_keep_haunting_spirits_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_shadowfang_keep_haunting_spirits_AuraScript::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
@@ -229,7 +238,7 @@ class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_shadowfang_keep_haunting_spirits_AuraScript();
         }

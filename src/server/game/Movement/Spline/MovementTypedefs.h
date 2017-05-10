@@ -23,16 +23,22 @@
 
 namespace G3D
 {
-    class Vector2;
     class Vector3;
     class Vector4;
 }
 
 namespace Movement
 {
-    using G3D::Vector2;
     using G3D::Vector3;
     using G3D::Vector4;
+
+    enum MonsterMoveType
+    {
+        MONSTER_MOVE_NORMAL         = 0,
+        MONSTER_MOVE_FACING_SPOT    = 1,
+        MONSTER_MOVE_FACING_TARGET  = 2,
+        MONSTER_MOVE_FACING_ANGLE   = 3
+    };
 
     inline uint32 SecToMS(float sec)
     {
@@ -44,11 +50,8 @@ namespace Movement
         return ms / 1000.f;
     }
 
-#ifndef static_assert
-    #define CONCAT(x, y) CONCAT1 (x, y)
-    #define CONCAT1(x, y) x##y
-    #define static_assert(expr, msg) typedef char CONCAT(static_assert_failed_at_line_, __LINE__) [(expr) ? 1 : -1]
-#endif
+    float computeFallTime(float path_length, bool isSafeFall);
+    float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity = 0.0f);
 
     template<class T, T limit>
     class counter
@@ -74,9 +77,10 @@ namespace Movement
 
     typedef counter<uint32, 0xFFFFFFFF> UInt32Counter;
 
-    extern double gravity;
-    extern float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity);
-    extern UInt32Counter splineIdGen;
+    float constexpr gravity = static_cast<float>(19.29110527038574);
+    TC_GAME_API extern UInt32Counter splineIdGen;
+    TC_GAME_API extern std::string MovementFlags_ToString(uint32 flags);
+    TC_GAME_API extern std::string MovementFlagsExtra_ToString(uint32 flags);
 }
 
 #endif // TRINITYSERVER_TYPEDEFS_H

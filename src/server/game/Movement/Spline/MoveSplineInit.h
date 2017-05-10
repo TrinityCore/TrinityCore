@@ -35,7 +35,7 @@ namespace Movement
     };
 
     // Transforms coordinates from global to transport offsets
-    class TransportPathTransform
+    class TC_GAME_API TransportPathTransform
     {
     public:
         TransportPathTransform(Unit* owner, bool transformForTransport)
@@ -49,7 +49,7 @@ namespace Movement
 
     /*  Initializes and launches spline movement
      */
-    class MoveSplineInit
+    class TC_GAME_API MoveSplineInit
     {
     public:
 
@@ -58,6 +58,10 @@ namespace Movement
         /*  Final pass of initialization that launches spline movement.
          */
         int32 Launch();
+
+        /*  Final pass of initialization that stops movement.
+         */
+        void Stop();
 
         /* Adds movement by parabolic trajectory
          * @param amplitude  - the maximum height of parabola, value could be negative and positive
@@ -98,27 +102,39 @@ namespace Movement
          * if not enabled linear spline mode will be choosen. Disabled by default
          */
         void SetSmooth();
-        /* Enables CatmullRom spline interpolation mode, enables flying animation. Disabled by default
+
+        /* Waypoints in packets will be sent without compression
+         */
+        void SetUncompressed();
+
+        /* Enables flying animation. Disabled by default
          */
         void SetFly();
+
         /* Enables walk mode. Disabled by default
          */
         void SetWalk(bool enable);
+
         /* Makes movement cyclic. Disabled by default
          */
         void SetCyclic();
+
         /* Enables falling mode. Disabled by default
          */
         void SetFall();
+
         /* Enters transport. Disabled by default
          */
         void SetTransportEnter();
+
         /* Exits transport. Disabled by default
          */
         void SetTransportExit();
+
         /* Inverses unit model orientation. Disabled by default
          */
-        void SetOrientationInversed();
+        void SetBackward();
+
         /* Fixes unit's model rotation. Disabled by default
          */
         void SetOrientationFixed(bool enable);
@@ -129,6 +145,8 @@ namespace Movement
          * velocity shouldn't be negative
          */
         void SetVelocity(float velocity);
+
+        void SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData);
 
         PointsArray& Path() { return args.path; }
 
@@ -142,12 +160,12 @@ namespace Movement
     };
 
     inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
-    inline void MoveSplineInit::SetWalk(bool enable) { args.flags.walkmode = enable; }
+    inline void MoveSplineInit::SetWalk(bool enable) { args.walk = enable; }
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
+    inline void MoveSplineInit::SetUncompressed() { args.flags.uncompressedPath = true; }
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
-    inline void MoveSplineInit::SetFall() { args.flags.EnableFalling();}
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
-    inline void MoveSplineInit::SetOrientationInversed() { args.flags.orientationInversed = true;}
+    inline void MoveSplineInit::SetBackward() { args.flags.backward = true; }
     inline void MoveSplineInit::SetTransportEnter() { args.flags.EnableTransportEnter(); }
     inline void MoveSplineInit::SetTransportExit() { args.flags.EnableTransportExit(); }
     inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.orientationFixed = enable; }
@@ -184,9 +202,14 @@ namespace Movement
         args.facing.f.x = finalSpot.x;
         args.facing.f.y = finalSpot.y;
         args.facing.f.z = finalSpot.z;
-        args.flags.EnableFacingPoint();
+        args.facing.type = MONSTER_MOVE_FACING_SPOT;
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
+
+    inline void MoveSplineInit::SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData)
+    {
+        args.spellEffectExtra = spellEffectExtraData;
+    }
 }
 #endif // TRINITYSERVER_MOVESPLINEINIT_H

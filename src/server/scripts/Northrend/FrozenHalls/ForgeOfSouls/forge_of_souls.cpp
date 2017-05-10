@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,33 +36,31 @@ enum Events
     EVENT_INTRO_8,
 };
 
-/****************************************SYLVANAS************************************/
-#define GOSSIP_SYLVANAS_ITEM    "What would you have of me, Banshee Queen?"
-#define GOSSIP_JAINA_ITEM       "What would you have of me, my lady?"
-
 enum Yells
 {
-    SAY_JAINA_INTRO_1                           = 0,
-    SAY_JAINA_INTRO_2                           = 1,
-    SAY_JAINA_INTRO_3                           = 2,
-    SAY_JAINA_INTRO_4                           = 3,
-    SAY_JAINA_INTRO_5                           = 4,
-    SAY_JAINA_INTRO_6                           = 5,
-    SAY_JAINA_INTRO_7                           = 6,
-    SAY_JAINA_INTRO_8                           = 7,
+    SAY_JAINA_INTRO_1    = 0,
+    SAY_JAINA_INTRO_2    = 1,
+    SAY_JAINA_INTRO_3    = 2,
+    SAY_JAINA_INTRO_4    = 3,
+    SAY_JAINA_INTRO_5    = 4,
+    SAY_JAINA_INTRO_6    = 5,
+    SAY_JAINA_INTRO_7    = 6,
+    SAY_JAINA_INTRO_8    = 7,
 
-    SAY_SYLVANAS_INTRO_1                        = 0,
-    SAY_SYLVANAS_INTRO_2                        = 1,
-    SAY_SYLVANAS_INTRO_3                        = 2,
-    SAY_SYLVANAS_INTRO_4                        = 3,
-    SAY_SYLVANAS_INTRO_5                        = 4,
-    SAY_SYLVANAS_INTRO_6                        = 5,
+    SAY_SYLVANAS_INTRO_1 = 0,
+    SAY_SYLVANAS_INTRO_2 = 1,
+    SAY_SYLVANAS_INTRO_3 = 2,
+    SAY_SYLVANAS_INTRO_4 = 3,
+    SAY_SYLVANAS_INTRO_5 = 4,
+    SAY_SYLVANAS_INTRO_6 = 5,
 };
 
-enum eSylvanas
+enum Misc
 {
-    GOSSIP_SPEECHINTRO                           = 13525,
     ACTION_INTRO,
+    MENU_ID_JAINA        = 10943,
+    MENU_ID_SYLVANAS     = 10971,
+    GOSSIP_OPTION_ID     = 0
 };
 
 enum Phase
@@ -80,8 +78,14 @@ public:
     {
         npc_sylvanas_fosAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+
+        void Initialize()
+        {
+            phase = PHASE_NORMAL;
         }
 
         InstanceScript* instance;
@@ -89,33 +93,28 @@ public:
         EventMap events;
         Phase phase;
 
-        void Reset()
+        void Reset() override
         {
             events.Reset();
-            phase = PHASE_NORMAL;
+            Initialize();
         }
 
-        void DoAction(int32 actionId)
+        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
-            switch (actionId)
+            if (menuId == MENU_ID_SYLVANAS && gossipListId == GOSSIP_OPTION_ID)
             {
-                case ACTION_INTRO:
-                {
-                    phase = PHASE_INTRO;
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    events.Reset();
-                    events.ScheduleEvent(EVENT_INTRO_1, 1000);
-                }
+                CloseGossipMenuFor(player);
+                phase = PHASE_INTRO;
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                events.Reset();
+                events.ScheduleEvent(EVENT_INTRO_1, 1000);
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (phase == PHASE_INTRO)
             {
-                if (!instance)
-                    return;
-
                 events.Update(diff);
                 switch (events.ExecuteEvent())
                 {
@@ -161,39 +160,9 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->GetEntry() == NPC_JAINA_PART1)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_JAINA_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        else
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SYLVANAS_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->CLOSE_GOSSIP_MENU();
-
-                if (creature->AI())
-                    creature->AI()->DoAction(ACTION_INTRO);
-                break;
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_sylvanas_fosAI(creature);
+        return GetInstanceAI<npc_sylvanas_fosAI>(creature);
     }
 };
 
@@ -206,8 +175,14 @@ public:
     {
         npc_jaina_fosAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+
+        void Initialize()
+        {
+            phase = PHASE_NORMAL;
         }
 
         InstanceScript* instance;
@@ -215,33 +190,28 @@ public:
         EventMap events;
         Phase phase;
 
-        void Reset()
+        void Reset() override
         {
             events.Reset();
-            phase = PHASE_NORMAL;
+            Initialize();
         }
 
-        void DoAction(int32 actionId)
+        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
-            switch (actionId)
+            if (menuId == MENU_ID_JAINA && gossipListId == GOSSIP_OPTION_ID)
             {
-                case ACTION_INTRO:
-                {
-                    phase = PHASE_INTRO;
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    events.Reset();
-                    events.ScheduleEvent(EVENT_INTRO_1, 1000);
-                }
+                CloseGossipMenuFor(player);
+                phase = PHASE_INTRO;
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                events.Reset();
+                events.ScheduleEvent(EVENT_INTRO_1, 1000);
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (phase == PHASE_INTRO)
             {
-                if (!instance)
-                    return;
-
                 events.Update(diff);
                 switch (events.ExecuteEvent())
                 {
@@ -298,39 +268,9 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->GetEntry() == NPC_JAINA_PART1)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_JAINA_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        else
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SYLVANAS_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->CLOSE_GOSSIP_MENU();
-
-                if (creature->AI())
-                    creature->AI()->DoAction(ACTION_INTRO);
-                break;
-        }
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_jaina_fosAI(creature);
+        return GetInstanceAI<npc_jaina_fosAI>(creature);
     }
 };
 

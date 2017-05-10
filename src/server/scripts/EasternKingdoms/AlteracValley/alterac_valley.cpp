@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -77,17 +77,27 @@ SpellPair const _auraPairs[MAX_SPELL_PAIRS] =
     { NPC_ICEBLOOD_WARMASTER,       SPELL_ICEBLOOD_WARMASTER }
 };
 
-class mob_av_marshal_or_warmaster : public CreatureScript
+class npc_av_marshal_or_warmaster : public CreatureScript
 {
     public:
-        mob_av_marshal_or_warmaster() : CreatureScript("mob_av_marshal_or_warmaster") { }
+        npc_av_marshal_or_warmaster() : CreatureScript("npc_av_marshal_or_warmaster") { }
 
-        struct mob_av_marshal_or_warmasterAI : public ScriptedAI
+        struct npc_av_marshal_or_warmasterAI : public ScriptedAI
         {
-            mob_av_marshal_or_warmasterAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void Reset()
+            npc_av_marshal_or_warmasterAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _hasAura = false;
+            }
+
+            void Reset() override
+            {
+                Initialize();
+
                 events.Reset();
                 events.ScheduleEvent(EVENT_CHARGE_TARGET, urand(2 * IN_MILLISECONDS, 12 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_CLEAVE, urand(1 * IN_MILLISECONDS, 11 * IN_MILLISECONDS));
@@ -95,16 +105,14 @@ class mob_av_marshal_or_warmaster : public CreatureScript
                 events.ScheduleEvent(EVENT_WHIRLWIND, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_ENRAGE, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_CHECK_RESET, 5000);
-
-                _hasAura = false;
             }
 
-            void JustRespawned()
+            void JustRespawned() override
             {
                 Reset();
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 // I have a feeling this isn't blizzlike, but owell, I'm only passing by and cleaning up.
                 if (!_hasAura)
@@ -129,11 +137,11 @@ class mob_av_marshal_or_warmaster : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CHARGE_TARGET:
-                            DoCast(me->GetVictim(), SPELL_CHARGE);
+                            DoCastVictim(SPELL_CHARGE);
                             events.ScheduleEvent(EVENT_CHARGE, urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
                             break;
                         case EVENT_CLEAVE:
-                            DoCast(me->GetVictim(), SPELL_CLEAVE);
+                            DoCastVictim(SPELL_CLEAVE);
                             events.ScheduleEvent(EVENT_CLEAVE, urand(10 * IN_MILLISECONDS, 16 * IN_MILLISECONDS));
                             break;
                         case EVENT_DEMORALIZING_SHOUT:
@@ -160,6 +168,8 @@ class mob_av_marshal_or_warmaster : public CreatureScript
                             break;
                         }
                     }
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -170,13 +180,13 @@ class mob_av_marshal_or_warmaster : public CreatureScript
             bool _hasAura;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_av_marshal_or_warmasterAI(creature);
+            return new npc_av_marshal_or_warmasterAI(creature);
         }
 };
 
 void AddSC_alterac_valley()
 {
-    new mob_av_marshal_or_warmaster();
+    new npc_av_marshal_or_warmaster();
 }

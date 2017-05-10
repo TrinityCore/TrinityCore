@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,28 +65,34 @@ class boss_rajaxx : public CreatureScript
         {
             boss_rajaxxAI(Creature* creature) : BossAI(creature, DATA_RAJAXX)
             {
+                Initialize();
             }
 
-            void Reset()
+            void Initialize()
+            {
+                enraged = false;
+            }
+
+            void Reset() override
             {
                 _Reset();
-                enraged = false;
+                Initialize();
                 events.ScheduleEvent(EVENT_DISARM, 10000);
                 events.ScheduleEvent(EVENT_THUNDERCRASH, 12000);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 //SAY_DEATH
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*victim*/)
+            void EnterCombat(Unit* /*victim*/) override
             {
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -111,6 +117,9 @@ class boss_rajaxx : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -119,9 +128,9 @@ class boss_rajaxx : public CreatureScript
                 bool enraged;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_rajaxxAI (creature);
+            return new boss_rajaxxAI(creature);
         }
 };
 

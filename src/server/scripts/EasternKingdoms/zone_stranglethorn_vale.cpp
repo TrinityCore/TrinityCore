@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,7 @@ SDCategory: Stranglethorn Vale
 EndScriptData */
 
 /* ContentData
-mob_yenniku
+npc_yenniku
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -33,36 +33,42 @@ EndContentData */
 #include "SpellInfo.h"
 
 /*######
-## mob_yenniku
+## npc_yenniku
 ######*/
 
-class mob_yenniku : public CreatureScript
+class npc_yenniku : public CreatureScript
 {
 public:
-    mob_yenniku() : CreatureScript("mob_yenniku") { }
+    npc_yenniku() : CreatureScript("npc_yenniku") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new mob_yennikuAI (creature);
+        return new npc_yennikuAI(creature);
     }
 
-    struct mob_yennikuAI : public ScriptedAI
+    struct npc_yennikuAI : public ScriptedAI
     {
-        mob_yennikuAI(Creature* creature) : ScriptedAI(creature)
+        npc_yennikuAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             bReset = false;
+        }
+
+        void Initialize()
+        {
+            Reset_Timer = 0;
         }
 
         uint32 Reset_Timer;
         bool bReset;
 
-        void Reset()
+        void Reset() override
         {
-            Reset_Timer = 0;
+            Initialize();
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
             if (bReset || spell->Id != 3607)
                 return;
@@ -82,9 +88,9 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (bReset)
             {
@@ -100,7 +106,7 @@ public:
 
                 if (me->IsInCombat() && me->GetVictim())
                 {
-                    if (Player* player = me->GetVictim()->ToPlayer())
+                    if (Player* player = me->EnsureVictim()->ToPlayer())
                     {
                         if (player->GetTeam() == HORDE)
                         {
@@ -126,5 +132,5 @@ public:
 
 void AddSC_stranglethorn_vale()
 {
-    new mob_yenniku();
+    new npc_yenniku();
 }

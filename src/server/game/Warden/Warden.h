@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,11 +57,7 @@ enum WardenCheckType
     MODULE_CHECK            = 0xD9  // 217: uint Seed + byte[20] SHA1 (check to ensure module isn't injected)
 };
 
-#if defined(__GNUC__)
-#pragma pack(1)
-#else
 #pragma pack(push, 1)
-#endif
 
 struct WardenModuleUse
 {
@@ -84,11 +80,7 @@ struct WardenHashRequest
     uint8 Seed[16];
 };
 
-#if defined(__GNUC__)
-#pragma pack()
-#else
 #pragma pack(pop)
-#endif
 
 struct ClientWardenModule
 {
@@ -100,7 +92,7 @@ struct ClientWardenModule
 
 class WorldSession;
 
-class Warden
+class TC_GAME_API Warden
 {
     friend class WardenWin;
     friend class WardenMac;

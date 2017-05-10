@@ -52,6 +52,9 @@ public:
 
     ParseError(const std::string& f, int64 b, const std::string& m) :
         filename (f),  byte(b), line(UNKNOWN), character(UNKNOWN), message(m) {}
+
+    /** If information is known, ends in ": ", otherwise empty */
+    std::string formatFileInfo() const;
 };
 
 }

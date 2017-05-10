@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,7 +37,7 @@ class go_barrel_old_hillsbrad : public GameObjectScript
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go)
+    bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
         if (InstanceScript* instance = go->GetInstanceScript())
         {
@@ -71,35 +71,27 @@ enum LieutenantDrake
     SPELL_FRIGHTENING_SHOUT = 33789
 };
 
-struct Location
+G3D::Vector3 const DrakeWP[]=
 {
-    uint32 wpId;
-    float x;
-    float y;
-    float z;
-};
-
-static Location DrakeWP[]=
-{
-    {0, 2125.84f, 88.2535f, 54.8830f},
-    {1, 2111.01f, 93.8022f, 52.6356f},
-    {2, 2106.70f, 114.753f, 53.1965f},
-    {3, 2107.76f, 138.746f, 52.5109f},
-    {4, 2114.83f, 160.142f, 52.4738f},
-    {5, 2125.24f, 178.909f, 52.7283f},
-    {6, 2151.02f, 208.901f, 53.1551f},
-    {7, 2177.00f, 233.069f, 52.4409f},
-    {8, 2190.71f, 227.831f, 53.2742f},
-    {9, 2178.14f, 214.219f, 53.0779f},
-    {10, 2154.99f, 202.795f, 52.6446f},
-    {11, 2132.00f, 191.834f, 52.5709f},
-    {12, 2117.59f, 166.708f, 52.7686f},
-    {13, 2093.61f, 139.441f, 52.7616f},
-    {14, 2086.29f, 104.950f, 52.9246f},
-    {15, 2094.23f, 81.2788f, 52.6946f},
-    {16, 2108.70f, 85.3075f, 53.3294f},
-    {17, 2125.50f, 88.9481f, 54.7953f},
-    {18, 2128.20f, 70.9763f, 64.4221f}
+    { 2125.84f, 88.2535f, 54.8830f },
+    { 2111.01f, 93.8022f, 52.6356f },
+    { 2106.70f, 114.753f, 53.1965f },
+    { 2107.76f, 138.746f, 52.5109f },
+    { 2114.83f, 160.142f, 52.4738f },
+    { 2125.24f, 178.909f, 52.7283f },
+    { 2151.02f, 208.901f, 53.1551f },
+    { 2177.00f, 233.069f, 52.4409f },
+    { 2190.71f, 227.831f, 53.2742f },
+    { 2178.14f, 214.219f, 53.0779f },
+    { 2154.99f, 202.795f, 52.6446f },
+    { 2132.00f, 191.834f, 52.5709f },
+    { 2117.59f, 166.708f, 52.7686f },
+    { 2093.61f, 139.441f, 52.7616f },
+    { 2086.29f, 104.950f, 52.9246f },
+    { 2094.23f, 81.2788f, 52.6946f },
+    { 2108.70f, 85.3075f, 53.3294f },
+    { 2125.50f, 88.9481f, 54.7953f },
+    { 2128.20f, 70.9763f, 64.4221f }
 };
 
 class boss_lieutenant_drake : public CreatureScript
@@ -107,24 +99,19 @@ class boss_lieutenant_drake : public CreatureScript
 public:
     boss_lieutenant_drake() : CreatureScript("boss_lieutenant_drake") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_lieutenant_drakeAI (creature);
+        return new boss_lieutenant_drakeAI(creature);
     }
 
     struct boss_lieutenant_drakeAI : public ScriptedAI
     {
-        boss_lieutenant_drakeAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_lieutenant_drakeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        bool CanPatrol;
-        uint32 wpId;
-
-        uint32 Whirlwind_Timer;
-        uint32 Fear_Timer;
-        uint32 MortalStrike_Timer;
-        uint32 ExplodingShout_Timer;
-
-        void Reset()
+        void Initialize()
         {
             CanPatrol = true;
             wpId = 0;
@@ -135,27 +122,40 @@ public:
             ExplodingShout_Timer = 25000;
         }
 
-        void EnterCombat(Unit* /*who*/)
+        bool CanPatrol;
+        uint32 wpId;
+
+        uint32 Whirlwind_Timer;
+        uint32 Fear_Timer;
+        uint32 MortalStrike_Timer;
+        uint32 ExplodingShout_Timer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_SLAY);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             /// @todo make this work
             if (CanPatrol && wpId == 0)
             {
-                me->GetMotionMaster()->MovePoint(DrakeWP[0].wpId, DrakeWP[0].x, DrakeWP[0].y, DrakeWP[0].z);
+                me->GetMotionMaster()->MovePoint(wpId, DrakeWP[wpId].x, DrakeWP[wpId].y, DrakeWP[wpId].z);
                 ++wpId;
             }
 
@@ -166,24 +166,24 @@ public:
             //Whirlwind
             if (Whirlwind_Timer <= diff)
             {
-                DoCast(me->GetVictim(), SPELL_WHIRLWIND);
-                Whirlwind_Timer = 20000+rand()%5000;
+                DoCastVictim(SPELL_WHIRLWIND);
+                Whirlwind_Timer = 20000 + rand32() % 5000;
             } else Whirlwind_Timer -= diff;
 
             //Fear
             if (Fear_Timer <= diff)
             {
                 Talk(SAY_SHOUT);
-                DoCast(me->GetVictim(), SPELL_FRIGHTENING_SHOUT);
-                Fear_Timer = 25000+rand()%10000;
+                DoCastVictim(SPELL_FRIGHTENING_SHOUT);
+                Fear_Timer = 25000 + rand32() % 10000;
             } else Fear_Timer -= diff;
 
             //Mortal Strike
             if (MortalStrike_Timer <= diff)
             {
                 Talk(SAY_MORTAL);
-                DoCast(me->GetVictim(), SPELL_MORTAL_STRIKE);
-                MortalStrike_Timer = 20000+rand()%10000;
+                DoCastVictim(SPELL_MORTAL_STRIKE);
+                MortalStrike_Timer = 20000 + rand32() % 10000;
             } else MortalStrike_Timer -= diff;
 
             DoMeleeAttackIfReady();

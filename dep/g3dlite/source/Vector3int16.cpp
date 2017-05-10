@@ -46,4 +46,14 @@ std::string Vector3int16::toString() const {
     return G3D::format("(%d, %d, %d)", x, y, z);
 }
 
+    
+Vector3int16 Vector3int16::floor(const Vector3& v) {
+    return Vector3int16(iFloor(v.x), iFloor(v.y), iFloor(v.z));
+}
+
+
+Vector3int16 Vector3int16::ceil(const Vector3& v) {
+    return Vector3int16(iCeil(v.x), iCeil(v.y), iCeil(v.z));
+}
+
 }

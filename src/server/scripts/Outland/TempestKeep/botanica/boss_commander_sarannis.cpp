@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,15 +50,23 @@ class boss_commander_sarannis : public CreatureScript
 
         struct boss_commander_sarannisAI : public BossAI
         {
-            boss_commander_sarannisAI(Creature* creature) : BossAI(creature, DATA_COMMANDER_SARANNIS) { }
-
-            void Reset()
+            boss_commander_sarannisAI(Creature* creature) : BossAI(creature, DATA_COMMANDER_SARANNIS)
             {
-                _Reset();
+                Initialize();
+            }
+
+            void Initialize()
+            {
                 _phase = true;
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void Reset() override
+            {
+                _Reset();
+                Initialize();
+            }
+
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -66,18 +74,18 @@ class boss_commander_sarannis : public CreatureScript
                 events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 15200);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(SAY_KILL);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage)
+            void DamageTaken(Unit* /*killer*/, uint32 &damage) override
             {
                 if (me->HealthBelowPctDamaged(50, damage) && _phase)
                 {
@@ -88,12 +96,12 @@ class boss_commander_sarannis : public CreatureScript
                 }
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                 BossAI::JustSummoned(summon);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -120,6 +128,9 @@ class boss_commander_sarannis : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -129,7 +140,7 @@ class boss_commander_sarannis : public CreatureScript
             bool _phase;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new boss_commander_sarannisAI(creature);
         }
@@ -167,13 +178,13 @@ class spell_commander_sarannis_summon_reinforcements : public SpellScriptLoader
                     GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_RESERVIST, PosSummonReinforcements[3], TEMPSUMMON_CORPSE_DESPAWN);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_commander_sarannis_summon_reinforcements_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_commander_sarannis_summon_reinforcements_SpellScript();
         }

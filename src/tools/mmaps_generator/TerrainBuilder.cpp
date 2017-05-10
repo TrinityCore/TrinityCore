@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,13 +18,11 @@
 
 #include "TerrainBuilder.h"
 
-#include "PathCommon.h"
 #include "MapBuilder.h"
 
 #include "VMapManager2.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
-#include <vector>
 
 // ******************************************
 // Map file format defines
@@ -82,7 +80,7 @@ struct map_liquidHeader
 namespace MMAP
 {
 
-    char const* MAP_VERSION_MAGIC = "v1.3";
+    char const* MAP_VERSION_MAGIC = "v1.8";
 
     TerrainBuilder::TerrainBuilder(bool skipLiquid) : m_skipLiquid (skipLiquid){ }
     TerrainBuilder::~TerrainBuilder() { }
@@ -136,7 +134,7 @@ namespace MMAP
     bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, Spot portion)
     {
         char mapFileName[255];
-        sprintf(mapFileName, "maps/%03u%02u%02u.map", mapID, tileY, tileX);
+        sprintf(mapFileName, "maps/%04u_%02u_%02u.map", mapID, tileY, tileX);
 
         FILE* mapFile = fopen(mapFileName, "rb");
         if (!mapFile)
@@ -170,7 +168,7 @@ namespace MMAP
         }
 
         // data used later
-        uint16 holes[16][16];
+        uint8 holes[16][16][8];
         memset(holes, 0, sizeof(holes));
         uint8 liquid_type[16][16];
         memset(liquid_type, 0, sizeof(liquid_type));
@@ -260,7 +258,8 @@ namespace MMAP
                 meshData.solidVerts.append(coord[1]);
             }
 
-            int indices[3], loopStart = 0, loopEnd = 0, loopInc = 0;
+            int indices[] = { 0, 0, 0 };
+            int loopStart = 0, loopEnd = 0, loopInc = 0;
             getLoopVars(portion, loopStart, loopEnd, loopInc);
             for (int i = loopStart; i < loopEnd; i+=loopInc)
                 for (int j = TOP; j <= BOTTOM; j+=1)
@@ -340,7 +339,8 @@ namespace MMAP
 
                 delete [] liquid_map;
 
-                int indices[3], loopStart = 0, loopEnd = 0, loopInc = 0, triInc = BOTTOM-TOP;
+                int indices[] = { 0, 0, 0 };
+                int loopStart = 0, loopEnd = 0, loopInc = 0, triInc = BOTTOM-TOP;
                 getLoopVars(portion, loopStart, loopEnd, loopInc);
 
                 // generate triangles
@@ -599,22 +599,17 @@ namespace MMAP
         coord[2] = v[index2];
     }
 
-    static uint16 holetab_h[4] = {0x1111, 0x2222, 0x4444, 0x8888};
-    static uint16 holetab_v[4] = {0x000F, 0x00F0, 0x0F00, 0xF000};
-
     /**************************************************************************/
-    bool TerrainBuilder::isHole(int square, const uint16 holes[16][16])
+    bool TerrainBuilder::isHole(int square, uint8 const holes[16][16][8])
     {
         int row = square / 128;
         int col = square % 128;
         int cellRow = row / 8;     // 8 squares per cell
         int cellCol = col / 8;
-        int holeRow = row % 8 / 2;
-        int holeCol = (square - (row * 128 + cellCol * 8)) / 2;
+        int holeRow = row % 8;
+        int holeCol = (square - (row * 128 + cellCol * 8));
 
-        uint16 hole = holes[cellRow][cellCol];
-
-        return (hole & holetab_h[holeCol] & holetab_v[holeRow]) != 0;
+        return (holes[cellRow][cellCol][holeRow] & (1 << holeCol)) != 0;
     }
 
     /**************************************************************************/
@@ -710,7 +705,7 @@ namespace MMAP
                         uint8 type = NAV_EMPTY;
 
                         // convert liquid type to NavTerrain
-                        switch (liquid->GetType())
+                        switch (liquid->GetType() & 3)
                         {
                         case 0:
                         case 1:
@@ -904,7 +899,7 @@ namespace MMAP
             float p0[3], p1[3];
             uint32 mid, tx, ty;
             float size;
-            if (sscanf(buf, "%d %d,%d (%f %f %f) (%f %f %f) %f", &mid, &tx, &ty,
+            if (sscanf(buf, "%u %u,%u (%f %f %f) (%f %f %f) %f", &mid, &tx, &ty,
                 &p0[0], &p0[1], &p0[2], &p1[0], &p1[1], &p1[2], &size) != 10)
                 continue;
 

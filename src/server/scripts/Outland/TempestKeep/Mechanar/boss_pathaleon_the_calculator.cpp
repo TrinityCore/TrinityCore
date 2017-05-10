@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,13 +69,13 @@ enum Creatures
 class boss_pathaleon_the_calculator : public CreatureScript
 {
     public:
-        boss_pathaleon_the_calculator(): CreatureScript("boss_pathaleon_the_calculator") {}
+        boss_pathaleon_the_calculator(): CreatureScript("boss_pathaleon_the_calculator") { }
 
         struct boss_pathaleon_the_calculatorAI : public BossAI
         {
             boss_pathaleon_the_calculatorAI(Creature* creature) : BossAI(creature, DATA_PATHALEON_THE_CALCULATOR) { }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
@@ -86,18 +86,18 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* /*victim*/) override
             {
                 Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 if (me->HealthBelowPctDamaged(20, damage) && !me->HasAura(SPELL_FRENZY))
                 {
@@ -106,7 +106,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -152,34 +152,35 @@ class boss_pathaleon_the_calculator : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_pathaleon_the_calculatorAI (creature);
+            return new boss_pathaleon_the_calculatorAI(creature);
         }
 };
 
-class mob_nether_wraith : public CreatureScript
+class npc_nether_wraith : public CreatureScript
 {
     public:
 
-        mob_nether_wraith() : CreatureScript("mob_nether_wraith") { }
+        npc_nether_wraith() : CreatureScript("npc_nether_wraith") { }
 
-        struct mob_nether_wraithAI : public ScriptedAI
+        struct npc_nether_wraithAI : public ScriptedAI
         {
-            mob_nether_wraithAI(Creature* creature) : ScriptedAI(creature) {}
+            npc_nether_wraithAI(Creature* creature) : ScriptedAI(creature)
+            {
+                Initialize();
+            }
 
-            uint32 ArcaneMissiles_Timer;
-            uint32 Detonation_Timer;
-            uint32 Die_Timer;
-            bool Detonation;
-
-            void Reset()
+            void Initialize()
             {
                 ArcaneMissiles_Timer = urand(1000, 4000);
                 Detonation_Timer = 20000;
@@ -187,9 +188,19 @@ class mob_nether_wraith : public CreatureScript
                 Detonation = false;
             }
 
-            void EnterCombat(Unit* /*who*/) {}
+            uint32 ArcaneMissiles_Timer;
+            uint32 Detonation_Timer;
+            uint32 Die_Timer;
+            bool Detonation;
 
-            void UpdateAI(uint32 diff)
+            void Reset() override
+            {
+                Initialize();
+            }
+
+            void EnterCombat(Unit* /*who*/) override { }
+
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -199,7 +210,7 @@ class mob_nether_wraith : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_ARCANE_MISSILES);
                     else
-                        DoCast(me->GetVictim(), SPELL_ARCANE_MISSILES);
+                        DoCastVictim(SPELL_ARCANE_MISSILES);
                     ArcaneMissiles_Timer = urand(5000, 10000);
                 }
                 else
@@ -230,15 +241,15 @@ class mob_nether_wraith : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new mob_nether_wraithAI (creature);
+            return new npc_nether_wraithAI(creature);
         }
 };
 
 void AddSC_boss_pathaleon_the_calculator()
 {
     new boss_pathaleon_the_calculator();
-    new mob_nether_wraith();
+    new npc_nether_wraith();
 }
 

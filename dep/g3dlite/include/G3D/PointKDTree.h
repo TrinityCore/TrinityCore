@@ -4,15 +4,15 @@
   @maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
   @created 2004-01-11
-  @edited  2008-11-02
+  @edited  2012-07-30
 
-  Copyright 2000-2009, Morgan McGuire.
+  Copyright 2000-2012, Morgan McGuire.
   All rights reserved.
   
   */
 
-#ifndef X_PointKDTree_H
-#define X_PointKDTree_H
+#ifndef G3D_PointKDTree_h
+#define G3D_PointKDTree_h
 
 #include "G3D/platform.h"
 #include "G3D/Array.h"
@@ -26,7 +26,7 @@
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
 #include "G3D/CollisionDetection.h"
-#include "G3D/GCamera.h"
+#include "G3D/Frustum.h"
 #include "G3D/PositionTrait.h"
 #include <algorithm>
 
@@ -234,36 +234,38 @@ protected:
         }
 
 
-	    void verifyNode(const Vector3& lo, const Vector3& hi) {
-            //		debugPrintf("Verifying: split %d @ %f [%f, %f, %f], [%f, %f, %f]\n",
-            //			    splitAxis, splitLocation, lo.x, lo.y, lo.z, hi.x, hi.y, hi.z);
+        void verifyNode(const Vector3& lo, const Vector3& hi) {
+            //        debugPrintf("Verifying: split %d @ %f [%f, %f, %f], [%f, %f, %f]\n",
+            //                splitAxis, splitLocation, lo.x, lo.y, lo.z, hi.x, hi.y, hi.z);
 
             debugAssert(lo == splitBounds.low());
             debugAssert(hi == splitBounds.high());
 
-		    for (int i = 0; i < valueArray.length(); ++i) {
-			    const Vector3& b = valueArray[i].position();
+#           ifdef G3D_DEBUG
+            for (int i = 0; i < valueArray.length(); ++i) {
+                const Vector3& b = valueArray[i].position();
                 debugAssert(splitBounds.contains(b));
-		    }
+            }
+#           endif
 
-		    if (child[0] || child[1]) {
-			    debugAssert(lo[splitAxis] < splitLocation);
-			    debugAssert(hi[splitAxis] > splitLocation);
-		    }
+            if (child[0] || child[1]) {
+                debugAssert(lo[splitAxis] < splitLocation);
+                debugAssert(hi[splitAxis] > splitLocation);
+            }
 
-		    Vector3 newLo = lo;
-		    newLo[splitAxis] = splitLocation;
-		    Vector3 newHi = hi;
-		    newHi[splitAxis] = splitLocation;
+            Vector3 newLo = lo;
+            newLo[splitAxis] = splitLocation;
+            Vector3 newHi = hi;
+            newHi[splitAxis] = splitLocation;
 
-		    if (child[0] != NULL) {
-			    child[0]->verifyNode(lo, newHi);
-		    }
+            if (child[0] != NULL) {
+                child[0]->verifyNode(lo, newHi);
+            }
 
-		    if (child[1] != NULL) {
-			    child[1]->verifyNode(newLo, hi);
-		    }
-	    }
+            if (child[1] != NULL) {
+                child[1]->verifyNode(newLo, hi);
+            }
+        }
 
 
         /**
@@ -297,6 +299,7 @@ protected:
                 for (int c = 0; c < 2; ++c) {
                     n->child[c] = deserializeStructure(bi);
                 }
+                return n;
             }
         }
 
@@ -484,7 +487,7 @@ protected:
                 // Compute the mean along the axis
 
                 splitLocation = (bounds.high()[splitAxis] + 
-                                 bounds.low()[splitAxis]) / 2.0;
+                                 bounds.low()[splitAxis]) / 2.0f;
 
                 Handle splitHandle;
                 Vector3 v;
@@ -525,10 +528,10 @@ protected:
             for(int i = 0; i < node->valueArray.size(); ++i) {
                 memberTable.set(node->valueArray[i].value, node);
             }
-		    
-	    }
-	    
-	    return node;
+            
+        }
+        
+        return node;
     }
 
     /**
@@ -611,7 +614,7 @@ public:
     }
 
 
-    int size() const {
+    size_t size() const {
         return memberTable.size();
     }
 
@@ -809,7 +812,7 @@ private:
 
                 // Test values at this node against remaining planes
                 for (int p = 0; p < plane.size(); ++p) {
-                    if ((parentMask >> p) & 1 != 0) {
+                    if (((parentMask >> p) & 1) != 0) {
                         // Test against this plane
                         const Plane& curPlane = plane[p];
                         for (int v = node->valueArray.size() - 1; v >= 0; --v) {
@@ -851,7 +854,7 @@ public:
 
     /**
      Typically used to find all visible
-     objects inside the view frustum (see also GCamera::getClipPlanes)... i.e. all objects
+     objects inside the view frustum (see also Camera::getClipPlanes)... i.e. all objects
      <B>not</B> culled by frustum.
 
      Example:
@@ -862,7 +865,7 @@ public:
       </PRE>
       @param members The results are appended to this array.
       */
-    void getIntersectingMembers(const GCamera::Frustum& frustum, Array<T>& members) const {
+    void getIntersectingMembers(const Frustum& frustum, Array<T>& members) const {
         Array<Plane> plane;
         
         for (int i = 0; i < frustum.faceArray.size(); ++i) {
@@ -960,51 +963,51 @@ public:
         BoxIntersectionIterator& operator++() {
             ++nextValueArrayIndex;
 
-			bool foundIntersection = false;
+            bool foundIntersection = false;
             while (! isEnd && ! foundIntersection) {
 
-				// Search for the next node if we've exhausted this one
+                // Search for the next node if we've exhausted this one
                 while ((! isEnd) &&  (nextValueArrayIndex >= node->valueArray.length())) {
-					// If we entered this loop, then the iterator has exhausted the elements at 
-					// node (possibly because it just switched to a child node with no members).
-					// This loop continues until it finds a node with members or reaches
-					// the end of the whole intersection search.
+                    // If we entered this loop, then the iterator has exhausted the elements at 
+                    // node (possibly because it just switched to a child node with no members).
+                    // This loop continues until it finds a node with members or reaches
+                    // the end of the whole intersection search.
 
-					// If the right child overlaps the box, push it onto the stack for
-					// processing.
-					if ((node->child[1] != NULL) &&
-						(box.high()[node->splitAxis] > node->splitLocation)) {
-						stack.push(node->child[1]);
-					}
+                    // If the right child overlaps the box, push it onto the stack for
+                    // processing.
+                    if ((node->child[1] != NULL) &&
+                        (box.high()[node->splitAxis] > node->splitLocation)) {
+                        stack.push(node->child[1]);
+                    }
                 
-					// If the left child overlaps the box, push it onto the stack for
-					// processing.
-					if ((node->child[0] != NULL) &&
-						(box.low()[node->splitAxis] < node->splitLocation)) {
-						stack.push(node->child[0]);
-					}
+                    // If the left child overlaps the box, push it onto the stack for
+                    // processing.
+                    if ((node->child[0] != NULL) &&
+                        (box.low()[node->splitAxis] < node->splitLocation)) {
+                        stack.push(node->child[0]);
+                    }
 
-					if (stack.length() > 0) {
-						// Go on to the next node (which may be either one of the ones we 
-						// just pushed, or one from farther back the tree).
-						node = stack.pop();
-						nextValueArrayIndex = 0;
-					} else {
-						// That was the last node; we're done iterating
-						isEnd = true;
-					}
-				}
+                    if (stack.length() > 0) {
+                        // Go on to the next node (which may be either one of the ones we 
+                        // just pushed, or one from farther back the tree).
+                        node = stack.pop();
+                        nextValueArrayIndex = 0;
+                    } else {
+                        // That was the last node; we're done iterating
+                        isEnd = true;
+                    }
+                }
 
-				// Search for the next intersection at this node until we run out of children
-				while (! isEnd && ! foundIntersection && (nextValueArrayIndex < node->valueArray.length())) {
-					if (box.intersects(node->valueArray[nextValueArrayIndex].bounds)) {
-						foundIntersection = true;
-					} else {
-						++nextValueArrayIndex;
-						// If we exhaust this node, we'll loop around the master loop 
-						// to find a new node.
-					}
-				}
+                // Search for the next intersection at this node until we run out of children
+                while (! isEnd && ! foundIntersection && (nextValueArrayIndex < node->valueArray.length())) {
+                    if (box.intersects(node->valueArray[nextValueArrayIndex].bounds)) {
+                        foundIntersection = true;
+                    } else {
+                        ++nextValueArrayIndex;
+                        // If we exhaust this node, we'll loop around the master loop 
+                        // to find a new node.
+                    }
+                }
             }
 
             return *this;

@@ -1,0 +1,22 @@
+--
+UPDATE `creature` SET `spawnMask`=1 WHERE `spawnMask`=3 AND `map`=607;
+UPDATE `creature` SET `spawnMask`=1 WHERE `spawnMask`=3 AND `map`=628;
+UPDATE `creature` SET `spawnMask`=2 WHERE `spawnMask`=1 AND `map`=230;
+UPDATE `creature` SET `spawnMask`=2 WHERE `spawnMask`=1 AND `map`=349;
+UPDATE `creature` SET `spawnMask`=2 WHERE `spawnMask`=1 AND `map`=429;
+UPDATE `creature` SET `spawnMask`=24 WHERE `spawnMask`=1 AND `map`=33;
+UPDATE `creature` SET `spawnMask`=6 WHERE `spawnMask`=3 AND `map`=552;
+UPDATE `creature` SET `spawnMask`=6 WHERE `spawnMask`=3 AND `map`=552;
+UPDATE `creature` SET `spawnMask`=6 WHERE `spawnMask`=3 AND `map`=547;
+UPDATE `creature` SET `spawnMask`=6 WHERE `spawnMask`=3 AND `map`=552;
+UPDATE `creature` SET `spawnMask`=6 WHERE `spawnMask`=3 AND `map`=574;
+UPDATE `creature` SET `spawnMask`=6 WHERE `spawnMask`=3 AND `map`=576;
+UPDATE `creature` SET `spawnMask`=6 WHERE `spawnMask`=3 AND `map`=600;
+UPDATE `creature` SET `spawnMask`=6 WHERE `spawnMask`=3 AND `map`=602;
+UPDATE `creature` SET `spawnMask`=8 WHERE `spawnMask`=1 AND `map`=509;
+UPDATE `creature` SET `spawnMask`=8 WHERE `spawnMask`=1 AND `map`=532;
+UPDATE `creature` SET `spawnMask`=16 WHERE `spawnMask`=1 AND `map`=550;
+UPDATE `creature` SET `spawnMask`=120 WHERE `spawnMask`=15 AND `map`=631;
+UPDATE `creature` SET `spawnMask`=120 WHERE `spawnMask`=1 AND `map`=724;
+UPDATE `creature` SET `spawnMask`=248 WHERE `spawnMask`=3 AND `map`=967;
+UPDATE `creature` SET `spawnMask`=512 WHERE `spawnMask`=1 AND `map`=531;

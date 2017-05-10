@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,9 +48,9 @@ class boss_the_ravenian : public CreatureScript
 
         struct boss_theravenianAI : public BossAI
         {
-            boss_theravenianAI(Creature* creature) : BossAI(creature, DATA_THERAVENIAN) {}
+            boss_theravenianAI(Creature* creature) : BossAI(creature, DATA_THERAVENIAN) { }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 _EnterCombat();
                 events.ScheduleEvent(EVENT_TRAMPLE, 24000);
@@ -59,7 +59,7 @@ class boss_the_ravenian : public CreatureScript
                 events.ScheduleEvent(EVENT_KNOCKAWAY, 32000);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
@@ -92,15 +92,18 @@ class boss_the_ravenian : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_theravenianAI (creature);
+            return new boss_theravenianAI(creature);
         }
 };
 

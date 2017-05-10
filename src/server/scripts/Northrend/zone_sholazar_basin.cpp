@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,12 +18,11 @@
 /* ScriptData
 SDName: Sholazar_Basin
 SD%Complete: 100
-SDComment: Quest support: 12570, 12573, 12621, 12726
+SDComment: Quest support: 12573, 12621, 12726
 SDCategory: Sholazar_Basin
 EndScriptData */
 
 /* ContentData
-npc_injured_rainspeaker_oracle
 npc_vekjik
 avatar_of_freya
 npc_haiphoon (Quest: "Song of Wind and Water")
@@ -40,149 +39,13 @@ EndContentData */
 #include "Player.h"
 
 /*######
-## npc_injured_rainspeaker_oracle
-######*/
-
-#define GOSSIP_ITEM1 "I am ready to travel to your village now."
-
-enum eRainspeaker
-{
-    SAY_START_IRO                       = 0,
-    SAY_QUEST_ACCEPT_IRO                = 1,
-    SAY_END_IRO                         = 2,
-
-    QUEST_FORTUNATE_MISUNDERSTANDINGS   = 12570,
-    FACTION_ESCORTEE_A                  = 774,
-    FACTION_ESCORTEE_H                  = 775
-};
-
-class npc_injured_rainspeaker_oracle : public CreatureScript
-{
-public:
-    npc_injured_rainspeaker_oracle() : CreatureScript("npc_injured_rainspeaker_oracle") { }
-
-    struct npc_injured_rainspeaker_oracleAI : public npc_escortAI
-    {
-        npc_injured_rainspeaker_oracleAI(Creature* creature) : npc_escortAI(creature) { c_guid = creature->GetGUID(); }
-
-        uint64 c_guid;
-
-        void Reset()
-        {
-            me->RestoreFaction();
-            // if we will have other way to assign this to only one npc remove this part
-            if (GUID_LOPART(me->GetGUID()) != 101030)
-            {
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            }
-        }
-
-        void WaypointReached(uint32 waypointId)
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 1:
-                    SetRun();
-                    break;
-                case 10:
-                case 11:
-                case 12:
-                case 13:
-                case 14:
-                case 15:
-                case 16:
-                case 17:
-                case 18:
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
-                    me->SetSpeed(MOVE_SWIM, 0.85f, true);
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_DISABLE_GRAVITY);
-                    break;
-                case 19:
-                    me->SetUnitMovementFlags(MOVEMENTFLAG_FALLING);
-                    break;
-                case 28:
-                    player->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, me);
-                    // me->RestoreFaction();
-                    Talk(SAY_END_IRO);
-                    SetRun(false);
-                    break;
-            }
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            if (!HasEscortState(STATE_ESCORT_ESCORTING))
-                return;
-
-            if (Player* player = GetPlayerForEscort())
-            {
-                if (player->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) != QUEST_STATUS_COMPLETE)
-                    player->FailQuest(QUEST_FORTUNATE_MISUNDERSTANDINGS);
-            }
-        }
-    };
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_FORTUNATE_MISUNDERSTANDINGS) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-            CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(35.0f);
-            creature->SetUnitMovementFlags(MOVEMENTFLAG_FALLING);
-            creature->AI()->Talk(SAY_START_IRO);
-
-            switch (player->GetTeam()){
-            case ALLIANCE:
-                creature->setFaction(FACTION_ESCORTEE_A);
-                break;
-            case HORDE:
-                creature->setFaction(FACTION_ESCORTEE_H);
-                break;
-            }
-        }
-        return true;
-    }
-
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* /*_Quest*/)
-    {
-        creature->AI()->Talk(SAY_QUEST_ACCEPT_IRO);
-        return false;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_injured_rainspeaker_oracleAI(creature);
-    }
-};
-
-/*######
 ## npc_vekjik
 ######*/
 
 #define GOSSIP_VEKJIK_ITEM1 "Shaman Vekjik, I have spoken with the big-tongues and they desire peace. I have brought this offering on their behalf."
 #define GOSSIP_VEKJIK_ITEM2 "No no... I had no intentions of betraying your people. I was only defending myself. it was all a misunderstanding."
 
-enum eVekjik
+enum Vekjik
 {
     GOSSIP_TEXTID_VEKJIK1       = 13137,
     GOSSIP_TEXTID_VEKJIK2       = 13138,
@@ -199,34 +62,34 @@ class npc_vekjik : public CreatureScript
 public:
     npc_vekjik() : CreatureScript("npc_vekjik") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(QUEST_MAKING_PEACE) == QUEST_STATUS_INCOMPLETE)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_VEKJIK1, creature->GetGUID());
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            SendGossipMenuFor(player, GOSSIP_TEXTID_VEKJIK1, creature->GetGUID());
             return true;
         }
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_VEKJIK2, creature->GetGUID());
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                SendGossipMenuFor(player, GOSSIP_TEXTID_VEKJIK2, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                player->CLOSE_GOSSIP_MENU();
-                creature->AI()->Talk(SAY_TEXTID_VEKJIK1, player->GetGUID());
+                CloseGossipMenuFor(player);
+                creature->AI()->Talk(SAY_TEXTID_VEKJIK1, player);
                 player->AreaExploredOrEventHappens(QUEST_MAKING_PEACE);
                 creature->CastSpell(player, SPELL_FREANZYHEARTS_FURY, false);
                 break;
@@ -244,7 +107,7 @@ public:
 #define GOSSIP_ITEM_AOF2 "You can trust me. I am no friend of the Lich King."
 #define GOSSIP_ITEM_AOF3 "I will not fail."
 
-enum eFreya
+enum Freya
 {
     QUEST_FREYA_PACT         = 12621,
 
@@ -260,34 +123,34 @@ class npc_avatar_of_freya : public CreatureScript
 public:
     npc_avatar_of_freya() : CreatureScript("npc_avatar_of_freya") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(QUEST_FREYA_PACT) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR1, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         switch (action)
         {
         case GOSSIP_ACTION_INFO_DEF+1:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR2, creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
             player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR3, creature->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+3:
             player->CastSpell(player, SPELL_FREYA_CONVERSATION, true);
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             break;
         }
         return true;
@@ -309,7 +172,7 @@ public:
         {
         }
 
-        void InitializeAI()
+        void InitializeAI() override
         {
             if (me->isDead())
                 return;
@@ -321,7 +184,7 @@ public:
             Reset();
         }
 
-        void UpdateAI(uint32 /*uiDiff*/)
+        void UpdateAI(uint32 /*uiDiff*/) override
         {
             if (!UpdateVictim())
                 return;
@@ -330,7 +193,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_bushwhackerAI(creature);
     }
@@ -340,11 +203,13 @@ public:
 ## npc_engineer_helice
 ######*/
 
-enum eEnums
+enum EngineerHelice
 {
+    // Spells
     SPELL_EXPLODE_CRYSTAL       = 62487,
     SPELL_FLAMES                = 64561,
 
+    // Yells
     SAY_WP_1                    = 0,
     SAY_WP_2                    = 1,
     SAY_WP_3                    = 2,
@@ -353,6 +218,7 @@ enum eEnums
     SAY_WP_6                    = 5,
     SAY_WP_7                    = 6,
 
+    // Quests
     QUEST_DISASTER              = 12688
 };
 
@@ -363,11 +229,19 @@ public:
 
     struct npc_engineer_heliceAI : public npc_escortAI
     {
-        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            m_uiChatTimer = 4000;
+        }
 
         uint32 m_uiChatTimer;
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
 
@@ -379,7 +253,7 @@ public:
                 case 1:
                     Talk(SAY_WP_3);
                     me->CastSpell(5918.33f, 5372.91f, -98.770f, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);     //approx 3 to 4 seconds
+                    me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, G3D::Quat(), TEMPSUMMON_MANUAL_DESPAWN);     //approx 3 to 4 seconds
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     break;
                 case 2:
@@ -390,7 +264,7 @@ public:
                     break;
                 case 8:
                     me->CastSpell(5887.37f, 5379.39f, -91.289f, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);      //approx 3 to 4 seconds
+                    me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, G3D::Quat(), TEMPSUMMON_MANUAL_DESPAWN);      //approx 3 to 4 seconds
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     break;
                 case 9:
@@ -406,12 +280,12 @@ public:
             }
         }
 
-        void Reset()
+        void Reset() override
         {
-            m_uiChatTimer = 4000;
+            Initialize();
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
@@ -420,7 +294,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) override
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -436,12 +310,12 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_engineer_heliceAI(creature);
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
         if (quest->GetQuestId() == QUEST_DISASTER)
         {
@@ -463,23 +337,18 @@ public:
 #####*/
 
 #define SAY_OFFER     "Care to try Grimbooze Thunderbrew's new jungle punch?"
-#define SAY_HEMET_1   "Aye, I'll try it."
-#define SAY_HEMET_2   "That's exactly what I needed!"
-#define SAY_HEMET_3   "It's got my vote! That'll put hair on your chest like nothing else will."
-#define SAY_HADRIUS_1 "I'm always up for something of Grimbooze's."
-#define SAY_HADRIUS_2 "Well, so far, it tastes like something my wife would drink..."
-#define SAY_HADRIUS_3 "Now, there's the kick I've come to expect from Grimbooze's drinks! I like it!"
-#define SAY_TAMARA_1  "Sure!"
-#define SAY_TAMARA_2  "Oh my..."
-#define SAY_TAMARA_3  "Tastes like I'm drinking... engine degreaser!"
 
-enum utils
+enum JunglePunch
 {
-    NPC_HEMET                           = 27986,
-    NPC_HADRIUS                         = 28047,
-    NPC_TAMARA                          = 28568,
     SPELL_OFFER                         = 51962,
-    QUEST_ENTRY                         = 12645,
+    QUEST_TASTE_TEST                    = 12645,
+
+    SAY_HEMET_HADRIUS_TAMARA_1          = 0,
+    SAY_HEMET_HADRIUS_TAMARA_2          = 1,
+    SAY_HEMET_HADRIUS_TAMARA_3          = 2,
+
+    SAY_HEMET_4                         = 3, // unused
+    SAY_HEMET_5                         = 4  // unused
 };
 
 enum NesingwaryChildrensWeek
@@ -490,12 +359,12 @@ enum NesingwaryChildrensWeek
 
     ORPHAN_WOLVAR                       = 33532,
 
+    TEXT_NESINGWARY_1                   = 5,
+
     TEXT_WOLVAR_ORPHAN_6                = 6,
     TEXT_WOLVAR_ORPHAN_7                = 7,
     TEXT_WOLVAR_ORPHAN_8                = 8,
-    TEXT_WOLVAR_ORPHAN_9                = 9,
-
-    TEXT_NESINGWARY_1                   = 1,
+    TEXT_WOLVAR_ORPHAN_9                = 9
 };
 
 class npc_jungle_punch_target : public CreatureScript
@@ -505,19 +374,27 @@ public:
 
     struct npc_jungle_punch_targetAI : public ScriptedAI
     {
-        npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-        void Reset()
+        void Initialize()
         {
             sayTimer = 3500;
             sayStep = 0;
             timer = 0;
             phase = 0;
-            playerGUID = 0;
-            orphanGUID = 0;
+            playerGUID.Clear();
+            orphanGUID.Clear();
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!phase && who && who->GetDistance2d(me) < 10.0f)
                 if (Player* player = who->ToPlayer())
@@ -537,8 +414,8 @@ public:
         {
             if (timer <= diff)
             {
-                Player* player = Player::GetPlayer(*me, playerGUID);
-                Creature* orphan = Creature::GetCreature(*me, orphanGUID);
+                Player* player = ObjectAccessor::GetPlayer(*me, playerGUID);
+                Creature* orphan = ObjectAccessor::GetCreature(*me, orphanGUID);
 
                 if (!orphan || !player)
                 {
@@ -549,7 +426,7 @@ public:
                 switch (phase)
                 {
                     case 1:
-                        orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
+                        orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + std::cos(me->GetOrientation()) * 5, me->GetPositionY() + std::sin(me->GetOrientation()) * 5, me->GetPositionZ());
                         orphan->AI()->Talk(TEXT_WOLVAR_ORPHAN_6);
                         timer = 5000;
                         break;
@@ -582,99 +459,54 @@ public:
                 timer -= diff;
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 diff) override
         {
             if (phase)
-                proceedCwEvent(uiDiff);
+                proceedCwEvent(diff);
 
             if (!sayStep)
                 return;
 
-            if (sayTimer < uiDiff)
+            if (sayTimer < diff)
             {
-                switch (sayStep)
-                {
-                    case 0:
-                    {
-                        switch (me->GetEntry())
-                        {
-                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_1, LANG_UNIVERSAL, 0);   break;
-                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_1, LANG_UNIVERSAL, 0); break;
-                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_1, LANG_UNIVERSAL, 0);  break;
-                        }
-                        sayTimer = 3000;
-                        sayStep++;
-                        break;
-                    }
-                    case 1:
-                    {
-                        switch (me->GetEntry())
-                        {
-                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_2, LANG_UNIVERSAL, 0);   break;
-                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_2, LANG_UNIVERSAL, 0); break;
-                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_2, LANG_UNIVERSAL, 0);  break;
-                        }
-                        sayTimer = 3000;
-                        sayStep++;
-                        break;
-                    }
-                    case 2:
-                    {
-                        switch (me->GetEntry())
-                        {
-                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_3, LANG_UNIVERSAL, 0);   break;
-                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_3, LANG_UNIVERSAL, 0); break;
-                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_3, LANG_UNIVERSAL, 0);  break;
-                        }
-                        sayTimer = 3000;
-                        sayStep = 0;
-                        break;
-                    }
-                }
+                Talk(SAY_HEMET_HADRIUS_TAMARA_1 + sayStep - 1);
+                sayTimer = 3000;
+                sayStep++;
+
+                if (sayStep > 3) // end
+                    sayStep = 0;
             }
             else
-                sayTimer -= uiDiff;
+                sayTimer -= diff;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* proto)
+        void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
         {
-            if (!proto || proto->Id != SPELL_OFFER)
+            if (spellInfo->Id != SPELL_OFFER)
                 return;
 
-            if (!caster->ToPlayer())
+            Player* player = caster->ToPlayer();
+            if (!player)
                 return;
 
-            QuestStatusMap::const_iterator itr = caster->ToPlayer()->getQuestStatusMap().find(QUEST_ENTRY);
-            if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
+            Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_TASTE_TEST);
+            if (!quest)
                 return;
 
-            for (uint8 i=0; i<3; i++)
+            if (player->GetQuestStatus(QUEST_TASTE_TEST) != QUEST_STATUS_INCOMPLETE)
+                return;
+
+            for (uint32 i = 0; i < quest->Objectives.size(); ++i)
             {
-                switch (i)
-                {
-                   case 0:
-                       if (NPC_HEMET != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                   case 1:
-                       if (NPC_HADRIUS != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                   case 2:
-                       if (NPC_TAMARA != me->GetEntry())
-                           continue;
-                       else
-                           break;
-                }
-
-                if (itr->second.CreatureOrGOCount[i] != 0)
+                if (uint32(quest->Objectives[i].ObjectID) != me->GetEntry())
                     continue;
 
-                caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), 0);
-                caster->ToPlayer()->Say(SAY_OFFER, LANG_UNIVERSAL);
-                sayStep = 0;
+                if (player->GetQuestObjectiveData(quest, i) != 0)
+                    continue;
+
+                player->KilledMonsterCredit(me->GetEntry());
+                player->Say(SAY_OFFER, LANG_UNIVERSAL);
+                sayStep = 1;
                 break;
             }
         }
@@ -684,11 +516,11 @@ public:
             uint8 sayStep;
             uint32 timer;
             int8 phase;
-            uint64 playerGUID;
-            uint64 orphanGUID;
+            ObjectGuid playerGUID;
+            ObjectGuid orphanGUID;
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_jungle_punch_targetAI(creature);
     }
@@ -702,7 +534,7 @@ public:
 #define GOSSIP_OPTION_BANANAS   "Have a spare bunch of bananas?"
 #define GOSSIP_OPTION_PAPAYA    "I could really use a papaya."
 
-enum eAdventurousDwarf
+enum AdventurousDwarf
 {
     QUEST_12634         = 12634,
 
@@ -733,32 +565,32 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_adventurous_dwarfAI(creature);
     }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetQuestStatus(QUEST_12634) != QUEST_STATUS_INCOMPLETE)
             return false;
 
         if (player->GetItemCount(ITEM_ORANGE) < 1)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OPTION_ORANGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_ORANGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         if (player->GetItemCount(ITEM_BANANAS) < 2)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OPTION_BANANAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_BANANAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
         if (player->GetItemCount(ITEM_PAPAYA) < 1)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OPTION_PAPAYA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_PAPAYA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
         player->PlayerTalkClass->SendGossipMenu(GOSSIP_MENU_DWARF, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         uint32 spellId = 0;
 
         switch (action)
@@ -789,17 +621,17 @@ public:
 
 enum MiscLifewarden
 {
-    NPC_PRESENCE = 28563, // Freya's Presence
-    NPC_SABOTEUR = 28538, // Cultist Saboteur
-    NPC_SERVANT = 28320, // Servant of Freya
+    NPC_PRESENCE                 = 28563, // Freya's Presence
+    NPC_SABOTEUR                 = 28538, // Cultist Saboteur
+    NPC_SERVANT                  = 28320, // Servant of Freya
 
-    WHISPER_ACTIVATE = 0,
+    WHISPER_ACTIVATE             = 0,
 
-    SPELL_FREYA_DUMMY = 51318,
-    SPELL_LIFEFORCE = 51395,
-    SPELL_FREYA_DUMMY_TRIGGER = 51335,
-    SPELL_LASHER_EMERGE = 48195,
-    SPELL_WILD_GROWTH = 52948,
+    SPELL_FREYA_DUMMY            = 51318,
+    SPELL_LIFEFORCE              = 51395,
+    SPELL_FREYA_DUMMY_TRIGGER    = 51335,
+    SPELL_LASHER_EMERGE          = 48195,
+    SPELL_WILD_GROWTH            = 52948,
 };
 
 class spell_q12620_the_lifewarden_wrath : public SpellScriptLoader
@@ -819,7 +651,7 @@ public:
             {
                 if (Creature* presence = caster->FindNearestCreature(NPC_PRESENCE, 50.0f))
                 {
-                    presence->AI()->Talk(WHISPER_ACTIVATE, caster->GetGUID());
+                    presence->AI()->Talk(WHISPER_ACTIVATE, caster);
                     presence->CastSpell(presence, SPELL_FREYA_DUMMY, true); // will target plants
                     // Freya Dummy could be scripted with the following code
 
@@ -851,13 +683,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHit += SpellEffectFn(spell_q12620_the_lifewarden_wrath_SpellScript::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_q12620_the_lifewarden_wrath_SpellScript();
     }
@@ -869,25 +701,25 @@ public:
 
 enum KickWhatKick
 {
-    NPC_LUCKY_WILHELM = 28054,
-    NPC_APPLE = 28053,
-    NPC_DROSTAN = 28328,
-    NPC_CRUNCHY = 28346,
-    NPC_THICKBIRD = 28093,
+    NPC_LUCKY_WILHELM         = 28054,
+    NPC_APPLE                 = 28053,
+    NPC_DROSTAN               = 28328,
+    NPC_CRUNCHY               = 28346,
+    NPC_THICKBIRD             = 28093,
 
-    SPELL_HIT_APPLE = 51331,
-    SPELL_MISS_APPLE = 51332,
-    SPELL_MISS_BIRD_APPLE = 51366,
-    SPELL_APPLE_FALL = 51371,
-    SPELL_BIRD_FALL = 51369,
+    SPELL_HIT_APPLE           = 51331,
+    SPELL_MISS_APPLE          = 51332,
+    SPELL_MISS_BIRD_APPLE     = 51366,
+    SPELL_APPLE_FALL          = 51371,
+    SPELL_BIRD_FALL           = 51369,
 
-    EVENT_MISS = 0,
-    EVENT_HIT = 1,
-    EVENT_MISS_BIRD = 2,
+    EVENT_MISS                = 0,
+    EVENT_HIT                 = 1,
+    EVENT_MISS_BIRD           = 2,
 
-    SAY_WILHELM_MISS = 0,
-    SAY_WILHELM_HIT = 1,
-    SAY_DROSTAN_REPLY_MISS = 0,
+    SAY_WILHELM_MISS          = 0,
+    SAY_WILHELM_HIT           = 1,
+    SAY_DROSTAN_REPLY_MISS    = 0,
 };
 
 class spell_q12589_shoot_rjr : public SpellScriptLoader
@@ -945,9 +777,9 @@ public:
                         wilhelm->AI()->Talk(SAY_WILHELM_MISS);
                         drostan->AI()->Talk(SAY_DROSTAN_REPLY_MISS);
 
-                        bird->Kill(bird);
+                        bird->KillSelf();
                         crunchy->GetMotionMaster()->MovePoint(0, bird->GetPositionX(), bird->GetPositionY(),
-                            bird->GetMap()->GetWaterOrGroundLevel(bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
+                            bird->GetMap()->GetWaterOrGroundLevel(bird->GetPhases(), bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
                         /// @todo Make crunchy perform emote eat when he reaches the bird
 
                         break;
@@ -966,22 +798,20 @@ public:
                     apple->CastSpell(apple, SPELL_APPLE_FALL);
                     wilhelm->AI()->Talk(SAY_WILHELM_HIT);
                     if (Player* player = shooter->ToPlayer())
-                        player->KilledMonsterCredit(NPC_APPLE, 0);
-                    apple->DespawnOrUnsummon();
-
+                        player->KilledMonsterCredit(NPC_APPLE);
                     break;
                 }
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnCheckCast += SpellCheckCastFn(spell_q12589_shoot_rjr_SpellScript::CheckCast);
             OnEffectHitTarget += SpellEffectFn(spell_q12589_shoot_rjr_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_q12589_shoot_rjr_SpellScript();
     }
@@ -995,11 +825,11 @@ may be easily converted to SAI when they get.*/
 enum SongOfWindAndWater
 {
     // Spells
-    SPELL_DEVOUR_WIND = 52862,
-    SPELL_DEVOUR_WATER = 52864,
+    SPELL_DEVOUR_WIND     = 52862,
+    SPELL_DEVOUR_WATER    = 52864,
     // NPCs
-    NPC_HAIPHOON_WATER = 28999,
-    NPC_HAIPHOON_AIR = 28985
+    NPC_HAIPHOON_WATER    = 28999,
+    NPC_HAIPHOON_AIR      = 28985
 };
 
 class npc_haiphoon : public CreatureScript
@@ -1011,7 +841,7 @@ public:
     {
         npc_haiphoonAI(Creature* creature) : VehicleAI(creature) { }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell)
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             if (target == me)
                 return;
@@ -1027,7 +857,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_haiphoonAI(creature);
     }
@@ -1050,7 +880,7 @@ enum ReconnaissanceFlight
     VIC_SAY_6       = 6,
     PLANE_EMOTE     = 0,
 
-    AURA_ENGINE     = 52255, // Engine on Fire
+    SPELL_ENGINE    = 52255, // Engine on Fire
 
     SPELL_LAND      = 52226, // Land Flying Machine
     SPELL_CREDIT    = 53328 // Land Flying Machine Credit
@@ -1063,15 +893,22 @@ public:
 
     struct npc_vics_flying_machineAI : public VehicleAI
     {
-        npc_vics_flying_machineAI(Creature* creature) : VehicleAI(creature) {}
+        npc_vics_flying_machineAI(Creature* creature) : VehicleAI(creature) { }
 
-        void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply)
+        void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
         {
             if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+            {
+                /// @workaround - Because accessory gets unmounted when using vehicle_template_accessory.
+                /// When vehicle spawns accessory is mounted to seat 0,but when player mounts
+                /// he uses the same seat (instead of mounting to seat 1) kicking the accessory out.
+                passenger->ChangeSeat(1, false);
+                me->GetVehicleKit()->InstallAccessory(NPC_PILOT, 0, true, TEMPSUMMON_DEAD_DESPAWN, 0);
                 me->GetMotionMaster()->MovePath(NPC_PLANE, false);
+            }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 id) override
         {
             if (type != WAYPOINT_MOTION_TYPE)
                 return;
@@ -1101,13 +938,14 @@ public:
                         pilot->AI()->Talk(VIC_SAY_6);
                         break;
                     case 25:
-                        me->AI()->Talk(PLANE_EMOTE);
-                        me->AI()->DoCast(AURA_ENGINE);
+                        Talk(PLANE_EMOTE);
+                        DoCast(SPELL_ENGINE);
+                        me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
                         break;
                 }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_LAND)
             {
@@ -1120,18 +958,68 @@ public:
             }
         }
 
-        void UpdateAI(uint32 /*diff*/) {}
+        void UpdateAI(uint32 /*diff*/) override { }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_vics_flying_machineAI(creature);
     }
 };
 
+/*######
+## Quest Dreadsaber Mastery: Stalking the Prey (12550)
+######*/
+
+enum ShangoTracks
+{
+    SPELL_CORRECT_TRACKS   = 52160,
+    SPELL_INCORRECT_TRACKS = 52163,
+    SAY_CORRECT_TRACKS     = 28634,
+    SAY_INCORRECT_TRACKS   = 28635
+};
+
+class spell_shango_tracks : public SpellScriptLoader
+{
+public:
+   spell_shango_tracks() : SpellScriptLoader("spell_shango_tracks") { }
+
+    class spell_shango_tracks_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_shango_tracks_SpellScript);
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* target = GetHitUnit())
+            {
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_CORRECT_TRACKS:
+                        target->Say(SAY_CORRECT_TRACKS, target);
+                        break;
+                    case SPELL_INCORRECT_TRACKS:
+                        target->Say(SAY_INCORRECT_TRACKS, target);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_shango_tracks_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_shango_tracks_SpellScript();
+    }
+};
+
 void AddSC_sholazar_basin()
 {
-    new npc_injured_rainspeaker_oracle();
     new npc_vekjik();
     new npc_avatar_of_freya();
     new npc_bushwhacker();
@@ -1142,4 +1030,5 @@ void AddSC_sholazar_basin()
     new spell_q12589_shoot_rjr();
     new npc_haiphoon();
     new npc_vics_flying_machine();
+    new spell_shango_tracks();
 }

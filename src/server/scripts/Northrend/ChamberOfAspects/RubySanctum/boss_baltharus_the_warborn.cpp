@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "ruby_sanctum.h"
 
@@ -73,19 +73,25 @@ class boss_baltharus_the_warborn : public CreatureScript
         {
             boss_baltharus_the_warbornAI(Creature* creature) : BossAI(creature, DATA_BALTHARUS_THE_WARBORN)
             {
+                Initialize();
                 _introDone = false;
             }
 
-            void Reset()
+            void Initialize()
+            {
+                _cloneCount = RAID_MODE<uint8>(1, 2, 2, 2);
+            }
+
+            void Reset() override
             {
                 _Reset();
                 events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_OOC_CHANNEL, 0, 0, PHASE_INTRO);
-                _cloneCount = RAID_MODE<uint8>(1, 2, 2, 2);
+                Initialize();
                 instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetMaxHealth());
             }
 
-            void DoAction(int32 action)
+            void DoAction(int32 action) override
             {
                 switch (action)
                 {
@@ -110,7 +116,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
                 _EnterCombat();
@@ -122,30 +128,30 @@ class boss_baltharus_the_warborn : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_XERESTRASZA)))
+                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_XERESTRASZA)))
                     xerestrasza->AI()->DoAction(ACTION_BALTHARUS_DEATH);
             }
 
-            void KilledUnit(Unit* victim)
+            void KilledUnit(Unit* victim) override
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
-            void JustSummoned(Creature* summon)
+            void JustSummoned(Creature* summon) override
             {
                 summons.Summon(summon);
                 summon->SetHealth(me->GetHealth());
                 summon->CastSpell(summon, SPELL_SPAWN_EFFECT, true);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                if (GetDifficulty() == DIFFICULTY_10_N)
                 {
                     if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 1)
                         DoAction(ACTION_CLONE);
@@ -162,7 +168,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                     instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetHealth() - damage);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 bool introPhase = events.IsInPhase(PHASE_INTRO);
                 if (!UpdateVictim() && !introPhase)
@@ -184,7 +190,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                             Talk(SAY_BALTHARUS_INTRO);
                             break;
                         case EVENT_OOC_CHANNEL:
-                            if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CRYSTAL_CHANNEL_TARGET)))
+                            if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CRYSTAL_CHANNEL_TARGET)))
                                 DoCast(channelTarget, SPELL_BARRIER_CHANNEL);
                             events.ScheduleEvent(EVENT_OOC_CHANNEL, 7000, 0, PHASE_INTRO);
                             break;
@@ -205,6 +211,9 @@ class boss_baltharus_the_warborn : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING) && !introPhase)
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -215,7 +224,7 @@ class boss_baltharus_the_warborn : public CreatureScript
             bool _introDone;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetRubySanctumAI<boss_baltharus_the_warbornAI>(creature);
         }
@@ -233,7 +242,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 _events.Reset();
@@ -242,28 +251,26 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                 _events.ScheduleEvent(EVENT_ENERVATING_BRAND, urand(10000, 15000));
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 // Setting DATA_BALTHARUS_SHARED_HEALTH to 0 when killed would bug the boss.
-                if (_instance && me->GetHealth() > damage)
+                if (me->GetHealth() > damage)
                     _instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetHealth() - damage);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* killer) override
             {
                 // This is here because DamageTaken wont trigger if the damage is deadly.
-                if (_instance)
-                    if (Creature* baltharus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_BALTHARUS_THE_WARBORN)))
-                        killer->Kill(baltharus);
+                if (Creature* baltharus = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BALTHARUS_THE_WARBORN)))
+                    killer->Kill(baltharus);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())
                     return;
 
-                if (_instance)
-                    me->SetHealth(_instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
+                me->SetHealth(_instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
 
                 _events.Update(diff);
 
@@ -301,7 +308,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             InstanceScript* _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return GetRubySanctumAI<npc_baltharus_the_warborn_cloneAI>(creature);
         }
@@ -325,13 +332,13 @@ class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnHit += SpellHitFn(spell_baltharus_enervating_brand_trigger_SpellScript::CheckDistance);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_baltharus_enervating_brand_trigger_SpellScript();
         }

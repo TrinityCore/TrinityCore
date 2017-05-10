@@ -10,6 +10,7 @@
 #include "G3D/g3dmath.h"
 #include <cstdlib>
 #include <cstring>
+#include "G3D/BIN.h"
 
 
 namespace G3D {
@@ -40,14 +41,27 @@ double inf() {
     return std::numeric_limits<double>::infinity();
 }
 
+// --fast-math breaks other methods of testing for NaN on g++ 4.x,
+// including isnan(x) and !(x == x)
+
 bool isNaN(float x) {
-    static const float n = fnan();
-    return memcmp(&x, &n, sizeof(float)) == 0;
+    // Wipe out the sign bit
+    const uint32 y = *(uint32*)(&x) & BIN32(01111111,11111111,11111111,11111111);
+
+    // If the remaining number has all of the exponent bits set and atleast one
+    // fraction bit set, then it is NaN
+    return (y > 0x7F800000);
 }
 
 bool isNaN(double x) {
-    static const double n = nan();
-    return memcmp(&x, &n, sizeof(double)) == 0;
+    // Wipe out the sign bit
+    const uint64 y = *(uint64*)(&x) &
+        ((uint64(BIN32(01111111,11111111,11111111,11111111)) << 32) +
+         0xFFFFFFFF);
+
+    // If the remaining number has all of the exponent bits set and atleast one
+    // fraction bit set, then it is NaN
+    return (y > (uint64(BIN32(01111111,11110000,00000000,00000000)) << 32));
 }
 
 
@@ -75,7 +89,7 @@ int highestBit(uint32 x) {
     // Binary search.
     int base = 0;
 
-    if (x & 0xffff0000)	{
+    if (x & 0xffff0000)    {
         base = 16;
         x >>= 16;
     }

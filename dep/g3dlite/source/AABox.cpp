@@ -1,10 +1,13 @@
 /**
-  @file AABox.cpp
+  \file G3D.lib/source/AABox.cpp
 
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
-  @created 2004-01-10
-  @edited  2006-01-11
+  \created 2004-01-10
+  \edited  2013-06-11
+
+  Copyright 2000-2013, Morgan McGuire.
+  All rights reserved.
 */
 
 #include "G3D/platform.h"
@@ -14,9 +17,52 @@
 #include "G3D/Sphere.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
+#include "G3D/Any.h"
 
 
 namespace G3D {
+
+AABox::AABox(const Any& a) {
+    if (a.name() == "AABox::empty") {
+        *this = AABox::empty();
+    } else if (a.name() == "AABox::inf") {
+        *this = AABox::inf();
+    } else {
+        a.verifyName("AABox");
+        a.verifyType(Any::ARRAY);
+        if (a.size() == 1) {
+            *this = AABox(Point3(a[0]));
+        } else if (a.size() == 2) {
+            set(Point3(a[0]), Point3(a[1]));
+        } else {
+            a.verify(false, "AABox must recieve exactly 1 or two arguments.");
+        }
+    }
+}
+
+
+Any AABox::toAny() const {
+    if (isEmpty()) {
+        return Any(Any::ARRAY, "AABox::empty");
+    } else if (! isFinite()) {
+        return Any(Any::ARRAY, "AABox::inf");
+    } else {
+        Any a(Any::ARRAY, "AABox");
+        if (lo == hi) {
+            a.append(lo);
+        } else {
+            a.append(lo, hi);
+        }
+        return a;
+    }
+}
+
+
+const AABox& AABox::empty() {
+    static const AABox b;
+    return b;
+}
+
 
 const AABox& AABox::maxFinite() {
     static const AABox b = AABox(Vector3::minFinite(), 
@@ -53,6 +99,13 @@ void AABox::serialize(class BinaryOutput& b) const {
 void AABox::deserialize(class BinaryInput& b) {
     lo = b.readVector3();
     hi = b.readVector3();
+}
+
+
+void AABox::merge(const Box& b) {
+    AABox aab;
+    b.getBounds(aab);
+    merge(aab);
 }
 
 
@@ -139,11 +192,11 @@ bool AABox::intersects(const AABox& other) const {
 
 int AABox::dummy = 0;
 
-bool AABox::culledBy(
-    const Array<Plane>&	plane,
-    int&		cullingPlane,
-    const uint32	_inMask,
-    uint32&             childMask) const {
+bool AABox::culledBy
+   (const Array<Plane>&     plane,
+    int&                    cullingPlane,
+    const uint32            _inMask,
+    uint32&                 childMask) const {
 
     uint32 inMask = _inMask;
     assert(plane.size() < 31);
@@ -159,13 +212,13 @@ bool AABox::culledBy(
         (abs(hi.z) < G3D::finf());
 
     // See if there is one plane for which all of the
-	// vertices are in the negative half space.
+    // vertices are in the negative half space.
     for (int p = 0; p < plane.size(); ++p) {
 
-		// Only test planes that are not masked
-		if ((inMask & 1) != 0) {
-		
-			Vector3 corner;
+        // Only test planes that are not masked
+        if ((inMask & 1) != 0) {
+        
+            Vector3 corner;
 
             int numContained = 0;
             int v = 0;
@@ -173,12 +226,12 @@ bool AABox::culledBy(
             // We can early-out only if we have found one point on each
             // side of the plane (i.e. if we are straddling).  That
             // occurs when (numContained < v) && (numContained > 0)
-			for (v = 0; (v < 8) && ((numContained == v) || (numContained == 0)); ++v) {
+            for (v = 0; (v < 8) && ((numContained == v) || (numContained == 0)); ++v) {
                 // Unrolling these 3 if's into a switch decreases performance
                 // by about 2x
-				corner.x = (v & 1) ? hi.x : lo.x;
-				corner.y = (v & 2) ? hi.y : lo.y;
-				corner.z = (v & 4) ? hi.z : lo.z;
+                corner.x = (v & 1) ? hi.x : lo.x;
+                corner.y = (v & 2) ? hi.y : lo.y;
+                corner.z = (v & 4) ? hi.z : lo.z;
         
                 if (finite) { // this branch is highly predictable
                     if (plane[p].halfSpaceContainsFinite(corner)) {
@@ -189,43 +242,43 @@ bool AABox::culledBy(
                         ++numContained;
                     }
                 }
-			}
+            }
 
-			if (numContained == 0) {
-				// Plane p culled the box
-				cullingPlane = p;
+            if (numContained == 0) {
+                // Plane p culled the box
+                cullingPlane = p;
 
                 // The caller should not recurse into the children,
                 // since the parent is culled.  If they do recurse,
                 // make them only test against this one plane, which
                 // will immediately cull the volume.
                 childMask = 1 << p;
-				return true;
+                return true;
 
             } else if (numContained < v) {
                 // The bounding volume straddled the plane; we have
                 // to keep testing against this plane
                 childMask |= (1 << p);
             }
-		}
+        }
 
         // Move on to the next bit.
-		inMask = inMask >> 1;
+        inMask = inMask >> 1;
     }
 
     // None of the planes could cull this box
-	cullingPlane = -1;
+    cullingPlane = -1;
     return false;
 }
 
 
 bool AABox::culledBy(
     const Array<Plane>& plane,
-	int&				cullingPlane,
-	const uint32		_inMask) const {
+    int&                cullingPlane,
+    const uint32        _inMask) const {
 
-	uint32 inMask = _inMask;
-	assert(plane.size() < 31);
+    uint32 inMask = _inMask;
+    assert(plane.size() < 31);
     
     const bool finite = 
         (abs(lo.x) < G3D::finf()) &&
@@ -236,58 +289,60 @@ bool AABox::culledBy(
         (abs(hi.z) < G3D::finf());
 
     // See if there is one plane for which all of the
-	// vertices are in the negative half space.
+    // vertices are in the negative half space.
     for (int p = 0; p < plane.size(); ++p) {
 
-		// Only test planes that are not masked
-		if ((inMask & 1) != 0) {
-		
-			bool culled = true;
-			Vector3 corner;
+        // Only test planes that are not masked
+        if ((inMask & 1) != 0) {
+        
+            bool culled = true;
+            Vector3 corner;
 
             int v;
 
-			// Assume this plane culls all points.  See if there is a point
-			// not culled by the plane... early out when at least one point
+            // Assume this plane culls all points.  See if there is a point
+            // not culled by the plane... early out when at least one point
             // is in the positive half space.
-			for (v = 0; (v < 8) && culled; ++v) {
+            for (v = 0; (v < 8) && culled; ++v) {
 
                 // Unrolling these 3 if's into a switch decreases performance
                 // by about 2x
-				corner.x = (v & 1) ? hi.x : lo.x;
-				corner.y = (v & 2) ? hi.y : lo.y;
-				corner.z = (v & 4) ? hi.z : lo.z;
+                corner.x = (v & 1) ? hi.x : lo.x;
+                corner.y = (v & 2) ? hi.y : lo.y;
+                corner.z = (v & 4) ? hi.z : lo.z;
         
                 if (finite) { // this branch is highly predictable
                     culled = ! plane[p].halfSpaceContainsFinite(corner);
                 } else {
                     culled = ! plane[p].halfSpaceContains(corner);
                 }
-			}
-
-			if (culled) {
-				// Plane p culled the box
-				cullingPlane = p;
-
-				return true;
             }
-		}
+
+            if (culled) {
+                // Plane p culled the box
+                cullingPlane = p;
+
+                return true;
+            }
+        }
 
         // Move on to the next bit.
-		inMask = inMask >> 1;
+        inMask = inMask >> 1;
     }
 
     // None of the planes could cull this box
-	cullingPlane = -1;
+    cullingPlane = -1;
     return false;
 }
+
 
 void AABox::getBounds(Sphere& s) const {
     s.center = center();
     s.radius = extent().length() / 2;
 }
 
-bool AABox::intersects(const class Sphere& sphere) const {
+
+bool AABox::intersects(const Sphere& sphere) const {
     double d = 0; 
 
     //find the square of the distance

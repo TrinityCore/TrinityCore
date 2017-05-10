@@ -1,7 +1,7 @@
 #include "G3D/ImageFormat.h"
-#include "G3D/Color1uint8.h"
-#include "G3D/Color3uint8.h"
-#include "G3D/Color4uint8.h"
+#include "G3D/Color1unorm8.h"
+#include "G3D/Color3unorm8.h"
+#include "G3D/Color4unorm8.h"
 #include "G3D/Color1.h"
 #include "G3D/Color3.h"
 #include "G3D/Color4.h"
@@ -212,8 +212,8 @@ bool ImageFormat::convert(const Array<const void*>& srcBytes, int srcWidth, int 
 static void l8_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     (void)bayerAlg;
     (void)dstRowPadBits;
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; ++x) {
             int i = (invertY) ? ((srcHeight-1-y) * srcWidth +x) : (y * srcWidth + x);
@@ -230,7 +230,7 @@ static void l8_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int src
 static void l32f_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     int srcIndex = 0;
     int dstByteOffset = 0;
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
     const float* src = static_cast<const float*>(srcBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
@@ -239,19 +239,18 @@ static void l32f_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int s
         }
         
         for (int x = 0; x < srcWidth; ++x, ++srcIndex, dstByteOffset += 3) {
-            Color3uint8&  d = *reinterpret_cast<Color3uint8*>(dst + dstByteOffset);
-            float s = src[srcIndex];
-
-            uint8 c = iMin(255, iFloor(s * 256));
-            d = Color3uint8(c, c, c);
+            Color3unorm8&  d = *reinterpret_cast<Color3unorm8*>(dst + dstByteOffset);
+            const float s = src[srcIndex];
+            const unorm8 c(s);
+            d = Color3unorm8(c, c, c);
         }
     } 
 }
 
 // RGB8 ->
 static void rgb8_to_rgba8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; ++x) {
             int i = (invertY) ? ((srcHeight-1-y) * srcWidth +x) : (y * srcWidth + x);
@@ -261,14 +260,14 @@ static void rgb8_to_rgba8(const Array<const void*>& srcBytes, int srcWidth, int 
             dst[i4 + 0] = src[i3 + 0]; 
             dst[i4 + 1] = src[i3 + 1]; 
             dst[i4 + 2] = src[i3 + 2]; 
-            dst[i4 + 3] = 255; 
+            dst[i4 + 3] = unorm8::one(); 
         }
     }
 }
 
 static void rgb8_to_bgr8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; ++x) {
             int i = (invertY) ? ((srcHeight-1-y) * srcWidth +x) : (y * srcWidth + x);
@@ -287,14 +286,14 @@ static void rgb8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, in
     int srcByteOffset = 0;
     int srcRowPadBytes = srcRowPadBits / 8;
     Color4* dst = static_cast<Color4*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
         if (invertY) {
             dstIndex = srcWidth * (srcHeight - 1 - y);
         }
         for (int x = 0; x < srcWidth; ++x, ++dstIndex, srcByteOffset += 3) {
-            const Color3uint8& s = *reinterpret_cast<const Color3uint8*>(src + srcByteOffset);
+            const Color3unorm8& s = *reinterpret_cast<const Color3unorm8*>(src + srcByteOffset);
             dst[dstIndex] = Color4(Color3(s), 1.0f);
         }
         srcByteOffset += srcRowPadBytes;
@@ -303,8 +302,8 @@ static void rgb8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, in
 
 // BGR8 ->
 static void bgr8_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; ++x) {
             int i = (invertY) ? ((srcHeight-1-y) * srcWidth +x) : (y * srcWidth + x);
@@ -317,8 +316,8 @@ static void bgr8_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int s
 }
 
 static void bgr8_to_rgba8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; ++x) {
             int i = (invertY) ? ((srcHeight-1-y) * srcWidth +x) : (y * srcWidth + x);
@@ -328,7 +327,7 @@ static void bgr8_to_rgba8(const Array<const void*>& srcBytes, int srcWidth, int 
             dst[i4 + 0] = src[i3 + 2]; 
             dst[i4 + 1] = src[i3 + 1]; 
             dst[i4 + 2] = src[i3 + 0]; 
-            dst[i4 + 3] = 255; 
+            dst[i4 + 3] = unorm8::one(); 
         }
     }
 }
@@ -340,7 +339,7 @@ static void bgr8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, in
     int srcByteOffset = 0;
     int srcRowPadBytes = srcRowPadBits / 8;
     Color4* dst = static_cast<Color4*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
         if (invertY) {
@@ -348,7 +347,7 @@ static void bgr8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, in
         }
 
         for (int x = 0; x < srcWidth; ++x, ++dstIndex, srcByteOffset += 3) {
-            const Color3uint8& s = *reinterpret_cast<const Color3uint8*>(src + srcByteOffset);
+            const Color3unorm8& s = *reinterpret_cast<const Color3unorm8*>(src + srcByteOffset);
             dst[dstIndex] = Color4(Color3(s).bgr(), 1.0f);
         }
         srcByteOffset += srcRowPadBytes;
@@ -357,8 +356,8 @@ static void bgr8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, in
 
 // RGBA8 ->
 static void rgba8_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; ++x) {
             int i = (invertY) ? ((srcHeight-1-y) * srcWidth +x) : (y * srcWidth + x);
@@ -373,8 +372,8 @@ static void rgba8_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int 
 }
 
 static void rgba8_to_bgr8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; ++x) {
             int i = (invertY) ? ((srcHeight-1-y) * srcWidth +x) : (y * srcWidth + x);
@@ -395,7 +394,7 @@ static void rgba8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, i
     int srcByteOffset = 0;
     int srcRowPadBytes = srcRowPadBits / 8;
     Color4* dst = static_cast<Color4*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
         if (invertY) {
@@ -403,7 +402,7 @@ static void rgba8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, i
         }
 
         for (int x = 0; x < srcWidth; ++x, ++dstIndex, srcByteOffset += 4) {
-            const Color4uint8& s = *reinterpret_cast<const Color4uint8*>(src + srcByteOffset);
+            const Color4unorm8& s = *reinterpret_cast<const Color4unorm8*>(src + srcByteOffset);
             dst[dstIndex] = Color4(s);
         }
         srcByteOffset += srcRowPadBytes;
@@ -418,7 +417,7 @@ static void rgb32f_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, 
     int srcByteOffset = 0;
     int srcRowPadBytes = srcRowPadBits / 8;
     Color4* dst = static_cast<Color4*>(dstBytes[0]);
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
         if (invertY) {
@@ -440,7 +439,7 @@ static void rgba32f_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, in
     int srcIndex = 0;
     int dstByteOffset = 0;
     int dstRowPadBytes = dstRowPadBits / 8;
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
     const Color4* src = static_cast<const Color4*>(srcBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
@@ -449,10 +448,10 @@ static void rgba32f_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, in
         }
         
         for (int x = 0; x < srcWidth; ++x, ++srcIndex, dstByteOffset += 3) {
-            Color3uint8&  d = *reinterpret_cast<Color3uint8*>(dst + dstByteOffset);
+            Color3unorm8&  d = *reinterpret_cast<Color3unorm8*>(dst + dstByteOffset);
             const Color4& s = src[srcIndex];
 
-            d = Color3uint8(s.rgb());
+            d = Color3unorm8(s.rgb());
         }
         dstByteOffset += dstRowPadBytes;
     } 
@@ -464,7 +463,7 @@ static void rgba32f_to_rgba8(const Array<const void*>& srcBytes, int srcWidth, i
     int srcIndex = 0;
     int dstByteOffset = 0;
     int dstRowPadBytes = dstRowPadBits / 8;
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
     const Color4* src = static_cast<const Color4*>(srcBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
@@ -472,10 +471,10 @@ static void rgba32f_to_rgba8(const Array<const void*>& srcBytes, int srcWidth, i
             srcIndex = srcWidth * (srcHeight - 1 - y);
         }
         for (int x = 0; x < srcWidth; ++x, ++srcIndex, dstByteOffset += 4) {
-            Color4uint8&  d = *reinterpret_cast<Color4uint8*>(dst + dstByteOffset);
+            Color4unorm8&  d = *reinterpret_cast<Color4unorm8*>(dst + dstByteOffset);
             const Color4& s = src[srcIndex];
 
-            d = Color4uint8(s);
+            d = Color4unorm8(s);
         }
         dstByteOffset += dstRowPadBytes;
     } 
@@ -487,7 +486,7 @@ static void rgba32f_to_bgr8(const Array<const void*>& srcBytes, int srcWidth, in
     int srcIndex = 0;
     int dstByteOffset = 0;
     int dstRowPadBytes = dstRowPadBits / 8;
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
     const Color4* src = static_cast<const Color4*>(srcBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
@@ -496,10 +495,10 @@ static void rgba32f_to_bgr8(const Array<const void*>& srcBytes, int srcWidth, in
         }
         
         for (int x = 0; x < srcWidth; ++x, ++srcIndex, dstByteOffset += 3) {
-            Color3uint8&  d = *reinterpret_cast<Color3uint8*>(dst + dstByteOffset);
+            Color3unorm8&  d = *reinterpret_cast<Color3unorm8*>(dst + dstByteOffset);
             const Color4& s = src[srcIndex];
 
-            d = Color3uint8(s.rgb()).bgr();
+            d = Color3unorm8(s.rgb()).bgr();
         }
         dstByteOffset += dstRowPadBytes;
     } 
@@ -511,7 +510,7 @@ static void rgba32f_to_rgb32f(const Array<const void*>& srcBytes, int srcWidth, 
     int srcIndex = 0;
     int dstByteOffset = 0;
     int dstRowPadBytes = dstRowPadBits / 8;
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
     const Color4* src = static_cast<const Color4*>(srcBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
@@ -520,7 +519,7 @@ static void rgba32f_to_rgb32f(const Array<const void*>& srcBytes, int srcWidth, 
         }
         for (int x = 0; x < srcWidth; ++x, ++srcIndex, dstByteOffset += 3 * sizeof(float)) {
             Color3& d = *reinterpret_cast<Color3*>(dst + dstByteOffset);
-            const Color4& s = src[srcIndex];	    
+            const Color4& s = src[srcIndex];        
             d = s.rgb();
         }
         dstByteOffset += dstRowPadBytes;
@@ -545,19 +544,19 @@ static uint32 blendPixels(uint32 pixel1, uint32 pixel2) {
     return ((rb & rbMask) | (ag & agMask));
 }
 
-#define PIXEL_RGB8_TO_YUV_Y(r, g, b) static_cast<uint8>(iClamp(((66 * r + 129 * g + 25 * b + 128) >> 8) + 16, 0, 255))
-#define PIXEL_RGB8_TO_YUV_U(r, g, b) static_cast<uint8>(iClamp(((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128, 0, 255))
-#define PIXEL_RGB8_TO_YUV_V(r, g, b) static_cast<uint8>(iClamp(((112 * r - 94 * g - 18 * b + 128) >> 8) + 128, 0, 255))
+#define PIXEL_RGB8_TO_YUV_Y(r, g, b) unorm8::fromBits(iClamp(((66 * r.bits() + 129 * g.bits() + 25 * b.bits() + 128) >> 8) + 16, 0, 255))
+#define PIXEL_RGB8_TO_YUV_U(r, g, b) unorm8::fromBits(iClamp(((-38 * r.bits() - 74 * g.bits() + 112 * b.bits() + 128) >> 8) + 128, 0, 255))
+#define PIXEL_RGB8_TO_YUV_V(r, g, b) unorm8::fromBits(iClamp(((112 * r.bits() - 94 * g.bits() - 18 * b.bits() + 128) >> 8) + 128, 0, 255))
 
 static void rgb8_to_yuv420p(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
     debugAssertM((srcWidth % 2 == 0) && (srcHeight % 2 == 0), "Source width and height must be a multiple of two");
 
-    const Color3uint8* src = static_cast<const Color3uint8*>(srcBytes[0]);
+    const Color3unorm8* src = static_cast<const Color3unorm8*>(srcBytes[0]);
 
-    uint8* dstY = static_cast<uint8*>(dstBytes[0]);
-    uint8* dstU = static_cast<uint8*>(dstBytes[1]);
-    uint8* dstV = static_cast<uint8*>(dstBytes[2]);
+    unorm8* dstY = static_cast<unorm8*>(dstBytes[0]);
+    unorm8* dstU = static_cast<unorm8*>(dstBytes[1]);
+    unorm8* dstV = static_cast<unorm8*>(dstBytes[2]);
 
     for (int y = 0; y < srcHeight; y += 2) {
         for (int x = 0; x < srcWidth; x += 2) {
@@ -578,7 +577,7 @@ static void rgb8_to_yuv420p(const Array<const void*>& srcBytes, int srcWidth, in
             dstY[yIndex + 1] = PIXEL_RGB8_TO_YUV_Y(src[srcPixelOffset3].r, src[srcPixelOffset3].g, src[srcPixelOffset3].b);
 
             uint32 blendedPixel = blendPixels(src[srcPixelOffset0].asUInt32(), src[srcPixelOffset2].asUInt32());
-            Color3uint8 uvSrcColor = Color3uint8::fromARGB(blendedPixel);
+            Color3unorm8 uvSrcColor = Color3unorm8::fromARGB(blendedPixel);
 
             int uvIndex = y / 2 * srcWidth / 2 + x / 2;
             dstU[uvIndex] =    PIXEL_RGB8_TO_YUV_U(uvSrcColor.r, uvSrcColor.g, uvSrcColor.b);
@@ -591,9 +590,9 @@ static void rgb8_to_yuv422(const Array<const void*>& srcBytes, int srcWidth, int
     debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
     debugAssertM((srcWidth % 2 == 0), "Source width must be a multiple of two");
 
-    const Color3uint8* src = static_cast<const Color3uint8*>(srcBytes[0]);
+    const Color3unorm8* src = static_cast<const Color3unorm8*>(srcBytes[0]);
 
-    uint8* dst = static_cast<uint8*>(dstBytes[0]);
+    unorm8* dst = static_cast<unorm8*>(dstBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; x += 2) {
@@ -603,7 +602,7 @@ static void rgb8_to_yuv422(const Array<const void*>& srcBytes, int srcWidth, int
             int dstIndex = srcIndex * 2;
 
             uint32 blendedPixel = blendPixels(src[srcIndex].asUInt32(), src[srcIndex + 1].asUInt32());
-            Color3uint8 uvSrcColor = Color3uint8::fromARGB(blendedPixel);
+            Color3unorm8 uvSrcColor = Color3unorm8::fromARGB(blendedPixel);
 
             dst[dstIndex]     = PIXEL_RGB8_TO_YUV_Y(src[srcIndex].r, src[srcIndex].g, src[srcIndex].b);
 
@@ -620,18 +619,18 @@ static void rgb8_to_yuv422(const Array<const void*>& srcBytes, int srcWidth, int
 static void rgb8_to_yuv444(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
 
-    const Color3uint8* src = static_cast<const Color3uint8*>(srcBytes[0]);
+    const Color3unorm8* src = static_cast<const Color3unorm8*>(srcBytes[0]);
 
-    Color3uint8* dst = static_cast<Color3uint8*>(dstBytes[0]);
+    Color3unorm8* dst = static_cast<Color3unorm8*>(dstBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; ++x) {
 
             // convert 1-pixels at a time
             int index = y * srcWidth + x;
-            uint8 y = PIXEL_RGB8_TO_YUV_Y(src[index].r, src[index].g, src[index].b);
-            uint8 u = PIXEL_RGB8_TO_YUV_U(src[index].r, src[index].g, src[index].b);
-            uint8 v = PIXEL_RGB8_TO_YUV_V(src[index].r, src[index].g, src[index].b);
+            unorm8 y = PIXEL_RGB8_TO_YUV_Y(src[index].r, src[index].g, src[index].b);
+            unorm8 u = PIXEL_RGB8_TO_YUV_U(src[index].r, src[index].g, src[index].b);
+            unorm8 v = PIXEL_RGB8_TO_YUV_V(src[index].r, src[index].g, src[index].b);
 
             dst[index].r = y;
             dst[index].g = u;
@@ -641,25 +640,25 @@ static void rgb8_to_yuv444(const Array<const void*>& srcBytes, int srcWidth, int
 }
 
 
-#define PIXEL_YUV_TO_RGB8_R(y, u, v) static_cast<uint8>(iClamp((298 * (y - 16) + 409 * (v - 128) + 128) >> 8, 0, 255))
-#define PIXEL_YUV_TO_RGB8_G(y, u, v) static_cast<uint8>(iClamp((298 * (y - 16) - 100 * (u - 128) - 208 * (v - 128) + 128) >> 8, 0, 255))
-#define PIXEL_YUV_TO_RGB8_B(y, u, v) static_cast<uint8>(iClamp((298 * (y - 16) + 516 * (u - 128) + 128) >> 8, 0, 255))
+#define PIXEL_YUV_TO_RGB8_R(y, u, v) unorm8::fromBits(iClamp((298 * (y.bits() - 16) + 409 * (v.bits() - 128) + 128) >> 8, 0, 255))
+#define PIXEL_YUV_TO_RGB8_G(y, u, v) unorm8::fromBits(iClamp((298 * (y.bits() - 16) - 100 * (u.bits() - 128) - 208 * (v.bits() - 128) + 128) >> 8, 0, 255))
+#define PIXEL_YUV_TO_RGB8_B(y, u, v) unorm8::fromBits(iClamp((298 * (y.bits() - 16) + 516 * (u.bits() - 128) + 128) >> 8, 0, 255))
 
 static void yuv420p_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
     debugAssertM((srcWidth % 2 == 0) && (srcHeight % 2 == 0), "Source width and height must be a multiple of two");
 
-    const uint8* srcY = static_cast<const uint8*>(srcBytes[0]);
-    const uint8* srcU = static_cast<const uint8*>(srcBytes[1]);
-    const uint8* srcV = static_cast<const uint8*>(srcBytes[2]);
+    const unorm8* srcY = static_cast<const unorm8*>(srcBytes[0]);
+    const unorm8* srcU = static_cast<const unorm8*>(srcBytes[1]);
+    const unorm8* srcV = static_cast<const unorm8*>(srcBytes[2]);
 
-    Color3uint8* dst = static_cast<Color3uint8*>(dstBytes[0]);
+    Color3unorm8* dst = static_cast<Color3unorm8*>(dstBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; x += 2) {
 
             // convert to two rgb pixels in a row
-            Color3uint8* rgb = &dst[y * srcWidth + x];
+            Color3unorm8* rgb = &dst[y * srcWidth + x];
 
             int yOffset = y * srcWidth + x;
             int uvOffset = y / 2 * srcWidth / 2 + x / 2;
@@ -680,21 +679,21 @@ static void yuv422_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int
     debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
     debugAssertM((srcWidth % 2 == 0), "Source width must be a multiple of two");
 
-    const uint8* src = static_cast<const uint8*>(srcBytes[0]);
+    const unorm8* src = static_cast<const unorm8*>(srcBytes[0]);
 
-    Color3uint8* dst = static_cast<Color3uint8*>(dstBytes[0]);
+    Color3unorm8* dst = static_cast<Color3unorm8*>(dstBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; x += 2) {
 
             // convert to two rgb pixels in a row
-            Color3uint8* rgb = &dst[y * srcWidth + x];
+            Color3unorm8* rgb = &dst[y * srcWidth + x];
             
-            int srcIndex = (y * srcWidth + x) * 2;
-            uint8 y  = src[srcIndex];
-            uint8 u  = src[srcIndex + 1];
-            uint8 y2 = src[srcIndex + 2];
-            uint8 v  = src[srcIndex + 3];
+            const int srcIndex = (y * srcWidth + x) * 2;
+            const unorm8 y  = src[srcIndex];
+            const unorm8 u  = src[srcIndex + 1];
+            const unorm8 y2 = src[srcIndex + 2];
+            const unorm8 v  = src[srcIndex + 3];
 
             rgb->r = PIXEL_YUV_TO_RGB8_R(y, u, v);
             rgb->g = PIXEL_YUV_TO_RGB8_G(y, u, v);
@@ -711,20 +710,21 @@ static void yuv422_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int
 static void yuv444_to_rgb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     debugAssertM(srcRowPadBits == 0, "Source row padding must be 0 for this format");
 
-    const Color3uint8* src = static_cast<const Color3uint8*>(srcBytes[0]);
+    const Color3unorm8* src = static_cast<const Color3unorm8*>(srcBytes[0]);
 
-    Color3uint8* dst = static_cast<Color3uint8*>(dstBytes[0]);
+    Color3unorm8* dst = static_cast<Color3unorm8*>(dstBytes[0]);
 
     for (int y = 0; y < srcHeight; ++y) {
         for (int x = 0; x < srcWidth; ++x) {
 
             // convert to one rgb pixels at a time
-            int index = y * srcWidth + x;
-            Color3uint8* rgb = &dst[index];
-            
-            rgb->r = PIXEL_YUV_TO_RGB8_R(src[index].r, src[index].g, src[index].b);
-            rgb->g = PIXEL_YUV_TO_RGB8_G(src[index].r, src[index].g, src[index].b);
-            rgb->b = PIXEL_YUV_TO_RGB8_B(src[index].r, src[index].g, src[index].b);
+            const int index = y * srcWidth + x;
+            const Color3unorm8 s = src[index];
+
+            Color3unorm8& rgb = dst[index];
+            rgb.r = PIXEL_YUV_TO_RGB8_R(s.r, s.g, s.b);
+            rgb.g = PIXEL_YUV_TO_RGB8_G(s.r, s.g, s.b);
+            rgb.b = PIXEL_YUV_TO_RGB8_B(s.r, s.g, s.b);
         }
     }
 }
@@ -799,12 +799,12 @@ static const float R_BGB[5][5] =
 
 
 /** Applies a 5x5 filter to monochrome image I (wrapping at the boundaries) */
-static uint8 applyFilter(const uint8*    I,
-			 int             x,
-			 int             y,
-			 int             w,
-			 int             h,
-			 const float     filter[5][5]) {
+static unorm8 applyFilter(const unorm8*    I,
+             int             x,
+             int             y,
+             int             w,
+             int             h,
+             const float     filter[5][5]) {
     
     debugAssert(isEven(w));
     debugAssert(isEven(h));
@@ -813,24 +813,24 @@ static uint8 applyFilter(const uint8*    I,
     float denom = 0.0f;
     
     for (int dy = 0; dy < 5; ++dy) {
-	int offset = ((y + dy + h - 2) % h) * w;
+    int offset = ((y + dy + h - 2) % h) * w;
     
-	for (int dx = 0; dx < 5; ++dx) {
-	    float f = filter[dy][dx];
-	    sum += f * I[((x + dx + w - 2) % w) + offset];
-	    denom += f;
-	}
+    for (int dx = 0; dx < 5; ++dx) {
+        float f = filter[dy][dx];
+        sum += f * (float)I[((x + dx + w - 2) % w) + offset];
+        denom += f;
+    }
     }
     
-    return (uint8)iClamp(iRound(sum / denom), 0, 255);
+    return unorm8(sum / denom);
 }
 
 /** Helper method for Bayer grbg and bggr --> rgb8 */
-static void swapRedAndBlue(int N, Color3uint8* out) {
+static void swapRedAndBlue(int N, Color3unorm8* out) {
     for (int i = N - 1; i >= 0; --i) {
-	uint8 tmp = out[i].r;
-	out[i].r = out[i].b;
-	out[i].b = tmp;
+    unorm8 tmp = out[i].r;
+    out[i].r = out[i].b;
+    out[i].b = tmp;
     }
 }
 
@@ -840,149 +840,149 @@ static void swapRedAndBlue(int N, Color3uint8* out) {
 // rgb8 --> bayer helpers
 // =====================================================================
 static void rgb8_to_bayer_rggb8(const int w, const int h, 
-				const uint8* src, uint8* dst) {
-    Color3uint8* srcColor = (Color3uint8*)src;
-    Color1uint8* dstColor = (Color1uint8*)dst;
+                const unorm8* src, unorm8* dst) {
+    Color3unorm8* srcColor = (Color3unorm8*)src;
+    Color1unorm8* dstColor = (Color1unorm8*)dst;
 
     // Top row pixels
     for (int y = 0; y < h - 1; y += 2) {
-	int offset = y * w;
+        int offset = y * w;
 
-	// Top left pixels
-	for(int x = 0; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].r);
-	}
+        // Top left pixels
+        for(int x = 0; x < w - 1; x += 2) {
+            dstColor[x + offset] = Color1unorm8(srcColor[x + offset].r);
+        }
 
-	// Top right pixels
-	for(int x = 1; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].g);
-	}
-    }
+        // Top right pixels
+        for(int x = 1; x < w - 1; x += 2) {
+            dstColor[x + offset] = Color1unorm8(srcColor[x + offset].g);
+        }
+        }
 
-    // Bottom row pixels
-    for (int y = 1; y < h - 1; y += 2) {
-	int offset = y * w;
+        // Bottom row pixels
+        for (int y = 1; y < h - 1; y += 2) {
+        int offset = y * w;
 
-	// Bottom left pixels
-	for (int x = 0; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].g);
-	}
+        // Bottom left pixels
+        for (int x = 0; x < w - 1; x += 2) {
+            dstColor[x + offset] = Color1unorm8(srcColor[x + offset].g);
+        }
 
-	// Bottom right pixels
-	for (int x = 1; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].b);
-	}
+        // Bottom right pixels
+        for (int x = 1; x < w - 1; x += 2) {
+            dstColor[x + offset] = Color1unorm8(srcColor[x + offset].b);
+        }
     }
 }
 
 
 static void rgb8_to_bayer_grbg8(const int w, const int h, 
-				const uint8* src, uint8* dst) {
-    Color3uint8* srcColor = (Color3uint8*)src;
-    Color1uint8* dstColor = (Color1uint8*)dst;
+                const unorm8* src, unorm8* dst) {
+    Color3unorm8* srcColor = (Color3unorm8*)src;
+    Color1unorm8* dstColor = (Color1unorm8*)dst;
 
     // Top row pixels
     for (int y = 0; y < h - 1; y += 2) {
-	int offset = y * w;
+    int offset = y * w;
 
-	// Top left pixels
-	for (int x = 0; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].g);
-	}
+    // Top left pixels
+    for (int x = 0; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].g);
+    }
 
-	// Top right pixels
-	for (int x = 1; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].r);
-	}
+    // Top right pixels
+    for (int x = 1; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].r);
+    }
     }
 
     // Bottom row pixels
     for (int y = 1; y < h - 1; y += 2) {
-	int offset = y * w;
+    int offset = y * w;
 
-	// Bottom left pixels
-	for (int x = 0; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].b);
-	}
+    // Bottom left pixels
+    for (int x = 0; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].b);
+    }
 
-	// Bottom right pixels
-	for (int x = 1; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].g);
-	}
+    // Bottom right pixels
+    for (int x = 1; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].g);
+    }
     }
 }
 
 
 static void rgb8_to_bayer_bggr8(const int w, const int h, 
-				const uint8* src, uint8* dst) {
-    Color3uint8* srcColor = (Color3uint8*)src;
-    Color1uint8* dstColor = (Color1uint8*)dst;
+                const unorm8* src, unorm8* dst) {
+    Color3unorm8* srcColor = (Color3unorm8*)src;
+    Color1unorm8* dstColor = (Color1unorm8*)dst;
 
     // Top row pixels
     for (int y = 0; y < h - 1; y += 2) {
-	int offset = y * w;
+    int offset = y * w;
 
-	// Top left pixels
-	for (int x = 0; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].b);
-	}
+    // Top left pixels
+    for (int x = 0; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].b);
+    }
 
-	// Top right pixels
-	for (int x = 1; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].g);
-	}
+    // Top right pixels
+    for (int x = 1; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].g);
+    }
     }
 
     // Bottom row pixels
     for (int y = 1; y < h - 1; y += 2) {
-	int offset = y * w;
+    int offset = y * w;
 
-	// Bottom left pixels
-	for(int x = 0; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].g);
-	}
+    // Bottom left pixels
+    for(int x = 0; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].g);
+    }
 
-	// Bottom right pixels
-	for(int x = 1; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].r);
-	}
+    // Bottom right pixels
+    for(int x = 1; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].r);
+    }
     }
 }
 
 
 static void rgb8_to_bayer_gbrg8(const int w, const int h, 
-				const uint8* src, uint8* dst) {
-    Color3uint8* srcColor = (Color3uint8*)src;
-    Color1uint8* dstColor = (Color1uint8*)dst;
+                const unorm8* src, unorm8* dst) {
+    Color3unorm8* srcColor = (Color3unorm8*)src;
+    Color1unorm8* dstColor = (Color1unorm8*)dst;
 
     // Top row pixels
     for(int y = 0; y < h - 1; y += 2) {
-	int offset = y * w;
+    int offset = y * w;
 
-	// Top left pixels
-	for(int x = 0; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].g);
-	}
+    // Top left pixels
+    for(int x = 0; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].g);
+    }
 
-	// Top right pixels
-	for(int x = 1; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].b);
-	}
+    // Top right pixels
+    for(int x = 1; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].b);
+    }
     }
 
     // Bottom row pixels
     for(int y = 1; y < h - 1; y += 2) {
-	int offset = y * w;
+    int offset = y * w;
 
-	// Bottom left pixels
-	for(int x = 0; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].r);
-	}
+    // Bottom left pixels
+    for(int x = 0; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].r);
+    }
 
-	// Bottom right pixels
-	for(int x = 1; x < w - 1; x += 2) {
-	    dstColor[x + offset] = Color1(srcColor[x + offset].g);
-	}
+    // Bottom right pixels
+    for(int x = 1; x < w - 1; x += 2) {
+        dstColor[x + offset] = Color1unorm8(srcColor[x + offset].g);
+    }
     }
 }
 
@@ -991,40 +991,40 @@ static void rgb8_to_bayer_gbrg8(const int w, const int h,
 // =====================================================================
 static void rgba32f_to_bayer_rggb8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     Array<void*> tmp;
-    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3uint8)));
+    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3unorm8)));
 
     rgba32f_to_rgb8(srcBytes, srcWidth, srcHeight, ImageFormat::RGBA32F(), 0, tmp, ImageFormat::RGB8(), 0, invertY, bayerAlg);
-    rgb8_to_bayer_rggb8(srcWidth, srcHeight, static_cast<uint8*>(tmp[0]), static_cast<uint8*>(dstBytes[0]));
+    rgb8_to_bayer_rggb8(srcWidth, srcHeight, static_cast<unorm8*>(tmp[0]), static_cast<unorm8*>(dstBytes[0]));
 
     System::free(tmp[0]);
 }
 
 static void rgba32f_to_bayer_gbrg8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     Array<void*> tmp;
-    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3uint8)));
+    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3unorm8)));
 
     rgba32f_to_rgb8(srcBytes, srcWidth, srcHeight, ImageFormat::RGBA32F(), 0, tmp, ImageFormat::RGB8(), 0, invertY, bayerAlg);
-    rgb8_to_bayer_grbg8(srcWidth, srcHeight, static_cast<uint8*>(tmp[0]), static_cast<uint8*>(dstBytes[0]));
+    rgb8_to_bayer_grbg8(srcWidth, srcHeight, static_cast<unorm8*>(tmp[0]), static_cast<unorm8*>(dstBytes[0]));
 
     System::free(tmp[0]);
 }
 
 static void rgba32f_to_bayer_grbg8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     Array<void*> tmp;
-    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3uint8)));
+    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3unorm8)));
 
     rgba32f_to_rgb8(srcBytes, srcWidth, srcHeight, ImageFormat::RGBA32F(), 0, tmp, ImageFormat::RGB8(), 0, invertY, bayerAlg);
-    rgb8_to_bayer_gbrg8(srcWidth, srcHeight, static_cast<uint8*>(tmp[0]), static_cast<uint8*>(dstBytes[0]));
+    rgb8_to_bayer_gbrg8(srcWidth, srcHeight, static_cast<unorm8*>(tmp[0]), static_cast<unorm8*>(dstBytes[0]));
 
     System::free(tmp[0]);
 }
 
 static void rgba32f_to_bayer_bggr8(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     Array<void*> tmp;
-    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3uint8)));
+    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3unorm8)));
 
     rgba32f_to_rgb8(srcBytes, srcWidth, srcHeight, ImageFormat::RGBA32F(), 0, tmp, ImageFormat::RGB8(), 0, invertY, bayerAlg);
-    rgb8_to_bayer_bggr8(srcWidth, srcHeight, static_cast<uint8*>(tmp[0]), static_cast<uint8*>(dstBytes[0]));
+    rgb8_to_bayer_bggr8(srcWidth, srcHeight, static_cast<unorm8*>(tmp[0]), static_cast<unorm8*>(dstBytes[0]));
 
     System::free(tmp[0]);
 }
@@ -1035,109 +1035,109 @@ static void rgba32f_to_bayer_bggr8(const Array<const void*>& srcBytes, int srcWi
 // bayer --> rgb8 helpers
 // =====================================================================
 static void bayer_rggb8_to_rgb8_mhc(int w, int h, 
-				    const uint8* in, uint8* _out) {
+                    const unorm8* in, unorm8* _out) {
     debugAssert(in != _out);
 
-    Color3uint8* out = (Color3uint8*)_out;
+    Color3unorm8* out = (Color3unorm8*)_out;
 
     for (int y = 0; y < h; ++y) {
 
-	// Row beginning in the input array.
-	int offset = y * w;
+    // Row beginning in the input array.
+    int offset = y * w;
 
-	// RG row
-	for (int x = 0; x < w; ++x, ++out) {
-	    // R pixel
-	    {
-		out->r = in[x + offset];
-		out->g = applyFilter(in, x, y, w, h, G_GRR);
-		out->b = applyFilter(in, x, y, w, h, B_GRR);
-	    }
-	    ++x; ++out;
+    // RG row
+    for (int x = 0; x < w; ++x, ++out) {
+        // R pixel
+        {
+        out->r = in[x + offset];
+        out->g = applyFilter(in, x, y, w, h, G_GRR);
+        out->b = applyFilter(in, x, y, w, h, B_GRR);
+        }
+        ++x; ++out;
 
-	    // G pixel
-	    {
-		out->r = applyFilter(in, x, y, w, h, R_GRG);
-		out->g = in[x + offset];
-		out->b = applyFilter(in, x, y, w, h, B_GRG);
-	    }
-	}
+        // G pixel
+        {
+        out->r = applyFilter(in, x, y, w, h, R_GRG);
+        out->g = in[x + offset];
+        out->b = applyFilter(in, x, y, w, h, B_GRG);
+        }
+    }
 
-	++y;
-	offset += w;
+    ++y;
+    offset += w;
 
-	// GB row
-	for (int x = 0; x < w; ++x, ++out) {
-	    // G pixel
-	    {
-		out->r = applyFilter(in, x, y, w, h, R_BGG);
-		out->g = in[x + offset];
-		out->b = applyFilter(in, x, y, w, h, B_BGG);
-	    }
-	    ++x; ++out;
+    // GB row
+    for (int x = 0; x < w; ++x, ++out) {
+        // G pixel
+        {
+        out->r = applyFilter(in, x, y, w, h, R_BGG);
+        out->g = in[x + offset];
+        out->b = applyFilter(in, x, y, w, h, B_BGG);
+        }
+        ++x; ++out;
 
-	    // B pixel
-	    {
-		out->r = applyFilter(in, x, y, w, h, R_BGB);
-		out->g = applyFilter(in, x, y, w, h, G_BGB);
-		out->b = in[x + offset];
-	    }
-	}
+        // B pixel
+        {
+        out->r = applyFilter(in, x, y, w, h, R_BGB);
+        out->g = applyFilter(in, x, y, w, h, G_BGB);
+        out->b = in[x + offset];
+        }
+    }
     }
 }
 
 
 
 static void bayer_gbrg8_to_rgb8_mhc(int w, int h, 
-				    const uint8* in, uint8* _out) {
+                    const unorm8* in, unorm8* _out) {
 
     debugAssert(in != _out);
 
-    Color3uint8* out = (Color3uint8*)_out;
+    Color3unorm8* out = (Color3unorm8*)_out;
 
     for (int y = 0; y < h; ++y) {
 
-	// Row beginning in the input array.
-	int offset = y * w;
+    // Row beginning in the input array.
+    int offset = y * w;
 
-	// GB row
-	for (int x = 0; x < w; ++x, ++out) {
-	    // G pixel
-	    {
-		out->r = applyFilter(in, x, y, w, h, R_BGG);
-		out->g = in[x + offset];
-		out->b = applyFilter(in, x, y, w, h, B_BGG);
-	    }
-	    ++x; ++out;
+    // GB row
+    for (int x = 0; x < w; ++x, ++out) {
+        // G pixel
+        {
+        out->r = applyFilter(in, x, y, w, h, R_BGG);
+        out->g = in[x + offset];
+        out->b = applyFilter(in, x, y, w, h, B_BGG);
+        }
+        ++x; ++out;
 
-	    // B pixel
-	    {
-		out->r = applyFilter(in, x, y, w, h, R_BGB);
-		out->g = applyFilter(in, x, y, w, h, G_BGB);
-		out->b = in[x + offset];
-	    }
-	}
+        // B pixel
+        {
+        out->r = applyFilter(in, x, y, w, h, R_BGB);
+        out->g = applyFilter(in, x, y, w, h, G_BGB);
+        out->b = in[x + offset];
+        }
+    }
     }
 }
 
 
 static void bayer_grbg8_to_rgb8_mhc(int w, int h, 
-				    const uint8* in, uint8* _out) {
+                    const unorm8* in, unorm8* _out) {
     // Run the equivalent function for red
     bayer_gbrg8_to_rgb8_mhc(w, h, in, _out);
 
     // Now swap red and blue
-    swapRedAndBlue(w * h, (Color3uint8*)_out);
+    swapRedAndBlue(w * h, (Color3unorm8*)_out);
 }
 
 
 static void bayer_bggr8_to_rgb8_mhc(int w, int h, 
-				    const uint8* in, uint8* _out) {
+                    const unorm8* in, unorm8* _out) {
     // Run the equivalent function for red
     bayer_rggb8_to_rgb8_mhc(w, h, in, _out);
 
     // Now swap red and blue
-    swapRedAndBlue(w * h, (Color3uint8*)_out);
+    swapRedAndBlue(w * h, (Color3unorm8*)_out);
 }
 
 // =====================================================================
@@ -1145,9 +1145,9 @@ static void bayer_bggr8_to_rgb8_mhc(int w, int h,
 // =====================================================================
 static void bayer_rggb8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     Array<void*> tmp;
-    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3uint8)));
+    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3unorm8)));
 
-    bayer_rggb8_to_rgb8_mhc(srcWidth, srcHeight, static_cast<const uint8*>(srcBytes[0]), static_cast<uint8*>(tmp[0]));
+    bayer_rggb8_to_rgb8_mhc(srcWidth, srcHeight, static_cast<const unorm8*>(srcBytes[0]), static_cast<unorm8*>(tmp[0]));
     rgb8_to_rgba32f(reinterpret_cast<Array<const void*>&>(tmp), srcWidth, srcHeight, ImageFormat::RGB8(), 0, dstBytes, ImageFormat::RGBA32F(), 0, invertY, bayerAlg);
 
     System::free(tmp[0]);
@@ -1155,9 +1155,9 @@ static void bayer_rggb8_to_rgba32f(const Array<const void*>& srcBytes, int srcWi
 
 static void bayer_gbrg8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     Array<void*> tmp;
-    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3uint8)));
+    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3unorm8)));
 
-    bayer_grbg8_to_rgb8_mhc(srcWidth, srcHeight, static_cast<const uint8*>(srcBytes[0]), static_cast<uint8*>(tmp[0]));
+    bayer_grbg8_to_rgb8_mhc(srcWidth, srcHeight, static_cast<const unorm8*>(srcBytes[0]), static_cast<unorm8*>(tmp[0]));
     rgb8_to_rgba32f(reinterpret_cast<Array<const void*>&>(tmp), srcWidth, srcHeight, ImageFormat::RGB8(), 0, dstBytes, ImageFormat::RGBA32F(), 0, invertY, bayerAlg);
 
     System::free(tmp[0]);
@@ -1165,9 +1165,9 @@ static void bayer_gbrg8_to_rgba32f(const Array<const void*>& srcBytes, int srcWi
 
 static void bayer_grbg8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     Array<void*> tmp;
-    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3uint8)));
+    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3unorm8)));
 
-    bayer_gbrg8_to_rgb8_mhc(srcWidth, srcHeight, static_cast<const uint8*>(srcBytes[0]), static_cast<uint8*>(tmp[0]));
+    bayer_gbrg8_to_rgb8_mhc(srcWidth, srcHeight, static_cast<const unorm8*>(srcBytes[0]), static_cast<unorm8*>(tmp[0]));
     rgb8_to_rgba32f(reinterpret_cast<Array<const void*>&>(tmp), srcWidth, srcHeight, ImageFormat::RGB8(), 0, dstBytes, ImageFormat::RGBA32F(), 0, invertY, bayerAlg);
 
     System::free(tmp[0]);
@@ -1175,9 +1175,9 @@ static void bayer_grbg8_to_rgba32f(const Array<const void*>& srcBytes, int srcWi
 
 static void bayer_bggr8_to_rgba32f(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits, const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY, ImageFormat::BayerAlgorithm bayerAlg) {
     Array<void*> tmp;
-    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3uint8)));
+    tmp.append(System::malloc(srcWidth * srcHeight * sizeof(Color3unorm8)));
 
-    bayer_bggr8_to_rgb8_mhc(srcWidth, srcHeight, static_cast<const uint8*>(srcBytes[0]), static_cast<uint8*>(tmp[0]));
+    bayer_bggr8_to_rgb8_mhc(srcWidth, srcHeight, static_cast<const unorm8*>(srcBytes[0]), static_cast<unorm8*>(tmp[0]));
     rgb8_to_rgba32f(reinterpret_cast<Array<const void*>&>(tmp), srcWidth, srcHeight, ImageFormat::RGB8(), 0, dstBytes, ImageFormat::RGBA32F(), 0, invertY, bayerAlg);
 
     System::free(tmp[0]);
@@ -1198,106 +1198,106 @@ static void bayer_bggr8_to_rgba32f(const Array<const void*>& srcBytes, int srcWi
 // // =====================================================================
 
 // static void bayer_rggb8_to_bgr8_mhc(int w, int h, 
-// 				    const uint8* in, uint8* _out) {
+//                     const unorm8* in, unorm8* _out) {
 //     debugAssert(in != _out);
 
-//     Color3uint8* out = (Color3uint8*)_out;
+//     Color3unorm8* out = (Color3unorm8*)_out;
 
 //     for (int y = 0; y < h; ++y) {
 
-// 	// Row beginning in the input array.
-// 	int offset = y * w;
+//     // Row beginning in the input array.
+//     int offset = y * w;
 
-// 	// RG row
-// 	for (int x = 0; x < w; ++x, ++out) {
-// 	    // R pixel
-// 	    {
-// 		out->b = in[x + offset];
-// 		out->g = applyFilter(in, x, y, w, h, G_GRR);
-// 		out->r = applyFilter(in, x, y, w, h, B_GRR);
-// 	    }
-// 	    ++x; ++out;
+//     // RG row
+//     for (int x = 0; x < w; ++x, ++out) {
+//         // R pixel
+//         {
+//         out->b = in[x + offset];
+//         out->g = applyFilter(in, x, y, w, h, G_GRR);
+//         out->r = applyFilter(in, x, y, w, h, B_GRR);
+//         }
+//         ++x; ++out;
 
-// 	    // G pixel
-// 	    {
-// 		out->b = applyFilter(in, x, y, w, h, R_GRG);
-// 		out->g = in[x + offset];
-// 		out->r = applyFilter(in, x, y, w, h, B_GRG);
-// 	    }
-// 	}
+//         // G pixel
+//         {
+//         out->b = applyFilter(in, x, y, w, h, R_GRG);
+//         out->g = in[x + offset];
+//         out->r = applyFilter(in, x, y, w, h, B_GRG);
+//         }
+//     }
 
-// 	++y;
-// 	offset += w;
+//     ++y;
+//     offset += w;
 
-// 	// GB row
-// 	for (int x = 0; x < w; ++x, ++out) {
-// 	    // G pixel
-// 	    {
-// 		out->b = applyFilter(in, x, y, w, h, R_BGG);
-// 		out->g = in[x + offset];
-// 		out->r = applyFilter(in, x, y, w, h, B_BGG);
-// 	    }
-// 	    ++x; ++out;
+//     // GB row
+//     for (int x = 0; x < w; ++x, ++out) {
+//         // G pixel
+//         {
+//         out->b = applyFilter(in, x, y, w, h, R_BGG);
+//         out->g = in[x + offset];
+//         out->r = applyFilter(in, x, y, w, h, B_BGG);
+//         }
+//         ++x; ++out;
 
-// 	    // B pixel
-// 	    {
-// 		out->b = applyFilter(in, x, y, w, h, R_BGB);
-// 		out->g = applyFilter(in, x, y, w, h, G_BGB);
-// 		out->r = in[x + offset];
-// 	    }
-// 	}
+//         // B pixel
+//         {
+//         out->b = applyFilter(in, x, y, w, h, R_BGB);
+//         out->g = applyFilter(in, x, y, w, h, G_BGB);
+//         out->r = in[x + offset];
+//         }
+//     }
 //     }
 // }
 
 
 // static void bayer_gbrg8_to_bgr8_mhc(int w, int h, 
-// 				    const uint8* in, uint8* _out) {
+//                     const unorm8* in, unorm8* _out) {
 
 //     debugAssert(in != _out);
 
-//     Color3uint8* out = (Color3uint8*)_out;
+//     Color3unorm8* out = (Color3unorm8*)_out;
 
 //     for (int y = 0; y < h; ++y) {
 
-// 	// Row beginning in the input array.
-// 	int offset = y * w;
+//     // Row beginning in the input array.
+//     int offset = y * w;
 
-// 	// GB row
-// 	for (int x = 0; x < srcWidth; ++x, ++out) {
-// 	    // G pixel
-// 	    {
-// 		out->b = applyFilter(in, x, y, w, h, R_BGG);
-// 		out->g = in[x + offset];
-// 		out->r = applyFilter(in, x, y, w, h, B_BGG);
-// 	    }
-// 	    ++x; ++out;
+//     // GB row
+//     for (int x = 0; x < srcWidth; ++x, ++out) {
+//         // G pixel
+//         {
+//         out->b = applyFilter(in, x, y, w, h, R_BGG);
+//         out->g = in[x + offset];
+//         out->r = applyFilter(in, x, y, w, h, B_BGG);
+//         }
+//         ++x; ++out;
 
-// 	    // B pixel
-// 	    {
-// 		out->b = applyFilter(in, x, y, w, h, R_BGB);
-// 		out->g = applyFilter(in, x, y, w, h, G_BGB);
-// 		out->r = in[x + offset];
-// 	    }
-// 	}
+//         // B pixel
+//         {
+//         out->b = applyFilter(in, x, y, w, h, R_BGB);
+//         out->g = applyFilter(in, x, y, w, h, G_BGB);
+//         out->r = in[x + offset];
+//         }
+//     }
 //     }
 // }
 
 // static void bayer_grbg8_to_bgr8_mhc(int w, int h, 
-// 				    const uint8* in, uint8* _out) {
+//                     const unorm8* in, unorm8* _out) {
 //     // Run the equivalent function for red
 //     bayer_gbrg8_to_bgr8_mhc(w, h, in, _out);
 
 //     // Now swap red and blue
-//     swapRedAndBlue(srcWidth * h, (Color3uint8*)_out);
+//     swapRedAndBlue(srcWidth * h, (Color3unorm8*)_out);
 // }
 
 // static void bayer_bggr8_to_bgr8_mhc(int w, int h, 
-// 				    const uint8* in, uint8* _out) {
+//                     const unorm8* in, unorm8* _out) {
 //     // Run the equivalent function for red
 //     bayer_rggb8_to_bgr8_mhc(w, h, in, _out);
 
 //     // Now swap red and blue
-//     swapRedAndBlue(srcWidth * h, (Color3uint8*)_out);
+//     swapRedAndBlue(srcWidth * h, (Color3unorm8*)_out);
 // }
 
 

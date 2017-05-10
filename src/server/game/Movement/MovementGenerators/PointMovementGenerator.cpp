@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@
 #include "MoveSpline.h"
 #include "Player.h"
 #include "CreatureGroups.h"
+#include "ObjectAccessor.h"
 
 //----- Point Movement Generator
 template<class T>
@@ -42,6 +43,10 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
     init.MoveTo(i_x, i_y, i_z, m_generatePath);
     if (speed > 0.0f)
         init.SetVelocity(speed);
+    if (i_faceTarget)
+        init.SetFacing(i_faceTarget);
+    if (i_spellEffectExtra)
+        init.SetSpellEffectExtraData(*i_spellEffectExtra);
     init.Launch();
 
     // Call for creature group update
@@ -102,9 +107,7 @@ void PointMovementGenerator<T>::DoReset(T* unit)
 }
 
 template<class T>
-void PointMovementGenerator<T>::MovementInform(T* /*unit*/)
-{
-}
+void PointMovementGenerator<T>::MovementInform(T* /*unit*/) { }
 
 template <> void PointMovementGenerator<Creature>::MovementInform(Creature* unit)
 {
@@ -136,6 +139,9 @@ bool EffectMovementGenerator::Update(Unit* unit, uint32)
 
 void EffectMovementGenerator::Finalize(Unit* unit)
 {
+    if (_arrivalSpellId)
+        unit->CastSpell(ObjectAccessor::GetUnit(*unit, _arrivalSpellTargetGuid), _arrivalSpellId, true);
+
     if (unit->GetTypeId() != TYPEID_UNIT)
         return;
 
@@ -149,5 +155,5 @@ void EffectMovementGenerator::Finalize(Unit* unit)
     }
 
     if (unit->ToCreature()->AI())
-        unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, m_Id);
+        unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, _id);
 }

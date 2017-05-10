@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -53,14 +53,26 @@ class boss_curator : public CreatureScript
 public:
     boss_curator() : CreatureScript("boss_curator") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_curatorAI (creature);
+        return new boss_curatorAI(creature);
     }
 
     struct boss_curatorAI : public ScriptedAI
     {
-        boss_curatorAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_curatorAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            AddTimer = 10000;
+            HatefulBoltTimer = 15000;                           //This time may be wrong
+            BerserkTimer = 720000;                              //12 minutes
+            Enraged = false;
+            Evocating = false;
+        }
 
         uint32 AddTimer;
         uint32 HatefulBoltTimer;
@@ -69,33 +81,29 @@ public:
         bool Enraged;
         bool Evocating;
 
-        void Reset()
+        void Reset() override
         {
-            AddTimer = 10000;
-            HatefulBoltTimer = 15000;                           //This time may be wrong
-            BerserkTimer = 720000;                              //12 minutes
-            Enraged = false;
-            Evocating = false;
+            Initialize();
 
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, true);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -136,7 +144,7 @@ public:
                 if (AddTimer <= diff)
                 {
                     //Summon Astral Flare
-                    Creature* AstralFlare = DoSpawnCreature(17096, float(rand()%37), float(rand()%37), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    Creature* AstralFlare = DoSpawnCreature(17096, float(rand32() % 37), float(rand32() % 37), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     Unit* target = NULL;
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 

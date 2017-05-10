@@ -109,13 +109,13 @@ namespace utf8
                 case internal::NOT_ENOUGH_ROOM:
                     throw not_enough_room();
                 case internal::INVALID_LEAD:
-                    utf8::append (replacement, out);
+                    out = utf8::append (replacement, out);
                     ++start;
                     break;
                 case internal::INCOMPLETE_SEQUENCE:
                 case internal::OVERLONG_SEQUENCE:
                 case internal::INVALID_CODE_POINT:
-                    utf8::append (replacement, out);
+                    out = utf8::append (replacement, out);
                     ++start;
                     // just one replacement mark for the sequence
                     while (start != end && utf8::internal::is_trail(*start))
@@ -270,7 +270,7 @@ namespace utf8
       octet_iterator range_start;
       octet_iterator range_end;
       public:
-      iterator () {};
+      iterator () {}
       explicit iterator (const octet_iterator& octet_it,
                          const octet_iterator& range_start,
                          const octet_iterator& range_end) :

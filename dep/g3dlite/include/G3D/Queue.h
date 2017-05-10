@@ -7,8 +7,8 @@
   @edited  2008-12-20
  */
 
-#ifndef G3D_QUEUE_H
-#define G3D_QUEUE_H
+#ifndef G3D_Queue_h
+#define G3D_Queue_h
 
 #include "G3D/platform.h"
 #include "G3D/System.h"
@@ -23,6 +23,8 @@ namespace G3D {
  sequence without using the modulo operator.
 
    [0 ... secondEnd)   [head .... firstEnd)
+
+   \sa ThreadsafeQueue
  */
 #define FIND_ENDS \
     int firstEnd  = head + num;\
@@ -325,6 +327,10 @@ public:
         return (*this)[size() - 1];
     }
 
+    bool empty() const {
+        return size() == 0;
+    }
+
     /**
      Returns true if the given element is in the queue.
      */
@@ -346,7 +352,7 @@ public:
         FIND_ENDS;
         
         int i;
-    	for (i = 0; i < secondEnd; ++i) {
+        for (i = 0; i < secondEnd; ++i) {
             delete data[i];
         }
 

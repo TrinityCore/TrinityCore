@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,11 @@
 #ifndef DEF_SCHOLOMANCE_H
 #define DEF_SCHOLOMANCE_H
 
+#define DataHeader "SC"
+
 uint32 const EncounterCount             = 8;
 
-enum DataTypes
+enum SCDataTypes
 {
     DATA_DOCTORTHEOLENKRASTINOV         = 0,
     DATA_INSTRUCTORMALICIA              = 1,
@@ -32,12 +34,13 @@ enum DataTypes
     DATA_KIRTONOS                       = 7
 };
 
-enum CreatureIds
+enum SCCreatureIds
 {
-    NPC_DARKMASTER_GANDLING             = 1853
+    NPC_DARKMASTER_GANDLING             = 1853,
+    NPC_BONE_MINION                     = 16119
 };
 
-enum GameobjectIds
+enum SCGameobjectIds
 {
     GO_GATE_KIRTONOS                    = 175570,
     GO_GATE_GANDLING                    = 177374,

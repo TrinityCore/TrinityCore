@@ -1,12 +1,12 @@
 /**
- @file Random.cpp
+ \file Random.cpp
  
- @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ \maintainer Morgan McGuire, http://graphics.cs.williams.edu
  
- @created 2009-01-02
- @edited  2009-03-29
+ \created 2009-01-02
+ \edited  2012-03-29
 
- Copyright 2000-2009, Morgan McGuire.
+ Copyright 2000-2012, Morgan McGuire.
  All rights reserved.
  */
 #include "G3D/Random.h"
@@ -18,15 +18,23 @@ Random& Random::common() {
     return r;
 }
 
+
 Random::Random(void* x) : state(NULL), m_threadsafe(false) {
     (void)x;
 }
 
 
 Random::Random(uint32 seed, bool threadsafe) : m_threadsafe(threadsafe) {
+    state = new uint32[N];
+    reset(seed, threadsafe);
+}
+
+
+void Random::reset(uint32 seed, bool threadsafe) {
+    m_threadsafe = threadsafe;
+    
     const uint32 X = 1812433253UL;
 
-    state = new uint32[N];
     state[0] = seed;
     for (index = 1; index < (int)N; ++index) {
         state[index] = X * (state[index - 1] ^ (state[index - 1] >> 30)) + index;
@@ -115,6 +123,7 @@ void Random::generate() {
 
     
 int Random::integer(int low, int high) {
+    debugAssert(high >= low);
     int r = iFloor(low + (high - low + 1) * (double)bits() / 0xFFFFFFFFUL);
 
     // There is a *very small* chance of generating
@@ -144,6 +153,15 @@ float Random::gaussian(float mean, float stdev) {
     // Transform to gassian distribution
     // Multiply by sigma (stdev ^ 2) and add mean.
     return x2 * (float)square(stdev) * sqrtf((-2.0f * logf(w) ) / w) + mean; 
+}
+
+
+void Random::cosSphere(float& x, float& y, float& z) {
+    cosHemi(x, y, z);
+    if (bits() & 1) {
+        // Choose the axis direction uniformly at random
+        z = -z;
+    }
 }
 
 

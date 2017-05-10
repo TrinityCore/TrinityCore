@@ -61,6 +61,19 @@ public:
      True if v is a point inside the cone.
      */
     bool contains(const class Vector3& v) const;
+
+
+    /** Returns the solid angle (in steradians) subtended by a cone with half-angle \a halfAngle  */
+    static float solidAngleFromHalfAngle(float halfAngle);
+    static double solidAngleFromHalfAngle(double halfAngle);
+
+    /** Returns the half-angle (in radians) of a cone that subtends \a solidAngle (in steradians) */
+    static float halfAngleFromSolidAngle(float solidAngle);
+    static double halfAngleFromSolidAngle(double solidAngle);
+
+
+    Vector3 randomDirectionInCone(Random& rng) const;
+
 };
 
 } // namespace

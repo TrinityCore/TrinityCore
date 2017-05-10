@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,15 +21,16 @@
  * Scriptnames of files in this file should be prefixed with "spell_q#questID_".
  */
 
+#include "CellImpl.h"
+#include "CreatureTextMgr.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "Vehicle.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
@@ -61,7 +62,7 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
                 }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_generic_quest_update_entry_SpellScript::HandleDummy, _effIndex, _spellEffect);
         }
@@ -80,7 +81,7 @@ class spell_q55_sacred_cleansing : public SpellScriptLoader
     public:
         spell_q55_sacred_cleansing() : SpellScriptLoader("spell_q55_sacred_cleansing") { }
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_generic_quest_update_entry_SpellScript(SPELL_EFFECT_DUMMY, EFFECT_1, NPC_MORBENT, NPC_WEAKENED_MORBENT, true);
         }
@@ -101,7 +102,7 @@ class spell_q2203_thaumaturgy_channel : public SpellScriptLoader
         {
             PrepareAuraScript(spell_q2203_thaumaturgy_channel_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_THAUMATURGY_CHANNEL))
                     return false;
@@ -115,13 +116,13 @@ class spell_q2203_thaumaturgy_channel : public SpellScriptLoader
                     caster->CastSpell(caster, SPELL_THAUMATURGY_CHANNEL, false);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_q2203_thaumaturgy_channel_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_q2203_thaumaturgy_channel_AuraScript();
         }
@@ -144,12 +145,12 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q5206_test_fetid_skull_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_RESONATING_SKULL) || !sSpellMgr->GetSpellInfo(SPELL_CREATE_BONE_DUST))
                     return false;
@@ -163,13 +164,13 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
                 caster->CastSpell(caster, spellId, true, NULL);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_q5206_test_fetid_skull_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q5206_test_fetid_skull_SpellScript();
         }
@@ -196,7 +197,7 @@ class spell_q6124_6129_apply_salve : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q6124_6129_apply_salve_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -207,33 +208,34 @@ class spell_q6124_6129_apply_salve : public SpellScriptLoader
                 if (GetCastItem())
                     if (Creature* creatureTarget = GetHitCreature())
                     {
-                        uint32 uiNewEntry = 0;
+                        uint32 newEntry = 0;
                         switch (caster->GetTeam())
                         {
                             case HORDE:
                                 if (creatureTarget->GetEntry() == NPC_SICKLY_GAZELLE)
-                                    uiNewEntry = NPC_CURED_GAZELLE;
+                                    newEntry = NPC_CURED_GAZELLE;
                                 break;
                             case ALLIANCE:
                                 if (creatureTarget->GetEntry() == NPC_SICKLY_DEER)
-                                    uiNewEntry = NPC_CURED_DEER;
+                                    newEntry = NPC_CURED_DEER;
                                 break;
                         }
-                        if (uiNewEntry)
+                        if (newEntry)
                         {
-                            creatureTarget->UpdateEntry(uiNewEntry);
+                            creatureTarget->UpdateEntry(newEntry);
                             creatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
+                            caster->KilledMonsterCredit(newEntry);
                         }
                     }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q6124_6129_apply_salve_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q6124_6129_apply_salve_SpellScript();
         }
@@ -252,7 +254,7 @@ class spell_q10255_administer_antidote : public SpellScriptLoader
     public:
         spell_q10255_administer_antidote() : SpellScriptLoader("spell_q10255_administer_antidote") { }
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_generic_quest_update_entry_SpellScript(SPELL_EFFECT_DUMMY, EFFECT_0, NPC_HELBOAR, NPC_DREADTUSK, true);
         }
@@ -279,8 +281,8 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            target->AddUnitState(UNIT_STATE_ROOT);
+                target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                target->AddUnitState(UNIT_STATE_ROOT);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -288,7 +290,7 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
             GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
@@ -296,7 +298,7 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
 
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript();
         }
@@ -312,7 +314,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q11396_11399_scourging_crystal_controller_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3) || !sSpellMgr->GetSpellInfo(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
                     return false;
@@ -328,16 +330,16 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
                             GetCaster()->CastSpell(target, SPELL_SCOURGING_CRYSTAL_CONTROLLER, true, GetCastItem());
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q11396_11399_scourging_crystal_controller_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q11396_11399_scourging_crystal_controller_SpellScript();
-        };
+        }
 };
 
 // 43882 Scourging Crystal Controller Dummy
@@ -350,7 +352,7 @@ class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
         {
             PrepareSpellScript(spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
                     return false;
@@ -364,16 +366,16 @@ class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
                         target->RemoveAurasDueToSpell(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q11396_11399_scourging_crystal_controller_dummy_SpellScript();
-        };
+        }
 };
 
 // http://www.wowhead.com/quest=11515 Blood for Blood
@@ -389,7 +391,7 @@ class spell_q11515_fel_siphon_dummy : public SpellScriptLoader
     public:
         spell_q11515_fel_siphon_dummy() : SpellScriptLoader("spell_q11515_fel_siphon_dummy") { }
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_generic_quest_update_entry_SpellScript(SPELL_EFFECT_DUMMY, EFFECT_0, NPC_FELBLOOD_INITIATE, NPC_EMACIATED_FELBLOOD, true);
         }
@@ -413,7 +415,7 @@ class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q11587_arcane_prisoner_rescue_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ARCANE_PRISONER_MALE) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_ARCANE_PRISONER_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_ARCANE_PRISONER_KILL_CREDIT))
                     return false;
@@ -426,20 +428,20 @@ class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
                 if (Unit* unitTarget = GetHitUnit())
                 {
                     uint32 spellId = SPELL_SUMMON_ARCANE_PRISONER_MALE;
-                    if (rand() % 2)
+                    if (rand32() % 2)
                         spellId = SPELL_SUMMON_ARCANE_PRISONER_FEMALE;
                     caster->CastSpell(caster, spellId, true);
                     unitTarget->CastSpell(caster, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q11587_arcane_prisoner_rescue_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q11587_arcane_prisoner_rescue_SpellScript();
         }
@@ -471,12 +473,12 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q11730_ultrasonic_screwdriver_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SCAVENGEBOT_004A8) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SENTRYBOT_57K) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_DEFENDOTANK_66D) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SCAVENGEBOT_005B6) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_55D_COLLECTATRON) || !sSpellMgr->GetSpellInfo(SPELL_ROBOT_KILL_CREDIT))
                     return false;
@@ -506,13 +508,13 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q11730_ultrasonic_screwdriver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q11730_ultrasonic_screwdriver_SpellScript();
         }
@@ -557,13 +559,13 @@ class spell_q12459_seeds_of_natures_wrath : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12459_seeds_of_natures_wrath_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12459_seeds_of_natures_wrath_SpellScript();
         }
@@ -588,7 +590,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q12634_despawn_fruit_tosser_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_BANANAS_FALL_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_ORANGE_FALLS_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_PAPAYA_FALLS_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_ADVENTUROUS_DWARF))
                     return false;
@@ -609,13 +611,13 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
                 GetCaster()->CastSpell(GetCaster(), spellId, true, NULL);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_q12634_despawn_fruit_tosser_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12634_despawn_fruit_tosser_SpellScript();
         }
@@ -634,23 +636,23 @@ class spell_q12683_take_sputum_sample : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                uint32 reqAuraId = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                uint32 reqAuraId = GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue();
 
                 Unit* caster = GetCaster();
                 if (caster->HasAuraEffect(reqAuraId, 0))
                 {
-                    uint32 spellId = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                    uint32 spellId = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
                     caster->CastSpell(caster, spellId, true, NULL);
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_q12683_take_sputum_sample_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12683_take_sputum_sample_SpellScript();
         }
@@ -705,14 +707,14 @@ class spell_q12851_going_bearback : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_q12851_going_bearback_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
 
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_q12851_going_bearback_AuraScript();
         }
@@ -735,12 +737,12 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q12937_relief_for_the_fallen_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRIGGER_AID_OF_THE_EARTHEN))
                     return false;
@@ -753,18 +755,18 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                 {
                     caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
-                    caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
+                    caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER);
                     target->DespawnOrUnsummon();
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12937_relief_for_the_fallen_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12937_relief_for_the_fallen_SpellScript();
         }
@@ -786,7 +788,7 @@ class spell_q10041_q10040_who_are_they : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q10041_q10040_who_are_they_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MALE_DISGUISE) || !sSpellMgr->GetSpellInfo(SPELL_FEMALE_DISGUISE) || !sSpellMgr->GetSpellInfo(SPELL_GENERIC_DISGUISE))
                     return false;
@@ -803,13 +805,13 @@ class spell_q10041_q10040_who_are_they : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q10041_q10040_who_are_they_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q10041_q10040_who_are_they_SpellScript();
         }
@@ -837,7 +839,7 @@ class spell_symbol_of_life_dummy : public SpellScriptLoader
                     if (target->HasAura(SPELL_PERMANENT_FEIGN_DEATH))
                     {
                         target->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
-                        target->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
+                        target->SetUInt32Value(OBJECT_DYNAMIC_FLAGS, 0);
                         target->SetUInt32Value(UNIT_FIELD_FLAGS_2, 0);
                         target->SetHealth(target->GetMaxHealth() / 2);
                         target->SetPower(POWER_MANA, uint32(target->GetMaxPower(POWER_MANA) * 0.75f));
@@ -845,16 +847,16 @@ class spell_symbol_of_life_dummy : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_symbol_of_life_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_symbol_of_life_dummy_SpellScript();
-        };
+        }
 };
 
 // http://www.wowhead.com/quest=12659 Scalps!
@@ -873,7 +875,7 @@ class spell_q12659_ahunaes_knife : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q12659_ahunaes_knife_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -884,26 +886,26 @@ class spell_q12659_ahunaes_knife : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                 {
                     target->DespawnOrUnsummon();
-                    caster->KilledMonsterCredit(NPC_SCALPS_KC_BUNNY, 0);
+                    caster->KilledMonsterCredit(NPC_SCALPS_KC_BUNNY);
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12659_ahunaes_knife_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12659_ahunaes_knife_SpellScript();
-        };
+        }
 };
 
 enum StoppingTheSpread
 {
     NPC_VILLAGER_KILL_CREDIT                     = 18240,
-    SPELL_FLAMES                                 = 39199,
+    SPELL_FLAMES                                 = 39199
 };
 
 class spell_q9874_liquid_fire : public SpellScriptLoader
@@ -917,7 +919,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q9874_liquid_fire_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -926,24 +928,24 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
-                    if (target && target->HasAura(SPELL_FLAMES))
+                    if (target && !target->HasAura(SPELL_FLAMES))
                     {
-                        caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT, 0);
+                        caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT);
                         target->CastSpell(target, SPELL_FLAMES, true);
                         target->DespawnOrUnsummon(60000);
                     }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q9874_liquid_fire_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q9874_liquid_fire_SpellScript();
-        };
+        }
 };
 
 enum SalvagingLifesStength
@@ -962,7 +964,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q12805_lifeblood_dummy_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -972,22 +974,22 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
                 {
-                    caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT, 0);
+                    caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT);
                     target->CastSpell(target, uint32(GetEffectValue()), true);
                     target->DespawnOrUnsummon(2000);
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12805_lifeblood_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12805_lifeblood_dummy_SpellScript();
-        };
+        }
 };
 
 /*
@@ -1015,16 +1017,16 @@ class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (caster->IsVehicle())
                     if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
-                         player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC, 0);
+                         player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_q13280_13283_plant_battle_standard_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q13280_13283_plant_battle_standard_SpellScript();
         }
@@ -1047,7 +1049,7 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
         {
             PrepareSpellScript(spell_q14112_14145_chum_the_water_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SUMMON_ANGRY_KVALDIR) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_MAKO) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_THRESHER) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_BLUE_SHARK))
                     return false;
@@ -1060,13 +1062,13 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
                 caster->CastSpell(caster, RAND(SUMMON_ANGRY_KVALDIR, SUMMON_NORTH_SEA_MAKO, SUMMON_NORTH_SEA_THRESHER, SUMMON_NORTH_SEA_BLUE_SHARK));
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q14112_14145_chum_the_water_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q14112_14145_chum_the_water_SpellScript();
         }
@@ -1075,9 +1077,9 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 // http://old01.wowhead.com/quest=9452 - Red Snapper - Very Tasty!
 enum RedSnapperVeryTasty
 {
-    SPELL_CAST_NET          = 29866,
-    ITEM_RED_SNAPPER        = 23614,
-    SPELL_NEW_SUMMON_TEST   = 49214,
+    ITEM_RED_SNAPPER             = 23614,
+    SPELL_CAST_NET               = 29866,
+    SPELL_FISHED_UP_MURLOC       = 29869
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1089,7 +1091,7 @@ class spell_q9452_cast_net: public SpellScriptLoader
         {
             PrepareSpellScript(spell_q9452_cast_net_SpellScript);
 
-            bool Load()
+            bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
@@ -1100,24 +1102,106 @@ class spell_q9452_cast_net: public SpellScriptLoader
                 if (roll_chance_i(66))
                     caster->AddItem(ITEM_RED_SNAPPER, 1);
                 else
-                    caster->CastSpell(caster, SPELL_NEW_SUMMON_TEST, true);
+                    caster->CastSpell(caster, SPELL_FISHED_UP_MURLOC, true);
             }
 
-            void Register()
+            void HandleActiveObject(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetHitGObj()->SetRespawnTime(roll_chance_i(50) ? 2 * MINUTE : 3 * MINUTE);
+                GetHitGObj()->Use(GetCaster());
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q9452_cast_net_SpellScript();
         }
 };
 
-#define SAY_1 "Sons of Hodir! I humbly present to you..."
-#define SAY_2 "The Helm of Hodir!"
-#define NPC_KILLCREDIT 30210 // Hodir's Helm KC Bunny
+enum PoundDrumSpells
+{
+    SPELL_SUMMON_DEEP_JORMUNGAR     = 66510,
+    SPELL_STORMFORGED_MOLE_MACHINE  = 66492
+};
+
+class spell_q14076_14092_pound_drum : public SpellScriptLoader
+{
+    public:
+        spell_q14076_14092_pound_drum() : SpellScriptLoader("spell_q14076_14092_pound_drum") { }
+
+        class spell_q14076_14092_pound_drum_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q14076_14092_pound_drum_SpellScript);
+
+            void HandleSummon()
+            {
+                Unit* caster = GetCaster();
+
+                if (roll_chance_i(80))
+                    caster->CastSpell(caster, SPELL_SUMMON_DEEP_JORMUNGAR, true);
+                else
+                    caster->CastSpell(caster, SPELL_STORMFORGED_MOLE_MACHINE, true);
+            }
+
+            void HandleActiveObject(SpellEffIndex /*effIndex*/)
+            {
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
+            void Register() override
+            {
+                OnCast += SpellCastFn(spell_q14076_14092_pound_drum_SpellScript::HandleSummon);
+                OnEffectHitTarget += SpellEffectFn(spell_q14076_14092_pound_drum_SpellScript::HandleActiveObject, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q14076_14092_pound_drum_SpellScript();
+        }
+};
+
+class spell_q12279_cast_net : public SpellScriptLoader
+{
+    public:
+        spell_q12279_cast_net() : SpellScriptLoader("spell_q12279_cast_net") { }
+
+        class spell_q12279_cast_net_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12279_cast_net_SpellScript);
+
+            void HandleActiveObject(SpellEffIndex /*effIndex*/)
+            {
+                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12279_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12279_cast_net_SpellScript();
+        }
+};
+
+enum HodirsHelm
+{
+    SAY_1               = 1,
+    SAY_2               = 2,
+    NPC_KILLCREDIT      = 30210, // Hodir's Helm KC Bunny
+    NPC_ICE_SPIKE_BUNNY = 30215
+};
 
 class spell_q12987_read_pronouncement : public SpellScriptLoader
 {
@@ -1133,19 +1217,22 @@ public:
             // player must cast kill credit and do emote text, according to sniff
             if (Player* target = GetTarget()->ToPlayer())
             {
-                target->MonsterWhisper(SAY_1, target->GetGUID(), true);
-                target->KilledMonsterCredit(NPC_KILLCREDIT, 0);
-                target->MonsterWhisper(SAY_2, target->GetGUID(), true);
+                if (Creature* trigger = target->FindNearestCreature(NPC_ICE_SPIKE_BUNNY, 25.0f))
+                {
+                    sCreatureTextMgr->SendChat(trigger, SAY_1, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target);
+                    target->KilledMonsterCredit(NPC_KILLCREDIT);
+                    sCreatureTextMgr->SendChat(trigger, SAY_2, target, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, target);
+                }
             }
         }
 
-        void Register()
+        void Register() override
         {
             AfterEffectApply += AuraEffectApplyFn(spell_q12987_read_pronouncement_AuraScript::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_q12987_read_pronouncement_AuraScript();
     }
@@ -1196,13 +1283,13 @@ class spell_q12277_wintergarde_mine_explosion : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12277_wintergarde_mine_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12277_wintergarde_mine_explosion_SpellScript();
         }
@@ -1228,13 +1315,13 @@ public:
                 target->CastSpell(GetCaster(), SPELL_BUNNY_CREDIT_BEAM, false);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_q12066_bunny_kill_credit_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_q12066_bunny_kill_credit_SpellScript();
     }
@@ -1279,13 +1366,13 @@ class spell_q12735_song_of_cleansing : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12735_song_of_cleansing_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12735_song_of_cleansing_SpellScript();
         }
@@ -1310,13 +1397,13 @@ class spell_q12372_cast_from_gossip_trigger : public SpellScriptLoader
                 GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_WYRMREST_DEFENDER, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12372_cast_from_gossip_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12372_cast_from_gossip_trigger_SpellScript();
         }
@@ -1348,22 +1435,22 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
                         if (Vehicle* vehicle = caster->GetVehicleKit())
                             if (Unit* passenger = vehicle->GetPassenger(0))
                                 if (Player* player = passenger->ToPlayer())
-                                    player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT, 0);
+                                    player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript();
         }
 };
 
-// ID - 50287 Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (casted from Azure Dragons and Azure Drakes on death)
+// ID - 50287 Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (cast from Azure Dragons and Azure Drakes on death)
 class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
 {
     public:
@@ -1376,16 +1463,16 @@ class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Creature* defender = GetHitCreature())
-                    defender->AI()->Talk(WHISPER_ON_HIT_BY_FORCE_WHISPER, defender->GetCharmerOrOwnerGUID());
+                    defender->AI()->Talk(WHISPER_ON_HIT_BY_FORCE_WHISPER, defender->GetCharmerOrOwner());
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12372_azure_on_death_force_whisper_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12372_azure_on_death_force_whisper_SpellScript();
         }
@@ -1419,13 +1506,13 @@ class spell_q11010_q11102_q11023_aggro_check_aura : public SpellScriptLoader
                     target->CastSpell(target, SPELL_AGGRO_CHECK);
             }
 
-            void Register()
+            void Register() override
             {
                OnEffectPeriodic += AuraEffectPeriodicFn(spell_q11010_q11102_q11023_aggro_check_aura_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_q11010_q11102_q11023_aggro_check_aura_AuraScript();
         }
@@ -1449,13 +1536,13 @@ class spell_q11010_q11102_q11023_aggro_check : public SpellScriptLoader
                         playerTarget->CastSpell(playerTarget, SPELL_FLAK_CANNON_TRIGGER, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q11010_q11102_q11023_aggro_check_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q11010_q11102_q11023_aggro_check_SpellScript();
         }
@@ -1478,13 +1565,13 @@ class spell_q11010_q11102_q11023_aggro_burst : public SpellScriptLoader
                     target->CastSpell(target, SPELL_CHOOSE_LOC);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_q11010_q11102_q11023_aggro_burst_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_q11010_q11102_q11023_aggro_burst_AuraScript();
         }
@@ -1515,13 +1602,13 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
                             caster->SummonCreature(NPC_FEL_CANNON2, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ());
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_q11010_q11102_q11023_choose_loc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q11010_q11102_q11023_choose_loc_SpellScript();
         }
@@ -1547,13 +1634,13 @@ class spell_q11010_q11102_q11023_q11008_check_fly_mount : public SpellScriptLoad
                 return SPELL_CAST_OK;
             }
 
-            void Register()
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript::CheckRequirement);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript();
         }
@@ -1573,7 +1660,7 @@ class spell_q12527_zuldrak_rat : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q12527_zuldrak_rat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_GORGED_LURKING_BASILISK))
                     return false;
@@ -1590,18 +1677,19 @@ class spell_q12527_zuldrak_rat : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q12527_zuldrak_rat_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12527_zuldrak_rat_SpellScript();
         }
 };
 
+// 55368 - Summon Stefan
 class spell_q12661_q12669_q12676_q12677_q12713_summon_stefan : public SpellScriptLoader
 {
     public:
@@ -1611,23 +1699,20 @@ class spell_q12661_q12669_q12676_q12677_q12713_summon_stefan : public SpellScrip
         {
             PrepareSpellScript(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript);
 
-            void ChangeSummonPos(SpellEffIndex /*effIndex*/)
+            void SetDest(SpellDestination& dest)
             {
                 // Adjust effect summon position
-                WorldLocation summonPos = *GetExplTargetDest();
-                Position offset = { 0.0f, 0.0f, 20.0f, 0.0f };
-                summonPos.RelocateOffset(offset);
-                SetExplTargetDest(summonPos);
-                GetHitDest()->RelocateOffset(offset);
+                Position const offset = { 0.0f, 0.0f, 20.0f, 0.0f };
+                dest.RelocateOffset(offset);
             }
 
-            void Register()
+            void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12661_q12669_q12676_q12677_q12713_summon_stefan_SpellScript();
         }
@@ -1647,7 +1732,7 @@ class spell_q12730_quenching_mist : public SpellScriptLoader
         {
             PrepareAuraScript(spell_q12730_quenching_mist_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_FLICKERING_FLAMES))
                     return false;
@@ -1659,13 +1744,13 @@ class spell_q12730_quenching_mist : public SpellScriptLoader
                 GetTarget()->RemoveAurasDueToSpell(SPELL_FLICKERING_FLAMES);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_q12730_quenching_mist_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_q12730_quenching_mist_AuraScript();
         }
@@ -1678,7 +1763,7 @@ enum Quest13291_13292_13239_13261Data
     NPC_SKYTALON       = 31583,
     NPC_DECOY          = 31578,
     // Spells
-    SPELL_RIDE         = 56687
+    SPELL_RIDE         = 59319
 };
 
 class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public SpellScriptLoader
@@ -1690,7 +1775,7 @@ class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public 
         {
             PrepareSpellScript(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_RIDE))
                     return false;
@@ -1707,18 +1792,19 @@ class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public 
                 GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy_SpellScript();
         }
 };
 
+// 59303 - Summon Frost Wyrm
 class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon : public SpellScriptLoader
 {
     public:
@@ -1728,28 +1814,26 @@ class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon : public S
         {
             PrepareSpellScript(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript);
 
-            void ChangeSummonPos(SpellEffIndex /*effIndex*/)
+            void SetDest(SpellDestination& dest)
             {
                 // Adjust effect summon position
-                WorldLocation summonPos = *GetExplTargetDest();
-                Position offset = { 0.0f, 0.0f, 20.0f, 0.0f };
-                summonPos.RelocateOffset(offset);
-                SetExplTargetDest(summonPos);
-                GetHitDest()->RelocateOffset(offset);
+                Position const offset = { 0.0f, 0.0f, 20.0f, 0.0f };
+                dest.RelocateOffset(offset);
             }
 
-            void Register()
+            void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon_SpellScript();
         }
 };
 
+// 12601 - Second Chances: Summon Landgren's Soul Moveto Target Bunny
 class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
 {
     public:
@@ -1759,25 +1843,771 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
         {
             PrepareSpellScript(spell_q12847_summon_soul_moveto_bunny_SpellScript);
 
-            void ChangeSummonPos(SpellEffIndex /*effIndex*/)
+            void SetDest(SpellDestination& dest)
             {
                 // Adjust effect summon position
-                WorldLocation summonPos = *GetExplTargetDest();
-                Position offset = { 0.0f, 0.0f, 2.5f, 0.0f };
-                summonPos.RelocateOffset(offset);
-                SetExplTargetDest(summonPos);
-                GetHitDest()->RelocateOffset(offset);
+                Position const offset = { 0.0f, 0.0f, 2.5f, 0.0f };
+                dest.RelocateOffset(offset);
             }
 
-            void Register()
+            void Register() override
             {
-                OnEffectHit += SpellEffectFn(spell_q12847_summon_soul_moveto_bunny_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q12847_summon_soul_moveto_bunny_SpellScript::SetDest, EFFECT_0, TARGET_DEST_CASTER);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_q12847_summon_soul_moveto_bunny_SpellScript();
+        }
+};
+
+enum BearFlankMaster
+{
+    SPELL_BEAR_FLANK_MASTER = 56565,
+    SPELL_CREATE_BEAR_FLANK = 56566,
+    SPELL_BEAR_FLANK_FAIL = 56569
+};
+
+class spell_q13011_bear_flank_master : public SpellScriptLoader
+{
+    public:
+        spell_q13011_bear_flank_master() : SpellScriptLoader("spell_q13011_bear_flank_master") { }
+
+        class spell_q13011_bear_flank_master_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13011_bear_flank_master_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BEAR_FLANK_MASTER) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_BEAR_FLANK))
+                    return false;
+                return true;
+            }
+
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* player = GetHitPlayer())
+                {
+                    if (roll_chance_i(50))
+                    {
+                        Creature* creature = GetCaster()->ToCreature();
+                        player->CastSpell(creature, SPELL_BEAR_FLANK_FAIL);
+                        creature->AI()->Talk(0, player);
+                    }
+                    else
+                        player->CastSpell(player, SPELL_CREATE_BEAR_FLANK);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q13011_bear_flank_master_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q13011_bear_flank_master_SpellScript();
+        }
+};
+
+class spell_q13086_cannons_target : public SpellScriptLoader
+{
+    public:
+        spell_q13086_cannons_target() : SpellScriptLoader("spell_q13086_cannons_target") { }
+
+        class spell_q13086_cannons_target_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13086_cannons_target_SpellScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->CalcValue()))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (WorldLocation const* pos = GetExplTargetDest())
+                    GetCaster()->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), GetEffectValue(), true);
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_q13086_cannons_target_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q13086_cannons_target_SpellScript();
+        }
+};
+
+enum BurstAtTheSeams
+{
+    NPC_DRAKKARI_CHIEFTAINK                 = 29099,
+
+    QUEST_BURST_AT_THE_SEAMS                = 12690,
+
+    SPELL_BURST_AT_THE_SEAMS                = 52510, // Burst at the Seams
+    SPELL_BURST_AT_THE_SEAMS_DMG            = 52508, // Damage spell
+    SPELL_BURST_AT_THE_SEAMS_DMG_2          = 59580, // Abomination self damage spell
+    SPELL_BURST_AT_THE_SEAMS_BONE           = 52516, // Burst at the Seams:Bone
+    SPELL_BURST_AT_THE_SEAMS_MEAT           = 52520, // Explode Abomination:Meat
+    SPELL_BURST_AT_THE_SEAMS_BMEAT          = 52523, // Explode Abomination:Bloody Meat
+    SPELL_DRAKKARI_SKULLCRUSHER_CREDIT      = 52590, // Credit for Drakkari Skullcrusher
+    SPELL_SUMMON_DRAKKARI_CHIEFTAIN         = 52616, // Summon Drakkari Chieftain
+    SPELL_DRAKKARI_CHIEFTAINK_KILL_CREDIT   = 52620  // Drakkari Chieftain Kill Credit
+};
+
+class spell_q12690_burst_at_the_seams : public SpellScriptLoader
+{
+    public:
+        spell_q12690_burst_at_the_seams() : SpellScriptLoader("spell_q12690_burst_at_the_seams") { }
+
+        class spell_q12690_burst_at_the_seams_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12690_burst_at_the_seams_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_DMG)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_DMG_2)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_BONE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_MEAT)
+                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_BMEAT))
+                    return false;
+                return true;
+            }
+
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
+            void HandleKnockBack(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* creature = GetHitCreature())
+                {
+                    if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
+                    {
+                        if (Player* player = charmer->ToPlayer())
+                        {
+                            if (player->GetQuestStatus(QUEST_BURST_AT_THE_SEAMS) == QUEST_STATUS_INCOMPLETE)
+                            {
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_MEAT, true);
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BMEAT, true);
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_DMG, true);
+                                creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_DMG_2, true);
+
+                                player->CastSpell(player, SPELL_DRAKKARI_SKULLCRUSHER_CREDIT, true);
+                                uint16 count = player->GetReqKillOrCastCurrentCount(QUEST_BURST_AT_THE_SEAMS, NPC_DRAKKARI_CHIEFTAINK);
+                                if ((count % 20) == 0)
+                                    player->CastSpell(player, SPELL_SUMMON_DRAKKARI_CHIEFTAIN, true);
+                            }
+                        }
+                    }
+                }
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->ToCreature()->DespawnOrUnsummon(2 * IN_MILLISECONDS);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12690_burst_at_the_seams_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
+                OnEffectHitTarget += SpellEffectFn(spell_q12690_burst_at_the_seams_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12690_burst_at_the_seams_SpellScript();
+        }
+};
+
+enum EscapeFromSilverbrook
+{
+    SPELL_SUMMON_WORGEN = 48681
+};
+
+// 48682 - Escape from Silverbrook - Periodic Dummy
+class spell_q12308_escape_from_silverbrook : public SpellScriptLoader
+{
+    public:
+        spell_q12308_escape_from_silverbrook() : SpellScriptLoader("spell_q12308_escape_from_silverbrook") { }
+
+        class spell_q12308_escape_from_silverbrook_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12308_escape_from_silverbrook_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_WORGEN))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_WORGEN, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_q12308_escape_from_silverbrook_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12308_escape_from_silverbrook_SpellScript();
+        }
+};
+
+// 48681 - Summon Silverbrook Worgen
+class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScriptLoader
+{
+    public:
+        spell_q12308_escape_from_silverbrook_summon_worgen() : SpellScriptLoader("spell_q12308_escape_from_silverbrook_summon_worgen") { }
+
+        class spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript);
+
+            void ModDest(SpellDestination& dest)
+            {
+                float dist = GetSpellInfo()->GetEffect(EFFECT_0)->CalcRadius(GetCaster());
+                float angle = frand(0.75f, 1.25f) * float(M_PI);
+
+                Position pos = GetCaster()->GetNearPosition(dist, angle);
+                dest.Relocate(pos);
+            }
+
+            void Register() override
+            {
+                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript::ModDest, EFFECT_0, TARGET_DEST_CASTER_SUMMON);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript();
+        }
+};
+
+enum DeathComesFromOnHigh
+{
+    SPELL_FORGE_CREDIT                  = 51974,
+    SPELL_TOWN_HALL_CREDIT              = 51977,
+    SPELL_SCARLET_HOLD_CREDIT           = 51980,
+    SPELL_CHAPEL_CREDIT                 = 51982,
+
+    NPC_NEW_AVALON_FORGE                = 28525,
+    NPC_NEW_AVALON_TOWN_HALL            = 28543,
+    NPC_SCARLET_HOLD                    = 28542,
+    NPC_CHAPEL_OF_THE_CRIMSON_FLAME     = 28544
+};
+
+// 51858 - Siphon of Acherus
+class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
+{
+    public:
+        spell_q12641_death_comes_from_on_high() : SpellScriptLoader("spell_q12641_death_comes_from_on_high") { }
+
+        class spell_q12641_death_comes_from_on_high_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12641_death_comes_from_on_high_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FORGE_CREDIT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_TOWN_HALL_CREDIT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_SCARLET_HOLD_CREDIT) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_CHAPEL_CREDIT))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                uint32 spellId = 0;
+
+                switch (GetHitCreature()->GetEntry())
+                {
+                    case NPC_NEW_AVALON_FORGE:
+                        spellId = SPELL_FORGE_CREDIT;
+                        break;
+                    case NPC_NEW_AVALON_TOWN_HALL:
+                        spellId = SPELL_TOWN_HALL_CREDIT;
+                        break;
+                    case NPC_SCARLET_HOLD:
+                        spellId = SPELL_SCARLET_HOLD_CREDIT;
+                        break;
+                    case NPC_CHAPEL_OF_THE_CRIMSON_FLAME:
+                        spellId = SPELL_CHAPEL_CREDIT;
+                        break;
+                    default:
+                        return;
+                }
+
+                GetCaster()->CastSpell((Unit*)NULL, spellId, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12641_death_comes_from_on_high_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12641_death_comes_from_on_high_SpellScript();
+        }
+};
+
+// 52694 - Recall Eye of Acherus
+enum Recall_Eye_of_Acherus
+{
+    THE_EYE_OF_ACHERUS = 51852
+};
+
+class spell_q12641_recall_eye_of_acherus : public SpellScriptLoader
+{
+    public:
+        spell_q12641_recall_eye_of_acherus() : SpellScriptLoader("spell_q12641_recall_eye_of_acherus") { }
+
+        class spell_q12641_recall_eye_of_acherus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12641_recall_eye_of_acherus_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* player = GetCaster()->GetCharmerOrOwner()->ToPlayer())
+                {
+                    player->StopCastingCharm();
+                    player->StopCastingBindSight();
+                    player->RemoveAura(THE_EYE_OF_ACHERUS);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12641_recall_eye_of_acherus_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12641_recall_eye_of_acherus_SpellScript();
+        }
+};
+
+// 51769 - Emblazon Runeblade
+class spell_q12619_emblazon_runeblade : public SpellScriptLoader
+{
+    public:
+        spell_q12619_emblazon_runeblade() : SpellScriptLoader("spell_q12619_emblazon_runeblade") { }
+
+        class spell_q12619_emblazon_runeblade_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_q12619_emblazon_runeblade_AuraScript);
+
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            {
+                PreventDefaultAction();
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, true, NULL, aurEff);
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_q12619_emblazon_runeblade_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_q12619_emblazon_runeblade_AuraScript();
+        }
+};
+
+// 51770 - Emblazon Runeblade
+class spell_q12619_emblazon_runeblade_effect : public SpellScriptLoader
+{
+    public:
+        spell_q12619_emblazon_runeblade_effect() : SpellScriptLoader("spell_q12619_emblazon_runeblade_effect") { }
+
+        class spell_q12619_emblazon_runeblade_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12619_emblazon_runeblade_effect_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), false);
+            }
+
+            void Register() override
+            {
+                OnEffectHit += SpellEffectFn(spell_q12619_emblazon_runeblade_effect_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12619_emblazon_runeblade_effect_SpellScript();
+        }
+};
+
+enum Quest_The_Storm_King
+{
+    SPELL_RIDE_GYMER            = 43671,
+    SPELL_GRABBED               = 55424
+};
+
+class spell_q12919_gymers_grab : public SpellScriptLoader
+{
+    public:
+        spell_q12919_gymers_grab() : SpellScriptLoader("spell_q12919_gymers_grab") { }
+
+        class spell_q12919_gymers_grab_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12919_gymers_grab_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_RIDE_GYMER))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                int8 seatId = 2;
+                if (!GetHitCreature())
+                    return;
+                GetHitCreature()->CastCustomSpell(SPELL_RIDE_GYMER, SPELLVALUE_BASE_POINT0, seatId, GetCaster(), true);
+                GetHitCreature()->CastSpell(GetHitCreature(), SPELL_GRABBED, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12919_gymers_grab_SpellScript::HandleScript, EFFECT_0,  SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12919_gymers_grab_SpellScript();
+        }
+};
+
+enum Quest_The_Storm_King_Throw
+{
+    SPELL_VARGUL_EXPLOSION      = 55569
+};
+
+class spell_q12919_gymers_throw : public SpellScriptLoader
+{
+    public:
+        spell_q12919_gymers_throw() : SpellScriptLoader("spell_q12919_gymers_throw") { }
+
+        class spell_q12919_gymers_throw_SpellScript : public SpellScript
+        {
+           PrepareSpellScript(spell_q12919_gymers_throw_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (caster->IsVehicle())
+                    if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(1))
+                    {
+                         passenger->ExitVehicle();
+                         caster->CastSpell(passenger, SPELL_VARGUL_EXPLOSION, true);
+                    }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12919_gymers_throw_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12919_gymers_throw_SpellScript();
+        }
+};
+
+enum Quest_The_Hunter_And_The_Prince
+{
+    SPELL_ILLIDAN_KILL_CREDIT      = 61748
+};
+
+class spell_q13400_illidan_kill_master : public SpellScriptLoader
+{
+    public:
+        spell_q13400_illidan_kill_master() : SpellScriptLoader("spell_q13400_illidan_kill_master") { }
+
+        class spell_q13400_illidan_kill_master_SpellScript : public SpellScript
+        {
+           PrepareSpellScript(spell_q13400_illidan_kill_master_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ILLIDAN_KILL_CREDIT))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (caster->IsVehicle())
+                    if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(0))
+                         passenger->CastSpell(passenger, SPELL_ILLIDAN_KILL_CREDIT, true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q13400_illidan_kill_master_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q13400_illidan_kill_master_SpellScript();
+        }
+};
+
+enum RelicOfTheEarthenRing
+{
+    SPELL_TOTEM_OF_THE_EARTHEN_RING = 66747
+};
+
+// 66744 - Make Player Destroy Totems
+class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
+{
+    public:
+        spell_q14100_q14111_make_player_destroy_totems() : SpellScriptLoader("spell_q14100_q14111_make_player_destroy_totems") { }
+
+        class spell_q14100_q14111_make_player_destroy_totems_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q14100_q14111_make_player_destroy_totems_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TOTEM_OF_THE_EARTHEN_RING))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* player = GetHitPlayer())
+                    player->CastSpell(player, SPELL_TOTEM_OF_THE_EARTHEN_RING, TRIGGERED_FULL_MASK); // ignore reagent cost, consumed by quest
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q14100_q14111_make_player_destroy_totems_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q14100_q14111_make_player_destroy_totems_SpellScript();
+        }
+};
+
+enum Fumping
+{
+    SPELL_SUMMON_SAND_GNOME  = 39240,
+    SPELL_SUMMON_BONE_SLICER = 39241
+};
+
+// 39238 - Fumping
+class spell_q10929_fumping : SpellScriptLoader
+{
+    public:
+        spell_q10929_fumping() : SpellScriptLoader("spell_q10929_fumping") { }
+
+        class spell_q10929_fumpingAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_q10929_fumpingAuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SAND_GNOME))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_BONE_SLICER))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, urand(SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER), true);
+            }
+
+        void Register() override
+        {
+            OnEffectRemove += AuraEffectRemoveFn(spell_q10929_fumpingAuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_q10929_fumpingAuraScript();
+    }
+};
+
+enum FearNoEvil
+{
+    SPELL_RENEWED_LIFE = 93097,
+    NPC_INJURED_STORMWIND_INFANTRY = 50047
+};
+
+// 93072 - Get Our Boys Back Dummy
+class spell_q28813_get_our_boys_back_dummy : public SpellScriptLoader
+{
+public:
+    spell_q28813_get_our_boys_back_dummy() : SpellScriptLoader("spell_q28813_get_our_boys_back_dummy") { }
+
+    class spell_q28813_get_our_boys_back_dummy_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q28813_get_our_boys_back_dummy_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_RENEWED_LIFE))
+                return false;
+            return true;
+        }
+
+        void HandleDummyEffect()
+        {
+            Unit* caster = GetCaster();
+
+            if (Creature* injuredStormwindInfantry = caster->FindNearestCreature(NPC_INJURED_STORMWIND_INFANTRY, 5.0f, true))
+            {
+                injuredStormwindInfantry->SetCreatorGUID(caster->GetGUID());
+                injuredStormwindInfantry->CastSpell(injuredStormwindInfantry, SPELL_RENEWED_LIFE, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_q28813_get_our_boys_back_dummy_SpellScript::HandleDummyEffect);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_q28813_get_our_boys_back_dummy_SpellScript();
+    }
+};
+
+class spell_q28813_set_health_random : public SpellScriptLoader
+{
+public:
+    spell_q28813_set_health_random() : SpellScriptLoader("spell_q28813_set_health_random") { }
+
+    class spell_q28813_set_health_random_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q28813_set_health_random_SpellScript);
+
+        void HandleDummyEffect()
+        {
+            Unit* caster = GetCaster();
+            caster->SetHealth(caster->CountPctFromMaxHealth(urand(3, 5)*10));
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_q28813_set_health_random_SpellScript::HandleDummyEffect);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_q28813_set_health_random_SpellScript();
+    }
+};
+
+class spell_q12414_hand_over_reins : public SpellScriptLoader
+{
+    public:
+        spell_q12414_hand_over_reins() : SpellScriptLoader("spell_q12414_hand_over_reins") { }
+
+        class spell_q12414_hand_over_reins_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12414_hand_over_reins_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Creature* caster = GetCaster()->ToCreature();
+                GetHitUnit()->ExitVehicle();
+
+                if (caster)
+                    caster->DespawnOrUnsummon();
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12414_hand_over_reins_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q12414_hand_over_reins_SpellScript();
+        }
+};
+
+// 13790 13793 13811 13814 - Among the Champions
+// 13665 13745 13750 13756 13761 13767 13772 13777 13782  13787 - The Grand Melee
+class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
+{
+    public:
+        spell_q13665_q13790_bested_trigger() : SpellScriptLoader("spell_q13665_q13790_bested_trigger") { }
+
+        class spell_q13665_q13790_bested_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q13665_q13790_bested_trigger_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit()->GetCharmerOrOwnerOrSelf();
+                target->CastSpell(target, uint32(GetEffectValue()), true);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q13665_q13790_bested_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_q13665_q13790_bested_trigger_SpellScript();
         }
 };
 
@@ -1807,6 +2637,8 @@ void AddSC_quest_spell_scripts()
     new spell_q13280_13283_plant_battle_standard();
     new spell_q14112_14145_chum_the_water();
     new spell_q9452_cast_net();
+    new spell_q12279_cast_net();
+    new spell_q14076_14092_pound_drum();
     new spell_q12987_read_pronouncement();
     new spell_q12277_wintergarde_mine_explosion();
     new spell_q12066_bunny_kill_credit();
@@ -1825,4 +2657,22 @@ void AddSC_quest_spell_scripts()
     new spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy();
     new spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon();
     new spell_q12847_summon_soul_moveto_bunny();
+    new spell_q13011_bear_flank_master();
+    new spell_q13086_cannons_target();
+    new spell_q12690_burst_at_the_seams();
+    new spell_q12308_escape_from_silverbrook_summon_worgen();
+    new spell_q12308_escape_from_silverbrook();
+    new spell_q12641_death_comes_from_on_high();
+    new spell_q12641_recall_eye_of_acherus();
+    new spell_q12619_emblazon_runeblade();
+    new spell_q12619_emblazon_runeblade_effect();
+    new spell_q12919_gymers_grab();
+    new spell_q12919_gymers_throw();
+    new spell_q13400_illidan_kill_master();
+    new spell_q14100_q14111_make_player_destroy_totems();
+    new spell_q10929_fumping();
+    new spell_q28813_get_our_boys_back_dummy();
+    new spell_q28813_set_health_random();
+    new spell_q12414_hand_over_reins();
+    new spell_q13665_q13790_bested_trigger();
 }

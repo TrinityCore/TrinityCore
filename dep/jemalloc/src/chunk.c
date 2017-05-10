@@ -180,7 +180,7 @@ chunk_alloc(size_t size, size_t alignment, bool base, bool *zero,
 label_return:
 	if (ret != NULL) {
 		if (config_ivsalloc && base == false) {
-			if (rtree_set(chunks_rtree, (uintptr_t)ret, ret)) {
+			if (rtree_set(chunks_rtree, (uintptr_t)ret, 1)) {
 				chunk_dealloc(ret, size, true);
 				return (NULL);
 			}
@@ -214,7 +214,7 @@ chunk_record(extent_tree_t *chunks_szad, extent_tree_t *chunks_ad, void *chunk,
     size_t size)
 {
 	bool unzeroed;
-	extent_node_t *xnode, *node, *prev, key;
+	extent_node_t *xnode, *node, *prev, *xprev, key;
 
 	unzeroed = pages_purge(chunk, size);
 	VALGRIND_MAKE_MEM_NOACCESS(chunk, size);
@@ -226,6 +226,8 @@ chunk_record(extent_tree_t *chunks_szad, extent_tree_t *chunks_ad, void *chunk,
 	 * held.
 	 */
 	xnode = base_node_alloc();
+	/* Use xprev to implement conditional deferred deallocation of prev. */
+	xprev = NULL;
 
 	malloc_mutex_lock(&chunks_mtx);
 	key.addr = (void *)((uintptr_t)chunk + size);
@@ -242,8 +244,6 @@ chunk_record(extent_tree_t *chunks_szad, extent_tree_t *chunks_ad, void *chunk,
 		node->size += size;
 		node->zeroed = (node->zeroed && (unzeroed == false));
 		extent_tree_szad_insert(chunks_szad, node);
-		if (xnode != NULL)
-			base_node_dealloc(xnode);
 	} else {
 		/* Coalescing forward failed, so insert a new node. */
 		if (xnode == NULL) {
@@ -253,10 +253,10 @@ chunk_record(extent_tree_t *chunks_szad, extent_tree_t *chunks_ad, void *chunk,
 			 * already been purged, so this is only a virtual
 			 * memory leak.
 			 */
-			malloc_mutex_unlock(&chunks_mtx);
-			return;
+			goto label_return;
 		}
 		node = xnode;
+		xnode = NULL; /* Prevent deallocation below. */
 		node->addr = chunk;
 		node->size = size;
 		node->zeroed = (unzeroed == false);
@@ -282,9 +282,19 @@ chunk_record(extent_tree_t *chunks_szad, extent_tree_t *chunks_ad, void *chunk,
 		node->zeroed = (node->zeroed && prev->zeroed);
 		extent_tree_szad_insert(chunks_szad, node);
 
-		base_node_dealloc(prev);
+		xprev = prev;
 	}
+
+label_return:
 	malloc_mutex_unlock(&chunks_mtx);
+	/*
+	 * Deallocate xnode and/or xprev after unlocking chunks_mtx in order to
+	 * avoid potential deadlock.
+	 */
+	if (xnode != NULL)
+		base_node_dealloc(xnode);
+	if (xprev != NULL)
+		base_node_dealloc(xprev);
 }
 
 void
@@ -311,7 +321,7 @@ chunk_dealloc(void *chunk, size_t size, bool unmap)
 	assert((size & chunksize_mask) == 0);
 
 	if (config_ivsalloc)
-		rtree_set(chunks_rtree, (uintptr_t)chunk, NULL);
+		rtree_set(chunks_rtree, (uintptr_t)chunk, 0);
 	if (config_stats || config_prof) {
 		malloc_mutex_lock(&chunks_mtx);
 		assert(stats_chunks.curchunks >= (size / chunksize));
@@ -346,7 +356,7 @@ chunk_boot(void)
 	extent_tree_ad_new(&chunks_ad_dss);
 	if (config_ivsalloc) {
 		chunks_rtree = rtree_new((ZU(1) << (LG_SIZEOF_PTR+3)) -
-		    opt_lg_chunk);
+		    opt_lg_chunk, base_alloc, NULL);
 		if (chunks_rtree == NULL)
 			return (true);
 	}
@@ -358,7 +368,7 @@ void
 chunk_prefork(void)
 {
 
-	malloc_mutex_lock(&chunks_mtx);
+	malloc_mutex_prefork(&chunks_mtx);
 	if (config_ivsalloc)
 		rtree_prefork(chunks_rtree);
 	chunk_dss_prefork();

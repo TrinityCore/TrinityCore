@@ -1,6 +1,20 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
+/*
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /* ScriptData
 SDName: FollowerAI
@@ -9,24 +23,23 @@ SDComment: This AI is under development
 SDCategory: Npc
 EndScriptData */
 
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedFollowerAI.h"
 #include "Group.h"
-#include "Player.h"
 
 const float MAX_PLAYER_DISTANCE = 100.0f;
 
-enum ePoints
+enum Points
 {
     POINT_COMBAT_START  = 0xFFFFFF
 };
 
 FollowerAI::FollowerAI(Creature* creature) : ScriptedAI(creature),
-    m_uiLeaderGUID(0),
     m_uiUpdateFollowTimer(2500),
     m_uiFollowState(STATE_FOLLOW_NONE),
     m_pQuestForFollow(NULL)
-{}
+{ }
 
 void FollowerAI::AttackStart(Unit* who)
 {
@@ -50,17 +63,17 @@ void FollowerAI::AttackStart(Unit* who)
 //This part provides assistance to a player that are attacked by who, even if out of normal aggro range
 //It will cause me to attack who that are attacking _any_ player (which has been confirmed may happen also on offi)
 //The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
-bool FollowerAI::AssistPlayerInCombat(Unit* who)
+bool FollowerAI::AssistPlayerInCombatAgainst(Unit* who)
 {
     if (!who || !who->GetVictim())
         return false;
 
     //experimental (unknown) flag not present
-    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_AID_PLAYERS))
+    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST))
         return false;
 
     //not a player
-    if (!who->GetVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+    if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
     //never attack friendly
@@ -89,9 +102,9 @@ bool FollowerAI::AssistPlayerInCombat(Unit* who)
 
 void FollowerAI::MoveInLineOfSight(Unit* who)
 {
-    if (!me->HasUnitState(UNIT_STATE_STUNNED) && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me))
+    if (me->HasReactState(REACT_AGGRESSIVE) && !me->HasUnitState(UNIT_STATE_STUNNED) && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me))
     {
-        if (HasFollowState(STATE_FOLLOW_INPROGRESS) && AssistPlayerInCombat(who))
+        if (HasFollowState(STATE_FOLLOW_INPROGRESS) && AssistPlayerInCombatAgainst(who))
             return;
 
         if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
@@ -104,7 +117,13 @@ void FollowerAI::MoveInLineOfSight(Unit* who)
             {
                 if (!me->GetVictim())
                 {
-                    who->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
+                    // Clear distracted state on combat
+                    if (me->HasUnitState(UNIT_STATE_DISTRACTED))
+                    {
+                        me->ClearUnitState(UNIT_STATE_DISTRACTED);
+                        me->GetMotionMaster()->Clear();
+                    }
+
                     AttackStart(who);
                 }
                 else if (me->GetMap()->IsDungeon())
@@ -151,13 +170,13 @@ void FollowerAI::JustRespawned()
     if (!IsCombatMovementAllowed())
         SetCombatMovement(true);
 
-    if (me->getFaction() != me->GetCreatureTemplate()->faction_A)
-        me->setFaction(me->GetCreatureTemplate()->faction_A);
+    if (me->getFaction() != me->GetCreatureTemplate()->faction)
+        me->setFaction(me->GetCreatureTemplate()->faction);
 
     Reset();
 }
 
-void FollowerAI::EnterEvadeMode()
+void FollowerAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     me->RemoveAllAuras();
     me->DeleteThreatList();
@@ -166,7 +185,7 @@ void FollowerAI::EnterEvadeMode()
 
     if (HasFollowState(STATE_FOLLOW_INPROGRESS))
     {
-        TC_LOG_DEBUG(LOG_FILTER_TSCR, "FollowerAI left combat, returning to CombatStartPosition.");
+        TC_LOG_DEBUG("scripts", "FollowerAI left combat, returning to CombatStartPosition.");
 
         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
         {
@@ -192,7 +211,7 @@ void FollowerAI::UpdateAI(uint32 uiDiff)
         {
             if (HasFollowState(STATE_FOLLOW_COMPLETE) && !HasFollowState(STATE_FOLLOW_POSTEVENT))
             {
-                TC_LOG_DEBUG(LOG_FILTER_TSCR, "FollowerAI is set completed, despawns.");
+                TC_LOG_DEBUG("scripts", "FollowerAI is set completed, despawns.");
                 me->DespawnOrUnsummon();
                 return;
             }
@@ -203,7 +222,7 @@ void FollowerAI::UpdateAI(uint32 uiDiff)
             {
                 if (HasFollowState(STATE_FOLLOW_RETURNING))
                 {
-                    TC_LOG_DEBUG(LOG_FILTER_TSCR, "FollowerAI is returning to leader.");
+                    TC_LOG_DEBUG("scripts", "FollowerAI is returning to leader.");
 
                     RemoveFollowState(STATE_FOLLOW_RETURNING);
                     me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
@@ -232,7 +251,7 @@ void FollowerAI::UpdateAI(uint32 uiDiff)
 
             if (bIsMaxRangeExceeded)
             {
-                TC_LOG_DEBUG(LOG_FILTER_TSCR, "FollowerAI failed because player/group was to far away or not found");
+                TC_LOG_DEBUG("scripts", "FollowerAI failed because player/group was to far away or not found");
                 me->DespawnOrUnsummon();
                 return;
             }
@@ -275,13 +294,13 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, const Qu
 {
     if (me->GetVictim())
     {
-        TC_LOG_DEBUG(LOG_FILTER_TSCR, "FollowerAI attempt to StartFollow while in combat.");
+        TC_LOG_DEBUG("scripts", "FollowerAI attempt to StartFollow while in combat.");
         return;
     }
 
     if (HasFollowState(STATE_FOLLOW_INPROGRESS))
     {
-        TC_LOG_ERROR(LOG_FILTER_TSCR, "FollowerAI attempt to StartFollow while already following.");
+        TC_LOG_ERROR("scripts", "FollowerAI attempt to StartFollow while already following.");
         return;
     }
 
@@ -297,21 +316,21 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, const Qu
     {
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
-        TC_LOG_DEBUG(LOG_FILTER_TSCR, "FollowerAI start with WAYPOINT_MOTION_TYPE, set to MoveIdle.");
+        TC_LOG_DEBUG("scripts", "FollowerAI start with WAYPOINT_MOTION_TYPE, set to MoveIdle.");
     }
 
-    me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+    me->SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
     AddFollowState(STATE_FOLLOW_INPROGRESS);
 
     me->GetMotionMaster()->MoveFollow(player, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-    TC_LOG_DEBUG(LOG_FILTER_TSCR, "FollowerAI start follow %s (GUID " UI64FMTD ")", player->GetName().c_str(), m_uiLeaderGUID);
+    TC_LOG_DEBUG("scripts", "FollowerAI start follow %s (%s)", player->GetName().c_str(), m_uiLeaderGUID.ToString().c_str());
 }
 
 Player* FollowerAI::GetLeaderForFollower()
 {
-    if (Player* player = Unit::GetPlayer(*me, m_uiLeaderGUID))
+    if (Player* player = ObjectAccessor::GetPlayer(*me, m_uiLeaderGUID))
     {
         if (player->IsAlive())
             return player;
@@ -325,7 +344,7 @@ Player* FollowerAI::GetLeaderForFollower()
 
                     if (member && member->IsAlive() && me->IsWithinDistInMap(member, MAX_PLAYER_DISTANCE))
                     {
-                        TC_LOG_DEBUG(LOG_FILTER_TSCR, "FollowerAI GetLeader changed and returned new leader.");
+                        TC_LOG_DEBUG("scripts", "FollowerAI GetLeader changed and returned new leader.");
                         m_uiLeaderGUID = member->GetGUID();
                         return member;
                     }
@@ -334,7 +353,7 @@ Player* FollowerAI::GetLeaderForFollower()
         }
     }
 
-    TC_LOG_DEBUG(LOG_FILTER_TSCR, "FollowerAI GetLeader can not find suitable leader.");
+    TC_LOG_DEBUG("scripts", "FollowerAI GetLeader can not find suitable leader.");
     return NULL;
 }
 

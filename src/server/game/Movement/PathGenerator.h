@@ -19,7 +19,7 @@
 #ifndef _PATH_GENERATOR_H
 #define _PATH_GENERATOR_H
 
-#include "SharedDefines.h"
+#include "MapDefines.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "MoveSplineInitArgs.h"
@@ -49,7 +49,7 @@ enum PathType
     PATHFIND_SHORT          = 0x20,   // path is longer or equal to its limited path length
 };
 
-class PathGenerator
+class TC_GAME_API PathGenerator
 {
     public:
         explicit PathGenerator(Unit const* owner);
@@ -57,7 +57,8 @@ class PathGenerator
 
         // Calculate the path from owner to given destination
         // return: true if new path was calculated, false otherwise (no change needed)
-        bool CalculatePath(float destX, float destY, float destZ, bool forceDest = false);
+        bool CalculatePath(float destX, float destY, float destZ, bool forceDest = false, bool straightLine = false);
+        bool IsInvalidDestinationZ(Unit const* target) const;
 
         // option setters - use optional
         void SetUseStraightPath(bool useStraightPath) { _useStraightPath = useStraightPath; }
@@ -72,6 +73,8 @@ class PathGenerator
 
         PathType GetPathType() const { return _type; }
 
+        void ReducePathLenghtByDist(float dist); // path must be already built
+
     private:
 
         dtPolyRef _pathPolyRefs[MAX_PATH_LENGTH];   // array of detour polygon references
@@ -83,6 +86,7 @@ class PathGenerator
         bool _useStraightPath;  // type of path will be generated
         bool _forceDestination; // when set, we will always arrive at given point
         uint32 _pointPathLimit; // limit point path size; min(this, MAX_POINT_PATH_LENGTH)
+        bool _straightLine;     // use raycast if true for a straight line path
 
         G3D::Vector3 _startPosition;        // {x, y, z} of current location
         G3D::Vector3 _endPosition;          // {x, y, z} of the destination

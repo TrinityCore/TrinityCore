@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,24 +22,17 @@
 class instance_ruins_of_ahnqiraj : public InstanceMapScript
 {
     public:
-        instance_ruins_of_ahnqiraj() : InstanceMapScript("instance_ruins_of_ahnqiraj", 509) {}
+        instance_ruins_of_ahnqiraj() : InstanceMapScript("instance_ruins_of_ahnqiraj", 509) { }
 
         struct instance_ruins_of_ahnqiraj_InstanceMapScript : public InstanceScript
         {
             instance_ruins_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(NUM_ENCOUNTER);
-
-                _kurinaxxGUID   = 0;
-                _rajaxxGUID     = 0;
-                _moamGUID       = 0;
-                _buruGUID       = 0;
-                _ayamissGUID    = 0;
-                _ossirianGUID   = 0;
-                _paralyzedGUID  = 0;
             }
 
-            void OnCreatureCreate(Creature* creature)
+            void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
                 {
@@ -64,7 +57,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 bossId, EncounterState state)
+            bool SetBossState(uint32 bossId, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(bossId, state))
                     return false;
@@ -72,13 +65,13 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 return true;
             }
 
-            void SetData64(uint32 type, uint64 data)
+            void SetGuidData(uint32 type, ObjectGuid data) override
             {
                 if (type == DATA_PARALYZED)
                     _paralyzedGUID = data;
             }
 
-            uint64 GetData64(uint32 type) const
+            ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
@@ -98,63 +91,20 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                         return _paralyzedGUID;
                 }
 
-                return 0;
-            }
-
-            std::string GetSaveData()
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "R A" << GetBossSaveData();
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(char const* data)
-            {
-                if (!data)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(data);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(data);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'R' && dataHead2 == 'A')
-                {
-                    for (uint8 i = 0; i < NUM_ENCOUNTER; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > TO_BE_DECIDED)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-                }
-                else
-                    OUT_LOAD_INST_DATA_FAIL;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                return ObjectGuid::Empty;
             }
 
         private:
-            uint64 _kurinaxxGUID;
-            uint64 _rajaxxGUID;
-            uint64 _moamGUID;
-            uint64 _buruGUID;
-            uint64 _ayamissGUID;
-            uint64 _ossirianGUID;
-            uint64 _paralyzedGUID;
+            ObjectGuid _kurinaxxGUID;
+            ObjectGuid _rajaxxGUID;
+            ObjectGuid _moamGUID;
+            ObjectGuid _buruGUID;
+            ObjectGuid _ayamissGUID;
+            ObjectGuid _ossirianGUID;
+            ObjectGuid _paralyzedGUID;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
             return new instance_ruins_of_ahnqiraj_InstanceMapScript(map);
         }

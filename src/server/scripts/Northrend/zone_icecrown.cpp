@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,17 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Icecrown
-SD%Complete: 100
-SDComment: Quest support: 12807
-SDCategory: Icecrown
-EndScriptData */
-
-/* ContentData
-npc_arete
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -36,142 +25,10 @@ EndContentData */
 #include "CombatAI.h"
 
 /*######
-## npc_arete
-######*/
-
-#define GOSSIP_ARETE_ITEM1 "Lord-Commander, I would hear your tale."
-#define GOSSIP_ARETE_ITEM2 "<You nod slightly but do not complete the motion as the Lord-Commander narrows his eyes before he continues.>"
-#define GOSSIP_ARETE_ITEM3 "I thought that they now called themselves the Scarlet Onslaught?"
-#define GOSSIP_ARETE_ITEM4 "Where did the grand admiral go?"
-#define GOSSIP_ARETE_ITEM5 "That's fine. When do I start?"
-#define GOSSIP_ARETE_ITEM6 "Let's finish this!"
-#define GOSSIP_ARETE_ITEM7 "That's quite a tale, Lord-Commander."
-
-enum eArete
-{
-    GOSSIP_TEXTID_ARETE1        = 13525,
-    GOSSIP_TEXTID_ARETE2        = 13526,
-    GOSSIP_TEXTID_ARETE3        = 13527,
-    GOSSIP_TEXTID_ARETE4        = 13528,
-    GOSSIP_TEXTID_ARETE5        = 13529,
-    GOSSIP_TEXTID_ARETE6        = 13530,
-    GOSSIP_TEXTID_ARETE7        = 13531,
-
-    QUEST_THE_STORY_THUS_FAR    = 12807
-};
-
-class npc_arete : public CreatureScript
-{
-public:
-    npc_arete() : CreatureScript("npc_arete") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_THE_STORY_THUS_FAR) == QUEST_STATUS_INCOMPLETE)
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE1, creature->GetGUID());
-            return true;
-        }
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE2, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE3, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE4, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE5, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE6, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+6:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE7, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+7:
-                player->CLOSE_GOSSIP_MENU();
-                player->AreaExploredOrEventHappens(QUEST_THE_STORY_THUS_FAR);
-                break;
-        }
-
-        return true;
-    }
-};
-
-/*######
-## npc_squire_david
-######*/
-
-enum eSquireDavid
-{
-    QUEST_THE_ASPIRANT_S_CHALLENGE_H                    = 13680,
-    QUEST_THE_ASPIRANT_S_CHALLENGE_A                    = 13679,
-
-    NPC_ARGENT_VALIANT                                  = 33448,
-
-    GOSSIP_TEXTID_SQUIRE                                = 14407
-};
-
-#define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
-#define GOSSIP_SQUIRE_ITEM_2 "How do the Argent Crusader raiders fight?"
-
-class npc_squire_david : public CreatureScript
-{
-public:
-    npc_squire_david() : CreatureScript("npc_squire_david") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_H) == QUEST_STATUS_INCOMPLETE ||
-            player->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_A) == QUEST_STATUS_INCOMPLETE)//We need more info about it.
-        {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-        }
-
-        player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_SQUIRE, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->SummonCreature(NPC_ARGENT_VALIANT, 8575.451f, 952.472f, 547.554f, 0.38f);
-        }
-        return true;
-    }
-};
-
-/*######
 ## npc_argent_valiant
 ######*/
 
-enum eArgentValiant
+enum ArgentValiant
 {
     SPELL_CHARGE                = 63010,
     SPELL_SHIELD_BREAKER        = 65147,
@@ -187,20 +44,26 @@ public:
     {
         npc_argent_valiantAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             creature->GetMotionMaster()->MovePoint(0, 8599.258f, 963.951f, 547.553f);
             creature->setFaction(35); //wrong faction in db?
         }
 
-        uint32 uiChargeTimer;
-        uint32 uiShieldBreakerTimer;
-
-        void Reset()
+        void Initialize()
         {
             uiChargeTimer = 7000;
             uiShieldBreakerTimer = 10000;
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        uint32 uiChargeTimer;
+        uint32 uiShieldBreakerTimer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void MovementInform(uint32 uiType, uint32 /*uiId*/) override
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -208,7 +71,7 @@ public:
             me->setFaction(14);
         }
 
-        void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage) override
         {
             if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
@@ -221,7 +84,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff) override
         {
             if (!UpdateVictim())
                 return;
@@ -242,7 +105,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_argent_valiantAI(creature);
     }
@@ -252,7 +115,7 @@ public:
 ## npc_guardian_pavilion
 ######*/
 
-enum eGuardianPavilion
+enum GuardianPavilion
 {
     SPELL_TRESPASSER_H                            = 63987,
     AREA_SUNREAVER_PAVILION                       = 4676,
@@ -273,7 +136,8 @@ public:
             SetCombatMovement(false);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
+
         {
             if (me->GetAreaId() != AREA_SUNREAVER_PAVILION && me->GetAreaId() != AREA_SILVER_COVENANT_PAVILION)
                 return;
@@ -292,54 +156,9 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_guardian_pavilionAI(creature);
-    }
-};
-
-/*######
-## npc_vereth_the_cunning
-######*/
-
-enum eVerethTheCunning
-{
-    NPC_GEIST_RETURN_BUNNY_KC   = 31049,
-    NPC_LITHE_STALKER           = 30894,
-    SPELL_SUBDUED_LITHE_STALKER = 58151,
-};
-
-class npc_vereth_the_cunning : public CreatureScript
-{
-public:
-    npc_vereth_the_cunning() : CreatureScript("npc_vereth_the_cunning") { }
-
-    struct npc_vereth_the_cunningAI : public ScriptedAI
-    {
-        npc_vereth_the_cunningAI(Creature* creature) : ScriptedAI(creature) {}
-
-        void MoveInLineOfSight(Unit* who)
-        {
-            ScriptedAI::MoveInLineOfSight(who);
-
-            if (who->GetEntry() == NPC_LITHE_STALKER && me->IsWithinDistInMap(who, 10.0f))
-            {
-                if (Unit* owner = who->GetCharmer())
-                {
-                    if (who->HasAura(SPELL_SUBDUED_LITHE_STALKER))
-                        {
-                            owner->ToPlayer()->KilledMonsterCredit(NPC_GEIST_RETURN_BUNNY_KC, 0);
-                            who->ToCreature()->DisappearAndDie();
-
-                    }
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_vereth_the_cunningAI(creature);
     }
 };
 
@@ -373,54 +192,48 @@ enum TournamentDummy
 class npc_tournament_training_dummy : public CreatureScript
 {
     public:
-        npc_tournament_training_dummy(): CreatureScript("npc_tournament_training_dummy"){}
+        npc_tournament_training_dummy(): CreatureScript("npc_tournament_training_dummy"){ }
 
         struct npc_tournament_training_dummyAI : ScriptedAI
         {
             npc_tournament_training_dummyAI(Creature* creature) : ScriptedAI(creature)
             {
+                Initialize();
                 SetCombatMovement(false);
+            }
+
+            void Initialize()
+            {
+                isVulnerable = false;
             }
 
             EventMap events;
             bool isVulnerable;
 
-            void Reset()
+            void Reset() override
             {
                 me->SetControlled(true, UNIT_STATE_STUNNED);
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-                isVulnerable = false;
-
-                // Cast Defend spells to max stack size
-                switch (me->GetEntry())
-                {
-                    case NPC_CHARGE_TARGET:
-                        DoCast(SPELL_CHARGE_DEFEND);
-                        break;
-                    case NPC_RANGED_TARGET:
-                        me->CastCustomSpell(SPELL_RANGED_DEFEND, SPELLVALUE_AURA_STACK, 3, me);
-                        break;
-                }
+                Initialize();
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
             }
 
-            void EnterEvadeMode()
+            void EnterEvadeMode(EvadeReason why) override
             {
-                if (!_EnterEvadeMode())
+                if (!_EnterEvadeMode(why))
                     return;
 
                 Reset();
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
                 damage = 0;
                 events.RescheduleEvent(EVENT_DUMMY_RESET, 10000);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
                 switch (me->GetEntry())
                 {
@@ -450,7 +263,7 @@ class npc_tournament_training_dummy : public CreatureScript
                         isVulnerable = true;
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 events.Update(diff);
 
@@ -462,14 +275,14 @@ class npc_tournament_training_dummy : public CreatureScript
                             case NPC_CHARGE_TARGET:
                             {
                                 if (!me->HasAura(SPELL_CHARGE_DEFEND))
-                                    DoCast(SPELL_CHARGE_DEFEND);
+                                    DoCast(me, SPELL_CHARGE_DEFEND, true);
                                 break;
                             }
                             case NPC_RANGED_TARGET:
                             {
                                 Aura* defend = me->GetAura(SPELL_RANGED_DEFEND);
                                 if (!defend || defend->GetStackAmount() < 3 || defend->GetDuration() <= 8000)
-                                    DoCast(SPELL_RANGED_DEFEND);
+                                    DoCast(me, SPELL_RANGED_DEFEND, true);
                                 break;
                             }
                         }
@@ -479,7 +292,7 @@ class npc_tournament_training_dummy : public CreatureScript
                     case EVENT_DUMMY_RESET:
                         if (UpdateVictim())
                         {
-                            EnterEvadeMode();
+                            EnterEvadeMode(EVADE_REASON_OTHER);
                             events.ScheduleEvent(EVENT_DUMMY_RESET, 10000);
                         }
                         break;
@@ -492,10 +305,11 @@ class npc_tournament_training_dummy : public CreatureScript
                     me->SetControlled(true, UNIT_STATE_STUNNED);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/){}
+            void MoveInLineOfSight(Unit* /*who*/) override { }
+
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_tournament_training_dummyAI(creature);
         }
@@ -598,7 +412,6 @@ public:
         {
             HalofSpawned = false;
             PhaseCount = 0;
-            Summons.DespawnAll();
 
             SetCombatMovement(false);
         }
@@ -611,35 +424,36 @@ public:
 
         SummonList Summons;
 
-        uint64 guidDalfors;
-        uint64 guidPriest[3];
-        uint64 guidMason[3];
-        uint64 guidHalof;
+        ObjectGuid guidDalfors;
+        ObjectGuid guidPriest[3];
+        ObjectGuid guidMason[3];
+        ObjectGuid guidHalof;
 
-        void Reset()
+        void Reset() override
         {
             me->setRegeneratingHealth(false);
             DoCast(SPELL_THREAT_PULSE);
-            me->AI()->Talk(BANNER_SAY);
+            Talk(BANNER_SAY);
             events.ScheduleEvent(EVENT_SPAWN, 3000);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void MoveInLineOfSight(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void JustSummoned(Creature* Summoned)
+
+        void JustSummoned(Creature* Summoned) override
         {
             Summons.Summon(Summoned);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Summons.DespawnAll();
             me->DespawnOrUnsummon();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             events.Update(diff);
 
@@ -687,14 +501,14 @@ public:
                     break;
                 case EVENT_INTRO_1:
                     {
-                        if (Creature* Dalfors = me->GetCreature(*me, guidDalfors))
+                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                             Dalfors->AI()->Talk(DALFORS_SAY_PRE_1);
                         events.ScheduleEvent(EVENT_INTRO_2, 5000);
                     }
                     break;
                 case EVENT_INTRO_2:
                     {
-                        if (Creature* Dalfors = me->GetCreature(*me, guidDalfors))
+                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                         {
                             Dalfors->SetFacingTo(6.215f);
                             Dalfors->AI()->Talk(DALFORS_SAY_PRE_2);
@@ -704,37 +518,37 @@ public:
                     break;
                 case EVENT_INTRO_3:
                     {
-                        if (Creature* Dalfors = me->GetCreature(*me, guidDalfors))
+                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                         {
                             Dalfors->GetMotionMaster()->MovePoint(0, DalforsPos[2]);
                             Dalfors->SetHomePosition(DalforsPos[2]);
                         }
-                        if (Creature* Priest1 = me->GetCreature(*me, guidPriest[0]))
+                        if (Creature* Priest1 = ObjectAccessor::GetCreature(*me, guidPriest[0]))
                         {
                             Priest1->SetFacingTo(5.7421f);
                             Priest1->SetHomePosition(Priest1Pos[1]);
                         }
-                        if (Creature* Priest2 = me->GetCreature(*me, guidPriest[1]))
+                        if (Creature* Priest2 = ObjectAccessor::GetCreature(*me, guidPriest[1]))
                         {
                             Priest2->SetFacingTo(5.7421f);
                             Priest2->SetHomePosition(Priest2Pos[1]);
                         }
-                        if (Creature* Priest3 = me->GetCreature(*me, guidPriest[2]))
+                        if (Creature* Priest3 = ObjectAccessor::GetCreature(*me, guidPriest[2]))
                         {
                             Priest3->SetFacingTo(5.7421f);
                             Priest3->SetHomePosition(Priest3Pos[1]);
                         }
-                        if (Creature* Mason1 = me->GetCreature(*me, guidMason[0]))
+                        if (Creature* Mason1 = ObjectAccessor::GetCreature(*me, guidMason[0]))
                         {
                             Mason1->GetMotionMaster()->MovePoint(0, Mason1Pos[2]);
                             Mason1->SetHomePosition(Mason1Pos[2]);
                         }
-                        if (Creature* Mason2 = me->GetCreature(*me, guidMason[1]))
+                        if (Creature* Mason2 = ObjectAccessor::GetCreature(*me, guidMason[1]))
                         {
                             Mason2->GetMotionMaster()->MovePoint(0, Mason2Pos[2]);
                             Mason2->SetHomePosition(Mason2Pos[2]);
                         }
-                        if (Creature* Mason3 = me->GetCreature(*me, guidMason[2]))
+                        if (Creature* Mason3 = ObjectAccessor::GetCreature(*me, guidMason[2]))
                         {
                             Mason3->GetMotionMaster()->MovePoint(0, Mason3Pos[2]);
                             Mason3->SetHomePosition(Mason3Pos[2]);
@@ -745,17 +559,17 @@ public:
                     break;
                 case EVENT_MASON_ACTION:
                     {
-                        if (Creature* Mason1 = me->GetCreature(*me, guidMason[0]))
+                        if (Creature* Mason1 = ObjectAccessor::GetCreature(*me, guidMason[0]))
                         {
                             Mason1->SetFacingTo(2.8972f);
                             Mason1->AI()->SetData(1, 1); // triggers SAI actions on npc
                         }
-                        if (Creature* Mason2 = me->GetCreature(*me, guidMason[1]))
+                        if (Creature* Mason2 = ObjectAccessor::GetCreature(*me, guidMason[1]))
                         {
                             Mason2->SetFacingTo(3.1241f);
                             Mason2->AI()->SetData(1, 1); // triggers SAI actions on npc
                         }
-                        if (Creature* Mason3 = me->GetCreature(*me, guidMason[2]))
+                        if (Creature* Mason3 = ObjectAccessor::GetCreature(*me, guidMason[2]))
                         {
                             Mason3->SetFacingTo(3.6651f);
                             Mason3->AI()->SetData(1, 1); // triggers SAI actions on npc
@@ -766,7 +580,7 @@ public:
                     {
                         if (Creature* LK = GetClosestCreatureWithEntry(me, NPC_LK, 100))
                             LK->AI()->Talk(LK_TALK_1);
-                        if (Creature* Dalfors = me->GetCreature(*me, guidDalfors))
+                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                             Dalfors->AI()->Talk(DALFORS_SAY_START);
                         events.ScheduleEvent(EVENT_WAVE_SPAWN, 1000);
                     }
@@ -855,7 +669,7 @@ public:
             }
 
             if (PhaseCount == 8)
-                if (Creature* Halof = me->GetCreature(*me, guidHalof))
+                if (Creature* Halof = ObjectAccessor::GetCreature(*me, guidHalof))
                     if (Halof->isDead())
                     {
                         DoCast(me, SPELL_CRUSADERS_SPIRE_VICTORY, true);
@@ -863,14 +677,14 @@ public:
                         Summons.DespawnEntry(NPC_REANIMATED_CAPTAIN);
                         Summons.DespawnEntry(NPC_SCOURGE_DRUDGE);
                         Summons.DespawnEntry(NPC_HALOF_THE_DEATHBRINGER);
-                        if (Creature* Dalfors = me->GetCreature(*me, guidDalfors))
+                        if (Creature* Dalfors = ObjectAccessor::GetCreature(*me, guidDalfors))
                             Dalfors->AI()->Talk(DALFORS_YELL_FINISHED);
                         events.ScheduleEvent(EVENT_ENDED, 10000);
                     }
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_blessed_bannerAI(creature);
     }
@@ -887,7 +701,7 @@ enum BorrowedTechnologyAndVolatility
     SPELL_PING_BUNNY       = 59375,
     SPELL_IMMOLATION       = 54690,
     SPELL_EXPLOSION        = 59335,
-    SPELL_RIDE             = 56687,
+    SPELL_RIDE             = 59319,
 
     // Points
     POINT_GRAB_DECOY       = 1,
@@ -908,12 +722,12 @@ class npc_frostbrood_skytalon : public CreatureScript
 
             EventMap events;
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* summoner) override
             {
                 me->GetMotionMaster()->MovePoint(POINT_GRAB_DECOY, summoner->GetPositionX(), summoner->GetPositionY(), summoner->GetPositionZ());
             }
 
-            void MovementInform(uint32 type, uint32 id)
+            void MovementInform(uint32 type, uint32 id) override
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
@@ -924,7 +738,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                             DoCast(summoner, SPELL_GRAB);
             }
 
-            void UpdateAI(uint32 diff)
+            void UpdateAI(uint32 diff) override
             {
                 VehicleAI::UpdateAI(diff);
                 events.Update(diff);
@@ -941,7 +755,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 switch (spell->Id)
                 {
@@ -956,7 +770,7 @@ class npc_frostbrood_skytalon : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_frostbrood_skytalonAI(creature);
         }
@@ -964,11 +778,8 @@ class npc_frostbrood_skytalon : public CreatureScript
 
 void AddSC_icecrown()
 {
-    new npc_arete;
-    new npc_squire_david;
     new npc_argent_valiant;
     new npc_guardian_pavilion;
-    new npc_vereth_the_cunning;
     new npc_tournament_training_dummy;
     new npc_blessed_banner();
     new npc_frostbrood_skytalon();

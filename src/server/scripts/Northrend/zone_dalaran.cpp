@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,8 +35,8 @@ Script Data End */
 
 enum Spells
 {
-    SPELL_TRESPASSER_A = 54028,
-    SPELL_TRESPASSER_H = 54029,
+    SPELL_TRESPASSER_A                     = 54028,
+    SPELL_TRESPASSER_H                     = 54029,
 
     SPELL_SUNREAVER_DISGUISE_FEMALE        = 70973,
     SPELL_SUNREAVER_DISGUISE_MALE          = 70974,
@@ -46,8 +46,10 @@ enum Spells
 
 enum NPCs // All outdoor guards are within 35.0f of these NPCs
 {
-    NPC_APPLEBOUGH_A = 29547,
-    NPC_SWEETBERRY_H = 29715,
+    NPC_APPLEBOUGH_A                       = 29547,
+    NPC_SWEETBERRY_H                       = 29715,
+    NPC_SILVER_COVENANT_GUARDIAN_MAGE      = 29254,
+    NPC_SUNREAVER_GUARDIAN_MAGE            = 29255,
 };
 
 class npc_mageguard_dalaran : public CreatureScript
@@ -64,13 +66,13 @@ public:
             creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
-        void Reset(){}
+        void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void AttackStart(Unit* /*who*/){}
+        void AttackStart(Unit* /*who*/) override { }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (!who || !who->IsInWorld() || who->GetZoneId() != 4395)
                 return;
@@ -88,7 +90,7 @@ public:
 
             switch (me->GetEntry())
             {
-                case 29254:
+                case NPC_SILVER_COVENANT_GUARDIAN_MAGE:
                     if (player->GetTeam() == HORDE)              // Horde unit found in Alliance area
                     {
                         if (GetClosestCreatureWithEntry(me, NPC_APPLEBOUGH_A, 32.0f))
@@ -100,7 +102,7 @@ public:
                             DoCast(who, SPELL_TRESPASSER_A);     // Teleport the Horde unit out
                     }
                     break;
-                case 29255:
+                case NPC_SUNREAVER_GUARDIAN_MAGE:
                     if (player->GetTeam() == ALLIANCE)           // Alliance unit found in Horde area
                     {
                         if (GetClosestCreatureWithEntry(me, NPC_SWEETBERRY_H, 32.0f))
@@ -113,65 +115,130 @@ public:
                     }
                     break;
             }
-            me->SetOrientation(me->GetHomePosition().GetOrientation());
             return;
         }
 
-        void UpdateAI(uint32 /*diff*/){}
+        void UpdateAI(uint32 /*diff*/) override { }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_mageguard_dalaranAI(creature);
     }
 };
 
-/*######
-## npc_hira_snowdawn
-######*/
-
-enum eHiraSnowdawn
+enum MinigobData
 {
-    SPELL_COLD_WEATHER_FLYING                   = 54197
+    ZONE_DALARAN            = 4395,
+
+    SPELL_MANABONKED        = 61834,
+    SPELL_TELEPORT_VISUAL   = 51347,
+    SPELL_IMPROVED_BLINK    = 61995,
+
+    EVENT_SELECT_TARGET     = 1,
+    EVENT_BLINK             = 2,
+    EVENT_DESPAWN_VISUAL    = 3,
+    EVENT_DESPAWN           = 4,
+
+    MAIL_MINIGOB_ENTRY      = 264,
+    MAIL_DELIVER_DELAY_MIN  = 5*MINUTE,
+    MAIL_DELIVER_DELAY_MAX  = 15*MINUTE
 };
 
-#define GOSSIP_TEXT_TRAIN_HIRA "I seek training to ride a steed."
-
-class npc_hira_snowdawn : public CreatureScript
+class npc_minigob_manabonk : public CreatureScript
 {
-public:
-    npc_hira_snowdawn() : CreatureScript("npc_hira_snowdawn") { }
+    public:
+        npc_minigob_manabonk() : CreatureScript("npc_minigob_manabonk") {}
 
-    bool OnGossipHello(Player* player, Creature* creature)
+        struct npc_minigob_manabonkAI : public ScriptedAI
+        {
+            npc_minigob_manabonkAI(Creature* creature) : ScriptedAI(creature)
+            {
+                me->setActive(true);
+            }
+
+            void Reset() override
+            {
+                me->SetVisible(false);
+                events.ScheduleEvent(EVENT_SELECT_TARGET, IN_MILLISECONDS);
+            }
+
+            Player* SelectTargetInDalaran()
+            {
+                std::list<Player*> PlayerInDalaranList;
+                PlayerInDalaranList.clear();
+
+                Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                    if (Player* player = itr->GetSource()->ToPlayer())
+                        if (player->GetZoneId() == ZONE_DALARAN && !player->IsFlying() && !player->IsMounted() && !player->IsGameMaster())
+                            PlayerInDalaranList.push_back(player);
+
+                if (PlayerInDalaranList.empty())
+                    return NULL;
+                return Trinity::Containers::SelectRandomContainerElement(PlayerInDalaranList);
+            }
+
+            void SendMailToPlayer(Player* player)
+            {
+                SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                int16 deliverDelay = irand(MAIL_DELIVER_DELAY_MIN, MAIL_DELIVER_DELAY_MAX);
+                MailDraft(MAIL_MINIGOB_ENTRY, true).SendMailTo(trans, MailReceiver(player), MailSender(MAIL_CREATURE, uint64(me->GetEntry())), MAIL_CHECK_MASK_NONE, deliverDelay);
+                CharacterDatabase.CommitTransaction(trans);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_SELECT_TARGET:
+                            me->SetVisible(true);
+                            DoCast(me, SPELL_TELEPORT_VISUAL);
+                            if (Player* player = SelectTargetInDalaran())
+                            {
+                                me->NearTeleportTo(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f);
+                                DoCast(player, SPELL_MANABONKED);
+                                SendMailToPlayer(player);
+                            }
+                            events.ScheduleEvent(EVENT_BLINK, 3*IN_MILLISECONDS);
+                            break;
+                        case EVENT_BLINK:
+                        {
+                            DoCast(me, SPELL_IMPROVED_BLINK);
+                            Position pos = me->GetRandomNearPosition(frand(15, 40));
+                            me->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+                            events.ScheduleEvent(EVENT_DESPAWN, 3 * IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_DESPAWN_VISUAL, 2.5*IN_MILLISECONDS);
+                            break;
+                        }
+                        case EVENT_DESPAWN_VISUAL:
+                            DoCast(me, SPELL_TELEPORT_VISUAL);
+                            break;
+                        case EVENT_DESPAWN:
+                            me->DespawnOrUnsummon();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        private:
+            EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        if (!creature->IsVendor() || !creature->IsTrainer())
-            return false;
-
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_TRAIN_HIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
-
-        if (player->getLevel() >= 80 && player->HasSpell(SPELL_COLD_WEATHER_FLYING))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRAIN)
-            player->GetSession()->SendTrainerList(creature->GetGUID());
-
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-
-        return true;
+        return new npc_minigob_manabonkAI(creature);
     }
 };
 
 void AddSC_dalaran()
 {
-    new npc_mageguard_dalaran;
-    new npc_hira_snowdawn;
+    new npc_mageguard_dalaran();
+    new npc_minigob_manabonk();
 }

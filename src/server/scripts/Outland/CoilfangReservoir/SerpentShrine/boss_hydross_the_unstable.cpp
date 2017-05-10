@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -84,21 +84,39 @@ class boss_hydross_the_unstable : public CreatureScript
 public:
     boss_hydross_the_unstable() : CreatureScript("boss_hydross_the_unstable") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_hydross_the_unstableAI (creature);
+        return GetInstanceAI<boss_hydross_the_unstableAI>(creature);
     }
 
     struct boss_hydross_the_unstableAI : public ScriptedAI
     {
         boss_hydross_the_unstableAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            beams[0].Clear();
+            beams[1].Clear();
+            PosCheck_Timer = 2500;
+            MarkOfHydross_Timer = 15000;
+            MarkOfCorruption_Timer = 15000;
+            WaterTomb_Timer = 7000;
+            VileSludge_Timer = 7000;
+            MarkOfHydross_Count = 0;
+            MarkOfCorruption_Count = 0;
+            EnrageTimer = 600000;
+
+            CorruptedForm = false;
+            beam = false;
         }
 
         InstanceScript* instance;
 
-        uint64 beams[2];
+        ObjectGuid beams[2];
         uint32 PosCheck_Timer;
         uint32 MarkOfHydross_Timer;
         uint32 MarkOfCorruption_Timer;
@@ -111,30 +129,18 @@ public:
         bool beam;
         SummonList Summons;
 
-        void Reset()
+        void Reset() override
         {
             DeSummonBeams();
-            beams[0] = 0;
-            beams[1] = 0;
-            PosCheck_Timer = 2500;
-            MarkOfHydross_Timer = 15000;
-            MarkOfCorruption_Timer = 15000;
-            WaterTomb_Timer = 7000;
-            VileSludge_Timer = 7000;
-            MarkOfHydross_Count = 0;
-            MarkOfCorruption_Count = 0;
-            EnrageTimer = 600000;
+            Initialize();
 
-            CorruptedForm = false;
             me->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
             me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
 
             me->SetDisplayId(MODEL_CLEAN);
 
-            if (instance)
-                instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
-            beam = false;
+            instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
             Summons.DespawnAll();
         }
 
@@ -146,7 +152,7 @@ public:
                 beamer->CastSpell(me, SPELL_BLUE_BEAM, true);
                 beamer->SetDisplayId(11686);  //invisible
                 beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                beams[0]=beamer->GetGUID();
+                beams[0] = beamer->GetGUID();
             }
             beamer = me->SummonCreature(ENTRY_BEAM_DUMMY, -219.918f, -371.308f, 22.0042f, 2.73072f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (beamer)
@@ -154,35 +160,33 @@ public:
                 beamer->CastSpell(me, SPELL_BLUE_BEAM, true);
                 beamer->SetDisplayId(11686);  //invisible
                 beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                beams[1]=beamer->GetGUID();
+                beams[1] = beamer->GetGUID();
             }
         }
         void DeSummonBeams()
         {
-            for (uint8 i=0; i<2; ++i)
+            for (uint8 i = 0; i < 2; ++i)
             {
-                Creature* mob = Unit::GetCreature(*me, beams[i]);
-                if (mob)
+                if (Creature* mob = ObjectAccessor::GetCreature(*me, beams[i]))
                 {
                     mob->setDeathState(DEAD);
                     mob->RemoveCorpse();
                 }
             }
         }
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
-            if (instance)
-                instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
+            instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
         }
 
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* /*victim*/) override
         {
             Talk(CorruptedForm ? SAY_CORRUPT_SLAY : SAY_CLEAN_SLAY);
         }
 
-        void JustSummoned(Creature* summoned)
+        void JustSummoned(Creature* summoned) override
         {
             if (summoned->GetEntry() == ENTRY_PURE_SPAWN)
             {
@@ -198,21 +202,20 @@ public:
             }
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             Summons.Despawn(summon);
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit* /*killer*/) override
         {
             Talk(CorruptedForm ? SAY_CORRUPT_DEATH : SAY_CLEAN_DEATH);
 
-            if (instance)
-                instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, DONE);
+            instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, DONE);
             Summons.DespawnAll();
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (!beam)
             {
@@ -260,7 +263,7 @@ public:
                                 break;
                         }
 
-                        DoCast(me->GetVictim(), mark_spell);
+                        DoCastVictim(mark_spell);
 
                         if (MarkOfCorruption_Count < 5)
                             ++MarkOfCorruption_Count;
@@ -343,7 +346,7 @@ public:
                                 break;
                         }
 
-                        DoCast(me->GetVictim(), mark_spell);
+                        DoCastVictim(mark_spell);
 
                         if (MarkOfHydross_Count < 5)
                             ++MarkOfHydross_Count;

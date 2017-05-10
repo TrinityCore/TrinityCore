@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,22 +18,28 @@
 #ifndef BATTLEFIELD_H_
 #define BATTLEFIELD_H_
 
-#include "Utilities/Util.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
-#include "WorldPacket.h"
-#include "GameObject.h"
-#include "Battleground.h"
-#include "ObjectAccessor.h"
+#include "Packets/WorldStatePackets.h"
 
 enum BattlefieldTypes
 {
-    BATTLEFIELD_WG                                          // Wintergrasp
+    BATTLEFIELD_WG,                                         // Wintergrasp
+    BATTLEFIELD_TB                                          // Tol Barad (cataclysm)
 };
 
 enum BattlefieldIDs
 {
-    BATTLEFIELD_BATTLEID_WG                      = 1        // Wintergrasp battle
+    BATTLEFIELD_BATTLEID_WG                      = 1,       // Wintergrasp battle
+    BATTLEFIELD_BATTLEID_TB                      = 21,      // Tol Barad
+    BATTLEFIELD_BATTLEID_ASHRAN                  = 24       // Ashran
+};
+
+enum BattlefieldState : int8
+{
+    BATTLEFIELD_INACTIVE = 0,
+    BATTLEFIELD_WARMUP = 1,
+    BATTLEFIELD_IN_PROGRESS = 2
 };
 
 enum BattlefieldObjectiveStates
@@ -49,9 +55,9 @@ enum BattlefieldObjectiveStates
 
 enum BattlefieldSounds
 {
-    BF_HORDE_WINS                                = 8454,
-    BF_ALLIANCE_WINS                             = 8455,
-    BF_START                                     = 3439
+    BF_SOUND_HORDE_WINS                          = 8454,
+    BF_SOUND_ALLIANCE_WINS                       = 8455,
+    BF_SOUND_START                               = 3439
 };
 
 enum BattlefieldTimers
@@ -69,24 +75,23 @@ class Unit;
 class Battlefield;
 class BfGraveyard;
 
-typedef std::set<uint64> GuidSet;
 typedef std::vector<BfGraveyard*> GraveyardVect;
-typedef std::map<uint64, time_t> PlayerTimerMap;
+typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
 
-class BfCapturePoint
+class TC_GAME_API BfCapturePoint
 {
     public:
         BfCapturePoint(Battlefield* bf);
 
         virtual ~BfCapturePoint() { }
 
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // Send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
 
         // Send kill notify to players in the controlling faction
-        void SendObjectiveComplete(uint32 id, uint64 guid);
+        void SendObjectiveComplete(uint32 id, ObjectGuid guid);
 
         // Used when player is activated/inactivated in the area
         virtual bool HandlePlayerEnter(Player* player);
@@ -98,19 +103,20 @@ class BfCapturePoint
 
         // Returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
         virtual bool Update(uint32 diff);
-        virtual void ChangeTeam(TeamId /*oldTeam*/) {}
+        virtual void ChangeTeam(TeamId /*oldTeam*/) { }
         virtual void SendChangePhase();
 
         bool SetCapturePointData(GameObject* capturePoint);
-        GameObject* GetCapturePointGo();
-        uint32 GetCapturePointEntry(){ return m_capturePointEntry; }
-
-        TeamId GetTeamId() { return m_team; }
-    protected:
         bool DelCapturePoint();
+        GameObject* GetCapturePointGo();
+        uint32 GetCapturePointEntry() const { return m_capturePointEntry; }
 
+        TeamId GetTeamId() const { return m_team; }
+        BattlefieldObjectiveStates GetObjectiveState() const { return m_State; }
+
+    protected:
         // active Players in the area of the objective, 0 - alliance, 1 - horde
-        GuidSet m_activePlayers[2];
+        GuidSet m_activePlayers[BG_TEAMS_COUNT];
 
         // Total shift needed to capture the objective
         float m_maxValue;
@@ -137,10 +143,10 @@ class BfCapturePoint
         uint32 m_capturePointEntry;
 
         // Gameobject related to that capture point
-        uint64 m_capturePointGUID;
+        ObjectGuid m_capturePointGUID;
 };
 
-class BfGraveyard
+class TC_GAME_API BfGraveyard
 {
     public:
         BfGraveyard(Battlefield* Bf);
@@ -159,10 +165,10 @@ class BfGraveyard
         void SetSpirit(Creature* spirit, TeamId team);
 
         // Add a player to the graveyard
-        void AddPlayer(uint64 player_guid);
+        void AddPlayer(ObjectGuid player_guid);
 
         // Remove a player from the graveyard
-        void RemovePlayer(uint64 player_guid);
+        void RemovePlayer(ObjectGuid player_guid);
 
         // Resurrect players
         void Resurrect();
@@ -171,10 +177,10 @@ class BfGraveyard
         void RelocateDeadPlayers();
 
         // Check if this graveyard has a spirit guide
-        bool HasNpc(uint64 guid);
+        bool HasNpc(ObjectGuid guid);
 
-        // Check if a player is in this graveyard's ressurect queue
-        bool HasPlayer(uint64 guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
+        // Check if a player is in this graveyard's resurrect queue
+        bool HasPlayer(ObjectGuid guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
 
         // Get the graveyard's ID.
         uint32 GetGraveyardId() const { return m_GraveyardId; }
@@ -182,12 +188,12 @@ class BfGraveyard
     protected:
         TeamId m_ControlTeam;
         uint32 m_GraveyardId;
-        uint64 m_SpiritGuide[2];
+        ObjectGuid m_SpiritGuide[BG_TEAMS_COUNT];
         GuidSet m_ResurrectQueue;
         Battlefield* m_Bf;
 };
 
-class Battlefield : public ZoneScript
+class TC_GAME_API Battlefield : public ZoneScript
 {
     friend class BattlefieldMgr;
 
@@ -204,7 +210,7 @@ class Battlefield : public ZoneScript
         virtual bool SetupBattlefield() { return true; }
 
         /// Update data of a worldstate to all players present in zone
-        void SendUpdateWorldState(uint32 field, uint32 value);
+        void SendUpdateWorldState(uint32 variable, uint32 value, bool hidden = false);
 
         /**
          * \brief Called every time for update bf data and time
@@ -223,26 +229,29 @@ class Battlefield : public ZoneScript
         void InvitePlayersInZoneToWar();
 
         /// Called when a Unit is kill in battlefield zone
-        virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) {};
+        virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) { };
 
-        uint32 GetTypeId() { return m_TypeId; }
-        uint32 GetZoneId() { return m_ZoneId; }
+        uint32 GetTypeId() const { return m_TypeId; }
+        uint32 GetZoneId() const { return m_ZoneId; }
+        uint64 GetQueueId() const { return MAKE_PAIR64(m_BattleId | 0x20000, 0x1F100000); }
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
         /// Return true if battle is start, false if battle is not started
-        bool IsWarTime() { return m_isActive; }
+        bool IsWarTime() const { return m_isActive; }
+
+        int8 GetState() const { return m_isActive ? BATTLEFIELD_IN_PROGRESS : (m_Timer <= m_StartGroupingTimer ? BATTLEFIELD_WARMUP : BATTLEFIELD_INACTIVE); }
 
         /// Enable or Disable battlefield
         void ToggleBattlefield(bool enable) { m_IsEnabled = enable; }
         /// Return if battlefield is enable
-        bool IsEnabled() { return m_IsEnabled; }
+        bool IsEnabled() const { return m_IsEnabled; }
 
         /**
          * \brief Kick player from battlefield and teleport him to kick-point location
          * \param guid : guid of player who must be kick
          */
-        void KickPlayerFromBattlefield(uint64 guid);
+        void KickPlayerFromBattlefield(ObjectGuid guid);
 
         /// Called when player (player) enter in zone
         void HandlePlayerEnterZone(Player* player, uint32 zone);
@@ -250,18 +259,18 @@ class Battlefield : public ZoneScript
         void HandlePlayerLeaveZone(Player* player, uint32 zone);
 
         // All-purpose data storage 64 bit
-        virtual uint64 GetData64(uint32 dataId) const { return m_Data64[dataId]; }
-        virtual void SetData64(uint32 dataId, uint64 value) { m_Data64[dataId] = value; }
+        virtual uint64 GetData64(uint32 dataId) const override { return m_Data64[dataId]; }
+        virtual void SetData64(uint32 dataId, uint64 value) override { m_Data64[dataId] = value; }
 
         // All-purpose data storage 32 bit
-        virtual uint32 GetData(uint32 dataId) const { return m_Data32[dataId]; }
-        virtual void SetData(uint32 dataId, uint32 value) { m_Data32[dataId] = value; }
+        virtual uint32 GetData(uint32 dataId) const override { return m_Data32[dataId]; }
+        virtual void SetData(uint32 dataId, uint32 value) override { m_Data32[dataId] = value; }
         virtual void UpdateData(uint32 index, int32 pad) { m_Data32[index] += pad; }
 
         // Battlefield - generic methods
-        TeamId GetDefenderTeam() { return m_DefenderTeam; }
-        TeamId GetAttackerTeam() { return TeamId(1 - m_DefenderTeam); }
-        TeamId GetOtherTeam(TeamId team) { return (team == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE); }
+        TeamId GetDefenderTeam() const { return m_DefenderTeam; }
+        TeamId GetAttackerTeam() const { return TeamId(1 - m_DefenderTeam); }
+        TeamId GetOtherTeam(TeamId team) const { return (team == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE); }
         void SetDefenderTeam(TeamId team) { m_DefenderTeam = team; }
 
         // Group methods
@@ -271,7 +280,7 @@ class Battlefield : public ZoneScript
          */
         Group* GetFreeBfRaid(TeamId TeamId);
         /// Return battlefield group where player is.
-        Group* GetGroupPlayer(uint64 guid, TeamId TeamId);
+        Group* GetGroupPlayer(ObjectGuid guid, TeamId TeamId);
         /// Force player to join a battlefield group
         bool AddOrSetPlayerToCorrectBfGroup(Player* player);
 
@@ -279,18 +288,17 @@ class Battlefield : public ZoneScript
         // Find which graveyard the player must be teleported to to be resurrected by spiritguide
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-        virtual void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
-        void RemovePlayerFromResurrectQueue(uint64 player_guid);
+        virtual void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
+        void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);
         void SetGraveyardNumber(uint32 number) { m_GraveyardList.resize(number); }
         BfGraveyard* GetGraveyardById(uint32 id) const;
 
         // Misc methods
-        Creature* SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId team);
-        Creature* SpawnCreature(uint32 entry, Position pos, TeamId team);
-        GameObject* SpawnGameObject(uint32 entry, float x, float y, float z, float o);
+        Creature* SpawnCreature(uint32 entry, Position const& pos);
+        GameObject* SpawnGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot);
 
-        Creature* GetCreature(uint64 GUID);
-        GameObject* GetGameObject(uint64 GUID);
+        Creature* GetCreature(ObjectGuid guid);
+        GameObject* GetGameObject(ObjectGuid guid);
 
         // Script-methods
 
@@ -309,26 +317,24 @@ class Battlefield : public ZoneScript
         /// Called when a player enter in battlefield zone
         virtual void OnPlayerEnterZone(Player* /*player*/) { }
 
-        WorldPacket BuildWarningAnnPacket(std::string const& msg);
-        void SendWarningToAllInZone(uint32 entry);
-        //void SendWarningToAllInWar(int32 entry, ...); -- UNUSED
-        void SendWarningToPlayer(Player* player, uint32 entry);
+        void SendWarning(uint8 id, WorldObject const* target = nullptr);
 
         void PlayerAcceptInviteToQueue(Player* player);
         void PlayerAcceptInviteToWar(Player* player);
-        uint32 GetBattleId() { return m_BattleId; }
+        uint32 GetBattleId() const { return m_BattleId; }
         void AskToLeaveQueue(Player* player);
+        void PlayerAskToLeave(Player* player);
 
         virtual void DoCompleteOrIncrementAchievement(uint32 /*achievement*/, Player* /*player*/, uint8 /*incrementNumber = 1*/) { }
 
         /// Send all worldstate data to all player in zone.
         virtual void SendInitWorldStatesToAll() = 0;
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) = 0;
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) = 0;
 
         /// Return if we can use mount in battlefield
         bool CanFlyIn() { return !m_isActive; }
 
-        void SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid);
+        void SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid const& guid);
 
         void StartBattle();
         void EndBattle(bool endByTimer);
@@ -336,9 +342,9 @@ class Battlefield : public ZoneScript
         void HideNpc(Creature* creature);
         void ShowNpc(Creature* creature, bool aggressive);
 
-        GraveyardVect GetGraveyardVector() { return m_GraveyardList; }
+        GraveyardVect GetGraveyardVector() const { return m_GraveyardList; }
 
-        uint32 GetTimer() { return m_Timer; }
+        uint32 GetTimer() const { return m_Timer; }
         void SetTimer(uint32 timer) { m_Timer = timer; }
 
         void DoPlaySoundToAll(uint32 SoundID);
@@ -346,10 +352,10 @@ class Battlefield : public ZoneScript
         void InvitePlayerToQueue(Player* player);
         void InvitePlayerToWar(Player* player);
 
-        void InitStalker(uint32 entry, float x, float y, float z, float o);
+        void InitStalker(uint32 entry, Position const& pos);
 
     protected:
-        uint64 StalkerGuid;
+        ObjectGuid StalkerGuid;
         uint32 m_Timer;                                         // Global timer for event
         bool m_IsEnabled;
         bool m_isActive;
@@ -359,9 +365,9 @@ class Battlefield : public ZoneScript
         BfCapturePointMap m_capturePoints;
 
         // Players info maps
-        GuidSet m_players[BG_TEAMS_COUNT];                      // Players in zone
-        GuidSet m_PlayersInQueue[BG_TEAMS_COUNT];               // Players in the queue
-        GuidSet m_PlayersInWar[BG_TEAMS_COUNT];                 // Players in WG combat
+        GuidUnorderedSet m_players[BG_TEAMS_COUNT];                      // Players in zone
+        GuidUnorderedSet m_PlayersInQueue[BG_TEAMS_COUNT];               // Players in the queue
+        GuidUnorderedSet m_PlayersInWar[BG_TEAMS_COUNT];                 // Players in WG combat
         PlayerTimerMap m_InvitedPlayers[BG_TEAMS_COUNT];
         PlayerTimerMap m_PlayersWillBeKick[BG_TEAMS_COUNT];
 
@@ -385,12 +391,12 @@ class Battlefield : public ZoneScript
 
         // Graveyard variables
         GraveyardVect m_GraveyardList;                          // Vector witch contain the different GY of the battle
-        uint32 m_LastResurectTimer;                             // Timer for resurect player every 30 sec
+        uint32 m_LastResurrectTimer;                            // Timer for resurrect player every 30 sec
 
         uint32 m_StartGroupingTimer;                            // Timer for invite players in area 15 minute before start battle
         bool m_StartGrouping;                                   // bool for know if all players in area has been invited
 
-        GuidSet m_Groups[BG_TEAMS_COUNT];                       // Contain different raid group
+        GuidUnorderedSet m_Groups[BG_TEAMS_COUNT];              // Contain different raid group
 
         std::vector<uint64> m_Data64;
         std::vector<uint32> m_Data32;
@@ -398,23 +404,16 @@ class Battlefield : public ZoneScript
         void KickAfkPlayers();
 
         // use for switch off all worldstate for client
-        virtual void SendRemoveWorldStates(Player* /*player*/) {}
+        virtual void SendRemoveWorldStates(Player* /*player*/) { }
 
         // use for send a packet for all player list
-        void BroadcastPacketToZone(WorldPacket& data) const;
-        void BroadcastPacketToQueue(WorldPacket& data) const;
-        void BroadcastPacketToWar(WorldPacket& data) const;
+        void BroadcastPacketToZone(WorldPacket const* data) const;
+        void BroadcastPacketToQueue(WorldPacket const* data) const;
+        void BroadcastPacketToWar(WorldPacket const* data) const;
 
         // CapturePoint system
-        void AddCapturePoint(BfCapturePoint* cp) { m_capturePoints[cp->GetCapturePointEntry()] = cp; }
-
-        BfCapturePoint* GetCapturePoint(uint32 lowguid) const
-        {
-            Battlefield::BfCapturePointMap::const_iterator itr = m_capturePoints.find(lowguid);
-            if (itr != m_capturePoints.end())
-                return itr->second;
-            return NULL;
-        }
+        void AddCapturePoint(BfCapturePoint* cp);
+        BfCapturePoint* GetCapturePoint(uint32 entry) const;
 
         void RegisterZone(uint32 zoneid);
         bool HasPlayer(Player* player) const;

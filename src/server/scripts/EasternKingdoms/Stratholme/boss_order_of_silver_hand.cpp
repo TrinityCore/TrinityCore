@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,16 +56,23 @@ class boss_silver_hand_bosses : public CreatureScript
 public:
     boss_silver_hand_bosses() : CreatureScript("boss_silver_hand_bosses") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_silver_hand_bossesAI (creature);
+        return GetInstanceAI<boss_silver_hand_bossesAI>(creature);
     }
 
     struct boss_silver_hand_bossesAI : public ScriptedAI
     {
         boss_silver_hand_bossesAI(Creature* creature) : ScriptedAI(creature)
         {
+            Initialize();
             instance = creature->GetInstanceScript();
+        }
+
+        void Initialize()
+        {
+            HolyLight_Timer = 20000;
+            DivineShield_Timer = 20000;
         }
 
         InstanceScript* instance;
@@ -73,43 +80,36 @@ public:
         uint32 HolyLight_Timer;
         uint32 DivineShield_Timer;
 
-        void Reset()
+        void Reset() override
         {
-            HolyLight_Timer = 20000;
-            DivineShield_Timer = 20000;
+            Initialize();
 
-            if (instance)
+            switch (me->GetEntry())
             {
-                switch (me->GetEntry())
-                {
-                    case SH_AELMAR:
-                        instance->SetData(TYPE_SH_AELMAR, 0);
-                        break;
-                    case SH_CATHELA:
-                        instance->SetData(TYPE_SH_CATHELA, 0);
-                        break;
-                    case SH_GREGOR:
-                        instance->SetData(TYPE_SH_GREGOR, 0);
-                        break;
-                    case SH_NEMAS:
-                        instance->SetData(TYPE_SH_NEMAS, 0);
-                        break;
-                    case SH_VICAR:
-                        instance->SetData(TYPE_SH_VICAR, 0);
-                        break;
-                }
+                case SH_AELMAR:
+                    instance->SetData(TYPE_SH_AELMAR, 0);
+                    break;
+                case SH_CATHELA:
+                    instance->SetData(TYPE_SH_CATHELA, 0);
+                    break;
+                case SH_GREGOR:
+                    instance->SetData(TYPE_SH_GREGOR, 0);
+                    break;
+                case SH_NEMAS:
+                    instance->SetData(TYPE_SH_NEMAS, 0);
+                    break;
+                case SH_VICAR:
+                    instance->SetData(TYPE_SH_VICAR, 0);
+                    break;
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* killer) override
         {
-            if (!instance)
-                return;
-
             switch (me->GetEntry())
             {
                 case SH_AELMAR:
@@ -132,11 +132,11 @@ public:
             if (instance->GetData(TYPE_SH_QUEST))
             {
                 if (Player* player = killer->ToPlayer())
-                    player->KilledMonsterCredit(SH_QUEST_CREDIT, 0);
+                    player->KilledMonsterCredit(SH_QUEST_CREDIT);
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             //Return since we have no target
             if (!UpdateVictim())

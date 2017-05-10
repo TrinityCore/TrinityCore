@@ -1,14 +1,14 @@
 /**
-  @file ImageFormat.h
+  \file G3D/ImageFormat.h
 
-  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  \maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
-  @created 2003-05-23
-  @edited  2010-05-01
+  \created 2003-05-23
+  \edited  2013-06-06
 */
 
-#ifndef GLG3D_ImageFormat_H
-#define GLG3D_ImageFormat_H
+#ifndef GLG3D_ImageFormat_h
+#define GLG3D_ImageFormat_h
 
 #include "G3D/platform.h"
 #include "G3D/Table.h"
@@ -17,16 +17,22 @@
 
 namespace G3D {
 
-/** Information about common image formats.
-    Don't construct these; use the methods provided. 
+/** Information about common image formats.  Don't construct these;
+    use the methods provided to access the const instances.
     
-    For most formats, the number indicates the number of bits per channel and a suffix of "F" indicates
-    floating point.  This does not hold for the YUV and DXT formats.*/
+    For most formats, the number indicates the number of bits per
+    channel and a suffix of "F" indicates floating point (following
+    OpenGL conventions).  This does not hold for the YUV and DXT
+    formats.
+
+    \sa G3D::Image, G3D::Texture, G3D::ImageConvert
+*/
 class ImageFormat {
 public:
 
     // Must update ImageFormat::name() when this enum changes.
     enum Code {
+        CODE_AUTO = -2,
         CODE_NONE = -1,
         CODE_L8,
         CODE_L16,
@@ -58,24 +64,57 @@ public:
         CODE_RGB8I,
         CODE_RGB8UI,
 
+        CODE_RGBA8I,
         CODE_RGBA8UI,
+
+        CODE_RGB8_SNORM,
+        CODE_RGBA8_SNORM,
+        CODE_RGB16_SNORM,
+        CODE_RGBA16_SNORM,
 
         CODE_ARGB8,
         CODE_BGR8,
+        CODE_BGRA8,
 
         CODE_R8,
+        CODE_R8I,
+        CODE_R8UI,
+
+        CODE_R16,
+        CODE_R16I,
+        CODE_R16UI,
+
+        CODE_R32I,
+        CODE_R32UI,
 
         CODE_RG8,
         CODE_RG8I,
         CODE_RG8UI,
 
+        CODE_RG16,
+        CODE_RG16I,
+        CODE_RG16UI,
+
+        CODE_R16F,
         CODE_RG16F,
+
+        CODE_RG32I,
+        CODE_RG32UI,
+
+        CODE_R32F,
+        CODE_RG32F,
 
         CODE_RGBA8,
         CODE_RGBA16,
         CODE_RGBA16F,
         CODE_RGBA32F,
 
+        CODE_RGBA16I,
+        CODE_RGBA16UI,
+
+        CODE_RGB32I,
+        CODE_RGB32UI,
+        CODE_RGBA32I,
         CODE_RGBA32UI,
 
         CODE_BAYER_RGGB8,
@@ -141,6 +180,14 @@ public:
         BAYER_PATTERN_BGGR
     };
 
+
+    enum NumberFormat { 
+        FLOATING_POINT_FORMAT,
+        INTEGER_FORMAT,
+        NORMALIZED_FIXED_POINT_FORMAT,
+        OTHER // e.g. DXT
+    };
+
     /**  Number of channels (1 for a depth texture). */
     int                 numComponents;
     bool                compressed;
@@ -182,10 +229,6 @@ public:
     /** Amount of CPU memory per pixel when packed into an array, discounting any end-of-row padding. */
     int                 cpuBitsPerPixel;
 
-    /** Amount of CPU memory per pixel when packed into an array, discounting any end-of-row padding. 
-     @deprecated Use cpuBitsPerPixel*/
-    int                 packedBitsPerTexel;
-    
     /**
       Amount of GPU memory per pixel on most graphics cards, for formats supported by OpenGL. This is
       only an estimate--the actual amount of memory may be different on your actual card.
@@ -196,23 +239,37 @@ public:
      */
     int                 openGLBitsPerPixel;
 
-    /** @deprecated Use openGLBitsPerPixel */
-    int                 hardwareBitsPerTexel;
-
     /** The OpenGL bytes (type) format of the data buffer used with this texture format, e.g., GL_UNSIGNED_BYTE */
     int                 openGLDataFormat;
 
     /** True if there is no alpha channel for this texture. */
     bool                opaque;
 
-    /** True if the bit depths specified are for float formats. */
+    
+    /** True if the bit depths specified are for float formats. TODO: Remove, replace with function keying off numberFormat */
     bool                floatingPoint;
+
+    /** Indicates whether this format treats numbers as integers, floating point, or normalized fixed point */
+    NumberFormat        numberFormat;
 
     /** Human readable name of this format.*/
     const std::string& name() const;
 
+    /** True if data in otherFormat is binary compatible */
+    bool canInterpretAs(const ImageFormat* otherFormat) const;
+
+    /** Returns ImageFormat representing the same channels as \a
+        otherFormat plus an alpha channel, all with at least the same
+        precision as \a otherFormat, or returns NULL if an equivalent
+        format is unavailable.  Will return itself if already contains
+        an alpha channel. */
+    static const ImageFormat* getFormatWithAlpha(const ImageFormat* otherFormat);
+
+    static const ImageFormat* getSRGBFormat(const ImageFormat* otherFormat);
+
     /** Takes the same values that name() returns */
     static const ImageFormat* fromString(const std::string& s);
+
 
 private:
 
@@ -228,11 +285,11 @@ private:
      int             blueBits,
      int             depthBits,
      int             stencilBits,
-     int             hardwareBitsPerTexel,
-     int             packedBitsPerTexel,
+     int             openGLBitsPerPixel,
+     int             cpuBitsPerPixel,
      int             glDataFormat,
      bool            opaque,
-     bool            floatingPoint,
+     NumberFormat    numberFormat,
      Code            code,
      ColorSpace      colorSpace,
      BayerPattern    bayerPattern = BAYER_PATTERN_NONE);
@@ -267,13 +324,35 @@ public:
 
     static const ImageFormat* BGR8();
 
+    static const ImageFormat* BGRA8();
+
     static const ImageFormat* R8();
+    static const ImageFormat* R8I();
+    static const ImageFormat* R8UI();
+
+    static const ImageFormat* R16();
+    static const ImageFormat* R16I();
+    static const ImageFormat* R16UI();
+
+    static const ImageFormat* R32I();
+    static const ImageFormat* R32UI();
 
     static const ImageFormat* RG8();
     static const ImageFormat* RG8I();
     static const ImageFormat* RG8UI();
 
+    static const ImageFormat* RG16();
+    static const ImageFormat* RG16I();
+    static const ImageFormat* RG16UI();
+
+    static const ImageFormat* R16F();
     static const ImageFormat* RG16F();
+
+    static const ImageFormat* RG32I();
+    static const ImageFormat* RG32UI();
+
+    static const ImageFormat* R32F();
+    static const ImageFormat* RG32F();
 
     static const ImageFormat* RGB5();
 
@@ -299,6 +378,12 @@ public:
     
     static const ImageFormat* RGBA32F();
 
+    static const ImageFormat* RGBA16I();
+    static const ImageFormat* RGBA16UI();
+
+    static const ImageFormat* RGB32UI();
+    static const ImageFormat* RGB32I();
+    static const ImageFormat* RGBA32I();
     static const ImageFormat* RGBA32UI();
 
     static const ImageFormat* R11G11B10F();
@@ -309,8 +394,15 @@ public:
 
     static const ImageFormat* RGB8UI();    
 
+    static const ImageFormat* RGBA8I();    
+
     static const ImageFormat* RGBA8UI();    
-    
+
+    static const ImageFormat* RGB8_SNORM();    
+    static const ImageFormat* RGBA8_SNORM();    
+    static const ImageFormat* RGB16_SNORM();    
+    static const ImageFormat* RGBA16_SNORM();    
+
     static const ImageFormat* RGB_DXT1();
 
     static const ImageFormat* RGBA_DXT1();
@@ -359,7 +451,7 @@ public:
 
     static const ImageFormat* YUV444();
 
-	/**
+    /**
      NULL pointer; indicates that the G3D::Texture class should choose
      either RGBA8 or RGB8 depending on the presence of an alpha channel
      in the input.
@@ -379,7 +471,6 @@ public:
     /** Returns the matching ImageFormat* identified by the Code.  May return NULL
       if this format's code is reserved but not yet implemented by G3D. */
     static const ImageFormat* fromCode(ImageFormat::Code code);
-
 
 
     /** For use with ImageFormat::convert. */
@@ -418,13 +509,48 @@ public:
         YUV422 expects data in YUY2 format (Y, U, Y2, v).  Most YUV formats require width and heights that are multiples of 2.
 
         Returns true if a conversion was available, false if none occurred.
+
+       \deprecated
+       \sa G3D::ImageConvert
     */
     static bool convert(const Array<const void*>& srcBytes, int srcWidth, int srcHeight, const ImageFormat* srcFormat, int srcRowPadBits,
-	                    const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits,
-	                    bool invertY = false, BayerAlgorithm bayerAlg = BayerAlgorithm::MHC);
+                        const Array<void*>& dstBytes, const ImageFormat* dstFormat, int dstRowPadBits,
+                        bool invertY = false, BayerAlgorithm bayerAlg = BayerAlgorithm::MHC);
 
-    /* Checks if a conversion between two formats is available. */
+    /**
+       Checks if a conversion between two formats is available. 
+       \deprecated
+       \sa G3D::ImageConvert
+     */
     static bool conversionAvailable(const ImageFormat* srcFormat, int srcRowPadBits, const ImageFormat* dstFormat, int dstRowPadBits, bool invertY = false);
+
+    /** Does this contain exactly one unorm8 component? */
+    bool representableAsColor1unorm8() const;
+
+    /** Does this contain exactly two unorm8 components? */
+    bool representableAsColor2unorm8() const;
+
+    /** Does this contain exactly three unorm8 components? */
+    bool representableAsColor3unorm8() const;
+
+    /** Does this contain exactly four unorm8 components? */
+    bool representableAsColor4unorm8() const;
+
+    /** Returns a Color4 that masks off unused components in the format, given in RGBA
+        For example, the mask for R32F is (1,0,0,0), for A32F is (0,0,0,1), for RGB32F is (1,1,1,0).
+        (Note that luminance is interpreted as using only the R channel, even though RGB would make more sense
+        to me...)
+      */
+    Color4 channelMask() const;
+
+    bool isIntegerFormat() const{
+        return (numberFormat == INTEGER_FORMAT);
+    }
+
+    /** Returns true if these formats have the same components
+        (possibly in different NumberFormat%s or sizes) */
+    bool sameComponents(const ImageFormat* other) const;
+
 };
 
 typedef ImageFormat TextureFormat;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,31 +43,27 @@ public:
     * @brief Returns the command structure for the system.
     */
 
-    ChatCommand* GetCommands() const
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommand deserterInstanceCommandTable[] =
+        static std::vector<ChatCommand> deserterInstanceCommandTable =
         {
-            { "add",            SEC_ADMINISTRATOR, false, &HandleDeserterInstanceAdd,          "", NULL },
-            { "remove",         SEC_ADMINISTRATOR, false, &HandleDeserterInstanceRemove,       "", NULL },
-            { NULL,             SEC_PLAYER,        false, NULL,                                "", NULL }
+            { "add",      rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_ADD,    false, &HandleDeserterInstanceAdd,    "" },
+            { "remove",   rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_REMOVE, false, &HandleDeserterInstanceRemove, "" },
         };
-        static ChatCommand deserterBGCommandTable[] =
+        static std::vector<ChatCommand> deserterBGCommandTable =
         {
-            { "add",            SEC_ADMINISTRATOR, false, &HandleDeserterBGAdd,                "", NULL },
-            { "remove",         SEC_ADMINISTRATOR, false, &HandleDeserterBGRemove,             "", NULL },
-            { NULL,             SEC_PLAYER,        false, NULL,                                "", NULL }
+            { "add",      rbac::RBAC_PERM_COMMAND_DESERTER_BG_ADD,    false, &HandleDeserterBGAdd,    "" },
+            { "remove",   rbac::RBAC_PERM_COMMAND_DESERTER_BG_REMOVE, false, &HandleDeserterBGRemove, "" },
         };
 
-        static ChatCommand deserterCommandTable[] =
+        static std::vector<ChatCommand> deserterCommandTable =
         {
-            { "instance",       SEC_ADMINISTRATOR, false, NULL,        "", deserterInstanceCommandTable },
-            { "bg",             SEC_ADMINISTRATOR, false, NULL,              "", deserterBGCommandTable },
-            { NULL,             SEC_PLAYER,        false, NULL,                                "", NULL }
+            { "instance", rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE, false, NULL, "", deserterInstanceCommandTable },
+            { "bg",       rbac::RBAC_PERM_COMMAND_DESERTER_BG,       false, NULL, "", deserterBGCommandTable },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "deserter",       SEC_ADMINISTRATOR,  false, NULL,               "", deserterCommandTable },
-            { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
+            { "deserter", rbac::RBAC_PERM_COMMAND_DESERTER, false, NULL, "", deserterCommandTable },
         };
         return commandTable;
     }

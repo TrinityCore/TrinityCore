@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,6 @@
 #include "HomeMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "WorldPacket.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
@@ -34,19 +33,21 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
     {
         owner->ClearUnitState(UNIT_STATE_EVADE);
         owner->SetWalk(true);
-        owner->LoadCreaturesAddon(true);
+        owner->LoadCreaturesAddon();
+        owner->SetSpawnHealth();
         owner->AI()->JustReachedHome();
     }
 }
 
-void HomeMovementGenerator<Creature>::DoReset(Creature*)
-{
-}
+void HomeMovementGenerator<Creature>::DoReset(Creature*) { }
 
 void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
 {
     if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
+    { // if we are ROOT/STUNNED/DISTRACTED even after aura clear, finalize on next update - otherwise we would get stuck in evade
+        skipToHome = true;
         return;
+    }
 
     Movement::MoveSplineInit init(owner);
     float x, y, z, o;
@@ -60,13 +61,14 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
     init.SetWalk(false);
     init.Launch();
 
+    skipToHome = false;
     arrived = false;
 
-    owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE));
+    owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~(UNIT_STATE_EVADE | UNIT_STATE_IGNORE_PATHFINDING)));
 }
 
 bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 /*time_diff*/)
 {
-    arrived = owner->movespline->Finalized();
+    arrived = skipToHome || owner->movespline->Finalized();
     return !arrived;
 }

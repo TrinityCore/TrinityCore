@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,6 @@
 #define TRINITY_MOVEMENTGENERATOR_H
 
 #include "Define.h"
-#include <ace/Singleton.h>
 #include "ObjectRegistry.h"
 #include "FactoryHolder.h"
 #include "Common.h"
@@ -28,7 +27,7 @@
 
 class Unit;
 
-class MovementGenerator
+class TC_GAME_API MovementGenerator
 {
     public:
         virtual ~MovementGenerator();
@@ -40,7 +39,7 @@ class MovementGenerator
 
         virtual bool Update(Unit*, uint32 time_diff) = 0;
 
-        virtual MovementGeneratorType GetMovementGeneratorType() = 0;
+        virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 
         virtual void unitSpeedChanged() { }
 
@@ -52,25 +51,25 @@ template<class T, class D>
 class MovementGeneratorMedium : public MovementGenerator
 {
     public:
-        void Initialize(Unit* u)
+        void Initialize(Unit* u) override
         {
             //u->AssertIsType<T>();
             (static_cast<D*>(this))->DoInitialize(static_cast<T*>(u));
         }
 
-        void Finalize(Unit* u)
+        void Finalize(Unit* u) override
         {
             //u->AssertIsType<T>();
             (static_cast<D*>(this))->DoFinalize(static_cast<T*>(u));
         }
 
-        void Reset(Unit* u)
+        void Reset(Unit* u) override
         {
             //u->AssertIsType<T>();
             (static_cast<D*>(this))->DoReset(static_cast<T*>(u));
         }
 
-        bool Update(Unit* u, uint32 time_diff)
+        bool Update(Unit* u, uint32 time_diff) override
         {
             //u->AssertIsType<T>();
             return (static_cast<D*>(this))->DoUpdate(static_cast<T*>(u), time_diff);
@@ -79,18 +78,17 @@ class MovementGeneratorMedium : public MovementGenerator
 
 struct SelectableMovement : public FactoryHolder<MovementGenerator, MovementGeneratorType>
 {
-    SelectableMovement(MovementGeneratorType mgt) : FactoryHolder<MovementGenerator, MovementGeneratorType>(mgt) {}
+    SelectableMovement(MovementGeneratorType mgt) : FactoryHolder<MovementGenerator, MovementGeneratorType>(mgt) { }
 };
 
 template<class REAL_MOVEMENT>
 struct MovementGeneratorFactory : public SelectableMovement
 {
-    MovementGeneratorFactory(MovementGeneratorType mgt) : SelectableMovement(mgt) {}
+    MovementGeneratorFactory(MovementGeneratorType mgt) : SelectableMovement(mgt) { }
 
-    MovementGenerator* Create(void *) const;
+    MovementGenerator* Create(void *) const override;
 };
 
 typedef FactoryHolder<MovementGenerator, MovementGeneratorType> MovementGeneratorCreator;
 typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRegistry MovementGeneratorRegistry;
-typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRepository MovementGeneratorRepository;
 #endif
