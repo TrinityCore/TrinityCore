@@ -1095,7 +1095,6 @@ class spell_warr_sword_and_board : public SpellScriptLoader
 };
 
 // 215538 - Trauma
-// Updated 7.1.5
 class spell_warr_trauma : public SpellScriptLoader
 {
 public:
