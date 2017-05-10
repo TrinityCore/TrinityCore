@@ -218,9 +218,8 @@ namespace WorldPackets
             ComplaintOffender Offender;
             uint32 MailID = 0;
             ComplaintChat Chat;
-            ObjectGuid EventGuid;
-            ObjectGuid InviteGuid;
-
+            uint64 EventGuid = 0;
+            uint64 InviteGuid = 0;
         };
 
         class ComplaintResult final : public ServerPacket

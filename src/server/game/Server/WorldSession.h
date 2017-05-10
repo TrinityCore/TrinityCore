@@ -255,6 +255,11 @@ namespace WorldPackets
         class ChatReportIgnored;
     }
 
+    namespace Collections
+    {
+        class CollectionItemSetFavorite;
+    }
+
     namespace Combat
     {
         class AttackSwing;
@@ -344,6 +349,12 @@ namespace WorldPackets
         class LFGuildGetRecruits;
         class LFGuildRemoveRecruit;
         class LFGuildSetGuildPost;
+    }
+
+    namespace Hotfix
+    {
+        class DBQueryBulk;
+        class HotfixQuery;
     }
 
     namespace Inspect
@@ -448,6 +459,7 @@ namespace WorldPackets
         class MoveTeleportAck;
         class MovementAckMessage;
         class MovementSpeedAck;
+        class MoveKnockBackAck;
         class SetActiveMover;
         class MoveSetCollisionHeightAck;
         class MoveTimeSkipped;
@@ -539,7 +551,6 @@ namespace WorldPackets
         class QueryPlayerName;
         class QueryPageText;
         class QueryNPCText;
-        class DBQueryBulk;
         class QueryGameObject;
         class QueryCorpseLocationFromClient;
         class QueryCorpseTransport;
@@ -583,7 +594,6 @@ namespace WorldPackets
     {
         class AccountToysUpdate;
         class AddToy;
-        class ToySetFavorite;
         class UseToy;
     }
 
@@ -689,7 +699,6 @@ namespace WorldPackets
     namespace Transmogrification
     {
         class TransmogrifyItems;
-        class TransmogAppearanceSetFavorite;
     }
 
     namespace Vehicle
@@ -703,12 +712,6 @@ namespace WorldPackets
         class EjectPassenger;
         class RequestVehicleExit;
         class MoveSetVehicleRecIdAck;
-    }
-
-    namespace Voice
-    {
-        class VoiceSessionEnable;
-        class SetActiveVoiceChannel;
     }
 
     namespace VoidStorage
@@ -935,6 +938,7 @@ class TC_GAME_API WorldSession
 
         void SendAuthResponse(uint32 code, bool queued, uint32 queuePos = 0);
         void SendClientCacheVersion(uint32 version);
+        void SendHotfixList(int32 version);
 
         void InitializeSession();
         void InitializeSessionCallback(SQLQueryHolder* realmHolder, SQLQueryHolder* holder);
@@ -996,8 +1000,8 @@ class TC_GAME_API WorldSession
 
         void SendNameQueryOpcode(ObjectGuid guid);
 
-        void SendTrainerList(ObjectGuid guid);
-        void SendTrainerList(ObjectGuid guid, std::string const& strTitle);
+        void SendTrainerList(ObjectGuid guid, uint32 index = 0);
+        void SendTrainerList(ObjectGuid guid, std::string const& strTitle, uint32 index = 0);
         void SendListInventory(ObjectGuid guid);
         void SendShowBank(ObjectGuid guid);
         bool CanOpenMailBox(ObjectGuid guid);
@@ -1187,7 +1191,7 @@ class TC_GAME_API WorldSession
         void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);
 
         // Knockback
-        void HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& movementAck);
+        void HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackAck& movementAck);
 
         void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
         void HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet);
@@ -1253,9 +1257,10 @@ class TC_GAME_API WorldSession
         void HandleNameQueryOpcode(WorldPackets::Query::QueryPlayerName& packet);
         void HandleQueryTimeOpcode(WorldPackets::Query::QueryTime& queryTime);
         void HandleCreatureQuery(WorldPackets::Query::QueryCreature& packet);
-        void HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet);
-
         void HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObject& packet);
+
+        void HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery);
+        void HandleHotfixQuery(WorldPackets::Hotfix::HotfixQuery& hotfixQuery);
 
         void HandleMoveWorldportAckOpcode(WorldPackets::Movement::WorldPortResponse& packet);
         void HandleMoveWorldportAck();                // for server-side calls
@@ -1516,9 +1521,6 @@ class TC_GAME_API WorldSession
         template<void(Channel::*CommandFunction)(Player const*, std::string const&)>
         void HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlayerCommand& packet);
 
-        void HandleVoiceSessionEnable(WorldPackets::Voice::VoiceSessionEnable& packet);
-        void HandleSetActiveVoiceChannel(WorldPackets::Voice::SetActiveVoiceChannel& packet);
-
         void HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& packet);
         void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
         void HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& packet);
@@ -1672,9 +1674,11 @@ class TC_GAME_API WorldSession
         void HandleVoidSwapItem(WorldPackets::VoidStorage::SwapVoidItem& swapVoidItem);
         void SendVoidStorageTransferResult(VoidTransferError result);
 
+        // Collections
+        void HandleCollectionItemSetFavorite(WorldPackets::Collections::CollectionItemSetFavorite& collectionItemSetFavorite);
+
         // Transmogrification
         void HandleTransmogrifyItems(WorldPackets::Transmogrification::TransmogrifyItems& transmogrifyItems);
-        void HandleTransmogAppearanceSetFavorite(WorldPackets::Transmogrification::TransmogAppearanceSetFavorite& transmogAppearanceSetFavorite);
 
         // Miscellaneous
         void HandleSpellClick(WorldPackets::Spells::SpellClick& spellClick);
@@ -1693,7 +1697,6 @@ class TC_GAME_API WorldSession
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);
-        void HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet);
         void HandleUseToy(WorldPackets::Toy::UseToy& packet);
 
         void HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite);

@@ -493,7 +493,7 @@ enum SpellAttr3
     SPELL_ATTR3_REQ_WAND                         = 0x00400000, // 22 Req wand
     SPELL_ATTR3_UNK23                            = 0x00800000, // 23
     SPELL_ATTR3_REQ_OFFHAND                      = 0x01000000, // 24 Req offhand weapon
-    SPELL_ATTR3_UNK25                            = 0x02000000, // 25 no cause spell pushback ?
+    SPELL_ATTR3_TREAT_AS_PERIODIC                = 0x02000000, // 25 Makes the spell appear as periodic in client combat logs - used by spells that trigger another spell on each tick
     SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736 + 52999)
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
@@ -1179,7 +1179,7 @@ enum SpellEffectName
     SPELL_EFFECT_DISCOVER_TAXI                      = 154,
     SPELL_EFFECT_TITAN_GRIP                         = 155,
     SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC             = 156,
-    SPELL_EFFECT_CREATE_ITEM_2                      = 157,
+    SPELL_EFFECT_CREATE_LOOT                        = 157, // crafting loot
     SPELL_EFFECT_MILLING                            = 158,
     SPELL_EFFECT_ALLOW_RENAME_PET                   = 159,
     SPELL_EFFECT_FORCE_CAST_2                       = 160,
@@ -2350,12 +2350,12 @@ enum GameObjectFlags
 
 enum GameObjectDynamicLowFlags
 {
-    GO_DYNFLAG_LO_HIDE_MODEL        = 0x01,                 // Object model is not shown with this flag
-    GO_DYNFLAG_LO_ACTIVATE          = 0x02,                 // enables interaction with GO
-    GO_DYNFLAG_LO_ANIMATE           = 0x04,                 // possibly more distinct animation of GO
-    GO_DYNFLAG_LO_NO_INTERACT       = 0x08,                 // appears to disable interaction (not fully verified)
-    GO_DYNFLAG_LO_SPARKLE           = 0x10,                 // makes GO sparkle
-    GO_DYNFLAG_LO_STOPPED           = 0x20                  // Transport is stopped
+    GO_DYNFLAG_LO_HIDE_MODEL        = 0x02,                 // Object model is not shown with this flag
+    GO_DYNFLAG_LO_ACTIVATE          = 0x04,                 // enables interaction with GO
+    GO_DYNFLAG_LO_ANIMATE           = 0x08,                 // possibly more distinct animation of GO
+    GO_DYNFLAG_LO_NO_INTERACT       = 0x10,                 // appears to disable interaction (not fully verified)
+    GO_DYNFLAG_LO_SPARKLE           = 0x20,                 // makes GO sparkle
+    GO_DYNFLAG_LO_STOPPED           = 0x40                  // Transport is stopped
 };
 
 enum GameObjectDestructibleState
@@ -4382,13 +4382,13 @@ enum TotemCategory
 enum UnitDynFlags
 {
     UNIT_DYNFLAG_NONE                       = 0x0000,
-    UNIT_DYNFLAG_HIDE_MODEL                 = 0x0001, // Object model is not shown with this flag
-    UNIT_DYNFLAG_LOOTABLE                   = 0x0002,
-    UNIT_DYNFLAG_TRACK_UNIT                 = 0x0004,
-    UNIT_DYNFLAG_TAPPED                     = 0x0008, // Lua_UnitIsTapped
-    UNIT_DYNFLAG_SPECIALINFO                = 0x0010,
-    UNIT_DYNFLAG_DEAD                       = 0x0020,
-    UNIT_DYNFLAG_REFER_A_FRIEND             = 0x0040
+    UNIT_DYNFLAG_HIDE_MODEL                 = 0x0002, // Object model is not shown with this flag
+    UNIT_DYNFLAG_LOOTABLE                   = 0x0004,
+    UNIT_DYNFLAG_TRACK_UNIT                 = 0x0008,
+    UNIT_DYNFLAG_TAPPED                     = 0x0010, // Lua_UnitIsTapped
+    UNIT_DYNFLAG_SPECIALINFO                = 0x0020,
+    UNIT_DYNFLAG_DEAD                       = 0x0040,
+    UNIT_DYNFLAG_REFER_A_FRIEND             = 0x0080
 };
 
 enum CorpseDynFlags

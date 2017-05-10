@@ -625,7 +625,7 @@ class npc_frost_sphere : public CreatureScript
                 if (me->GetHealth() <= damage)
                 {
                     damage = 0;
-                    float floorZ = me->GetMap()->GetHeight(me->GetPhaseMask(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                    float floorZ = me->GetMap()->GetHeight(me->GetPhases(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     if (fabs(me->GetPositionZ() - floorZ) < 0.1f)
                     {
                         // we are close to the ground

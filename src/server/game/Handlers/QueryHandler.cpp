@@ -173,6 +173,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     {
         WorldPackets::Query::CorpseLocation packet;
         packet.Valid = false;                               // corpse not found
+        packet.Player = queryCorpseLocation.Player;
         SendPacket(packet.Write());
         return;
     }
@@ -198,7 +199,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
                     mapID = corpseMapEntry->CorpseMapID;
                     x = corpseMapEntry->CorpsePos.X;
                     y = corpseMapEntry->CorpsePos.Y;
-                    z = entranceMap->GetHeight(player->GetPhaseMask(), x, y, MAX_HEIGHT);
+                    z = entranceMap->GetHeight(player->GetPhases(), x, y, MAX_HEIGHT);
                 }
             }
         }
@@ -370,17 +371,8 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
                     questPOIBlobData.PlayerConditionID  = data->PlayerConditionID;
                     questPOIBlobData.UnkWoD1            = data->UnkWoD1;
 
-                    for (auto points = data->points.begin(); points != data->points.end(); ++points)
-                    {
-                        WorldPackets::Query::QuestPOIBlobPoint questPOIBlobPoint;
-
-                        questPOIBlobPoint.X = points->X;
-                        questPOIBlobPoint.Y = points->Y;
-
-                        TC_LOG_ERROR("misc", "Quest: %i BlobIndex: %i X/Y: %i/%i", QuestID, data->BlobIndex, points->X, points->Y);
-
-                        questPOIBlobData.QuestPOIBlobPointStats.push_back(questPOIBlobPoint);
-                    }
+                    for (QuestPOIPoint const& point : data->points)
+                        questPOIBlobData.QuestPOIBlobPointStats.push_back({ point.X, point.Y });
 
                     questPOIData.QuestPOIBlobDataStats.push_back(questPOIBlobData);
                 }
@@ -391,37 +383,6 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
     }
 
     SendPacket(response.Write());
-}
-
-void WorldSession::HandleDBQueryBulk(WorldPackets::Query::DBQueryBulk& packet)
-{
-    DB2StorageBase const* store = sDB2Manager.GetStorage(packet.TableHash);
-    if (!store)
-    {
-        TC_LOG_ERROR("network", "CMSG_DB_QUERY_BULK: %s requested unsupported unknown hotfix type: %u", GetPlayerInfo().c_str(), packet.TableHash);
-        return;
-    }
-
-    for (WorldPackets::Query::DBQueryBulk::DBQueryRecord const& rec : packet.Queries)
-    {
-        WorldPackets::Query::DBReply response;
-        response.TableHash = packet.TableHash;
-        response.RecordID = rec.RecordID;
-
-        if (store->HasRecord(rec.RecordID))
-        {
-            response.Allow = true;
-            response.Timestamp = sDB2Manager.GetHotfixDate(rec.RecordID, packet.TableHash);
-            store->WriteRecord(rec.RecordID, GetSessionDbcLocale(), response.Data);
-        }
-        else
-        {
-            TC_LOG_TRACE("network", "CMSG_DB_QUERY_BULK: %s requested non-existing entry %u in datastore: %u", GetPlayerInfo().c_str(), rec.RecordID, packet.TableHash);
-            response.Timestamp = time(NULL);
-        }
-
-        SendPacket(response.Write());
-    }
 }
 
 /**

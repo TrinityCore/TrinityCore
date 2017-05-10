@@ -932,6 +932,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         return;
     }
 
+    pCurrChar->SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, GetVirtualRealmAddress());
+
     SendTutorialsData();
 
     pCurrChar->GetMotionMaster()->Initialize();
@@ -1000,10 +1002,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     //WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4+4);
     //data << uint64(0);
     //SendPacket(&data);
-
-    WorldPackets::Query::HotfixNotifyBlob hotfixInfo;
-    hotfixInfo.Hotfixes = sDB2Manager.GetHotfixData();
-    SendPacket(hotfixInfo.Write());
 
     // TODO: Move this to BattlePetMgr::SendJournalLock() just to have all packets in one file
     WorldPackets::BattlePet::BattlePetJournalLockAcquired lock;
@@ -1780,6 +1778,7 @@ void WorldSession::HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmen
     }
 
     WorldPackets::EquipmentSet::UseEquipmentSetResult result;
+    result.GUID = useEquipmentSet.GUID;
     result.Reason = 0; // 4 - equipment swap failed - inventory is full
     SendPacket(result.Write());
 }

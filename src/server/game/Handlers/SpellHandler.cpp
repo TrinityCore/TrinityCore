@@ -106,7 +106,7 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
     }
 
     // check also  BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
-    if (item->GetTemplate()->GetBonding() == BIND_ON_USE || item->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE || item->GetTemplate()->GetBonding() == BIND_QUEST)
+    if (item->GetBonding() == BIND_ON_USE || item->GetBonding() == BIND_ON_ACQUIRE || item->GetBonding() == BIND_QUEST)
     {
         if (!item->IsSoulBound())
         {
@@ -539,7 +539,6 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
             EQUIPMENT_SLOT_HANDS,
             EQUIPMENT_SLOT_TABARD,
             EQUIPMENT_SLOT_BACK,
-            EQUIPMENT_SLOT_END
         };
 
         // Display items in visible slots

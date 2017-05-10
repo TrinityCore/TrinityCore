@@ -386,8 +386,8 @@ public:
     int32  EquippedItemSubClassMask;
     int32  EquippedItemInventoryTypeMask;
     uint32 TotemCategory[MAX_SPELL_TOTEMS];
-    uint32 SpellIconID;
-    uint32 ActiveIconID;
+    uint32 IconFileDataId;
+    uint32 ActiveIconFileDataId;
     LocalizedString const* SpellName;
     uint32 MaxTargetLevel;
     uint32 MaxAffectedTargets;

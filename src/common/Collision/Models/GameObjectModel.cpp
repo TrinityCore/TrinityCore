@@ -115,7 +115,6 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
 
     name = it->second.name;
     iPos = modelOwner->GetPosition();
-    phasemask = modelOwner->GetPhaseMask();
     iScale = modelOwner->GetScale();
     iInvScale = 1.f / iScale;
 
@@ -153,9 +152,12 @@ GameObjectModel* GameObjectModel::Create(std::unique_ptr<GameObjectModelOwnerBas
     return mdl;
 }
 
-bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const
+bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, std::set<uint32> const& phases) const
 {
-    if (!(phasemask & ph_mask) || !owner->IsSpawned())
+    if (!isCollisionEnabled() || !owner->IsSpawned())
+        return false;
+
+    if (!owner->IsInPhase(phases))
         return false;
 
     float time = ray.intersectionTime(iBound);
@@ -165,12 +167,12 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
     // child bounds are defined in object space:
     Vector3 p = iInvRot * (ray.origin() - iPos) * iInvScale;
     Ray modRay(p, iInvRot * ray.direction());
-    float distance = MaxDist * iInvScale;
-    bool hit = iModel->IntersectRay(modRay, distance, StopAtFirstHit);
+    float distance = maxDist * iInvScale;
+    bool hit = iModel->IntersectRay(modRay, distance, stopAtFirstHit);
     if (hit)
     {
         distance *= iScale;
-        MaxDist = distance;
+        maxDist = distance;
     }
     return hit;
 }
