@@ -372,7 +372,14 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
                     questPOIBlobData.UnkWoD1            = data->UnkWoD1;
 
                     for (QuestPOIPoint const& point : data->points)
-                        questPOIBlobData.QuestPOIBlobPointStats.push_back({ point.X, point.Y });
+                    {
+                        WorldPackets::Query::QuestPOIBlobPoint questPOIBlobPoint;
+
+                        questPOIBlobPoint.X = point.X;
+                        questPOIBlobPoint.Y = point.Y;
+
+                        questPOIBlobData.QuestPOIBlobPointStats.push_back(questPOIBlobPoint);
+                    }
 
                     questPOIData.QuestPOIBlobDataStats.push_back(questPOIBlobData);
                 }
