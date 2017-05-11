@@ -22,6 +22,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <memory>
 #include "vec3d.h"
 #include "loadlib/loadlib.h"
 

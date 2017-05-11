@@ -16,12 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-#include <deque>
-#include <set>
-#include <cstdlib>
-#include <fstream>
-
 #include "dbcfile.h"
 #include "Banner.h"
 #include "mpq_libmpq04.h"
@@ -29,6 +23,15 @@
 
 #include "adt.h"
 #include "wdt.h"
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <cstdio>
+#include <deque>
+#include <fstream>
+#include <set>
+#include <unordered_map>
+#include <cstdlib>
+#include <cstring>
 
 #include <G3D/Plane.h>
 #include <boost/filesystem.hpp>

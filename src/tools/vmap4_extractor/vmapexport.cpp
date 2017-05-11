@@ -17,27 +17,27 @@
  */
 
 #include "adtfile.h"
-#include "wdtfile.h"
+#include "Banner.h"
 #include "dbcfile.h"
+#include "vmapexport.h"
+#include "wdtfile.h"
 #include "wmo.h"
 #include "mpq_libmpq04.h"
-#include "vmapexport.h"
-#include "Banner.h"
+#include <boost/filesystem/operations.hpp>
+#include <fstream>
+#include <iostream>
+#include <list>
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <cstdio>
+#include <cerrno>
 #include <sys/stat.h>
 
 #ifdef _WIN32
     #include <direct.h>
     #define mkdir _mkdir
 #endif
-
-#include <cstdio>
-#include <iostream>
-#include <map>
-#include <vector>
-#include <errno.h>
-
-#undef min
-#undef max
 
 //------------------------------------------------------------------------------
 // Defines
