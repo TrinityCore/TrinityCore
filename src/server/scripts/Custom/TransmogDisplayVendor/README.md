@@ -24,6 +24,7 @@ Using direct merge:
 - open git bash to source location
 - do `git remote add rochet2 https://github.com/Rochet2/TrinityCore.git`
 - do `git pull rochet2 transmogvendor`
+- optionally tweak the config settings in `src/server/game/Entities/Item/TransmogDisplayVendor.cpp`
 - use cmake and compile
 
 Using diff *(recommended)*:
@@ -33,6 +34,7 @@ Using diff *(recommended)*:
 - open git bash to source location
 - do `git apply transmogvendor.diff`
  - if using the regular transmogrification, simply use --reject with either and overwrite the parts of the other. Order doesnt matter, as long as duplicate code doesnt exist.
+- optionally tweak the config settings in `src/server/game/Entities/Item/TransmogDisplayVendor.cpp`
 - use cmake and compile
 
 After compiling:
