@@ -19,7 +19,7 @@
 #ifndef ADT_H
 #define ADT_H
 
-#include "loadlib.h"
+#include "Define.h"
 
 #define TILESIZE (533.33333f)
 #define CHUNKSIZE ((TILESIZE) / 16.0f)
