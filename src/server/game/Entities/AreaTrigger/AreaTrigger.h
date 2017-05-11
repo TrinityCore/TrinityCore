@@ -27,6 +27,7 @@ class AreaTriggerMiscTemplate;
 class SpellInfo;
 class Unit;
 class AreaTriggerAI;
+class AuraEffect;
 
 struct AreaTriggerPolygonVertice;
 
@@ -100,7 +101,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         ObjectGuid _targetGuid;
 
-        AuraEffect* _aurEff;
+        AuraEffect const* _aurEff;
 
         int32 _duration;
         int32 _totalDuration;
