@@ -1,6 +1,7 @@
+-- Death Knight quest "A Special Surprise" (quest IDs 12739 and 12742-12750)
+DELETE FROM `creature_text` WHERE `CreatureID` IN (29032,29061,29065,29067,29068,29070,29071,29072,29073,29074,29053);
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 -- Malar Bravehorn, tauren
-DELETE FROM `creature_text` WHERE `entry`=29032;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29032, 0, 0, "Come to finish the job, have you?", 12, 0, 100, 0, 0, 0, 29286, 0, 'special_surprise SAY_EXEC_START'),
 (29032, 1, 0, "You'll look me in the eyes when...", 12, 0, 100, 0, 0, 0, 29287, 0, 'special_surprise SAY_EXEC_PROG'),
 (29032, 2, 0, "$n?", 12, 0, 100, 0, 0, 0, 29288, 0, 'special_surprise SAY_EXEC_NAME'),
@@ -10,11 +11,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (29032, 6, 0, "Listen to me, $n. You must fight against the Lich King's control. He is a monster that wants to see this world - our world - in ruin. Don't let him use you to accomplish his goals. You were once a hero and you can be again. Fight, damn you! Fight his control!", 12, 0, 100, 0, 0, 0, 29295, 0, 'special_surprise SAY_EXEC_LISTEN'),
 (29032, 7, 0, "There... There's no more time for me. I'm done for. Finish me off, $n. Do it or they'll kill us both. $n... Remember Mulgore. This world is worth saving.", 12, 0, 100, 0, 0, 0, 29301, 0, 'special_surprise SAY_EXEC_TIME'),
 (29032, 8, 0, "Do it, $n! Put me out of my misery!", 12, 0, 100, 0, 0, 0, 29302, 0, 'special_surprise SAY_EXEC_WAITING'),
-(29032, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29303, 0, 'special_surprise EMOTE_DIES');
-
+(29032, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29303, 0, 'special_surprise EMOTE_DIES'),
 -- Ellen Stanbridge, human
-DELETE FROM `creature_text` WHERE `entry`=29061;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29061, 0, 0, "Come to finish the job, have you?", 12, 0, 100, 0, 0, 0, 29310, 0, 'special_surprise SAY_EXEC_START'),
 (29061, 1, 0, "I'd like to stand for...", 12, 0, 100, 0, 0, 0, 29311, 0, 'special_surprise SAY_EXEC_PROG'),
 (29061, 2, 0, "$n?", 12, 0, 100, 0, 0, 0, 29312, 0, 'special_surprise SAY_EXEC_NAME'),
@@ -24,11 +22,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (29061, 6, 0, "Listen to me, $n. You must fight against the Lich King's control. He is a monster that wants to see this world - our world - in ruin. Don't let him use you to accomplish his goals. You were once a hero and you can be again. Fight, damn you! Fight his control!", 12, 0, 100, 0, 0, 0, 29316, 0, 'special_surprise SAY_EXEC_LISTEN'),
 (29061, 7, 0, "There... There's no more time for me. I'm done for. Finish me off, $n. Do it or they'll kill us both. $n... Remember Elwynn. This world is worth saving.", 12, 0, 100, 0, 0, 0, 29317, 0, 'special_surprise SAY_EXEC_TIME'),
 (29061, 8, 0, "Do it, $n! Put me out of my misery!", 12, 0, 100, 0, 0, 0, 29318, 0, 'special_surprise SAY_EXEC_WAITING'),
-(29061, 9, 0, "%s dies from her injuries.", 16, 0, 100, 0, 0, 0, 29319, 0, 'special_surprise EMOTE_DIES');
-
+(29061, 9, 0, "%s dies from her injuries.", 16, 0, 100, 0, 0, 0, 29319, 0, 'special_surprise EMOTE_DIES'),
 -- Yazmina Oakenthorn, night elf
-DELETE FROM `creature_text` WHERE `entry`=29065;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29065, 0, 0, "Come to finish the job, have you?", 12, 0, 100, 0, 0, 0, 29322, 0, 'special_surprise SAY_EXEC_START'),
 (29065, 1, 0, "I'd like to stand for...", 12, 0, 100, 0, 0, 0, 29323, 0, 'special_surprise SAY_EXEC_PROG'),
 (29065, 2, 0, "$n?", 12, 0, 100, 0, 0, 0, 29324, 0, 'special_surprise SAY_EXEC_NAME'),
@@ -38,11 +33,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (29065, 6, 0, "Listen to me, $n. You must fight against the Lich King's control. He is a monster that wants to see this world - our world - in ruin. Don't let him use you to accomplish his goals. You were once a hero and you can be again. Fight, damn you! Fight his control!", 12, 0, 100, 0, 0, 0, 29389, 0, 'special_surprise SAY_EXEC_LISTEN'),
 (29065, 7, 0, "There... There's no more time for me. I'm done for. Finish me off, $n. Do it or they'll kill us both. $n... Remember Teldrassil, our beloved home. This world is worth saving.", 12, 0, 100, 0, 0, 0, 29330, 0, 'special_surprise SAY_EXEC_TIME'),
 (29065, 8, 0, "Do it, $n! Put me out of my misery!", 12, 0, 100, 0, 0, 0, 29331, 0, 'special_surprise SAY_EXEC_WAITING'),
-(29065, 9, 0, "%s dies from her injuries.", 16, 0, 100, 0, 0, 0, 29333, 0, 'special_surprise EMOTE_DIES');
-
+(29065, 9, 0, "%s dies from her injuries.", 16, 0, 100, 0, 0, 0, 29333, 0, 'special_surprise EMOTE_DIES'),
 -- Donovan Pulfrost, dwarf
-DELETE FROM `creature_text` WHERE `entry`=29067;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29067, 0, 0, "Come to finish the job, have ye?", 12, 0, 100, 0, 0, 0, 29335, 0, 'special_surprise SAY_EXEC_START'),
 (29067, 1, 0, "Well this son o' Ironforge would like...", 12, 0, 100, 0, 0, 0, 29336, 0, 'special_surprise SAY_EXEC_PROG'),
 (29067, 2, 0, "$n?", 12, 0, 100, 0, 0, 0, 29337, 0, 'special_surprise SAY_EXEC_NAME'),
@@ -52,11 +44,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (29067, 6, 0, "Listen to me, $n. Ye must fight against the Lich King's control. He's a monster that wants to see this world - our world - in ruin. Don't let him use ye to accomplish his goals. Ye were once a hero and ye can be again. Fight, damn ye! Fight his control!", 12, 0, 100, 0, 0, 0, 29341, 0, 'special_surprise SAY_EXEC_LISTEN'),
 (29067, 7, 0, "There... There's no more time for me. I'm done for. Finish me off, $n. Do it or they'll kill us both. $n... For KHAAAAAAAAZZZ MODAAAAAANNNNNN!!!", 12, 0, 100, 0, 0, 0, 29342, 0, 'special_surprise SAY_EXEC_TIME'),
 (29067, 8, 0, "Do it, $n! Put me out of my misery!", 12, 0, 100, 0, 0, 0, 29343, 0, 'special_surprise SAY_EXEC_WAITING'),
-(29067, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29344, 0, 'special_surprise EMOTE_DIES');
-
+(29067, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29344, 0, 'special_surprise EMOTE_DIES'),
 -- Goby Blastenheimer, gnome
-DELETE FROM `creature_text` WHERE `entry`=29068;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29068, 0, 0, "Come to finish the job, have you?", 12, 0, 100, 0, 0, 0, 29347, 0, 'special_surprise SAY_EXEC_START'),
 (29068, 1, 0, "If you'd allow me just one...", 12, 0, 100, 0, 0, 0, 29348, 0, 'special_surprise SAY_EXEC_PROG'),
 (29068, 2, 0, "$n?", 12, 0, 100, 0, 0, 0, 29349, 0, 'special_surprise SAY_EXEC_NAME'),
@@ -66,11 +55,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (29068, 6, 0, "Listen to me, $n. You must fight against the Lich King's control. He is a monster that wants to see this world - our world - in ruin. Don't let him use you to accomplish his goals. You were once a hero and you can be again. Fight, damn you! Fight his control!", 12, 0, 100, 0, 0, 0, 29353, 0, 'special_surprise SAY_EXEC_LISTEN'),
 (29068, 7, 0, "There... There's no more time for me. I'm done for. Finish me off, $n. Do it or they'll kill us both. $n... Remember Gnomeregan! This world is worth saving.", 12, 0, 100, 0, 0, 0, 29354, 0, 'special_surprise SAY_EXEC_TIME'),
 (29068, 8, 0, "Do it, $n! Put me out of my misery!", 12, 0, 100, 0, 0, 0, 29355, 0, 'special_surprise SAY_EXEC_WAITING'),
-(29068, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29356, 0, 'special_surprise EMOTE_DIES');
-
+(29068, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29356, 0, 'special_surprise EMOTE_DIES'),
 -- Valok the Righteous, draenei
-DELETE FROM `creature_text` WHERE `entry`=29070;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29070, 0, 0, "Come to finish the job, have you?", 12, 0, 100, 0, 0, 0, 29357, 0, 'special_surprise SAY_EXEC_START'),
 (29070, 1, 0, "You'll look me in the eyes when...", 12, 0, 100, 0, 0, 0, 29358, 0, 'special_surprise SAY_EXEC_PROG'),
 (29070, 2, 0, "$n?", 12, 0, 100, 0, 0, 0, 29359, 0, 'special_surprise SAY_EXEC_NAME'),
@@ -80,11 +66,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (29070, 6, 0, "Listen to me, $n. You must fight against the Lich King's control. He is a monster that wants to see this world - our world - in ruin. Don't let him use you to accomplish his goals. You were once a hero and you can be again. Fight, damn you! Fight his control!", 12, 0, 100, 0, 0, 0, 29363, 0, 'special_surprise SAY_EXEC_LISTEN'),
 (29070, 7, 0, "There... There's no more time for me. I'm done for. Finish me off, $n. Do it or they'll kill us both. $n... Remember Argus. Don't let that happen to this world.", 12, 0, 100, 0, 0, 0, 29364, 0, 'special_surprise SAY_EXEC_TIME'),
 (29070, 8, 0, "Do it, $n! Put me out of my misery!", 12, 0, 100, 0, 0, 0, 29365, 0, 'special_surprise SAY_EXEC_WAITING'),
-(29070, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29366, 0, 'special_surprise EMOTE_DIES');
-
+(29070, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29366, 0, 'special_surprise EMOTE_DIES'),
 -- Antoine Brack, undead
-DELETE FROM `creature_text` WHERE `entry`=29071;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29071, 0, 0, "Come to finish the job, have you?", 12, 0, 100, 0, 0, 0, 29393, 0, 'special_surprise SAY_EXEC_START'),
 (29071, 1, 0, "Ironic, isn't it? To be killed...", 12, 0, 100, 0, 0, 0, 29394, 0, 'special_surprise SAY_EXEC_PROG'),
 (29071, 2, 0, "$n?", 12, 0, 100, 0, 0, 0, 29395, 0, 'special_surprise SAY_EXEC_NAME'),
@@ -94,11 +77,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (29071, 6, 0, "Listen to me, $n. You must fight against the Lich King's control. He is a monster that wants to see this world - our world - in ruin. Don't let him use you to accomplish his goals - AGAIN. You were once a hero and you can be again. Fight, damn you! Fight his control!", 12, 0, 100, 0, 0, 0, 29399, 0, 'special_surprise SAY_EXEC_LISTEN'),
 (29071, 7, 0, "There... There's no more time for me. I'm done for. Finish me off, $n. Do it or they'll kill us both. $n... Remember Tirisfal! This world is worth saving!", 12, 0, 100, 0, 0, 0, 29400, 0, 'special_surprise SAY_EXEC_TIME'),
 (29071, 8, 0, "Do it, $n! Put me out of my misery!", 12, 0, 100, 0, 0, 0, 29401, 0, 'special_surprise SAY_EXEC_WAITING'),
-(29071, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29402, 0, 'special_surprise EMOTE_DIES');
-
+(29071, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29402, 0, 'special_surprise EMOTE_DIES'),
 -- Kug Ironjaw, orc
-DELETE FROM `creature_text` WHERE `entry`=29072;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29072, 0, 0, "Come to finish the job, have you?", 12, 0, 100, 0, 0, 0, 29383, 0, 'special_surprise SAY_EXEC_START'),
 (29072, 1, 0, "I want to die like an orc...", 12, 0, 100, 0, 0, 0, 29384, 0, 'special_surprise SAY_EXEC_PROG'),
 (29072, 2, 0, "$n?", 12, 0, 100, 0, 0, 0, 29385, 0, 'special_surprise SAY_EXEC_NAME'),
@@ -108,11 +88,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (29072, 6, 0, "Listen to me, $n. You must fight against the Lich King's control. He is a monster that wants to see this world - our world - in ruin. Don't let him use you to accomplish his goals. You were once a hero and you can be again. Fight, damn you! Fight his control!", 12, 0, 100, 0, 0, 0, 29389, 0, 'special_surprise SAY_EXEC_LISTEN'),
 (29072, 7, 0, "There... There's no more time for me. I'm done for. Finish me off, $n. Do it or they'll kill us both. $n... For the Horde! This world is worth saving.", 12, 0, 100, 0, 0, 0, 29390, 0, 'special_surprise SAY_EXEC_TIME'),
 (29072, 8, 0, "Do it, $n! Put me out of my misery!", 12, 0, 100, 0, 0, 0, 29391, 0, 'special_surprise SAY_EXEC_WAITING'),
-(29072, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29392, 0, 'special_surprise EMOTE_DIES');
-
+(29072, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29392, 0, 'special_surprise EMOTE_DIES'),
 -- Iggy Darktusk, troll
-DELETE FROM `creature_text` WHERE `entry`=29073;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29073, 0, 0, "Come ta finish da job, mon?", 12, 0, 100, 0, 0, 0, 29403, 0, 'special_surprise SAY_EXEC_START'),
 (29073, 1, 0, "Dis troll gonna stand for da...", 12, 0, 100, 0, 0, 0, 29404, 0, 'special_surprise SAY_EXEC_PROG'),
 (29073, 2, 0, "$n? Mon?", 12, 0, 100, 0, 0, 0, 29405, 0, 'special_surprise SAY_EXEC_NAME'),
@@ -122,11 +99,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (29073, 6, 0, "Listen ta me, $g brudda:sista;. You must fight against da Lich King's control. He be a monster dat want ta see dis world - our world - be ruined. Don't let he use you ta accomplish he goals. You be a hero once and you be a hero again! Fight it, mon! Fight he control!", 12, 0, 100, 0, 0, 0, 29409, 0, 'special_surprise SAY_EXEC_LISTEN'),
 (29073, 7, 0, "Der... Der's no more time for me. I be done for. Finish me off, $n. Do it or dey'll kill us both. $n... Remember Sen'jin Village, mon! Dis world be worth saving!", 12, 0, 100, 0, 0, 0, 29410, 0, 'special_surprise SAY_EXEC_TIME'),
 (29073, 8, 0, "Do it, $n! Put me out a me misery!", 12, 0, 100, 0, 0, 0, 29411, 0, 'special_surprise SAY_EXEC_WAITING'),
-(29073, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29412, 0, 'special_surprise EMOTE_DIES');
-
+(29073, 9, 0, "%s dies from his injuries.", 16, 0, 100, 0, 0, 0, 29412, 0, 'special_surprise EMOTE_DIES'),
 -- Lady Eonys, blood elf
-DELETE FROM `creature_text` WHERE `entry`=29074;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29074, 0, 0, "Come to finish the job, have you?", 12, 0, 100, 0, 0, 0, 29368, 0, 'special_surprise SAY_EXEC_START'),
 (29074, 1, 0, "You'll look me in the eyes when...", 12, 0, 100, 0, 0, 0, 29369, 0, 'special_surprise SAY_EXEC_PROG'),
 (29074, 2, 0, "$n?", 12, 0, 100, 0, 0, 0, 29372, 0, 'special_surprise SAY_EXEC_NAME'),
@@ -136,9 +110,6 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (29074, 6, 0, "Listen to me, $n. You must fight against the Lich King's control. He is a monster that wants to see this world - our world - in ruin. Don't let him use you to accomplish his goals. You were once a hero and you can be again. Fight, damn you! Fight his control!", 12, 0, 100, 0, 0, 0, 29375, 0, 'special_surprise SAY_EXEC_LISTEN'),
 (29074, 7, 0, "There... There's no more time for me. I'm done for. Finish me off, $n. Do it or they'll kill us both. $n... Remember Silvermoon. This world is worth saving.", 12, 0, 100, 0, 0, 0, 29376, 0, 'special_surprise SAY_EXEC_TIME'),
 (29074, 8, 0, "Do it, $n! Put me out of my misery!", 12, 0, 100, 0, 0, 0, 29377, 0, 'special_surprise SAY_EXEC_WAITING'),
-(29074, 9, 0, "%s dies from her injuries.", 16, 0, 100, 0, 0, 0, 29378, 0, 'special_surprise EMOTE_DIES');
-
+(29074, 9, 0, "%s dies from her injuries.", 16, 0, 100, 0, 0, 0, 29378, 0, 'special_surprise EMOTE_DIES'),
 -- Knight Commander Plaguefist
-DELETE FROM `creature_text` WHERE `entry`=29053;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES 
 (29053, 0, 0, "What's going on in there? What's taking so long, $n?", 14, 0, 100, 0, 0, 0, 29382, 0, 'special_surprise SAY_PLAGUEFIST');
