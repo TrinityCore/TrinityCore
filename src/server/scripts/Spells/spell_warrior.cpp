@@ -1119,7 +1119,7 @@ public:
                 //Get the Remaining Damage from the aura (if exist)
                 int32 remainingDamage = target->GetRemainingPeriodicAmount(target->GetGUID(), SPELL_WARRIOR_TRAUMA_EFFECT, SPELL_AURA_PERIODIC_DAMAGE);
                 //Get 25% of damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
-                int32 damage = (eventInfo.GetDamageInfo()->GetDamage() * aurEff->GetAmount() / 100.0f) + remainingDamage;
+                int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) + remainingDamage;
                 GetCaster()->CastCustomSpell(target, SPELL_WARRIOR_TRAUMA_EFFECT, &damage, nullptr, nullptr, true);
             }
         }
