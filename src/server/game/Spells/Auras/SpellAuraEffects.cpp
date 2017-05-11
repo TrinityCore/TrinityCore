@@ -6464,12 +6464,12 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
     if (apply)
     {
         AreaTrigger* areaTrigger = new AreaTrigger();
-        if (!areaTrigger->CreateAreaTrigger(GetMiscValue(), GetCaster(), target, GetSpellInfo(), *target, GetBase()->GetDuration(), GetBase()->GetSpellXSpellVisualId()))
+        if (!areaTrigger->CreateAreaTrigger(GetMiscValue(), GetCaster(), target, GetSpellInfo(), *target, GetBase()->GetDuration(), GetBase()->GetSpellXSpellVisualId(), this))
             delete areaTrigger;
     }
     else
     {
         if (Unit* caster = GetCaster())
-            caster->RemoveAreaTrigger(GetSpellInfo()->Id);
+            caster->RemoveAreaTrigger(this);
     }
 }
