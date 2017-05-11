@@ -59,7 +59,9 @@ class TC_GAME_API Pet : public Guardian
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
         bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
-        bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
+        void LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
+        void LoadPetFromDB(std::function<void(bool /*loadResult*/, Pet* /*pet*/)>&& callback, Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
+        bool LoadPetFromDBCallback(PreparedQueryResult result, Player* owner, bool current);
         bool IsLoading() const override { return m_loading;}
         void SavePetToDB(PetSaveMode mode);
         void Remove(PetSaveMode mode, bool returnreagent = false);
@@ -141,7 +143,8 @@ class TC_GAME_API Pet : public Guardian
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         void ResetAuraUpdateMaskForRaid() { m_auraRaidUpdateMask = 0; }
 
-        DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
+        DeclinedName const* GetDeclinedNames() const { return m_declinedname.get(); }
+        void SetDeclinedNames(DeclinedName* declinedNames) { m_declinedname.reset(declinedNames); }
 
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
 
@@ -155,7 +158,7 @@ class TC_GAME_API Pet : public Guardian
         bool    m_loading;
         uint32  m_focusRegenTimer;
 
-        DeclinedName *m_declinedname;
+        std::unique_ptr<DeclinedName> m_declinedname;
 
     private:
         void SaveToDB(uint32, uint8, uint32) override                // override of Creature::SaveToDB     - must not be called
