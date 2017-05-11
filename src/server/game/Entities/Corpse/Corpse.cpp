@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "Corpse.h"
 #include "Player.h"
+#include "UpdateData.h"
 #include "ObjectAccessor.h"
 #include "DatabaseEnv.h"
 

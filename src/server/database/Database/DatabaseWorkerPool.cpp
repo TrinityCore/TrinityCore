@@ -34,6 +34,12 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool()
 }
 
 template <class T>
+DatabaseWorkerPool<T>::~DatabaseWorkerPool()
+{
+    _queue->Cancel();
+}
+
+template <class T>
 void DatabaseWorkerPool<T>::SetConnectionInfo(std::string const& infoString,
     uint8 const asyncThreads, uint8 const synchThreads)
 {
@@ -174,6 +180,12 @@ QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder* 
     QueryResultHolderFuture result = task->GetFuture();
     Enqueue(task);
     return result;
+}
+
+template <class T>
+SQLTransaction DatabaseWorkerPool<T>::BeginTransaction()
+{
+    return std::make_shared<Transaction>();
 }
 
 template <class T>

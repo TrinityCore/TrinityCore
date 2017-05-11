@@ -60,10 +60,7 @@ class DatabaseWorkerPool
         /* Activity state */
         DatabaseWorkerPool();
 
-        ~DatabaseWorkerPool()
-        {
-            _queue->Cancel();
-        }
+        ~DatabaseWorkerPool();
 
         void SetConnectionInfo(std::string const& infoString, uint8 const asyncThreads, uint8 const synchThreads);
 
@@ -211,10 +208,7 @@ class DatabaseWorkerPool
         */
 
         //! Begins an automanaged transaction pointer that will automatically rollback if not commited. (Autocommit=0)
-        SQLTransaction BeginTransaction()
-        {
-            return SQLTransaction(new Transaction);
-        }
+        SQLTransaction BeginTransaction();
 
         //! Enqueues a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
         //! were appended to the transaction will be respected during execution.

@@ -20,8 +20,15 @@
 
 #include "DB2Store.h"
 #include "DB2Structure.h"
+#include "Hash.h"
 #include "SharedDefines.h"
 #include "Regex.h"
+#include <array>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 TC_GAME_API extern DB2Storage<AchievementEntry>                     sAchievementStore;
 TC_GAME_API extern DB2Storage<AnimKitEntry>                         sAnimKitStore;

@@ -34,6 +34,7 @@
 #include "GameTables.h"
 #include "CollectionMgr.h"
 #include "ArtifactPackets.h"
+#include "UpdateData.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {

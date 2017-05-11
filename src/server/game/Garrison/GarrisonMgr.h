@@ -19,8 +19,12 @@
 #define GarrisonMgr_h__
 
 #include "DB2Stores.h"
-#include <unordered_set>
 #include "Position.h"
+#include <list>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 struct FinalizeGarrisonPlotGOInfo
 {

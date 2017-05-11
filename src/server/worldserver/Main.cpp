@@ -210,7 +210,7 @@ extern int main(int argc, char** argv)
         threadPool->push_back(std::thread([ioService]() { ioService->run(); }));
 
     // Set process priority according to configuration settings
-    SetProcessPriority("server.worldserver");
+    SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
 
     // Start the databases
     if (!StartDB())

@@ -23,6 +23,7 @@
 #include <functional>
 #include <string>
 #include <memory>
+#include <set>
 #include <vector>
 
 class TC_DATABASE_API UpdateFetcher

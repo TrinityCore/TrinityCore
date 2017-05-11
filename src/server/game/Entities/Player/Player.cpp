@@ -19621,6 +19621,8 @@ void Player::SaveToDB(bool create /*=false*/)
     stmt->setUInt64(0, GetGUID().GetCounter());
     trans->Append(stmt);
 
+    auto finiteAlways = [](float f) { return std::isfinite(f) ? f : 0.0f; };
+
     if (create)
     {
         //! Insert query

@@ -20,6 +20,7 @@
 
 #include "SharedDefines.h"
 #include "Common.h"
+#include <vector>
 
 struct GtArmorMitigationByLvlEntry
 {

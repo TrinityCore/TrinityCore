@@ -15,20 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sstream>
-
 #include "AppenderConsole.h"
-#include "Config.h"
+#include "LogMessage.h"
 #include "Util.h"
+#include <sstream>
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
   #include <Windows.h>
 #endif
 
-AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, ExtraAppenderArgs extraArgs)
+AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs)
     : Appender(id, name, level, flags), _colored(false)
 {
-    for (uint8 i = 0; i < MaxLogLevels; ++i)
+    for (uint8 i = 0; i < NUM_ENABLED_LOG_LEVELS; ++i)
         _colors[i] = ColorTypes(MaxColors);
 
     if (!extraArgs.empty())
@@ -43,11 +42,11 @@ void AppenderConsole::InitColors(std::string const& str)
         return;
     }
 
-    int color[MaxLogLevels];
+    int color[NUM_ENABLED_LOG_LEVELS];
 
     std::istringstream ss(str);
 
-    for (uint8 i = 0; i < MaxLogLevels; ++i)
+    for (uint8 i = 0; i < NUM_ENABLED_LOG_LEVELS; ++i)
     {
         ss >> color[i];
 
@@ -58,7 +57,7 @@ void AppenderConsole::InitColors(std::string const& str)
             return;
     }
 
-    for (uint8 i = 0; i < MaxLogLevels; ++i)
+    for (uint8 i = 0; i < NUM_ENABLED_LOG_LEVELS; ++i)
         _colors[i] = ColorTypes(color[i]);
 
     _colored = true;

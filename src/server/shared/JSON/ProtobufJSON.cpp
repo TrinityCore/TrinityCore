@@ -18,6 +18,7 @@
 #include "ProtobufJSON.h"
 #include "StringFormat.h"
 #include "Common.h"
+#include "Errors.h"
 #include "Log.h"
 #include <rapidjson/writer.h>
 #include <rapidjson/reader.h>

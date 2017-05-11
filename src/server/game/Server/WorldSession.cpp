@@ -53,6 +53,7 @@
 #include "PacketUtilities.h"
 #include "CollectionMgr.h"
 #include "Metric.h"
+#include "Random.h"
 
 #include <zlib.h>
 

@@ -23,6 +23,7 @@
 #include "LFGPackets.h"
 #include "PacketUtilities.h"
 #include "Packet.h"
+#include "Optional.h"
 
 namespace WorldPackets
 {

@@ -21,6 +21,7 @@
 
 #include "MoveSplineFlag.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include <G3D/Vector3.h>
 
 class Unit;

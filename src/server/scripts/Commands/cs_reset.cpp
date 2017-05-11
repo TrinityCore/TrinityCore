@@ -29,6 +29,8 @@ EndScriptData */
 #include "Player.h"
 #include "Pet.h"
 #include "ScriptMgr.h"
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
 
 class reset_commandscript : public CommandScript
 {

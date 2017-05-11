@@ -20,6 +20,8 @@
 
 #include "SQLOperation.h"
 #include "StringFormat.h"
+#include <list>
+#include <mutex>
 
 //- Forward declare (don't include header to prevent circular includes)
 class PreparedStatement;

@@ -25,6 +25,7 @@
 
 #include "SessionManager.h"
 #include "AppenderDB.h"
+#include "Config.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
 #include "GitRevision.h"
@@ -188,7 +189,7 @@ int main(int argc, char** argv)
     signals.async_wait(std::bind(&SignalHandler, std::weak_ptr<boost::asio::io_service>(ioService), std::placeholders::_1, std::placeholders::_2));
 
     // Set process priority according to configuration settings
-    SetProcessPriority("server.bnetserver");
+    SetProcessPriority("server.bnetserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
 
     // Enabled a timed callback for handling the database keep alive ping
     int32 dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);

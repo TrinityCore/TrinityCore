@@ -25,6 +25,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
+#include <unordered_set>
 
 using namespace boost::asio;
 

@@ -18,9 +18,10 @@
 #ifndef TRINITYCORE_AREATRIGGER_TEMPLATE_H
 #define TRINITYCORE_AREATRIGGER_TEMPLATE_H
 
-#include <G3D/Vector3.h>
-
 #include "Define.h"
+#include <G3D/Vector3.h>
+#include <vector>
+#include <cstring>
 
 #define MAX_AREATRIGGER_ENTITY_DATA 6
 #define MAX_AREATRIGGER_SCALE 7
