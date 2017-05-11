@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "Language.h"
 #include "Player.h"
+#include "Random.h"
 #include "Util.h"
 #include "WorldSession.h"
 

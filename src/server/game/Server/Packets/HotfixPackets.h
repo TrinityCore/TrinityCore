@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "DB2Stores.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 
 namespace WorldPackets
 {

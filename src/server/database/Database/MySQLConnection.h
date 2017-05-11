@@ -19,6 +19,7 @@
 #include "Transaction.h"
 #include "Util.h"
 #include "ProducerConsumerQueue.h"
+#include <map>
 
 #ifndef _MYSQLCONNECTION_H
 #define _MYSQLCONNECTION_H

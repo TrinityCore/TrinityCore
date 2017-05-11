@@ -31,11 +31,13 @@
 #include "QueryResult.h"
 #include "QueryCallbackProcessor.h"
 #include "Realm/Realm.h"
+#include "LockedQueue.h"
 
 #include <atomic>
 #include <map>
 #include <set>
 #include <list>
+#include <unordered_map>
 
 class Object;
 class WorldPacket;

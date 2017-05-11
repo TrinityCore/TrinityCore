@@ -19,6 +19,7 @@
 #include "ObjectMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHouseBotSeller.h"
+#include "Random.h"
 
 AuctionBotSeller::AuctionBotSeller()
 {

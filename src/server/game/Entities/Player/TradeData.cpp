@@ -17,6 +17,7 @@
 
 #include "TradeData.h"
 #include "Player.h"
+#include "Random.h"
 #include "TradePackets.h"
 
 TradeData* TradeData::GetTraderData() const
@@ -142,4 +143,9 @@ void TradeData::SetAccepted(bool state, bool forTrader /*= false*/)
         else
             _player->GetSession()->SendTradeStatus(info);
     }
+}
+
+void TradeData::UpdateServerStateIndex()
+{
+    _serverStateIndex = rand32();
 }

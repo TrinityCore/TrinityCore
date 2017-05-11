@@ -19,9 +19,9 @@
 #ifndef _OBJECT_POS_SELECTOR_H
 #define _OBJECT_POS_SELECTOR_H
 
-#include<Common.h>
-
-#include<map>
+#include "Common.h"
+#include <map>
+#include <cmath>
 
 enum UsedPosType { USED_POS_PLUS, USED_POS_MINUS };
 

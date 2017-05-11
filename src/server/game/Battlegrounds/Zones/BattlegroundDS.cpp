@@ -19,6 +19,7 @@
 #include "BattlegroundDS.h"
 #include "Creature.h"
 #include "Player.h"
+#include "Random.h"
 #include "WorldPacket.h"
 
 BattlegroundDS::BattlegroundDS()

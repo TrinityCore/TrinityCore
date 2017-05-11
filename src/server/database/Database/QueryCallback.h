@@ -20,6 +20,8 @@
 
 #include "QueryResult.h"
 #include <future>
+#include <list>
+#include <queue>
 
 class TC_DATABASE_API QueryCallback
 {

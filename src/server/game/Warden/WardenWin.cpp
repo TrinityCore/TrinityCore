@@ -32,6 +32,7 @@
 #include "WardenModuleWin.h"
 #include "WardenCheckMgr.h"
 #include "SHA1.h"
+#include "Random.h"
 
 #include <openssl/md5.h>
 

@@ -24,6 +24,11 @@
 #include "TransportMgr.h"
 #include "World.h"
 
+// temporary hack until database includes are sorted out (don't want to pull in Windows.h everywhere from mysql.h)
+#ifdef GetClassName
+#undef GetClassName
+#endif
+
 DB2Storage<AchievementEntry>                    sAchievementStore("Achievement.db2", AchievementLoadInfo::Instance());
 DB2Storage<AnimKitEntry>                        sAnimKitStore("AnimKit.db2", AnimKitLoadInfo::Instance());
 DB2Storage<AreaGroupMemberEntry>                sAreaGroupMemberStore("AreaGroupMember.db2", AreaGroupMemberLoadInfo::Instance());

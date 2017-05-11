@@ -20,6 +20,7 @@
 #define QUERYRESULT_H
 
 #include <memory>
+#include "Errors.h"
 #include "Field.h"
 
 #ifdef _WIN32

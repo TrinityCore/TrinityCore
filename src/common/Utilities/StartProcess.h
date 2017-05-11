@@ -18,11 +18,13 @@
 #ifndef Process_h__
 #define Process_h__
 
+#include "Define.h"
 #include <future>
 #include <memory>
-#include "Common.h"
+#include <vector>
 
-namespace Trinity {
+namespace Trinity
+{
 
 /// Starts a process with the given arguments and parameters and will block
 /// until the process is finished.
@@ -60,7 +62,7 @@ TC_COMMON_API std::shared_ptr<AsyncProcessResult>
 
 /// Searches for the given executable in the PATH variable
 /// and returns a present optional when it was found.
-TC_COMMON_API Optional<std::string> SearchExecutableInPath(std::string const& filename);
+TC_COMMON_API std::string SearchExecutableInPath(std::string const& filename);
 
 } // namespace Trinity
 
