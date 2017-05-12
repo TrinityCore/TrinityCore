@@ -24,7 +24,7 @@
 #include "TransportMgr.h"
 #include "World.h"
 
-// temporary hack until database includes are sorted out (don't want to pull in Windows.h everywhere from mysql.h)
+// temporary hack until includes are sorted out (don't want to pull in Windows.h)
 #ifdef GetClassName
 #undef GetClassName
 #endif

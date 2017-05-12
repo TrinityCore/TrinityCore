@@ -16,11 +16,36 @@
  */
 
 #include "DatabaseWorkerPool.h"
-#include "DatabaseEnv.h"
+#include "AdhocStatement.h"
+#include "Common.h"
+#include "Errors.h"
+#include "Implementation/LoginDatabase.h"
+#include "Implementation/WorldDatabase.h"
+#include "Implementation/CharacterDatabase.h"
+#include "Implementation/HotfixDatabase.h"
+#include "Log.h"
+#include "PreparedStatement.h"
+#include "ProducerConsumerQueue.h"
 #include "QueryCallback.h"
+#include "QueryHolder.h"
+#include "QueryResult.h"
+#include "SQLOperation.h"
+#include "Transaction.h"
+#include <mysql.h>
+#include <mysqld_error.h>
 
 #define MIN_MYSQL_SERVER_VERSION 50100u
 #define MIN_MYSQL_CLIENT_VERSION 50100u
+
+class PingOperation : public SQLOperation
+{
+    //! Operation for idle delaythreads
+    bool Execute() override
+    {
+        m_conn->Ping();
+        return true;
+    }
+};
 
 template <class T>
 DatabaseWorkerPool<T>::DatabaseWorkerPool()
@@ -241,6 +266,12 @@ void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction& transaction)
 }
 
 template <class T>
+PreparedStatement* DatabaseWorkerPool<T>::GetPreparedStatement(PreparedStatementIndex index)
+{
+    return new PreparedStatement(index);
+}
+
+template <class T>
 void DatabaseWorkerPool<T>::EscapeString(std::string& str)
 {
     if (str.empty())
@@ -313,6 +344,22 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
 }
 
 template <class T>
+unsigned long DatabaseWorkerPool<T>::EscapeString(char *to, const char *from, unsigned long length)
+{
+    if (!to || !from || !length)
+        return 0;
+
+    return mysql_real_escape_string(
+        _connections[IDX_SYNCH].front()->GetHandle(), to, from, length);
+}
+
+template <class T>
+void DatabaseWorkerPool<T>::Enqueue(SQLOperation* op)
+{
+    _queue->Push(op);
+}
+
+template <class T>
 T* DatabaseWorkerPool<T>::GetFreeConnection()
 {
     uint8 i = 0;
@@ -328,6 +375,69 @@ T* DatabaseWorkerPool<T>::GetFreeConnection()
     }
 
     return connection;
+}
+
+template <class T>
+char const* DatabaseWorkerPool<T>::GetDatabaseName() const
+{
+    return _connectionInfo->database.c_str();
+}
+
+template <class T>
+void DatabaseWorkerPool<T>::Execute(const char* sql)
+{
+    if (Trinity::IsFormatEmptyOrNull(sql))
+        return;
+
+    BasicStatementTask* task = new BasicStatementTask(sql);
+    Enqueue(task);
+}
+
+template <class T>
+void DatabaseWorkerPool<T>::Execute(PreparedStatement* stmt)
+{
+    PreparedStatementTask* task = new PreparedStatementTask(stmt);
+    Enqueue(task);
+}
+
+template <class T>
+void DatabaseWorkerPool<T>::DirectExecute(const char* sql)
+{
+    if (Trinity::IsFormatEmptyOrNull(sql))
+        return;
+
+    T* connection = GetFreeConnection();
+    connection->Execute(sql);
+    connection->Unlock();
+}
+
+template <class T>
+void DatabaseWorkerPool<T>::DirectExecute(PreparedStatement* stmt)
+{
+    T* connection = GetFreeConnection();
+    connection->Execute(stmt);
+    connection->Unlock();
+
+    //! Delete proxy-class. Not needed anymore
+    delete stmt;
+}
+
+template <class T>
+void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, const char* sql)
+{
+    if (!trans)
+        Execute(sql);
+    else
+        trans->Append(sql);
+}
+
+template <class T>
+void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction& trans, PreparedStatement* stmt)
+{
+    if (!trans)
+        Execute(stmt);
+    else
+        trans->Append(stmt);
 }
 
 template class TC_DATABASE_API DatabaseWorkerPool<LoginDatabaseConnection>;

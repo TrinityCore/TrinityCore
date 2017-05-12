@@ -20,6 +20,7 @@
  */
 
 #include "Common.h"
+#include "Log.h"
 #include "SharedDefines.h"
 #include "Player.h"
 #include "Group.h"

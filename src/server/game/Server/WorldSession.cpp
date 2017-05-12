@@ -25,6 +25,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "QueryCallback.h"
+#include "QueryHolder.h"
 #include "AccountMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
