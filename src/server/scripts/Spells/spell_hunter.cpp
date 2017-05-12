@@ -56,8 +56,8 @@ enum HunterSpells
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
     SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481,
-	SPELL_HUNTER_ASPECT_CHEETAH_FAST			    = 186257,
-	SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258
+    SPELL_HUNTER_ASPECT_CHEETAH_FAST                = 186257,
+    SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258
 };
 
 enum MiscSpells
@@ -1073,5 +1073,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_t9_4p_bonus();
     new spell_hun_tnt();
-	new spell_hun_aspect_cheetah();
+    new spell_hun_aspect_cheetah();
 }
