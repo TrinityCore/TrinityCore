@@ -1045,40 +1045,8 @@ public:
 
     AuraScript* GetAuraScript() const override
     {
-	    return new spell_hun_aspect_cheetah_AuraScript();
+        return new spell_hun_aspect_cheetah_AuraScript();
     }
-};
-public:
-	spell_hun_aspect_cheetah() : SpellScriptLoader("spell_hun_aspect_cheetah") { }
-
-	class spell_hun_aspect_cheetah_AuraScript : public AuraScript
-	{
-
-		PrepareAuraScript(spell_hun_aspect_cheetah_AuraScript);
-
-		bool Validate(SpellInfo const* /*spellInfo*/) override
-		{
-			if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_CHEETAH_FAST))
-				return false;
-			return true;
-		}
-
-		void HandleOnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
-		{
-			GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_ASPECT_CHEETAH_SLOW, true);
-		}
-
-
-		void Register() override
-		{
-			AfterEffectRemove += AuraEffectRemoveFn(spell_hun_aspect_cheetah_AuraScript::HandleOnRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
-		}
-	};
-
-	AuraScript* GetAuraScript() const override
-	{
-		return new spell_hun_aspect_cheetah_AuraScript();
-	}
 };
 
 void AddSC_hunter_spell_scripts()
