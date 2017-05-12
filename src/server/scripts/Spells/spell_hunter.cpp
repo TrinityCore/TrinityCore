@@ -33,7 +33,6 @@
 
 enum HunterSpells
 {
-    SPELL_HUNTER_ASPECT_CHEETAH_FAST                = 186257,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
@@ -1036,7 +1035,6 @@ class spell_hun_aspect_cheetah : public SpellScriptLoader
             {
                 GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_ASPECT_CHEETAH_SLOW, true);
             }
-
 
             void Register() override
             {
