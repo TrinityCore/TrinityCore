@@ -18,6 +18,7 @@
 
 #include "Common.h"
 #include "Corpse.h"
+#include "Log.h"
 #include "Player.h"
 #include "UpdateData.h"
 #include "ObjectAccessor.h"

@@ -18,13 +18,12 @@
 #ifndef _TRANSACTION_H
 #define _TRANSACTION_H
 
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include "SQLOperation.h"
 #include "StringFormat.h"
-#include <list>
 #include <mutex>
-
-//- Forward declare (don't include header to prevent circular includes)
-class PreparedStatement;
+#include <vector>
 
 /*! Transactions, high level class. */
 class TC_DATABASE_API Transaction
@@ -47,17 +46,16 @@ class TC_DATABASE_API Transaction
             Append(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
         }
 
-        size_t GetSize() const { return m_queries.size(); }
+        std::size_t GetSize() const { return m_queries.size(); }
 
     protected:
         void Cleanup();
-        std::list<SQLElementData> m_queries;
+        std::vector<SQLElementData> m_queries;
 
     private:
         bool _cleanedUp;
 
 };
-typedef std::shared_ptr<Transaction> SQLTransaction;
 
 /*! Low level class*/
 class TC_DATABASE_API TransactionTask : public SQLOperation

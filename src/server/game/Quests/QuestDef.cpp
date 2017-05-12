@@ -18,6 +18,7 @@
 
 #include "QuestDef.h"
 #include "GameTables.h"
+#include "Log.h"
 #include "Player.h"
 #include "World.h"
 #include "QuestPackets.h"

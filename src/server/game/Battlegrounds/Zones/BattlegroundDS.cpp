@@ -18,6 +18,7 @@
 
 #include "BattlegroundDS.h"
 #include "Creature.h"
+#include "Log.h"
 #include "Player.h"
 #include "Random.h"
 #include "WorldPacket.h"

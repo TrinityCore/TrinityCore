@@ -21,6 +21,7 @@
 #include "BattlegroundMgr.h"
 #include "Creature.h"
 #include "Language.h"
+#include "Log.h"
 #include "Player.h"
 #include "Random.h"
 #include "Util.h"

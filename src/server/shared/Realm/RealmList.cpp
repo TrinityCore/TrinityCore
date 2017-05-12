@@ -18,7 +18,8 @@
 
 #include "RealmList.h"
 #include "BattlenetRpcErrorCodes.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
 #include "ProtobufJSON.h"
 #include "SHA256.h"
 #include "BigNumber.h"

@@ -16,6 +16,7 @@
  */
 
 #include "Common.h"
+#include "Log.h"
 #include "ScenePackets.h"
 #include "WorldSession.h"
 #include "Player.h"

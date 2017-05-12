@@ -23,20 +23,23 @@
 * authentication server
 */
 
-#include "SessionManager.h"
 #include "AppenderDB.h"
+#include "Banner.h"
 #include "Config.h"
+#include "DatabaseEnv.h"
+#include "DatabaseLoader.h"
+#include "GitRevision.h"
+#include "LoginRESTService.h"
+#include "MySQLThreading.h"
 #include "ProcessPriority.h"
 #include "RealmList.h"
-#include "GitRevision.h"
-#include "Banner.h"
+#include "SessionManager.h"
 #include "SslContext.h"
-#include "DatabaseLoader.h"
-#include "LoginRESTService.h"
-#include <iostream>
+#include "Util.h"
 #include <boost/program_options.hpp>
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <google/protobuf/stubs/common.h>
+#include <iostream>
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;

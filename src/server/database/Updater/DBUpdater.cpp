@@ -16,17 +16,18 @@
  */
 
 #include "DBUpdater.h"
-#include "Log.h"
-#include "GitRevision.h"
-#include "UpdateFetcher.h"
-#include "DatabaseLoader.h"
-#include "Config.h"
 #include "BuiltInConfig.h"
+#include "Config.h"
+#include "DatabaseEnv.h"
+#include "DatabaseLoader.h"
+#include "GitRevision.h"
+#include "Log.h"
+#include "QueryResult.h"
 #include "StartProcess.h"
-
+#include "UpdateFetcher.h"
+#include <boost/filesystem/operations.hpp>
 #include <fstream>
 #include <iostream>
-#include <unordered_map>
 
 std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 {

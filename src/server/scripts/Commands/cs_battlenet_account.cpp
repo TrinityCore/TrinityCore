@@ -19,6 +19,7 @@
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "Language.h"
+#include "Log.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Util.h"
