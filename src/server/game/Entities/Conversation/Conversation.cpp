@@ -16,7 +16,6 @@
  */
 
 #include "Conversation.h"
-#include "ConversationDataStore.h"
 #include "Unit.h"
 #include "UpdateData.h"
 
@@ -144,15 +143,12 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     return true;
 }
 
-void Conversation::AddActor(ObjectGuid const& actorGuid, int16 actorIdx /*= -1*/)
+void Conversation::AddActor(ObjectGuid const& actorGuid, uint16 actorIdx)
 {
     ConversationDynamicFieldActor actorField;
     actorField.ActorGuid = actorGuid;
     actorField.Type = ConversationDynamicFieldActor::ActorType::WorldObjectActor;
-    if (actorIdx < 0)
-        AddDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, &actorField);
-    else
-        SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx, &actorField);
+    SetDynamicStructuredValue(CONVERSATION_DYNAMIC_FIELD_ACTORS, actorIdx, &actorField);
 }
 
 void Conversation::AddParticipant(ObjectGuid const& participantGuid)

@@ -24,13 +24,9 @@
 
 namespace
 {
-    typedef std::unordered_map<uint32, ConversationTemplate>        ConversationTemplateContainer;
-    typedef std::unordered_map<uint32, ConversationActorTemplate>   ConversationActorTemplateContainer;
-    typedef std::unordered_map<uint32, ConversationLineTemplate>    ConversationLineTemplateContainer;
-
-    ConversationTemplateContainer       _conversationTemplateStore;
-    ConversationActorTemplateContainer  _conversationActorTemplateStore;
-    ConversationLineTemplateContainer   _conversationLineTemplateStore;
+    std::unordered_map<uint32, ConversationTemplate>       _conversationTemplateStore;
+    std::unordered_map<uint32, ConversationActorTemplate>  _conversationActorTemplateStore;
+    std::unordered_map<uint32, ConversationLineTemplate>   _conversationLineTemplateStore;
 }
 
 void ConversationDataStore::LoadConversationTemplates()
