@@ -55,7 +55,9 @@ enum HunterSpells
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_T9_4P_GREATNESS                    = 68130,
-    SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481
+    SPELL_ROAR_OF_SACRIFICE_TRIGGERED               = 67481,
+	SPELL_HUNTER_ASPECT_CHEETAH_FAST			    = 186257,
+	SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258
 };
 
 enum MiscSpells
@@ -1011,6 +1013,41 @@ class spell_hun_tnt : public SpellScriptLoader
             return new spell_hun_tnt_AuraScript();
         }
 };
+// -186257 - Aspect of the cheetah
+class spell_hun_aspect_cheetah : public SpellScriptLoader
+{
+public:
+	spell_hun_aspect_cheetah() : SpellScriptLoader("spell_hun_aspect_cheetah") { }
+
+	class spell_hun_aspect_cheetah_AuraScript : public AuraScript
+	{
+
+		PrepareAuraScript(spell_hun_aspect_cheetah_AuraScript);
+
+		bool Validate(SpellInfo const* /*spellInfo*/) override
+		{
+			if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_CHEETAH_FAST))
+				return false;
+			return true;
+		}
+
+		void HandleOnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+		{
+			GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_ASPECT_CHEETAH_SLOW, true);
+		}
+
+
+		void Register() override
+		{
+			AfterEffectRemove += AuraEffectRemoveFn(spell_hun_aspect_cheetah_AuraScript::HandleOnRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+		}
+	};
+
+	AuraScript* GetAuraScript() const override
+	{
+		return new spell_hun_aspect_cheetah_AuraScript();
+	}
+};
 
 void AddSC_hunter_spell_scripts()
 {
@@ -1036,4 +1073,5 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_target_only_pet_and_owner();
     new spell_hun_t9_4p_bonus();
     new spell_hun_tnt();
+	new spell_hun_aspect_cheetah();
 }
