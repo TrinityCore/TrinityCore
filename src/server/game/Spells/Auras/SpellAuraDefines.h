@@ -430,7 +430,7 @@ enum AuraType
     SPELL_AURA_SET_FAIR_FAR_CLIP                            = 370,  // Overrides client's View Distance setting to max("Fair", current_setting)
     SPELL_AURA_371                                          = 371,
     SPELL_AURA_372                                          = 372,
-    SPELL_AURA_373                                          = 373,
+    SPELL_AURA_MOD_SPEED_NO_CONTROL                         = 373,  // NYI
     SPELL_AURA_MODIFY_FALL_DAMAGE_PCT                       = 374,  // NYI
     SPELL_AURA_375                                          = 375,
     SPELL_AURA_MOD_CURRENCY_GAIN_FROM_SOURCE                = 376,  // NYI
