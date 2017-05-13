@@ -193,7 +193,7 @@ enum gameobjectsIC
 enum Times
 {
     WORKSHOP_UPDATE_TIME     = 180000, // 3 minutes
-    DOCKS_UPDATE_TIME        = 180000, // not sure if it is 3 minutes
+    DOCKS_UPDATE_TIME        = 300000, // 5 minutes
     IC_RESOURCE_TIME         = 45000, // not sure, need more research
     CLOSE_DOORS_TIME         = 20000,
     BANNER_STATE_CHANGE_TIME = 60000,
