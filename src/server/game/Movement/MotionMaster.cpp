@@ -675,9 +675,7 @@ void MotionMaster::MoveDistract(uint32 timer)
         TC_LOG_DEBUG("misc", "Creature (Entry: %u %s) distracted (timer: %u)",
             _owner->GetEntry(), _owner->GetGUID().ToString().c_str(), timer);
     }
-
-    DistractMovementGenerator* mgen = new DistractMovementGenerator(timer);
-    Mutate(mgen, MOTION_SLOT_CONTROLLED);
+    Mutate(new DistractMovementGenerator(timer), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
