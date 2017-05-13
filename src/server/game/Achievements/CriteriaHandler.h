@@ -25,6 +25,7 @@
 #include <map>
 #include <unordered_map>
 #include <vector>
+#include <ctime>
 
 class Player;
 class Unit;

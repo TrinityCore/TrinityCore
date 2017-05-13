@@ -478,6 +478,13 @@ time_t InstanceSaveManager::GetSubsequentResetTime(uint32 mapid, Difficulty diff
     return ((resetTime + MINUTE) / DAY * DAY) + period + diff;
 }
 
+void InstanceSaveManager::SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
+{
+    ResetTimeByMapDifficultyMap::iterator itr = m_resetTimeByMapDifficulty.find(MAKE_PAIR64(mapid, d));
+    ASSERT(itr != m_resetTimeByMapDifficulty.end());
+    itr->second = t;
+}
+
 void InstanceSaveManager::ScheduleReset(bool add, time_t time, InstResetEvent event)
 {
     if (!add)

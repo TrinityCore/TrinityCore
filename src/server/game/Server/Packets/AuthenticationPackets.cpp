@@ -336,35 +336,21 @@ WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 8 + 4
 
 WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
 {
-    ByteBuffer payload;
-    uint16 port = Payload.Where.port();
-    uint8 address[16] = { 0 };
-    uint8 addressType = 3;
-    if (Payload.Where.address().is_v4())
-    {
-        memcpy(address, Payload.Where.address().to_v4().to_bytes().data(), 4);
-        addressType = 1;
-    }
-    else
-    {
-        memcpy(address, Payload.Where.address().to_v6().to_bytes().data(), 16);
-        addressType = 2;
-    }
-
     HmacSha1 hmacHash(64, WherePacketHmac);
-    hmacHash.UpdateData(address, 16);
-    hmacHash.UpdateData(&addressType, 1);
-    hmacHash.UpdateData((uint8* const)&port, 2);
+    hmacHash.UpdateData(Payload.Where.data(), 16);
+    hmacHash.UpdateData((uint8* const)&Payload.Type, 1);
+    hmacHash.UpdateData((uint8* const)&Payload.Port, 2);
     hmacHash.UpdateData((uint8* const)Haiku.c_str(), 71);
     hmacHash.UpdateData(Payload.PanamaKey, 32);
     hmacHash.UpdateData(PiDigits, 108);
     hmacHash.UpdateData(&Payload.XorMagic, 1);
     hmacHash.Finalize();
 
+    ByteBuffer payload;
     payload << uint32(Payload.Adler32);
-    payload << uint8(addressType);
-    payload.append(address, 16);
-    payload << uint16(port);
+    payload << uint8(Payload.Type);
+    payload.append(Payload.Where.data(), 16);
+    payload << uint16(Payload.Port);
     payload.append(Haiku.data(), 71);
     payload.append(Payload.PanamaKey, 32);
     payload.append(PiDigits, 108);

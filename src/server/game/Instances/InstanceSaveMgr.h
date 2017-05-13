@@ -199,12 +199,7 @@ class TC_GAME_API InstanceSaveManager
         }
 
         // Use this only when updating existing reset times
-        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
-        {
-            ResetTimeByMapDifficultyMap::iterator itr = m_resetTimeByMapDifficulty.find(MAKE_PAIR64(mapid, d));
-            ASSERT(itr != m_resetTimeByMapDifficulty.end());
-            itr->second = t;
-        }
+        void SetResetTimeFor(uint32 mapid, Difficulty d, time_t t);
 
         ResetTimeByMapDifficultyMap const& GetResetTimeMap() const
         {

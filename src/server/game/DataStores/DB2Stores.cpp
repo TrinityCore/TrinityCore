@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "TransportMgr.h"
 #include "World.h"
+#include <cctype>
 
 // temporary hack until includes are sorted out (don't want to pull in Windows.h)
 #ifdef GetClassName

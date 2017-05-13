@@ -16,6 +16,7 @@
  */
 
 #include "SystemPackets.h"
+#include "Errors.h"
 
 WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
 {

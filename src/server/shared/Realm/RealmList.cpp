@@ -18,23 +18,25 @@
 
 #include "RealmList.h"
 #include "BattlenetRpcErrorCodes.h"
+#include "BigNumber.h"
 #include "DatabaseEnv.h"
+#include "Errors.h"
 #include "Log.h"
 #include "ProtobufJSON.h"
 #include "SHA256.h"
-#include "BigNumber.h"
 #include "Util.h"
 #include "game_utilities_service.pb.h"
 #include "RealmList.pb.h"
+#include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <zlib.h>
 
-RealmList::RealmList() : _updateInterval(0), _updateTimer(nullptr), _resolver(nullptr)
+RealmList::RealmList() : _updateInterval(0)
 {
 }
 
 RealmList::~RealmList()
 {
-    delete _updateTimer;
 }
 
 RealmList* RealmList::Instance()
@@ -47,8 +49,8 @@ RealmList* RealmList::Instance()
 void RealmList::Initialize(boost::asio::io_service& ioService, uint32 updateInterval)
 {
     _updateInterval = updateInterval;
-    _updateTimer = new boost::asio::deadline_timer(ioService);
-    _resolver = new boost::asio::ip::tcp::resolver(ioService);
+    _updateTimer = Trinity::make_unique<boost::asio::deadline_timer>(ioService);
+    _resolver = Trinity::make_unique<boost::asio::ip::tcp::resolver>(ioService);
 
     // Get the content of the realmlist table in the database
     UpdateRealms(boost::system::error_code());
@@ -59,8 +61,9 @@ void RealmList::Close()
     _updateTimer->cancel();
 }
 
-void RealmList::UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, const std::string& name, ip::address const& address, ip::address const& localAddr,
-    ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel,
+void RealmList::UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
+    boost::asio::ip::address const& address, boost::asio::ip::address const& localAddr, boost::asio::ip::address const& localSubmask,
+    uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel,
     float population)
 {
     // Create new if not exist or update existed
@@ -74,9 +77,12 @@ void RealmList::UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, cons
     realm.Timezone = timezone;
     realm.AllowedSecurityLevel = allowedSecurityLevel;
     realm.PopulationLevel = population;
-    realm.ExternalAddress = address;
-    realm.LocalAddress = localAddr;
-    realm.LocalSubnetMask = localSubmask;
+    if (!realm.ExternalAddress || *realm.ExternalAddress != address)
+        realm.ExternalAddress = Trinity::make_unique<boost::asio::ip::address>(address);
+    if (!realm.LocalAddress || *realm.LocalAddress != localAddr)
+        realm.LocalAddress = Trinity::make_unique<boost::asio::ip::address>(localAddr);
+    if (!realm.LocalSubnetMask || *realm.LocalSubnetMask != localSubmask)
+        realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>(localSubmask);
     realm.Port = port;
 }
 
@@ -108,7 +114,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                 Field* fields = result->Fetch();
                 uint32 realmId = fields[0].GetUInt32();
                 std::string name = fields[1].GetString();
-                boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
+                boost::asio::ip::tcp::resolver::query externalAddressQuery(boost::asio::ip::tcp::v4(), fields[2].GetString(), "");
 
                 boost::system::error_code ec;
                 boost::asio::ip::tcp::resolver::iterator endPoint = _resolver->resolve(externalAddressQuery, ec);
@@ -118,9 +124,9 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                     continue;
                 }
 
-                ip::address externalAddress = (*endPoint).endpoint().address();
+                boost::asio::ip::address externalAddress = endPoint->endpoint().address();
 
-                boost::asio::ip::tcp::resolver::query localAddressQuery(ip::tcp::v4(), fields[3].GetString(), "");
+                boost::asio::ip::tcp::resolver::query localAddressQuery(boost::asio::ip::tcp::v4(), fields[3].GetString(), "");
                 endPoint = _resolver->resolve(localAddressQuery, ec);
                 if (endPoint == end || ec)
                 {
@@ -128,9 +134,9 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                     continue;
                 }
 
-                ip::address localAddress = (*endPoint).endpoint().address();
+                boost::asio::ip::address localAddress = endPoint->endpoint().address();
 
-                boost::asio::ip::tcp::resolver::query localSubmaskQuery(ip::tcp::v4(), fields[4].GetString(), "");
+                boost::asio::ip::tcp::resolver::query localSubmaskQuery(boost::asio::ip::tcp::v4(), fields[4].GetString(), "");
                 endPoint = _resolver->resolve(localSubmaskQuery, ec);
                 if (endPoint == end || ec)
                 {
@@ -138,7 +144,7 @@ void RealmList::UpdateRealms(boost::system::error_code const& error)
                     continue;
                 }
 
-                ip::address localSubmask = (*endPoint).endpoint().address();
+                boost::asio::ip::address localSubmask = endPoint->endpoint().address();
 
                 uint16 port = fields[5].GetUInt16();
                 uint8 icon = fields[6].GetUInt8();
@@ -355,7 +361,7 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::
         addressFamily->set_family(1);
 
         JSON::RealmList::IPAddress* address = addressFamily->add_addresses();
-        address->set_ip(realm->GetAddressForClient(clientAddress).address().to_string());
+        address->set_ip(realm->GetAddressForClient(clientAddress).to_string());
         address->set_port(realm->Port);
 
         std::string json = "JSONRealmListServerIPAddresses:" + JSON::Serialize(serverAddresses);

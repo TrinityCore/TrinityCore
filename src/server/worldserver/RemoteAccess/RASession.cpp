@@ -16,16 +16,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <memory>
-#include <boost/asio/write.hpp>
-#include <boost/asio/read_until.hpp>
-#include <boost/array.hpp>
 #include "RASession.h"
 #include "AccountMgr.h"
-#include "Log.h"
-#include "DatabaseEnv.h"
-#include "World.h"
 #include "Config.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "Util.h"
+#include "World.h"
+#include <boost/asio/write.hpp>
+#include <boost/asio/read_until.hpp>
+#include <array>
+#include <memory>
 
 using boost::asio::ip::tcp;
 
@@ -39,7 +40,7 @@ void RASession::Start()
     if (_socket.available() > 0)
     {
         // Handle subnegotiation
-        boost::array<char, 1024> buf;
+        std::array<char, 1024> buf;
         _socket.read_some(boost::asio::buffer(buf));
 
         // Send the end-of-negotiation packet

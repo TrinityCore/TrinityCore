@@ -16,10 +16,10 @@
  */
 
 #include "ProtobufJSON.h"
-#include "StringFormat.h"
-#include "Common.h"
 #include "Errors.h"
 #include "Log.h"
+#include "StringFormat.h"
+#include <google/protobuf/message.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/reader.h>
 #include <rapidjson/stringbuffer.h>
@@ -186,7 +186,7 @@ void Serializer::WriteRepeatedMessageField(google::protobuf::Message const& valu
 class Deserializer : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, Deserializer>
 {
 public:
-    bool ReadMessage(std::string json, google::protobuf::Message* message);
+    bool ReadMessage(std::string const& json, google::protobuf::Message* message);
 
     bool Key(const Ch* str, rapidjson::SizeType length, bool copy);
     bool Null();
@@ -213,7 +213,7 @@ private:
     std::vector<std::string> _errors;
 };
 
-bool Deserializer::ReadMessage(std::string json, google::protobuf::Message* message)
+bool Deserializer::ReadMessage(std::string const& json, google::protobuf::Message* message)
 {
     rapidjson::StringStream ss(json.c_str());
 
@@ -443,10 +443,10 @@ std::string JSON::Serialize(google::protobuf::Message const& message)
     return serializer.GetString();
 }
 
-bool JSON::Deserialize(std::string json, google::protobuf::Message* message)
+bool JSON::Deserialize(std::string const& json, google::protobuf::Message* message)
 {
     Deserializer deserializer;
-    if (!deserializer.ReadMessage(std::forward<std::string>(json), message))
+    if (!deserializer.ReadMessage(json, message))
     {
         for (std::size_t i = 0; i < deserializer.GetErrors().size(); ++i)
             TC_LOG_ERROR("json", "%s", deserializer.GetErrors()[i].c_str());
