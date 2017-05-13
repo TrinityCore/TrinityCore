@@ -39,7 +39,7 @@ enum Says
     SAY_ENRAGE          = 2,
     SAY_KILL            = 3,
     SAY_DEATH           = 4,
-    SAY_SHIELD          = 5,
+    SAY_SHIELD          = 5
 };
 
 enum Spells
@@ -139,7 +139,7 @@ class boss_eregos : public CreatureScript
                         return _emeraldVoid;
                    case DATA_AMBER_VOID:
                         return _amberVoid;
-                    default:
+                   default:
                         break;
                 }
                 return 0;
@@ -303,11 +303,11 @@ class achievement_gen_eregos_void : public AchievementCriteriaScript
         uint32 _data;
 };
 
- void AddSC_boss_eregos()
- {
+void AddSC_boss_eregos()
+{
     new boss_eregos();
     new spell_eregos_planar_shift();
     new achievement_gen_eregos_void("achievement_ruby_void", DATA_RUBY_VOID);
     new achievement_gen_eregos_void("achievement_emerald_void", DATA_EMERALD_VOID);
     new achievement_gen_eregos_void("achievement_amber_void", DATA_AMBER_VOID);
- }
+}
