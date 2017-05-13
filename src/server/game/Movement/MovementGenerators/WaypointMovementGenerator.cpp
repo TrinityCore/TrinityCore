@@ -70,6 +70,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
 {
     if (!i_path || i_path->empty())
         return;
+
     if (m_isArrivalDone)
         return;
 
