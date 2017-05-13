@@ -25,6 +25,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "QueryCallback.h"
+#include "QueryHolder.h"
 #include "AccountMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -53,6 +54,7 @@
 #include "PacketUtilities.h"
 #include "CollectionMgr.h"
 #include "Metric.h"
+#include "Random.h"
 
 #include <zlib.h>
 

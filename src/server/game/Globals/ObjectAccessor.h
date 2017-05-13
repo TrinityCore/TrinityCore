@@ -19,27 +19,26 @@
 #ifndef TRINITY_OBJECTACCESSOR_H
 #define TRINITY_OBJECTACCESSOR_H
 
-#include <mutex>
-#include <set>
+#include "ObjectGuid.h"
 #include <unordered_map>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
 
-#include "Define.h"
-#include "GridDefines.h"
-#include "UpdateData.h"
-#include "Object.h"
-
-class Creature;
-class Corpse;
+class Object;
+class WorldObject;
 class Unit;
+class Creature;
+class Player;
+class Corpse;
 class GameObject;
 class DynamicObject;
-class WorldObject;
-class Vehicle;
-class Map;
-class WorldRunnable;
+class AreaTrigger;
+class Pet;
 class Transport;
+class Map;
+
+namespace boost
+{
+    class shared_mutex;
+}
 
 template <class T>
 class TC_GAME_API HashMapHolder
@@ -48,10 +47,6 @@ class TC_GAME_API HashMapHolder
     HashMapHolder() { }
 
 public:
-    static_assert(std::is_same<Player, T>::value
-        || std::is_same<Transport, T>::value,
-        "Only Player and Transport can be registered in global HashMapHolder");
-
     typedef std::unordered_map<ObjectGuid, T*> MapType;
 
     static void Insert(T* o);

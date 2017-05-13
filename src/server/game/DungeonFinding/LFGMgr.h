@@ -23,6 +23,7 @@
 #include "LFGQueue.h"
 #include "LFGGroupData.h"
 #include "LFGPlayerData.h"
+#include <unordered_map>
 
 class Group;
 class Player;

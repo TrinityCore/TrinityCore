@@ -19,6 +19,7 @@
 #include "BattlegroundWS.h"
 #include "GameObject.h"
 #include "Language.h"
+#include "Log.h"
 #include "Object.h"
 #include "BattlegroundMgr.h"
 #include "Player.h"

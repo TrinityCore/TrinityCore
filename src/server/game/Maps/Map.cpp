@@ -3611,7 +3611,7 @@ MapDifficultyEntry const* Map::GetMapDifficulty() const
     return sDB2Manager.GetMapDifficultyData(GetId(), GetDifficultyID());
 }
 
-uint32 Map::GetDifficultyLootBonusTreeMod() const
+uint8 Map::GetDifficultyLootBonusTreeMod() const
 {
     if (MapDifficultyEntry const* mapDifficulty = GetMapDifficulty())
         if (mapDifficulty->ItemBonusTreeModID)

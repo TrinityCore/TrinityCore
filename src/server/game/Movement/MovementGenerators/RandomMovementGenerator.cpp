@@ -23,6 +23,7 @@
 #include "CreatureGroups.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
+#include "Random.h"
 
 #define RUNNING_CHANCE_RANDOMMV 20                                  //will be "1 / RUNNING_CHANCE_RANDOMMV"
 

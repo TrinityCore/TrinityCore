@@ -34,6 +34,7 @@
 #include <bitset>
 #include <list>
 #include <memory>
+#include <mutex>
 
 class Battleground;
 class BattlegroundMap;
@@ -395,7 +396,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // have meaning only for instanced map (that have set real difficulty)
         Difficulty GetDifficultyID() const { return Difficulty(GetSpawnMode()); }
         MapDifficultyEntry const* GetMapDifficulty() const;
-        uint32 GetDifficultyLootBonusTreeMod() const;
+        uint8 GetDifficultyLootBonusTreeMod() const;
 
         uint32 GetId() const;
         bool Instanceable() const;

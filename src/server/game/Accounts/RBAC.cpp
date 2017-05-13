@@ -19,6 +19,7 @@
 #include "AccountMgr.h"
 #include "Log.h"
 #include "QueryCallback.h"
+#include <sstream>
 
 namespace rbac
 {

@@ -17,8 +17,9 @@
  */
 
 #include "ObjectGuid.h"
+#include "Hash.h"
+#include "Log.h"
 #include "World.h"
-
 #include <sstream>
 #include <iomanip>
 
@@ -107,6 +108,14 @@ std::string ObjectGuid::ToString() const
 
     str << " Low: " << GetCounter();
     return str.str();
+}
+
+std::size_t ObjectGuid::GetHash() const
+{
+    std::size_t hashVal = 0;
+    Trinity::hash_combine(hashVal, _low);
+    Trinity::hash_combine(hashVal, _high);
+    return hashVal;
 }
 
 ObjectGuid ObjectGuid::Global(HighGuid type, LowType counter)

@@ -20,8 +20,15 @@
 
 #include "DB2Store.h"
 #include "DB2Structure.h"
+#include "Hash.h"
 #include "SharedDefines.h"
 #include "Regex.h"
+#include <array>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 TC_GAME_API extern DB2Storage<AchievementEntry>                     sAchievementStore;
 TC_GAME_API extern DB2Storage<AnimKitEntry>                         sAnimKitStore;
@@ -33,6 +40,7 @@ TC_GAME_API extern DB2Storage<ArtifactCategoryEntry>                sArtifactCat
 TC_GAME_API extern DB2Storage<ArtifactAppearanceEntry>              sArtifactAppearanceStore;
 TC_GAME_API extern DB2Storage<ArtifactAppearanceSetEntry>           sArtifactAppearanceSetStore;
 TC_GAME_API extern DB2Storage<ArtifactPowerEntry>                   sArtifactPowerStore;
+TC_GAME_API extern DB2Storage<ArtifactPowerPickerEntry>             sArtifactPowerPickerStore;
 TC_GAME_API extern DB2Storage<AuctionHouseEntry>                    sAuctionHouseStore;
 TC_GAME_API extern DB2Storage<BankBagSlotPricesEntry>               sBankBagSlotPricesStore;
 TC_GAME_API extern DB2Storage<BannedAddOnsEntry>                    sBannedAddOnsStore;
@@ -391,7 +399,6 @@ private:
     ItemClassByOldEnumContainer _itemClassByOldEnum;
     std::unordered_set<uint32> _itemsWithCurrencyCost;
     ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
-    ItemModifiedAppearanceByItemContainer _itemDefaultAppearancesByItem;
     ItemToBonusTreeContainer _itemToBonusTree;
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;

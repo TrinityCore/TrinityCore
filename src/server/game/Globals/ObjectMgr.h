@@ -430,7 +430,7 @@ typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap
 
 struct TrinityString
 {
-    StringVector Content;
+    std::vector<std::string> Content;
 };
 
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
@@ -1368,8 +1368,8 @@ class TC_GAME_API ObjectMgr
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
 
-        static void AddLocaleString(std::string const& value, LocaleConstant localeConstant, StringVector& data);
-        static inline void GetLocaleString(StringVector const& data, LocaleConstant localeConstant, std::string& value)
+        static void AddLocaleString(std::string const& value, LocaleConstant localeConstant, std::vector<std::string>& data);
+        static inline void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string& value)
         {
             if (data.size() > size_t(localeConstant) && !data[localeConstant].empty())
                 value = data[localeConstant];
@@ -1535,7 +1535,7 @@ class TC_GAME_API ObjectMgr
         FishingBaseSkillContainer _fishingBaseForAreaStore;
         std::unordered_map<uint32, SkillTiersEntry> _skillTiers;
 
-        typedef std::map<uint32, StringVector> HalfNameContainer;
+        typedef std::map<uint32, std::vector<std::string>> HalfNameContainer;
         HalfNameContainer _petHalfName0;
         HalfNameContainer _petHalfName1;
 

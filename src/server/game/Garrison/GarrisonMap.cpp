@@ -16,10 +16,11 @@
  */
 
 #include "GarrisonMap.h"
+#include "GameObject.h"
 #include "Garrison.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
-#include "GameObject.h"
 
 class GarrisonGridLoader
 {

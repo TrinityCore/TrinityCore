@@ -290,6 +290,20 @@ struct ArtifactPowerLinkLoadInfo
     }
 };
 
+struct ArtifactPowerPickerLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "PlayerConditionID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactPowerPickerMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_PICKER);
+        return &loadInfo;
+    }
+};
+
 struct ArtifactPowerRankLoadInfo
 {
     static DB2LoadInfo const* Instance()

@@ -191,6 +191,12 @@ struct ArtifactPowerLinkEntry
     uint16 ToArtifactPowerID;
 };
 
+struct ArtifactPowerPickerEntry
+{
+    uint32 ID;
+    uint32 PlayerConditionID;
+};
+
 struct ArtifactPowerRankEntry
 {
     uint32 ID;
