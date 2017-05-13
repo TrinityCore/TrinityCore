@@ -23,7 +23,7 @@
 #include "Log.h"
 #include "Util.h"
 #include "World.h"
-#include <boost/asio/write.hpp>
+#include <boost/asio/buffer.hpp>
 #include <boost/asio/read_until.hpp>
 #include <array>
 #include <memory>
