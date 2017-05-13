@@ -24,6 +24,9 @@
 #include "Timer.h"
 #include "Transaction.h"
 #include "Util.h"
+#ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
+#include <winsock2.h>
+#endif
 #include <errmsg.h>
 #include <mysql.h>
 #include <mysqld_error.h>
