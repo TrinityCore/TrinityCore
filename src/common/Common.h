@@ -37,7 +37,7 @@
 #  include <netinet/in.h>
 #  include <unistd.h>
 #  include <netdb.h>
-#  include <stdlib.h>
+#  include <cstdlib>
 #endif
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
