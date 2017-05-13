@@ -20,6 +20,9 @@
 #include "Errors.h"
 #include "Field.h"
 #include "Log.h"
+#ifdef _WIN32 // hack for broken mysql.h not including the correct winsock header for SOCKET definition, fixed in 5.7
+#include <winsock2.h>
+#endif
 #include <mysql.h>
 
 static uint32 SizeForType(MYSQL_FIELD* field)
