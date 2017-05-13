@@ -964,9 +964,9 @@ enum CurrencyTypes
     CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
 };
 
-};
-
 enum PrestigeLevelInfoFlags
 {
     PRESTIGE_FLAG_DISABLED = 0x01 // Prestige levels with this flag won't be included to calculate max prestigelevel.
+};
+
 #endif
