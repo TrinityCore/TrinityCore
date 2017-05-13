@@ -1012,6 +1012,7 @@ class spell_hun_tnt : public SpellScriptLoader
             return new spell_hun_tnt_AuraScript();
         }
 };
+
 // -186257 - Aspect of the cheetah
 class spell_hun_aspect_cheetah : public SpellScriptLoader
 {
@@ -1033,7 +1034,8 @@ class spell_hun_aspect_cheetah : public SpellScriptLoader
 
             void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_ASPECT_CHEETAH_SLOW, true);
+                Unit *target = GetTarget();
+                target->CastSpell(target, SPELL_HUNTER_ASPECT_CHEETAH_SLOW, true);
             }
 
             void Register() override
