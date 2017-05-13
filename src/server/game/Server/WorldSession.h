@@ -558,6 +558,7 @@ namespace WorldPackets
         class QueryPetName;
         class QuestPOIQuery;
         class QueryQuestCompletionNPCs;
+        class QueryRealmName;
         class ItemTextQuery;
     }
 
@@ -1746,6 +1747,8 @@ class TC_GAME_API WorldSession
         void SetRealmListSecret(std::array<uint8, 32> const& secret) { memcpy(_realmListSecret.data(), secret.data(), secret.size()); }
 
         std::unordered_map<uint32, uint8> const& GetRealmCharacterCounts() const { return _realmCharacterCounts; }
+
+        void HandleQueryRealmName(WorldPackets::Query::QueryRealmName& queryRealmName);
 
         // Artifact
         void HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPower& artifactAddPower);

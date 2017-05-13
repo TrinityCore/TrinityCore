@@ -83,11 +83,14 @@ struct TC_SHARED_API Realm
     std::unique_ptr<boost::asio::ip::address> LocalSubnetMask;
     uint16 Port;
     std::string Name;
+    std::string NormalizedName;
     uint8 Type;
     RealmFlags Flags;
     uint8 Timezone;
     AccountTypes AllowedSecurityLevel;
     float PopulationLevel;
+
+    void SetName(std::string name);
 
     boost::asio::ip::address GetAddressForClient(boost::asio::ip::address const& clientAddr) const;
     uint32 GetConfigId() const;

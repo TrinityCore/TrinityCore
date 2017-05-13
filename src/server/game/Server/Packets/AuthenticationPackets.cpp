@@ -19,6 +19,28 @@
 #include "CharacterTemplateDataStore.h"
 #include "HmacHash.h"
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& virtualRealmInfo)
+{
+    data.WriteBit(virtualRealmInfo.IsLocal);
+    data.WriteBit(virtualRealmInfo.IsInternalRealm);
+    data.WriteBits(virtualRealmInfo.RealmNameActual.length(), 8);
+    data.WriteBits(virtualRealmInfo.RealmNameNormalized.length(), 8);
+    data.FlushBits();
+
+    data.WriteString(virtualRealmInfo.RealmNameActual);
+    data.WriteString(virtualRealmInfo.RealmNameNormalized);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmInfo const& virtualRealmInfo)
+{
+    data << uint32(virtualRealmInfo.RealmAddress);
+    data << virtualRealmInfo.RealmNameInfo;
+
+    return data;
+}
+
 bool WorldPackets::Auth::EarlyProcessClientPacket::ReadNoThrow()
 {
     try
@@ -144,18 +166,8 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         if (SuccessInfo->NumPlayersAlliance)
             _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
 
-        for (auto const& virtualRealm : SuccessInfo->VirtualRealms)
-        {
-            _worldPacket << uint32(virtualRealm.RealmAddress);
-            _worldPacket.WriteBit(virtualRealm.IsLocal);
-            _worldPacket.WriteBit(virtualRealm.IsInternalRealm);
-            _worldPacket.WriteBits(virtualRealm.RealmNameActual.length(), 8);
-            _worldPacket.WriteBits(virtualRealm.RealmNameNormalized.length(), 8);
-            _worldPacket.FlushBits();
-
-            _worldPacket.WriteString(virtualRealm.RealmNameActual);
-            _worldPacket.WriteString(virtualRealm.RealmNameNormalized);
-        }
+        for (VirtualRealmInfo const& virtualRealm : SuccessInfo->VirtualRealms)
+            _worldPacket << virtualRealm;
 
         for (CharacterTemplate const* templat : SuccessInfo->Templates)
         {

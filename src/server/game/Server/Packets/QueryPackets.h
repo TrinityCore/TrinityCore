@@ -19,6 +19,7 @@
 #define QueryPackets_h__
 
 #include "Packet.h"
+#include "AuthenticationPackets.h"
 #include "Creature.h"
 #include "NPCHandler.h"
 #include "G3D/Vector3.h"
@@ -406,6 +407,28 @@ namespace WorldPackets
             ObjectGuid Id;
             bool Valid = false;
             ItemTextCache Item;
+        };
+
+        class QueryRealmName final : public ClientPacket
+        {
+        public:
+            QueryRealmName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_REALM_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 VirtualRealmAddress = 0;
+        };
+
+        class RealmQueryResponse final : public ServerPacket
+        {
+        public:
+            RealmQueryResponse() : ServerPacket(SMSG_REALM_QUERY_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 VirtualRealmAddress = 0;
+            uint8 LookupState = 0;
+            WorldPackets::Auth::VirtualRealmNameInfo NameInfo;
         };
     }
 }

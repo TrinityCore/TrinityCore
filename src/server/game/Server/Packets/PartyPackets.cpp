@@ -22,7 +22,6 @@
 #include "Vehicle.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-#include "ObjectMgr.h"
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
 {
@@ -97,9 +96,9 @@ void WorldPackets::Party::PartyInvite::Initialize(Player* const inviter, int32 p
 
     ProposedRoles = proposedRoles;
 
-    InviterVirtualRealmAddress = GetVirtualRealmAddress();
-    InviterRealmNameActual = sObjectMgr->GetRealmName(realm.Id.Realm);
-    InviterRealmNameNormalized = sObjectMgr->GetNormalizedRealmName(realm.Id.Realm);
+    InviterVirtualRealmAddress = realm.Id.GetAddress();
+    InviterRealmNameActual = realm.Name;
+    InviterRealmNameNormalized = realm.NormalizedName;
 }
 
 void WorldPackets::Party::PartyInviteResponse::Read()
