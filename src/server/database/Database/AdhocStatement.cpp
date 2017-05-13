@@ -19,6 +19,7 @@
 #include "Errors.h"
 #include "MySQLConnection.h"
 #include "QueryResult.h"
+#include "StringFormat.h"
 #include <cstring>
 
 /*! Basic, ad-hoc queries. */

@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "LogCommon.h"
 #include <unordered_map>
+#include <string>
 
 class Appender;
 struct LogMessage;

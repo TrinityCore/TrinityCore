@@ -30,7 +30,6 @@
 #      define BOOST_ASIO_HAS_MOVE
 #    endif // !defined(BOOST_ASIO_HAS_MOVE)
 #  endif // if TRINITY_COMPILER == TRINITY_COMPILER_INTEL
-
 #else
 #  include <sys/types.h>
 #  include <sys/ioctl.h>
@@ -38,6 +37,7 @@
 #  include <netinet/in.h>
 #  include <unistd.h>
 #  include <netdb.h>
+#  include <stdlib.h>
 #endif
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
