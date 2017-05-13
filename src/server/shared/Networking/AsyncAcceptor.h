@@ -19,7 +19,8 @@
 #define __ASYNCACCEPT_H_
 
 #include "Log.h"
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ip/address.hpp>
 #include <functional>
 #include <atomic>
 

@@ -19,15 +19,12 @@
 #ifndef _REALMLIST_H
 #define _REALMLIST_H
 
-#include "Common.h"
-#include "Realm/Realm.h"
-#include <boost/asio/ip/address.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/io_service.hpp>
-#include <boost/asio/deadline_timer.hpp>
+#include "Define.h"
+#include "Realm.h"
+#include <map>
+#include <vector>
 #include <unordered_set>
-
-using namespace boost::asio;
+#include <unordered_set>
 
 struct RealmBuildInfo
 {
@@ -37,6 +34,19 @@ struct RealmBuildInfo
     uint32 BugfixVersion;
     uint32 HotfixVersion;
 };
+
+namespace boost
+{
+    namespace asio
+    {
+        class io_service;
+    }
+
+    namespace system
+    {
+        class error_code;
+    }
+}
 
 namespace bgs
 {
@@ -89,14 +99,15 @@ private:
     RealmList();
 
     void UpdateRealms(boost::system::error_code const& error);
-    void UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, const std::string& name, ip::address const& address, ip::address const& localAddr,
-        ip::address const& localSubmask, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
+    void UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, std::string const& name,
+        boost::asio::ip::address const& address, boost::asio::ip::address const& localAddr, boost::asio::ip::address const& localSubmask,
+        uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float population);
 
     RealmMap _realms;
     std::unordered_set<std::string> _subRegions;
     uint32 _updateInterval;
-    boost::asio::deadline_timer* _updateTimer;
-    boost::asio::ip::tcp::resolver* _resolver;
+    std::unique_ptr<boost::asio::deadline_timer> _updateTimer;
+    std::unique_ptr<boost::asio::ip::tcp_resolver> _resolver;
 };
 
 #define sRealmList RealmList::Instance()

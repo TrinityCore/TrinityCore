@@ -33,6 +33,11 @@
 #include "ChatLink.h"
 #include "Group.h"
 
+ChatCommand::ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands /*= std::vector<ChatCommand>()*/)
+    : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands))
+{
+}
+
 // Lazy loading of the command table cache from commands and the
 // ScriptMgr should be thread safe since the player commands,
 // cli commands and ScriptMgr updates are all dispatched one after

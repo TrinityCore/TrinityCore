@@ -19,7 +19,10 @@
 #define DB2_DATABASE_LOADER_H
 
 #include "DB2FileLoader.h"
-#include "Implementation/HotfixDatabase.h"
+#include <string>
+#include <vector>
+
+enum HotfixDatabaseStatements : uint32;
 
 struct TC_SHARED_API DB2LoadInfo : public DB2FileLoadInfo
 {

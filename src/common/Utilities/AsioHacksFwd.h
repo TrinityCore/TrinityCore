@@ -27,6 +27,26 @@ namespace boost
 
     namespace asio
     {
+        namespace ip
+        {
+            class address;
+
+            class tcp;
+
+            template <typename InternetProtocol>
+            class basic_endpoint;
+
+            typedef basic_endpoint<tcp> tcp_endpoint;
+
+            template <typename InternetProtocol>
+            class resolver_service;
+
+            template <typename InternetProtocol, typename ResolverService>
+            class basic_resolver;
+
+            typedef basic_resolver<tcp, resolver_service<tcp>> tcp_resolver;
+        }
+
         template <typename Time>
         struct time_traits;
 

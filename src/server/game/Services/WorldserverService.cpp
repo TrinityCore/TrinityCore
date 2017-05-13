@@ -21,6 +21,7 @@
 #include "RealmList.pb.h"
 #include "BattlenetRpcErrorCodes.h"
 #include "ProtobufJSON.h"
+#include <boost/asio/ip/address.hpp>
 #include <zlib.h>
 
 Battlenet::GameUtilitiesService::GameUtilitiesService(WorldSession* session) : BaseService(session)

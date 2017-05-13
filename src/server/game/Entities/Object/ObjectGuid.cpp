@@ -17,6 +17,7 @@
  */
 
 #include "ObjectGuid.h"
+#include "Errors.h"
 #include "Hash.h"
 #include "Log.h"
 #include "World.h"
