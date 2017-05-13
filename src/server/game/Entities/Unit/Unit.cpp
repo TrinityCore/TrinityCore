@@ -5609,6 +5609,10 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
             return false;
     }
 
+    // Unit with SPELL_AURA_SPIRIT_OF_REDEMPTION can not attack
+    if (HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
+        return false;
+
     // remove SPELL_AURA_MOD_UNATTACKABLE at attack (in case non-interruptible spells stun aura applied also that not let attack)
     if (HasAuraType(SPELL_AURA_MOD_UNATTACKABLE))
         RemoveAurasByType(SPELL_AURA_MOD_UNATTACKABLE);
