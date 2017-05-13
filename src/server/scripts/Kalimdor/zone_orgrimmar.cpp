@@ -441,7 +441,7 @@ public:
                 std::list<Unit*> citizenList;
                 Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 25.0f);
                 Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, citizenList, checker);
-                me->VisitNearbyObject(20.0f, searcher);
+                Cell::VisitGridObjects(me, searcher, 20.0f);
                 for (Unit* target : citizenList)
                 {
                     switch (target->GetEntry())

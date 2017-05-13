@@ -1033,7 +1033,7 @@ struct npc_thorim_trashAI : public ScriptedAI
             Unit* target = nullptr;
             MostHPMissingInRange checker(caster, range, heal);
             Trinity::UnitLastSearcher<MostHPMissingInRange> searcher(caster, target, checker);
-            caster->VisitNearbyObject(range, searcher);
+            Cell::VisitGridObjects(caster, searcher, range);
 
             return target;
         }
@@ -2079,7 +2079,7 @@ class spell_thorim_activate_lightning_orb_periodic : public SpellScriptLoader
 
                 UpperOrbCheck check;
                 Trinity::CreatureListSearcher<UpperOrbCheck> searcher(caster, triggers, check);
-                caster->VisitNearbyGridObject(100.f, searcher);
+                Cell::VisitGridObjects(caster, searcher, 100.f);
 
                 if (!triggers.empty())
                 {

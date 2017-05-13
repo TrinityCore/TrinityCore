@@ -153,7 +153,7 @@ class boss_nalorakk : public CreatureScript
 
                 Trinity::AllFriendlyCreaturesInGrid check(me);
                 Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(me, tempList, check);
-                me->VisitNearbyGridObject(25.0f, searcher);
+                Cell::VisitGridObjects(me, searcher, 25.0f);
 
                 if (tempList.empty())
                     return;
