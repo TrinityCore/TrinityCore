@@ -516,7 +516,7 @@ class boss_the_lich_king : public CreatureScript
                 // Reset The Frozen Throne gameobjects
                 FrozenThroneResetWorker reset;
                 Trinity::GameObjectWorker<FrozenThroneResetWorker> worker(me, reset);
-                me->VisitNearbyGridObject(333.0f, worker);
+                Cell::VisitGridObjects(me, worker, 333.0f);
 
                 // Reset any light override
                 me->GetMap()->SetZoneOverrideLight(AREA_THE_FROZEN_THRONE, 0, 5000);
