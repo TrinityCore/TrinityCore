@@ -8100,6 +8100,29 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     if (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
         return GetReactionTo(target) <= REP_HOSTILE || target->GetReactionTo(this) <= REP_HOSTILE;
 
+    // Check for force reaction spells (SPELL_AURA_FORCE_REACTION)
+    if (FactionTemplateEntry const* factionTemplate = target->GetFactionTemplateEntry())
+    {
+        Unit::AuraEffectList const& forceReactionAuras = GetAuraEffectsByType(SPELL_AURA_FORCE_REACTION);
+        if (!forceReactionAuras.empty())
+        {
+            for (Unit::AuraEffectList::const_iterator i = forceReactionAuras.begin(); i != forceReactionAuras.end(); ++i)
+            {
+                if (factionTemplate->faction == (*i)->GetMiscValue())
+                {
+                    switch ((*i)->GetAmount())
+                    {
+                        case REP_HATED:
+                        case REP_HOSTILE:
+                        case REP_UNFRIENDLY:
+                        case REP_NEUTRAL:
+                            return true;
+                    }
+                }
+            }
+        }
+    }
+
     // PvP, PvC, CvP case
     // can't attack friendly targets
     if ( GetReactionTo(target) > REP_NEUTRAL
