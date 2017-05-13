@@ -168,7 +168,81 @@ class instance_drak_tharon_keep : public InstanceMapScript
         }
 };
 
+enum Misc
+{
+    SPELL_CURSE_OF_BLOOD   = 50414,
+    SPELL_IMPALE           = 16001,
+    DRAKKARI_BAT_MOUNT     = 26751
+};
+
+class npc_risen_drakkari_bat_rider : public CreatureScript
+{
+    public:
+        npc_risen_drakkari_bat_rider : CreatureScript("npc_risen_drakkari_bat_rider") { }
+
+        struct npc_risen_drakkari_bat_rider : public ScriptedAI
+        {
+            npc_risen_drakkari_bat_riderAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = me->GetInstanceScript();
+            }
+
+            InstanceScript* instance;
+
+            uint32 uiCurseOfBlood;
+            uint32 uiImpale;
+
+            void Reset() OVERRIDE
+            {
+                uiCurseOfBlood = urand(3000, 6000);
+                uiImpale = urand(9000, 12000);
+
+                me->Mount(DRAKKARI_BAT_MOUNT);
+                me->SetCanFly(true);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
+
+            void EnterCombat(Unit* /*who*/) OVERRIDE
+            {
+                me->Dismount();
+                me->SetCanFly(false);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
+
+            void UpdateAI(uint32 diff) OVERRIDE
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (uiCurseOfBlood <= diff)
+                {
+                    DoCastAOE(SPELL_CURSE_OF_BLOOD);
+                    uiCurseOfBlood = urand(9000, 12000);
+                } else
+                    uiCurseOfBlood -= diff;
+
+                if(uiImpale <= diff)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    {
+                        DoCast(target, SPELL_IMPALE);
+                        uiImpale = urand(9000, 12000);
+                    }
+                } else
+                    uiImpale -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const OVERRIDE
+        {
+            return new npc_risen_drakkari_bat_riderAI(creature);
+        }
+};
+
 void AddSC_instance_drak_tharon_keep()
 {
     new instance_drak_tharon_keep();
+    new npc_risen_drakkari_bat_rider();
 }
