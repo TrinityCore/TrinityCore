@@ -53,11 +53,11 @@ void ConversationDataStore::LoadConversationTemplates()
         }
         while (actorTemplates->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Conversation template actors in %u ms", _conversationActorTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Conversation actor templates in %u ms", _conversationActorTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
     }
     else
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation template actors. DB table `conversation_actor_template` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation actor templates. DB table `conversation_actor_template` is empty.");
     }
 
     if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, StartTime, UiCameraID, ActorIdx, Unk FROM conversation_line_template"))
@@ -87,17 +87,17 @@ void ConversationDataStore::LoadConversationTemplates()
         }
         while (lineTemplates->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " conversation template lines in %u ms", _conversationLineTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Conversation line templates in %u ms", _conversationLineTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
     }
     else
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation template lines. DB table `conversation_line_template` is empty.");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation line templates. DB table `conversation_line_template` is empty.");
     }
 
     if (QueryResult actors = WorldDatabase.Query("SELECT ConversationId, ConversationActorId, Idx FROM conversation_actors"))
     {
         uint32 oldMSTime = getMSTime();
-
+        uint32 count = 0;
         do
         {
             Field* fields = actors->Fetch();
@@ -112,11 +112,18 @@ void ConversationDataStore::LoadConversationTemplates()
                 if (actors.size() <= idx)
                     actors.resize(idx + 1);
                 actors[idx] = conversationActorTemplate;
+                ++count;
             }
             else
                 TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid actor (ID: %u) for Conversation %u, skipped", actorId, conversationId);
         }
         while (actors->NextRow());
+
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Conversation actors in %u ms", _conversationLineTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    }
+    else
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation actors. DB table `conversation_actors` is empty.");
     }
 
     if (QueryResult templates = WorldDatabase.Query("SELECT Id, FirstLineId, LastLineEndTime, VerifiedBuild FROM conversation_template"))
@@ -155,7 +162,7 @@ void ConversationDataStore::LoadConversationTemplates()
         }
         while (templates->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " conversation templates in %u ms", _conversationTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Conversation templates in %u ms", _conversationTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
     }
     else
     {
