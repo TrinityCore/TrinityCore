@@ -25,7 +25,6 @@
 #include "World.h"
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/read_until.hpp>
-#include <array>
 #include <memory>
 
 using boost::asio::ip::tcp;
@@ -40,7 +39,8 @@ void RASession::Start()
     if (_socket.available() > 0)
     {
         // Handle subnegotiation
-        std::array<char, 1024> buf;
+        char buf[1024];
+        memset(buf, 0, sizeof(buf));
         _socket.read_some(boost::asio::buffer(buf));
 
         // Send the end-of-negotiation packet
