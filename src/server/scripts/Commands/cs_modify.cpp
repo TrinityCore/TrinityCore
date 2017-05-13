@@ -1023,14 +1023,21 @@ public:
     //morph creature or player
     static bool HandleModifyMorphCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)
+         if (!*args)
             return false;
 
         uint32 display_id = (uint32)atoi((char*)args);
 
         Unit* target = handler->getSelectedUnit();
         if (!target)
+    	{
             target = handler->GetSession()->GetPlayer();
+			handler->PSendSysMessage("You changed your display to %u.", target->GetName().c_str(), display_id);
+		}
+		else
+		{
+			handler->PSendSysMessage("You changed [%s]'s display to %u.", target->GetName().c_str(), display_id);
+		}
 
         // check online security
         else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
