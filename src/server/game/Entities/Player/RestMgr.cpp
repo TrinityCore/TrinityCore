@@ -34,7 +34,7 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
     switch (restType)
     {
         case REST_TYPE_XP:
-            // Reset restBonus (XP only) for max level players 
+            // Reset restBonus (XP only) for max level players
             if (_player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
                 restBonus = 0;
 

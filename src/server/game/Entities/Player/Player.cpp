@@ -1208,13 +1208,7 @@ void Player::Update(uint32 p_time)
                 _restMgr->RestTime = currTime;
 
                 float bubble = 0.125f * sWorld->getRate(RATE_REST_INGAME);
-                for (uint8 i = REST_TYPE_XP; i < REST_TYPE_MAX; i++)
-                {
-                    RestTypes restType = RestTypes(i);
-                    float extraPerSec = _restMgr->CalcExtraPerSec(restType, bubble);
-                    // speed collect rest bonus (section/in hour)
-                    _restMgr->AddRestBonus(restType, timeDiff * extraPerSec);
-                }
+                _restMgr->AddRestBonus(REST_TYPE_XP, timeDiff * _restMgr->CalcExtraPerSec(REST_TYPE_XP, bubble));
             }
         }
     }
@@ -18125,11 +18119,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
             ? bubble1 * sWorld->getRate(RATE_REST_OFFLINE_IN_TAVERN_OR_CITY)
             : bubble0 * sWorld->getRate(RATE_REST_OFFLINE_IN_WILDERNESS);
 
-        for (uint8 i = REST_TYPE_XP; i < REST_TYPE_MAX; i++)
-        {
-            RestTypes restType = RestTypes(i);
-            _restMgr->AddRestBonus(restType, time_diff * _restMgr->CalcExtraPerSec(restType, bubble));
-        }
+        _restMgr->AddRestBonus(REST_TYPE_XP, time_diff * _restMgr->CalcExtraPerSec(REST_TYPE_XP, bubble));
     }
 
     m_achievementMgr->CheckAllAchievementCriteria(this);
