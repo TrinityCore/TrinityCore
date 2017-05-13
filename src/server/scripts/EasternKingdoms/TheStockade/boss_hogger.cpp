@@ -59,7 +59,7 @@ Position const wardenthelwaterpos = { 138.369f, 78.2932f, -33.85627f, 1.082104f 
 class boss_hogger : public CreatureScript
 {
 public:
-    boss_hogger() : CreatureScript("boss_hogger") {}
+    boss_hogger() : CreatureScript("boss_hogger") { }
 
     struct boss_hoggerAI : public BossAI
     {
@@ -112,6 +112,8 @@ public:
                         events.Repeat(Seconds(15), Seconds(20));
                         break;
                 }
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -148,15 +150,8 @@ public:
 
         void MovementInform(uint32 type, uint32 id) override
         {
-            if (type == POINT_MOTION_TYPE)
-            {
-                switch (id)
-                {
-                    case POINT_FINISH:
-                        _events.ScheduleEvent(EVENT_SAY_WARDEN_1, Seconds(1));
-                        break;
-                }
-            }
+            if (type == POINT_MOTION_TYPE && id == POINT_FINISH)
+                _events.ScheduleEvent(EVENT_SAY_WARDEN_1, Seconds(1));
         }
 
         void UpdateAI(uint32 diff) override
