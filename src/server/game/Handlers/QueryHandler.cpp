@@ -410,3 +410,19 @@ void WorldSession::HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& itemT
 
     SendPacket(queryItemTextResponse.Write());
 }
+
+void WorldSession::HandleQueryRealmName(WorldPackets::Query::QueryRealmName& queryRealmName)
+{
+    WorldPackets::Query::RealmQueryResponse realmQueryResponse;
+    realmQueryResponse.VirtualRealmAddress = queryRealmName.VirtualRealmAddress;
+
+    Battlenet::RealmHandle realmHandle(queryRealmName.VirtualRealmAddress);
+    if (sObjectMgr->GetRealmName(realmHandle.Realm, realmQueryResponse.NameInfo.RealmNameActual, realmQueryResponse.NameInfo.RealmNameNormalized))
+    {
+        realmQueryResponse.LookupState = RESPONSE_SUCCESS;
+        realmQueryResponse.NameInfo.IsInternalRealm = false;
+        realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == realm.Id.GetAddress();
+    }
+    else
+        realmQueryResponse.LookupState = RESPONSE_FAILURE;
+}

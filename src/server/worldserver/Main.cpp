@@ -522,6 +522,7 @@ bool LoadRealmInfo()
         realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->LocalSubnetMask);
         realm.Port = realmListRealm->Port;
         realm.Name = realmListRealm->Name;
+        realm.NormalizedName = realmListRealm->NormalizedName;
         realm.Type = realmListRealm->Type;
         realm.Flags = realmListRealm->Flags;
         realm.Timezone = realmListRealm->Timezone;

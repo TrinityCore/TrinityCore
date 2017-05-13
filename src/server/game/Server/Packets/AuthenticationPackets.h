@@ -108,21 +108,30 @@ namespace WorldPackets
             bool HasFCM = false; ///< true if the account has a forced character migration pending. @todo implement
         };
 
+        struct VirtualRealmNameInfo
+        {
+            VirtualRealmNameInfo() : IsLocal(false), IsInternalRealm(false) { }
+            VirtualRealmNameInfo(bool isHomeRealm, bool isInternalRealm, std::string const& realmNameActual, std::string const& realmNameNormalized) :
+                IsLocal(isHomeRealm), IsInternalRealm(isInternalRealm), RealmNameActual(realmNameActual), RealmNameNormalized(realmNameNormalized) { }
+
+            bool IsLocal;                    ///< true if the realm is the same as the account's home realm
+            bool IsInternalRealm;            ///< @todo research
+            std::string RealmNameActual;     ///< the name of the realm
+            std::string RealmNameNormalized; ///< the name of the realm without spaces
+        };
+
+        struct VirtualRealmInfo
+        {
+            VirtualRealmInfo(uint32 realmAddress, bool isHomeRealm, bool isInternalRealm, std::string const& realmNameActual, std::string const& realmNameNormalized) :
+                RealmAddress(realmAddress), RealmNameInfo(isHomeRealm, isInternalRealm, realmNameActual, realmNameNormalized) { }
+
+            uint32 RealmAddress;             ///< the virtual address of this realm, constructed as RealmHandle::Region << 24 | RealmHandle::Battlegroup << 16 | RealmHandle::Index
+            VirtualRealmNameInfo RealmNameInfo;
+        };
+
         class AuthResponse final : public ServerPacket
         {
         public:
-            struct RealmInfo
-            {
-                RealmInfo(uint32 realmAddress, bool isHomeRealm, bool isInternalRealm, std::string const& realmNameActual, std::string const& realmNameNormalized) :
-                    RealmAddress(realmAddress), IsLocal(isHomeRealm), IsInternalRealm(isInternalRealm), RealmNameActual(realmNameActual), RealmNameNormalized(realmNameNormalized) { }
-
-                uint32 RealmAddress;             ///< the virtual address of this realm, constructed as RealmHandle::Region << 24 | RealmHandle::Battlegroup << 16 | RealmHandle::Index
-                bool IsLocal;                    ///< true if the realm is the same as the account's home realm
-                bool IsInternalRealm;            ///< @todo research
-                std::string RealmNameActual;     ///< the name of the realm
-                std::string RealmNameNormalized; ///< the name of the realm without spaces
-            };
-
             struct AuthSuccessInfo
             {
                 struct BillingInfo
@@ -143,7 +152,7 @@ namespace WorldPackets
 
                 BillingInfo Billing;
 
-                std::vector<RealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
+                std::vector<VirtualRealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
                 std::vector<CharacterTemplate const*> Templates; ///< list of pre-made character templates.
 
                 ExpansionRequirementContainer const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select the classes
@@ -282,5 +291,7 @@ namespace WorldPackets
         };
     }
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& realmInfo);
 
 #endif // AuthenticationPacketsWorld_h__

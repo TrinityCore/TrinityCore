@@ -19,6 +19,13 @@
 #include "StringFormat.h"
 #include <boost/asio/ip/address.hpp>
 
+void Realm::SetName(std::string name)
+{
+    Name = name;
+    NormalizedName = std::move(name);
+    NormalizedName.erase(std::remove_if(NormalizedName.begin(), NormalizedName.end(), ::isspace), NormalizedName.end());
+}
+
 boost::asio::ip::address Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
 {
     boost::asio::ip::address realmIp;
