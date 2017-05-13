@@ -18,6 +18,8 @@
 #include "Realm.h"
 #include "StringFormat.h"
 #include <boost/asio/ip/address.hpp>
+#include <algorithm>
+#include <cctype>
 
 void Realm::SetName(std::string name)
 {

@@ -743,7 +743,7 @@ public:
                     Creature* sironas = NULL;
                     Trinity::AllCreaturesOfEntryInRange check(me, NPC_SIRONAS, SIZE_OF_GRIDS);
                     Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, sironas, check);
-                    me->VisitNearbyObject(SIZE_OF_GRIDS, searcher);
+                    Cell::VisitAllObjects(me, searcher, SIZE_OF_GRIDS);
 
                     if (sironas)
                     {

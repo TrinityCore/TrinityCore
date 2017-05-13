@@ -272,7 +272,7 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     std::list<Creature*> corpses;
     AELootCreatureCheck check(_player, packet.Unit);
     Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
-    _player->VisitNearbyGridObject(AELootCreatureCheck::LootDistance, searcher);
+    Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
 
     if (!corpses.empty())
         SendPacket(WorldPackets::Loot::AELootTargets(uint32(corpses.size() + 1)).Write());
