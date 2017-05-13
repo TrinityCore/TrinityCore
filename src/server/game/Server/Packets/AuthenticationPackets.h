@@ -198,9 +198,18 @@ namespace WorldPackets
             static std::string const Haiku;
             static uint8 const PiDigits[130];
 
+        public:
+            enum AddressType : uint8
+            {
+                IPv4 = 1,
+                IPv6 = 2
+            };
+
             struct ConnectPayload
             {
-                tcp::endpoint Where;
+                std::array<uint8, 16> Where;
+                uint16 Port;
+                AddressType Type;
                 uint32 Adler32 = 0;
                 uint8 XorMagic = 0x2A;
                 uint8 PanamaKey[32];

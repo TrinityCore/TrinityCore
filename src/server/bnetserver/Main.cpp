@@ -36,10 +36,12 @@
 #include "SessionManager.h"
 #include "SslContext.h"
 #include "Util.h"
+#include <boost/asio/signal_set.hpp>
 #include <boost/program_options.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <google/protobuf/stubs/common.h>
 #include <iostream>
+#include <csignal>
 
 using boost::asio::ip::tcp;
 using namespace boost::program_options;

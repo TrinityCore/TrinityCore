@@ -248,15 +248,17 @@ class TC_GAME_API ObjectGuid
 
         LowType GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
+        // deprecated
         uint8& operator[](uint32 index)
         {
-            ASSERT(index < sizeof(uint64) * 2);
+            //ASSERT(index < sizeof(uint64) * 2);
             return ((uint8*)&_low)[index];
         }
 
+        // deprecated
         uint8 const& operator[](uint32 index) const
         {
-            ASSERT(index < sizeof(uint64) * 2);
+            //ASSERT(index < sizeof(uint64) * 2);
             return ((uint8 const*)&_low)[index];
         }
 
