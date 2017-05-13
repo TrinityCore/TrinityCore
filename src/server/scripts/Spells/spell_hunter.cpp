@@ -1035,7 +1035,8 @@ class spell_hun_aspect_cheetah : public SpellScriptLoader
             void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit *target = GetTarget();
-                target->CastSpell(target, SPELL_HUNTER_ASPECT_CHEETAH_SLOW, true);
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                    target->CastSpell(target, SPELL_HUNTER_ASPECT_CHEETAH_SLOW, true);
             }
 
             void Register() override
