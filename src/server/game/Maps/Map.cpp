@@ -2349,8 +2349,8 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
     }
 
     // mapHeight set for any above raw ground Z or <= INVALID_HEIGHT
-    // vmapheight set for any under Z value or <= INVALID_HEIGHT
-    if (vmapHeight > INVALID_HEIGHT)
+    // vmapheight set for any under Z value or <= VMAP_INVALID_HEIGHT_VALUE
+    if (vmapHeight > VMAP_INVALID_HEIGHT_VALUE)
     {
         if (mapHeight > INVALID_HEIGHT)
         {
