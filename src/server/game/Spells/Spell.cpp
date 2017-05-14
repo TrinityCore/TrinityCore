@@ -1365,10 +1365,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
     radius *= m_spellValue->RadiusMod;
 
-    // if this is a proximity based aoe (Frost Nova, Psychic Scream, ...), include the caster's own combat reach
-    if (targetType.IsProximityBasedAoe())
-        radius += GetCaster()->GetCombatReach();
-
     std::list<WorldObject*> targets;
     switch (targetType.GetTarget())
     {
