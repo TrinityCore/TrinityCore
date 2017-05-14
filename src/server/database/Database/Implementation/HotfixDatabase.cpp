@@ -185,6 +185,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_CINEMATIC_SEQUENCES, "SELECT ID, SoundID, Camera1, Camera2, Camera3, Camera4, Camera5, Camera6, Camera7, Camera8"
         " FROM cinematic_sequences ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // ConversationLine.db2
+    PrepareStatement(HOTFIX_SEL_CONVERSATION_LINE, "SELECT ID, BroadcastTextID, SpellVisualKitID, Duration, NextLineID, Unk1, Yell, Unk2, Unk3"
+        " FROM conversation_line ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // CreatureDisplayInfo.db2
     PrepareStatement(HOTFIX_SEL_CREATURE_DISPLAY_INFO, "SELECT ID, CreatureModelScale, ModelID, NPCSoundID, SizeClass, Flags, Gender, "
         "ExtendedDisplayInfoID, TextureVariation1, TextureVariation2, TextureVariation3, PortraitTextureFileDataID, CreatureModelAlpha, SoundID, "
