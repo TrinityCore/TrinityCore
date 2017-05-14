@@ -19,6 +19,7 @@
 #include "Item.h"
 #include "ItemTemplate.h"
 #include "AuctionHouseBotBuyer.h"
+#include "Random.h"
 
 AuctionBotBuyer::AuctionBotBuyer() : _checkInterval(20 * MINUTE)
 {

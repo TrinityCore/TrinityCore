@@ -19,7 +19,11 @@
 #define ScenarioMgr_h__
 
 #include "Common.h"
+#include "Hash.h"
 #include "SharedDefines.h"
+#include <map>
+#include <unordered_map>
+#include <vector>
 
 class InstanceScenario;
 class Map;

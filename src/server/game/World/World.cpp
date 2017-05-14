@@ -37,6 +37,7 @@
 #include "CharacterTemplateDataStore.h"
 #include "Chat.h"
 #include "Config.h"
+#include "ConversationDataStore.h"
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
@@ -1835,6 +1836,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
     sAreaTriggerDataStore->LoadAreaTriggerTemplates();
 
+    TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
+    sConversationDataStore->LoadConversationTemplates();
+
     TC_LOG_INFO("server.loading", "Loading Scenes Templates...");
     sObjectMgr->LoadSceneTemplates();
 
@@ -2188,8 +2192,7 @@ void World::SetInitialWorldSettings()
 
     TC_METRIC_EVENT("events", "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
 
-    if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
-        sLog->SetRealmId(realmId);
+    sLog->SetRealmId(realm.Id.Realm);
 }
 
 void World::ResetTimeDiffRecord()
@@ -2220,9 +2223,8 @@ void World::LoadAutobroadcasts()
 
     m_Autobroadcasts.clear();
 
-    uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
-    stmt->setInt32(0, realmId);
+    stmt->setInt32(0, realm.Id.Realm);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (!result)
@@ -3607,5 +3609,5 @@ Realm realm;
 
 uint32 GetVirtualRealmAddress()
 {
-    return uint32(realm.Id.Region) << 24 | uint32(realm.Id.Site) << 16 | realm.Id.Realm;
+    return realm.Id.GetAddress();
 }

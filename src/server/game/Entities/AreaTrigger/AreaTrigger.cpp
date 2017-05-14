@@ -202,8 +202,7 @@ void AreaTrigger::Remove()
 
         _ai->OnRemove();
 
-        RemoveFromWorld();
-        AddObjectToRemoveList();
+        AddObjectToRemoveList(); // calls RemoveFromWorld
     }
 }
 
@@ -269,7 +268,7 @@ void AreaTrigger::SearchUnitInSphere(std::list<Unit*>& targetList)
 
     Trinity::AnyUnitInObjectRangeCheck check(this, radius);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-    VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
+    Cell::VisitAllObjects(this, searcher, GetTemplate()->MaxSearchRadius);
 }
 
 void AreaTrigger::SearchUnitInBox(std::list<Unit*>& targetList)
@@ -280,7 +279,7 @@ void AreaTrigger::SearchUnitInBox(std::list<Unit*>& targetList)
 
     Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius, false);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-    VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
+    Cell::VisitAllObjects(this, searcher, GetTemplate()->MaxSearchRadius);
 
     float halfExtentsX = extentsX / 2.0f;
     float halfExtentsY = extentsY / 2.0f;
@@ -307,7 +306,7 @@ void AreaTrigger::SearchUnitInPolygon(std::list<Unit*>& targetList)
 {
     Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius, false);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-    VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
+    Cell::VisitAllObjects(this, searcher, GetTemplate()->MaxSearchRadius);
 
     float height = GetTemplate()->PolygonDatas.Height;
     float minZ = GetPositionZ() - height;
@@ -325,7 +324,7 @@ void AreaTrigger::SearchUnitInCylinder(std::list<Unit*>& targetList)
 {
     Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius, false);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-    VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
+    Cell::VisitAllObjects(this, searcher, GetTemplate()->MaxSearchRadius);
 
     float height = GetTemplate()->CylinderDatas.Height;
     float minZ = GetPositionZ() - height;

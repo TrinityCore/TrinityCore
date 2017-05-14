@@ -19,6 +19,7 @@
 #include "GroupMgr.h"
 #include "DB2Stores.h"
 #include "InstanceSaveMgr.h"
+#include "Log.h"
 #include "World.h"
 
 GroupMgr::GroupMgr()

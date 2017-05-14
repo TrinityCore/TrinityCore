@@ -19,10 +19,14 @@
 #ifndef ObjectGuid_h__
 #define ObjectGuid_h__
 
-#include "Common.h"
 #include "ByteBuffer.h"
-#include <type_traits>
+#include <deque>
 #include <functional>
+#include <list>
+#include <set>
+#include <type_traits>
+#include <unordered_set>
+#include <vector>
 
 enum TypeID
 {
@@ -244,15 +248,17 @@ class TC_GAME_API ObjectGuid
 
         LowType GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
+        // deprecated
         uint8& operator[](uint32 index)
         {
-            ASSERT(index < sizeof(uint64) * 2);
+            //ASSERT(index < sizeof(uint64) * 2);
             return ((uint8*)&_low)[index];
         }
 
+        // deprecated
         uint8 const& operator[](uint32 index) const
         {
-            ASSERT(index < sizeof(uint64) * 2);
+            //ASSERT(index < sizeof(uint64) * 2);
             return ((uint8 const*)&_low)[index];
         }
 
@@ -316,6 +322,7 @@ class TC_GAME_API ObjectGuid
         static char const* GetTypeName(HighGuid high);
         char const* GetTypeName() const { return !IsEmpty() ? GetTypeName(GetHigh()) : "None"; }
         std::string ToString() const;
+        std::size_t GetHash() const;
 
     private:
         static bool HasEntry(HighGuid high)
@@ -415,7 +422,7 @@ namespace std
     public:
         size_t operator()(ObjectGuid const& key) const
         {
-            return boost::hash_range(reinterpret_cast<uint64 const*>(&key), reinterpret_cast<uint64 const*>(&key) + 2);
+            return key.GetHash();
         }
     };
 }

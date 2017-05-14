@@ -33,6 +33,7 @@
 
 enum HunterSpells
 {
+    SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_EXHILARATION                       = 109304,
@@ -110,6 +111,42 @@ class spell_hun_ancient_hysteria : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_hun_ancient_hysteria_SpellScript();
+        }
+};
+
+// 186257 - Aspect of the Cheetah
+class spell_hun_aspect_cheetah : public SpellScriptLoader
+{
+    public:
+        spell_hun_aspect_cheetah() : SpellScriptLoader("spell_hun_aspect_cheetah") { }
+
+        class spell_hun_aspect_cheetah_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_aspect_cheetah_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo
+                ({
+                    SPELL_HUNTER_ASPECT_CHEETAH_SLOW
+                });
+            }
+
+            void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_ASPECT_CHEETAH_SLOW, true);
+            }
+
+            void Register() override
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_aspect_cheetah_AuraScript::HandleOnRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+             return new spell_hun_aspect_cheetah_AuraScript();
         }
 };
 
@@ -507,7 +544,9 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
                 // search for nearby enemy corpse in range
                 Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
                 Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
-                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+                Cell::VisitWorldObjects(caster, searcher, max_range);
+                if (!result)
+                    Cell::VisitGridObjects(caster, searcher, max_range);
                 if (!result)
                     return SPELL_FAILED_NO_EDIBLE_CORPSES;
                 return SPELL_CAST_OK;
@@ -1015,6 +1054,7 @@ class spell_hun_tnt : public SpellScriptLoader
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
+    new spell_hun_aspect_cheetah();
     new spell_hun_chimera_shot();
     new spell_hun_cobra_shot();
     new spell_hun_disengage();

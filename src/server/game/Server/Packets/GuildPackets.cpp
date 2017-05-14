@@ -749,7 +749,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildNewsEvent con
 
 WorldPacket const* WorldPackets::Guild::GuildNews::Write()
 {
-    _worldPacket << NewsEvents;
+    _worldPacket << uint32(NewsEvents.size());
+    for (GuildNewsEvent const& newsEvent : NewsEvents)
+        _worldPacket << newsEvent;
 
     return &_worldPacket;
 }

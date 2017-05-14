@@ -43,6 +43,7 @@
 #include "PlayerDump.h"
 #include "Player.h"
 #include "QueryCallback.h"
+#include "QueryHolder.h"
 #include "QueryPackets.h"
 #include "ReputationMgr.h"
 #include "GitRevision.h"

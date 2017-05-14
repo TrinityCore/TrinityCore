@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "MessageBuffer.h"
 #include "BattlenetRpcErrorCodes.h"
+#include <array>
 
 namespace WorldPackets
 {

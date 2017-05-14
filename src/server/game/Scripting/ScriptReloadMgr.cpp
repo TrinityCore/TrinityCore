@@ -17,6 +17,7 @@
 
 #include "ScriptReloadMgr.h"
 #include "Errors.h"
+#include "Optional.h"
 
 #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 

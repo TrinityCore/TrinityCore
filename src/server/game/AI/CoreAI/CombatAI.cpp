@@ -22,6 +22,7 @@
 #include "Vehicle.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Log.h"
 
 /////////////////
 // AggressorAI

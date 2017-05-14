@@ -556,7 +556,6 @@ uint32 const PlayerClassByArmorSubclass[MAX_ITEM_SUBCLASS_ARMOR] =
     (1 << (CLASS_PALADIN - 1)) | (1 << (CLASS_DEATH_KNIGHT - 1)) | (1 << (CLASS_SHAMAN - 1)) | (1 << (CLASS_DRUID - 1)),    //ITEM_SUBCLASS_ARMOR_RELIC
 };
 
-
 void CollectionMgr::AddItemAppearance(Item* item)
 {
     if (!item->IsSoulBound())
