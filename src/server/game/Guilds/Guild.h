@@ -50,6 +50,7 @@ enum GuildMisc
     GUILD_WITHDRAW_SLOT_UNLIMITED       = 0xFFFFFFFF,
     GUILD_EVENT_LOG_GUID_UNDEFINED      = 0xFFFFFFFF,
     TAB_UNDEFINED                       = 0xFF,
+    GUILD_OLD_MAX_LEVEL                 = 25
 };
 
 enum GuildMemberData
@@ -868,8 +869,8 @@ public:
     GuildAchievementMgr& GetAchievementMgr() { return m_achievementMgr; }
     GuildAchievementMgr const& GetAchievementMgr() const { return m_achievementMgr; }
 
-    // Guild leveling
-    uint8 GetLevel() const { return _level; }
+    // Pre-6.x guild leveling
+    uint8 GetLevel() const { return GUILD_OLD_MAX_LEVEL; }
 
     void AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value);
 
@@ -900,8 +901,6 @@ protected:
     LogHolder* m_bankEventLog[GUILD_BANK_MAX_TABS + 1];
     LogHolder* m_newsLog;
     GuildAchievementMgr m_achievementMgr;
-
-    uint8 _level;
 
 private:
     inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }

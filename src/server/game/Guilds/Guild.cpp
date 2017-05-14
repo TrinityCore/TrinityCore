@@ -1656,7 +1656,7 @@ void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
     invite.BorderStyle = uint32(m_emblemInfo.GetBorderStyle());
     invite.BorderColor = uint32(m_emblemInfo.GetBorderColor());
     invite.Background = uint32(m_emblemInfo.GetBackgroundColor());
-    invite.Level = int32(GetLevel());
+    invite.AchievementPoints = GetAchievementMgr().GetAchievementPoints();
 
     invite.InviterName = player->GetName();
     invite.GuildName = GetName();
@@ -1693,8 +1693,6 @@ void Guild::HandleLeaveMember(WorldSession* session)
         if (m_members.size() > 1)
             // Leader cannot leave if he is not the last member
             SendCommandResult(session, GUILD_COMMAND_LEAVE_GUILD, ERR_GUILD_LEADER_LEAVE);
-        else if (GetLevel() >= sWorld->getIntConfig(CONFIG_GUILD_UNDELETABLE_LEVEL))
-            SendCommandResult(session, GUILD_COMMAND_LEAVE_GUILD, ERR_GUILD_UNDELETABLE_DUE_TO_LEVEL);
         else
         {
             // Guild is disbanded if leader leaves.
@@ -2270,9 +2268,8 @@ bool Guild::LoadFromDB(Field* fields)
     m_motd          = fields[9].GetString();
     m_createdDate   = time_t(fields[10].GetUInt32());
     m_bankMoney     = fields[11].GetUInt64();
-    _level          = fields[12].GetUInt32();
 
-    uint8 purchasedTabs = uint8(fields[13].GetUInt64());
+    uint8 purchasedTabs = uint8(fields[12].GetUInt64());
     if (purchasedTabs > GUILD_BANK_MAX_TABS)
         purchasedTabs = GUILD_BANK_MAX_TABS;
 
