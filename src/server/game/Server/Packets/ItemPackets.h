@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "Item.h"
 #include "PacketUtilities.h"
+#include "Optional.h"
 
 struct VoidStorageItem;
 

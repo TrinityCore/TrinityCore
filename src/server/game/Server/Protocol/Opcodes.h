@@ -23,10 +23,10 @@
 #ifndef _OPCODES_H
 #define _OPCODES_H
 
-#include "Common.h"
-#include <iomanip>
+#include "Define.h"
+#include <string>
 
-enum ConnectionType
+enum ConnectionType : int8
 {
     CONNECTION_TYPE_REALM       = 0,
     CONNECTION_TYPE_INSTANCE    = 1,
@@ -1785,8 +1785,6 @@ enum PacketProcessing
 class WorldPacket;
 class WorldSession;
 
-#pragma pack(push, 1)
-
 class OpcodeHandler
 {
 public:
@@ -1820,23 +1818,12 @@ public:
 class OpcodeTable
 {
     public:
-        OpcodeTable()
-        {
-            memset(_internalTableClient, 0, sizeof(_internalTableClient));
-            memset(_internalTableServer, 0, sizeof(_internalTableServer));
-        }
+        OpcodeTable();
 
         OpcodeTable(OpcodeTable const&) = delete;
         OpcodeTable& operator=(OpcodeTable const&) = delete;
 
-        ~OpcodeTable()
-        {
-            for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
-            {
-                delete _internalTableClient[i];
-                delete _internalTableServer[i];
-            }
-        }
+        ~OpcodeTable();
 
         void Initialize();
 
@@ -1862,29 +1849,9 @@ class OpcodeTable
 
 extern OpcodeTable opcodeTable;
 
-#pragma pack(pop)
-
-/// Lookup opcode name for human understandable logging (T = OpcodeClient|OpcodeServer)
-template<typename T>
-inline std::string GetOpcodeNameForLogging(T id)
-{
-    uint32 opcode = uint32(id);
-    std::ostringstream ss;
-    ss << '[';
-
-    if (static_cast<uint32>(id) < NUM_OPCODE_HANDLERS)
-    {
-        if (OpcodeHandler const* handler = opcodeTable[id])
-            ss << handler->Name;
-        else
-            ss << "UNKNOWN OPCODE";
-    }
-    else
-        ss << "INVALID OPCODE";
-
-    ss << " 0x" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << opcode << std::nouppercase << std::dec << " (" << opcode << ")]";
-    return ss.str();
-}
+/// Lookup opcode name for human understandable logging
+std::string GetOpcodeNameForLogging(OpcodeClient opcode);
+std::string GetOpcodeNameForLogging(OpcodeServer opcode);
 
 #endif
 /// @}

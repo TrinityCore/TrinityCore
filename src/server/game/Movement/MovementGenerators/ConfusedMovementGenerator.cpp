@@ -22,6 +22,7 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 #include "Player.h"
+#include "Random.h"
 
 template<class T>
 void ConfusedMovementGenerator<T>::DoInitialize(T* unit)

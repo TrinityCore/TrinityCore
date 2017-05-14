@@ -23,6 +23,7 @@
 #include "SkillDiscovery.h"
 #include "SpellMgr.h"
 #include "Player.h"
+#include "Random.h"
 #include "SpellInfo.h"
 #include <map>
 

@@ -17,6 +17,7 @@
  */
 
 #include "BattlegroundRL.h"
+#include "Log.h"
 #include "Player.h"
 #include "WorldPacket.h"
 

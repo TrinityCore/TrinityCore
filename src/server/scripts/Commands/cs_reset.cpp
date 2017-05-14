@@ -25,10 +25,13 @@ EndScriptData */
 #include "AchievementMgr.h"
 #include "Chat.h"
 #include "Language.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Pet.h"
 #include "ScriptMgr.h"
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
 
 class reset_commandscript : public CommandScript
 {

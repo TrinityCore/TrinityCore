@@ -60,7 +60,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 std::list<Unit*> targets;
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(40.0f, searcher);
+                Cell::VisitAllObjects(me, searcher, 40.0f);
 
                 Unit* highestThreatUnit = nullptr;
                 float highestThreat = 0.0f;
@@ -122,7 +122,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 std::list<Unit*> targets;
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
-                me->VisitNearbyObject(40.0f, searcher);
+                Cell::VisitAllObjects(me, searcher, 40.0f);
 
                 for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
                 {

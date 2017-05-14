@@ -658,7 +658,8 @@ enum ItemEnchantmentType
     ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_TYPE = 9,
     ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID   = 10,
     ITEM_ENCHANTMENT_TYPE_BONUS_LIST_ID                     = 11,
-    ITEM_ENCHANTMENT_TYPE_BONUS_LIST_CURVE                  = 12
+    ITEM_ENCHANTMENT_TYPE_BONUS_LIST_CURVE                  = 12,
+    ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_PICKER  = 13
 };
 
 enum ItemExtendedCostFlags
@@ -686,7 +687,10 @@ enum ItemBonusType
     ITEM_BONUS_SCALING_STAT_DISTRIBUTION    = 11,
     ITEM_BONUS_DISENCHANT_LOOT_ID           = 12,
     ITEM_BONUS_SCALING_STAT_DISTRIBUTION_2  = 13,
-    ITEM_BONUS_ITEM_LEVEL_OVERRIDE          = 14
+    ITEM_BONUS_ITEM_LEVEL_OVERRIDE          = 14,
+    ITEM_BONUS_RANDOM_ENCHANTMENT           = 15,                 // Responsible for showing "<Random additional stats>" or "+%d Rank Random Minor Trait" in the tooltip before item is obtained
+    ITEM_BONUS_BONDING                      = 16,
+    ITEM_BONUS_RELIC_TYPE                   = 17
 };
 
 enum ItemLimitCategoryMode
@@ -956,15 +960,6 @@ enum CurrencyTypes
     CURRENCY_TYPE_VALOR_POINTS          = 396,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
     CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
-};
-
-enum SceneFlags
-{
-    SCENEFLAG_UNK1              = 0x01,
-    SCENEFLAG_UNK2              = 0x02,
-    SCENEFLAG_NOT_CANCELABLE    = 0x04,
-    SCENEFLAG_UNK8              = 0x08,
-    SCENEFLAG_UNK16             = 0x10, // 16, most common value
 };
 
 #endif
