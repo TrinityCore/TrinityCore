@@ -56,6 +56,7 @@ enum ApothecarySays
     SAY_CALL_BAXTER  = 3,
     SAY_CALL_FRYE    = 4,
     SAY_HUMMEL_DEATH = 5,
+    SAY_SUMMON_ADDS  = 6,
     SAY_BAXTER_DEATH = 0,
     SAY_FRYE_DEATH   = 0
 };
@@ -226,6 +227,7 @@ class boss_apothecary_hummel : public CreatureScript
                             events.ScheduleEvent(EVENT_PERFUME_SPRAY, Milliseconds(3640));
                             events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(15));
 
+                            Talk(SAY_SUMMON_ADDS);
                             std::vector<Creature*> trashs;
                             me->GetCreatureListWithEntryInGrid(trashs, NPC_CROWN_APOTHECARY);
                             for (Creature* crea : trashs)
