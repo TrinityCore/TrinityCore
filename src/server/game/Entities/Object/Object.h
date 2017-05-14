@@ -75,12 +75,15 @@ enum NotifyFlags
     NOTIFY_ALL                      = 0xFF
 };
 
+class AreaTrigger;
+class Conversation;
 class Corpse;
 class Creature;
 class CreatureAI;
 class DynamicObject;
 class GameObject;
 class InstanceScript;
+class Map;
 class Player;
 class Scenario;
 class TempSummon;
@@ -90,6 +93,11 @@ class UpdateData;
 class WorldObject;
 class WorldPacket;
 class ZoneScript;
+
+namespace G3D
+{
+    class Quat;
+}
 
 typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 

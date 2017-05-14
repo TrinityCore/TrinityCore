@@ -22,18 +22,19 @@
 #include "ObjectGuid.h"
 #include <unordered_map>
 
-class Object;
-class WorldObject;
-class Unit;
-class Creature;
-class Player;
-class Corpse;
-class GameObject;
-class DynamicObject;
 class AreaTrigger;
-class Pet;
-class Transport;
+class Conversation;
+class Corpse;
+class Creature;
+class DynamicObject;
+class GameObject;
 class Map;
+class Object;
+class Pet;
+class Player;
+class Transport;
+class Unit;
+class WorldObject;
 
 namespace boost
 {
