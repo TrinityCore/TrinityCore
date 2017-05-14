@@ -20,7 +20,7 @@
 
 #include "Packet.h"
 #include "Object.h"
-
+#include "Optional.h"
 #include <G3D/Vector3.h>
 
 namespace Movement

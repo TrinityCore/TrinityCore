@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "UpdateData.h"
 #include "WorldPacket.h"
 
 BattlegroundSA::BattlegroundSA()

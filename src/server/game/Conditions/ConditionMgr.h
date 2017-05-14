@@ -20,6 +20,10 @@
 #define TRINITY_CONDITIONMGR_H
 
 #include "Common.h"
+#include "Hash.h"
+#include <array>
+#include <unordered_map>
+#include <vector>
 
 class Creature;
 class Player;

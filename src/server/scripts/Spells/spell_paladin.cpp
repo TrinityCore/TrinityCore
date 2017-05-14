@@ -27,6 +27,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "Group.h"
+#include "Random.h"
 
 enum PaladinSpells
 {

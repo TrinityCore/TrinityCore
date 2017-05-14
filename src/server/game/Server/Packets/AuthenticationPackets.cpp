@@ -19,6 +19,28 @@
 #include "CharacterTemplateDataStore.h"
 #include "HmacHash.h"
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& virtualRealmInfo)
+{
+    data.WriteBit(virtualRealmInfo.IsLocal);
+    data.WriteBit(virtualRealmInfo.IsInternalRealm);
+    data.WriteBits(virtualRealmInfo.RealmNameActual.length(), 8);
+    data.WriteBits(virtualRealmInfo.RealmNameNormalized.length(), 8);
+    data.FlushBits();
+
+    data.WriteString(virtualRealmInfo.RealmNameActual);
+    data.WriteString(virtualRealmInfo.RealmNameNormalized);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmInfo const& virtualRealmInfo)
+{
+    data << uint32(virtualRealmInfo.RealmAddress);
+    data << virtualRealmInfo.RealmNameInfo;
+
+    return data;
+}
+
 bool WorldPackets::Auth::EarlyProcessClientPacket::ReadNoThrow()
 {
     try
@@ -144,18 +166,8 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         if (SuccessInfo->NumPlayersAlliance)
             _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
 
-        for (auto const& virtualRealm : SuccessInfo->VirtualRealms)
-        {
-            _worldPacket << uint32(virtualRealm.RealmAddress);
-            _worldPacket.WriteBit(virtualRealm.IsLocal);
-            _worldPacket.WriteBit(virtualRealm.IsInternalRealm);
-            _worldPacket.WriteBits(virtualRealm.RealmNameActual.length(), 8);
-            _worldPacket.WriteBits(virtualRealm.RealmNameNormalized.length(), 8);
-            _worldPacket.FlushBits();
-
-            _worldPacket.WriteString(virtualRealm.RealmNameActual);
-            _worldPacket.WriteString(virtualRealm.RealmNameNormalized);
-        }
+        for (VirtualRealmInfo const& virtualRealm : SuccessInfo->VirtualRealms)
+            _worldPacket << virtualRealm;
 
         for (CharacterTemplate const* templat : SuccessInfo->Templates)
         {
@@ -336,35 +348,21 @@ WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 8 + 4
 
 WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
 {
-    ByteBuffer payload;
-    uint16 port = Payload.Where.port();
-    uint8 address[16] = { 0 };
-    uint8 addressType = 3;
-    if (Payload.Where.address().is_v4())
-    {
-        memcpy(address, Payload.Where.address().to_v4().to_bytes().data(), 4);
-        addressType = 1;
-    }
-    else
-    {
-        memcpy(address, Payload.Where.address().to_v6().to_bytes().data(), 16);
-        addressType = 2;
-    }
-
     HmacSha1 hmacHash(64, WherePacketHmac);
-    hmacHash.UpdateData(address, 16);
-    hmacHash.UpdateData(&addressType, 1);
-    hmacHash.UpdateData((uint8* const)&port, 2);
+    hmacHash.UpdateData(Payload.Where.data(), 16);
+    hmacHash.UpdateData((uint8* const)&Payload.Type, 1);
+    hmacHash.UpdateData((uint8* const)&Payload.Port, 2);
     hmacHash.UpdateData((uint8* const)Haiku.c_str(), 71);
     hmacHash.UpdateData(Payload.PanamaKey, 32);
     hmacHash.UpdateData(PiDigits, 108);
     hmacHash.UpdateData(&Payload.XorMagic, 1);
     hmacHash.Finalize();
 
+    ByteBuffer payload;
     payload << uint32(Payload.Adler32);
-    payload << uint8(addressType);
-    payload.append(address, 16);
-    payload << uint16(port);
+    payload << uint8(Payload.Type);
+    payload.append(Payload.Where.data(), 16);
+    payload << uint16(Payload.Port);
     payload.append(Haiku.data(), 71);
     payload.append(Payload.PanamaKey, 32);
     payload.append(PiDigits, 108);

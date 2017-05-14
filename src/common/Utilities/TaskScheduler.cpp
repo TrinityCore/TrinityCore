@@ -16,6 +16,7 @@
  */
 
 #include "TaskScheduler.h"
+#include "Errors.h"
 
 TaskScheduler& TaskScheduler::ClearValidator()
 {

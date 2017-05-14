@@ -19,6 +19,8 @@
 #define __TRINITY_CHANNELMGR_H
 
 #include "Common.h"
+#include "Hash.h"
+#include <unordered_map>
 
 class Channel;
 

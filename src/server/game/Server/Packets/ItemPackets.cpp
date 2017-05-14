@@ -316,7 +316,7 @@ void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
     {
         ItemBonus = boost::in_place();
         ItemBonus->BonusListIDs = lootItem.BonusListIDs;
-        ItemBonus->Context = 0; /// @todo
+        ItemBonus->Context = lootItem.context;
     }
 
     if (lootItem.upgradeId)
@@ -347,6 +347,7 @@ void WorldPackets::Item::ItemInstance::Initialize(::VoidStorageItem const* voidI
     if (!voidItem->BonusListIDs.empty())
     {
         ItemBonus = boost::in_place();
+        ItemBonus->Context = voidItem->Context;
         ItemBonus->BonusListIDs = voidItem->BonusListIDs;
     }
 }

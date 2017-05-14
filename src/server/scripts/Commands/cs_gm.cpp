@@ -30,6 +30,8 @@ EndScriptData */
 #include "World.h"
 #include "Player.h"
 #include "Opcodes.h"
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
 
 class gm_commandscript : public CommandScript
 {

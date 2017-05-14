@@ -18,6 +18,7 @@
 
 #include "Common.h"
 #include "ByteBuffer.h"
+#include "Errors.h"
 #include "WorldPacket.h"
 #include "UpdateData.h"
 #include "Opcodes.h"

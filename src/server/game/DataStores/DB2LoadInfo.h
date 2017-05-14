@@ -290,6 +290,20 @@ struct ArtifactPowerLinkLoadInfo
     }
 };
 
+struct ArtifactPowerPickerLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "PlayerConditionID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ArtifactPowerPickerMeta::Instance(), HOTFIX_SEL_ARTIFACT_POWER_PICKER);
+        return &loadInfo;
+    }
+};
+
 struct ArtifactPowerRankLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -800,6 +814,27 @@ struct CinematicSequencesLoadInfo
             { false, FT_SHORT, "Camera8" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CinematicSequencesMeta::Instance(), HOTFIX_SEL_CINEMATIC_SEQUENCES);
+        return &loadInfo;
+    }
+};
+
+struct ConversationLineLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT,   "ID" },
+            { false, FT_INT,   "BroadcastTextID" },
+            { false, FT_INT,   "SpellVisualKitID" },
+            { false, FT_INT,   "Duration" },
+            { false, FT_SHORT, "NextLineID" },
+            { false, FT_SHORT, "Unk1" },
+            { false, FT_BYTE,  "Yell" },
+            { false, FT_BYTE,  "Unk2" },
+            { false, FT_BYTE,  "Unk3" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ConversationLineMeta::Instance(), HOTFIX_SEL_CONVERSATION_LINE);
         return &loadInfo;
     }
 };

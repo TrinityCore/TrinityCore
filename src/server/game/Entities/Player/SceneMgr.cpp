@@ -121,6 +121,9 @@ void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
         RemoveAurasDueToSceneId(sceneTemplate->SceneId);
 
     sScriptMgr->OnSceneCancel(GetPlayer(), sceneInstanceID, sceneTemplate);
+
+    if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
+        CancelScene(sceneInstanceID, false);
 }
 
 void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
@@ -140,6 +143,9 @@ void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
         RemoveAurasDueToSceneId(sceneTemplate->SceneId);
 
     sScriptMgr->OnSceneComplete(GetPlayer(), sceneInstanceID, sceneTemplate);
+
+    if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
+        CancelScene(sceneInstanceID, false);
 }
 
 bool SceneMgr::HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId /*= 0*/) const

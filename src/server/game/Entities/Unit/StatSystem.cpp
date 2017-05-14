@@ -25,6 +25,7 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "World.h"
+#include <numeric>
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {

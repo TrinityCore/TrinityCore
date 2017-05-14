@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "LFGPackets.h"
+#include "Optional.h"
 #include <G3D/Vector3.h>
 
 namespace WorldPackets

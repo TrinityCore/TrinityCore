@@ -18,14 +18,19 @@
 #ifndef _QUERY_CALLBACK_H
 #define _QUERY_CALLBACK_H
 
-#include "QueryResult.h"
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
+#include <functional>
 #include <future>
+#include <list>
+#include <queue>
+#include <utility>
 
 class TC_DATABASE_API QueryCallback
 {
 public:
-    explicit QueryCallback(std::future<QueryResult>&& result);
-    explicit QueryCallback(std::future<PreparedQueryResult>&& result);
+    explicit QueryCallback(QueryResultFuture&& result);
+    explicit QueryCallback(PreparedQueryResultFuture&& result);
     QueryCallback(QueryCallback&& right);
     QueryCallback& operator=(QueryCallback&& right);
     ~QueryCallback();
@@ -58,8 +63,8 @@ private:
 
     union
     {
-        std::future<QueryResult> _string;
-        std::future<PreparedQueryResult> _prepared;
+        QueryResultFuture _string;
+        PreparedQueryResultFuture _prepared;
     };
     bool _isPrepared;
 

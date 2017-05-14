@@ -21,6 +21,7 @@
 #include "DB2Meta.h"
 #include "Errors.h"
 #include "Log.h"
+#include <sstream>
 
 DB2FileLoadInfo::DB2FileLoadInfo() : Fields(nullptr), FieldCount(0), Meta(nullptr)
 {

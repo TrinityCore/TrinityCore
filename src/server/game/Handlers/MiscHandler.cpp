@@ -49,6 +49,8 @@
 #include "InstancePackets.h"
 #include "InstanceScript.h"
 #include "AreaTriggerPackets.h"
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
