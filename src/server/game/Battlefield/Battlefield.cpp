@@ -1011,7 +1011,7 @@ bool BfCapturePoint::Update(uint32 diff)
         std::list<Player*> players;
         Trinity::AnyPlayerInObjectRangeCheck checker(capturePoint, radius);
         Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(capturePoint, players, checker);
-        capturePoint->VisitNearbyWorldObject(radius, searcher);
+        Cell::VisitWorldObjects(capturePoint, searcher, radius);
 
         for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
             if ((*itr)->IsOutdoorPvPActive())

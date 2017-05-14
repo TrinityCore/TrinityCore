@@ -561,7 +561,7 @@ public:
             std::list<Player*> players;
             Trinity::UnitAuraCheck check(true, SPELL_RIBBON_DANCE_COSMETIC);
             Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
-            me->VisitNearbyWorldObject(10.0f, searcher);
+            Cell::VisitWorldObjects(me, searcher, 10.0f);
 
             return players.empty();
         }

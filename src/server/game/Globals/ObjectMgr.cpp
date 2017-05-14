@@ -38,6 +38,7 @@
 #include "MapManager.h"
 #include "Object.h"
 #include "PoolMgr.h"
+#include "Random.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
@@ -294,7 +295,7 @@ ObjectMgr::~ObjectMgr()
             delete itr2->second;
 }
 
-void ObjectMgr::AddLocaleString(std::string const& value, LocaleConstant localeConstant, StringVector& data)
+void ObjectMgr::AddLocaleString(std::string const& value, LocaleConstant localeConstant, std::vector<std::string>& data)
 {
     if (!value.empty())
     {
@@ -7218,8 +7219,8 @@ void ObjectMgr::LoadPetNumber()
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)
 {
-    StringVector& list0 = _petHalfName0[entry];
-    StringVector& list1 = _petHalfName1[entry];
+    std::vector<std::string>& list0 = _petHalfName0[entry];
+    std::vector<std::string>& list1 = _petHalfName1[entry];
 
     if (list0.empty() || list1.empty())
     {
@@ -9734,6 +9735,19 @@ std::string ObjectMgr::GetNormalizedRealmName(uint32 realmId) const
     return name;
 }
 
+bool ObjectMgr::GetRealmName(uint32 realmId, std::string& name, std::string& normalizedName) const
+{
+    RealmNameContainer::const_iterator itr = _realmNameStore.find(realmId);
+    if (itr != _realmNameStore.end())
+    {
+        name = itr->second;
+        normalizedName = itr->second;
+        normalizedName.erase(std::remove_if(normalizedName.begin(), normalizedName.end(), ::isspace), normalizedName.end());
+        return true;
+    }
+    return false;
+}
+
 void ObjectMgr::LoadGameObjectQuestItems()
 {
     uint32 oldMSTime = getMSTime();
@@ -9844,7 +9858,7 @@ void ObjectMgr::LoadSceneTemplates()
         Field* fields = templates->Fetch();
 
         uint32 sceneId = fields[0].GetUInt32();
-        SceneTemplate& sceneTemplate = _sceneTemplateStore[sceneId];
+        SceneTemplate& sceneTemplate    = _sceneTemplateStore[sceneId];
         sceneTemplate.SceneId           = sceneId;
         sceneTemplate.PlaybackFlags     = fields[1].GetUInt32();
         sceneTemplate.ScenePackageId    = fields[2].GetUInt32();

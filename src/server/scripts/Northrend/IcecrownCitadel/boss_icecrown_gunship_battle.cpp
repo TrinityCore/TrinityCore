@@ -1466,7 +1466,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
             std::list<Player*> players;
             Trinity::UnitAuraCheck check(true, Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
             Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
-            me->VisitNearbyWorldObject(200.0f, searcher);
+            Cell::VisitWorldObjects(me, searcher, 200.0f);
 
             players.remove_if([this](Player* player)
             {
@@ -1530,7 +1530,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
         std::list<Player*> players;
         Trinity::UnitAuraCheck check(true, Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
         Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
-        me->VisitNearbyWorldObject(200.0f, searcher);
+        Cell::VisitWorldObjects(me, searcher,200.0f );
 
         players.remove_if([this](Player* player)
         {

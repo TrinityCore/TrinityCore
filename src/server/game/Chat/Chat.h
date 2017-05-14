@@ -42,8 +42,7 @@ class TC_GAME_API ChatCommand
     typedef bool(*pHandler)(ChatHandler*, char const*);
 
     public:
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>())
-            : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands)) { }
+        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>());
 
         char const* Name;
         uint32 Permission;                   // function pointer required correct align (use uint32)

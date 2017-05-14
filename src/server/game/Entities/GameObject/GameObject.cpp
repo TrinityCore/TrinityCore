@@ -560,9 +560,9 @@ void GameObject::Update(uint32 diff)
                         // Hunter trap: Search units which are unfriendly to the trap's owner
                         Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck checker(this, owner, radius);
                         Trinity::UnitSearcher<Trinity::AnyUnfriendlyNoTotemUnitInObjectRangeCheck> searcher(this, target, checker);
-                        VisitNearbyGridObject(radius, searcher);
+                        Cell::VisitGridObjects(this, searcher, radius);
                         if (!target)
-                            VisitNearbyWorldObject(radius, searcher);
+                            Cell::VisitWorldObjects(this, searcher, radius);
                     }
                     else
                     {
@@ -570,7 +570,7 @@ void GameObject::Update(uint32 diff)
                         Player* player = nullptr;
                         Trinity::AnyPlayerInObjectRangeCheck checker(this, radius);
                         Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
-                        VisitNearbyWorldObject(radius, searcher);
+                        Cell::VisitWorldObjects(this, searcher, radius);
                         target = player;
                     }
 
@@ -1162,17 +1162,10 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
 
     // search nearest linked GO
     GameObject* trapGO = nullptr;
-    {
-        // using original GO distance
-        CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-        Cell cell(p);
-
-        Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*target, trapEntry, range);
-        Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(this, trapGO, go_check);
-
-        TypeContainerVisitor<Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer > object_checker(checker);
-        cell.Visit(p, object_checker, *GetMap(), *target, range);
-    }
+    // using original GO distance
+    Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*target, trapEntry, range);
+    Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(this, trapGO, go_check);
+    Cell::VisitGridObjects(this, checker, range);
 
     // found correct GO
     if (trapGO)
@@ -1182,15 +1175,9 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
 GameObject* GameObject::LookupFishingHoleAround(float range)
 {
     GameObject* ok = nullptr;
-
-    CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-    Cell cell(p);
     Trinity::NearestGameObjectFishingHole u_check(*this, range);
     Trinity::GameObjectSearcher<Trinity::NearestGameObjectFishingHole> checker(this, ok, u_check);
-
-    TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::NearestGameObjectFishingHole>, GridTypeMapContainer > grid_object_checker(checker);
-    cell.Visit(p, grid_object_checker, *GetMap(), *this, range);
-
+    Cell::VisitGridObjects(this, checker, range);
     return ok;
 }
 

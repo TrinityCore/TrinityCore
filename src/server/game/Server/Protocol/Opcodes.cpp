@@ -17,8 +17,11 @@
  */
 
 #include "Opcodes.h"
+#include "Log.h"
 #include "WorldSession.h"
 #include "Packets/AllPackets.h"
+#include <iomanip>
+#include <sstream>
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
 class PacketHandler : public ClientOpcodeHandler
@@ -60,6 +63,21 @@ struct get_packet_class<void(WorldSession::*)(PacketClass&)>
 {
     using type = PacketClass;
 };
+
+OpcodeTable::OpcodeTable()
+{
+    memset(_internalTableClient, 0, sizeof(_internalTableClient));
+    memset(_internalTableServer, 0, sizeof(_internalTableServer));
+}
+
+OpcodeTable::~OpcodeTable()
+{
+    for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
+    {
+        delete _internalTableClient[i];
+        delete _internalTableServer[i];
+    }
+}
 
 template<typename Handler, Handler HandlerFunction>
 void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing)
@@ -635,7 +653,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_QUERY_QUEST_COMPLETION_NPCS,                        STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryQuestCompletionNPCs);
     DEFINE_HANDLER(CMSG_QUERY_QUEST_INFO,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQuestQueryOpcode);
     DEFINE_HANDLER(CMSG_QUERY_QUEST_REWARDS,                                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
-    DEFINE_HANDLER(CMSG_QUERY_REALM_NAME,                                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_QUERY_REALM_NAME,                                   STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryRealmName);
     DEFINE_HANDLER(CMSG_QUERY_SCENARIO_POI,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryScenarioPOI);
     DEFINE_HANDLER(CMSG_QUERY_TIME,                                         STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleQueryTimeOpcode);
     DEFINE_HANDLER(CMSG_QUERY_VOID_STORAGE,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleVoidStorageQuery);
@@ -1593,7 +1611,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_READY_CHECK_STARTED,                     STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_READ_ITEM_RESULT_FAILED,                 STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_READ_ITEM_RESULT_OK,                     STATUS_NEVER,        CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_REALM_QUERY_RESPONSE,                    STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_REALM_QUERY_RESPONSE,                    STATUS_NEVER,        CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_RECRUIT_A_FRIEND_RESPONSE,               STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFER_A_FRIEND_EXPIRED,                  STATUS_UNHANDLED,    CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_REFER_A_FRIEND_FAILURE,                  STATUS_NEVER,        CONNECTION_TYPE_REALM);
@@ -1818,3 +1836,34 @@ void OpcodeTable::Initialize()
 
 #undef DEFINE_SERVER_OPCODE_HANDLER
 };
+
+template<typename T>
+inline std::string GetOpcodeNameForLoggingImpl(T id)
+{
+    uint32 opcode = uint32(id);
+    std::ostringstream ss;
+    ss << '[';
+
+    if (static_cast<uint32>(id) < NUM_OPCODE_HANDLERS)
+    {
+        if (OpcodeHandler const* handler = opcodeTable[id])
+            ss << handler->Name;
+        else
+            ss << "UNKNOWN OPCODE";
+    }
+    else
+        ss << "INVALID OPCODE";
+
+    ss << " 0x" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << opcode << std::nouppercase << std::dec << " (" << opcode << ")]";
+    return ss.str();
+}
+
+std::string GetOpcodeNameForLogging(OpcodeClient opcode)
+{
+    return GetOpcodeNameForLoggingImpl(opcode);
+}
+
+std::string GetOpcodeNameForLogging(OpcodeServer opcode)
+{
+    return GetOpcodeNameForLoggingImpl(opcode);
+}

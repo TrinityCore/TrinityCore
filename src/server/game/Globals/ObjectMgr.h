@@ -24,6 +24,7 @@
 #include "Bag.h"
 #include "Creature.h"
 #include "DynamicObject.h"
+#include "Conversation.h"
 #include "GameObject.h"
 #include "TemporarySummon.h"
 #include "Corpse.h"
@@ -449,7 +450,7 @@ typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap
 
 struct TrinityString
 {
-    StringVector Content;
+    std::vector<std::string> Content;
 };
 
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
@@ -1391,8 +1392,8 @@ class TC_GAME_API ObjectMgr
         // for wintergrasp only
         GraveYardContainer GraveYardStore;
 
-        static void AddLocaleString(std::string const& value, LocaleConstant localeConstant, StringVector& data);
-        static inline void GetLocaleString(StringVector const& data, LocaleConstant localeConstant, std::string& value)
+        static void AddLocaleString(std::string const& value, LocaleConstant localeConstant, std::vector<std::string>& data);
+        static inline void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string& value)
         {
             if (data.size() > size_t(localeConstant) && !data[localeConstant].empty())
                 value = data[localeConstant];
@@ -1419,6 +1420,7 @@ class TC_GAME_API ObjectMgr
 
         std::string GetRealmName(uint32 realm) const;
         std::string GetNormalizedRealmName(uint32 realm) const;
+        bool GetRealmName(uint32 realmId, std::string& name, std::string& normalizedName) const;
 
         ExpansionRequirementContainer const& GetRaceExpansionRequirements() const { return _raceExpansionRequirementStore; }
         uint8 GetRaceExpansionRequirement(uint8 race) const
@@ -1560,7 +1562,7 @@ class TC_GAME_API ObjectMgr
         FishingBaseSkillContainer _fishingBaseForAreaStore;
         std::unordered_map<uint32, SkillTiersEntry> _skillTiers;
 
-        typedef std::map<uint32, StringVector> HalfNameContainer;
+        typedef std::map<uint32, std::vector<std::string>> HalfNameContainer;
         HalfNameContainer _petHalfName0;
         HalfNameContainer _petHalfName1;
 

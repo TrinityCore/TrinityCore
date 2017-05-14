@@ -20,8 +20,20 @@
 
 #include "DB2Store.h"
 #include "DB2Structure.h"
+#include "Hash.h"
 #include "SharedDefines.h"
 #include "Regex.h"
+#include <array>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+ // temporary hack until includes are sorted out (don't want to pull in Windows.h)
+#ifdef GetClassName
+#undef GetClassName
+#endif
 
 TC_GAME_API extern DB2Storage<AchievementEntry>                     sAchievementStore;
 TC_GAME_API extern DB2Storage<AnimKitEntry>                         sAnimKitStore;
@@ -33,6 +45,7 @@ TC_GAME_API extern DB2Storage<ArtifactCategoryEntry>                sArtifactCat
 TC_GAME_API extern DB2Storage<ArtifactAppearanceEntry>              sArtifactAppearanceStore;
 TC_GAME_API extern DB2Storage<ArtifactAppearanceSetEntry>           sArtifactAppearanceSetStore;
 TC_GAME_API extern DB2Storage<ArtifactPowerEntry>                   sArtifactPowerStore;
+TC_GAME_API extern DB2Storage<ArtifactPowerPickerEntry>             sArtifactPowerPickerStore;
 TC_GAME_API extern DB2Storage<AuctionHouseEntry>                    sAuctionHouseStore;
 TC_GAME_API extern DB2Storage<BankBagSlotPricesEntry>               sBankBagSlotPricesStore;
 TC_GAME_API extern DB2Storage<BannedAddOnsEntry>                    sBannedAddOnsStore;
@@ -51,6 +64,7 @@ TC_GAME_API extern DB2Storage<ChrRacesEntry>                        sChrRacesSto
 TC_GAME_API extern DB2Storage<ChrSpecializationEntry>               sChrSpecializationStore;
 TC_GAME_API extern DB2Storage<CinematicCameraEntry>                 sCinematicCameraStore;
 TC_GAME_API extern DB2Storage<CinematicSequencesEntry>              sCinematicSequencesStore;
+TC_GAME_API extern DB2Storage<ConversationLineEntry>                sConversationLineStore;
 TC_GAME_API extern DB2Storage<CreatureDisplayInfoEntry>             sCreatureDisplayInfoStore;
 TC_GAME_API extern DB2Storage<CreatureDisplayInfoExtraEntry>        sCreatureDisplayInfoExtraStore;
 TC_GAME_API extern DB2Storage<CreatureFamilyEntry>                  sCreatureFamilyStore;
@@ -382,7 +396,6 @@ private:
     ItemClassByOldEnumContainer _itemClassByOldEnum;
     std::unordered_set<uint32> _itemsWithCurrencyCost;
     ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
-    ItemModifiedAppearanceByItemContainer _itemDefaultAppearancesByItem;
     ItemToBonusTreeContainer _itemToBonusTree;
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;

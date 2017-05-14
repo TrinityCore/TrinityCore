@@ -16,6 +16,7 @@
  */
 
 #include "BankPackets.h"
+#include "Log.h"
 #include "NPCPackets.h"
 #include "Opcodes.h"
 #include "Player.h"

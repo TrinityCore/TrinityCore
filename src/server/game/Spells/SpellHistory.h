@@ -23,6 +23,7 @@
 #include "Transaction.h"
 #include <chrono>
 #include <deque>
+#include <unordered_map>
 
 class Item;
 class Player;

@@ -20,7 +20,7 @@
 #include "CreatureAISelector.h"
 #include "Creature.h"
 #include "ScriptSystem.h"
-
+#include "Log.h"
 #include "ConfusedMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
 #include "HomeMovementGenerator.h"

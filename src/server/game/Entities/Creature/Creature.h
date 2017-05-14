@@ -20,6 +20,7 @@
 #define TRINITYCORE_CREATURE_H
 
 #include "Common.h"
+#include "Duration.h"
 #include "Unit.h"
 #include "ItemTemplate.h"
 #include "LootMgr.h"
@@ -482,21 +483,21 @@ typedef std::unordered_map<uint16, CreatureBaseStats> CreatureBaseStatsContainer
 
 struct CreatureLocale
 {
-    StringVector Name;
-    StringVector NameAlt;
-    StringVector Title;
-    StringVector TitleAlt;
+    std::vector<std::string> Name;
+    std::vector<std::string> NameAlt;
+    std::vector<std::string> Title;
+    std::vector<std::string> TitleAlt;
 };
 
 struct GossipMenuItemsLocale
 {
-    StringVector OptionText;
-    StringVector BoxText;
+    std::vector<std::string> OptionText;
+    std::vector<std::string> BoxText;
 };
 
 struct PointOfInterestLocale
 {
-    StringVector Name;
+    std::vector<std::string> Name;
 };
 
 struct EquipmentItem

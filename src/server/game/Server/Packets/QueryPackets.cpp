@@ -464,3 +464,18 @@ WorldPacket const* WorldPackets::Query::QueryItemTextResponse::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Query::QueryRealmName::Read()
+{
+    _worldPacket >> VirtualRealmAddress;
+}
+
+WorldPacket const* WorldPackets::Query::RealmQueryResponse::Write()
+{
+    _worldPacket << uint32(VirtualRealmAddress);
+    _worldPacket << uint8(LookupState);
+    if (!LookupState)
+        _worldPacket << NameInfo;
+
+    return &_worldPacket;
+}
