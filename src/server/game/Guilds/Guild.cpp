@@ -144,7 +144,7 @@ void Guild::EventLogEntry::WritePacket(WorldPackets::Guild::GuildEventLogQueryRe
     eventEntry.PlayerGUID = playerGUID;
     eventEntry.OtherGUID = otherGUID;
     eventEntry.TransactionType = uint8(m_eventType);
-    eventEntry.TransactionDate = uint32(::time(NULL) - m_timestamp);
+    eventEntry.TransactionDate = uint32(::time(nullptr) - m_timestamp);
     eventEntry.RankID = uint8(m_newRank);
     packet.Entry.push_back(eventEntry);
 }
@@ -187,7 +187,7 @@ void Guild::BankEventLogEntry::WritePacket(WorldPackets::Guild:: GuildBankLogQue
 
     WorldPackets::Guild::GuildBankLogEntry bankLogEntry;
     bankLogEntry.PlayerGUID = logGuid;
-    bankLogEntry.TimeOffset = int32(time(NULL) - m_timestamp);
+    bankLogEntry.TimeOffset = int32(time(nullptr) - m_timestamp);
     bankLogEntry.EntryType = int8(m_eventType);
 
     if (hasStack)
@@ -408,13 +408,12 @@ bool Guild::BankTab::LoadItemFromDB(Field* fields)
 void Guild::BankTab::Delete(SQLTransaction& trans, bool removeItemsFromDB)
 {
     for (uint8 slotId = 0; slotId < GUILD_BANK_MAX_SLOTS; ++slotId)
-        if (Item* pItem = m_items[slotId])
+        if (Item* item = m_items[slotId])
         {
-            pItem->RemoveFromWorld();
+            item->RemoveFromWorld();
             if (removeItemsFromDB)
-                pItem->DeleteFromDB(trans);
-            delete pItem;
-            pItem = NULL;
+                item->DeleteFromDB(trans);
+            delete item;
         }
 }
 
@@ -450,7 +449,7 @@ void Guild::BankTab::SetText(std::string const& text)
 }
 
 // Sets/removes contents of specified slot.
-// If pItem == NULL contents are removed.
+// If pItem == nullptr contents are removed.
 bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* item)
 {
     if (slotId >= GUILD_BANK_MAX_SLOTS)
@@ -679,7 +678,7 @@ void EmblemInfo::ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet)
     m_backgroundColor = packet.Bg;
 }
 
-bool EmblemInfo::ValidateEmblemColors()
+bool EmblemInfo::ValidateEmblemColors() const
 {
     return sGuildColorBackgroundStore.LookupEntry(m_backgroundColor) &&
            sGuildColorBorderStore.LookupEntry(m_borderColor) &&
@@ -767,16 +766,16 @@ bool Guild::PlayerMoveItemData::InitItem()
         if (m_pItem->IsNotEmptyBag())
         {
             m_pPlayer->SendEquipError(EQUIP_ERR_DESTROY_NONEMPTY_BAG, m_pItem);
-            m_pItem = NULL;
+            m_pItem = nullptr;
         }
         // Bound items cannot be put into bank.
         else if (!m_pItem->CanBeTraded())
         {
             m_pPlayer->SendEquipError(EQUIP_ERR_CANT_SWAP, m_pItem);
-            m_pItem = NULL;
+            m_pItem = nullptr;
         }
     }
-    return (m_pItem != NULL);
+    return (m_pItem != nullptr);
 }
 
 void Guild::PlayerMoveItemData::RemoveItem(SQLTransaction& trans, MoveItemData* /*pOther*/, uint32 splitedAmount)
@@ -791,7 +790,7 @@ void Guild::PlayerMoveItemData::RemoveItem(SQLTransaction& trans, MoveItemData* 
     {
         m_pPlayer->MoveItemFromInventory(m_container, m_slotId, true);
         m_pItem->DeleteFromInventoryDB(trans);
-        m_pItem = NULL;
+        m_pItem = nullptr;
     }
 }
 
@@ -820,7 +819,7 @@ inline InventoryResult Guild::PlayerMoveItemData::CanStore(Item* pItem, bool swa
 bool Guild::BankMoveItemData::InitItem()
 {
     m_pItem = m_pGuild->_GetItem(m_container, m_slotId);
-    return (m_pItem != NULL);
+    return (m_pItem != nullptr);
 }
 
 bool Guild::BankMoveItemData::HasStoreRights(MoveItemData* pOther) const
@@ -858,7 +857,7 @@ void Guild::BankMoveItemData::RemoveItem(SQLTransaction& trans, MoveItemData* pO
     else
     {
         m_pGuild->_RemoveItem(trans, m_container, m_slotId);
-        m_pItem = NULL;
+        m_pItem = nullptr;
     }
     // Decrease amount of player's remaining items (if item is moved to different tab or to player)
     if (!pOther->IsBank() || pOther->GetContainer() != m_container)
@@ -868,11 +867,11 @@ void Guild::BankMoveItemData::RemoveItem(SQLTransaction& trans, MoveItemData* pO
 Item* Guild::BankMoveItemData::StoreItem(SQLTransaction& trans, Item* pItem)
 {
     if (!pItem)
-        return NULL;
+        return nullptr;
 
     BankTab* pTab = m_pGuild->GetBankTab(m_container);
     if (!pTab)
-        return NULL;
+        return nullptr;
 
     Item* pLastItem = pItem;
     for (ItemPosCountVec::const_iterator itr = m_vec.begin(); itr != m_vec.end(); )
@@ -939,7 +938,7 @@ Item* Guild::BankMoveItemData::_StoreItem(SQLTransaction& trans, BankTab* pTab, 
     if (pItem && pTab->SetItem(trans, slotId, pItem))
         return pItem;
 
-    return NULL;
+    return nullptr;
 }
 
 // Tries to reserve space for source item.
@@ -979,10 +978,10 @@ void Guild::BankMoveItemData::CanStoreItemInTab(Item* pItem, uint8 skipSlotId, b
 
         Item* pItemDest = m_pGuild->_GetItem(m_container, slotId);
         if (pItemDest == pItem)
-            pItemDest = NULL;
+            pItemDest = nullptr;
 
         // If merge skip empty, if not merge skip non-empty
-        if ((pItemDest != NULL) != merge)
+        if ((pItemDest != nullptr) != merge)
             continue;
 
         _ReserveSpace(slotId, pItem, pItemDest, count);
@@ -1009,7 +1008,7 @@ InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
         Item* pItemDest = m_pGuild->_GetItem(m_container, m_slotId);
         // Ignore swapped item (this slot will be empty after move)
         if ((pItemDest == pItem) || swap)
-            pItemDest = NULL;
+            pItemDest = nullptr;
 
         if (!_ReserveSpace(m_slotId, pItem, pItemDest, count))
             return EQUIP_ERR_CANT_STACK;
@@ -1042,35 +1041,34 @@ Guild::Guild():
     m_createdDate(0),
     m_accountsNumber(0),
     m_bankMoney(0),
-    m_eventLog(NULL),
-    m_newsLog(NULL),
-    m_achievementMgr(this),
-    _level(1)
+    m_eventLog(nullptr),
+    m_newsLog(nullptr),
+    m_achievementMgr(this)
 {
     memset(&m_bankEventLog, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(LogHolder*));
 }
 
 Guild::~Guild()
 {
-    SQLTransaction temp(NULL);
+    SQLTransaction temp(nullptr);
     _DeleteBankItems(temp);
 
     // Cleanup
     delete m_eventLog;
-    m_eventLog = NULL;
+    m_eventLog = nullptr;
     delete m_newsLog;
-    m_newsLog = NULL;
+    m_newsLog = nullptr;
 
     for (uint8 tabId = 0; tabId <= GUILD_BANK_MAX_TABS; ++tabId)
     {
         delete m_bankEventLog[tabId];
-        m_bankEventLog[tabId] = NULL;
+        m_bankEventLog[tabId] = nullptr;
     }
 
     for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         delete itr->second;
-        itr->second = NULL;
+        itr->second = nullptr;
     }
 }
 
@@ -1091,8 +1089,7 @@ bool Guild::Create(Player* pLeader, std::string const& name)
     m_info = "";
     m_motd = "No message set.";
     m_bankMoney = 0;
-    m_createdDate = ::time(NULL);
-    _level = 1;
+    m_createdDate = ::time(nullptr);
     _CreateLogHolders();
 
     TC_LOG_DEBUG("guild", "GUILD: creating guild [%s] for leader %s (%s)",
@@ -1128,7 +1125,7 @@ bool Guild::Create(Player* pLeader, std::string const& name)
     {
         Member* leader = GetMember(m_leaderGuid);
         if (leader)
-            SendEventNewLeader(leader, NULL);
+            SendEventNewLeader(leader, nullptr);
 
         sScriptMgr->OnGuildCreate(this, pLeader, name);
     }
@@ -1293,7 +1290,7 @@ void Guild::HandleRoster(WorldSession* session)
         memberData.AreaID = int32(member->GetZoneId());
         memberData.PersonalAchievementPoints = int32(member->GetAchievementPoints());
         memberData.GuildReputation = int32(member->GetTotalReputation());
-        memberData.LastSave = float(member->IsOnline() ? 0.0f : float(::time(NULL) - member->GetLogoutTime()) / DAY);
+        memberData.LastSave = float(member->IsOnline() ? 0.0f : float(::time(nullptr) - member->GetLogoutTime()) / DAY);
 
         //GuildRosterProfessionData
 
@@ -1409,7 +1406,7 @@ void Guild::HandleSetAchievementTracking(WorldSession* session, std::set<uint32>
     }
 }
 
-void Guild::HandleGetAchievementMembers(WorldSession* session, uint32 achievementId)
+void Guild::HandleGetAchievementMembers(WorldSession* session, uint32 achievementId) const
 {
     m_achievementMgr.SendAchievementMembers(session->GetPlayer(), achievementId);
 }
@@ -1973,7 +1970,7 @@ void Guild::HandleDelete(WorldSession* session)
     }
 }
 
-void Guild::HandleGuildPartyRequest(WorldSession* session)
+void Guild::HandleGuildPartyRequest(WorldSession* session) const
 {
     Player* player = session->GetPlayer();
     Group* group = player->GetGroup();
@@ -1992,7 +1989,7 @@ void Guild::HandleGuildPartyRequest(WorldSession* session)
     TC_LOG_DEBUG("guild", "SMSG_GUILD_PARTY_STATE_RESPONSE [%s]", session->GetPlayerInfo().c_str());
 }
 
-void Guild::HandleGuildRequestChallengeUpdate(WorldSession* session)
+void Guild::HandleGuildRequestChallengeUpdate(WorldSession* session) const
 {
     WorldPackets::Guild::GuildChallengeUpdate updatePacket;
 
@@ -2023,7 +2020,7 @@ void Guild::SendEventLog(WorldSession* session) const
 
     for (GuildLog::const_iterator itr = logs->begin(); itr != logs->end(); ++itr)
     {
-        EventLogEntry* eventLog = (EventLogEntry*)(*itr);
+        EventLogEntry* eventLog = static_cast<EventLogEntry*>(*itr);
         eventLog->WritePacket(packet);
     }
 
@@ -2032,7 +2029,7 @@ void Guild::SendEventLog(WorldSession* session) const
     TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT_LOG_QUERY_RESULTS [%s]", session->GetPlayerInfo().c_str());
 }
 
-void Guild::SendNewsUpdate(WorldSession* session)
+void Guild::SendNewsUpdate(WorldSession* session) const
 {
     GuildLog* logs = m_newsLog->GetGuildLog();
 
@@ -2044,7 +2041,7 @@ void Guild::SendNewsUpdate(WorldSession* session)
 
     for (GuildLog::const_iterator itr = logs->begin(); itr != logs->end(); ++itr)
     {
-        NewsLogEntry* eventLog = (NewsLogEntry*)(*itr);
+        NewsLogEntry* eventLog = static_cast<NewsLogEntry*>(*itr);
         eventLog->WritePacket(packet);
     }
 
@@ -2072,7 +2069,7 @@ void Guild::SendBankLog(WorldSession* session, uint8 tabId) const
         packet.Entry.reserve(m_bankEventLog[tabId]->GetSize());
         for (GuildLog::const_iterator itr = logs->begin(); itr != logs->end(); ++itr)
         {
-            BankEventLogEntry* bankEventLog = (BankEventLogEntry*)(*itr);
+            BankEventLogEntry* bankEventLog = static_cast<BankEventLogEntry*>(*itr);
             bankEventLog->WritePacket(packet);
         }
 
@@ -2173,14 +2170,14 @@ void Guild::SendLoginInfo(WorldSession* session)
     member->AddFlag(GUILDMEMBER_STATUS_ONLINE);
 }
 
-void Guild::SendEventBankMoneyChanged()
+void Guild::SendEventBankMoneyChanged() const
 {
     WorldPackets::Guild::GuildEventBankMoneyChanged eventPacket;
     eventPacket.Money = GetBankMoney();
     BroadcastPacket(eventPacket.Write());
 }
 
-void Guild::SendEventMOTD(WorldSession* session, bool broadcast)
+void Guild::SendEventMOTD(WorldSession* session, bool broadcast) const
 {
     WorldPackets::Guild::GuildEventMotd eventPacket;
     eventPacket.MotdText = GetMOTD();
@@ -2194,7 +2191,7 @@ void Guild::SendEventMOTD(WorldSession* session, bool broadcast)
     }
 }
 
-void Guild::SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelfPromoted)
+void Guild::SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelfPromoted) const
 {
     WorldPackets::Guild::GuildEventNewLeader eventPacket;
     eventPacket.SelfPromoted = isSelfPromoted;
@@ -2215,7 +2212,7 @@ void Guild::SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelf
     BroadcastPacket(eventPacket.Write());
 }
 
-void Guild::SendEventPlayerLeft(Member* leaver, Member* remover, bool isRemoved)
+void Guild::SendEventPlayerLeft(Member* leaver, Member* remover, bool isRemoved) const
 {
     WorldPackets::Guild::GuildEventPlayerLeft eventPacket;
     eventPacket.Removed = isRemoved;
@@ -2233,7 +2230,7 @@ void Guild::SendEventPlayerLeft(Member* leaver, Member* remover, bool isRemoved)
     BroadcastPacket(eventPacket.Write());
 }
 
-void Guild::SendEventPresenceChanged(WorldSession* session, bool loggedOn, bool broadcast)
+void Guild::SendEventPresenceChanged(WorldSession* session, bool loggedOn, bool broadcast) const
 {
     Player* player = session->GetPlayer();
 
@@ -2296,7 +2293,7 @@ bool Guild::LoadMemberFromDB(Field* fields)
     Member *member = new Member(m_id, ObjectGuid::Create<HighGuid::Player>(lowguid), fields[2].GetUInt8());
     if (!member->LoadFromDB(fields))
     {
-        _DeleteMemberFromDB(lowguid);
+        Guild::_DeleteMemberFromDB(lowguid);
         delete member;
         return false;
     }
@@ -2313,7 +2310,7 @@ void Guild::LoadBankRightFromDB(Field* fields)
     _SetRankBankTabRightsAndSlots(fields[2].GetUInt8(), rightsAndSlots, false);
 }
 
-bool Guild::LoadEventLogFromDB(Field* fields)
+bool Guild::LoadEventLogFromDB(Field* fields) const
 {
     if (m_eventLog->CanInsert())
     {
@@ -2370,7 +2367,7 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
     return true;
 }
 
-void Guild::LoadGuildNewsLogFromDB(Field* fields)
+void Guild::LoadGuildNewsLogFromDB(Field* fields) const
 {
     if (!m_newsLog->CanInsert())
         return;
@@ -2469,7 +2466,7 @@ bool Guild::Validate()
         _SetLeaderGUID(pLeader);
 
     // Check config if multiple guildmasters are allowed
-    if (!sConfigMgr->GetBoolDefault("Guild.AllowMultipleGuildMaster", 0))
+    if (!sConfigMgr->GetBoolDefault("Guild.AllowMultipleGuildMaster", false))
         for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (itr->second->GetRankId() == GR_GUILDMASTER && !itr->second->IsSamePlayer(m_leaderGuid))
                 itr->second->ChangeRank(GR_OFFICER);
@@ -2624,7 +2621,7 @@ bool Guild::AddMember(ObjectGuid guid, uint8 rankId)
         m_members[guid] = member;
     }
 
-    SQLTransaction trans(NULL);
+    SQLTransaction trans(nullptr);
     member->SaveToDB(trans);
 
     _UpdateAccountsNumber();
@@ -2650,8 +2647,8 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
     // or when he is removed from guild by gm command
     if (m_leaderGuid == guid && !isDisbanding)
     {
-        Member* oldLeader = NULL;
-        Member* newLeader = NULL;
+        Member* oldLeader = nullptr;
+        Member* newLeader = nullptr;
         for (Guild::Members::iterator i = m_members.begin(); i != m_members.end(); ++i)
         {
             if (i->first == guid)
@@ -2700,7 +2697,7 @@ void Guild::DeleteMember(ObjectGuid guid, bool isDisbanding, bool isKicked, bool
             player->RemoveSpell(entry->SpellID, false, false);
     }
 
-    _DeleteMemberFromDB(guid.GetCounter());
+    Guild::_DeleteMemberFromDB(guid.GetCounter());
     if (!isDisbanding)
         _UpdateAccountsNumber();
 }
@@ -2756,7 +2753,7 @@ void Guild::SetBankTabText(uint8 tabId, std::string const& text)
     if (BankTab* pTab = GetBankTab(tabId))
     {
         pTab->SetText(text);
-        pTab->SendText(this, NULL);
+        pTab->SendText(this, nullptr);
 
         WorldPackets::Guild::GuildEventTabTextChanged eventPacket;
         eventPacket.Tab = tabId;
@@ -2862,7 +2859,7 @@ void Guild::_DeleteBankItems(SQLTransaction& trans, bool removeItemsFromDB)
     {
         m_bankTabs[tabId]->Delete(trans, removeItemsFromDB);
         delete m_bankTabs[tabId];
-        m_bankTabs[tabId] = NULL;
+        m_bankTabs[tabId] = nullptr;
     }
     m_bankTabs.clear();
 }
@@ -3045,16 +3042,16 @@ inline Item* Guild::_GetItem(uint8 tabId, uint8 slotId) const
 {
     if (const BankTab* tab = GetBankTab(tabId))
         return tab->GetItem(slotId);
-    return NULL;
+    return nullptr;
 }
 
 inline void Guild::_RemoveItem(SQLTransaction& trans, uint8 tabId, uint8 slotId)
 {
     if (BankTab* pTab = GetBankTab(tabId))
-        pTab->SetItem(trans, slotId, NULL);
+        pTab->SetItem(trans, slotId, nullptr);
 }
 
-void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAmount)
+void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAmount) const
 {
     // 1. Initialize source item
     if (!pSrc->InitItem())
@@ -3088,12 +3085,12 @@ void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAm
             return; // Item could not be cloned
 
         // 5.2. Move splited item to destination
-        _DoItemsMove(pSrc, pDest, true, splitedAmount);
+        Guild::_DoItemsMove(pSrc, pDest, true, splitedAmount);
     }
     else // 6. No split
     {
-        // 6.1. Try to merge items in destination (pDest->GetItem() == NULL)
-        if (!_DoItemsMove(pSrc, pDest, false)) // Item could not be merged
+        // 6.1. Try to merge items in destination (pDest->GetItem() == nullptr)
+        if (!Guild::_DoItemsMove(pSrc, pDest, false)) // Item could not be merged
         {
             // 6.2. Try to swap items
             // 6.2.1. Initialize destination item
@@ -3107,8 +3104,8 @@ void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAm
             if (!pDest->HasWithdrawRights(pSrc))
                 return; // Player has no rights to withdraw item from destination (opposite direction)
 
-            // 6.2.3. Swap items (pDest->GetItem() != NULL)
-            _DoItemsMove(pSrc, pDest, true);
+            // 6.2.3. Swap items (pDest->GetItem() != nullptr)
+            Guild::_DoItemsMove(pSrc, pDest, true);
         }
     }
     // 7. Send changes
@@ -3118,7 +3115,7 @@ void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAm
 bool Guild::_DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount)
 {
     Item* pDestItem = pDest->GetItem();
-    bool swap = (pDestItem != NULL);
+    bool swap = (pDestItem != nullptr);
 
     Item* pSrcItem = pSrc->GetItem(splitedAmount != 0);
     // 1. Can store source item in destination
@@ -3353,7 +3350,7 @@ void Guild::ResetTimes(bool weekly)
     }
 }
 
-void Guild::AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value)
+void Guild::AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value) const
 {
     NewsLogEntry* news = new NewsLogEntry(m_id, m_newsLog->GetNextGUID(), GuildNews(type), guid, flags, value);
 
@@ -3377,7 +3374,7 @@ void Guild::UpdateCriteria(CriteriaTypes type, uint64 miscValue1, uint64 miscVal
     m_achievementMgr.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, player);
 }
 
-void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky)
+void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky) const
 {
     GuildLog* logs = m_newsLog->GetGuildLog();
     GuildLog::iterator itr = logs->begin();
@@ -3391,7 +3388,7 @@ void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool stick
         return;
     }
 
-    NewsLogEntry* news = (NewsLogEntry*)(*itr);
+    NewsLogEntry* news = static_cast<NewsLogEntry*>(*itr);
     news->SetSticky(sticky);
 
     TC_LOG_DEBUG("guild", "HandleNewsSetSticky: [%s] changed newsId %u sticky to %u",

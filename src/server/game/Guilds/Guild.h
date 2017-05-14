@@ -269,7 +269,7 @@ public:
     bool LoadFromDB(Field* fields);
     void SaveToDB(ObjectGuid::LowType guildId) const;
     void ReadPacket(WorldPackets::Guild::SaveGuildEmblem& packet);
-    bool ValidateEmblemColors();
+    bool ValidateEmblemColors() const;
 
     uint32 GetStyle() const { return m_style; }
     uint32 GetColor() const { return m_color; }
@@ -332,7 +332,7 @@ private:
             m_class(0),
             _gender(0),
             m_flags(GUILDMEMBER_STATUS_NONE),
-            m_logoutTime(::time(NULL)),
+            m_logoutTime(::time(nullptr)),
             m_accountId(0),
             m_rankId(rankId),
             m_achievementPoints(0),
@@ -353,8 +353,6 @@ private:
         void SetZoneId(uint32 id) { m_zoneId = id; }
         void SetAchievementPoints(uint32 val) { m_achievementPoints = val; }
         void SetLevel(uint8 var) { m_level = var; }
-        void AddReputation(uint32& reputation);
-        void AddActivity(uint64 activity);
 
         void AddFlag(uint8 var) { m_flags |= var; }
         void RemFlag(uint8 var) { m_flags &= ~var; }
@@ -389,7 +387,7 @@ private:
 
         void ChangeRank(uint8 newRank);
 
-        inline void UpdateLogoutTime() { m_logoutTime = ::time(NULL); }
+        inline void UpdateLogoutTime() { m_logoutTime = ::time(nullptr); }
         inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
         inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
         inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
@@ -432,7 +430,7 @@ private:
     class LogEntry
     {
     public:
-        LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::time(NULL)) { }
+        LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::time(nullptr)) { }
         LogEntry(ObjectGuid::LowType guildId, uint32 guid, time_t timestamp) : m_guildId(guildId), m_guid(guid), m_timestamp(timestamp) { }
         virtual ~LogEntry() { }
 
@@ -627,8 +625,6 @@ private:
         bool LoadItemFromDB(Field* fields);
         void Delete(SQLTransaction& trans, bool removeItemsFromDB = false);
 
-        void WritePacket(WorldPacket& data) const;
-        bool WriteSlotPacket(WorldPacket& data, uint8 slotId, bool ignoreEmpty = true) const;
         void WriteInfoPacket(WorldPacket& data) const
         {
             data << m_name;
@@ -661,7 +657,7 @@ private:
     {
     public:
         MoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) : m_pGuild(guild), m_pPlayer(player),
-            m_container(container), m_slotId(slotId), m_pItem(NULL), m_pClonedItem(NULL) { }
+            m_container(container), m_slotId(slotId), m_pItem(nullptr), m_pClonedItem(nullptr) { }
         virtual ~MoveItemData() { }
 
         virtual bool IsBank() const = 0;
@@ -775,7 +771,7 @@ public:
     void HandleRoster(WorldSession* session);
     void SendQueryResponse(WorldSession* session);
     void HandleSetAchievementTracking(WorldSession* session, std::set<uint32> const& achievementIds);
-    void HandleGetAchievementMembers(WorldSession* session, uint32 achievementId);
+    void HandleGetAchievementMembers(WorldSession* session, uint32 achievementId) const;
     void HandleSetMOTD(WorldSession* session, std::string const& motd);
     void HandleSetInfo(WorldSession* session, std::string const& info);
     void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
@@ -796,9 +792,9 @@ public:
     bool HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool repair = false);
     void HandleMemberLogout(WorldSession* session);
     void HandleDelete(WorldSession* session);
-    void HandleGuildPartyRequest(WorldSession* session);
-    void HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky);
-    void HandleGuildRequestChallengeUpdate(WorldSession* session);
+    void HandleGuildPartyRequest(WorldSession* session) const;
+    void HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky) const;
+    void HandleGuildRequestChallengeUpdate(WorldSession* session) const;
 
     void UpdateMemberData(Player* player, uint8 dataid, uint32 value);
     void OnPlayerStatusChange(Player* player, uint32 flag, bool state);
@@ -812,21 +808,21 @@ public:
     void SendPermissions(WorldSession* session) const;
     void SendMoneyInfo(WorldSession* session) const;
     void SendLoginInfo(WorldSession* session);
-    void SendNewsUpdate(WorldSession* session);
+    void SendNewsUpdate(WorldSession* session) const;
 
     // Send events
-    void SendEventBankMoneyChanged();
-    void SendEventMOTD(WorldSession* session, bool broadcast = false);
-    void SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelfPromoted = false);
-    void SendEventPlayerLeft(Member* leaver, Member* remover = nullptr, bool isRemoved = false);
-    void SendEventPresenceChanged(WorldSession* session, bool loggedOn, bool broadcast = false);
+    void SendEventBankMoneyChanged() const;
+    void SendEventMOTD(WorldSession* session, bool broadcast = false) const;
+    void SendEventNewLeader(Member* newLeader, Member* oldLeader, bool isSelfPromoted = false) const;
+    void SendEventPlayerLeft(Member* leaver, Member* remover = nullptr, bool isRemoved = false) const;
+    void SendEventPresenceChanged(WorldSession* session, bool loggedOn, bool broadcast = false) const;
 
     // Load from DB
     bool LoadFromDB(Field* fields);
-    void LoadGuildNewsLogFromDB(Field* fields);
+    void LoadGuildNewsLogFromDB(Field* fields) const;
     void LoadRankFromDB(Field* fields);
     bool LoadMemberFromDB(Field* fields);
-    bool LoadEventLogFromDB(Field* fields);
+    bool LoadEventLogFromDB(Field* fields) const;
     void LoadBankRightFromDB(Field* fields);
     void LoadBankTabFromDB(Field* fields);
     bool LoadBankEventLogFromDB(Field* fields);
@@ -843,7 +839,7 @@ public:
     void MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank);
 
     template<class Do>
-    void BroadcastWorker(Do& _do, Player* except = NULL)
+    void BroadcastWorker(Do& _do, Player* except = nullptr)
     {
         for (Members::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindConnectedPlayer())
@@ -872,7 +868,7 @@ public:
     // Pre-6.x guild leveling
     uint8 GetLevel() const { return GUILD_OLD_MAX_LEVEL; }
 
-    void AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value);
+    void AddGuildNews(uint8 type, ObjectGuid guid, uint32 flags, uint32 value) const;
 
     EmblemInfo const& GetEmblemInfo() const { return m_emblemInfo; }
     void ResetTimes(bool weekly);
@@ -938,10 +934,10 @@ private:
             if (itr->second->GetName() == name)
                 return itr->second;
 
-        return NULL;
+        return nullptr;
     }
 
-    inline void _DeleteMemberFromDB(ObjectGuid::LowType lowguid) const
+    static inline void _DeleteMemberFromDB(ObjectGuid::LowType lowguid)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
         stmt->setUInt64(0, lowguid);
@@ -981,8 +977,8 @@ private:
 
     Item* _GetItem(uint8 tabId, uint8 slotId) const;
     void _RemoveItem(SQLTransaction& trans, uint8 tabId, uint8 slotId);
-    void _MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAmount);
-    bool _DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount = 0);
+    void _MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAmount) const;
+    static bool _DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount = 0);
 
     void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
