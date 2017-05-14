@@ -63,7 +63,7 @@ void ConversationDataStore::LoadConversationTemplates()
     if (QueryResult lineTemplates = WorldDatabase.Query("SELECT Id, StartTime, UiCameraID, ActorIdx, Unk FROM conversation_line_template"))
     {
         uint32 oldMSTime = getMSTime();
-        uint32 count = 0;
+
         do
         {
             Field* fields = lineTemplates->Fetch();
@@ -82,8 +82,6 @@ void ConversationDataStore::LoadConversationTemplates()
             conversationLine.UiCameraID = fields[2].GetUInt32();
             conversationLine.ActorIdx   = fields[3].GetUInt16();
             conversationLine.Unk        = fields[4].GetUInt16();
-
-            ++count;
         }
         while (lineTemplates->NextRow());
 
@@ -98,6 +96,7 @@ void ConversationDataStore::LoadConversationTemplates()
     {
         uint32 oldMSTime = getMSTime();
         uint32 count = 0;
+
         do
         {
             Field* fields = actors->Fetch();
@@ -119,7 +118,7 @@ void ConversationDataStore::LoadConversationTemplates()
         }
         while (actors->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Conversation actors in %u ms", _conversationLineTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded %u Conversation actors in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
     {

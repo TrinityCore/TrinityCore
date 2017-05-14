@@ -36,26 +36,6 @@ CREATE TABLE `conversation_actors` (
   PRIMARY KEY (`ConversationId`, `ConversationActorId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-/*
-INSERT INTO `conversation_actor_template`(`Id`,`CreatureId`,`CreatureModelId`,`VerifiedBuild`) VALUES
-(49825, 93221, 65308, 22624),
-(50124, 98075, 21135, 22624);
-
-INSERT INTO `conversation_actors`(`ConversationId`,`ConversationActorId`,`Idx`,`VerifiedBuild`) VALUES
-(705, 49825, 0, 22624),
-(1025, 50124, 0, 22624);
-
-INSERT INTO `conversation_line_template`(`Id`,`StartTime`,`UiCameraID`,`ActorIdx`,`Unk`,`VerifiedBuild`) VALUES
-(1445, 0, 254, 0, 0, 22624),
-(1446, 4924, 254, 0, ‭8240‬, 22624),
-(1683, 0, 296, 0, 0, 22624),
-(1684, 6151, 296, 0, 0, 22624);
-
-INSERT INTO `conversation_template`(`Id`,`FirstLineId`,`LastLineEndTime`,`VerifiedBuild`) VALUES
-(705, 1445, 6544, 22624),
-(1025, 1683, 3458, 22624);
-*/
-
 DELETE FROM `command` WHERE `name` IN ('debug conversation', 'reload conversation_template');
 INSERT INTO `command` (`name`, `permission`, `help`) VALUES
 ('debug conversation', 854, 'Syntax: .debug conversation $conversationId\r\nPlay given conversation.'),
