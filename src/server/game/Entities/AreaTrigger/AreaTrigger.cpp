@@ -202,8 +202,7 @@ void AreaTrigger::Remove()
 
         _ai->OnRemove();
 
-        RemoveFromWorld();
-        AddObjectToRemoveList();
+        AddObjectToRemoveList(); // calls RemoveFromWorld
     }
 }
 

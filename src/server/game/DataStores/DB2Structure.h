@@ -475,6 +475,19 @@ struct CinematicSequencesEntry
     uint16 Camera[8];
 };
 
+struct ConversationLineEntry
+{
+    uint32 ID;
+    uint32 BroadcastTextID;
+    uint32 SpellVisualKitID;
+    uint32 Duration;
+    uint16 NextLineID;
+    uint16 Unk1;
+    uint8 Yell;
+    uint8 Unk2;
+    uint8 Unk3;
+};
+
 struct CreatureDisplayInfoEntry
 {
     uint32 ID;

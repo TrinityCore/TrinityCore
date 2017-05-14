@@ -24,6 +24,7 @@
 #include "Bag.h"
 #include "Creature.h"
 #include "DynamicObject.h"
+#include "Conversation.h"
 #include "GameObject.h"
 #include "TemporarySummon.h"
 #include "Corpse.h"

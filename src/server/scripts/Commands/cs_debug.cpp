@@ -29,6 +29,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Conversation.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "GossipDef.h"
@@ -102,6 +103,7 @@ public:
             { "boundary",      rbac::RBAC_PERM_COMMAND_DEBUG_BOUNDARY,      false, &HandleDebugBoundaryCommand,         "" },
             { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" },
             { "neargraveyard", rbac::RBAC_PERM_COMMAND_NEARGRAVEYARD,       false, &HandleDebugNearGraveyard,           "" },
+            { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -1566,6 +1568,29 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD_NOTFOUND);
 
         return true;
+    }
+
+    static bool HandleDebugConversationCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char const* conversationEntryStr = strtok((char*)args, " ");
+
+        if (!conversationEntryStr)
+            return false;
+
+        uint32 conversationEntry = atoi(conversationEntryStr);
+        Player* target = handler->getSelectedPlayerOrSelf();
+
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        return Conversation::CreateConversation(conversationEntry, target, *target, { target->GetGUID() }) != nullptr;
     }
 };
 
