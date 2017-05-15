@@ -28,6 +28,8 @@
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
 #include "MoveSplineInit.h"
+#include "Timer.h"
+#include "Util.h"
 #include <boost/container/flat_set.hpp>
 
 #define WORLD_TRIGGER   12999

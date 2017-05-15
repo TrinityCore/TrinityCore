@@ -3357,18 +3357,18 @@ bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
 void SpellInfo::_UnloadImplicitTargetConditionLists()
 {
     // find the same instances of ConditionList and delete them.
-    for (uint32 d = 0; d < MAX_DIFFICULTY; ++d)
+    for (auto itr = _effects.begin(); itr != _effects.end(); ++itr)
     {
-        for (uint32 i = 0; i < _effects.size(); ++i)
+        for (uint32 i = 0; i < itr->second.size(); ++i)
         {
-            if (SpellEffectInfo const* effect = GetEffect(d, i))
+            if (SpellEffectInfo const* effect = itr->second[i])
             {
                 ConditionContainer* cur = effect->ImplicitTargetConditions;
                 if (!cur)
                     continue;
-                for (uint8 j = i; j < _effects.size(); ++j)
+                for (uint8 j = i; j < itr->second.size(); ++j)
                 {
-                    if (SpellEffectInfo const* eff = GetEffect(d, j))
+                    if (SpellEffectInfo const* eff = itr->second[j])
                     {
                         if (eff->ImplicitTargetConditions == cur)
                             const_cast<SpellEffectInfo*>(eff)->ImplicitTargetConditions = NULL;

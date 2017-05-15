@@ -25,7 +25,7 @@
 #include "ItemTemplate.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"
-#include "Cell.h"
+#include "MapObject.h"
 
 #include <list>
 
