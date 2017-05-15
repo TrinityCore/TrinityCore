@@ -18,6 +18,7 @@
 #ifndef BATTLEFIELD_H_
 #define BATTLEFIELD_H_
 
+#include "ObjectDefines.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
 #include "Packets/WorldStatePackets.h"

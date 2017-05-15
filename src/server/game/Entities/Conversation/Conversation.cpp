@@ -16,6 +16,7 @@
  */
 
 #include "Conversation.h"
+#include "Map.h"
 #include "Unit.h"
 #include "UpdateData.h"
 

@@ -20,15 +20,15 @@
 #define _OBJECT_H
 
 #include "Common.h"
-#include "Position.h"
 #include "GridReference.h"
-#include "ObjectDefines.h"
-#include "Map.h"
+#include "GridRefManager.h"
+#include "ObjectGuid.h"
+#include "Position.h"
+#include "SharedDefines.h"
 #include "UpdateFields.h"
-
+#include <list>
 #include <set>
-#include <string>
-#include <sstream>
+#include <unordered_map>
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
@@ -487,7 +487,7 @@ class FlaggedValuesArray32
     public:
         FlaggedValuesArray32()
         {
-            memset(&m_values, 0x00, sizeof(T_VALUES) * ARRAY_SIZE);
+            memset(&m_values[0], 0x00, sizeof(T_VALUES) * ARRAY_SIZE);
             m_flags = 0;
         }
 
@@ -503,38 +503,6 @@ class FlaggedValuesArray32
     private:
         T_VALUES m_values[ARRAY_SIZE];
         T_FLAGS m_flags;
-};
-
-enum MapObjectCellMoveState
-{
-    MAP_OBJECT_CELL_MOVE_NONE, //not in move list
-    MAP_OBJECT_CELL_MOVE_ACTIVE, //in move list
-    MAP_OBJECT_CELL_MOVE_INACTIVE, //in move list but should not move
-};
-
-class TC_GAME_API MapObject
-{
-        friend class Map; //map for moving creatures
-        friend class ObjectGridLoader; //grid loader for loading creatures
-
-    protected:
-        MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE)
-        {
-            _newPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-        }
-
-    private:
-        Cell _currentCell;
-        Cell const& GetCurrentCell() const { return _currentCell; }
-        void SetCurrentCell(Cell const& cell) { _currentCell = cell; }
-
-        MapObjectCellMoveState _moveState;
-        Position _newPosition;
-        void SetNewCellPosition(float x, float y, float z, float o)
-        {
-            _moveState = MAP_OBJECT_CELL_MOVE_ACTIVE;
-            _newPosition.Relocate(x, y, z, o);
-        }
 };
 
 class TC_GAME_API WorldObject : public Object, public WorldLocation
@@ -719,6 +687,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float GetTransOffsetY() const { return m_movementInfo.transport.pos.GetPositionY(); }
         float GetTransOffsetZ() const { return m_movementInfo.transport.pos.GetPositionZ(); }
         float GetTransOffsetO() const { return m_movementInfo.transport.pos.GetOrientation(); }
+        Position const& GetTransOffset() const { return m_movementInfo.transport.pos; }
         uint32 GetTransTime()   const { return m_movementInfo.transport.time; }
         int8 GetTransSeat()     const { return m_movementInfo.transport.seat; }
         virtual ObjectGuid GetTransGUID() const;
