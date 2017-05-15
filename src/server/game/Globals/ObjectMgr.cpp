@@ -1960,7 +1960,7 @@ void ObjectMgr::LoadCreatures()
 
         if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
         {
-            if (!mapEntry || !mapEntry->IsDungeon())
+            if (!mapEntry->IsDungeon())
                 TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: " UI64FMTD " Entry: %u) with `creature_template`.`flags_extra` including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature is not in instance.", guid, data.id);
         }
 
