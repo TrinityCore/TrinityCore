@@ -5839,7 +5839,9 @@ SpellCastResult Spell::CheckCasterAuras() const
                         switch (part->GetAuraType())
                         {
                             case SPELL_AURA_MOD_STUN:
-                                if (!usableInStun || !(auraInfo->GetAllEffectsMechanicMask() & (1<<MECHANIC_STUN)))
+                                //! Hand of Freedom should always be usable, under any type of stun regarding the
+                                //! mechanics of the stun (like Sap, Gouge, Cyclone, etc.).
+                                if (m_spellInfo->Id != 1044 && (!usableInStun || !(auraInfo->GetAllEffectsMechanicMask() & (1<<MECHANIC_STUN))))
                                     return SPELL_FAILED_STUNNED;
                                 break;
                             case SPELL_AURA_MOD_CONFUSE:
