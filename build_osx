@@ -1,0 +1,17 @@
+cmake ../ -GXcode \
+-DMYSQL_ADD_INCLUDE_PATH=/usr/local/include \
+-DMYSQL_LIBRARY=/usr/local/mysql/lib/libmysqlclient_r.dylib \
+-DREADLINE_INCLUDE_DIR=/usr/local/opt/readline/include \
+-DREADLINE_LIBRARY=/usr/local/opt/readline/lib/libreadline.dylib \
+-DBOOST_INCLUDEDIR=/usr/local/include \
+-DBOOST_LIBRARYDIR=/usr/local/lib \
+-DOPENSSL_INCLUDE_DIR=/usr/local/opt/openssl/include \
+-DOPENSSL_SSL_LIBRARIES=/usr/local/opt/openssl/lib/libssl.dylib \
+-DOPENSSL_CRYPTO_LIBRARIES=/usr/local/opt/openssl/lib/libcrypto.dylib \
+-DZMQ_LIBRARY=/usr/local/opt/zeromq/lib/libzmq.dylib \
+-DZMQ_INCLUDE_DIR=/usr/local/opt/zeromq/include \
+-DZLIB_ROOT=/usr/local/Cellar/zlib/1.2.8 \
+-DCMAKE_INSTALL_PREFIX=/Volumes/Cuccok/Server/npcbot  \
+-DWITH_WARNINGS=1
+
+xcodebuild -target install -config Release
