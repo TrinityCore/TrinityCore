@@ -92,8 +92,8 @@ void PlayerbotFactory::Randomize(bool incremental)
     bot->SaveToDB();
 
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing quests...");
-    InitQuests();
-    // quest rewards boost bot level, so reduce back
+/*  InitQuests();
+*/  // quest rewards boost bot level, so reduce back
     bot->SetLevel(level);
     ClearInventory();
     bot->SetUInt32Value(PLAYER_XP, 0);
@@ -210,8 +210,8 @@ void PlayerbotFactory::InitPet()
                 continue;
             }
 
-            pet->SetPosition(bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ(), bot->GetOrientation());
-            pet->setFaction(bot->getFaction());
+            pet->UpdatePosition(bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ(), bot->GetOrientation());
+            pet->SetFaction(bot->GetFaction());
             pet->SetLevel(bot->getLevel());
             bot->SetPetGUID(pet->GetGUID());
             bot->GetMap()->AddToMap(pet->ToCreature());
@@ -1087,17 +1087,17 @@ void PlayerbotFactory::InitAvailableSpells()
             if (!tSpell)
                 continue;
 
-            if (!tSpell->learnedSpell[0] && !bot->IsSpellFitByClassAndRace(tSpell->learnedSpell[0]))
+            if (!tSpell->ReqAbility[0] && !bot->IsSpellFitByClassAndRace(tSpell->ReqAbility[0]))
                 continue;
 
             TrainerSpellState state = bot->GetTrainerSpellState(tSpell);
             if (state != TRAINER_SPELL_GREEN)
                 continue;
 
-            if (tSpell->learnedSpell)
-                bot->LearnSpell(tSpell->learnedSpell[0], false);
+            if (tSpell->ReqAbility)
+                bot->LearnSpell(tSpell->ReqAbility[0], false);
             else
-                ai->CastSpell(tSpell->spell, bot);
+                ai->CastSpell(tSpell->SpellID, bot);
         }
     }
 }
@@ -1191,7 +1191,7 @@ ObjectGuid PlayerbotFactory::GetRandomBot()
         {
             Field* fields = result->Fetch();
             ObjectGuid guid = ObjectGuid(HighGuid::Player, fields[0].GetUInt32());
-            if (!sObjectMgr->GetPlayerByLowGUID(guid))
+            if (!ObjectAccessor::FindPlayerByLowGUID(guid))
                 guids.push_back(guid);
         } while (result->NextRow());
     }
@@ -1202,7 +1202,7 @@ ObjectGuid PlayerbotFactory::GetRandomBot()
     int index = urand(0, guids.size() - 1);
     return guids[index];
 }
-
+/*
 void AddPrevQuests(uint32 questId, list<uint32>& questIds)
 {
     Quest const *quest = sObjectMgr->GetQuestTemplate(questId);
@@ -1249,7 +1249,7 @@ void PlayerbotFactory::InitQuests()
         ClearInventory();
     }
 }
-
+*/
 void PlayerbotFactory::ClearInventory()
 {
     DestroyItemsVisitor visitor(bot);
@@ -1724,6 +1724,7 @@ void PlayerbotFactory::InitGuild()
     }
 
     int index = urand(0, guilds.size() - 1);
+	SQLTransaction trans(nullptr);
     uint32 guildId = guilds[index];
     Guild* guild = sGuildMgr->GetGuildById(guildId);
     if (!guild)
@@ -1733,5 +1734,5 @@ void PlayerbotFactory::InitGuild()
     }
 
     if (guild->GetMemberCount() < 10)
-        guild->AddMember(bot->GetGUID(), urand(GR_OFFICER, GR_INITIATE));
+        guild->AddMember(trans, bot->GetGUID(), urand(GR_OFFICER, GR_INITIATE));
 }

@@ -10,6 +10,7 @@
 #include "../../game/Entities/Player/Player.h"
 #include "../playerbot/PlayerbotAIConfig.h"
 #include "../playerbot/playerbot.h"
+#include "GameTime.h"
 
 using namespace ahbot;
 
@@ -496,7 +497,7 @@ int AhBot::AddAuction(int auction, Category* category, ItemTemplate const* proto
     }
 
 
-    Player* player = sObjectMgr->GetPlayerByLowGUID(owner);
+    Player* player = ObjectAccessor::FindPlayerByLowGUID(owner);
     if (!player)
         return 0;
 
@@ -656,7 +657,7 @@ void AhBot::Expire(int auction)
     {
         if (IsBotAuction(itr->second->owner))
         {
-            itr->second->expire_time = sWorld->GetGameTime();
+            itr->second->expire_time = GameTime::GetGameTime();
             count++;
         }
 
@@ -862,7 +863,7 @@ uint32 AhBot::GetRandomBidder(uint32 auctionHouse)
     for (vector<uint32>::iterator i = guids.begin(); i != guids.end(); ++i)
     {
         uint32 guid = *i;
-        Player* player = sObjectMgr->GetPlayerByLowGUID(guid);
+        Player* player = ObjectAccessor::FindPlayerByLowGUID(guid);
         if (!player)
             continue;
 

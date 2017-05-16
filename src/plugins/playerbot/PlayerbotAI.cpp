@@ -18,6 +18,7 @@
 #include "../Groups/Group.h"
 #include "../Entities/Pet/Pet.h"
 #include "../Spells/Auras/SpellAuraEffects.h"
+#include "CharacterCache.h"
 
 using namespace ai;
 using namespace std;
@@ -67,7 +68,7 @@ PlayerbotAI::PlayerbotAI(Player* bot) :
 {
 	this->bot = bot;
 
-	accountId = sObjectMgr->GetPlayerAccountIdByGUID(bot->GetGUID());
+	accountId = sCharacterCache->GetCharacterAccountIdByGuid(bot->GetGUID());
 
     aiObjectContext = AiFactory::createAiObjectContext(bot, this);
 
@@ -846,7 +847,7 @@ bool PlayerbotAI::CanCastSpell(uint32 spellid, Unit* target, bool checkHasSpell)
     if (!positiveSpell && bot->IsFriendlyTo(target))
         return false;
 
-    if (target->IsImmunedToSpell(spellInfo))
+    if (target->IsImmunedToSpell(spellInfo, target))
         return false;
 
     if (bot != target && bot->GetDistance(target) > sPlayerbotAIConfig.sightDistance)
@@ -1080,7 +1081,7 @@ bool PlayerbotAI::IsInterruptableSpellCasting(Unit* target, string spell)
     if (!spellInfo)
         return false;
 
-    if (target->IsImmunedToSpell(spellInfo))
+    if (target->IsImmunedToSpell(spellInfo, target))
         return false;
 
     for (uint32 i = EFFECT_0; i <= EFFECT_2; i++)
@@ -1089,7 +1090,7 @@ bool PlayerbotAI::IsInterruptableSpellCasting(Unit* target, string spell)
             return true;
 
         if ((spellInfo->Effects[i].Effect == SPELL_EFFECT_REMOVE_AURA || spellInfo->Effects[i].Effect == SPELL_EFFECT_INTERRUPT_CAST) &&
-                !target->IsImmunedToSpellEffect(spellInfo, i))
+                !target->IsImmunedToSpellEffect(spellInfo, i, target))
             return true;
     }
 

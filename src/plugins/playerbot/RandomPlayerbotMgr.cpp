@@ -602,7 +602,7 @@ bool RandomPlayerbotMgr::HandlePlayerbotConsoleCommand(ChatHandler* handler, cha
 
                     uint32 botId = fields[0].GetUInt32();
                     ObjectGuid guid = ObjectGuid(HighGuid::Player, botId);
-                    Player* bot = sObjectMgr->GetPlayerByLowGUID(guid);
+                    Player* bot = ObjectAccessor::FindPlayerByLowGUID(guid);
                     if (!bot)
                         continue;
 
@@ -615,7 +615,7 @@ bool RandomPlayerbotMgr::HandlePlayerbotConsoleCommand(ChatHandler* handler, cha
         for (list<uint32>::iterator i = botIds.begin(); i != botIds.end(); ++i)
         {
             ObjectGuid guid = ObjectGuid(HighGuid::Player, *i);
-            Player* bot = sObjectMgr->GetPlayerByLowGUID(guid);
+            Player* bot = ObjectAccessor::FindPlayerByLowGUID(guid);
             if (!bot)
                 continue;
 

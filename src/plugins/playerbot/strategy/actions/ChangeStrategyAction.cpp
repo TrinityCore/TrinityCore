@@ -2,6 +2,7 @@
 #include "../../playerbot.h"
 #include "ChangeStrategyAction.h"
 #include "../../PlayerbotAIConfig.h"
+#include "CharacterCache.h"
 
 using namespace ai;
 
@@ -16,7 +17,7 @@ bool ChangeNonCombatStrategyAction::Execute(Event event)
 {
     string text = event.getParam();
 
-    uint32 account = sObjectMgr->GetPlayerAccountIdByGUID(bot->GetGUID());
+    uint32 account = sCharacterCache->GetCharacterAccountIdByGuid(bot->GetGUID());
     if (sPlayerbotAIConfig.IsInRandomAccountList(account) && ai->GetMaster() && ai->GetMaster()->GetSession()->GetSecurity() < SEC_GAMEMASTER)
     {
         if (text.find("loot") != string::npos || text.find("gather") != string::npos)

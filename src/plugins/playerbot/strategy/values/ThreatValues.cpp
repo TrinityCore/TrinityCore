@@ -46,7 +46,7 @@ uint8 ThreatValue::Calculate(Unit* target)
     Group::MemberSlotList const& groupSlot = group->GetMemberSlots();
     for (Group::member_citerator itr = groupSlot.begin(); itr != groupSlot.end(); itr++)
     {
-        Player *player = sObjectMgr->GetPlayerByLowGUID(itr->guid);
+        Player *player = ObjectAccessor::FindPlayerByLowGUID(itr->guid);
         if( !player || !player->IsAlive() || player == bot)
             continue;
 

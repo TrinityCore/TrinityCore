@@ -3,6 +3,7 @@
 #include "PlayerbotAIConfig.h"
 #include "PlayerbotFactory.h"
 #include "RandomPlayerbotMgr.h"
+#include "CharacterCache.h"
 
 
 class LoginQueryHolder;
@@ -98,7 +99,7 @@ void PlayerbotHolder::OnBotLogin(Player * const bot)
         for (Group::MemberSlotList::const_iterator i = slots.begin(); i != slots.end(); ++i)
         {
             ObjectGuid member = i->guid;
-            uint32 account = sObjectMgr->GetPlayerAccountIdByGUID(member);
+            uint32 account = sCharacterCache->GetCharacterAccountIdByGuid(member);
             if (!sPlayerbotAIConfig.IsInRandomAccountList(account))
             {
                 groupValid = true;
@@ -125,14 +126,14 @@ string PlayerbotHolder::ProcessBotCommand(string cmd, ObjectGuid guid, bool admi
     if (!sPlayerbotAIConfig.enabled || guid.IsEmpty())
         return "bot system is disabled";
 
-    uint32 botAccount = sObjectMgr->GetPlayerAccountIdByGUID(guid);
+    uint32 botAccount = sCharacterCache->GetCharacterAccountIdByGuid(guid);
     bool isRandomBot = sRandomPlayerbotMgr.IsRandomBot(guid);
     bool isRandomAccount = sPlayerbotAIConfig.IsInRandomAccountList(botAccount);
     bool isMasterAccount = (masterAccountId == botAccount);
 
     if (isRandomAccount && !isRandomBot && !admin)
     {
-        Player* bot = sObjectMgr->GetPlayerByLowGUID(guid);
+        Player* bot = ObjectAccessor::FindPlayerByLowGUID(guid);
         if (bot->GetGuildId() != masterGuildId)
             return "not in your guild";
     }
@@ -142,7 +143,7 @@ string PlayerbotHolder::ProcessBotCommand(string cmd, ObjectGuid guid, bool admi
 
     if (cmd == "add" || cmd == "login")
     {
-        if (sObjectMgr->GetPlayerByLowGUID(guid))
+        if (ObjectAccessor::FindPlayerByLowGUID(guid))
             return "player already logged in";
 
         AddPlayerBot(guid.GetRawValue(), masterAccountId);
@@ -150,7 +151,7 @@ string PlayerbotHolder::ProcessBotCommand(string cmd, ObjectGuid guid, bool admi
     }
     else if (cmd == "remove" || cmd == "logout" || cmd == "rm")
     {
-        if (!sObjectMgr->GetPlayerByLowGUID(guid))
+        if (!ObjectAccessor::FindPlayerByLowGUID(guid))
             return "player is offline";
 
         if (!GetPlayerBot(guid.GetRawValue()))
@@ -303,7 +304,7 @@ list<string> PlayerbotHolder::HandlePlayerbotCommand(char const* args, Player* m
 				continue;
 
 			string bot;
-			if (sObjectMgr->GetPlayerNameByGUID(member, bot))
+			if (sCharacterCache->GetCharacterNameByGuid(member, bot))
 			    bots.insert(bot);
         }
     }
@@ -350,7 +351,7 @@ list<string> PlayerbotHolder::HandlePlayerbotCommand(char const* args, Player* m
         ostringstream out;
         out << cmdStr << ": " << bot << " - ";
 
-        ObjectGuid member = sObjectMgr->GetPlayerGUIDByName(bot);
+        ObjectGuid member = sCharacterCache->GetCharacterGuidByName(bot);
         if (!member)
         {
             out << "character not found";
