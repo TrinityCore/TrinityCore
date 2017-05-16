@@ -208,7 +208,7 @@ enum BGHonorMode
     BG_HONOR_MODE_NUM
 };
 
-#define BG_AWARD_ARENA_POINTS_MIN_LEVEL 71
+#define BG_AWARD_ARENA_POINTS_MIN_LEVEL 10
 #define ARENA_TIMELIMIT_POINTS_LOSS    -16
 
 enum BattlegroundPlayerPositionConstants
