@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -280,12 +280,22 @@ class go_brazier_of_the_herald : public GameObjectScript
     public:
         go_brazier_of_the_herald() : GameObjectScript("go_brazier_of_the_herald") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_brazier_of_the_heraldAI : public GameObjectAI
         {
-            go->UseDoorOrButton();
-            go->PlayDirectSound(SOUND_SCREECH, 0);
-            player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 900000);
-            return true;
+            go_brazier_of_the_heraldAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player, bool /*reportUse*/) override
+            {
+                me->UseDoorOrButton();
+                me->PlayDirectSound(SOUND_SCREECH, 0);
+                player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 900000);
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetInstanceAI<go_brazier_of_the_heraldAI>(go);
         }
 };
 

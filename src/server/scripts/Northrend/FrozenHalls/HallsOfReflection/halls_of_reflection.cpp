@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -343,20 +343,6 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
     public:
         npc_jaina_or_sylvanas_intro_hor() : CreatureScript("npc_jaina_or_sylvanas_intro_hor") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            // override default gossip
-            if (InstanceScript* instance = creature->GetInstanceScript())
-                if (instance->GetData(DATA_QUEL_DELAR_EVENT) == IN_PROGRESS || instance->GetData(DATA_QUEL_DELAR_EVENT) == SPECIAL)
-                {
-                    ClearGossipMenuFor(player);
-                    return true;
-                }
-
-            // load default gossip
-            return false;
-        }
-
         struct npc_jaina_or_sylvanas_intro_horAI : public ScriptedAI
         {
             npc_jaina_or_sylvanas_intro_horAI(Creature* creature) : ScriptedAI(creature)
@@ -364,7 +350,20 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool GossipHello(Player* player) override
+            {
+                // override default gossip
+                if (_instance->GetData(DATA_QUEL_DELAR_EVENT) == IN_PROGRESS || _instance->GetData(DATA_QUEL_DELAR_EVENT) == SPECIAL)
+                {
+                    ClearGossipMenuFor(player);
+                    return true;
+                }
+
+                // load default gossip
+                return false;
+            }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 ClearGossipMenuFor(player);
 
@@ -383,6 +382,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                     default:
                         break;
                 }
+                return false;
             }
 
             void Reset() override
@@ -790,21 +790,6 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
     public:
         npc_jaina_or_sylvanas_escape_hor() : CreatureScript("npc_jaina_or_sylvanas_escape_hor") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            // override default gossip
-            if (InstanceScript* instance = creature->GetInstanceScript())
-                if (instance->GetBossState(DATA_THE_LICH_KING_ESCAPE) == DONE)
-                {
-                    player->PrepareGossipMenu(creature, creature->GetEntry() == NPC_JAINA_ESCAPE ? GOSSIP_MENU_JAINA_FINAL : GOSSIP_MENU_SYLVANAS_FINAL, true);
-                    player->SendPreparedGossip(creature);
-                    return true;
-                }
-
-            // load default gossip
-            return false;
-        }
-
         struct npc_jaina_or_sylvanas_escape_horAI : public ScriptedAI
         {
             npc_jaina_or_sylvanas_escape_horAI(Creature* creature) : ScriptedAI(creature),
@@ -858,7 +843,21 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool GossipHello(Player* player) override
+            {
+                // override default gossip
+                if (_instance->GetBossState(DATA_THE_LICH_KING_ESCAPE) == DONE)
+                {
+                    player->PrepareGossipMenu(me, me->GetEntry() == NPC_JAINA_ESCAPE ? GOSSIP_MENU_JAINA_FINAL : GOSSIP_MENU_SYLVANAS_FINAL, true);
+                    player->SendPreparedGossip(me);
+                    return true;
+                }
+
+                // load default gossip
+                return false;
+            }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 ClearGossipMenuFor(player);
 
@@ -872,6 +871,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                     default:
                         break;
                 }
+                return false;
             }
 
             void DestroyIceWall()
@@ -1330,7 +1330,8 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                 if (!me->HasReactState(REACT_PASSIVE))
                 {
                     if (Unit* victim = me->SelectVictim())
-                        AttackStart(victim);
+                        if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
+                            AttackStart(victim);
                     return me->GetVictim() != nullptr;
                 }
                 else if (me->getThreatManager().getThreatList().size() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))

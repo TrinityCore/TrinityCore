@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -754,7 +754,7 @@ public:
         void Reset() override
         {
             me->SetDisableGravity(true);
-            me->setFaction(14);
+            me->SetFaction(14);
             Initialize();
         }
 
@@ -789,7 +789,7 @@ public:
                 {
                     if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
                     {
-                        trig->setFaction(14);
+                        trig->SetFaction(14);
                         trig->CastSpell(trig, SPELL_TOXIC_SPORES, true);
                     }
                 }
@@ -805,9 +805,9 @@ public:
                 if (!Vashj || !Vashj->IsAlive() || ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
                 {
                     // remove
-                    me->setDeathState(DEAD);
-                    me->RemoveCorpse();
-                    me->setFaction(35);
+                    me->SetFaction(35);
+                    me->DespawnOrUnsummon();
+                    return;
                 }
 
                 CheckTimer = 1000;

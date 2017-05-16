@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -225,7 +225,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                                 // first, calculate damage of basic tick (C&P from AuraEffect::HandlePeriodicDamageAurasTick)
                                 basePoint = (aurEff->GetAmount() + aurEff->GetBonusAmount()) * aurEff->GetDonePct();
                                 if (Player* modOwner = caster->GetSpellModOwner())
-                                    modOwner->ApplySpellMod<SPELLMOD_DOT>(aurEff->GetSpellInfo()->Id, basePoint);
+                                    modOwner->ApplySpellMod<SPELLMOD_DOT>(aurEff->GetId(), basePoint);
                                 basePoint = unitTarget->SpellDamageBonusTaken(caster, aurEff->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
 
                                 // then, multiply to get damage potential
@@ -272,6 +272,70 @@ class spell_hun_chimera_shot : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_hun_chimera_shot_SpellScript();
+        }
+};
+
+// -53256 - Cobra Strikes
+class spell_hun_cobra_strikes : public SpellScriptLoader
+{
+    public:
+        spell_hun_cobra_strikes() : SpellScriptLoader("spell_hun_cobra_strikes") { }
+
+        class spell_hun_cobra_strikes_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_cobra_strikes_AuraScript);
+
+            bool Validate(SpellInfo const* spellInfo) override
+            {
+                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                SpellInfo const* triggeredSpellInfo = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
+                GetTarget()->CastCustomSpell(triggeredSpellInfo->Id, SPELLVALUE_AURA_STACK, triggeredSpellInfo->StackAmount, (Unit*)nullptr, true);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_cobra_strikes_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_cobra_strikes_AuraScript();
+        }
+};
+
+// 53257 - Cobra Strikes (triggered spell)
+class spell_hun_cobra_strikes_triggered : public SpellScriptLoader
+{
+    public:
+        spell_hun_cobra_strikes_triggered() : SpellScriptLoader("spell_hun_cobra_strikes_triggered") { }
+
+        class spell_hun_cobra_strikes_triggered_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_cobra_strikes_triggered_AuraScript);
+
+            void HandleStackDrop(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                ModStackAmount(-1);
+            }
+
+            void Register() override
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_cobra_strikes_triggered_AuraScript::HandleStackDrop, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_cobra_strikes_triggered_AuraScript();
         }
 };
 
@@ -385,10 +449,10 @@ class spell_hun_glyph_of_mend_pet : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, true);
+                eventInfo.GetProcTarget()->CastSpell((Unit*)nullptr, SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -420,10 +484,10 @@ class spell_hun_hunting_party : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true);
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -623,8 +687,8 @@ class spell_hun_lock_and_load : public SpellScriptLoader
                     return false;
 
                 // Do not proc on traps for immolation/explosive trap
-                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo || !(damageInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST))
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo || !(spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST))
                     return false;
 
                 return roll_chance_i(aurEff->GetAmount());
@@ -681,30 +745,58 @@ class spell_hun_masters_call : public SpellScriptLoader
                 return true;
             }
 
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            SpellCastResult DoCheckCast()
+            {
+                Guardian* pet = GetCaster()->ToPlayer()->GetGuardianPet();
+                ASSERT(pet); // checked in Spell::CheckCast
+
+                if (!pet->IsPet() || !pet->IsAlive())
+                    return SPELL_FAILED_NO_PET;
+
+                // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
+                SpellCastResult result = SPELL_CAST_OK;
+                uint32 const unitflag = pet->GetUInt32Value(UNIT_FIELD_FLAGS);
+                if (pet->GetCharmerGUID())
+                    result = SPELL_FAILED_CHARMED;
+                else if (unitflag & UNIT_FLAG_STUNNED)
+                    result = SPELL_FAILED_STUNNED;
+                else if (unitflag & UNIT_FLAG_FLEEING)
+                    result = SPELL_FAILED_FLEEING;
+                else if (unitflag & UNIT_FLAG_CONFUSED)
+                    result = SPELL_FAILED_CONFUSED;
+
+                if (result != SPELL_CAST_OK)
+                    return result;
+
+                Unit* target = GetExplTargetUnit();
+                if (!target)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (!pet->IsWithinLOSInMap(target))
+                    return SPELL_FAILED_LINE_OF_SIGHT;
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* ally = GetHitUnit())
-                    if (Player* caster = GetCaster()->ToPlayer())
-                        if (Pet* target = caster->GetPet())
-                        {
-                            TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
-                            target->CastSpell(ally, GetEffectValue(), castMask);
-                            target->CastSpell(ally, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
-                        }
+                GetCaster()->ToPlayer()->GetPet()->CastSpell(GetHitUnit(), GetEffectValue(), true);
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* target = GetHitUnit())
-                {
-                    // Cannot be processed while pet is dead
-                    TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
-                    target->CastSpell(target, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);
-                }
+                GetHitUnit()->CastSpell((Unit*)nullptr, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, true);
             }
 
             void Register() override
             {
+                OnCheckCast += SpellCheckCastFn(spell_hun_masters_call_SpellScript::DoCheckCast);
+
                 OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -1022,7 +1114,7 @@ class spell_hun_rapid_recuperation_trigger : public SpellScriptLoader
                 }
             }
 
-            void HandleRapidKillingProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleRapidKillingProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 static uint32 const triggerSpells[2] = { SPELL_HUNTER_RAPID_RECUPERATION_MANA_R1, SPELL_HUNTER_RAPID_RECUPERATION_MANA_R2 };
 
@@ -1035,7 +1127,7 @@ class spell_hun_rapid_recuperation_trigger : public SpellScriptLoader
 
                 uint8 rank = GetSpellInfo()->GetRank();
                 uint32 spellId = triggerSpells[rank - 1];
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true);
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1368,7 +1460,7 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
                 if (!amount)
                     return;
 
-                caster->CastCustomSpell(SPELL_HUNTER_THRILL_OF_THE_HUNT_MANA, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+                caster->CastCustomSpell(SPELL_HUNTER_THRILL_OF_THE_HUNT_MANA, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1449,7 +1541,7 @@ class spell_hun_viper_attack_speed : public SpellScriptLoader
             void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->HasAura(SPELL_HUNTER_ASPECT_OF_THE_VIPER))
-                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_VICIOUS_VIPER, true, NULL, aurEff);
+                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_VICIOUS_VIPER, true, nullptr, aurEff);
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1476,6 +1568,8 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_aspect_of_the_beast();
     new spell_hun_ascpect_of_the_viper();
     new spell_hun_chimera_shot();
+    new spell_hun_cobra_strikes();
+    new spell_hun_cobra_strikes_triggered();
     new spell_hun_disengage();
     new spell_hun_glyph_of_arcane_shot();
     new spell_hun_glyph_of_mend_pet();

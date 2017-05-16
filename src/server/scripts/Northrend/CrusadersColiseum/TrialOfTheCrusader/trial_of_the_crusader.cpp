@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -111,7 +111,9 @@ class npc_announcer_toc10 : public CreatureScript
 
         struct npc_announcer_toc10AI : public ScriptedAI
         {
-            npc_announcer_toc10AI(Creature* creature) : ScriptedAI(creature) { }
+            npc_announcer_toc10AI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+
+            InstanceScript* instance;
 
             void Reset() override
             {
@@ -123,95 +125,88 @@ class npc_announcer_toc10 : public CreatureScript
             }
 
             void AttackStart(Unit* /*who*/) override { }
+
+            bool GossipHello(Player* player) override
+            {
+                char const* _message = "We are ready!";
+
+                if (player->IsInCombat() || instance->IsEncounterInProgress())
+                    return true;
+
+                uint8 i = 0;
+                for (; i < NUM_MESSAGES; ++i)
+                {
+                    if ((!_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) != DONE)
+                        || (_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) == DONE))
+                    {
+                        AddGossipItemFor(player, GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
+                        break;
+                    }
+                }
+
+                if (i >= NUM_MESSAGES)
+                    return false;
+
+                SendGossipMenuFor(player, _GossipMessage[i].msgnum, me->GetGUID());
+                return true;
+            }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            {
+                ClearGossipMenuFor(player);
+                CloseGossipMenuFor(player);
+
+                if (instance->GetBossState(BOSS_BEASTS) != DONE)
+                {
+                    instance->SetData(TYPE_EVENT, 110);
+                    instance->SetData(TYPE_NORTHREND_BEASTS, NOT_STARTED);
+                    instance->SetBossState(BOSS_BEASTS, NOT_STARTED);
+                }
+                else if (instance->GetBossState(BOSS_JARAXXUS) != DONE)
+                {
+                    // if Jaraxxus is spawned, but the raid wiped
+                    if (Creature* jaraxxus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_JARAXXUS)))
+                    {
+                        jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
+                        jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        jaraxxus->SetReactState(REACT_DEFENSIVE);
+                        jaraxxus->SetInCombatWithZone();
+                    }
+                    else
+                    {
+                        instance->SetData(TYPE_EVENT, 1010);
+                        instance->SetBossState(BOSS_JARAXXUS, NOT_STARTED);
+                    }
+                }
+                else if (instance->GetBossState(BOSS_CRUSADERS) != DONE)
+                {
+                    if (player->GetTeam() == ALLIANCE)
+                        instance->SetData(TYPE_EVENT, 3000);
+                    else
+                        instance->SetData(TYPE_EVENT, 3001);
+                    instance->SetBossState(BOSS_CRUSADERS, NOT_STARTED);
+                }
+                else if (instance->GetBossState(BOSS_VALKIRIES) != DONE)
+                {
+                    instance->SetData(TYPE_EVENT, 4000);
+                    instance->SetBossState(BOSS_VALKIRIES, NOT_STARTED);
+                }
+                else if (instance->GetBossState(BOSS_LICH_KING) != DONE)
+                {
+                    if (me->GetMap()->GetPlayers().getFirst()->GetSource()->GetTeam() == ALLIANCE)
+                        instance->SetData(TYPE_EVENT, 4020);
+                    else
+                        instance->SetData(TYPE_EVENT, 4030);
+                    instance->SetBossState(BOSS_LICH_KING, NOT_STARTED);
+                }
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                return true;
+            }
         };
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return true;
-
-            char const* _message = "We are ready!";
-
-            if (player->IsInCombat() || instance->IsEncounterInProgress())
-                return true;
-
-            uint8 i = 0;
-            for (; i < NUM_MESSAGES; ++i)
-            {
-                if ((!_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) != DONE)
-                    || (_GossipMessage[i].state && instance->GetBossState(_GossipMessage[i].encounter) == DONE))
-                {
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
-                    break;
-                }
-            }
-
-            if (i >= NUM_MESSAGES)
-                return false;
-
-            SendGossipMenuFor(player, _GossipMessage[i].msgnum, creature->GetGUID());
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
-        {
-            ClearGossipMenuFor(player);
-            CloseGossipMenuFor(player);
-            InstanceScript* instance = creature->GetInstanceScript();
-            if (!instance)
-                return true;
-
-            if (instance->GetBossState(BOSS_BEASTS) != DONE)
-            {
-                instance->SetData(TYPE_EVENT, 110);
-                instance->SetData(TYPE_NORTHREND_BEASTS, NOT_STARTED);
-                instance->SetBossState(BOSS_BEASTS, NOT_STARTED);
-            }
-            else if (instance->GetBossState(BOSS_JARAXXUS) != DONE)
-            {
-                // if Jaraxxus is spawned, but the raid wiped
-                if (Creature* jaraxxus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(NPC_JARAXXUS)))
-                {
-                    jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
-                    jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                    jaraxxus->SetReactState(REACT_DEFENSIVE);
-                    jaraxxus->SetInCombatWithZone();
-                }
-                else
-                {
-                    instance->SetData(TYPE_EVENT, 1010);
-                    instance->SetBossState(BOSS_JARAXXUS, NOT_STARTED);
-                }
-            }
-            else if (instance->GetBossState(BOSS_CRUSADERS) != DONE)
-            {
-                if (player->GetTeam() == ALLIANCE)
-                    instance->SetData(TYPE_EVENT, 3000);
-                else
-                    instance->SetData(TYPE_EVENT, 3001);
-                instance->SetBossState(BOSS_CRUSADERS, NOT_STARTED);
-            }
-            else if (instance->GetBossState(BOSS_VALKIRIES) != DONE)
-            {
-                instance->SetData(TYPE_EVENT, 4000);
-                instance->SetBossState(BOSS_VALKIRIES, NOT_STARTED);
-            }
-            else if (instance->GetBossState(BOSS_LICH_KING) != DONE)
-            {
-                if (creature->GetMap()->GetPlayers().getFirst()->GetSource()->GetTeam() == ALLIANCE)
-                    instance->SetData(TYPE_EVENT, 4020);
-                else
-                    instance->SetData(TYPE_EVENT, 4030);
-                instance->SetBossState(BOSS_LICH_KING, NOT_STARTED);
-            }
-            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            return true;
-        }
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_announcer_toc10AI(creature);
+            return GetInstanceAI<npc_announcer_toc10AI>(creature);
         }
 };
 

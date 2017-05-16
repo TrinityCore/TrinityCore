@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -259,12 +259,13 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
             me->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
             MustDieTimer = 3000;
             MustDie = true;
+            return false;
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -356,7 +357,7 @@ public:
                 {
                     Talk(SAY_RIZZLE_FINAL);
                     me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
-                    me->setFaction(35);
+                    me->SetFaction(35);
                     me->GetMotionMaster()->MoveIdle();
                     me->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
                     Reached = true;
@@ -364,6 +365,15 @@ public:
 
                 CheckTimer = 1000;
             } else CheckTimer -= diff;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
+                return true;
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, 10811, me->GetGUID());
+            return true;
         }
 
     private:
@@ -379,15 +389,6 @@ public:
         bool ContinueWP;
         bool Reached;
     };
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
-            return true;
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        SendGossipMenuFor(player, 10811, creature->GetGUID());
-        return true;
-    }
 
     CreatureAI* GetAI(Creature* creature) const override
     {

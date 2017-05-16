@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -217,12 +217,14 @@ void CreatureGroup::FormationReset(bool dismiss)
     m_Formed = !dismiss;
 }
 
-void CreatureGroup::LeaderMoveTo(float x, float y, float z)
+void CreatureGroup::LeaderMoveTo(Position destination, uint32 id /*= 0*/, uint32 moveType /*= 0*/, bool orientation /*= false*/)
 {
     //! To do: This should probably get its own movement generator or use WaypointMovementGenerator.
     //! If the leader's path is known, member's path can be plotted as well using formation offsets.
     if (!m_leader)
         return;
+
+    float x = destination.GetPositionX(), y = destination.GetPositionY(), z = destination.GetPositionZ();
 
     float pathangle = std::atan2(m_leader->GetPositionY() - y, m_leader->GetPositionX() - x);
 
@@ -249,12 +251,9 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
         if (!member->IsFlying())
             member->UpdateGroundPositionZ(dx, dy, dz);
 
-        if (member->IsWithinDist(m_leader, dist + MAX_DESYNC))
-            member->SetUnitMovementFlags(m_leader->GetUnitMovementFlags());
-        else
-            member->SetWalk(false);
+        Position point(dx, dy, dz, destination.GetOrientation());
 
-        member->GetMotionMaster()->MovePoint(0, dx, dy, dz);
+        member->GetMotionMaster()->MoveFormation(id, point, moveType, !member->IsWithinDist(m_leader, dist + MAX_DESYNC), orientation);
         member->SetHomePosition(dx, dy, dz, pathangle);
     }
 }

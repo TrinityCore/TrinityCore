@@ -1,19 +1,19 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef METRIC_H__
 #define METRIC_H__
@@ -78,6 +78,14 @@ private:
     static std::string FormatInfluxDBValue(const char* value) { return FormatInfluxDBValue(std::string(value)); }
     static std::string FormatInfluxDBValue(double value) { return std::to_string(value); }
     static std::string FormatInfluxDBValue(float value) { return FormatInfluxDBValue(double(value)); }
+
+    static std::string FormatInfluxDBTagValue(std::string const& value)
+    {
+        // ToDo: should handle '=' and ',' characters too
+        return boost::replace_all_copy(value, " ", "\\ ");
+    }
+
+    // ToDo: should format TagKey and FieldKey too in the same way as TagValue
 
 public:
     static Metric* instance();

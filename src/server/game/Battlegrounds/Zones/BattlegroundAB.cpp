@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -399,7 +399,7 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
     //aura should only apply to players who have accupied the node, set correct faction for trigger
     if (trigger)
     {
-        trigger->setFaction(team == ALLIANCE ? 84 : 83);
+        trigger->SetFaction(team == ALLIANCE ? 84 : 83);
         trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
     }
 }

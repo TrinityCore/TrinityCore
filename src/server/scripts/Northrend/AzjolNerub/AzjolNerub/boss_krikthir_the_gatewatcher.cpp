@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -917,7 +917,7 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
 {
     public:
         spell_gatewatcher_subboss_trigger() : SpellScriptLoader("spell_gatewatcher_subboss_trigger") { }
-        
+
         class spell_gatewatcher_subboss_trigger_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gatewatcher_subboss_trigger_SpellScript);
@@ -1027,7 +1027,7 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_gatewatcher_web_wrap_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL);
             }
         };
-        
+
         AuraScript* GetAuraScript() const override
         {
             return new spell_gatewatcher_web_wrap_AuraScript();
@@ -1048,7 +1048,7 @@ class achievement_watch_him_die : public AchievementCriteriaScript
             if (!instance)
                 return false;
 
-            for (DataTypes watcherData : {DATA_WATCHER_GASHRA, DATA_WATCHER_NARJIL, DATA_WATCHER_SILTHIK})
+            for (ANDataTypes watcherData : {DATA_WATCHER_GASHRA, DATA_WATCHER_NARJIL, DATA_WATCHER_SILTHIK})
             {
                 if (Creature* watcher = instance->GetCreature(watcherData))
                     if (watcher->IsAlive())

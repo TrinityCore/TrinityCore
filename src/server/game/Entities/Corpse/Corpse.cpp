@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "Common.h"
 #include "Corpse.h"
 #include "Player.h"
@@ -35,8 +36,7 @@ Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type
 
     m_time = time(NULL);
 
-    lootForBody = false;
-    lootRecipient = NULL;
+    lootRecipient = nullptr;
 }
 
 Corpse::~Corpse() { }
@@ -180,7 +180,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 bool Corpse::IsExpired(time_t t) const
 {
     // Deleted character
-    if (!sWorld->GetCharacterInfo(GetOwnerGUID()))
+    if (!sCharacterCache->HasCharacterCacheEntry(GetOwnerGUID()))
         return true;
 
     if (m_type == CORPSE_BONES)

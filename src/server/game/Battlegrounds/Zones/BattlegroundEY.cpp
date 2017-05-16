@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -721,8 +721,7 @@ void BattlegroundEY::EventTeamLostPoint(Player* player, uint32 Point)
     UpdatePointsCount(Team);
 
     //remove bonus honor aura trigger creature when node is lost
-     if (Point < EY_POINTS_MAX)
-         DelCreature(Point + 6);//NULL checks are in DelCreature! 0-5 spirit guides
+    DelCreature(Point + 6);//NULL checks are in DelCreature! 0-5 spirit guides
 }
 
 void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
@@ -775,9 +774,6 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
     UpdatePointsIcons(Team, Point);
     UpdatePointsCount(Team);
 
-    if (Point >= EY_POINTS_MAX)
-        return;
-
     Creature* trigger = GetBGCreature(Point + 6, false);//0-5 spirit guides
     if (!trigger)
         trigger = AddCreature(WORLD_TRIGGER, Point+6, BG_EY_TriggerPositions[Point], GetTeamIndexByTeamId(Team));
@@ -787,7 +783,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
     //aura should only apply to players who have accupied the node, set correct faction for trigger
     if (trigger)
     {
-        trigger->setFaction(Team == ALLIANCE ? 84 : 83);
+        trigger->SetFaction(Team == ALLIANCE ? 84 : 83);
         trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
     }
 }

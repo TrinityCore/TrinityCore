@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -150,7 +150,7 @@ public:
                 return;
             }
             _guardianTrigger = (*summoned.begin())->GetGUID();
-            
+
             if (Creature* trigger = DoSummon(NPC_WORLD_TRIGGER, me->GetPosition(), 0u, TEMPSUMMON_MANUAL_DESPAWN))
                 _assassinTrigger = trigger->GetGUID();
             else
@@ -361,7 +361,7 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
                 DoCastSelf(SPELL_IMPALE_AURA, true);
-                
+
                 events.SetPhase(PHASE_SUBMERGE);
                 switch (_nextSubmerge)
                 {
@@ -476,15 +476,6 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
         {
             npc_anubarak_anub_ar_assassinAI(Creature* creature) : npc_anubarak_pet_template(creature, false), _backstabTimer(6 * IN_MILLISECONDS) { }
 
-            bool IsInBounds(Position const& jumpTo, CreatureBoundary const* boundary)
-            {
-                if (!boundary)
-                    return true;
-                for (CreatureBoundary::const_iterator it = boundary->cbegin(); it != boundary->cend(); ++it)
-                    if (!(*it)->IsWithinBoundary(&jumpTo))
-                        return false;
-                return true;
-            }
             Position GetRandomPositionAround(Creature* anubarak)
             {
                 static float DISTANCE_MIN = 10.0f;
@@ -501,7 +492,7 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
                     Position jumpTo;
                     do
                         jumpTo = GetRandomPositionAround(anubarak);
-                    while (!IsInBounds(jumpTo, boundary));
+                    while (!CreatureAI::IsInBounds(*boundary, &jumpTo));
                     me->GetMotionMaster()->MoveJump(jumpTo, 40.0f, 40.0f);
                     DoCastSelf(SPELL_ASSASSIN_VISUAL, true);
                 }

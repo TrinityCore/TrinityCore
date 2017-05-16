@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum DTKDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_TROLLGORE                      = 0,
@@ -50,7 +50,7 @@ enum DataTypes
     ACTION_CRYSTAL_HANDLER_DIED
 };
 
-enum CreatureIds
+enum DTKCreatureIds
 {
     NPC_TROLLGORE                       = 26630,
     NPC_NOVOS                           = 26631,
@@ -76,7 +76,7 @@ enum CreatureIds
     NPC_WORLD_TRIGGER                   = 22515
 };
 
-enum GameObjectIds
+enum DTKGameObjectIds
 {
     GO_NOVOS_CRYSTAL_1                  = 189299,
     GO_NOVOS_CRYSTAL_2                  = 189300,

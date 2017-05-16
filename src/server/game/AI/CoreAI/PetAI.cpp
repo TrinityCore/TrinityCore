@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,6 +48,11 @@ bool PetAI::_needToStop()
     if (me->IsCharmed() && me->GetVictim() == me->GetCharmer())
         return true;
 
+    // dont allow pets to follow targets far away from owner
+    if (Unit* owner = me->GetCharmerOrOwner())
+        if (owner->GetExactDist(me) >= (owner->GetVisibilityRange()-10.0f))
+            return true;
+
     return !me->IsValidAttackTarget(me->GetVictim());
 }
 
@@ -60,13 +65,11 @@ void PetAI::_stopAttack()
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop();
         me->getHostileRefManager().deleteReferences();
-
         return;
     }
 
     me->AttackStop();
     me->InterruptNonMeleeSpells(false);
-    me->SendMeleeAttackStop(); // Should stop pet's attack button from flashing
     me->GetCharmInfo()->SetIsCommandAttack(false);
     ClearCharmInfoFlags();
     HandleReturnMovement();
@@ -134,7 +137,6 @@ void PetAI::UpdateAI(uint32 diff)
     // Autocast (cast only in combat or persistent spells in any state)
     if (!me->HasUnitState(UNIT_STATE_CASTING))
     {
-        typedef std::vector<std::pair<Unit*, Spell*> > TargetSpellList;
         TargetSpellList targetSpellStore;
 
         for (uint8 i = 0; i < me->GetPetAutoSpellSize(); ++i)
@@ -222,7 +224,7 @@ void PetAI::UpdateAI(uint32 diff)
             }
         }
 
-        //found units to cast on to
+        // found units to cast on to
         if (!targetSpellStore.empty())
         {
             TargetSpellList::iterator it = targetSpellStore.begin();
@@ -278,7 +280,7 @@ void PetAI::UpdateAllies()
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* Target = itr->GetSource();
-            if (!Target || !group->SameSubGroup(owner->ToPlayer(), Target))
+            if (!Target || !Target->IsInMap(owner) || !group->SameSubGroup(owner->ToPlayer(), Target))
                 continue;
 
             if (Target->GetGUID() == owner->GetGUID())
@@ -304,7 +306,6 @@ void PetAI::KilledUnit(Unit* victim)
     // next target selection
     me->AttackStop();
     me->InterruptNonMeleeSpells(false);
-    me->SendMeleeAttackStop();  // Stops the pet's 'Attack' button from flashing
 
     // Before returning to owner, see if there are more things to attack
     if (Unit* nextTarget = SelectNextTarget(false))
@@ -443,6 +444,8 @@ void PetAI::HandleReturnMovement()
             me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
         }
     }
+
+    me->ClearInPetCombat();
 }
 
 void PetAI::DoAttack(Unit* target, bool chase)
@@ -452,6 +455,12 @@ void PetAI::DoAttack(Unit* target, bool chase)
 
     if (me->Attack(target, true))
     {
+        // properly fix fake combat after pet is sent to attack
+        if (Unit* owner = me->GetOwner())
+            owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
+
         // Play sound to let the player know the pet is attacking something it picked on its own
         if (me->HasReactState(REACT_AGGRESSIVE) && !me->GetCharmInfo()->IsCommandAttack())
             me->SendPetAIReaction(me->GetGUID());
@@ -462,7 +471,7 @@ void PetAI::DoAttack(Unit* target, bool chase)
             ClearCharmInfoFlags();
             me->GetCharmInfo()->SetIsCommandAttack(oldCmdAttack); // For passive pets commanded to attack so they will use spells
             me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveChase(target);
+            me->GetMotionMaster()->MoveChase(target, me->GetPetChaseDistance());
         }
         else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
         {
@@ -519,10 +528,10 @@ bool PetAI::CanAttack(Unit* target)
 
     if (!target->IsAlive())
     {
+        // if target is invalid, pet should evade automaticly
         // Clear target to prevent getting stuck on dead targets
-        me->AttackStop();
-        me->InterruptNonMeleeSpells(false);
-        me->SendMeleeAttackStop();
+        //me->AttackStop();
+        //me->InterruptNonMeleeSpells(false);
         return false;
     }
 

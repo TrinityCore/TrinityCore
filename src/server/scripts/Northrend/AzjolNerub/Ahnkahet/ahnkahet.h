@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 5;
 
-enum DataTypes
+enum AKDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_ELDER_NADOX                = 0,
@@ -44,7 +44,7 @@ enum DataTypes
     DATA_ALL_INITIAND_DEAD          = 13
 };
 
-enum CreatureIds
+enum AKCreatureIds
 {
     NPC_ELDER_NADOX                 = 29309,
     NPC_PRINCE_TALDARAM             = 29308,
@@ -72,7 +72,7 @@ enum CreatureIds
     NPC_TWISTED_VISAGE              = 30625
 };
 
-enum GameObjectIds
+enum AKGameObjectIds
 {
     GO_PRINCE_TALDARAM_GATE         = 192236,
     GO_PRINCE_TALDARAM_PLATFORM     = 193564,
@@ -80,10 +80,10 @@ enum GameObjectIds
     GO_SPHERE_2                     = 193094
 };
 
-template<class AI>
-AI* GetAhnKahetAI(Creature* creature)
+template<class AI, class T>
+AI* GetAhnKahetAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, AhnKahetScriptName);
+    return GetInstanceAI<AI>(obj, AhnKahetScriptName);
 }
 
 #endif // AHNKAHET_H_

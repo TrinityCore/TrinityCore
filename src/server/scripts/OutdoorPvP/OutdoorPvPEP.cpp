@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -225,7 +225,7 @@ void OPvPCapturePointEP_NPT::SummonGO(uint32 team)
         auto bounds = map->GetGameObjectBySpawnIdStore().equal_range(m_Objects[EP_NPT_BUFF]);
         for (auto itr = bounds.first; itr != bounds.second; ++itr)
             if (GameObject* go = itr->second)
-                go->SetUInt32Value(GAMEOBJECT_FACTION, (team == ALLIANCE ? 84 : 83));
+                go->SetFaction(team == ALLIANCE ? 84 : 83);
     }
 }
 

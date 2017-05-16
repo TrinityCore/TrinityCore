@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -486,11 +486,11 @@ class spell_warr_glyph_of_blocking : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell(caster, SPELL_WARRIOR_GLYPH_OF_BLOCKING, true);
+                caster->CastSpell(caster, SPELL_WARRIOR_GLYPH_OF_BLOCKING, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -562,7 +562,7 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
-                caster->CastCustomSpell(SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER, SPELLVALUE_MAX_TARGETS, aurEff->GetAmount(), caster, true);
+                caster->CastCustomSpell(SPELL_WARRIOR_IMPROVED_SPELL_REFLECTION_TRIGGER, SPELLVALUE_MAX_TARGETS, aurEff->GetAmount(), caster, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -832,14 +832,14 @@ class spell_warr_second_wind : public SpellScriptLoader
                 return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))) != 0;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 static uint32 const triggeredSpells[2] = { SPELL_WARRIOR_SECOND_WIND_TRIGGER_1, SPELL_WARRIOR_SECOND_WIND_TRIGGER_2 };
 
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActionTarget();
                 uint32 spellId = triggeredSpells[GetSpellInfo()->GetRank() - 1];
-                caster->CastSpell(caster, spellId, true);
+                caster->CastSpell(caster, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1053,34 +1053,6 @@ class spell_warr_t3_prot_8p_bonus : public SpellScriptLoader
         }
 };
 
-// 32216 - Victorious
-class spell_warr_victorious : public SpellScriptLoader
-{
-    public:
-        spell_warr_victorious() : SpellScriptLoader("spell_warr_victorious") { }
-
-        class spell_warr_victorious_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warr_victorious_AuraScript);
-
-            void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                // Prevent console log
-                PreventDefaultAction();
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warr_victorious_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_warr_victorious_AuraScript();
-        }
-};
-
 // 50720 - Vigilance
 class spell_warr_vigilance : public SpellScriptLoader
 {
@@ -1233,7 +1205,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
     new spell_warr_t3_prot_8p_bonus();
-    new spell_warr_victorious();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
 }

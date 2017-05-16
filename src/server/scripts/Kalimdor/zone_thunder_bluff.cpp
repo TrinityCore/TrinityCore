@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,35 +47,6 @@ class npc_cairne_bloodhoof : public CreatureScript
 {
 public:
     npc_cairne_bloodhoof() : CreatureScript("npc_cairne_bloodhoof") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_SENDER_INFO)
-        {
-            player->CastSpell(player, 23123, false);
-            SendGossipMenuFor(player, 7014, creature->GetGUID());
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
-
-        SendGossipMenuFor(player, 7013, creature->GetGUID());
-
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_cairne_bloodhoofAI(creature);
-    }
 
     struct npc_cairne_bloodhoofAI : public ScriptedAI
     {
@@ -144,8 +115,37 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_SENDER_INFO)
+            {
+                player->CastSpell(player, 23123, false);
+                SendGossipMenuFor(player, 7014, me->GetGUID());
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(925) == QUEST_STATUS_INCOMPLETE)
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HCB, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+
+            SendGossipMenuFor(player, 7013, me->GetGUID());
+
+            return true;
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_cairne_bloodhoofAI(creature);
+    }
 };
 
 void AddSC_thunder_bluff()

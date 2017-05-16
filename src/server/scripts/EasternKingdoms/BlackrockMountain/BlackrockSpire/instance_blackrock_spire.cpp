@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -578,7 +578,7 @@ public:
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
     {
-        if (player && player->IsAlive())
+        if (player->IsAlive())
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (Creature* infiltrator = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SCARSHIELD_INFILTRATOR)))
                 {

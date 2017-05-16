@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,6 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #else
 
 #include <algorithm>
-#include <regex>
 #include <vector>
 #include <future>
 #include <memory>
@@ -45,6 +44,8 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include <type_traits>
 #include <unordered_set>
 #include <unordered_map>
+
+#include "Regex.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
@@ -66,6 +67,9 @@ namespace fs = boost::filesystem;
 #ifdef _WIN32
     #include <windows.h>
     #define HOTSWAP_PLATFORM_REQUIRES_CACHING
+#elif __APPLE__
+    #include <dlfcn.h>
+    #define HOTSWAP_PLATFORM_REQUIRES_CACHING
 #else // Posix
     #include <dlfcn.h>
     // #define HOTSWAP_PLATFORM_REQUIRES_CACHING
@@ -86,11 +90,13 @@ static char const* GetSharedLibraryPrefix()
 #endif
 }
 
-// Returns "dll" on Windows and "so" on posix.
+// Returns "dll" on Windows, "dylib" on OS X, and "so" on posix.
 static char const* GetSharedLibraryExtension()
 {
 #ifdef _WIN32
     return "dll";
+#elif __APPLE__
+    return "dylib";
 #else // Posix
     return "so";
 #endif
@@ -111,7 +117,7 @@ static fs::path GetDirectoryOfExecutable()
     if (path.is_absolute())
         return path.parent_path();
     else
-        return fs::absolute(path).parent_path();
+        return fs::canonical(fs::absolute(path)).parent_path();
 }
 
 class SharedLibraryUnloader
@@ -308,12 +314,12 @@ Optional<std::shared_ptr<ScriptModule>>
 static bool HasValidScriptModuleName(std::string const& name)
 {
     // Detects scripts_NAME.dll's / .so's
-    static std::regex const regex(
+    static Trinity::regex const regex(
         Trinity::StringFormat("^%s[sS]cripts_[a-zA-Z0-9_]+\\.%s$",
             GetSharedLibraryPrefix(),
             GetSharedLibraryExtension()));
 
-    return std::regex_match(name, regex);
+    return Trinity::regex_match(name, regex);
 }
 
 /// File watcher responsible for watching shared libraries
@@ -1529,8 +1535,8 @@ void LibraryUpdateListener::handleFileAction(efsw::WatchID watchid, std::string 
 /// Returns true when the given path has a known C++ file extension
 static bool HasCXXSourceFileExtension(fs::path const& path)
 {
-    static std::regex const regex("^\\.(h|hpp|c|cc|cpp)$");
-    return std::regex_match(path.extension().generic_string(), regex);
+    static Trinity::regex const regex("^\\.(h|hpp|c|cc|cpp)$");
+    return Trinity::regex_match(path.extension().generic_string(), regex);
 }
 
 SourceUpdateListener::SourceUpdateListener(fs::path path, std::string script_module_name)

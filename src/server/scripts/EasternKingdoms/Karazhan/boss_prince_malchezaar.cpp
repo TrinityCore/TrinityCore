@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -371,7 +371,7 @@ public:
             if (infernal)
             {
                 infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
-                infernal->setFaction(me->getFaction());
+                infernal->SetFaction(me->GetFaction());
                 if (point)
                     ENSURE_AI(netherspite_infernal::netherspite_infernalAI, infernal->AI())->point = point;
                 ENSURE_AI(netherspite_infernal::netherspite_infernalAI, infernal->AI())->malchezaar = me->GetGUID();
@@ -446,7 +446,7 @@ public:
                         if (axe)
                         {
                             axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            axe->setFaction(me->getFaction());
+                            axe->SetFaction(me->GetFaction());
                             axes[i] = axe->GetGUID();
                             if (target)
                             {

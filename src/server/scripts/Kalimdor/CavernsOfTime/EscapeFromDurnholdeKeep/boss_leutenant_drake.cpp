@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
+#include "GameObjectAI.h"
 
 /*######
 ## go_barrel_old_hillsbrad
@@ -37,19 +38,26 @@ class go_barrel_old_hillsbrad : public GameObjectScript
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    struct go_barrel_old_hillsbradAI : public GameObjectAI
     {
-        if (InstanceScript* instance = go->GetInstanceScript())
+        go_barrel_old_hillsbradAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
+
+        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
         {
             if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
                 return false;
 
             instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
+            return false;
         }
+    };
 
-        return false;
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetInstanceAI<go_barrel_old_hillsbradAI>(go);
     }
-
 };
 
 /*######

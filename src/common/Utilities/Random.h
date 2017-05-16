@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -73,27 +73,5 @@ public:
 
     static SFMTEngine& Instance();
 };
-
-// Ugly, horrible, i don't even..., hack for VS2013 to work around missing discrete_distribution(iterator, iterator) constructor
-namespace Trinity
-{
-#if COMPILER == COMPILER_MICROSOFT && _MSC_VER <= 1800
-    template<typename T>
-    struct discrete_distribution_param : public std::discrete_distribution<T>::param_type
-    {
-        typedef typename std::discrete_distribution<T>::param_type base;
-
-        template<typename InIt>
-        discrete_distribution_param(InIt begin, InIt end) : base(_Noinit())
-        {
-            this->_Pvec.assign(begin, end);
-            this->_Init();
-        }
-    };
-#else
-    template<typename T>
-    using discrete_distribution_param = typename std::discrete_distribution<T>::param_type;
-#endif
-}
 
 #endif // Random_h__

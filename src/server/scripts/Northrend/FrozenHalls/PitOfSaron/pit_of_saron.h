@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 
 uint32 const EncounterCount = 3;
 
-enum DataTypes
+enum POSDataTypes
 {
     // Encounter states and GUIDs
     DATA_GARFROST           = 0,
@@ -41,7 +41,7 @@ enum DataTypes
     DATA_CAVERN_ACTIVE      = 10
 };
 
-enum CreatureIds
+enum POSCreatureIds
 {
     NPC_GARFROST                                = 36494,
     NPC_KRICK                                   = 36477,
@@ -92,14 +92,14 @@ enum CreatureIds
     NPC_CAVERN_EVENT_TRIGGER                    = 32780
 };
 
-enum GameObjectIds
+enum POSGameObjectIds
 {
     GO_SARONITE_ROCK                            = 196485,
     GO_ICE_WALL                                 = 201885,
     GO_HALLS_OF_REFLECTION_PORTCULLIS           = 201848
 };
 
-enum SpellsIcicle
+enum POSSpellsIcicle
 {
     SPELL_ICICLE_SUMMON                 = 69424,
     SPELL_ICICLE_FALL_TRIGGER           = 69426,

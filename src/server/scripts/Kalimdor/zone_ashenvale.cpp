@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,6 +30,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "GameObjectAI.h"
 #include "Player.h"
 #include "SpellScript.h"
 
@@ -79,11 +80,11 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_FREEDOM_TO_RUUL)
             {
-                me->setFaction(FACTION_QUEST);
+                me->SetFaction(FACTION_QUEST);
                 npc_escortAI::Start(true, false, player->GetGUID());
             }
         }
@@ -221,12 +222,12 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_VORSHA)
             {
                 Talk(SAY_MUG_START1);
-                me->setFaction(FACTION_QUEST);
+                me->SetFaction(FACTION_QUEST);
                 npc_escortAI::Start(true, false, player->GetGUID());
             }
         }
@@ -328,20 +329,30 @@ class go_naga_brazier : public GameObjectScript
     public:
         go_naga_brazier() : GameObjectScript("go_naga_brazier") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_naga_brazierAI : public GameObjectAI
         {
-            if (Creature* creature = GetClosestCreatureWithEntry(go, NPC_MUGLASH, INTERACTION_DISTANCE*2))
+            go_naga_brazierAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
             {
-                if (npc_muglash::npc_muglashAI* pEscortAI = CAST_AI(npc_muglash::npc_muglashAI, creature->AI()))
+                if (Creature* creature = GetClosestCreatureWithEntry(me, NPC_MUGLASH, INTERACTION_DISTANCE * 2))
                 {
-                    creature->AI()->Talk(SAY_MUG_BRAZIER_WAIT);
+                    if (npc_muglash::npc_muglashAI* pEscortAI = CAST_AI(npc_muglash::npc_muglashAI, creature->AI()))
+                    {
+                        creature->AI()->Talk(SAY_MUG_BRAZIER_WAIT);
 
-                    pEscortAI->_isBrazierExtinguished = true;
-                    return false;
+                        pEscortAI->_isBrazierExtinguished = true;
+                        return false;
+                    }
                 }
-            }
 
-            return true;
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_naga_brazierAI(go);
         }
 };
 

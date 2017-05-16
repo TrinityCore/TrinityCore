@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -107,7 +107,7 @@ enum SummonGroups
     SUMMON_GROUP_GUARDIAN_FIRST             = 01 /*..04 */,
     SUMMON_GROUP_MINION_FIRST               = 05 /*..11 */
 };
-static const std::initializer_list<Data64> portalList = { DATA_KELTHUZAD_PORTAL01, DATA_KELTHUZAD_PORTAL02, DATA_KELTHUZAD_PORTAL03, DATA_KELTHUZAD_PORTAL04 };
+static const std::initializer_list<NAXData64> portalList = { DATA_KELTHUZAD_PORTAL01, DATA_KELTHUZAD_PORTAL02, DATA_KELTHUZAD_PORTAL03, DATA_KELTHUZAD_PORTAL04 };
 
 enum Phases
 {
@@ -227,7 +227,7 @@ public:
             }
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                for (Data64 portalData : portalList)
+                for (NAXData64 portalData : portalList)
                     if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                         portal->SetGoState(GO_STATE_READY);
 
@@ -469,7 +469,7 @@ public:
                         case EVENT_TRANSITION_REPLY:
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LICH_KING)))
                                 lichKing->AI()->Talk(SAY_ANSWER_REQUEST);
-                            for (Data64 portalData : portalList)
+                            for (NAXData64 portalData : portalList)
                                 if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                                     portal->SetGoState(GO_STATE_ACTIVE);
                             break;
@@ -875,26 +875,20 @@ public:
     {
         PrepareAuraScript(spell_kelthuzad_chains_AuraScript);
 
-        void HandleApply(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
+        void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
         {
-            Unit* target = GetTarget();
-            float scale = target->GetObjectScale();
-            ApplyPercentModFloatVar(scale, 200.0f, true);
-            target->SetObjectScale(scale);
+            aurEff->HandleAuraModScale(GetTargetApplication(), mode, true);
         }
 
-        void HandleRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
+        void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
         {
-            Unit* target = GetTarget();
-            float scale = target->GetObjectScale();
-            ApplyPercentModFloatVar(scale, 200.0f, false);
-            target->SetObjectScale(scale);
+            aurEff->HandleAuraModScale(GetTargetApplication(), mode, false);
         }
 
         void Register() override
         {
-            AfterEffectApply += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_AOE_CHARM, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_AOE_CHARM, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectApply += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectApplyFn(spell_kelthuzad_chains_AuraScript::HandleRemove, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
         }
     };
 

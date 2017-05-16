@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -85,7 +85,7 @@ public:
                         playerGUID = player->GetGUID();
                         speechTimer = 1000;
                         speechCounter = 1;
-                        me->setFaction(player->getFaction());
+                        me->SetFaction(player->GetFaction());
                         me->CombatStop(true);
                         me->GetMotionMaster()->MoveIdle();
                         me->SetReactState(REACT_PASSIVE);
@@ -198,18 +198,6 @@ class npc_koltira_deathweaver : public CreatureScript
 {
 public:
     npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_BREAKOUT)
-        {
-            creature->SetStandState(UNIT_STAND_STATE_STAND);
-
-            if (npc_escortAI* escortAI = CAST_AI(npc_koltira_deathweaver::npc_koltira_deathweaverAI, creature->AI()))
-                escortAI->Start(false, false, player->GetGUID());
-        }
-        return true;
-    }
 
     struct npc_koltira_deathweaverAI : public npc_escortAI
     {
@@ -351,6 +339,15 @@ public:
                 }
                 else
                     waveTimer -= uiDiff;
+            }
+        }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_BREAKOUT)
+            {
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                Start(false, false, player->GetGUID());
             }
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,6 +35,7 @@ at_brewfest
 at_area_52_entrance
 EndContentData */
 
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Player.h"
@@ -314,7 +315,7 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
         {
             uint32 triggerId = trigger->id;
             // Second trigger happened too early after first, skip for now
-            if (sWorld->GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
+            if (GameTime::GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
                 return false;
 
             switch (triggerId)
@@ -331,7 +332,7 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
                     break;
             }
 
-            _triggerTimes[triggerId] = sWorld->GetGameTime();
+            _triggerTimes[triggerId] = GameTime::GetGameTime();
             return false;
         }
 
@@ -371,7 +372,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
                 return false;
 
             uint32 triggerId = trigger->id;
-            if (sWorld->GetGameTime() - _triggerTimes[trigger->id] < SUMMON_COOLDOWN)
+            if (GameTime::GetGameTime() - _triggerTimes[trigger->id] < SUMMON_COOLDOWN)
                 return false;
 
             switch (triggerId)
@@ -400,7 +401,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
 
             player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
             player->AddAura(SPELL_A52_NEURALYZER, player);
-            _triggerTimes[trigger->id] = sWorld->GetGameTime();
+            _triggerTimes[trigger->id] = GameTime::GetGameTime();
             return false;
         }
 

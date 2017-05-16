@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -514,20 +514,20 @@ class npc_essence_of_twin : public CreatureScript
 
                 return spellReturned;
             }
+
+            bool GossipHello(Player* player) override
+            {
+                player->RemoveAurasDueToSpell(GetData(ESSENCE_REMOVE));
+                player->CastSpell(player, GetData(ESSENCE_APPLY), true);
+                CloseGossipMenuFor(player);
+                return true;
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_essence_of_twinAI(creature);
         };
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            player->RemoveAurasDueToSpell(creature->GetAI()->GetData(ESSENCE_REMOVE));
-            player->CastSpell(player, creature->GetAI()->GetData(ESSENCE_APPLY), true);
-            CloseGossipMenuFor(player);
-            return true;
-        }
 };
 
 struct npc_unleashed_ballAI : public ScriptedAI

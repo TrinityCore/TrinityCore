@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -86,7 +86,7 @@ class boss_akilzon : public CreatureScript
 
         struct boss_akilzonAI : public BossAI
         {
-            boss_akilzonAI(Creature* creature) : BossAI(creature, DATA_AKILZONEVENT)
+            boss_akilzonAI(Creature* creature) : BossAI(creature, BOSS_AKILZON)
             {
                 Initialize();
             }
@@ -114,6 +114,8 @@ class boss_akilzon : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) override
             {
+                _EnterCombat();
+
                 events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(10000, 20000)); // 10 to 20 seconds (bosskillers)
                 events.ScheduleEvent(EVENT_GUST_OF_WIND, urand(20000, 30000));      // 20 to 30 seconds(bosskillers)
                 events.ScheduleEvent(EVENT_CALL_LIGHTNING, urand(10000, 20000));    // totaly random timer. can't find any info on this
@@ -122,8 +124,6 @@ class boss_akilzon : public CreatureScript
                 events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);      // 10 minutes till enrage(bosskillers)
 
                 Talk(SAY_AGGRO);
-                //DoZoneInCombat();
-                instance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -196,7 +196,7 @@ class boss_akilzon : public CreatureScript
                         y = 1380.0f + rand32() % 60;
                         if (Unit* trigger = me->SummonTrigger(x, y, z, 0, 2000))
                         {
-                            trigger->setFaction(35);
+                            trigger->SetFaction(35);
                             trigger->SetMaxHealth(100000);
                             trigger->SetHealth(100000);
                             trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -242,7 +242,6 @@ class boss_akilzon : public CreatureScript
                             {
                                 TargetGUID = target->GetGUID();
                                 DoCast(target, SPELL_STATIC_DISRUPTION, false);
-                                me->SetInFront(me->GetVictim());
                             }
                             /*if (float dist = me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f) dist = 5.0f;
                             SDisruptAOEVisual_Timer = 1000 + floor(dist / 30 * 1000.0f);*/
@@ -291,7 +290,7 @@ class boss_akilzon : public CreatureScript
                                         Cloud->SetDisableGravity(true);
                                         Cloud->StopMoving();
                                         Cloud->SetObjectScale(1.0f);
-                                        Cloud->setFaction(35);
+                                        Cloud->SetFaction(35);
                                         Cloud->SetMaxHealth(9999999);
                                         Cloud->SetHealth(9999999);
                                         Cloud->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -376,7 +375,7 @@ class boss_akilzon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_akilzonAI>(creature);
+            return GetZulAmanAI<boss_akilzonAI>(creature);
         }
 };
 
@@ -466,7 +465,7 @@ class npc_akilzon_eagle : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_akilzon_eagleAI(creature);
+            return GetZulAmanAI<npc_akilzon_eagleAI>(creature);
         }
 };
 

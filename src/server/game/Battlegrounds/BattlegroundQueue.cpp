@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,6 +21,7 @@
 #include "BattlegroundMgr.h"
 #include "BattlegroundQueue.h"
 #include "Chat.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "Log.h"
 #include "Language.h"
@@ -138,7 +139,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
     ginfo->ArenaTeamId               = arenateamid;
     ginfo->IsRated                   = isRated;
     ginfo->IsInvitedToBGInstanceGUID = 0;
-    ginfo->JoinTime                  = getMSTime();
+    ginfo->JoinTime                  = GameTime::GetGameTimeMS();
     ginfo->RemoveInviteTime          = 0;
     ginfo->Team                      = leader->GetTeam();
     ginfo->ArenaTeamRating           = ArenaRating;
@@ -156,7 +157,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
         index++;
     TC_LOG_DEBUG("bg.battleground", "Adding Group to BattlegroundQueue bgTypeId : %u, bracket_id : %u, index : %u", BgTypeId, bracketId, index);
 
-    uint32 lastOnlineTime = getMSTime();
+    uint32 lastOnlineTime = GameTime::GetGameTimeMS();
 
     //announce world (this don't need mutex)
     if (isRated && sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
@@ -233,7 +234,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
 
 void BattlegroundQueue::PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id)
 {
-    uint32 timeInQueue = getMSTimeDiff(ginfo->JoinTime, getMSTime());
+    uint32 timeInQueue = getMSTimeDiff(ginfo->JoinTime, GameTime::GetGameTimeMS());
     uint8 team_index = TEAM_ALLIANCE;                    //default set to TEAM_ALLIANCE - or non rated arenas!
     if (!ginfo->ArenaType)
     {
@@ -444,7 +445,7 @@ bool BattlegroundQueue::InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg,
         if (bg->isArena() && bg->isRated())
             bg->SetArenaTeamIdForTeam(ginfo->Team, ginfo->ArenaTeamId);
 
-        ginfo->RemoveInviteTime = getMSTime() + INVITE_ACCEPT_WAIT_TIME;
+        ginfo->RemoveInviteTime = GameTime::GetGameTimeMS() + INVITE_ACCEPT_WAIT_TIME;
 
         // loop through the players
         for (std::map<ObjectGuid, PlayerQueueInfo*>::iterator itr = ginfo->Players.begin(); itr != ginfo->Players.end(); ++itr)
@@ -637,7 +638,7 @@ bool BattlegroundQueue::CheckPremadeMatch(BattlegroundBracketId bracket_id, uint
     // this could be 2 cycles but i'm checking only first team in queue - it can cause problem -
     // if first is invited to BG and seconds timer expired, but we can ignore it, because players have only 80 seconds to click to enter bg
     // and when they click or after 80 seconds the queue info is removed from queue
-    uint32 time_before = getMSTime() - sWorld->getIntConfig(CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH);
+    uint32 time_before = GameTime::GetGameTimeMS() - sWorld->getIntConfig(CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH);
     for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
     {
         if (!m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE + i].empty())
@@ -918,7 +919,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         // the discard time is current_time - time_to_discard, teams that joined after that, will have their ratings taken into account
         // else leave the discard time on 0, this way all ratings will be discarded
         // this has to be signed value - when the server starts, this value would be negative and thus overflow
-        int32 discardTime = getMSTime() - sBattlegroundMgr->GetRatingDiscardTimer();
+        int32 discardTime = GameTime::GetGameTimeMS() - sBattlegroundMgr->GetRatingDiscardTimer();
 
         // we need to find 2 teams which will play next game
         GroupsQueueType::iterator itr_teams[BG_TEAMS_COUNT];

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -380,7 +380,7 @@ public:
             summons.Summon(summon);
             // Do not enter combat with zone
         }
-        
+
         private:
             bool _enteredCombat; // has a player entered combat with the first crusher pack? (talk and spawn two more packs)
             bool _doorsWebbed;   // obvious - have we reached the top and webbed the doors shut? (trigger for hadronox denied achievement)
@@ -616,7 +616,7 @@ class npc_anub_ar_crusher_champion : public CreatureScript
         }
 };
 
-static const Position cryptFiendWaypoints[] = 
+static const Position cryptFiendWaypoints[] =
 {
     { 520.3911f, 548.7895f, 732.0118f, 5.0091f   },
     { },

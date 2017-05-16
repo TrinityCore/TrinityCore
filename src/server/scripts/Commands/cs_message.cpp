@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -160,9 +160,7 @@ public:
         if (!*args)
             return false;
 
-        char buff[2048];
-        sprintf(buff, handler->GetTrinityString(LANG_SYSTEMMESSAGE), args);
-        sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
+        sWorld->SendServerMessage(SERVER_MSG_STRING, Trinity::StringFormat(handler->GetTrinityString(LANG_SYSTEMMESSAGE), args).c_str());
         return true;
     }
     // announce to logged in GMs

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -158,29 +158,23 @@ class TC_GAME_API SmartScript
 
         void StoreCounter(uint32 id, uint32 value, uint32 reset)
         {
-            CounterMap::const_iterator itr = mCounterList.find(id);
+            CounterMap::iterator itr = mCounterList.find(id);
             if (itr != mCounterList.end())
             {
                 if (reset == 0)
-                    value += GetCounterValue(id);
-                mCounterList.erase(id);
+                    itr->second += value;
+                else
+                    itr->second = value;
             }
+            else
+                mCounterList.insert(std::make_pair(id, value));
 
-            mCounterList.insert(std::make_pair(id, value));
-            ProcessEventsFor(SMART_EVENT_COUNTER_SET);
+            ProcessEventsFor(SMART_EVENT_COUNTER_SET, nullptr, id);
         }
 
-        uint32 GetCounterId(uint32 id)
+        uint32 GetCounterValue(uint32 id) const
         {
-            CounterMap::iterator itr = mCounterList.find(id);
-            if (itr != mCounterList.end())
-                return itr->first;
-            return 0;
-        }
-
-        uint32 GetCounterValue(uint32 id)
-        {
-            CounterMap::iterator itr = mCounterList.find(id);
+            CounterMap::const_iterator itr = mCounterList.find(id);
             if (itr != mCounterList.end())
                 return itr->second;
             return 0;
@@ -244,29 +238,33 @@ class TC_GAME_API SmartScript
 
         //TIMED_ACTIONLIST (script type 9 aka script9)
         void SetScript9(SmartScriptHolder& e, uint32 entry);
-        Unit* GetLastInvoker();
+        Unit* GetLastInvoker(Unit* invoker = nullptr);
         ObjectGuid mLastInvoker;
         typedef std::unordered_map<uint32, uint32> CounterMap;
         CounterMap mCounterList;
 
     private:
-        void IncPhase(int32 p = 1)
+        void IncPhase(uint32 p)
         {
-            if (p >= 0)
-                mEventPhase += (uint32)p;
-            else
-                DecPhase(abs(p));
+            // protect phase from overflowing
+            mEventPhase = std::min<uint32>(SMART_EVENT_PHASE_12, mEventPhase + p);
         }
 
-        void DecPhase(int32 p = 1)
+        void DecPhase(uint32 p)
         {
-            if (mEventPhase > (uint32)p)
-                mEventPhase -= (uint32)p;
-            else
+            if (p >= mEventPhase)
                 mEventPhase = 0;
+            else
+                mEventPhase -= p;
         }
 
-        bool IsInPhase(uint32 p) const { return ((1 << (mEventPhase - 1)) & p) != 0; }
+        bool IsInPhase(uint32 p) const
+        {
+            if (mEventPhase == 0)
+                return false;
+            return ((1 << (mEventPhase - 1)) & p) != 0;
+        }
+
         void SetPhase(uint32 p = 0) { mEventPhase = p; }
 
         SmartAIEventList mEvents;
@@ -282,8 +280,8 @@ class TC_GAME_API SmartScript
         uint32 mEventPhase;
 
         uint32 mPathId;
-        SmartAIEventList mStoredEvents;
-        std::list<uint32>mRemIDs;
+        SmartAIEventStoredList mStoredEvents;
+        std::vector<uint32> mRemIDs;
 
         uint32 mTextTimer;
         uint32 mLastTextID;
@@ -297,7 +295,7 @@ class TC_GAME_API SmartScript
         {
             if (!mStoredEvents.empty())
             {
-                for (SmartAIEventList::iterator i = mStoredEvents.begin(); i != mStoredEvents.end(); ++i)
+                for (auto i = mStoredEvents.begin(); i != mStoredEvents.end(); ++i)
                 {
                     if (i->event_id == id)
                     {

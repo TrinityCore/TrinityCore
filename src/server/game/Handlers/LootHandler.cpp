@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "Group.h"
+#include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "Object.h"
@@ -206,7 +207,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 
         // Delete the money loot record from the DB
         if (loot->containerID > 0)
-            loot->DeleteLootMoneyFromContainerItemDB();
+            sLootItemStorage->RemoveStoredMoneyForContainer(loot->containerID);
 
         // Delete container if empty
         if (loot->isLooted() && guid.IsItem())
@@ -394,7 +395,8 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
         return;
     }
 
-    Player* target = ObjectAccessor::FindPlayer(target_playerguid);
+    // player on other map
+    Player* target = ObjectAccessor::GetPlayer(*_player, target_playerguid);
     if (!target)
     {
         _player->SendLootError(lootguid, LOOT_ERROR_PLAYER_NOT_FOUND);

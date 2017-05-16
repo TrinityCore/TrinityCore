@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -102,7 +102,7 @@ class boss_nazan : public CreatureScript
                 if (summoned && summoned->GetEntry() == NPC_LIQUID_FIRE)
                 {
                     summoned->SetLevel(me->getLevel());
-                    summoned->setFaction(me->getFaction());
+                    summoned->SetFaction(me->GetFaction());
                     summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_SUMMON_LIQUID_FIRE, SPELL_SUMMON_LIQUID_FIRE_H), true);
                     summoned->CastSpell(summoned, SPELL_FIRE_NOVA_VISUAL, true);
                 }

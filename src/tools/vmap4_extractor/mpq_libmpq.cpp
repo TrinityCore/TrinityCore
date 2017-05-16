@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 #include "mpq_libmpq04.h"
 #include <deque>
 #include <cstdio>
+#include <algorithm>
 
 ArchiveSet gOpenArchives;
 
@@ -50,6 +51,11 @@ MPQArchive::MPQArchive(const char* filename)
         return;
     }
     gOpenArchives.push_front(this);
+}
+
+bool MPQArchive::isOpened() const
+{
+    return std::find(gOpenArchives.begin(), gOpenArchives.end(), this) != gOpenArchives.end();
 }
 
 void MPQArchive::close()

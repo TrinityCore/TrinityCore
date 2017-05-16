@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -600,7 +600,7 @@ class spell_dk_butchery : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastCustomSpell(SPELL_DK_BUTCHERY_RUNIC_POWER, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), (Unit*)nullptr, true);
+                eventInfo.GetActor()->CastCustomSpell(SPELL_DK_BUTCHERY_RUNIC_POWER, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), (Unit*)nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1249,10 +1249,10 @@ class spell_dk_glyph_of_scourge_strike : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_GLYPH_OF_SCOURGE_STRIKE_SCRIPT, true);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_GLYPH_OF_SCOURGE_STRIKE_SCRIPT, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1286,18 +1286,9 @@ class spell_dk_hungering_cold : public SpellScriptLoader
                 return (spellInfo->Dispel != DISPEL_DISEASE);
             }
 
-            void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                // Prevent console spam
-                PreventDefaultAction();
-            }
-
             void Register() override
             {
                 DoCheckProc += AuraCheckProcFn(spell_dk_hungering_cold_AuraScript::CheckProc);
-
-                OnEffectProc += AuraEffectProcFn(spell_dk_hungering_cold_AuraScript::HandleDummy, EFFECT_1, SPELL_AURA_DUMMY);
-                OnEffectProc += AuraEffectProcFn(spell_dk_hungering_cold_AuraScript::HandleDummy, EFFECT_2, SPELL_AURA_DUMMY);
             }
         };
 
@@ -1390,18 +1381,10 @@ class spell_dk_improved_blood_presence : public SpellScriptLoader
                     target->RemoveAura(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED);
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                // Prevent console spam
-                PreventDefaultAction();
-            }
-
             void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_dk_improved_blood_presence_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dk_improved_blood_presence_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-
-                OnEffectProc += AuraEffectProcFn(spell_dk_improved_blood_presence_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -1588,10 +1571,10 @@ class spell_dk_pvp_4p_bonus : public SpellScriptLoader
                 return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_SNARE))) != 0;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActionTarget()->CastSpell((Unit*)nullptr, SPELL_DK_RUNIC_RETURN, true);
+                eventInfo.GetActionTarget()->CastSpell((Unit*)nullptr, SPELL_DK_RUNIC_RETURN, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1624,10 +1607,10 @@ class spell_dk_mark_of_blood : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_MARK_OF_BLOOD_HEAL, true);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_MARK_OF_BLOOD_HEAL, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1668,7 +1651,7 @@ class spell_dk_necrosis : public SpellScriptLoader
                     return;
 
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
-                eventInfo.GetActor()->CastCustomSpell(SPELL_DK_NECROSIS_DAMAGE, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true);
+                eventInfo.GetActor()->CastCustomSpell(SPELL_DK_NECROSIS_DAMAGE, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2072,34 +2055,6 @@ class spell_dk_rime : public SpellScriptLoader
         }
 };
 
-// 56817 - Rune strike proc (Serverside spell)
-class spell_dk_rune_strike_proc : public SpellScriptLoader
-{
-    public:
-        spell_dk_rune_strike_proc() : SpellScriptLoader("spell_dk_rune_strike_proc") { }
-
-        class spell_dk_rune_strike_proc_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_rune_strike_proc_AuraScript);
-
-            void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                // Prevent console log
-                PreventDefaultAction();
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_dk_rune_strike_proc_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dk_rune_strike_proc_AuraScript();
-        }
-};
-
 // 59754 Rune Tap - Party
 class spell_dk_rune_tap_party : public SpellScriptLoader
 {
@@ -2327,7 +2282,7 @@ class spell_dk_sudden_doom : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -2347,7 +2302,7 @@ class spell_dk_sudden_doom : public SpellScriptLoader
                 if (!spellId)
                     return;
 
-                caster->CastSpell(eventInfo.GetProcTarget(), spellId, true);
+                caster->CastSpell(eventInfo.GetProcTarget(), spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2424,7 +2379,7 @@ class spell_dk_threat_of_thassarian : public SpellScriptLoader
                     return;
 
                 spellId = sSpellMgr->GetSpellWithRank(spellId, spellInfo->GetRank());
-                caster->CastSpell(eventInfo.GetProcTarget(), spellId, true);
+                caster->CastSpell(eventInfo.GetProcTarget(), spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2478,7 +2433,7 @@ class spell_dk_unholy_blight : public SpellScriptLoader
                 // Add remaining ticks to healing done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_DK_UNHOLY_BLIGHT_DAMAGE, SPELL_AURA_PERIODIC_DAMAGE);
 
-                caster->CastCustomSpell(SPELL_DK_UNHOLY_BLIGHT_DAMAGE, SPELLVALUE_BASE_POINT0, amount, target, true);
+                caster->CastCustomSpell(SPELL_DK_UNHOLY_BLIGHT_DAMAGE, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2541,7 +2496,7 @@ class spell_dk_vendetta : public SpellScriptLoader
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
                 int32 amount = caster->CountPctFromMaxHealth(aurEff->GetAmount());
-                caster->CastCustomSpell(SPELL_DK_VENDETTA_HEAL, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true);
+                caster->CastCustomSpell(SPELL_DK_VENDETTA_HEAL, SPELLVALUE_BASE_POINT0, amount, (Unit*)nullptr, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2586,7 +2541,7 @@ class spell_dk_wandering_plague : public SpellScriptLoader
                     return;
 
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
-                caster->CastCustomSpell(SPELL_DK_WANDERING_PLAGUE_DAMAGE, SPELLVALUE_BASE_POINT0, amount, target, true);
+                caster->CastCustomSpell(SPELL_DK_WANDERING_PLAGUE_DAMAGE, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -3068,7 +3023,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_presence();
     new spell_dk_raise_dead();
     new spell_dk_rime();
-    new spell_dk_rune_strike_proc();
     new spell_dk_rune_tap_party();
     new spell_dk_scent_of_blood();
     new spell_dk_scent_of_blood_trigger();

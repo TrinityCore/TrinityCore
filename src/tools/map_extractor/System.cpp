@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -180,7 +180,7 @@ uint32 ReadBuild(int locale)
 
     size_t pos = text.find("version=\"");
     size_t pos1 = pos + strlen("version=\"");
-    size_t pos2 = text.find("\"",pos1);
+    size_t pos2 = text.find('"',pos1);
     if (pos == text.npos || pos2 == text.npos || pos1 >= pos2)
     {
         printf("Fatal error: Invalid  %s file format!\n", filename.c_str());

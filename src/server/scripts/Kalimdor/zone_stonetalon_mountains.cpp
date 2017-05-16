@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -65,7 +65,7 @@ public:
                     me->SummonCreature(NPC_GRIMTOTEM_SORCERER, -36.37f, -496.23f, -45.71f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                     break;
                 case 18:
-                    me->SetInFront(player);
+                    me->SetFacingToObject(player);
                     Talk(SAY_END);
                     player->GroupEventHappens(QUEST_PROTECT_KAYA, me);
                     break;
@@ -78,21 +78,19 @@ public:
         }
 
         void Reset() override { }
-    };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_PROTECT_KAYA)
+        void QuestAccept(Player* player, Quest const* quest) override
         {
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_kaya_flathoof::npc_kaya_flathoofAI, creature->AI()))
-                pEscortAI->Start(true, false, player->GetGUID());
+            if (quest->GetQuestId() == QUEST_PROTECT_KAYA)
+            {
+                Start(true, false, player->GetGUID());
 
-            creature->AI()->Talk(SAY_START);
-            creature->setFaction(113);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                Talk(SAY_START);
+                me->SetFaction(113);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            }
         }
-        return true;
-    }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
