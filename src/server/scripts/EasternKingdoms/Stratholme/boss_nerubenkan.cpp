@@ -35,6 +35,18 @@ enum Spells
     SPELL_RAISEUNDEADSCARAB     = 17235
 };
 
+enum NerubenkanEvents
+{
+    EVENT_ENCASINGWEBS          = 1,
+    EVENT_PIERCEARMOR           = 2,
+    EVENT_CRYPT_SCARABS         = 3,
+    EVENT_RAISEUNDEADSCARAB     = 4,
+};
+enum NerubenkanCreatures
+{
+    NPC_UNDEAD_SCARAB           = 10876
+};
+
 class boss_nerubenkan : public CreatureScript
 {
 public:
@@ -49,32 +61,20 @@ public:
     {
         boss_nerubenkanAI(Creature* creature) : ScriptedAI(creature)
         {
-            Initialize();
             instance = me->GetInstanceScript();
         }
-
-        void Initialize()
-        {
-            CryptScarabs_Timer = 3000;
-            EncasingWebs_Timer = 7000;
-            PierceArmor_Timer = 19000;
-            RaiseUndeadScarab_Timer = 3000;
-        }
-
-        InstanceScript* instance;
-
-        uint32 EncasingWebs_Timer;
-        uint32 PierceArmor_Timer;
-        uint32 CryptScarabs_Timer;
-        uint32 RaiseUndeadScarab_Timer;
-
+       
         void Reset() override
         {
-            Initialize();
+            _events.Reset();
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
+            _events.ScheduleEvent(EVENT_CRYPT_SCARABS, 3 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_ENCASINGWEBS, 7 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_PIERCEARMOR, 19 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_RAISEUNDEADSCARAB, 3 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -94,37 +94,38 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //EncasingWebs
-            if (EncasingWebs_Timer <= diff)
+            _events.Update(diff);
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                DoCastVictim(SPELL_ENCASINGWEBS);
-                EncasingWebs_Timer = 30000;
-            } else EncasingWebs_Timer -= diff;
-
-            //PierceArmor
-            if (PierceArmor_Timer <= diff)
-            {
-                if (urand(0, 3) < 2)
-                    DoCastVictim(SPELL_PIERCEARMOR);
-                PierceArmor_Timer = 35000;
-            } else PierceArmor_Timer -= diff;
-
-            //CryptScarabs_Timer
-            if (CryptScarabs_Timer <= diff)
-            {
-                DoCastVictim(SPELL_CRYPT_SCARABS);
-                CryptScarabs_Timer = 20000;
-            } else CryptScarabs_Timer -= diff;
-
-            //RaiseUndeadScarab
-            if (RaiseUndeadScarab_Timer <= diff)
-            {
-                RaiseUndeadScarab(me->GetVictim());
-                RaiseUndeadScarab_Timer = 16000;
-            } else RaiseUndeadScarab_Timer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_ENCASINGWEBS:
+                        DoCastVictim(SPELL_ENCASINGWEBS);
+                        _events.ScheduleEvent(EVENT_ENCASINGWEBS, 30 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_PIERCEARMOR:
+                        if (urand(0, 3) < 2)
+                            DoCastVictim(SPELL_PIERCEARMOR);
+                        _events.ScheduleEvent(EVENT_PIERCEARMOR, 35 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_CRYPT_SCARABS:
+                        DoCastVictim(SPELL_CRYPT_SCARABS);
+                        _events.ScheduleEvent(EVENT_CRYPT_SCARABS, 20 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_RAISEUNDEADSCARAB:
+                        RaiseUndeadScarab(me->GetVictim());
+                        _events.ScheduleEvent(EVENT_RAISEUNDEADSCARAB, 16 * IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             DoMeleeAttackIfReady();
         }
+    private:
+        InstanceScript* instance;
+        EventMap _events;
     };
 
 };

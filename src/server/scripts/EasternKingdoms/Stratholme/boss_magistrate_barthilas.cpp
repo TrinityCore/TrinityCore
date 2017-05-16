@@ -35,6 +35,14 @@ enum Spells
     SPELL_FURIOUS_ANGER     = 16791
 };
 
+enum Events
+{
+    EVENT_DRAININGBLOW      = 1,
+    EVENT_CROWDPUMMEL       = 2,
+    EVENT_MIGHTYBLOW        = 3,
+    EVENT_FURIOUS_ANGER     = 4,
+};
+
 enum Models
 {
     MODEL_NORMAL            = 10433,
@@ -53,34 +61,16 @@ public:
 
     struct boss_magistrate_barthilasAI : public ScriptedAI
     {
-        boss_magistrate_barthilasAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            DrainingBlow_Timer = 20000;
-            CrowdPummel_Timer = 15000;
-            MightyBlow_Timer = 10000;
-            FuriousAnger_Timer = 5000;
-            AngerCount = 0;
-        }
-
-        uint32 DrainingBlow_Timer;
-        uint32 CrowdPummel_Timer;
-        uint32 MightyBlow_Timer;
-        uint32 FuriousAnger_Timer;
-        uint32 AngerCount;
+        boss_magistrate_barthilasAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
-            Initialize();
-
+            AngerCount = 0;
             if (me->IsAlive())
                 me->SetDisplayId(MODEL_NORMAL);
             else
                 me->SetDisplayId(MODEL_HUMAN);
+            _events.Reset();
         }
 
         void MoveInLineOfSight(Unit* who) override
@@ -98,6 +88,10 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
+            _events.ScheduleEvent(EVENT_DRAININGBLOW, 20 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_CROWDPUMMEL, 15 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_MIGHTYBLOW, 10 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_FURIOUS_ANGER, 5 * IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 diff) override
@@ -106,39 +100,40 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (FuriousAnger_Timer <= diff)
+            _events.Update(diff);
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                FuriousAnger_Timer = 4000;
-                if (AngerCount > 25)
-                    return;
-
-                ++AngerCount;
-                DoCast(me, SPELL_FURIOUS_ANGER, false);
-            } else FuriousAnger_Timer -= diff;
-
-            //DrainingBlow
-            if (DrainingBlow_Timer <= diff)
-            {
-                DoCastVictim(SPELL_DRAININGBLOW);
-                DrainingBlow_Timer = 15000;
-            } else DrainingBlow_Timer -= diff;
-
-            //CrowdPummel
-            if (CrowdPummel_Timer <= diff)
-            {
-                DoCastVictim(SPELL_CROWDPUMMEL);
-                CrowdPummel_Timer = 15000;
-            } else CrowdPummel_Timer -= diff;
-
-            //MightyBlow
-            if (MightyBlow_Timer <= diff)
-            {
-                DoCastVictim(SPELL_MIGHTYBLOW);
-                MightyBlow_Timer = 20000;
-            } else MightyBlow_Timer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_DRAININGBLOW:
+                        DoCastVictim(SPELL_DRAININGBLOW);
+                        _events.ScheduleEvent(EVENT_DRAININGBLOW, 15 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_CROWDPUMMEL:
+                        DoCastVictim(SPELL_CROWDPUMMEL);
+                        _events.ScheduleEvent(EVENT_CROWDPUMMEL, 15 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_MIGHTYBLOW:
+                        DoCastVictim(SPELL_MIGHTYBLOW);
+                        _events.ScheduleEvent(EVENT_MIGHTYBLOW, 20 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_FURIOUS_ANGER:
+                        if (AngerCount > 25)
+                            return;
+                        ++AngerCount;
+                        DoCast(me, SPELL_FURIOUS_ANGER, false);
+                        _events.ScheduleEvent(EVENT_FURIOUS_ANGER, 4 * IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             DoMeleeAttackIfReady();
         }
+    private:
+        uint32 AngerCount;
+        EventMap _events;
     };
 
 };

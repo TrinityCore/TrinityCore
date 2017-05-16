@@ -33,6 +33,13 @@ enum Spells
     SPELL_KNOCKOUT          = 17307
 };
 
+enum Events
+{
+    EVENT_TRAMPLE           = 1,
+    EVENT_KNOCKOUT          = 2
+};
+
+
 enum CreatureId
 {
     NPC_MINDLESS_UNDEAD     = 11030
@@ -52,28 +59,18 @@ public:
     {
         boss_ramstein_the_gorgerAI(Creature* creature) : ScriptedAI(creature)
         {
-            Initialize();
             instance = me->GetInstanceScript();
         }
 
-        void Initialize()
-        {
-            Trample_Timer = 3000;
-            Knockout_Timer = 12000;
-        }
-
-        InstanceScript* instance;
-
-        uint32 Trample_Timer;
-        uint32 Knockout_Timer;
-
         void Reset() override
         {
-            Initialize();
+            _events.Reset();
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
+            _events.ScheduleEvent(EVENT_TRAMPLE, 3 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_KNOCKOUT, 12 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -93,22 +90,30 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //Trample
-            if (Trample_Timer <= diff)
-            {
-                DoCast(me, SPELL_TRAMPLE);
-                Trample_Timer = 7000;
-            } else Trample_Timer -= diff;
+            _events.Update(diff);
 
-            //Knockout
-            if (Knockout_Timer <= diff)
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                DoCastVictim(SPELL_KNOCKOUT);
-                Knockout_Timer = 10000;
-            } else Knockout_Timer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_TRAMPLE:
+                        DoCast(me, SPELL_TRAMPLE);
+                        _events.ScheduleEvent(EVENT_TRAMPLE, 7 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_KNOCKOUT:
+                        DoCastVictim(SPELL_KNOCKOUT);
+                        _events.ScheduleEvent(EVENT_KNOCKOUT, 10 * IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             DoMeleeAttackIfReady();
         }
+    private:
+        InstanceScript* instance;
+        EventMap _events;
     };
 
 };

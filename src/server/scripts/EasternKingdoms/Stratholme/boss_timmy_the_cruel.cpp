@@ -36,6 +36,11 @@ enum Spells
     SPELL_RAVENOUSCLAW          = 17470
 };
 
+enum Event
+{
+    EVENT_RAVENOUSCLAW          = 1
+};
+
 class boss_timmy_the_cruel : public CreatureScript
 {
 public:
@@ -55,16 +60,13 @@ public:
 
         void Initialize()
         {
-            RavenousClaw_Timer = 10000;
             HasYelled = false;
         }
-
-        uint32 RavenousClaw_Timer;
-        bool HasYelled;
-
+        
         void Reset() override
         {
             Initialize();
+            _events.Reset();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -74,6 +76,7 @@ public:
                 Talk(SAY_SPAWN);
                 HasYelled = true;
             }
+            _events.ScheduleEvent(EVENT_RAVENOUSCLAW, 10 * IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 diff) override
@@ -82,17 +85,26 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //RavenousClaw
-            if (RavenousClaw_Timer <= diff)
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                //Cast
-                DoCastVictim(SPELL_RAVENOUSCLAW);
-                //15 seconds until we should cast this again
-                RavenousClaw_Timer = 15000;
-            } else RavenousClaw_Timer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_RAVENOUSCLAW:
+                        DoCastVictim(SPELL_RAVENOUSCLAW);
+                        _events.ScheduleEvent(EVENT_RAVENOUSCLAW, 15 * IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             DoMeleeAttackIfReady();
         }
+    private:
+        bool HasYelled;
+        EventMap _events;
     };
 
 };

@@ -53,13 +53,19 @@ enum Spells
     SPELL_RAISE_DEAD6           = 17480,
 };
 
-// Define Add positions
-Position const ADD_POS_1 = {4017.403809f, -3339.703369f, 115.057655f, 5.487860f};
-Position const ADD_POS_2 = {4013.189209f, -3351.808350f, 115.052254f, 0.134280f};
-Position const ADD_POS_3 = {4017.738037f, -3363.478016f, 115.057274f, 0.723313f};
-Position const ADD_POS_4 = {4048.877197f, -3363.223633f, 115.054253f, 3.627735f};
-Position const ADD_POS_5 = {4051.777588f, -3350.893311f, 115.055351f, 3.066176f};
-Position const ADD_POS_6 = {4048.375977f, -3339.966309f, 115.055222f, 2.457497f};
+enum RivendareMisc
+{
+    EVENT_SHADOW_BOLT           = 0,
+    EVENT_CLEAVE                = 1,
+    EVENT_MORTAL_STRIKE         = 2,
+    EVENT_SUMMON_SKELETON       = 3,
+    EVENT_RAISE_DEAD            = 4,
+};
+
+enum RivendareCreatures
+{
+    NPC_SKELETON                = 11197
+};
 
 class boss_baron_rivendare : public CreatureScript
 {
@@ -75,32 +81,23 @@ public:
     {
         boss_baron_rivendareAI(Creature* creature) : ScriptedAI(creature)
         {
-            Initialize();
             instance = me->GetInstanceScript();
         }
 
-        void Initialize()
-        {
-            ShadowBolt_Timer = 5000;
-            Cleave_Timer = 8000;
-            MortalStrike_Timer = 12000;
-            //        RaiseDead_Timer = 30000;
-            SummonSkeletons_Timer = 34000;
-        }
-
-        InstanceScript* instance;
-
-        uint32 ShadowBolt_Timer;
-        uint32 Cleave_Timer;
-        uint32 MortalStrike_Timer;
-        //    uint32 RaiseDead_Timer;
-        uint32 SummonSkeletons_Timer;
-
         void Reset() override
         {
-            Initialize();
+            _events.Reset();
             if (instance->GetData(TYPE_RAMSTEIN) == DONE)
                 instance->SetData(TYPE_BARON, NOT_STARTED);
+        }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            _events.ScheduleEvent(EVENT_SHADOW_BOLT, 5 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_CLEAVE, 8 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 34 * IN_MILLISECONDS);
+            //_events.ScheduleEvent(EVENT_RAISE_DEAD, 30 * IN_MILLISECONDS);
         }
 
         void AttackStart(Unit* who) override
@@ -117,6 +114,16 @@ public:
                 summoned->AI()->AttackStart(target);
         }
 
+        void DoSpawnSkeleton()
+        {
+            DoCast(me, SPELL_RAISE_DEAD1);
+            DoCast(me, SPELL_RAISE_DEAD2);
+            DoCast(me, SPELL_RAISE_DEAD3);
+            DoCast(me, SPELL_RAISE_DEAD4);
+            DoCast(me, SPELL_RAISE_DEAD5);
+            DoCast(me, SPELL_RAISE_DEAD6);
+        }
+
         void JustDied(Unit* /*killer*/) override
         {
             instance->SetData(TYPE_BARON, DONE);
@@ -127,53 +134,42 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //ShadowBolt
-            if (ShadowBolt_Timer <= diff)
+            _events.Update(diff);
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                if (SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCastVictim(SPELL_SHADOWBOLT);
-
-                ShadowBolt_Timer = 10000;
-            } else ShadowBolt_Timer -= diff;
-
-            //Cleave
-            if (Cleave_Timer <= diff)
-            {
-                DoCastVictim(SPELL_CLEAVE);
-                //13 seconds until we should cast this again
-                Cleave_Timer = 7000 + (rand32() % 10000);
-            } else Cleave_Timer -= diff;
-
-            //MortalStrike
-            if (MortalStrike_Timer <= diff)
-            {
-                DoCastVictim(SPELL_MORTALSTRIKE);
-                MortalStrike_Timer = 10000 + (rand32() % 15000);
-            } else MortalStrike_Timer -= diff;
-
-            //RaiseDead
-            //            if (RaiseDead_Timer <= diff)
-            //          {
-            //      DoCast(me, SPELL_RAISEDEAD);
-            //                RaiseDead_Timer = 45000;
-            //            } else RaiseDead_Timer -= diff;
-
-            //SummonSkeletons
-            if (SummonSkeletons_Timer <= diff)
-            {
-                me->SummonCreature(11197, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 29000);
-
-                //34 seconds until we should cast this again
-                SummonSkeletons_Timer = 40000;
-            } else SummonSkeletons_Timer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_SHADOW_BOLT:
+                        if (SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            DoCastVictim(SPELL_SHADOWBOLT);
+                        _events.ScheduleEvent(EVENT_SHADOW_BOLT, 10 * IN_MILLISECONDS);
+                        break;
+                    case EVENT_CLEAVE:
+                        DoCastVictim(SPELL_CLEAVE);
+                        _events.ScheduleEvent(EVENT_CLEAVE, urand(7, 17) * IN_MILLISECONDS);
+                        break;
+                    case EVENT_MORTAL_STRIKE:
+                        DoCastVictim(SPELL_MORTALSTRIKE);
+                        _events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(10, 25) * IN_MILLISECONDS);
+                        break;
+                        /*case EVENT_RAISE_DEAD:
+                        DoCast(me, SPELL_RAISEDEAD);
+                        _events.ScheduleEvent(EVENT_RAISE_DEAD, 45*IN_MILLISECONDS);
+                        break;*/
+                    case EVENT_SUMMON_SKELETON:
+                        DoSpawnSkeleton();
+                        _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 40 * IN_MILLISECONDS); //34 seconds until we should cast this again
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             DoMeleeAttackIfReady();
         }
+    private:
+        InstanceScript* instance;
+        EventMap _events;
     };
 
 };
