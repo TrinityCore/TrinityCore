@@ -76,7 +76,7 @@ void GarrisonGridLoader::Visit(GameObjectMapType& m)
         CellCoord cellCoord = i_cell.GetCellCoord();
         for (Garrison::Plot* plot : plots)
         {
-            Position const& spawn = plot->PacketInfo.PlotPos;
+            Position const& spawn = plot->PacketInfo.PlotPos.Pos;
             if (cellCoord != Trinity::ComputeCellCoord(spawn.GetPositionX(), spawn.GetPositionY()))
                 continue;
 

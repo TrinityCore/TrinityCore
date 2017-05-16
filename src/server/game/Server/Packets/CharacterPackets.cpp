@@ -49,9 +49,7 @@ WorldPackets::Character::EnumCharactersResult::CharacterInfo::CharacterInfo(Fiel
     Level             = fields[13].GetUInt8();
     ZoneId            = int32(fields[14].GetUInt16());
     MapId             = int32(fields[15].GetUInt16());
-    PreLoadPosition.x = fields[16].GetFloat();
-    PreLoadPosition.y = fields[17].GetFloat();
-    PreLoadPosition.z = fields[18].GetFloat();
+    PreLoadPosition   = Position(fields[16].GetFloat(), fields[17].GetFloat(), fields[18].GetFloat());
 
     if (ObjectGuid::LowType guildId = fields[19].GetUInt64())
         GuildGuid = ObjectGuid::Create<HighGuid::Guild>(guildId);
@@ -377,7 +375,7 @@ void WorldPackets::Character::PlayerLogin::Read()
 WorldPacket const* WorldPackets::Character::LoginVerifyWorld::Write()
 {
     _worldPacket << int32(MapID);
-    _worldPacket << Pos.PositionXYZOStream();
+    _worldPacket << Pos;
     _worldPacket << uint32(Reason);
     return &_worldPacket;
 }

@@ -32,7 +32,7 @@ Ticket::~Ticket() { }
 
 void Ticket::TeleportTo(Player* player) const
 {
-    player->TeleportTo(_mapId, _pos.x, _pos.y, _pos.z, 0.0f, 0);
+    player->TeleportTo(_mapId, _pos.GetPositionX(), _pos.GetPositionY(), _pos.GetPositionZ(), 0.0f, 0);
 }
 
 std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* closedName, char const* assignedToName, char const* unassignedName, char const* deletedName) const
@@ -51,9 +51,9 @@ std::string Ticket::FormatViewMessageString(ChatHandler& handler, char const* cl
     return ss.str();
 }
 
-BugTicket::BugTicket() : _facing(0.0f) { }
+BugTicket::BugTicket() { }
 
-BugTicket::BugTicket(Player* player) : Ticket(player), _facing(0.0f)
+BugTicket::BugTicket(Player* player) : Ticket(player)
 {
     _id = sSupportMgr->GenerateBugId();
 }
@@ -68,10 +68,10 @@ void BugTicket::LoadFromDB(Field* fields)
     _note               = fields[++idx].GetString();
     _createTime         = fields[++idx].GetUInt32();
     _mapId              = fields[++idx].GetUInt16();
-    _pos.x              = fields[++idx].GetFloat();
-    _pos.y              = fields[++idx].GetFloat();
-    _pos.z              = fields[++idx].GetFloat();
-    _facing             = fields[++idx].GetFloat();
+    _pos.m_positionX    = fields[++idx].GetFloat();
+    _pos.m_positionY    = fields[++idx].GetFloat();
+    _pos.m_positionZ    = fields[++idx].GetFloat();
+    _pos.SetOrientation(fields[++idx].GetFloat());
 
     int64 closedBy      = fields[++idx].GetInt64();
     if (closedBy == 0)
@@ -98,10 +98,10 @@ void BugTicket::SaveToDB() const
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
     stmt->setUInt16(++idx, _mapId);
-    stmt->setFloat(++idx, _pos.x);
-    stmt->setFloat(++idx, _pos.y);
-    stmt->setFloat(++idx, _pos.z);
-    stmt->setFloat(++idx, _facing);
+    stmt->setFloat(++idx, _pos.GetPositionX());
+    stmt->setFloat(++idx, _pos.GetPositionY());
+    stmt->setFloat(++idx, _pos.GetPositionZ());
+    stmt->setFloat(++idx, _pos.GetOrientation());
     stmt->setInt64(++idx, _closedBy.GetCounter());
     stmt->setUInt64(++idx, _assignedTo.GetCounter());
     stmt->setString(++idx, _comment);
@@ -137,9 +137,9 @@ std::string BugTicket::FormatViewMessageString(ChatHandler& handler, bool detail
     return ss.str();
 }
 
-ComplaintTicket::ComplaintTicket() : _facing(0.0f), _complaintType(GMTICKET_SUPPORT_COMPLAINT_TYPE_NONE) { }
+ComplaintTicket::ComplaintTicket() : _complaintType(GMTICKET_SUPPORT_COMPLAINT_TYPE_NONE) { }
 
-ComplaintTicket::ComplaintTicket(Player* player) : Ticket(player), _facing(0.0f), _complaintType(GMTICKET_SUPPORT_COMPLAINT_TYPE_NONE)
+ComplaintTicket::ComplaintTicket(Player* player) : Ticket(player), _complaintType(GMTICKET_SUPPORT_COMPLAINT_TYPE_NONE)
 {
     _id = sSupportMgr->GenerateComplaintId();
 }
@@ -154,10 +154,10 @@ void ComplaintTicket::LoadFromDB(Field* fields)
     _note                   = fields[++idx].GetString();
     _createTime             = fields[++idx].GetUInt32();
     _mapId                  = fields[++idx].GetUInt16();
-    _pos.x                  = fields[++idx].GetFloat();
-    _pos.y                  = fields[++idx].GetFloat();
-    _pos.z                  = fields[++idx].GetFloat();
-    _facing                 = fields[++idx].GetFloat();
+    _pos.m_positionX        = fields[++idx].GetFloat();
+    _pos.m_positionY        = fields[++idx].GetFloat();
+    _pos.m_positionZ        = fields[++idx].GetFloat();
+    _pos.SetOrientation(fields[++idx].GetFloat());
     _targetCharacterGuid    = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _complaintType          = GMSupportComplaintType(fields[++idx].GetUInt8());
     int32 reportLineIndex = fields[++idx].GetInt32();
@@ -196,10 +196,10 @@ void ComplaintTicket::SaveToDB() const
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
     stmt->setUInt16(++idx, _mapId);
-    stmt->setFloat(++idx, _pos.x);
-    stmt->setFloat(++idx, _pos.y);
-    stmt->setFloat(++idx, _pos.z);
-    stmt->setFloat(++idx, _facing);
+    stmt->setFloat(++idx, _pos.GetPositionX());
+    stmt->setFloat(++idx, _pos.GetPositionY());
+    stmt->setFloat(++idx, _pos.GetPositionZ());
+    stmt->setFloat(++idx, _pos.GetOrientation());
     stmt->setUInt64(++idx, _targetCharacterGuid.GetCounter());
     stmt->setUInt8(++idx, _complaintType);
     if (_chatLog.ReportLineIndex)
@@ -260,9 +260,9 @@ std::string ComplaintTicket::FormatViewMessageString(ChatHandler& handler, bool 
     return ss.str();
 }
 
-SuggestionTicket::SuggestionTicket() : _facing(0.0f) { }
+SuggestionTicket::SuggestionTicket() { }
 
-SuggestionTicket::SuggestionTicket(Player* player) : Ticket(player), _facing(0.0f)
+SuggestionTicket::SuggestionTicket(Player* player) : Ticket(player)
 {
     _id = sSupportMgr->GenerateSuggestionId();
 }
@@ -277,10 +277,10 @@ void SuggestionTicket::LoadFromDB(Field* fields)
     _note               = fields[++idx].GetString();
     _createTime         = fields[++idx].GetUInt32();
     _mapId              = fields[++idx].GetUInt16();
-    _pos.x              = fields[++idx].GetFloat();
-    _pos.y              = fields[++idx].GetFloat();
-    _pos.z              = fields[++idx].GetFloat();
-    _facing             = fields[++idx].GetFloat();
+    _pos.m_positionX    = fields[++idx].GetFloat();
+    _pos.m_positionY    = fields[++idx].GetFloat();
+    _pos.m_positionZ    = fields[++idx].GetFloat();
+    _pos.SetOrientation(fields[++idx].GetFloat());
 
     int64 closedBy = fields[++idx].GetInt64();
     if (closedBy == 0)
@@ -307,10 +307,10 @@ void SuggestionTicket::SaveToDB() const
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
     stmt->setUInt16(++idx, _mapId);
-    stmt->setFloat(++idx, _pos.x);
-    stmt->setFloat(++idx, _pos.y);
-    stmt->setFloat(++idx, _pos.z);
-    stmt->setFloat(++idx, _facing);
+    stmt->setFloat(++idx, _pos.GetPositionX());
+    stmt->setFloat(++idx, _pos.GetPositionY());
+    stmt->setFloat(++idx, _pos.GetPositionZ());
+    stmt->setFloat(++idx, _pos.GetOrientation());
     stmt->setInt64(++idx, _closedBy.GetCounter());
     stmt->setUInt64(++idx, _assignedTo.GetCounter());
     stmt->setString(++idx, _comment);

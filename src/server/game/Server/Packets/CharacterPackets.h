@@ -130,7 +130,7 @@ namespace WorldPackets
                 uint8 Level              = 0;
                 int32 ZoneId             = 0;
                 int32 MapId              = 0;
-                G3D::Vector3 PreLoadPosition;
+                TaggedPosition<Position::XYZ> PreLoadPosition;
                 ObjectGuid GuildGuid;
                 uint32 Flags             = 0; ///< Character flag @see enum CharacterFlags
                 uint32 CustomizationFlag = 0; ///< Character customization flags @see enum CharacterCustomizeFlags
@@ -442,7 +442,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MapID = -1;
-            Position Pos;
+            TaggedPosition<Position::XYZO> Pos;
             uint32 Reason = 0;
         };
 

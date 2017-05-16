@@ -22,7 +22,6 @@
 #include "AuthenticationPackets.h"
 #include "Creature.h"
 #include "NPCHandler.h"
-#include "G3D/Vector3.h"
 #include "DB2Stores.h"
 
 class Player;
@@ -233,7 +232,7 @@ namespace WorldPackets
 
             ObjectGuid Player;
             ObjectGuid Transport;
-            G3D::Vector3 Position;
+            TaggedPosition<Position::XYZ> Position;
             int32 ActualMapID = 0;
             int32 MapID = 0;
             bool Valid = false;
@@ -258,7 +257,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Player;
-            G3D::Vector3 Position;
+            TaggedPosition<Position::XYZ> Position;
             float Facing = 0.0f;
         };
 

@@ -308,9 +308,7 @@ WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
 
     _worldPacket << Player;
     _worldPacket << ActualMapID;
-    _worldPacket << Position.x;
-    _worldPacket << Position.y;
-    _worldPacket << Position.z;
+    _worldPacket << Position;
     _worldPacket << MapID;
     _worldPacket << Transport;
 

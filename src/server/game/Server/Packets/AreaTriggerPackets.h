@@ -19,10 +19,9 @@
 #define AreaTriggerPackets_h__
 
 #include "Packet.h"
-#include "PacketUtilities.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
-#include <G3D/Vector3.h>
+#include "Position.h"
 
 namespace WorldPackets
 {
@@ -32,13 +31,13 @@ namespace WorldPackets
         {
             uint32 TimeToTarget = 0;
             uint32 ElapsedTimeForMovement = 0;
-            std::vector<G3D::Vector3> Points;
+            std::vector<TaggedPosition<Position::XYZ>> Points;
         };
 
         struct AreaTriggerUnkTypeInfo
         {
             Optional<ObjectGuid> AreaTriggerUnkGUID;
-            Optional<G3D::Vector3> Center;
+            Optional<TaggedPosition<Position::XYZ>> Center;
             bool UnkBit1 = false;
             bool UnkBit2 = false;
             uint32 UnkUInt1 = 0;

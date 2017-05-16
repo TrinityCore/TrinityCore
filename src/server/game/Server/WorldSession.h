@@ -55,6 +55,7 @@ struct AuctionEntry;
 struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
+struct Position;
 struct BlackMarketTemplate;
 
 namespace lfg
@@ -1533,7 +1534,7 @@ class TC_GAME_API WorldSession
         //Pet
         void HandlePetAction(WorldPackets::Pet::PetAction& packet);
         void HandlePetStopAttack(WorldPackets::Pet::PetStopAttack& packet);
-        void HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z);
+        void HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, Position const& pos);
         void HandleQueryPetName(WorldPackets::Query::QueryPetName& packet);
         void HandlePetSetAction(WorldPackets::Pet::PetSetAction& packet);
         void HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet);

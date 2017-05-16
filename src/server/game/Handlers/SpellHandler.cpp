@@ -594,25 +594,13 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMis
     if (!spell || spell->m_spellInfo->Id != uint32(packet.SpellID) || !spell->m_targets.HasDst() || !spell->m_targets.HasSrc())
         return;
 
-    Position pos = *spell->m_targets.GetSrcPos();
-    pos.Relocate(packet.FirePos);
-    spell->m_targets.ModSrc(pos);
-
-    pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(packet.ImpactPos);
-    spell->m_targets.ModDst(pos);
-
+    spell->m_targets.ModSrc(packet.FirePos);
+    spell->m_targets.ModDst(packet.ImpactPos);
     spell->m_targets.SetPitch(packet.Pitch);
     spell->m_targets.SetSpeed(packet.Speed);
 
-    if (packet.Status.is_initialized())
-    {
-        GetPlayer()->ValidateMovementInfo(packet.Status.get_ptr());
-        /*uint32 opcode;
-        recvPacket >> opcode;
-        recvPacket.SetOpcode(CMSG_MOVE_STOP); // always set to CMSG_MOVE_STOP in client SetOpcode
-                                              //HandleMovementOpcodes(recvPacket);*/
-    }
+    if (packet.Status)
+        HandleMovementOpcode(CMSG_MOVE_STOP, *packet.Status);
 }
 
 void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& /*requestCategoryCooldowns*/)

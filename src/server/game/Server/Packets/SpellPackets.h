@@ -781,13 +781,13 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Target; // Exclusive with TargetLocation
-            G3D::Vector3 SourceLocation;
+            TaggedPosition<Position::XYZ> SourceLocation;
             int32 SpellVisualID = 0;
             bool SpeedAsTime = false;
             float TravelSpeed = 0.0f;
             float UnkZero = 0.0f; // Always zero
-            G3D::Vector3 SourceOrientation; // Vector of rotations, Orientation is z
-            G3D::Vector3 TargetLocation; // Exclusive with Target
+            TaggedPosition<Position::XYZ> SourceOrientation; // Vector of rotations, Orientation is z
+            TaggedPosition<Position::XYZ> TargetLocation; // Exclusive with Target
         };
 
         class PlaySpellVisual final : public ServerPacket
@@ -804,7 +804,7 @@ namespace WorldPackets
             bool SpeedAsTime = false;
             uint16 ReflectStatus = 0;
             float TravelSpeed = 0.0f;
-            G3D::Vector3 TargetPosition; // Exclusive with Target
+            TaggedPosition<Position::XYZ> TargetPosition; // Exclusive with Target
             float Orientation = 0.0f;
         };
 
@@ -991,7 +991,7 @@ namespace WorldPackets
             ObjectGuid Target;
             int32 SpellID = 0;
             ObjectGuid CastID;
-            G3D::Vector3 CollisionPos;
+            TaggedPosition<Position::XYZ> CollisionPos;
         };
 
         class NotifyMissileTrajectoryCollision final : public ServerPacket
@@ -1003,7 +1003,7 @@ namespace WorldPackets
 
             ObjectGuid Caster;
             ObjectGuid CastID;
-            G3D::Vector3 CollisionPos;
+            TaggedPosition<Position::XYZ> CollisionPos;
         };
 
         class UpdateMissileTrajectory final : public ClientPacket
@@ -1018,8 +1018,8 @@ namespace WorldPackets
             int32 SpellID = 0;
             float Pitch = 0.0f;
             float Speed = 0.0f;
-            G3D::Vector3 FirePos;
-            G3D::Vector3 ImpactPos;
+            TaggedPosition<Position::XYZ> FirePos;
+            TaggedPosition<Position::XYZ> ImpactPos;
             Optional<MovementInfo> Status;
         };
 
