@@ -1727,551 +1727,213 @@ CREATE TABLE `linked_respawn` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `locales_achievement_reward`
+-- Table structure for table `achievement_reward_locale`
 --
 
-DROP TABLE IF EXISTS `locales_achievement_reward`;
+DROP TABLE IF EXISTS `achievement_reward_locale`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_achievement_reward` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `subject_loc1` varchar(100) NOT NULL DEFAULT '',
-  `subject_loc2` varchar(100) NOT NULL DEFAULT '',
-  `subject_loc3` varchar(100) NOT NULL DEFAULT '',
-  `subject_loc4` varchar(100) NOT NULL DEFAULT '',
-  `subject_loc5` varchar(100) NOT NULL DEFAULT '',
-  `subject_loc6` varchar(100) NOT NULL DEFAULT '',
-  `subject_loc7` varchar(100) NOT NULL DEFAULT '',
-  `subject_loc8` varchar(100) NOT NULL DEFAULT '',
-  `text_loc1` text,
-  `text_loc2` text,
-  `text_loc3` text,
-  `text_loc4` text,
-  `text_loc5` text,
-  `text_loc6` text,
-  `text_loc7` text,
-  `text_loc8` text,
-  PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_broadcast_text`
---
-
-DROP TABLE IF EXISTS `locales_broadcast_text`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_broadcast_text` (
+CREATE TABLE `achievement_reward_locale` (
   `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `MaleText_loc1` longtext,
-  `MaleText_loc2` longtext,
-  `MaleText_loc3` longtext,
-  `MaleText_loc4` longtext,
-  `MaleText_loc5` longtext,
-  `MaleText_loc6` longtext,
-  `MaleText_loc7` longtext,
-  `MaleText_loc8` longtext,
-  `FemaleText_loc1` longtext,
-  `FemaleText_loc2` longtext,
-  `FemaleText_loc3` longtext,
-  `FemaleText_loc4` longtext,
-  `FemaleText_loc5` longtext,
-  `FemaleText_loc6` longtext,
-  `FemaleText_loc7` longtext,
-  `FemaleText_loc8` longtext,
-  `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`ID`)
+  `Locale` varchar(4) NOT NULL,
+  `Subject` text,
+  `Text` text,
+  PRIMARY KEY (`ID`,`Locale`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `locales_creature`
+-- Table structure for table `broadcast_text_locale`
 --
 
-DROP TABLE IF EXISTS `locales_creature`;
+DROP TABLE IF EXISTS `broadcast_text_locale`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_creature` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `name_loc1` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc1` char(100) NOT NULL,
-  `name_loc2` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc2` char(100) NOT NULL,
-  `name_loc3` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc3` char(100) NOT NULL,
-  `name_loc4` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc4` char(100) NOT NULL,
-  `name_loc5` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc5` char(100) NOT NULL,
-  `name_loc6` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc6` char(100) NOT NULL,
-  `name_loc7` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc7` char(100) NOT NULL,
-  `name_loc8` varchar(100) NOT NULL DEFAULT '',
-  `femaleName_loc8` char(100) NOT NULL,
-  `subname_loc1` varchar(100) DEFAULT NULL,
-  `subname_loc2` varchar(100) DEFAULT NULL,
-  `subname_loc3` varchar(100) DEFAULT NULL,
-  `subname_loc4` varchar(100) DEFAULT NULL,
-  `subname_loc5` varchar(100) DEFAULT NULL,
-  `subname_loc6` varchar(100) DEFAULT NULL,
-  `subname_loc7` varchar(100) DEFAULT NULL,
-  `subname_loc8` varchar(100) DEFAULT NULL,
-  `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_creature_text`
---
-
-DROP TABLE IF EXISTS `locales_creature_text`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_creature_text` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `id` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `text_loc1` text,
-  `text_loc2` text,
-  `text_loc3` text,
-  `text_loc4` text,
-  `text_loc5` text,
-  `text_loc6` text,
-  `text_loc7` text,
-  `text_loc8` text,
-  PRIMARY KEY (`entry`,`groupid`,`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_gameobject`
---
-
-DROP TABLE IF EXISTS `locales_gameobject`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_gameobject` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `name_loc1` varchar(100) NOT NULL DEFAULT '',
-  `name_loc2` varchar(100) NOT NULL DEFAULT '',
-  `name_loc3` varchar(100) NOT NULL DEFAULT '',
-  `name_loc4` varchar(100) NOT NULL DEFAULT '',
-  `name_loc5` varchar(100) NOT NULL DEFAULT '',
-  `name_loc6` varchar(100) NOT NULL DEFAULT '',
-  `name_loc7` varchar(100) NOT NULL DEFAULT '',
-  `name_loc8` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc1` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc2` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc3` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc4` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc5` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc6` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc7` varchar(100) NOT NULL DEFAULT '',
-  `castbarcaption_loc8` varchar(100) NOT NULL DEFAULT '',
-  `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_gossip_menu_option`
---
-
-DROP TABLE IF EXISTS `locales_gossip_menu_option`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_gossip_menu_option` (
-  `menu_id` smallint(6) unsigned NOT NULL DEFAULT '0',
-  `id` smallint(6) unsigned NOT NULL DEFAULT '0',
-  `option_text_loc1` text,
-  `option_text_loc2` text,
-  `option_text_loc3` text,
-  `option_text_loc4` text,
-  `option_text_loc5` text,
-  `option_text_loc6` text,
-  `option_text_loc7` text,
-  `option_text_loc8` text,
-  `box_text_loc1` text,
-  `box_text_loc2` text,
-  `box_text_loc3` text,
-  `box_text_loc4` text,
-  `box_text_loc5` text,
-  `box_text_loc6` text,
-  `box_text_loc7` text,
-  `box_text_loc8` text,
-  PRIMARY KEY (`menu_id`,`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_item`
---
-
-DROP TABLE IF EXISTS `locales_item`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_item` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `name_loc1` varchar(100) NOT NULL DEFAULT '',
-  `name_loc2` varchar(100) NOT NULL DEFAULT '',
-  `name_loc3` varchar(100) NOT NULL DEFAULT '',
-  `name_loc4` varchar(100) NOT NULL DEFAULT '',
-  `name_loc5` varchar(100) NOT NULL DEFAULT '',
-  `name_loc6` varchar(100) NOT NULL DEFAULT '',
-  `name_loc7` varchar(100) NOT NULL DEFAULT '',
-  `name_loc8` varchar(100) NOT NULL DEFAULT '',
-  `description_loc1` varchar(255) DEFAULT NULL,
-  `description_loc2` varchar(255) DEFAULT NULL,
-  `description_loc3` varchar(255) DEFAULT NULL,
-  `description_loc4` varchar(255) DEFAULT NULL,
-  `description_loc5` varchar(255) DEFAULT NULL,
-  `description_loc6` varchar(255) DEFAULT NULL,
-  `description_loc7` varchar(255) DEFAULT NULL,
-  `description_loc8` varchar(255) DEFAULT NULL,
-  `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_item_set_names`
---
-
-DROP TABLE IF EXISTS `locales_item_set_names`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_item_set_names` (
-  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `name_loc1` varchar(100) NOT NULL DEFAULT '',
-  `name_loc2` varchar(100) NOT NULL DEFAULT '',
-  `name_loc3` varchar(100) NOT NULL DEFAULT '',
-  `name_loc4` varchar(100) NOT NULL DEFAULT '',
-  `name_loc5` varchar(100) NOT NULL DEFAULT '',
-  `name_loc6` varchar(100) NOT NULL DEFAULT '',
-  `name_loc7` varchar(100) NOT NULL DEFAULT '',
-  `name_loc8` varchar(100) NOT NULL DEFAULT '',
-  `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_npc_text`
---
-
-DROP TABLE IF EXISTS `locales_npc_text`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_npc_text` (
+CREATE TABLE `broadcast_text_locale` (
   `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `Text0_0_loc1` longtext,
-  `Text0_0_loc2` longtext,
-  `Text0_0_loc3` longtext,
-  `Text0_0_loc4` longtext,
-  `Text0_0_loc5` longtext,
-  `Text0_0_loc6` longtext,
-  `Text0_0_loc7` longtext,
-  `Text0_0_loc8` longtext,
-  `Text0_1_loc1` longtext,
-  `Text0_1_loc2` longtext,
-  `Text0_1_loc3` longtext,
-  `Text0_1_loc4` longtext,
-  `Text0_1_loc5` longtext,
-  `Text0_1_loc6` longtext,
-  `Text0_1_loc7` longtext,
-  `Text0_1_loc8` longtext,
-  `Text1_0_loc1` longtext,
-  `Text1_0_loc2` longtext,
-  `Text1_0_loc3` longtext,
-  `Text1_0_loc4` longtext,
-  `Text1_0_loc5` longtext,
-  `Text1_0_loc6` longtext,
-  `Text1_0_loc7` longtext,
-  `Text1_0_loc8` longtext,
-  `Text1_1_loc1` longtext,
-  `Text1_1_loc2` longtext,
-  `Text1_1_loc3` longtext,
-  `Text1_1_loc4` longtext,
-  `Text1_1_loc5` longtext,
-  `Text1_1_loc6` longtext,
-  `Text1_1_loc7` longtext,
-  `Text1_1_loc8` longtext,
-  `Text2_0_loc1` longtext,
-  `Text2_0_loc2` longtext,
-  `Text2_0_loc3` longtext,
-  `Text2_0_loc4` longtext,
-  `Text2_0_loc5` longtext,
-  `Text2_0_loc6` longtext,
-  `Text2_0_loc7` longtext,
-  `Text2_0_loc8` longtext,
-  `Text2_1_loc1` longtext,
-  `Text2_1_loc2` longtext,
-  `Text2_1_loc3` longtext,
-  `Text2_1_loc4` longtext,
-  `Text2_1_loc5` longtext,
-  `Text2_1_loc6` longtext,
-  `Text2_1_loc7` longtext,
-  `Text2_1_loc8` longtext,
-  `Text3_0_loc1` longtext,
-  `Text3_0_loc2` longtext,
-  `Text3_0_loc3` longtext,
-  `Text3_0_loc4` longtext,
-  `Text3_0_loc5` longtext,
-  `Text3_0_loc6` longtext,
-  `Text3_0_loc7` longtext,
-  `Text3_0_loc8` longtext,
-  `Text3_1_loc1` longtext,
-  `Text3_1_loc2` longtext,
-  `Text3_1_loc3` longtext,
-  `Text3_1_loc4` longtext,
-  `Text3_1_loc5` longtext,
-  `Text3_1_loc6` longtext,
-  `Text3_1_loc7` longtext,
-  `Text3_1_loc8` longtext,
-  `Text4_0_loc1` longtext,
-  `Text4_0_loc2` longtext,
-  `Text4_0_loc3` longtext,
-  `Text4_0_loc4` longtext,
-  `Text4_0_loc5` longtext,
-  `Text4_0_loc6` longtext,
-  `Text4_0_loc7` longtext,
-  `Text4_0_loc8` longtext,
-  `Text4_1_loc1` longtext,
-  `Text4_1_loc2` longtext,
-  `Text4_1_loc3` longtext,
-  `Text4_1_loc4` longtext,
-  `Text4_1_loc5` longtext,
-  `Text4_1_loc6` longtext,
-  `Text4_1_loc7` longtext,
-  `Text4_1_loc8` longtext,
-  `Text5_0_loc1` longtext,
-  `Text5_0_loc2` longtext,
-  `Text5_0_loc3` longtext,
-  `Text5_0_loc4` longtext,
-  `Text5_0_loc5` longtext,
-  `Text5_0_loc6` longtext,
-  `Text5_0_loc7` longtext,
-  `Text5_0_loc8` longtext,
-  `Text5_1_loc1` longtext,
-  `Text5_1_loc2` longtext,
-  `Text5_1_loc3` longtext,
-  `Text5_1_loc4` longtext,
-  `Text5_1_loc5` longtext,
-  `Text5_1_loc6` longtext,
-  `Text5_1_loc7` longtext,
-  `Text5_1_loc8` longtext,
-  `Text6_0_loc1` longtext,
-  `Text6_0_loc2` longtext,
-  `Text6_0_loc3` longtext,
-  `Text6_0_loc4` longtext,
-  `Text6_0_loc5` longtext,
-  `Text6_0_loc6` longtext,
-  `Text6_0_loc7` longtext,
-  `Text6_0_loc8` longtext,
-  `Text6_1_loc1` longtext,
-  `Text6_1_loc2` longtext,
-  `Text6_1_loc3` longtext,
-  `Text6_1_loc4` longtext,
-  `Text6_1_loc5` longtext,
-  `Text6_1_loc6` longtext,
-  `Text6_1_loc7` longtext,
-  `Text6_1_loc8` longtext,
-  `Text7_0_loc1` longtext,
-  `Text7_0_loc2` longtext,
-  `Text7_0_loc3` longtext,
-  `Text7_0_loc4` longtext,
-  `Text7_0_loc5` longtext,
-  `Text7_0_loc6` longtext,
-  `Text7_0_loc7` longtext,
-  `Text7_0_loc8` longtext,
-  `Text7_1_loc1` longtext,
-  `Text7_1_loc2` longtext,
-  `Text7_1_loc3` longtext,
-  `Text7_1_loc4` longtext,
-  `Text7_1_loc5` longtext,
-  `Text7_1_loc6` longtext,
-  `Text7_1_loc7` longtext,
-  `Text7_1_loc8` longtext,
-  PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_page_text`
---
-
-DROP TABLE IF EXISTS `locales_page_text`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_page_text` (
-  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `Text_loc1` longtext,
-  `Text_loc2` longtext,
-  `Text_loc3` longtext,
-  `Text_loc4` longtext,
-  `Text_loc5` longtext,
-  `Text_loc6` longtext,
-  `Text_loc7` longtext,
-  `Text_loc8` longtext,
-  PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_points_of_interest`
---
-
-DROP TABLE IF EXISTS `locales_points_of_interest`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_points_of_interest` (
-  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `Name_loc1` text,
-  `Name_loc2` text,
-  `Name_loc3` text,
-  `Name_loc4` text,
-  `Name_loc5` text,
-  `Name_loc6` text,
-  `Name_loc7` text,
-  `Name_loc8` text,
-  PRIMARY KEY (`ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `locales_quest`
---
-
-DROP TABLE IF EXISTS `locales_quest`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_quest` (
-  `Id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `Title_loc1` text,
-  `Title_loc2` text,
-  `Title_loc3` text,
-  `Title_loc4` text,
-  `Title_loc5` text,
-  `Title_loc6` text,
-  `Title_loc7` text,
-  `Title_loc8` text,
-  `Details_loc1` text,
-  `Details_loc2` text,
-  `Details_loc3` text,
-  `Details_loc4` text,
-  `Details_loc5` text,
-  `Details_loc6` text,
-  `Details_loc7` text,
-  `Details_loc8` text,
-  `Objectives_loc1` text,
-  `Objectives_loc2` text,
-  `Objectives_loc3` text,
-  `Objectives_loc4` text,
-  `Objectives_loc5` text,
-  `Objectives_loc6` text,
-  `Objectives_loc7` text,
-  `Objectives_loc8` text,
-  `OfferRewardText_loc1` text,
-  `OfferRewardText_loc2` text,
-  `OfferRewardText_loc3` text,
-  `OfferRewardText_loc4` text,
-  `OfferRewardText_loc5` text,
-  `OfferRewardText_loc6` text,
-  `OfferRewardText_loc7` text,
-  `OfferRewardText_loc8` text,
-  `RequestItemsText_loc1` text,
-  `RequestItemsText_loc2` text,
-  `RequestItemsText_loc3` text,
-  `RequestItemsText_loc4` text,
-  `RequestItemsText_loc5` text,
-  `RequestItemsText_loc6` text,
-  `RequestItemsText_loc7` text,
-  `RequestItemsText_loc8` text,
-  `EndText_loc1` text,
-  `EndText_loc2` text,
-  `EndText_loc3` text,
-  `EndText_loc4` text,
-  `EndText_loc5` text,
-  `EndText_loc6` text,
-  `EndText_loc7` text,
-  `EndText_loc8` text,
-  `CompletedText_loc1` text,
-  `CompletedText_loc2` text,
-  `CompletedText_loc3` text,
-  `CompletedText_loc4` text,
-  `CompletedText_loc5` text,
-  `CompletedText_loc6` text,
-  `CompletedText_loc7` text,
-  `CompletedText_loc8` text,
-  `ObjectiveText1_loc1` text,
-  `ObjectiveText1_loc2` text,
-  `ObjectiveText1_loc3` text,
-  `ObjectiveText1_loc4` text,
-  `ObjectiveText1_loc5` text,
-  `ObjectiveText1_loc6` text,
-  `ObjectiveText1_loc7` text,
-  `ObjectiveText1_loc8` text,
-  `ObjectiveText2_loc1` text,
-  `ObjectiveText2_loc2` text,
-  `ObjectiveText2_loc3` text,
-  `ObjectiveText2_loc4` text,
-  `ObjectiveText2_loc5` text,
-  `ObjectiveText2_loc6` text,
-  `ObjectiveText2_loc7` text,
-  `ObjectiveText2_loc8` text,
-  `ObjectiveText3_loc1` text,
-  `ObjectiveText3_loc2` text,
-  `ObjectiveText3_loc3` text,
-  `ObjectiveText3_loc4` text,
-  `ObjectiveText3_loc5` text,
-  `ObjectiveText3_loc6` text,
-  `ObjectiveText3_loc7` text,
-  `ObjectiveText3_loc8` text,
-  `ObjectiveText4_loc1` text,
-  `ObjectiveText4_loc2` text,
-  `ObjectiveText4_loc3` text,
-  `ObjectiveText4_loc4` text,
-  `ObjectiveText4_loc5` text,
-  `ObjectiveText4_loc6` text,
-  `ObjectiveText4_loc7` text,
-  `ObjectiveText4_loc8` text,
-  `QuestGiverTextWindow_loc1` text,
-  `QuestGiverTextWindow_loc2` text,
-  `QuestGiverTextWindow_loc3` text,
-  `QuestGiverTextWindow_loc4` text,
-  `QuestGiverTextWindow_loc5` text,
-  `QuestGiverTextWindow_loc6` text,
-  `QuestGiverTextWindow_loc7` text,
-  `QuestGiverTextWindow_loc8` text,
-  `QuestGiverTargetName_loc1` text,
-  `QuestGiverTargetName_loc2` text,
-  `QuestGiverTargetName_loc3` text,
-  `QuestGiverTargetName_loc4` text,
-  `QuestGiverTargetName_loc5` text,
-  `QuestGiverTargetName_loc6` text,
-  `QuestGiverTargetName_loc7` text,
-  `QuestGiverTargetName_loc8` text,
-  `QuestTurnTextWindow_loc1` text,
-  `QuestTurnTextWindow_loc2` text,
-  `QuestTurnTextWindow_loc3` text,
-  `QuestTurnTextWindow_loc4` text,
-  `QuestTurnTextWindow_loc5` text,
-  `QuestTurnTextWindow_loc6` text,
-  `QuestTurnTextWindow_loc7` text,
-  `QuestTurnTextWindow_loc8` text,
-  `QuestTurnTargetName_loc1` text,
-  `QuestTurnTargetName_loc2` text,
-  `QuestTurnTargetName_loc3` text,
-  `QuestTurnTargetName_loc4` text,
-  `QuestTurnTargetName_loc5` text,
-  `QuestTurnTargetName_loc6` text,
-  `QuestTurnTargetName_loc7` text,
-  `QuestTurnTargetName_loc8` text,
+  `locale` varchar(4) NOT NULL,
+  `MaleText` text,
+  `FemaleText` text,
   `VerifiedBuild` smallint(5) DEFAULT '0',
-  PRIMARY KEY (`Id`)
+  PRIMARY KEY (`ID`,`locale`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `creature_template_locale`
+--
+
+DROP TABLE IF EXISTS `creature_template_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_template_locale` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) NOT NULL,
+  `Name` text,
+  `FemaleName` text,
+  `Title` text,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`entry`,`locale`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `creature_text_locale`
+--
+
+DROP TABLE IF EXISTS `creature_text_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_text_locale` (
+  `CreatureID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `GroupID` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `ID` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Locale` varchar(4) NOT NULL,
+  `Text` text,
+  PRIMARY KEY (`CreatureID`,`GroupID`,`ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `gameobject_template_locale`
+--
+
+DROP TABLE IF EXISTS `gameobject_template_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gameobject_template_locale` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) NOT NULL,
+  `name` text,
+  `castBarCaption` text,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`entry`,`locale`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `gossip_menu_option_locale`
+--
+
+DROP TABLE IF EXISTS `gossip_menu_option_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gossip_menu_option_locale` (
+  `MenuID` smallint(6) unsigned NOT NULL DEFAULT '0',
+  `OptionID` smallint(6) unsigned NOT NULL DEFAULT '0',
+  `Locale` varchar(4) NOT NULL,
+  `OptionText` text,
+  `BoxText` text,
+  PRIMARY KEY (`MenuID`,`OptionID`,`Locale`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `item_template_locale`
+--
+
+DROP TABLE IF EXISTS `item_template_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_template_locale` (
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) NOT NULL,
+  `Name` text,
+  `Description` text,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`ID`,`locale`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `npc_text_locale`
+--
+
+DROP TABLE IF EXISTS `npc_text_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `npc_text_locale` (
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `Locale` varchar(4) NOT NULL,
+  `Text0_0` longtext,
+  `Text0_1` longtext,
+  `Text1_0` longtext,
+  `Text1_1` longtext,
+  `Text2_0` longtext,
+  `Text2_1` longtext,
+  `Text3_0` longtext,
+  `Text3_1` longtext,
+  `Text4_0` longtext,
+  `Text4_1` longtext,
+  `Text5_0` longtext,
+  `Text5_1` longtext,
+  `Text6_0` longtext,
+  `Text6_1` longtext,
+  `Text7_0` longtext,
+  `Text7_1` longtext,
+  PRIMARY KEY (`ID`,`Locale`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `page_text_locale`
+--
+
+DROP TABLE IF EXISTS `page_text_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `page_text_locale` (
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) NOT NULL,
+  `Text` text,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`ID`,`locale`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `points_of_interest_locale`
+--
+
+DROP TABLE IF EXISTS `points_of_interest_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `points_of_interest_locale` (
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) NOT NULL,
+  `Name` text,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`ID`,`locale`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `quest_template_locale`
+--
+
+DROP TABLE IF EXISTS `quest_template_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quest_template_locale` (
+  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `locale` varchar(4) NOT NULL,
+  `Title` text,
+  `Details` text,
+  `Objectives` text,
+  `OfferRewardText` text,
+  `RequestItemsText` text,
+  `EndText` text,
+  `CompletedText` text,
+  `ObjectiveText1` text,
+  `ObjectiveText2` text,
+  `ObjectiveText3` text,
+  `ObjectiveText4` text,
+  `QuestGiverTextWindow` text,
+  `QuestGiverTargetName` text,
+  `QuestTurnTextWindow` text,
+  `QuestTurnTargetName` text,
+  `VerifiedBuild` smallint(5) DEFAULT '0',
+  PRIMARY KEY (`ID`,`locale`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
