@@ -126,7 +126,7 @@ public:
         {
             Initialize();
             events.Reset();
-            me->SetFaction(7);
+            me->SetFaction(FACTION_CREATURE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
             me->LoadEquipment(0, true);
@@ -232,7 +232,7 @@ public:
                         wait_timer -= diff;
                     else
                     {
-                        me->SetFaction(14);
+                        me->SetFaction(FACTION_MONSTER);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         phase = PHASE_ATTACKING;
 
@@ -475,8 +475,7 @@ enum Says_VBM
 
 enum Misc_VBN
 {
-    QUEST_DEATH_CHALLENGE       = 12733,
-    FACTION_HOSTILE             = 2068
+    QUEST_DEATH_CHALLENGE       = 12733
 };
 
 class npc_death_knight_initiate : public CreatureScript
@@ -554,7 +553,7 @@ public:
                 {
                     if (m_uiDuelTimer <= uiDiff)
                     {
-                        me->SetFaction(FACTION_HOSTILE);
+                        me->SetFaction(FACTION_UNDEAD_SCOURGE_2);
 
                         if (Unit* unit = ObjectAccessor::GetUnit(*me, m_uiDuelerGUID))
                             AttackStart(unit);
@@ -780,7 +779,7 @@ public:
                         {
                             charmer->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
                             caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                            caster->SetFaction(35);
+                            caster->SetFaction(FACTION_FRIENDLY);
                             DoCast(caster, SPELL_CALL_DARK_RIDER, true);
                             if (Creature* Dark_Rider = me->FindNearestCreature(NPC_DARK_RIDER_OF_ACHERUS, 15))
                                 ENSURE_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);

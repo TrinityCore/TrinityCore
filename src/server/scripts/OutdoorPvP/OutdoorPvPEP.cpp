@@ -225,7 +225,7 @@ void OPvPCapturePointEP_NPT::SummonGO(uint32 team)
         auto bounds = map->GetGameObjectBySpawnIdStore().equal_range(m_Objects[EP_NPT_BUFF]);
         for (auto itr = bounds.first; itr != bounds.second; ++itr)
             if (GameObject* go = itr->second)
-                go->SetFaction(team == ALLIANCE ? 84 : 83);
+                go->SetFaction(team == ALLIANCE ? FACTION_ALLIANCE_GENERIC : FACTION_HORDE_GENERIC);
     }
 }
 
