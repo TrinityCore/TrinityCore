@@ -12683,7 +12683,7 @@ void Unit::SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisua
     WorldPackets::Spells::PlayOrphanSpellVisual playOrphanSpellVisual;
     playOrphanSpellVisual.SourceLocation = GetPosition();
     if (withSourceOrientation)
-        playOrphanSpellVisual.SourceOrientation.Pos.SetOrientation(GetOrientation());
+        playOrphanSpellVisual.SourceRotation = Position(0.0f, 0.0f, GetOrientation());
     playOrphanSpellVisual.Target = target; // exclusive with TargetLocation
     playOrphanSpellVisual.SpellVisualID = spellVisualId;
     playOrphanSpellVisual.TravelSpeed = travelSpeed;
@@ -12697,7 +12697,7 @@ void Unit::SendPlayOrphanSpellVisual(Position const& targetLocation, uint32 spel
     WorldPackets::Spells::PlayOrphanSpellVisual playOrphanSpellVisual;
     playOrphanSpellVisual.SourceLocation = GetPosition();
     if (withSourceOrientation)
-        playOrphanSpellVisual.SourceOrientation.Pos.SetOrientation(GetOrientation());
+        playOrphanSpellVisual.SourceRotation = Position(0.0f, 0.0f, GetOrientation());
     playOrphanSpellVisual.TargetLocation = targetLocation; // exclusive with Target
     playOrphanSpellVisual.SpellVisualID = spellVisualId;
     playOrphanSpellVisual.TravelSpeed = travelSpeed;

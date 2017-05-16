@@ -786,7 +786,7 @@ namespace WorldPackets
             bool SpeedAsTime = false;
             float TravelSpeed = 0.0f;
             float UnkZero = 0.0f; // Always zero
-            TaggedPosition<Position::XYZ> SourceOrientation; // Vector of rotations, Orientation is z
+            TaggedPosition<Position::XYZ> SourceRotation; // Vector of rotations, Orientation is z
             TaggedPosition<Position::XYZ> TargetLocation; // Exclusive with Target
         };
 
