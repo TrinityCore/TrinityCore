@@ -265,7 +265,7 @@ void Garrison::InitializePlots()
 
             Plot& plotInfo = _plots[garrPlotInstanceId];
             plotInfo.PacketInfo.GarrPlotInstanceID = garrPlotInstanceId;
-            plotInfo.PacketInfo.PlotPos.Relocate(gameObject->Position.X, gameObject->Position.Y, gameObject->Position.Z, 2 * std::acos(gameObject->RotationW));
+            plotInfo.PacketInfo.PlotPos = Position(gameObject->Position.X, gameObject->Position.Y, gameObject->Position.Z, 2 * std::acos(gameObject->RotationW));
             plotInfo.PacketInfo.PlotType = plot->PlotType;
             plotInfo.EmptyGameObjectId = gameObject->ID;
             plotInfo.GarrSiteLevelPlotInstId = plots->at(i)->ID;
@@ -594,7 +594,7 @@ void Garrison::SendBuildingLandmarks(Player* receiver) const
         Plot const& plot = p.second;
         if (plot.BuildingInfo.PacketInfo)
             if (uint32 garrBuildingPlotInstId = sGarrisonMgr.GetGarrBuildingPlotInst(plot.BuildingInfo.PacketInfo->GarrBuildingID, plot.GarrSiteLevelPlotInstId))
-                buildingLandmarks.Landmarks.emplace_back(garrBuildingPlotInstId, plot.PacketInfo.PlotPos);
+                buildingLandmarks.Landmarks.emplace_back(garrBuildingPlotInstId, plot.PacketInfo.PlotPos.Pos);
     }
 
     receiver->SendDirectMessage(buildingLandmarks.Write());
@@ -726,9 +726,8 @@ GameObject* Garrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex fact
         return nullptr;
     }
 
-    Position const& pos = PacketInfo.PlotPos;
     GameObject* building = new GameObject();
-    if (!building->Create(entry, map, 0, pos, G3D::Quat(), 255, GO_STATE_READY))
+    if (!building->Create(entry, map, 0, PacketInfo.PlotPos.Pos, G3D::Quat(), 255, GO_STATE_READY))
     {
         delete building;
         return nullptr;

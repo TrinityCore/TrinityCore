@@ -90,11 +90,12 @@ public:
     virtual void SetUnassigned() { _assignedTo.Clear(); }
     void SetClosedBy(ObjectGuid value) { _closedBy = value; }
     void SetComment(std::string const& comment) { _comment = comment; }
-    void SetPosition(uint32 mapId, G3D::Vector3& pos)
+    void SetPosition(uint32 mapId, Position const& pos)
     {
         _mapId = mapId;
         _pos = pos;
     }
+    void SetFacing(float facing) { _pos.SetOrientation(facing); }
 
     virtual void LoadFromDB(Field* fields) = 0;
     virtual void SaveToDB() const = 0;
@@ -109,7 +110,7 @@ protected:
     uint32 _id;
     ObjectGuid _playerGuid;
     uint16 _mapId;
-    G3D::Vector3 _pos;
+    Position _pos;
     uint64 _createTime;
     ObjectGuid _closedBy; // 0 = Open, -1 = Console, playerGuid = player abandoned ticket, other = GM who closed it.
     ObjectGuid _assignedTo;
@@ -125,7 +126,6 @@ public:
 
     std::string const& GetNote() const { return _note; }
 
-    void SetFacing(float facing) { _facing = facing; }
     void SetNote(std::string const& note) { _note = note; }
 
     void LoadFromDB(Field* fields) override;
@@ -136,7 +136,6 @@ public:
     std::string FormatViewMessageString(ChatHandler& handler, bool detailed = false) const override;
 
 private:
-    float _facing;
     std::string _note;
 };
 
@@ -151,7 +150,6 @@ public:
     GMSupportComplaintType GetComplaintType() const { return _complaintType; }
     std::string const& GetNote() const { return _note; }
 
-    void SetFacing(float facing) { _facing = facing; }
     void SetTargetCharacterGuid(ObjectGuid targetCharacterGuid)
     {
         _targetCharacterGuid = targetCharacterGuid;
@@ -169,7 +167,6 @@ public:
     std::string FormatViewMessageString(ChatHandler& handler, bool detailed = false) const override;
 
 private:
-    float _facing;
     ObjectGuid _targetCharacterGuid;
     GMSupportComplaintType _complaintType;
     ChatLog _chatLog;
@@ -186,8 +183,6 @@ public:
     std::string const& GetNote() const { return _note; }
     void SetNote(std::string const& note) { _note = note; }
 
-    void SetFacing(float facing) { _facing = facing; }
-
     void LoadFromDB(Field* fields) override;
     void SaveToDB() const override;
     void DeleteFromDB() override;
@@ -196,7 +191,6 @@ public:
     std::string FormatViewMessageString(ChatHandler& handler, bool detailed = false) const override;
 
 private:
-    float _facing;
     std::string _note;
 };
 

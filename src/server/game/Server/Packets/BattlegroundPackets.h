@@ -21,10 +21,9 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "LFGPackets.h"
-#include "PacketUtilities.h"
+#include "Position.h"
 #include "Packet.h"
 #include "Optional.h"
-#include <G3D/Vector3.h>
 
 namespace WorldPackets
 {
@@ -347,7 +346,7 @@ namespace WorldPackets
         struct BattlegroundPlayerPosition
         {
             ObjectGuid Guid;
-            G3D::Vector2 Pos;
+            TaggedPosition<Position::XY> Pos;
             int8 IconID = 0;
             int8 ArenaSlot = 0;
         };

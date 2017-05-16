@@ -613,7 +613,9 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, uin
         reshape.AreaTriggerSpline = boost::in_place();
         reshape.AreaTriggerSpline->ElapsedTimeForMovement = GetElapsedTimeForMovement();
         reshape.AreaTriggerSpline->TimeToTarget = timeToTarget;
-        reshape.AreaTriggerSpline->Points = splinePoints;
+        for (G3D::Vector3 const& vec : splinePoints)
+            reshape.AreaTriggerSpline->Points.emplace_back(vec.x, vec.y, vec.z);
+
         SendMessageToSet(reshape.Write(), true);
     }
 

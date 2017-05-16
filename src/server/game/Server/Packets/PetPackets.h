@@ -200,7 +200,7 @@ namespace WorldPackets
             ObjectGuid PetGUID;
             uint32 Action = 0;
             ObjectGuid TargetGUID;
-            G3D::Vector3 ActionPosition;
+            TaggedPosition<Position::XYZ> ActionPosition;
         };
 
         class PetSetAction final : public ClientPacket

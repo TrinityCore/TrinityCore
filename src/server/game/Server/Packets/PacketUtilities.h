@@ -21,18 +21,6 @@
 #include "ByteBuffer.h"
 #include <boost/container/static_vector.hpp>
 
-namespace G3D
-{
-    class Vector2;
-    class Vector3;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector2 const& v);
-ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector2& v);
-
-ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v);
-ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v);
-
 namespace WorldPackets
 {
     class PacketArrayMaxCapacityException : public ByteBufferException

@@ -22,16 +22,6 @@
 
 #include <G3D/g3dmath.h>
 
-Position::Position(G3D::Vector3 const& vect)
-{
-    Relocate(vect.x, vect.y, vect.z, 0.f);
-}
-
-Position::operator G3D::Vector3() const
-{
-    return { m_positionX, m_positionY, m_positionZ };
-}
-
 bool Position::operator==(Position const &a)
 {
     return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&
@@ -175,14 +165,14 @@ std::string Position::ToString() const
     return sstr.str();
 }
 
-ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYStreamer const& streamer)
+ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer)
 {
     buf << streamer.Pos->GetPositionX();
     buf << streamer.Pos->GetPositionY();
     return buf;
 }
 
-ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYStreamer const& streamer)
+ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XY> const& streamer)
 {
     float x, y;
     buf >> x >> y;
@@ -190,7 +180,7 @@ ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYStreamer const& stre
     return buf;
 }
 
-ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer)
+ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZ> const& streamer)
 {
     buf << streamer.Pos->GetPositionX();
     buf << streamer.Pos->GetPositionY();
@@ -198,7 +188,7 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& str
     return buf;
 }
 
-ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer)
+ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZ> const& streamer)
 {
     float x, y, z;
     buf >> x >> y >> z;
@@ -206,7 +196,7 @@ ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& str
     return buf;
 }
 
-ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer)
+ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZO> const& streamer)
 {
     buf << streamer.Pos->GetPositionX();
     buf << streamer.Pos->GetPositionY();
@@ -215,10 +205,16 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& st
     return buf;
 }
 
-ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer)
+ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZO> const& streamer)
 {
     float x, y, z, o;
     buf >> x >> y >> z >> o;
     streamer.Pos->Relocate(x, y, z, o);
+    return buf;
+}
+
+ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::PackedXYZ> const& streamer)
+{
+    buf.appendPackXYZ(streamer.Pos->GetPositionX(), streamer.Pos->GetPositionY(), streamer.Pos->GetPositionZ());
     return buf;
 }

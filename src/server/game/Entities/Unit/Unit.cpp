@@ -12683,7 +12683,7 @@ void Unit::SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisua
     WorldPackets::Spells::PlayOrphanSpellVisual playOrphanSpellVisual;
     playOrphanSpellVisual.SourceLocation = GetPosition();
     if (withSourceOrientation)
-        playOrphanSpellVisual.SourceOrientation.z = GetOrientation();
+        playOrphanSpellVisual.SourceOrientation.Pos.SetOrientation(GetOrientation());
     playOrphanSpellVisual.Target = target; // exclusive with TargetLocation
     playOrphanSpellVisual.SpellVisualID = spellVisualId;
     playOrphanSpellVisual.TravelSpeed = travelSpeed;
@@ -12692,12 +12692,12 @@ void Unit::SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisua
     SendMessageToSet(playOrphanSpellVisual.Write(), true);
 }
 
-void Unit::SendPlayOrphanSpellVisual(G3D::Vector3 const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime /*= false*/, bool withSourceOrientation /*= false*/)
+void Unit::SendPlayOrphanSpellVisual(Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime /*= false*/, bool withSourceOrientation /*= false*/)
 {
     WorldPackets::Spells::PlayOrphanSpellVisual playOrphanSpellVisual;
     playOrphanSpellVisual.SourceLocation = GetPosition();
     if (withSourceOrientation)
-        playOrphanSpellVisual.SourceOrientation.z = GetOrientation();
+        playOrphanSpellVisual.SourceOrientation.Pos.SetOrientation(GetOrientation());
     playOrphanSpellVisual.TargetLocation = targetLocation; // exclusive with Target
     playOrphanSpellVisual.SpellVisualID = spellVisualId;
     playOrphanSpellVisual.TravelSpeed = travelSpeed;
@@ -12727,7 +12727,7 @@ void Unit::SendPlaySpellVisual(ObjectGuid const& targetGuid, uint32 spellVisualI
     SendMessageToSet(playSpellVisual.Write(), true);
 }
 
-void Unit::SendPlaySpellVisual(G3D::Vector3 const& targetPosition, float o, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/)
+void Unit::SendPlaySpellVisual(Position const& targetPosition, float o, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/)
 {
     WorldPackets::Spells::PlaySpellVisual playSpellVisual;
     playSpellVisual.Source = GetGUID();
@@ -12888,8 +12888,7 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     moveKnockBack.SequenceIndex = m_movementCounter++;
     moveKnockBack.Speeds.HorzSpeed = speedXY;
     moveKnockBack.Speeds.VertSpeed = speedZ;
-    moveKnockBack.Direction.x = vcos;
-    moveKnockBack.Direction.y = vsin;
+    moveKnockBack.Direction = Position(vcos, vsin);
     player->GetSession()->SendPacket(moveKnockBack.Write());
 }
 
@@ -13759,13 +13758,16 @@ void Unit::SendTeleportPacket(Position const& pos)
 
     if (Player* playerMover = GetPlayerBeingMoved())
     {
+        float x, y, z, o;
+        pos.GetPosition(x, y, z, o);
+        if (TransportBase* transportBase = GetDirectTransport())
+            transportBase->CalculatePassengerOffset(x, y, z, &o);
+
         WorldPackets::Movement::MoveTeleport moveTeleport;
         moveTeleport.MoverGUID = GetGUID();
-        moveTeleport.Pos.Relocate(pos);
-        if (TransportBase* transportBase = GetDirectTransport())
-            transportBase->CalculatePassengerOffset(moveTeleport.Pos.m_positionX, moveTeleport.Pos.m_positionY, moveTeleport.Pos.m_positionZ);
+        moveTeleport.Pos = Position(x, y, z);
         moveTeleport.TransportGUID = GetTransGUID();
-        moveTeleport.Facing = pos.GetOrientation();
+        moveTeleport.Facing = o;
         moveTeleport.SequenceIndex = m_movementCounter++;
         playerMover->SendDirectMessage(moveTeleport.Write());
 

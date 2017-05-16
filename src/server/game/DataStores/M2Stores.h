@@ -19,12 +19,13 @@
 #define TRINITY_M2STORES_H
 
 #include "Define.h"
-#include <G3D/Vector4.h>
+#include "Position.h"
+#include <vector>
 
 struct FlyByCamera
 {
     uint32 timeStamp;
-    G3D::Vector4 locations;
+    Position locations;
 };
 
 TC_GAME_API void LoadM2Cameras(std::string const& dataPath);

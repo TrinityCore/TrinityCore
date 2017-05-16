@@ -210,7 +210,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     packet.Player = queryCorpseLocation.Player;
     packet.MapID = corpseMapID;
     packet.ActualMapID = mapID;
-    packet.Position = G3D::Vector3(x, y, z);
+    packet.Position = Position(x, y, z);
     packet.Transport = ObjectGuid::Empty;
     SendPacket(packet.Write());
 }
@@ -284,7 +284,7 @@ void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTr
         Corpse* corpse = player->GetCorpse();
         if (_player->IsInSameRaidWith(player) && corpse && !corpse->GetTransGUID().IsEmpty() && corpse->GetTransGUID() == queryCorpseTransport.Transport)
         {
-            response.Position = G3D::Vector3(corpse->GetTransOffsetX(), corpse->GetTransOffsetY(), corpse->GetTransOffsetZ());
+            response.Position = corpse->GetTransOffset();
             response.Facing = corpse->GetTransOffsetO();
         }
     }

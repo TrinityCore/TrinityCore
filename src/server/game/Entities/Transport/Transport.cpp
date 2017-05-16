@@ -22,12 +22,14 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
+#include "Spline.h"
 #include "Vehicle.h"
 #include "Player.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Totem.h"
 #include "UpdateData.h"
+#include <G3D/Vector3.h>
 
 Transport::Transport() : GameObject(),
     _transportInfo(NULL), _isMoving(true), _pendingStop(false),

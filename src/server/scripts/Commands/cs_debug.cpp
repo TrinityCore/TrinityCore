@@ -141,7 +141,7 @@ public:
             uint32 count = 1;
             for (FlyByCamera const& cam : *flyByCameras)
             {
-                handler->PSendSysMessage("%02u - %7ums [%f, %f, %f] Facing %f (%f degrees)", count, cam.timeStamp, cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w, cam.locations.w * (180 / M_PI));
+                handler->PSendSysMessage("%02u - %7ums [%s (%f degrees)]", count, cam.timeStamp, cam.locations.ToString().c_str(), cam.locations.GetOrientation() * (180 / M_PI));
                 count++;
             }
             handler->PSendSysMessage(SZFMTD " waypoints dumped", flyByCameras->size());

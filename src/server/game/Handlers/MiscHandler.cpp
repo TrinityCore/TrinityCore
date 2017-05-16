@@ -772,11 +772,13 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& 
         return;
     }
 
-    TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, map = %u, x = %f, y = %f, z = %f, o = %f",
-        GetPlayer()->GetName().c_str(), worldTeleport.MapID, worldTeleport.Pos.x, worldTeleport.Pos.y, worldTeleport.Pos.z, worldTeleport.Facing);
+    WorldLocation loc(worldTeleport.MapID, worldTeleport.Pos);
+    loc.SetOrientation(worldTeleport.Facing);
+    TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, map = %u, pos = %s",
+        GetPlayer()->GetName().c_str(), worldTeleport.MapID, loc.ToString().c_str());
 
     if (HasPermission(rbac::RBAC_PERM_OPCODE_WORLD_TELEPORT))
-        GetPlayer()->TeleportTo(worldTeleport.MapID, worldTeleport.Pos.x, worldTeleport.Pos.y, worldTeleport.Pos.z, worldTeleport.Facing);
+        GetPlayer()->TeleportTo(loc);
     else
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
 }

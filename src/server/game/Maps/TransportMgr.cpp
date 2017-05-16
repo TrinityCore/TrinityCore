@@ -19,16 +19,10 @@
 #include "Transport.h"
 #include "InstanceScript.h"
 #include "MapManager.h"
+#include "Spline.h"
 
 TransportTemplate::~TransportTemplate()
 {
-    // Collect shared pointers into a set to avoid deleting the same memory more than once
-    std::set<TransportSpline*> splines;
-    for (size_t i = 0; i < keyFrames.size(); ++i)
-        splines.insert(keyFrames[i].Spline);
-
-    for (std::set<TransportSpline*>::iterator itr = splines.begin(); itr != splines.end(); ++itr)
-        delete *itr;
 }
 
 TransportMgr::TransportMgr() { }
@@ -215,7 +209,7 @@ void TransportMgr::GeneratePath(GameObjectTemplate const* goInfo, TransportTempl
         if (keyFrames[i - 1].Teleport || i + 1 == keyFrames.size())
         {
             size_t extra = !keyFrames[i - 1].Teleport ? 1 : 0;
-            TransportSpline* spline = new TransportSpline();
+            std::shared_ptr<TransportSpline> spline = std::make_shared<TransportSpline>();
             spline->init_spline(&splinePath[start], i - start + extra, Movement::SplineBase::ModeCatmullrom);
             spline->initLengths();
             for (size_t j = start; j < i + extra; ++j)
@@ -470,30 +464,18 @@ void TransportMgr::CreateInstanceTransports(Map* map)
 
 TransportAnimationEntry const* TransportAnimation::GetAnimNode(uint32 time) const
 {
-    if (Path.empty())
-        return NULL;
+    auto itr = Path.lower_bound(time);
+    if (itr != Path.end())
+        return itr->second;
 
-    for (TransportPathContainer::const_reverse_iterator itr2 = Path.rbegin(); itr2 != Path.rend(); ++itr2)
-        if (time >= itr2->first)
-            return itr2->second;
-
-    return Path.begin()->second;
+    return nullptr;
 }
 
-G3D::Quat TransportAnimation::GetAnimRotation(uint32 time) const
+TransportRotationEntry const* TransportAnimation::GetAnimRotation(uint32 time) const
 {
-    if (Rotations.empty())
-        return G3D::Quat(0.0f, 0.0f, 0.0f, 1.0f);
+    auto itr = Rotations.lower_bound(time);
+    if (itr != Rotations.end())
+        return itr->second;
 
-    TransportRotationEntry const* rot = Rotations.begin()->second;
-    for (TransportPathRotationContainer::const_reverse_iterator itr2 = Rotations.rbegin(); itr2 != Rotations.rend(); ++itr2)
-    {
-        if (time >= itr2->first)
-        {
-            rot = itr2->second;
-            break;
-        }
-    }
-
-    return G3D::Quat(rot->X, rot->Y, rot->Z, rot->W);
+    return nullptr;
 }

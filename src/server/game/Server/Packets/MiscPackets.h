@@ -21,7 +21,6 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "WorldSession.h"
-#include "G3D/Vector3.h"
 #include "Object.h"
 #include "Unit.h"
 #include "Player.h"
@@ -41,7 +40,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 BindMapID = MAPID_INVALID;
-            G3D::Vector3 BindPosition;
+            TaggedPosition<Position::XYZ> BindPosition;
             uint32 BindAreaID = 0;
         };
 
@@ -307,7 +306,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MapID = 0;
-            G3D::Vector3 Loc;
+            TaggedPosition<Position::XYZ> Loc;
         };
 
         class PortGraveyard final : public ClientPacket
@@ -589,7 +588,7 @@ namespace WorldPackets
             ObjectGuid TargetObjectGUID;
             ObjectGuid SourceObjectGUID;
             int32 SoundKitID = 0;
-            G3D::Vector3 Position;
+            TaggedPosition<Position::XYZ> Position;
         };
 
         class TC_GAME_API PlaySound final : public ServerPacket
@@ -771,7 +770,7 @@ namespace WorldPackets
 
             uint32 MapID = 0;
             ObjectGuid TransportGUID;
-            G3D::Vector3 Pos;
+            TaggedPosition<Position::XYZ> Pos;
             float Facing = 0.0f;
             int32 LfgDungeonID = 0;
         };
