@@ -346,8 +346,8 @@ void Group::RemoveInvite(Player* player)
 void Group::RemoveAllInvites()
 {
     for (InvitesList::iterator itr=m_invitees.begin(); itr != m_invitees.end(); ++itr)
-        if (*itr)
-            (*itr)->SetGroupInvite(NULL);
+        if (*itr && (*itr)->GetTypeId() == TYPEID_PLAYER)
+            (*itr)->ToPlayer()->SetGroupInvite(NULL);
 
     m_invitees.clear();
 }
