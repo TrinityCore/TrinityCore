@@ -18,7 +18,6 @@
 #include "QueryPackets.h"
 #include "BattlenetAccountMgr.h"
 #include "Player.h"
-#include "PacketUtilities.h"
 #include "World.h"
 #include "ObjectMgr.h"
 

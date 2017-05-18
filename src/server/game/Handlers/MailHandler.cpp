@@ -15,21 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
-#include "Mail.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "MailPackets.h"
-#include "Language.h"
-#include "Item.h"
 #include "AccountMgr.h"
 #include "BattlenetAccountMgr.h"
+#include "DatabaseEnv.h"
+#include "Guild.h"
 #include "GuildMgr.h"
+#include "Item.h"
+#include "Language.h"
+#include "Log.h"
+#include "Mail.h"
+#include "MailPackets.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 {

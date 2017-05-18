@@ -16,17 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
 #include "Log.h"
-#include "World.h"
+#include "MapManager.h"
+#include "NPCHandler.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "NPCHandler.h"
-#include "MapManager.h"
 #include "QueryPackets.h"
+#include "Realm.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {

@@ -17,37 +17,39 @@
  */
 
 #include "ObjectMgr.h"
-#include "AccountMgr.h"
-#include "AchievementMgr.h"
-#include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
-#include "BattlegroundMgr.h"
 #include "Chat.h"
-#include "Common.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameTables.h"
+#include "GridDefines.h"
 #include "GossipDef.h"
 #include "GroupMgr.h"
 #include "GuildMgr.h"
-#include "InstanceSaveMgr.h"
-#include "Language.h"
+#include "Item.h"
 #include "LFGMgr.h"
 #include "Log.h"
+#include "LootMgr.h"
+#include "Mail.h"
 #include "MapManager.h"
 #include "Object.h"
+#include "ObjectAccessor.h"
+#include "ObjectDefines.h"
+#include "Player.h"
 #include "PoolMgr.h"
+#include "QuestDef.h"
 #include "Random.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
-#include "SpellAuras.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
-#include "Util.h"
+#include "TemporarySummon.h"
+#include "Timer.h"
 #include "Vehicle.h"
-#include "World.h"
 #include "VMapFactory.h"
+#include "World.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -2415,11 +2417,6 @@ void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectDat
     }
 }
 
-Player* ObjectMgr::GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const
-{
-    return ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(lowguid));
-}
-
 // name must be checked to correctness (if received) before call this function
 ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name)
 {
@@ -2434,12 +2431,6 @@ ObjectGuid ObjectMgr::GetPlayerGUIDByName(std::string const& name)
 
 bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
 {
-    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-    {
-        name = player->GetName();
-        return true;
-    }
-
     CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid);
     if (!characterInfo)
         return false;
@@ -2450,13 +2441,6 @@ bool ObjectMgr::GetPlayerNameByGUID(ObjectGuid const& guid, std::string& name)
 
 bool ObjectMgr::GetPlayerNameAndClassByGUID(ObjectGuid const& guid, std::string& name, uint8& _class)
 {
-    if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
-    {
-        name = player->GetName();
-        _class = player->getClass();
-        return true;
-    }
-
     if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
     {
         name = characterInfo->Name;
@@ -4717,6 +4701,18 @@ void ObjectMgr::LoadQuests()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " quests definitions in %u ms", _questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadQuestStartersAndEnders()
+{
+    TC_LOG_INFO("server.loading", "Loading GO Start Quest Data...");
+    LoadGameobjectQuestStarters();
+    TC_LOG_INFO("server.loading", "Loading GO End Quest Data...");
+    LoadGameobjectQuestEnders();
+    TC_LOG_INFO("server.loading", "Loading Creature Start Quest Data...");
+    LoadCreatureQuestStarters();
+    TC_LOG_INFO("server.loading", "Loading Creature End Quest Data...");
+    LoadCreatureQuestEnders();
+}
+
 void ObjectMgr::LoadQuestTemplateLocale()
 {
     uint32 oldMSTime = getMSTime();
@@ -5485,7 +5481,7 @@ void ObjectMgr::LoadPageTextLocales()
         if (locale == LOCALE_enUS)
             continue;
 
-        AddLocaleString(text, locale, data.Text);
+        data.Text[locale] = text;
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u PageText locale strings in %u ms", uint32(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -6347,6 +6343,22 @@ GraveYardData const* ObjectMgr::FindGraveYardData(uint32 id, uint32 zoneId) cons
         if (data.safeLocId == id)
             return &data;
     }
+    return nullptr;
+}
+
+AreaTriggerStruct const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
+{
+    AreaTriggerContainer::const_iterator itr = _areaTriggerStore.find(trigger);
+    if (itr != _areaTriggerStore.end())
+        return &itr->second;
+    return nullptr;
+}
+
+AccessRequirement const* ObjectMgr::GetAccessRequirement(uint32 mapid, Difficulty difficulty) const
+{
+    AccessRequirementContainer::const_iterator itr = _accessRequirementStore.find(MAKE_PAIR64(mapid, difficulty));
+    if (itr != _accessRequirementStore.end())
+        return itr->second;
     return nullptr;
 }
 
@@ -9494,6 +9506,14 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     // Otherwise return entry-based
     VehicleAccessoryTemplateContainer::const_iterator itr = _vehicleTemplateAccessoryStore.find(veh->GetCreatureEntry());
     if (itr != _vehicleTemplateAccessoryStore.end())
+        return &itr->second;
+    return nullptr;
+}
+
+DungeonEncounterList const* ObjectMgr::GetDungeonEncounterList(uint32 mapId, Difficulty difficulty) const
+{
+    DungeonEncounterContainer::const_iterator itr = _dungeonEncounterStore.find(MAKE_PAIR64(mapId, difficulty));
+    if (itr != _dungeonEncounterStore.end())
         return &itr->second;
     return nullptr;
 }

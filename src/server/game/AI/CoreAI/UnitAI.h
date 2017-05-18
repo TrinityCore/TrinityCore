@@ -25,6 +25,17 @@
 #include "EventMap.h"
 #include <list>
 
+#define CAST_AI(a, b)   (dynamic_cast<a*>(b))
+#define ENSURE_AI(a,b)  (EnsureAI<a>(b))
+
+template<class T, class U>
+inline T* EnsureAI(U* ai)
+{
+    T* cast_ai = dynamic_cast<T*>(ai);
+    ASSERT(cast_ai);
+    return cast_ai;
+};
+
 class Player;
 class Quest;
 struct AISpellInfoType;
@@ -53,39 +64,7 @@ struct TC_GAME_API DefaultTargetSelector : public std::unary_function<Unit*, boo
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
     DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) { }
 
-    bool operator()(Unit const* target) const
-    {
-        if (!me)
-            return false;
-
-        if (!target)
-            return false;
-
-        if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
-            return false;
-
-        if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
-            return false;
-
-        if (m_dist < 0.0f && me->IsWithinCombatRange(target, -m_dist))
-            return false;
-
-        if (m_aura)
-        {
-            if (m_aura > 0)
-            {
-                if (!target->HasAura(m_aura))
-                    return false;
-            }
-            else
-            {
-                if (target->HasAura(-m_aura))
-                    return false;
-            }
-        }
-
-        return true;
-    }
+    bool operator()(Unit const* target) const;
 };
 
 // Target selector for spell casts checking range, auras and attributes

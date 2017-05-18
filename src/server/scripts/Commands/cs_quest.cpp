@@ -23,10 +23,12 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
+#include "World.h"
 
 class quest_commandscript : public CommandScript
 {

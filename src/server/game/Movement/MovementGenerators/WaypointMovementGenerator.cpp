@@ -15,21 +15,18 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-//Basic headers
+
 #include "WaypointMovementGenerator.h"
-//Extended headers
-#include "ObjectMgr.h"
-#include "Transport.h"
-//Flightmaster grid preloading
-#include "MapManager.h"
-//Creature-specific headers
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
-//Player-specific
-#include "Player.h"
-#include "MoveSplineInit.h"
+#include "Log.h"
+#include "MapManager.h"
 #include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "Transport.h"
 
 void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
 {

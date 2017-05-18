@@ -15,12 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LFGPackets.h"
 #include "TicketPackets.h"
 #include "PacketUtilities.h"
 #include "SupportMgr.h"
-
-using namespace WorldPackets;
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketHeader& header)
 {

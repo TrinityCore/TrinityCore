@@ -26,6 +26,7 @@
 #include "ArenaTeam.h"
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
+#include "BattlegroundPackets.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Log.h"

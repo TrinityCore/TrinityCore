@@ -16,10 +16,12 @@
  */
 
 #include "TransportMgr.h"
-#include "Transport.h"
+#include "DatabaseEnv.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "MapManager.h"
 #include "Spline.h"
+#include "Transport.h"
 
 TransportTemplate::~TransportTemplate()
 {

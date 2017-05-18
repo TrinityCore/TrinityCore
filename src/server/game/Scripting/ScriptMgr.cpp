@@ -17,27 +17,34 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptReloadMgr.h"
-#include "Config.h"
-#include "DatabaseEnv.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "Chat.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
+#include "Errors.h"
+#include "GameObject.h"
+#include "GossipDef.h"
+#include "LFGScripts.h"
+#include "Log.h"
+#include "Map.h"
+#include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "Player.h"
+#include "ScriptReloadMgr.h"
 #include "ScriptSystem.h"
-#include "Transport.h"
-#include "Vehicle.h"
 #include "SmartAI.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
-#include "GossipDef.h"
-#include "CreatureAIImpl.h"
-#include "Player.h"
+#include "Timer.h"
+#include "Transport.h"
+#include "Vehicle.h"
+#include "Weather.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Chat.h"
-#include "MapManager.h"
-#include "LFGScripts.h"
-#include "InstanceScript.h"
-#include "AreaTriggerAI.h"
+#include <unordered_map>
 
 // Trait which indicates whether this script type
 // must be assigned in the database.
@@ -2518,10 +2525,20 @@ CreatureScript::CreatureScript(const char* name)
     ScriptRegistry<CreatureScript>::Instance()->AddScript(this);
 }
 
+uint32 CreatureScript::GetDialogStatus(Player* /*player*/, Creature* /*creature*/)
+{
+    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
+}
+
 GameObjectScript::GameObjectScript(const char* name)
     : ScriptObject(name)
 {
     ScriptRegistry<GameObjectScript>::Instance()->AddScript(this);
+}
+
+uint32 GameObjectScript::GetDialogStatus(Player* /*player*/, GameObject* /*go*/)
+{
+    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
 }
 
 AreaTriggerScript::AreaTriggerScript(const char* name)

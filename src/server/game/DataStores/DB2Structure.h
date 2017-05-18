@@ -18,11 +18,13 @@
 #ifndef TRINITY_DB2STRUCTURE_H
 #define TRINITY_DB2STRUCTURE_H
 
-#include "Common.h"
+#include "Define.h"
 #include "DBCEnums.h"
 #include "Util.h"
 
 #pragma pack(push, 1)
+
+struct LocalizedString;
 
 struct AchievementEntry
 {

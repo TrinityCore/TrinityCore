@@ -16,11 +16,14 @@
  */
 
 #include "GarrisonMap.h"
+#include "DBCEnums.h"
 #include "GameObject.h"
 #include "Garrison.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
+#include "Player.h"
+#include "World.h"
 
 class GarrisonGridLoader
 {

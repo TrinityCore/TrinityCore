@@ -18,11 +18,12 @@
 #ifndef SupportMgr_h__
 #define SupportMgr_h__
 
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "TicketPackets.h"
+#include <map>
 
 class ChatHandler;
+class Field;
+class Player;
 
 // from blizzard lua
 enum GMTicketSystemStatus
@@ -65,25 +66,11 @@ public:
 
     uint32 GetId() const { return _id; }
     ObjectGuid GetPlayerGuid() const { return _playerGuid; }
-    Player* GetPlayer() const { return ObjectAccessor::FindConnectedPlayer(_playerGuid); }
-    std::string GetPlayerName() const
-    {
-        std::string name;
-        if (!_playerGuid.IsEmpty())
-            ObjectMgr::GetPlayerNameByGUID(_playerGuid, name);
-
-        return name;
-    }
-    Player* GetAssignedPlayer() const { return ObjectAccessor::FindConnectedPlayer(_assignedTo); }
+    Player* GetPlayer() const;
+    std::string GetPlayerName() const;
+    Player* GetAssignedPlayer() const;
     ObjectGuid GetAssignedToGUID() const { return _assignedTo; }
-    std::string GetAssignedToName() const
-    {
-        std::string name;
-        if (!_assignedTo.IsEmpty())
-            ObjectMgr::GetPlayerNameByGUID(_assignedTo, name);
-
-        return name;
-    }
+    std::string GetAssignedToName() const;
     std::string const& GetComment() const { return _comment; }
 
     virtual void SetAssignedTo(ObjectGuid guid, bool /*isAdmin*/ = false) { _assignedTo = guid; }
@@ -210,15 +197,7 @@ public:
     template<typename T>
     T* GetTicket(uint32 ticketId);
 
-    ComplaintTicketList GetComplaintsByPlayerGuid(ObjectGuid playerGuid) const
-    {
-        ComplaintTicketList ret;
-        for (auto const& c : _complaintTicketList)
-            if (c.second->GetPlayerGuid() == playerGuid)
-                ret.insert(c);
-
-        return ret;
-    }
+    ComplaintTicketList GetComplaintsByPlayerGuid(ObjectGuid playerGuid) const;
 
     void Initialize();
 
@@ -263,7 +242,7 @@ public:
     template<typename T>
     void ShowClosedList(ChatHandler& handler) const;
 
-    void UpdateLastChange() { _lastChange = uint64(time(nullptr)); }
+    void UpdateLastChange();
 
     uint32 GenerateBugId() { return ++_lastBugId; }
     uint32 GenerateComplaintId() { return ++_lastComplaintId; }

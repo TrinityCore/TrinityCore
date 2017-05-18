@@ -25,9 +25,10 @@
 #include "MapManager.h"
 #include "Player.h"
 #include "BattlegroundMgr.h"
-#include "UnitAI.h"
+#include "CreatureAI.h"
 #include "GameObjectAI.h"
 #include "WorldStatePackets.h"
+#include "DatabaseEnv.h"
 
 GameEventMgr* GameEventMgr::instance()
 {

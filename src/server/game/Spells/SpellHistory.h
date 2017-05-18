@@ -19,8 +19,7 @@
 #define SpellHistory_h__
 
 #include "SharedDefines.h"
-#include "QueryResult.h"
-#include "Transaction.h"
+#include "DatabaseEnvFwd.h"
 #include <chrono>
 #include <deque>
 #include <unordered_map>

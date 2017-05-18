@@ -16,22 +16,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Guild.h"
 #include "AccountMgr.h"
+#include "Bag.h"
 #include "CalendarMgr.h"
+#include "CalendarPackets.h"
 #include "Chat.h"
+#include "ChatPackets.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
-#include "Guild.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
 #include "Language.h"
 #include "Log.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
-#include "Opcodes.h"
-#include "ChatPackets.h"
-#include "CalendarPackets.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
@@ -654,6 +656,16 @@ void Guild::Member::ResetValues(bool weekly /* = false*/)
         m_weekActivity = 0;
         m_weekReputation = 0;
     }
+}
+
+Player* Guild::Member::FindPlayer() const
+{
+    return ObjectAccessor::FindPlayer(m_guid);
+}
+
+Player* Guild::Member::FindConnectedPlayer() const
+{
+    return ObjectAccessor::FindConnectedPlayer(m_guid);
 }
 
 // Get amount of money/slots left for today.
@@ -2759,6 +2771,13 @@ void Guild::SetBankTabText(uint8 tabId, std::string const& text)
         eventPacket.Tab = tabId;
         BroadcastPacket(eventPacket.Write());
     }
+}
+
+void Guild::_DeleteMemberFromDB(ObjectGuid::LowType lowguid)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
+    stmt->setUInt64(0, lowguid);
+    CharacterDatabase.Execute(stmt);
 }
 
 // Private methods

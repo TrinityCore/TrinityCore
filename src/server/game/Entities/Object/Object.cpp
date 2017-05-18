@@ -127,7 +127,6 @@ void Object::_Create(ObjectGuid const& guid)
 
     SetGuidValue(OBJECT_FIELD_GUID, guid);
     SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
-    m_PackGUID.Set(guid);
 }
 
 std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
@@ -239,7 +238,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     ByteBuffer buf(0x400);
     buf << uint8(updateType);
-    buf << GetPackGUID();
+    buf << GetGUID();
     buf << uint8(m_objectTypeId);
 
     BuildMovementUpdate(&buf, flags);
@@ -267,7 +266,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     ByteBuffer buf(500);
 
     buf << uint8(UPDATETYPE_VALUES);
-    buf << GetPackGUID();
+    buf << GetGUID();
 
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
     BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
@@ -385,7 +384,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool HasFall = HasFallDirection || unit->m_movementInfo.jump.fallTime != 0;
         bool HasSpline = unit->IsSplineEnabled();
 
-        *data << GetPackGUID();                                         // MoverGUID
+        *data << GetGUID();                                         // MoverGUID
 
         *data << uint32(unit->m_movementInfo.time);                     // MoveTime
         *data << float(unit->GetPositionX());

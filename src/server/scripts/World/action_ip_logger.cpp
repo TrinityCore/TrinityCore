@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "DatabaseEnv.h"
 #include "Player.h"
 
 enum IPLoggingTypes

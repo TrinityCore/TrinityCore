@@ -16,12 +16,13 @@
  */
 
 #include "PartyPackets.h"
-
-#include "Player.h"
 #include "Pet.h"
-#include "Vehicle.h"
-#include "SpellAuras.h"
+#include "Player.h"
+#include "Realm.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "Vehicle.h"
+#include "World.h"
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
 {

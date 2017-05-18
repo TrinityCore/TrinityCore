@@ -22,14 +22,14 @@ Comment: All list related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
 #include "Chat.h"
-#include "SpellAuraEffects.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include <iostream>
+#include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
 
 class list_commandscript : public CommandScript
 {

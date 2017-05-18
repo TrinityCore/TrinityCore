@@ -23,7 +23,6 @@
 #include "World.h"
 #include "Item.h"
 #include "WorldPacket.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 
 class Item;
@@ -396,8 +395,8 @@ private:
         int32 GetBankWithdrawValue(uint8 tabId) const;
         void ResetValues(bool weekly = false);
 
-        inline Player* FindPlayer() const { return ObjectAccessor::FindPlayer(m_guid); }
-        inline Player* FindConnectedPlayer() const { return ObjectAccessor::FindConnectedPlayer(m_guid); }
+        Player* FindPlayer() const;
+        Player* FindConnectedPlayer() const;
 
     private:
         ObjectGuid::LowType m_guildId;
@@ -937,12 +936,7 @@ private:
         return nullptr;
     }
 
-    static inline void _DeleteMemberFromDB(ObjectGuid::LowType lowguid)
-    {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
-        stmt->setUInt64(0, lowguid);
-        CharacterDatabase.Execute(stmt);
-    }
+    static void _DeleteMemberFromDB(ObjectGuid::LowType lowguid);
 
     // Creates log holders (either when loading or when creating guild)
     void _CreateLogHolders();

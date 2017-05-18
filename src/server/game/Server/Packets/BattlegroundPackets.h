@@ -18,12 +18,11 @@
 #ifndef BattlegroundPackets_h__
 #define BattlegroundPackets_h__
 
-#include "Common.h"
-#include "ObjectGuid.h"
-#include "LFGPackets.h"
-#include "Position.h"
 #include "Packet.h"
+#include "LFGPacketsCommon.h"
+#include "ObjectGuid.h"
 #include "Optional.h"
+#include "Position.h"
 
 namespace WorldPackets
 {

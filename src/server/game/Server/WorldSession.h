@@ -24,39 +24,36 @@
 #define __WORLDSESSION_H
 
 #include "Common.h"
-#include "SharedDefines.h"
-#include "DatabaseEnv.h"
-#include "World.h"
+#include "DatabaseEnvFwd.h"
+#include "LockedQueue.h"
+#include "ObjectGuid.h"
 #include "Packet.h"
-#include "Cryptography/BigNumber.h"
-#include "AccountMgr.h"
+#include "QueryCallbackProcessor.h"
+#include "SharedDefines.h"
+#include <array>
+#include <set>
+#include <unordered_map>
 #include <unordered_set>
 
 class BattlePetMgr;
-class Channel;
+class BigNumber;
+class BlackMarketEntry;
 class CollectionMgr;
 class Creature;
-class BlackMarketEntry;
-class GameObject;
 class InstanceSave;
 class Item;
 class LoginQueryHolder;
-class Object;
 class Player;
-class Quest;
-class SpellCastTargets;
 class Unit;
 class Warden;
-class WorldPacket;
 class WorldSession;
 class WorldSocket;
-struct AreaTableEntry;
 struct AuctionEntry;
+struct BlackMarketTemplate;
 struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
 struct Position;
-struct BlackMarketTemplate;
 
 namespace lfg
 {
@@ -233,7 +230,9 @@ namespace WorldPackets
 
     namespace Channel
     {
+        class ChannelCommand;
         class ChannelPlayerCommand;
+        class ChannelPassword;
         class JoinChannel;
         class LeaveChannel;
     }
@@ -771,41 +770,6 @@ enum AccountDataType
 #define GLOBAL_CACHE_MASK           0x15
 #define PER_CHARACTER_CACHE_MASK    0xEA
 
-enum TutorialAction : uint8
-{
-    TUTORIAL_ACTION_UPDATE  = 0,
-    TUTORIAL_ACTION_CLEAR   = 1,
-    TUTORIAL_ACTION_RESET   = 2
-};
-
-/*
-enum Tutorials
-{
-    TUTORIAL_TALENT                   = 0,
-    TUTORIAL_SPEC                     = 1,
-    TUTORIAL_GLYPH                    = 2,
-    TUTORIAL_SPELLBOOK                = 3,
-    TUTORIAL_PROFESSIONS              = 4,
-    TUTORIAL_CORE_ABILITITES          = 5,
-    TUTORIAL_PET_JOURNAL              = 6,
-    TUTORIAL_WHAT_HAS_CHANGED         = 7,
-    TUTORIAL_GARRISON_BUILDING        = 8,
-    TUTORIAL_GARRISON_MISSION_LIST    = 9,
-    TUTORIAL_GARRISON_MISSION_PAGE    = 10,
-    TUTORIAL_GARRISON_LANDING         = 11,
-    TUTORIAL_GARRISON_ZONE_ABILITY    = 12,
-    TUTORIAL_WORLD_MAP_FRAME          = 13,
-    TUTORIAL_CLEAN_UP_BAGS            = 14,
-    TUTORIAL_BAG_SETTINGS             = 15,
-    TUTORIAL_REAGENT_BANK_UNLOCK      = 16,
-    TUTORIAL_TOYBOX_FAVORITE          = 17,
-    TUTORIAL_TOYBOX_MOUSEWHEEL_PAGING = 18,
-    TUTORIAL_LFG_LIST                 = 19
-};
-*/
-
-#define MAX_ACCOUNT_TUTORIAL_VALUES 8
-
 struct AccountData
 {
     time_t Time = 0;
@@ -861,9 +825,6 @@ enum DeclinedNameResult
     DECLINED_NAMES_RESULT_SUCCESS = 0,
     DECLINED_NAMES_RESULT_ERROR   = 1
 };
-
-#define DB2_REPLY_SPARSE 2442913102
-#define DB2_REPLY_ITEM   1344507586
 
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
@@ -1108,10 +1069,7 @@ class TC_GAME_API WorldSession
             m_timeOutTime -= int32(diff);
         }
 
-        void ResetTimeOutTime()
-        {
-            m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
-        }
+        void ResetTimeOutTime();
 
         bool IsConnectionIdle() const
         {
@@ -1516,12 +1474,9 @@ class TC_GAME_API WorldSession
 
         void HandleJoinChannel(WorldPackets::Channel::JoinChannel& packet);
         void HandleLeaveChannel(WorldPackets::Channel::LeaveChannel& packet);
-
-        template<void(Channel::*CommandFunction)(Player const*)>
-        void HandleChannelCommand(WorldPackets::Channel::ChannelPlayerCommand& packet);
-
-        template<void(Channel::*CommandFunction)(Player const*, std::string const&)>
+        void HandleChannelCommand(WorldPackets::Channel::ChannelCommand& packet);
         void HandleChannelPlayerCommand(WorldPackets::Channel::ChannelPlayerCommand& packet);
+        void HandleChannelPassword(WorldPackets::Channel::ChannelPassword& channelPassword);
 
         void HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& packet);
         void HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& packet);
@@ -1787,7 +1742,7 @@ class TC_GAME_API WorldSession
         {
             friend class World;
             public:
-                DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY)) { }
+                DosProtection(WorldSession* s);
                 bool EvaluateOpcode(WorldPacket& p, time_t time) const;
             protected:
                 enum Policy

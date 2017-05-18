@@ -22,6 +22,7 @@
 #include "SharedDefines.h"
 #include "Player.h"
 #include "ObjectAccessor.h"
+#include <sstream>
 
 struct TC_GAME_API ArenaScore : public BattlegroundScore
 {

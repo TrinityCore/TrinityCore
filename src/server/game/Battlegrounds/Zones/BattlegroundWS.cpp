@@ -24,6 +24,8 @@
 #include "BattlegroundMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "BattlegroundPackets.h"
+#include "WorldStatePackets.h"
 
 // these variables aren't used outside of this file, so declare them only here
 enum BG_WSG_Rewards

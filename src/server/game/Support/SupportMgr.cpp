@@ -15,9 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Chat.h"
-#include "Language.h"
 #include "SupportMgr.h"
+#include "Chat.h"
+#include "DatabaseEnv.h"
+#include "Language.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "Timer.h"
+#include "World.h"
+#include <sstream>
 
 inline time_t GetAge(uint64 t) { return (time(nullptr) - t) / DAY; }
 
@@ -29,6 +37,34 @@ Ticket::Ticket(Player* player) : _id(0), _mapId(0), _createTime(time(nullptr))
 }
 
 Ticket::~Ticket() { }
+
+Player* Ticket::GetPlayer() const
+{
+    return ObjectAccessor::FindConnectedPlayer(_playerGuid);
+}
+
+std::string Ticket::GetPlayerName() const
+{
+    std::string name;
+    if (!_playerGuid.IsEmpty())
+        ObjectMgr::GetPlayerNameByGUID(_playerGuid, name);
+
+    return name;
+}
+
+Player* Ticket::GetAssignedPlayer() const
+{
+    return ObjectAccessor::FindConnectedPlayer(_assignedTo);
+}
+
+std::string Ticket::GetAssignedToName() const
+{
+    std::string name;
+    if (!_assignedTo.IsEmpty())
+        ObjectMgr::GetPlayerNameByGUID(_assignedTo, name);
+
+    return name;
+}
 
 void Ticket::TeleportTo(Player* player) const
 {
@@ -368,15 +404,6 @@ SupportMgr* SupportMgr::instance()
     return &instance;
 }
 
-void SupportMgr::Initialize()
-{
-    SetSupportSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_ENABLED));
-    SetTicketSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED));
-    SetBugSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED));
-    SetComplaintSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED));
-    SetSuggestionSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED));
-}
-
 template<>
 BugTicket* SupportMgr::GetTicket<BugTicket>(uint32 bugId)
 {
@@ -412,6 +439,25 @@ SuggestionTicket* SupportMgr::GetTicket<SuggestionTicket>(uint32 suggestionId)
 template TC_GAME_API BugTicket* SupportMgr::GetTicket<BugTicket>(uint32);
 template TC_GAME_API ComplaintTicket* SupportMgr::GetTicket<ComplaintTicket>(uint32);
 template TC_GAME_API SuggestionTicket* SupportMgr::GetTicket<SuggestionTicket>(uint32);
+
+ComplaintTicketList SupportMgr::GetComplaintsByPlayerGuid(ObjectGuid playerGuid) const
+{
+    ComplaintTicketList ret;
+    for (auto const& c : _complaintTicketList)
+        if (c.second->GetPlayerGuid() == playerGuid)
+            ret.insert(c);
+
+    return ret;
+}
+
+void SupportMgr::Initialize()
+{
+    SetSupportSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_ENABLED));
+    SetTicketSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED));
+    SetBugSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED));
+    SetComplaintSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED));
+    SetSuggestionSystemStatus(sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED));
+}
 
 template<>
 uint32 SupportMgr::GetOpenTicketCount<BugTicket>() const { return _openBugTicketCount; }
@@ -771,3 +817,8 @@ void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler& handler) const
 template TC_GAME_API void SupportMgr::ShowClosedList<BugTicket>(ChatHandler&) const;
 template TC_GAME_API void SupportMgr::ShowClosedList<ComplaintTicket>(ChatHandler&) const;
 template TC_GAME_API void SupportMgr::ShowClosedList<SuggestionTicket>(ChatHandler&) const;
+
+void SupportMgr::UpdateLastChange()
+{
+    _lastChange = uint64(time(nullptr));
+}

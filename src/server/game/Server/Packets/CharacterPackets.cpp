@@ -16,6 +16,7 @@
  */
 
 #include "CharacterPackets.h"
+#include "Field.h"
 #include "ObjectMgr.h"
 #include "PacketUtilities.h"
 #include "World.h"

@@ -29,6 +29,7 @@
 
 class ChatHandler;
 class Creature;
+class GameObject;
 class Group;
 class Player;
 class Unit;
@@ -36,6 +37,8 @@ class WorldSession;
 class WorldObject;
 
 struct GameTele;
+
+enum LocaleConstant : uint8;
 
 class TC_GAME_API ChatCommand
 {

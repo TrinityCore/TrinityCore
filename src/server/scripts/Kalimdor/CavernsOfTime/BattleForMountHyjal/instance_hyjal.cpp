@@ -27,6 +27,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "hyjal.h"
+#include "Log.h"
 
 /* Battle of Mount Hyjal encounters:
 0 - Rage Winterchill event

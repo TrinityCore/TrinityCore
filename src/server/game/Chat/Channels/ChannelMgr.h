@@ -18,11 +18,14 @@
 #ifndef __TRINITY_CHANNELMGR_H
 #define __TRINITY_CHANNELMGR_H
 
-#include "Common.h"
+#include "Define.h"
 #include "Hash.h"
+#include <string>
 #include <unordered_map>
 
 class Channel;
+class Player;
+struct AreaTableEntry;
 
 class TC_GAME_API ChannelMgr
 {

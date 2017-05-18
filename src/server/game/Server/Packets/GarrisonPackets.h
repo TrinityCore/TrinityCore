@@ -22,6 +22,9 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "PacketUtilities.h"
+#include <list>
+#include <unordered_set>
+#include <vector>
 
 struct GarrAbilityEntry;
 

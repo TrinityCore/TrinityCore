@@ -17,6 +17,7 @@
  */
 
 #include "QuestDef.h"
+#include "Field.h"
 #include "GameTables.h"
 #include "Log.h"
 #include "Player.h"

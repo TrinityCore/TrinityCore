@@ -19,14 +19,20 @@
 #define MiscPackets_h__
 
 #include "Packet.h"
-#include "ObjectGuid.h"
-#include "WorldSession.h"
-#include "Object.h"
-#include "Unit.h"
-#include "Player.h"
-#include "Weather.h"
 #include "CollectionMgr.h"
+#include "CUFProfile.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
 #include "PacketUtilities.h"
+#include "Position.h"
+#include "SharedDefines.h"
+#include <array>
+#include <map>
+#include <set>
+
+enum MountStatusFlags : uint8;
+enum UnitStandStateType : uint8;
+enum WeatherState : uint32;
 
 namespace WorldPackets
 {
@@ -39,7 +45,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 BindMapID = MAPID_INVALID;
+            uint32 BindMapID = 0;
             TaggedPosition<Position::XYZ> BindPosition;
             uint32 BindAreaID = 0;
         };
@@ -387,7 +393,7 @@ namespace WorldPackets
 
             bool Abrupt = false;
             float Intensity = 0.0f;
-            WeatherState WeatherID = WEATHER_STATE_FINE;
+            WeatherState WeatherID = WeatherState(0);
         };
 
         class StandStateChange final : public ClientPacket
@@ -397,7 +403,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            UnitStandStateType StandState = UNIT_STAND_STATE_STAND;
+            UnitStandStateType StandState = UnitStandStateType(0);
         };
 
         class StandStateUpdate final : public ServerPacket
@@ -409,7 +415,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 AnimKitID = 0;
-            UnitStandStateType State = UNIT_STAND_STATE_STAND;
+            UnitStandStateType State = UnitStandStateType(0);
         };
 
         class StartMirrorTimer final : public ServerPacket
@@ -783,7 +789,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             bool IsFullUpdate = false;
-            HeirloomContainer const* Heirlooms = nullptr;
+            std::map<uint32, HeirloomData> const* Heirlooms = nullptr;
             int32 Unk = 0;
         };
 

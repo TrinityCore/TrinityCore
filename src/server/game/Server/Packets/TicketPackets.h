@@ -19,7 +19,7 @@
 #define TicketPackets_h__
 
 #include "Packet.h"
-#include "LFGPackets.h"
+#include "LFGPacketsCommon.h"
 #include "Optional.h"
 #include "Position.h"
 

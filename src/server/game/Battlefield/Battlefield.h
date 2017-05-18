@@ -18,10 +18,10 @@
 #ifndef BATTLEFIELD_H_
 #define BATTLEFIELD_H_
 
-#include "ObjectDefines.h"
+#include "Position.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
-#include "Packets/WorldStatePackets.h"
+#include <map>
 
 enum BattlefieldTypes
 {
@@ -67,14 +67,31 @@ enum BattlefieldTimers
 };
 
 // some class predefs
-class Player;
-class GameObject;
-class WorldPacket;
-class Creature;
-class Unit;
-
 class Battlefield;
 class BfGraveyard;
+class Creature;
+class GameObject;
+class Group;
+class Map;
+class Player;
+class Unit;
+class WorldPacket;
+
+struct Position;
+struct WorldSafeLocsEntry;
+
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
+namespace G3D
+{
+    class Quat;
+}
 
 typedef std::vector<BfGraveyard*> GraveyardVect;
 typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
@@ -234,7 +251,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         uint32 GetTypeId() const { return m_TypeId; }
         uint32 GetZoneId() const { return m_ZoneId; }
-        uint64 GetQueueId() const { return MAKE_PAIR64(m_BattleId | 0x20000, 0x1F100000); }
+        uint64 GetQueueId() const;
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 

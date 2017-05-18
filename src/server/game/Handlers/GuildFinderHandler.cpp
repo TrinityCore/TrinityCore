@@ -16,13 +16,15 @@
  */
 
 #include "WorldSession.h"
-#include "WorldPacket.h"
-#include "Object.h"
-#include "SharedDefines.h"
+#include "Guild.h"
 #include "GuildFinderMgr.h"
-#include "GuildMgr.h"
 #include "GuildFinderPackets.h"
+#include "GuildMgr.h"
+#include "Object.h"
+#include "Player.h"
+#include "SharedDefines.h"
 #include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleGuildFinderAddRecruit(WorldPackets::GuildFinder::LFGuildAddRecruit& lfGuildAddRecruit)
 {

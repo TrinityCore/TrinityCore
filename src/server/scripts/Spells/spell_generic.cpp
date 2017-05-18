@@ -31,14 +31,15 @@
 #include "Group.h"
 #include "InstanceScript.h"
 #include "LFGMgr.h"
+#include "Log.h"
+#include "NPCPackets.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
 #include "SkillDiscovery.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
-#include "NPCPackets.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {
