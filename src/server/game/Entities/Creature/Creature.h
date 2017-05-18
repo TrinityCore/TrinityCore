@@ -522,7 +522,7 @@ struct CreatureData
     CreatureData() : id(0), mapid(0), phaseMask(0), displayid(0), equipmentId(0),
                      posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
                      spawndist(0.0f), currentwaypoint(0), curhealth(0), curmana(0), movementType(0),
-                     spawnMask(0), npcflag(0), unit_flags(0), dynamicflags(0), phaseid(0), phaseGroup(0), dbData(true) { }
+                     spawnMask(0), npcflag(0), unit_flags(0), dynamicflags(0), phaseid(0), phaseGroup(0), inhabitType(-1), dbData(true) { }
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
     uint32 phaseMask;
@@ -544,6 +544,7 @@ struct CreatureData
     uint32 dynamicflags;
     uint32 phaseid;
     uint32 phaseGroup;
+    int32 inhabitType;
     uint32 ScriptId;
     bool dbData;
 };
@@ -562,11 +563,12 @@ typedef std::unordered_map<uint32, CreatureModelInfo> CreatureModelContainer;
 
 enum InhabitTypeValues
 {
-    INHABIT_GROUND = 1,
-    INHABIT_WATER  = 2,
-    INHABIT_AIR    = 4,
-    INHABIT_ROOT   = 8,
-    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR | INHABIT_ROOT
+    INHABIT_GROUND      = 1,
+    INHABIT_WATER       = 2,
+    INHABIT_AIR         = 4,
+    INHABIT_ROOT        = 8,
+    INHABIT_ANYWHERE    = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR,
+    INHABIT_ALL         = INHABIT_ANYWHERE | INHABIT_ROOT
 };
 
 // Enums used by StringTextData::Type (CreatureEventAI)
@@ -736,9 +738,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
         bool IsGuard() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_GUARD) != 0; }
-        bool CanWalk() const { return (GetCreatureTemplate()->InhabitType & INHABIT_GROUND) != 0; }
-        bool CanSwim() const override { return (GetCreatureTemplate()->InhabitType & INHABIT_WATER) != 0 || IsPet(); }
-        bool CanFly()  const override { return (GetCreatureTemplate()->InhabitType & INHABIT_AIR) != 0; }
+
+        uint32 GetInhabitType() const { return m_inhabitType; }
+        bool CanWalk() const { return (GetInhabitType() & INHABIT_GROUND) != 0; }
+        bool CanSwim() const override { return (GetInhabitType() & INHABIT_WATER) != 0 || IsPet(); }
+        bool CanFly()  const override { return (GetInhabitType() & INHABIT_AIR) != 0; }
 
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() const { return m_reactState; }
@@ -1004,6 +1008,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool m_cannotReachTarget;
         uint32 m_cannotReachTimer;
         bool m_AI_locked;
+        uint32 m_inhabitType;
 
         SpellSchoolMask m_meleeDamageSchoolMask;
         uint32 m_originalEntry;
