@@ -23,8 +23,8 @@
 #include "Duration.h"
 #include "Unit.h"
 #include "ItemTemplate.h"
-#include "LootMgr.h"
-#include "DatabaseEnv.h"
+#include "Loot.h"
+#include "DatabaseEnvFwd.h"
 #include "MapObject.h"
 
 #include <list>
@@ -489,17 +489,6 @@ struct CreatureLocale
     std::vector<std::string> TitleAlt;
 };
 
-struct GossipMenuItemsLocale
-{
-    std::vector<std::string> OptionText;
-    std::vector<std::string> BoxText;
-};
-
-struct PointOfInterestLocale
-{
-    std::vector<std::string> Name;
-};
-
 struct EquipmentItem
 {
     uint32 ItemId = 0;
@@ -567,19 +556,6 @@ enum InhabitTypeValues
     INHABIT_AIR    = 4,
     INHABIT_ROOT   = 8,
     INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR | INHABIT_ROOT
-};
-
-// Enums used by StringTextData::Type (CreatureEventAI)
-enum ChatType
-{
-    CHAT_TYPE_SAY               = 0,
-    CHAT_TYPE_YELL              = 1,
-    CHAT_TYPE_TEXT_EMOTE        = 2,
-    CHAT_TYPE_BOSS_EMOTE        = 3,
-    CHAT_TYPE_WHISPER           = 4,
-    CHAT_TYPE_BOSS_WHISPER      = 5,
-    CHAT_TYPE_ZONE_YELL         = 6,
-    CHAT_TYPE_END               = 255
 };
 
 #pragma pack(pop)

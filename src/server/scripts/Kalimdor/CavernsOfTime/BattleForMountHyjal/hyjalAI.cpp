@@ -30,6 +30,7 @@ EndScriptData */
 #include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Log.h"
 #include "hyjalAI.h"
 #include "hyjal_trash.h"
 

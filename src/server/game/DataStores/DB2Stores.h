@@ -20,10 +20,7 @@
 
 #include "DB2Store.h"
 #include "DB2Structure.h"
-#include "Hash.h"
 #include "SharedDefines.h"
-#include "Regex.h"
-#include <array>
 #include <map>
 #include <set>
 #include <unordered_map>
@@ -247,56 +244,12 @@ struct HotfixData
 class TC_GAME_API DB2Manager
 {
 public:
-    DEFINE_DB2_SET_COMPARATOR(ChrClassesXPowerTypesEntry)
     DEFINE_DB2_SET_COMPARATOR(MountTypeXCapabilityEntry)
 
-    typedef std::map<uint32 /*hash*/, DB2StorageBase*> StorageMap;
-    typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>> AreaGroupMemberContainer;
-    typedef std::unordered_map<uint32, std::vector<ArtifactPowerEntry const*>> ArtifactPowersContainer;
-    typedef std::unordered_map<uint32, std::unordered_set<uint32>> ArtifactPowerLinksContainer;
-    typedef std::unordered_map<std::pair<uint32, uint8>, ArtifactPowerRankEntry const*> ArtifactPowerRanksContainer;
-    typedef std::unordered_multimap<uint32, CharSectionsEntry const*> CharSectionsContainer;
-    typedef std::unordered_map<uint32, CharStartOutfitEntry const*> CharStartOutfitContainer;
-    typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
-    typedef std::unordered_map<uint32, ChrSpecializationEntry const*> ChrSpecialzationByClassContainer;
-    typedef std::unordered_map<uint32 /*curveID*/, std::vector<CurvePointEntry const*>> CurvePointsContainer;
-    typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
-    typedef std::unordered_map<uint32, std::vector<uint32>> FactionTeamContainer;
-    typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
-    typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<uint32>> GlyphBindableSpellsContainer;
-    typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<uint32>> GlyphRequiredSpecsContainer;
     typedef std::vector<ItemBonusEntry const*> ItemBonusList;
-    typedef std::unordered_map<uint32 /*bonusListId*/, ItemBonusList> ItemBonusListContainer;
-    typedef std::unordered_map<int16, uint32> ItemBonusListLevelDeltaContainer;
-    typedef std::unordered_multimap<uint32 /*itemId*/, uint32 /*bonusTreeId*/> ItemToBonusTreeContainer;
-    typedef std::unordered_map<uint32 /*itemId*/, ItemChildEquipmentEntry const*> ItemChildEquipmentContainer;
-    typedef std::array<ItemClassEntry const*, 19> ItemClassByOldEnumContainer;
-    typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModifiedAppearanceEntry const*> ItemModifiedAppearanceByItemContainer;
-    typedef std::unordered_map<uint32, std::set<ItemBonusTreeNodeEntry const*>> ItemBonusTreeContainer;
-    typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
-    typedef std::unordered_map<uint32, std::vector<ItemSpecOverrideEntry const*>> ItemSpecOverridesContainer;
     typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
-    typedef std::unordered_map<uint32, MountEntry const*> MountContainer;
     typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
-    typedef std::unordered_map<uint32, MountTypeXCapabilitySet> MountCapabilitiesByTypeContainer;
     typedef std::vector<MountXDisplayEntry const*> MountXDisplayContainer;
-    typedef std::unordered_map<uint32, MountXDisplayContainer> MountDisplaysCointainer;
-    typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 2>> NameGenContainer;
-    typedef std::array<std::vector<Trinity::wregex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
-    typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
-    typedef std::array<PowerTypeEntry const*, MAX_POWERS> PowerTypesContainer;
-    typedef std::unordered_map<uint32, std::pair<std::vector<QuestPackageItemEntry const*>, std::vector<QuestPackageItemEntry const*>>> QuestPackageItemContainer;
-    typedef std::unordered_map<uint32, uint32> RulesetItemUpgradeContainer;
-    typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoContainer;
-    typedef std::unordered_map<uint32, std::vector<SpecializationSpellsEntry const*>> SpecializationSpellsContainer;
-    typedef std::unordered_map<uint32, std::vector<SpellPowerEntry const*>> SpellPowerContainer;
-    typedef std::unordered_map<uint32, std::unordered_map<uint32, std::vector<SpellPowerEntry const*>>> SpellPowerDifficultyContainer;
-    typedef std::unordered_map<uint32, std::vector<SpellProcsPerMinuteModEntry const*>> SpellProcsPerMinuteModContainer;
-    typedef std::vector<TalentEntry const*> TalentsByPosition[MAX_CLASSES][MAX_TALENT_TIERS][MAX_TALENT_COLUMNS];
-    typedef std::unordered_set<uint32> ToyItemIdsContainer;
-    typedef std::tuple<int16, int8, int32> WMOAreaTableKey;
-    typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
-    typedef std::unordered_map<uint32, WorldMapAreaEntry const*> WorldMapAreaByAreaIDContainer;
 
     static DB2Manager& Instance();
 
@@ -304,7 +257,7 @@ public:
     DB2StorageBase const* GetStorage(uint32 type) const;
 
     void LoadHotfixData();
-    std::map<int32, HotfixData> const& GetHotfixData() const { return _hotfixData; }
+    std::map<int32, HotfixData> const& GetHotfixData() const;
 
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
     std::vector<ArtifactPowerEntry const*> GetArtifactPowers(uint8 artifactId) const;
@@ -330,7 +283,7 @@ public:
     std::set<uint32> GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const;
     ItemChildEquipmentEntry const* GetItemChildEquipment(uint32 itemId) const;
     ItemClassEntry const* GetItemClassByOldEnum(uint32 itemClass) const;
-    bool HasItemCurrencyCost(uint32 itemId) const { return _itemsWithCurrencyCost.count(itemId) > 0; }
+    bool HasItemCurrencyCost(uint32 itemId) const;
     uint32 GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const;
     ItemModifiedAppearanceEntry const* GetItemModifiedAppearance(uint32 itemId, uint32 appearanceModId) const;
     ItemModifiedAppearanceEntry const* GetDefaultItemModifiedAppearance(uint32 itemId) const;
@@ -339,7 +292,7 @@ public:
     static LfgDungeonsEntry const* GetLfgDungeon(uint32 mapId, Difficulty difficulty);
     static uint32 GetDefaultMapLight(uint32 mapId);
     static uint32 GetLiquidFlags(uint32 liquidType);
-    MapDifficultyContainer const& GetMapDifficulties() const { return _mapDifficulties; }
+    MapDifficultyContainer const& GetMapDifficulties() const;
     MapDifficultyEntry const* GetDefaultMapDifficulty(uint32 mapId, Difficulty* difficulty = nullptr) const;
     MapDifficultyEntry const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty) const;
     MapDifficultyEntry const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty) const;
@@ -369,55 +322,6 @@ public:
     void Zone2MapCoordinates(uint32 areaId, float& x, float& y) const;
     void Map2ZoneCoordinates(uint32 areaId, float& x, float& y) const;
     static void DeterminaAlternateMapPosition(uint32 mapId, float x, float y, float z, uint32* newMapId = nullptr, DBCPosition2D* newPos = nullptr);
-
-private:
-    StorageMap _stores;
-    std::map<int32, HotfixData> _hotfixData;
-
-    AreaGroupMemberContainer _areaGroupMembers;
-    ArtifactPowersContainer _artifactPowers;
-    ArtifactPowerLinksContainer _artifactPowerLinks;
-    ArtifactPowerRanksContainer _artifactPowerRanks;
-    CharSectionsContainer _charSections;
-    CharStartOutfitContainer _charStartOutfits;
-    uint32 _powersByClass[MAX_CLASSES][MAX_POWERS];
-    ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
-    ChrSpecialzationByClassContainer _defaultChrSpecializationsByClass;
-    CurvePointsContainer _curvePoints;
-    EmotesTextSoundContainer _emoteTextSounds;
-    FactionTeamContainer _factionTeams;
-    HeirloomItemsContainer _heirlooms;
-    GlyphBindableSpellsContainer _glyphBindableSpells;
-    GlyphRequiredSpecsContainer _glyphRequiredSpecs;
-    ItemBonusListContainer _itemBonusLists;
-    ItemBonusListLevelDeltaContainer _itemLevelDeltaToBonusListContainer;
-    ItemBonusTreeContainer _itemBonusTrees;
-    ItemChildEquipmentContainer _itemChildEquipment;
-    ItemClassByOldEnumContainer _itemClassByOldEnum;
-    std::unordered_set<uint32> _itemsWithCurrencyCost;
-    ItemModifiedAppearanceByItemContainer _itemModifiedAppearancesByItem;
-    ItemToBonusTreeContainer _itemToBonusTree;
-    ItemSetSpellContainer _itemSetSpells;
-    ItemSpecOverridesContainer _itemSpecOverrides;
-    MapDifficultyContainer _mapDifficulties;
-    MountContainer _mountsBySpellId;
-    MountCapabilitiesByTypeContainer _mountCapabilitiesByType;
-    MountDisplaysCointainer _mountDisplays;
-    NameGenContainer _nameGenData;
-    NameValidationRegexContainer _nameValidators;
-    PhaseGroupContainer _phasesByGroup;
-    PowerTypesContainer _powerTypes;
-    QuestPackageItemContainer _questPackages;
-    RulesetItemUpgradeContainer _rulesetItemUpgrade;
-    SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
-    SpecializationSpellsContainer _specializationSpellsBySpec;
-    SpellPowerContainer _spellPowers;
-    SpellPowerDifficultyContainer _spellPowerDifficulties;
-    SpellProcsPerMinuteModContainer _spellProcsPerMinuteMods;
-    TalentsByPosition _talentsByPosition;
-    ToyItemIdsContainer _toys;
-    WMOAreaTableLookupContainer _wmoAreaTableLookup;
-    WorldMapAreaByAreaIDContainer _worldMapAreaByAreaID;
 };
 
 #define sDB2Manager DB2Manager::Instance()

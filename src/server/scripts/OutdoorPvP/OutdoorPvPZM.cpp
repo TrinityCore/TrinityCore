@@ -25,6 +25,7 @@
 #include "ObjectAccessor.h"
 #include "WorldPacket.h"
 #include "GossipDef.h"
+#include "WorldStatePackets.h"
 
 OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type)
 : OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(ZM_TOWERSTATE_N)

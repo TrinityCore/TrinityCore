@@ -26,6 +26,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "trial_of_the_champion.h"
 #include "Player.h"
+#include "Log.h"
 
 #define MAX_ENCOUNTER  4
 

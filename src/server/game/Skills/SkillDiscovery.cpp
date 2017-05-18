@@ -26,6 +26,7 @@
 #include "Random.h"
 #include "SpellInfo.h"
 #include <map>
+#include <sstream>
 
 struct SkillDiscoveryEntry
 {

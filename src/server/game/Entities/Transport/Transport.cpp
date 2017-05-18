@@ -16,19 +16,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "Transport.h"
-#include "MapManager.h"
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "GameObjectAI.h"
-#include "Spline.h"
-#include "Vehicle.h"
-#include "Player.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Common.h"
+#include "GameObjectAI.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "Spline.h"
 #include "Totem.h"
 #include "UpdateData.h"
+#include "Vehicle.h"
 #include <G3D/Vector3.h>
 
 Transport::Transport() : GameObject(),

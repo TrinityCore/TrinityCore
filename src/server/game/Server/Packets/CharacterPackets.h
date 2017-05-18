@@ -19,6 +19,7 @@
 #define CharacterPackets_h__
 
 #include "Packet.h"
+#include "Optional.h"
 #include "Player.h"
 #include "PacketUtilities.h"
 

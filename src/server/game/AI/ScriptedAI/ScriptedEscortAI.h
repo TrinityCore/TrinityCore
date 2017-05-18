@@ -19,7 +19,10 @@
 #ifndef SC_ESCORTAI_H
 #define SC_ESCORTAI_H
 
+#include "ScriptedCreature.h"
 #include "ScriptSystem.h"
+
+class Quest;
 
 #define DEFAULT_MAX_PLAYER_DISTANCE 50
 

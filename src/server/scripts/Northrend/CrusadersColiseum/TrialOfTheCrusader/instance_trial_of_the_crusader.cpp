@@ -16,10 +16,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "trial_of_the_crusader.h"
+#include "Log.h"
 #include "Player.h"
+#include "ScriptMgr.h"
+#include "trial_of_the_crusader.h"
 #include "TemporarySummon.h"
 
 BossBoundaryData const boundaries = {

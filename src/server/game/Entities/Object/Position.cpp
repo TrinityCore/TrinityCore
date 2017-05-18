@@ -21,6 +21,7 @@
 #include "Random.h"
 
 #include <G3D/g3dmath.h>
+#include <sstream>
 
 bool Position::operator==(Position const &a)
 {
@@ -41,6 +42,26 @@ void Position::RelocateOffset(const Position & offset)
 bool Position::IsPositionValid() const
 {
     return Trinity::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
+}
+
+float Position::GetExactDist2d(const float x, const float y) const
+{
+    return std::sqrt(GetExactDist2dSq(x, y));
+}
+
+float Position::GetExactDist2d(Position const* pos) const
+{
+    return std::sqrt(GetExactDist2dSq(pos));
+}
+
+float Position::GetExactDist(float x, float y, float z) const
+{
+    return std::sqrt(GetExactDistSq(x, y, z));
+}
+
+float Position::GetExactDist(Position const* pos) const
+{
+    return std::sqrt(GetExactDistSq(pos));
 }
 
 void Position::GetPositionOffsetTo(const Position & endPos, Position & retOffset) const
@@ -163,6 +184,20 @@ std::string Position::ToString() const
     std::stringstream sstr;
     sstr << "X: " << m_positionX << " Y: " << m_positionY << " Z: " << m_positionZ << " O: " << m_orientation;
     return sstr.str();
+}
+
+float Position::NormalizeOrientation(float o)
+{
+    // fmod only supports positive numbers. Thus we have
+    // to emulate negative numbers
+    if (o < 0)
+    {
+        float mod = o *-1;
+        mod = std::fmod(mod, 2.0f * static_cast<float>(M_PI));
+        mod = -mod + 2.0f * static_cast<float>(M_PI);
+        return mod;
+    }
+    return std::fmod(o, 2.0f * static_cast<float>(M_PI));
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer)

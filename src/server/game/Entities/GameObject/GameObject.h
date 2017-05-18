@@ -23,8 +23,8 @@
 #include "SharedDefines.h"
 #include "Unit.h"
 #include "Object.h"
-#include "LootMgr.h"
-#include "DatabaseEnv.h"
+#include "Loot.h"
+#include "DatabaseEnvFwd.h"
 #include "MapObject.h"
 #include <G3D/Quat.h>
 

@@ -24,11 +24,12 @@ EndScriptData */
 
 /// @todo rewrite Armageddon
 
+#include "Log.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
-#include <math.h>
 #include "Player.h"
+#include <cmath>
 
 /*** Speech and sounds***/
 enum Yells

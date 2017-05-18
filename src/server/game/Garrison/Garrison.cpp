@@ -17,10 +17,15 @@
 
 #include "Garrison.h"
 #include "Creature.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
 #include "GarrisonMgr.h"
+#include "Log.h"
+#include "Map.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "VehicleDefines.h"
 
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)

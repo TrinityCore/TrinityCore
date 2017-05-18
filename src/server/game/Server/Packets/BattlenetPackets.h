@@ -19,8 +19,8 @@
 #define BattlenetPackets_h__
 
 #include "Packet.h"
-#include "MessageBuffer.h"
 #include "BattlenetRpcErrorCodes.h"
+#include "MessageBuffer.h"
 #include <array>
 
 namespace WorldPackets

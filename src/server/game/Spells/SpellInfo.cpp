@@ -16,6 +16,7 @@
  */
 
 #include "SpellInfo.h"
+#include "Log.h"
 #include "SpellAuraDefines.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"

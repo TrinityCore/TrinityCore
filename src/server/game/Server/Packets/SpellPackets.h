@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "SpellAuras.h"
 #include "Spell.h"
+#include "Optional.h"
 
 namespace WorldPackets
 {

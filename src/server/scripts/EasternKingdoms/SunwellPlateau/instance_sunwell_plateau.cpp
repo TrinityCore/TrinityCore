@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "Player.h"
 #include "sunwell_plateau.h"
 

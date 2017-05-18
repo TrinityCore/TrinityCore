@@ -18,7 +18,8 @@
 #ifndef Trinity_game_Position_h__
 #define Trinity_game_Position_h__
 
-#include "Common.h"
+#include "Define.h"
+#include <string>
 #include <cmath>
 
 class ByteBuffer;
@@ -136,10 +137,7 @@ public:
         float dx = m_positionX - x; float dy = m_positionY - y; return dx*dx + dy*dy;
     }
 
-    float GetExactDist2d(const float x, const float y) const
-    {
-        return std::sqrt(GetExactDist2dSq(x, y));
-    }
+    float GetExactDist2d(const float x, const float y) const;
 
     float GetExactDist2dSq(Position const& pos) const
     {
@@ -156,20 +154,14 @@ public:
         float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; return dx*dx + dy*dy;
     }
 
-    float GetExactDist2d(Position const* pos) const
-    {
-        return std::sqrt(GetExactDist2dSq(pos));
-    }
+    float GetExactDist2d(Position const* pos) const;
 
     float GetExactDistSq(float x, float y, float z) const
     {
         float dz = m_positionZ - z; return GetExactDist2dSq(x, y) + dz*dz;
     }
 
-    float GetExactDist(float x, float y, float z) const
-    {
-        return std::sqrt(GetExactDistSq(x, y, z));
-    }
+    float GetExactDist(float x, float y, float z) const;
 
     float GetExactDistSq(Position const& pos) const
     {
@@ -186,10 +178,7 @@ public:
         float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; float dz = m_positionZ - pos->m_positionZ; return dx*dx + dy*dy + dz*dz;
     }
 
-    float GetExactDist(Position const* pos) const
-    {
-        return std::sqrt(GetExactDistSq(pos));
-    }
+    float GetExactDist(Position const* pos) const;
 
     void GetPositionOffsetTo(Position const & endPos, Position & retOffset) const;
     Position GetPositionWithOffset(Position const& offset) const;
@@ -234,19 +223,7 @@ public:
     std::string ToString() const;
 
     // modulos a radian orientation to the range of 0..2PI
-    static float NormalizeOrientation(float o)
-    {
-        // fmod only supports positive numbers. Thus we have
-        // to emulate negative numbers
-        if (o < 0)
-        {
-            float mod = o *-1;
-            mod = std::fmod(mod, 2.0f * static_cast<float>(M_PI));
-            mod = -mod + 2.0f * static_cast<float>(M_PI);
-            return mod;
-        }
-        return std::fmod(o, 2.0f * static_cast<float>(M_PI));
-    }
+    static float NormalizeOrientation(float o);
 };
 
 #define MAPID_INVALID 0xFFFFFFFF

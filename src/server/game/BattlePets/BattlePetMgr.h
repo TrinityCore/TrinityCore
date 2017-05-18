@@ -18,6 +18,7 @@
 #ifndef BattlePetMgr_h__
 #define BattlePetMgr_h__
 
+#include "DatabaseEnvFwd.h"
 #include "DB2Stores.h"
 #include "BattlePetPackets.h"
 

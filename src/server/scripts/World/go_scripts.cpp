@@ -45,11 +45,12 @@ go_toy_train_set
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
+#include "Log.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "GameObjectAI.h"
 #include "Spell.h"
-#include "Player.h"
 #include "WorldSession.h"
 
 /*######

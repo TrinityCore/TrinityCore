@@ -22,16 +22,19 @@ Comment: All npc related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ObjectMgr.h"
 #include "Chat.h"
-#include "Transport.h"
-#include "CreatureGroups.h"
-#include "Language.h"
-#include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureAI.h"
-#include "Player.h"
+#include "CreatureGroups.h"
+#include "DatabaseEnv.h"
+#include "Language.h"
+#include "Log.h"
+#include "ObjectMgr.h"
 #include "Pet.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
+#include "Transport.h"
+#include "World.h"
 
 template<typename E, typename T = char const*>
 struct EnumName

@@ -122,7 +122,7 @@ namespace WorldPackets
         }
 
         uint32 GetMask() const { return _mask; }
-        T const& operator[](std::size_t index) const { return _contents.at(index); }
+        T const& operator[](std::size_t index) const { return _contents[index]; }
         std::size_t GetSize() const { return _contents.size(); }
 
         void Insert(std::size_t index, T const& value)

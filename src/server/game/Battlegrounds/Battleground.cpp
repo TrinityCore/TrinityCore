@@ -22,11 +22,13 @@
 #include "BattlegroundScore.h"
 #include "Creature.h"
 #include "CreatureTextMgr.h"
+#include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GuildMgr.h"
 #include "Guild.h"
+#include "Log.h"
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -35,7 +37,9 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "Transport.h"
+#include "BattlegroundPackets.h"
 #include "MiscPackets.h"
+#include "WorldStatePackets.h"
 
 namespace Trinity
 {

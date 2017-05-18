@@ -16,23 +16,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "InstanceScript.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "GameObject.h"
 #include "Group.h"
-#include "InstanceScript.h"
 #include "InstancePackets.h"
+#include "InstanceScenario.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
-#include "Player.h"
-#include "Pet.h"
-#include "WorldSession.h"
 #include "Opcodes.h"
-#include "ScriptReloadMgr.h"
+#include "Pet.h"
+#include "Player.h"
+#include "RBAC.h"
 #include "ScriptMgr.h"
-#include "InstanceScenario.h"
+#include "ScriptReloadMgr.h"
+#include "WorldSession.h"
+#include <sstream>
 
 BossBoundaryData::~BossBoundaryData()
 {

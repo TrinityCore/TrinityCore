@@ -25,6 +25,7 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "SharedDefines.h"
+
 #include "UpdateFields.h"
 #include <list>
 #include <set>
@@ -170,7 +171,6 @@ class TC_GAME_API Object
         virtual void RemoveFromWorld();
 
         ObjectGuid const& GetGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
-        PackedGuid const& GetPackGUID() const { return m_PackGUID; }
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
         void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY, entry); }
 
@@ -372,8 +372,6 @@ class TC_GAME_API Object
 
     private:
         bool m_inWorld;
-
-        PackedGuid m_PackGUID;
 
         // for output helpfull error messages from asserts
         bool PrintIndexError(uint32 index, bool set) const;

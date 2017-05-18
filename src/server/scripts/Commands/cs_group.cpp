@@ -16,11 +16,12 @@
  */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "GroupMgr.h"
 #include "Language.h"
 #include "LFG.h"
-#include "Player.h"
 #include "ObjectMgr.h"
-#include "GroupMgr.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 
 class group_commandscript : public CommandScript

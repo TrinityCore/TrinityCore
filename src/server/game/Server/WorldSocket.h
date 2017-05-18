@@ -20,19 +20,23 @@
 #define __WORLDSOCKET_H__
 
 #include "Common.h"
+#include "BigNumber.h"
+#include "DatabaseEnvFwd.h"
+#include "MessageBuffer.h"
 #include "QueryCallbackProcessor.h"
-#include "WorldPacketCrypt.h"
 #include "Socket.h"
-#include "Util.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "WorldPacketCrypt.h"
 #include "MPSCQueue.h"
 #include <chrono>
-#include <boost/asio/ip/tcp.hpp>
+#include <functional>
+#include <mutex>
 
-using boost::asio::ip::tcp;
-struct z_stream_s;
+typedef struct z_stream_s z_stream;
 class EncryptablePacket;
+class WorldPacket;
+class WorldSession;
+enum ConnectionType : int8;
+enum OpcodeClient : uint32;
 
 namespace WorldPackets
 {
@@ -54,7 +58,7 @@ struct PacketHeader
     uint16 Command;
 
     bool IsValidSize() { return Size < 0x10000; }
-    bool IsValidOpcode() { return Command < NUM_OPCODE_HANDLERS; }
+    bool IsValidOpcode();
 };
 
 #pragma pack(pop)
@@ -72,7 +76,7 @@ class TC_GAME_API WorldSocket : public Socket<WorldSocket>
     typedef Socket<WorldSocket> BaseSocket;
 
 public:
-    WorldSocket(tcp::socket&& socket);
+    WorldSocket(boost::asio::ip::tcp::socket&& socket);
     ~WorldSocket();
 
     WorldSocket(WorldSocket const& right) = delete;
@@ -145,7 +149,7 @@ private:
     MPSCQueue<EncryptablePacket> _bufferQueue;
     std::size_t _sendBufferSize;
 
-    z_stream_s* _compressionStream;
+    z_stream* _compressionStream;
 
     QueryCallbackProcessor _queryProcessor;
     std::string _ipCountry;

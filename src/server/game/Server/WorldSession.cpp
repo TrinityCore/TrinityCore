@@ -20,43 +20,34 @@
     \ingroup u2w
 */
 
-#include "WorldSocket.h"
-#include "Config.h"
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "QueryCallback.h"
+#include "WorldSession.h"
 #include "QueryHolder.h"
 #include "AccountMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Player.h"
-#include "Vehicle.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "Group.h"
-#include "Guild.h"
-#include "World.h"
-#include "ObjectAccessor.h"
-#include "BattlegroundMgr.h"
-#include "OutdoorPvPMgr.h"
-#include "SocialMgr.h"
-#include "ScriptMgr.h"
-#include "WardenWin.h"
 #include "AuthenticationPackets.h"
+#include "BattlePetMgr.h"
+#include "BattlegroundMgr.h"
 #include "BattlenetPackets.h"
 #include "CharacterPackets.h"
-#include "ClientConfigPackets.h"
-#include "MiscPackets.h"
 #include "ChatPackets.h"
-#include "BattlePetMgr.h"
-#include "PacketUtilities.h"
-#include "CollectionMgr.h"
+#include "DatabaseEnv.h"
+#include "Group.h"
+#include "Guild.h"
+#include "GuildMgr.h"
 #include "Metric.h"
+#include "MiscPackets.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
+#include "PacketUtilities.h"
+#include "Player.h"
+#include "QueryHolder.h"
 #include "Random.h"
-
-#include <zlib.h>
+#include "RBAC.h"
+#include "Realm.h"
+#include "ScriptMgr.h"
+#include "SocialMgr.h"
+#include "WardenWin.h"
+#include "World.h"
+#include "WorldSocket.h"
 
 namespace {
 
@@ -695,6 +686,11 @@ void WorldSession::SendNotification(uint32 stringId, ...)
 char const* WorldSession::GetTrinityString(uint32 entry) const
 {
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
+}
+
+void WorldSession::ResetTimeOutTime()
+{
+    m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
 }
 
 void WorldSession::Handle_NULL(WorldPackets::Null& null)
@@ -1386,4 +1382,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
     }
 
     return maxPacketCounterAllowed;
+}
+
+WorldSession::DosProtection::DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY))
+{
 }

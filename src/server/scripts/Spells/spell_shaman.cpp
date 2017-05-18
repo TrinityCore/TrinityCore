@@ -317,13 +317,21 @@ public:
         void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
-            GetAura()->SetCastExtraParam("procTargetGUID", eventInfo.GetProcTarget()->GetGUID());
+            _procTargetGuid = eventInfo.GetProcTarget()->GetGUID();
             eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC, true);
         }
 
         void Register() override
         {
             OnEffectProc += AuraEffectProcFn(spell_sha_earthen_rage_passive_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+
+        ObjectGuid _procTargetGuid;
+
+    public:
+        ObjectGuid const& GetProcTargetGuid() const
+        {
+            return _procTargetGuid;
         }
     };
 
@@ -354,10 +362,12 @@ public:
 
         void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
         {
+            using earthen_rage_script_t = spell_sha_earthen_rage_passive::spell_sha_earthen_rage_passive_AuraScript;
+
             PreventDefaultAction();
             if (Aura const* aura = GetCaster()->GetAura(SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE))
-                if (ObjectGuid const* procTargetGUID = aura->GetCastExtraParam<ObjectGuid>("procTargetGUID"))
-                    if (Unit* procTarget = ObjectAccessor::GetUnit(*GetCaster(), *procTargetGUID))
+                if (earthen_rage_script_t const* earthen_rage_script = dynamic_cast<earthen_rage_script_t const*>(aura->GetScriptByName("spell_sha_earthen_rage_passive")))
+                    if (Unit* procTarget = ObjectAccessor::GetUnit(*GetCaster(), earthen_rage_script->GetProcTargetGuid()))
                         GetTarget()->CastSpell(procTarget, SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE, true);
         }
 
