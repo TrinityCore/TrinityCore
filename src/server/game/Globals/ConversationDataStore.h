@@ -22,6 +22,7 @@
 
 #include <vector>
 
+#pragma pack(push, 1)
 struct ConversationActorTemplate
 {
     uint32 Id;
@@ -29,7 +30,6 @@ struct ConversationActorTemplate
     uint32 CreatureModelId;
 };
 
-#pragma pack(push, 1)
 struct ConversationLineTemplate
 {
     uint32 Id;          // Link to ConversationLine.db2

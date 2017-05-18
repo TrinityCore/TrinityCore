@@ -485,7 +485,8 @@ class FlaggedValuesArray32
     public:
         FlaggedValuesArray32()
         {
-            memset(&m_values[0], 0x00, sizeof(T_VALUES) * ARRAY_SIZE);
+            for (uint32 i = 0; i < ARRAY_SIZE; ++i)
+                m_values[i] = T_VALUES(0);
             m_flags = 0;
         }
 

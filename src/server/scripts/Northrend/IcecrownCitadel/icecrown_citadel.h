@@ -18,6 +18,7 @@
 #ifndef ICECROWN_CITADEL_H_
 #define ICECROWN_CITADEL_H_
 
+#include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 

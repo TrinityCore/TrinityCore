@@ -18,6 +18,8 @@
 #ifndef BLACK_TEMPLE_H_
 #define BLACK_TEMPLE_H_
 
+#include "InstanceScript.h"
+
 #define BTScriptName "instance_black_temple"
 #define DataHeader   "BT"
 
