@@ -22,6 +22,7 @@
 #include "DatabaseEnvFwd.h"
 #include <chrono>
 #include <deque>
+#include <vector>
 #include <unordered_map>
 
 class Item;
