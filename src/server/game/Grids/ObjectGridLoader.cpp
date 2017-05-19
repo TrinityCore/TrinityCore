@@ -28,6 +28,7 @@
 #include "World.h"
 #include "CellImpl.h"
 #include "CreatureAI.h"
+#include "Log.h"
 
 void ObjectGridEvacuator::Visit(CreatureMapType &m)
 {

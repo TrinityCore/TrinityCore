@@ -17,14 +17,15 @@
  */
 
 #include "Channel.h"
-#include "ChannelAppenders.h"
 #include "AccountMgr.h"
+#include "ChannelAppenders.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "DatabaseEnv.h"
-#include "ObjectMgr.h"
 #include "Language.h"
+#include "Log.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "SocialMgr.h"
 #include "World.h"

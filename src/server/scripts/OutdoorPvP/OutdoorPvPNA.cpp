@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 OutdoorPvPNA::OutdoorPvPNA()
 {

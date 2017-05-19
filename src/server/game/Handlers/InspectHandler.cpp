@@ -17,9 +17,13 @@
  */
 
 #include "WorldSession.h"
+#include "Guild.h"
 #include "GuildMgr.h"
 #include "InspectPackets.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "World.h"
 
 void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
 {

@@ -23,7 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "Chat.h"
-#include "ObjectMgr.h"
+#include "Log.h"
 #include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
@@ -741,14 +741,14 @@ public:
         target->Mount(mId);
 
         WorldPacket data(SMSG_MOVE_SET_RUN_SPEED, (8+4+1+4));
-        data << target->GetPackGUID();
+        data << target->GetGUID();
         data << (uint32)0;
         data << (uint8)0;                                       //new 2.1.0
         data << float(speed);
         target->SendMessageToSet(&data, true);
 
         data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, (8+4+4));
-        data << target->GetPackGUID();
+        data << target->GetGUID();
         data << (uint32)0;
         data << float(speed);
         target->SendMessageToSet(&data, true);

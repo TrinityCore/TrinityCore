@@ -26,8 +26,6 @@
 #include "WorldPacket.h"
 #include "Object.h"
 #include "GameObject.h"
-#include "Packets/WorldStatePackets.h"
-#include "Packets/BattlegroundPackets.h"
 #include "EventMap.h"
 
 class Creature;
@@ -41,6 +39,20 @@ class BattlegroundMap;
 
 struct PvpDifficultyEntry;
 struct WorldSafeLocsEntry;
+
+namespace WorldPackets
+{
+    namespace Battleground
+    {
+        class PVPLogData;
+        struct BattlegroundPlayerPosition;
+    }
+
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
 
 enum BattlegroundCriteriaId
 {

@@ -17,6 +17,7 @@
  */
 
 #include "Common.h"
+#include "DatabaseEnv.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"

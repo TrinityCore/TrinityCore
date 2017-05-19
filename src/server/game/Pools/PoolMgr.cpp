@@ -18,9 +18,15 @@
 
 #include "PoolMgr.h"
 #include "Containers.h"
-#include "ObjectMgr.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "ObjectMgr.h"
+#include <sstream>
+
+PoolObject::PoolObject(uint64 _guid, float _chance) : guid(_guid), chance(std::fabs(_chance))
+{
+}
 
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData

@@ -28,6 +28,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "old_hillsbrad.h"
 #include "Player.h"
+#include "Log.h"
 
 #define MAX_ENCOUNTER      6
 

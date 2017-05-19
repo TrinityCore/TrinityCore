@@ -19,15 +19,12 @@
 #define AuthenticationPacketsWorld_h__
 
 #include "Packet.h"
-#include "ObjectMgr.h"
-#include "Common.h"
-#include "BigNumber.h"
-#include "SHA1.h"
-#include <boost/asio/ip/tcp.hpp>
+#include "Define.h"
+#include "Optional.h"
+#include <array>
+#include <unordered_map>
 
 struct CharacterTemplate;
-
-using boost::asio::ip::tcp;
 
 namespace WorldPackets
 {
@@ -155,8 +152,8 @@ namespace WorldPackets
                 std::vector<VirtualRealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
                 std::vector<CharacterTemplate const*> Templates; ///< list of pre-made character templates.
 
-                ExpansionRequirementContainer const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select the classes
-                ExpansionRequirementContainer const* AvailableRaces = nullptr; ///< the minimum AccountExpansion required to select the races
+                std::unordered_map<uint8, uint8> const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select the classes
+                std::unordered_map<uint8, uint8> const* AvailableRaces = nullptr; ///< the minimum AccountExpansion required to select the races
 
                 bool IsExpansionTrial = false;
                 bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
@@ -233,13 +230,6 @@ namespace WorldPackets
             ConnectToSerial Serial = ConnectToSerial::None;
             ConnectPayload Payload;
             uint8 Con = 0;
-
-        private:
-            BigNumber p;
-            BigNumber q;
-            BigNumber dmp1;
-            BigNumber dmq1;
-            BigNumber iqmp;
         };
 
         class AuthContinuedSession final : public EarlyProcessClientPacket

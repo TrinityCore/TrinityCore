@@ -27,6 +27,7 @@ class GameObject;
 class Creature;
 class ZoneScript;
 struct GossipMenuItems;
+enum LocaleConstant : uint8;
 
 struct OutdoorPvPData
 {

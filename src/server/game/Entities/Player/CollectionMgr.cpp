@@ -16,10 +16,17 @@
  */
 
 #include "CollectionMgr.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Item.h"
+#include "Log.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Timer.h"
 #include "TransmogrificationPackets.h"
+#include "WorldSession.h"
+#include <boost/dynamic_bitset.hpp>
 
 namespace
 {
@@ -63,7 +70,11 @@ void CollectionMgr::LoadMountDefinitions()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " mount definitions in %u ms", FactionSpecificMounts.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
-CollectionMgr::CollectionMgr(WorldSession* owner) : _owner(owner), _appearances()
+CollectionMgr::CollectionMgr(WorldSession* owner) : _owner(owner), _appearances(Trinity::make_unique<boost::dynamic_bitset<uint32>>())
+{
+}
+
+CollectionMgr::~CollectionMgr()
 {
 }
 
@@ -438,7 +449,7 @@ private:
 
 void CollectionMgr::LoadItemAppearances()
 {
-    boost::to_block_range(_appearances, DynamicBitsetBlockOutputIterator([this](uint32 blockValue)
+    boost::to_block_range(*_appearances, DynamicBitsetBlockOutputIterator([this](uint32 blockValue)
     {
         _owner->GetPlayer()->AddDynamicValue(PLAYER_DYNAMIC_FIELD_TRANSMOG, blockValue);
     }));
@@ -463,7 +474,7 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
 
         } while (knownAppearances->NextRow());
 
-        _appearances.init_from_block_range(blocks.begin(), blocks.end());
+        _appearances->init_from_block_range(blocks.begin(), blocks.end());
     }
 
     if (favoriteAppearances)
@@ -489,17 +500,17 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
     {
         ItemModifiedAppearanceEntry const* hiddenAppearance = sDB2Manager.GetItemModifiedAppearance(hiddenItem, 0);
         ASSERT(hiddenAppearance);
-        if (_appearances.size() <= hiddenAppearance->ID)
-            _appearances.resize(hiddenAppearance->ID + 1);
+        if (_appearances->size() <= hiddenAppearance->ID)
+            _appearances->resize(hiddenAppearance->ID + 1);
 
-        _appearances.set(hiddenAppearance->ID);
+        _appearances->set(hiddenAppearance->ID);
     }
 }
 
 void CollectionMgr::SaveAccountItemAppearances(SQLTransaction& trans)
 {
     uint16 blockIndex = 0;
-    boost::to_block_range(_appearances, DynamicBitsetBlockOutputIterator([this, &blockIndex, trans](uint32 blockValue)
+    boost::to_block_range(*_appearances, DynamicBitsetBlockOutputIterator([this, &blockIndex, trans](uint32 blockValue)
     {
         if (blockValue) // this table is only appended/bits are set (never cleared) so don't save empty blocks
         {
@@ -657,7 +668,7 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
         if (!(itemTemplate->GetFlags2() & ITEM_FLAG2_IGNORE_QUALITY_FOR_ITEM_VISUAL_SOURCE) || !(itemTemplate->GetFlags3() & ITEM_FLAG3_ACTS_AS_TRANSMOG_HIDDEN_VISUAL_OPTION))
             return false;
 
-    if (itemModifiedAppearance->ID < _appearances.size() && _appearances.test(itemModifiedAppearance->ID))
+    if (itemModifiedAppearance->ID < _appearances->size() && _appearances->test(itemModifiedAppearance->ID))
         return false;
 
     return true;
@@ -665,16 +676,16 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
 
 void CollectionMgr::AddItemAppearance(ItemModifiedAppearanceEntry const* itemModifiedAppearance)
 {
-    if (_appearances.size() <= itemModifiedAppearance->ID)
+    if (_appearances->size() <= itemModifiedAppearance->ID)
     {
-        std::size_t numBlocks = _appearances.num_blocks();
-        _appearances.resize(itemModifiedAppearance->ID + 1);
-        numBlocks = _appearances.num_blocks() - numBlocks;
+        std::size_t numBlocks = _appearances->num_blocks();
+        _appearances->resize(itemModifiedAppearance->ID + 1);
+        numBlocks = _appearances->num_blocks() - numBlocks;
         while (numBlocks--)
             _owner->GetPlayer()->AddDynamicValue(PLAYER_DYNAMIC_FIELD_TRANSMOG, 0);
     }
 
-    _appearances.set(itemModifiedAppearance->ID);
+    _appearances->set(itemModifiedAppearance->ID);
     uint32 blockIndex = itemModifiedAppearance->ID / 32;
     uint32 bitIndex = itemModifiedAppearance->ID % 32;
     uint32 currentMask = _owner->GetPlayer()->GetDynamicValue(PLAYER_DYNAMIC_FIELD_TRANSMOG, blockIndex);
@@ -716,7 +727,7 @@ void CollectionMgr::RemoveTemporaryAppearance(Item* item)
 
 std::pair<bool, bool> CollectionMgr::HasItemAppearance(uint32 itemModifiedAppearanceId) const
 {
-    if (itemModifiedAppearanceId < _appearances.size() && _appearances.test(itemModifiedAppearanceId))
+    if (itemModifiedAppearanceId < _appearances->size() && _appearances->test(itemModifiedAppearanceId))
         return{ true, false };
 
     if (_temporaryAppearances.find(itemModifiedAppearanceId) != _temporaryAppearances.end())

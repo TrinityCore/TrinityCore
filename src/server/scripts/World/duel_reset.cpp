@@ -19,6 +19,7 @@
 #include "Player.h"
 #include "Pet.h"
 #include "SpellInfo.h"
+#include "World.h"
 
 class DuelResetScript : public PlayerScript
 {

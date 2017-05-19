@@ -19,10 +19,10 @@
 #ifndef _BIH_WRAP
 #define _BIH_WRAP
 
-#include "G3D/Table.h"
-#include "G3D/Array.h"
-#include "G3D/Set.h"
 #include "BoundingIntervalHierarchy.h"
+#include <G3D/Table.h>
+#include <G3D/Array.h>
+#include <G3D/Set.h>
 
 
 template<class T, class BoundsFunc = BoundsTrait<T> >

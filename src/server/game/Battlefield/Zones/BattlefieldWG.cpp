@@ -24,12 +24,14 @@
 #include "CreatureTextMgr.h"
 #include "Battleground.h"
 #include "MapManager.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
 #include "WorldSession.h"
+#include "WorldStatePackets.h"
 
 struct BfWGCoordGY
 {

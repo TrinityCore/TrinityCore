@@ -22,6 +22,7 @@
 #include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "AreaBoundary.h"
 

@@ -15,10 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
+#include "AuctionHouseBotBuyer.h"
+#include "DatabaseEnv.h"
 #include "Item.h"
 #include "ItemTemplate.h"
-#include "AuctionHouseBotBuyer.h"
+#include "Log.h"
 #include "Random.h"
 
 AuctionBotBuyer::AuctionBotBuyer() : _checkInterval(20 * MINUTE)
