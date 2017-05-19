@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "SmartScriptMgr.h"
+#include <cstdlib>
 
 class Creature;
 class GameObject;
