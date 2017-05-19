@@ -16,13 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "QuestDef.h"
 #include "GossipDef.h"
-#include "ObjectMgr.h"
-#include "WorldSession.h"
 #include "Formulas.h"
-#include "QuestPackets.h"
+#include "Log.h"
 #include "NPCPackets.h"
+#include "ObjectMgr.h"
+#include "QuestDef.h"
+#include "QuestPackets.h"
+#include "WorldSession.h"
 
 GossipMenu::GossipMenu()
 {

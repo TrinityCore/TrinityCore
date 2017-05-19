@@ -19,7 +19,6 @@
 #ifndef TRINITY_DISABLEMGR_H
 #define TRINITY_DISABLEMGR_H
 
-#include "VMapManager2.h"
 #include "Define.h"
 
 class Unit;

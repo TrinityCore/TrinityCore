@@ -19,9 +19,12 @@
 #ifndef _ITEMPROTOTYPE_H
 #define _ITEMPROTOTYPE_H
 
+#include "Common.h"
 #include "DB2Structure.h"
 #include "SharedDefines.h"
 #include <bitset>
+#include <unordered_map>
+#include <vector>
 
 enum ItemModType
 {

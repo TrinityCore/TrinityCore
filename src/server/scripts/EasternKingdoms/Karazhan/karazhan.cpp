@@ -34,6 +34,7 @@ EndContentData */
 #include "karazhan.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "Log.h"
 
 enum Spells
 {

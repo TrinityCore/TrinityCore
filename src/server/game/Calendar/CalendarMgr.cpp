@@ -16,13 +16,15 @@
  */
 
 #include "CalendarMgr.h"
-#include "QueryResult.h"
-#include "Log.h"
-#include "Player.h"
+#include "CalendarPackets.h"
+#include "DatabaseEnv.h"
+#include "Guild.h"
 #include "GuildMgr.h"
+#include "Log.h"
+#include "Mail.h"
 #include "ObjectAccessor.h"
 #include "Opcodes.h"
-#include "CalendarPackets.h"
+#include "Player.h"
 
 CalendarInvite::~CalendarInvite()
 {

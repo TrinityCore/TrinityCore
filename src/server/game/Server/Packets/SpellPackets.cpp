@@ -770,7 +770,7 @@ WorldPacket const* WorldPackets::Spells::CancelSpellVisualKit::Write()
 WorldPacket const* WorldPackets::Spells::PlayOrphanSpellVisual::Write()
 {
     _worldPacket << SourceLocation;
-    _worldPacket << SourceOrientation;
+    _worldPacket << SourceRotation;
     _worldPacket << TargetLocation;
     _worldPacket << Target;
     _worldPacket << int32(SpellVisualID);

@@ -20,10 +20,12 @@
 
 #include "Object.h"
 #include "ConversationDataStore.h"
+#include <cstring>
 
 class Unit;
 class SpellInfo;
 
+#pragma pack(push, 1)
 struct ConversationDynamicFieldActor
 {
     ConversationDynamicFieldActor() : Type(0), Padding(0)
@@ -52,6 +54,7 @@ struct ConversationDynamicFieldActor
     uint32 Type;
     uint32 Padding;
 };
+#pragma pack(pop)
 
 class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversation>
 {

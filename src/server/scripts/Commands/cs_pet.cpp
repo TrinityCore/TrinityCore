@@ -17,6 +17,7 @@
 
 #include "Chat.h"
 #include "Language.h"
+#include "Log.h"
 #include "Pet.h"
 #include "Player.h"
 #include "ObjectMgr.h"

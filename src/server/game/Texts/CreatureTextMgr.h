@@ -25,6 +25,7 @@
 #include "Opcodes.h"
 #include "Group.h"
 #include "Packets/ChatPackets.h"
+#include "World.h"
 
 enum CreatureTextRange
 {

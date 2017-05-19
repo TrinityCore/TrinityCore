@@ -36,10 +36,9 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
-#include "GridNotifiers.h"
+#include "Log.h"
 
 /*######
 ## npc_draenei_survivor

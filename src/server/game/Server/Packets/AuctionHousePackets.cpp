@@ -18,6 +18,7 @@
 #include "AuctionHousePackets.h"
 #include "AuctionHouseMgr.h"
 #include "ObjectGuid.h"
+#include "MailPackets.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AuctionHouse::AuctionItem const& auctionItem)
 {
@@ -266,6 +267,14 @@ void WorldPackets::AuctionHouse::AuctionListOwnerItems::Read()
 {
     _worldPacket >> Auctioneer;
     _worldPacket >> Offset;
+}
+
+WorldPackets::AuctionHouse::AuctionListPendingSalesResult::AuctionListPendingSalesResult() : ServerPacket(SMSG_AUCTION_LIST_PENDING_SALES_RESULT, 140)
+{
+}
+
+WorldPackets::AuctionHouse::AuctionListPendingSalesResult::~AuctionListPendingSalesResult()
+{
 }
 
 WorldPacket const* WorldPackets::AuctionHouse::AuctionListPendingSalesResult::Write()

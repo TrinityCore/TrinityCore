@@ -21,10 +21,11 @@
 
 #include "Common.h"
 #include "Object.h"
-#include "LootMgr.h"
+#include "Loot.h"
 #include "ItemEnchantmentMgr.h"
 #include "ItemTemplate.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
+#include <unordered_set>
 
 class SpellInfo;
 class Bag;
@@ -404,7 +405,6 @@ class TC_GAME_API Item : public Object
         uint32 GetItemSuffixFactor() const { return GetUInt32Value(ITEM_FIELD_PROPERTY_SEED); }
         void SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId);
         void UpdateItemSuffixFactor();
-        static ItemRandomEnchantmentId GenerateItemRandomPropertyId(uint32 item_id);
         ItemRandomEnchantmentId GetItemRandomEnchantmentId() const { return m_randomEnchantment; }
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid caster = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);

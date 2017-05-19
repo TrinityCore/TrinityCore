@@ -16,25 +16,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameObjectAI.h"
+#include "GameObject.h"
+#include "ArtifactPackets.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
+#include "DatabaseEnv.h"
+#include "GameObjectAI.h"
 #include "GameObjectModel.h"
 #include "GameObjectPackets.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
-#include "ArtifactPackets.h"
+#include "Log.h"
+#include "LootMgr.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "PoolMgr.h"
 #include "ScriptMgr.h"
 #include "SpellMgr.h"
+#include "Transport.h"
 #include "UpdateFieldFlags.h"
 #include "World.h"
-#include "Transport.h"
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(nullptr), m_goValue(), m_AI(nullptr), _animKitId(0)
@@ -396,7 +400,10 @@ void GameObject::Update(uint32 diff)
                         {
                             m_goValue.Transport.CurrentSeg = node->TimeSeg;
 
-                            G3D::Quat rotation = m_goValue.Transport.AnimationInfo->GetAnimRotation(timer);
+                            G3D::Quat rotation;
+                            if (TransportRotationEntry const* rot = m_goValue.Transport.AnimationInfo->GetAnimRotation(timer))
+                                rotation = G3D::Quat(rot->X, rot->Y, rot->Z, rot->W);
+
                             G3D::Vector3 pos = rotation.toRotationMatrix()
                                              * G3D::Matrix3::fromEulerAnglesZYX(GetOrientation(), 0.0f, 0.0f)
                                              * G3D::Vector3(node->X, node->Y, node->Z);

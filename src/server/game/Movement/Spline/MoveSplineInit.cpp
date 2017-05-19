@@ -117,7 +117,7 @@ namespace Movement
 
         WorldPackets::Movement::MonsterMove packet;
         packet.MoverGUID = unit->GetGUID();
-        packet.Pos = real_position;
+        packet.Pos = Position(real_position.x, real_position.y, real_position.z, real_position.orientation);
         packet.InitializeSplineData(move_spline);
         if (transport)
         {
@@ -163,7 +163,7 @@ namespace Movement
 
         WorldPackets::Movement::MonsterMove packet;
         packet.MoverGUID = unit->GetGUID();
-        packet.Pos = loc;
+        packet.Pos = Position(loc.x, loc.y, loc.z, loc.orientation);
         packet.SplineData.StopDistanceTolerance = 2;
         packet.SplineData.ID = move_spline.GetId();
 

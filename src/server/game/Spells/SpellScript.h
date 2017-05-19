@@ -22,7 +22,6 @@
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
 #include "Spell.h"
-#include "ScriptReloadMgr.h"
 #include <stack>
 
 class Unit;
@@ -39,6 +38,7 @@ class Player;
 class Item;
 class WorldLocation;
 class WorldObject;
+class ModuleReference;
 
 #define SPELL_EFFECT_ANY (uint16)-1
 #define SPELL_AURA_ANY (uint16)-1

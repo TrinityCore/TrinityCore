@@ -18,23 +18,14 @@
 #ifndef LFGPackets_h__
 #define LFGPackets_h__
 
-#include "ObjectGuid.h"
+#include "Packet.h"
+#include "LFGPacketsCommon.h"
 
 namespace WorldPackets
 {
     namespace LFG
     {
-        struct RideTicket
-        {
-            ObjectGuid RequesterGuid;
-            int32 Id = 0;
-            int32 Type = 0;
-            uint32 Time = 0;
-        };
     }
 }
-
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ticket);
 
 #endif // LFGPackets_h__

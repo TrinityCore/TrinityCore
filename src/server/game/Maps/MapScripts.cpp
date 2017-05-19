@@ -16,14 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GossipDef.h"
 #include "Map.h"
+#include "CellImpl.h"
+#include "GossipDef.h"
+#include "GridNotifiers.h"
+#include "Item.h"
+#include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
-#include "Item.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
@@ -887,7 +888,7 @@ void Map::ScriptsProcess()
                 break;
 
             case SCRIPT_COMMAND_MOVEMENT:
-                // Source must be Creature.                
+                // Source must be Creature.
                 if (Creature* cSource = _GetScriptCreature(source, true, step.script))
                 {
                     if (!cSource->IsAlive())

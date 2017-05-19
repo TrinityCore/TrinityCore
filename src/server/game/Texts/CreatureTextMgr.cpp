@@ -15,17 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "ObjectMgr.h"
+#include "CreatureTextMgr.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "ChatPackets.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "CreatureTextMgr.h"
-#include "ChatPackets.h"
+#include "Log.h"
 #include "MiscPackets.h"
+#include "ObjectMgr.h"
 
 class CreatureTextBuilder
 {

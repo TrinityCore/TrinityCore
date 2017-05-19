@@ -18,9 +18,12 @@
 
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
+#include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "LootMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Pet.h"

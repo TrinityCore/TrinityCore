@@ -16,6 +16,7 @@
  */
 
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
 #include "Pet.h"
 #include "Player.h"

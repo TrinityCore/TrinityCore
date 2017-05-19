@@ -18,7 +18,6 @@
 #include "QueryPackets.h"
 #include "BattlenetAccountMgr.h"
 #include "Player.h"
-#include "PacketUtilities.h"
 #include "World.h"
 #include "ObjectMgr.h"
 
@@ -308,9 +307,7 @@ WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
 
     _worldPacket << Player;
     _worldPacket << ActualMapID;
-    _worldPacket << Position.x;
-    _worldPacket << Position.y;
-    _worldPacket << Position.z;
+    _worldPacket << Position;
     _worldPacket << MapID;
     _worldPacket << Transport;
 

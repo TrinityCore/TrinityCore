@@ -21,8 +21,8 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
-#include "WorldPacket.h"
 #include <map>
+#include <unordered_set>
 
 class Player;
 

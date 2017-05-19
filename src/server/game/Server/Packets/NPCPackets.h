@@ -22,8 +22,6 @@
 #include "ItemPackets.h"
 #include "Creature.h"
 
-#include "G3D/Vector2.h"
-
 namespace WorldPackets
 {
     namespace NPC
@@ -180,7 +178,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Flags        = 0;
-            G3D::Vector2 Pos;
+            TaggedPosition<Position::XY> Pos;
             int32 Icon          = 0;
             int32 Importance    = 0;
             std::string Name;

@@ -27,6 +27,7 @@
 #include "SpellInfo.h"
 #include "CreatureTextMgr.h"
 #include "MoveSplineInit.h"
+#include "Log.h"
 
 /*######
 ##Quest 12848

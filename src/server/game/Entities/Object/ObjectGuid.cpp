@@ -17,9 +17,11 @@
  */
 
 #include "ObjectGuid.h"
+#include "ByteBuffer.h"
 #include "Errors.h"
 #include "Hash.h"
 #include "Log.h"
+#include "Realm.h"
 #include "World.h"
 #include <sstream>
 #include <iomanip>
@@ -148,10 +150,16 @@ void ObjectGuid::SetRawValue(std::vector<uint8> const& guid)
     memcpy(this, guid.data(), sizeof(*this));
 }
 
-void PackedGuid::Set(ObjectGuid const& guid)
+uint8& ObjectGuid::operator[](uint32 index)
 {
-    _packedGuid.clear();
-    _packedGuid << guid;
+    ASSERT(index < sizeof(uint64) * 2);
+    return ((uint8*)&_low)[index];
+}
+
+uint8 const& ObjectGuid::operator[](uint32 index) const
+{
+    ASSERT(index < sizeof(uint64) * 2);
+    return ((uint8 const*)&_low)[index];
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
@@ -181,12 +189,6 @@ ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
     buf >> lowMask >> highMask;
     buf.ReadPackedUInt64(lowMask, guid._low);
     buf.ReadPackedUInt64(highMask, guid._high);
-    return buf;
-}
-
-ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid)
-{
-    buf.append(guid._packedGuid);
     return buf;
 }
 

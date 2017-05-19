@@ -24,13 +24,14 @@ EndScriptData */
 
 #include "Chat.h"
 #include "Config.h"
+#include "GitRevision.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "GitRevision.h"
 #include "Util.h"
+#include "World.h"
 
 class server_commandscript : public CommandScript
 {

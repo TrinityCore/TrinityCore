@@ -35,6 +35,8 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <set>
+#include <unordered_set>
 
 class Battleground;
 class BattlegroundMap;

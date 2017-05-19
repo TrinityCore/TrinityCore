@@ -38,6 +38,7 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "Config.h"
+#include "World.h"
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura* aura, uint32 effMask):
 _target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), _slot(MAX_AURAS),

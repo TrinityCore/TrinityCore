@@ -19,9 +19,10 @@
 #define ChatPackets_h__
 
 #include "Packet.h"
-#include "SharedDefines.h"
+#include "Common.h"
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
+#include "SharedDefines.h"
 
 class WorldObject;
 

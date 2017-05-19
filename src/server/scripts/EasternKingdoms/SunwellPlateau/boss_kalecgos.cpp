@@ -23,6 +23,7 @@ SDComment:
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
+#include "Log.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"

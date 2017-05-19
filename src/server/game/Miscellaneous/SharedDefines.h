@@ -21,7 +21,6 @@
 
 #include "Define.h"
 #include "DetourNavMesh.h"
-#include <cassert>
 
 enum SpellEffIndex : uint8
 {
@@ -73,6 +72,8 @@ enum LootModes
     LOOT_MODE_HARD_MODE_4              = 0x10,
     LOOT_MODE_JUNK_FISH                = 0x8000
 };
+
+#define MAX_CHARACTERS_PER_REALM 12
 
 enum Expansions
 {
@@ -4742,7 +4743,7 @@ enum BattlegroundTeamId : uint8
 #define BG_TEAMS_COUNT  2
 
 // indexes of BattlemasterList.dbc (7.1.5.23360)
-enum BattlegroundTypeId
+enum BattlegroundTypeId : uint32
 {
     BATTLEGROUND_TYPE_NONE      = 0,   // None
     BATTLEGROUND_AV             = 1,   // Alterac Valley
@@ -4863,7 +4864,7 @@ enum TradeStatus
     TRADE_STATUS_NOT_ENOUGH_CURRENCY   = 25,
 };
 
-enum XPColorChar
+enum XPColorChar : uint8
 {
     XP_RED,
     XP_ORANGE,
@@ -4872,7 +4873,7 @@ enum XPColorChar
     XP_GRAY
 };
 
-enum RemoveMethod
+enum RemoveMethod : uint8
 {
     GROUP_REMOVEMETHOD_DEFAULT  = 0,
     GROUP_REMOVEMETHOD_KICK     = 1,
@@ -4911,7 +4912,7 @@ enum ProfessionUI
     MAX_SECONDARY_SKILLS = 5
 };
 
-enum DuelCompleteType
+enum DuelCompleteType : uint8
 {
     DUEL_INTERRUPTED = 0,
     DUEL_WON         = 1,
@@ -5083,6 +5084,41 @@ enum TokenResult
     TOKEN_RESULT_ERROR_AUCTIONABLE_TOKEN_OWNED  = 7,
     TOKEN_RESULT_ERROR_TRIAL_RESTRICTED         = 8
 };
+
+enum TutorialAction : uint8
+{
+    TUTORIAL_ACTION_UPDATE  = 0,
+    TUTORIAL_ACTION_CLEAR   = 1,
+    TUTORIAL_ACTION_RESET   = 2
+};
+
+/*
+enum Tutorials : uint8
+{
+    TUTORIAL_TALENT                   = 0,
+    TUTORIAL_SPEC                     = 1,
+    TUTORIAL_GLYPH                    = 2,
+    TUTORIAL_SPELLBOOK                = 3,
+    TUTORIAL_PROFESSIONS              = 4,
+    TUTORIAL_CORE_ABILITITES          = 5,
+    TUTORIAL_PET_JOURNAL              = 6,
+    TUTORIAL_WHAT_HAS_CHANGED         = 7,
+    TUTORIAL_GARRISON_BUILDING        = 8,
+    TUTORIAL_GARRISON_MISSION_LIST    = 9,
+    TUTORIAL_GARRISON_MISSION_PAGE    = 10,
+    TUTORIAL_GARRISON_LANDING         = 11,
+    TUTORIAL_GARRISON_ZONE_ABILITY    = 12,
+    TUTORIAL_WORLD_MAP_FRAME          = 13,
+    TUTORIAL_CLEAN_UP_BAGS            = 14,
+    TUTORIAL_BAG_SETTINGS             = 15,
+    TUTORIAL_REAGENT_BANK_UNLOCK      = 16,
+    TUTORIAL_TOYBOX_FAVORITE          = 17,
+    TUTORIAL_TOYBOX_MOUSEWHEEL_PAGING = 18,
+    TUTORIAL_LFG_LIST                 = 19
+};
+*/
+
+#define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
 enum RaidGroupReason
 {

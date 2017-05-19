@@ -20,11 +20,15 @@
 #include "AchievementPackets.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "Guild.h"
 #include "GuildMgr.h"
 #include "Language.h"
+#include "Log.h"
 #include "ObjectMgr.h"
+#include "World.h"
 
 struct VisibleAchievementCheck
 {

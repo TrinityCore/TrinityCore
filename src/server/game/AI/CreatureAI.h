@@ -19,7 +19,6 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
-#include "Creature.h"
 #include "UnitAI.h"
 #include "AreaBoundary.h"
 #include "Common.h"
@@ -81,7 +80,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
         bool CheckBoundary(Position const* who = nullptr) const;
-        void SetBoundary(CreatureBoundary const* boundary) { _boundary = boundary; me->DoImmediateBoundaryCheck(); }
+        void SetBoundary(CreatureBoundary const* boundary);
     public:
         enum EvadeReason
         {
@@ -92,11 +91,11 @@ class TC_GAME_API CreatureAI : public UnitAI
             EVADE_REASON_OTHER
         };
 
+        explicit CreatureAI(Creature* creature);
+
+        virtual ~CreatureAI();
+
         void Talk(uint8 id, WorldObject const* whisperTarget = nullptr);
-
-        explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), m_MoveInLineOfSight_locked(false) { }
-
-        virtual ~CreatureAI() { }
 
         /// == Reactions At =================================
 

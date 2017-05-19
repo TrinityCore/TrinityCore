@@ -16,22 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
+#include "CellImpl.h"
 #include "Common.h"
-#include "Log.h"
 #include "Corpse.h"
 #include "Creature.h"
 #include "GameObject.h"
-#include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "Guild.h"
 #include "GuildMgr.h"
+#include "Log.h"
 #include "LootMgr.h"
-#include "ObjectAccessor.h"
+#include "LootPackets.h"
 #include "Object.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "LootPackets.h"
-#include "WorldSession.h"
 
 class AELootCreatureCheck
 {

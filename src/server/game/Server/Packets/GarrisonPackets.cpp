@@ -37,7 +37,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonDeleteResult::Write()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonPlotInfo& plotInfo)
 {
     data << uint32(plotInfo.GarrPlotInstanceID);
-    data << plotInfo.PlotPos.PositionXYZOStream();
+    data << plotInfo.PlotPos;
     data << uint32(plotInfo.PlotType);
 
     return data;
@@ -301,7 +301,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializa
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonBuildingLandmark& landmark)
 {
     data << uint32(landmark.GarrBuildingPlotInstID);
-    data << landmark.Pos.PositionXYZStream();
+    data << landmark.Pos;
 
     return data;
 }
