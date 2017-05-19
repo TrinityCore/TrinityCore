@@ -31,12 +31,13 @@ website at [TrinityCore.org](https://www.trinitycore.org).
 
 + Platform: Linux, Windows or Mac
 + Processor with SSE2 support
-+ Boost ≥ 1.54
-+ MySQL ≥ 5.1.0
-+ CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux)
-+ OpenSSL ≥ 1.0.0
-+ GCC ≥ 4.9.2 (Linux only)
++ Boost ≥ 1.59 (1.63 recommended on windows)
++ MySQL ≥ 5.3.0
++ CMake ≥ 3.3.2 / 3.0.2 (Windows / Linux)
++ OpenSSL = 1.0.x
++ GCC ≥ 4.9.2 (Linux only) (clang 3.5 heavy recommended)
 + MS Visual Studio ≥ 14 (2015) (Windows only)
++ zlib ≥ 1.2.7
 + ZeroMQ:
 + apt-get install libzmq-dev (Linux only)
 + x64 - https://miru.hk/archive/ZeroMQ-4.0.4~miru1.0-x64.exe (Windows only)

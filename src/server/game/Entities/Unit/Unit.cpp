@@ -8875,8 +8875,6 @@ void Unit::setDeathState(DeathState s)
 
     if (s == JUST_DIED)
     {
-        ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
-        ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
         // remove aurastates allowing special moves
         ClearAllReactives();
         ClearDiminishings();
@@ -10669,13 +10667,13 @@ Player* Unit::GetSpellModOwner() const
     if (Player* player = const_cast<Unit*>(this)->ToPlayer())
         return player;
 
-    if (IsPet() || IsTotem())
+    if (HasUnitTypeMask(UNIT_MASK_PET | UNIT_MASK_TOTEM | UNIT_MASK_GUARDIAN))
     {
         if (Unit* owner = GetOwner())
             if (Player* player = owner->ToPlayer())
                 return player;
     }
-    return NULL;
+    return nullptr;
 }
 
 ///----------Pet responses methods-----------------
@@ -13178,7 +13176,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     Movement::MoveSplineInit init(this);
 
     // Creatures without inhabit type air should begin falling after exiting the vehicle
-    if (GetTypeId() == TYPEID_UNIT && !CanFly() && height > GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), &height) + 0.1f)
+    if (GetTypeId() == TYPEID_UNIT && !CanFly() && height > GetMap()->GetWaterOrGroundLevel(GetPhases(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), &height) + 0.1f)
         init.SetFall();
 
     init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), height, false);
