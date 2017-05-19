@@ -28,6 +28,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "shadowfang_keep.h"
 #include "TemporarySummon.h"
+#include "Log.h"
 
 #define MAX_ENCOUNTER              4
 

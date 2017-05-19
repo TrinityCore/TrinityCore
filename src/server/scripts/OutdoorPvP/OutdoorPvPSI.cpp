@@ -26,6 +26,7 @@
 #include "ReputationMgr.h"
 #include "Language.h"
 #include "World.h"
+#include "WorldStatePackets.h"
 
 OutdoorPvPSI::OutdoorPvPSI()
 {

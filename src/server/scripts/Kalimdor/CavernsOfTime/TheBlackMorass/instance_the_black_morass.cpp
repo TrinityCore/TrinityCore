@@ -30,6 +30,7 @@ Category: Caverns of Time, The Black Morass
 #include "TemporarySummon.h"
 #include "SpellInfo.h"
 #include "ScriptedCreature.h"
+#include "Log.h"
 
 enum Misc
 {

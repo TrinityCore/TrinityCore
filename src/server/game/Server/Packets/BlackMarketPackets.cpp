@@ -16,35 +16,6 @@
  */
 
 #include "BlackMarketPackets.h"
-#include "BlackMarketMgr.h"
-#include "Player.h"
-
-void WorldPackets::BlackMarket::BlackMarketItem::Initialize(BlackMarketEntry *const entry, Player* player)
-{
-    BlackMarketTemplate const* templ = entry->GetTemplate();
-
-    MarketID = entry->GetMarketId();
-    SellerNPC = templ->SellerNPC;
-    Item = templ->Item;
-    Quantity = templ->Quantity;
-
-    // No bids yet
-    if (!entry->GetNumBids())
-    {
-        MinBid = templ->MinBid;
-        MinIncrement = 1;
-    }
-    else
-    {
-        MinIncrement = entry->GetMinIncrement(); // 5% increment minimum
-        MinBid = entry->GetCurrentBid() + MinIncrement;
-    }
-
-    CurrentBid = entry->GetCurrentBid();
-    SecondsRemaining = entry->GetSecondsRemaining();
-    HighBid = (entry->GetBidder() == player->GetGUID().GetCounter());
-    NumBids = entry->GetNumBids();
-}
 
 void WorldPackets::BlackMarket::BlackMarketOpen::Read()
 {

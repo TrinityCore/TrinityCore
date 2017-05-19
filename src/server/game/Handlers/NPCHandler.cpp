@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "Language.h"
 #include "DatabaseEnv.h"
-#include "QueryCallback.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Opcodes.h"

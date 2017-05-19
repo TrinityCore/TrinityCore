@@ -19,6 +19,7 @@
 #include "Channel.h"
 #include "Guild.h"
 #include "Group.h"
+#include "Log.h"
 
 class ChatLogScript : public PlayerScript
 {

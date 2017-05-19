@@ -18,6 +18,7 @@
 #ifndef _LFGMGR_H
 #define _LFGMGR_H
 
+#include "Common.h"
 #include "Field.h"
 #include "LFG.h"
 #include "LFGQueue.h"

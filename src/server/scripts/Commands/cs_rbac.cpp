@@ -23,11 +23,13 @@ Category: commandscripts
 EndScriptData */
 
 #include "AccountMgr.h"
-#include "Config.h"
 #include "Chat.h"
+#include "Config.h"
 #include "Language.h"
 #include "Player.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
+#include "World.h"
 
 struct RBACCommandData
 {

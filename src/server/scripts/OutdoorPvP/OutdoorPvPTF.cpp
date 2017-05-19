@@ -23,6 +23,7 @@
 #include "WorldPacket.h"
 #include "Player.h"
 #include "ObjectMgr.h"
+#include "WorldStatePackets.h"
 
 OutdoorPvPTF::OutdoorPvPTF()
 {

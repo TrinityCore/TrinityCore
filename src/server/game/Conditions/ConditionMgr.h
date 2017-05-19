@@ -19,7 +19,7 @@
 #ifndef TRINITY_CONDITIONMGR_H
 #define TRINITY_CONDITIONMGR_H
 
-#include "Common.h"
+#include "Define.h"
 #include "Hash.h"
 #include <array>
 #include <unordered_map>

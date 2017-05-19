@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "PacketUtilities.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "Unit.h"
 #include "WorldSession.h"
 
@@ -200,7 +201,7 @@ namespace WorldPackets
             ObjectGuid PetGUID;
             uint32 Action = 0;
             ObjectGuid TargetGUID;
-            G3D::Vector3 ActionPosition;
+            TaggedPosition<Position::XYZ> ActionPosition;
         };
 
         class PetSetAction final : public ClientPacket

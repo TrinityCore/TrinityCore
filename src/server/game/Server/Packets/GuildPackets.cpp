@@ -137,7 +137,7 @@ WorldPacket const* WorldPackets::Guild::GuildInvite::Write()
     _worldPacket << BorderStyle;
     _worldPacket << BorderColor;
     _worldPacket << Background;
-    _worldPacket << Level;
+    _worldPacket << AchievementPoints;
 
     _worldPacket.WriteString(InviterName);
     _worldPacket.WriteString(GuildName);

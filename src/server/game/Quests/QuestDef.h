@@ -20,9 +20,8 @@
 #define TRINITYCORE_QUEST_H
 
 #include "Define.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "SharedDefines.h"
-#include "WorldPacket.h"
 #include "DBCEnums.h"
 
 #include <string>
@@ -106,7 +105,7 @@ enum QuestTradeSkill
     QUEST_TRSKILL_JEWELCRAFTING  = 14
 };
 
-enum QuestStatus
+enum QuestStatus : uint8
 {
     QUEST_STATUS_NONE           = 0,
     QUEST_STATUS_COMPLETE       = 1,

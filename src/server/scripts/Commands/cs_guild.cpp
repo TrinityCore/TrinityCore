@@ -28,6 +28,7 @@ EndScriptData */
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include <iomanip>
 

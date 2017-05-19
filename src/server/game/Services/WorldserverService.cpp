@@ -16,11 +16,13 @@
  */
 
 #include "WorldserverService.h"
+#include "BattlenetRpcErrorCodes.h"
 #include "Log.h"
+#include "ProtobufJSON.h"
+#include "Realm.h"
 #include "RealmList.h"
 #include "RealmList.pb.h"
-#include "BattlenetRpcErrorCodes.h"
-#include "ProtobufJSON.h"
+#include "World.h"
 #include <boost/asio/ip/address.hpp>
 #include <zlib.h>
 

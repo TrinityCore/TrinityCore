@@ -21,7 +21,10 @@
 #include "CharacterTemplateDataStore.h"
 #include "ClientConfigPackets.h"
 #include "ObjectMgr.h"
+#include "RBAC.h"
+#include "Realm.h"
 #include "SystemPackets.h"
+#include "World.h"
 
 void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
 {

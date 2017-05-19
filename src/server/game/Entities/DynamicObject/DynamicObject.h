@@ -20,6 +20,7 @@
 #define TRINITYCORE_DYNAMICOBJECT_H
 
 #include "Object.h"
+#include "MapObject.h"
 
 class Unit;
 class Aura;
