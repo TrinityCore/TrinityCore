@@ -37,6 +37,10 @@ extern Position const SindragosaSpawnPos;
 extern Position const TerenasSpawn;
 extern Position const TerenasSpawnHeroic;
 extern Position const SpiritWardenSpawn;
+extern Position const JainaSpawnPos;
+extern Position const MuradinSpawnPos;
+extern Position const UtherSpawnPos;
+extern Position const SylvanasSpawnPos;
 
 // Shared spells used by more than one script
 enum ICSharedSpells

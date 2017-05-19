@@ -298,6 +298,10 @@ Position const OutroFlying        = {508.9897f, -2124.561f, 845.3565f, 0.0f};
 Position const TerenasSpawn       = {495.5542f, -2517.012f, 1050.000f, 4.6993f};
 Position const TerenasSpawnHeroic = {495.7080f, -2523.760f, 1050.000f, 0.0f};
 Position const SpiritWardenSpawn  = {495.3406f, -2529.983f, 1050.000f, 1.5592f};
+Position const JainaSpawnPos      = {-48.65278f, 2211.026f, 27.98586f, 3.124139f};
+Position const MuradinSpawnPos    = {-47.34549f, 2208.087f, 27.98586f, 3.106686f};
+Position const UtherSpawnPos      = {-26.58507f, 2211.524f, 30.19898f, 3.124139f};
+Position const SylvanasSpawnPos   = {-41.45833f, 2222.891f, 27.98586f, 3.647738f};
 
 enum MovePoints
 {
