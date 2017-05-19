@@ -5886,13 +5886,11 @@ void Spell::EffectGiveHonor(SpellEffIndex /*effIndex*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    int32 honor = effectInfo->CalcValue();
-
     WorldPackets::Combat::PvPCredit packet;
-    packet.Honor = honor;
-    packet.OriginalHonor = honor;
+    packet.Honor = damage;
+    packet.OriginalHonor = damage;
 
     Player* playerTarget = unitTarget->ToPlayer();
-    playerTarget->AddHonorXP(honor);
-    playerTarget->GetSession()->SendPacket(packet.Write());
+    playerTarget->AddHonorXP(damage);
+    playerTarget->SendDirectMessage(packet.Write());
 }
