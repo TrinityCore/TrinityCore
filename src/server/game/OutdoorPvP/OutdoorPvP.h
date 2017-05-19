@@ -74,7 +74,6 @@ struct creature_type
     float o;
 };
 
-// some class predefs
 class Creature;
 class GameObject;
 class Map;

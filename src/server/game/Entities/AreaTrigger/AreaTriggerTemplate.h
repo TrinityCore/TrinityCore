@@ -19,9 +19,13 @@
 #define TRINITYCORE_AREATRIGGER_TEMPLATE_H
 
 #include "Define.h"
-#include <G3D/Vector3.h>
 #include <vector>
-#include <cstring>
+
+namespace G3D
+{
+    class Vector2;
+    class Vector3;
+}
 
 #define MAX_AREATRIGGER_ENTITY_DATA 6
 #define MAX_AREATRIGGER_SCALE 7
@@ -78,14 +82,7 @@ struct AreaTriggerAction
 
 struct AreaTriggerScaleInfo
 {
-    AreaTriggerScaleInfo()
-    {
-        memset(OverrideScale, 0, sizeof(OverrideScale));
-        memset(ExtraScale, 0, sizeof(ExtraScale));
-
-        ExtraScale[5].AsFloat = 1.0000001f;
-        ExtraScale[6].AsInt32 = 1;
-    }
+    AreaTriggerScaleInfo();
 
     union
     {
@@ -103,16 +100,8 @@ struct AreaTriggerScaleInfo
 class AreaTriggerTemplate
 {
 public:
-    AreaTriggerTemplate()
-    {
-        Id                  = 0;
-        Type                = AREATRIGGER_TYPE_MAX;
-        Flags               = 0;
-        ScriptId            = 0;
-        MaxSearchRadius     = 0.0f;
-
-        memset(DefaultDatas.Data, 0, sizeof(DefaultDatas.Data));
-    }
+    AreaTriggerTemplate();
+    ~AreaTriggerTemplate();
 
     bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }
 
@@ -176,25 +165,10 @@ public:
 class AreaTriggerMiscTemplate
 {
 public:
-    AreaTriggerMiscTemplate()
-    {
-        MiscId              = 0;
-        AreaTriggerEntry    = 0;
+    AreaTriggerMiscTemplate();
+    ~AreaTriggerMiscTemplate();
 
-        MoveCurveId         = 0;
-        ScaleCurveId        = 0;
-        MorphCurveId        = 0;
-        FacingCurveId       = 0;
-
-        DecalPropertiesId   = 0;
-
-        TimeToTarget        = 0;
-        TimeToTargetScale   = 0;
-
-        Template            = nullptr;
-    }
-
-    bool HasSplines()   const { return SplinePoints.size() >= 2; }
+    bool HasSplines()   const;
 
     uint32 MiscId;
     uint32 AreaTriggerEntry;

@@ -22,14 +22,16 @@ Comment: All message related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
+#include "ChatPackets.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
-#include "Player.h"
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "Player.h"
+#include "RBAC.h"
 #include "World.h"
 
 class message_commandscript : public CommandScript

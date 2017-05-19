@@ -101,12 +101,7 @@ public:
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         StorageType listCopy = storage_;
         Trinity::Containers::RandomResize<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), max);
-        for (StorageType::iterator i = listCopy.begin(); i != listCopy.end(); )
-        {
-            Creature* summon = ObjectAccessor::GetCreature(*me, *i++);
-            if (summon && summon->IsAIEnabled)
-                summon->AI()->DoAction(info);
-        }
+        DoActionImpl(info, listCopy);
     }
 
     void DoZoneInCombat(uint32 entry = 0, float maxRangeToNearestTarget = 250.0f);
@@ -114,6 +109,8 @@ public:
     bool HasEntry(uint32 entry) const;
 
 private:
+    void DoActionImpl(int32 action, StorageType const& summons);
+
     Creature* me;
     StorageType storage_;
 };

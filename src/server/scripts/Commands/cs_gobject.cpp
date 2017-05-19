@@ -22,6 +22,7 @@ Comment: All gobject related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
@@ -32,7 +33,7 @@ EndScriptData */
 #include "Opcodes.h"
 #include "Player.h"
 #include "PoolMgr.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 
 class gobject_commandscript : public CommandScript
 {
