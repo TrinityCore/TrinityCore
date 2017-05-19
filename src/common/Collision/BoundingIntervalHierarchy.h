@@ -19,9 +19,9 @@
 #ifndef _BIH_H
 #define _BIH_H
 
-#include "G3D/Vector3.h"
-#include "G3D/Ray.h"
-#include "G3D/AABox.h"
+#include <G3D/Vector3.h>
+#include <G3D/Ray.h>
+#include <G3D/AABox.h>
 
 #include "Define.h"
 

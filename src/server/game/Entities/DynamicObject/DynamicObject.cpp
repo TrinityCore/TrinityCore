@@ -17,14 +17,13 @@
  */
 
 #include "Common.h"
-#include "Opcodes.h"
-#include "World.h"
-#include "ObjectAccessor.h"
-#include "DatabaseEnv.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
+#include "World.h"
 
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _spellXSpellVisualId(0), _isViewpoint(false)

@@ -21,6 +21,7 @@
 #include "GridNotifiers.h"
 #include "CombatAI.h"
 #include "AreaBoundary.h"
+#include "Log.h"
 #include "naxxramas.h"
 
 /* Constants */

@@ -16,21 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Log.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
+#include "Battleground.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "GameObjectAI.h"
+#include "GossipDef.h"
+#include "Group.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "GossipDef.h"
 #include "QuestDef.h"
-#include "ObjectAccessor.h"
-#include "Group.h"
-#include "Battleground.h"
-#include "ScriptMgr.h"
-#include "GameObjectAI.h"
 #include "QuestPackets.h"
+#include "ScriptMgr.h"
+#include "UnitAI.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
 {
@@ -91,7 +93,7 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHe
     _player->PrepareGossipMenu(creature, creature->GetCreatureTemplate()->GossipMenuId, true);
     _player->SendPreparedGossip(creature);
 
-    creature->AI()->sGossipHello(_player);
+    creature->GetAI()->sGossipHello(_player);
 }
 
 void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestGiverAcceptQuest& packet)
@@ -361,7 +363,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                     }
 
                     if (creatureQGiver)
-                        creatureQGiver->AI()->sQuestReward(_player, quest, packet.ItemChoiceID);
+                        creatureQGiver->GetAI()->sQuestReward(_player, quest, packet.ItemChoiceID);
                 }
                 break;
             }

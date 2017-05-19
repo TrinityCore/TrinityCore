@@ -18,11 +18,12 @@
 
 #include "Common.h"
 #include "Corpse.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "UpdateData.h"
-#include "ObjectAccessor.h"
-#include "DatabaseEnv.h"
+#include "World.h"
 
 Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES), m_type(type)
 {

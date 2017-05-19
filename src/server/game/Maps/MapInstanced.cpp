@@ -17,17 +17,18 @@
  */
 
 #include "MapInstanced.h"
-#include "ObjectMgr.h"
-#include "MapManager.h"
 #include "Battleground.h"
-#include "VMapFactory.h"
-#include "MMapFactory.h"
-#include "InstanceSaveMgr.h"
-#include "World.h"
-#include "Group.h"
-#include "Player.h"
 #include "GarrisonMap.h"
+#include "Group.h"
+#include "InstanceSaveMgr.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "MMapFactory.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScenarioMgr.h"
+#include "VMapFactory.h"
+#include "World.h"
 
 MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DIFFICULTY_NORMAL)
 {

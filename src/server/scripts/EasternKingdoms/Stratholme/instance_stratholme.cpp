@@ -28,6 +28,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "stratholme.h"
 #include "Player.h"
+#include "Log.h"
 
 enum Misc
 {

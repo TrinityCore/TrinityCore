@@ -35,6 +35,7 @@ EndContentData */
 #include "the_black_morass.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "Log.h"
 
 enum MedivhBm
 {

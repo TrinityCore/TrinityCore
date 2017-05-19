@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ruins_of_ahnqiraj.h"
+#include "MiscPackets.h"
 #include "Player.h"
+#include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "Weather.h"
 #include "WorldPacket.h"
-#include "Opcodes.h"
-#include "Packets/MiscPackets.h"
 
 enum Texts
 {

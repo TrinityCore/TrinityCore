@@ -16,22 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Pet.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "Group.h"
 #include "Log.h"
-#include "WorldPacket.h"
-#include "SpellPackets.h"
 #include "ObjectMgr.h"
-#include "SpellMgr.h"
-#include "Pet.h"
+#include "Opcodes.h"
 #include "PetPackets.h"
-#include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "SpellHistory.h"
+#include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "Unit.h"
 #include "Util.h"
-#include "Group.h"
-#include "Opcodes.h"
+#include "World.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
 
 #define PET_XP_FACTOR 0.05f

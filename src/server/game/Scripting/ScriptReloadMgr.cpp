@@ -37,30 +37,30 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 
 #else
 
-#include <algorithm>
-#include <regex>
-#include <vector>
-#include <future>
-#include <memory>
-#include <fstream>
-#include <type_traits>
-#include <unordered_set>
-#include <unordered_map>
-
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/system/system_error.hpp>
-
-#include "efsw/efsw.hpp"
-
-#include "Log.h"
-#include "Config.h"
 #include "BuiltInConfig.h"
+#include "Config.h"
+#include "GitRevision.h"
+#include "Log.h"
+#include "MPSCQueue.h"
+#include "Regex.h"
 #include "ScriptMgr.h"
 #include "SHA1.h"
 #include "StartProcess.h"
-#include "MPSCQueue.h"
-#include "GitRevision.h"
+#include "Timer.h"
+#include "World.h"
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/system/system_error.hpp>
+#include <efsw/efsw.hpp>
+#include <algorithm>
+#include <fstream>
+#include <future>
+#include <memory>
+#include <sstream>
+#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 namespace fs = boost::filesystem;
 

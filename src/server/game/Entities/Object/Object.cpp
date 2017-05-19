@@ -127,7 +127,6 @@ void Object::_Create(ObjectGuid const& guid)
 
     SetGuidValue(OBJECT_FIELD_GUID, guid);
     SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
-    m_PackGUID.Set(guid);
 }
 
 std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
@@ -239,7 +238,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     ByteBuffer buf(0x400);
     buf << uint8(updateType);
-    buf << GetPackGUID();
+    buf << GetGUID();
     buf << uint8(m_objectTypeId);
 
     BuildMovementUpdate(&buf, flags);
@@ -267,7 +266,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     ByteBuffer buf(500);
 
     buf << uint8(UPDATETYPE_VALUES);
-    buf << GetPackGUID();
+    buf << GetGUID();
 
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
     BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
@@ -385,7 +384,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool HasFall = HasFallDirection || unit->m_movementInfo.jump.fallTime != 0;
         bool HasSpline = unit->IsSplineEnabled();
 
-        *data << GetPackGUID();                                         // MoverGUID
+        *data << GetGUID();                                         // MoverGUID
 
         *data << uint32(unit->m_movementInfo.time);                     // MoveTime
         *data << float(unit->GetPositionX());
@@ -519,7 +518,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         *data << uint32(areaTrigger->GetTimeSinceCreated());
 
-        *data << areaTrigger->GetRollPitchYaw();
+        *data << areaTrigger->GetRollPitchYaw().PositionXYZStream();
 
         bool hasAbsoluteOrientation = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION);
         bool hasDynamicShape        = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE);
@@ -578,11 +577,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             data->WriteBits(splinePoints.size(), 16);
 
             for (G3D::Vector3 const& spline : splinePoints)
-                *data << spline;
+                *data << spline.x << spline.y << spline.z;
         }
 
         if (hasTargetRollPitchYaw)
-            *data << areaTrigger->GetTargetRollPitchYaw();
+            *data << areaTrigger->GetTargetRollPitchYaw().PositionXYZStream();
 
         if (hasScaleCurveID)
             *data << uint32(areaTriggerMiscTemplate->ScaleCurveId);
@@ -626,10 +625,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             *data << float(areaTriggerTemplate->PolygonDatas.HeightTarget);
 
             for (G3D::Vector2 const& vertice : areaTriggerTemplate->PolygonVertices)
-                *data << vertice;
+                *data << vertice.x << vertice.y;
 
             for (G3D::Vector2 const& vertice : areaTriggerTemplate->PolygonVerticesTarget)
-                *data << vertice;
+                *data << vertice.x << vertice.y;
         }
 
         if (hasAreaTriggerCylinder)
