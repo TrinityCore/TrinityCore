@@ -340,7 +340,9 @@ namespace
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
+    PvpRewardsContainer _pvpRewardPack;
     QuestPackageItemContainer _questPackages;
+    std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackXItems;
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
     SpecializationSpellsContainer _specializationSpellsBySpec;
@@ -351,8 +353,6 @@ namespace
     ToyItemIdsContainer _toys;
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
     WorldMapAreaByAreaIDContainer _worldMapAreaByAreaID;
-    PvpRewardsContainer _pvpRewardPack;
-    std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackXItems;
 }
 
 typedef std::vector<std::string> DB2StoreProblemList;
@@ -914,6 +914,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         ASSERT(entry->BracketID < MAX_BATTLEGROUND_BRACKETS, "PvpDifficulty bracket (%d) exceeded max allowed value (%d)", entry->BracketID, MAX_BATTLEGROUND_BRACKETS);
     }
 
+    for (PvpRewardEntry const* pvpReward : sPvpRewardStore)
+        _pvpRewardPack[std::make_pair(pvpReward->Prestige, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
+
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
     {
         if (questPackageItem->FilterType != QUEST_PACKAGE_FILTER_UNMATCHED)
@@ -921,6 +924,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         else
             _questPackages[questPackageItem->QuestPackageID].second.push_back(questPackageItem);
     }
+
+    for (RewardPackXItemEntry const* rewardPackXItem : sRewardPackXItemStore)
+        _rewardPackXItems[rewardPackXItem->RewardPackID].push_back(rewardPackXItem);
 
     for (RulesetItemUpgradeEntry const* rulesetItemUpgrade : sRulesetItemUpgradeStore)
         _rulesetItemUpgrade[rulesetItemUpgrade->ItemID] = rulesetItemUpgrade->ItemUpgradeID;
@@ -1035,12 +1041,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (WorldMapAreaEntry const* worldMapArea : sWorldMapAreaStore)
         _worldMapAreaByAreaID[worldMapArea->AreaID] = worldMapArea;
-
-    for (RewardPackXItemEntry const* rewardPackXItem : sRewardPackXItemStore)
-        _rewardPackXItems[rewardPackXItem->RewardPackID].push_back(rewardPackXItem);
-
-    for (PvpRewardEntry const* pvpReward : sPvpRewardStore)
-        _pvpRewardPack[std::make_pair(pvpReward->Prestige, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
 
     // error checks
     if (bad_db2_files.size() == _stores.size())
