@@ -39,7 +39,6 @@ enum HunterCreatures
 
 enum PetSpellsMisc
 {
-    SPELL_PET_GUARD_DOG_HAPPINESS   = 54445,
     SPELL_PET_SILVERBACK_RANK_1     = 62800,
     SPELL_PET_SILVERBACK_RANK_2     = 62801,
     PET_ICON_ID_GROWL               = 201,
@@ -162,13 +161,6 @@ class spell_pet_guard_dog : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pet_guard_dog_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PET_GUARD_DOG_HAPPINESS))
-                    return false;
-                return true;
-            }
-
             bool CheckProc(ProcEventInfo& eventInfo)
             {
                 // Growl shares family flags with other spells
@@ -185,7 +177,6 @@ class spell_pet_guard_dog : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* caster = eventInfo.GetActor();
-                caster->CastSpell((Unit*)nullptr, SPELL_PET_GUARD_DOG_HAPPINESS, true, nullptr, aurEff);
 
                 float addThreat = CalculatePct(ASSERT_NOTNULL(eventInfo.GetSpellInfo())->Effects[EFFECT_0].CalcValue(caster), aurEff->GetAmount());
                 eventInfo.GetProcTarget()->AddThreat(caster, addThreat);
@@ -213,13 +204,6 @@ class spell_pet_silverback : public SpellScriptLoader
         class spell_pet_silverback_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pet_silverback_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PET_GUARD_DOG_HAPPINESS))
-                    return false;
-                return true;
-            }
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
