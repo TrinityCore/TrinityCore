@@ -1737,6 +1737,16 @@ ResponseCodes DB2Manager::ValidateName(std::wstring const& name, LocaleConstant 
     return CHAR_NAME_SUCCESS;
 }
 
+uint8 DB2Manager::GetMaxPrestige() const
+{
+    uint8 max = 0;
+    for (PrestigeLevelInfoEntry const* prestigeLevelInfo : sPrestigeLevelInfoStore)
+        if (!prestigeLevelInfo->IsDisabled())
+            max = std::max(prestigeLevelInfo->PrestigeLevel, max);
+
+    return max;
+}
+
 PvpDifficultyEntry const* DB2Manager::GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
 {
     PvpDifficultyEntry const* maxEntry = nullptr;           // used for level > max listed level case
@@ -1769,6 +1779,18 @@ PvpDifficultyEntry const* DB2Manager::GetBattlegroundBracketById(uint32 mapid, B
                 return entry;
 
     return nullptr;
+}
+
+uint32 DB2Manager::GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(uint8 honorLevel, uint8 prestige) const
+{
+    auto itr = _pvpRewardPack.find({ prestige, honorLevel });
+    if (itr == _pvpRewardPack.end())
+        itr = _pvpRewardPack.find({ 0, honorLevel });
+
+    if (itr == _pvpRewardPack.end())
+        return 0;
+
+    return itr->second;
 }
 
 std::vector<QuestPackageItemEntry const*> const* DB2Manager::GetQuestPackageItems(uint32 questPackageID) const
@@ -1811,6 +1833,15 @@ PowerTypeEntry const* DB2Manager::GetPowerTypeEntry(Powers power) const
 {
     ASSERT(power < MAX_POWERS);
     return _powerTypes[power];
+}
+
+std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsByRewardID(uint32 rewardPackID) const
+{
+    auto itr = _rewardPackXItems.find(rewardPackID);
+    if (itr != _rewardPackXItems.end())
+        return &itr->second;
+
+    return nullptr;
 }
 
 uint32 DB2Manager::GetRulesetItemUpgrade(uint32 itemId) const
@@ -2018,37 +2049,6 @@ void DB2Manager::DeterminaAlternateMapPosition(uint32 mapId, float x, float y, f
 
     newPos->X = x + transformation->RegionOffset.X;
     newPos->Y = y + transformation->RegionOffset.Y;
-}
-
-std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsByRewardID(uint32 rewardPackID) const
-{
-    auto itr = _rewardPackXItems.find(rewardPackID);
-    if (itr != _rewardPackXItems.end())
-        return &itr->second;
-
-    return nullptr;
-}
-
-uint32 DB2Manager::GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(uint8 honorLevel, uint8 prestige) const
-{
-    auto itr = _pvpRewardPack.find({ prestige, honorLevel });
-    if (itr == _pvpRewardPack.end())
-        itr = _pvpRewardPack.find({ 0, honorLevel });
-
-    if (itr == _pvpRewardPack.end())
-        return 0;
-
-    return itr->second;
-}
-
-uint8 DB2Manager::GetMaxPrestige() const
-{
-    uint8 max = 0;
-    for (PrestigeLevelInfoEntry const* prestigeLevelInfo : sPrestigeLevelInfoStore)
-        if (!prestigeLevelInfo->IsDisabled())
-            max = std::max(prestigeLevelInfo->PrestigeLevel, max);
-
-    return max;
 }
 
 bool ChrClassesXPowerTypesEntryComparator::Compare(ChrClassesXPowerTypesEntry const* left, ChrClassesXPowerTypesEntry const* right)
