@@ -18,8 +18,7 @@
 #include "Packet.h"
 #include "Errors.h"
 
-WorldPackets::Packet::Packet(WorldPacket&& worldPacket)
-    : _worldPacket(std::move(worldPacket))
+WorldPackets::Packet::Packet(WorldPacket&& worldPacket) : _worldPacket(std::move(worldPacket))
 {
 }
 
@@ -33,14 +32,12 @@ void WorldPackets::ServerPacket::Read()
     ASSERT(!"Read not implemented for server packets.");
 }
 
-WorldPackets::ClientPacket::ClientPacket(OpcodeClient expectedOpcode, WorldPacket&& packet)
-    : Packet(std::move(packet))
+WorldPackets::ClientPacket::ClientPacket(OpcodeClient expectedOpcode, WorldPacket&& packet) : Packet(std::move(packet))
 {
     ASSERT(GetOpcode() == expectedOpcode);
 }
 
-WorldPackets::ClientPacket::ClientPacket(WorldPacket&& packet)
-    : Packet(std::move(packet))
+WorldPackets::ClientPacket::ClientPacket(WorldPacket&& packet) : Packet(std::move(packet))
 {
 }
 

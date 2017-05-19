@@ -16,25 +16,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "Item.h"
-#include "ObjectMgr.h"
-#include "WorldPacket.h"
-#include "DatabaseEnv.h"
-#include "ItemEnchantmentMgr.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
-#include "ScriptMgr.h"
-#include "ConditionMgr.h"
-#include "Player.h"
-#include "Opcodes.h"
-#include "WorldSession.h"
-#include "ItemPackets.h"
-#include "TradeData.h"
-#include "GameTables.h"
-#include "CollectionMgr.h"
 #include "ArtifactPackets.h"
+#include "CollectionMgr.h"
+#include "Common.h"
+#include "ConditionMgr.h"
+#include "DatabaseEnv.h"
+#include "GameTables.h"
+#include "ItemEnchantmentMgr.h"
+#include "ItemPackets.h"
+#include "Log.h"
+#include "LootMgr.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "TradeData.h"
 #include "UpdateData.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -896,31 +898,6 @@ uint32 Item::GetSkill()
 {
     ItemTemplate const* proto = GetTemplate();
     return proto->GetSkill();
-}
-
-ItemRandomEnchantmentId Item::GenerateItemRandomPropertyId(uint32 item_id)
-{
-    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
-    if (!itemProto)
-        return{};
-
-    // item must have one from this field values not null if it can have random enchantments
-    if (!itemProto->GetRandomProperty() && !itemProto->GetRandomSuffix())
-        return{};
-
-    // item can have not null only one from field values
-    if (itemProto->GetRandomProperty() && itemProto->GetRandomSuffix())
-    {
-        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->GetId(), itemProto->GetRandomProperty(), itemProto->GetRandomSuffix());
-        return{};
-    }
-
-    // RandomProperty case
-    if (itemProto->GetRandomProperty())
-        return GetItemEnchantMod(itemProto->GetRandomProperty(), ItemRandomEnchantmentType::Property);
-    // RandomSuffix case
-    else
-        return GetItemEnchantMod(itemProto->GetRandomSuffix(), ItemRandomEnchantmentType::Suffix);
 }
 
 void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)

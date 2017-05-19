@@ -30,7 +30,6 @@
 #      define BOOST_ASIO_HAS_MOVE
 #    endif // !defined(BOOST_ASIO_HAS_MOVE)
 #  endif // if TRINITY_COMPILER == TRINITY_COMPILER_INTEL
-
 #else
 #  include <sys/types.h>
 #  include <sys/ioctl.h>
@@ -38,6 +37,7 @@
 #  include <netinet/in.h>
 #  include <unistd.h>
 #  include <netdb.h>
+#  include <cstdlib>
 #endif
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
@@ -79,7 +79,7 @@ enum AccountTypes
     SEC_CONSOLE        = 4                                  // must be always last in list, accounts must have less security level always also
 };
 
-enum LocaleConstant
+enum LocaleConstant : uint8
 {
     LOCALE_enUS = 0,
     LOCALE_koKR = 1,

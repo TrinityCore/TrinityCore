@@ -19,6 +19,7 @@
 #define _LFGQUEUE_H
 
 #include "LFG.h"
+#include <list>
 
 namespace lfg
 {

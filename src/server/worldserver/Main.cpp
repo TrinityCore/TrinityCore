@@ -330,7 +330,7 @@ extern int main(int argc, char** argv)
     if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
     {
         freezeDetector = std::make_shared<FreezeDetector>(*ioService, coreStuckTime * 1000);
-        freezeDetector->Start(freezeDetector);
+        FreezeDetector::Start(freezeDetector);
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
 
@@ -522,6 +522,7 @@ bool LoadRealmInfo()
         realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->LocalSubnetMask);
         realm.Port = realmListRealm->Port;
         realm.Name = realmListRealm->Name;
+        realm.NormalizedName = realmListRealm->NormalizedName;
         realm.Type = realmListRealm->Type;
         realm.Flags = realmListRealm->Flags;
         realm.Timezone = realmListRealm->Timezone;

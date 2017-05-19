@@ -25,8 +25,9 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "serpent_shrine.h"
+#include "Log.h"
 #include "Player.h"
+#include "serpent_shrine.h"
 #include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER 6

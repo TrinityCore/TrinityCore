@@ -22,18 +22,19 @@
 #include "ObjectGuid.h"
 #include <unordered_map>
 
-class Object;
-class WorldObject;
-class Unit;
-class Creature;
-class Player;
-class Corpse;
-class GameObject;
-class DynamicObject;
 class AreaTrigger;
-class Pet;
-class Transport;
+class Conversation;
+class Corpse;
+class Creature;
+class DynamicObject;
+class GameObject;
 class Map;
+class Object;
+class Pet;
+class Player;
+class Transport;
+class Unit;
+class WorldObject;
 
 namespace boost
 {
@@ -71,6 +72,7 @@ namespace ObjectAccessor
     TC_GAME_API Transport* GetTransport(ObjectGuid const& guid);
     TC_GAME_API DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API AreaTrigger* GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API Conversation* GetConversation(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API Unit* GetUnit(WorldObject const&, ObjectGuid const& guid);
     TC_GAME_API Creature* GetCreature(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API Pet* GetPet(WorldObject const&, ObjectGuid const& guid);

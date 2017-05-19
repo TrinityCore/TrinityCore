@@ -71,7 +71,8 @@ void RealmList::UpdateRealm(Battlenet::RealmHandle const& id, uint32 build, std:
 
     realm.Id = id;
     realm.Build = build;
-    realm.Name = name;
+    if (realm.Name != name)
+        realm.SetName(name);
     realm.Type = icon;
     realm.Flags = flag;
     realm.Timezone = timezone;

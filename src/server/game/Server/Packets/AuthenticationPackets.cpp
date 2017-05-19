@@ -16,8 +16,33 @@
  */
 
 #include "AuthenticationPackets.h"
+#include "BigNumber.h"
 #include "CharacterTemplateDataStore.h"
 #include "HmacHash.h"
+#include "ObjectMgr.h"
+#include "Util.h"
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& virtualRealmInfo)
+{
+    data.WriteBit(virtualRealmInfo.IsLocal);
+    data.WriteBit(virtualRealmInfo.IsInternalRealm);
+    data.WriteBits(virtualRealmInfo.RealmNameActual.length(), 8);
+    data.WriteBits(virtualRealmInfo.RealmNameNormalized.length(), 8);
+    data.FlushBits();
+
+    data.WriteString(virtualRealmInfo.RealmNameActual);
+    data.WriteString(virtualRealmInfo.RealmNameNormalized);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmInfo const& virtualRealmInfo)
+{
+    data << uint32(virtualRealmInfo.RealmAddress);
+    data << virtualRealmInfo.RealmNameInfo;
+
+    return data;
+}
 
 bool WorldPackets::Auth::EarlyProcessClientPacket::ReadNoThrow()
 {
@@ -144,18 +169,8 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         if (SuccessInfo->NumPlayersAlliance)
             _worldPacket << uint16(*SuccessInfo->NumPlayersAlliance);
 
-        for (auto const& virtualRealm : SuccessInfo->VirtualRealms)
-        {
-            _worldPacket << uint32(virtualRealm.RealmAddress);
-            _worldPacket.WriteBit(virtualRealm.IsLocal);
-            _worldPacket.WriteBit(virtualRealm.IsInternalRealm);
-            _worldPacket.WriteBits(virtualRealm.RealmNameActual.length(), 8);
-            _worldPacket.WriteBits(virtualRealm.RealmNameNormalized.length(), 8);
-            _worldPacket.FlushBits();
-
-            _worldPacket.WriteString(virtualRealm.RealmNameActual);
-            _worldPacket.WriteString(virtualRealm.RealmNameNormalized);
-        }
+        for (VirtualRealmInfo const& virtualRealm : SuccessInfo->VirtualRealms)
+            _worldPacket << virtualRealm;
 
         for (CharacterTemplate const* templat : SuccessInfo->Templates)
         {
@@ -327,11 +342,6 @@ WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 8 + 4
     HexStrToByteArray("F41DCB2D728CF3337A4FF338FA89DB01BBBE9C3B65E9DA96268687353E48B94C", Payload.PanamaKey);
     Payload.Adler32 = 0xA0A66C10;
 
-    p.SetBinary(P, 128);
-    q.SetBinary(Q, 128);
-    dmp1.SetBinary(DP, 128);
-    dmq1.SetBinary(DQ, 128);
-    iqmp.SetBinary(InverseQ, 128);
 }
 
 WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
@@ -359,6 +369,18 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
 
     BigNumber bnData;
     bnData.SetBinary(payload.contents(), payload.size());
+
+    BigNumber p;
+    BigNumber q;
+    BigNumber dmp1;
+    BigNumber dmq1;
+    BigNumber iqmp;
+
+    p.SetBinary(P, 128);
+    q.SetBinary(Q, 128);
+    dmp1.SetBinary(DP, 128);
+    dmq1.SetBinary(DQ, 128);
+    iqmp.SetBinary(InverseQ, 128);
 
     BigNumber m1 = (bnData % p).ModExp(dmp1, p);
     BigNumber m2 = (bnData % q).ModExp(dmq1, q);

@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "Garrison.h"
 #include "GarrisonPackets.h"
+#include "Player.h"
 
 void WorldSession::HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo& /*getGarrisonInfo*/)
 {

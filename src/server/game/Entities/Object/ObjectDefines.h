@@ -20,7 +20,6 @@
 #define TRINITY_OBJECTDEFINES_H
 
 #include "Define.h"
-#include "ObjectGuid.h"
 
 // used for creating values for respawn for example
 inline uint64 MAKE_PAIR64(uint32 l, uint32 h);

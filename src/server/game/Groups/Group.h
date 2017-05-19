@@ -21,10 +21,11 @@
 
 #include "DBCEnums.h"
 #include "GroupRefManager.h"
-#include "LootMgr.h"
+#include "Loot.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"
 #include "Object.h"
+#include <map>
 
 class Battlefield;
 class Battleground;

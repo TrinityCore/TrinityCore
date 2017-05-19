@@ -18,11 +18,13 @@
 #ifndef TRINITY_DB2STRUCTURE_H
 #define TRINITY_DB2STRUCTURE_H
 
-#include "Common.h"
+#include "Define.h"
 #include "DBCEnums.h"
 #include "Util.h"
 
 #pragma pack(push, 1)
+
+struct LocalizedString;
 
 struct AchievementEntry
 {
@@ -473,6 +475,19 @@ struct CinematicSequencesEntry
     uint32 ID;
     uint32 SoundID;
     uint16 Camera[8];
+};
+
+struct ConversationLineEntry
+{
+    uint32 ID;
+    uint32 BroadcastTextID;
+    uint32 SpellVisualKitID;
+    uint32 Duration;
+    uint16 NextLineID;
+    uint16 Unk1;
+    uint8 Yell;
+    uint8 Unk2;
+    uint8 Unk3;
 };
 
 struct CreatureDisplayInfoEntry

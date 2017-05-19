@@ -16,6 +16,7 @@
  */
 
 #include "ChatLink.h"
+#include "Log.h"
 #include "SpellMgr.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"

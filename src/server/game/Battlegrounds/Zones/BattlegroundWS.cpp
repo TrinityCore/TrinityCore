@@ -24,6 +24,8 @@
 #include "BattlegroundMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "BattlegroundPackets.h"
+#include "WorldStatePackets.h"
 
 // these variables aren't used outside of this file, so declare them only here
 enum BG_WSG_Rewards
@@ -197,8 +199,7 @@ void BattlegroundWS::GetPlayerPositionData(std::vector<WorldPackets::Battlegroun
     {
         WorldPackets::Battleground::BattlegroundPlayerPosition position;
         position.Guid = player->GetGUID();
-        position.Pos.x = player->GetPositionX();
-        position.Pos.y = player->GetPositionY();
+        position.Pos = player->GetPosition();
         position.IconID = PLAYER_POSITION_ICON_ALLIANCE_FLAG;
         position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
         positions->push_back(position);
@@ -208,8 +209,7 @@ void BattlegroundWS::GetPlayerPositionData(std::vector<WorldPackets::Battlegroun
     {
         WorldPackets::Battleground::BattlegroundPlayerPosition position;
         position.Guid = player->GetGUID();
-        position.Pos.x = player->GetPositionX();
-        position.Pos.y = player->GetPositionY();
+        position.Pos = player->GetPosition();
         position.IconID = PLAYER_POSITION_ICON_HORDE_FLAG;
         position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
         positions->push_back(position);

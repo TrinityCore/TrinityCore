@@ -91,10 +91,7 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
             // Add to vector
             FlyByCamera thisCam;
             thisCam.timeStamp = targTimestamps[i];
-            thisCam.locations.x = newPos.x;
-            thisCam.locations.y = newPos.y;
-            thisCam.locations.z = newPos.z;
-            thisCam.locations.w = 0.0f;
+            thisCam.locations.Relocate(newPos.x, newPos.y, newPos.z, 0.0f);
             targetcam.push_back(thisCam);
             targPositions++;
             currPos += sizeof(M2SplineKey<G3D::Vector3>);
@@ -128,9 +125,7 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
             // Add to vector
             FlyByCamera thisCam;
             thisCam.timeStamp = posTimestamps[i];
-            thisCam.locations.x = newPos.x;
-            thisCam.locations.y = newPos.y;
-            thisCam.locations.z = newPos.z;
+            thisCam.locations.Relocate(newPos.x, newPos.y, newPos.z);
 
             if (targetcam.size() > 0)
             {
@@ -150,28 +145,25 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
                     lastTarget = targetcam[j];
                 }
 
-                float x = lastTarget.locations.x;
-                float y = lastTarget.locations.y;
-                float z = lastTarget.locations.z;
+                float x = lastTarget.locations.GetPositionX();
+                float y = lastTarget.locations.GetPositionY();
+                float z = lastTarget.locations.GetPositionZ();
 
                 // Now, the timestamps for target cam and position can be different. So, if they differ we interpolate
                 if (lastTarget.timeStamp != posTimestamps[i])
                 {
                     uint32 timeDiffTarget = nextTarget.timeStamp - lastTarget.timeStamp;
                     uint32 timeDiffThis = posTimestamps[i] - lastTarget.timeStamp;
-                    float xDiff = nextTarget.locations.x - lastTarget.locations.x;
-                    float yDiff = nextTarget.locations.y - lastTarget.locations.y;
-                    float zDiff = nextTarget.locations.z - lastTarget.locations.z;
-                    x = lastTarget.locations.x + (xDiff * (float(timeDiffThis) / float(timeDiffTarget)));
-                    y = lastTarget.locations.y + (yDiff * (float(timeDiffThis) / float(timeDiffTarget)));
-                    z = lastTarget.locations.z + (zDiff * (float(timeDiffThis) / float(timeDiffTarget)));
+                    float xDiff = nextTarget.locations.GetPositionX() - lastTarget.locations.GetPositionX();
+                    float yDiff = nextTarget.locations.GetPositionY() - lastTarget.locations.GetPositionY();
+                    float zDiff = nextTarget.locations.GetPositionZ() - lastTarget.locations.GetPositionZ();
+                    x = lastTarget.locations.GetPositionX() + (xDiff * (float(timeDiffThis) / float(timeDiffTarget)));
+                    y = lastTarget.locations.GetPositionY() + (yDiff * (float(timeDiffThis) / float(timeDiffTarget)));
+                    z = lastTarget.locations.GetPositionZ() + (zDiff * (float(timeDiffThis) / float(timeDiffTarget)));
                 }
-                float xDiff = x - thisCam.locations.x;
-                float yDiff = y - thisCam.locations.y;
-                thisCam.locations.w = std::atan2(yDiff, xDiff);
-
-                if (thisCam.locations.w < 0)
-                    thisCam.locations.w += 2 * float(M_PI);
+                float xDiff = x - thisCam.locations.GetPositionX();
+                float yDiff = y - thisCam.locations.GetPositionY();
+                thisCam.locations.SetOrientation(std::atan2(yDiff, xDiff));
             }
 
             cameras.push_back(thisCam);

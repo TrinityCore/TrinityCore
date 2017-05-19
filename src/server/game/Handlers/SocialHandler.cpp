@@ -17,11 +17,16 @@
  */
 
 #include "WorldSession.h"
+#include "AccountMgr.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "QueryCallback.h"
+#include "RBAC.h"
+#include "Realm.h"
 #include "SocialMgr.h"
 #include "SocialPackets.h"
-#include "ObjectMgr.h"
+#include "World.h"
 
 void WorldSession::HandleContactListOpcode(WorldPackets::Social::SendContactList& packet)
 {

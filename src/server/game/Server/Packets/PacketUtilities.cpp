@@ -17,34 +17,8 @@
 
 #include "PacketUtilities.h"
 #include "Errors.h"
-#include <G3D/Vector2.h>
-#include <G3D/Vector3.h>
 #include <sstream>
 #include <array>
-
-ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector2 const& v)
-{
-    data << v.x << v.y;
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, G3D::Vector3 const& v)
-{
-    data << v.x << v.y << v.z;
-    return data;
-}
-
-ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector2& v)
-{
-    data >> v.x >> v.y;
-    return data;
-}
-
-ByteBuffer& operator>>(ByteBuffer& data, G3D::Vector3& v)
-{
-    data >> v.x >> v.y >> v.z;
-    return data;
-}
 
 WorldPackets::PacketArrayMaxCapacityException::PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit)
 {

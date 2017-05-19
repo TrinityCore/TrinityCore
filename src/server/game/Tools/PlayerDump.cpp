@@ -16,13 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "PlayerDump.h"
+#include "AccountMgr.h"
+#include "Common.h"
 #include "DatabaseEnv.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "AccountMgr.h"
 #include "World.h"
+#include <sstream>
 
 #define DUMP_TABLE_COUNT 35
 struct DumpTable

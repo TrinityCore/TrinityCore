@@ -25,6 +25,8 @@
 #include "Player.h"
 #include "Random.h"
 #include "Util.h"
+#include "BattlegroundPackets.h"
+#include "WorldStatePackets.h"
 
 // these variables aren't used outside of this file, so declare them only here
 uint32 BG_EY_HonorScoreTicks[BG_HONOR_MODE_NUM] =
@@ -123,8 +125,7 @@ void BattlegroundEY::GetPlayerPositionData(std::vector<WorldPackets::Battlegroun
     {
         WorldPackets::Battleground::BattlegroundPlayerPosition position;
         position.Guid = player->GetGUID();
-        position.Pos.x = player->GetPositionX();
-        position.Pos.y = player->GetPositionY();
+        position.Pos = player->GetPosition();
         position.IconID = player->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
         position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
         positions->push_back(position);

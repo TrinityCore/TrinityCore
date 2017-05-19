@@ -19,7 +19,6 @@
 #define ChannelPackets_h__
 
 #include "Packet.h"
-#include "Channel.h"
 #include "ObjectGuid.h"
 
 namespace WorldPackets
@@ -103,8 +102,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid AddedUserGUID;
-            uint32 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
-            uint8 UserFlags = MEMBER_FLAG_NONE;
+            uint32 _ChannelFlags = 0; ///< @see enum ChannelFlags
+            uint8 UserFlags = 0; ///< @see enum ChannelMemberFlags
             int32 ChannelID = 0;
             std::string ChannelName;
         };
@@ -117,7 +116,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid RemovedUserGUID;
-            uint32 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
+            uint32 _ChannelFlags = 0; ///< @see enum ChannelFlags
             uint32 ChannelID = 0;
             std::string ChannelName;
         };
@@ -130,9 +129,19 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid UpdatedUserGUID;
-            uint32 _ChannelFlags = CHANNEL_FLAG_NONE; ///< @see enum ChannelFlags
-            uint8 UserFlags = MEMBER_FLAG_NONE;
+            uint32 _ChannelFlags = 0; ///< @see enum ChannelFlags
+            uint8 UserFlags = 0; ///< @see enum ChannelMemberFlags
             int32 ChannelID = 0;
+            std::string ChannelName;
+        };
+
+        class ChannelCommand final : public ClientPacket
+        {
+        public:
+            ChannelCommand(WorldPacket&& packet);
+
+            void Read() override;
+
             std::string ChannelName;
         };
 
@@ -145,6 +154,17 @@ namespace WorldPackets
 
             std::string ChannelName;
             std::string Name;
+        };
+
+        class ChannelPassword final : public ClientPacket
+        {
+        public:
+            ChannelPassword(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_CHANNEL_PASSWORD, std::move(packet)) { }
+
+            void Read() override;
+
+            std::string ChannelName;
+            std::string Password;
         };
 
         class JoinChannel final : public ClientPacket

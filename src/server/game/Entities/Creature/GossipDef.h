@@ -23,6 +23,7 @@
 #include "ObjectGuid.h"
 #include "QuestDef.h"
 #include "NPCHandler.h"
+#include <map>
 
 class WorldSession;
 

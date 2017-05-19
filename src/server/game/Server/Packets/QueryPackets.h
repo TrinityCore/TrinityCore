@@ -19,9 +19,9 @@
 #define QueryPackets_h__
 
 #include "Packet.h"
+#include "AuthenticationPackets.h"
 #include "Creature.h"
 #include "NPCHandler.h"
-#include "G3D/Vector3.h"
 #include "DB2Stores.h"
 
 class Player;
@@ -232,7 +232,7 @@ namespace WorldPackets
 
             ObjectGuid Player;
             ObjectGuid Transport;
-            G3D::Vector3 Position;
+            TaggedPosition<Position::XYZ> Position;
             int32 ActualMapID = 0;
             int32 MapID = 0;
             bool Valid = false;
@@ -257,7 +257,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Player;
-            G3D::Vector3 Position;
+            TaggedPosition<Position::XYZ> Position;
             float Facing = 0.0f;
         };
 
@@ -406,6 +406,28 @@ namespace WorldPackets
             ObjectGuid Id;
             bool Valid = false;
             ItemTextCache Item;
+        };
+
+        class QueryRealmName final : public ClientPacket
+        {
+        public:
+            QueryRealmName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_REALM_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 VirtualRealmAddress = 0;
+        };
+
+        class RealmQueryResponse final : public ServerPacket
+        {
+        public:
+            RealmQueryResponse() : ServerPacket(SMSG_REALM_QUERY_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 VirtualRealmAddress = 0;
+            uint8 LookupState = 0;
+            WorldPackets::Auth::VirtualRealmNameInfo NameInfo;
         };
     }
 }

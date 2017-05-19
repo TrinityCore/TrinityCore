@@ -30,7 +30,7 @@
     #include <Windows.h>
 #endif
 
-#ifdef __linux__
+#ifndef WIN32
     #include <cerrno>
 #endif
 

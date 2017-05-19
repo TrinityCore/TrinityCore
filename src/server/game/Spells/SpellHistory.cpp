@@ -16,6 +16,7 @@
  */
 
 #include "SpellHistory.h"
+#include "DatabaseEnv.h"
 #include "Pet.h"
 #include "PetPackets.h"
 #include "Player.h"

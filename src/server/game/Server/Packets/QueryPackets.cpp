@@ -18,7 +18,6 @@
 #include "QueryPackets.h"
 #include "BattlenetAccountMgr.h"
 #include "Player.h"
-#include "PacketUtilities.h"
 #include "World.h"
 #include "ObjectMgr.h"
 
@@ -308,9 +307,7 @@ WorldPacket const* WorldPackets::Query::CorpseLocation::Write()
 
     _worldPacket << Player;
     _worldPacket << ActualMapID;
-    _worldPacket << Position.x;
-    _worldPacket << Position.y;
-    _worldPacket << Position.z;
+    _worldPacket << Position;
     _worldPacket << MapID;
     _worldPacket << Transport;
 
@@ -461,6 +458,21 @@ WorldPacket const* WorldPackets::Query::QueryItemTextResponse::Write()
     _worldPacket.WriteBit(Valid);
     _worldPacket << Item;
     _worldPacket << Id;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Query::QueryRealmName::Read()
+{
+    _worldPacket >> VirtualRealmAddress;
+}
+
+WorldPacket const* WorldPackets::Query::RealmQueryResponse::Write()
+{
+    _worldPacket << uint32(VirtualRealmAddress);
+    _worldPacket << uint8(LookupState);
+    if (!LookupState)
+        _worldPacket << NameInfo;
 
     return &_worldPacket;
 }

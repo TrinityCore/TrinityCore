@@ -24,12 +24,15 @@
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
+#include "Log.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
+#include "BattlegroundPackets.h"
 #include "MiscPackets.h"
+#include "WorldStatePackets.h"
 
 Battlefield::Battlefield()
 {
@@ -250,6 +253,11 @@ void Battlefield::InvitePlayersInZoneToWar()
             }
         }
     }
+}
+
+uint64 Battlefield::GetQueueId() const
+{
+    return MAKE_PAIR64(m_BattleId | 0x20000, 0x1F100000);
 }
 
 void Battlefield::InvitePlayerToWar(Player* player)
@@ -1011,7 +1019,7 @@ bool BfCapturePoint::Update(uint32 diff)
         std::list<Player*> players;
         Trinity::AnyPlayerInObjectRangeCheck checker(capturePoint, radius);
         Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(capturePoint, players, checker);
-        capturePoint->VisitNearbyWorldObject(radius, searcher);
+        Cell::VisitWorldObjects(capturePoint, searcher, radius);
 
         for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
             if ((*itr)->IsOutdoorPvPActive())

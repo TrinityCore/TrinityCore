@@ -19,9 +19,6 @@
 #define TRINITY_PACKETLOG_H
 
 #include "Common.h"
-#include "Opcodes.h"
-
-#include <boost/asio/ip/address.hpp>
 #include <mutex>
 
 enum Direction
@@ -31,6 +28,18 @@ enum Direction
 };
 
 class WorldPacket;
+enum ConnectionType : int8;
+
+namespace boost
+{
+    namespace asio
+    {
+        namespace ip
+        {
+            class address;
+        }
+    }
+}
 
 class TC_GAME_API PacketLog
 {
