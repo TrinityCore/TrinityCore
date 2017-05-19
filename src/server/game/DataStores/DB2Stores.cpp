@@ -300,6 +300,8 @@ typedef std::unordered_set<uint32> ToyItemIdsContainer;
 typedef std::tuple<int16, int8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
 typedef std::unordered_map<uint32, WorldMapAreaEntry const*> WorldMapAreaByAreaIDContainer;
+typedef std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> PvpRewardsContainer;
+
 namespace
 {
     StorageMap _stores;
@@ -349,6 +351,8 @@ namespace
     ToyItemIdsContainer _toys;
     WMOAreaTableLookupContainer _wmoAreaTableLookup;
     WorldMapAreaByAreaIDContainer _worldMapAreaByAreaID;
+    PvpRewardsContainer _pvpRewardPack;
+    std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackXItems;
 }
 
 typedef std::vector<std::string> DB2StoreProblemList;

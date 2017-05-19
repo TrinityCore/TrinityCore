@@ -254,7 +254,6 @@ public:
     typedef std::unordered_map<uint32, std::unordered_map<uint32, MapDifficultyEntry const*>> MapDifficultyContainer;
     typedef std::set<MountTypeXCapabilityEntry const*, MountTypeXCapabilityEntryComparator> MountTypeXCapabilitySet;
     typedef std::vector<MountXDisplayEntry const*> MountXDisplayContainer;
-    typedef std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> PvpRewardsContainer;
 
     static DB2Manager& Instance();
 
@@ -330,9 +329,6 @@ public:
     std::vector<RewardPackXItemEntry const*> const* GetRewardPackItemsByRewardID(uint32 rewardPackID) const;
     uint32 GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(uint8 honorLevel, uint8 prestige) const;
     uint8 GetMaxPrestige() const;
-
-    std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackXItems;
-    PvpRewardsContainer _pvpRewardPack;
 };
 
 #define sDB2Manager DB2Manager::Instance()
