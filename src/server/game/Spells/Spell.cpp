@@ -1220,10 +1220,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
     radius *= m_spellValue->RadiusMod;
 
-    // if this is a proximity based aoe (Frost Nova, Psychic Scream, ...), include the caster's own combat reach
-    if (targetType.IsProximityBasedAoe())
-        radius += GetCaster()->GetCombatReach();
-
     SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
 
     CallScriptObjectAreaTargetSelectHandlers(targets, effIndex, targetType);
