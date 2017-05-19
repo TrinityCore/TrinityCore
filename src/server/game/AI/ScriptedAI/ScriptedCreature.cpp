@@ -98,6 +98,16 @@ bool SummonList::HasEntry(uint32 entry) const
     return false;
 }
 
+void SummonList::DoActionImpl(int32 action, StorageType const& summons)
+{
+    for (auto const& guid : summons)
+    {
+        Creature* summon = ObjectAccessor::GetCreature(*me, guid);
+        if (summon && summon->IsAIEnabled)
+            summon->AI()->DoAction(action);
+    }
+}
+
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     IsFleeing(false),
     _isCombatMovementAllowed(true)

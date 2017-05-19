@@ -16,11 +16,14 @@
  */
 
 #include "ChatLink.h"
-#include "Log.h"
-#include "SpellMgr.h"
-#include "ObjectMgr.h"
-#include "SpellInfo.h"
 #include "AchievementMgr.h"
+#include "DB2Stores.h"
+#include "Item.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "QuestDef.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid:0:0:0:0:0:0:0:0|h[name]|h|r

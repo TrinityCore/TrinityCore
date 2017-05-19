@@ -27,9 +27,10 @@ EndScriptData */
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
+#include "Language.h"
 #include "MapManager.h"
 #include "Player.h"
-#include "Language.h"
+#include "RBAC.h"
 
 class instance_commandscript : public CommandScript
 {

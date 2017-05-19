@@ -33,7 +33,7 @@
 #include "Player.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
-#include "WorldSession.h"
+#include "World.h"
 #include "WorldStatePackets.h"
 
 BattlefieldTB::~BattlefieldTB() { }

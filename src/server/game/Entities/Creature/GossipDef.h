@@ -21,10 +21,10 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
-#include "QuestDef.h"
 #include "NPCHandler.h"
 #include <map>
 
+class Quest;
 class WorldSession;
 
 #define GOSSIP_MAX_MENU_ITEMS               32
