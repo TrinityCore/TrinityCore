@@ -288,6 +288,7 @@ typedef std::unordered_map<uint32, std::array<std::vector<NameGenEntry const*>, 
 typedef std::array<std::vector<Trinity::wregex>, TOTAL_LOCALES + 1> NameValidationRegexContainer;
 typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
 typedef std::array<PowerTypeEntry const*, MAX_POWERS> PowerTypesContainer;
+typedef std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> PvpRewardsContainer;
 typedef std::unordered_map<uint32, std::pair<std::vector<QuestPackageItemEntry const*>, std::vector<QuestPackageItemEntry const*>>> QuestPackageItemContainer;
 typedef std::unordered_map<uint32, uint32> RulesetItemUpgradeContainer;
 typedef std::unordered_multimap<uint32, SkillRaceClassInfoEntry const*> SkillRaceClassInfoContainer;
@@ -300,7 +301,6 @@ typedef std::unordered_set<uint32> ToyItemIdsContainer;
 typedef std::tuple<int16, int8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
 typedef std::unordered_map<uint32, WorldMapAreaEntry const*> WorldMapAreaByAreaIDContainer;
-typedef std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> PvpRewardsContainer;
 
 namespace
 {

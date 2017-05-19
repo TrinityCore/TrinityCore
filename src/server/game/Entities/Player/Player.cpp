@@ -345,7 +345,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     _advancedCombatLoggingEnabled = false;
 
-    _restMgr = new RestMgr(this);
+    _restMgr = std::move(Trinity::make_unique<RestMgr>(this));
 }
 
 Player::~Player()
@@ -377,7 +377,6 @@ Player::~Player()
     delete m_achievementMgr;
     delete m_reputationMgr;
     delete _cinematicMgr;
-    delete _restMgr;
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
         delete _voidStorageItems[i];
@@ -6531,6 +6530,7 @@ void Player::SetHonorLevel(uint8 level)
     UpdateCriteria(CRITERIA_TYPE_HONOR_LEVEL_REACHED);
 
     // This code is here because no link was found between those items and this reward condition in the db2 files.
+    // Interesting CriteriaTree found: Tree ids: 51140, 51156 (criteria id 31773, modifier tree id 37759)
     if (level == 50 && prestige == 1)
     {
         if (GetTeam() == ALLIANCE)

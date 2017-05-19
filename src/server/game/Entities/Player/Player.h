@@ -2365,7 +2365,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
-        RestMgr* GetRestMgr() const { return _restMgr; }
+        RestMgr* GetRestMgr() const { return _restMgr.get(); }
 
     protected:
         // Gamemaster whisper whitelist
@@ -2717,7 +2717,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unordered_map<ObjectGuid /*LootObject*/, ObjectGuid /*world object*/> m_AELootView;
 
         void _InitHonorLevelOnLoadFromDB(uint32 /*honor*/, uint32 /*honorLevel*/, uint32 /*prestigeLevel*/);
-        RestMgr* _restMgr;
+        std::unique_ptr<RestMgr> _restMgr;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
