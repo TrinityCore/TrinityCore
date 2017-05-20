@@ -232,7 +232,7 @@ namespace WorldPackets
 
             ObjectGuid Player;
             ObjectGuid Transport;
-            TaggedPosition<Position::XYZ> Position;
+            TaggedPosition<::Position::XYZ> Position;
             int32 ActualMapID = 0;
             int32 MapID = 0;
             bool Valid = false;
@@ -257,7 +257,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Player;
-            TaggedPosition<Position::XYZ> Position;
+            TaggedPosition<::Position::XYZ> Position;
             float Facing = 0.0f;
         };
 
