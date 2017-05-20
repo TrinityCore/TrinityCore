@@ -605,6 +605,9 @@ static void ResolveFullFileNames(
     char szShortName[MAX_PATH+1];
     char szFullName[MAX_PATH+1];
 
+    // Keep compiler happy
+    UNREFERENCED_PARAMETER(dwFileIndexes);
+
     // Parse the entire file table
     for(size_t i = 0; i < pRootHandler->FileTable.ItemCount; i++)
     {
@@ -1143,7 +1146,7 @@ int RootHandler_CreateDiablo3(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRoot
         assert(dwRootEntries < DIABLO3_MAX_SUBDIRS);
 
         // Now parse the all root items and load them
-        for(size_t i = 0; i < dwRootEntries; i++)
+        for(DWORD i = 0; i < dwRootEntries; i++)
         {
             PCASC_FILE_ENTRY pRootEntry = (PCASC_FILE_ENTRY)Array_ItemAt(&pRootHandler->FileTable, i);
 
