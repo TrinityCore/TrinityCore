@@ -1010,6 +1010,17 @@ namespace WorldPackets
 
             std::set<uint32> AchievementIDs;
         };
+
+        class GuildNameChanged final : ServerPacket
+        {
+        public:
+            GuildNameChanged() : ServerPacket(SMSG_GUILD_NAME_CHANGED, 40) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GuildGUID;
+            std::string GuildName;
+        };
     }
 }
 

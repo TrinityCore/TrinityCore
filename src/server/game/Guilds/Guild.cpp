@@ -1254,30 +1254,11 @@ bool Guild::SetName(std::string const& name)
     stmt->setUInt64(1, GetId());
     CharacterDatabase.Execute(stmt);
 
-    /* TODO 6.x update me
-    ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_GUILD_NAME_CHANGED, 24 + 8 + 1);
-    data.WriteBit(guid[5]);
-    data.WriteBits(name.length(), 8);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[2]);
+    WorldPackets::Guild::GuildNameChanged guildNameChanged;
+    guildNameChanged.GuildGUID = GetGUID();
+    guildNameChanged.GuildName = m_name;
+    BroadcastPacket(guildNameChanged.Write());
 
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteString(name);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[5]);
-
-    BroadcastPacket(&data); */
     return true;
 }
 
