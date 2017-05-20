@@ -212,7 +212,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
 
 void AuraApplication::ClientUpdate(bool remove)
 {
-    _needClientUpdate = false;
+    SetNeedClientUpdate(false);
 
     WorldPacket data(SMSG_AURA_UPDATE);
     data << GetTarget()->GetPackGUID();

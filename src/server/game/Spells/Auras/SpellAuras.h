@@ -76,7 +76,7 @@ class TC_GAME_API AuraApplication
         void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
         AuraRemoveMode GetRemoveMode() const {return _removeMode;}
 
-        void SetNeedClientUpdate() { _needClientUpdate = true;}
+        void SetNeedClientUpdate(bool update = true) { _needClientUpdate = update; }
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
         void BuildUpdatePacket(ByteBuffer& data, bool remove) const;
         void ClientUpdate(bool remove = false);
