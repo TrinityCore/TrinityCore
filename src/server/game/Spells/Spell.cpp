@@ -1871,6 +1871,17 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
             break;
         target = *foundItr;
         tempTargets.erase(foundItr);
+
+        // check spell cast conditions from database
+        {
+            ConditionSourceInfo condInfo = ConditionSourceInfo(m_caster, target);
+            if (!sConditionMgr->IsObjectMeetingNotGroupedConditions(CONDITION_SOURCE_TYPE_SPELL, m_spellInfo->Id, condInfo))
+            {
+                --chainTargets;
+                continue;
+            }
+        }
+
         targets.push_back(target);
         --chainTargets;
     }
