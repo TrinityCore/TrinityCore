@@ -1938,12 +1938,30 @@ bool AchievementMgr::RequirementsSatisfied(AchievementCriteriaEntry const* achie
                 return false;
             break;
         case ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM:
+        {
+            // Only Epic items should count
+            if (!miscValue1)
+                return false;
+            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(miscValue1);
+            if (!proto || proto->Quality != ITEM_QUALITY_EPIC)
+                return false;
+            break;
+        }
         case ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
         {
+            // Epic and Legendary items share the same criteria, so we need to differentiate
             if (!miscValue1)
                 return false;
             ItemTemplate const* proto = sObjectMgr->GetItemTemplate(miscValue1);
             if (!proto || proto->Quality < ITEM_QUALITY_EPIC)
+                return false;
+
+            // Skip if criteria is "Legendary items obtained" and item is Epic
+            if (achievementCriteria->ID == 6141 && proto->Quality == ITEM_QUALITY_EPIC)
+                return false;
+
+            // Skip if criteria is "Epic items obtained" and item is Legendary
+            if (achievementCriteria->ID == 6142 && proto->Quality == ITEM_QUALITY_LEGENDARY)
                 return false;
             break;
         }
