@@ -8657,9 +8657,25 @@ void Unit::setDeathState(DeathState s)
         if (IsNonMeleeSpellCast(false))
             InterruptNonMeleeSpells(false);
 
-        ExitVehicle();                                      // Exit vehicle before calling RemoveAllControlled
-                                                            // vehicles use special type of charm that is not removed by the next function
-                                                            // triggering an assert
+        // Exit vehicle before calling RemoveAllControlled
+        // vehicles use special type of charm that is not removed by the next function
+        // triggering an assert
+        // Allow dead vehicles with passengers.
+        if (m_vehicle)
+        {
+            AuraEffectList aurEffs = GetVehicleBase()->GetAuraEffectsByType(SPELL_AURA_CONTROL_VEHICLE);
+            for (AuraEffectList::iterator iter = aurEffs.begin(); iter != aurEffs.end(); ++iter)
+            {
+                Aura* aura = (*iter)->GetBase();
+                if (!aura->IsDeathPersistent() && aura->GetCasterGUID() == GetGUID())
+                {
+                    AuraApplication* aurApp = aura->GetApplicationOfTarget(GetVehicleBase()->GetGUID());
+                    GetVehicleBase()->RemoveAura(aurApp);
+                    break;
+                }
+            }
+        }
+
         UnsummonAllTotems();
         RemoveAllControlled();
         RemoveAllAurasOnDeath();
