@@ -4595,6 +4595,74 @@ class spell_gen_impatient_mind : public SpellScriptLoader
         }
 };
 
+enum SlagBehemothSpells
+{
+    SPELL_BLAST_WAVES_ONE_TICK      = 159749,
+    SPELL_BLAST_WAVES_THREE_TICK    = 159760
+};
+
+// Called by 159750: TickNumber < 3 should call 159749, TickNumber == 3 should called 159760 and destroy volcanic bomb.
+class spell_gen_slag_behemoth_blast_waves : public SpellScriptLoader
+{
+public:
+    spell_gen_slag_behemoth_blast_waves() : SpellScriptLoader("spell_gen_slag_behemoth_blast_waves") { }
+
+    class spell_gen_slag_behemoth_blast_waves_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_slag_behemoth_blast_waves_AuraScript);
+
+        void OnPeriodic(AuraEffect const* aurEff)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (aurEff->GetTickNumber() > 0 && aurEff->GetTickNumber() < 3)
+                    caster->CastSpell(caster, SPELL_BLAST_WAVES_ONE_TICK, TRIGGERED_FULL_MASK, nullptr, aurEff);
+
+                if (aurEff->GetTickNumber() == 3)
+                    caster->CastSpell(GetTarget(), SPELL_BLAST_WAVES_THREE_TICK, TRIGGERED_FULL_MASK, nullptr, aurEff);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_slag_behemoth_blast_waves_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_gen_slag_behemoth_blast_waves_AuraScript();
+    }
+};
+
+// Called by 159749 and 159760.
+class spell_gen_slag_behemoth_blast_waves_dummy_spells : public SpellScriptLoader  
+{
+    public:
+        spell_gen_slag_behemoth_blast_waves_dummy_spells() : SpellScriptLoader("spell_gen_slag_behemoth_blast_waves_dummy_spells") { }
+
+        class spell_gen_slag_behemoth_blast_waves_dummy_spells_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_slag_behemoth_blast_waves_dummy_spells_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(caster, uint32(GetEffectValue()));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_subjugator_korul_darkness_calls_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_gen_slag_behemoth_blast_waves_dummy_spells_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4699,4 +4767,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_azgalor_rain_of_fire_hellfire_citadel();
     new spell_gen_face_rage();
     new spell_gen_impatient_mind();
+    new spell_gen_slag_behemoth_blast_waves();
+    new spell_gen_slag_behemoth_blast_waves_dummy_spells();
 }
