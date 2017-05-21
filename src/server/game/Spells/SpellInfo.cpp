@@ -16,18 +16,20 @@
  */
 
 #include "SpellInfo.h"
+#include "Battleground.h"
+#include "ConditionMgr.h"
+#include "Corpse.h"
+#include "GameTables.h"
+#include "InstanceScript.h"
 #include "Log.h"
-#include "SpellAuraDefines.h"
+#include "ObjectAccessor.h"
+#include "Pet.h"
+#include "Player.h"
+#include "Random.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
-#include "Spell.h"
-#include "ConditionMgr.h"
-#include "GameTables.h"
-#include "Player.h"
-#include "Battleground.h"
 #include "Vehicle.h"
-#include "Pet.h"
-#include "InstanceScript.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -2570,9 +2572,9 @@ uint32 SpellInfo::GetRecoveryTime() const
     return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
 }
 
-std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const
+std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const
 {
-    std::vector<CostData> costs;
+    std::vector<SpellPowerCost> costs;
     auto collector = [this, caster, schoolMask, &costs](std::vector<SpellPowerEntry const*> const& powers)
     {
         costs.reserve(powers.size());
@@ -2596,7 +2598,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
                 // Else drain all power
                 if (power->PowerType < MAX_POWERS)
                 {
-                    CostData cost;
+                    SpellPowerCost cost;
                     cost.Power = Powers(power->PowerType);
                     cost.Amount = caster->GetPower(cost.Power);
                     costs.push_back(cost);
@@ -2713,7 +2715,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
             }
 
             bool found = false;
-            for (CostData& cost : costs)
+            for (SpellPowerCost& cost : costs)
             {
                 if (cost.Power == Powers(power->PowerType))
                 {
@@ -2724,7 +2726,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
 
             if (!found)
             {
-                CostData cost;
+                SpellPowerCost cost;
                 cost.Power = Powers(power->PowerType);
                 cost.Amount = powerCost;
                 costs.push_back(cost);
@@ -2733,7 +2735,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
 
         if (healthCost > 0)
         {
-            CostData cost;
+            SpellPowerCost cost;
             cost.Power = POWER_HEALTH;
             cost.Amount = healthCost;
             costs.push_back(cost);
@@ -2746,7 +2748,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
         collector(sDB2Manager.GetSpellPowers(Id, caster->GetMap()->GetDifficultyID()));
 
     // POWER_RUNES is handled by SpellRuneCost.db2, and cost.Amount is always 0 (see Spell::TakeRunePower)
-    costs.erase(std::remove_if(costs.begin(), costs.end(), [](CostData const& cost) { return cost.Power != POWER_RUNES && cost.Amount <= 0; }), costs.end());
+    costs.erase(std::remove_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power != POWER_RUNES && cost.Amount <= 0; }), costs.end());
     return costs;
 }
 

@@ -19,8 +19,10 @@
 #define NPCPackets_h__
 
 #include "Packet.h"
-#include "ItemPackets.h"
-#include "Creature.h"
+#include "ItemPacketsCommon.h"
+#include "ObjectGuid.h"
+#include "Position.h"
+#include <array>
 
 namespace WorldPackets
 {
@@ -131,7 +133,7 @@ namespace WorldPackets
             int32 MoneyCost     = 0;
             int32 ReqSkillLine  = 0;
             int32 ReqSkillRank  = 0;
-            int32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS] = { };
+            std::array<int32, 3> ReqAbility;
             uint8 Usable        = 0;
             uint8 ReqLevel      = 0;
         };

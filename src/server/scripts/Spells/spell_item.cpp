@@ -1561,8 +1561,8 @@ class spell_item_pendant_of_the_violet_eye : public SpellScriptLoader
             {
                 if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
                 {
-                    std::vector<SpellInfo::CostData> costs = spellInfo->CalcPowerCost(GetTarget(), spellInfo->GetSchoolMask());
-                    auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA && cost.Amount > 0; });
+                    std::vector<SpellPowerCost> costs = spellInfo->CalcPowerCost(GetTarget(), spellInfo->GetSchoolMask());
+                    auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA && cost.Amount > 0; });
                     if (m != costs.end())
                         return true;
                 }

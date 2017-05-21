@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
-#include "Unit.h"
 #include "Object.h"
 #include "Loot.h"
 #include "DatabaseEnvFwd.h"
@@ -31,6 +30,7 @@
 class GameObjectAI;
 class Group;
 class Transport;
+enum TriggerCastFlags : uint32;
 
 // from `gameobject_template`
 struct GameObjectTemplate
@@ -881,19 +881,6 @@ struct GameObjectAddon
 
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectAddon> GameObjectAddonContainer;
 
-// client side GO show states
-enum GOState
-{
-    GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
-    GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
-    GO_STATE_ACTIVE_ALTERNATIVE = 2,                        // show in world as used in alt way and not reset (closed door open by cannon fire)
-    GO_STATE_TRANSPORT_ACTIVE   = 24,
-    GO_STATE_TRANSPORT_STOPPED  = 25
-};
-
-#define MAX_GO_STATE              3
-#define MAX_GO_STATE_TRANSPORT_STOP_FRAMES 9
-
 // from `gameobject`
 struct GameObjectData
 {
@@ -1095,13 +1082,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsInvisibleDueToDespawn() const override;
 
-        uint8 getLevelForTarget(WorldObject const* target) const override
-        {
-            if (Unit* owner = GetOwner())
-                return owner->getLevelForTarget(target);
-
-            return 1;
-        }
+        uint8 getLevelForTarget(WorldObject const* target) const override;
 
         GameObject* LookupFishingHoleAround(float range);
 

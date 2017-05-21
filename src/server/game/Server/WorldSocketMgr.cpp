@@ -21,7 +21,6 @@
 #include "NetworkThread.h"
 #include "ScriptMgr.h"
 #include "WorldSocket.h"
-#include "World.h"
 #include <boost/system/error_code.hpp>
 
 static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
@@ -59,7 +58,7 @@ WorldSocketMgr& WorldSocketMgr::Instance()
     return instance;
 }
 
-bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, int threadCount)
+bool WorldSocketMgr::StartWorldNetwork(boost::asio::io_service& service, std::string const& bindIp, uint16 port, uint16 instancePort, int threadCount)
 {
     _tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
 
@@ -83,7 +82,7 @@ bool WorldSocketMgr::StartNetwork(boost::asio::io_service& service, std::string 
     AsyncAcceptor* instanceAcceptor = nullptr;
     try
     {
-        instanceAcceptor = new AsyncAcceptor(service, bindIp, uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE)));
+        instanceAcceptor = new AsyncAcceptor(service, bindIp, instancePort);
     }
     catch (boost::system::system_error const& err)
     {

@@ -18,9 +18,9 @@
 #ifndef CombatLogPackets_h__
 #define CombatLogPackets_h__
 
-#include "Packet.h"
+#include "CombatLogPacketsCommon.h"
+#include "Optional.h"
 #include "Spell.h"
-#include "SpellPackets.h"
 
 namespace WorldPackets
 {

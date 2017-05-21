@@ -23,6 +23,7 @@
 #include "Language.h"
 #include "Log.h"
 #include "Object.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"

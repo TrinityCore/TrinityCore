@@ -20,9 +20,12 @@
 
 #include "Packet.h"
 #include "AuthenticationPackets.h"
-#include "Creature.h"
 #include "NPCHandler.h"
-#include "DB2Stores.h"
+#include "ObjectGuid.h"
+#include "Position.h"
+#include "SharedDefines.h"
+#include "UnitDefines.h"
+#include <array>
 
 class Player;
 
@@ -56,11 +59,11 @@ namespace WorldPackets
             int32 HealthScalingExpansion = 0;
             uint32 RequiredExpansion = 0;
             uint32 VignetteID = 0;
-            uint32 Flags[2];
-            uint32 ProxyCreatureID[MAX_KILL_CREDIT];
-            uint32 CreatureDisplayID[MAX_CREATURE_MODELS];
-            std::string Name[MAX_CREATURE_NAMES];
-            std::string NameAlt[MAX_CREATURE_NAMES];
+            std::array<uint32, 2> Flags;
+            std::array<uint32, 2> ProxyCreatureID;
+            std::array<uint32, 4> CreatureDisplayID;
+            std::array<std::string, 4> Name;
+            std::array<std::string, 4> NameAlt;
         };
 
         class QueryCreatureResponse final : public ServerPacket

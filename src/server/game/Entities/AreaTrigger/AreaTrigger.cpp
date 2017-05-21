@@ -34,6 +34,7 @@
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
+#include <G3D/AABox.h>
 
 AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),

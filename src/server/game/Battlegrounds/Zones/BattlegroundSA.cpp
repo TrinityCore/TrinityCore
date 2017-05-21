@@ -17,14 +17,15 @@
  */
 
 #include "BattlegroundSA.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
+#include "Random.h"
 #include "UpdateData.h"
-#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 BattlegroundSA::BattlegroundSA()
 {

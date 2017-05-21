@@ -111,6 +111,8 @@ class TC_GAME_API TransportMgr
 
         void LoadTransportTemplates();
 
+        void LoadTransportAnimationAndRotation();
+
         // Creates a transport using given GameObject template entry
         Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = UI64LIT(0), Map* map = nullptr, uint32 phaseid = 0, uint32 phasegroup = 0);
 

@@ -19,9 +19,9 @@
 #define GuildPackets_h__
 
 #include "Packet.h"
-#include "ObjectGuid.h"
+#include "ItemPacketsCommon.h"
 #include "Guild.h"
-#include "ItemPackets.h"
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {
