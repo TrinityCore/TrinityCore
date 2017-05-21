@@ -46,10 +46,10 @@ struct EnumName
 
 #define CREATE_NAMED_ENUM(VALUE) { VALUE, STRINGIZE(VALUE) }
 
-#define NPCFLAG_COUNT   24
+#define NPC_FLAG_COUNT    24
 #define FLAGS_EXTRA_COUNT 19
 
-EnumName<NPCFlags, int32> const npcFlagTexts[NPCFLAG_COUNT] =
+EnumName<NPCFlags, uint32> const npcFlagTexts[NPC_FLAG_COUNT] =
 {
     { UNIT_NPC_FLAG_AUCTIONEER,         LANG_NPCINFO_AUCTIONEER         },
     { UNIT_NPC_FLAG_BANKER,             LANG_NPCINFO_BANKER             },
@@ -148,6 +148,34 @@ EnumName<UnitFlags> const unitFlags[MAX_UNIT_FLAGS] =
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_29),
     CREATE_NAMED_ENUM(UNIT_FLAG_SHEATHE),
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_31)
+};
+
+EnumName<UnitFlags2> const unitFlags2[MAX_UNIT_FLAGS_2] =
+{
+    CREATE_NAMED_ENUM(UNIT_FLAG2_FEIGN_DEATH),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_UNK1),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_IGNORE_REPUTATION),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_COMPREHEND_LANG),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_MIRROR_IMAGE),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_INSTANTLY_APPEAR_MODEL),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_FORCE_MOVEMENT),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_DISARM_OFFHAND),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_DISABLE_PRED_STATS),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_DISARM_RANGED),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_REGENERATE_POWER),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_RESTRICT_PARTY_INTERACTION),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_PREVENT_SPELL_CLICK),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_ALLOW_ENEMY_INTERACT),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_DISABLE_TURN),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_UNK2),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_PLAY_DEATH_ANIM),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_ALLOW_CHEAT_SPELLS),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_NO_ACTIONS)
+};
+
+EnumName<UnitFlags3> const unitFlags3[MAX_UNIT_FLAGS_3] =
+{
+    CREATE_NAMED_ENUM(UNIT_FLAG3_UNK1)
 };
 
 EnumName<CreatureFlagsExtra> const flagsExtra[FLAGS_EXTRA_COUNT] =
@@ -708,7 +736,17 @@ public:
             if (target->GetUInt32Value(UNIT_FIELD_FLAGS) & unitFlags[i].Value)
                 handler->PSendSysMessage("%s (0x%X)", unitFlags[i].Name, unitFlags[i].Value);
 
-        handler->PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS_2), target->GetUInt32Value(OBJECT_DYNAMIC_FLAGS), target->getFaction());
+        handler->PSendSysMessage(LANG_NPCINFO_UNIT_FIELD_FLAGS_2, target->GetUInt32Value(UNIT_FIELD_FLAGS_2));
+        for (uint8 i = 0; i < MAX_UNIT_FLAGS_2; ++i)
+            if (target->GetUInt32Value(UNIT_FIELD_FLAGS_2) & unitFlags2[i].Value)
+                handler->PSendSysMessage("%s (0x%X)", unitFlags2[i].Name, unitFlags2[i].Value);
+
+        handler->PSendSysMessage(LANG_NPCINFO_UNIT_FIELD_FLAGS_3, target->GetUInt32Value(UNIT_FIELD_FLAGS_3));
+        for (uint8 i = 0; i < MAX_UNIT_FLAGS_3; ++i)
+            if (target->GetUInt32Value(UNIT_FIELD_FLAGS_3) & unitFlags3[i].Value)
+                handler->PSendSysMessage("%s (0x%X)", unitFlags3[i].Name, unitFlags3[i].Value);
+
+        handler->PSendSysMessage(LANG_NPCINFO_DYNAMIC_FLAGS, target->GetUInt32Value(OBJECT_DYNAMIC_FLAGS));
         handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
         handler->PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
         handler->PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
@@ -737,7 +775,8 @@ public:
             if (cInfo->flags_extra & flagsExtra[i].Value)
                 handler->PSendSysMessage("%s (0x%X)", flagsExtra[i].Name, flagsExtra[i].Value);
 
-        for (uint8 i = 0; i < NPCFLAG_COUNT; i++)
+        handler->PSendSysMessage(LANG_NPCINFO_NPC_FLAGS, npcflags);
+        for (uint8 i = 0; i < NPC_FLAG_COUNT; i++)
             if (npcflags & npcFlagTexts[i].Value)
                 handler->PSendSysMessage(npcFlagTexts[i].Name, npcFlagTexts[i].Value);
 
