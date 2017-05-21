@@ -317,6 +317,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
+    Optional<int16> levelScalingDelta;
     int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
@@ -736,7 +737,15 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool IsDungeonBoss() const;
 
-        uint8 getLevelForTarget(WorldObject const* target) const override; // overwrite Unit::getLevelForTarget for boss level support
+        bool HasScalableLevels() const;
+        uint8 GetLevelForTarget(WorldObject const* target) const override;
+
+        uint64 GetMaxHealthByLevel(uint8 level) const;
+        uint64 GetMaxHealthForTarget(WorldObject const* target) const;
+        float GetHealthMultiplierForTarget(WorldObject const* target) const;
+
+        float GetBaseDamageForLevel(uint8 level) const;
+        float GetDamageMultiplierForTarget(WorldObject const* target) const;
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }

@@ -1066,6 +1066,7 @@ class TC_GAME_API ObjectMgr
         void LoadCreatureTemplates();
         void LoadCreatureTemplateAddons();
         void LoadCreatureTemplate(Field* fields);
+        void LoadCreatureScalingDatas();
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
         void LoadGameObjectQuestItems();
         void LoadCreatureQuestItems();
