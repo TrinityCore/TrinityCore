@@ -187,6 +187,13 @@ LoginDatabase.WorkerThreads = 1
 #
 #    LoginDatabase.SynchThreads
 #        Description: The amount of MySQL connections spawned to handle.
+#        Default:     1
+
+LoginDatabase.SynchThreads = 1
+
+#
+#    LoginDatabase.SynchThreads
+#        Description: The amount of MySQL connections spawned to handle.
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 
 LoginDatabase.SynchThreads  = 1
