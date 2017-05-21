@@ -4615,7 +4615,7 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                if (aurEff->GetTickNumber() > 0 && aurEff->GetTickNumber() < 3)
+                if (aurEff->GetTickNumber() < 3)
                     caster->CastSpell(caster, SPELL_BLAST_WAVES_ONE_TICK, TRIGGERED_FULL_MASK, nullptr, aurEff);
 
                 if (aurEff->GetTickNumber() == 3)
@@ -4653,7 +4653,7 @@ class spell_gen_slag_behemoth_blast_waves_dummy_spells : public SpellScriptLoade
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_subjugator_korul_darkness_calls_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_slag_behemoth_blast_waves_dummy_spells_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
