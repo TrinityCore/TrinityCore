@@ -56,6 +56,7 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
 #include <google/protobuf/stubs/common.h>
+#include <iostream>
 #include <csignal>
 
 using namespace boost::program_options;
