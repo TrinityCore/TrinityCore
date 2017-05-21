@@ -114,6 +114,13 @@ public:
             instance = creature->GetInstanceScript();
         }
 
+        void InitializeAI() override
+        {
+            ScriptedAI::InitializeAI();
+
+            SeenAtiesh = false;
+        }
+
         void Initialize()
         {
             SecondarySpellTimer = 5000;
