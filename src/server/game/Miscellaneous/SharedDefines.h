@@ -947,6 +947,8 @@ enum CharacterFlags4 : uint32
     CHARACTER_FLAG_4_TRIAL_BOOST_LOCKED = 0x00040000,
 };
 
+#define PLAYER_CUSTOM_DISPLAY_SIZE 3
+
 enum CharacterSlot
 {
     SLOT_HEAD                          = 0,
@@ -2358,6 +2360,19 @@ enum GameObjectDynamicLowFlags
     GO_DYNFLAG_LO_SPARKLE           = 0x20,                 // makes GO sparkle
     GO_DYNFLAG_LO_STOPPED           = 0x40                  // Transport is stopped
 };
+
+// client side GO show states
+enum GOState : uint8
+{
+    GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
+    GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
+    GO_STATE_ACTIVE_ALTERNATIVE = 2,                        // show in world as used in alt way and not reset (closed door open by cannon fire)
+    GO_STATE_TRANSPORT_ACTIVE   = 24,
+    GO_STATE_TRANSPORT_STOPPED  = 25
+};
+
+#define MAX_GO_STATE              3
+#define MAX_GO_STATE_TRANSPORT_STOP_FRAMES 9
 
 enum GameObjectDestructibleState
 {

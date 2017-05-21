@@ -784,14 +784,6 @@ enum PartyOperation
     PARTY_OP_SWAP     = 4
 };
 
-enum BarberShopResult
-{
-    BARBER_SHOP_RESULT_SUCCESS      = 0,
-    BARBER_SHOP_RESULT_NO_MONEY     = 1,
-    BARBER_SHOP_RESULT_NOT_ON_CHAIR = 2,
-    BARBER_SHOP_RESULT_NO_MONEY_2   = 3
-};
-
 enum BFLeaveReason
 {
     BF_LEAVE_REASON_CLOSE     = 1,
@@ -1125,7 +1117,6 @@ class TC_GAME_API WorldSession
         void SendCharCustomize(ResponseCodes result, WorldPackets::Character::CharCustomizeInfo const* customizeInfo);
         void SendCharFactionChange(ResponseCodes result, WorldPackets::Character::CharRaceOrFactionChangeInfo const* factionChangeInfo);
         void SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, ObjectGuid guid);
-        void SendBarberShopResult(BarberShopResult result);
         void SendUndeleteCooldownStatusResponse(uint32 currentCooldown, uint32 maxCooldown);
         void SendUndeleteCharacterResponse(CharacterUndeleteResult result, WorldPackets::Character::CharacterUndeleteInfo const* undeleteInfo);
 

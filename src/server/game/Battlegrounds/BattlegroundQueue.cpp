@@ -23,8 +23,9 @@
 #include "BattlegroundPackets.h"
 #include "Chat.h"
 #include "Group.h"
-#include "Log.h"
 #include "Language.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "World.h"
 

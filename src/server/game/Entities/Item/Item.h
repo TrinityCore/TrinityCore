@@ -45,7 +45,7 @@ struct ItemSetEffect
     std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
 };
 
-enum InventoryResult
+enum InventoryResult : uint8
 {
     EQUIP_ERR_OK                                           = 0,
     EQUIP_ERR_CANT_EQUIP_LEVEL_I                           = 1,  // You must reach level %d to use that item.

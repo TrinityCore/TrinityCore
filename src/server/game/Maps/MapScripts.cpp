@@ -25,7 +25,6 @@
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
 #include "WaypointManager.h"
@@ -703,7 +702,7 @@ void Map::ScriptsProcess()
                         break;
                     case SF_CASTSPELL_SEARCH_CREATURE: // source -> creature with entry
                         uSource = source ? source->ToUnit() : NULL;
-                        uTarget = uSource ? GetClosestCreatureWithEntry(uSource, abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : NULL;
+                        uTarget = uSource ? uSource->FindNearestCreature(abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : NULL;
                         break;
                 }
 

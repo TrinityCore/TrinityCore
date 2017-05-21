@@ -20,6 +20,7 @@
 #include "Guild.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include "World.h"
 
 GuildMgr::GuildMgr() : NextGuildId(UI64LIT(1))
 {

@@ -257,7 +257,7 @@ enum CriteriaFlags
     CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020    // Displays counter as money
 };
 
-enum CriteriaTimedTypes
+enum CriteriaTimedTypes : uint8
 {
     CRITERIA_TIMED_TYPE_EVENT           = 1,    // Timer is started by internal event with id in timerStartEvent
     CRITERIA_TIMED_TYPE_QUEST           = 2,    // Timer is started by accepting quest with entry in timerStartEvent
@@ -272,7 +272,7 @@ enum CriteriaTimedTypes
     CRITERIA_TIMED_TYPE_MAX
 };
 
-enum CriteriaTypes
+enum CriteriaTypes : uint8
 {
     CRITERIA_TYPE_KILL_CREATURE                         = 0,
     CRITERIA_TYPE_WIN_BG                                = 1,
@@ -796,6 +796,9 @@ enum SpellCategoryFlags
     SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
 };
 
+#define MAX_SPELL_EFFECTS 32
+#define MAX_EFFECT_MASK 0xFFFFFFFF
+
 enum SpellProcsPerMinuteModType
 {
     SPELL_PPM_MOD_HASTE         = 1,
@@ -889,6 +892,9 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK20           = 0x00080000,
     SUMMON_PROP_FLAG_UNK21           = 0x00100000           // Totems
 };
+
+#define MAX_TALENT_TIERS 7
+#define MAX_TALENT_COLUMNS 3
 
 enum TaxiNodeFlags
 {

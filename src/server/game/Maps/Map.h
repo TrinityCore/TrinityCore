@@ -28,7 +28,6 @@
 #include "GridRefManager.h"
 #include "MapRefManager.h"
 #include "DynamicTree.h"
-#include "GameObjectModel.h"
 #include "ObjectGuid.h"
 
 #include <bitset>
@@ -41,6 +40,7 @@
 class Battleground;
 class BattlegroundMap;
 class CreatureGroup;
+class GameObjectModel;
 class Group;
 class InstanceMap;
 class InstanceSave;

@@ -105,10 +105,7 @@ WorldPacket const* WorldPackets::NPC::TrainerList::Write()
         _worldPacket << spell.MoneyCost;
         _worldPacket << spell.ReqSkillLine;
         _worldPacket << spell.ReqSkillRank;
-
-        for (uint32 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
-            _worldPacket << spell.ReqAbility[i];
-
+        _worldPacket.append(spell.ReqAbility.data(), spell.ReqAbility.size());
         _worldPacket << spell.Usable;
         _worldPacket << spell.ReqLevel;
     }

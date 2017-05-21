@@ -130,7 +130,7 @@ enum SpellModOp
 
 #define MAX_SPELLMOD 39
 
-enum SpellValueMod
+enum SpellValueMod : uint8
 {
     SPELLVALUE_BASE_POINT0,
     SPELLVALUE_BASE_POINT1,
@@ -263,36 +263,6 @@ enum VictimState
     VICTIMSTATE_DEFLECTS       = 8
 };
 
-enum HitInfo
-{
-    HITINFO_NORMALSWING         = 0x00000000,
-    HITINFO_UNK1                = 0x00000001,               // req correct packet structure
-    HITINFO_AFFECTS_VICTIM      = 0x00000002,
-    HITINFO_OFFHAND             = 0x00000004,
-    HITINFO_UNK2                = 0x00000008,
-    HITINFO_MISS                = 0x00000010,
-    HITINFO_FULL_ABSORB         = 0x00000020,
-    HITINFO_PARTIAL_ABSORB      = 0x00000040,
-    HITINFO_FULL_RESIST         = 0x00000080,
-    HITINFO_PARTIAL_RESIST      = 0x00000100,
-    HITINFO_CRITICALHIT         = 0x00000200,               // critical hit
-    HITINFO_UNK10               = 0x00000400,
-    HITINFO_UNK11               = 0x00000800,
-    HITINFO_UNK12               = 0x00001000,
-    HITINFO_BLOCK               = 0x00002000,               // blocked damage
-    HITINFO_UNK14               = 0x00004000,               // set only if meleespellid is present//  no world text when victim is hit for 0 dmg(HideWorldTextForNoDamage?)
-    HITINFO_UNK15               = 0x00008000,               // player victim?// something related to blod sprut visual (BloodSpurtInBack?)
-    HITINFO_GLANCING            = 0x00010000,
-    HITINFO_CRUSHING            = 0x00020000,
-    HITINFO_NO_ANIMATION        = 0x00040000,
-    HITINFO_UNK19               = 0x00080000,
-    HITINFO_UNK20               = 0x00100000,
-    HITINFO_SWINGNOHITSOUND     = 0x00200000,               // unused?
-    HITINFO_UNK22               = 0x00400000,
-    HITINFO_RAGE_GAIN           = 0x00800000,
-    HITINFO_FAKE_DAMAGE         = 0x01000000                // enables damage animation even if no damage done, set only if no damage
-};
-
 //i would like to remove this: (it is defined in item.h
 enum InventorySlot
 {
@@ -367,17 +337,7 @@ enum WeaponDamageRange
     MAXDAMAGE
 };
 
-enum AuraRemoveMode
-{
-    AURA_REMOVE_NONE = 0,
-    AURA_REMOVE_BY_DEFAULT = 1,       // scripted remove, remove by stack with aura with different ids and sc aura remove
-    AURA_REMOVE_BY_CANCEL,
-    AURA_REMOVE_BY_ENEMY_SPELL,       // dispel and absorb aura destroy
-    AURA_REMOVE_BY_EXPIRE,            // aura duration has ended
-    AURA_REMOVE_BY_DEATH
-};
-
-enum TriggerCastFlags
+enum TriggerCastFlags : uint32
 {
     TRIGGERED_NONE                                  = 0x00000000,   //! Not triggered
     TRIGGERED_IGNORE_GCD                            = 0x00000001,   //! Will ignore GCD
@@ -587,7 +547,7 @@ enum CombatRating
 
 #define MAX_COMBAT_RATING         32
 
-enum DamageEffectType
+enum DamageEffectType : uint8
 {
     DIRECT_DAMAGE           = 0,                            // used for normal weapon damage (not for class abilities or spells)
     SPELL_DIRECT_DAMAGE     = 1,                            // spell/class abilities damage
@@ -848,7 +808,7 @@ struct RedirectThreatInfo
     }
 };
 
-enum CurrentSpellTypes
+enum CurrentSpellTypes : uint8
 {
     CURRENT_MELEE_SPELL             = 0,
     CURRENT_GENERIC_SPELL           = 1,
@@ -2210,4 +2170,10 @@ namespace Trinity
             bool const _ascending;
     };
 }
+
+inline void SetUnitCurrentCastSpell(Unit* unit, Spell* spell)
+{
+    unit->SetCurrentCastSpell(spell);
+}
+
 #endif

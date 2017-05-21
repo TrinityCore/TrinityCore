@@ -29,6 +29,8 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Language.h"
 #include "MapManager.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 

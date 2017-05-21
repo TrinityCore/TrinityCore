@@ -25,6 +25,7 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "PetitionPackets.h"
+#include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <sstream>
