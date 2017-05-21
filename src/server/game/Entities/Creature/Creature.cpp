@@ -422,19 +422,20 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     setFaction(cInfo->faction);
 
-    uint32 unit_flags, dynamicflags;
-    uint64 npcflag;
-    ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, unit_flags, dynamicflags, data);
+    uint64 npcFlags;
+    uint32 unitFlags, unitFlags2, unitFlags3, dynamicFlags;
+    ObjectMgr::ChooseCreatureFlags(cInfo, npcFlags, unitFlags, unitFlags2, unitFlags3, dynamicFlags, data);
 
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
-        SetUInt64Value(UNIT_NPC_FLAGS, npcflag | sGameEventMgr->GetNPCFlag(this));
+        SetUInt64Value(UNIT_NPC_FLAGS, npcFlags | sGameEventMgr->GetNPCFlag(this));
     else
-        SetUInt64Value(UNIT_NPC_FLAGS, npcflag);
+        SetUInt64Value(UNIT_NPC_FLAGS, npcFlags);
 
-    SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
-    SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
+    SetUInt32Value(UNIT_FIELD_FLAGS, unitFlags);
+    SetUInt32Value(UNIT_FIELD_FLAGS_2, unitFlags2);
+    SetUInt32Value(UNIT_FIELD_FLAGS_3, unitFlags3);
 
-    SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicflags);
+    SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicFlags);
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
@@ -1083,7 +1084,9 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
 
     uint32 displayId = GetNativeDisplayId();
     uint64 npcflag = GetUInt64Value(UNIT_NPC_FLAGS);
-    uint32 unit_flags = GetUInt32Value(UNIT_FIELD_FLAGS);
+    uint32 unitFlags = GetUInt32Value(UNIT_FIELD_FLAGS);
+    uint32 unitFlags2 = GetUInt32Value(UNIT_FIELD_FLAGS_2);
+    uint32 unitFlags3 = GetUInt32Value(UNIT_FIELD_FLAGS_3);
     uint32 dynamicflags = GetUInt32Value(OBJECT_DYNAMIC_FLAGS);
 
     // check if it's a custom model and if not, use 0 for displayId
@@ -1097,8 +1100,14 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
         if (npcflag == cinfo->npcflag)
             npcflag = 0;
 
-        if (unit_flags == cinfo->unit_flags)
-            unit_flags = 0;
+        if (unitFlags == cinfo->unit_flags)
+            unitFlags = 0;
+
+        if (unitFlags2 == cinfo->unit_flags2)
+            unitFlags2 = 0;
+
+        if (unitFlags3 == cinfo->unit_flags3)
+            unitFlags3 = 0;
 
         if (dynamicflags == cinfo->dynamicflags)
             dynamicflags = 0;
@@ -1136,7 +1145,9 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
         ? IDLE_MOTION_TYPE : GetDefaultMovementType();
     data.spawnMask = spawnMask;
     data.npcflag = npcflag;
-    data.unit_flags = unit_flags;
+    data.unit_flags = unitFlags;
+    data.unit_flags2 = unitFlags2;
+    data.unit_flags3 = unitFlags3;
     data.dynamicflags = dynamicflags;
 
     data.phaseid = GetDBPhase() > 0 ? GetDBPhase() : 0;
@@ -1171,7 +1182,9 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     stmt->setUInt32(index++, GetPower(POWER_MANA));
     stmt->setUInt8(index++, uint8(GetDefaultMovementType()));
     stmt->setUInt64(index++, npcflag);
-    stmt->setUInt32(index++, unit_flags);
+    stmt->setUInt32(index++, unitFlags);
+    stmt->setUInt32(index++, unitFlags2);
+    stmt->setUInt32(index++, unitFlags3);
     stmt->setUInt32(index++, dynamicflags);
     trans->Append(stmt);
 
@@ -1722,19 +1735,25 @@ void Creature::setDeathState(DeathState s)
         if (!IsPet())
         {
             CreatureData const* creatureData = GetCreatureData();
-            CreatureTemplate const* cinfo = GetCreatureTemplate();
+            CreatureTemplate const* cInfo = GetCreatureTemplate();
 
-            uint64 npcflag;
-            uint32 unit_flags, dynamicflags;
-            ObjectMgr::ChooseCreatureFlags(cinfo, npcflag, unit_flags, dynamicflags, creatureData);
+            uint64 npcFlags;
+            uint32 unitFlags, unitFlags2, unitFlags3, dynamicFlags;
+            ObjectMgr::ChooseCreatureFlags(cInfo, npcFlags, unitFlags, unitFlags2, unitFlags3, dynamicFlags, creatureData);
 
-            SetUInt64Value(UNIT_NPC_FLAGS, npcflag);
-            SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
-            SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicflags);
+            if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
+                SetUInt64Value(UNIT_NPC_FLAGS, npcFlags | sGameEventMgr->GetNPCFlag(this));
+            else
+                SetUInt64Value(UNIT_NPC_FLAGS, npcFlags);
+
+            SetUInt32Value(UNIT_FIELD_FLAGS, unitFlags);
+            SetUInt32Value(UNIT_FIELD_FLAGS_2, unitFlags2);
+            SetUInt32Value(UNIT_FIELD_FLAGS_3, unitFlags3);
+            SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicFlags);
 
             RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-            SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
+            SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
         }
 
         Motion_Initialize();

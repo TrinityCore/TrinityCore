@@ -153,7 +153,7 @@ enum UnitFlags : uint32
     UNIT_FLAG_UNK_29                = 0x20000000,           // used in Feing Death spell
     UNIT_FLAG_SHEATHE               = 0x40000000,
     UNIT_FLAG_UNK_31                = 0x80000000,
-    MAX_UNIT_FLAGS = 33
+    MAX_UNIT_FLAGS = 32
 };
 
 // Value masks for UNIT_FIELD_FLAGS_2
@@ -177,7 +177,15 @@ enum UnitFlags2 : uint32
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
     UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,   // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
-    UNIT_FLAG2_NO_ACTIONS                   = 0x00800000
+    UNIT_FLAG2_NO_ACTIONS                   = 0x00800000,
+    MAX_UNIT_FLAGS_2 = 19
+};
+
+// Value masks for UNIT_FIELD_FLAGS_3
+enum UnitFlags3 : uint32
+{
+    UNIT_FLAG3_UNK1                         = 0x00000001,
+    MAX_UNIT_FLAGS_3 = 1
 };
 
 /// Non Player Character flags
