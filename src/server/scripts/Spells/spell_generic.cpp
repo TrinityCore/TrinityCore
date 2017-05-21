@@ -4619,7 +4619,7 @@ public:
                     caster->CastSpell(caster, SPELL_BLAST_WAVES_ONE_TICK, TRIGGERED_FULL_MASK, nullptr, aurEff);
 
                 if (aurEff->GetTickNumber() == 3)
-                    caster->CastSpell(GetTarget(), SPELL_BLAST_WAVES_THREE_TICK, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                    caster->CastSpell(caster, SPELL_BLAST_WAVES_THREE_TICK, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
         }
 
