@@ -299,6 +299,7 @@ const uint32 MAX_CREATURE_MODELS = 4;
 const uint32 MAX_CREATURE_NAMES = 4;
 const uint32 MAX_CREATURE_SPELLS = 8;
 const uint32 MAX_CREATURE_DIFFICULTIES = 3;
+const uint8  MAX_SCRIPT_PARAM = 1;
 
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
@@ -368,6 +369,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
+    uint32  ScriptParam[MAX_SCRIPT_PARAM];
     uint32  GetRandomValidModelId() const;
     uint32  GetFirstValidModelId() const;
     uint32  GetFirstInvisibleModel() const;
@@ -513,7 +515,11 @@ struct CreatureData
                      posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
                      spawndist(0.0f), currentwaypoint(0), curhealth(0), curmana(0), movementType(0),
                      spawnMask(0), npcflag(0), unit_flags(0), unit_flags2(0), unit_flags3(0), dynamicflags(0),
-                     phaseid(0), phaseGroup(0), dbData(true) { }
+                     phaseid(0), phaseGroup(0), dbData(true)
+    {
+        memset(&ScriptParam, 0, sizeof(uint32) * MAX_SCRIPT_PARAM);
+    }
+
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
     uint32 phaseMask;
@@ -538,6 +544,7 @@ struct CreatureData
     uint32 phaseid;
     uint32 phaseGroup;
     uint32 ScriptId;
+    uint32 ScriptParam[MAX_SCRIPT_PARAM];
     bool dbData;
 };
 
@@ -785,6 +792,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         std::string GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
+        uint32 GetScriptParam(uint8 index) const;
 
         // override WorldObject function for proper name localization
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;

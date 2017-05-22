@@ -2534,6 +2534,31 @@ public:
     }
 };
 
+class npc_creature_damage_limit : public CreatureScript
+{
+public:
+    npc_creature_damage_limit() : CreatureScript("npc_creature_damage_limit") { }
+
+    struct npc_creature_damage_limitAI : public ScriptedAI
+    {
+        npc_creature_damage_limitAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void DamageTaken(Unit* doneBy, uint32& damage) override
+        {
+            uint32 healthPctLimit = me->GetScriptParam(0);
+
+            if (doneBy->GetTypeId() == TYPEID_UNIT)
+                if (me->HealthBelowPctDamaged(healthPctLimit, damage))
+                    damage = 0;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_creature_damage_limitAI(creature);
+    }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2558,4 +2583,5 @@ void AddSC_npcs_special()
     new npc_imp_in_a_ball();
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
+    new npc_creature_damage_limit();
 }

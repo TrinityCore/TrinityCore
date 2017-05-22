@@ -431,8 +431,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                        65           66           67              68                   69            70                 71             72              73
                                              "InhabitType, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
-    //                                        74            75          76           77                    78           79
-                                             "RacialLeader, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName FROM creature_template");
+    //                                        74            75          76           77                    78           79               80
+                                             "RacialLeader, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName, ScriptParam0 FROM creature_template");
 
     if (!result)
     {
@@ -538,6 +538,9 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.MechanicImmuneMask     = fields[77].GetUInt32();
     creatureTemplate.flags_extra            = fields[78].GetUInt32();
     creatureTemplate.ScriptID               = GetScriptId(fields[79].GetString());
+
+    for (uint8 i = 0; i < MAX_SCRIPT_PARAM; ++i)
+        creatureTemplate.ScriptParam[i] = fields[80 + i].GetUInt32();
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()
@@ -1857,8 +1860,8 @@ void ObjectMgr::LoadCreatures()
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid, equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, "
     //   11               12         13       14            15         16          17          18                19                   20                    21
         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.unit_flags2, creature.unit_flags3, "
-    //   22                     23                24                   25
-        "creature.dynamicflags, creature.phaseid, creature.phasegroup, creature.ScriptName "
+    //   22                     23                24                   25                   26
+        "creature.dynamicflags, creature.phaseid, creature.phasegroup, creature.ScriptName, creature.ScriptParam0 "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
@@ -1918,6 +1921,15 @@ void ObjectMgr::LoadCreatures()
         data.phaseid        = fields[23].GetUInt32();
         data.phaseGroup     = fields[24].GetUInt32();
         data.ScriptId       = GetScriptId(fields[25].GetString());
+
+        for (uint8 i = 0; i < MAX_SCRIPT_PARAM; ++i)
+        {
+            data.ScriptParam[i] = fields[26 + i].GetUInt32();
+
+            if (!data.ScriptParam[i])
+                data.ScriptParam[i] = cInfo->ScriptParam[i];
+        }
+
         if (!data.ScriptId)
             data.ScriptId = cInfo->ScriptID;
 
