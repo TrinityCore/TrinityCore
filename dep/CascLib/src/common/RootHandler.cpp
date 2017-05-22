@@ -81,7 +81,7 @@ DWORD RootHandler_GetFileId(TRootHandler * pRootHandler, const char * szFileName
 {
     // Check if the root structure is valid at all
     if(pRootHandler == NULL)
-        return NULL;
+        return 0;
 
     return pRootHandler->GetFileId(pRootHandler, szFileName);
 }

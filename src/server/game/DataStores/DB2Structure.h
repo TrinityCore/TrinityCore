@@ -2402,9 +2402,6 @@ struct SpellEffectEntry
     float PvPMultiplier;
 };
 
-#define MAX_SPELL_EFFECTS 32
-#define MAX_EFFECT_MASK 0xFFFFFFFF
-
 struct SpellEffectScalingEntry
 {
     uint32 ID;
@@ -2688,9 +2685,6 @@ struct TactKeyEntry
     uint32 ID;
     uint8 Key[TACTKEY_SIZE];
 };
-
-#define MAX_TALENT_TIERS 7
-#define MAX_TALENT_COLUMNS 3
 
 struct TalentEntry
 {

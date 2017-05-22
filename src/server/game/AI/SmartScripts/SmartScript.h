@@ -103,7 +103,7 @@ class TC_GAME_API SmartScript
             if (p >= 0)
                 mEventPhase += (uint32)p;
             else
-                DecPhase(abs(p));
+                DecPhase(-p);
         }
 
         void DecPhase(int32 p = 1)

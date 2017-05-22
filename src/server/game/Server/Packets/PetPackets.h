@@ -19,11 +19,11 @@
 #define PetPackets_h__
 
 #include "Packet.h"
-#include "PacketUtilities.h"
+#include "Position.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
-#include "Unit.h"
-#include "WorldSession.h"
+#include "UnitDefines.h"
+#include <array>
 
 namespace WorldPackets
 {
@@ -159,7 +159,6 @@ namespace WorldPackets
 
             std::vector<uint32> Spells;
         };
-
 
         struct PetRenameData
         {

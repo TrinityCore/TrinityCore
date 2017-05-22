@@ -25,9 +25,10 @@ EndScriptData */
 
 #include "ScriptedFollowerAI.h"
 #include "Log.h"
+#include "Group.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "Group.h"
 
 const float MAX_PLAYER_DISTANCE = 100.0f;
 

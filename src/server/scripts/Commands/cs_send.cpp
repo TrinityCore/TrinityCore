@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
+#include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 
 class send_commandscript : public CommandScript
 {

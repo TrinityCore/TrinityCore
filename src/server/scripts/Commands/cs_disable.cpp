@@ -22,6 +22,7 @@ Comment: All disable related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "CriteriaHandler.h"
 #include "DatabaseEnv.h"
@@ -30,7 +31,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 #include "SpellMgr.h"
 
 class disable_commandscript : public CommandScript

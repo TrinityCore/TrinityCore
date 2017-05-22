@@ -20,6 +20,7 @@
 #include "WorldPacket.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
+#include "GameObject.h"
 #include "Language.h"
 #include "Log.h"
 #include "Player.h"

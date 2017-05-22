@@ -16,7 +16,7 @@
  */
 
 #include "CombatPackets.h"
-#include "SpellPackets.h"
+#include "Unit.h"
 
 void WorldPackets::Combat::AttackSwing::Read()
 {

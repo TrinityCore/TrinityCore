@@ -1098,6 +1098,14 @@ bool GameObject::IsInvisibleDueToDespawn() const
     return false;
 }
 
+uint8 GameObject::getLevelForTarget(WorldObject const* target) const
+{
+    if (Unit* owner = GetOwner())
+        return owner->getLevelForTarget(target);
+
+    return 1;
+}
+
 void GameObject::Respawn()
 {
     if (m_spawnedByDefault && m_respawnTime > 0)

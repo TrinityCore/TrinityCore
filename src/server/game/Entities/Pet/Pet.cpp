@@ -24,6 +24,8 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "PetPackets.h"
+#include "Player.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellHistory.h"

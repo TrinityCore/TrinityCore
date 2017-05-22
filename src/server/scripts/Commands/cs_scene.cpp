@@ -18,8 +18,9 @@
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "Language.h"
-#include "Player.h"
 #include "ObjectMgr.h"
+#include "Player.h"
+#include "RBAC.h"
 
 class scene_commandscript : public CommandScript
 {

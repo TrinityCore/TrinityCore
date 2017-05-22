@@ -16,7 +16,9 @@
  */
 
 #include "RestMgr.h"
+#include "Log.h"
 #include "Player.h"
+#include "World.h"
 
 RestMgr::RestMgr(Player* player) : RestTime(0), InnTriggerID(0), RestFlagMask(0), _player(player)
 {

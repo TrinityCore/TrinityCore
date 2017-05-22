@@ -22,6 +22,8 @@
 #include "Common.h"
 #include "GridReference.h"
 #include "GridRefManager.h"
+#include "MovementInfo.h"
+#include "ObjectDefines.h"
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "SharedDefines.h"
@@ -30,51 +32,6 @@
 #include <list>
 #include <set>
 #include <unordered_map>
-
-#define CONTACT_DISTANCE            0.5f
-#define INTERACTION_DISTANCE        5.0f
-#define ATTACK_DISTANCE             5.0f
-#define INSPECT_DISTANCE            28.0f
-#define TRADE_DISTANCE              11.11f
-#define MAX_VISIBILITY_DISTANCE     SIZE_OF_GRIDS           // max distance for visible objects
-#define SIGHT_RANGE_UNIT            50.0f
-#define DEFAULT_VISIBILITY_DISTANCE 90.0f                   // default visible distance, 90 yards on continents
-#define DEFAULT_VISIBILITY_INSTANCE 170.0f                  // default visible distance in instances, 170 yards
-#define DEFAULT_VISIBILITY_BGARENAS 533.0f                  // default visible distance in BG/Arenas, roughly 533 yards
-
-#define DEFAULT_WORLD_OBJECT_SIZE   0.388999998569489f      // player size, also currently used (correctly?) for any non Unit world objects
-#define DEFAULT_COMBAT_REACH        1.5f
-#define MIN_MELEE_REACH             2.0f
-#define NOMINAL_MELEE_RANGE         5.0f
-#define MELEE_RANGE                 (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
-
-#define DEFAULT_PHASE               169
-
-enum TempSummonType
-{
-    TEMPSUMMON_TIMED_OR_DEAD_DESPAWN       = 1,             // despawns after a specified time OR when the creature disappears
-    TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN     = 2,             // despawns after a specified time OR when the creature dies
-    TEMPSUMMON_TIMED_DESPAWN               = 3,             // despawns after a specified time
-    TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT = 4,             // despawns after a specified time after the creature is out of combat
-    TEMPSUMMON_CORPSE_DESPAWN              = 5,             // despawns instantly after death
-    TEMPSUMMON_CORPSE_TIMED_DESPAWN        = 6,             // despawns after a specified time after death
-    TEMPSUMMON_DEAD_DESPAWN                = 7,             // despawns when the creature disappears
-    TEMPSUMMON_MANUAL_DESPAWN              = 8              // despawns when UnSummon() is called
-};
-
-enum PhaseMasks
-{
-    PHASEMASK_NORMAL   = 0x00000001,
-    PHASEMASK_ANYWHERE = 0xFFFFFFFF
-};
-
-enum NotifyFlags
-{
-    NOTIFY_NONE                     = 0x00,
-    NOTIFY_AI_RELOCATION            = 0x01,
-    NOTIFY_VISIBILITY_CHANGED       = 0x02,
-    NOTIFY_ALL                      = 0xFF
-};
 
 class AreaTrigger;
 class Conversation;
@@ -377,93 +334,6 @@ class TC_GAME_API Object
         bool PrintIndexError(uint32 index, bool set) const;
         Object(Object const& right) = delete;
         Object& operator=(Object const& right) = delete;
-};
-
-struct MovementInfo
-{
-    // common
-    ObjectGuid guid;
-    uint32 flags;
-    uint32 flags2;
-    Position pos;
-    uint32 time;
-
-    // transport
-    struct TransportInfo
-    {
-        void Reset()
-        {
-            guid.Clear();
-            pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-            seat = -1;
-            time = 0;
-            prevTime = 0;
-            vehicleId = 0;
-        }
-
-        ObjectGuid guid;
-        Position pos;
-        int8 seat;
-        uint32 time;
-        uint32 prevTime;
-        uint32 vehicleId;
-    } transport;
-
-    // swimming/flying
-    float pitch;
-
-    // jumping
-    struct JumpInfo
-    {
-        void Reset()
-        {
-            fallTime = 0;
-            zspeed = sinAngle = cosAngle = xyspeed = 0.0f;
-        }
-
-        uint32 fallTime;
-
-        float zspeed, sinAngle, cosAngle, xyspeed;
-
-    } jump;
-
-    // spline
-    float splineElevation;
-
-    MovementInfo() :
-        flags(0), flags2(0), time(0), pitch(0.0f), splineElevation(0.0f)
-    {
-        pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
-        transport.Reset();
-        jump.Reset();
-    }
-
-    uint32 GetMovementFlags() const { return flags; }
-    void SetMovementFlags(uint32 flag) { flags = flag; }
-    void AddMovementFlag(uint32 flag) { flags |= flag; }
-    void RemoveMovementFlag(uint32 flag) { flags &= ~flag; }
-    bool HasMovementFlag(uint32 flag) const { return (flags & flag) != 0; }
-
-    uint32 GetExtraMovementFlags() const { return flags2; }
-    void SetExtraMovementFlags(uint32 flag) { flags2 = flag; }
-    void AddExtraMovementFlag(uint32 flag) { flags2 |= flag; }
-    void RemoveExtraMovementFlag(uint32 flag) { flags2 &= ~flag; }
-    bool HasExtraMovementFlag(uint32 flag) const { return (flags2 & flag) != 0; }
-
-    uint32 GetFallTime() const { return jump.fallTime; }
-    void SetFallTime(uint32 fallTime) { jump.fallTime = fallTime; }
-
-    void ResetTransport()
-    {
-        transport.Reset();
-    }
-
-    void ResetJump()
-    {
-        jump.Reset();
-    }
-
-    void OutDebug();
 };
 
 template<class T>
