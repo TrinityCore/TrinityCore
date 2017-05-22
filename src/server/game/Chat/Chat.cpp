@@ -248,14 +248,22 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
 
     for (uint32 i = 0; i < table.size(); ++i)
     {
+        if (table[i].Name == nullptr)
+            continue;
+
         if (!hasStringAbbr(table[i].Name, cmd.c_str()))
             continue;
 
+        // prevent conflicts between commands with the same initial string
+        // e.g. additem vs additemset
         bool match = false;
         if (strlen(table[i].Name) > cmd.length())
         {
             for (uint32 j = 0; j < table.size(); ++j)
             {
+                if (table[j].Name == nullptr)
+                    continue;
+
                 if (!hasStringAbbr(table[j].Name, cmd.c_str()))
                     continue;
 
