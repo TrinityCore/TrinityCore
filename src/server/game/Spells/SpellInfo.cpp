@@ -3337,8 +3337,8 @@ void SpellInfo::_InitializeExplicitTargetMask()
 
 bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
 {
-    // not found a single positive spell with this attribute
-    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1))
+    // not found a single positive spell with these attributes
+    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1) || HasAttribute(SPELL_ATTR6_HARMFUL_SPELL_EFFECTS))
         return false;
 
     switch (SpellFamilyName)
