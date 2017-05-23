@@ -11,7 +11,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 
 -- Reposition Some spawns for master
 DELETE FROM `gameobject` WHERE `id` IN (201704,201705,201706);
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `PhaseId`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (217396, 201704, 0, 0, 0, 1, 169, 0, -6114.495, 379.6945, 396.4621, 0, 0, 0, 0, 1, 120, 255, 1, 23877),
 (217370, 201705, 0, 0, 0, 1, 169, 0, -6116.972, 379.0938, 395.5426, 1.167404, 0, 0, 0.5511169, 0.834428, 120, 255, 1, 23877),
 (217394, 201706, 0, 0, 0, 1, 169, 0, -6113.611, 376.7361, 395.5426, 0, 0, 0, 0, 1, 120, 255, 1, 23877);
