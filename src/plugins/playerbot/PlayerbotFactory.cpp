@@ -62,16 +62,26 @@ void PlayerbotFactory::Prepare()
 {
     if (!itemQuality)
     {
-        if (level <= 10)
-            itemQuality = urand(ITEM_QUALITY_NORMAL, ITEM_QUALITY_UNCOMMON);
-        else if (level <= 20)
-            itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_RARE);
-        else if (level <= 40)
-            itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
-        else if (level < 60)
-            itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
-        else
-            itemQuality = urand(ITEM_QUALITY_RARE, ITEM_QUALITY_EPIC);
+				if (level <= 10)
+					itemQuality = urand(ITEM_QUALITY_NORMAL, ITEM_QUALITY_UNCOMMON);
+				else if (level <= 15)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_RARE);
+				else if (level <= 20)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_RARE);
+				else if (level <= 30)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_RARE);
+				else if (level <= 40)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
+				else if (level < 60)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
+				else if (level < 65)
+					itemQuality = urand(ITEM_QUALITY_RARE, ITEM_QUALITY_EPIC);
+				else if (level < 70)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
+				else if (level < 79)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
+				 else
+					itemQuality = urand(ITEM_QUALITY_RARE, ITEM_QUALITY_EPIC);
     }
 
     if (bot->isDead())
@@ -355,7 +365,13 @@ bool PlayerbotFactory::CanEquipArmor(ItemTemplate const* proto)
 
     if (proto->Quality <= ITEM_QUALITY_NORMAL)
         return true;
-
+	//Lidocain//
+	//sph - spellpower healer,
+	//spd - spellpower dps,
+	//apa - attackpower based on agility, 
+	//aps - attackpower based on strenght,
+	//apr - attackpower based on ranged (agility),
+	//tank - tank
     uint8 sph = 0, spd = 0, apa = 0, aps = 0, apr = 0, tank = 0;
     for (int j = 0; j < MAX_ITEM_PROTO_STATS; ++j)
     {
@@ -375,52 +391,90 @@ bool PlayerbotFactory::CanEquipArmor(ItemTemplate const* proto)
 
 		uint8 tab = AiFactory::GetPlayerSpecTab(bot);
 
-    switch (bot->getClass())
-    {
+		switch (bot->getClass())
+		{
 
-	case CLASS_PRIEST:
-	
-	
-		
-			if ((tab != 0) && (!sph || apa > sph || aps > sph || apr > sph || tank > sph || spd > sph))
-				return false;	
-			else if (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd)
+		case CLASS_PRIEST:
+
+
+
+			if (tab == 1)
+			{
+
+				if (!sph || apa > sph || aps > sph || apr > sph || tank > sph || spd > sph)
+					return false;
+			}
+			else if (tab == 0)
+			{
+				if (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd)
+					return false;
+			}
+			else if (tab == 2)
+			{
+				if (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd)
+					return false;
+			}
+			break;
+
+		case CLASS_MAGE:
+		case CLASS_WARLOCK:
+			if (!spd || sph > spd || aps > spd || apr > spd || tank > spd || apa > spd)
 				return false;
 			break;
-		
-    case CLASS_MAGE:	
-    case CLASS_WARLOCK:
-		if (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd)
-            return false;
-        break;
-		
-    case CLASS_PALADIN:
-	
-			if ((tab != 0) && (!sph || apa > sph || aps > sph || apr > sph || tank > sph || spd > sph))
-				return false;
-			else if ((tab != 1) && (!tank || apa > tank || spd > tank || apr > tank || aps > tank || sph > tank))
-				return false;
-			 else if ((tab != 2) && (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps))
-				return false;
+
+		case CLASS_PALADIN:
+
+			if
+				(tab == 0)
+			{
+				if (!sph || spd > sph || aps > sph || apr > sph || tank > sph || apa > sph)
+					return false;
+			}
+
+			else if (tab == 1)
+			{
+				if (!tank || aps > tank || spd > tank || apr > tank || apa > tank || sph > tank)
+					return false;
+			}
+			else if (tab == 2)
+			{
+				if (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps)
+					return false;
+			}
 			break;
-		
-    case CLASS_WARRIOR:
-	
-		 if ((tab != 2) && (!tank || apa > tank || spd > tank || apr > tank || aps > tank || sph > tank))
-			return false;
-		else if ((tab != 0) && (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps))
-			return false;
-		else if ((tab != 1) && (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps))
-			return false;
+
+		case CLASS_WARRIOR:
+
+			if (tab == 2)
+			{
+				if (!tank || apa > tank || spd > tank || apr > tank || aps > tank || sph > tank)
+					return false;
+			}
+			else if (tab == 0)
+			{
+				if (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps)
+				return false;
+			}
+			else if (tab == 1)
+			{
+				if (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps)
+				return false;
+			}
 		break;
 	
 	case CLASS_DEATH_KNIGHT:
 	
 
-		 if ((tab != 0) && (!tank || apa > tank || spd > tank || apr > tank || aps > tank || sph > tank))
+			if (tab == 0)
+			{
+			if (!tank || apa > tank || spd > tank || apr > tank || aps > tank || sph > tank)
 			return false;
-		else if (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps)
-			return false;
+			}
+			else if (tab != 0)
+			{
+				if (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps)
+					return false;
+			}
 			break;   
 		
     case CLASS_HUNTER:
@@ -435,22 +489,40 @@ bool PlayerbotFactory::CanEquipArmor(ItemTemplate const* proto)
 	
 	case CLASS_SHAMAN:
 	
-				if ((tab != 0) && (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd))
-					return false;
-				else if ((tab != 1) && (!apa || aps > apa || spd > apa || apr > apa || tank > apa || sph > apa))
-					return false;
-				else if ((tab != 2) && (!sph || apa > sph || aps > sph || apr > sph || tank > sph || spd > sph))
-					return false;
+		if (tab == 0)
+		{
+			if (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd)
+			return false;
+		}
+		else if (tab == 1)
+		{
+			if (!apa || aps > apa || spd > apa || apr > apa || tank > apa || sph > apa)
+			return false;
+		}
+		else if (tab == 2) 
+		{
+			if (!sph || apa > sph || aps > sph || apr > sph || tank > sph || spd > sph)
+			return false;
+		}
 				break;
 			
 	case CLASS_DRUID:
 	
-				if ((tab != 0) && (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd))
-					return false;
-				else if ((tab != 1) && (!tank || apa > tank || spd > tank || apr > tank || aps > tank || sph > tank))
-					return false;
-				else if ((tab != 2) && (!sph || apa > sph || aps > sph || apr > sph || tank > sph || spd > sph))
-					return false;
+		if (tab == 0)
+		{
+			if (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd)
+				return false;
+		}
+		else if (tab == 1)
+		{
+			if (!tank || apa > tank || spd > tank || apr > tank || aps > tank || sph > tank)
+				return false;
+		}
+		else if (tab == 2)
+		{
+			if (!sph || apa > sph || aps > sph || apr > sph || tank > sph || spd > sph)
+			return false;
+		}
 				break;
 
     }
@@ -463,37 +535,52 @@ void PlayerbotFactory::AddItemStats(uint32 mod, uint8 &sph, uint8 &spd, uint8 &a
 
     switch (mod)
     {
-
     case ITEM_MOD_MANA:
     case ITEM_MOD_INTELLECT:
     case ITEM_MOD_SPIRIT:
+	case ITEM_MOD_HIT_RATING:
+	case ITEM_MOD_CRIT_RATING:
+	case ITEM_MOD_HASTE_RATING:
     case ITEM_MOD_MANA_REGENERATION:
     case ITEM_MOD_SPELL_POWER:
-
+	case ITEM_MOD_HASTE_SPELL_RATING:
+	case ITEM_MOD_SPELL_HEALING_DONE:
         sph++;
         break;
 	}
 	switch (mod)
 	{
 	case ITEM_MOD_INTELLECT:
+	case ITEM_MOD_HIT_RATING:
+	case ITEM_MOD_CRIT_RATING:
+	case ITEM_MOD_HASTE_RATING:
 	case ITEM_MOD_SPELL_POWER:
 	case ITEM_MOD_SPELL_PENETRATION:
 	case ITEM_MOD_HIT_SPELL_RATING:
 	case ITEM_MOD_CRIT_SPELL_RATING:
 	case ITEM_MOD_HASTE_SPELL_RATING:
+	case ITEM_MOD_SPELL_HEALING_DONE:
+	case ITEM_MOD_SPELL_DAMAGE_DONE:
 		spd++;
 		break;
 	}
     switch (mod)
     {
-    case ITEM_MOD_AGILITY:
-    case ITEM_MOD_STAMINA:
-    case ITEM_MOD_DEFENSE_SKILL_RATING:
-    case ITEM_MOD_DODGE_RATING:
-    case ITEM_MOD_PARRY_RATING:
-    case ITEM_MOD_BLOCK_RATING:
-    case ITEM_MOD_RESILIENCE_RATING:
-    case ITEM_MOD_BLOCK_VALUE:
+	case ITEM_MOD_HEALTH:
+	case ITEM_MOD_STAMINA:
+	case ITEM_MOD_DEFENSE_SKILL_RATING:
+	case ITEM_MOD_DODGE_RATING:
+	case ITEM_MOD_PARRY_RATING:
+	case ITEM_MOD_BLOCK_RATING:
+	case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
+	case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
+	case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
+	case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
+	case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
+	case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
+	case ITEM_MOD_HIT_TAKEN_RATING:
+	case ITEM_MOD_CRIT_TAKEN_RATING:
+	case ITEM_MOD_RESILIENCE_RATING:
         tank++;
         break;
     
@@ -501,10 +588,13 @@ void PlayerbotFactory::AddItemStats(uint32 mod, uint8 &sph, uint8 &spd, uint8 &a
     switch (mod)
     {
     case ITEM_MOD_AGILITY:
+	case ITEM_MOD_HIT_RATING:
+	case ITEM_MOD_CRIT_RATING:
+	case ITEM_MOD_HASTE_RATING:
     case ITEM_MOD_HIT_MELEE_RATING:
-    case ITEM_MOD_CRIT_MELEE_RATING:
-    case ITEM_MOD_HASTE_MELEE_RATING:
-    case ITEM_MOD_EXPERTISE_RATING:
+	case ITEM_MOD_CRIT_MELEE_RATING:
+	case ITEM_MOD_HASTE_MELEE_RATING:
+	case ITEM_MOD_EXPERTISE_RATING:
     case ITEM_MOD_ATTACK_POWER:
     case ITEM_MOD_ARMOR_PENETRATION_RATING:
         apa++;
@@ -513,6 +603,9 @@ void PlayerbotFactory::AddItemStats(uint32 mod, uint8 &sph, uint8 &spd, uint8 &a
 	switch (mod)
 	{
 	case ITEM_MOD_STRENGTH:
+	case ITEM_MOD_HIT_RATING:
+	case ITEM_MOD_CRIT_RATING:
+	case ITEM_MOD_HASTE_RATING:
 	case ITEM_MOD_HIT_MELEE_RATING:
 	case ITEM_MOD_CRIT_MELEE_RATING:
 	case ITEM_MOD_HASTE_MELEE_RATING:
@@ -525,10 +618,17 @@ void PlayerbotFactory::AddItemStats(uint32 mod, uint8 &sph, uint8 &spd, uint8 &a
 	switch (mod)
 	{
 	case ITEM_MOD_AGILITY:
+	case ITEM_MOD_HIT_RATING:
+	case ITEM_MOD_CRIT_RATING:
+	case ITEM_MOD_HASTE_RATING:
 	case ITEM_MOD_HIT_RANGED_RATING:
 	case ITEM_MOD_CRIT_RANGED_RATING:
 	case ITEM_MOD_HASTE_RANGED_RATING:
+	case ITEM_MOD_HIT_MELEE_RATING:
+	case ITEM_MOD_CRIT_MELEE_RATING:
+	case ITEM_MOD_HASTE_MELEE_RATING:
 	case ITEM_MOD_RANGED_ATTACK_POWER:
+	case ITEM_MOD_ATTACK_POWER:
 	case ITEM_MOD_ARMOR_PENETRATION_RATING:
 		apr++;
 		break;
@@ -713,11 +813,19 @@ void PlayerbotFactory::InitEquipment(bool incremental)
 
                 if (proto->Class == ITEM_CLASS_ARMOR && (
                     slot == EQUIPMENT_SLOT_HEAD ||
+					slot == EQUIPMENT_SLOT_NECK ||
                     slot == EQUIPMENT_SLOT_SHOULDERS ||
+					slot == EQUIPMENT_SLOT_BODY ||
                     slot == EQUIPMENT_SLOT_CHEST ||
+					slot == EQUIPMENT_SLOT_BACK ||
+					slot == EQUIPMENT_SLOT_TABARD ||
                     slot == EQUIPMENT_SLOT_WAIST ||
                     slot == EQUIPMENT_SLOT_LEGS ||
                     slot == EQUIPMENT_SLOT_FEET ||
+					slot == EQUIPMENT_SLOT_FINGER1 ||
+					slot == EQUIPMENT_SLOT_FINGER2 ||
+					slot == EQUIPMENT_SLOT_TRINKET1 ||
+					slot == EQUIPMENT_SLOT_TRINKET2 ||
                     slot == EQUIPMENT_SLOT_WRISTS ||
                     slot == EQUIPMENT_SLOT_HANDS) && !CanEquipArmor(proto))
                         continue;
