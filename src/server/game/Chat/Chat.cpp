@@ -251,24 +251,6 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
         if (!hasStringAbbr(table[i].Name, cmd.c_str()))
             continue;
 
-        bool match = false;
-        if (strlen(table[i].Name) > cmd.length())
-        {
-            for (uint32 j = 0; j < table.size(); ++j)
-            {
-                if (!hasStringAbbr(table[j].Name, cmd.c_str()))
-                    continue;
-
-                if (strcmp(table[j].Name, cmd.c_str()) == 0)
-                {
-                    match = true;
-                    break;
-                }
-            }
-        }
-        if (match)
-            continue;
-
         // select subcommand from child commands list
         if (!table[i].ChildCommands.empty())
         {
