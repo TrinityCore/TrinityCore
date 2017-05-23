@@ -89,9 +89,7 @@ enum Misc
 {
     POINT_START_REVIVE          = 1,
 
-    DATA_OHGANOT_SO_FAST        = 5762,
-
-    FACTION_NONE                = 1665
+    DATA_OHGANOT_SO_FAST        = 5762
 };
 
 enum SummonGroups
