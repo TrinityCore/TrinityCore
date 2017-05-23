@@ -313,8 +313,7 @@ Position const SifSpawnPosition = { 2148.301f, -297.8453f, 438.3308f, 2.687807f 
 
 enum Data
 {
-    DATA_CHARGED_PILLAR                     = 1,
-
+    DATA_CHARGED_PILLAR                     = 1
 };
 
 enum DisplayIds
