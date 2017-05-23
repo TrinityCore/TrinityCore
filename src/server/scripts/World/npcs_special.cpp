@@ -2545,7 +2545,7 @@ public:
 
         void DamageTaken(Unit* doneBy, uint32& damage) override
         {
-            uint32 healthPctLimit = me->GetScriptParam(0);
+            uint32 healthPctLimit = me->GetScriptParam(0).numericValue;
 
             if (doneBy->GetTypeId() == TYPEID_UNIT)
                 if (me->HealthBelowPctDamaged(healthPctLimit, damage))

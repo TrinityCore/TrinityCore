@@ -460,6 +460,12 @@ struct TrinityString
     std::vector<std::string> Content;
 };
 
+struct ScriptParam
+{
+    double numericValue = 0;
+    std::string stringValue = "";
+};
+
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
 typedef std::unordered_map<ObjectGuid::LowType, CreatureData> CreatureDataContainer;
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectData> GameObjectDataContainer;
@@ -471,6 +477,10 @@ typedef std::unordered_map<uint32, QuestObjectivesLocale> QuestObjectivesLocaleC
 typedef std::unordered_map<uint32, QuestOfferRewardLocale> QuestOfferRewardLocaleContainer;
 typedef std::unordered_map<uint32, QuestRequestItemsLocale> QuestRequestItemsLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
+
+typedef std::unordered_map<uint8 /*index*/, ScriptParam> ScriptParams;
+typedef std::unordered_map<ObjectGuid::LowType, ScriptParams> ScriptParamContainer;
+typedef std::unordered_map<uint32, ScriptParams> TemplateScriptParamContainer;
 
 struct GossipMenuItemsLocale
 {
@@ -853,6 +863,9 @@ class TC_GAME_API ObjectMgr
         ItemTemplate const* GetItemTemplate(uint32 entry) const;
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
 
+        ScriptParams const& GetScriptParam(ObjectGuid::LowType lowGuid) { return _scriptParamContainer[lowGuid]; }
+        ScriptParams const& GetTemplateScriptParam(uint32 entry) { return _templateScriptParamContainer[entry]; }
+
         InstanceTemplate const* GetInstanceTemplate(uint32 mapId) const;
 
         PetLevelInfo const* GetPetLevelInfo(uint32 creature_id, uint8 level) const;
@@ -1065,6 +1078,7 @@ class TC_GAME_API ObjectMgr
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
         void LoadCreatureTemplateAddons();
+        void LoadScriptParams();
         void LoadCreatureTemplate(Field* fields);
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
         void LoadGameObjectQuestItems();
@@ -1619,6 +1633,8 @@ class TC_GAME_API ObjectMgr
         GameObjectTemplateAddonContainer _gameObjectTemplateAddonStore;
         /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
         TempSummonDataContainer _tempSummonDataStore;
+        ScriptParamContainer _scriptParamContainer;
+        TemplateScriptParamContainer _templateScriptParamContainer;
 
         ItemTemplateContainer _itemTemplateStore;
         QuestTemplateLocaleContainer _questTemplateLocaleStore;

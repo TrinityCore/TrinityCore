@@ -2480,12 +2480,20 @@ uint32 Creature::GetScriptId() const
     return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptID;
 }
 
-uint32 Creature::GetScriptParam(uint8 index) const
+ScriptParam Creature::GetScriptParam(uint8 index) const
 {
-    if (CreatureData const* creatureData = GetCreatureData())
-        return creatureData->ScriptParam[index];
+    ScriptParams guidParams = sObjectMgr->GetScriptParam(GetGUID().GetCounter());
+    auto guidItr = guidParams.find(index);
+    if (guidItr != guidParams.end())
+        return guidItr->second;
 
-    return sObjectMgr->GetCreatureTemplate(GetEntry())->ScriptParam[index];
+    ScriptParams templateParams = sObjectMgr->GetTemplateScriptParam(GetEntry());
+    auto templateItr = templateParams.find(index);
+    if (templateItr != templateParams.end())
+        return templateItr->second;
+
+    ScriptParam param;
+    return param;
 }
 
 VendorItemData const* Creature::GetVendorItems() const

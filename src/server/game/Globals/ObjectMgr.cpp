@@ -431,8 +431,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                        65           66           67              68                   69            70                 71             72              73
                                              "InhabitType, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
-    //                                        74            75          76           77                    78           79               80
-                                             "RacialLeader, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName, ScriptParam0 FROM creature_template");
+    //                                        74            75          76           77                    78           79
+                                             "RacialLeader, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName FROM creature_template");
 
     if (!result)
     {
@@ -538,9 +538,6 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.MechanicImmuneMask     = fields[77].GetUInt32();
     creatureTemplate.flags_extra            = fields[78].GetUInt32();
     creatureTemplate.ScriptID               = GetScriptId(fields[79].GetString());
-
-    for (uint8 i = 0; i < MAX_SCRIPT_PARAM; ++i)
-        creatureTemplate.ScriptParam[i] = fields[80 + i].GetUInt32();
 }
 
 void ObjectMgr::LoadCreatureTemplateAddons()
@@ -643,6 +640,73 @@ void ObjectMgr::LoadCreatureTemplateAddons()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature template addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadScriptParams()
+{
+    _scriptParamContainer.clear();
+    _templateScriptParamContainer.clear();
+
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0            1      2             3
+    QueryResult result = WorldDatabase.Query("SELECT entryOrGuid, index, numericParam, stringParam FROM script_params");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 script param creature definitions. DB table `script_params` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        int64 entryOrGuid = fields[0].GetInt64();
+
+        if (entryOrGuid == 0)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `script_params` have record with entryOrGuid = 0");
+            continue;
+        }
+
+        uint8  index = fields[1].GetUInt8();
+
+        ScriptParam param;
+        param.numericValue  = fields[2].GetDouble();
+        param.stringValue   = fields[3].GetString();
+
+        if (entryOrGuid > 0)
+        {
+            uint32 entry = (uint32)entryOrGuid;
+
+            if (!sObjectMgr->GetCreatureTemplate(entryOrGuid))
+            {
+                TC_LOG_ERROR("sql.sql", "Creature template (Entry: " SI64FMTD ") does not exist but has a record in `script_params`", entryOrGuid);
+                continue;
+            }
+
+            _templateScriptParamContainer[entry][index] = param;
+        }
+        else
+        {
+            ObjectGuid::LowType lowGuid = (ObjectGuid::LowType)-entryOrGuid;
+
+            CreatureData const* creature = sObjectMgr->GetCreatureData(lowGuid);
+            if (!creature)
+            {
+                TC_LOG_ERROR("sql.sql", "ObjectMgr::LoadCreatureScriptParams: Creature guid (" SI64FMTD ") does not exist, skipped loading.", lowGuid);
+                continue;
+            }
+
+            _scriptParamContainer[lowGuid][index] = param;
+        }
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u script params in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
@@ -1921,14 +1985,6 @@ void ObjectMgr::LoadCreatures()
         data.phaseid        = fields[23].GetUInt32();
         data.phaseGroup     = fields[24].GetUInt32();
         data.ScriptId       = GetScriptId(fields[25].GetString());
-
-        for (uint8 i = 0; i < MAX_SCRIPT_PARAM; ++i)
-        {
-            data.ScriptParam[i] = fields[26 + i].GetUInt32();
-
-            if (!data.ScriptParam[i])
-                data.ScriptParam[i] = cInfo->ScriptParam[i];
-        }
 
         if (!data.ScriptId)
             data.ScriptId = cInfo->ScriptID;
