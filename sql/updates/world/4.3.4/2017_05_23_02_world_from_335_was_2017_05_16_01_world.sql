@@ -74,7 +74,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (-62320, -62398, 0, 'Aura of Celerity - Remove Visual');
 
 -- Add dummy effect to kill credit so it actually selects targets
-UPDATE `spell_dbc` SET `EffectImplicitTargetA1`=18, `EffectImplicitTargetB1`=16, `EffectRadiusIndex1`=28, `SchoolMask`=0, `Effect1`=3 WHERE `Id`=64980;
+UPDATE `spell_dbc` SET `SchoolMask`=0 WHERE `Id`=64980;
+UPDATE `spelleffect_dbc` SET `EffectImplicitTargetA`=18, `EffectImplicitTargetB`=16, `EffectRadiusIndex`=28, `Effect`=3 WHERE `EffectSpellId`=64980;
 -- Correct attributes (SPELL_ATTR0_HIDE_IN_COMBAT_LOG, SPELL_ATTR2_CAN_TARGET_DEAD, SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS)
 UPDATE `spell_dbc` SET `Attributes`=`Attributes`|256, `AttributesEx2`=`AttributesEx2`|1|4 WHERE `Id` IN (64980,64985);
 
