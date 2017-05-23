@@ -137,7 +137,7 @@ WorldPacket const* WorldPackets::Guild::GuildInvite::Write()
     _worldPacket << BorderStyle;
     _worldPacket << BorderColor;
     _worldPacket << Background;
-    _worldPacket << Level;
+    _worldPacket << AchievementPoints;
 
     _worldPacket.WriteString(InviterName);
     _worldPacket.WriteString(GuildName);
@@ -614,12 +614,12 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
     for (GuildBankItemInfo const& item : ItemInfo)
     {
         _worldPacket << item.Slot;
-        _worldPacket << item.Item;
         _worldPacket << item.Count;
         _worldPacket << item.EnchantmentID;
         _worldPacket << item.Charges;
         _worldPacket << item.OnUseEnchantmentID;
         _worldPacket << item.Flags;
+        _worldPacket << item.Item;
         _worldPacket.WriteBits(item.SocketEnchant.size(), 2);
         _worldPacket.WriteBit(item.Locked);
         _worldPacket.FlushBits();
@@ -749,7 +749,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildNewsEvent con
 
 WorldPacket const* WorldPackets::Guild::GuildNews::Write()
 {
-    _worldPacket << NewsEvents;
+    _worldPacket << uint32(NewsEvents.size());
+    for (GuildNewsEvent const& newsEvent : NewsEvents)
+        _worldPacket << newsEvent;
 
     return &_worldPacket;
 }
@@ -813,4 +815,14 @@ void WorldPackets::Guild::GuildSetAchievementTracking::Read()
         _worldPacket >> value;
         AchievementIDs.insert(value);
     }
+}
+
+WorldPacket const* WorldPackets::Guild::GuildNameChanged::Write()
+{
+    _worldPacket << GuildGUID;
+    _worldPacket.WriteBits(GuildName.length(), 7);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(GuildName);
+
+    return &_worldPacket;
 }

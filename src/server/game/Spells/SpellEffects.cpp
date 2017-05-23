@@ -16,52 +16,55 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "SpellMgr.h"
-#include "Player.h"
-#include "SkillExtraItems.h"
-#include "Unit.h"
 #include "Spell.h"
-#include "DynamicObject.h"
-#include "SpellAuras.h"
-#include "SpellAuraEffects.h"
-#include "SpellHistory.h"
-#include "Group.h"
-#include "SharedDefines.h"
-#include "Pet.h"
-#include "GameObject.h"
-#include "GossipDef.h"
-#include "Creature.h"
-#include "Totem.h"
-#include "CreatureAI.h"
-#include "BattlegroundMgr.h"
-#include "Battleground.h"
-#include "OutdoorPvPMgr.h"
-#include "Language.h"
-#include "SocialMgr.h"
-#include "Util.h"
-#include "TemporarySummon.h"
-#include "ScriptMgr.h"
-#include "GameObjectAI.h"
 #include "AccountMgr.h"
-#include "InstanceScript.h"
-#include "PathGenerator.h"
-#include "Guild.h"
-#include "ReputationMgr.h"
 #include "AreaTrigger.h"
+#include "Battleground.h"
+#include "BattlegroundMgr.h"
 #include "BattlePetMgr.h"
-#include "Garrison.h"
 #include "CombatLogPackets.h"
+#include "Common.h"
+#include "Conversation.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "DatabaseEnv.h"
 #include "DuelPackets.h"
+#include "DynamicObject.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "Garrison.h"
+#include "GossipDef.h"
+#include "Group.h"
+#include "Guild.h"
+#include "InstanceScript.h"
+#include "Language.h"
+#include "Log.h"
+#include "LootMgr.h"
 #include "MiscPackets.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "OutdoorPvPMgr.h"
+#include "PathGenerator.h"
+#include "Pet.h"
+#include "Player.h"
+#include "ReputationMgr.h"
+#include "ScriptMgr.h"
+#include "SharedDefines.h"
+#include "SkillExtraItems.h"
+#include "SocialMgr.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "TalentPackets.h"
+#include "TemporarySummon.h"
+#include "Totem.h"
+#include "Unit.h"
+#include "Util.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include <G3D/Quat.h>
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -284,7 +287,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
     &Spell::EffectNULL,                                     //217 SPELL_EFFECT_UPGRADE_GARRISON
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218
-    &Spell::EffectNULL,                                     //219 SPELL_EFFECT_219
+    &Spell::EffectCreateConversation,                       //219 SPELL_EFFECT_CREATE_CONVERSATION
     &Spell::EffectAddGarrisonFollower,                      //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
     &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
     &Spell::EffectCreateHeirloomItem,                       //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
@@ -396,7 +399,7 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
     uint32 resist = 0;
 
     m_caster->CalcAbsorbResist(unitTarget, m_spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, damage, &absorb, &resist, m_spellInfo);
-    SpellNonMeleeDamage log(m_caster, unitTarget, m_spellInfo->Id, m_spellInfo->GetSchoolMask(), m_castId);
+    SpellNonMeleeDamage log(m_caster, unitTarget, m_spellInfo->Id, m_SpellVisual, m_spellInfo->GetSchoolMask(), m_castId);
     log.damage = damage - absorb - resist;
     log.absorb = absorb;
     log.resist = resist;
@@ -481,17 +484,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_WARLOCK:
             {
-                // Incinerate Rank 1 & 2
-                if ((m_spellInfo->SpellFamilyFlags[1] & 0x000040) && m_spellInfo->SpellIconID == 2128)
-                {
-                    // Incinerate does more dmg (dmg/6) if the target have Immolate debuff.
-                    // Check aura state for speed but aura state set not only for Immolate spell
-                    if (unitTarget->HasAuraState(AURA_STATE_CONFLAGRATE))
-                    {
-                        if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, flag128(0x4, 0, 0)))
-                            damage += damage / 6;
-                    }
-                }
                 break;
             }
             case SPELLFAMILY_PRIEST:
@@ -1355,7 +1347,7 @@ void Spell::EffectHealthLeech(SpellEffIndex /*effIndex*/)
     }
 }
 
-void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, std::vector<int32> const& bonusListIDs)
+void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, uint8 context /*= 0*/, std::vector<int32> const& bonusListIDs /*= std::vector<int32>()*/)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -1398,6 +1390,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, std::vector<int32> const
         num_to_add = pProto->GetMaxStackSize();
 
     /* == gem perfection handling == */
+    // this is bad, should be done using spell_loot_template (and conditions)
 
     // the chance of getting a perfect result
     float perfectCreateChance = 0.0f;
@@ -1451,7 +1444,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype, std::vector<int32> const
     if (num_to_add)
     {
         // create the new item and store it
-        Item* pItem = player->StoreNewItem(dest, newitemid, true, Item::GenerateItemRandomPropertyId(newitemid), GuidSet(), bonusListIDs);
+        Item* pItem = player->StoreNewItem(dest, newitemid, true, GenerateItemRandomPropertyId(newitemid), GuidSet(), context, bonusListIDs);
 
         // was it successful? return error if not
         if (!pItem)
@@ -2968,12 +2961,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     m_caster->ToPlayer()->AddComboPoints(1, this);
             }
-            // Shred, Maul - Rend and Tear
-            else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING))
-            {
-                if (AuraEffect const* rendAndTear = m_caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, 2859, 0))
-                    AddPct(totalDamagePercentMod, rendAndTear->GetAmount());
-            }
             break;
         }
         case SPELLFAMILY_HUNTER:
@@ -3228,36 +3215,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                // Glyph of Scourge Strike
-                case 69961:
-                {
-                    Unit::AuraEffectList const &mPeriodic = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-                    for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
-                    {
-                        AuraEffect const* aurEff = *i;
-                        SpellInfo const* spellInfo = aurEff->GetSpellInfo();
-                        // search our Blood Plague and Frost Fever on target
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && spellInfo->SpellFamilyFlags[2] & 0x2 &&
-                            aurEff->GetCasterGUID() == m_caster->GetGUID())
-                        {
-                            uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                            uint32 countMax = spellInfo->GetMaxDuration();
-
-                            // this Glyph
-                            countMax += 9000;
-                            // talent Epidemic
-                            if (AuraEffect const* epidemic = m_caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 234, EFFECT_0))
-                                countMax += epidemic->GetAmount();
-
-                            if (countMin < countMax)
-                            {
-                                aurEff->GetBase()->SetDuration(aurEff->GetBase()->GetDuration() + 3000);
-                                aurEff->GetBase()->SetMaxDuration(countMin + 3000);
-                            }
-                        }
-                    }
-                    return;
-                }
                 case 55693:                                 // Remove Collapsing Cave Aura
                     if (!unitTarget)
                         return;
@@ -4351,14 +4308,14 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
             spellEffectExtraData->SpellVisualId = effectInfo->MiscValueB;
         }
         // Spell is not using explicit target - no generated path
-        if (m_preGeneratedPath.GetPathType() == PATHFIND_BLANK)
+        if (m_preGeneratedPath->GetPathType() == PATHFIND_BLANK)
         {
             //unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             Position pos = unitTarget->GetFirstCollisionPosition(unitTarget->GetObjectSize(), unitTarget->GetRelativeAngle(m_caster));
             m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ, speed, EVENT_CHARGE, false, unitTarget, spellEffectExtraData.get_ptr());
         }
         else
-            m_caster->GetMotionMaster()->MoveCharge(m_preGeneratedPath, speed, unitTarget, spellEffectExtraData.get_ptr());
+            m_caster->GetMotionMaster()->MoveCharge(*m_preGeneratedPath, speed, unitTarget, spellEffectExtraData.get_ptr());
     }
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -4389,7 +4346,7 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
     else if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
         if (effectInfo->TriggerSpell)
-            m_caster->CastSpell(unitTarget, effectInfo->TriggerSpell, true, nullptr, nullptr, m_originalCasterGUID);
+            m_caster->CastSpell(destTarget->GetPositionX(), destTarget->GetPositionY(), destTarget->GetPositionZ(), effectInfo->TriggerSpell, true, nullptr, nullptr, m_originalCasterGUID);
     }
 }
 
@@ -4445,8 +4402,8 @@ void Spell::EffectLeapBack(SpellEffIndex /*effIndex*/)
 
     float speedxy = effectInfo->MiscValue / 10.f;
     float speedz = damage / 10.f;
-    //1891: Disengage
-    unitTarget->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID != 1891);
+    // Disengage
+    unitTarget->JumpTo(speedxy, speedz, m_spellInfo->IconFileDataId != 132572);
 }
 
 void Spell::EffectQuestClear(SpellEffIndex /*effIndex*/)
@@ -4659,8 +4616,8 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
             if (spellInfo)
             {
-                std::vector<SpellInfo::CostData> costs = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
-                auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA; });
+                std::vector<SpellPowerCost> costs = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
+                auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
                 if (m != costs.end())
                     mana += m->Amount;
             }
@@ -4794,7 +4751,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     if (goinfo->type == GAMEOBJECT_TYPE_RITUAL)
         m_caster->GetPosition(fx, fy, fz);
 
-    GameObject* pGameObj = new GameObject;
+    GameObject* pGameObj = new GameObject();
 
     Position pos = { fx, fy, fz, m_caster->GetOrientation() };
     G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f);
@@ -4812,7 +4769,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     {
         case GAMEOBJECT_TYPE_FISHINGNODE:
         {
-            m_caster->SetChannelObjectGuid(pGameObj->GetGUID());
+            m_caster->AddChannelObject(pGameObj->GetGUID());
             m_caster->AddGameObject(pGameObj);              // will removed at spell cancel
 
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))
@@ -5705,6 +5662,17 @@ void Spell::EffectCreateGarrison(SpellEffIndex effIndex)
     unitTarget->ToPlayer()->CreateGarrison(GetEffect(effIndex)->MiscValue);
 }
 
+void Spell::EffectCreateConversation(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    if (!m_targets.HasDst())
+        return;
+
+    Conversation::CreateConversation(effectInfo->MiscValue, GetCaster(), destTarget->GetPosition(), { GetCaster()->GetGUID() }, GetSpellInfo());
+}
+
 void Spell::EffectAddGarrisonFollower(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -5733,7 +5701,7 @@ void Spell::EffectCreateHeirloomItem(SpellEffIndex effIndex)
     std::vector<int32> bonusList;
     bonusList.push_back(collectionMgr->GetHeirloomBonus(m_misc.Raw.Data[0]));
 
-    DoCreateItem(effIndex, m_misc.Raw.Data[0], bonusList);
+    DoCreateItem(effIndex, m_misc.Raw.Data[0], 0, bonusList);
     ExecuteLogEffectCreateItem(effIndex, m_misc.Raw.Data[0]);
 }
 

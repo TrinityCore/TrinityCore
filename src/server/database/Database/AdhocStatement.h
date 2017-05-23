@@ -18,11 +18,9 @@
 #ifndef _ADHOCSTATEMENT_H
 #define _ADHOCSTATEMENT_H
 
-#include <future>
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include "SQLOperation.h"
-
-typedef std::future<QueryResult> QueryResultFuture;
-typedef std::promise<QueryResult> QueryResultPromise;
 
 /*! Raw, ad-hoc query. */
 class TC_DATABASE_API BasicStatementTask : public SQLOperation

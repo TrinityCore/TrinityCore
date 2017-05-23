@@ -17,23 +17,24 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "World.h"
-#include "PassiveAI.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "CreatureTextMgr.h"
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "SpellAuras.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "PassiveAI.h"
 #include "Pet.h"
-#include "CreatureTextMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "SpellHistory.h"
+#include "World.h"
 
 /*########
 # npc_air_force_bots
@@ -561,7 +562,7 @@ public:
             std::list<Player*> players;
             Trinity::UnitAuraCheck check(true, SPELL_RIBBON_DANCE_COSMETIC);
             Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
-            me->VisitNearbyWorldObject(10.0f, searcher);
+            Cell::VisitWorldObjects(me, searcher, 10.0f);
 
             return players.empty();
         }

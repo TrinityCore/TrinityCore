@@ -20,10 +20,12 @@
 #include "CriteriaHandler.h"
 #include "CharacterDatabaseCleaner.h"
 #include "DB2Stores.h"
+#include "Log.h"
 #include "World.h"
 #include "Database/DatabaseEnv.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
+#include <sstream>
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {

@@ -17,7 +17,10 @@
  */
 
 #include "Common.h"
+#include "ConditionMgr.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
@@ -184,8 +187,25 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
 
     uint32 preferredMountDisplay = 0;
     if (MountEntry const* mount = sMountStore.LookupEntry(activateTaxi.FlyingMountID))
+    {
         if (GetPlayer()->HasSpell(mount->SpellId))
-            preferredMountDisplay = mount->DisplayId;
+        {
+            if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mount->ID))
+            {
+                DB2Manager::MountXDisplayContainer usableDisplays;
+                std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [this](MountXDisplayEntry const* mountDisplay)
+                {
+                    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
+                        return sConditionMgr->IsPlayerMeetingCondition(GetPlayer(), playerCondition);
+
+                    return true;
+                });
+
+                if (!usableDisplays.empty())
+                    preferredMountDisplay = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->DisplayID;
+            }
+        }
+    }
 
     std::vector<uint32> nodes;
     sTaxiPathGraph.GetCompleteNodeRoute(from, to, GetPlayer(), nodes);

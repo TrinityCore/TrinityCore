@@ -17,15 +17,14 @@
  */
 
 #include "BattlegroundAV.h"
-
-#include "ObjectMgr.h"
-#include "WorldPacket.h"
-
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "Language.h"
+#include "Log.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "WorldSession.h"
+#include "WorldStatePackets.h"
 
 BattlegroundAV::BattlegroundAV()
 {

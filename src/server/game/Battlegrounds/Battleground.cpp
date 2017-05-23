@@ -16,26 +16,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ArenaScore.h"
 #include "Battleground.h"
+#include "ArenaScore.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
 #include "Creature.h"
 #include "CreatureTextMgr.h"
+#include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
-#include "GuildMgr.h"
 #include "Guild.h"
+#include "GuildMgr.h"
+#include "Log.h"
+#include "MiscPackets.h"
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "SpellAuras.h"
+#include "TemporarySummon.h"
+#include "Transport.h"
 #include "Util.h"
 #include "WorldPacket.h"
-#include "Transport.h"
-#include "MiscPackets.h"
+#include "WorldStatePackets.h"
 
 namespace Trinity
 {
@@ -1697,7 +1702,7 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
     if (Creature* creature = AddCreature(entry, type, x, y, z, o, teamId))
     {
         creature->setDeathState(DEAD);
-        creature->SetChannelObjectGuid(creature->GetGUID());
+        creature->AddChannelObject(creature->GetGUID());
         // aura
         /// @todo Fix display here
         // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);

@@ -18,7 +18,8 @@
 #include "Session.h"
 #include "BattlenetRpcErrorCodes.h"
 #include "ByteConverter.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
+#include "Errors.h"
 #include "QueryCallback.h"
 #include "LoginRESTService.h"
 #include "ProtobufJSON.h"
@@ -77,7 +78,7 @@ Battlenet::Session::~Session()
 
 void Battlenet::Session::AsyncHandshake()
 {
-    underlying_stream().async_handshake(ssl::stream_base::server, std::bind(&Session::HandshakeHandler, shared_from_this(), std::placeholders::_1));
+    underlying_stream().async_handshake(boost::asio::ssl::stream_base::server, std::bind(&Session::HandshakeHandler, shared_from_this(), std::placeholders::_1));
 }
 
 void Battlenet::Session::Start()
@@ -228,7 +229,7 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
     _locale = logonRequest->locale();
     _os = logonRequest->platform();
 
-    ip::tcp::endpoint const& endpoint = sLoginService.GetAddressForClient(GetRemoteIpAddress());
+    boost::asio::ip::tcp::endpoint const& endpoint = sLoginService.GetAddressForClient(GetRemoteIpAddress());
 
     challenge::v1::ChallengeExternalRequest externalChallenge;
     externalChallenge.set_payload_type("web_auth_url");

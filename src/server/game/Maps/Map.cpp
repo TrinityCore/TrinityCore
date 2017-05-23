@@ -17,12 +17,13 @@
  */
 
 #include "Map.h"
-#include "MapManager.h"
 #include "Battleground.h"
-#include "MMapFactory.h"
 #include "CellImpl.h"
+#include "Conversation.h"
+#include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicTree.h"
+#include "GameObjectModel.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "GridStates.h"
@@ -30,8 +31,11 @@
 #include "InstancePackets.h"
 #include "InstanceScenario.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "MapInstanced.h"
+#include "MapManager.h"
 #include "MiscPackets.h"
+#include "MMapFactory.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
@@ -40,6 +44,7 @@
 #include "Vehicle.h"
 #include "VMapFactory.h"
 #include "Weather.h"
+#include "World.h"
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
 u_map_magic MapVersionMagic = { {'v','1','.','8'} };
@@ -2476,12 +2481,12 @@ inline GridMap* Map::GetGrid(float x, float y)
     return GridMaps[gx][gy];
 }
 
-float Map::GetWaterOrGroundLevel(uint32 phasemask, float x, float y, float z, float* ground /*= NULL*/, bool /*swim = false*/) const
+float Map::GetWaterOrGroundLevel(std::set<uint32> const& phases, float x, float y, float z, float* ground /*= nullptr*/, bool /*swim = false*/) const
 {
     if (const_cast<Map*>(this)->GetGrid(x, y))
     {
         // we need ground level (including grid height version) for proper return water level in point
-        float ground_z = GetHeight(phasemask, x, y, z, true, 50.0f);
+        float ground_z = GetHeight(phases, x, y, z, true, 50.0f);
         if (ground)
             *ground = ground_z;
 
@@ -2770,19 +2775,19 @@ float Map::GetWaterLevel(float x, float y) const
         return 0;
 }
 
-bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const
+bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, std::set<uint32> const& phases) const
 {
     return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2)
-        && _dynamicTree.isInLineOfSight(x1, y1, z1, x2, y2, z2, phasemask);
+        && _dynamicTree.isInLineOfSight({ x1, y1, z1 }, { x2, y2, z2 }, phases);
 }
 
-bool Map::getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
+bool Map::getObjectHitPos(std::set<uint32> const& phases, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
 {
     G3D::Vector3 startPos(x1, y1, z1);
     G3D::Vector3 dstPos(x2, y2, z2);
 
     G3D::Vector3 resultPos;
-    bool result = _dynamicTree.getObjectHitPos(phasemask, startPos, dstPos, resultPos, modifyDist);
+    bool result = _dynamicTree.getObjectHitPos(phases, startPos, dstPos, resultPos, modifyDist);
 
     rx = resultPos.x;
     ry = resultPos.y;
@@ -2790,9 +2795,9 @@ bool Map::getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float 
     return result;
 }
 
-float Map::GetHeight(uint32 phasemask, float x, float y, float z, bool vmap/*=true*/, float maxSearchDist/*=DEFAULT_HEIGHT_SEARCH*/) const
+float Map::GetHeight(std::set<uint32> const& phases, float x, float y, float z, bool vmap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
-    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phasemask));
+    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phases));
 }
 
 bool Map::IsInWater(float x, float y, float pZ, LiquidData* data) const
@@ -2827,28 +2832,6 @@ bool Map::CheckGridIntegrity(Creature* c, bool moved) const
 char const* Map::GetMapName() const
 {
     return i_mapEntry ? i_mapEntry->MapName->Str[sWorld->GetDefaultDbcLocale()] : "UNNAMEDMAP\x0";
-}
-
-void Map::UpdateObjectVisibility(WorldObject* obj, Cell cell, CellCoord cellpair)
-{
-    cell.SetNoCreate();
-    Trinity::VisibleChangesNotifier notifier(*obj);
-    TypeContainerVisitor<Trinity::VisibleChangesNotifier, WorldTypeMapContainer > player_notifier(notifier);
-    cell.Visit(cellpair, player_notifier, *this, *obj, obj->GetVisibilityRange());
-}
-
-void Map::UpdateObjectsVisibilityFor(Player* player, Cell cell, CellCoord cellpair)
-{
-    Trinity::VisibleNotifier notifier(*player);
-
-    cell.SetNoCreate();
-    TypeContainerVisitor<Trinity::VisibleNotifier, WorldTypeMapContainer > world_notifier(notifier);
-    TypeContainerVisitor<Trinity::VisibleNotifier, GridTypeMapContainer  > grid_notifier(notifier);
-    cell.Visit(cellpair, world_notifier, *this, *player->m_seer, player->GetSightRange());
-    cell.Visit(cellpair, grid_notifier,  *this, *player->m_seer, player->GetSightRange());
-
-    // send data
-    notifier.SendToSelf();
 }
 
 void Map::SendInitSelf(Player* player)
@@ -3059,6 +3042,9 @@ void Map::RemoveAllObjectsInRemoveList()
             case TYPEID_AREATRIGGER:
                 RemoveFromMap((AreaTrigger*)obj, true);
                 break;
+            case TYPEID_CONVERSATION:
+                RemoveFromMap((Conversation*)obj, true);
+                break;
             case TYPEID_GAMEOBJECT:
             {
                 GameObject* go = obj->ToGameObject();
@@ -3207,12 +3193,14 @@ template TC_GAME_API bool Map::AddToMap(Creature*);
 template TC_GAME_API bool Map::AddToMap(GameObject*);
 template TC_GAME_API bool Map::AddToMap(DynamicObject*);
 template TC_GAME_API bool Map::AddToMap(AreaTrigger*);
+template TC_GAME_API bool Map::AddToMap(Conversation*);
 
 template TC_GAME_API void Map::RemoveFromMap(Corpse*, bool);
 template TC_GAME_API void Map::RemoveFromMap(Creature*, bool);
 template TC_GAME_API void Map::RemoveFromMap(GameObject*, bool);
 template TC_GAME_API void Map::RemoveFromMap(DynamicObject*, bool);
 template TC_GAME_API void Map::RemoveFromMap(AreaTrigger*, bool);
+template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 
 /* ******* Dungeon Instance Maps ******* */
 
@@ -3611,7 +3599,7 @@ MapDifficultyEntry const* Map::GetMapDifficulty() const
     return sDB2Manager.GetMapDifficultyData(GetId(), GetDifficultyID());
 }
 
-uint32 Map::GetDifficultyLootBonusTreeMod() const
+uint8 Map::GetDifficultyLootBonusTreeMod() const
 {
     if (MapDifficultyEntry const* mapDifficulty = GetMapDifficulty())
         if (mapDifficulty->ItemBonusTreeModID)
@@ -3793,6 +3781,11 @@ void BattlegroundMap::RemoveAllPlayers()
 AreaTrigger* Map::GetAreaTrigger(ObjectGuid const& guid)
 {
     return _objectsStore.Find<AreaTrigger>(guid);
+}
+
+Conversation* Map::GetConversation(ObjectGuid const& guid)
+{
+    return _objectsStore.Find<Conversation>(guid);
 }
 
 Corpse* Map::GetCorpse(ObjectGuid const& guid)
@@ -4096,13 +4089,7 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones->SetCellCoord(corpse->GetCellCoord());
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());
 
-        bones->SetUInt32Value(CORPSE_FIELD_FLAGS, CORPSE_FLAG_UNK2 | CORPSE_FLAG_BONES);
-        bones->SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid::Empty);
-        bones->SetGuidValue(OBJECT_FIELD_DATA, ObjectGuid::Empty);
-
-        for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            if (corpse->GetUInt32Value(CORPSE_FIELD_ITEM + i))
-                bones->SetUInt32Value(CORPSE_FIELD_ITEM + i, 0);
+        bones->SetUInt32Value(CORPSE_FIELD_FLAGS, corpse->GetUInt32Value(CORPSE_FIELD_FLAGS) | CORPSE_FLAG_BONES);
 
         bones->CopyPhaseFrom(corpse);
 

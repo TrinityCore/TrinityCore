@@ -19,8 +19,8 @@
 #define TRINITYCORE_AREATRIGGER_H
 
 #include "Object.h"
-#include "Position.h"
 #include "Spline.h"
+#include "MapObject.h"
 
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
@@ -67,8 +67,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         Unit* GetCaster() const;
         Unit* GetTarget() const;
 
-        G3D::Vector3 const& GetRollPitchYaw() const { return _rollPitchYaw; }
-        G3D::Vector3 const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
+        Position const& GetRollPitchYaw() const { return _rollPitchYaw; }
+        Position const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
         void InitSplineOffsets(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget);
         void InitSplines(std::vector<G3D::Vector3> const& splinePoints, uint32 timeToTarget);
         bool HasSplines() const { return !_spline.empty(); }
@@ -105,8 +105,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         float _previousCheckOrientation;
         bool _isRemoved;
 
-        G3D::Vector3 _rollPitchYaw;
-        G3D::Vector3 _targetRollPitchYaw;
+        Position _rollPitchYaw;
+        Position _targetRollPitchYaw;
         std::vector<G3D::Vector2> _polygonVertices;
         ::Movement::Spline<int32> _spline;
 

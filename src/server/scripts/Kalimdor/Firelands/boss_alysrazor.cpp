@@ -163,7 +163,7 @@ static void AlysrazorTrashEvaded(Creature* creature)
 {
     TrashRespawnWorker check;
     Trinity::CreatureWorker<TrashRespawnWorker> worker(creature, check);
-    creature->VisitNearbyGridObject(SIZE_OF_GRIDS, worker);
+    Cell::VisitGridObjects(creature, worker, SIZE_OF_GRIDS);
 }
 
 class npc_harbinger_of_flame : public CreatureScript
@@ -179,8 +179,9 @@ class npc_harbinger_of_flame : public CreatureScript
 
             void EnterCombat(Unit* /*target*/) override
             {
-                if (Creature* bird = ObjectAccessor::GetCreature(*me, me->GetChannelObjectGuid()))
-                    DoZoneInCombat(bird, 200.0f);
+                for (ObjectGuid const& birdGuid : me->GetChannelObjects())
+                    if (Creature* bird = ObjectAccessor::GetCreature(*me, birdGuid))
+                        DoZoneInCombat(bird, 200.0f);
 
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 _events.Reset();
@@ -460,7 +461,7 @@ class npc_egg_pile : public CreatureScript
                             std::list<Creature*> eggs;
                             MoltenEggCheck check(me);
                             Trinity::CreatureListSearcher<MoltenEggCheck> searcher(me, eggs, check);
-                            me->VisitNearbyGridObject(20.0f, searcher);
+                            Cell::VisitGridObjects(me, searcher, 20.0f);
                             if (!eggs.empty())
                             {
                                 Creature* egg = Trinity::Containers::SelectRandomContainerElement(eggs);

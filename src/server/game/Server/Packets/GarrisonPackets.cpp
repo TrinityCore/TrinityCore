@@ -37,7 +37,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonDeleteResult::Write()
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonPlotInfo& plotInfo)
 {
     data << uint32(plotInfo.GarrPlotInstanceID);
-    data << plotInfo.PlotPos.PositionXYZOStream();
+    data << plotInfo.PlotPos;
     data << uint32(plotInfo.PlotType);
 
     return data;
@@ -148,15 +148,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
     data << uint32(garrison.ArchivedMissions.size());
     data << int32(garrison.NumFollowerActivationsRemaining);
     data << uint32(garrison.NumMissionsStartedToday);
-
-    for (WorldPackets::Garrison::GarrisonBuildingInfo const* building : garrison.Buildings)
-        data << *building;
+    data << int32(garrison.FollowerSoftCap);
 
     for (WorldPackets::Garrison::GarrisonPlotInfo* plot : garrison.Plots)
         data << *plot;
-
-    for (WorldPackets::Garrison::GarrisonFollower const* follower : garrison.Followers)
-        data << *follower;
 
     for (WorldPackets::Garrison::GarrisonMission const* mission : garrison.Missions)
         data << *mission;
@@ -184,10 +179,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
     if (!garrison.ArchivedMissions.empty())
         data.append(garrison.ArchivedMissions.data(), garrison.ArchivedMissions.size());
 
+    for (WorldPackets::Garrison::GarrisonBuildingInfo const* building : garrison.Buildings)
+        data << *building;
+
     for (bool canStartMission : garrison.CanStartMission)
         data.WriteBit(canStartMission);
 
     data.FlushBits();
+
+    for (WorldPackets::Garrison::GarrisonFollower const* follower : garrison.Followers)
+        data << *follower;
 
     return data;
 }
@@ -300,7 +301,7 @@ WorldPacket const* WorldPackets::Garrison::GarrisonRequestBlueprintAndSpecializa
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonBuildingLandmark& landmark)
 {
     data << uint32(landmark.GarrBuildingPlotInstID);
-    data << landmark.Pos.PositionXYZStream();
+    data << landmark.Pos;
 
     return data;
 }

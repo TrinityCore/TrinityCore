@@ -18,9 +18,9 @@
 #ifndef Trinity_game_Position_h__
 #define Trinity_game_Position_h__
 
-#include "Common.h"
-
-#include <G3D/Vector3.h>
+#include "Define.h"
+#include <string>
+#include <cmath>
 
 class ByteBuffer;
 
@@ -31,25 +31,24 @@ struct TC_GAME_API Position
 
     Position(Position const& loc) { Relocate(loc); }
 
-    Position(G3D::Vector3 const& vect);
+    // streamer tags
+    struct XY;
+    struct XYZ;
+    struct XYZO;
+    struct PackedXYZ;
 
-    operator G3D::Vector3() const;
-
-    struct PositionXYStreamer
+    template<class Tag>
+    struct ConstStreamer
     {
-        explicit PositionXYStreamer(Position& pos) : Pos(&pos) { }
-        Position* Pos;
+        explicit ConstStreamer(Position const& pos) : Pos(&pos) { }
+        Position const* Pos;
     };
 
-    struct PositionXYZStreamer
+    template<class Tag>
+    struct Streamer
     {
-        explicit PositionXYZStreamer(Position& pos) : Pos(&pos) { }
-        Position* Pos;
-    };
-
-    struct PositionXYZOStreamer
-    {
-        explicit PositionXYZOStreamer(Position& pos) : Pos(&pos) { }
+        explicit Streamer(Position& pos) : Pos(&pos) { }
+        operator ConstStreamer<Tag>() { return ConstStreamer<Tag>(*Pos); }
         Position* Pos;
     };
 
@@ -93,11 +92,6 @@ public:
         m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; SetOrientation(pos->m_orientation);
     }
 
-    void Relocate(G3D::Vector3 const& pos)
-    {
-        m_positionX = pos.x; m_positionY = pos.y; m_positionZ = pos.z;
-    }
-
     void RelocateOffset(Position const &offset);
 
     void SetOrientation(float orientation)
@@ -127,9 +121,14 @@ public:
 
     Position GetPosition() const { return *this; }
 
-    Position::PositionXYStreamer PositionXYStream() { return PositionXYStreamer(*this); }
-    Position::PositionXYZStreamer PositionXYZStream() { return PositionXYZStreamer(*this); }
-    Position::PositionXYZOStreamer PositionXYZOStream() { return PositionXYZOStreamer(*this); }
+    Streamer<XY> PositionXYStream() { return Streamer<XY>(*this); }
+    ConstStreamer<XY> PositionXYStream() const { return ConstStreamer<XY>(*this); }
+    Streamer<XYZ> PositionXYZStream() { return Streamer<XYZ>(*this); }
+    ConstStreamer<XYZ> PositionXYZStream() const { return ConstStreamer<XYZ>(*this); }
+    Streamer<XYZO> PositionXYZOStream() { return Streamer<XYZO>(*this); }
+    ConstStreamer<XYZO> PositionXYZOStream() const { return ConstStreamer<XYZO>(*this); }
+    Streamer<PackedXYZ> PositionPackedXYZStream() { return Streamer<PackedXYZ>(*this); }
+    ConstStreamer<PackedXYZ> PositionPackedXYZStream() const { return ConstStreamer<PackedXYZ>(*this); }
 
     bool IsPositionValid() const;
 
@@ -138,10 +137,7 @@ public:
         float dx = m_positionX - x; float dy = m_positionY - y; return dx*dx + dy*dy;
     }
 
-    float GetExactDist2d(const float x, const float y) const
-    {
-        return std::sqrt(GetExactDist2dSq(x, y));
-    }
+    float GetExactDist2d(const float x, const float y) const;
 
     float GetExactDist2dSq(Position const& pos) const
     {
@@ -158,20 +154,14 @@ public:
         float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; return dx*dx + dy*dy;
     }
 
-    float GetExactDist2d(Position const* pos) const
-    {
-        return std::sqrt(GetExactDist2dSq(pos));
-    }
+    float GetExactDist2d(Position const* pos) const;
 
     float GetExactDistSq(float x, float y, float z) const
     {
         float dz = m_positionZ - z; return GetExactDist2dSq(x, y) + dz*dz;
     }
 
-    float GetExactDist(float x, float y, float z) const
-    {
-        return std::sqrt(GetExactDistSq(x, y, z));
-    }
+    float GetExactDist(float x, float y, float z) const;
 
     float GetExactDistSq(Position const& pos) const
     {
@@ -188,10 +178,7 @@ public:
         float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; float dz = m_positionZ - pos->m_positionZ; return dx*dx + dy*dy + dz*dz;
     }
 
-    float GetExactDist(Position const* pos) const
-    {
-        return std::sqrt(GetExactDistSq(pos));
-    }
+    float GetExactDist(Position const* pos) const;
 
     void GetPositionOffsetTo(Position const & endPos, Position & retOffset) const;
     Position GetPositionWithOffset(Position const& offset) const;
@@ -236,19 +223,7 @@ public:
     std::string ToString() const;
 
     // modulos a radian orientation to the range of 0..2PI
-    static float NormalizeOrientation(float o)
-    {
-        // fmod only supports positive numbers. Thus we have
-        // to emulate negative numbers
-        if (o < 0)
-        {
-            float mod = o *-1;
-            mod = std::fmod(mod, 2.0f * static_cast<float>(M_PI));
-            mod = -mod + 2.0f * static_cast<float>(M_PI);
-            return mod;
-        }
-        return std::fmod(o, 2.0f * static_cast<float>(M_PI));
-    }
+    static float NormalizeOrientation(float o);
 };
 
 #define MAPID_INVALID 0xFFFFFFFF
@@ -287,11 +262,32 @@ public:
     uint32 m_mapId;
 };
 
-TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYStreamer const& streamer);
-TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYStreamer const& streamer);
-TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
-TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
-TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
-TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer);
+TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XY> const& streamer);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZ> const& streamer);
+TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZ> const& streamer);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZO> const& streamer);
+TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZO> const& streamer);
+TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::PackedXYZ> const& streamer);
+
+template<class Tag>
+struct TaggedPosition
+{
+    TaggedPosition(float x = 0.0f, float y = 0.0f, float z = 0.0f, float o = 0.0f) : Pos(x, y, z, o) { }
+    TaggedPosition(Position const& pos) : Pos(pos) { }
+
+    TaggedPosition& operator=(Position const& pos)
+    {
+        Pos.Relocate(pos);
+        return *this;
+    }
+
+    operator Position() const { return Pos; }
+
+    friend ByteBuffer& operator<<(ByteBuffer& buf, TaggedPosition const& tagged) { return buf << Position::ConstStreamer<Tag>(tagged.Pos); }
+    friend ByteBuffer& operator>>(ByteBuffer& buf, TaggedPosition& tagged) { return buf >> Position::Streamer<Tag>(tagged.Pos); }
+
+    Position Pos;
+};
 
 #endif // Trinity_game_Position_h__

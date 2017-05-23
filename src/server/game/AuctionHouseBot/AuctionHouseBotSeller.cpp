@@ -15,10 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AuctionHouseBotSeller.h"
+#include "AuctionHouseMgr.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Item.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "AuctionHouseMgr.h"
-#include "AuctionHouseBotSeller.h"
+#include "Random.h"
+#include <sstream>
 
 AuctionBotSeller::AuctionBotSeller()
 {
@@ -68,8 +73,8 @@ bool AuctionBotSeller::Initialize()
                 tempItems.insert((*it2)->item);
         }
     }
-    for (std::set<uint32>::const_iterator it = tempItems.begin(); it != tempItems.end(); ++it)
-        npcItems.push_back(*it);
+    for (uint32 itemId : tempItems)
+        npcItems.push_back(itemId);
 
     TC_LOG_DEBUG("ahbot", "Npc vendor filter has %u items", (uint32)npcItems.size());
 
@@ -987,7 +992,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
 
         // Update the just created item so that if it needs random properties it has them.
         // Ex:  Notched Shortsword of Stamina will only generate as a Notched Shortsword without this.
-        item->SetItemRandomProperties(Item::GenerateItemRandomPropertyId(itemId));
+        item->SetItemRandomProperties(GenerateItemRandomPropertyId(itemId));
 
         uint32 buyoutPrice;
         uint32 bidPrice = 0;

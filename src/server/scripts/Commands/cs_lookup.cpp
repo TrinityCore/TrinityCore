@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -31,6 +32,7 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "World.h"
 
 class lookup_commandscript : public CommandScript
 {

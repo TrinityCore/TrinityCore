@@ -21,22 +21,17 @@
 
 #include "ObjectGridLoader.h"
 #include "UpdateData.h"
-#include <iostream>
 
-#include "Corpse.h"
-#include "Object.h"
 #include "AreaTrigger.h"
+#include "Creature.h"
+#include "Corpse.h"
+#include "Conversation.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
-#include "Player.h"
-#include "Unit.h"
-#include "CreatureAI.h"
-#include "Spell.h"
-#include "WorldSession.h"
 #include "Packet.h"
-
-class Player;
-//class Map;
+#include "Player.h"
+#include "Spell.h"
+#include "UnitAI.h"
 
 namespace Trinity
 {
@@ -121,6 +116,7 @@ namespace Trinity
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
         void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
+        void Visit(ConversationMapType &m) { updateObjects<Conversation>(m); }
     };
 
     struct TC_GAME_API MessageDistDeliverer
@@ -154,8 +150,7 @@ namespace Trinity
             if (!player->HaveAtClient(i_source))
                 return;
 
-            if (WorldSession* session = player->GetSession())
-                session->SendPacket(i_message);
+            player->SendDirectMessage(i_message);
         }
     };
 
@@ -189,6 +184,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
@@ -210,6 +206,7 @@ namespace Trinity
         void Visit(CorpseMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
@@ -231,6 +228,7 @@ namespace Trinity
         void Visit(GameObjectMapType &m);
         void Visit(DynamicObjectMapType &m);
         void Visit(AreaTriggerMapType &m);
+        void Visit(ConversationMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
@@ -294,6 +292,15 @@ namespace Trinity
             if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
                 return;
             for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
+                if (itr->GetSource()->IsInPhase(_searcher))
+                    i_do(itr->GetSource());
+        }
+
+        void Visit(ConversationMapType &m)
+        {
+            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
+                return;
+            for (ConversationMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
                 if (itr->GetSource()->IsInPhase(_searcher))
                     i_do(itr->GetSource());
         }
@@ -1000,8 +1007,8 @@ namespace Trinity
                 if (!u->IsWithinLOSInMap(i_enemy))
                     return;
 
-                if (u->AI())
-                    u->AI()->AttackStart(i_enemy);
+                if (u->GetAI() && u->IsAIEnabled)
+                    u->GetAI()->AttackStart(i_enemy);
             }
         private:
             Unit* const i_funit;

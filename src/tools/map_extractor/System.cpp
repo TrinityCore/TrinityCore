@@ -16,9 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _CRT_SECURE_NO_DEPRECATE
-#define WIN32_LEAN_AND_MEAN
-
 #include "Banner.h"
 #include "CascHandles.h"
 #include "Common.h"
@@ -35,6 +32,7 @@
 #include <deque>
 #include <fstream>
 #include <set>
+#include <unordered_map>
 #include <cstdlib>
 #include <cstring>
 
@@ -59,16 +57,17 @@ struct CinematicCameraLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "ID" },
-            { false, FT_STRING_NOT_LOCALIZED, "Model" },
+            { false, FT_INT, "SoundID" },
             { false, FT_FLOAT, "OriginX" },
             { false, FT_FLOAT, "OriginY" },
             { false, FT_FLOAT, "OriginZ" },
             { false, FT_FLOAT, "OriginFacing" },
-            { false, FT_SHORT, "SoundID" },
+            { false, FT_INT, "ModelFileDataID" },
         };
-        static char const* types = "sffh";
+        static char const* types = "iffi";
         static uint8 const arraySizes[4] = { 1, 3, 1, 1 };
-        static DB2Meta const meta(-1, 4, 0xA7B95349, types, arraySizes);
+        static DB2FieldDefault const fieldDefaults[4] = { uint32(0), float(0), float(0), uint32(0) };
+        static DB2Meta const meta(-1, 4, 0x85F98D68, types, arraySizes, fieldDefaults);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }
@@ -134,7 +133,8 @@ struct LiquidTypeLoadInfo
         };
         static char const* types = "sifffffsifihhbbbbbi";
         static uint8 const arraySizes[19] = { 1, 1, 1, 1, 1, 1, 1, 6, 2, 18, 4, 1, 1, 1, 1, 1, 1, 6, 1 };
-        static DB2Meta const meta(-1, 19, 0x99FC34E5, types, arraySizes);
+        static DB2FieldDefault const fieldDefaults[19] = { "", uint32(0), float(0), float(0), float(0), float(0), float(0), "", uint32(0), float(0), uint32(0), uint16(0), uint16(0), uint8(0), uint8(0), uint8(0), uint8(0), uint8(0), uint32(0) };
+        static DB2Meta const meta(-1, 19, 0xEB9E4B52, types, arraySizes, fieldDefaults);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }
@@ -156,6 +156,8 @@ struct MapLoadInfo
             { false, FT_STRING, "MapName" },
             { false, FT_STRING, "MapDescription0" },
             { false, FT_STRING, "MapDescription1" },
+            { false, FT_STRING, "ShortDescription" },
+            { false, FT_STRING, "LongDescription" },
             { false, FT_SHORT, "AreaTableID" },
             { false, FT_SHORT, "LoadingScreenID" },
             { true, FT_SHORT, "CorpseMapID" },
@@ -169,9 +171,10 @@ struct MapLoadInfo
             { false, FT_BYTE, "MaxPlayers" },
             { false, FT_BYTE, "TimeOffset" },
         };
-        static char const* types = "siffssshhhhhhhbbbbb";
-        static uint8 const arraySizes[19] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        static DB2Meta const meta(-1, 19, 0xF7CF2DA2, types, arraySizes);
+        static char const* types = "siffssssshhhhhhhbbbbb";
+        static uint8 const arraySizes[21] = { 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        static DB2FieldDefault const fieldDefaults[21] = { "", uint32(0), float(0), float(0), "", "", "", "", "", uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint16(0), uint8(0), uint8(0), uint8(0), uint8(0), uint8(0) };
+        static DB2Meta const meta(-1, 21, 0xC34CD39B, types, arraySizes, fieldDefaults);
         static DB2FileLoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, &meta);
         return &loadInfo;
     }
@@ -386,7 +389,7 @@ void ReadMapDBC()
         DB2Record record = db2.GetRecord(x);
         map_ids[x].id = record.GetId();
 
-        const char* map_name = record.GetString(0, 0);
+        const char* map_name = record.GetString("Directory");
         size_t max_map_name_length = sizeof(map_ids[x].name);
         if (strlen(map_name) >= max_map_name_length)
         {
@@ -432,7 +435,7 @@ void ReadLiquidTypeTableDBC()
     for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
     {
         DB2Record record = db2.GetRecord(x);
-        LiqType[record.GetId()] = record.GetUInt8(13, 0);
+        LiqType[record.GetId()] = record.GetUInt8("Type");
     }
 
     for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
@@ -455,14 +458,7 @@ bool ReadCinematicCameraDBC()
 
     // get camera file list from DB2
     for (size_t i = 0; i < db2.GetRecordCount(); ++i)
-    {
-        DB2Record record = db2.GetRecord(i);
-        std::string camFile(record.GetString(0, 0));
-        size_t loc = camFile.find(".mdx");
-        if (loc != std::string::npos)
-            camFile.replace(loc, 4, ".m2");
-        CameraFileNames.insert(camFile);
-    }
+        CameraFileNames.insert(Trinity::StringFormat("FILE%08X.xxx", db2.GetRecord(i).GetUInt32("ModelFileDataID")));
 
     printf("Done! (" SZFMTD " CinematicCameras loaded)\n", CameraFileNames.size());
     return true;
@@ -1285,11 +1281,12 @@ void ExtractGameTables()
     char const* GameTables[] =
     {
         "GameTables\\ArmorMitigationByLvl.txt",
-        "GameTables\\artifactLevelXP.txt",
+        "GameTables\\ArtifactKnowledgeMultiplier.txt",
+        "GameTables\\ArtifactLevelXP.txt",
         "GameTables\\BarberShopCostBase.txt",
         "GameTables\\BaseMp.txt",
         "GameTables\\BattlePetTypeDamageMod.txt",
-        "GameTables\\battlePetXP.txt",
+        "GameTables\\BattlePetXP.txt",
         "GameTables\\ChallengeModeDamage.txt",
         "GameTables\\ChallengeModeHealth.txt",
         "GameTables\\CombatRatings.txt",
@@ -1304,7 +1301,7 @@ void ExtractGameTables()
         "GameTables\\NpcDamageByClassExp4.txt",
         "GameTables\\NpcDamageByClassExp5.txt",
         "GameTables\\NpcDamageByClassExp6.txt",
-        "GameTables\\NpcManaCostScaler.txt",
+        "GameTables\\NPCManaCostScaler.txt",
         "GameTables\\NpcTotalHp.txt",
         "GameTables\\NpcTotalHpExp1.txt",
         "GameTables\\NpcTotalHpExp2.txt",

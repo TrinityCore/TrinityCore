@@ -16,31 +16,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Language.h"
-#include "DatabaseEnv.h"
-#include "QueryCallback.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "ObjectMgr.h"
-#include "SpellMgr.h"
-#include "Player.h"
-#include "GossipDef.h"
-#include "ObjectAccessor.h"
+#include "Battleground.h"
+#include "BattlegroundMgr.h"
+#include "Common.h"
 #include "Creature.h"
+#include "CreatureAI.h"
+#include "DatabaseEnv.h"
+#include "GameObjectAI.h"
+#include "GossipDef.h"
+#include "ItemPackets.h"
+#include "Language.h"
+#include "Log.h"
+#include "MailPackets.h"
+#include "NPCPackets.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "Pet.h"
 #include "PetPackets.h"
+#include "Player.h"
 #include "ReputationMgr.h"
-#include "BattlegroundMgr.h"
-#include "Battleground.h"
 #include "ScriptMgr.h"
-#include "CreatureAI.h"
-#include "GameObjectAI.h"
 #include "SpellInfo.h"
-#include "NPCPackets.h"
-#include "MailPackets.h"
+#include "SpellMgr.h"
+#include "WorldPacket.h"
 
 enum StableResultCode
 {
@@ -88,13 +88,13 @@ void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
     SendTrainerList(packet.Unit);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid)
+void WorldSession::SendTrainerList(ObjectGuid guid, uint32 index)
 {
     std::string str = GetTrinityString(LANG_NPC_TAINER_HELLO);
-    SendTrainerList(guid, str);
+    SendTrainerList(guid, str, index);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
+void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle, uint32 index)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
@@ -126,6 +126,9 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
     for (TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
     {
         TrainerSpell const* tSpell = &itr->second;
+
+        if (index && tSpell->Index != index)
+            continue;
 
         bool valid = true;
         for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
@@ -246,8 +249,8 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
 
     _player->ModifyMoney(-int64(nSpellCost));
 
-    trainer->SendPlaySpellVisualKit(179, 0);    // 53 SpellCastDirected
-    _player->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
+    trainer->SendPlaySpellVisualKit(179, 0, 0);    // 53 SpellCastDirected
+    _player->SendPlaySpellVisualKit(362, 1, 0);    // 113 EmoteSalute
 
     // learn explicitly or cast explicitly
     if (trainerSpell->IsCastable())

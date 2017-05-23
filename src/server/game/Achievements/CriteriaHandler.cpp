@@ -18,12 +18,14 @@
 #include "CriteriaHandler.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
+#include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "Garrison.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -31,6 +33,7 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 bool CriteriaData::IsValid(Criteria const* criteria)
 {
@@ -1659,8 +1662,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
         {
             if (!unit)
                 return false;
-            Creature const* const creature = unit->ToCreature();
-            if (!creature || creature->GetCreatureType() != reqValue)
+            if (unit->GetTypeId() != TYPEID_UNIT || unit->GetCreatureType() != reqValue)
                 return false;
             break;
         }

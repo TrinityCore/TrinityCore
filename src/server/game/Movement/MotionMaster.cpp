@@ -20,7 +20,7 @@
 #include "CreatureAISelector.h"
 #include "Creature.h"
 #include "ScriptSystem.h"
-
+#include "Log.h"
 #include "ConfusedMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
 #include "HomeMovementGenerator.h"
@@ -437,7 +437,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         if (_owner->IsFlying())
             point.z = z;
         else
-            point.z = _owner->GetMap()->GetHeight(_owner->GetPhaseMask(), point.x, point.y, z);
+            point.z = _owner->GetMap()->GetHeight(_owner->GetPhases(), point.x, point.y, z);
 
         init.Path().push_back(point);
     }
@@ -457,17 +457,16 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     init.Launch();
 }
 
-void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk)
-{
-    Movement::PointsArray path(pathPoints, pathPoints + pathSize);
-    MoveSmoothPath(pointId, path, walk);
-}
-
-void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& path, bool walk)
+void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk, bool fly)
 {
     Movement::MoveSplineInit init(_owner);
-    if (_owner->CanFly())
+    if (fly)
+    {
+        init.SetFly();
         init.SetUncompressed();
+    }
+
+    Movement::PointsArray path(pathPoints, pathPoints + pathSize);
     init.MovebyPath(path);
     init.SetSmooth();
     init.SetWalk(walk);
@@ -498,7 +497,7 @@ void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool w
     MoveAlongSplineChain(pointId, *chain, walk);
 }
 
-void MotionMaster::MoveAlongSplineChain(uint32 pointId, SplineChain const& chain, bool walk)
+void MotionMaster::MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk)
 {
     Mutate(new SplineChainMovementGenerator(pointId, chain, walk), MOTION_SLOT_ACTIVE);
 }
@@ -516,7 +515,7 @@ void MotionMaster::ResumeSplineChain(SplineChainResumeInfo const& info)
 void MotionMaster::MoveFall(uint32 id /*=0*/)
 {
     // use larger distance for vmap height search than in most other cases
-    float tz = _owner->GetMap()->GetHeight(_owner->GetPhaseMask(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
+    float tz = _owner->GetMap()->GetHeight(_owner->GetPhases(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
     if (tz <= INVALID_HEIGHT)
     {
         TC_LOG_DEBUG("misc", "MotionMaster::MoveFall: unable to retrieve a proper height at map %u (x: %f, y: %f, z: %f).",

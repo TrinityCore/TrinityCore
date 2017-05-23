@@ -21,12 +21,13 @@
  * Scriptnames of files in this file should be prefixed with "spell_rog_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "SpellScript.h"
+#include "Containers.h"
+#include "Log.h"
+#include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "Containers.h"
+#include "SpellScript.h"
 
 enum RogueSpells
 {
@@ -49,19 +50,12 @@ enum RogueSpells
     SPELL_ROGUE_VANISH_AURA                         = 11327,
     SPELL_ROGUE_PREY_ON_THE_WEAK                    = 58670,
     SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
-    SPELL_ROGUE_SILCE_AND_DICE                      = 5171,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
     SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
     SPELL_ROGUE_RUPTURE                             = 1943,
-    SPELL_ROGUE_HONOR_AMONG_THIEVES                 = 51698,
-    SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC            = 51699,
+    SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE        = 51699,
     SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169
-};
-
-enum RogueSpellIcons
-{
-    ICON_ROGUE_IMPROVED_RECUPERATE                  = 4819
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -226,35 +220,6 @@ class spell_rog_crippling_poison : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_rog_crippling_poison_AuraScript();
-        }
-};
-
-// -51664 - Cut to the Chase
-class spell_rog_cut_to_the_chase : public SpellScriptLoader
-{
-    public:
-        spell_rog_cut_to_the_chase () : SpellScriptLoader("spell_rog_cut_to_the_chase") { }
-
-        class spell_rog_cut_to_the_chase_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_cut_to_the_chase_AuraScript);
-
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                if (Aura* aur = GetTarget()->GetAura(SPELL_ROGUE_SILCE_AND_DICE))
-                    aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_rog_cut_to_the_chase_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_cut_to_the_chase_AuraScript();
         }
 };
 
@@ -548,55 +513,6 @@ class spell_rog_preparation : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_rog_preparation_SpellScript();
-        }
-};
-
-// 73651 - Recuperate
-class spell_rog_recuperate : public SpellScriptLoader
-{
-    public:
-        spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
-
-        class spell_rog_recuperate_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_recuperate_AuraScript);
-
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void OnPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (AuraEffect* effect = GetAura()->GetEffect(EFFECT_0))
-                        effect->RecalculateAmount(caster);
-            }
-
-            void CalculateBonus(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
-            {
-                canBeRecalculated = false;
-                if (Unit* caster = GetCaster())
-                {
-                    int32 baseAmount = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(caster) * 1000;
-                    // Improved Recuperate
-                    if (AuraEffect const* auraEffect = caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ICON_ROGUE_IMPROVED_RECUPERATE, EFFECT_0))
-                        baseAmount += auraEffect->GetAmount();
-
-                    amount = CalculatePct(caster->GetMaxHealth(), float(baseAmount) / 1000.0f);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate_AuraScript::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_recuperate_AuraScript();
         }
 };
 
@@ -961,7 +877,8 @@ public:
     }
 };
 
-// 51701 - Honor Among Thieves
+// 198031 - Honor Among Thieves
+/// 7.1.5
 class spell_rog_honor_among_thieves : public SpellScriptLoader
 {
 public:
@@ -971,12 +888,20 @@ public:
     {
         PrepareAuraScript(spell_rog_honor_among_thieves_AuraScript);
 
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo(
+            {
+                SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE
+            });
+        }
+
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
         {
             PreventDefaultAction();
 
-            Unit* target = GetUnitOwner();
-            target->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC, TRIGGERED_FULL_MASK, nullptr, aurEff);
+            Unit* target = GetTarget();
+            target->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE, TRIGGERED_FULL_MASK, nullptr, aurEff);
         }
 
         void Register() override
@@ -988,33 +913,6 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_rog_honor_among_thieves_AuraScript();
-    }
-};
-
-// 70805 - Rogue T10 2P Bonus -- THIS SHOULD BE REMOVED WITH NEW PROC SYSTEM.
-class spell_rog_t10_2p_bonus : public SpellScriptLoader
-{
-public:
-    spell_rog_t10_2p_bonus() : SpellScriptLoader("spell_rog_t10_2p_bonus") { }
-
-    class spell_rog_t10_2p_bonus_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_rog_t10_2p_bonus_AuraScript);
-
-        bool CheckProc(ProcEventInfo& eventInfo)
-        {
-            return eventInfo.GetActor() == eventInfo.GetActionTarget();
-        }
-
-        void Register() override
-        {
-            DoCheckProc += AuraCheckProcFn(spell_rog_t10_2p_bonus_AuraScript::CheckProc);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_rog_t10_2p_bonus_AuraScript();
     }
 };
 
@@ -1085,12 +983,10 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
     new spell_rog_crippling_poison();
-    new spell_rog_cut_to_the_chase();
     new spell_rog_deadly_poison();
     new spell_rog_killing_spree();
     new spell_rog_master_of_subtlety();
     new spell_rog_preparation();
-    new spell_rog_recuperate();
     new spell_rog_rupture();
     new spell_rog_shiv();
     new spell_rog_stealth();
@@ -1100,7 +996,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_tricks_of_the_trade_proc();
     new spell_rog_serrated_blades();
     new spell_rog_honor_among_thieves();
-    new spell_rog_t10_2p_bonus();
     new spell_rog_eviscerate();
     new spell_rog_envenom();
 }

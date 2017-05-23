@@ -1083,7 +1083,7 @@ class npc_crok_scourgebane : public CreatureScript
                         std::list<Creature*> temp;
                         FrostwingVrykulSearcher check(me, 80.0f);
                         Trinity::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
-                        me->VisitNearbyGridObject(80.0f, searcher);
+                        Cell::VisitGridObjects(me, searcher, 80.0f);
 
                         _aliveTrash.clear();
                         for (std::list<Creature*>::iterator itr = temp.begin(); itr != temp.end(); ++itr)
@@ -1110,7 +1110,7 @@ class npc_crok_scourgebane : public CreatureScript
                     Player* player = NULL;
                     Trinity::AnyPlayerInObjectRangeCheck check(me, 60.0f);
                     Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
-                    me->VisitNearbyWorldObject(60.0f, searcher);
+                    Cell::VisitWorldObjects(me, searcher, 60.0f);
                     // wipe
                     if (!player)
                     {
@@ -1119,7 +1119,7 @@ class npc_crok_scourgebane : public CreatureScript
                         {
                             FrostwingGauntletRespawner respawner;
                             Trinity::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
-                            me->VisitNearbyGridObject(333.0f, worker);
+                            Cell::VisitGridObjects(me, worker, 333.0f);
                             Talk(SAY_CROK_DEATH);
                         }
                         return;
@@ -1189,7 +1189,8 @@ class npc_crok_scourgebane : public CreatureScript
                             }
                             else
                             {
-                                me->DealHeal(me, me->CountPctFromMaxHealth(5));
+                                // looks totally hacky to me
+                                me->ModifyHealth(me->CountPctFromMaxHealth(5));
                                 _events.ScheduleEvent(EVENT_HEALTH_CHECK, 1000);
                             }
                             break;
@@ -1423,7 +1424,7 @@ class npc_captain_arnath : public CreatureScript
                 Creature* target = NULL;
                 Trinity::MostHPMissingInRange u_check(me, 60.0f, 0);
                 Trinity::CreatureLastSearcher<Trinity::MostHPMissingInRange> searcher(me, target, u_check);
-                me->VisitNearbyGridObject(60.0f, searcher);
+                Cell::VisitGridObjects(me, searcher, 60.0f);
                 return target;
             }
         };
@@ -2015,7 +2016,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
                     return;
 
                 Position pos = caster->GetNearPosition(5.0f, 0.0f);
-                //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
+                //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
                 //pos.m_positionZ += 0.05f;
                 caster->SetHomePosition(pos);
                 caster->GetMotionMaster()->MoveLand(POINT_LAND, pos);

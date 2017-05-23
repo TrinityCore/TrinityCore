@@ -17,6 +17,7 @@
 
 #include "WorldSession.h"
 #include "CollectionMgr.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "TransmogrificationPackets.h"
@@ -280,14 +281,4 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
             }
         }
     }
-}
-
-void WorldSession::HandleTransmogAppearanceSetFavorite(WorldPackets::Transmogrification::TransmogAppearanceSetFavorite& transmogAppearanceSetFavorite)
-{
-    bool hasAppearance, isTemporary;
-    std::tie(hasAppearance, isTemporary) = GetCollectionMgr()->HasItemAppearance(transmogAppearanceSetFavorite.ItemModifiedAppearanceID);
-    if (!hasAppearance || isTemporary)
-        return;
-
-    GetCollectionMgr()->SetAppearanceIsFavorite(transmogAppearanceSetFavorite.ItemModifiedAppearanceID, transmogAppearanceSetFavorite.IsFavorite);
 }

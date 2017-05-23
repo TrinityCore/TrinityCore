@@ -236,7 +236,7 @@ void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTok
 
     WorldPackets::Movement::NewWorld packet;
     packet.MapID = loc.GetMapId();
-    packet.Pos.Relocate(loc);
+    packet.Pos = loc;
     packet.Reason = !_player->IsBeingTeleportedSeamlessly() ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
     SendPacket(packet.Write());
 
@@ -522,7 +522,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPackets::Movement::SetActiveM
             TC_LOG_DEBUG("network", "HandleSetActiveMoverOpcode: incorrect mover guid: mover is %s and should be %s" , packet.ActiveMover.ToString().c_str(), _player->m_unitMovedByMe->GetGUID().ToString().c_str());
 }
 
-void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MovementAckMessage& movementAck)
+void WorldSession::HandleMoveKnockBackAck(WorldPackets::Movement::MoveKnockBackAck& movementAck)
 {
     GetPlayer()->ValidateMovementInfo(&movementAck.Ack.movementInfo);
 

@@ -230,6 +230,40 @@ void UnitAI::FillAISpellInfo()
     }
 }
 
+bool DefaultTargetSelector::operator()(Unit const* target) const
+{
+    if (!me)
+        return false;
+
+    if (!target)
+        return false;
+
+    if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
+        return false;
+
+    if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
+        return false;
+
+    if (m_dist < 0.0f && me->IsWithinCombatRange(target, -m_dist))
+        return false;
+
+    if (m_aura)
+    {
+        if (m_aura > 0)
+        {
+            if (!target->HasAura(m_aura))
+                return false;
+        }
+        else
+        {
+            if (target->HasAura(-m_aura))
+                return false;
+        }
+    }
+
+    return true;
+}
+
 SpellTargetSelector::SpellTargetSelector(Unit* caster, uint32 spellId) :
     _caster(caster), _spellInfo(sSpellMgr->GetSpellInfo(spellId))
 {

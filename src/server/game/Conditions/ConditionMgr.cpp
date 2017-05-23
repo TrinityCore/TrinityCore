@@ -18,17 +18,22 @@
 
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
+#include "Containers.h"
+#include "DatabaseEnv.h"
 #include "GameEventMgr.h"
+#include "GameObject.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "LootMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
@@ -291,12 +296,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_NEAR_CREATURE:
         {
-            condMeets = GetClosestCreatureWithEntry(object, ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) ? true : false;
+            condMeets = object->FindNearestCreature(ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) != nullptr;
             break;
         }
         case CONDITION_NEAR_GAMEOBJECT:
         {
-            condMeets = GetClosestGameObjectWithEntry(object, ConditionValue1, (float)ConditionValue2) ? true : false;
+            condMeets = object->FindNearestGameObject(ConditionValue1, (float)ConditionValue2) != nullptr;
             break;
         }
         case CONDITION_OBJECT_ENTRY_GUID:
@@ -508,10 +513,8 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 QuestObjective const* obj = sObjectMgr->GetQuestObjective(ConditionValue1);
                 if (!obj)
                     break;
-                Quest const* qInfo = sObjectMgr->GetQuestTemplate(obj->QuestID);
-                ASSERT(qInfo);
-                
-                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(qInfo, *obj));
+
+                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(*obj));
             }
             break;
         }
@@ -1709,7 +1712,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "%s in `condition` table, SourceEntry does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
 
@@ -1776,7 +1779,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellProto)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1798,7 +1801,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
 
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1811,7 +1814,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
 
             if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -2591,6 +2594,19 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->LifetimeMaxPVPRank && player->GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK) != condition->LifetimeMaxPVPRank)
         return false;
+
+    if (condition->MovementFlags[0] && !(player->GetUnitMovementFlags() & condition->MovementFlags[0]))
+        return false;
+
+    if (condition->MovementFlags[1] && !(player->GetExtraUnitMovementFlags() & condition->MovementFlags[1]))
+        return false;
+
+    if (condition->MainHandItemSubclassMask)
+    {
+        Item* mainHand = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
+        if (!mainHand || !((1 << mainHand->GetTemplate()->GetSubClass()) & condition->MainHandItemSubclassMask))
+            return false;
+    }
 
     if (condition->PartyStatus)
     {

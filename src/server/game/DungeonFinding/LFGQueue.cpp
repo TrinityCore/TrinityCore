@@ -21,6 +21,7 @@
 #include "LFGQueue.h"
 #include "LFGMgr.h"
 #include "Log.h"
+#include <sstream>
 
 namespace lfg
 {

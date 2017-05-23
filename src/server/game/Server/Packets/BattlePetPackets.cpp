@@ -16,7 +16,6 @@
  */
 
 #include "BattlePetPackets.h"
-#include "World.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePetSlot const& slot)
 {
@@ -45,17 +44,17 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::BattlePet::BattlePet cons
     data << uint32(pet.Speed);
     data << uint8(pet.Quality);
     data.WriteBits(pet.Name.size(), 7);
-    data.WriteBit(!pet.Owner.IsEmpty()); // HasOwnerInfo
+    data.WriteBit(pet.OwnerInfo.is_initialized());
     data.WriteBit(pet.Name.empty()); // NoRename
     data.FlushBits();
 
     data.WriteString(pet.Name);
 
-    if (!pet.Owner.IsEmpty())
+    if (pet.OwnerInfo)
     {
-        data << pet.Owner;
-        data << uint32(GetVirtualRealmAddress()); // Virtual
-        data << uint32(GetVirtualRealmAddress()); // Native
+        data << pet.OwnerInfo->Guid;
+        data << uint32(pet.OwnerInfo->PlayerVirtualRealm);
+        data << uint32(pet.OwnerInfo->PlayerNativeRealm);
     }
 
     return data;
@@ -115,7 +114,6 @@ void WorldPackets::BattlePet::BattlePetModifyName::Read()
     _worldPacket >> PetGuid;
     uint32 nameLength = _worldPacket.ReadBits(7);
     bool hasDeclinedNames = _worldPacket.ReadBit();
-    Name = _worldPacket.ReadString(nameLength);
 
     if (hasDeclinedNames)
     {
@@ -127,6 +125,8 @@ void WorldPackets::BattlePet::BattlePetModifyName::Read()
         for (uint8 i = 0; i < 5; ++i)
             Declined.name[i] = _worldPacket.ReadString(declinedNameLengths[i]);
     }
+
+    Name = _worldPacket.ReadString(nameLength);
 }
 
 void WorldPackets::BattlePet::BattlePetDeletePet::Read()

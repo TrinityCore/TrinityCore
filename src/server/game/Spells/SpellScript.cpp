@@ -15,12 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SpellScript.h"
+#include "Log.h"
 #include "Spell.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include "SpellScript.h"
-
+#include <sstream>
 #include <string>
 
 bool _SpellScript::_Validate(SpellInfo const* entry)
@@ -403,6 +404,7 @@ bool SpellScript::IsInTargetHook() const
     {
         case SPELL_SCRIPT_HOOK_EFFECT_LAUNCH_TARGET:
         case SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET:
+        case SPELL_SCRIPT_HOOK_EFFECT_SUCCESSFUL_DISPEL:
         case SPELL_SCRIPT_HOOK_BEFORE_HIT:
         case SPELL_SCRIPT_HOOK_HIT:
         case SPELL_SCRIPT_HOOK_AFTER_HIT:
@@ -417,7 +419,8 @@ bool SpellScript::IsInHitPhase() const
 
 bool SpellScript::IsInEffectHook() const
 {
-    return (m_currentScriptState >= SPELL_SCRIPT_HOOK_EFFECT_LAUNCH && m_currentScriptState <= SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET);
+    return (m_currentScriptState >= SPELL_SCRIPT_HOOK_EFFECT_LAUNCH && m_currentScriptState <= SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET)
+        || m_currentScriptState == SPELL_SCRIPT_HOOK_EFFECT_SUCCESSFUL_DISPEL;
 }
 
 Unit* SpellScript::GetCaster() const

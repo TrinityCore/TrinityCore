@@ -21,15 +21,17 @@
 
 #include "BattlefieldWG.h"
 #include "AchievementMgr.h"
-#include "CreatureTextMgr.h"
 #include "Battleground.h"
+#include "CreatureTextMgr.h"
+#include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
-#include "WorldSession.h"
+#include "World.h"
+#include "WorldStatePackets.h"
 
 struct BfWGCoordGY
 {

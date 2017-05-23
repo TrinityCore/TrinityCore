@@ -1104,7 +1104,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
                 uint32 damage = (uint32(GetEffectValue() / _targetCount) * randomResist) / 10;
 
-                SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
+                SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpell()->m_SpellVisual, GetSpellInfo()->SchoolMask);
                 damageInfo.damage = damage;
                 GetCaster()->DealSpellDamage(&damageInfo, false);
                 GetCaster()->SendSpellNonMeleeDamageLog(&damageInfo);
@@ -1554,7 +1554,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                 {
-                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->GetEffect(caster, EFFECT_1)->CalcValue()));
+                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->GetEffect(caster->GetMap()->GetDifficultyID(), EFFECT_1)->CalcValue()));
                     caster->GetAI()->SetData(DATA_WHELP_MARKER, 0);
                 }
             }

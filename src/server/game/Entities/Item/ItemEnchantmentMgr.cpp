@@ -19,8 +19,12 @@
 #include "ItemEnchantmentMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "ItemTemplate.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include "Random.h"
+#include "Timer.h"
 #include "Util.h"
 
 #include <list>
@@ -155,6 +159,31 @@ ItemRandomEnchantmentId GetItemEnchantMod(int32 entry, ItemRandomEnchantmentType
     });
 
     return{ selectedItr->type, selectedItr->ench };
+}
+
+ItemRandomEnchantmentId GenerateItemRandomPropertyId(uint32 item_id)
+{
+    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
+    if (!itemProto)
+        return{};
+
+    // item must have one from this field values not null if it can have random enchantments
+    if (!itemProto->GetRandomProperty() && !itemProto->GetRandomSuffix())
+        return{};
+
+    // item can have not null only one from field values
+    if (itemProto->GetRandomProperty() && itemProto->GetRandomSuffix())
+    {
+        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->GetId(), itemProto->GetRandomProperty(), itemProto->GetRandomSuffix());
+        return{};
+    }
+
+    // RandomProperty case
+    if (itemProto->GetRandomProperty())
+        return GetItemEnchantMod(itemProto->GetRandomProperty(), ItemRandomEnchantmentType::Property);
+    // RandomSuffix case
+    else
+        return GetItemEnchantMod(itemProto->GetRandomSuffix(), ItemRandomEnchantmentType::Suffix);
 }
 
 uint32 GenerateEnchSuffixFactor(uint32 item_id)

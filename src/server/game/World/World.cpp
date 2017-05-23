@@ -21,6 +21,7 @@
 */
 
 #include "World.h"
+#include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AreaTriggerDataStore.h"
 #include "ArenaTeamMgr.h"
@@ -36,51 +37,56 @@
 #include "CharacterDatabaseCleaner.h"
 #include "CharacterTemplateDataStore.h"
 #include "Chat.h"
+#include "ChatPackets.h"
 #include "Config.h"
+#include "ConversationDataStore.h"
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "GameObjectModel.h"
 #include "GameTables.h"
 #include "GarrisonMgr.h"
 #include "GitRevision.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
 #include "GuildFinderMgr.h"
-#include "GameObjectModel.h"
+#include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "Language.h"
 #include "LFGMgr.h"
+#include "LootMgr.h"
+#include "M2Stores.h"
 #include "MapManager.h"
 #include "Memory.h"
+#include "Metric.h"
 #include "MiscPackets.h"
 #include "MMapFactory.h"
+#include "Object.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
-#include "QueryCallback.h"
+#include "Realm.h"
 #include "ScenarioMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
-#include "SmartAI.h"
-#include "Metric.h"
+#include "SmartScriptMgr.h"
 #include "SupportMgr.h"
 #include "TaxiPathGraph.h"
 #include "TransportMgr.h"
 #include "Unit.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "WardenCheckMgr.h"
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "WorldSession.h"
-#include "ChatPackets.h"
 #include "WorldSocket.h"
-#include "M2Stores.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -1206,6 +1212,18 @@ void World::LoadConfigSettings(bool reload)
             TC_LOG_ERROR("server.loading", "ClientCacheVersion can't be negative %d, ignored.", clientCacheId);
     }
 
+    if (int32 hotfixCacheId = sConfigMgr->GetIntDefault("HotfixCacheVersion", 0))
+    {
+        // overwrite DB/old value
+        if (hotfixCacheId > 0)
+        {
+            m_int_configs[CONFIG_HOTFIX_CACHE_VERSION] = hotfixCacheId;
+            TC_LOG_INFO("server.loading", "Hotfix cache version set to: %u", hotfixCacheId);
+        }
+        else
+            TC_LOG_ERROR("server.loading", "HotfixCacheVersion can't be negative %d, ignored.", hotfixCacheId);
+    }
+
     m_int_configs[CONFIG_GUILD_NEWS_LOG_COUNT] = sConfigMgr->GetIntDefault("Guild.NewsLogRecordsCount", GUILD_NEWSLOG_MAX_RECORDS);
     if (m_int_configs[CONFIG_GUILD_NEWS_LOG_COUNT] > GUILD_NEWSLOG_MAX_RECORDS)
         m_int_configs[CONFIG_GUILD_NEWS_LOG_COUNT] = GUILD_NEWSLOG_MAX_RECORDS;
@@ -1405,7 +1423,6 @@ void World::LoadConfigSettings(bool reload)
 
     // Guild save interval
     m_int_configs[CONFIG_GUILD_SAVE_INTERVAL] = sConfigMgr->GetIntDefault("Guild.SaveInterval", 15);
-    m_int_configs[CONFIG_GUILD_UNDELETABLE_LEVEL] = sConfigMgr->GetIntDefault("Guild.UndeletableLevel", 4);
 
     // misc
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = sConfigMgr->GetBoolDefault("PlayerDump.DisallowPaths", true);
@@ -1631,6 +1648,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Transport templates...");
     sTransportMgr->LoadTransportTemplates();
 
+    TC_LOG_INFO("server.loading", "Loading Transport animations and rotations...");
+    sTransportMgr->LoadTransportAnimationAndRotation();
+
     TC_LOG_INFO("server.loading", "Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();
 
@@ -1822,6 +1842,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
     sAreaTriggerDataStore->LoadAreaTriggerTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
+    sConversationDataStore->LoadConversationTemplates();
 
     TC_LOG_INFO("server.loading", "Loading Scenes Templates...");
     sObjectMgr->LoadSceneTemplates();
@@ -2176,8 +2199,7 @@ void World::SetInitialWorldSettings()
 
     TC_METRIC_EVENT("events", "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
 
-    if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
-        sLog->SetRealmId(realmId);
+    sLog->SetRealmId(realm.Id.Realm);
 }
 
 void World::ResetTimeDiffRecord()
@@ -2208,9 +2230,8 @@ void World::LoadAutobroadcasts()
 
     m_Autobroadcasts.clear();
 
-    uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
-    stmt->setInt32(0, realmId);
+    stmt->setInt32(0, realm.Id.Realm);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (!result)
@@ -3012,9 +3033,9 @@ void World::UpdateSessions(uint32 diff)
 // This handles the issued and queued CLI commands
 void World::ProcessCliCommands()
 {
-    CliCommandHolder::Print* zprint = NULL;
-    void* callbackArg = NULL;
-    CliCommandHolder* command = NULL;
+    CliCommandHolder::Print zprint = nullptr;
+    void* callbackArg = nullptr;
+    CliCommandHolder* command = nullptr;
     while (cliCmdQueue.next(command))
     {
         TC_LOG_INFO("misc", "CLI command under processing...");
@@ -3380,14 +3401,14 @@ void World::UpdateMaxSessionCounters()
 
 void World::LoadDBVersion()
 {
-    QueryResult result = WorldDatabase.Query("SELECT db_version, cache_id FROM version LIMIT 1");
-    if (result)
+    if (QueryResult result = WorldDatabase.Query("SELECT db_version, cache_id, hotfix_cache_id FROM version LIMIT 1"))
     {
         Field* fields = result->Fetch();
 
         m_DBVersion = fields[0].GetString();
         // will be overwrite by config values if different and non-0
         m_int_configs[CONFIG_CLIENTCACHE_VERSION] = fields[1].GetUInt32();
+        m_int_configs[CONFIG_HOTFIX_CACHE_VERSION] = fields[2].GetUInt32();
     }
 
     if (m_DBVersion.empty())
@@ -3430,6 +3451,16 @@ void World::LoadWorldStates()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u world states in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
+}
+
+bool World::IsPvPRealm() const
+{
+    return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP);
+}
+
+bool World::IsFFAPvPRealm() const
+{
+    return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP;
 }
 
 // Setting a worldstate will save it to DB
@@ -3595,5 +3626,15 @@ Realm realm;
 
 uint32 GetVirtualRealmAddress()
 {
-    return uint32(realm.Id.Region) << 24 | uint32(realm.Id.Site) << 16 | realm.Id.Realm;
+    return realm.Id.GetAddress();
+}
+
+CliCommandHolder::CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished)
+    : m_callbackArg(callbackArg), m_command(strdup(command)), m_print(zprint), m_commandFinished(commandFinished)
+{
+}
+
+CliCommandHolder::~CliCommandHolder()
+{
+    free(m_command);
 }

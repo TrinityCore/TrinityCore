@@ -42,6 +42,8 @@ struct DB2Header
     uint32 CopyTableSize;
     uint16 Flags;
     int16 IndexField;
+    uint32 TotalFieldCount;
+    uint32 CommonDataSize;
 };
 #pragma pack(pop)
 
@@ -51,6 +53,7 @@ struct TC_COMMON_API DB2FileLoadInfo
     DB2FileLoadInfo(DB2FieldMeta const* fields, std::size_t fieldCount, DB2Meta const* meta);
 
     uint32 GetStringFieldCount(bool localizedOnly) const;
+    std::pair<int32/*fieldIndex*/, int32/*arrayIndex*/> GetFieldIndexByName(char const* fieldName) const;
 
     DB2FieldMeta const* Fields;
     std::size_t FieldCount;
@@ -86,11 +89,17 @@ public:
     uint32 GetId() const;
 
     uint8 GetUInt8(uint32 field, uint32 arrayIndex) const;
+    uint8 GetUInt8(char const* fieldName) const;
     uint16 GetUInt16(uint32 field, uint32 arrayIndex) const;
+    uint16 GetUInt16(char const* fieldName) const;
     uint32 GetUInt32(uint32 field, uint32 arrayIndex) const;
+    uint32 GetUInt32(char const* fieldName) const;
     int32 GetInt32(uint32 field, uint32 arrayIndex) const;
+    int32 GetInt32(char const* fieldName) const;
     float GetFloat(uint32 field, uint32 arrayIndex) const;
+    float GetFloat(char const* fieldName) const;
     char const* GetString(uint32 field, uint32 arrayIndex) const;
+    char const* GetString(char const* fieldName) const;
 
     // Creates its own heap allocated copy of _fieldOffsets
     // by default _fieldOffets point to a shared array inside Loader to avoid heap allocations
@@ -123,7 +132,7 @@ public:
     char* AutoProduceStrings(char* dataTable, uint32 locale);
     void AutoProduceRecordCopies(uint32 records, char** indexTable, char* dataTable);
 
-    uint32 GetCols() const { return _header.FieldCount; }
+    uint32 GetCols() const { return _header.TotalFieldCount; }
     uint32 GetRecordCount() const;
     uint32 GetRecordCopyCount() const;
     uint32 GetTableHash() const { return _header.TableHash; }

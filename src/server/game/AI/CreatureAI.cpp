@@ -41,6 +41,14 @@ void CreatureAI::OnCharmed(bool apply)
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &CreatureAI::AISpellInfo[i]; }
 
+CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), m_MoveInLineOfSight_locked(false)
+{
+}
+
+CreatureAI::~CreatureAI()
+{
+}
+
 void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
 {
     sCreatureTextMgr->SendChat(me, id, whisperTarget);
@@ -264,7 +272,6 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     // sometimes bosses stuck in combat?
     me->DeleteThreatList();
     me->CombatStop(true);
-    me->LoadCreaturesAddon();
     me->SetLootRecipient(nullptr);
     me->ResetPlayerDamageReq();
     me->SetLastDamagedTime(0);
@@ -362,6 +369,12 @@ bool CreatureAI::CheckBoundary(Position const* who) const
                 return false;
 
     return true;
+}
+
+void CreatureAI::SetBoundary(CreatureBoundary const* boundary)
+{
+    _boundary = boundary;
+    me->DoImmediateBoundaryCheck();
 }
 
 bool CreatureAI::CheckInRoom()
