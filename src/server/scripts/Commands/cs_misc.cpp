@@ -645,7 +645,13 @@ public:
 
     static bool HandleDismountCommand(ChatHandler* handler, char const* /*args*/)
     {
-        Player* player = handler->GetSession()->GetPlayer();
+        Player* player = handler->getSelectedPlayerOrSelf();
+        if (!player)
+        {
+            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
         // If player is not mounted, so go out :)
         if (!player->IsMounted())
@@ -657,7 +663,7 @@ public:
 
         if (player->IsInFlight())
         {
-            handler->SendSysMessage(LANG_YOU_IN_FLIGHT);
+            handler->SendSysMessage(LANG_CHAR_IN_FLIGHT);
             handler->SetSentErrorMessage(true);
             return false;
         }
