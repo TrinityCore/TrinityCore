@@ -48,8 +48,6 @@ enum UnkorTheRuthless
 {
     SAY_SUBMIT              = 0,
     REQUIRED_KILL_COUNT     = 10,
-    FACTION_FRIENDLY        = 35,
-    FACTION_HOSTILE         = 45,
     SPELL_PULVERIZE         = 2676,
     QUEST_DONTKILLTHEFATONE = 9889,
     NPC_BOULDERFIST_INVADER = 18260
@@ -87,7 +85,7 @@ public:
         {
             Initialize();
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->SetFaction(FACTION_HOSTILE);
+            me->SetFaction(FACTION_OGRE);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -310,7 +308,6 @@ enum Floon
     SAY_FLOON_ATTACK            = 0,
     OPTION_ID_PAY_UP_OR_DIE     = 0,
     OPTION_ID_COLLECT_A_DEBT    = 0,
-    FACTION_HOSTILE_FLOON       = 1738,
     MENU_ID_PAY_UP_OR_DIE       = 7731,
     MENU_ID_COLLECT_A_DEBT      = 7732,
     GOSSIP_FLOON_STRANGE_SOUNDS = 9442,
@@ -339,7 +336,7 @@ public:
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
             CloseGossipMenuFor(player);
-            creature->SetFaction(FACTION_HOSTILE_FLOON);
+            creature->SetFaction(FACTION_ARAKKOA);
             creature->AI()->Talk(SAY_FLOON_ATTACK, player);
             creature->AI()->AttackStart(player);
         }
@@ -427,7 +424,6 @@ enum IslaStarmaneData
     SAY_PROGRESS_3               = 2,
     SAY_PROGRESS_4               = 3,
     GO_DISTANCE                  = 10,
-    FACTION_ESCORTEE             = 113,
     ESCAPE_FROM_FIREWING_POINT_A = 10051,
     ESCAPE_FROM_FIREWING_POINT_H = 10052,
     SPELL_TRAVEL_FORM_CAT        = 32447,
@@ -504,7 +500,7 @@ public:
         if (quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_H || quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_A)
         {
             ENSURE_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
-            creature->SetFaction(FACTION_ESCORTEE);
+            creature->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
         }
         return true;
     }
@@ -644,9 +640,9 @@ public:
                 pEscortAI->Start(false, false, player->GetGUID());
 
             if (player->GetTeamId() == TEAM_ALLIANCE)
-                creature->SetFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
+                creature->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
             else
-                creature->SetFaction(FACTION_ESCORT_H_NEUTRAL_PASSIVE);
+                creature->SetFaction(FACTION_ESCORTEE_H_NEUTRAL_PASSIVE);
         }
         return true;
     }
