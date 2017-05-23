@@ -548,7 +548,7 @@ public:
         {
             if (quest->GetQuestId() == Q_ALMABTRIEB)
             {
-                me->SetFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 Start(true, false, player->GetGUID());
             }
@@ -656,7 +656,7 @@ public:
         {
             if (quest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
             {
-                me->SetFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 Start(false, false, player->GetGUID());
             }
         }

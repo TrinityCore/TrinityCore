@@ -2201,13 +2201,13 @@ void Player::SetGameMaster(bool on)
     if (on)
     {
         m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
-        SetFaction(35);
+        SetFaction(FACTION_FRIENDLY);
         AddPlayerFlag(PLAYER_FLAGS_GM);
         AddUnitFlag2(UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
 
         if (Pet* pet = GetPet())
         {
-            pet->SetFaction(35);
+            pet->SetFaction(FACTION_FRIENDLY);
             pet->getHostileRefManager().setOnlineOfflineState(false);
         }
 

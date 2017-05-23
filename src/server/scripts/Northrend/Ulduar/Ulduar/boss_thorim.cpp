@@ -315,7 +315,6 @@ enum Data
 {
     DATA_CHARGED_PILLAR                     = 1,
 
-    FACTION_FRIENDLY                        = 35
 };
 
 enum DisplayIds

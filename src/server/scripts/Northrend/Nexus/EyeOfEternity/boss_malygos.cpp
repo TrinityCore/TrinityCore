@@ -175,12 +175,6 @@ enum Seats
     SEAT_0       = 0
 };
 
-enum Factions
-{
-    // Needed for melee hover disks /when Nexus Lords die/
-    FACTION_FRIENDLY         = 35
-};
-
 enum Actions
 {
     // Malygos

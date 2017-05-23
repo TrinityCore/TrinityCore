@@ -78,8 +78,6 @@ enum ApothecaryMisc
 {
     ACTION_START_EVENT          = 1,
     ACTION_START_FIGHT          = 2,
-    FACTION_APOTHECARY_HOSTILE  = 14,
-    FACTION_APOTHECARY_FRIENDLY = 35,
     GOSSIP_OPTION_START         = 0,
     GOSSIP_MENU_HUMMEL          = 10847,
     QUEST_YOUVE_BEEN_SERVED     = 14488,
@@ -120,7 +118,7 @@ class boss_apothecary_hummel : public CreatureScript
                 _deadCount = 0;
                 _isDead = false;
                 events.SetPhase(PHASE_ALL);
-                me->SetFaction(FACTION_APOTHECARY_FRIENDLY);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->SummonCreatureGroup(1);
             }
 
@@ -139,7 +137,7 @@ class boss_apothecary_hummel : public CreatureScript
                     events.ScheduleEvent(EVENT_HUMMEL_SAY_0, Milliseconds(1));
 
                     me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                    me->SetFaction(FACTION_APOTHECARY_HOSTILE);
+                    me->SetFaction(FACTION_MONSTER);
                     DummyEntryCheckPredicate pred;
                     summons.DoAction(ACTION_START_EVENT, pred);
                 }
@@ -296,7 +294,7 @@ struct npc_apothecary_genericAI : public ScriptedAI
         if (action == ACTION_START_EVENT)
         {
             me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetFaction(FACTION_APOTHECARY_HOSTILE);
+            me->SetFaction(FACTION_MONSTER);
             me->GetMotionMaster()->MovePoint(1, _movePos);
         }
         else if (action == ACTION_START_FIGHT)
