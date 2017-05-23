@@ -12,4 +12,4 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 SET @OGUID :=301113;
 DELETE FROM `gameobject` WHERE `guid` IN (220440,@OGUID);
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
-(@OGUID, 206110, 0, 0, 0, 1, 1, 169, -8339.884, 288.7882, 156.8326, 5.037568, 0, 0, -0.5833187, 0.8122433, 120, 255, 1, 24015); -- Portal to Moonglade
+(@OGUID, 206110, 0, 0, 0, 1, 169, 0, -8339.884, 288.7882, 156.8326, 5.037568, 0, 0, -0.5833187, 0.8122433, 120, 255, 1, 24015); -- Portal to Moonglade
