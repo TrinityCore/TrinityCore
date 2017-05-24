@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
-#include "ScriptMgr.h"
 #include "Spell.h"
 #include "icecrown_citadel.h"
+#include "SpellInfo.h"
 
 static std::vector<uint32> const TeleportSpells =
 {

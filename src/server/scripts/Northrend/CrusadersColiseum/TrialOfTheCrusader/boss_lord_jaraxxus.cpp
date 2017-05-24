@@ -17,9 +17,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
-#include "Player.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells
@@ -533,9 +535,8 @@ class MistressKissTargetSelector
 
         bool operator()(WorldObject* unit) const
         {
-            if (unit->GetTypeId() == TYPEID_PLAYER)
-                if (unit->ToPlayer()->getPowerType() == POWER_MANA)
-                    return false;
+            if (unit->GetTypeId() == TYPEID_PLAYER && unit->ToUnit()->getPowerType() == POWER_MANA)
+                return false;
 
             return true;
         }

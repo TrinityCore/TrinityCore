@@ -16,7 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "stonecore.h"
 
@@ -266,7 +272,7 @@ class boss_slabhide : public CreatureScript
                         case EVENT_LAND:
                         {
                             Position pos = me->GetPosition();
-                            pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                            me->UpdateGroundPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ);
                             me->GetMotionMaster()->MoveLand(POINT_SLABHIDE_LAND, pos);
                             break;
                         }

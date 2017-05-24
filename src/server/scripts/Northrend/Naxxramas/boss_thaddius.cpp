@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "Player.h"
-#include "ObjectGuid.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "naxxramas.h"
-
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum Phases
 {
@@ -1075,29 +1079,28 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
                 }
 
                 uint8 maxStacks = 0;
-                if (GetCaster())
-                    switch (GetCaster()->GetMap()->GetDifficultyID())
-                    {
-                        case DIFFICULTY_10_N:
-                            maxStacks = MAX_POLARITY_10M;
-                            break;
-                        case DIFFICULTY_25_N:
-                            maxStacks = MAX_POLARITY_25M;
-                            break;
-                        default:
-                            break;
-                    }
+                switch (GetCaster()->GetMap()->GetDifficultyID())
+                {
+                    case DIFFICULTY_10_N:
+                        maxStacks = MAX_POLARITY_10M;
+                        break;
+                    case DIFFICULTY_25_N:
+                        maxStacks = MAX_POLARITY_25M;
+                        break;
+                    default:
+                        break;
+                }
 
                 uint8 stacksCount = 1; // do we get a stack for our own debuff?
                 std::list<WorldObject*>::iterator it = targetList.begin();
-                while(it != targetList.end())
+                while (it != targetList.end())
                 {
                     if ((*it)->GetTypeId() != TYPEID_PLAYER)
                     {
                         it = targetList.erase(it);
                         continue;
                     }
-                    if ((*it)->ToPlayer()->HasAura(triggeringId))
+                    if ((*it)->ToUnit()->HasAura(triggeringId))
                     {
                         it = targetList.erase(it);
                         if (stacksCount < maxStacks)
@@ -1112,11 +1115,11 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
                     ++it;
                 }
 
-                if (GetCaster() && GetCaster()->ToPlayer())
+                if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (!GetCaster()->ToPlayer()->HasAura(ampId))
-                        GetCaster()->ToPlayer()->AddAura(ampId, GetCaster());
-                    GetCaster()->ToPlayer()->SetAuraStack(ampId, GetCaster(), stacksCount);
+                    if (!GetCaster()->HasAura(ampId))
+                        GetCaster()->AddAura(ampId, GetCaster());
+                    GetCaster()->SetAuraStack(ampId, GetCaster(), stacksCount);
                 }
             }
 

@@ -23,9 +23,14 @@ Category: Scholomance
 */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -59,14 +64,14 @@ class boss_darkmaster_gandling : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_GANDLING)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
             void JustDied(Unit* /*killer*/) override
             {
                 _JustDied();
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_GANDLING)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
@@ -78,7 +83,7 @@ class boss_darkmaster_gandling : public CreatureScript
                 events.ScheduleEvent(EVENT_CURSE, 2000);
                 events.ScheduleEvent(EVENT_SHADOW_PORTAL, 16000);
 
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_GANDLING)))
+                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_READY);
             }
 
@@ -353,7 +358,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                         break;
                 }
 
-                if (gate_to_close && (caster->GetMap()->GetId() == 289))
+                if (gate_to_close)
                 {
                     for (uint8 i = 0; i < 3; ++i)
                     {
