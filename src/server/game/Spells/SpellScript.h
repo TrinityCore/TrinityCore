@@ -18,27 +18,35 @@
 #ifndef __SPELL_SCRIPT_H
 #define __SPELL_SCRIPT_H
 
-#include "Util.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
-#include "Spell.h"
+#include "Util.h"
+#include <memory>
 #include <stack>
 
-class Unit;
+class Aura;
+class AuraApplication;
+class AuraEffect;
+class Creature;
+class DamageInfo;
+class DispelInfo;
+class DynamicObject;
+class GameObject;
+class Item;
+class ModuleReference;
+class Player;
+class ProcEventInfo;
+class Spell;
+class SpellEffectInfo;
 class SpellInfo;
 class SpellScript;
-class Spell;
-class Aura;
-class AuraEffect;
-struct SpellModifier;
-class Creature;
-class GameObject;
-class DynamicObject;
-class Player;
-class Item;
+class Unit;
 class WorldLocation;
 class WorldObject;
-class ModuleReference;
+struct SpellDestination;
+struct SpellModifier;
+struct SpellValue;
 
 #define SPELL_EFFECT_ANY (uint16)-1
 #define SPELL_AURA_ANY (uint16)-1
