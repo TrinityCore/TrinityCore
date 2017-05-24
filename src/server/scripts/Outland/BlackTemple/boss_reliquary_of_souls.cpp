@@ -24,9 +24,12 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
+#include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 enum ReliquaryOfSouls
 {
@@ -563,7 +566,7 @@ public:
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
-                for (SpellEffectInfo const* effect : spell->GetEffectsForDifficulty(me->GetMap()->GetDifficultyID()))
+                for (SpellEffectInfo const* effect : spell->GetEffectsForDifficulty(GetDifficulty()))
                     if (effect->Effect == SPELL_EFFECT_INTERRUPT_CAST)
                         if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_SOUL_SHOCK
                             || me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DEADEN)
