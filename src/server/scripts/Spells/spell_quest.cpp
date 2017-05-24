@@ -22,8 +22,8 @@
  */
 
 #include "CellImpl.h"
+#include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Player.h"
 #include "ScriptMgr.h"

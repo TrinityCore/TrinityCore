@@ -21,15 +21,17 @@
  * Scriptnames of files in this file should be prefixed with "spell_item_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
+#include "Battleground.h"
+#include "CreatureAIImpl.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "SkillDiscovery.h"
-#include "Battleground.h"
-#include "Log.h"
+#include "SpellScript.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader

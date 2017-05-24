@@ -25,6 +25,7 @@
 #include "CellImpl.h"
 #include "CreatureAIImpl.h" // for RAND()
 #include "GridNotifiersImpl.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellScript.h"
 #include "SpellHistory.h"

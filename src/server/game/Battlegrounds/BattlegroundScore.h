@@ -21,6 +21,7 @@
 #include "Errors.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
+#include <string>
 
 enum ScoreType
 {
