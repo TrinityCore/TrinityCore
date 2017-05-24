@@ -301,7 +301,6 @@ const uint32 MAX_CREATURE_MODELS = 4;
 const uint32 MAX_CREATURE_NAMES = 4;
 const uint32 MAX_CREATURE_SPELLS = 8;
 const uint32 MAX_CREATURE_DIFFICULTIES = 3;
-const uint8  MAX_SCRIPT_PARAM = 1;
 
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
@@ -517,7 +516,6 @@ struct CreatureData
                      spawndist(0.0f), currentwaypoint(0), curhealth(0), curmana(0), movementType(0),
                      spawnMask(0), npcflag(0), unit_flags(0), unit_flags2(0), unit_flags3(0), dynamicflags(0),
                      phaseid(0), phaseGroup(0), dbData(true) { }
-
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
     uint32 phaseMask;
