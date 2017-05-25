@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 #include "blackrock_caverns.h"
+#include "Spell.h"
 #include "SpellScript.h"
 #include "SpellAuras.h"
 #include "Player.h"
