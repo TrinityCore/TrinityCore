@@ -47,6 +47,7 @@
 #include "BattlenetServerManager.h"
 #include "DatabaseLoader.h"
 #include "AppenderDB.h"
+#include "Metric.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
@@ -197,6 +198,13 @@ extern int main(int argc, char** argv)
 
     LoadRealmInfo();
 
+    sMetric->Initialize(realm.Name, _ioService, []()
+    {
+        TC_METRIC_VALUE("online_players", sWorld->GetPlayerCount());
+    });
+
+    TC_METRIC_EVENT("events", "Worldserver started", "");
+
     // Initialize the World
     sScriptMgr->SetScriptLoader(AddScripts);
     sWorld->SetInitialWorldSettings();
@@ -303,6 +311,9 @@ extern int main(int argc, char** argv)
     ClearOnlineAccounts();
 
     StopDB();
+
+    TC_METRIC_EVENT("events", "Worldserver shutdown", "");
+    sMetric->ForceSend();
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
 
