@@ -5010,6 +5010,20 @@ void Unit::RemoveAreaTrigger(uint32 spellId)
     }
 }
 
+void Unit::RemoveAreaTrigger(AuraEffect const* aurEff)
+{
+    if (m_areaTrigger.empty())
+        return;
+    for (AreaTrigger* areaTrigger : m_areaTrigger)
+    {
+        if (areaTrigger->GetAuraEffect() == aurEff)
+        {
+            areaTrigger->Remove();
+            break; // There can only be one AreaTrigger per AuraEffect
+        }
+    }
+}
+
 void Unit::RemoveAllAreaTriggers()
 {
     while (!m_areaTrigger.empty())
