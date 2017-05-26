@@ -27,6 +27,7 @@ class AreaTriggerMiscTemplate;
 class SpellInfo;
 class Unit;
 class AreaTriggerAI;
+class AuraEffect;
 
 struct AreaTriggerPolygonVertice;
 
@@ -44,11 +45,12 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         AreaTriggerAI* AI() { return _ai.get(); }
 
-        bool CreateAreaTrigger(uint32 triggerEntry, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty);
+        bool CreateAreaTrigger(uint32 triggerEntry, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
         void Update(uint32 p_time) override;
         void Remove();
         bool IsRemoved() const { return _isRemoved; }
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
+        AuraEffect const* GetAuraEffect() const { return _aurEff; }
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
         uint32 GetTimeToTarget() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET); }
         uint32 GetTimeToTargetScale() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE); }
@@ -98,6 +100,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         void DebugVisualizePosition(); // Debug purpose only
 
         ObjectGuid _targetGuid;
+
+        AuraEffect const* _aurEff;
 
         int32 _duration;
         int32 _totalDuration;
