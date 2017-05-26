@@ -175,7 +175,7 @@ inline bool StringsEqualCaseInsensitive(std::string const& left, std::string con
     return upperLeftString == upperRightString;
 }
 
-inline auto FindColumnByName(TableStruct& tableStruct, std::string const& columnName)
+inline auto FindColumnByName(TableStruct& tableStruct, std::string const& columnName) -> decltype(tableStruct.TableFields.begin())
 {
     return std::find_if(tableStruct.TableFields.begin(), tableStruct.TableFields.end(), [columnName](TableField const& tableField) -> bool
     {
