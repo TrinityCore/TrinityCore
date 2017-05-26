@@ -3947,3 +3947,45 @@ void Map::UpdateAreaDependentAuras()
                 player->UpdateZoneDependentAuras(player->GetZoneId());
             }
 }
+
+void Map::LoadVendorItemCounts()
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CREATURE_VENDOR);
+    stmt->setUInt32(0, GetInstanceId());
+
+    //        0        1     2      3
+    // SELECT spawnId, item, count, lastIncrementTime FROM corpse WHERE instanceId = ?
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        ObjectGuid::LowType guid = fields[0].GetUInt32();
+        uint32 item = fields[1].GetUInt32();
+        uint32 count = fields[2].GetUInt32();
+        time_t lastIncrementTime = fields[3].GetUInt32();
+
+        _vendorItemCountsStore[guid].push_back(VendorItemCount(item, count, lastIncrementTime));
+    } while (result->NextRow());
+
+}
+
+void Map::SaveVendorItemCounts(ObjectGuid::LowType guid, VendorItemCount* vendorItemCount)
+{
+    VendorItemCountsContainer::iterator itr = _vendorItemCountsStore.find(guid);
+    if (itr == _vendorItemCountsStore.end())
+        return;
+
+    for (auto itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
+    {
+        if (itr2->itemId != vendorItemCount->itemId)
+            continue;
+
+        itr2->itemId = vendorItemCount->itemId;
+        itr2->count = vendorItemCount->count;
+        itr2->lastIncrementTime = vendorItemCount->lastIncrementTime;
+    }
+}
+

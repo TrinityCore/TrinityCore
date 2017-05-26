@@ -286,6 +286,8 @@ void Creature::AddToWorld()
         AIM_Initialize();
         if (IsVehicle())
             GetVehicleKit()->Install();
+        if (IsVendor())
+            LoadVendorItemCount();
     }
 }
 
@@ -2642,6 +2644,7 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
             vCount->lastIncrementTime = ptime;
         }
 
+    SaveVendorItemCount(vCount);
     return vCount->count;
 }
 
@@ -2678,6 +2681,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
     vCount->count = vCount->count > used_count ? vCount->count-used_count : 0;
     vCount->lastIncrementTime = ptime;
+    SaveVendorItemCount(vCount);
     return vCount->count;
 }
 
@@ -3136,4 +3140,29 @@ void Creature::ClearTextRepeatGroup(uint8 textGroup)
     CreatureTextRepeatGroup::iterator groupItr = m_textRepeat.find(textGroup);
     if (groupItr != m_textRepeat.end())
         groupItr->second.clear();
+}
+
+void Creature::LoadVendorItemCount()
+{
+    if (VendorItemCounts const* items = GetMap()->GetVendorItemCounts(GetSpawnId()))
+        for (auto itr = items->begin(); itr != items->end(); ++itr)
+            m_vendorItemCounts.push_back(VendorItemCount(itr->itemId, itr->count, itr->lastIncrementTime));
+}
+
+void Creature::SaveVendorItemCount(VendorItemCount* vendorItemCount)
+{
+    GetMap()->SaveVendorItemCounts(GetSpawnId(), vendorItemCount);
+        
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_VENDOR);
+    uint8 index = 0;
+
+    stmt->setUInt32(index++, m_spawnId);
+    stmt->setUInt32(index++, vendorItemCount->itemId);
+    stmt->setUInt8(index++, vendorItemCount->count);
+    stmt->setUInt32(index++, vendorItemCount->lastIncrementTime);
+    trans->Append(stmt);
+
+    CharacterDatabase.CommitTransaction(trans);
 }

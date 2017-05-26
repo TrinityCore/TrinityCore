@@ -318,6 +318,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_DEL_CREATURE_RESPAWN, "DELETE FROM creature_respawn WHERE guid = ? AND mapId = ? AND instanceId = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE, "DELETE FROM creature_respawn WHERE mapId = ? AND instanceId = ?", CONNECTION_ASYNC);
 
+    // Creature
+    PrepareStatement(CHAR_SEL_CREATURE_VENDOR, "SELECT spawnId, item, count, lastIncrementTime FROM corpse WHERE instanceId = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_REP_CREATURE_VENDOR, "REPLACE INTO creature_vendor (spawnId, instanceId, item, count, lastIncrementTime) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+
     // Gameobject respawn
     PrepareStatement(CHAR_SEL_GO_RESPAWNS, "SELECT guid, respawnTime FROM gameobject_respawn WHERE mapId = ? AND instanceId = ?", CONNECTION_SYNCH);
     PrepareStatement(CHAR_REP_GO_RESPAWN, "REPLACE INTO gameobject_respawn (guid, respawnTime, mapId, instanceId) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);

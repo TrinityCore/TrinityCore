@@ -31,6 +31,7 @@
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "ObjectGuid.h"
+#include "Creature.h"
 
 #include <bitset>
 #include <list>
@@ -253,6 +254,8 @@ struct ZoneDynamicInfo
 typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
 
 typedef std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMap;
+
+typedef std::unordered_map<ObjectGuid::LowType, VendorItemCounts> VendorItemCountsContainer;
 
 class TC_GAME_API Map : public GridRefManager<NGridType>
 {
@@ -577,6 +580,16 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             _updateObjects.erase(obj);
         }
 
+        void LoadVendorItemCounts();
+        void SaveVendorItemCounts(ObjectGuid::LowType guid, VendorItemCount* vendorItemCount);
+        VendorItemCounts const* GetVendorItemCounts(ObjectGuid::LowType guid) const
+        {
+            VendorItemCountsContainer::const_iterator itr = _vendorItemCountsStore.find(guid);
+            if (itr == _vendorItemCountsStore.end())
+                return nullptr;
+            return &itr->second;
+        }
+
     private:
 
         void LoadMapAndVMap(int gx, int gy);
@@ -633,6 +646,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void UpdateActiveCells(const float &x, const float &y, const uint32 t_diff);
 
         void SendObjectUpdates();
+
+        VendorItemCountsContainer _vendorItemCountsStore;
 
     protected:
         void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }

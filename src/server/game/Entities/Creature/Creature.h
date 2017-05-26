@@ -393,8 +393,11 @@ struct VendorItemData
 
 struct VendorItemCount
 {
-    explicit VendorItemCount(uint32 _item, uint32 _count)
-        : itemId(_item), count(_count), lastIncrementTime(time(NULL)) { }
+    VendorItemCount(uint32 _item, uint32 _count)
+        : itemId(_item), count(_count), lastIncrementTime(time(nullptr)) { }
+
+    VendorItemCount(uint32 _item, uint32 _count, time_t _lastIncrementTime)
+        : itemId(_item), count(_count), lastIncrementTime(_lastIncrementTime) { }
 
     uint32 itemId;
     uint32 count;
@@ -777,6 +780,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool IsInvisibleDueToDespawn() const override;
         bool CanAlwaysSee(WorldObject const* obj) const override;
+
+        void LoadVendorItemCount();
+        void SaveVendorItemCount(VendorItemCount* vendorItemCount);
 
     private:
         void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds const& forceRespawnTimer = Seconds(0));
