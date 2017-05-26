@@ -119,7 +119,7 @@ DumpTable const DumpTables[] =
     { "character_gifts",                DTT_ITEM_GIFT    }  // must be after item_instance
 };
 
-uint32 const DUMP_TABLE_COUNT = sizeof(DumpTables) / sizeof(DumpTable);
+uint32 const DUMP_TABLE_COUNT = std::extent<decltype(DumpTables)>::value;
 
 // helper class to dump sql queries to a printable string
 class StringTransaction
