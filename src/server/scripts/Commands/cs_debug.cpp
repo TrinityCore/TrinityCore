@@ -52,6 +52,7 @@ public:
             { "cinematic",     rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_CINEMATIC, false, &HandleDebugPlayCinematicCommand,   "" },
             { "movie",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_MOVIE,     false, &HandleDebugPlayMovieCommand,       "" },
             { "sound",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_SOUND,     false, &HandleDebugPlaySoundCommand,       "" },
+            { "music",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_MUSIC,     false, &HandleDebugPlayMusicCommand,       "" },
         };
         static std::vector<ChatCommand> debugSendCommandTable =
         {
@@ -173,11 +174,10 @@ public:
         return true;
     }
 
-    //Play sound
     static bool HandleDebugPlaySoundCommand(ChatHandler* handler, char const* args)
     {
-        // USAGE: .debug playsound #soundid
-        // #soundid - ID decimal number from SoundEntries.dbc (1st column)
+        // USAGE: .debug play sound #soundId
+        // #soundId - ID decimal number from SoundEntries.dbc (1st column)
         if (!*args)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -186,13 +186,14 @@ public:
         }
 
         uint32 soundId = atoi((char*)args);
-
         if (!sSoundEntriesStore.LookupEntry(soundId))
         {
             handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
             handler->SetSentErrorMessage(true);
             return false;
         }
+
+        Player* player = handler->GetSession()->GetPlayer();
 
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
@@ -202,12 +203,39 @@ public:
             return false;
         }
 
-        if (handler->GetSession()->GetPlayer()->GetTarget())
-            unit->PlayDistanceSound(soundId, handler->GetSession()->GetPlayer());
+        if (player->GetTarget())
+            unit->PlayDistanceSound(soundId, player);
         else
-            unit->PlayDirectSound(soundId, handler->GetSession()->GetPlayer());
+            unit->PlayDirectSound(soundId, player);
 
         handler->PSendSysMessage(LANG_YOU_HEAR_SOUND, soundId);
+        return true;
+    }
+
+    static bool HandleDebugPlayMusicCommand(ChatHandler* handler, char const* args)
+    {
+        // USAGE: .debug play music #musicId
+        // #musicId - ID decimal number from SoundEntries.dbc (1st column)
+        if (!*args)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        uint32 musicId = atoi((char*)args);
+        if (!sSoundEntriesStore.LookupEntry(musicId))
+        {
+            handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, musicId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        player->PlayDirectMusic(musicId, player);
+
+        handler->PSendSysMessage(LANG_YOU_HEAR_SOUND, musicId);
         return true;
     }
 
