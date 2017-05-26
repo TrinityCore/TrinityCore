@@ -66,6 +66,9 @@ void WorldSession::HandleMoveWorldportAck()
     if (GetPlayer()->m_InstanceValid == false && !mInstance)
         GetPlayer()->m_InstanceValid = true;
 
+    uint32 oldzone, oldarea;
+    GetPlayer()->GetZoneAndAreaId(oldzone, oldarea);
+
     Map* oldMap = GetPlayer()->GetMap();
     Map* newMap = sMapMgr->CreateMap(loc.GetMapId(), GetPlayer());
 
@@ -184,7 +187,10 @@ void WorldSession::HandleMoveWorldportAck()
     // update zone immediately, otherwise leave channel will cause crash in mtmap
     uint32 newzone, newarea;
     GetPlayer()->GetZoneAndAreaId(newzone, newarea);
-    GetPlayer()->UpdateZone(newzone, newarea);
+
+    // only update zone or area if old is diffrent
+    if (newzone != oldzone || newarea != oldarea)
+        GetPlayer()->UpdateZone(newzone, newarea);
 
     // honorless target
     if (GetPlayer()->pvpInfo.IsHostile)
@@ -221,7 +227,8 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
 
     plMover->SetSemaphoreTeleportNear(false);
 
-    uint32 old_zone = plMover->GetZoneId();
+    uint32 oldzone, oldarea;
+    plMover->GetZoneAndAreaId(oldzone, oldarea);
 
     WorldLocation const& dest = plMover->GetTeleportDest();
 
@@ -230,10 +237,13 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
 
     uint32 newzone, newarea;
     plMover->GetZoneAndAreaId(newzone, newarea);
-    plMover->UpdateZone(newzone, newarea);
+
+    // only update zone or area if old is diffrent
+    if (newzone != oldzone || newarea != oldarea)
+        plMover->UpdateZone(newzone, newarea);
 
     // new zone
-    if (old_zone != newzone)
+    if (oldzone != newzone)
     {
         // honorless target
         if (plMover->pvpInfo.IsHostile)
