@@ -917,12 +917,6 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         {
             case DTT_CHARACTER:
             {
-                if (!ChangeNth(line, 1, newguid))           // characters.guid update
-                    ROLLBACK(DUMP_FILE_BROKEN);
-
-                if (!ChangeNth(line, 2, chraccount))        // characters.account update
-                    ROLLBACK(DUMP_FILE_BROKEN);
-
                 race = uint8(atoul(GetColumn(ts, line, "race").c_str()));
                 playerClass = uint8(atoul(GetColumn(ts, line, "class").c_str()));
                 gender = uint8(atoul(GetColumn(ts, line, "gender").c_str()));
