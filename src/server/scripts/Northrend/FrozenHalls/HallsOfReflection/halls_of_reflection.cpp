@@ -16,12 +16,17 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Transport.h"
-#include "Player.h"
-#include "MoveSplineInit.h"
 #include "halls_of_reflection.h"
 
 enum Text
@@ -371,12 +376,12 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                 switch (gossipListId)
                 {
                     case 0:
-                        player->PlayerTalkClass->SendCloseGossip();
+                        CloseGossipMenuFor(player);
                         _events.ScheduleEvent(EVENT_START_INTRO, 1000);
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         break;
                     case 1:
-                        player->PlayerTalkClass->SendCloseGossip();
+                        CloseGossipMenuFor(player);
                         _events.ScheduleEvent(EVENT_SKIP_INTRO, 1000);
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         break;
@@ -865,7 +870,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                 switch (gossipListId)
                 {
                     case 0:
-                        player->PlayerTalkClass->SendCloseGossip();
+                        CloseGossipMenuFor(player);
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         _events.ScheduleEvent(EVENT_ESCAPE_6, 0);
                         break;

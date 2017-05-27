@@ -16,11 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "DynamicObject.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "Vehicle.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 #include "stonecore.h"
+#include "Vehicle.h"
 
 enum Spells
 {
@@ -267,7 +272,7 @@ class boss_high_priestess_azil : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_EARTH_FURY_CASTING_VISUAL);
                             me->RemoveAurasDueToSpell(SPELL_EARTH_FURY_ENERGY_SHIELD);
                             Position pos = me->GetPosition();
-                            pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                            me->UpdateGroundPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ);
                             me->GetMotionMaster()->MovePoint(POINT_GROUND, pos);
                             break;
                         }
@@ -543,9 +548,9 @@ public:
     bool operator()(WorldObject* object) const
     {
         // Valid targets are players, pets and Devout Followers
-        if (Creature* creature = object->ToCreature())
-            return (!creature->ToPet() && object->GetEntry() != NPC_DEVOUT_FOLLOWER);
-        return (!object->ToPlayer());
+        if (object->GetTypeId() == TYPEID_UNIT)
+            return !object->ToUnit()->IsPet() && object->GetEntry() != NPC_DEVOUT_FOLLOWER;
+        return object->GetTypeId() != TYPEID_PLAYER;
     }
 };
 

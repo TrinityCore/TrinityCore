@@ -21,6 +21,8 @@
 #define AhnKahetScriptName "instance_ahnkahet"
 #define DataHeader         "AK"
 
+#include "InstanceScript.h"
+
 uint32 const EncounterCount = 5;
 
 enum AKDataTypes

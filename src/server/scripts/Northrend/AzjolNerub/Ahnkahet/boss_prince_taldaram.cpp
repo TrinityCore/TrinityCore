@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "Player.h"
 #include "ahnkahet.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellScript.h"
 
 enum Spells
 {

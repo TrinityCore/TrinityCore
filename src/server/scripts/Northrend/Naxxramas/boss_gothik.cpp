@@ -16,13 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "GridNotifiers.h"
-#include "CombatAI.h"
 #include "AreaBoundary.h"
+#include "CombatAI.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
 #include "Log.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 /* Constants */
 enum Yells

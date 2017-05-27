@@ -20,7 +20,12 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "Spell.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {

@@ -21,6 +21,8 @@
 #define AzjolNerubScriptName "instance_azjol_nerub"
 #define DataHeader           "AN"
 
+#include "InstanceScript.h"
+
 uint32 const EncounterCount = 3;
 
 enum ANDataTypes

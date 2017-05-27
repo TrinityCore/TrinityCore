@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "halls_of_stone.h"
 

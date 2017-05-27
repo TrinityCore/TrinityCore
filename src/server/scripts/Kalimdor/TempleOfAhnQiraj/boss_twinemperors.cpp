@@ -24,11 +24,11 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "temple_of_ahnqiraj.h"
-#include "WorldPacket.h"
-#include "Item.h"
-#include "Spell.h"
 
 enum Spells
 {

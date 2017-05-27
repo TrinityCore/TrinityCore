@@ -81,6 +81,7 @@ enum Spells
 
     // Scrabot:
     SPELL_SCRAPBOT_RIDE_VEHICLE                 = 47020,
+    SPELL_SCRAP_REPAIR                          = 62832,
     SPELL_SUICIDE                               = 7,
 
     //------------------BOOMBOT-----------------------
@@ -317,6 +318,7 @@ class boss_xt002 : public CreatureScript
                         ++_heartExposed;
 
                     Talk(EMOTE_SCRAPBOT);
+                    DoCast(who, SPELL_SCRAP_REPAIR, true);
                     _healthRecovered = true;
                 }
 
