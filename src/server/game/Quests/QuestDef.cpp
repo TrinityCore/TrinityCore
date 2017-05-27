@@ -235,7 +235,7 @@ uint32 Quest::XPValue(Player* player) const
         minScaledXP = minScaledXP * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
 
         // Use greater between non-level scaled and scaled
-        return uint32(minScaledXP >= scaledXP ? minScaledXP : scaledXP);
+        return std::max(minScaledXP, scaledXP);
     }
 
     return 0;

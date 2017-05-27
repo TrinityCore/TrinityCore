@@ -158,7 +158,7 @@ namespace Trinity
             uint32 baseGainUnscaledMin = (mob_level * 5 + nBaseExp) * sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO) / 100;
 
             // Use largest
-            uint32 baseGain = baseGainUnscaledMin >= baseGainScaled ? baseGainUnscaledMin : baseGainScaled;
+            uint32 baseGain = std::max(baseGainUnscaledMin, baseGainScaled);
 
             sScriptMgr->OnBaseGainCalculation(baseGain, pl_level, mob_level, content);
             return baseGain;
