@@ -174,14 +174,14 @@ class spell_hun_aspect_eagle : public SpellScriptLoader
 
         class spell_hun_aspect_eagle_SpellScript : public SpellScript
         {
-
             PrepareSpellScript(spell_hun_aspect_eagle_SpellScript);
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_HUNTING_COMPANION_AURA))
-                    return false;
-                return true;
+                return ValidateSpellInfo
+                ({
+                    SPELL_HUNTER_ASPECT_EAGLE_PET
+                });
             }
 
             void HandleAfterCast()
@@ -392,7 +392,7 @@ class spell_hun_flanking_strike : public SpellScriptLoader
 
             void HandleCooldowns()
             {
-                if (AuraEffect *aura = GetCaster()->GetAuraEffect(SPELL_HUNTER_ANIMAL_INSTINCTS, EFFECT_0))
+                if (GetCaster()->HasAura(SPELL_HUNTER_ANIMAL_INSTINCTS))
                 {
                     std::vector<int32> spellCds;
                     std::vector<int32> spellIDs;
@@ -417,7 +417,7 @@ class spell_hun_flanking_strike : public SpellScriptLoader
                         GetCaster()->GetSpellHistory()->ModifyCharge(sSpellMgr->GetSpellInfo(spellCds.at(selector))->ChargeCategoryId, value);
                 }
 
-                if (AuraEffect *aura = GetCaster()->GetAuraEffect(SPELL_HUNTER_ASPECT_BEAST, EFFECT_0))
+                if (GetCaster()->HasAura(SPELL_HUNTER_ASPECT_BEAST))
                 {
                     Unit *target = GetHitUnit();
                     Pet *pet = GetCaster()->ToPlayer()->GetPet();
@@ -439,8 +439,6 @@ class spell_hun_flanking_strike : public SpellScriptLoader
                         pet->CastSpell(target, SPELL_HUNTER_BESTIAL_FEROCITY, true);
                         break;
                     }
-
-
                 }
             }
 
@@ -530,7 +528,7 @@ class spell_hun_hunting_companion_gain_charge : public SpellScriptLoader
             {
                 Unit *caster = GetCaster();
                 if (Unit *owner = GetCaster()->GetOwner())
-                    if (Aura *aura = caster->GetAura(SPELL_HUNTER_HUNTING_COMPANION_AURA))
+                    if (caster->HasAura(SPELL_HUNTER_HUNTING_COMPANION_AURA))
                         owner->GetSpellHistory()->RestoreCharge(sSpellMgr->GetSpellInfo(SPELL_HUNTER_MONGOOSE_BITE)->ChargeCategoryId);
             }
 
@@ -546,7 +544,7 @@ class spell_hun_hunting_companion_gain_charge : public SpellScriptLoader
         }
 };
 
-// 191336 - Huntin Companion (Pet Aura)
+// 191336 - Hunting Companion (Pet Aura)
 class spell_hun_hunting_companion : public SpellScriptLoader
 {
     public:
@@ -560,9 +558,9 @@ class spell_hun_hunting_companion : public SpellScriptLoader
             {
                 return ValidateSpellInfo
                 ({
-                    SPELL_HUNTER_ASPECT_EAGLE  ||
-                    SPELL_HUNTER_FLANKING_STRIKE_PET  ||
-                    SPELL_HUNTER_FLANKING_STRIKE_R2  ||
+                    SPELL_HUNTER_ASPECT_EAGLE           ||
+                    SPELL_HUNTER_FLANKING_STRIKE_PET    ||
+                    SPELL_HUNTER_FLANKING_STRIKE_R2     ||
                     SPELL_HUNTER_HUNTING_COMPANION_MASTERY 
                 });
             }
@@ -888,7 +886,6 @@ class spell_hun_mongoose_bite : public SpellScriptLoader
             {
                 AfterHit += SpellHitFn(spell_hun_mongoose_bite_SpellScript::HandleAfterHit);
             }
-
         };
 
         SpellScript* GetSpellScript() const override

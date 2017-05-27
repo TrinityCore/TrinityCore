@@ -576,11 +576,10 @@ void SpellHistory::ModifyCharge(uint32 chargeCategoryId, int32 cooldownModMs)
     {
         std::deque<SpellHistory::ChargeEntry>::iterator it = itr->second.begin();
 
-        while (it != itr->second.end())
+        for(std::deque<SpellHistory::ChargeEntry>::iterator it = itr->second.begin(); *itr != itr->second.end; it++)
         {
             it->RechargeEnd += offset;
             it->RechargeStart += offset;
-            it++;
         }
 
         if (Player* player = GetPlayerOwner())
@@ -597,9 +596,7 @@ void SpellHistory::ModifyCharge(uint32 chargeCategoryId, int32 cooldownModMs)
             player->SendDirectMessage(setSpellCharges.Write());
         }
     }
-
 }
-
 
 void SpellHistory::ResetCooldown(uint32 spellId, bool update /*= false*/)
 {
