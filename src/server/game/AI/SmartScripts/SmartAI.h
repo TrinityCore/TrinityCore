@@ -198,6 +198,8 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetWPPauseTimer(uint32 time) { mWPPauseTimer = time; }
 
+        void SetGossipReturn(bool val) { _gossipReturn = val; }
+
     private:
         bool mIsCharmed;
         uint32 mFollowCreditType;
@@ -241,12 +243,15 @@ class TC_GAME_API SmartAI : public CreatureAI
         void CheckConditions(uint32 diff);
         bool mHasConditions;
         uint32 mConditionsTimer;
+
+        // Gossip
+        bool _gossipReturn;
 };
 
 class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* g) : GameObjectAI(g) { }
+        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), _gossipReturn(false) { }
         ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff) override;
@@ -268,8 +273,13 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void EventInform(uint32 eventId) override;
         void SpellHit(Unit* unit, const SpellInfo* spellInfo) override;
 
+        void SetGossipReturn(bool val) { _gossipReturn = val; }
+
     private:
         SmartScript mScript;
+
+        // Gossip
+        bool _gossipReturn;
 };
 
 /// Registers scripts required by the SAI scripting system
