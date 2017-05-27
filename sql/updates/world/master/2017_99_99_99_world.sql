@@ -1,4 +1,3 @@
-
 --Hunter Spell Flanking Strike (202800)
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_hun_flanking_strike';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES

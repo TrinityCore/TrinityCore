@@ -350,7 +350,6 @@ class spell_hun_flanking_strike : public SpellScriptLoader
                     SPELL_HUNTER_FLANKING_STRIKE_PET || 
                     SPELL_HUNTER_HARPOON             ||
                     SPELL_HUNTER_MONGOOSE_BITE
-                    
                 });
             }
 
@@ -390,7 +389,7 @@ class spell_hun_flanking_strike : public SpellScriptLoader
                 return SPELL_FAILED_SUCCESS;
             }
 
-            void HandleCooldowns()
+            void HandleAfterHit()
             {
                 if (GetCaster()->HasAura(SPELL_HUNTER_ANIMAL_INSTINCTS))
                 {
@@ -423,19 +422,15 @@ class spell_hun_flanking_strike : public SpellScriptLoader
                     Pet *pet = GetCaster()->ToPlayer()->GetPet();
                     uint16 spec = GetCaster()->GetGuardianPet()->ToPet()->GetSpecialization();
 
-                    // tenacity = 81
-                    // cunning = 79
-                    // ferocity = 74
-
                     switch (spec)
                     {
-                    case 81:
+                    case 81:    // tenacity = 81
                         pet->CastSpell(target, SPELL_HUNTER_BESTIAL_TENACITY, true);
                         break;
-                    case 79:
+                    case 79:   // cunning = 79
                         pet->CastSpell(target, SPELL_HUNTER_BESTIAL_CUNNING, true);
                         break;
-                    case 74:
+                    case 74:  // ferocity = 74
                         pet->CastSpell(target, SPELL_HUNTER_BESTIAL_FEROCITY, true);
                         break;
                     }
@@ -447,9 +442,8 @@ class spell_hun_flanking_strike : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_hun_flanking_strike_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
                 OnCast += SpellCastFn(spell_hun_flanking_strike_SpellScript::HandleOnCast);
                 OnCheckCast += SpellCheckCastFn(spell_hun_flanking_strike_SpellScript::CheckCast);
-                AfterHit += SpellHitFn(spell_hun_flanking_strike_SpellScript::HandleCooldowns);
+                AfterHit += SpellHitFn(spell_hun_flanking_strike_SpellScript::HandleAfterHit);
             }
-
         };
 
         SpellScript* GetSpellScript() const override
@@ -491,12 +485,11 @@ class spell_hun_flanking_strike_pet : public SpellScriptLoader
                         }
                 }
             }
-
+            
             void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_hun_flanking_strike_pet_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
-
         };
 
         SpellScript* GetSpellScript() const override
