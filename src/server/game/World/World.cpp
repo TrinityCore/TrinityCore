@@ -2164,14 +2164,13 @@ void World::Update(uint32 diff)
             sAuctionBot->Update();
             m_timers[WUPDATE_AHBOT].Reset();
         }
-
-        /// <li> Handle session updates when the timer has passed
-        sWorldUpdateTime.RecordUpdateTimeReset();
-        UpdateSessions(diff);
-        sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
     }
     AuctionHouseListing::SetListingAllowed(true);
-    AuctionHouseListing::Notify();
+
+    /// <li> Handle session updates when the timer has passed
+    sWorldUpdateTime.RecordUpdateTimeReset();
+    UpdateSessions(diff);
+    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
 
     /// <li> Handle weather updates when the timer has passed
     if (m_timers[WUPDATE_WEATHERS].Passed())

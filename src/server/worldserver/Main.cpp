@@ -265,7 +265,9 @@ extern int main(int argc, char** argv)
     sScriptMgr->OnStartup();
 
     // start auction house listing thread
-    std::thread* auctionHouseListingThread = new std::thread(AuctionHouseListing::AuctionHouseListingThread);
+    boost::asio::deadline_timer updateAuctionTimer(_ioService);
+    updateAuctionTimer.expires_from_now(boost::posix_time::seconds(1));
+    updateAuctionTimer.async_wait(std::bind(&AuctionHouseListing::AuctionHouseListingHandler, &updateAuctionTimer, std::placeholders::_1));
 
     WorldUpdateLoop();
 
@@ -299,9 +301,6 @@ extern int main(int argc, char** argv)
         soapThread->join();
         delete soapThread;
     }
-
-    auctionHouseListingThread->join();
-    delete auctionHouseListingThread;
 
     delete raAcceptor;
 

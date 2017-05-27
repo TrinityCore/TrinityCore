@@ -25,63 +25,54 @@
 #include "Player.h"
 #include "GameTime.h"
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
+std::list<AuctionListingEvent*> AuctionHouseListing::_requestsNew;
+std::list<AuctionListingEvent*> AuctionHouseListing::_requests;
 
-#include <condition_variable>
-#include <vector>
-#include <unordered_map>
+std::mutex AuctionHouseListing::_listingLock;
+std::atomic<bool> AuctionHouseListing::_auctionHouseListingAllowed = false;
 
 namespace
 {
-    std::list<AuctionListingEvent*> _requestsNew;
-    std::list<AuctionListingEvent*> _requests;
-
-    std::mutex _listingLock;
-    std::condition_variable _allowedCondition;
-    std::atomic<bool> _auctionHouseListingAllowed;
-
     // Map of throttled players for GetAll, and throttle expiry time
     // Stored here, rather than player object to maintain persistence after logout
-    std::unordered_map<ObjectGuid, time_t> GetAllThrottleMap;
+    std::unordered_map<ObjectGuid, time_t> _getAllThrottleMap;
 }
 
-void AuctionHouseListing::AuctionHouseListingThread()
+void AuctionHouseListing::Update()
 {
-    TC_LOG_INFO("misc", "Auction House Listing Thread starting");
+    if (!IsListingAllowed())
+        return;
 
-    while (!World::IsStopped())
     {
         std::unique_lock<std::mutex> lock(_listingLock);
-        while (!IsListingAllowed())
-            _allowedCondition.wait(lock);
 
         // process new requests
-        {
-            if (!_requestsNew.empty())
-                _requests.splice(_requests.end(), _requestsNew);
-        }
+        if (!_requestsNew.empty())
+            _requests.splice(_requests.end(), _requestsNew);
 
-        if (!_requests.empty())
+        for (auto itr = _requests.begin(); itr != _requests.end();)
         {
-            for (auto itr = _requests.begin(); itr != _requests.end();)
+            if ((*itr)->Execute())
             {
-                if ((*itr)->Execute())
-                {
-                    delete (*itr);
-                    itr = _requests.erase(itr);
-                }
-                else
-                    ++itr;
-
-                // main thread may be waiting for us
-                if (!IsListingAllowed())
-                    break;
+                delete (*itr);
+                itr = _requests.erase(itr);
+                break;
             }
+            else
+                ++itr;
         }
     }
+}
 
-    TC_LOG_INFO("misc", "Auction House Listing thread exiting without problems.");
+void AuctionHouseListing::AuctionHouseListingHandler(boost::asio::deadline_timer* updateAuctionTimer, boost::system::error_code const& error)
+{
+    if (!World::IsStopped() && !error)
+    {
+        Update();
+
+        updateAuctionTimer->expires_from_now(boost::posix_time::seconds(1));
+        updateAuctionTimer->async_wait(std::bind(&AuctionHouseListingHandler, updateAuctionTimer, std::placeholders::_1));
+    }
 }
 
 void AuctionHouseListing::SetListingAllowed(bool allowed)
@@ -97,11 +88,6 @@ bool AuctionHouseListing::IsListingAllowed()
 std::mutex* AuctionHouseListing::GetListingLock()
 {
     return &_listingLock;
-}
-
-void AuctionHouseListing::Notify()
-{
-    _allowedCondition.notify_all();
 }
 
 void AuctionHouseListing::AddListOwnItemsEvent(Player* player, uint32 faction)
@@ -137,7 +123,7 @@ AuctionListItemsEvent::AuctionListItemsEvent(Player* player, uint32 faction, std
     AuctionListingEvent(player, faction), _searchedname(searchedname), _listfrom(listfrom), _levelmin(levelmin), _levelmax(levelmax), _usable(usable), _inventoryType(inventoryType), _itemClass(itemClass), _itemSubClass(itemSubClass), _quality(quality), _getAll(getAll),
     _isAlive(player->IsAlive()), _level(player->getLevel())
 {
-    _mSkillStatus = player->GetSkillMap();
+    _skillStatus = player->GetSkillMap();
     _spells = player->GetSpellMap();
     std::copy(player->GetUIntFieldValues() + PLAYER_SKILL_INFO_1_1, player->GetUIntFieldValues() + PLAYER_SKILL_INFO_1_1 + SkillFieldsSize, _skillFields.begin());
     _factions = player->GetReputationMgr().GetStateList();
@@ -171,14 +157,10 @@ bool AuctionListOwnItemsEvent::Execute()
 
     for (auto itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
     {
-        // this may be very long
-        if (!AuctionHouseListing::IsListingAllowed())
-            return false;
-
-        AuctionEntry* Aentry = itr->second;
-        if (Aentry && Aentry->owner == player->GetGUID().GetCounter())
+        AuctionEntry* auction = itr->second;
+        if (auction && auction->owner == player->GetGUID().GetCounter())
         {
-            if (Aentry->BuildAuctionInfo(listingData))
+            if (auction->BuildAuctionInfo(listingData))
                 ++count;
 
             ++totalCount;
@@ -188,7 +170,7 @@ bool AuctionListOwnItemsEvent::Execute()
     listingData.put<uint32>(0, count);
     listingData << (uint32)totalCount;
     listingData << (uint32)0;
-    player->GetSession()->SendPacket(&listingData);
+    player->SendDirectMessage(&listingData);
     return true;
 }
 
@@ -223,7 +205,7 @@ bool AuctionListItemsEvent::Execute()
     listingData.put<uint32>(0, count);
     listingData << (uint32)totalCount;
     listingData << (uint32)sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
-    player->GetSession()->SendPacket(&listingData);
+    player->SendDirectMessage(&listingData);
 
     return true;
 }
@@ -280,7 +262,7 @@ bool AuctionListBidsEvent::Execute()
     listingData.put<uint32>(0, count);                           // add count to placeholder
     listingData << totalCount;
     listingData << (uint32)sWorld->getIntConfig(CONFIG_AUCTION_SEARCH_DELAY);
-    player->GetSession()->SendPacket(&listingData);
+    player->SendDirectMessage(&listingData);
     return true;
 }
 
@@ -289,40 +271,34 @@ bool AuctionListItemsEvent::BuildListAuctionItems(AuctionHouseObject* auctionHou
     uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
     uint32& count, uint32& totalcount, bool getall)
 {
-    int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
+    LocaleConstant localeConstant = player->GetSession()->GetSessionDbLocaleIndex();
     int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
     time_t curTime = GameTime::GetGameTime();
 
-    auto itr = GetAllThrottleMap.find(player->GetGUID());
-    time_t throttleTime = itr != GetAllThrottleMap.end() ? itr->second : curTime;
-
-    if (getall && throttleTime <= curTime)
+    auto itr = _getAllThrottleMap.find(player->GetGUID());
+    if (getall && (itr == _getAllThrottleMap.end() || itr->second <= curTime))
     {
         for (auto itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
         {
-            // this may be very long
-            if (!AuctionHouseListing::IsListingAllowed())
-                return false;
-
-            AuctionEntry* Aentry = itr->second;
+            AuctionEntry* auction = itr->second;
             // Skip expired auctions
-            if (Aentry->expire_time < curTime)
+            if (auction->expire_time < curTime)
                 continue;
 
-            Item* item = sAuctionMgr->GetAItem(Aentry->itemGUIDLow);
+            Item* item = sAuctionMgr->GetAItem(auction->itemGUIDLow);
             if (!item)
                 continue;
 
             ++count;
             ++totalcount;
-            Aentry->BuildAuctionInfo(data, item);
+            auction->BuildAuctionInfo(data, item);
 
             if (count >= MAX_GETALL_RETURN)
                 break;
         }
 
-        GetAllThrottleMap[player->GetGUID()] = curTime + sWorld->getIntConfig(CONFIG_AUCTION_GETALL_DELAY);
+        _getAllThrottleMap[player->GetGUID()] = curTime + sWorld->getIntConfig(CONFIG_AUCTION_GETALL_DELAY);
         return true;
     }
 
@@ -346,16 +322,12 @@ bool AuctionListItemsEvent::BuildListAuctionItems(AuctionHouseObject* auctionHou
 
     for (auto itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
     {
-        // this may be very long
-        if (!AuctionHouseListing::IsListingAllowed())
-            return false;
-
-        AuctionEntry* Aentry = itr->second;
+        AuctionEntry* auction = itr->second;
         // Skip expired auctions
-        if (Aentry->expire_time < curTime)
+        if (auction->expire_time < curTime)
             continue;
 
-        Item* item = sAuctionMgr->GetAItem(Aentry->itemGUIDLow);
+        Item* item = sAuctionMgr->GetAItem(auction->itemGUIDLow);
         if (!item)
             continue;
 
@@ -395,9 +367,9 @@ bool AuctionListItemsEvent::BuildListAuctionItems(AuctionHouseObject* auctionHou
                 continue;
 
             // local name
-            if (loc_idx >= 0)
+            if (localeConstant >= LOCALE_enUS)
                 if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->ItemId))
-                    ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
+                    ObjectMgr::GetLocaleString(il->Name, localeConstant, name);
 
             // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result
             //  that matches the search but it may not equal item->GetItemRandomPropertyId()
@@ -414,13 +386,13 @@ bool AuctionListItemsEvent::BuildListAuctionItems(AuctionHouseObject* auctionHou
 
                 if (propRefID < 0)
                 {
-                    const ItemRandomSuffixEntry* itemRandSuffix = sItemRandomSuffixStore.LookupEntry(-propRefID);
+                    ItemRandomSuffixEntry const* itemRandSuffix = sItemRandomSuffixStore.LookupEntry(-propRefID);
                     if (itemRandSuffix)
                         suffix = itemRandSuffix->nameSuffix;
                 }
                 else
                 {
-                    const ItemRandomPropertiesEntry* itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
+                    ItemRandomPropertiesEntry const* itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
                     if (itemRandProp)
                         suffix = itemRandProp->nameSuffix;
                 }
@@ -444,7 +416,7 @@ bool AuctionListItemsEvent::BuildListAuctionItems(AuctionHouseObject* auctionHou
         if (count < 50 && totalcount >= listfrom)
         {
             ++count;
-            Aentry->BuildAuctionInfo(data, item);
+            auction->BuildAuctionInfo(data, item);
         }
         ++totalcount;
     }
@@ -452,96 +424,92 @@ bool AuctionListItemsEvent::BuildListAuctionItems(AuctionHouseObject* auctionHou
     return true;
 }
 
-InventoryResult AuctionListItemsEvent::CanUseItem(Item const* pItem, Player const* player) const
+InventoryResult AuctionListItemsEvent::CanUseItem(Item const* item, Player const* player) const
 {
-    if (pItem)
-    {
-        if (!_isAlive)
-            return EQUIP_ERR_YOU_ARE_DEAD;
-
-        //if (isStunned())
-        //    return EQUIP_ERR_YOU_ARE_STUNNED;
-
-        ItemTemplate const* pProto = pItem->GetTemplate();
-        if (pProto)
-        {
-            if (pItem->IsBindedNotWith(player))
-                return EQUIP_ERR_DONT_OWN_THAT_ITEM;
-
-            InventoryResult res = CanUseItem(pProto, player);
-            if (res != EQUIP_ERR_OK)
-                return res;
-
-            if (pItem->GetSkill() != 0)
-            {
-                bool allowEquip = false;
-                uint32 itemSkill = pItem->GetSkill();
-                // Armor that is binded to account can "morph" from plate to mail, etc. if skill is not learned yet.
-                if (pProto->Quality == ITEM_QUALITY_HEIRLOOM && pProto->Class == ITEM_CLASS_ARMOR && !HasSkill(itemSkill))
-                {
-                    /// @todo when you right-click already equipped item it throws EQUIP_ERR_NO_REQUIRED_PROFICIENCY.
-
-                    // In fact it's a visual bug, everything works properly... I need sniffs of operations with
-                    // binded to account items from off server.
-
-                    switch (player->getClass()) // cannot change
-                    {
-                    case CLASS_HUNTER:
-                    case CLASS_SHAMAN:
-                        allowEquip = (itemSkill == SKILL_MAIL);
-                        break;
-                    case CLASS_PALADIN:
-                    case CLASS_WARRIOR:
-                        allowEquip = (itemSkill == SKILL_PLATE_MAIL);
-                        break;
-                    }
-                }
-                if (!allowEquip && GetSkillValue(itemSkill) == 0)
-                    return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
-            }
-
-            if (pProto->RequiredReputationFaction && uint32(GetReputationRank(pProto->RequiredReputationFaction, player)) < pProto->RequiredReputationRank)
-                return EQUIP_ERR_CANT_EQUIP_REPUTATION;
-
-            return EQUIP_ERR_OK;
-        }
-    }
-    return EQUIP_ERR_ITEM_NOT_FOUND;
-}
-
-InventoryResult AuctionListItemsEvent::CanUseItem(ItemTemplate const* proto, Player const* player) const
-{
-    if (!proto)
+    if (!item)
         return EQUIP_ERR_ITEM_NOT_FOUND;
 
-    if (((proto->Flags2 & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE) || // cannot change
-        (((proto->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)))   // cannot change
-        return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
+    ItemTemplate const* itemTemplate = item->GetTemplate();
+    if (!itemTemplate)
+        return EQUIP_ERR_ITEM_NOT_FOUND;
 
-    if ((proto->AllowableClass & player->getClassMask()) == 0 || (proto->AllowableRace & player->getRaceMask()) == 0) // cannot change
-        return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
+    if (!_isAlive)
+        return EQUIP_ERR_YOU_ARE_DEAD;
 
-    if (proto->RequiredSkill != 0)
+    if (item->IsBindedNotWith(player))
+        return EQUIP_ERR_DONT_OWN_THAT_ITEM;
+
+    InventoryResult res = CanUseItem(itemTemplate, player);
+    if (res != EQUIP_ERR_OK)
+        return res;
+
+    if (item->GetSkill() != 0)
     {
-        if (GetSkillValue(proto->RequiredSkill) == 0)
+        bool allowEquip = false;
+        uint32 itemSkill = item->GetSkill();
+        // Armor that is binded to account can "morph" from plate to mail, etc. if skill is not learned yet.
+        if (itemTemplate->Quality == ITEM_QUALITY_HEIRLOOM && itemTemplate->Class == ITEM_CLASS_ARMOR && !HasSkill(itemSkill))
+        {
+            /// @todo when you right-click already equipped item it throws EQUIP_ERR_NO_REQUIRED_PROFICIENCY.
+
+            // In fact it's a visual bug, everything works properly... I need sniffs of operations with
+            // binded to account items from off server.
+
+            switch (player->getClass()) // cannot change
+            {
+                case CLASS_HUNTER:
+                case CLASS_SHAMAN:
+                    allowEquip = (itemSkill == SKILL_MAIL);
+                    break;
+                case CLASS_PALADIN:
+                case CLASS_WARRIOR:
+                    allowEquip = (itemSkill == SKILL_PLATE_MAIL);
+                    break;
+            }
+        }
+        if (!allowEquip && GetSkillValue(itemSkill) == 0)
             return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
-        else if (GetSkillValue(proto->RequiredSkill) < proto->RequiredSkillRank)
+    }
+
+    if (itemTemplate->RequiredReputationFaction && uint32(GetReputationRank(itemTemplate->RequiredReputationFaction, player)) < itemTemplate->RequiredReputationRank)
+        return EQUIP_ERR_CANT_EQUIP_REPUTATION;
+
+    return EQUIP_ERR_OK;
+}
+
+InventoryResult AuctionListItemsEvent::CanUseItem(ItemTemplate const* itemTemplate, Player const* player) const
+{
+    if (!itemTemplate)
+        return EQUIP_ERR_ITEM_NOT_FOUND;
+
+    if (((itemTemplate->Flags2 & ITEM_FLAG2_FACTION_HORDE) && player->GetTeam() != HORDE) || // cannot change
+        (((itemTemplate->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE) && player->GetTeam() != ALLIANCE)))   // cannot change
+        return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
+
+    if ((itemTemplate->AllowableClass & player->getClassMask()) == 0 || (itemTemplate->AllowableRace & player->getRaceMask()) == 0) // cannot change
+        return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
+
+    if (itemTemplate->RequiredSkill != 0)
+    {
+        if (GetSkillValue(itemTemplate->RequiredSkill) == 0)
+            return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
+        else if (GetSkillValue(itemTemplate->RequiredSkill) < itemTemplate->RequiredSkillRank)
             return EQUIP_ERR_CANT_EQUIP_SKILL;
     }
 
-    if (proto->RequiredSpell != 0 && !HasSpell(proto->RequiredSpell))
+    if (itemTemplate->RequiredSpell != 0 && !HasSpell(itemTemplate->RequiredSpell))
         return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
 
-    if (_level < proto->RequiredLevel)
+    if (_level < itemTemplate->RequiredLevel)
         return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
 
     // If World Event is not active, prevent using event dependant items
-    if (proto->HolidayId && !IsHolidayActive((HolidayIds)proto->HolidayId))
+    if (itemTemplate->HolidayId && !IsHolidayActive((HolidayIds)itemTemplate->HolidayId))
         return EQUIP_ERR_CANT_DO_RIGHT_NOW;
 
     // learning (recipes, mounts, pets, etc.)
-    if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
-        if (HasSpell(proto->Spells[1].SpellId))
+    if (itemTemplate->Spells[0].SpellId == 483 || itemTemplate->Spells[0].SpellId == 55884)
+        if (HasSpell(itemTemplate->Spells[1].SpellId))
             return EQUIP_ERR_NONE;
 
     return EQUIP_ERR_OK;
@@ -552,8 +520,8 @@ bool AuctionListItemsEvent::HasSkill(uint32 skill) const
     if (!skill)
         return false;
 
-    SkillStatusMap::const_iterator itr = _mSkillStatus.find(skill);
-    return (itr != _mSkillStatus.end() && itr->second.uState != SKILL_DELETED);
+    auto itr = _skillStatus.find(skill);
+    return (itr != _skillStatus.end() && itr->second.uState != SKILL_DELETED);
 }
 
 uint16 AuctionListItemsEvent::GetSkillValue(uint32 skill) const
@@ -561,8 +529,8 @@ uint16 AuctionListItemsEvent::GetSkillValue(uint32 skill) const
     if (!skill)
         return 0;
 
-    SkillStatusMap::const_iterator itr = _mSkillStatus.find(skill);
-    if (itr == _mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
+    auto itr = _skillStatus.find(skill);
+    if (itr == _skillStatus.end() || itr->second.uState == SKILL_DELETED)
         return 0;
 
     uint32 bonus = _skillFields[PLAYER_SKILL_BONUS_INDEX(itr->second.pos) - PLAYER_SKILL_INFO_1_1];
@@ -570,12 +538,12 @@ uint16 AuctionListItemsEvent::GetSkillValue(uint32 skill) const
     int32 result = int32(SKILL_VALUE(_skillFields[PLAYER_SKILL_VALUE_INDEX(itr->second.pos) - PLAYER_SKILL_INFO_1_1]));
     result += SKILL_TEMP_BONUS(bonus);
     result += SKILL_PERM_BONUS(bonus);
-    return result < 0 ? 0 : result;
+    return std::max<uint16>(0, result);
 }
 
 bool AuctionListItemsEvent::HasSpell(uint32 spell) const
 {
-    PlayerSpellMap::const_iterator itr = _spells.find(spell);
+    auto itr = _spells.find(spell);
     return (itr != _spells.end() && itr->second.state != PLAYERSPELL_REMOVED && !itr->second.disabled);
 }
 
@@ -585,7 +553,7 @@ ReputationRank AuctionListItemsEvent::GetReputationRank(uint32 faction, Player c
     int32 reputation = 0;
     if (factionEntry && factionEntry->CanHaveReputation())
     {
-        FactionStateList::const_iterator repItr = _factions.find(factionEntry->reputationListID);
+        auto repItr = _factions.find(factionEntry->reputationListID);
         if (repItr != _factions.end())
             reputation = ReputationMgr::GetBaseReputation(factionEntry, player->getRaceMask(), player->getClassMask()) + repItr->second.Standing;
     }

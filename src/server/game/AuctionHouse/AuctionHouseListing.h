@@ -24,7 +24,21 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
+#include <atomic>
 #include <array>
+#include <list>
+#include <mutex>
+#include <unordered_map>
+
+#include <boost/asio/deadline_timer.hpp>
+
+namespace boost
+{
+    namespace system
+    {
+        class error_code;
+    }
+}
 
 enum InventoryResult;
 
@@ -54,9 +68,6 @@ class AuctionListOwnItemsEvent : public AuctionListingEvent
     public:
         AuctionListOwnItemsEvent(Player* player, uint32 faction);
         bool Execute() override;
-
-    private:
-
 };
 
 class AuctionListItemsEvent : public AuctionListingEvent
@@ -84,8 +95,8 @@ class AuctionListItemsEvent : public AuctionListingEvent
 
         // Duplication of CanUseItem
 
-        InventoryResult CanUseItem(Item const* pItem, Player const* player) const;
-        InventoryResult CanUseItem(ItemTemplate const* proto, Player const* player) const;
+        InventoryResult CanUseItem(Item const* item, Player const* player) const;
+        InventoryResult CanUseItem(ItemTemplate const* itemTemplate, Player const* player) const;
         bool HasSkill(uint32 skill) const;
         uint16 GetSkillValue(uint32 skill) const;
         bool HasSpell(uint32 spell) const;
@@ -93,7 +104,7 @@ class AuctionListItemsEvent : public AuctionListingEvent
 
         bool _isAlive;
         uint8 _level;
-        SkillStatusMap _mSkillStatus;
+        SkillStatusMap _skillStatus;
         PlayerSpellMap _spells;
         std::array<uint32, SkillFieldsSize> _skillFields;
         FactionStateList _factions;
@@ -109,19 +120,32 @@ class AuctionListBidsEvent : public AuctionListingEvent
         WorldPacket _data;
 };
 
-namespace AuctionHouseListing
+class TC_GAME_API AuctionHouseListing
 {
-    TC_GAME_API void AuctionHouseListingThread();
+    public:
+        static void AuctionHouseListingHandler(boost::asio::deadline_timer* updateAuctionTimer, boost::system::error_code const& error);
 
-    TC_GAME_API void AddListOwnItemsEvent(Player* player, uint32 faction);
-    TC_GAME_API void AddListItemsEvent(Player* player, uint32 faction, std::string const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable, uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint8 getAll);
-    TC_GAME_API void AddListBidsEvent(Player* player, uint32 faction, WorldPacket& data);
+        static void AddListOwnItemsEvent(Player* player, uint32 faction);
+        static void AddListItemsEvent(Player* player, uint32 faction, std::string const& searchedname, uint32 listfrom, uint8 levelmin, uint8 levelmax, uint8 usable, uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality, uint8 getAll);
+        static void AddListBidsEvent(Player* player, uint32 faction, WorldPacket& data);
 
-    TC_GAME_API void SetListingAllowed(bool allowed);
-    TC_GAME_API bool IsListingAllowed();
+        static void SetListingAllowed(bool allowed);
+        static bool IsListingAllowed();
 
-    TC_GAME_API std::mutex* GetListingLock();
-    TC_GAME_API void Notify();
-}
+        static std::mutex* GetListingLock();
+
+    private:
+        static void Update();
+
+        static std::list<AuctionListingEvent*> _requestsNew;
+        static std::list<AuctionListingEvent*> _requests;
+
+        static std::mutex _listingLock;
+        static std::atomic<bool> _auctionHouseListingAllowed;
+
+        // non instanceable only static
+        AuctionHouseListing() { }
+        ~AuctionHouseListing() { }
+};
 
 #endif
