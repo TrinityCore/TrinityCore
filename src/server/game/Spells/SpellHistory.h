@@ -135,6 +135,7 @@ public:
 
     // Charges
     bool ConsumeCharge(uint32 chargeCategoryId);
+    void ModifyCharge(uint32 chargeCategoryId, int32 cooldownModMs);
     void RestoreCharge(uint32 chargeCategoryId);
     void ResetCharges(uint32 chargeCategoryId);
     void ResetAllCharges();
