@@ -576,7 +576,7 @@ void SpellHistory::ModifyCharge(uint32 chargeCategoryId, int32 cooldownModMs)
     {
         std::deque<SpellHistory::ChargeEntry>::iterator it = itr->second.begin();
 
-        for(std::deque<SpellHistory::ChargeEntry>::iterator it = itr->second.begin(); *itr != itr->second.end; it++)
+        for(std::deque<SpellHistory::ChargeEntry>::iterator it = itr->second.begin(); it != itr->second.end(); it++)
         {
             it->RechargeEnd += offset;
             it->RechargeStart += offset;
