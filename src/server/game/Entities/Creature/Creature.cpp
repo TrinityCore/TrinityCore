@@ -2048,27 +2048,34 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
 {
     if (timeMSToDespawn)
     {
-        ForcedDespawnDelayEvent* pEvent = new ForcedDespawnDelayEvent(*this, forceRespawnTimer);
-
-        m_Events.AddEvent(pEvent, m_Events.CalculateTime(timeMSToDespawn));
+        m_Events.AddEvent(new ForcedDespawnDelayEvent(*this, forceRespawnTimer), m_Events.CalculateTime(timeMSToDespawn));
         return;
     }
+
+    uint32 corpseDelay = GetCorpseDelay();
+    uint32 respawnDelay = GetRespawnDelay();
 
     // do it before killing creature
     DestroyForNearbyPlayers();
 
+    bool overrideRespawnTime = false;
     if (IsAlive())
-        setDeathState(JUST_DIED);
-
-    bool overrideRespawnTime = true;
-    if (forceRespawnTimer > Seconds::zero())
     {
-        SetRespawnTime(forceRespawnTimer.count());
-        overrideRespawnTime = false;
+        if (forceRespawnTimer > Seconds::zero())
+        {
+            SetCorpseDelay(0);
+            SetRespawnDelay(forceRespawnTimer.count());
+            overrideRespawnTime = false;
+        }
+
+        setDeathState(JUST_DIED);
     }
 
     // Skip corpse decay time
     RemoveCorpse(overrideRespawnTime, false);
+
+    SetCorpseDelay(corpseDelay);
+    SetRespawnDelay(respawnDelay);
 }
 
 void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds const& forceRespawnTimer /*= 0*/)
