@@ -114,7 +114,6 @@ namespace Trinity
 
         inline uint32 BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels content)
         {
-            uint32 baseGain;
             uint32 nBaseExp;
 
             switch (content)
@@ -134,13 +133,14 @@ namespace Trinity
                     break;
             }
 
+            uint32 baseGainScaled;
             if (mob_level >= pl_level)
             {
                 uint8 nLevelDiff = mob_level - pl_level;
                 if (nLevelDiff > 4)
                     nLevelDiff = 4;
 
-                baseGain = ((pl_level * 5 + nBaseExp) * (20 + nLevelDiff) / 10 + 1) / 2;
+                baseGainScaled = ((pl_level * 5 + nBaseExp) * (20 + nLevelDiff) / 10 + 1) / 2;
             }
             else
             {
@@ -148,11 +148,17 @@ namespace Trinity
                 if (mob_level > gray_level)
                 {
                     uint8 ZD = GetZeroDifference(pl_level);
-                    baseGain = (pl_level * 5 + nBaseExp) * (ZD + mob_level - pl_level) / ZD;
+                    baseGainScaled = (pl_level * 5 + nBaseExp) * (ZD + mob_level - pl_level) / ZD;
                 }
                 else
-                    baseGain = 0;
+                    baseGainScaled = 0;
             }
+
+            // Calculate unscaled based gain min.  Use mob level instead of player level to avoid overscaling on gain
+            uint32 baseGainUnscaledMin = (mob_level * 5 + nBaseExp) * sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO) / 100;
+
+            // Use largest
+            uint32 baseGain = baseGainUnscaledMin >= baseGainScaled ? baseGainUnscaledMin : baseGainScaled;
 
             sScriptMgr->OnBaseGainCalculation(baseGain, pl_level, mob_level, content);
             return baseGain;

@@ -211,17 +211,31 @@ uint32 Quest::XPValue(Player* player) const
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * xpentry->Exp[_rewardXPDifficulty] / 10;
-        if (xp <= 100)
-            xp = 5 * ((xp + 2) / 5);
-        else if (xp <= 500)
-            xp = 10 * ((xp + 5) / 10);
-        else if (xp <= 1000)
-            xp = 25 * ((xp + 12) / 25);
+        // Calculate level scaled xp
+        uint32 scaledXP = diffFactor * xpentry->Exp[_rewardXPDifficulty] / 10;
+        if (scaledXP <= 100)
+            scaledXP = 5 * ((scaledXP + 2) / 5);
+        else if (scaledXP <= 500)
+            scaledXP = 10 * ((scaledXP + 5) / 10);
+        else if (scaledXP <= 1000)
+            scaledXP = 25 * ((scaledXP + 12) / 25);
         else
-            xp = 50 * ((xp + 25) / 50);
+            scaledXP = 50 * ((scaledXP + 25) / 50);
 
-        return xp;
+        // Calculate non-level scaled xp
+        uint32 minScaledXP = xpentry->Exp[_rewardXPDifficulty];
+        if (minScaledXP <= 100)
+            minScaledXP = 5 * ((minScaledXP + 2) / 5);
+        else if (minScaledXP <= 500)
+            minScaledXP = 10 * ((minScaledXP + 5) / 10);
+        else if (minScaledXP <= 1000)
+            minScaledXP = 25 * ((minScaledXP + 12) / 25);
+        else
+            minScaledXP = 50 * ((minScaledXP + 25) / 50);
+        minScaledXP = minScaledXP * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
+
+        // Use greater between non-level scaled and scaled
+        return uint32(minScaledXP >= scaledXP ? minScaledXP : scaledXP);
     }
 
     return 0;
