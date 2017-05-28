@@ -41,6 +41,7 @@
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldStatePackets.h"
+#include <G3D/Quat.h>
 
 namespace Trinity
 {
@@ -1464,14 +1465,18 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     if (!map)
         return false;
 
-    G3D::Quat rot(rotation0, rotation1, rotation2, rotation3);
+    QuaternionData rot(rotation0, rotation1, rotation2, rotation3);
     // Temporally add safety check for bad spawns and send log (object rotations need to be rechecked in sniff)
     if (!rotation0 && !rotation1 && !rotation2 && !rotation3)
     {
         TC_LOG_DEBUG("bg.battleground", "Battleground::AddObject: gameoobject [entry: %u, object type: %u] for BG (map: %u) has zeroed rotation fields, "
             "orientation used temporally, but please fix the spawn", entry, type, m_MapId);
 
-        rot = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
+        G3D::Quat fallbackRot = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
+        rot.x = fallbackRot.x;
+        rot.y = fallbackRot.y;
+        rot.z = fallbackRot.z;
+        rot.w = fallbackRot.w;
     }
 
     // Must be created this way, adding to godatamap would add it to the base map of the instance

@@ -16,10 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include <math.h>
 
 enum Texts
 {
@@ -94,7 +95,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_gluthAI>(creature);
+        return GetNaxxramasAI<boss_gluthAI>(creature);
     }
 
     struct boss_gluthAI : public BossAI
@@ -326,7 +327,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return (sSpellMgr->GetSpellInfo(SPELL_DECIMATE_DMG) != nullptr);
+            return ValidateSpellInfo({ SPELL_DECIMATE_DMG });
         }
 
         void Register() override
@@ -473,7 +474,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_zombie_chowAI>(creature);
+        return GetNaxxramasAI<npc_zombie_chowAI>(creature);
     }
 };
 

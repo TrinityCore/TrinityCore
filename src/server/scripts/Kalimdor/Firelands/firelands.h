@@ -18,8 +18,10 @@
 #ifndef FIRELANDS_H_
 #define FIRELANDS_H_
 
-#include "Map.h"
-#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
+#include "EventProcessor.h"
+
+class Creature;
 
 #define DataHeader "FL"
 #define FirelandsScriptName "instance_firelands"
@@ -52,24 +54,16 @@ class DelayedAttackStartEvent : public BasicEvent
     public:
         DelayedAttackStartEvent(Creature* owner) : _owner(owner) { }
 
-        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
-        {
-            _owner->AI()->DoZoneInCombat(_owner, 200.0f);
-            return true;
-        }
+        bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override;
 
     private:
         Creature* _owner;
 };
 
-template<class AI>
-CreatureAI* GetFirelandsAI(Creature* creature)
+template<typename AI>
+inline AI* GetFirelandsAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(FirelandsScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, FirelandsScriptName);
 }
 
 #endif // FIRELANDS_H_

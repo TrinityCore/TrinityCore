@@ -29,7 +29,6 @@ EndScriptData */
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "utgarde_keep.h"
 
@@ -411,7 +410,7 @@ class npc_ingvar_throw_dummy : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ingvar_throw_dummyAI(creature);
+            return GetUtgardeKeepAI<npc_ingvar_throw_dummyAI>(creature);
         }
 };
 
@@ -454,9 +453,7 @@ class spell_ingvar_woe_strike : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WOE_STRIKE_EFFECT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WOE_STRIKE_EFFECT });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)

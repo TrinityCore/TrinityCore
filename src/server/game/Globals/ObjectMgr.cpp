@@ -1205,7 +1205,7 @@ void ObjectMgr::LoadGameObjectAddons()
         }
 
         GameObjectAddon& gameObjectAddon = _gameObjectAddonStore[guid];
-        gameObjectAddon.ParentRotation = G3D::Quat(fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
+        gameObjectAddon.ParentRotation = QuaternionData(fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
         gameObjectAddon.invisibilityType = InvisibilityType(fields[5].GetUInt8());
         gameObjectAddon.InvisibilityValue = fields[6].GetUInt32();
 
@@ -1225,7 +1225,7 @@ void ObjectMgr::LoadGameObjectAddons()
         if (!gameObjectAddon.ParentRotation.isUnit())
         {
             TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid parent rotation in `gameobject_addon`, set to default", guid);
-            gameObjectAddon.ParentRotation = G3D::Quat();
+            gameObjectAddon.ParentRotation = QuaternionData();
         }
 
         ++count;

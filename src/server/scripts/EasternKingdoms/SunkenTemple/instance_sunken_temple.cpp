@@ -24,7 +24,9 @@ SDCategory: Sunken Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "sunken_temple.h"
 
 enum Gameobject
@@ -165,7 +167,7 @@ public:
 
         void UseStatue(GameObject* go)
         {
-            go->SummonGameObject(GO_ATALAI_LIGHT1, *go, G3D::Quat(), 0);
+            go->SummonGameObject(GO_ATALAI_LIGHT1, *go, QuaternionData(), 0);
             go->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
         }
 

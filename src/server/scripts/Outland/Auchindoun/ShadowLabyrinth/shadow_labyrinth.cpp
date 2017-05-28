@@ -16,9 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "Unit.h"
 
 enum Spells
 {
@@ -36,16 +35,14 @@ class spell_mark_of_malice : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_MALICE_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_MALICE_TRIGGERED });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 // just drop charges
-                if (aurEff->GetBase()->GetCharges() > 1)
+                if (GetCharges() > 1)
                     return;
 
                 GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_MALICE_TRIGGERED, true);

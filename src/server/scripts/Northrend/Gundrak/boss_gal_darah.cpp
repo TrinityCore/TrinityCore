@@ -16,12 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "gundrak.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
-#include "gundrak.h"
 
 /// @todo: implement stampede
 
@@ -250,9 +249,7 @@ class spell_gal_darah_impaling_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_IMPALING_CHARGE_CONTROL_VEHICLE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_IMPALING_CHARGE_CONTROL_VEHICLE });
             }
 
             bool Load() override

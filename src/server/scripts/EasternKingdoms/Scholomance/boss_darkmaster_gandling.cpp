@@ -136,7 +136,7 @@ class boss_darkmaster_gandling : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_darkmaster_gandlingAI>(creature);
+            return GetScholomanceAI<boss_darkmaster_gandlingAI>(creature);
         }
 };
 
@@ -309,7 +309,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
-                return _instance != nullptr;
+                return InstanceHasScript(GetCaster(), ScholomanceScriptName);
             }
 
             void HandleSendEvent(SpellEffIndex effIndex)

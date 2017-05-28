@@ -15,16 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
+#include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
-#include "SpellMgr.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 enum Texts
@@ -386,7 +387,7 @@ class boss_prince_keleseth_icc : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
+                if (CreatureData const* data = me->GetCreatureData())
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
@@ -601,7 +602,7 @@ class boss_prince_taldaram_icc : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
+                if (CreatureData const* data = me->GetCreatureData())
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
@@ -820,7 +821,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
+                if (CreatureData const* data = me->GetCreatureData())
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 

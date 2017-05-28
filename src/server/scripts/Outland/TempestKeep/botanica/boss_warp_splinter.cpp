@@ -24,7 +24,9 @@ SDCategory: Tempest Keep, The Botanica
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "the_botanica.h"
 
 enum Says
@@ -125,7 +127,7 @@ class npc_warp_splinter_treant : public CreatureScript
         };
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_warp_splinter_treantAI(creature);
+            return GetBotanicaAI<npc_warp_splinter_treantAI>(creature);
         }
 };
 
@@ -239,7 +241,7 @@ class boss_warp_splinter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_warp_splinterAI(creature);
+            return GetBotanicaAI<boss_warp_splinterAI>(creature);
         }
 };
 

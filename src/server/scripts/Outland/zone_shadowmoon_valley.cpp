@@ -41,6 +41,7 @@ EndContentData */
 #include "Group.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "QuestDef.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
@@ -76,7 +77,8 @@ public:
 
         void Reset() override
         {
-            ground = me->GetMap()->GetHeight(me->GetPhases(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZMinusOffset());
+            ground = me->GetPositionZ();
+            me->UpdateGroundPositionZ(me->GetPositionX(), me->GetPositionY(), ground);
             SummonInfernal();
             events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, urand(1000, 3000));
         }

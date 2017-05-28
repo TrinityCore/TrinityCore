@@ -17,10 +17,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackwing_lair.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "blackwing_lair.h"
-#include "Player.h"
 
 enum Say
 {
@@ -168,7 +170,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_razorgoreAI>(creature);
+        return GetBlackwingLairAI<boss_razorgoreAI>(creature);
     }
 };
 

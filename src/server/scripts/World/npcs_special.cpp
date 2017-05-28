@@ -17,24 +17,24 @@
  */
 
 #include "ScriptMgr.h"
-#include "Cell.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
 #include "GameEventMgr.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PassiveAI.h"
-#include "Pet.h"
-#include "ScriptedCreature.h"
+#include "Player.h"
+#include "QuestDef.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellHistory.h"
-#include "World.h"
+#include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 /*########
 # npc_air_force_bots
@@ -2080,7 +2080,7 @@ public:
 
                 float displacement = 0.7f;
                 for (uint8 i = 0; i < 4; i++)
-                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), G3D::Quat(), 1);
+                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData(), 1);
             }
             else
                 //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);

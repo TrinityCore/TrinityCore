@@ -29,12 +29,14 @@ npc_image_of_medivh
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
-#include "ScriptedEscortAI.h"
-#include "Player.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -407,7 +409,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_barnesAI>(creature);
+        return GetKarazhanAI<npc_barnesAI>(creature);
     }
 };
 
@@ -436,7 +438,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_image_of_medivhAI>(creature);
+        return GetKarazhanAI<npc_image_of_medivhAI>(creature);
     }
 
     struct npc_image_of_medivhAI : public ScriptedAI

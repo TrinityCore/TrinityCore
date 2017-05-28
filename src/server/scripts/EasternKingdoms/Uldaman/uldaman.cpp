@@ -30,9 +30,11 @@ at_map_chamber
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "uldaman.h"
-#include "Player.h"
 
 /*######
 ## npc_jadespine_basilisk

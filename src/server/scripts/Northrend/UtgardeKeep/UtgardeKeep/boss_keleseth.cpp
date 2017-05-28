@@ -23,9 +23,11 @@ SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "utgarde_keep.h"
 
 enum KelsethEncounter

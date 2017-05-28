@@ -24,7 +24,8 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
 
@@ -101,7 +102,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_lieutenant_drakeAI(creature);
+        return GetOldHillsbradAI<boss_lieutenant_drakeAI>(creature);
     }
 
     struct boss_lieutenant_drakeAI : public ScriptedAI

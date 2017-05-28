@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "magisters_terrace.h"
-#include "EventMap.h"
+#include "Map.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 /*
 0  - Selin Fireheart
@@ -43,7 +46,7 @@ Position const KalecgosSpawnPos = { 164.3747f, -397.1197f, 2.151798f, 1.66219f }
 class instance_magisters_terrace : public InstanceMapScript
 {
     public:
-        instance_magisters_terrace() : InstanceMapScript("instance_magisters_terrace", 585) { }
+        instance_magisters_terrace() : InstanceMapScript(MGTScriptName, 585) { }
 
         struct instance_magisters_terrace_InstanceMapScript : public InstanceScript
         {
@@ -150,7 +153,7 @@ class instance_magisters_terrace : public InstanceMapScript
             void ProcessEvent(WorldObject* obj, uint32 eventId) override
             {
                 if (eventId == EVENT_SPAWN_KALECGOS)
-                    if (!ObjectAccessor::GetCreature(*obj, KalecgosGUID) && Events.Empty())
+                    if (!instance->GetCreature(KalecgosGUID) && Events.Empty())
                        Events.ScheduleEvent(EVENT_SPAWN_KALECGOS, Minutes(1));
             }
 

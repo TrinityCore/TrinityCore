@@ -19,10 +19,8 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "stonecore.h"
 
@@ -318,7 +316,7 @@ class boss_slabhide : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_slabhideAI>(creature);
+            return GetStonecoreAI<boss_slabhideAI>(creature);
         }
 };
 
@@ -361,7 +359,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_lava_fissureAI>(creature);
+        return GetStonecoreAI<npc_lava_fissureAI>(creature);
     }
 };
 
@@ -407,7 +405,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_stalactite_triggerAI>(creature);
+        return GetStonecoreAI<npc_stalactite_triggerAI>(creature);
     }
 };
 
@@ -513,9 +511,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_CRYSTAL_STORM_TRIGGER))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_CRYSTAL_STORM_TRIGGER });
         }
 
         void HandleDummyEffect(SpellEffIndex /*eff*/)

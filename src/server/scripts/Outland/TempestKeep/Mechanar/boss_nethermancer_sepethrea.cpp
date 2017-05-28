@@ -24,8 +24,9 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "mechanar.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -141,7 +142,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_nethermancer_sepethreaAI(creature);
+            return GetMechanarAI<boss_nethermancer_sepethreaAI>(creature);
         }
 };
 
@@ -229,7 +230,7 @@ class npc_ragin_flames : public CreatureScript
             };
             CreatureAI* GetAI(Creature* creature) const override
             {
-                return GetInstanceAI<npc_ragin_flamesAI>(creature);
+                return GetMechanarAI<npc_ragin_flamesAI>(creature);
             }
 };
 
