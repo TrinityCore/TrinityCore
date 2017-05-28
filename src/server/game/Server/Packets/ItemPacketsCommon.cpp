@@ -185,6 +185,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemI
 
     bool hasItemBonus = data.ReadBit();
     bool hasModifications = data.ReadBit();
+    data.ResetBitPos();
 
     if (hasItemBonus)
     {
