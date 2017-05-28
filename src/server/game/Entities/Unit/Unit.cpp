@@ -5657,6 +5657,11 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     if (GetTypeId() == TYPEID_PLAYER && IsMounted())
         return false;
 
+    Creature* creature = ToCreature();
+    // creatures cannot attack while evading
+    if (creature && creature->IsInEvadeMode())
+        return false;
+
     if (HasUnitFlag(UNIT_FLAG_PACIFIED))
         return false;
 
@@ -5721,7 +5726,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     //if (GetTypeId() == TYPEID_UNIT)
     //    ToCreature()->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
 
-    if (GetTypeId() == TYPEID_UNIT && !IsPet())
+    if (creature && !IsPet())
     {
         // should not let player enter combat by right clicking target - doesn't helps
         AddThreat(victim, 0.0f);
@@ -5729,8 +5734,8 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
         if (victim->GetTypeId() == TYPEID_PLAYER)
             victim->SetInCombatWith(this);
 
-        ToCreature()->SendAIReaction(AI_REACTION_HOSTILE);
-        ToCreature()->CallAssistance();
+        creature->SendAIReaction(AI_REACTION_HOSTILE);
+        creature->CallAssistance();
 
         // Remove emote state - will be restored on creature reset
         SetEmoteState(EMOTE_ONESHOT_NONE);
@@ -5745,7 +5750,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 
     // Let the pet know we've started attacking someting. Handles melee attacks only
     // Spells such as auto-shot and others handled in WorldSession::HandleCastSpellOpcode
-    if (this->GetTypeId() == TYPEID_PLAYER)
+    if (GetTypeId() == TYPEID_PLAYER)
     {
         Pet* playerPet = this->ToPlayer()->GetPet();
 
