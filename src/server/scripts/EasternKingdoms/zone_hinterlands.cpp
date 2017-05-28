@@ -45,9 +45,7 @@ enum eOOX
     SAY_OOX_END             = 4,
     QUEST_RESQUE_OOX_09     = 836,
     NPC_MARAUDING_OWL       = 7808,
-    NPC_VILE_AMBUSHER       = 7809,
-    FACTION_ESCORTEE_A      = 774,
-    FACTION_ESCORTEE_H      = 775
+    NPC_VILE_AMBUSHER       = 7809
 };
 
 class npc_oox09hl : public CreatureScript
@@ -79,7 +77,7 @@ public:
             if (quest->GetQuestId() == QUEST_RESQUE_OOX_09)
             {
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->SetFaction(player->GetTeam() == ALLIANCE ? FACTION_ESCORTEE_A : FACTION_ESCORTEE_H);
+                me->SetFaction(player->GetTeam() == ALLIANCE ? FACTION_ESCORTEE_A_PASSIVE : FACTION_ESCORTEE_H_PASSIVE);
                 Talk(SAY_OOX_START, player);
                 npc_escortAI::Start(false, false, player->GetGUID(), quest);
             }

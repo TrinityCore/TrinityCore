@@ -96,7 +96,7 @@ public:
 
             creature->AI()->Talk(SAY_MAKE_PREPARATIONS);
 
-            creature->SetFaction(250);
+            creature->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
             ENSURE_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());

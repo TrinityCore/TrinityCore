@@ -22,6 +22,7 @@
 #include "VMapDefinitions.h"
 #include "Log.h"
 #include "Errors.h"
+#include "Metric.h"
 
 #include <string>
 #include <sstream>
@@ -347,6 +348,8 @@ namespace VMAP
             // currently, core creates grids for all maps, whether it has terrain tiles or not
             // so we need "fake" tile loads to know when we can unload map geometry
             iLoadedTiles[packTileID(tileX, tileY)] = false;
+        TC_METRIC_EVENT("map_events", "LoadMapTile",
+            "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
             return true;
         }
         if (!iTreeValues)
@@ -473,6 +476,8 @@ namespace VMAP
             }
         }
         iLoadedTiles.erase(tile);
+        TC_METRIC_EVENT("map_events", "UnloadMapTile",
+            "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
     }
 
     void StaticMapTree::getModelInstances(ModelInstance* &models, uint32 &count)

@@ -47,6 +47,7 @@
 #include "BattlenetServerManager.h"
 #include "DatabaseLoader.h"
 #include "AppenderDB.h"
+#include "Metric.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
@@ -167,7 +168,7 @@ extern int main(int argc, char** argv)
 
     // Set signal handlers (this must be done before starting io_service threads, because otherwise they would unblock and exit)
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
     signals.async_wait(SignalHandler);
@@ -196,6 +197,13 @@ extern int main(int argc, char** argv)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
     LoadRealmInfo();
+
+    sMetric->Initialize(realm.Name, _ioService, []()
+    {
+        TC_METRIC_VALUE("online_players", sWorld->GetPlayerCount());
+    });
+
+    TC_METRIC_EVENT("events", "Worldserver started", "");
 
     // Initialize the World
     sScriptMgr->SetScriptLoader(AddScripts);
@@ -233,7 +241,7 @@ extern int main(int argc, char** argv)
     if (networkThreads <= 0)
     {
         TC_LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
-        return false;
+        return 1;
     }
 
     sWorldSocketMgr.StartNetwork(_ioService, worldListener, worldPort, networkThreads);
@@ -303,6 +311,9 @@ extern int main(int argc, char** argv)
     ClearOnlineAccounts();
 
     StopDB();
+
+    TC_METRIC_EVENT("events", "Worldserver shutdown", "");
+    sMetric->ForceSend();
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
 

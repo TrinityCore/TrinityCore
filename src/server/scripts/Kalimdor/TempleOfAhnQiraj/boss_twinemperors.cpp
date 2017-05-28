@@ -332,7 +332,7 @@ struct boss_twinemperorsAI : public ScriptedAI
                 if (c->isDead())
                 {
                     c->Respawn();
-                    c->SetFaction(7);
+                    c->SetFaction(FACTION_CREATURE);
                     c->RemoveAllAuras();
                 }
                 if (c->IsWithinDistInMap(me, ABUSE_BUG_RANGE))
@@ -427,7 +427,7 @@ public:
 
         void CastSpellOnBug(Creature* target) override
         {
-            target->SetFaction(14);
+            target->SetFaction(FACTION_MONSTER);
             target->AI()->AttackStart(me->getThreatManager().getHostilTarget());
             target->AddAura(SPELL_MUTATE_BUG, target);
             target->SetFullHealth();
@@ -518,7 +518,7 @@ public:
 
         void CastSpellOnBug(Creature* target) override
         {
-            target->SetFaction(14);
+            target->SetFaction(FACTION_MONSTER);
             target->AddAura(SPELL_EXPLODEBUG, target);
             target->SetFullHealth();
         }

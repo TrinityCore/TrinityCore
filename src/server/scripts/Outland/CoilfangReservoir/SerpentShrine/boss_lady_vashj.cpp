@@ -754,7 +754,7 @@ public:
         void Reset() override
         {
             me->SetDisableGravity(true);
-            me->SetFaction(14);
+            me->SetFaction(FACTION_MONSTER);
             Initialize();
         }
 
@@ -789,7 +789,7 @@ public:
                 {
                     if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
                     {
-                        trig->SetFaction(14);
+                        trig->SetFaction(FACTION_MONSTER);
                         trig->CastSpell(trig, SPELL_TOXIC_SPORES, true);
                     }
                 }
@@ -807,7 +807,7 @@ public:
                     // remove
                     me->setDeathState(DEAD);
                     me->RemoveCorpse();
-                    me->SetFaction(35);
+                    me->SetFaction(FACTION_FRIENDLY);
                 }
 
                 CheckTimer = 1000;

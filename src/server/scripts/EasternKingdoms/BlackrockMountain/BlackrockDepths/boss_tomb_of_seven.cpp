@@ -134,7 +134,7 @@ class boss_doomrel : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF+2:
                     CloseGossipMenuFor(player);
                     //start event here
-                    creature->SetFaction(FACTION_HOSTILE);
+                    creature->SetFaction(FACTION_DARK_IRON_DWARVES);
                     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     creature->AI()->AttackStart(player);
                     InstanceScript* instance = creature->GetInstanceScript();
@@ -170,7 +170,7 @@ class boss_doomrel : public CreatureScript
             {
                 Initialize();
 
-                me->SetFaction(FACTION_FRIEND);
+                me->SetFaction(FACTION_FRIENDLY);
 
                 // was set before event start, so set again
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);

@@ -53,7 +53,7 @@ namespace fs = boost::filesystem;
 # define _TRINITY_BNET_CONFIG  "bnetserver.conf"
 #endif
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
 char serviceName[] = "bnetserver";
 char serviceLongName[] = "TrinityCore bnet service";
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
 
     // Set signal handlers
     boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
     signals.async_wait(SignalHandler);
