@@ -34,7 +34,7 @@ int GuardAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-void GuardAI::UpdateAI(uint32 diff)
+void GuardAI::UpdateAI(uint32 /*diff*/)
 {
     if (!UpdateVictim())
         return;
