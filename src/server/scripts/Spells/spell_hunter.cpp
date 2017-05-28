@@ -1436,9 +1436,9 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_disengage();
     new spell_hun_flanking_strike();
     new spell_hun_flanking_strike_pet();
-    new spell_hun_hunting_party();
     new spell_hun_hunting_companion();
     new spell_hun_hunting_companion_gain_charge();
+    new spell_hun_hunting_party();
     new spell_hun_improved_mend_pet();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
