@@ -187,7 +187,7 @@ enum AuraType
     SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN                       = 125,
     SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT                   = 126,
     SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS           = 127,
-    SPELL_AURA_MOD_POSSESS_PET                              = 128,
+    SPELL_AURA_FIXATE                                       = 128,
     SPELL_AURA_MOD_SPEED_ALWAYS                             = 129,
     SPELL_AURA_MOD_MOUNTED_SPEED_ALWAYS                     = 130,
     SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS               = 131,
