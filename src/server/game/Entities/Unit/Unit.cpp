@@ -10482,7 +10482,7 @@ uint32 createProcHitMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCond
     return hitMask;
 }
 
-void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType attType)
+void Unit::ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType /*attType*/)
 {
     // Player is loaded now - do not allow passive spell casts to proc
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetSession()->PlayerLoading())

@@ -121,13 +121,13 @@ enum AlchemistStone
     SPELL_ALCHEMISTS_STONE_EXTRA_MANA       = 21400
 };
 
-// Item - 13503: Alchemist's Stone 
-// Item - 35748: Guardian's Alchemist Stone 
-// Item - 35749: Sorcerer's Alchemist Stone 
-// Item - 35750: Redeemer's Alchemist Stone 
-// Item - 35751: Assassin's Alchemist Stone 
-// Item - 44322: Mercurial Alchemist Stone 
-// Item - 44323: Indestructible Alchemist's Stone 
+// Item - 13503: Alchemist's Stone
+// Item - 35748: Guardian's Alchemist Stone
+// Item - 35749: Sorcerer's Alchemist Stone
+// Item - 35750: Redeemer's Alchemist Stone
+// Item - 35751: Assassin's Alchemist Stone
+// Item - 44322: Mercurial Alchemist Stone
+// Item - 44323: Indestructible Alchemist's Stone
 // Item - 44324: Mighty Alchemist's Stone
 
 // 17619 - Alchemist's Stone
