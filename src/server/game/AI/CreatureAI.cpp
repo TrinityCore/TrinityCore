@@ -196,12 +196,6 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
         me->GetVehicleKit()->Reset(true);
 }
 
-/*void CreatureAI::AttackedBy(Unit* attacker)
-{
-    if (!me->GetVictim())
-        AttackStart(attacker);
-}*/
-
 void CreatureAI::SetGazeOn(Unit* target)
 {
     if (me->IsValidAttackTarget(target))
