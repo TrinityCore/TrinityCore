@@ -2649,11 +2649,13 @@ bool WorldObject::SetInPhase(uint32 id, bool update, bool apply)
         {
             // if area phase passes the condition we should not remove it (ie: if remove called from aura remove)
             // this however breaks the .mod phase command, you wont be able to remove any area based phases with it
-            if (std::vector<PhaseInfoStruct> const* phases = sObjectMgr->GetPhasesForArea(GetAreaId()))
-                for (PhaseInfoStruct const& phase : *phases)
-                    if (id == phase.Id)
-                        if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
-                            return false;
+            PhaseInfo const& phases = sObjectMgr->GetAreaPhases();
+            for (PhaseInfo::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+                if (itr->first == GetAreaId() || itr->first == GetZoneId())
+                    for (PhaseInfoStruct const& phase : itr->second)
+                        if (id == phase.Id)
+                            if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
+                                return false;
 
             if (!HasInPhaseList(id)) // do not run the updates if we are not in this phase
                 return false;
