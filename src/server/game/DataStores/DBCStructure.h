@@ -2250,12 +2250,16 @@ struct SpellItemEnchantmentEntry
 struct SpellItemEnchantmentConditionEntry
 {
     uint32  ID;                                             // 0        m_ID
-    uint8   Color[5];                                       // 1-5      m_lt_operandType[5]
-    //uint32  LT_Operand[5];                                // 6-10     m_lt_operand[5]
-    uint8   Comparator[5];                                  // 11-15    m_operator[5]
-    uint8   CompareColor[5];                                // 15-20    m_rt_operandType[5]
-    uint32  Value[5];                                       // 21-25    m_rt_operand[5]
-    //uint8   Logic[5]                                      // 25-30    m_logic[5]
+    uint8   Color[3];                                       // 1-3      m_lt_operandType[5]
+    //uint8   unk1;                                         // 4
+    //uint32  unk2[6];                                      // 5-10
+    uint8   Comparator[3];                                  // 11-13    m_operator[5]
+    //uint8   unk3[2];                                      // 14-15
+    uint8   CompareColor[3];                                // 16-18    m_rt_operandType[5]
+    //uint32  unk4;                                         // 19
+    uint32  Value[3];                                       // 20-22    m_rt_operand[5]
+    //uint32  unk5[2];                                      // 23-24
+    //uint8   unk6[6];                                      // 25-30
 };
 
 struct StableSlotPricesEntry

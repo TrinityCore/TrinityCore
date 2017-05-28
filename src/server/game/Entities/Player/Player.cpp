@@ -22435,7 +22435,7 @@ bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
 
     bool activate = true;
 
-    for (uint8 i = 0; i < 5; i++)
+    for (uint8 i = 0; i < 3; i++)
     {
         if (!Condition->Color[i])
             continue;
