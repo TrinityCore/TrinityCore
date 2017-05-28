@@ -17,11 +17,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "razorfen_kraul.h"
-#include "Player.h"
+#include "GameObject.h"
 #include "PetAI.h"
+#include "Player.h"
+#include "razorfen_kraul.h"
+#include "ScriptedEscortAI.h"
 #include "SpellScript.h"
 
 enum Willix
@@ -132,7 +132,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_willixAI(creature);
+        return GetRazorfenKraulAI<npc_willixAI>(creature);
     }
 };
 
@@ -151,7 +151,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_snufflenose_gopherAI(creature);
+        return GetRazorfenKraulAI<npc_snufflenose_gopherAI>(creature);
     }
 
     struct npc_snufflenose_gopherAI : public PetAI

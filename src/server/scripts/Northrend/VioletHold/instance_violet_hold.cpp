@@ -16,11 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "Player.h"
+#include "TaskScheduler.h"
+#include "TemporarySummon.h"
 #include "WorldStatePackets.h"
 #include "violet_hold.h"
-#include "Player.h"
 
 /*
  * TODO:
@@ -330,11 +335,11 @@ class instance_violet_hold : public InstanceMapScript
                 {
                     case DATA_1ST_BOSS:
                         if (state == DONE)
-                            UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_EREKEM, nullptr);
+                            UpdateEncounterStateForKilledCreature(NPC_EREKEM, nullptr);
                         break;
                     case DATA_2ND_BOSS:
                         if (state == DONE)
-                            UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_MORAGG, nullptr);
+                            UpdateEncounterStateForKilledCreature(NPC_MORAGG, nullptr);
                         break;
                     case DATA_CYANIGOSA:
                         if (state == DONE)

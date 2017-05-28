@@ -22,15 +22,16 @@
 */
 
 #include "ScriptMgr.h"
+#include "CombatLogPackets.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "ulduar.h"
 #include "Vehicle.h"
-#include "Player.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
-#include "PassiveAI.h"
 
 enum Spells
 {
@@ -472,7 +473,7 @@ class npc_xt002_heart : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_xt002_heartAI>(creature);
+            return GetUlduarAI<npc_xt002_heartAI>(creature);
         }
 };
 
@@ -488,7 +489,7 @@ class npc_scrapbot : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_scrapbotAI>(creature);
+            return GetUlduarAI<npc_scrapbotAI>(creature);
         }
 
         struct npc_scrapbotAI : public ScriptedAI
@@ -551,7 +552,7 @@ class npc_pummeller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_pummellerAI>(creature);
+            return GetUlduarAI<npc_pummellerAI>(creature);
         }
 
         struct npc_pummellerAI : public ScriptedAI
@@ -658,7 +659,7 @@ class npc_boombot : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_boombotAI>(creature);
+            return GetUlduarAI<npc_boombotAI>(creature);
         }
 
         struct npc_boombotAI : public ScriptedAI
@@ -697,11 +698,11 @@ class npc_boombot : public CreatureScript
                 {
                     _boomed = true; // Prevent recursive calls
 
-                    WorldPacket data(SMSG_SPELL_INSTAKILL_LOG, 8+8+4);
-                    data << me->GetGUID();
-                    data << me->GetGUID();
-                    data << uint32(SPELL_BOOM);
-                    me->SendMessageToSet(&data, false);
+                    WorldPackets::CombatLog::SpellInstakillLog instakill;
+                    instakill.Caster = me->GetGUID();
+                    instakill.Target = me->GetGUID();
+                    instakill.SpellID = SPELL_BOOM;
+                    me->SendMessageToSet(instakill.Write(), false);
 
                     me->DealDamage(me, me->GetHealth(), nullptr, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 
@@ -738,7 +739,7 @@ class npc_life_spark : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_life_sparkAI(creature);
+            return GetUlduarAI<npc_life_sparkAI>(creature);
         }
 
         struct npc_life_sparkAI : public ScriptedAI
@@ -809,7 +810,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_xt_void_zoneAI(creature);
+        return GetUlduarAI<npc_xt_void_zoneAI>(creature);
     }
 
 };
@@ -825,17 +826,15 @@ class spell_xt002_searing_light_spawn_life_spark : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_LIFE_SPARK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_LIFE_SPARK });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* player = GetOwner()->ToPlayer())
+                if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
                     if (Unit* xt002 = GetCaster())
                         if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
-                            xt002->CastSpell(player, SPELL_SUMMON_LIFE_SPARK, true);
+                            xt002->CastSpell(GetUnitOwner(), SPELL_SUMMON_LIFE_SPARK, true);
             }
 
             void Register() override
@@ -861,17 +860,15 @@ class spell_xt002_gravity_bomb_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_VOID_ZONE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_VOID_ZONE });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* player = GetOwner()->ToPlayer())
+                if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
                     if (Unit* xt002 = GetCaster())
                         if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
-                            xt002->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);
+                            xt002->CastSpell(GetUnitOwner(), SPELL_SUMMON_VOID_ZONE, true);
             }
 
             void OnPeriodic(AuraEffect const* aurEff)
@@ -945,19 +942,13 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ENERGY_ORB))
-                    return false;
-
-                if (!sSpellMgr->GetSpellInfo(SPELL_RECHARGE_BOOMBOT))
-                    return false;
-
-                if (!sSpellMgr->GetSpellInfo(SPELL_RECHARGE_PUMMELER))
-                    return false;
-
-                if (!sSpellMgr->GetSpellInfo(SPELL_RECHARGE_SCRAPBOT))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ENERGY_ORB,
+                    SPELL_RECHARGE_BOOMBOT,
+                    SPELL_RECHARGE_PUMMELER,
+                    SPELL_RECHARGE_SCRAPBOT
+                });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1012,7 +1003,10 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(PlayerOrPetCheck());
+                targets.remove_if([](WorldObject* target)
+                {
+                    return target->GetTypeId() != TYPEID_PLAYER && (target->GetTypeId() != TYPEID_UNIT || !target->ToUnit()->IsPet());
+                });
             }
 
             void RecalculateDamage()
@@ -1076,9 +1070,7 @@ class spell_xt002_321_boombot_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ACHIEVEMENT_CREDIT_NERF_SCRAPBOTS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ACHIEVEMENT_CREDIT_NERF_SCRAPBOTS });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)

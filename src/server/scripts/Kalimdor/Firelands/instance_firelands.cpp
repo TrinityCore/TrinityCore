@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "Creature.h"
 #include "firelands.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 class instance_firelands : public InstanceMapScript
 {

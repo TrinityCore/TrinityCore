@@ -28,6 +28,8 @@ boss_warchief_kargath_bladefist
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "shattered_halls.h"
 
@@ -339,7 +341,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_warchief_kargath_bladefistAI>(creature);
+            return GetShatteredHallsAI<boss_warchief_kargath_bladefistAI>(creature);
         }
 };
 

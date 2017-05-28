@@ -15,13 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Spell.h"
-#include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
 #include "icecrown_citadel.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -534,13 +539,12 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_FRENZIED_BLOODTHIRST))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRESENCE_OF_THE_DARKFALLEN))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR,
+                    SPELL_FRENZIED_BLOODTHIRST,
+                    SPELL_PRESENCE_OF_THE_DARKFALLEN
+                });
             }
 
             SpellCastResult CheckTarget()
@@ -669,9 +673,7 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TWILIGHT_BLOODBOLT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TWILIGHT_BLOODBOLT });
             }
 
             bool Load() override
@@ -720,9 +722,7 @@ class spell_blood_queen_essence_of_the_blood_queen : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL });
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -803,9 +803,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE });
             }
 
             // this is an additional effect to be executed
@@ -813,7 +811,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
             {
                 SpellInfo const* damageSpell = sSpellMgr->AssertSpellInfo(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
                 int32 damage = damageSpell->GetEffect(EFFECT_0)->CalcValue();
-                float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
+                float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber() / 10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
                 damage = int32(damage * multiplier);
                 GetTarget()->CastCustomSpell(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
             }

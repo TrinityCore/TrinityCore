@@ -17,9 +17,14 @@
  */
 
 #include "GuardAI.h"
+#include "Creature.h"
 #include "Errors.h"
 #include "Log.h"
 #include "Player.h"
+
+GuardAI::GuardAI(Creature* creature) : ScriptedAI(creature)
+{
+}
 
 int GuardAI::Permissible(Creature const* creature)
 {
@@ -29,7 +34,13 @@ int GuardAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-GuardAI::GuardAI(Creature* creature) : ScriptedAI(creature) { }
+void GuardAI::UpdateAI(uint32 diff)
+{
+    if (!UpdateVictim())
+        return;
+
+    DoMeleeAttackIfReady();
+}
 
 bool GuardAI::CanSeeAlways(WorldObject const* obj)
 {

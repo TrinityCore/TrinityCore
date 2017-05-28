@@ -24,11 +24,10 @@ SDCategory: Gruul's Lair
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "gruuls_lair.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
-#include "gruuls_lair.h"
 
 enum Yells
 {
@@ -277,11 +276,7 @@ class spell_gruul_shatter : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_STONED))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHATTER_EFFECT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_STONED, SPELL_SHATTER_EFFECT });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

@@ -24,11 +24,11 @@ SDCategory: Npc
 EndScriptData */
 
 #include "ScriptedFollowerAI.h"
+#include "Creature.h"
 #include "Log.h"
 #include "Group.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 
 const float MAX_PLAYER_DISTANCE = 100.0f;
 

@@ -955,9 +955,12 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARHEAD_Z_CHECK) || !sSpellMgr->GetSpellInfo(SPELL_WARHEAD_SEEKING_LUMBERSHIP) || !sSpellMgr->GetSpellInfo(SPELL_WARHEAD_FUSE))
-                return false;
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_WARHEAD_Z_CHECK,
+                SPELL_WARHEAD_SEEKING_LUMBERSHIP,
+                SPELL_WARHEAD_FUSE
+            });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -999,9 +1002,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PARACHUTE) || !sSpellMgr->GetSpellInfo(SPELL_TORPEDO_EXPLOSION))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_PARACHUTE, SPELL_TORPEDO_EXPLOSION });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)

@@ -40,6 +40,12 @@ void UnitAI::AttackStart(Unit* victim)
     }
 }
 
+void UnitAI::InitializeAI()
+{
+    if (!me->isDead())
+        Reset();
+}
+
 void UnitAI::AttackStartCaster(Unit* victim, float dist)
 {
     if (victim && me->Attack(victim, false))
@@ -230,6 +236,11 @@ void UnitAI::FillAISpellInfo()
     }
 }
 
+ThreatManager& UnitAI::GetThreatManager()
+{
+    return me->getThreatManager();
+}
+
 bool DefaultTargetSelector::operator()(Unit const* target) const
 {
     if (!me)
@@ -346,4 +357,9 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
         return target->GetGUID() != currentVictim->getUnitGuid();
 
     return target != _source->GetVictim();
+}
+
+void SortByDistanceTo(Unit* reference, std::list<Unit*>& targets)
+{
+    targets.sort(Trinity::ObjectDistanceOrderPred(reference));
 }

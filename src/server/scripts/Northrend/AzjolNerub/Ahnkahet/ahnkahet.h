@@ -18,10 +18,10 @@
 #ifndef AHNKAHET_H_
 #define AHNKAHET_H_
 
+#include "CreatureAIImpl.h"
+
 #define AhnKahetScriptName "instance_ahnkahet"
 #define DataHeader         "AK"
-
-#include "InstanceScript.h"
 
 uint32 const EncounterCount = 5;
 
@@ -82,8 +82,8 @@ enum AKGameObjectIds
     GO_SPHERE_2                     = 193094
 };
 
-template<class AI>
-AI* GetAhnKahetAI(Creature* creature)
+template<typename AI>
+inline AI* GetAhnKahetAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, AhnKahetScriptName);
 }

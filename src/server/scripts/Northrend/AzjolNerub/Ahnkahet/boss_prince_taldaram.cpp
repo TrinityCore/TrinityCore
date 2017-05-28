@@ -19,6 +19,7 @@
 #include "ahnkahet.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -374,7 +375,7 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_prince_taldaram_flame_sphereAI(creature);
+            return GetAhnKahetAI<npc_prince_taldaram_flame_sphereAI>(creature);
         }
 };
 
@@ -426,11 +427,12 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_3))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_FLAME_SPHERE_SUMMON_1,
+                    SPELL_FLAME_SPHERE_SUMMON_2,
+                    SPELL_FLAME_SPHERE_SUMMON_3
+                });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

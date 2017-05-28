@@ -822,7 +822,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
 }
 
 // Method for spawning gameobject on map
-GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot)
+GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, QuaternionData const& rot)
 {
     // Get map object
     Map* map = sMapMgr->CreateBaseMap(m_MapId);

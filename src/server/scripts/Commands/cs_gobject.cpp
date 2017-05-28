@@ -34,6 +34,7 @@ EndScriptData */
 #include "Player.h"
 #include "PoolMgr.h"
 #include "RBAC.h"
+#include <G3D/Quat.h>
 
 class gobject_commandscript : public CommandScript
 {
@@ -141,7 +142,7 @@ public:
         GameObject* object = new GameObject();
 
         G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
-        if (!object->Create(objectInfo->entry, map, 0, *player, rot, 255, GO_STATE_READY))
+        if (!object->Create(objectInfo->entry, map, 0, *player, QuaternionData(rot.x, rot.y, rot.z, rot.w), 255, GO_STATE_READY))
         {
             delete object;
             return false;
@@ -206,7 +207,7 @@ public:
             return false;
         }
 
-        player->SummonGameObject(objectId, *player, rotation, spawntm);
+        player->SummonGameObject(objectId, *player, QuaternionData(rotation.x, rotation.y, rotation.z, rotation.w), spawntm);
 
         return true;
     }

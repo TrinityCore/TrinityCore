@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
-#include "icecrown_citadel.h"
-#include "Player.h"
+#include "SpellScript.h"
 
 enum ScriptTexts
 {
@@ -640,7 +641,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
             {
                 if (menuId == GOSSIP_MENU_HIGH_OVERLORD_SAURFANG)
                 {
-                    player->PlayerTalkClass->SendCloseGossip();
+                    CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
             }
@@ -836,7 +837,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
             {
                 if (menuId == GOSSIP_MENU_MURADIN_BRONZEBEARD)
                 {
-                    player->PlayerTalkClass->SendCloseGossip();
+                    CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
             }
@@ -1006,11 +1007,11 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_POWER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_POWER))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_BLOOD_LINK_POWER,
+                    SPELL_BLOOD_POWER
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1042,9 +1043,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_THE_FALLEN_CHAMPION });
             }
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
@@ -1127,9 +1126,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -1162,9 +1159,7 @@ class spell_deathbringer_blood_beast_blood_link : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1196,9 +1191,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleScript(SpellEffIndex effIndex)

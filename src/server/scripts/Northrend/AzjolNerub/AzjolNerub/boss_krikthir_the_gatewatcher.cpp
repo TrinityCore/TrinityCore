@@ -20,11 +20,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "PassiveAI.h"
-#include "SpellAuras.h"
 #include "azjol_nerub.h"
+#include "InstanceScript.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Events
 {
@@ -926,7 +928,7 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
 {
     public:
         spell_gatewatcher_subboss_trigger() : SpellScriptLoader("spell_gatewatcher_subboss_trigger") { }
-        
+
         class spell_gatewatcher_subboss_trigger_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_gatewatcher_subboss_trigger_SpellScript);
@@ -983,7 +985,7 @@ class spell_anub_ar_skirmisher_fixtate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_FIXTATE_TRIGGERED) != nullptr;
+                return ValidateSpellInfo({ SPELL_FIXTATE_TRIGGERED });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1015,7 +1017,7 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_WEB_WRAP_WRAPPED) != nullptr;
+                return ValidateSpellInfo({ SPELL_WEB_WRAP_WRAPPED });
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1032,7 +1034,7 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_gatewatcher_web_wrap_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_ROOT, AURA_EFFECT_HANDLE_REAL);
             }
         };
-        
+
         AuraScript* GetAuraScript() const override
         {
             return new spell_gatewatcher_web_wrap_AuraScript();

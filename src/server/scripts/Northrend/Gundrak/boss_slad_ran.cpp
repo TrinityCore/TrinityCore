@@ -16,10 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellAuras.h"
 #include "gundrak.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -209,7 +210,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_slad_ran_constrictorAI(creature);
+        return GetGundrakAI<npc_slad_ran_constrictorAI>(creature);
     }
 
     struct npc_slad_ran_constrictorAI : public ScriptedAI
@@ -264,7 +265,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_slad_ran_viperAI(creature);
+        return GetGundrakAI<npc_slad_ran_viperAI>(creature);
     }
 
     struct npc_slad_ran_viperAI : public ScriptedAI

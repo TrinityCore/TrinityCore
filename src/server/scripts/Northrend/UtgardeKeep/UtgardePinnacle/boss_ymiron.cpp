@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "utgarde_pinnacle.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "utgarde_pinnacle.h"
 
 enum Spells
 {

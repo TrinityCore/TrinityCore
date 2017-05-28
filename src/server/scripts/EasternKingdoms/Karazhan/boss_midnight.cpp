@@ -24,9 +24,10 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "karazhan.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "karazhan.h"
 
 enum Texts
 {
@@ -275,7 +276,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_attumenAI(creature);
+        return GetKarazhanAI<boss_attumenAI>(creature);
     }
 };
 
@@ -377,7 +378,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_midnightAI(creature);
+        return GetKarazhanAI<boss_midnightAI>(creature);
     }
 };
 

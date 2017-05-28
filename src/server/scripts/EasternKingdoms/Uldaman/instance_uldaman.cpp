@@ -24,10 +24,14 @@ SDCategory: Uldaman
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "uldaman.h"
+#include "Creature.h"
 #include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
 #include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "uldaman.h"
 
 enum Spells
 {
@@ -52,7 +56,7 @@ const Position IronayaPoint = { -231.228f, 246.6135f, -49.01617f, 0.0f };
 class instance_uldaman : public InstanceMapScript
 {
     public:
-        instance_uldaman() : InstanceMapScript("instance_uldaman", 70) { }
+        instance_uldaman() : InstanceMapScript(UldamanScriptName, 70) { }
 
         struct instance_uldaman_InstanceMapScript : public InstanceScript
         {

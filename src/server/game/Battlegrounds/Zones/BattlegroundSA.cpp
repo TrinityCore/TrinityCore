@@ -154,8 +154,8 @@ bool BattlegroundSA::ResetObjs()
     }
 
     // MAD props for Kiper for discovering those values - 4 hours of his work.
-    GetBGObject(BG_SA_BOAT_ONE)->SetParentRotation(G3D::Quat(0.f, 0.f, 1.0f, 0.0002f));
-    GetBGObject(BG_SA_BOAT_TWO)->SetParentRotation(G3D::Quat(0.f, 0.f, 1.0f, 0.00001f));
+    GetBGObject(BG_SA_BOAT_ONE)->SetParentRotation(QuaternionData(0.f, 0.f, 1.0f, 0.0002f));
+    GetBGObject(BG_SA_BOAT_TWO)->SetParentRotation(QuaternionData(0.f, 0.f, 1.0f, 0.00001f));
     SpawnBGObject(BG_SA_BOAT_ONE, RESPAWN_IMMEDIATELY);
     SpawnBGObject(BG_SA_BOAT_TWO, RESPAWN_IMMEDIATELY);
 

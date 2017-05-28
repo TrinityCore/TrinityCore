@@ -19,7 +19,7 @@
 #define _LFGMGR_H
 
 #include "Common.h"
-#include "Field.h"
+#include "DatabaseEnvFwd.h"
 #include "LFG.h"
 #include "LFGQueue.h"
 #include "LFGGroupData.h"

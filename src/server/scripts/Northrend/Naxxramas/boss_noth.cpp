@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "naxxramas.h"
+#include "ScriptedCreature.h"
 
 enum Phases
 {
@@ -334,7 +334,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_nothAI>(creature);
+        return GetNaxxramasAI<boss_nothAI>(creature);
     }
 };
 
