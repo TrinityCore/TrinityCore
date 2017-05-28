@@ -211,31 +211,14 @@ uint32 Quest::XPValue(Player* player) const
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        // Calculate level scaled xp
-        uint32 scaledXP = diffFactor * xpentry->Exp[_rewardXPDifficulty] / 10;
-        if (scaledXP <= 100)
-            scaledXP = 5 * ((scaledXP + 2) / 5);
-        else if (scaledXP <= 500)
-            scaledXP = 10 * ((scaledXP + 5) / 10);
-        else if (scaledXP <= 1000)
-            scaledXP = 25 * ((scaledXP + 12) / 25);
-        else
-            scaledXP = 50 * ((scaledXP + 25) / 50);
+        uint32 xp = RoundXPValue(diffFactor * xpentry->Exp[_rewardXPDifficulty] / 10);
+        if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) != 0)
+        {
+            uint32 minScaledXP = RoundXPValue(xpentry->Exp[_rewardXPDifficulty]) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
+            xp = std::max(minScaledXP, xp);
+        }
 
-        // Calculate non-level scaled xp
-        uint32 minScaledXP = xpentry->Exp[_rewardXPDifficulty];
-        if (minScaledXP <= 100)
-            minScaledXP = 5 * ((minScaledXP + 2) / 5);
-        else if (minScaledXP <= 500)
-            minScaledXP = 10 * ((minScaledXP + 5) / 10);
-        else if (minScaledXP <= 1000)
-            minScaledXP = 25 * ((minScaledXP + 12) / 25);
-        else
-            minScaledXP = 50 * ((minScaledXP + 25) / 50);
-        minScaledXP = minScaledXP * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
-
-        // Use greater between non-level scaled and scaled
-        return std::max(minScaledXP, scaledXP);
+        return xp;
     }
 
     return 0;
@@ -458,4 +441,16 @@ void Quest::AddQuestLevelToTitle(std::string &title, int32 level)
     std::stringstream questTitlePretty;
     questTitlePretty << "[" << level << "] " << title;
     title = questTitlePretty.str();
+}
+
+uint32 Quest::RoundXPValue(uint32 xp) const
+{
+    if (xp <= 100)
+        return 5 * ((xp + 2) / 5);
+    else if (xp <= 500)
+        return 10 * ((xp + 5) / 10);
+    else if (xp <= 1000)
+        return 25 * ((xp + 12) / 25);
+    else
+        return 50 * ((xp + 25) / 50);
 }

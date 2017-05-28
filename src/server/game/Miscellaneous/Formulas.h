@@ -114,6 +114,7 @@ namespace Trinity
 
         inline uint32 BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels content)
         {
+            uint32 baseGain;
             uint32 nBaseExp;
 
             switch (content)
@@ -133,14 +134,13 @@ namespace Trinity
                     break;
             }
 
-            uint32 baseGainScaled;
             if (mob_level >= pl_level)
             {
                 uint8 nLevelDiff = mob_level - pl_level;
                 if (nLevelDiff > 4)
                     nLevelDiff = 4;
 
-                baseGainScaled = ((pl_level * 5 + nBaseExp) * (20 + nLevelDiff) / 10 + 1) / 2;
+                baseGain = ((pl_level * 5 + nBaseExp) * (20 + nLevelDiff) / 10 + 1) / 2;
             }
             else
             {
@@ -148,17 +148,18 @@ namespace Trinity
                 if (mob_level > gray_level)
                 {
                     uint8 ZD = GetZeroDifference(pl_level);
-                    baseGainScaled = (pl_level * 5 + nBaseExp) * (ZD + mob_level - pl_level) / ZD;
+                    baseGain = (pl_level * 5 + nBaseExp) * (ZD + mob_level - pl_level) / ZD;
                 }
                 else
-                    baseGainScaled = 0;
+                    baseGain = 0;
             }
 
-            // Calculate unscaled based gain min.  Use mob level instead of player level to avoid overscaling on gain
-            uint32 baseGainUnscaledMin = (mob_level * 5 + nBaseExp) * sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO) / 100;
-
-            // Use largest
-            uint32 baseGain = std::max(baseGainUnscaledMin, baseGainScaled);
+            if (sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO) != 0)
+            {
+                // Use mob level instead of player level to avoid overscaling on gain in a min is enforced
+                uint32 baseGainMin = (mob_level * 5 + nBaseExp) * sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO) / 100;
+                baseGain = std::max(baseGainMin, baseGain);
+            }
 
             sScriptMgr->OnBaseGainCalculation(baseGain, pl_level, mob_level, content);
             return baseGain;
