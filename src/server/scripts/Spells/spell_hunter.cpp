@@ -340,15 +340,15 @@ class spell_hun_flanking_strike : public SpellScriptLoader
             {
                 return ValidateSpellInfo
                 ({
-                    SPELL_HUNTER_ASPECT_BEAST        ||
-                    SPELL_HUNTER_ASPECT_EAGLE        ||
-                    SPELL_HUNTER_ANIMAL_INSTINCTS    ||
-                    SPELL_HUNTER_BESTIAL_CUNNING     ||
-                    SPELL_HUNTER_BESTIAL_FEROCITY    ||
-                    SPELL_HUNTER_BESTIAL_TENACITY    ||
-                    SPELL_HUNTER_FLANKING_STRIKE     ||
-                    SPELL_HUNTER_FLANKING_STRIKE_PET || 
-                    SPELL_HUNTER_HARPOON             ||
+                    SPELL_HUNTER_ASPECT_BEAST,
+                    SPELL_HUNTER_ASPECT_EAGLE,
+                    SPELL_HUNTER_ANIMAL_INSTINCTS,
+                    SPELL_HUNTER_BESTIAL_CUNNING,
+                    SPELL_HUNTER_BESTIAL_FEROCITY,
+                    SPELL_HUNTER_BESTIAL_TENACITY,
+                    SPELL_HUNTER_FLANKING_STRIKE,
+                    SPELL_HUNTER_FLANKING_STRIKE_PET, 
+                    SPELL_HUNTER_HARPOON,
                     SPELL_HUNTER_MONGOOSE_BITE
                 });
             }
@@ -472,7 +472,7 @@ class spell_hun_flanking_strike_pet : public SpellScriptLoader
                             int32 ap = owner->ToPlayer()->GetInt32Value(UNIT_FIELD_ATTACK_POWER);
                             float vers = owner->ToPlayer()->GetFloatValue(PLAYER_VERSATILITY);
                             int32 level = caster->getLevel();
-                            //formula taken from wowhead
+                            //formula taken from tooltip
                             float result = 1.5*(ap*2.152)*(1 + vers)*(std::min(20, level)*0.05f);
 
                             if (target->GetVictim() == owner && caster->IsPet())
@@ -512,7 +512,7 @@ class spell_hun_hunting_companion_gain_charge : public SpellScriptLoader
             {
                 return ValidateSpellInfo
                 ({
-                    SPELL_HUNTER_HUNTING_COMPANION_AURA  ||
+                    SPELL_HUNTER_HUNTING_COMPANION_AURA,
                     SPELL_HUNTER_MONGOOSE_BITE  
                 });
             }
@@ -551,9 +551,9 @@ class spell_hun_hunting_companion : public SpellScriptLoader
             {
                 return ValidateSpellInfo
                 ({
-                    SPELL_HUNTER_ASPECT_EAGLE           ||
-                    SPELL_HUNTER_FLANKING_STRIKE_PET    ||
-                    SPELL_HUNTER_FLANKING_STRIKE_R2     ||
+                    SPELL_HUNTER_ASPECT_EAGLE,
+                    SPELL_HUNTER_FLANKING_STRIKE_PET,
+                    SPELL_HUNTER_FLANKING_STRIKE_R2,
                     SPELL_HUNTER_HUNTING_COMPANION_MASTERY 
                 });
             }
