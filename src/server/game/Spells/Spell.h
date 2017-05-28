@@ -362,7 +362,7 @@ class TC_GAME_API Spell
         void EffectUpdatePlayerPhase(SpellEffIndex effIndex);
         void EffectUpdateZoneAurasAndPhases(SpellEffIndex effIndex);
 
-        typedef std::set<Aura*> UsedSpellMods;
+        typedef std::unordered_set<Aura*> UsedSpellMods;
 
         Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID = ObjectGuid::Empty, bool skipCheck = false);
         ~Spell();
@@ -424,13 +424,13 @@ class TC_GAME_API Spell
         SpellCastResult CheckCasterAuras(uint32* param1) const;
         SpellCastResult CheckArenaAndRatedBattlegroundCastRules() const;
 
-        bool CheckCasterHasNotImmunedAuraType(AuraType auraType, uint32* param1) const;
-        bool CheckCasterNotImmunedCharmAuras(uint32* param1) const;
-        bool CheckCasterNotImmunedStunAuras(uint32* param1) const;
-        bool CheckCasterNotImmunedSilenceAuras(uint32* param1) const;
-        bool CheckCasterNotImmunedPacifyAuras(uint32* param1) const;
-        bool CheckCasterNotImmunedFearAuras(uint32* param1) const;
-        bool CheckCasterNotImmunedDisorientAuras(uint32* param1) const;
+        bool CheckSpellCancelsAuraEffect(AuraType auraType, uint32* param1) const;
+        bool CheckSpellCancelsCharm(uint32* param1) const;
+        bool CheckSpellCancelsStun(uint32* param1) const;
+        bool CheckSpellCancelsSilence(uint32* param1) const;
+        bool CheckSpellCancelsPacify(uint32* param1) const;
+        bool CheckSpellCancelsFear(uint32* param1) const;
+        bool CheckSpellCancelsConfuse(uint32* param1) const;
 
         int32 CalculateDamage(uint8 i, Unit const* target) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i]); }
 
@@ -494,8 +494,11 @@ class TC_GAME_API Spell
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
         bool IsTriggered() const { return (_triggeredCastFlags & TRIGGERED_FULL_MASK) != 0; }
         bool IsIgnoringCooldowns() const { return (_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) != 0; }
+        bool IsProcDisabled() const { return (_triggeredCastFlags & TRIGGERED_DISALLOW_PROC_EVENTS) != 0; }
         bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
         bool IsAutoActionResetSpell() const;
+
+        bool IsTriggeredByAura(SpellInfo const* auraSpellInfo) const { return (auraSpellInfo == m_triggeredByAuraSpell); }
 
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
         void SetReferencedFromCurrent(bool yes) { m_referencedFromCurrentSpell = yes; }
@@ -523,6 +526,7 @@ class TC_GAME_API Spell
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
         void CancelGlobalCooldown();
+        void _cast(bool skipCheck = false);
 
         void SendLoot(ObjectGuid guid, LootType loottype);
         std::pair<float, float> GetMinMaxRange(bool strict) const;
@@ -580,10 +584,6 @@ class TC_GAME_API Spell
         // used in effects handlers
         Aura* m_spellAura;
 
-        // this is set in Spell Hit, but used in Apply Aura handler
-        DiminishingLevels m_diminishLevel;
-        DiminishingGroup m_diminishGroup;
-
         // -------------------------------------------
         GameObject* focusObject;
 
@@ -596,8 +596,8 @@ class TC_GAME_API Spell
         // ******************************************
         uint32 m_procAttacker;                // Attacker trigger flags
         uint32 m_procVictim;                  // Victim   trigger flags
-        uint32 m_procEx;
-        void   prepareDataForTriggerSystem(AuraEffect const* triggeredByAura);
+        uint32 m_hitMask;
+        void   prepareDataForTriggerSystem();
 
         // *****************************************
         // Spell target subsystem
@@ -677,10 +677,13 @@ class TC_GAME_API Spell
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
-        std::list<SpellScript*> m_loadedScripts;
+        std::vector<SpellScript*> m_loadedScripts;
 
         struct HitTriggerSpell
         {
+            HitTriggerSpell(SpellInfo const* spellInfo, SpellInfo const* auraSpellInfo, int32 procChance) :
+                triggeredSpell(spellInfo), triggeredByAura(auraSpellInfo), chance(procChance) { }
+
             SpellInfo const* triggeredSpell;
             SpellInfo const* triggeredByAura;
             // uint8 triggeredByEffIdx          This might be needed at a later stage - No need known for now
@@ -689,7 +692,7 @@ class TC_GAME_API Spell
 
         bool CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByAura = NULL) const;
         void PrepareTriggersExecutedOnHit();
-        typedef std::list<HitTriggerSpell> HitTriggerSpellList;
+        typedef std::vector<HitTriggerSpell> HitTriggerSpellList;
         HitTriggerSpellList m_hitTriggerSpells;
 
         // effect helpers

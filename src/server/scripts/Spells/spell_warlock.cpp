@@ -544,6 +544,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
+                {
                     // Refresh corruption on target
                     if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, caster->GetGUID()))
                     {
@@ -551,6 +552,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
                         aurEff->CalculatePeriodic(caster, false, false);
                         aurEff->GetBase()->RefreshDuration(true);
                     }
+                }
             }
 
             void Register() override
@@ -781,7 +783,7 @@ class spell_warl_health_funnel : public SpellScriptLoader
                 uint32 damage = caster->CountPctFromMaxHealth(aurEff->GetBaseAmount());
 
                 if (Player* modOwner = caster->GetSpellModOwner())
-                    modOwner->ApplySpellMod(GetId(), SPELLMOD_COST, damage);
+                    modOwner->ApplySpellMod<SPELLMOD_COST>(GetId(), damage);
 
                 SpellNonMeleeDamage damageInfo(caster, caster, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
                 damageInfo.damage = damage;

@@ -29,8 +29,8 @@ typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const* aurApp, uin
 
 class TC_GAME_API AuraEffect
 {
-    friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount);
-    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID);
+    friend void Aura::_InitEffects(uint8 effMask, Unit* caster, int32* baseAmount);
+    friend Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount, Item* castItem, ObjectGuid casterGUID, bool resetPeriodicTimer);
     friend Aura::~Aura();
     private:
         ~AuraEffect();
@@ -45,8 +45,6 @@ class TC_GAME_API AuraEffect
 
         template <typename Container>
         void GetApplicationList(Container& applicationContainer) const;
-
-        SpellModifier* GetSpellModifier() const { return m_spellmod; }
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const { return m_spellInfo->Id; }
@@ -95,8 +93,9 @@ class TC_GAME_API AuraEffect
         bool HasSpellClassMask() const { return m_spellInfo->Effects[m_effIndex].SpellClassMask; }
 
         void SendTickImmune(Unit* target, Unit* caster) const;
-        void PeriodicTick(AuraApplication * aurApp, Unit* caster) const;
+        void PeriodicTick(AuraApplication* aurApp, Unit* caster) const;
 
+        bool CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventInfo) const;
         void HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
         void CleanupTriggeredSpells(Unit* target);
@@ -314,11 +313,13 @@ class TC_GAME_API AuraEffect
         void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
 
         // aura effect proc handlers
+        void HandleBreakableCCAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerSpellWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleRaidProcFromChargeAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
         void HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
+        void HandleProcOnPowerAmountAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 };
 
 namespace Trinity

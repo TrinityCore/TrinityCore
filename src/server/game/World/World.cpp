@@ -1512,6 +1512,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellInfo custom attributes...");
     sSpellMgr->LoadSpellInfoCustomAttributes();
 
+    TC_LOG_INFO("server.loading", "Loading SpellInfo diminishing infos...");
+    sSpellMgr->LoadSpellInfoDiminishing();
+
     TC_LOG_INFO("server.loading", "Loading SpellInfo immunity infos...");
     sSpellMgr->LoadSpellInfoImmunities();
 
@@ -1577,11 +1580,11 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Spell Learn Skills...");
     sSpellMgr->LoadSpellLearnSkills();                           // must be after LoadSpellRanks
 
+    TC_LOG_INFO("server.loading", "Loading SpellInfo SpellSpecific and AuraState...");
+    sSpellMgr->LoadSpellInfoSpellSpecificAndAuraState();         // must be after LoadSpellRanks
+
     TC_LOG_INFO("server.loading", "Loading Spell Learn Spells...");
     sSpellMgr->LoadSpellLearnSpells();
-
-    TC_LOG_INFO("server.loading", "Loading Spell Proc Event conditions...");
-    sSpellMgr->LoadSpellProcEvents();
 
     TC_LOG_INFO("server.loading", "Loading Spell Proc conditions and data...");
     sSpellMgr->LoadSpellProcs();

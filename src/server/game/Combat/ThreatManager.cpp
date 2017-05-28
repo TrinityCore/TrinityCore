@@ -44,7 +44,7 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
                 return threat;
 
         if (Player* modOwner = hatedUnit->GetSpellModOwner())
-            modOwner->ApplySpellMod(threatSpell->Id, SPELLMOD_THREAT, threat);
+            modOwner->ApplySpellMod<SPELLMOD_THREAT>(threatSpell->Id, threat);
     }
 
     return hatedUnit->ApplyTotalThreatModifier(threat, schoolMask);
@@ -422,7 +422,8 @@ void ThreatManager::doAddThreat(Unit* victim, float threat)
         {
             float redirectThreat = CalculatePct(threat, redirectThreadPct);
             threat -= redirectThreat;
-            _addThreat(redirectTarget, redirectThreat);
+            if (ThreatCalcHelper::isValidProcess(redirectTarget, GetOwner()))
+                _addThreat(redirectTarget, redirectThreat);
         }
     }
 

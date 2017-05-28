@@ -315,14 +315,18 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
     if (!unitTarget || !unitTarget->IsAlive())
         return;
 
-    uint32 absorb = 0;
-    uint32 resist = 0;
-
-    m_caster->CalcAbsorbResist(unitTarget, m_spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, damage, &absorb, &resist, m_spellInfo);
-
-    m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, damage, m_spellInfo->GetSchoolMask(), absorb, resist, false, 0, false);
+    // CalcAbsorbResist already in Player::EnvironmentalDamage
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
         unitTarget->ToPlayer()->EnvironmentalDamage(DAMAGE_FIRE, damage);
+    else
+    {
+        DamageInfo damageInfo(m_caster, unitTarget, damage, m_spellInfo, m_spellInfo->GetSchoolMask(), SPELL_DIRECT_DAMAGE, BASE_ATTACK);
+        m_caster->CalcAbsorbResist(damageInfo);
+
+        uint32 absorb = damageInfo.GetAbsorb();
+        uint32 resist = damageInfo.GetResist();
+        m_caster->SendSpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, damage, m_spellInfo->GetSchoolMask(), absorb, resist, false, 0, false);
+    }
 }
 
 void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
@@ -1238,9 +1242,12 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
                 return;
             }
 
-            int32 tickheal = targetAura->GetAmount();
-            if (Unit* auraCaster = targetAura->GetCaster())
-                tickheal = auraCaster->SpellHealingBonusDone(unitTarget, targetAura->GetSpellInfo(), tickheal, DOT);
+            int32 tickheal = (targetAura->GetAmount() + targetAura->GetBonusAmount()) * targetAura->GetDonePct();
+            if (Player* modOwner = m_caster->GetSpellModOwner())
+                modOwner->ApplySpellMod<SPELLMOD_DOT>(targetAura->GetId(), tickheal);
+
+            unitTarget->SpellHealingBonusTaken(m_caster, targetAura->GetSpellInfo(), tickheal, DOT);
+
             //int32 tickheal = targetAura->GetSpellInfo()->EffectBasePoints[idx] + 1;
             //It is said that talent bonus should not be included
 
@@ -1336,7 +1343,8 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
         healthGain = m_caster->SpellHealingBonusDone(m_caster, m_spellInfo, healthGain, HEAL);
         healthGain = m_caster->SpellHealingBonusTaken(m_caster, m_spellInfo, healthGain, HEAL);
 
-        m_caster->HealBySpell(m_caster, m_spellInfo, uint32(healthGain));
+        HealInfo healInfo(m_caster, m_caster, healthGain, m_spellInfo, m_spellSchoolMask);
+        m_caster->HealBySpell(healInfo);
     }
 }
 
@@ -1627,52 +1635,6 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
         return;
 
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
-
-    // Mad Alchemist's Potion
-    if (m_spellInfo->Id == 45051)
-    {
-        // find elixirs on target
-        bool guardianFound = false;
-        bool battleFound = false;
-        Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
-        for (Unit::AuraApplicationMap::iterator itr = Auras.begin(); itr != Auras.end(); ++itr)
-        {
-            uint32 spell_id = itr->second->GetBase()->GetId();
-            if (!guardianFound)
-                if (sSpellMgr->IsSpellMemberOfSpellGroup(spell_id, SPELL_GROUP_ELIXIR_GUARDIAN))
-                    guardianFound = true;
-            if (!battleFound)
-                if (sSpellMgr->IsSpellMemberOfSpellGroup(spell_id, SPELL_GROUP_ELIXIR_BATTLE))
-                    battleFound = true;
-            if (battleFound && guardianFound)
-                break;
-        }
-
-        // get all available elixirs by mask and spell level
-        std::set<uint32> avalibleElixirs;
-        if (!guardianFound)
-            sSpellMgr->GetSetOfSpellsInSpellGroup(SPELL_GROUP_ELIXIR_GUARDIAN, avalibleElixirs);
-        if (!battleFound)
-            sSpellMgr->GetSetOfSpellsInSpellGroup(SPELL_GROUP_ELIXIR_BATTLE, avalibleElixirs);
-        for (std::set<uint32>::iterator itr = avalibleElixirs.begin(); itr != avalibleElixirs.end();)
-        {
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(*itr);
-            if (spellInfo->SpellLevel < m_spellInfo->SpellLevel || spellInfo->SpellLevel > unitTarget->getLevel())
-                avalibleElixirs.erase(itr++);
-            else if (sSpellMgr->IsSpellMemberOfSpellGroup(*itr, SPELL_GROUP_ELIXIR_SHATTRATH))
-                avalibleElixirs.erase(itr++);
-            else if (sSpellMgr->IsSpellMemberOfSpellGroup(*itr, SPELL_GROUP_ELIXIR_UNSTABLE))
-                avalibleElixirs.erase(itr++);
-            else
-                ++itr;
-        }
-
-        if (!avalibleElixirs.empty())
-        {
-            // cast random elixir on target
-            m_caster->CastSpell(unitTarget, Trinity::Containers::SelectRandomContainerElement(avalibleElixirs), true, m_CastItem);
-        }
-    }
 }
 
 void Spell::EffectEnergizePct(SpellEffIndex effIndex)
@@ -2029,7 +1991,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
     int32 duration = m_spellInfo->GetDuration();
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+        modOwner->ApplySpellMod<SPELLMOD_DURATION>(m_spellInfo->Id, duration);
 
     TempSummon* summon = NULL;
 
@@ -3062,7 +3024,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
 
     // if (addPctMods) { percent mods are added in Unit::CalculateDamage } else { percent mods are added in Unit::MeleeDamageBonusDone }
     // this distinction is neccessary to properly inform the client about his autoattack damage values from Script_UnitDamage
-    bool addPctMods = !m_spellInfo->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS) && (m_spellSchoolMask & SPELL_SCHOOL_MASK_NORMAL);
+    bool const addPctMods = !m_spellInfo->HasAttribute(SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS) && (m_spellSchoolMask & SPELL_SCHOOL_MASK_NORMAL);
     if (addPctMods)
     {
         UnitMods unitMod;
@@ -5225,18 +5187,8 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     m_runesState = m_caster->ToPlayer()->GetRunesState();
 
     uint32 count = damage;
-    if (count == 0) count = 1;
-    for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
-    {
-        if (player->GetRuneCooldown(j) && player->GetCurrentRune(j) == RuneType(m_spellInfo->Effects[effIndex].MiscValue))
-        {
-            if (m_spellInfo->Id == 45529)
-                if (player->GetBaseRune(j) != RuneType(m_spellInfo->Effects[effIndex].MiscValueB))
-                    continue;
-            player->SetRuneCooldown(j, 0);
-            --count;
-        }
-    }
+    if (count == 0)
+        count = 1;
 
     // Blood Tap
     if (m_spellInfo->Id == 45529 && count > 0)
@@ -5244,11 +5196,12 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
         for (uint32 l = 0; l + 1 < MAX_RUNES && count > 0; ++l)
         {
             // Check if both runes are on cd as that is the only time when this needs to come into effect
-            if ((player->GetRuneCooldown(l) && player->GetBaseRune(l) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)) && (player->GetRuneCooldown(l+1) && player->GetBaseRune(l+1) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)))
+            if ((player->GetRuneCooldown(l) && player->GetBaseRune(l) == RUNE_BLOOD) && (player->GetRuneCooldown(l + 1) && player->GetBaseRune(l + 1) == RUNE_BLOOD))
             {
                 // Should always update the rune with the lowest cd
-                if (l + 1 < MAX_RUNES && player->GetRuneCooldown(l) >= player->GetRuneCooldown(l+1))
-                    l++;
+                if (l + 1 < MAX_RUNES && player->GetRuneCooldown(l) >= player->GetRuneCooldown(l + 1))
+                    ++l;
+
                 player->SetRuneCooldown(l, 0);
                 --count;
                 // is needed to push through to the client that the rune is active
@@ -5256,6 +5209,15 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
             }
             else
                 break;
+        }
+    }
+
+    for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
+    {
+        if (player->GetRuneCooldown(j) && player->GetCurrentRune(j) == RuneType(m_spellInfo->Effects[effIndex].MiscValue))
+        {
+            player->SetRuneCooldown(j, 0);
+            --count;
         }
     }
 
@@ -5268,7 +5230,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
 
         for (uint32 i = 0; i < MAX_RUNES; ++i)
         {
-            if (player->GetRuneCooldown(i) && (player->GetCurrentRune(i) == RUNE_FROST ||  player->GetCurrentRune(i) == RUNE_DEATH))
+            if (player->GetRuneCooldown(i) && (player->GetBaseRune(i) == RUNE_FROST))
                 player->SetRuneCooldown(i, 0);
         }
     }
@@ -5402,7 +5364,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
     int32 duration = m_spellInfo->GetDuration();
 
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
+        modOwner->ApplySpellMod<SPELLMOD_DURATION>(m_spellInfo->Id, duration);
 
     //TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
     Map* map = caster->GetMap();

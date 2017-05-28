@@ -2750,8 +2750,13 @@ class spell_yogg_saron_grim_reprisal : public SpellScriptLoader     // 63305
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
-                int32 damage = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), 60);
-                GetTarget()->CastCustomSpell(SPELL_GRIM_REPRISAL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetDamageInfo()->GetAttacker(), true, NULL, aurEff);
+                PreventDefaultAction();
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 damage = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), 60);
+                GetTarget()->CastCustomSpell(SPELL_GRIM_REPRISAL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, damageInfo->GetAttacker(), true, nullptr, aurEff);
             }
 
             void Register() override

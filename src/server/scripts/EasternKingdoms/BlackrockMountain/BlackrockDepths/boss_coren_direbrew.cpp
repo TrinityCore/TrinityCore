@@ -202,7 +202,7 @@ public:
             {
                 if (Group* group = players.begin()->GetSource()->GetGroup())
                     if (group->isLFGGroup())
-                        sLFGMgr->FinishDungeon(group->GetGUID(), 287);
+                        sLFGMgr->FinishDungeon(group->GetGUID(), 287, me->GetMap());
             }
         }
 
