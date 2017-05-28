@@ -993,7 +993,7 @@ bool Aura::CanBeSaved() const
         return false;
 
     // no charming auras (taking direct control)
-    if (HasEffectType(SPELL_AURA_MOD_POSSESS) || HasEffectType(SPELL_AURA_MOD_POSSESS_PET))
+    if (HasEffectType(SPELL_AURA_MOD_POSSESS))
         return false;
 
     // no charming auras can be saved

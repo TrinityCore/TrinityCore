@@ -185,6 +185,7 @@ class TC_GAME_API AuraEffect
         void HandleModThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModTotalThreat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModTaunt(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraFixate(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  control
         void HandleModConfuse(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModFear(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -193,7 +194,6 @@ class TC_GAME_API AuraEffect
         void HandlePreventFleeing(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  charm
         void HandleModPossess(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModCharm(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleCharmConvert(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
