@@ -24773,7 +24773,6 @@ void Player::StopCastingBindSight() const
         {
             static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_BIND_SIGHT, GetGUID());
             static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_MOD_POSSESS, GetGUID());
-            static_cast<Unit*>(target)->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
         }
     }
 }
