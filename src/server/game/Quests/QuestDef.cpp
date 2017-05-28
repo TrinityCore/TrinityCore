@@ -443,7 +443,7 @@ void Quest::AddQuestLevelToTitle(std::string &title, int32 level)
     title = questTitlePretty.str();
 }
 
-uint32 Quest::RoundXPValue(uint32 xp) const
+uint32 Quest::RoundXPValue(uint32 xp)
 {
     if (xp <= 100)
         return 5 * ((xp + 2) / 5);

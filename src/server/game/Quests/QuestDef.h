@@ -390,7 +390,7 @@ class TC_GAME_API Quest
         uint32 _specialFlags          = 0; // custom flags, not sniffed/WDB
 
         // Helpers
-        uint32 RoundXPValue(uint32 xp) const;
+        static uint32 RoundXPValue(uint32 xp);
 };
 
 struct QuestStatusData
