@@ -11602,6 +11602,7 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
 
     if (((proto->Flags2 & ITEM_FLAG2_FACTION_HORDE) && GetTeam() != HORDE) ||
         (((proto->Flags2 & ITEM_FLAG2_FACTION_ALLIANCE) && GetTeam() != ALLIANCE)))
+        return EQUIP_ERR_CANT_EQUIP_EVER;
 
     if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getRaceMask()) == 0)
         return EQUIP_ERR_CANT_EQUIP_EVER;
