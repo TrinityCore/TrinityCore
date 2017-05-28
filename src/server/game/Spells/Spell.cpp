@@ -2309,7 +2309,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         {
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (!(target->effectMask & (1 << i)))
+                // in case of immunity, check all effects to choose correct procFlags, as none has technically hit
+                if (target->effectMask && !(target->effectMask & (1 << i)))
                     continue;
 
                 if (!m_spellInfo->IsPositiveEffect(i))
