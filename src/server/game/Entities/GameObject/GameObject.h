@@ -895,7 +895,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         float GetStationaryO() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
         void RelocateStationaryPosition(float x, float y, float z, float o) { m_stationaryPosition.Relocate(x, y, z, o); }
 
-        float GetInteractionDistance();
+        float GetInteractionDistance() const;
 
         void UpdateModelPosition();
 
