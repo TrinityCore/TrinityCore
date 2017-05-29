@@ -2335,8 +2335,9 @@ void GameObject::BuildValuesUpdate(uint8 updateType, ByteBuffer* data, Player* t
                 switch (GetGoType())
                 {
                     case GAMEOBJECT_TYPE_QUESTGIVER:
-                        if (ActivateToQuest(target))
-                            dynFlags |= GO_DYNFLAG_LO_ACTIVATE;
+                        // Interaction should only be possible if GO has gossip or is active for quest
+                        if (!ActivateToQuest(target) && !GetGOInfo()->questgiver.gossipID)
+                            dynFlags |= GO_DYNFLAG_LO_NO_INTERACT; // This flag will disable interaction, not setting GO_DYNFLAG_LO_ACTIVATE will not!
                         break;
                     case GAMEOBJECT_TYPE_CHEST:
                     case GAMEOBJECT_TYPE_GOOBER:
