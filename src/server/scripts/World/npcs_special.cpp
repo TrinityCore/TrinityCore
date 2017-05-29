@@ -256,9 +256,7 @@ enum ChickenCluck
     EMOTE_HELLO_H       = 1,
     EMOTE_CLUCK_TEXT    = 2,
 
-    QUEST_CLUCK         = 3861,
-    FACTION_FRIENDLY    = 35,
-    FACTION_CHICKEN     = 31
+    QUEST_CLUCK         = 3861
 };
 
 class npc_chicken_cluck : public CreatureScript
@@ -283,7 +281,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetFaction(FACTION_CHICKEN);
+            me->SetFaction(FACTION_PREY);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         }
 
