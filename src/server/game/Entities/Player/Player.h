@@ -1431,8 +1431,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 oldCount, uint16 addCount);
         void SendQuestGiverStatusMultiple();
 
+        uint32 GetDividedQuest() const { return m_dividedQuest; }
         ObjectGuid GetDivider() const { return m_divider; }
-        void SetDivider(ObjectGuid guid) { m_divider = guid; }
+        void SetDivideInfo(ObjectGuid guid, uint32 id) { m_divider = guid; m_dividedQuest = id; }
 
         uint32 GetInGameTime() const { return m_ingametime; }
         void SetInGameTime(uint32 time) { m_ingametime = time; }
@@ -2337,6 +2338,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         SeasonalEventQuestMap m_seasonalquests;
 
         ObjectGuid m_divider;
+        uint32 m_dividedQuest;
         uint32 m_ingametime;
 
         /*********************************************************/

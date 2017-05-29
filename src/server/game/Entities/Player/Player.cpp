@@ -22643,6 +22643,14 @@ void Player::SendInitialPacketsAfterAddToMap()
     }
     else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
         SendRaidDifficulty(GetGroup() != NULL);
+
+    if (GetDivider())
+    {
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(GetDividedQuest()))
+            PlayerTalkClass->SendQuestGiverQuestDetails(quest, GetGUID(), true);
+        else
+            SetDivideInfo(ObjectGuid::Empty, 0);
+    }
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()

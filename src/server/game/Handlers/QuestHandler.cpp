@@ -117,7 +117,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 #define CLOSE_GOSSIP_CLEAR_DIVIDER() \
     do { \
         _player->PlayerTalkClass->SendCloseGossip(); \
-        _player->SetDivider(ObjectGuid::Empty); \
+        _player->SetDivideInfo(ObjectGuid::Empty, 0); \
     } while (0)
 
     // no or incorrect quest giver
@@ -171,7 +171,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
             if (player)
             {
                 player->SendPushToPartyResponse(_player, QUEST_PARTY_MSG_ACCEPT_QUEST);
-                _player->SetDivider(ObjectGuid::Empty);
+                _player->SetDivideInfo(ObjectGuid::Empty, 0);
             }
         }
 
@@ -192,7 +192,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 
                         if (player->CanTakeQuest(quest, true))
                         {
-                            player->SetDivider(_player->GetGUID());
+                            player->SetDivideInfo(_player->GetGUID(), questId);
 
                             // need confirmation that any gossip window will close
                             player->PlayerTalkClass->SendCloseGossip();
@@ -481,7 +481,7 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
         }
     }
 
-    _player->SetDivider(ObjectGuid::Empty);
+    _player->SetDivideInfo(ObjectGuid::Empty, 0);
 }
 
 void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
@@ -611,7 +611,7 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
             receiver->PlayerTalkClass->SendQuestGiverRequestItems(quest, sender->GetGUID(), receiver->CanCompleteRepeatableQuest(quest), true);
         else
         {
-            receiver->SetDivider(sender->GetGUID());
+            receiver->SetDivideInfo(sender->GetGUID(), questId);
             receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true);
         }
     }
@@ -636,7 +636,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
             player->SendPushToPartyResponse(_player, msg);
     }
 
-    _player->SetDivider(ObjectGuid::Empty);
+    _player->SetDivideInfo(ObjectGuid::Empty, 0);
 }
 
 void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket*/)
