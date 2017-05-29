@@ -111,8 +111,8 @@ public:
 
     static bool HandleDebugPlayCinematicCommand(ChatHandler* handler, char const* args)
     {
-        // USAGE: .debug play cinematic #cinematicid
-        // #cinematicid - ID decimal number from CinemaicSequences.dbc (1st column)
+        // USAGE: .debug play cinematic #cinematicId
+        // #cinematicId - ID decimal number from CinemaicSequences.dbc (1st column)
         if (!*args)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -120,22 +120,21 @@ public:
             return false;
         }
 
-        uint32 id = atoi((char*)args);
-
-        if (!sCinematicSequencesStore.LookupEntry(id))
+        uint32 cinematicId = atoul(args);
+        if (!sCinematicSequencesStore.LookupEntry(cinematicId))
         {
-            handler->PSendSysMessage(LANG_CINEMATIC_NOT_EXIST, id);
+            handler->PSendSysMessage(LANG_CINEMATIC_NOT_EXIST, cinematicId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         // Dump camera locations
-        if (CinematicSequencesEntry const* cineSeq = sCinematicSequencesStore.LookupEntry(id))
+        if (CinematicSequencesEntry const* cineSeq = sCinematicSequencesStore.LookupEntry(cinematicId))
         {
             std::unordered_map<uint32, FlyByCameraCollection>::const_iterator itr = sFlyByCameraStore.find(cineSeq->cinematicCamera);
             if (itr != sFlyByCameraStore.end())
             {
-                handler->PSendSysMessage("Waypoints for sequence %u, camera %u", id, cineSeq->cinematicCamera);
+                handler->PSendSysMessage("Waypoints for sequence %u, camera %u", cinematicId, cineSeq->cinematicCamera);
                 uint32 count = 1 ;
                 for (FlyByCamera cam : itr->second)
                 {
@@ -146,14 +145,14 @@ public:
             }
         }
 
-        handler->GetSession()->GetPlayer()->SendCinematicStart(id);
+        handler->GetSession()->GetPlayer()->SendCinematicStart(cinematicId);
         return true;
     }
 
     static bool HandleDebugPlayMovieCommand(ChatHandler* handler, char const* args)
     {
-        // USAGE: .debug play movie #movieid
-        // #movieid - ID decimal number from Movie.dbc (1st column)
+        // USAGE: .debug play movie #movieId
+        // #movieId - ID decimal number from Movie.dbc (1st column)
         if (!*args)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -161,16 +160,15 @@ public:
             return false;
         }
 
-        uint32 id = atoi((char*)args);
-
-        if (!sMovieStore.LookupEntry(id))
+        uint32 movieId = atoul(args);
+        if (!sMovieStore.LookupEntry(movieId))
         {
-            handler->PSendSysMessage(LANG_MOVIE_NOT_EXIST, id);
+            handler->PSendSysMessage(LANG_MOVIE_NOT_EXIST, movieId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        handler->GetSession()->GetPlayer()->SendMovieStart(id);
+        handler->GetSession()->GetPlayer()->SendMovieStart(movieId);
         return true;
     }
 
@@ -185,7 +183,7 @@ public:
             return false;
         }
 
-        uint32 soundId = atoi((char*)args);
+        uint32 soundId = atoul(args);
         if (!sSoundEntriesStore.LookupEntry(soundId))
         {
             handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, soundId);
@@ -223,7 +221,7 @@ public:
             return false;
         }
 
-        uint32 musicId = atoi((char*)args);
+        uint32 musicId = atoul(args);
         if (!sSoundEntriesStore.LookupEntry(musicId))
         {
             handler->PSendSysMessage(LANG_SOUND_NOT_EXIST, musicId);
