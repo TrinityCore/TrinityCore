@@ -633,6 +633,40 @@ class spell_dk_death_gate : public SpellScriptLoader
         }
 };
 
+// 49576 - Death Grip Initial
+class spell_dk_death_grip_initial : public SpellScriptLoader
+{
+public:
+    spell_dk_death_grip_initial() : SpellScriptLoader("spell_dk_death_grip_initial") { }
+
+    class spell_dk_death_grip_initial_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_death_grip_initial_SpellScript);
+
+        SpellCastResult CheckCast()
+        {
+            if (Player* caster = GetCaster()->ToPlayer())
+            {
+                if (caster->HasUnitState(UNIT_STATE_JUMPING) || caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+                    return SPELL_FAILED_MOVING;
+            }
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_dk_death_grip_initial_SpellScript::CheckCast);
+        }
+
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_dk_death_grip_initial_SpellScript();
+    }
+};
+
 // 49560 - Death Grip
 class spell_dk_death_grip : public SpellScriptLoader
 {
@@ -1388,6 +1422,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_and_decay();
     new spell_dk_death_coil();
     new spell_dk_death_gate();
+    new spell_dk_death_grip_initial();
     new spell_dk_death_grip();
     new spell_dk_death_pact();
     new spell_dk_death_strike();
