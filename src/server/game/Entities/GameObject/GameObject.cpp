@@ -33,6 +33,9 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include "Transport.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
 #include "GossipDef.h"
 
 #include "Packets/QueryPackets.h"
@@ -203,6 +206,10 @@ void GameObject::AddToWorld()
 
         EnableCollision(toggledState);
         WorldObject::AddToWorld();
+
+#ifdef ELUNA
+        sEluna->OnAddToWorld(this);
+#endif
     }
 }
 
@@ -211,6 +218,9 @@ void GameObject::RemoveFromWorld()
     ///- Remove the gameobject from the accessor
     if (IsInWorld())
     {
+#ifdef ELUNA
+        sEluna->OnRemoveFromWorld(this);
+#endif
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
 
@@ -379,6 +389,9 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
 void GameObject::Update(uint32 diff)
 {
+#ifdef ELUNA
+    sEluna->UpdateAI(this, diff);
+#endif
     if (AI())
         AI()->UpdateAI(diff);
     else if (!AIM_Initialize())
@@ -1253,6 +1266,10 @@ void GameObject::Use(Unit* user)
     if (Player* playerUser = user->ToPlayer())
     {
         playerUser->PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+        if (sEluna->OnGossipHello(playerUser, this))
+            return;
+#endif
         if (AI()->GossipHello(playerUser, false))
             return;
     }
@@ -2079,6 +2096,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         case GO_DESTRUCTIBLE_DAMAGED:
         {
             EventInform(m_goInfo->building.damagedEvent, eventInvoker);
+#ifdef ELUNA
+            sEluna->OnDamaged(this, eventInvoker);
+#endif
             AI()->Damaged(eventInvoker, m_goInfo->building.damagedEvent);
 
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
@@ -2104,6 +2124,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         case GO_DESTRUCTIBLE_DESTROYED:
         {
             EventInform(m_goInfo->building.destroyedEvent, eventInvoker);
+#ifdef ELUNA
+            sEluna->OnDestroyed(this, eventInvoker);
+#endif
             AI()->Destroyed(eventInvoker, m_goInfo->building.destroyedEvent);
 
             if (eventInvoker)
@@ -2158,6 +2181,9 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     else
         m_lootStateUnitGUID.Clear();
 
+#ifdef ELUNA
+    sEluna->OnLootStateChanged(this, state);
+#endif
     AI()->OnLootStateChanged(state, unit);
 
     if (GetGoType() == GAMEOBJECT_TYPE_DOOR) // only set collision for doors on SetGoState
@@ -2177,6 +2203,9 @@ void GameObject::SetLootState(LootState state, Unit* unit)
 void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+#ifdef ELUNA
+    sEluna->OnGameObjectStateChanged(this, state);
+#endif
     if (AI())
         AI()->OnStateChanged(state);
     if (m_model && !IsTransport())

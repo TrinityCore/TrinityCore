@@ -3579,6 +3579,33 @@ AuctionHouseBot.Buyer.Recheck.Interval = 20
 ###################################################################################################
 
 ###################################################################################################
+#  ELUNA SETTINGS
+#
+#   Eluna.Enabled
+#       Description: Enable or disable Eluna LuaEngine
+#       Default:    true  - (enabled)
+#                   false - (disabled)
+#
+#   Eluna.TraceBack
+#       Description: Sets whether to use debug.traceback function on a lua error or not.
+#                    Notice that you can redefine the function.
+#       Default:    false - (use default error output)
+#                   true  - (use debug.traceback function)
+#
+#   Eluna.ScriptPath
+#       Description: Sets the location of the script folder to load scripts from
+#                    The path can be relative or absolute.
+#       Default:    "lua_scripts"
+#
+
+Eluna.Enabled = true
+Eluna.TraceBack = false
+Eluna.ScriptPath = "lua_scripts"
+
+#
+###################################################################################################
+
+###################################################################################################
 # LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
@@ -3649,6 +3676,7 @@ Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w
 Appender.GM=2,2,15,gm/gm_%s.log
 Appender.DBErrors=2,2,0,DBErrors.log
+Appender.Eluna=2,5,3,Eluna.log,a
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -3675,6 +3703,7 @@ Logger.scripts.hotswap=3,Console Server
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
 Logger.mmaps=3,Server
+Logger.eluna=1,Console Eluna
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server

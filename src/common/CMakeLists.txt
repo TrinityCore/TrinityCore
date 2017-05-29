@@ -73,6 +73,7 @@ target_link_libraries(common
     openssl
     valgrind
     threads
+    lualib
     jemalloc)
 
 add_dependencies(common revision_data.h)

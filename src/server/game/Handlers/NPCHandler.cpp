@@ -36,6 +36,9 @@
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "SpellInfo.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
 
 enum StableResultCode
 {
@@ -338,6 +341,9 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     }
 
     _player->PlayerTalkClass->ClearMenus();
+#ifdef ELUNA
+    if (!sEluna->OnGossipHello(_player, unit))
+#endif
     if (!unit->AI()->GossipHello(_player))
     {
 //        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());

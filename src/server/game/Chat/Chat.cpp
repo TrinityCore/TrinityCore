@@ -32,6 +32,9 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
 
 // Lazy loading of the command table cache from commands and the
 // ScriptMgr should be thread safe since the player commands,
@@ -274,6 +277,10 @@ bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, c
         {
             if (!ExecuteCommandInTable(table[i].ChildCommands, text, fullcmd))
             {
+#ifdef ELUNA
+                if (!sEluna->OnCommand(GetSession() ? GetSession()->GetPlayer() : NULL, oldtext))
+                    return true;
+#endif
                 if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
                     return false;
 
@@ -423,6 +430,11 @@ bool ChatHandler::ParseCommands(char const* text)
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
+#ifdef ELUNA
+        if (!sEluna->OnCommand(GetSession() ? GetSession()->GetPlayer() : NULL, text))
+            return true;
+#endif
+
         if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
             return false;
 
