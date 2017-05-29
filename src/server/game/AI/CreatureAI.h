@@ -150,10 +150,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
 
         // Called when owner takes damage
-        virtual void OwnerAttackedBy(Unit* /*attacker*/) { }
+        virtual void OwnerAttackedBy(Unit* attacker);
 
         // Called when owner attacks something
-        virtual void OwnerAttacked(Unit* /*target*/) { }
+        virtual void OwnerAttacked(Unit* target) { CreatureAI::OwnerAttackedBy(target); }
 
         /// == Triggered Actions Requested ==================
 

@@ -132,15 +132,22 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
     if (me->GetVictim())
         return;
 
-    if (me->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) // non-combat pets should just stand there and look good;)
-        return;
-
     if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false))
         AttackStart(who);
-    //else if (who->GetVictim() && me->IsFriendlyTo(who)
-    //    && me->IsWithinDistInMap(who, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
-    //    && me->CanStartAttack(who->GetVictim(), true)) /// @todo if we use true, it will not attack it when it arrives
-    //    me->GetMotionMaster()->MoveChase(who->GetVictim());
+}
+
+void CreatureAI::OwnerAttackedBy(Unit* attacker)
+{
+    if (!attacker || !me->IsAlive())
+        return;
+
+    if (!me->HasReactState(REACT_PASSIVE) && me->CanStartAttack(attacker, false))
+    {
+        if (me->IsInCombat())
+            me->AddThreat(attacker, 0.0f);
+        else
+            AttackStart(attacker);
+    }
 }
 
 // Distract creature, if player gets too close while stealthed/prowling
