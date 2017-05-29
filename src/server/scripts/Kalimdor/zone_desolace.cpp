@@ -221,7 +221,7 @@ public:
             if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
             {
                 Start(true, false, player->GetGUID());
-                me->SetFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
             }
         }
     };

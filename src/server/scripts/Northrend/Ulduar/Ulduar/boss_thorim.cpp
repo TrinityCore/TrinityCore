@@ -309,9 +309,7 @@ enum Data
     ACHIEVEMENT_DONT_STAND_IN_THE_LIGHTNING = 29712972,
     ACHIEVEMENT_SIFFED                      = 29772978,
     ACHIEVEMENT_LOSE_YOUR_ILLUSION          = 31763183,
-    DATA_CHARGED_PILLAR                     = 1,
-
-    FACTION_FRIENDLY                        = 35
+    DATA_CHARGED_PILLAR                     = 1
 };
 
 enum DisplayIds

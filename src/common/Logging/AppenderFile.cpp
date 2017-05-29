@@ -20,7 +20,7 @@
 #include "StringFormat.h"
 #include "Log.h"
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 # include <Windows.h>
 #endif
 
