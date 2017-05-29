@@ -45,13 +45,13 @@ go_toy_train_set
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Log.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Spell.h"
-#include "WorldSession.h"
+#include "TemporarySummon.h"
 
 /*######
 ## go_cat_figurine
@@ -864,7 +864,8 @@ enum PrisonersOfWyrmskull
     NPC_PRISONER_PRIEST                           = 24086,
     NPC_PRISONER_MAGE                             = 24088,
     NPC_PRISONER_WARRIOR                          = 24089,
-    NPC_PRISONER_PALADIN                          = 24090
+    NPC_PRISONER_PALADIN                          = 24090,
+    NPC_CAPTURED_VALGARDE_PRISONER_PROXY          = 24124
 };
 
 class go_dragonflayer_cage : public GameObjectScript
@@ -893,13 +894,9 @@ public:
         if (!pPrisoner || !pPrisoner->IsAlive())
             return true;
 
-        Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_PRISONERS_OF_WYRMSKULL);
-        if (qInfo)
-        {
-            /// @todo prisoner should help player for a short period of time
-            player->KilledMonsterCredit(qInfo->Objectives[0].ObjectID);
-            pPrisoner->DisappearAndDie();
-        }
+        /// @todo prisoner should help player for a short period of time
+        player->KilledMonsterCredit(NPC_CAPTURED_VALGARDE_PRISONER_PROXY);
+        pPrisoner->DespawnOrUnsummon();
         return true;
     }
 };

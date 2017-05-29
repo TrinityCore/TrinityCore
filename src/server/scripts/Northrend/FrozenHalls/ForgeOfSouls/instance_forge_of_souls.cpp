@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "Creature.h"
 #include "forge_of_souls.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
 
 class instance_forge_of_souls : public InstanceMapScript

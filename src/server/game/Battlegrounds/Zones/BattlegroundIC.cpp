@@ -22,10 +22,10 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "Transport.h"
+#include "UnitAI.h"
 #include "Vehicle.h"
-#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 BattlegroundIC::BattlegroundIC()
 {

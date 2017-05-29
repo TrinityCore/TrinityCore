@@ -35,14 +35,16 @@ npc_nexus_drake_hatchling
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "GameObject.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
-#include "Player.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
-#include "WorldSession.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_sinkhole_kill_credit

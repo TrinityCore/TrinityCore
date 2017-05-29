@@ -16,13 +16,18 @@
  */
 
 #include "ScriptMgr.h"
+#include "halls_of_reflection.h"
+#include "InstanceScript.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Transport.h"
-#include "Player.h"
-#include "MoveSplineInit.h"
-#include "halls_of_reflection.h"
 
 enum Text
 {
@@ -338,6 +343,12 @@ Position const IceWallTargetPosition[] =
     { 5318.289f, 1749.184f, 771.9423f, 0.8726646f }  // 4th Icewall
 };
 
+void GameObjectDeleteDelayEvent::DeleteGameObject()
+{
+    if (GameObject* go = ObjectAccessor::GetGameObject(*_owner, _gameObjectGUID))
+        go->Delete();
+}
+
 class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
 {
     public:
@@ -371,12 +382,12 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                 switch (gossipListId)
                 {
                     case 0:
-                        player->PlayerTalkClass->SendCloseGossip();
+                        CloseGossipMenuFor(player);
                         _events.ScheduleEvent(EVENT_START_INTRO, 1000);
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         break;
                     case 1:
-                        player->PlayerTalkClass->SendCloseGossip();
+                        CloseGossipMenuFor(player);
                         _events.ScheduleEvent(EVENT_SKIP_INTRO, 1000);
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         break;
@@ -865,7 +876,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                 switch (gossipListId)
                 {
                     case 0:
-                        player->PlayerTalkClass->SendCloseGossip();
+                        CloseGossipMenuFor(player);
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         _events.ScheduleEvent(EVENT_ESCAPE_6, 0);
                         break;
@@ -1640,7 +1651,7 @@ class npc_phantom_hallucination : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_phantom_hallucinationAI(creature);
+            return GetHallsOfReflectionAI<npc_phantom_hallucinationAI>(creature);
         }
 };
 
@@ -1994,7 +2005,7 @@ class npc_spiritual_reflection : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_spiritual_reflectionAI(creature);
+            return GetHallsOfReflectionAI<npc_spiritual_reflectionAI>(creature);
         }
 };
 

@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -116,7 +117,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_jandicebarovAI>(creature);
+        return GetScholomanceAI<boss_jandicebarovAI>(creature);
     }
 };
 

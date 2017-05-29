@@ -66,13 +66,8 @@ namespace fs = boost::filesystem;
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     #include <windows.h>
-    #define HOTSWAP_PLATFORM_REQUIRES_CACHING
-#elif TRINITY_PLATFORM == TRINITY_PLATFORM_APPLE
+#else // Posix and Apple
     #include <dlfcn.h>
-    #define HOTSWAP_PLATFORM_REQUIRES_CACHING
-#else // Posix
-    #include <dlfcn.h>
-    // #define HOTSWAP_PLATFORM_REQUIRES_CACHING
 #endif
 
 // Promote the sScriptReloadMgr to a HotSwapScriptReloadMgr
@@ -609,8 +604,6 @@ public:
             }
         }
 
-    #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
-
         temporary_cache_path_ = CalculateTemporaryCachePath();
 
         // We use the boost filesystem function versions which accept
@@ -628,8 +621,6 @@ public:
 
         // Used to silent compiler warnings
         (void)code;
-
-    #endif // #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
 
         // Correct the CMake prefix when needed
         if (sWorld->getBoolConfig(CONFIG_HOTSWAP_PREFIX_CORRECTION_ENABLED))
@@ -867,21 +858,17 @@ private:
         ASSERT(_running_script_module_names.find(path) == _running_script_module_names.end(),
                "Can't load a module which is running already!");
 
-        Optional<fs::path> cache_path;
-
-    #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
-
-        // Copy the shared library into a cache on platforms which lock files on use (windows).
-        cache_path = GenerateUniquePathForLibraryInCache(path);
+        // Copy the shared library into a cache
+        auto cache_path = GenerateUniquePathForLibraryInCache(path);
 
         {
             boost::system::error_code code;
-            fs::copy_file(path, *cache_path, fs::copy_option::fail_if_exists, code);
+            fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
             if (code)
             {
                 TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module "
                     "\"%s\" at \"%s\" with reason (\"%s\")!",
-                    path.filename().generic_string().c_str(), cache_path->generic_string().c_str(),
+                    path.filename().generic_string().c_str(), cache_path.generic_string().c_str(),
                     code.message().c_str());
 
                 // Find a better solution for this but it's much better
@@ -892,10 +879,8 @@ private:
             }
 
             TC_LOG_TRACE("scripts.hotswap", ">> Copied the shared library \"%s\" to \"%s\" for caching.",
-                path.filename().generic_string().c_str(), cache_path->generic_string().c_str());
+                path.filename().generic_string().c_str(), cache_path.generic_string().c_str());
         }
-
-    #endif // #ifdef HOTSWAP_PLATFORM_REQUIRES_CACHING
 
         auto module = ScriptModule::CreateFromPath(path, cache_path);
         if (!module)

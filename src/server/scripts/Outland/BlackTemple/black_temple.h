@@ -18,7 +18,7 @@
 #ifndef BLACK_TEMPLE_H_
 #define BLACK_TEMPLE_H_
 
-#include "InstanceScript.h"
+#include "CreatureAIImpl.h"
 
 #define BTScriptName "instance_black_temple"
 #define DataHeader   "BT"
@@ -91,8 +91,8 @@ enum BTGameObjectIds
     GO_ILLIDAN_DOOR_L               = 186262
 };
 
-template<class AI>
-AI* GetBlackTempleAI(Creature* creature)
+template<typename AI>
+inline AI* GetBlackTempleAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, BTScriptName);
 }

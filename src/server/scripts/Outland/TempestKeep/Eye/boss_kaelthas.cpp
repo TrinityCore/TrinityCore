@@ -24,8 +24,11 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "the_eye.h"
 
@@ -843,7 +846,7 @@ class boss_kaelthas : public CreatureScript
                         default:
                             break;
                     }
-                    
+
                     if (me->HasUnitState(UNIT_STATE_CASTING) && !me->FindCurrentSpellBySpellId(SPELL_KAEL_GAINING_POWER) && !me->FindCurrentSpellBySpellId(SPELL_KAEL_STUNNED))
                         return;
                 }
@@ -863,7 +866,7 @@ class boss_kaelthas : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_kaelthasAI>(creature);
+            return GetTheEyeAI<boss_kaelthasAI>(creature);
         }
 };
 
@@ -968,7 +971,7 @@ class boss_thaladred_the_darkener : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_thaladred_the_darkenerAI>(creature);
+            return GetTheEyeAI<boss_thaladred_the_darkenerAI>(creature);
         }
 };
 
@@ -1032,7 +1035,7 @@ class boss_lord_sanguinar : public CreatureScript
         };
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_lord_sanguinarAI>(creature);
+            return GetTheEyeAI<boss_lord_sanguinarAI>(creature);
         }
 };
 
@@ -1163,7 +1166,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_grand_astromancer_capernianAI>(creature);
+            return GetTheEyeAI<boss_grand_astromancer_capernianAI>(creature);
         }
 };
 
@@ -1242,7 +1245,7 @@ class boss_master_engineer_telonicus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_master_engineer_telonicusAI>(creature);
+            return GetTheEyeAI<boss_master_engineer_telonicusAI>(creature);
         }
 };
 
@@ -1312,7 +1315,7 @@ class npc_kael_flamestrike : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_kael_flamestrikeAI(creature);
+            return GetTheEyeAI<npc_kael_flamestrikeAI>(creature);
         }
 };
 
@@ -1371,7 +1374,7 @@ class npc_phoenix_tk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_phoenix_tkAI(creature);
+            return GetTheEyeAI<npc_phoenix_tkAI>(creature);
         }
 };
 
@@ -1437,7 +1440,7 @@ class npc_phoenix_egg_tk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_phoenix_egg_tkAI(creature);
+            return GetTheEyeAI<npc_phoenix_egg_tkAI>(creature);
         }
 };
 
@@ -1459,11 +1462,7 @@ class spell_kael_gravity_lapse : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                for (uint8 i = 0; i < 25; ++i)
-                    if (!sSpellMgr->GetSpellInfo(GravityLapseSpells[i]))
-                        return false;
-
-                return true;
+                return ValidateSpellInfo(GravityLapseSpells);
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

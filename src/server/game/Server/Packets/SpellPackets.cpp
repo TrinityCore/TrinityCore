@@ -69,9 +69,7 @@ WorldPacket const* WorldPackets::Spells::SendKnownSpells::Write()
 
 WorldPacket const* WorldPackets::Spells::UpdateActionButtons::Write()
 {
-    for (uint32 i = 0; i < MAX_ACTION_BUTTONS; ++i)
-        _worldPacket << ActionButtons[i];
-
+    _worldPacket.append(ActionButtons.data(), ActionButtons.size());
     _worldPacket << Reason;
 
     return &_worldPacket;
@@ -90,64 +88,6 @@ WorldPacket const* WorldPackets::Spells::SendUnlearnSpells::Write()
         _worldPacket << uint32(spellId);
 
     return &_worldPacket;
-}
-
-void WorldPackets::Spells::SpellCastLogData::Initialize(Unit const* unit)
-{
-    Health = unit->GetHealth();
-    AttackPower = unit->GetTotalAttackPowerValue(unit->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
-    SpellPower = unit->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-    PowerData.emplace_back(int32(unit->getPowerType()), unit->GetPower(unit->getPowerType()), int32(0));
-}
-
-void WorldPackets::Spells::SpellCastLogData::Initialize(Spell const* spell)
-{
-    Health = spell->GetCaster()->GetHealth();
-    AttackPower = spell->GetCaster()->GetTotalAttackPowerValue(spell->GetCaster()->getClass() == CLASS_HUNTER ? RANGED_ATTACK : BASE_ATTACK);
-    SpellPower = spell->GetCaster()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SPELL);
-    Powers primaryPowerType = spell->GetCaster()->getPowerType();
-    bool primaryPowerAdded = false;
-    for (SpellInfo::CostData const& cost : spell->GetPowerCost())
-    {
-        PowerData.emplace_back(int32(cost.Power), spell->GetCaster()->GetPower(Powers(cost.Power)), int32(cost.Amount));
-        if (cost.Power == primaryPowerType)
-            primaryPowerAdded = true;
-    }
-
-    if (!primaryPowerAdded)
-        PowerData.insert(PowerData.begin(), SpellLogPowerData(int32(primaryPowerType), spell->GetCaster()->GetPower(primaryPowerType), 0));
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData)
-{
-    data << int64(spellCastLogData.Health);
-    data << int32(spellCastLogData.AttackPower);
-    data << int32(spellCastLogData.SpellPower);
-    data.WriteBits(spellCastLogData.PowerData.size(), 9);
-    data.FlushBits();
-
-    for (WorldPackets::Spells::SpellLogPowerData const& powerData : spellCastLogData.PowerData)
-    {
-        data << int32(powerData.PowerType);
-        data << int32(powerData.Amount);
-        data << int32(powerData.Cost);
-    }
-
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingData const& sandboxScalingData)
-{
-    data.WriteBits(sandboxScalingData.Type, 3);
-    data << int16(sandboxScalingData.PlayerLevelDelta);
-    data << uint16(sandboxScalingData.PlayerItemLevel);
-    data << uint8(sandboxScalingData.TargetLevel);
-    data << uint8(sandboxScalingData.Expansion);
-    data << uint8(sandboxScalingData.Class);
-    data << uint8(sandboxScalingData.TargetMinScalingLevel);
-    data << uint8(sandboxScalingData.TargetMaxScalingLevel);
-    data << int8(sandboxScalingData.TargetScalingLevelDelta);
-    return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo const& auraData)

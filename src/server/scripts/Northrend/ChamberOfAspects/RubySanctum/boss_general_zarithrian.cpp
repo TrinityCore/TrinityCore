@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ruby_sanctum.h"
+#include "ScriptedEscortAI.h"
 
 enum Texts
 {

@@ -16,11 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuras.h"
-#include "SpellAuraEffects.h"
 #include "azjol_nerub.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Events
 {
@@ -380,7 +383,7 @@ public:
             summons.Summon(summon);
             // Do not enter combat with zone
         }
-        
+
         private:
             bool _enteredCombat; // has a player entered combat with the first crusher pack? (talk and spawn two more packs)
             bool _doorsWebbed;   // obvious - have we reached the top and webbed the doors shut? (trigger for hadronox denied achievement)
@@ -616,7 +619,7 @@ class npc_anub_ar_crusher_champion : public CreatureScript
         }
 };
 
-static const Position cryptFiendWaypoints[] = 
+static const Position cryptFiendWaypoints[] =
 {
     { 520.3911f, 548.7895f, 732.0118f, 5.0091f   },
     { },
@@ -953,9 +956,7 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            return
-                (sSpellMgr->GetSpellInfo(_topSpellId) != nullptr) &&
-                (sSpellMgr->GetSpellInfo(_bottomSpellId) != nullptr);
+            return ValidateSpellInfo({ _topSpellId, _bottomSpellId });
         }
 
         void HandleApply(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
@@ -1056,7 +1057,7 @@ class spell_hadronox_leeching_poison : public SpellScriptLoader
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            return sSpellMgr->GetSpellInfo(SPELL_LEECH_POISON_HEAL) != nullptr;
+            return ValidateSpellInfo({ SPELL_LEECH_POISON_HEAL });
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1094,11 +1095,12 @@ class spell_hadronox_web_doors : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return (
-                    sSpellMgr->GetSpellInfo(SPELL_SUMMON_CHAMPION_PERIODIC) &&
-                    sSpellMgr->GetSpellInfo(SPELL_SUMMON_CRYPT_FIEND_PERIODIC) &&
-                    sSpellMgr->GetSpellInfo(SPELL_SUMMON_NECROMANCER_PERIODIC)
-                    );
+                return ValidateSpellInfo(
+                {
+                    SPELL_SUMMON_CHAMPION_PERIODIC,
+                    SPELL_SUMMON_CRYPT_FIEND_PERIODIC,
+                    SPELL_SUMMON_NECROMANCER_PERIODIC
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

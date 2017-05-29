@@ -21,7 +21,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Unit.h"

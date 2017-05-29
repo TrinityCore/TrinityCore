@@ -19,9 +19,9 @@
 #define GuildPackets_h__
 
 #include "Packet.h"
-#include "ObjectGuid.h"
+#include "ItemPacketsCommon.h"
 #include "Guild.h"
-#include "ItemPackets.h"
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {
@@ -1009,6 +1009,17 @@ namespace WorldPackets
             void Read() override;
 
             std::set<uint32> AchievementIDs;
+        };
+
+        class GuildNameChanged final : ServerPacket
+        {
+        public:
+            GuildNameChanged() : ServerPacket(SMSG_GUILD_NAME_CHANGED, 40) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid GuildGUID;
+            std::string GuildName;
         };
     }
 }

@@ -27,6 +27,7 @@
 #include "LFGQueue.h"
 #include "LFGScripts.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"

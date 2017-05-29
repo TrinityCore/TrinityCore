@@ -15,12 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
+#include "Containers.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
-#include "icecrown_citadel.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 // KNOWN BUGS:
 // ~ No Slime Spray animation directly at target spot
@@ -541,9 +546,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             bool Validate(SpellInfo const* spellInfo) override
             {
                 SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_2);
-                if (!effect || !sSpellMgr->GetSpellInfo(uint32(effect->CalcValue())))
-                    return false;
-                return true;
+                return effect && !ValidateSpellInfo({ uint32(effect->CalcValue()) });
             }
 
             void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -709,9 +712,7 @@ class spell_rotface_unstable_ooze_explosion_init : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_UNSTABLE_OOZE_EXPLOSION_TRIGGER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_UNSTABLE_OOZE_EXPLOSION_TRIGGER });
             }
 
             void HandleCast(SpellEffIndex effIndex)

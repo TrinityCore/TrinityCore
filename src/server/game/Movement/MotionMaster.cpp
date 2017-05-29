@@ -459,12 +459,6 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
 
 void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk, bool fly)
 {
-    Movement::PointsArray path(pathPoints, pathPoints + pathSize);
-    MoveSmoothPath(pointId, path, walk, fly);
-}
-
-void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& path, bool walk, bool fly)
-{
     Movement::MoveSplineInit init(_owner);
     if (fly)
     {
@@ -472,6 +466,7 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& p
         init.SetUncompressed();
     }
 
+    Movement::PointsArray path(pathPoints, pathPoints + pathSize);
     init.MovebyPath(path);
     init.SetSmooth();
     init.SetWalk(walk);
@@ -502,7 +497,7 @@ void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool w
     MoveAlongSplineChain(pointId, *chain, walk);
 }
 
-void MotionMaster::MoveAlongSplineChain(uint32 pointId, SplineChain const& chain, bool walk)
+void MotionMaster::MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk)
 {
     Mutate(new SplineChainMovementGenerator(pointId, chain, walk), MOTION_SLOT_ACTIVE);
 }

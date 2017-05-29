@@ -16,15 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "OutdoorPvPSI.h"
-#include "WorldPacket.h"
-#include "Player.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
-#include "MapManager.h"
-#include "ObjectMgr.h"
-#include "OutdoorPvPMgr.h"
-#include "ReputationMgr.h"
 #include "Language.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPSI.h"
+#include "Player.h"
+#include "ReputationMgr.h"
 #include "World.h"
 #include "WorldStatePackets.h"
 
@@ -164,7 +162,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                         GameObject* go = new GameObject;
                         Map* map = player->GetMap();
 
-                        if (!go->Create(SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, G3D::Quat(), 255, GO_STATE_READY))
+                        if (!go->Create(SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, QuaternionData(), 255, GO_STATE_READY))
                         {
                             delete go;
                             return true;
@@ -195,7 +193,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                         GameObject* go = new GameObject;
                         Map* map = player->GetMap();
 
-                        if (!go->Create(SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, G3D::Quat(), 255, GO_STATE_READY))
+                        if (!go->Create(SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, QuaternionData(), 255, GO_STATE_READY))
                         {
                             delete go;
                             return true;

@@ -19,9 +19,9 @@
 #define QuestPackets_h__
 
 #include "Packet.h"
+#include "ItemPacketsCommon.h"
 #include "QuestDef.h"
 #include "ObjectGuid.h"
-#include "ItemPackets.h"
 
 namespace WorldPackets
 {

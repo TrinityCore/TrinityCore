@@ -24,13 +24,17 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellMgr.h"
-#include "scarlet_monastery.h"
-#include "LFGMgr.h"
-#include "Player.h"
+#include "GameObject.h"
 #include "Group.h"
+#include "InstanceScript.h"
+#include "LFGMgr.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "scarlet_monastery.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 //this texts are already used by 3975 and 3976
 enum Says
@@ -141,7 +145,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_wisp_invisAI(creature);
+        return GetScarletMonasteryAI<npc_wisp_invisAI>(creature);
     }
 
     struct npc_wisp_invisAI : public ScriptedAI
@@ -220,7 +224,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_headAI(creature);
+        return GetScarletMonasteryAI<npc_headAI>(creature);
     }
 
     struct npc_headAI : public ScriptedAI
@@ -373,7 +377,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_headless_horsemanAI>(creature);
+        return GetScarletMonasteryAI<boss_headless_horsemanAI>(creature);
     }
 
     struct boss_headless_horsemanAI : public ScriptedAI
@@ -783,7 +787,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_pulsing_pumpkinAI(creature);
+        return GetScarletMonasteryAI<npc_pulsing_pumpkinAI>(creature);
     }
 
     struct npc_pulsing_pumpkinAI : public ScriptedAI

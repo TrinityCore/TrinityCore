@@ -18,9 +18,12 @@
 #include "AuctionHouseBotSeller.h"
 #include "AuctionHouseMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Item.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Random.h"
+#include <sstream>
 
 AuctionBotSeller::AuctionBotSeller()
 {
@@ -70,8 +73,8 @@ bool AuctionBotSeller::Initialize()
                 tempItems.insert((*it2)->item);
         }
     }
-    for (std::set<uint32>::const_iterator it = tempItems.begin(); it != tempItems.end(); ++it)
-        npcItems.push_back(*it);
+    for (uint32 itemId : tempItems)
+        npcItems.push_back(itemId);
 
     TC_LOG_DEBUG("ahbot", "Npc vendor filter has %u items", (uint32)npcItems.size());
 
