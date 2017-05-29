@@ -585,7 +585,7 @@ public:
             if (quest->GetQuestId() == QUEST_GUARDIANS_ALTAR)
             {
                 Talk(SAY_QUEST_START);
-                me->SetFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
+                me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
 
                 Start(false, false, player->GetGUID(), quest);
             }
