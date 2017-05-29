@@ -643,19 +643,32 @@ class spell_dk_death_grip : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_death_grip_SpellScript);
 
+            SpellCastResult CheckCast()
+            {
+                if (Player* m_caster = GetCaster()->ToPlayer())
+                {
+
+                    if (m_caster->HasUnitState(UNIT_STATE_JUMPING) || m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+                        return SPELL_FAILED_MOVING;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 int32 damage = GetEffectValue();
                 Position const* pos = GetExplTargetDest();
                 if (Unit* target = GetHitUnit())
                 {
-                    if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
+                    if (!(target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS) || target->HasAuraType(SPELL_AURA_MOD_ROOT))) // Deterrence / Root
                         target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), damage, true);
                 }
             }
 
             void Register() override
             {
+                OnCheckCast       += SpellCheckCastFn(spell_dk_death_grip_SpellScript::CheckCast);
                 OnEffectHitTarget += SpellEffectFn(spell_dk_death_grip_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
