@@ -55,7 +55,6 @@ enum Spells
 enum Extras
 {
     OPTION_ID_YOU_CHALLENGED_US   = 0,
-    FACTION_FRIENDLY              = 35,
     MENU_OPTION_YOU_CHALLENGED_US = 4108
 };
 
