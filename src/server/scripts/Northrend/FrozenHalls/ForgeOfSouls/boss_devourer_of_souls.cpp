@@ -16,12 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
-#include "SpellInfo.h"
-#include "SpellAuraEffects.h"
-#include "SpellScript.h"
 #include "forge_of_souls.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*
  * @todo
@@ -157,7 +159,7 @@ class boss_devourer_of_souls : public CreatureScript
                 Talk(SAY_FACE_AGGRO);
 
                 if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
-                    instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
+                    me->GetMap()->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
                 events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
                 events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8000);
                 events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30000);
@@ -342,7 +344,7 @@ class boss_devourer_of_souls : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_devourer_of_soulsAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<boss_devourer_of_soulsAI>(creature);
         }
 };
 
@@ -358,9 +360,7 @@ class spell_devourer_of_souls_mirrored_soul : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MIRRORED_SOUL_PROC_AURA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_PROC_AURA });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -393,9 +393,7 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MIRRORED_SOUL_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_DAMAGE });
             }
 
             bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -435,9 +433,7 @@ class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScript
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MIRRORED_SOUL_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MIRRORED_SOUL_BUFF });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

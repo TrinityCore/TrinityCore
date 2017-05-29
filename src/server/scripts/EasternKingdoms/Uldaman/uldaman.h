@@ -19,6 +19,9 @@
 #ifndef DEF_ULDAMAN_H
 #define DEF_ULDAMAN_H
 
+#include "CreatureAIImpl.h"
+
+#define UldamanScriptName "instance_uldaman"
 #define DataHeader "UD"
 
 #define MAX_ENCOUNTER                   3
@@ -41,5 +44,11 @@ enum UDGameObjectIds
     GO_IRONAYA_SEAL_DOOR                = 124372,
     GO_KEYSTONE                         = 124371,
 };
+
+template<typename AI>
+inline AI* GetUldamanAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, UldamanScriptName);
+}
 
 #endif

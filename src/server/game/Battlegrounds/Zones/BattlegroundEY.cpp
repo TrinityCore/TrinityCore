@@ -17,15 +17,16 @@
  */
 
 #include "BattlegroundEY.h"
-#include "WorldPacket.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundPackets.h"
 #include "Creature.h"
+#include "GameObject.h"
 #include "Language.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"
 #include "Util.h"
-#include "BattlegroundPackets.h"
 #include "WorldStatePackets.h"
 
 // these variables aren't used outside of this file, so declare them only here

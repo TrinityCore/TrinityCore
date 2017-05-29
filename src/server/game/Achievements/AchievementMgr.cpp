@@ -27,6 +27,7 @@
 #include "GuildMgr.h"
 #include "Language.h"
 #include "Log.h"
+#include "Mail.h"
 #include "ObjectMgr.h"
 #include "World.h"
 

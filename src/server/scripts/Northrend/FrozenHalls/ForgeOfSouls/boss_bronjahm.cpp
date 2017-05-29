@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "forge_of_souls.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "forge_of_souls.h"
 
 enum Yells
 {
@@ -138,11 +141,10 @@ class boss_bronjahm : public CreatureScript
                 {
                     uint32 count = 0;
                     for (ObjectGuid const& guid : summons)
-                    {
                         if (Creature* summon = ObjectAccessor::GetCreature(*me, guid))
                             if (summon->GetEntry() == NPC_CORRUPTED_SOUL_FRAGMENT && summon->IsAlive())
                                 ++count;
-                    }
+
                     return count;
                 }
 
@@ -212,7 +214,7 @@ class boss_bronjahm : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_bronjahmAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<boss_bronjahmAI>(creature);
         }
 };
 
@@ -252,7 +254,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_corrupted_soul_fragmentAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<npc_corrupted_soul_fragmentAI>(creature);
         }
 };
 

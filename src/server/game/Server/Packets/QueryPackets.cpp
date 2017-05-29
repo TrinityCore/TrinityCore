@@ -40,13 +40,13 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket.WriteBits(Stats.CursorName.length() + 1, 6);
         _worldPacket.WriteBit(Stats.Leader);
 
-        for (uint32 i = 0; i < MAX_CREATURE_NAMES; ++i)
+        for (std::size_t i = 0; i < Stats.Name.size(); ++i)
         {
             _worldPacket.WriteBits(Stats.Name[i].length() + 1, 11);
             _worldPacket.WriteBits(Stats.NameAlt[i].length() + 1, 11);
         }
 
-        for (uint32 i = 0; i < MAX_CREATURE_NAMES; ++i)
+        for (std::size_t i = 0; i < Stats.Name.size(); ++i)
         {
             if (!Stats.Name[i].empty())
                 _worldPacket << Stats.Name[i];
@@ -55,19 +55,12 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
                 _worldPacket << Stats.NameAlt[i];
         }
 
-        for (uint8 i = 0; i < 2; ++i)
-            _worldPacket << Stats.Flags[i];
-
+        _worldPacket.append(Stats.Flags.data(), Stats.Flags.size());
         _worldPacket << int32(Stats.CreatureType);
         _worldPacket << int32(Stats.CreatureFamily);
         _worldPacket << int32(Stats.Classification);
-
-        for (uint32 i = 0; i < MAX_KILL_CREDIT; ++i)
-            _worldPacket << int32(Stats.ProxyCreatureID[i]);
-
-        for (uint32 i = 0; i < MAX_CREATURE_MODELS; ++i)
-            _worldPacket << int32(Stats.CreatureDisplayID[i]);
-
+        _worldPacket.append(Stats.ProxyCreatureID.data(), Stats.ProxyCreatureID.size());
+        _worldPacket.append(Stats.CreatureDisplayID.data(), Stats.CreatureDisplayID.size());
         _worldPacket << float(Stats.HpMulti);
         _worldPacket << float(Stats.EnergyMulti);
         _worldPacket << uint32(Stats.QuestItems.size());

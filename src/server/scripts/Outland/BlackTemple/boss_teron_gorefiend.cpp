@@ -24,8 +24,11 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum DoomBlossom
 {
@@ -58,7 +61,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_doom_blossomAI(creature);
+        return GetBlackTempleAI<npc_doom_blossomAI>(creature);
     }
 
     struct npc_doom_blossomAI : public ScriptedAI
@@ -135,7 +138,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_shadowy_constructAI(creature);
+        return GetBlackTempleAI<npc_shadowy_constructAI>(creature);
     }
 
     struct npc_shadowy_constructAI : public ScriptedAI
@@ -233,7 +236,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_teron_gorefiendAI>(creature);
+        return GetBlackTempleAI<boss_teron_gorefiendAI>(creature);
     }
 
     struct boss_teron_gorefiendAI : public BossAI
@@ -449,7 +452,7 @@ public:
                     float X = CalculateRandomLocation(target->GetPositionX(), 20);
                     float Y = CalculateRandomLocation(target->GetPositionY(), 20);
                     float Z = target->GetPositionZ();
-                    Z = me->GetMap()->GetHeight(me->GetPhases(), X, Y, Z);
+                    me->UpdateGroundPositionZ(X, Y, Z);
                     Creature* DoomBlossom = me->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
                     if (DoomBlossom)
                     {

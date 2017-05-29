@@ -16,13 +16,16 @@
  */
 
 #include "ScriptMgr.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "utgarde_pinnacle.h"
-#include "GridNotifiers.h"
-#include "Player.h"
-#include "MoveSplineInit.h"
 
 enum Spells
 {
@@ -322,7 +325,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_skadiAI>(creature);
+        return GetUtgardePinnacleAI<boss_skadiAI>(creature);
     }
 };
 
@@ -464,7 +467,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_graufAI>(creature);
+        return GetUtgardePinnacleAI<npc_graufAI>(creature);
     }
 };
 
@@ -560,7 +563,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ymirjar_warriorAI>(creature);
+        return GetUtgardePinnacleAI<npc_ymirjar_warriorAI>(creature);
     }
 };
 
@@ -591,7 +594,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ymirjar_witch_doctorAI>(creature);
+        return GetUtgardePinnacleAI<npc_ymirjar_witch_doctorAI>(creature);
     }
 };
 
@@ -628,7 +631,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ymirjar_harpoonerAI>(creature);
+        return GetUtgardePinnacleAI<npc_ymirjar_harpoonerAI>(creature);
     }
 };
 
@@ -643,9 +646,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FREEZING_CLOUD))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
         }
 
         void FilterTargets(std::list<WorldObject*>& targets)
@@ -682,9 +683,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FREEZING_CLOUD))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
         }
 
         void FilterTargets(std::list<WorldObject*>& targets)
@@ -830,9 +829,7 @@ class spell_skadi_poisoned_spear : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_POISONED_SPEAR_PERIODIC))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_POISONED_SPEAR_PERIODIC });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

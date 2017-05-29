@@ -19,10 +19,9 @@
 #ifndef SCRIPTEDCREATURE_H_
 #define SCRIPTEDCREATURE_H_
 
-#include "Creature.h"
 #include "CreatureAI.h"
-#include "CreatureAIImpl.h"
-#include "InstanceScript.h"
+#include "Creature.h" // convenience include for scripts, all uses of ScriptedCreature also need Creature (except ScriptedCreature itself doesn't need Creature)
+#include "DBCEnums.h"
 #include "TaskScheduler.h"
 
 class InstanceScript;
@@ -84,8 +83,8 @@ public:
         storage_.clear();
     }
 
-    void Summon(Creature const* summon) { storage_.push_back(summon->GetGUID()); }
-    void Despawn(Creature const* summon) { storage_.remove(summon->GetGUID()); }
+    void Summon(Creature const* summon);
+    void Despawn(Creature const* summon);
     void DespawnEntry(uint32 entry);
     void DespawnAll();
 
@@ -101,12 +100,7 @@ public:
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         StorageType listCopy = storage_;
         Trinity::Containers::RandomResize<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), max);
-        for (StorageType::iterator i = listCopy.begin(); i != listCopy.end(); )
-        {
-            Creature* summon = ObjectAccessor::GetCreature(*me, *i++);
-            if (summon && summon->IsAIEnabled)
-                summon->AI()->DoAction(info);
-        }
+        DoActionImpl(info, listCopy);
     }
 
     void DoZoneInCombat(uint32 entry = 0, float maxRangeToNearestTarget = 250.0f);
@@ -114,6 +108,8 @@ public:
     bool HasEntry(uint32 entry) const;
 
 private:
+    void DoActionImpl(int32 action, StorageType const& summons);
+
     Creature* me;
     StorageType storage_;
 };
@@ -239,8 +235,8 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
     //Spawns a creature relative to me
     Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime);
 
-    bool HealthBelowPct(uint32 pct) const { return me->HealthBelowPct(pct); }
-    bool HealthAbovePct(uint32 pct) const { return me->HealthAbovePct(pct); }
+    bool HealthBelowPct(uint32 pct) const;
+    bool HealthAbovePct(uint32 pct) const;
 
     //Returns spells that meet the specified criteria from the creatures spell list
     SpellInfo const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, float rangeMin, float rangeMax, SelectEffect effect);
@@ -352,13 +348,13 @@ class TC_GAME_API BossAI : public ScriptedAI
         void JustDied(Unit* /*killer*/) override { _JustDied(); }
         void JustReachedHome() override { _JustReachedHome(); }
 
-        bool CanAIAttack(Unit const* target) const override { return CheckBoundary(target); }
+        bool CanAIAttack(Unit const* target) const override;
 
     protected:
         void _Reset();
         void _EnterCombat();
         void _JustDied();
-        void _JustReachedHome() { me->setActive(false); }
+        void _JustReachedHome();
         void _DespawnAtEvade(uint32 delayToRespawn = 30, Creature* who = nullptr);
         void _DespawnAtEvade(Seconds const& time, Creature* who = nullptr) { _DespawnAtEvade(uint32(time.count()), who); }
 

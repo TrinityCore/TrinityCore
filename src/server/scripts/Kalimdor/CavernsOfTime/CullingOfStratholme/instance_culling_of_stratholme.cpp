@@ -16,12 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "CreatureTextMgr.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 #include "culling_of_stratholme.h"
-#include "Player.h"
+#include "EventMap.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "TemporarySummon.h"
-#include "SpellInfo.h"
+#include "WorldStatePackets.h"
 
 /* Culling of Stratholme encounters:
 0 - Meathook

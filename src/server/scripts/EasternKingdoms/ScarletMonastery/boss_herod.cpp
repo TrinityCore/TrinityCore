@@ -146,7 +146,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_scarlet_traineeAI(creature);
+        return GetScarletMonasteryAI<npc_scarlet_traineeAI>(creature);
     }
 
     struct npc_scarlet_traineeAI : public npc_escortAI

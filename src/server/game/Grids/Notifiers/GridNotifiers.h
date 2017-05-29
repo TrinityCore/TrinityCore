@@ -21,23 +21,17 @@
 
 #include "ObjectGridLoader.h"
 #include "UpdateData.h"
-#include <iostream>
 
-#include "Corpse.h"
-#include "Object.h"
 #include "AreaTrigger.h"
+#include "Creature.h"
+#include "Corpse.h"
 #include "Conversation.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
-#include "Player.h"
-#include "Unit.h"
-#include "CreatureAI.h"
-#include "Spell.h"
-#include "WorldSession.h"
 #include "Packet.h"
-
-class Player;
-//class Map;
+#include "Player.h"
+#include "Spell.h"
+#include "UnitAI.h"
 
 namespace Trinity
 {
@@ -156,8 +150,7 @@ namespace Trinity
             if (!player->HaveAtClient(i_source))
                 return;
 
-            if (WorldSession* session = player->GetSession())
-                session->SendPacket(i_message);
+            player->SendDirectMessage(i_message);
         }
     };
 
@@ -1014,8 +1007,8 @@ namespace Trinity
                 if (!u->IsWithinLOSInMap(i_enemy))
                     return;
 
-                if (u->AI())
-                    u->AI()->AttackStart(i_enemy);
+                if (u->GetAI() && u->IsAIEnabled)
+                    u->GetAI()->AttackStart(i_enemy);
             }
         private:
             Unit* const i_funit;

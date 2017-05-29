@@ -19,17 +19,13 @@
 #ifndef TRINITYCORE_QUEST_H
 #define TRINITYCORE_QUEST_H
 
-#include "Define.h"
+#include "Common.h"
+#include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
 #include "SharedDefines.h"
-#include "DBCEnums.h"
-
-#include <string>
 #include <vector>
 
 class Player;
-
-class ObjectMgr;
 
 namespace WorldPackets
 {
