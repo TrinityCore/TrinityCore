@@ -394,7 +394,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     if (unitTarget->HasAuraState(AURA_STATE_CONFLAGRATE))
                     {
                         if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x4, 0, 0))
-                            damage += damage/4;
+                            damage += damage / 4;
                     }
                 }
                 // Conflagrate - consumes Immolate or Shadowflame

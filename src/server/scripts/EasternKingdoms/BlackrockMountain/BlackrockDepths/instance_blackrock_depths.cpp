@@ -351,7 +351,7 @@ public:
             {
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
                 {
-                    boss->SetFaction(FACTION_HOSTILE);
+                    boss->SetFaction(FACTION_DARK_IRON_DWARVES);
                     boss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     if (Unit* target = boss->SelectNearestTarget(500))
                         boss->AI()->AttackStart(target);
@@ -377,7 +377,7 @@ public:
                         boss->GetMotionMaster()->MoveTargetedHome();
                         boss->SetLootRecipient(NULL);
                     }
-                    boss->SetFaction(FACTION_FRIEND);
+                    boss->SetFaction(FACTION_FRIENDLY);
                 }
             }
             GhostKillCount = 0;
