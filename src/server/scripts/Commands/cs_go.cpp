@@ -22,13 +22,14 @@ Comment: All go related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 #include "SupportMgr.h"
 #include "Transport.h"
 

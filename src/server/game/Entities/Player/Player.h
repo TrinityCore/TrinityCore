@@ -23,6 +23,7 @@
 #include "GroupReference.h"
 #include "MapReference.h"
 #include "CUFProfile.h"
+#include "EquipementSet.h"
 #include "Item.h"
 #include "PetDefines.h"
 #include "QuestDef.h"
@@ -419,8 +420,6 @@ enum PlayerBytes2Offsets
     PLAYER_BYTES_2_OFFSET_FACIAL_STYLE          = 3,
 };
 
-#define PLAYER_CUSTOM_DISPLAY_SIZE 3
-
 enum PlayerBytes3Offsets
 {
     PLAYER_BYTES_3_OFFSET_PARTY_TYPE        = 0,
@@ -576,14 +575,6 @@ struct SkillStatusData
 
 typedef std::unordered_map<uint32, SkillStatusData> SkillStatusMap;
 
-enum AttackSwingErr
-{
-    ATTACKSWINGERR_CANT_ATTACK = 0,
-    ATTACKSWINGERR_BADFACING   = 1,
-    ATTACKSWINGERR_NOTINRANGE  = 2,
-    ATTACKSWINGERR_DEADTARGET  = 3
-};
-
 class Quest;
 class Spell;
 class Item;
@@ -670,45 +661,6 @@ enum ChildEquipmentSlots
     CHILD_EQUIPMENT_SLOT_START   = 184,
     CHILD_EQUIPMENT_SLOT_END     = 187,
 };
-
-enum EquipmentSetUpdateState
-{
-    EQUIPMENT_SET_UNCHANGED = 0,
-    EQUIPMENT_SET_CHANGED   = 1,
-    EQUIPMENT_SET_NEW       = 2,
-    EQUIPMENT_SET_DELETED   = 3
-};
-
-struct EquipmentSetInfo
-{
-    enum EquipmentSetType : int32
-    {
-        EQUIPMENT = 0,
-        TRANSMOG = 1
-    };
-
-    /// Data sent in EquipmentSet related packets
-    struct EquipmentSetData
-    {
-        EquipmentSetType Type = EQUIPMENT;
-        uint64 Guid       = 0; ///< Set Identifier
-        uint32 SetID      = 0; ///< Index
-        uint32 IgnoreMask = 0; ///< Mask of EquipmentSlot
-        int32 AssignedSpecIndex = -1; ///< Index of character specialization that this set is automatically equipped for
-        std::string SetName;
-        std::string SetIcon;
-        std::array<ObjectGuid, EQUIPMENT_SLOT_END> Pieces;
-        std::array<int32, EQUIPMENT_SLOT_END> Appearances;  ///< ItemModifiedAppearanceID
-        std::array<int32, 2> Enchants;  ///< SpellItemEnchantmentID
-    } Data;
-
-    /// Server-side data
-    EquipmentSetUpdateState State = EQUIPMENT_SET_NEW;
-};
-
-#define MAX_EQUIPMENT_SET_INDEX 20                          // client limit
-
-typedef std::map<uint64, EquipmentSetInfo> EquipmentSetContainer;
 
 struct ItemPosCount
 {

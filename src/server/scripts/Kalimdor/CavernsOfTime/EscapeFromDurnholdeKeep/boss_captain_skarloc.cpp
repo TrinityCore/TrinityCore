@@ -24,8 +24,9 @@ SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "old_hillsbrad.h"
+#include "ScriptedCreature.h"
 
 /*######################
 # boss_captain_skarloc #
@@ -54,7 +55,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_captain_skarlocAI>(creature);
+        return GetOldHillsbradAI<boss_captain_skarlocAI>(creature);
     }
 
     struct boss_captain_skarlocAI : public ScriptedAI

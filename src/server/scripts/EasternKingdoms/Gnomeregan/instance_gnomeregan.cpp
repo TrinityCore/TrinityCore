@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "gnomeregan.h"
+#include "InstanceScript.h"
 #include "Log.h"
 #include "Player.h"
 

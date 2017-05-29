@@ -23,10 +23,12 @@ SDCategory: Trial of the Champion
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "trial_of_the_champion.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedEscortAI.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "trial_of_the_champion.h"
 /*
 enum Yells
 {
@@ -253,7 +255,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_eadricAI>(creature);
+        return GetTrialOfTheChampionAI<boss_eadricAI>(creature);
     }
 };
 
@@ -415,7 +417,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_paletressAI>(creature);
+        return GetTrialOfTheChampionAI<boss_paletressAI>(creature);
     }
 };
 
@@ -492,7 +494,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_memoryAI(creature);
+        return GetTrialOfTheChampionAI<npc_memoryAI>(creature);
     }
 };
 
@@ -605,11 +607,11 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_argent_soldierAI>(creature);
+        return GetTrialOfTheChampionAI<npc_argent_soldierAI>(creature);
     }
 };
 
-uint32 const memorySpellId[25] =
+uint32 constexpr memorySpellId[25] =
 {
     SPELL_MEMORY_ALGALON,
     SPELL_MEMORY_ARCHIMONDE,
@@ -650,10 +652,7 @@ class spell_paletress_summon_memory : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                for (uint8 i = 0; i < 25; ++i)
-                    if (!sSpellMgr->GetSpellInfo(memorySpellId[i]))
-                        return false;
-                return true;
+                return ValidateSpellInfo(memorySpellId);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

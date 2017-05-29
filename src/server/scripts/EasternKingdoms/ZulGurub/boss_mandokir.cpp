@@ -17,11 +17,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
 #include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "zulgurub.h"
 
 enum Yells

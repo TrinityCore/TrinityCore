@@ -17,12 +17,15 @@
  */
 
 #include "CombatAI.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
-#include "Vehicle.h"
+#include "ConditionMgr.h"
+#include "Creature.h"
+#include "CreatureAIImpl.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "Log.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "Vehicle.h"
 
 /////////////////
 // AggressorAI

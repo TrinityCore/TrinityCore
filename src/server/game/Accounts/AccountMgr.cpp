@@ -24,8 +24,8 @@
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
-#include "Util.h"
 #include "SHA1.h"
+#include "Util.h"
 #include "World.h"
 #include "WorldSession.h"
 

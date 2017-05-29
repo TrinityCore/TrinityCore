@@ -16,7 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "sethekk_halls.h"
 
 DoorData const doorData[] =

@@ -82,7 +82,7 @@ class boss_renataki : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_renatakiAI(creature);
+            return GetZulGurubAI<boss_renatakiAI>(creature);
         }
 };
 

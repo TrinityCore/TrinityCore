@@ -16,10 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "zulfarrak.h"
-#include "Player.h"
+#include "Map.h"
 #include "TemporarySummon.h"
+#include "zulfarrak.h"
 
 enum Misc
 {
@@ -99,7 +100,7 @@ float Spawnsway[2][3] =
 class instance_zulfarrak : public InstanceMapScript
 {
 public:
-    instance_zulfarrak() : InstanceMapScript("instance_zulfarrak", 209) { }
+    instance_zulfarrak() : InstanceMapScript(ZFScriptName, 209) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -328,9 +329,11 @@ public:
                 if (pyramidSpawns[i][0] == (float)wave)
                 {
                     Position pos = {pyramidSpawns[i][2], pyramidSpawns[i][3], 8.87f, 0};
-                    TempSummon* ts = instance->SummonCreature(uint32(pyramidSpawns[i][1]), pos);
-                    ts->GetMotionMaster()->MoveRandom(10);
-                    addsAtBase.push_back(ts->GetGUID());
+                    if (TempSummon* ts = instance->SummonCreature(uint32(pyramidSpawns[i][1]), pos))
+                    {
+                        ts->GetMotionMaster()->MoveRandom(10);
+                        addsAtBase.push_back(ts->GetGUID());
+                    }
                 }
             }
         }
@@ -359,7 +362,7 @@ public:
         void SendAddsUpStairs(uint32 count)
         {
             //pop a add from list, send him up the stairs...
-            for (uint32 addCount = 0; addCount<count && !addsAtBase.empty(); addCount++)
+            for (uint32 addCount = 0; addCount < count && !addsAtBase.empty(); addCount++)
             {
                 if (Creature* add = instance->GetCreature(*addsAtBase.begin()))
                 {

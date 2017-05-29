@@ -16,15 +16,13 @@
  */
 
 #include "DB2Stores.h"
-#include "Common.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2LoadInfo.h"
 #include "Hash.h"
 #include "Log.h"
 #include "Regex.h"
-#include "TransportMgr.h"
-#include "World.h"
+#include "Timer.h"
 #include <array>
 #include <sstream>
 #include <cctype>
@@ -1009,12 +1007,6 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         }
     }
 
-    for (TransportAnimationEntry const* anim : sTransportAnimationStore)
-        sTransportMgr->AddPathNodeToTransport(anim->TransportID, anim->TimeIndex, anim);
-
-    for (TransportRotationEntry const* rot : sTransportRotationStore)
-        sTransportMgr->AddPathRotationToTransport(rot->TransportID, rot->TimeIndex, rot);
-
     for (ToyEntry const* toy : sToyStore)
         _toys.insert(toy->ItemID);
 
@@ -1688,7 +1680,7 @@ DB2Manager::MountXDisplayContainer const* DB2Manager::GetMountDisplays(uint32 mo
     return Trinity::Containers::MapGetValuePtr(_mountDisplays, mountId);
 }
 
-std::string DB2Manager::GetNameGenEntry(uint8 race, uint8 gender, LocaleConstant locale) const
+std::string DB2Manager::GetNameGenEntry(uint8 race, uint8 gender, LocaleConstant locale, LocaleConstant defaultLocale) const
 {
     ASSERT(gender < GENDER_NONE);
     auto ritr = _nameGenData.find(race);
@@ -1702,7 +1694,7 @@ std::string DB2Manager::GetNameGenEntry(uint8 race, uint8 gender, LocaleConstant
     if (*data->Str[locale] != '\0')
         return data->Str[locale];
 
-    return data->Str[sWorld->GetDefaultDbcLocale()];
+    return data->Str[defaultLocale];
 }
 
 ResponseCodes DB2Manager::ValidateName(std::wstring const& name, LocaleConstant locale) const

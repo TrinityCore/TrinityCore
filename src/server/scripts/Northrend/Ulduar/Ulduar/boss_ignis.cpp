@@ -16,11 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "ulduar.h"
 #include "Vehicle.h"
+#include "World.h"
 
 enum Yells
 {
@@ -453,10 +456,7 @@ class spell_ignis_slag_pot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SLAG_POT_DAMAGE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SLAG_IMBUED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SLAG_POT_DAMAGE, SPELL_SLAG_IMBUED });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)

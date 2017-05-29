@@ -18,6 +18,8 @@
 #ifndef DRAK_THARON_KEEP_H_
 #define DRAK_THARON_KEEP_H_
 
+#include "CreatureAIImpl.h"
+
 #define DrakTharonKeepScriptName "instance_drak_tharon_keep"
 #define DataHeader               "DTK"
 
@@ -84,8 +86,8 @@ enum DTKGameObjectIds
     GO_NOVOS_CRYSTAL_4                  = 189302
 };
 
-template<class AI>
-AI* GetDrakTharonKeepAI(Creature* creature)
+template<typename AI>
+inline AI* GetDrakTharonKeepAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, DrakTharonKeepScriptName);
 }

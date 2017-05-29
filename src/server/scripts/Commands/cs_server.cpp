@@ -22,6 +22,7 @@ Comment: All server related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "Config.h"
 #include "GitRevision.h"
@@ -29,7 +30,7 @@ EndScriptData */
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 #include "Util.h"
 #include "World.h"
 

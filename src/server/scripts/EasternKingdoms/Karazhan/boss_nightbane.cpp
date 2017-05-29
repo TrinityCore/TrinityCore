@@ -24,8 +24,9 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -71,7 +72,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_nightbaneAI>(creature);
+        return GetKarazhanAI<boss_nightbaneAI>(creature);
     }
 
     struct boss_nightbaneAI : public ScriptedAI

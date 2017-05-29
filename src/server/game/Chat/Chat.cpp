@@ -16,16 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
+#include "Chat.h"
 #include "AccountMgr.h"
 #include "CellImpl.h"
-#include "Chat.h"
 #include "ChatLink.h"
+#include "ChatPackets.h"
+#include "Common.h"
 #include "DatabaseEnv.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Language.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Realm.h"
@@ -83,6 +85,16 @@ char const* ChatHandler::GetTrinityString(uint32 entry) const
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
 {
     return HasPermission(cmd.Permission);
+}
+
+bool ChatHandler::HasPermission(uint32 permission) const
+{
+    return m_session->HasPermission(permission);
+}
+
+std::string ChatHandler::GetNameLink() const
+{
+    return GetNameLink(m_session->GetPlayer());
 }
 
 bool ChatHandler::HasLowerSecurity(Player* target, ObjectGuid guid, bool strong)

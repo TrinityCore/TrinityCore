@@ -19,6 +19,9 @@
 #ifndef DEF_MAGISTERS_TERRACE_H
 #define DEF_MAGISTERS_TERRACE_H
 
+#include "CreatureAIImpl.h"
+
+#define MGTScriptName "instance_magisters_terrace"
 #define DataHeader "MT"
 
 uint32 const EncounterCount = 4;
@@ -73,5 +76,11 @@ enum MTMovementData
 {
     PATH_KALECGOS_FLIGHT    = 248440
 };
+
+template<typename AI>
+inline AI* GetMagistersTerraceAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, MGTScriptName);
+}
 
 #endif

@@ -309,8 +309,8 @@ public:
                 GetTarget()->CastCustomSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, nullptr, nullptr, true, nullptr, aurEff, GetCasterGUID());
 
                 // restore mana
-                std::vector<SpellInfo::CostData> costs = GetSpellInfo()->CalcPowerCost(caster, GetSpellInfo()->GetSchoolMask());
-                auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA; });
+                std::vector<SpellPowerCost> costs = GetSpellInfo()->CalcPowerCost(caster, GetSpellInfo()->GetSchoolMask());
+                auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
                 if (m != costs.end())
                 {
                     int32 returnMana = m->Amount * stack / 2;
@@ -337,8 +337,8 @@ public:
                         target->CastCustomSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, nullptr, nullptr, true, nullptr, nullptr, GetCasterGUID());
 
                         // restore mana
-                        std::vector<SpellInfo::CostData> costs = GetSpellInfo()->CalcPowerCost(caster, GetSpellInfo()->GetSchoolMask());
-                        auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA; });
+                        std::vector<SpellPowerCost> costs = GetSpellInfo()->CalcPowerCost(caster, GetSpellInfo()->GetSchoolMask());
+                        auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
                         if (m != costs.end())
                         {
                             int32 returnMana = m->Amount * dispelInfo->GetRemovedCharges() / 2;
@@ -929,8 +929,8 @@ class spell_dru_t3_8p_bonus : public SpellScriptLoader
                     return;
 
                 Unit* caster = eventInfo.GetActor();
-                std::vector<SpellInfo::CostData> costs = spellInfo->CalcPowerCost(caster, spellInfo->GetSchoolMask());
-                auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA; });
+                std::vector<SpellPowerCost> costs = spellInfo->CalcPowerCost(caster, spellInfo->GetSchoolMask());
+                auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
                 if (m == costs.end())
                     return;
 

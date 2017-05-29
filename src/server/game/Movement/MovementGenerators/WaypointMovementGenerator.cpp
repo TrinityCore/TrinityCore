@@ -17,7 +17,6 @@
  */
 
 #include "WaypointMovementGenerator.h"
-#include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
 #include "Log.h"
@@ -25,8 +24,8 @@
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
-#include "Player.h"
 #include "Transport.h"
+#include "World.h"
 
 void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
 {

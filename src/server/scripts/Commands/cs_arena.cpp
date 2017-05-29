@@ -22,13 +22,14 @@ Comment: All arena team related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "ArenaTeamMgr.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 
 class arena_commandscript : public CommandScript
 {

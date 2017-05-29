@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "Map.h"
+#include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "ruby_sanctum.h"
 
 enum Texts
 {

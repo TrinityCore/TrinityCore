@@ -728,6 +728,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[17].GetUInt16());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[18].GetUInt32());
 
+    SetUInt32Value(ITEM_FIELD_CONTEXT, fields[19].GetUInt8());
+
     Tokenizer bonusListIDs(fields[20].GetString(), ' ');
     for (char const* token : bonusListIDs)
     {

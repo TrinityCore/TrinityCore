@@ -28,9 +28,11 @@ at_malfurion_Stormrage_trigger
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "sunken_temple.h"
-#include "Player.h"
 
 /*#####
 # at_malfurion_Stormrage_trigger

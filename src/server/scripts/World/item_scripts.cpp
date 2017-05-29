@@ -31,9 +31,13 @@ item_only_for_flight                Items which should only useable while flying
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "Item.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
-#include "Player.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 /*#####
 # item_only_for_flight
@@ -241,7 +245,7 @@ public:
 
         float x, y, z;
         go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, G3D::Quat(), 1);
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, QuaternionData(), 1);
         if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             summon->SetVisible(false);
@@ -275,7 +279,7 @@ public:
 
         if (!player->GetTransport() || player->GetAreaId() != AREA_ID_SHATTERED_STRAITS)
         {
-            if (const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
                 Spell::SendCastResult(player, spellInfo, 0, castId, SPELL_FAILED_NOT_HERE);
 
             return true;

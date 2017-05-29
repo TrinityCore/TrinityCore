@@ -1648,6 +1648,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Transport templates...");
     sTransportMgr->LoadTransportTemplates();
 
+    TC_LOG_INFO("server.loading", "Loading Transport animations and rotations...");
+    sTransportMgr->LoadTransportAnimationAndRotation();
+
     TC_LOG_INFO("server.loading", "Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();
 

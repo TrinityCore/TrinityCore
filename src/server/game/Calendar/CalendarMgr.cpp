@@ -23,8 +23,8 @@
 #include "Log.h"
 #include "Mail.h"
 #include "ObjectAccessor.h"
-#include "Opcodes.h"
 #include "Player.h"
+#include <sstream>
 
 CalendarInvite::~CalendarInvite()
 {

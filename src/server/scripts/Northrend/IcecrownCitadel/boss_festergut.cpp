@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "icecrown_citadel.h"
-#include "Player.h"
+#include "SpellScript.h"
 
 enum ScriptTexts
 {
@@ -406,9 +408,7 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GASTRIC_EXPLOSION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_GASTRIC_EXPLOSION });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -444,9 +444,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_INOCULATED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_INOCULATED });
             }
 
             void ExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

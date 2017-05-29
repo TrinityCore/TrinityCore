@@ -20,12 +20,17 @@
 #define TRINITYCORE_GUILD_H
 
 #include "AchievementMgr.h"
-#include "World.h"
-#include "Item.h"
-#include "WorldPacket.h"
-#include "Player.h"
+#include "DatabaseEnvFwd.h"
+#include "ObjectGuid.h"
+#include "SharedDefines.h"
+#include <unordered_map>
 
 class Item;
+class Player;
+class WorldPacket;
+class WorldSession;
+struct ItemPosCount;
+enum InventoryResult : uint8;
 
 namespace WorldPackets
 {
@@ -34,6 +39,7 @@ namespace WorldPackets
         class GuildBankLogQueryResults;
         class GuildEventLogQueryResults;
         class GuildNews;
+        class SaveGuildEmblem;
     }
 }
 
@@ -323,25 +329,7 @@ private:
     class Member
     {
     public:
-        Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId) :
-            m_guildId(guildId),
-            m_guid(guid),
-            m_zoneId(0),
-            m_level(0),
-            m_class(0),
-            _gender(0),
-            m_flags(GUILDMEMBER_STATUS_NONE),
-            m_logoutTime(::time(nullptr)),
-            m_accountId(0),
-            m_rankId(rankId),
-            m_achievementPoints(0),
-            m_totalActivity(0),
-            m_weekActivity(0),
-            m_totalReputation(0),
-            m_weekReputation(0)
-        {
-            memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(int32));
-        }
+        Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId);
 
         void SetStats(Player* player);
         void SetStats(std::string const& name, uint8 level, uint8 _class, uint8 gender, uint32 zoneId, uint32 accountId, uint32 reputation);
@@ -615,20 +603,11 @@ private:
     class BankTab
     {
     public:
-        BankTab(ObjectGuid::LowType guildId, uint8 tabId) : m_guildId(guildId), m_tabId(tabId)
-        {
-            memset(m_items, 0, GUILD_BANK_MAX_SLOTS * sizeof(Item*));
-        }
+        BankTab(ObjectGuid::LowType guildId, uint8 tabId);
 
         void LoadFromDB(Field* fields);
         bool LoadItemFromDB(Field* fields);
         void Delete(SQLTransaction& trans, bool removeItemsFromDB = false);
-
-        void WriteInfoPacket(WorldPacket& data) const
-        {
-            data << m_name;
-            data << m_icon;
-        }
 
         void SetInfo(std::string const& name, std::string const& icon);
         void SetText(std::string const& text);
@@ -655,9 +634,8 @@ private:
     class MoveItemData
     {
     public:
-        MoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) : m_pGuild(guild), m_pPlayer(player),
-            m_container(container), m_slotId(slotId), m_pItem(nullptr), m_pClonedItem(nullptr) { }
-        virtual ~MoveItemData() { }
+        MoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId);
+        virtual ~MoveItemData();
 
         virtual bool IsBank() const = 0;
         // Initializes item pointer. Returns true, if item exists, false otherwise.
@@ -696,7 +674,7 @@ private:
         uint8 m_slotId;
         Item* m_pItem;
         Item* m_pClonedItem;
-        ItemPosCountVec m_vec;
+        std::vector<ItemPosCount> m_vec;
     };
 
     class PlayerMoveItemData : public MoveItemData
@@ -901,13 +879,7 @@ private:
     inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }
     inline const RankInfo* GetRankInfo(uint8 rankId) const { return rankId < _GetRanksSize() ? &m_ranks[rankId] : NULL; }
     inline RankInfo* GetRankInfo(uint8 rankId) { return rankId < _GetRanksSize() ? &m_ranks[rankId] : NULL; }
-    inline bool _HasRankRight(Player const* player, uint32 right) const
-    {
-        if (player)
-            if (Member const* member = GetMember(player->GetGUID()))
-                return (_GetRankRights(member->GetRankId()) & right) != GR_RIGHT_NONE;
-        return false;
-    }
+    bool _HasRankRight(Player const* player, uint32 right) const;
 
     inline uint8 _GetLowestRankId() const { return uint8(m_ranks.size() - 1); }
 
@@ -915,13 +887,13 @@ private:
     inline BankTab* GetBankTab(uint8 tabId) { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
     inline const BankTab* GetBankTab(uint8 tabId) const { return tabId < m_bankTabs.size() ? m_bankTabs[tabId] : NULL; }
 
-    inline const Member* GetMember(ObjectGuid guid) const
+    inline const Member* GetMember(ObjectGuid const& guid) const
     {
         Members::const_iterator itr = m_members.find(guid);
         return itr != m_members.end() ? itr->second : NULL;
     }
 
-    inline Member* GetMember(ObjectGuid guid)
+    inline Member* GetMember(ObjectGuid const& guid)
     {
         Members::iterator itr = m_members.find(guid);
         return itr != m_members.end() ? itr->second : NULL;

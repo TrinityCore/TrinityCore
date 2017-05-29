@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "blackrock_depths.h"
+#include "CreatureAIImpl.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "blackrock_depths.h"
-#include "Player.h"
-#include "Log.h"
+#include "TemporarySummon.h"
 #include "WorldSession.h"
 
 //go_shadowforge_brazier
@@ -118,7 +122,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_grimstoneAI>(creature);
+        return GetBlackrockDepthsAI<npc_grimstoneAI>(creature);
     }
 
     struct npc_grimstoneAI : public npc_escortAI
@@ -214,7 +218,7 @@ public:
                     Event_Timer = 5000;
                     break;
                 case 5:
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_GRIMSTONE, me);
+                    instance->UpdateEncounterStateForKilledCreature(NPC_GRIMSTONE, me);
                     instance->SetData(TYPE_RING_OF_LAW, DONE);
                     TC_LOG_DEBUG("scripts", "npc_grimstone: event reached end and set complete.");
                     break;
@@ -516,7 +520,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_rocknotAI>(creature);
+        return GetBlackrockDepthsAI<npc_rocknotAI>(creature);
     }
 
     struct npc_rocknotAI : public npc_escortAI

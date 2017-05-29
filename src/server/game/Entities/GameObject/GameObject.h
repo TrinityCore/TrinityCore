@@ -21,16 +21,15 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
-#include "Unit.h"
 #include "Object.h"
 #include "Loot.h"
 #include "DatabaseEnvFwd.h"
 #include "MapObject.h"
-#include <G3D/Quat.h>
 
 class GameObjectAI;
 class Group;
 class Transport;
+enum TriggerCastFlags : uint32;
 
 // from `gameobject_template`
 struct GameObjectTemplate
@@ -871,28 +870,25 @@ struct GameObjectLocale
     std::vector<std::string> Unk1;
 };
 
+struct QuaternionData
+{
+    float x, y, z, w;
+
+    QuaternionData() : x(0.0f), y(0.0f), z(0.0f), w(1.0f) {}
+    QuaternionData(float X, float Y, float Z, float W) : x(X), y(Y), z(Z), w(W) {}
+
+    bool isUnit() const { return fabs(x * x + y * y + z * z + w * w - 1.0f) < 1e-5; }
+};
+
 // `gameobject_addon` table
 struct GameObjectAddon
 {
-    G3D::Quat ParentRotation;
+    QuaternionData ParentRotation;
     InvisibilityType invisibilityType;
     uint32 InvisibilityValue;
 };
 
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectAddon> GameObjectAddonContainer;
-
-// client side GO show states
-enum GOState
-{
-    GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
-    GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
-    GO_STATE_ACTIVE_ALTERNATIVE = 2,                        // show in world as used in alt way and not reset (closed door open by cannon fire)
-    GO_STATE_TRANSPORT_ACTIVE   = 24,
-    GO_STATE_TRANSPORT_STOPPED  = 25
-};
-
-#define MAX_GO_STATE              3
-#define MAX_GO_STATE_TRANSPORT_STOP_FRAMES 9
 
 // from `gameobject`
 struct GameObjectData
@@ -906,7 +902,7 @@ struct GameObjectData
     float posY;
     float posZ;
     float orientation;
-    G3D::Quat rotation;
+    QuaternionData rotation;
     int32  spawntimesecs;
     uint32 animprogress;
     GOState go_state;
@@ -952,7 +948,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld() override;
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
-        bool Create(uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, G3D::Quat const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0, float size = -1.0f);
+        bool Create(uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0, float size = -1.0f);
         void Update(uint32 p_time) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectTemplateAddon const* GetTemplateAddon() const { return m_goTemplateAddon; }
@@ -967,9 +963,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
          // z_rot, y_rot, x_rot - rotation angles around z, y and x axes
         void SetWorldRotationAngles(float z_rot, float y_rot, float x_rot);
-        void SetWorldRotation(G3D::Quat const& rot);
-        G3D::Quat const& GetWorldRotation() const { return m_worldRotation; }
-        void SetParentRotation(G3D::Quat const& rotation);      // transforms(rotates) transport's path
+        void SetWorldRotation(float qx, float qy, float qz, float qw);
+        void SetParentRotation(QuaternionData const& rotation);      // transforms(rotates) transport's path
         int64 GetPackedWorldRotation() const { return m_packedRotation; }
 
         // overwrite WorldObject function for proper name localization
@@ -1096,13 +1091,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
         bool IsInvisibleDueToDespawn() const override;
 
-        uint8 getLevelForTarget(WorldObject const* target) const override
-        {
-            if (Unit* owner = GetOwner())
-                return owner->getLevelForTarget(target);
-
-            return 1;
-        }
+        uint8 getLevelForTarget(WorldObject const* target) const override;
 
         GameObject* LookupFishingHoleAround(float range);
 
@@ -1186,7 +1175,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectValue m_goValue;
 
         int64 m_packedRotation;
-        G3D::Quat m_worldRotation;
+        QuaternionData m_worldRotation;
         Position m_stationaryPosition;
 
         ObjectGuid m_lootRecipient;
