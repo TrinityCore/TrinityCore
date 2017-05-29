@@ -81,7 +81,7 @@ class boss_skeram : public CreatureScript
             {
                 ScriptedAI::EnterEvadeMode(why);
                 if (me->IsSummon())
-                    ((TempSummon*)me)->UnSummon();
+                    me->DespawnOrUnsummon();
             }
 
             void JustSummoned(Creature* creature) override
@@ -199,23 +199,8 @@ class boss_skeram : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_skeramAI(creature);
+        return GetAQ40AI<boss_skeramAI>(creature);
     }
-};
-
-class PlayerOrPetCheck
-{
-    public:
-        bool operator()(WorldObject* object) const
-        {
-            if (object->GetTypeId() == TYPEID_PLAYER)
-                return false;
-
-            if (Creature* creature = object->ToCreature())
-                return !creature->IsPet();
-
-            return true;
-        }
 };
 
 class spell_skeram_arcane_explosion : public SpellScriptLoader
@@ -229,7 +214,10 @@ class spell_skeram_arcane_explosion : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(PlayerOrPetCheck());
+                targets.remove_if([](WorldObject* target)
+                {
+                    return target->GetTypeId() != TYPEID_PLAYER && (target->GetTypeId() != TYPEID_UNIT || !target->ToUnit()->IsPet());
+                });
             }
 
             void Register() override

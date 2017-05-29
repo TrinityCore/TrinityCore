@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -23,7 +24,7 @@
 #include "LFGMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 
 void GetPlayerInfo(ChatHandler* handler, Player* player)
 {

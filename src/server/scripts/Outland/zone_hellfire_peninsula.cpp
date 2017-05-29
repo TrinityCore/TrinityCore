@@ -32,11 +32,11 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
+#include "QuestDef.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "WorldSession.h"
 
 /*######
 ## npc_aeranas
@@ -661,7 +661,7 @@ public:
             switch (gossipListId)
             {
                 case 1:
-                    player->PlayerTalkClass->SendCloseGossip();
+                    CloseGossipMenuFor(player);
                     me->AI()->Talk(SAY_BARADA_1);
                     me->AI()->DoAction(ACTION_START_EVENT);
                     break;

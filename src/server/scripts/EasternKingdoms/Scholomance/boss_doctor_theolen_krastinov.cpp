@@ -102,7 +102,7 @@ class boss_doctor_theolen_krastinov : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_theolenkrastinovAI(creature);
+            return GetScholomanceAI<boss_theolenkrastinovAI>(creature);
         }
 
 };

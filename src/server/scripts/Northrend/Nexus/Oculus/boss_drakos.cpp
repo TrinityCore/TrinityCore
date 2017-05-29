@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "oculus.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -201,7 +202,7 @@ class npc_unstable_sphere : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_unstable_sphereAI(creature);
+            return GetOculusAI<npc_unstable_sphereAI>(creature);
         }
 };
 

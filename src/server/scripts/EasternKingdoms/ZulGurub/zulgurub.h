@@ -19,6 +19,8 @@
 #ifndef DEF_ZULGURUB_H
 #define DEF_ZULGURUB_H
 
+#include "CreatureAIImpl.h"
+
 #define DataHeader "ZG"
 #define ZGScriptName "instance_zulgurub"
 
@@ -88,8 +90,8 @@ enum ZGGameObjectIds
     GO_THE_CACHE_OF_MADNESS_DOOR    = 208843
 };
 
-template<class AI>
-AI* GetZulGurubAI(Creature* creature)
+template<typename AI>
+inline AI* GetZulGurubAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, ZGScriptName);
 }

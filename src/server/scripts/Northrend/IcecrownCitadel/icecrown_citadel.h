@@ -18,9 +18,11 @@
 #ifndef ICECROWN_CITADEL_H_
 #define ICECROWN_CITADEL_H_
 
-#include "InstanceScript.h"
+#include "CreatureAIImpl.h"
 #include "ScriptMgr.h"
-#include "SpellScript.h"
+
+struct Position;
+enum TriggerCastFlags : uint32;
 
 #define ICCScriptName "instance_icecrown_citadel"
 #define DataHeader    "IC"
@@ -529,49 +531,16 @@ enum ICAreaIds
 class spell_trigger_spell_from_caster : public SpellScriptLoader
 {
     public:
-        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags = TRIGGERED_FULL_MASK)
-            : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
-
-        class spell_trigger_spell_from_caster_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
-
-        public:
-            spell_trigger_spell_from_caster_SpellScript(uint32 triggerId, TriggerCastFlags triggerFlags)
-                : SpellScript(), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(_triggerId))
-                    return false;
-                return true;
-            }
-
-            void HandleTrigger()
-            {
-                GetCaster()->CastSpell(GetHitUnit(), _triggerId, _triggerFlags);
-            }
-
-            void Register() override
-            {
-                AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
-            }
-
-            uint32 _triggerId;
-            TriggerCastFlags _triggerFlags;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_trigger_spell_from_caster_SpellScript(_triggerId, _triggerFlags);
-        }
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId);
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags);
+        SpellScript* GetSpellScript() const override;
 
     private:
         uint32 _triggerId;
         TriggerCastFlags _triggerFlags;
 };
 
-template<class AI, class T>
+template<typename AI, typename T>
 inline AI* GetIcecrownCitadelAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ICCScriptName);

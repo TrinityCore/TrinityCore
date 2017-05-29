@@ -29,9 +29,10 @@ npc_highborne_lamenter
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 
 /*######
 ## npc_lady_sylvanas_windrunner

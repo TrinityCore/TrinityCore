@@ -17,8 +17,10 @@
  */
 
 #include "InstanceScript.h"
+#include "AreaBoundary.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "CreatureAIImpl.h"
 #include "DatabaseEnv.h"
 #include "GameObject.h"
 #include "Group.h"
@@ -27,12 +29,14 @@
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
+#include "World.h"
 #include "WorldSession.h"
 #include <sstream>
 
@@ -116,6 +120,16 @@ ObjectGuid InstanceScript::GetObjectGuid(uint32 type) const
 ObjectGuid InstanceScript::GetGuidData(uint32 type) const
 {
     return GetObjectGuid(type);
+}
+
+Creature* InstanceScript::GetCreature(uint32 type)
+{
+    return instance->GetCreature(GetObjectGuid(type));
+}
+
+GameObject* InstanceScript::GetGameObject(uint32 type)
+{
+    return instance->GetGameObject(GetObjectGuid(type));
 }
 
 void InstanceScript::SetHeaders(std::string const& dataHeaders)
@@ -606,6 +620,11 @@ void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
                 player->CastSpell(player, spell, true);
 }
 
+bool InstanceScript::ServerAllowsTwoSideGroups()
+{
+    return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP);
+}
+
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
 {
     TC_LOG_ERROR("misc", "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
@@ -726,6 +745,16 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
     }
 }
 
+void InstanceScript::UpdateEncounterStateForKilledCreature(uint32 creatureId, Unit* source)
+{
+    UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, creatureId, source);
+}
+
+void InstanceScript::UpdateEncounterStateForSpellCast(uint32 spellId, Unit* source)
+{
+    UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, spellId, source);
+}
+
 void InstanceScript::UpdatePhasing()
 {
     Map::PlayerList const& players = instance->GetPlayers();
@@ -812,4 +841,12 @@ uint32 InstanceScript::GetCombatResurrectionChargeInterval() const
         interval = 90 * MINUTE * IN_MILLISECONDS / playerCount;
 
     return interval;
+}
+
+bool InstanceHasScript(WorldObject const* obj, char const* scriptName)
+{
+    if (InstanceMap* instance = obj->GetMap()->ToInstanceMap())
+        return instance->GetScriptName() == scriptName;
+
+    return false;
 }

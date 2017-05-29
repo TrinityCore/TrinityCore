@@ -1464,13 +1464,13 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
     if (!go)
     {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
+        SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::NotOnChair).Write());
         return;
     }
 
     if (_player->GetStandState() != UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight))
     {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
+        SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::NotOnChair).Write());
         return;
     }
 
@@ -1481,11 +1481,11 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     // 2 - you have to sit on barber chair
     if (!_player->HasEnoughMoney((uint64)cost))
     {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NO_MONEY);
+        SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::NoMoney).Write());
         return;
     }
 
-    SendBarberShopResult(BARBER_SHOP_RESULT_SUCCESS);
+    SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::Success).Write());
 
     _player->ModifyMoney(-int64(cost));                     // it isn't free
     _player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
@@ -2338,7 +2338,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::Genera
 
     WorldPackets::Character::GenerateRandomCharacterNameResult result;
     result.Success = true;
-    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex, GetSessionDbcLocale());
+    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex, GetSessionDbcLocale(), sWorld->GetDefaultDbcLocale());
 
     SendPacket(result.Write());
 }
@@ -2568,13 +2568,6 @@ void WorldSession::SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, O
     packet.ResultCode = result;
     packet.Player = guid;
 
-    SendPacket(packet.Write());
-}
-
-void WorldSession::SendBarberShopResult(BarberShopResult result)
-{
-    WorldPackets::Character::BarberShopResultServer packet;
-    packet.Result = result;
     SendPacket(packet.Write());
 }
 

@@ -16,8 +16,34 @@
  */
 
 #include "AreaTriggerTemplate.h"
-
+#include <G3D/Vector3.h>
+#include <algorithm>
+#include <cstring>
 #include <cmath>
+
+AreaTriggerScaleInfo::AreaTriggerScaleInfo()
+{
+    memset(OverrideScale, 0, sizeof(OverrideScale));
+    memset(ExtraScale, 0, sizeof(ExtraScale));
+
+    ExtraScale[5].AsFloat = 1.0000001f;
+    ExtraScale[6].AsInt32 = 1;
+}
+
+AreaTriggerTemplate::AreaTriggerTemplate()
+{
+    Id = 0;
+    Type = AREATRIGGER_TYPE_MAX;
+    Flags = 0;
+    ScriptId = 0;
+    MaxSearchRadius = 0.0f;
+
+    memset(DefaultDatas.Data, 0, sizeof(DefaultDatas.Data));
+}
+
+AreaTriggerTemplate::~AreaTriggerTemplate()
+{
+}
 
 // Init the MaxSearchRadius that will be used in TrinitySearcher, avoiding calculate it at each update
 void AreaTriggerTemplate::InitMaxSearchRadius()
@@ -57,4 +83,31 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
         default:
             break;
     }
+}
+
+AreaTriggerMiscTemplate::AreaTriggerMiscTemplate()
+{
+    MiscId = 0;
+    AreaTriggerEntry = 0;
+
+    MoveCurveId = 0;
+    ScaleCurveId = 0;
+    MorphCurveId = 0;
+    FacingCurveId = 0;
+
+    DecalPropertiesId = 0;
+
+    TimeToTarget = 0;
+    TimeToTargetScale = 0;
+
+    Template = nullptr;
+}
+
+AreaTriggerMiscTemplate::~AreaTriggerMiscTemplate()
+{
+}
+
+bool AreaTriggerMiscTemplate::HasSplines() const
+{
+    return SplinePoints.size() >= 2;
 }

@@ -16,7 +16,7 @@
  */
 
 #include "CombatLogPackets.h"
-#include "SpellPackets.h"
+#include "UnitDefines.h"
 
 WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
 {

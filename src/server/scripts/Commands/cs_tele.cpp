@@ -22,6 +22,7 @@ Comment: All tele related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Group.h"
@@ -29,7 +30,7 @@ EndScriptData */
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 
 class tele_commandscript : public CommandScript
 {

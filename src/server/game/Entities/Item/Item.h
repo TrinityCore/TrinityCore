@@ -45,7 +45,7 @@ struct ItemSetEffect
     std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
 };
 
-enum InventoryResult
+enum InventoryResult : uint8
 {
     EQUIP_ERR_OK                                           = 0,
     EQUIP_ERR_CANT_EQUIP_LEVEL_I                           = 1,  // You must reach level %d to use that item.
@@ -242,7 +242,7 @@ enum ItemModifier : uint16
     ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2            = 11,
     ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2               = 12,
     ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3            = 13,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3               = 13,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3               = 14,
     ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4            = 15,
     ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4               = 16,
     ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID       = 17,

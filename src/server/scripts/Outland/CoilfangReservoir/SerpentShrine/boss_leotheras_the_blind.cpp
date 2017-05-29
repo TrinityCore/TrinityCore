@@ -24,9 +24,13 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum LeotherasTheBlind
 {
@@ -76,7 +80,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_inner_demonAI(creature);
+        return GetSerpentshrineCavernAI<npc_inner_demonAI>(creature);
     }
 
     struct npc_inner_demonAI : public ScriptedAI
@@ -186,7 +190,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_leotheras_the_blindAI>(creature);
+        return GetSerpentshrineCavernAI<boss_leotheras_the_blindAI>(creature);
     }
 
     struct boss_leotheras_the_blindAI : public ScriptedAI
@@ -607,7 +611,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_leotheras_the_blind_demonformAI(creature);
+        return GetSerpentshrineCavernAI<boss_leotheras_the_blind_demonformAI>(creature);
     }
 
     struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
@@ -688,7 +692,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_greyheart_spellbinderAI>(creature);
+        return GetSerpentshrineCavernAI<npc_greyheart_spellbinderAI>(creature);
     }
 
     struct npc_greyheart_spellbinderAI : public ScriptedAI

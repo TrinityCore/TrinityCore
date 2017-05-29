@@ -22,11 +22,13 @@ Comment: All debug related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Chat.h"
+#include "ChatPackets.h"
 #include "Conversation.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
@@ -37,7 +39,7 @@ EndScriptData */
 #include "MapManager.h"
 #include "MovementPackets.h"
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 #include "SpellPackets.h"
 #include "Transport.h"
 #include <fstream>

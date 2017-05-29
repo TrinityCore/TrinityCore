@@ -20,8 +20,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "gundrak.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum Texts

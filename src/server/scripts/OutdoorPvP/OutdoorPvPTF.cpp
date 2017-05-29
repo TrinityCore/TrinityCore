@@ -15,14 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapManager.h"
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "MapManager.h"
+#include "ObjectAccessor.h"
 #include "OutdoorPvPTF.h"
-#include "OutdoorPvPMgr.h"
-#include "OutdoorPvP.h"
-#include "WorldPacket.h"
 #include "Player.h"
-#include "ObjectMgr.h"
 #include "WorldStatePackets.h"
 
 OutdoorPvPTF::OutdoorPvPTF()

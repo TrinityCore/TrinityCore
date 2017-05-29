@@ -816,3 +816,13 @@ void WorldPackets::Guild::GuildSetAchievementTracking::Read()
         AchievementIDs.insert(value);
     }
 }
+
+WorldPacket const* WorldPackets::Guild::GuildNameChanged::Write()
+{
+    _worldPacket << GuildGUID;
+    _worldPacket.WriteBits(GuildName.length(), 7);
+    _worldPacket.FlushBits();
+    _worldPacket.WriteString(GuildName);
+
+    return &_worldPacket;
+}

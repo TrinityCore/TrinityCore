@@ -20,15 +20,23 @@
 #define TRINITY_MOTIONMASTER_H
 
 #include "Common.h"
-#include <vector>
+#include "Errors.h"
+#include "ObjectGuid.h"
+#include "Position.h"
 #include "SharedDefines.h"
-#include "Object.h"
-#include "MoveSplineInitArgs.h"
-#include "SplineChain.h"
+#include <vector>
 
 class MovementGenerator;
 class Unit;
 class PathGenerator;
+struct Position;
+struct SplineChainLink;
+struct SplineChainResumeInfo;
+
+namespace G3D
+{
+    class Vector3;
+}
 namespace Movement
 {
     struct SpellEffectExtraData;
@@ -208,10 +216,9 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
         void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk = false, bool fly = false);
-        void MoveSmoothPath(uint32 pointId, Movement::PointsArray const& points, bool walk = false, bool fly = false);
         // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
         void MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk);
-        void MoveAlongSplineChain(uint32 pointId, SplineChain const& chain, bool walk);
+        void MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk);
         void ResumeSplineChain(SplineChainResumeInfo const& info);
         void MoveFall(uint32 id = 0);
 
