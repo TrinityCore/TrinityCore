@@ -145,7 +145,7 @@ public:
             }
         }
 
-        handler->GetSession()->GetPlayer()->SendCinematicStart(id);
+        handler->GetSession()->GetPlayer()->SendCinematicStart(cinematicId);
         return true;
     }
 
