@@ -141,7 +141,7 @@ void CreatureAI::OwnerAttackedBy(Unit* attacker)
     if (!attacker || !me->IsAlive())
         return;
 
-    if (!me->HasReactState(REACT_PASSIVE) && me->CanStartAttack(attacker, false))
+    if (!me->HasReactState(REACT_PASSIVE) && me->CanStartAttack(attacker, true))
     {
         if (me->IsInCombat())
             me->AddThreat(attacker, 0.0f);
