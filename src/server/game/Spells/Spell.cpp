@@ -5638,6 +5638,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_caster->IsInDisallowedMountForm())
                     return SPELL_FAILED_NOT_SHAPESHIFT;
 
+                if (m_caster->HasAuraType(SPELL_AURA_TRANSFORM))
+                    return SPELL_FAILED_NOT_ON_SHAPESHIFT;
+
                 break;
             }
             case SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS:
