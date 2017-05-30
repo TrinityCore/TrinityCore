@@ -375,6 +375,10 @@ public:
                 }
                 _phase = 0;
             }
+
+            if (!UpdateVictim())
+                return;
+
             DoMeleeAttackIfReady();
         }
         private:
