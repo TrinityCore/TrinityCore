@@ -179,7 +179,8 @@ enum Misc
     HARPOON_2                       = 1,
     HARPOON_3                       = 2,
     HARPOON_4                       = 3,
-    DATA_CAN_ATTACK_RAZORSCALE      = 4
+    DATA_CAN_ATTACK_RAZORSCALE      = 4,
+    WORLD_STATE_RAZORSCALE_MUSIC    = 4162
 };
 
 enum MovePoints
@@ -436,6 +437,7 @@ public:
             DummyEntryCheckPredicate pred;
             summons.DoAction(ACTION_START_FIGHT, pred);
             events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
+            HandleMusic(true);
         }
 
         void ScheduleAirPhaseEvents()
@@ -572,7 +574,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_HARPOON_TRIGGER)
             {
@@ -596,6 +598,7 @@ public:
 
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             summons.DespawnAll();
+            HandleMusic(false);
             _DespawnAtEvade();
         }
 
@@ -603,6 +606,13 @@ public:
         {
             _JustDied();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            HandleMusic(false);
+        }
+
+        void HandleMusic(bool active)
+        {
+            uint32 enabled = active ? 1 : 0;
+            instance->DoUpdateWorldState(WORLD_STATE_RAZORSCALE_MUSIC, enabled);
         }
 
         void SummonMinions()
