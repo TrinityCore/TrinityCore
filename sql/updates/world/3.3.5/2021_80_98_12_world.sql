@@ -41,12 +41,12 @@ INSERT INTO `creature_summon_groups` (`summonerId`,`summonerType`,`groupId`,`ent
 (33186,0,3,33282,559.5352,-140.9866,391.6004,4.642576,8,0), -- Razorscale Harpoon Fire State
 (33186,0,3,33282,606.2806,-137.2628,391.6004,4.537856,8,0); -- Razorscale Harpoon Fire State
 
-DELETE FROM `gossip_menu_option` WHERE `menu_id`=10314;
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `OptionBroadcastTextID`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
+DELETE FROM `gossip_menu_option` WHERE `MenuID`=10314;
+INSERT INTO `gossip_menu_option` (`MenuID`,`OptionID`,`OptionIcon`,`OptionText`,`OptionBroadcastTextID`,`OptionType`,`OptionNpcFlag`,`ActionMenuID`,`ActionPoiID`,`BoxCoded`,`BoxMoney`,`BoxText`,`BoxBroadcastTextID`,`VerifiedBuild`) VALUES
 (10314, 0, 0, 'We are ready to help!', 33353, 1, 1, 0, 0, 0, 0, '', 0, 0);
 
-DELETE FROM `creature_text` WHERE `entry`=33210;
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
+DELETE FROM `creature_text` WHERE `CreatureID`=33210;
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (33210,0,0,'Be on the lookout! Mole machines will be surfacing soon with those nasty Iron dwarves aboard!',14,0,100,0,0,0,33607,0,'Expedition Commander SAY_AGGRO'),
 (33210,1,0,'Move quickly! She won\'t remain grounded for long!',14,0,100,0,0,15648,33606,0,'Expedition Commander SAY_GROUND_PHASE'),
 (33210,2,0,'We have lost our engineers, this will not end well!',14,0,100,0,0,0,33818,0,'Expedition Commander SAY_ENGINEERS_DEAD');

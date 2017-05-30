@@ -1012,7 +1012,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
         }
 
-        void EnterEvadeMode(EvadeReason why) override { }
+        void EnterEvadeMode(EvadeReason /*why*/) override { }
 
     private:
         uint8 _myPositionNumber;
