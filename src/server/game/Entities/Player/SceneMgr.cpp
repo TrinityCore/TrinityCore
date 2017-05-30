@@ -62,7 +62,7 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
     playScene.Location             = *position;
     playScene.TransportGUID        = GetPlayer()->GetTransGUID();
 
-    GetPlayer()->GetSession()->SendPacket(playScene.Write(), true);
+    GetPlayer()->GetSession()->SendPacket(playScene.Write());
 
     AddInstanceIdToSceneMap(sceneInstanceID, sceneTemplate);
 
@@ -89,7 +89,7 @@ void SceneMgr::CancelScene(uint32 sceneInstanceID, bool removeFromMap /*= true*/
 
     WorldPackets::Scenes::CancelScene cancelScene;
     cancelScene.SceneInstanceID = sceneInstanceID;
-    GetPlayer()->GetSession()->SendPacket(cancelScene.Write(), true);
+    GetPlayer()->GetSession()->SendPacket(cancelScene.Write());
 }
 
 void SceneMgr::OnSceneTrigger(uint32 sceneInstanceID, std::string const& triggerName)
