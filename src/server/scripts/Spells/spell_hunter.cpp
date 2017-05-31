@@ -470,10 +470,9 @@ class spell_hun_flanking_strike_pet : public SpellScriptLoader
                         if (Unit *owner = GetCaster()->GetOwner())
                         {
                             int32 ap = owner->ToPlayer()->GetInt32Value(UNIT_FIELD_ATTACK_POWER);
-                            float vers = owner->ToPlayer()->GetFloatValue(PLAYER_VERSATILITY);
                             int32 level = caster->getLevel();
                             //formula taken from tooltip
-                            float result = 1.5*(ap*2.152)*(1 + vers)*(std::min(20, level)*0.05f);
+                            float result = 1.5*(ap*2.152)*(std::min(20, level)*0.05f);
 
                             if (target->GetVictim() == owner && caster->IsPet())
                             {
