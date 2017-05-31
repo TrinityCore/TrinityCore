@@ -51,13 +51,13 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 (33210,1,0,'Move quickly! She won\'t remain grounded for long!',14,0,100,0,0,15648,33606,0,'Expedition Commander SAY_GROUND_PHASE'),
 (33210,2,0,'We have lost our engineers, this will not end well!',14,0,100,0,0,0,33818,0,'Expedition Commander SAY_ENGINEERS_DEAD');
 
-DELETE FROM `creature_text` WHERE `entry`=33186 AND `groupid`=2;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+DELETE FROM `creature_text` WHERE `CreatureID`=33186 AND `GroupID`=2;
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (33186,2,0,'%s goes into a berserker rage!',41,0,100,0,0,0,34057,0,'Razorscale EMOTE_BERSERK');
-UPDATE `creature_text` SET `comment`='Razorscale EMOTE_PERMA_GROUND' WHERE `entry`=33186 AND `groupid`=0 AND `id`=0;
-UPDATE `creature_text` SET `comment`='Expedition Engineer SAY_AGGRO' WHERE `entry`=33287 AND `groupid`=0;
-UPDATE `creature_text` SET `comment`='Expedition Engineer SAY_START_REPAIR' WHERE `entry`='33287' AND `groupid`=1;
-UPDATE `creature_text` SET `comment`='Expedition Engineer SAY_REBUILD_TURRETS' WHERE `entry`='33287' AND `groupid`=2;
+UPDATE `creature_text` SET `comment`='Razorscale EMOTE_PERMA_GROUND' WHERE `CreatureID`=33186 AND `GroupID`=0 AND `id`=0;
+UPDATE `creature_text` SET `comment`='Expedition Engineer SAY_AGGRO' WHERE `CreatureID`=33287 AND `GroupID`=0;
+UPDATE `creature_text` SET `comment`='Expedition Engineer SAY_START_REPAIR' WHERE `CreatureID`='33287' AND `GroupID`=1;
+UPDATE `creature_text` SET `comment`='Expedition Engineer SAY_REBUILD_TURRETS' WHERE `CreatureID`='33287' AND `GroupID`=2;
 
 UPDATE `creature_template` SET `gossip_menu_id`=10314 WHERE `entry` IN (33210,34254); -- Expedition Commander
 UPDATE `creature_template` SET `ScriptName`='npc_expedition_defender' WHERE `entry`=33816;
