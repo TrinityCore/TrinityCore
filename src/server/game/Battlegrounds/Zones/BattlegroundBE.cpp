@@ -17,8 +17,10 @@
  */
 
 #include "BattlegroundBE.h"
+#include "Log.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 BattlegroundBE::BattlegroundBE()
 {

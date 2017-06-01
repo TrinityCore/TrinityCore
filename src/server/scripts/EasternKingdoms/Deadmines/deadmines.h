@@ -18,6 +18,9 @@
 #ifndef DEF_DEADMINES_H
 #define DEF_DEADMINES_H
 
+#include "CreatureAIImpl.h"
+
+#define DMScriptName "instance_deadmines"
 #define DataHeader "DM"
 
 enum DMCannonState
@@ -48,5 +51,11 @@ enum DMGameObjects
     GO_DOOR_LEVER                                          = 101833,
     GO_MR_SMITE_CHEST                                      = 144111
 };
+
+template<typename AI>
+inline AI* GetDeadminesAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, DMScriptName);
+}
 
 #endif

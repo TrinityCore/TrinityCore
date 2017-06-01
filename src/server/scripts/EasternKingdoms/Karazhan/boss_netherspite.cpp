@@ -24,9 +24,13 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Netherspite
 {
@@ -71,7 +75,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_netherspiteAI>(creature);
+        return GetKarazhanAI<boss_netherspiteAI>(creature);
     }
 
     struct boss_netherspiteAI : public ScriptedAI

@@ -19,6 +19,7 @@
 #define AUCTION_HOUSE_BOT_H
 
 #include "Define.h"
+#include "SharedDefines.h"
 
 class AuctionBotSeller;
 class AuctionBotBuyer;

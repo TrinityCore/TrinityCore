@@ -19,8 +19,11 @@
 #ifndef SC_SYSTEM_H
 #define SC_SYSTEM_H
 
-#include "ScriptMgr.h"
+#include "Define.h"
+#include "Hash.h"
 #include "SplineChain.h"
+#include <unordered_map>
+#include <vector>
 
 class Creature;
 

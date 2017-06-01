@@ -23,8 +23,8 @@ SDCategory: Auchindoun, Mana Tombs
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "mana_tombs.h"
+#include "ScriptedCreature.h"
 
 enum Yells
 {
@@ -259,7 +259,7 @@ class npc_ethereal_beacon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ethereal_beaconAI(creature);
+            return GetManaTombsAI<npc_ethereal_beaconAI>(creature);
         }
 };
 
@@ -324,7 +324,7 @@ class npc_ethereal_apprentice : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ethereal_apprenticeAI(creature);
+            return GetManaTombsAI<npc_ethereal_apprenticeAI>(creature);
         }
 };
 
@@ -380,7 +380,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_yorAI(creature);
+        return GetManaTombsAI<npc_yorAI>(creature);
     }
 };
 

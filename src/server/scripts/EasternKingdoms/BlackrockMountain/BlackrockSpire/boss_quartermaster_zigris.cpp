@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -92,7 +92,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_quatermasterzigrisAI(creature);
+        return GetBlackrockSpireAI<boss_quatermasterzigrisAI>(creature);
     }
 };
 

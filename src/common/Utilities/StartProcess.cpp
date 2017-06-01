@@ -16,27 +16,20 @@
  */
 
 #include "StartProcess.h"
-
-#include <atomic>
-#include <thread>
-#include <functional>
+#include "Errors.h"
+#include "Log.h"
+#include "Optional.h"
 
 #include <boost/algorithm/string/join.hpp>
-#include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/concepts.hpp>
-#include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/process.hpp>
-#include <boost/system/system_error.hpp>
-
-#include "Common.h"
-#include "Log.h"
 
 using namespace boost::process;
 using namespace boost::process::initializers;
 using namespace boost::iostreams;
 
-namespace Trinity {
+namespace Trinity
+{
 
 template<typename T>
 class TCLogSink
@@ -250,19 +243,15 @@ std::shared_ptr<AsyncProcessResult>
     return handle;
 }
 
-Optional<std::string> SearchExecutableInPath(std::string const& filename)
+std::string SearchExecutableInPath(std::string const& filename)
 {
     try
     {
-        auto result = search_path(filename);
-        if (result.empty())
-            return boost::none;
-        else
-            return result;
+        return search_path(filename);
     }
     catch (...)
     {
-        return boost::none;
+        return "";
     }
 }
 

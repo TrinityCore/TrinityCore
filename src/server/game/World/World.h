@@ -24,25 +24,25 @@
 #define __WORLD_H
 
 #include "Common.h"
-#include "Realm/Realm.h"
+#include "DatabaseEnvFwd.h"
+#include "LockedQueue.h"
 #include "ObjectGuid.h"
-#include "Timer.h"
-#include "SharedDefines.h"
-#include "QueryResult.h"
 #include "QueryCallbackProcessor.h"
-#include "Realm/Realm.h"
+#include "SharedDefines.h"
+#include "Timer.h"
 
 #include <atomic>
-#include <map>
-#include <set>
 #include <list>
+#include <map>
+#include <memory>
+#include <unordered_map>
+#include <vector>
 
-class Object;
+class Player;
 class WorldPacket;
 class WorldSession;
-class Player;
 class WorldSocket;
-class SystemMgr;
+struct Realm;
 
 // ServerMessages.dbc
 enum ServerMessageType
@@ -62,14 +62,14 @@ enum ServerMessageType
     SERVER_MSG_TICKET_WAIT_TIME       = 13,
 };
 
-enum ShutdownMask
+enum ShutdownMask : uint32
 {
     SHUTDOWN_MASK_RESTART = 1,
     SHUTDOWN_MASK_IDLE    = 2,
     SHUTDOWN_MASK_FORCE   = 4
 };
 
-enum ShutdownExitCode
+enum ShutdownExitCode : uint32
 {
     SHUTDOWN_EXIT_CODE = 0,
     ERROR_EXIT_CODE    = 1,
@@ -381,7 +381,6 @@ enum WorldIntConfigs
     CONFIG_TOLBARAD_NOBATTLETIME,
     CONFIG_TOLBARAD_RESTART_AFTER_CRASH,
     CONFIG_GUILD_SAVE_INTERVAL,
-    CONFIG_GUILD_UNDELETABLE_LEVEL,
     CONFIG_PACKET_SPOOF_POLICY,
     CONFIG_PACKET_SPOOF_BANMODE,
     CONFIG_PACKET_SPOOF_BANDURATION,
@@ -545,26 +544,20 @@ enum WorldStates
     WS_GUILD_WEEKLY_RESET_TIME  = 20050,                     // Next guild week reset time
 };
 
-#define MAX_CHARACTERS_PER_REALM 12
-
 /// Storage class for commands issued for delayed execution
-struct CliCommandHolder
+struct TC_GAME_API CliCommandHolder
 {
-    typedef void Print(void*, const char*);
-    typedef void CommandFinished(void*, bool success);
+    typedef void(*Print)(void*, const char*);
+    typedef void(*CommandFinished)(void*, bool success);
 
     void* m_callbackArg;
     char *m_command;
-    Print* m_print;
+    Print m_print;
 
-    CommandFinished* m_commandFinished;
+    CommandFinished m_commandFinished;
 
-    CliCommandHolder(void* callbackArg, const char *command, Print* zprint, CommandFinished* commandFinished)
-        : m_callbackArg(callbackArg), m_command(strdup(command)), m_print(zprint), m_commandFinished(commandFinished)
-    {
-    }
-
-    ~CliCommandHolder() { free(m_command); }
+    CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished);
+    ~CliCommandHolder();
 
 private:
     CliCommandHolder(CliCommandHolder const& right) = delete;
@@ -758,8 +751,8 @@ class TC_GAME_API World
         void LoadWorldStates();
 
         /// Are we on a "Player versus Player" server?
-        bool IsPvPRealm() const { return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
-        bool IsFFAPvPRealm() const { return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
+        bool IsPvPRealm() const;
+        bool IsFFAPvPRealm() const;
 
         void KickAll();
         void KickAllLess(AccountTypes sec);

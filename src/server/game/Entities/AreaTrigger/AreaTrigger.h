@@ -19,14 +19,15 @@
 #define TRINITYCORE_AREATRIGGER_H
 
 #include "Object.h"
-#include "Position.h"
 #include "Spline.h"
+#include "MapObject.h"
 
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
 class SpellInfo;
 class Unit;
 class AreaTriggerAI;
+class AuraEffect;
 
 struct AreaTriggerPolygonVertice;
 
@@ -44,11 +45,12 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         AreaTriggerAI* AI() { return _ai.get(); }
 
-        bool CreateAreaTrigger(uint32 triggerEntry, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty);
+        bool CreateAreaTrigger(uint32 triggerEntry, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
         void Update(uint32 p_time) override;
         void Remove();
         bool IsRemoved() const { return _isRemoved; }
         uint32 GetSpellId() const { return GetUInt32Value(AREATRIGGER_SPELLID); }
+        AuraEffect const* GetAuraEffect() const { return _aurEff; }
         uint32 GetTimeSinceCreated() const { return _timeSinceCreated; }
         uint32 GetTimeToTarget() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET); }
         uint32 GetTimeToTargetScale() const { return GetUInt32Value(AREATRIGGER_TIME_TO_TARGET_SCALE); }
@@ -67,8 +69,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         Unit* GetCaster() const;
         Unit* GetTarget() const;
 
-        G3D::Vector3 const& GetRollPitchYaw() const { return _rollPitchYaw; }
-        G3D::Vector3 const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
+        Position const& GetRollPitchYaw() const { return _rollPitchYaw; }
+        Position const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
         void InitSplineOffsets(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget);
         void InitSplines(std::vector<G3D::Vector3> const& splinePoints, uint32 timeToTarget);
         bool HasSplines() const { return !_spline.empty(); }
@@ -99,14 +101,16 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         ObjectGuid _targetGuid;
 
+        AuraEffect const* _aurEff;
+
         int32 _duration;
         int32 _totalDuration;
         uint32 _timeSinceCreated;
         float _previousCheckOrientation;
         bool _isRemoved;
 
-        G3D::Vector3 _rollPitchYaw;
-        G3D::Vector3 _targetRollPitchYaw;
+        Position _rollPitchYaw;
+        Position _targetRollPitchYaw;
         std::vector<G3D::Vector2> _polygonVertices;
         ::Movement::Spline<int32> _spline;
 

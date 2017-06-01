@@ -54,11 +54,11 @@ void CinematicMgr::BeginCinematic()
         if (!m_cinematicCamera->empty())
         {
             FlyByCamera const& firstCamera = m_cinematicCamera->front();
-            Position pos(firstCamera.locations.x, firstCamera.locations.y, firstCamera.locations.z, firstCamera.locations.w);
+            Position const& pos = firstCamera.locations;
             if (!pos.IsPositionValid())
                 return;
 
-            player->GetMap()->LoadGrid(firstCamera.locations.x, firstCamera.locations.y);
+            player->GetMap()->LoadGrid(pos.GetPositionX(), pos.GetPositionY());
             m_CinematicObject = player->SummonCreature(VISUAL_WAYPOINT, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5 * MINUTE * IN_MILLISECONDS);
             if (m_CinematicObject)
             {
@@ -105,11 +105,11 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
     {
         if (cam.timeStamp > m_cinematicDiff)
         {
-            nextPosition = Position(cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w);
+            nextPosition.Relocate(cam.locations);
             nextTimestamp = cam.timeStamp;
             break;
         }
-        lastPosition = Position(cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w);
+        lastPosition.Relocate(cam.locations);
         lastTimestamp = cam.timeStamp;
     }
     float angle = lastPosition.GetAngle(&nextPosition);
@@ -137,11 +137,11 @@ void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
     {
         if (static_cast<int32>(cam.timeStamp) >= workDiff)
         {
-            nextPosition = Position(cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w);
+            nextPosition.Relocate(cam.locations);
             nextTimestamp = cam.timeStamp;
             break;
         }
-        lastPosition = Position(cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w);
+        lastPosition.Relocate(cam.locations);
         lastTimestamp = cam.timeStamp;
     }
 

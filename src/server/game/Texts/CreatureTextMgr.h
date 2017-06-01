@@ -25,6 +25,7 @@
 #include "Opcodes.h"
 #include "Group.h"
 #include "Packets/ChatPackets.h"
+#include "World.h"
 
 enum CreatureTextRange
 {
@@ -53,7 +54,7 @@ struct CreatureTextEntry
 
 struct CreatureTextLocale
 {
-    StringVector Text;
+    std::vector<std::string> Text;
 };
 
 struct CreatureTextId
@@ -127,7 +128,7 @@ class CreatureTextLocalizer
                 delete _packetCache[i];
         }
 
-        void operator()(Player* player)
+        void operator()(Player const* player) const
         {
             LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
             WorldPackets::Chat::Chat* messageTemplate;
@@ -135,29 +136,32 @@ class CreatureTextLocalizer
             // create if not cached yet
             if (!_packetCache[loc_idx])
             {
-                messageTemplate = _builder(loc_idx);
+                messageTemplate = static_cast<WorldPackets::Chat::Chat*>(_builder(loc_idx));
+                messageTemplate->Write();
                 _packetCache[loc_idx] = messageTemplate;
             }
             else
                 messageTemplate = _packetCache[loc_idx];
 
-            WorldPackets::Chat::Chat message(*messageTemplate);
-
             switch (_msgType)
             {
                 case CHAT_MSG_MONSTER_WHISPER:
                 case CHAT_MSG_RAID_BOSS_WHISPER:
+                {
+                    WorldPackets::Chat::Chat message(*messageTemplate);
                     message.SetReceiver(player, loc_idx);
-                    break;
+                    player->SendDirectMessage(message.Write());
+                    return;
+                }
                 default:
                     break;
             }
 
-            player->SendDirectMessage(message.Write());
+            player->SendDirectMessage(messageTemplate->GetRawPacket());
         }
 
     private:
-        std::vector<WorldPackets::Chat::Chat*> _packetCache;
+        mutable std::vector<WorldPackets::Chat::Chat*> _packetCache;
         Builder const& _builder;
         ChatMsg _msgType;
 };
@@ -177,11 +181,9 @@ void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder
             if (!whisperTarget)
                 return;
 
-            if (Player* whisperPlayer = const_cast<Player*>(whisperTarget->ToPlayer()))
-            {
-                if (Group* group = whisperPlayer->GetGroup())
+            if (Player const* whisperPlayer = whisperTarget->ToPlayer())
+                if (Group const* group = whisperPlayer->GetGroup())
                     group->BroadcastWorker(localizer);
-            }
             return;
         }
         case CHAT_MSG_MONSTER_WHISPER:
@@ -244,8 +246,8 @@ void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder
     }
 
     float dist = GetRangeForChatType(msgType);
-    Trinity::PlayerDistWorker<CreatureTextLocalizer<Builder> > worker(source, dist, localizer);
-    source->VisitNearbyWorldObject(dist, worker);
+    Trinity::PlayerDistWorker<CreatureTextLocalizer<Builder>> worker(source, dist, localizer);
+    Cell::VisitWorldObjects(source, worker, dist);
 }
 
 #endif

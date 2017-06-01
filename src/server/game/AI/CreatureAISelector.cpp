@@ -18,8 +18,9 @@
 
 #include "Creature.h"
 #include "CreatureAISelector.h"
+#include "GameObject.h"
 #include "PassiveAI.h"
-
+#include "Log.h"
 #include "MovementGenerator.h"
 #include "TemporarySummon.h"
 #include "CreatureAIFactory.h"

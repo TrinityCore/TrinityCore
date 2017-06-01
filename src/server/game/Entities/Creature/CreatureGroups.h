@@ -20,11 +20,13 @@
 #define _FORMATIONS_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include <unordered_map>
 #include <map>
 
 class Creature;
 class CreatureGroup;
+class Unit;
 
 struct FormationInfo
 {

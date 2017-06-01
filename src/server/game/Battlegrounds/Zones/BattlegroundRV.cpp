@@ -18,9 +18,11 @@
 
 #include "BattlegroundRV.h"
 #include "GameObject.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
 BattlegroundRV::BattlegroundRV()
 {

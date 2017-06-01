@@ -16,17 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
 #include "Log.h"
-#include "World.h"
+#include "MapManager.h"
+#include "NPCHandler.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "NPCHandler.h"
-#include "MapManager.h"
 #include "QueryPackets.h"
+#include "Realm.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {
@@ -173,6 +174,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     {
         WorldPackets::Query::CorpseLocation packet;
         packet.Valid = false;                               // corpse not found
+        packet.Player = queryCorpseLocation.Player;
         SendPacket(packet.Write());
         return;
     }
@@ -198,7 +200,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
                     mapID = corpseMapEntry->CorpseMapID;
                     x = corpseMapEntry->CorpsePos.X;
                     y = corpseMapEntry->CorpsePos.Y;
-                    z = entranceMap->GetHeight(player->GetPhaseMask(), x, y, MAX_HEIGHT);
+                    z = entranceMap->GetHeight(player->GetPhases(), x, y, MAX_HEIGHT);
                 }
             }
         }
@@ -209,7 +211,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     packet.Player = queryCorpseLocation.Player;
     packet.MapID = corpseMapID;
     packet.ActualMapID = mapID;
-    packet.Position = G3D::Vector3(x, y, z);
+    packet.Position = Position(x, y, z);
     packet.Transport = ObjectGuid::Empty;
     SendPacket(packet.Write());
 }
@@ -283,7 +285,7 @@ void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTr
         Corpse* corpse = player->GetCorpse();
         if (_player->IsInSameRaidWith(player) && corpse && !corpse->GetTransGUID().IsEmpty() && corpse->GetTransGUID() == queryCorpseTransport.Transport)
         {
-            response.Position = G3D::Vector3(corpse->GetTransOffsetX(), corpse->GetTransOffsetY(), corpse->GetTransOffsetZ());
+            response.Position = corpse->GetTransOffset();
             response.Facing = corpse->GetTransOffsetO();
         }
     }
@@ -370,14 +372,12 @@ void WorldSession::HandleQuestPOIQuery(WorldPackets::Query::QuestPOIQuery& quest
                     questPOIBlobData.PlayerConditionID  = data->PlayerConditionID;
                     questPOIBlobData.UnkWoD1            = data->UnkWoD1;
 
-                    for (auto points = data->points.begin(); points != data->points.end(); ++points)
+                    for (QuestPOIPoint const& point : data->points)
                     {
                         WorldPackets::Query::QuestPOIBlobPoint questPOIBlobPoint;
 
-                        questPOIBlobPoint.X = points->X;
-                        questPOIBlobPoint.Y = points->Y;
-
-                        TC_LOG_ERROR("misc", "Quest: %i BlobIndex: %i X/Y: %i/%i", QuestID, data->BlobIndex, points->X, points->Y);
+                        questPOIBlobPoint.X = point.X;
+                        questPOIBlobPoint.Y = point.Y;
 
                         questPOIBlobData.QuestPOIBlobPointStats.push_back(questPOIBlobPoint);
                     }
@@ -410,4 +410,20 @@ void WorldSession::HandleItemTextQuery(WorldPackets::Query::ItemTextQuery& itemT
     }
 
     SendPacket(queryItemTextResponse.Write());
+}
+
+void WorldSession::HandleQueryRealmName(WorldPackets::Query::QueryRealmName& queryRealmName)
+{
+    WorldPackets::Query::RealmQueryResponse realmQueryResponse;
+    realmQueryResponse.VirtualRealmAddress = queryRealmName.VirtualRealmAddress;
+
+    Battlenet::RealmHandle realmHandle(queryRealmName.VirtualRealmAddress);
+    if (sObjectMgr->GetRealmName(realmHandle.Realm, realmQueryResponse.NameInfo.RealmNameActual, realmQueryResponse.NameInfo.RealmNameNormalized))
+    {
+        realmQueryResponse.LookupState = RESPONSE_SUCCESS;
+        realmQueryResponse.NameInfo.IsInternalRealm = false;
+        realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == realm.Id.GetAddress();
+    }
+    else
+        realmQueryResponse.LookupState = RESPONSE_FAILURE;
 }

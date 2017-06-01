@@ -24,12 +24,16 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "black_temple.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "PassiveAI.h"
-#include "black_temple.h"
-#include "Player.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 // Other defines
 #define CENTER_X            676.740f
@@ -463,7 +467,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new flame_of_azzinothAI(creature);
+        return GetBlackTempleAI<flame_of_azzinothAI>(creature);
     }
 };
 
@@ -1140,7 +1144,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_illidan_stormrageAI>(creature);
+        return GetBlackTempleAI<boss_illidan_stormrageAI>(creature);
     }
 };
 
@@ -1371,7 +1375,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_maievAI(creature);
+        return GetBlackTempleAI<boss_maievAI>(creature);
     }
 };
 
@@ -1804,7 +1808,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_akama_illidanAI>(creature);
+        return GetBlackTempleAI<npc_akama_illidanAI>(creature);
     }
 };
 
@@ -2047,7 +2051,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new cage_trap_triggerAI(creature);
+        return GetBlackTempleAI<cage_trap_triggerAI>(creature);
     }
 };
 
@@ -2056,11 +2060,8 @@ class gameobject_cage_trap : public GameObjectScript
 public:
     gameobject_cage_trap() : GameObjectScript("gameobject_cage_trap") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
-        float x, y, z;
-        player->GetPosition(x, y, z);
-
         // Grid search for nearest live Creature of entry 23304 within 10 yards
         if (Creature* pTrigger = go->FindNearestCreature(23304, 10.0f))
             ENSURE_AI(npc_cage_trap_trigger::cage_trap_triggerAI, pTrigger->AI())->Active = true;
@@ -2121,7 +2122,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new shadow_demonAI(creature);
+        return GetBlackTempleAI<shadow_demonAI>(creature);
     }
 };
 
@@ -2143,7 +2144,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new blade_of_azzinothAI(creature);
+        return GetBlackTempleAI<blade_of_azzinothAI>(creature);
     }
 };
 
@@ -2233,7 +2234,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_parasitic_shadowfiendAI>(creature);
+        return GetBlackTempleAI<npc_parasitic_shadowfiendAI>(creature);
     }
 };
 

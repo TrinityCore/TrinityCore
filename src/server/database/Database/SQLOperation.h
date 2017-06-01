@@ -18,10 +18,8 @@
 #ifndef _SQLOPERATION_H
 #define _SQLOPERATION_H
 
-#include "QueryResult.h"
-
-//- Forward declare (don't include header to prevent circular includes)
-class PreparedStatement;
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 
 //- Union that holds element data
 union SQLElementUnion

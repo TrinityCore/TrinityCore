@@ -19,18 +19,13 @@
 #ifndef TRINITYCORE_QUEST_H
 #define TRINITYCORE_QUEST_H
 
-#include "Define.h"
-#include "DatabaseEnv.h"
-#include "SharedDefines.h"
-#include "WorldPacket.h"
+#include "Common.h"
 #include "DBCEnums.h"
-
-#include <string>
+#include "DatabaseEnvFwd.h"
+#include "SharedDefines.h"
 #include <vector>
 
 class Player;
-
-class ObjectMgr;
 
 namespace WorldPackets
 {
@@ -106,7 +101,7 @@ enum QuestTradeSkill
     QUEST_TRSKILL_JEWELCRAFTING  = 14
 };
 
-enum QuestStatus
+enum QuestStatus : uint8
 {
     QUEST_STATUS_NONE           = 0,
     QUEST_STATUS_COMPLETE       = 1,
@@ -255,30 +250,30 @@ enum QuestObjectiveFlags
 
 struct QuestTemplateLocale
 {
-    StringVector LogTitle;
-    StringVector LogDescription;
-    StringVector QuestDescription;
-    StringVector AreaDescription;
-    StringVector PortraitGiverText;
-    StringVector PortraitGiverName;
-    StringVector PortraitTurnInText;
-    StringVector PortraitTurnInName;
-    StringVector QuestCompletionLog;
+    std::vector<std::string> LogTitle;
+    std::vector<std::string> LogDescription;
+    std::vector<std::string> QuestDescription;
+    std::vector<std::string> AreaDescription;
+    std::vector<std::string> PortraitGiverText;
+    std::vector<std::string> PortraitGiverName;
+    std::vector<std::string> PortraitTurnInText;
+    std::vector<std::string> PortraitTurnInName;
+    std::vector<std::string> QuestCompletionLog;
 };
 
 struct QuestRequestItemsLocale
 {
-    StringVector CompletionText;
+    std::vector<std::string> CompletionText;
 };
 
 struct QuestObjectivesLocale
 {
-    StringVector Description;
+    std::vector<std::string> Description;
 };
 
 struct QuestOfferRewardLocale
 {
-    StringVector RewardText;
+    std::vector<std::string> RewardText;
 };
 
 struct QuestObjective

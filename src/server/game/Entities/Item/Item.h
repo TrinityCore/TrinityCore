@@ -21,10 +21,11 @@
 
 #include "Common.h"
 #include "Object.h"
-#include "LootMgr.h"
+#include "Loot.h"
 #include "ItemEnchantmentMgr.h"
 #include "ItemTemplate.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
+#include <unordered_set>
 
 class SpellInfo;
 class Bag;
@@ -44,7 +45,7 @@ struct ItemSetEffect
     std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
 };
 
-enum InventoryResult
+enum InventoryResult : uint8
 {
     EQUIP_ERR_OK                                           = 0,
     EQUIP_ERR_CANT_EQUIP_LEVEL_I                           = 1,  // You must reach level %d to use that item.
@@ -241,7 +242,7 @@ enum ItemModifier : uint16
     ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2            = 11,
     ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2               = 12,
     ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3            = 13,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3               = 13,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3               = 14,
     ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4            = 15,
     ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4               = 16,
     ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID       = 17,
@@ -272,11 +273,15 @@ struct BonusData
     int32 ItemStatAllocation[MAX_ITEM_PROTO_STATS];
     float ItemStatSocketCostMultiplier[MAX_ITEM_PROTO_STATS];
     uint32 SocketColor[MAX_ITEM_PROTO_SOCKETS];
+    ItemBondingType Bonding;
     uint32 AppearanceModID;
     float RepairCostMultiplier;
     uint32 ScalingStatDistribution;
     uint32 ItemLevelOverride;
     uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
+    int32 GemRelicType[MAX_ITEM_PROTO_SOCKETS];
+    uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
+    int32 RelicType;
     bool HasItemLevelBonus;
 
     void Initialize(ItemTemplate const* proto);
@@ -328,6 +333,7 @@ class TC_GAME_API Item : public Object
         void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
 
+        ItemBondingType GetBonding() const { return _bonusData.Bonding; }
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }
         bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND); }
         bool IsBoundAccountWide() const { return (GetTemplate()->GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT) != 0; }
@@ -336,7 +342,7 @@ class TC_GAME_API Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
-        void LoadArtifactData(uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
+        void LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
 
         void AddBonuses(uint32 bonusListID);
 
@@ -399,7 +405,6 @@ class TC_GAME_API Item : public Object
         uint32 GetItemSuffixFactor() const { return GetUInt32Value(ITEM_FIELD_PROPERTY_SEED); }
         void SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId);
         void UpdateItemSuffixFactor();
-        static ItemRandomEnchantmentId GenerateItemRandomPropertyId(uint32 item_id);
         ItemRandomEnchantmentId GetItemRandomEnchantmentId() const { return m_randomEnchantment; }
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid caster = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
@@ -510,9 +515,9 @@ class TC_GAME_API Item : public Object
         ItemDynamicFieldArtifactPowers const* GetArtifactPower(uint32 artifactPowerId) const;
         void SetArtifactPower(ItemDynamicFieldArtifactPowers const* artifactPower, bool createIfMissing = false);
 
-        void InitArtifactPowers(uint8 artifactId);
+        void InitArtifactPowers(uint8 artifactId, uint8 artifactTier);
         uint32 GetTotalPurchasedArtifactPowers() const;
-        void ApplyArtifactPowerEnchantmentBonuses(uint32 enchantId, bool apply, Player* owner);
+        void ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enchantId, bool apply, Player* owner);
         void CopyArtifactDataFromParent(Item* parent);
 
         void GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCategoryId);

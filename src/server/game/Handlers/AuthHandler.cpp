@@ -21,7 +21,10 @@
 #include "CharacterTemplateDataStore.h"
 #include "ClientConfigPackets.h"
 #include "ObjectMgr.h"
+#include "RBAC.h"
+#include "Realm.h"
 #include "SystemPackets.h"
+#include "World.h"
 
 void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
 {
@@ -34,12 +37,11 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
 
         response.SuccessInfo->AccountExpansionLevel = GetExpansion();
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
-        response.SuccessInfo->VirtualRealmAddress = GetVirtualRealmAddress();
+        response.SuccessInfo->VirtualRealmAddress = realm.Id.GetAddress();
         response.SuccessInfo->Time = int32(time(nullptr));
 
         // Send current home realm. Also there is no need to send it later in realm queries.
-        response.SuccessInfo->VirtualRealms.emplace_back(GetVirtualRealmAddress(), true, false,
-            sObjectMgr->GetRealmName(realm.Id.Realm), sObjectMgr->GetNormalizedRealmName(realm.Id.Realm));
+        response.SuccessInfo->VirtualRealms.emplace_back(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
 
         if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
             for (auto const& templ : sCharacterTemplateDataStore->GetCharacterTemplates())

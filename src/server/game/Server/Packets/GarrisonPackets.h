@@ -22,6 +22,9 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "PacketUtilities.h"
+#include <list>
+#include <unordered_set>
+#include <vector>
 
 struct GarrAbilityEntry;
 
@@ -62,7 +65,7 @@ namespace WorldPackets
         struct GarrisonPlotInfo
         {
             uint32 GarrPlotInstanceID = 0;
-            Position PlotPos;
+            TaggedPosition<Position::XYZO> PlotPos;
             uint32 PlotType = 0;
         };
 
@@ -295,7 +298,7 @@ namespace WorldPackets
             GarrisonBuildingLandmark(uint32 buildingPlotInstId, Position const& pos) : GarrBuildingPlotInstID(buildingPlotInstId), Pos(pos) { }
 
             uint32 GarrBuildingPlotInstID;
-            Position Pos;
+            TaggedPosition<Position::XYZ> Pos;
         };
 
         class GarrisonBuildingLandmarks final : public ServerPacket

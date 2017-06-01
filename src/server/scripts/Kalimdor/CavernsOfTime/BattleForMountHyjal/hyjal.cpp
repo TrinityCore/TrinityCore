@@ -30,10 +30,11 @@ npc_tyrande_whisperwind
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "hyjalAI.h"
+#include "InstanceScript.h"
+#include "Log.h"
 #include "Player.h"
+#include "ScriptedGossip.h"
 
 #define GOSSIP_ITEM_BEGIN_ALLY      "My companions and I are with you, Lady Proudmoore."
 #define GOSSIP_ITEM_ANETHERON       "We are ready for whatever Archimonde might send our way, Lady Proudmoore."
@@ -102,27 +103,27 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        if (!creature->GetInstanceScript())
-            return NULL;
+        if (hyjalAI* ai = GetHyjalAI<hyjalAI>(creature))
+        {
+            ai->Reset();
+            ai->EnterEvadeMode();
 
-        hyjalAI* ai = new hyjalAI(creature);
+            ai->Spells[0].SpellId = SPELL_BLIZZARD;
+            ai->Spells[0].Cooldown = urand(15000, 35000);
+            ai->Spells[0].TargetType = TARGETTYPE_RANDOM;
 
-        ai->Reset();
-        ai->EnterEvadeMode();
+            ai->Spells[1].SpellId = SPELL_PYROBLAST;
+            ai->Spells[1].Cooldown = urand(5500, 9500);
+            ai->Spells[1].TargetType = TARGETTYPE_RANDOM;
 
-        ai->Spells[0].SpellId = SPELL_BLIZZARD;
-        ai->Spells[0].Cooldown = urand(15000, 35000);
-        ai->Spells[0].TargetType = TARGETTYPE_RANDOM;
+            ai->Spells[2].SpellId = SPELL_SUMMON_ELEMENTALS;
+            ai->Spells[2].Cooldown = urand(15000, 45000);
+            ai->Spells[2].TargetType = TARGETTYPE_SELF;
 
-        ai->Spells[1].SpellId = SPELL_PYROBLAST;
-        ai->Spells[1].Cooldown = urand(5500, 9500);
-        ai->Spells[1].TargetType = TARGETTYPE_RANDOM;
+            return ai;
+        }
 
-        ai->Spells[2].SpellId = SPELL_SUMMON_ELEMENTALS;
-        ai->Spells[2].Cooldown = urand(15000, 45000);
-        ai->Spells[2].TargetType = TARGETTYPE_SELF;
-
-        return ai;
+        return nullptr;
     }
 
 };
@@ -187,23 +188,23 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        if (!creature->GetInstanceScript())
-            return NULL;
+        if (hyjalAI* ai = GetHyjalAI<hyjalAI>(creature))
+        {
+            ai->Reset();
+            ai->EnterEvadeMode();
 
-        hyjalAI* ai = new hyjalAI(creature);
+            ai->Spells[0].SpellId = SPELL_CHAIN_LIGHTNING;
+            ai->Spells[0].Cooldown = urand(3000, 8000);
+            ai->Spells[0].TargetType = TARGETTYPE_VICTIM;
 
-        ai->Reset();
-        ai->EnterEvadeMode();
+            ai->Spells[1].SpellId = SPELL_SUMMON_DIRE_WOLF;
+            ai->Spells[1].Cooldown = urand(6000, 41000);
+            ai->Spells[1].TargetType = TARGETTYPE_RANDOM;
 
-        ai->Spells[0].SpellId = SPELL_CHAIN_LIGHTNING;
-        ai->Spells[0].Cooldown = urand(3000, 8000);
-        ai->Spells[0].TargetType = TARGETTYPE_VICTIM;
+            return ai;
+        }
 
-        ai->Spells[1].SpellId = SPELL_SUMMON_DIRE_WOLF;
-        ai->Spells[1].Cooldown = urand(6000, 41000);
-        ai->Spells[1].TargetType = TARGETTYPE_RANDOM;
-
-        return ai;
+        return nullptr;
     }
 
 };
@@ -215,13 +216,14 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        if (!creature->GetInstanceScript())
-            return NULL;
+        if (hyjalAI* ai = GetHyjalAI<hyjalAI>(creature))
+        {
+            ai->Reset();
+            ai->EnterEvadeMode();
+            return ai;
+        }
 
-        hyjalAI* ai = new hyjalAI(creature);
-        ai->Reset();
-        ai->EnterEvadeMode();
-        return ai;
+        return nullptr;
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override

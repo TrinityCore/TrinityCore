@@ -16,12 +16,16 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "ulduar.h"
 #include "Vehicle.h"
-#include "Player.h"
 
 /* ScriptData
 SDName: boss_kologarn
@@ -489,7 +493,7 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
 
             void HandleInstaKill(SpellEffIndex /*effIndex*/)
             {
-                if (!GetHitPlayer() || !GetHitPlayer()->GetVehicle())
+                if (GetHitUnit()->GetTypeId() != TYPEID_PLAYER || !GetHitUnit()->GetVehicle())
                     return;
 
                 //! Proper exit position does not work currently,
@@ -499,9 +503,9 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
                 pos.m_positionY = -8.3f + irand(-3, 3);
                 pos.m_positionZ = 448.8f;
                 pos.SetOrientation(float(M_PI));
-                GetHitPlayer()->DestroyForNearbyPlayers();
-                GetHitPlayer()->ExitVehicle(&pos);
-                GetHitPlayer()->UpdateObjectVisibility(false);
+                GetHitUnit()->DestroyForNearbyPlayers();
+                GetHitUnit()->ExitVehicle(&pos);
+                GetHitUnit()->UpdateObjectVisibility(false);
             }
 
             void Register() override
@@ -532,7 +536,7 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
                     return;
 
-                if (!GetOwner()->ToCreature())
+                if (GetOwner()->GetTypeId() != TYPEID_UNIT)
                     return;
 
                 uint32 rubbleStalkerEntry = (GetOwner()->GetMap()->GetDifficultyID() == DIFFICULTY_NORMAL ? 33809 : 33942);
@@ -564,8 +568,7 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
 
             void OnRemoveStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (Player* owner = GetOwner()->ToPlayer())
-                    owner->RemoveAurasDueToSpell(aurEff->GetAmount());
+                GetUnitOwner()->RemoveAurasDueToSpell(aurEff->GetAmount());
             }
 
             void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -617,7 +620,10 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
-                unitList.remove_if(PlayerOrPetCheck());
+                unitList.remove_if([](WorldObject* target)
+                {
+                    return target->GetTypeId() != TYPEID_PLAYER && (target->GetTypeId() != TYPEID_UNIT || !target->ToUnit()->IsPet());
+                });
             }
 
             void Register() override

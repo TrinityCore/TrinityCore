@@ -21,14 +21,17 @@
  * Scriptnames of files in this file should be prefixed with "spell_item_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
+#include "Battleground.h"
+#include "CreatureAIImpl.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "SkillDiscovery.h"
-#include "Battleground.h"
+#include "SpellScript.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
@@ -120,13 +123,13 @@ enum AlchemistStone
     SPELL_ALCHEMIST_STONE_EXTRA_MANA       = 21400
 };
 
-// Item - 13503: Alchemist's Stone 
-// Item - 35748: Guardian's Alchemist Stone 
-// Item - 35749: Sorcerer's Alchemist Stone 
-// Item - 35750: Redeemer's Alchemist Stone 
-// Item - 35751: Assassin's Alchemist Stone 
-// Item - 44322: Mercurial Alchemist Stone 
-// Item - 44323: Indestructible Alchemist's Stone 
+// Item - 13503: Alchemist's Stone
+// Item - 35748: Guardian's Alchemist Stone
+// Item - 35749: Sorcerer's Alchemist Stone
+// Item - 35750: Redeemer's Alchemist Stone
+// Item - 35751: Assassin's Alchemist Stone
+// Item - 44322: Mercurial Alchemist Stone
+// Item - 44323: Indestructible Alchemist's Stone
 // Item - 44324: Mighty Alchemist's Stone
 
 // 17619 - Alchemist Stone
@@ -294,7 +297,7 @@ enum AuraOfMadness
     SAY_MADNESS             = 21954
 };
 
-// Item - 31859: Darkmoon Card: Madness 
+// Item - 31859: Darkmoon Card: Madness
 // 39446 - Aura of Madness
 class spell_item_aura_of_madness : public SpellScriptLoader
 {
@@ -1294,8 +1297,8 @@ enum MarkOfConquest
     SPELL_MARK_OF_CONQUEST_ENERGIZE     = 39599
 };
 
-// Item - 27920: Mark of Conquest 
-// Item - 27921: Mark of Conquest 
+// Item - 27920: Mark of Conquest
+// Item - 27921: Mark of Conquest
 // 33510 - Health Restore
 class spell_item_mark_of_conquest : public SpellScriptLoader
 {
@@ -1560,8 +1563,8 @@ class spell_item_pendant_of_the_violet_eye : public SpellScriptLoader
             {
                 if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
                 {
-                    std::vector<SpellInfo::CostData> costs = spellInfo->CalcPowerCost(GetTarget(), spellInfo->GetSchoolMask());
-                    auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA && cost.Amount > 0; });
+                    std::vector<SpellPowerCost> costs = spellInfo->CalcPowerCost(GetTarget(), spellInfo->GetSchoolMask());
+                    auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA && cost.Amount > 0; });
                     if (m != costs.end())
                         return true;
                 }
@@ -2833,7 +2836,7 @@ class spell_item_crystal_prison_dummy_dnd : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                     if (target->isDead() && !target->IsPet())
                     {
-                        GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, G3D::Quat(), uint32(target->GetRespawnTime()-time(NULL)));
+                        GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, QuaternionData(), uint32(target->GetRespawnTime()-time(NULL)));
                         target->DespawnOrUnsummon();
                     }
             }

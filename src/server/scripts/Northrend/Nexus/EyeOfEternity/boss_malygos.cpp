@@ -20,16 +20,20 @@ SDName: Boss Malygos
 Script Data End */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "eye_of_eternity.h"
-#include "Player.h"
-#include "Vehicle.h"
 #include "CombatAI.h"
-#include "GameObjectAI.h"
-#include "CreatureTextMgr.h"
-#include "MoveSplineInit.h"
+#include "eye_of_eternity.h"
+#include "GameObject.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Events
 {
@@ -1006,9 +1010,9 @@ public:
             if (Creature* alexstraszaGiftBoxBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_GIFT_BOX_BUNNY_GUID)))
             {
                 if (GetDifficulty() == DIFFICULTY_10_N)
-                    alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_10, HeartOfMagicSpawnPos, G3D::Quat(), 0);
+                    alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_10, HeartOfMagicSpawnPos, QuaternionData(), 0);
                 else if (GetDifficulty() == DIFFICULTY_25_N)
-                    alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_25, HeartOfMagicSpawnPos, G3D::Quat(), 0);
+                    alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_25, HeartOfMagicSpawnPos, QuaternionData(), 0);
             }
 
             me->SummonCreature(NPC_ALEXSTRASZA, AlexstraszaSpawnPos, TEMPSUMMON_MANUAL_DESPAWN);
@@ -1038,7 +1042,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_malygosAI>(creature);
+        return GetEyeOfEternityAI<boss_malygosAI>(creature);
     }
 };
 
@@ -1088,7 +1092,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_portal_eoeAI>(creature);
+        return GetEyeOfEternityAI<npc_portal_eoeAI>(creature);
     }
 };
 
@@ -1149,7 +1153,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_power_sparkAI>(creature);
+        return GetEyeOfEternityAI<npc_power_sparkAI>(creature);
     }
 };
 
@@ -1260,7 +1264,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_melee_hover_diskAI>(creature);
+        return GetEyeOfEternityAI<npc_melee_hover_diskAI>(creature);
     }
 };
 
@@ -1323,7 +1327,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_caster_hover_diskAI>(creature);
+        return GetEyeOfEternityAI<npc_caster_hover_diskAI>(creature);
     }
 };
 
@@ -1399,7 +1403,7 @@ class npc_nexus_lord : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_nexus_lordAI>(creature);
+            return GetEyeOfEternityAI<npc_nexus_lordAI>(creature);
         }
 };
 
@@ -1466,7 +1470,7 @@ class npc_scion_of_eternity : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_scion_of_eternityAI>(creature);
+            return GetEyeOfEternityAI<npc_scion_of_eternityAI>(creature);
         }
 };
 
@@ -1520,7 +1524,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_arcane_overloadAI>(creature);
+        return GetEyeOfEternityAI<npc_arcane_overloadAI>(creature);
     }
 };
 
@@ -1539,9 +1543,9 @@ public:
         void IsSummonedBy(Unit* summoner) override
         {
             _summoner.Clear();
-            if (Player* player = summoner->ToPlayer())
+            if (summoner->GetTypeId() == TYPEID_PLAYER)
             {
-                _summoner = player->GetGUID();
+                _summoner = summoner->GetGUID();
                 _events.ScheduleEvent(EVENT_CAST_RIDE_SPELL, 2*IN_MILLISECONDS);
             }
         }
@@ -1585,7 +1589,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_wyrmrest_skytalonAI(creature);
+        return GetEyeOfEternityAI<npc_wyrmrest_skytalonAI>(creature);
     }
 };
 
@@ -1611,7 +1615,7 @@ class npc_static_field : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_static_fieldAI(creature);
+            return GetEyeOfEternityAI<npc_static_fieldAI>(creature);
         }
 };
 
@@ -1631,10 +1635,7 @@ class spell_malygos_portal_beam : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PORTAL_OPENED))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_PORTAL_OPENED });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1734,10 +1735,7 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ARCANE_STORM_EXTRA_VISUAL))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_ARCANE_STORM_EXTRA_VISUAL });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1831,10 +1829,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_VORTEX_1) || !sSpellMgr->GetSpellInfo(SPELL_VORTEX_6))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_VORTEX_1, SPELL_VORTEX_6 });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2074,10 +2069,7 @@ class spell_malygos_destroy_platform_channel : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DESTROY_PLATFORM_BOOM_VISUAL))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_DESTROY_PLATFORM_BOOM_VISUAL });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2116,10 +2108,7 @@ class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptL
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DESTROY_PLATFORM_EVENT))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_DESTROY_PLATFORM_EVENT });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2262,10 +2251,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SURGE_OF_POWER_PHASE_3_25))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_SURGE_OF_POWER_PHASE_3_25 });
             }
 
             void SendThreeTargets(std::list<WorldObject*>& targets)
@@ -2379,10 +2365,7 @@ class spell_alexstrasza_gift_beam : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ALEXSTRASZAS_GIFT_BEAM_VISUAL))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_ALEXSTRASZAS_GIFT_BEAM_VISUAL });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2436,9 +2419,9 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                 {
                     if (target->GetMap()->GetDifficultyID() == DIFFICULTY_10_N)
-                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, *target, G3D::Quat(), 0);
+                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, *target, QuaternionData(), 0);
                     else if (target->GetMap()->GetDifficultyID() == DIFFICULTY_25_N)
-                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, *target, G3D::Quat(), 0);
+                        _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, *target, QuaternionData(), 0);
                 }
             }
 

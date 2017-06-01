@@ -17,10 +17,11 @@
  */
 
 #include "ScriptSystem.h"
-#include "ObjectMgr.h"
-#include "DatabaseEnv.h"
-#include "ScriptMgr.h"
 #include "Creature.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
 
 SystemMgr* SystemMgr::instance()
 {
@@ -109,7 +110,7 @@ void SystemMgr::LoadScriptSplineChains()
             uint16 chainId = fieldsMeta[1].GetUInt16();
             uint8 splineId = fieldsMeta[2].GetUInt8();
             SplineChain& chain = m_mSplineChainsMap[{entry,chainId}];
-            
+
             if (splineId != chain.size())
             {
                 TC_LOG_WARN("server.loading", "Creature #%u: Chain %u has orphaned spline %u, skipped.", entry, chainId, splineId);

@@ -16,9 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "AreaBoundary.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "naxxramas.h"
+#include "TemporarySummon.h"
 
 BossBoundaryData const boundaries =
 {
@@ -104,7 +110,7 @@ ObjectData const objectData[] =
 class instance_naxxramas : public InstanceMapScript
 {
     public:
-        instance_naxxramas() : InstanceMapScript("instance_naxxramas", 533) { }
+        instance_naxxramas() : InstanceMapScript(NaxxramasScriptName, 533) { }
 
         struct instance_naxxramas_InstanceMapScript : public InstanceScript
         {

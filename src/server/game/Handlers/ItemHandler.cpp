@@ -16,18 +16,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "Item.h"
-#include "DB2Stores.h"
-#include "NPCPackets.h"
-#include "ItemPackets.h"
 #include "BattlePetMgr.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Item.h"
+#include "ItemPackets.h"
+#include "Log.h"
+#include "NPCPackets.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {

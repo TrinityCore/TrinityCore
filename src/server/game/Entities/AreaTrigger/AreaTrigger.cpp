@@ -16,6 +16,7 @@
  */
 
 #include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerPackets.h"
 #include "AreaTriggerTemplate.h"
@@ -33,9 +34,9 @@
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
-#include "AreaTriggerAI.h"
+#include <G3D/AABox.h>
 
-AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
+AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
     _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
     _areaTriggerMiscTemplate(nullptr), _ai()
@@ -73,9 +74,10 @@ void AreaTrigger::RemoveFromWorld()
     }
 }
 
-bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId /*= ObjectGuid::Empty*/)
+bool AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, uint32 spellXSpellVisualId, ObjectGuid const& castId /*= ObjectGuid::Empty*/, AuraEffect const* aurEff)
 {
     _targetGuid = target ? target->GetGUID() : ObjectGuid::Empty;
+    _aurEff = aurEff;
 
     SetMap(caster->GetMap());
     Relocate(pos);
@@ -202,8 +204,7 @@ void AreaTrigger::Remove()
 
         _ai->OnRemove();
 
-        RemoveFromWorld();
-        AddObjectToRemoveList();
+        AddObjectToRemoveList(); // calls RemoveFromWorld
     }
 }
 
@@ -269,7 +270,7 @@ void AreaTrigger::SearchUnitInSphere(std::list<Unit*>& targetList)
 
     Trinity::AnyUnitInObjectRangeCheck check(this, radius);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-    VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
+    Cell::VisitAllObjects(this, searcher, GetTemplate()->MaxSearchRadius);
 }
 
 void AreaTrigger::SearchUnitInBox(std::list<Unit*>& targetList)
@@ -280,7 +281,7 @@ void AreaTrigger::SearchUnitInBox(std::list<Unit*>& targetList)
 
     Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius, false);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-    VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
+    Cell::VisitAllObjects(this, searcher, GetTemplate()->MaxSearchRadius);
 
     float halfExtentsX = extentsX / 2.0f;
     float halfExtentsY = extentsY / 2.0f;
@@ -307,7 +308,7 @@ void AreaTrigger::SearchUnitInPolygon(std::list<Unit*>& targetList)
 {
     Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius, false);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-    VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
+    Cell::VisitAllObjects(this, searcher, GetTemplate()->MaxSearchRadius);
 
     float height = GetTemplate()->PolygonDatas.Height;
     float minZ = GetPositionZ() - height;
@@ -325,7 +326,7 @@ void AreaTrigger::SearchUnitInCylinder(std::list<Unit*>& targetList)
 {
     Trinity::AnyUnitInObjectRangeCheck check(this, GetTemplate()->MaxSearchRadius, false);
     Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targetList, check);
-    VisitNearbyObject(GetTemplate()->MaxSearchRadius, searcher);
+    Cell::VisitAllObjects(this, searcher, GetTemplate()->MaxSearchRadius);
 
     float height = GetTemplate()->CylinderDatas.Height;
     float minZ = GetPositionZ() - height;
@@ -614,7 +615,9 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, uin
         reshape.AreaTriggerSpline = boost::in_place();
         reshape.AreaTriggerSpline->ElapsedTimeForMovement = GetElapsedTimeForMovement();
         reshape.AreaTriggerSpline->TimeToTarget = timeToTarget;
-        reshape.AreaTriggerSpline->Points = splinePoints;
+        for (G3D::Vector3 const& vec : splinePoints)
+            reshape.AreaTriggerSpline->Points.emplace_back(vec.x, vec.y, vec.z);
+
         SendMessageToSet(reshape.Write(), true);
     }
 

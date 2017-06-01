@@ -21,9 +21,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "ahnkahet.h"
-
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -326,7 +328,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_jedoga_shadowseekerAI>(creature);
+        return GetAhnKahetAI<boss_jedoga_shadowseekerAI>(creature);
     }
 };
 
@@ -429,7 +431,7 @@ public:
             {
                 case 1:
                     {
-                        Creature* boss = me->GetMap()->GetCreature(instance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER));
+                        Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JEDOGA_SHADOWSEEKER));
                         if (boss)
                         {
                             ENSURE_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok = true;
@@ -495,7 +497,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_jedoga_initiandAI>(creature);
+        return GetAhnKahetAI<npc_jedoga_initiandAI>(creature);
     }
 };
 
@@ -578,7 +580,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_jedogas_aufseher_triggerAI>(creature);
+        return GetAhnKahetAI<npc_jedogas_aufseher_triggerAI>(creature);
     }
 };
 

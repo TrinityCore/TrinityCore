@@ -19,6 +19,9 @@
 #ifndef DEF_WAILING_CAVERNS_H
 #define DEF_WAILING_CAVERNS_H
 
+#include "CreatureAIImpl.h"
+
+#define WCScriptName "instance_wailing_caverns"
 #define DataHeader "WC"
 
 enum WCDataTypes
@@ -36,5 +39,11 @@ enum WCDataTypes
 
     DATA_NARALEX              = 3679,
 };
+
+template<typename AI>
+inline AI* GetWailingCavernsAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, WCScriptName);
+}
 
 #endif

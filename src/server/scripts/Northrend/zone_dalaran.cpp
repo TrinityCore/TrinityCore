@@ -24,10 +24,11 @@ SDCategory: Dalaran
 Script Data End */
 
 #include "ScriptMgr.h"
+#include "DatabaseEnv.h"
+#include "Mail.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
-#include "WorldSession.h"
 
 /*******************************************************
  * npc_mageguard_dalaran
@@ -165,7 +166,7 @@ class npc_minigob_manabonk : public CreatureScript
 
             Player* SelectTargetInDalaran()
             {
-                std::list<Player*> PlayerInDalaranList;
+                std::vector<Player*> PlayerInDalaranList;
                 PlayerInDalaranList.clear();
 
                 Map::PlayerList const &players = me->GetMap()->GetPlayers();

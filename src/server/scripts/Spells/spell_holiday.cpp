@@ -21,15 +21,16 @@
  * Scriptnames in this file should be prefixed with "spell_#holidayname_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "CreatureAIImpl.h"
+#include "GridNotifiersImpl.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
+#include "World.h"
 
 // 45102 Romantic Picnic
 enum SpellsPicnic
@@ -81,7 +82,7 @@ class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
                 std::list<Player*> playerList;
                 Trinity::AnyPlayerInObjectRangeCheck checker(target, INTERACTION_DISTANCE*2);
                 Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(target, playerList, checker);
-                target->VisitNearbyWorldObject(INTERACTION_DISTANCE*2, searcher);
+                Cell::VisitWorldObjects(target, searcher, INTERACTION_DISTANCE * 2);
                 for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                 {
                     if ((*itr) != target && (*itr)->HasAura(GetId())) // && (*itr)->GetStandState() == UNIT_STAND_STATE_SIT)

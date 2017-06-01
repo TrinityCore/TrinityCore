@@ -21,13 +21,14 @@
  * Scriptnames of files in this file should be prefixed with "spell_mage_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "SpellHistory.h"
-#include "SpellAuraEffects.h"
-#include "Pet.h"
 #include "GridNotifiers.h"
+#include "ObjectAccessor.h"
+#include "Pet.h"
+#include "Player.h"
+#include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellScript.h"
 
 enum MageSpells
 {
@@ -615,8 +616,8 @@ class spell_mage_master_of_elements : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                std::vector<SpellInfo::CostData> costs = eventInfo.GetDamageInfo()->GetSpellInfo()->CalcPowerCost(GetTarget(), eventInfo.GetDamageInfo()->GetSchoolMask());
-                auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA; });
+                std::vector<SpellPowerCost> costs = eventInfo.GetDamageInfo()->GetSpellInfo()->CalcPowerCost(GetTarget(), eventInfo.GetDamageInfo()->GetSchoolMask());
+                auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
                 if (m != costs.end())
                 {
                     int32 mana = CalculatePct(m->Amount, aurEff->GetAmount());

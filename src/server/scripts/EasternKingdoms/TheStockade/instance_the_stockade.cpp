@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "the_stockade.h"
 
 class instance_the_stockade : public InstanceMapScript

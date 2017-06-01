@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blood_furnace.h"
+#include "ScriptedCreature.h"
 
 enum Yells
 {

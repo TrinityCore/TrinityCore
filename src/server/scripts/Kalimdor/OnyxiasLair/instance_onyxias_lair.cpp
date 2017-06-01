@@ -23,11 +23,11 @@ SDCategory: Onyxia's Lair
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "Cell.h"
+#include "AreaBoundary.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "onyxias_lair.h"
 #include "TemporarySummon.h"
 
@@ -39,7 +39,7 @@ BossBoundaryData const boundaries =
 class instance_onyxias_lair : public InstanceMapScript
 {
 public:
-    instance_onyxias_lair() : InstanceMapScript("instance_onyxias_lair", 249) { }
+    instance_onyxias_lair() : InstanceMapScript(OLScriptName, 249) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -118,7 +118,7 @@ public:
                 std::list<GameObject*> nearFloorList;
                 Trinity::GameObjectInRangeCheck check(floorEruption->GetPositionX(), floorEruption->GetPositionY(), floorEruption->GetPositionZ(), 15);
                 Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(floorEruption, nearFloorList, check);
-                floorEruption->VisitNearbyGridObject(999, searcher);
+                Cell::VisitGridObjects(floorEruption, searcher, SIZE_OF_GRIDS);
                 //remove all that are not present on FloorEruptionGUID[1] and update treeLen on each GUID
                 for (std::list<GameObject*>::const_iterator itr = nearFloorList.begin(); itr != nearFloorList.end(); ++itr)
                 {

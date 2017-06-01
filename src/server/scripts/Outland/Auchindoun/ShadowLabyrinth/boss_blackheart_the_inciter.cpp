@@ -24,6 +24,7 @@ Category: Auchindoun, Shadow Labyrinth
 */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
 

@@ -31,14 +31,15 @@
 #include "Group.h"
 #include "InstanceScript.h"
 #include "LFGMgr.h"
+#include "Log.h"
+#include "NPCPackets.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
 #include "SkillDiscovery.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
-#include "NPCPackets.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {
@@ -744,7 +745,9 @@ class spell_gen_cannibalize : public SpellScriptLoader
                 // search for nearby enemy corpse in range
                 Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
                 Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
-                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+                Cell::VisitWorldObjects(caster, searcher, max_range);
+                if (!result)
+                    Cell::VisitGridObjects(caster, searcher, max_range);
                 if (!result)
                     return SPELL_FAILED_NO_EDIBLE_CORPSES;
                 return SPELL_CAST_OK;
@@ -1436,7 +1439,7 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
                 _handled = true;
                 Unit* caster = GetCaster();
                 if (InstanceScript* instance = caster->GetInstanceScript())
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, GetSpellInfo()->Id, caster);
+                    instance->UpdateEncounterStateForSpellCast(GetSpellInfo()->Id, caster);
             }
 
             void Register() override

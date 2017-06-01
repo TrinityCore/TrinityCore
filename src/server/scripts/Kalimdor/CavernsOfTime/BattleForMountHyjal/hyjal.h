@@ -19,6 +19,9 @@
 #ifndef DEF_HYJAL_H
 #define DEF_HYJAL_H
 
+#include "CreatureAIImpl.h"
+
+#define HyjalScriptName "instance_hyjal"
 #define DataHeader "HY"
 
 uint32 const EncounterCount     = 5;
@@ -92,5 +95,11 @@ enum HYGameobjectIds
 };
 
 #define MINRAIDDAMAGE 700000 // minimal damage before trash can drop loot and reputation, resets if faction leader dies
+
+template<typename AI>
+inline AI* GetHyjalAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, HyjalScriptName);
+}
 
 #endif

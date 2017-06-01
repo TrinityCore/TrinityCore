@@ -18,94 +18,16 @@
 #ifndef SpellPackets_h__
 #define SpellPackets_h__
 
-#include "Packet.h"
-#include "PacketUtilities.h"
-#include "Player.h"
-#include "SpellAuras.h"
-#include "Spell.h"
+#include "CombatLogPacketsCommon.h"
+#include "MovementInfo.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
+#include "Position.h"
+#include "SharedDefines.h"
+#include <array>
 
 namespace WorldPackets
 {
-    namespace Spells
-    {
-        struct SpellLogPowerData
-        {
-            SpellLogPowerData(int32 powerType, int32 amount, int32 cost) : PowerType(powerType), Amount(amount), Cost(cost) { }
-
-            int32 PowerType = 0;
-            int32 Amount = 0;
-            int32 Cost = 0;
-        };
-
-        struct SpellCastLogData
-        {
-            int64 Health = 0;
-            int32 AttackPower = 0;
-            int32 SpellPower = 0;
-            std::vector<SpellLogPowerData> PowerData;
-
-            void Initialize(Unit const* unit);
-            void Initialize(Spell const* spell);
-        };
-    }
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
-
-namespace WorldPackets
-{
-    namespace CombatLog
-    {
-        class CombatLogServerPacket : public ServerPacket
-        {
-        public:
-            CombatLogServerPacket(OpcodeServer opcode, size_t initialSize = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT)
-                : ServerPacket(opcode, initialSize, connection), _fullLogPacket(opcode, initialSize, connection) { }
-
-            WorldPacket const* GetFullLogPacket() const { return &_fullLogPacket; }
-            WorldPacket const* GetBasicLogPacket() const { return &_worldPacket; }
-
-            Spells::SpellCastLogData LogData;
-
-        protected:
-            template<typename T>
-            void operator<<(T const& val)
-            {
-                _worldPacket << val;
-                _fullLogPacket << val;
-            }
-
-            void WriteLogDataBit()
-            {
-                _worldPacket.WriteBit(false);
-                _fullLogPacket.WriteBit(true);
-            }
-
-            void FlushBits()
-            {
-                _worldPacket.FlushBits();
-                _fullLogPacket.FlushBits();
-            }
-
-            bool WriteBit(bool bit)
-            {
-                _worldPacket.WriteBit(bit);
-                _fullLogPacket.WriteBit(bit);
-                return bit;
-            }
-
-            void WriteBits(uint32 value, uint32 bitCount)
-            {
-                _worldPacket.WriteBits(value, bitCount);
-                _fullLogPacket.WriteBits(value, bitCount);
-            }
-
-            ByteBuffer& WriteLogData() { return _fullLogPacket << LogData; }
-
-            WorldPacket _fullLogPacket;
-        };
-    }
-
     namespace Spells
     {
         class CancelAura final : public ClientPacket
@@ -206,14 +128,16 @@ namespace WorldPackets
         class UpdateActionButtons final : public ServerPacket
         {
         public:
-            UpdateActionButtons() : ServerPacket(SMSG_UPDATE_ACTION_BUTTONS, MAX_ACTION_BUTTONS * 8 + 1)
+            static std::size_t constexpr NumActionButtons = 132;
+
+            UpdateActionButtons() : ServerPacket(SMSG_UPDATE_ACTION_BUTTONS, NumActionButtons * 8 + 1)
             {
-                std::memset(ActionButtons, 0, sizeof(ActionButtons));
+                ActionButtons.fill(0);
             }
 
             WorldPacket const* Write() override;
 
-            uint64 ActionButtons[MAX_ACTION_BUTTONS];
+            std::array<uint64, NumActionButtons> ActionButtons;
             uint8 Reason = 0;
             /*
                 Reason can be 0, 1, 2
@@ -242,19 +166,6 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::vector<uint32> Spells;
-        };
-
-        struct SandboxScalingData
-        {
-            uint32 Type = 0;
-            int16 PlayerLevelDelta = 0;
-            uint16 PlayerItemLevel = 0;
-            uint8 TargetLevel = 0;
-            uint8 Expansion = 0;
-            uint8 Class = 1;
-            uint8 TargetMinScalingLevel = 1;
-            uint8 TargetMaxScalingLevel = 1;
-            int8 TargetScalingLevelDelta = 1;
         };
 
         struct AuraDataInfo
@@ -762,7 +673,35 @@ namespace WorldPackets
             int32 SpellVisualID = 0;
         };
 
-        class TC_GAME_API PlaySpellVisual final : public ServerPacket
+        class CancelSpellVisualKit final : public ServerPacket
+        {
+        public:
+            CancelSpellVisualKit() : ServerPacket(SMSG_CANCEL_SPELL_VISUAL_KIT, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Source;
+            int32 SpellVisualKitID = 0;
+        };
+
+        class PlayOrphanSpellVisual final : public ServerPacket
+        {
+        public:
+            PlayOrphanSpellVisual() : ServerPacket(SMSG_PLAY_ORPHAN_SPELL_VISUAL, 16 + 3 * 4 + 4 + 1 + 4 + 3 * 4 + 3 * 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target; // Exclusive with TargetLocation
+            TaggedPosition<Position::XYZ> SourceLocation;
+            int32 SpellVisualID = 0;
+            bool SpeedAsTime = false;
+            float TravelSpeed = 0.0f;
+            float UnkZero = 0.0f; // Always zero
+            TaggedPosition<Position::XYZ> SourceRotation; // Vector of rotations, Orientation is z
+            TaggedPosition<Position::XYZ> TargetLocation; // Exclusive with Target
+        };
+
+        class PlaySpellVisual final : public ServerPacket
         {
         public:
             PlaySpellVisual() : ServerPacket(SMSG_PLAY_SPELL_VISUAL, 16 + 16 + 2 + 4 + 1 + 2 + 4 + 4 * 4) { }
@@ -770,13 +709,13 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Source;
-            ObjectGuid Target;
+            ObjectGuid Target; // Exclusive with TargetPosition
             uint16 MissReason = 0;
             uint32 SpellVisualID = 0;
             bool SpeedAsTime = false;
             uint16 ReflectStatus = 0;
             float TravelSpeed = 0.0f;
-            G3D::Vector3 TargetPostion;
+            TaggedPosition<Position::XYZ> TargetPosition; // Exclusive with Target
             float Orientation = 0.0f;
         };
 
@@ -963,7 +902,7 @@ namespace WorldPackets
             ObjectGuid Target;
             int32 SpellID = 0;
             ObjectGuid CastID;
-            G3D::Vector3 CollisionPos;
+            TaggedPosition<Position::XYZ> CollisionPos;
         };
 
         class NotifyMissileTrajectoryCollision final : public ServerPacket
@@ -975,7 +914,7 @@ namespace WorldPackets
 
             ObjectGuid Caster;
             ObjectGuid CastID;
-            G3D::Vector3 CollisionPos;
+            TaggedPosition<Position::XYZ> CollisionPos;
         };
 
         class UpdateMissileTrajectory final : public ClientPacket
@@ -990,8 +929,8 @@ namespace WorldPackets
             int32 SpellID = 0;
             float Pitch = 0.0f;
             float Speed = 0.0f;
-            G3D::Vector3 FirePos;
-            G3D::Vector3 ImpactPos;
+            TaggedPosition<Position::XYZ> FirePos;
+            TaggedPosition<Position::XYZ> ImpactPos;
             Optional<MovementInfo> Status;
         };
 
@@ -1033,6 +972,5 @@ namespace WorldPackets
 }
 
 ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellCastRequest& request);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SandboxScalingData const& sandboxScalingData);
 
 #endif // SpellPackets_h__

@@ -23,6 +23,9 @@ SDComment: Find a way to start the intro, best code for the intro
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 

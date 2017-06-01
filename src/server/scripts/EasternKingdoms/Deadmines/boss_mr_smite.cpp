@@ -22,8 +22,11 @@ SDComment: Timers and say taken from acid script
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "deadmines.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Spels
 {
@@ -45,7 +48,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_mr_smiteAI>(creature);
+        return GetDeadminesAI<boss_mr_smiteAI>(creature);
     }
 
     struct boss_mr_smiteAI : public ScriptedAI

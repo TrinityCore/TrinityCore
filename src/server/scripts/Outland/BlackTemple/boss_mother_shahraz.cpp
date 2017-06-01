@@ -23,8 +23,9 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Texts
 {

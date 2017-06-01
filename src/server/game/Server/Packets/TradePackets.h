@@ -18,7 +18,10 @@
 #ifndef TradePackets_h__
 #define TradePackets_h__
 
-#include "ItemPackets.h"
+#include "Packet.h"
+#include "ItemPacketsCommon.h"
+#include "ObjectGuid.h"
+#include "SharedDefines.h"
 
 namespace WorldPackets
 {
