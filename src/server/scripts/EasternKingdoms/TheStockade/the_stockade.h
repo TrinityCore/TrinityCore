@@ -18,6 +18,8 @@
 #ifndef THE_STOCKADE_H
 #define THE_STOCKADE_H
 
+#include "CreatureAIImpl.h"
+
 #define StormwindStockadeScriptName "instance_the_stockade"
 #define DataHeader "SS"
 
@@ -39,14 +41,10 @@ enum SSCreatureIds
     NPC_MORTIMER_MOLOCH  = 46482
 };
 
-template<class AI>
-CreatureAI* GetStormwindStockadeAI(Creature* creature)
+template<typename AI>
+inline AI* GetStormwindStockadeAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(StormwindStockadeScriptName))
-                return new AI(creature);
-    return nullptr;
+    return GetInstanceAI<AI>(creature, StormwindStockadeScriptName);
 }
 
 #endif

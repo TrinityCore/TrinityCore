@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 #include "the_stockade.h"
 
 enum Says
