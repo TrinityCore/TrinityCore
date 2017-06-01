@@ -196,6 +196,7 @@ enum MovePoints
     POINT_RAZORSCALE_FLIGHT_2,
     POINT_RAZORSCALE_LAND,
     POINT_RAZORSCALE_GROUND,
+    POINT_START_WAYPOINT,
 };
 
 enum EngineersSplineMovements
@@ -275,7 +276,7 @@ const uint32 SummonMinionsSpells[4] =
     SPELL_TRIGGER_SUMMON_IRON_VRYKUL
 };
 
-uint32 const pathSize = 12;
+uint32 const pathSize = 11;
 G3D::Vector3 const RazorscalePath[pathSize] =
 {
     { 657.0227f, -361.1278f, 519.5406f },
@@ -288,8 +289,7 @@ G3D::Vector3 const RazorscalePath[pathSize] =
     { 597.4018f, -233.7745f, 526.6508f },
     { 577.5307f, -275.4489f, 528.1241f },
     { 583.1092f, -319.5873f, 527.9302f },
-    { 611.5800f, -353.1930f, 526.2653f },
-    { 655.9925f, -361.4667f, 519.8187f }
+    { 611.5800f, -353.1930f, 526.2653f }
 };
 
 const Position RazorFlightPosition       = { 585.3610f, -173.5592f, 456.8430f, 1.526665f };
@@ -320,6 +320,7 @@ public:
             _permaGround = false;
             _flyCount = 0;
             me->SetCanFly(true);
+            me->SetDisableGravity(true);
             me->SetControlled(false, UNIT_STATE_ROOT);
         }
 
@@ -333,7 +334,7 @@ public:
             if (Is25ManRaid())
                 me->SummonCreatureGroup(RAZORSCALE_FIRE_STATE_25_GROUP);
 
-            HandleInitialMovement();
+            me->GetMotionMaster()->MovePoint(POINT_START_WAYPOINT, RazorscalePath[0]);
         }
 
 <<<<<<< HEAD
@@ -353,6 +354,7 @@ public:
 =======
         void HandleInitialMovement()
         {
+            me->StopMoving();
             Movement::PointsArray path(RazorscalePath, RazorscalePath + pathSize);
             Movement::MoveSplineInit init(me);
             init.MovebyPath(path, 0);
@@ -531,6 +533,9 @@ public:
                     ChangeOrientation(RazorscaleLand.GetOrientation());
                     events.ScheduleEvent(EVENT_LAND, Milliseconds(1));
                     break;
+                case POINT_START_WAYPOINT:
+                    HandleInitialMovement();
+                    break;
                 default:
                     break;
             }
@@ -595,6 +600,7 @@ public:
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             summons.DespawnAll();
             HandleMusic(false);
+            _EnterEvadeMode();
             _DespawnAtEvade();
         }
 
@@ -683,10 +689,12 @@ public:
                     case EVENT_FLAME_BREATH:
                         me->SetControlled(false, UNIT_STATE_ROOT);
                         me->RemoveAurasDueToSpell(SPELL_STUN_SELF);
+                        Talk(EMOTE_BREATH, me);
                         DoCastVictim(SPELL_FLAME_BREATH);
                         events.ScheduleEvent(EVENT_WING_BUFFET, Seconds(2), 0, PHASE_GROUND);
                         break;
                     case EVENT_FLAME_BREATH_GROUND:
+                        Talk(EMOTE_BREATH, me);
                         DoCastVictim(SPELL_FLAME_BREATH);
                         events.Repeat(Seconds(15), Seconds(18));
                         break;
@@ -1119,6 +1127,9 @@ public:
 
         void DoAction(int32 actionId) override
         {
+            if (!me->IsAlive())
+                return;
+
             if (actionId == ACTION_START_FIGHT)
             {
                 _canUpdateAI = true;
@@ -1732,6 +1743,10 @@ public:
         void Reset() override
         {
             me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+            {
+                me->UseDoorOrButton();
+            });
             _scheduler.Schedule(Seconds(10), [this](TaskContext /*context*/)
             {
                 me->Delete();
@@ -1764,12 +1779,6 @@ public:
     {
         PrepareSpellScript(spell_razorscale_flame_breath_SpellScript);
 
-        void HandleEmote()
-        {
-            if (Creature* razorscale = GetCaster()->ToCreature())
-                razorscale->AI()->Talk(EMOTE_BREATH, razorscale);
-        }
-
         void CheckDamage()
         {
             Creature* target = GetHitCreature();
@@ -1795,7 +1804,6 @@ public:
 
         void Register() override
         {
-            BeforeCast += SpellCastFn(spell_razorscale_flame_breath_SpellScript::HandleEmote);
             OnHit += SpellHitFn(spell_razorscale_flame_breath_SpellScript::CheckDamage);
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_razorscale_flame_breath_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CONE_ENTRY);
         }
