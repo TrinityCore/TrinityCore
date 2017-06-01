@@ -46,7 +46,7 @@ class TC_GAME_API GameObjectAI
         virtual void SetGUID(uint64 /*guid*/, int32 /*id = 0 */) { }
         virtual uint64 GetGUID(int32 /*id = 0 */) const { return 0; }
 
-        static int Permissible(GameObject const* go);
+        static int32 Permissible(GameObject const* /*go*/);
 
         // Called when a player opens a gossip dialog with the gameobject.
         virtual bool GossipHello(Player* /*player*/, bool /*reportUse*/) { return false; }
@@ -88,6 +88,6 @@ class TC_GAME_API NullGameObjectAI : public GameObjectAI
 
         void UpdateAI(uint32 /*diff*/) override { }
 
-        static int Permissible(GameObject const* /*go*/);
+        static int32 Permissible(GameObject const* /*go*/);
 };
 #endif

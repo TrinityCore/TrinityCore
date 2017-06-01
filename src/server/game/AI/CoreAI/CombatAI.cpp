@@ -32,7 +32,7 @@
 // AggressorAI
 /////////////////
 
-int AggressorAI::Permissible(const Creature* creature)
+int32 AggressorAI::Permissible(Creature const* creature)
 {
     // have some hostile factions, it will be selected by IsHostileTo check at MoveInLineOfSight
     if (!creature->IsCivilian() && !creature->IsNeutralToAll())
@@ -343,4 +343,12 @@ void VehicleAI::CheckConditions(uint32 diff)
     }
     else
         m_ConditionsTimer -= diff;
+}
+
+int32 VehicleAI::Permissible(Creature const* creature)
+{
+    if (creature->IsVehicle())
+        return PERMIT_BASE_SPECIAL;
+
+    return PERMIT_BASE_NO;
 }

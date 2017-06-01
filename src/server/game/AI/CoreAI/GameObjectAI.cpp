@@ -20,11 +20,8 @@
 #include "GameObject.h"
 #include "QuestDef.h"
 
-//GameObjectAI::GameObjectAI(GameObject* g) : go(g) { }
-int GameObjectAI::Permissible(const GameObject* go)
+int32 GameObjectAI::Permissible(GameObject const* /*go*/)
 {
-    if (go->GetAIName() == "GameObjectAI")
-        return PERMIT_BASE_SPECIAL;
     return PERMIT_BASE_NO;
 }
 
@@ -35,7 +32,7 @@ uint32 GameObjectAI::GetDialogStatus(Player* /*player*/)
 
 NullGameObjectAI::NullGameObjectAI(GameObject* g) : GameObjectAI(g) { }
 
-int NullGameObjectAI::Permissible(GameObject const* /*go*/)
+int32 NullGameObjectAI::Permissible(GameObject const* /*go*/)
 {
     return PERMIT_BASE_IDLE;
 }

@@ -158,7 +158,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         ObjectGuid GetGUID(int32 id = 0) const override;
 
         //core related
-        static int Permissible(const Creature*);
+        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 
         // Called at movepoint reached
         void MovepointReached(uint32 id);
@@ -258,7 +258,7 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void InitializeAI() override;
         void Reset() override;
         SmartScript* GetScript() { return &mScript; }
-        static int Permissible(const GameObject* g);
+        static int32 Permissible(GameObject const* /*go*/) { return PERMIT_BASE_NO; }
 
         bool GossipHello(Player* player, bool reportUse) override;
         bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
