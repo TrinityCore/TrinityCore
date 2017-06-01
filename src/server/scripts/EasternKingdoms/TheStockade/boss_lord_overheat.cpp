@@ -35,8 +35,8 @@ enum Events
 
 enum Says
 {
-    SAY_PULL, //Yell: ALL MUST BURN!
-    SAY_DEATH, //Yell: FIRE... EXTINGUISHED!
+    SAY_PULL  = 0, //Yell: ALL MUST BURN!
+    SAY_DEATH = 1  //Yell: FIRE... EXTINGUISHED!
 };
 
 class boss_lord_overheat : public CreatureScript
