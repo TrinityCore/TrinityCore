@@ -2727,8 +2727,7 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
 
     // this effect use before aura Taunt apply for prevent taunt already attacking target
     // for spell as marked "non effective at already attacking target"
-    if (!unitTarget || !unitTarget->CanHaveThreatList()
-        || unitTarget->GetVictim() == m_caster)
+    if (!unitTarget->CanHaveThreatList() || unitTarget->GetVictim() == m_caster)
     {
         SendCastResult(SPELL_FAILED_DONT_REPORT);
         return;
