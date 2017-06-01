@@ -40,8 +40,8 @@ UPDATE `smart_scripts` SET `event_chance`=25, `action_param3`=1, `target_type`=2
 
 -- Blackrock Spy Text
 SET @ENTRY := 49874;
-DELETE FROM `creature_text` WHERE `entry`=@ENTRY;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
+DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
 (@ENTRY, 0, 0, 'Orc KILL $r!', 12, 0, 100, 0, 0, 0, 0, 'Blackrock Spy'),
 (@ENTRY, 0, 1, 'Blackrock take forest!', 12, 0, 100, 0, 0, 0, 0, 'Blackrock Spy'),
 (@ENTRY, 0, 2, 'The grapes were VERY TASTY!', 12, 0, 100, 0, 0, 0, 0, 'Blackrock Spy'),
@@ -56,8 +56,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 -- Blackrock Invader Text
 SET @ENTRY := 42937;
-DELETE FROM `creature_text` WHERE `entry`=@ENTRY;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
+DELETE FROM `creature_text` WHERE `CreatureID`=@ENTRY;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
 (@ENTRY, 0, 0, 'Orc KILL $r!', 12, 0, 100, 0, 0, 0, 0, 'Blackrock Invader'),
 (@ENTRY, 0, 1, 'Blackrock take forest!', 12, 0, 100, 0, 0, 0, 0, 'Blackrock Invader'),
 (@ENTRY, 0, 2, 'The grapes were VERY TASTY!', 12, 0, 100, 0, 0, 0, 0, 'Blackrock Invader'),
