@@ -85,8 +85,6 @@ public:
             BossAI::JustSummoned(summon);
             if (summon->GetEntry() == NPC_WARDEN_THELWATER)
                 summon->GetMotionMaster()->MovePoint(POINT_FINISH, wardenthelwatermovepos);
-
-            summons.Summon(summon);
         }
 
         void UpdateAI(uint32 diff) override
