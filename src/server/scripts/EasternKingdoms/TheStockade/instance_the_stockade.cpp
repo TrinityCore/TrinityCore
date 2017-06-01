@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "the_stockade.h"
 
 class instance_the_stockade : public InstanceMapScript
@@ -31,37 +32,12 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
         }
-
-        void OnCreatureCreate(Creature* creature) override
-        {
-            switch (creature->GetEntry())
-            {
-                case NPC_RANDOLPH_MOLOCH:
-                    RandolphMolochGuid = creature->GetGUID();
-                    break;
-                case NPC_LORD_OVERHEAT:
-                    LordOverheatGuid = creature->GetGUID();
-                    break;
-                case NPC_HOGGER:
-                    HoggerGUID = creature->GetGUID();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-    protected:
-        EventMap events;
-        ObjectGuid RandolphMolochGuid;
-        ObjectGuid LordOverheatGuid;
-        ObjectGuid HoggerGUID;
-};
+    };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
         return new instance_the_stockade_InstanceMapScript(map);
     }
-
 };
 
 void AddSC_instance_the_stockade()

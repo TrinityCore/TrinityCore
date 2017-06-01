@@ -16,15 +16,16 @@
  */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "the_stockade.h"
 
 enum Spells
 {
-    SPELL_WILDLY_STABBING = 86726,
-    SPELL_SWEEP           = 86729,
-    SPELL_VANISH          = 55964,
-    SPELL_SHADOWSTEP      = 55966
+    SPELL_WILDLY_STABBING           = 86726,
+    SPELL_SWEEP                     = 86729,
+    SPELL_VANISH                    = 55964,
+    SPELL_SHADOWSTEP                = 55966
 };
 
 enum Events
@@ -41,17 +42,17 @@ enum Events
 
 enum Says
 {
-    SAY_PULL   = 0, //Allow me to introduce myself. I am Randolph Moloch and I will be killing you all today.
-    SAY_VANISH = 1, // Area Trigger: %s vanishes!
-    SAY_DEATH  = 2, //My epic schemes, my great plans! Gone!
+    SAY_PULL                = 0, //Allow me to introduce myself. I am Randolph Moloch and I will be killing you all today.
+    SAY_VANISH              = 1, // Area Trigger: %s vanishes!
+    SAY_DEATH               = 2, //My epic schemes, my great plans! Gone!
 
-    MORTIMER_MOLOCH_EMOTE = 0, // %s collapses from a heart attack!
-    MORTIMER_MOLOCH_DEATH = 1, //Egad! My sophisticated heart!
+    MORTIMER_MOLOCH_DEATH   = 0, // %s collapses from a heart attack!
+    MORTIMER_MOLOCH_EMOTE   = 1, //Egad! My sophisticated heart!
 };
 
 enum Points
 {
-    POINT_FINISH =0,
+    POINT_FINISH = 0,
 };
 
 Position const mortimerMolochPos = { 145.5811f, 0.7059f, -25.606f, 6.2f };
@@ -63,11 +64,8 @@ public:
 
     struct boss_randolph_molochAI : public BossAI
     {
-        boss_randolph_molochAI(Creature* creature) : BossAI(creature, DATA_RANDOLPH_MOLOCH) {}
-
-        void Reset() override
+        boss_randolph_molochAI(Creature* creature) : BossAI(creature, DATA_RANDOLPH_MOLOCH)
         {
-            _Reset();
             firstVanish = false;
             secondVanish = false;
         }
@@ -76,18 +74,18 @@ public:
         {
             _EnterCombat();
             Talk(SAY_PULL);
-            events.ScheduleEvent(EVENT_WILDLY_STABBING, randtime(Seconds(4), Seconds(5)));
-            events.ScheduleEvent(EVENT_SWEEP, randtime(Seconds(2), Seconds(3)));
+            events.ScheduleEvent(EVENT_WILDLY_STABBING, Seconds(4), Seconds(5));
+            events.ScheduleEvent(EVENT_SWEEP, Seconds(2), Seconds(3));
         }
 
         void JustSummoned(Creature* summon) override
         {
             BossAI::JustSummoned(summon);
             if (summon->GetEntry() == NPC_MORTIMER_MOLOCH)
+            {
+                summon->SetWalk(true);
                 summon->GetMotionMaster()->MovePoint(POINT_FINISH, me->GetPosition());
-
-            summons.Summon(summon);
-
+            }
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -111,52 +109,52 @@ public:
             {
                 switch (eventId)
                 {
-                    case EVENT_WILDLY_STABBING:
-                        DoCastVictim(SPELL_WILDLY_STABBING);
-                        events.Repeat(randtime(Seconds(8), Seconds(12)));
-                        break;
-                    case EVENT_SWEEP:
-                        DoCastVictim(SPELL_SWEEP);
-                        events.ScheduleEvent(EVENT_SWEEP, randtime(Seconds(6), Seconds(7)));
-                        break;
-                    case EVENT_VANISH:
-                        Talk(SAY_VANISH);                    
-                        me->RemoveAllAuras();
-                        DoCastSelf(SPELL_VANISH);
-                        me->SetReactState(REACT_PASSIVE);
-                        me->SetInCombatState(true); // Prevents the boss from resetting
-                        events.ScheduleEvent(EVENT_JUST_VANISHED, Seconds(2));
-                        break;
-                    case EVENT_JUST_VANISHED:                    
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                            DoCast(target, SPELL_SHADOWSTEP,true);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        break;
-                    default:
-                        break;
+                case EVENT_WILDLY_STABBING:
+                    DoCastVictim(SPELL_WILDLY_STABBING);
+                    events.Repeat(Seconds(8), Seconds(12));
+                    break;
+                case EVENT_SWEEP:
+                    DoCastVictim(SPELL_SWEEP);
+                    events.ScheduleEvent(EVENT_SWEEP, Seconds(6), Seconds(7));
+                    break;
+                case EVENT_VANISH:
+                    Talk(SAY_VANISH);
+                    me->RemoveAllAuras();
+                    DoCastSelf(SPELL_VANISH);
+                    me->SetReactState(REACT_PASSIVE);
+                    me->SetInCombatState(true); // Prevents the boss from resetting
+                    events.ScheduleEvent(EVENT_JUST_VANISHED, Seconds(2));
+                    break;
+                case EVENT_JUST_VANISHED:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        DoCast(target, SPELL_SHADOWSTEP, true);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                default:
+                    break;
                 }
             }
 
             DoMeleeAttackIfReady();
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
         {
-            if (me->HealthBelowPct(71) && me->HealthAbovePct(59) && !firstVanish)
+            if (me->HealthBelowPctDamaged(71, damage) && me->HealthAbovePct(59) && !firstVanish)
             {
                 firstVanish = true;
                 events.ScheduleEvent(EVENT_VANISH, Seconds(1));
-            }	
+            }
 
-            if (me->HealthBelowPct(41) && me->HealthAbovePct(29) && !secondVanish)
+            if (me->HealthBelowPctDamaged(41, damage) && me->HealthAbovePct(29) && !secondVanish)
             {
                 secondVanish = true;
                 events.ScheduleEvent(EVENT_VANISH, Seconds(1));
             }
         }
 
-        private:
-            bool firstVanish,secondVanish;
+    private:
+        bool firstVanish, secondVanish;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -182,46 +180,35 @@ public:
         void MovementInform(uint32 type, uint32 id) override
         {
             if (type == POINT_MOTION_TYPE)
+                if(id == POINT_FINISH)
+                    _events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_EMOTE, Seconds(4));
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                switch (id)
+                switch (eventId)
                 {
-                case POINT_FINISH:
-                    events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_EMOTE, Seconds(1));
+                case EVENT_MORTIMER_MOLOCH_EMOTE:
+                    Talk(MORTIMER_MOLOCH_EMOTE);
+                    _events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_DEATH, Seconds(3));
+                    break;
+                case EVENT_MORTIMER_MOLOCH_DEATH:
+                    Talk(MORTIMER_MOLOCH_DEATH);
+                    me->KillSelf();
+                    break;
+                default:
                     break;
                 }
             }
         }
 
-        void JustRespawned() override
-        {
-            ScriptedAI::Reset();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_MORTIMER_MOLOCH_EMOTE:
-                        Talk(MORTIMER_MOLOCH_EMOTE);
-                        events.ScheduleEvent(EVENT_MORTIMER_MOLOCH_DEATH, 100);
-                        break;
-                    case EVENT_MORTIMER_MOLOCH_DEATH:
-                        Talk(MORTIMER_MOLOCH_DEATH);
-                        me->setDeathState(DEAD);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
     private:
-        EventMap events;
-};
+        EventMap _events;
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {

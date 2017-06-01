@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2017-2017 SharpCore <http://emusharpers.tk>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +18,8 @@
 #ifndef THE_STOCKADE_H
 #define THE_STOCKADE_H
 
+#include "CreatureAIImpl.h"
+
 #define StormwindStockadeScriptName "instance_the_stockade"
 #define DataHeader "SS"
 
@@ -33,21 +34,17 @@ enum SSDataTypes
 
 enum SSCreatureIds
 {
-    NPC_RANDOLPH_MOLOCH = 46383,
-    NPC_LORD_OVERHEAT = 46264,
-    NPC_HOGGER = 46254,
+    NPC_RANDOLPH_MOLOCH  = 46383,
+    NPC_LORD_OVERHEAT    = 46264,
+    NPC_HOGGER           = 46254,
     NPC_WARDEN_THELWATER = 46409,
-    NPC_MORTIMER_MOLOCH = 46482
+    NPC_MORTIMER_MOLOCH  = 46482
 };
 
-template<class AI>
-CreatureAI* GetStormwindStockadeAI(Creature* creature)
+template<typename AI>
+inline AI* GetStormwindStockadeAI(Creature* creature)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(StormwindStockadeScriptName))
-                return new AI(creature);
-    return NULL;
+    return GetInstanceAI<AI>(creature, StormwindStockadeScriptName);
 }
 
 #endif
