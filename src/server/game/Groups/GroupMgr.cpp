@@ -203,10 +203,13 @@ void GroupMgr::LoadGroups()
     TC_LOG_INFO("server.loading", "Loading Group instance saves...");
     {
         uint32 oldMSTime = getMSTime();
-        //                                                   0           1        2              3             4             5           6              7
-        QueryResult result = CharacterDatabase.Query("SELECT gi.guid, i.map, gi.instance, gi.permanent, i.difficulty, i.resettime, i.entranceId, COUNT(g.guid) "
-            "FROM group_instance gi INNER JOIN instance i ON gi.instance = i.id "
-            "LEFT JOIN character_instance ci LEFT JOIN `groups` g ON g.leaderGuid = ci.guid ON ci.instance = gi.instance AND ci.permanent = 1 GROUP BY gi.instance ORDER BY gi.guid");
+
+        //                                                   0        1      2            3             4             5            6
+        QueryResult result = CharacterDatabase.Query("SELECT gi.guid, i.map, gi.instance, gi.permanent, i.difficulty, i.resettime, i.entranceId, "
+            //           7
+            "(SELECT COUNT(1) FROM character_instance ci LEFT JOIN groups g ON ci.guid = g.leaderGuid WHERE ci.instance = gi.instance AND ci.permanent = 1 LIMIT 1) "
+            "FROM group_instance gi LEFT JOIN instance i ON gi.instance = i.id ORDER BY guid");
+
         if (!result)
         {
             TC_LOG_INFO("server.loading", ">> Loaded 0 group-instance saves. DB table `group_instance` is empty!");
