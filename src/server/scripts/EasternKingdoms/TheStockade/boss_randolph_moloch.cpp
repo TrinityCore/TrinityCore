@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "the_stockade.h"
 
@@ -85,8 +86,6 @@ public:
                 summon->SetWalk(true);
                 summon->GetMotionMaster()->MovePoint(POINT_FINISH, me->GetPosition());
             }
-
-            summons.Summon(summon);
         }
 
         void JustDied(Unit* /*killer*/) override
