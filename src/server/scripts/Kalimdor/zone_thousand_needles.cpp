@@ -69,10 +69,12 @@ public:
                 case 0:
                     Talk(SAY_KAN_START);
                     DoSpawnGalak();
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                     break;
                 case 1:
                     if (Player* player = GetPlayerForEscort())
                         player->GroupEventHappens(QUEST_PROTECT_KANATI, me);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                     break;
             }
         }
