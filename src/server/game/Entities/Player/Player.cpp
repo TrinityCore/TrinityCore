@@ -22572,7 +22572,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
     data.AppendPackedTime(GameTime::GetGameTime());
-    data << float(0.01666667f);                             // game speed
+    data << float(0.01666667f * sWorld->getFloatConfig(CONFIG_GAMETIME_SCALE));                          // game speed
     data << uint32(0);                                      // added in 3.1.2
     GetSession()->SendPacket(&data);
 
