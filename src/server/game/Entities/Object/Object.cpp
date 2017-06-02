@@ -1000,7 +1000,7 @@ void MovementInfo::OutDebug()
 
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
 m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(NULL),
-m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
+m_transport(NULL), m_zoneId(0), m_areaId(0), m_currMap(NULL), m_InstanceId(0),
 m_phaseMask(PHASEMASK_NORMAL), m_notifyflags(0), m_executed_notifies(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
@@ -1074,6 +1074,27 @@ void WorldObject::_Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32
     m_phaseMask = phaseMask;
 }
 
+void WorldObject::UpdatePositionData()
+{
+    PositionFullTerrainStatus data;
+    GetMap()->GetFullTerrainStatusForPosition(GetPositionX(), GetPositionY(), GetPositionZ(), data);
+    ProcessPositionDataChanged(data);
+}
+
+void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
+{
+    m_zoneId = m_areaId = data.areaId;
+    if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_areaId))
+        if (area->zone)
+            m_zoneId = area->zone;
+}
+
+void WorldObject::AddToWorld()
+{
+    Object::AddToWorld();
+    GetBaseMap()->GetZoneAndAreaId(m_zoneId, m_areaId, GetPositionX(), GetPositionY(), GetPositionZ());
+}
+
 void WorldObject::RemoveFromWorld()
 {
     if (!IsInWorld())
@@ -1082,21 +1103,6 @@ void WorldObject::RemoveFromWorld()
     DestroyForNearbyPlayers();
 
     Object::RemoveFromWorld();
-}
-
-uint32 WorldObject::GetZoneId() const
-{
-    return GetBaseMap()->GetZoneId(m_positionX, m_positionY, m_positionZ);
-}
-
-uint32 WorldObject::GetAreaId() const
-{
-    return GetBaseMap()->GetAreaId(m_positionX, m_positionY, m_positionZ);
-}
-
-void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
-{
-    GetBaseMap()->GetZoneAndAreaId(zoneid, areaid, m_positionX, m_positionY, m_positionZ);
 }
 
 InstanceScript* WorldObject::GetInstanceScript()
@@ -2290,7 +2296,7 @@ float NormalizeZforCollision(WorldObject* obj, float x, float y, float z)
                 return z;
         }
         LiquidData liquid_status;
-        ZLiquidStatus res = obj->GetMap()->getLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquid_status);
+        ZLiquidStatus res = obj->GetMap()->GetLiquidStatus(x, y, z, MAP_ALL_LIQUIDS, &liquid_status);
         if (res && liquid_status.level > helper) // water must be above ground
         {
             if (liquid_status.level > z) // z is underwater
