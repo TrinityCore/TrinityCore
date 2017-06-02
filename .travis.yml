@@ -21,6 +21,7 @@ before_install:
   - export CC=clang-3.9 CXX=clang++-3.9
 
 install:
+  - git submodule add https://github.com/KiaArmani/Solocraft.git src/server/scripts/Custom/Solocraft
   - mysql -uroot -e 'create database test_mysql;'
   - mkdir bin
   - cd bin
