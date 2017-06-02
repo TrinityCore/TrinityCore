@@ -5637,6 +5637,15 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 if (m_caster->IsInDisallowedMountForm())
                     return SPELL_FAILED_NOT_SHAPESHIFT;
+                
+                Unit::AuraEffectList const& auras = m_caster->GetAuraEffectsByType(SPELL_AURA_TRANSFORM);
+                if (!auras.empty())
+                    for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); i++)
+                        if (!((*i)->GetBase()->HasEffectType(SPELL_AURA_DUMMY)) && !((*i)->GetSpellInfo()->Attributes & SPELL_ATTR0_CANT_CANCEL))
+                        {
+                            m_customError = SPELL_CUSTOM_ERROR_CANT_MOUNT_WITH_SHAPESHIFT;
+                            return SPELL_FAILED_CUSTOM_ERROR;
+                        }
 
                 break;
             }
