@@ -1284,8 +1284,8 @@ DROP TABLE IF EXISTS `gossip_menu`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gossip_menu` (
-  `entry` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `text_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `MenuID` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `TextID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
   PRIMARY KEY (`entry`,`text_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
