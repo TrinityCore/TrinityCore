@@ -15,32 +15,36 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "Map.h"
-#include "the_stockade.h"
+#ifndef THE_STOCKADE_H
+#define THE_STOCKADE_H
 
-class instance_the_stockade : public InstanceMapScript
+#include "CreatureAIImpl.h"
+
+#define StormwindStockadeScriptName "instance_the_stockade"
+#define DataHeader "SS"
+
+uint32 const EncounterCount = 3;
+
+enum SSDataTypes
 {
-public:
-    instance_the_stockade() : InstanceMapScript("instance_the_stockade", 34) { }
-
-    struct instance_the_stockade_InstanceMapScript : public InstanceScript
-    {
-        instance_the_stockade_InstanceMapScript(Map* map) : InstanceScript(map)
-        {
-            SetHeaders(DataHeader);
-            SetBossNumber(EncounterCount);
-        }
-    };
-
-    InstanceScript* GetInstanceScript(InstanceMap* map) const override
-    {
-        return new instance_the_stockade_InstanceMapScript(map);
-    }
+    DATA_RANDOLPH_MOLOCH = 0,
+    DATA_LORD_OVERHEAT   = 1,
+    DATA_HOGGER          = 2
 };
 
-void AddSC_instance_the_stockade()
+enum SSCreatureIds
 {
-    new instance_the_stockade();
+    NPC_RANDOLPH_MOLOCH  = 46383,
+    NPC_LORD_OVERHEAT    = 46264,
+    NPC_HOGGER           = 46254,
+    NPC_WARDEN_THELWATER = 46409,
+    NPC_MORTIMER_MOLOCH  = 46482
+};
+
+template<typename AI>
+inline AI* GetStormwindStockadeAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, StormwindStockadeScriptName);
 }
+
+#endif
