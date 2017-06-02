@@ -1,6 +1,6 @@
 -- Frozen Mountaineer
 SET @ENTRY := 41763;
-UPDATE `creature_template SET ='npc_frozen_mountaineer' WHERE `entry`=@ENTRY;
+UPDATE `creature_template` SET ='npc_frozen_mountaineer' WHERE `entry`=@ENTRY;
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_text` WHERE `entry`=@ENTRY;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `BroadcastTextId`, `comment`) VALUES
