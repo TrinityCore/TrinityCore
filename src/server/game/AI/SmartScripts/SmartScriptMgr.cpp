@@ -519,9 +519,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_UPDATE_IC:
             case SMART_EVENT_UPDATE_OOC:
             case SMART_EVENT_HEALT_PCT:
-            case SMART_EVENT_MANA_PCT:
+            case SMART_EVENT_POWER_PCT:
             case SMART_EVENT_TARGET_HEALTH_PCT:
-            case SMART_EVENT_TARGET_MANA_PCT:
+            case SMART_EVENT_TARGET_POWER_PCT:
             case SMART_EVENT_RANGE:
             case SMART_EVENT_DAMAGED:
             case SMART_EVENT_DAMAGED_TARGET:

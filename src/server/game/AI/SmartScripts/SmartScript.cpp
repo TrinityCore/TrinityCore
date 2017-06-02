@@ -2652,9 +2652,9 @@ void SmartScript::InstallTemplate(SmartScriptHolder const& e)
                 AddEvent(SMART_EVENT_UPDATE_IC, 0, 0, 0, e.action.installTtemplate.param2, e.action.installTtemplate.param3, SMART_ACTION_CAST, e.action.installTtemplate.param1, e.target.raw.param1, 0, 0, 0, 0, SMART_TARGET_VICTIM, 0, 0, 0, 1);
                 AddEvent(SMART_EVENT_RANGE, 0, e.action.installTtemplate.param4, 300, 0, 0, SMART_ACTION_ALLOW_COMBAT_MOVEMENT, 1, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 1);
                 AddEvent(SMART_EVENT_RANGE, 0, 0, e.action.installTtemplate.param4>10?e.action.installTtemplate.param4-10:0, 0, 0, SMART_ACTION_ALLOW_COMBAT_MOVEMENT, 0, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 1);
-                AddEvent(SMART_EVENT_MANA_PCT, 0, e.action.installTtemplate.param5-15>100?100:e.action.installTtemplate.param5+15, 100, 1000, 1000, SMART_ACTION_SET_EVENT_PHASE, 1, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 0);
-                AddEvent(SMART_EVENT_MANA_PCT, 0, 0, e.action.installTtemplate.param5, 1000, 1000, SMART_ACTION_SET_EVENT_PHASE, 0, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 0);
-                AddEvent(SMART_EVENT_MANA_PCT, 0, 0, e.action.installTtemplate.param5, 1000, 1000, SMART_ACTION_ALLOW_COMBAT_MOVEMENT, 1, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 0);
+                AddEvent(SMART_EVENT_POWER_PCT, 0, e.action.installTtemplate.param5 - 15>100 ? 100 : e.action.installTtemplate.param5 + 15, 100, 1000, 1000, SMART_ACTION_SET_EVENT_PHASE, 1, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 0);
+                AddEvent(SMART_EVENT_POWER_PCT, 0, 0, e.action.installTtemplate.param5, 1000, 1000, SMART_ACTION_SET_EVENT_PHASE, 0, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 0);
+                AddEvent(SMART_EVENT_POWER_PCT, 0, 0, e.action.installTtemplate.param5, 1000, 1000, SMART_ACTION_ALLOW_COMBAT_MOVEMENT, 1, 0, 0, 0, 0, 0, SMART_TARGET_NONE, 0, 0, 0, 0);
                 break;
             }
         case SMARTAI_TEMPLATE_TURRET:
@@ -3170,21 +3170,21 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
             break;
         }
-        case SMART_EVENT_MANA_PCT:
+        case SMART_EVENT_POWER_PCT:
         {
-            if (!me || !me->IsInCombat() || !me->GetMaxPower(POWER_MANA))
+            if (!me || !me->IsInCombat() || !me->GetMaxPower(me->getPowerType()))
                 return;
-            uint32 perc = uint32(100.0f * me->GetPower(POWER_MANA) / me->GetMaxPower(POWER_MANA));
+            uint32 perc = uint32(100 * me->GetPower(me->getPowerType()) / me->GetMaxPower(me->getPowerType()));
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
                 return;
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax);
             break;
         }
-        case SMART_EVENT_TARGET_MANA_PCT:
+        case SMART_EVENT_TARGET_POWER_PCT:
         {
-            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->EnsureVictim()->GetMaxPower(POWER_MANA))
+            if (!me || !me->IsInCombat() || !me->GetVictim() || !me->EnsureVictim()->GetMaxPower(me->EnsureVictim()->getPowerType()))
                 return;
-            uint32 perc = uint32(100.0f * me->EnsureVictim()->GetPower(POWER_MANA) / me->EnsureVictim()->GetMaxPower(POWER_MANA));
+            uint32 perc = uint32(100 * me->EnsureVictim()->GetPower(me->EnsureVictim()->getPowerType()) / me->EnsureVictim()->GetMaxPower(me->EnsureVictim()->getPowerType()));
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
                 return;
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->GetVictim());
@@ -3754,8 +3754,8 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
             case SMART_EVENT_UPDATE_IC:
             case SMART_EVENT_HEALT_PCT:
             case SMART_EVENT_TARGET_HEALTH_PCT:
-            case SMART_EVENT_MANA_PCT:
-            case SMART_EVENT_TARGET_MANA_PCT:
+            case SMART_EVENT_POWER_PCT:
+            case SMART_EVENT_TARGET_POWER_PCT:
             case SMART_EVENT_RANGE:
             case SMART_EVENT_VICTIM_CASTING:
             case SMART_EVENT_FRIENDLY_HEALTH:
