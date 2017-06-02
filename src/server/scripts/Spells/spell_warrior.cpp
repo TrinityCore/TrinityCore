@@ -21,12 +21,14 @@
  * Scriptnames of files in this file should be prefixed with "spell_warr_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
+#include "Map.h"
 #include "MoveSpline.h"
+#include "PathGenerator.h"
+#include "Player.h"
+#include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
 
 enum WarriorSpells
 {
@@ -322,9 +324,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_HEROIC_LEAP_JUMP))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_WARRIOR_HEROIC_LEAP_JUMP });
         }
 
         SpellCastResult CheckElevation()
@@ -393,12 +393,13 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP) ||
-                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF) ||
-                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_IMPROVED_HEROIC_LEAP) ||
-                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_TAUNT))
-                return false;
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP,
+                SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF,
+                SPELL_WARRIOR_IMPROVED_HEROIC_LEAP,
+                SPELL_WARRIOR_TAUNT
+            });
         }
 
         void AfterJump(SpellEffIndex /*effIndex*/)
@@ -496,9 +497,7 @@ class spell_warr_item_t10_prot_4p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_STOICISM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARRIOR_STOICISM });
             }
 
             void HandleProc(ProcEventInfo& eventInfo)
@@ -534,10 +533,7 @@ class spell_warr_lambs_to_the_slaughter : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_MORTAL_STRIKE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_REND))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARRIOR_MORTAL_STRIKE, SPELL_WARRIOR_REND });
             }
 
             void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -572,9 +568,7 @@ class spell_warr_last_stand : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_LAST_STAND_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARRIOR_LAST_STAND_TRIGGERED });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -647,9 +641,7 @@ class spell_warr_rallying_cry : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_RALLYING_CRY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARRIOR_RALLYING_CRY });
             }
 
             bool Load() override
@@ -726,9 +718,7 @@ class spell_warr_retaliation : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_RETALIATION_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARRIOR_RETALIATION_DAMAGE });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -799,9 +789,7 @@ class spell_warr_slam : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SLAM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARRIOR_SLAM });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -833,12 +821,13 @@ class spell_warr_second_wind_proc : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SECOUND_WIND_PROC_RANK_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SECOUND_WIND_PROC_RANK_2) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_2))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_WARRIOR_SECOUND_WIND_PROC_RANK_1,
+                    SPELL_WARRIOR_SECOUND_WIND_PROC_RANK_2,
+                    SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_1,
+                    SPELL_WARRIOR_SECOUND_WIND_TRIGGER_RANK_2
+                });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1004,9 +993,7 @@ class spell_warr_sudden_death : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_COLOSSUS_SMASH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARRIOR_COLOSSUS_SMASH });
             }
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1047,9 +1034,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1) || !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2 });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1105,9 +1090,7 @@ class spell_warr_sword_and_board : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_SHIELD_SLAM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_SLAM });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -1256,9 +1239,7 @@ class spell_warr_vigilance : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_VENGEANCE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WARRIOR_VENGEANCE });
             }
 
             bool Load() override
