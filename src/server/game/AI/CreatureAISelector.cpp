@@ -28,6 +28,13 @@
 
 namespace FactorySelector
 {
+    template <class T, class Value>
+    inline int32 GetPermitFor(T const* obj, Value const& value)
+    {
+        Permissible<T> const* const p = ASSERT_NOTNULL(dynamic_cast<Permissible<T> const*>(value.second.get()));
+        return p->Permit(obj);
+    }
+
     template <class T>
     struct PermissibleOrderPred
     {
@@ -37,10 +44,7 @@ namespace FactorySelector
         template <class Value>
         bool operator()(Value const& left, Value const& right) const
         {
-            Permissible<T> const* leftPermit = ASSERT_NOTNULL(dynamic_cast<Permissible<T> const*>(left.second.get()));
-            Permissible<T> const* rightPermit = ASSERT_NOTNULL(dynamic_cast<Permissible<T> const*>(right.second.get()));
-
-            return leftPermit->Permit(_obj) < rightPermit->Permit(_obj);
+            return GetPermitFor(_obj, left) < GetPermitFor(_obj, right);
         }
 
     private:
@@ -52,9 +56,8 @@ namespace FactorySelector
         CreatureAICreator const* ai_factory = nullptr;
 
         // scriptname in db
-        if (!ai_factory)
-            if (CreatureAI* scriptedAI = sScriptMgr->GetCreatureAI(creature))
-                return scriptedAI;
+        if (CreatureAI* scriptedAI = sScriptMgr->GetCreatureAI(creature))
+            return scriptedAI;
 
         // AIname in db
         std::string const& aiName = creature->GetAIName();
@@ -66,7 +69,7 @@ namespace FactorySelector
         {
             CreatureAIRegistry::RegistryMapType const& items = sCreatureAIRegistry->GetRegisteredItems();
             auto itr = std::max_element(items.begin(), items.end(), PermissibleOrderPred<Creature>(creature));
-            if (itr != items.end())
+            if (itr != items.end() && GetPermitFor(creature, *itr) >= 0)
                 ai_factory = itr->second.get();
         }
 
@@ -104,7 +107,7 @@ namespace FactorySelector
         {
             GameObjectAIRegistry::RegistryMapType const& items = sGameObjectAIRegistry->GetRegisteredItems();
             auto itr = std::max_element(items.begin(), items.end(), PermissibleOrderPred<GameObject>(go));
-            if (itr != items.end())
+            if (itr != items.end() && GetPermitFor(go, *itr) >= 0)
                 ai_factory = itr->second.get();
         }
 

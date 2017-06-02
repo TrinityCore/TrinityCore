@@ -32,7 +32,6 @@ class FactoryHolder
 
         explicit FactoryHolder(Key const& k) : _key(k) { }
         virtual ~FactoryHolder() { }
-        inline Key GetKey() const { return _key; }
 
         void RegisterSelf() { FactoryHolderRegistry::instance()->InsertItem(this, _key); }
 
