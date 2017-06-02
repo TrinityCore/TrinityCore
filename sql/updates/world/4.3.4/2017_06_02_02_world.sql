@@ -2,7 +2,7 @@
 SET @ENTRY := 41763;
 UPDATE `creature_template` SET `ScriptName` ='npc_frozen_mountaineer' WHERE `entry`=@ENTRY;
 UPDATE `creature_template_addon` SET `auras`='' WHERE `entry`=@ENTRY;
-DELETE from `creature_text` WHERE `CreatureID`=46254;
+DELETE from `creature_text` WHERE `CreatureID`=@ENTRY;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `comment`) VALUES
 (@ENTRY, 0, 0, '%s gasps for air and shivers in the cold.', 16, 0, 100, 20, 0, 0, 41593, 'Frozen Mountaineer');
 
@@ -27,8 +27,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (19, 0, 25997, 0, 0, 8, 0, 25978, 0, 0, 0, 0, 0, '', 'Show quest mark on questgiver for quest Dark Iron Scheming if quest Entombed in Ice has been rewarded.'),
 (19, 0, 25997, 0, 0, 8, 0, 25979, 0, 0, 0, 0, 0, '', 'Show quest mark on questgiver for quest Dark Iron Scheming if quest Dealing with the Surge has been rewarded.');
 
-DELETE FROM `gossip_menu` WHERE `entry`=11682;
-INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES (11682, 16345);
+DELETE FROM `gossip_menu` WHERE `MenuID`=11682;
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`) VALUES (11682, 16345);
 
 -- Pathing for Monann Coldforge Entry: 43384
 SET @NPC := 307073;
