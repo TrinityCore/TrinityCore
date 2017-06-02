@@ -1287,7 +1287,7 @@ CREATE TABLE `gossip_menu` (
   `MenuID` smallint(5) unsigned NOT NULL DEFAULT '0',
   `TextID` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`entry`,`text_id`)
+  PRIMARY KEY (`MenuID`,`TextID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
