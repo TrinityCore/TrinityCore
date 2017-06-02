@@ -43,7 +43,7 @@ public:
         void Reset() override
         {
             _events.Reset();
-	    DoCastSelf(SPELL_SUMMON_FROZEN_TOMB, true);
+            DoCastSelf(SPELL_SUMMON_FROZEN_TOMB, true);
             DoCastSelf(SPELL_FREEZE_ANIM, true);
         }
 
