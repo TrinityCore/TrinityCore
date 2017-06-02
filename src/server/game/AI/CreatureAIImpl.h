@@ -19,6 +19,7 @@
 
 #include "Random.h"
 #include <type_traits>
+#include <functional>
 
 class WorldObject;
 
