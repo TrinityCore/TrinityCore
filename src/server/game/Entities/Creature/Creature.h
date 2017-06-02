@@ -97,10 +97,10 @@ struct TC_GAME_API CreatureTemplate
     uint32  Entry;
     uint32  DifficultyEntry[MAX_DIFFICULTY - 1];
     uint32  KillCredit[MAX_KILL_CREDIT];
-    uint32  Modelid1;
-    uint32  Modelid2;
-    uint32  Modelid3;
-    uint32  Modelid4;
+    int32  Modelid1;
+    int32  Modelid2;
+    int32  Modelid3;
+    int32  Modelid4;
     std::string  Name;
     std::string  Title;
     std::string  IconName;
@@ -155,8 +155,8 @@ struct TC_GAME_API CreatureTemplate
     uint32  flags_extra;
     uint32  ScriptID;
     WorldPacket QueryData[TOTAL_LOCALES];
-    uint32  GetRandomValidModelId() const;
-    uint32  GetFirstValidModelId() const;
+    int32  GetRandomValidModelId() const;
+    int32  GetFirstValidModelId() const;
     uint32  GetFirstInvisibleModel() const;
     uint32  GetFirstVisibleModel() const;
 
@@ -456,6 +456,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void SetObjectScale(float scale) override;
         void SetDisplayId(uint32 modelId) override;
+
+        void SetOutfit(int32 outfit) { outfitId = outfit; };
+        int32 GetOutfit() const { return outfitId; };
 
         void DisappearAndDie();
 
@@ -797,6 +800,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         ObjectGuid m_suppressedTarget; // Stores the creature's "real" target while casting
         float m_suppressedOrientation; // Stores the creature's "real" orientation while casting
 
+        int32 outfitId;
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
 };
