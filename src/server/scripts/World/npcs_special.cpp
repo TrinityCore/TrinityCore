@@ -2534,6 +2534,40 @@ public:
     }
 };
 
+class npc_Spirit_of_Master_Shang_Xi : public CreatureScript
+{
+public:
+	npc_Spirit_of_Master_Shang_Xi() : CreatureScript("npc_Spirit_of_Master_Shang_Xi") { }
+
+	bool OnGossipHello(Player* player, Creature* npc)
+	{
+		if (npc->IsQuestGiver())
+			player->PrepareQuestMenu(npc->GetGUID());
+
+		if (player->getRace() == RACE_PANDAREN_NEUTRAL)
+		{
+			if (player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
+				AddGossipItemFor(player, 0, "I'm ready to decide.", GOSSIP_SENDER_MAIN, 1);
+		}
+
+		SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, npc);
+
+		return true;
+	}
+
+	bool OnGossipSelect(Player* player, Creature* npc, uint32 sender, uint32 uiAction)
+	{
+
+		switch (uiAction)
+			case 1:
+				player->ShowNeutralPlayerFactionSelectUI();
+
+		CloseGossipMenuFor(player);
+		return true;
+
+	}
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -2558,4 +2592,5 @@ void AddSC_npcs_special()
     new npc_imp_in_a_ball();
     new npc_train_wrecker();
     new npc_argent_squire_gruntling();
+	new npc_Spirit_of_Master_Shang_Xi();
 }
