@@ -21,7 +21,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 
-enum HallowsEnd
+enum HallowsEndSpells
 {
     SPELL_HORSEMAN_MOUNT = 48025,
     SPELL_FIRE_AURA_BASE = 42074,
@@ -32,116 +32,40 @@ enum HallowsEnd
     SPELL_SUMMON_LANTERN = 44255,
     SPELL_SMALL_FIRE     = 42091,
     SPELL_BIG_FIRE       = 43148,
-    SPELL_CLEAVE         = 15496,
+    SPELL_CLEAVE         = 15496
+};
 
+enum HallowEndEvents
+{
+    EVENT_BEGIN = 1,
+    EVENT_TALK_INTRO,
+    EVENT_APPLY_FIRE,
+    EVENT_STOP_APPLYING_FIRE,
+    EVENT_FINISH,
+    EVENT_CLEAVE
+};
+
+enum HallowEndSays
+{
+    SAY_START_INTRO = 0,
+    SAY_1           = 1, // unused
+    SAY_2           = 2, // unused
+    SAY_FAIL        = 3,
+    SAY_FLAMES_DOWN = 4,
+    SAY_DEFEATED    = 5
+};
+
+enum HallowEndMisc
+{
     QUEST_LET_THE_FIRES_COME_A = 12135,
     QUEST_LET_THE_FIRES_COME_H = 12139,
     QUEST_STOP_THE_FIRES_A     = 11131,
     QUEST_STOP_THE_FIRES_H     = 11219,
-
-    NPC_SHADE_OF_HORSEMAN = 23543,
-    NPC_FIRE_TRIGGER      = 23537,
-
-    TALK_0 = 0,
-    TALK_3 = 3,
-    TALK_4 = 4,
-    TALK_5 = 5,
-
-    EVENT_BEGIN              = 1,
-    EVENT_TALK_1             = 2,
-    EVENT_APPLY_FIRE         = 3,
-    EVENT_STOP_APPLYING_FIRE = 4,
-    EVENT_FINISH             = 5,
-    EVENT_CLEAVE             = 6
+    NPC_SHADE_OF_HORSEMAN      = 23543,
+    NPC_FIRE_TRIGGER           = 23537,
+    POINT_HORSEMAN_ATTACK       = 1
 };
 
-class spell_hallows_end_bucket_lands : public SpellScriptLoader
-{
-public:
-    spell_hallows_end_bucket_lands() : SpellScriptLoader("spell_hallows_end_bucket_lands") { }
-
-    class spell_hallows_end_bucket_lands_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_hallows_end_bucket_lands_SpellScript);
-
-        bool handled;
-        
-        bool Load() override
-        {
-            handled = false;
-            return true;
-        }
-        
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (handled || !GetCaster())
-                return;
-
-            handled = true;
-            if (Player* target = GetHitPlayer())
-                GetCaster()->CastSpell(target, SPELL_CREATE_BUCKET, true);
-            else if (Unit* tgt = GetHitUnit())
-                GetCaster()->CastSpell(tgt, SPELL_WATER_SPLASH, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_hallows_end_bucket_lands_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_hallows_end_bucket_lands_SpellScript();
-    }
-};
-
-class spell_hallows_end_base_fire : public SpellScriptLoader
-{
-public:
-    spell_hallows_end_base_fire() : SpellScriptLoader("spell_hallows_end_base_fire") { }
-
-    class spell_hallows_end_base_fire_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_hallows_end_base_fire_AuraScript);
-
-        void HandleEffectPeriodicUpdate(AuraEffect* /*aurEff*/)
-        {
-            if (Unit* owner = GetUnitOwner())
-            {
-                if (Aura* aura = owner->GetAura(SPELL_SMALL_FIRE))
-                    if (aura->GetStackAmount() < 20)
-                        owner->CastSpell(owner, SPELL_SMALL_FIRE, true);
-
-                if (Aura* aura = owner->GetAura(SPELL_BIG_FIRE))
-                    if (aura->GetStackAmount() < 20)
-                        owner->CastSpell(owner, SPELL_BIG_FIRE, true);
-            }
-       }
-
-        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* owner = GetUnitOwner())
-            {
-                if (roll_chance_i(50))
-                    owner->SetAuraStack(SPELL_BIG_FIRE, owner, 20);
-                else
-                    owner->SetAuraStack(SPELL_SMALL_FIRE, owner, 20);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_hallows_end_base_fire_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            OnEffectApply += AuraEffectApplyFn(spell_hallows_end_base_fire_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_hallows_end_base_fire_AuraScript();
-    }
-};
 
 class npc_costumed_orphan_matron : public CreatureScript
 {
@@ -154,7 +78,8 @@ public:
 
         void Reset() override
         {
-            _events.ScheduleEvent(EVENT_BEGIN, /*Minutes(30)*/Seconds(5));
+            _events.Reset();
+            _events.ScheduleEvent(EVENT_BEGIN, Seconds(5));
         }
 
         void GetInitXYZ(float &x, float &y, float &z, float &o, uint32 &path)
@@ -162,22 +87,46 @@ public:
             switch (me->GetAreaId())
             {
                 case 87: // Goldshire
-                    x = -9494.4f; y = 48.53f; z = 70.5f; o = 0.5f; path = 235431;
+                    x = -9494.4f;
+                    y = 48.53f;
+                    z = 70.5f;
+                    o = 0.5f;
+                    path = 235431;
                     break;
                 case 131: // Kharanos
-                    x = -5558.34f; y = -499.46f; z = 414.12f; o = 2.08f; path = 235432;
+                    x = -5558.34f;
+                    y = -499.46f;
+                    z = 414.12f;
+                    o = 2.08f;
+                    path = 235432;
                     break;
                 case 3576: // Azure Watch
-                    x = -4163.58f; y = -12460.30f; z = 63.02f; o = 4.31f; path = 235433;
+                    x = -4163.58f;
+                    y = -12460.30f;
+                    z = 63.02f;
+                    o = 4.31f;
+                    path = 235433;
                     break;
                 case 362: // Razor Hill
-                    x = 373.2f; y = -4723.4f; z = 31.2f; o = 3.2f; path = 235434;
+                    x = 373.2f;
+                    y = -4723.4f;
+                    z = 31.2f;
+                    o = 3.2f;
+                    path = 235434;
                     break;
                 case 159: // Brill
-                    x = 2195.2f; y = 264.0f; z = 55.62f; o = 0.15f; path = 235435;
+                    x = 2195.2f;
+                    y = 264.0f;
+                    z = 55.62f;
+                    o = 0.15f;
+                    path = 235435;
                     break;
                 case 3665: // Falconwing Square
-                    x = 9547.91f; y = -6809.9f; z = 27.96f; o = 3.4f; path = 235436;
+                    x = 9547.91f;
+                    y = -6809.9f;
+                    z = 27.96f;
+                    o = 3.4f;
+                    path = 235436;
                     break;
             }
         }
@@ -185,7 +134,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
- 
+
             while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
@@ -235,8 +184,8 @@ public:
         {
             if (spellInfo->Id == SPELL_START_FIRE || spellInfo->Id == SPELL_SPREAD_FIRE)
             {
-                DoCast(me, SPELL_FIRE_AURA_BASE, true);
-                DoCast(me, SPELL_SPREAD_FIRE, true);
+                DoCastSelf(SPELL_FIRE_AURA_BASE, true);
+                DoCastSelf(SPELL_SPREAD_FIRE, true);
             }
             else if (spellInfo->Id == SPELL_WATER_SPLASH)
             {
@@ -246,7 +195,7 @@ public:
                     if (stackAmount > 10)
                         aura->SetStackAmount(stackAmount-10);
                     else
-                        me->RemoveAurasDueToSpell(SPELL_SMALL_FIRE);
+                        me->RemoveAura(aura);
                 }
 
                 if (Aura* aura = me->GetAura(SPELL_BIG_FIRE))
@@ -255,7 +204,7 @@ public:
                     if (aura->GetStackAmount() > 10)
                         aura->SetStackAmount(stackAmount-10);
                     else
-                        me->RemoveAurasDueToSpell(SPELL_BIG_FIRE);
+                        me->RemoveAura(aura);
                 }
             }
         }
@@ -274,67 +223,91 @@ public:
 
     struct npc_hallows_end_sohAI : public ScriptedAI
     {
-        npc_hallows_end_sohAI(Creature* creature) : ScriptedAI(creature), pos(0), canShootFire(true)
+        npc_hallows_end_sohAI(Creature* creature) : ScriptedAI(creature), _pos(0), _canShootFire(true)
         {
-            DoCast(SPELL_HORSEMAN_MOUNT);
+            DoCastSelf(SPELL_HORSEMAN_MOUNT);
             me->SetSpeed(MOVE_WALK, 5.0f);
         }
 
         void DoAction(int32 param) override
         {
-            pos = param;
+            _pos = param;
         }
 
         void GetPosToLand(float &x, float &y, float &z)
         {
-            switch (pos)
+            switch (_pos)
             {
-                case 235431: x = -9445.1f; y = 63.27f; z = 58.16f; break;
-                case 235432: x = -5616.30f; y = -481.89f; z = 398.99f; break;
-                case 235433: x = -4198.1f; y = -12509.13f; z = 46.6f; break;
-                case 235434: x = 360.9f; y = -4735.5f; z = 11.773f; break;
-                case 235435: x = 2229.4f; y = 263.1f; z = 36.13f; break;
-                case 235436: x = 9532.9f; y = -6833.8f; z = 18.5f; break;
+                case 235431:
+                    x = -9445.1f;
+                    y = 63.27f;
+                    z = 58.16f;
+                    break;
+                case 235432:
+                    x = -5616.30f;
+                    y = -481.89f;
+                    z = 398.99f;
+                    break;
+                case 235433:
+                    x = -4198.1f;
+                    y = -12509.13f;
+                    z = 46.6f;
+                    break;
+                case 235434:
+                    x = 360.9f;
+                    y = -4735.5f;
+                    z = 11.773f;
+                    break;
+                case 235435:
+                    x = 2229.4f;
+                    y = 263.1f;
+                    z = 36.13f;
+                    break;
+                case 235436:
+                    x = 9532.9f;
+                    y = -6833.8f;
+                    z = 18.5f;
+                    break;
             }
         }
 
         void Reset() override
         {
-            events.ScheduleEvent(EVENT_TALK_1, Seconds(3));
-            events.ScheduleEvent(EVENT_APPLY_FIRE, Seconds(5));
-            events.ScheduleEvent(EVENT_STOP_APPLYING_FIRE, Minutes(2));
-            events.ScheduleEvent(EVENT_FINISH, Minutes(5));
+            _events.ScheduleEvent(EVENT_TALK_INTRO, Seconds(3));
+            _events.ScheduleEvent(EVENT_APPLY_FIRE, Seconds(5));
+            _events.ScheduleEvent(EVENT_STOP_APPLYING_FIRE, Minutes(2));
+            _events.ScheduleEvent(EVENT_FINISH, Minutes(5));
 
             FinishEvent(false);
         }
 
         void UpdateAI(uint32 diff) override
         {
-            events.Update(diff);
+            _events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
-                    case EVENT_TALK_1:
-                        Talk(TALK_0);
+                    case EVENT_TALK_INTRO:
+                        Talk(SAY_START_INTRO);
                         break;
                     case EVENT_APPLY_FIRE:
                     {
-                        if (canShootFire)
+                        if (_canShootFire)
                         {
                             if (Creature* trigger = me->FindNearestCreature(NPC_FIRE_TRIGGER, 50.0f))
                                 if (!trigger->GetAura(SPELL_START_FIRE) && !trigger->GetAura(SPELL_SPREAD_FIRE))
                                     DoCast(trigger, SPELL_START_FIRE);
-                            events.Repeat(Seconds(5));
+                            _events.Repeat(Seconds(5));
                         }
                         break;
                     }
                     case EVENT_STOP_APPLYING_FIRE:
-                        canShootFire = false;
+                        _canShootFire = false;
                         break;
                     case EVENT_FINISH:
                     {
@@ -353,7 +326,7 @@ public:
                     }
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.Repeat(Seconds(20));
+                        _events.Repeat(Seconds(20));
                         break;
                 }
 
@@ -367,29 +340,28 @@ public:
 
         void FinishEvent(bool failed)
         {
-            events.Reset();
+            _events.Reset();
             if (failed)
             {
-                Talk(TALK_3);
+                Talk(SAY_FAIL);
                 me->DespawnOrUnsummon();
             }
             else
             {
-                Talk(TALK_4);
+                Talk(SAY_FLAMES_DOWN);
                 float x, y, z;
                 GetPosToLand(x, y, z);
-                me->GetMotionMaster()->MovePoint(1, x, y, z);
+                me->GetMotionMaster()->MovePoint(POINT_HORSEMAN_ATTACK, x, y, z);
             }
         }
 
         void MovementInform(uint32 type, uint32 point) override
         {
-            if (type == POINT_MOTION_TYPE && point == 1)
+            if (type == POINT_MOTION_TYPE && point == POINT_HORSEMAN_ATTACK)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, 0);
                 me->SetDisableGravity(false);
                 me->RemoveAurasDueToSpell(SPELL_HORSEMAN_MOUNT);
-                //me->Dismount();
                 if (Unit* target = me->SelectNearestPlayer(30.0f))
                     AttackStart(target);
             }
@@ -397,7 +369,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            Talk(TALK_5);
+            Talk(SAY_DEFEATED);
             float x, y, z;
             GetPosToLand(x, y, z);
             me->CastSpell(x, y, z, SPELL_SUMMON_LANTERN, true);
@@ -422,9 +394,9 @@ public:
         }
 
     private:
-        EventMap events;
-        int32 pos;
-        bool canShootFire;
+        EventMap _events;
+        int32 _pos;
+        bool _canShootFire;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -433,11 +405,119 @@ public:
     }
 };
 
+// 42339 - Bucket Lands
+class spell_hallows_end_bucket_lands : public SpellScriptLoader
+{
+public:
+    spell_hallows_end_bucket_lands() : SpellScriptLoader("spell_hallows_end_bucket_lands") { }
+
+    class spell_hallows_end_bucket_lands_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hallows_end_bucket_lands_SpellScript);
+
+        bool handled;
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo(
+            {
+                SPELL_CREATE_BUCKET,
+                SPELL_WATER_SPLASH
+            });
+        }
+
+        bool Load() override
+        {
+            handled = false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (handled)
+                return;
+
+            handled = true;
+            Unit* caster = GetCaster();
+
+            if (Player* targetPlayer = GetHitPlayer())
+                caster->CastSpell(targetPlayer, SPELL_CREATE_BUCKET, true);
+            else if (Unit* target = GetHitUnit())
+                caster->CastSpell(target, SPELL_WATER_SPLASH, true);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hallows_end_bucket_lands_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hallows_end_bucket_lands_SpellScript();
+    }
+};
+
+ // 42074 - Headless Horseman - Fire
+class spell_hallows_end_base_fire : public SpellScriptLoader
+{
+public:
+    spell_hallows_end_base_fire() : SpellScriptLoader("spell_hallows_end_base_fire") { }
+
+    class spell_hallows_end_base_fire_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hallows_end_base_fire_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo(
+            {
+                SPELL_SMALL_FIRE,
+                SPELL_BIG_FIRE
+            });
+        }
+
+        void HandleEffectPeriodicUpdate(AuraEffect* /*aurEff*/)
+        {
+            Unit* owner = GetUnitOwner();
+
+            if (Aura* aura = owner->GetAura(SPELL_SMALL_FIRE))
+                if (aura->GetStackAmount() < 20)
+                    owner->CastSpell(owner, SPELL_SMALL_FIRE, true);
+
+            if (Aura* aura = owner->GetAura(SPELL_BIG_FIRE))
+                if (aura->GetStackAmount() < 20)
+                    owner->CastSpell(owner, SPELL_BIG_FIRE, true);
+        }
+
+        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* owner = GetUnitOwner();
+
+            if (roll_chance_i(50))
+                owner->SetAuraStack(SPELL_BIG_FIRE, owner, 20);
+            else
+                owner->SetAuraStack(SPELL_SMALL_FIRE, owner, 20);
+        }
+
+        void Register() override
+        {
+            OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_hallows_end_base_fire_AuraScript::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            OnEffectApply += AuraEffectApplyFn(spell_hallows_end_base_fire_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_hallows_end_base_fire_AuraScript();
+    }
+};
+
 void AddSC_event_hallows_end()
 {
-    new spell_hallows_end_bucket_lands();
-    new spell_hallows_end_base_fire();
     new npc_costumed_orphan_matron();
     new npc_soh_fire_trigger();
     new npc_hallows_end_soh();
+    new spell_hallows_end_bucket_lands();
+    new spell_hallows_end_base_fire();
 }
