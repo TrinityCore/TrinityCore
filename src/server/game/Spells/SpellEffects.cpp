@@ -1624,7 +1624,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
         }
 
         // set the "Crafted by ..." property of the item
-        if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 /*Soul Shard*/&& newitemid != 6948 /*Hearthstone*/)
+		if (pItem->GetTemplate()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetTemplate()->Class != ITEM_CLASS_QUEST && newitemid != 6265 /*Soul Shard*/ && newitemid != 6948 /*Hearthstone*/)
             pItem->SetGuidValue(ITEM_FIELD_CREATOR, player->GetGUID());
 
         // send info to the client
@@ -4124,8 +4124,48 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
         return;
     }
 
-    // we have hearthstone not on cooldown, just use it
-    player->CastSpell(player, 8690, TriggerCastFlags(TRIGGERED_FULL_MASK&~TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD));
+    //Unstuck
+	//race specific
+	switch (player->getRace())
+	{	
+	case RACE_HUMAN:
+		player->CastSpell(player, 8690);
+		player->TeleportTo(0, -8949.95f, -132.49f, 83.53f, player->GetOrientation());
+		break;
+	case RACE_DWARF:
+	case RACE_GNOME:
+		player->CastSpell(player, 8690);
+		player->TeleportTo(0, -6240.31f, 331.03f, 382.75f, player->GetOrientation());
+		break;
+	case RACE_NIGHTELF:
+		player->CastSpell(player, 8690);
+		player->TeleportTo(1, 10311.29f, 832.46f, 1326.40f, player->GetOrientation());
+		break;
+	case RACE_DRAENEI:
+		player->CastSpell(player, 8690);
+		player->TeleportTo(530, -3961.63f, -13931.20f, 100.61f, player->GetOrientation());
+		break;
+
+	case RACE_ORC:
+	case RACE_TROLL:
+		player->CastSpell(player, 8690);
+		player->TeleportTo(1, -618.51f, -4251.66f, 38.717f, player->GetOrientation());
+		break;
+	case RACE_UNDEAD_PLAYER:
+		player->CastSpell(player, 8690);
+		player->TeleportTo(0, 1676.70f, 1678.31f, 121.67f, player->GetOrientation());
+		break;
+	case RACE_TAUREN:
+		player->CastSpell(player, 8690);
+		player->TeleportTo(1, -2917.58f, -257.98f, 52.99f, player->GetOrientation());
+		break;
+	case RACE_BLOODELF:
+		player->CastSpell(player, 8690);
+		player->TeleportTo(530, 10349.59f, -6357.29f, 33.40f, player->GetOrientation());
+		break;
+	}
+	
+
 }
 
 void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
