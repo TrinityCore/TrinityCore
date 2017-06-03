@@ -18,13 +18,15 @@
 #ifndef TRINITY_SMARTSCRIPTMGR_H
 #define TRINITY_SMARTSCRIPTMGR_H
 
+#include "Creature.h"
 #include "Define.h"
+#include "ObjectAccessor.h"
 #include "ObjectGuid.h"
+#include "UnitDefines.h"
 #include <map>
 #include <string>
 #include <unordered_map>
 
-class WorldObject;
 enum SpellEffIndex : uint8;
 
 struct WayPoint
@@ -658,12 +660,7 @@ struct SmartAction
 
         struct
         {
-            uint32 emote1;
-            uint32 emote2;
-            uint32 emote3;
-            uint32 emote4;
-            uint32 emote5;
-            uint32 emote6;
+            std::array<uint32, SMART_ACTION_PARAM_COUNT> emotes;
         } randomEmote;
 
         struct
@@ -756,12 +753,7 @@ struct SmartAction
 
         struct
         {
-            uint32 phase1;
-            uint32 phase2;
-            uint32 phase3;
-            uint32 phase4;
-            uint32 phase5;
-            uint32 phase6;
+            std::array<uint32, SMART_ACTION_PARAM_COUNT> phases;
         } randomPhase;
 
         struct
@@ -960,9 +952,7 @@ struct SmartAction
         {
             uint32 entry;
             uint32 mask;
-            uint32 slot1;
-            uint32 slot2;
-            uint32 slot3;
+            std::array<uint32, MAX_EQUIPMENT_ITEMS> slots;
         } equip;
 
         struct
@@ -996,12 +986,7 @@ struct SmartAction
 
         struct
         {
-            uint32 entry1;
-            uint32 entry2;
-            uint32 entry3;
-            uint32 entry4;
-            uint32 entry5;
-            uint32 entry6;
+            std::array<uint32, SMART_ACTION_PARAM_COUNT> actionLists;
         } randTimedActionList;
 
         struct
@@ -1111,12 +1096,7 @@ struct SmartAction
 
         struct
         {
-            uint32 wp1;
-            uint32 wp2;
-            uint32 wp3;
-            uint32 wp4;
-            uint32 wp5;
-            uint32 wp6;
+            std::array<uint32, SMART_ACTION_PARAM_COUNT> wps;
         } closestWaypointFromList;
 
         struct
@@ -1569,31 +1549,43 @@ struct SmartScriptHolder
 
 typedef std::unordered_map<uint32, WayPoint*> WPPath;
 
-typedef std::list<WorldObject*> ObjectList;
+typedef std::vector<WorldObject*> ObjectVector;
 
-class ObjectGuidList
+class ObjectGuidVector
 {
-    ObjectList* m_objectList;
-    GuidList* m_guidList;
-    WorldObject* m_baseObject;
+    public:
+        ObjectGuidVector(WorldObject* baseObject, ObjectVector const& objectVector) : _baseObject(baseObject), _objectVector(objectVector)
+        {
+            _guidVector.reserve(_objectVector.size());
+            for (WorldObject* obj : _objectVector)
+                _guidVector.push_back(obj->GetGUID());
+        }
 
-public:
-    ObjectGuidList(ObjectList* objectList, WorldObject* baseObject);
+        ObjectVector const* GetObjectVector() const
+        {
+            UpdateObjects();
+            return &_objectVector;
+        }
 
-    ObjectList* GetObjectList();
+        ~ObjectGuidVector() { }
 
-    bool Equals(ObjectList* objectList)
-    {
-        return m_objectList == objectList;
-    }
+    private:
+        WorldObject* const _baseObject;
+        mutable ObjectVector _objectVector;
 
-    ~ObjectGuidList()
-    {
-        delete m_objectList;
-        delete m_guidList;
-    }
+        GuidVector _guidVector;
+
+        //sanitize vector using _guidVector
+        void UpdateObjects() const
+        {
+            _objectVector.clear();
+
+            for (ObjectGuid const& guid : _guidVector)
+                if (WorldObject* obj = ObjectAccessor::GetWorldObject(*_baseObject, guid))
+                    _objectVector.push_back(obj);
+        }
 };
-typedef std::unordered_map<uint32, ObjectGuidList*> ObjectListMap;
+typedef std::unordered_map<uint32, ObjectGuidVector> ObjectVectorMap;
 
 class TC_GAME_API SmartWaypointMgr
 {
