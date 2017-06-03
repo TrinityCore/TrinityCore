@@ -21,7 +21,7 @@
 
 #include "ScriptSystem.h"
 
-#define DEFAULT_MAX_PLAYER_DISTANCE 50
+#define DEFAULT_MAX_PLAYER_DISTANCE 200
 
 struct Escort_Waypoint
 {
