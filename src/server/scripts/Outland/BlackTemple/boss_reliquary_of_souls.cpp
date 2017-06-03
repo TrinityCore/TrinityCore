@@ -143,7 +143,7 @@ public:
     {
         boss_reliquary_of_soulsAI(Creature* creature) : BossAI(creature, DATA_RELIQUARY_OF_SOULS), _inCombat(false)
         {
-            creature->m_SightDistance = 70.0f;
+            creature->SetVisibilityRange(70.0f);
         }
 
         void Reset() override

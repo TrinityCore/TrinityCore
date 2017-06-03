@@ -2526,7 +2526,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsCreature(*itr))
-                    (*itr)->ToCreature()->m_SightDistance = e.action.sightDistance.dist;
+                    (*itr)->ToCreature()->SetVisibilityRange(static_cast<float>(e.action.sightDistance.dist));
 
             delete targets;
             break;
