@@ -27,6 +27,7 @@ EndScriptData */
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "QuestDef.h"
 #include "ScriptedEscortAI.h"

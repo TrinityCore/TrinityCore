@@ -17,11 +17,15 @@
 
 #include "PlayerAI.h"
 #include "Creature.h"
+#include "Item.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
 
 enum Spells
 {

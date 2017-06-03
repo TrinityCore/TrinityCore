@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

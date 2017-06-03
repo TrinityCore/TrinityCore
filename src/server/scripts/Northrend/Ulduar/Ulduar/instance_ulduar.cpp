@@ -19,6 +19,7 @@
 #include "AreaBoundary.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Item.h"
 #include "Map.h"
 #include "Player.h"
 #include "ScriptedCreature.h"

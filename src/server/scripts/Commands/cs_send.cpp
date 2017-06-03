@@ -18,11 +18,14 @@
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "Item.h"
 #include "Language.h"
+#include "Mail.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "WorldSession.h"
 
 class send_commandscript : public CommandScript
 {

@@ -19,42 +19,33 @@
 #ifndef _OBJECTMGR_H
 #define _OBJECTMGR_H
 
-#include "Object.h"
-#include "Bag.h"
-#include "Creature.h"
-#include "DynamicObject.h"
-#include "Conversation.h"
-#include "GameObject.h"
-#include "TemporarySummon.h"
-#include "Corpse.h"
-#include "QuestDef.h"
+#include "Common.h"
+#include "ConditionMgr.h"
+#include "CreatureData.h"
+#include "DatabaseEnvFwd.h"
+#include "GameObjectData.h"
 #include "ItemTemplate.h"
 #include "NPCHandler.h"
-#include "DatabaseEnvFwd.h"
-#include "Mail.h"
-#include "Map.h"
-#include "ObjectAccessor.h"
 #include "ObjectDefines.h"
-#include "ConditionMgr.h"
-#include "ItemTemplate.h"
+#include "ObjectGuid.h"
+#include "Position.h"
+#include "QuestDef.h"
+#include "SharedDefines.h"
 #include "VehicleDefines.h"
-#include "ConditionMgr.h"
-#include "DB2Stores.h"
-#include <string>
-#include <tuple>
 #include <map>
-#include <limits>
-#include <functional>
-#include <memory>
+#include <unordered_map>
 
 class Item;
+class Unit;
 class Vehicle;
 struct AccessRequirement;
 struct DeclinedName;
+struct DungeonEncounterEntry;
+struct FactionEntry;
 struct PlayerInfo;
 struct PlayerLevelInfo;
-
-#pragma pack(push, 1)
+struct SkillRaceClassInfoEntry;
+struct WorldSafeLocsEntry;
 
 struct PageText
 {
@@ -63,6 +54,15 @@ struct PageText
     int32 PlayerConditionID;
     uint8 Flags;
 };
+
+enum SummonerType
+{
+    SUMMONER_TYPE_CREATURE      = 0,
+    SUMMONER_TYPE_GAMEOBJECT    = 1,
+    SUMMONER_TYPE_MAP           = 2
+};
+
+#pragma pack(push, 1)
 
 /// Key for storing temp summon data in TempSummonDataContainer
 struct TempSummonGroupKey
@@ -82,6 +82,15 @@ private:
     uint32 _summonerEntry;      ///< Summoner's entry
     SummonerType _summonerType; ///< Summoner's type, see SummonerType for available types
     uint8 _summonGroup;         ///< Summon's group id
+};
+
+/// Stores data for temp summons
+struct TempSummonData
+{
+    uint32 entry;        ///< Entry of summoned creature
+    Position pos;        ///< Position, where should be creature spawned
+    TempSummonType type; ///< Summon type, see TempSummonType for available types
+    uint32 time;         ///< Despawn time, usable only with certain temp summon types
 };
 
 #pragma pack(pop)
@@ -137,7 +146,13 @@ enum ChatType
 
 typedef std::map<uint32, PageText> PageTextContainer;
 
-// Benchmarked: Faster than std::map (insert/find)
+struct InstanceTemplate
+{
+    uint32 Parent;
+    uint32 ScriptId;
+    bool AllowMount;
+};
+
 typedef std::unordered_map<uint16, InstanceTemplate> InstanceTemplateContainer;
 
 struct GameTele
@@ -461,11 +476,24 @@ struct TrinityString
 };
 
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
+typedef std::unordered_map<uint32, CreatureTemplate> CreatureTemplateContainer;
+typedef std::unordered_map<uint32, CreatureAddon> CreatureTemplateAddonContainer;
 typedef std::unordered_map<ObjectGuid::LowType, CreatureData> CreatureDataContainer;
+typedef std::unordered_map<ObjectGuid::LowType, CreatureAddon> CreatureAddonContainer;
+typedef std::unordered_map<uint16, CreatureBaseStats> CreatureBaseStatsContainer;
+typedef std::unordered_map<uint8, EquipmentInfo> EquipmentInfoContainerInternal;
+typedef std::unordered_map<uint32, EquipmentInfoContainerInternal> EquipmentInfoContainer;
+typedef std::unordered_map<uint32, CreatureModelInfo> CreatureModelContainer;
+typedef std::unordered_map<uint32, std::vector<uint32>> CreatureQuestItemMap;
+typedef std::unordered_map<uint32, GameObjectTemplate> GameObjectTemplateContainer;
+typedef std::unordered_map<uint32, GameObjectTemplateAddon> GameObjectTemplateAddonContainer;
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectData> GameObjectDataContainer;
-typedef std::map<TempSummonGroupKey, std::vector<TempSummonData> > TempSummonDataContainer;
+typedef std::unordered_map<ObjectGuid::LowType, GameObjectAddon> GameObjectAddonContainer;
+typedef std::unordered_map<uint32, std::vector<uint32>> GameObjectQuestItemMap;
+typedef std::map<TempSummonGroupKey, std::vector<TempSummonData>> TempSummonDataContainer;
 typedef std::unordered_map<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef std::unordered_map<uint32, GameObjectLocale> GameObjectLocaleContainer;
+typedef std::unordered_map<uint32, ItemTemplate> ItemTemplateContainer;
 typedef std::unordered_map<uint32, QuestTemplateLocale> QuestTemplateLocaleContainer;
 typedef std::unordered_map<uint32, QuestObjectivesLocale> QuestObjectivesLocaleContainer;
 typedef std::unordered_map<uint32, QuestOfferRewardLocale> QuestOfferRewardLocaleContainer;
@@ -552,7 +580,11 @@ struct PlayerInfo
 
 struct PetLevelInfo
 {
-    PetLevelInfo() : health(0), mana(0), armor(0) { memset(stats, 0, sizeof(stats)); }
+    PetLevelInfo() : health(0), mana(0), armor(0)
+    {
+        for (uint16& stat : stats)
+            stat = 0;
+    }
 
     uint16 stats[MAX_STATS];
     uint16 health;
@@ -865,7 +897,7 @@ class TC_GAME_API ObjectMgr
 
         static ObjectGuid GetPlayerGUIDByName(std::string const& name);
 
-        GameObjectQuestItemList const* GetGameObjectQuestItemList(uint32 id) const
+        std::vector<uint32> const* GetGameObjectQuestItemList(uint32 id) const
         {
             GameObjectQuestItemMap::const_iterator itr = _gameObjectQuestItemStore.find(id);
             if (itr != _gameObjectQuestItemStore.end())
@@ -874,7 +906,7 @@ class TC_GAME_API ObjectMgr
         }
         GameObjectQuestItemMap const* GetGameObjectQuestItemMap() const { return &_gameObjectQuestItemStore; }
 
-        CreatureQuestItemList const* GetCreatureQuestItemList(uint32 id) const
+        std::vector<uint32> const* GetCreatureQuestItemList(uint32 id) const
         {
             CreatureQuestItemMap::const_iterator itr = _creatureQuestItemStore.find(id);
             if (itr != _creatureQuestItemStore.end())

@@ -16,14 +16,20 @@
  */
 
 #include "SmartScriptMgr.h"
+#include "DB2Stores.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "Timer.h"
+#include "UnitDefines.h"
+#include <algorithm>
 
 SmartWaypointMgr* SmartWaypointMgr::instance()
 {

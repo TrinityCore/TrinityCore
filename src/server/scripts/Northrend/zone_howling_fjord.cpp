@@ -28,6 +28,7 @@ npc_apothecary_hanes
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"

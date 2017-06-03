@@ -17,11 +17,12 @@
 
 #include "GuildFinderMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "GuildFinderPackets.h"
 #include "Log.h"
-#include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "World.h"
 

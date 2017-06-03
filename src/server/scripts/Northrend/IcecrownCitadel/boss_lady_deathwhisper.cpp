@@ -18,6 +18,7 @@
 #include "icecrown_citadel.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "PoolMgr.h"

@@ -16,8 +16,10 @@
  */
 
 #include "BattlePetMgr.h"
+#include "DB2Stores.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "Item.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"

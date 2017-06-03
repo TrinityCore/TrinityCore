@@ -23,6 +23,8 @@
 #include "Item.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "ScriptMgr.h"

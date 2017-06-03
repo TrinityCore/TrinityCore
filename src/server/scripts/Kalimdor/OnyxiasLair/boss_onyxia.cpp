@@ -30,6 +30,7 @@ EndScriptData */
 #include "CreatureAIImpl.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "onyxias_lair.h"
 #include "ScriptedCreature.h"

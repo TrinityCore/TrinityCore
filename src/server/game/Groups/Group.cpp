@@ -21,7 +21,9 @@
 #include "BattlegroundMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Formulas.h"
+#include "GameObject.h"
 #include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
 #include "LFGMgr.h"
@@ -31,7 +33,6 @@
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "PartyPackets.h"
 #include "Pet.h"
 #include "Player.h"
@@ -41,7 +42,6 @@
 #include "UpdateFieldFlags.h"
 #include "Util.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 
 Roll::Roll(LootItem const& li) : itemid(li.itemid),
@@ -458,23 +458,20 @@ bool Group::AddMember(Player* player)
         player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, false);
         player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, true);
 
-        if (player->getLevel() >= LEVELREQUIREMENT_HEROIC)
+        if (player->GetDungeonDifficultyID() != GetDungeonDifficultyID())
         {
-            if (player->GetDungeonDifficultyID() != GetDungeonDifficultyID())
-            {
-                player->SetDungeonDifficultyID(GetDungeonDifficultyID());
-                player->SendDungeonDifficulty();
-            }
-            if (player->GetRaidDifficultyID() != GetRaidDifficultyID())
-            {
-                player->SetRaidDifficultyID(GetRaidDifficultyID());
-                player->SendRaidDifficulty(false);
-            }
-            if (player->GetLegacyRaidDifficultyID() != GetLegacyRaidDifficultyID())
-            {
-                player->SetLegacyRaidDifficultyID(GetLegacyRaidDifficultyID());
-                player->SendRaidDifficulty(true);
-            }
+            player->SetDungeonDifficultyID(GetDungeonDifficultyID());
+            player->SendDungeonDifficulty();
+        }
+        if (player->GetRaidDifficultyID() != GetRaidDifficultyID())
+        {
+            player->SetRaidDifficultyID(GetRaidDifficultyID());
+            player->SendRaidDifficulty(false);
+        }
+        if (player->GetLegacyRaidDifficultyID() != GetLegacyRaidDifficultyID())
+        {
+            player->SetLegacyRaidDifficultyID(GetLegacyRaidDifficultyID());
+            player->SendRaidDifficulty(true);
         }
     }
 

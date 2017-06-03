@@ -18,6 +18,8 @@
 #include "ScriptMgr.h"
 #include "BattlegroundIC.h"
 #include "GameObject.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"

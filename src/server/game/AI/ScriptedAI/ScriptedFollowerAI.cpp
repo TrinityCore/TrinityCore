@@ -25,8 +25,10 @@ EndScriptData */
 
 #include "ScriptedFollowerAI.h"
 #include "Creature.h"
-#include "Log.h"
 #include "Group.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 

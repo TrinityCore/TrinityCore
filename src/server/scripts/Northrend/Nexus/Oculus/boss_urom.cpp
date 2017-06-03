@@ -23,6 +23,7 @@ SDCategory: Instance Script
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
 #include "oculus.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"

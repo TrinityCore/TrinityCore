@@ -21,6 +21,7 @@
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "MapManager.h"
+#include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"

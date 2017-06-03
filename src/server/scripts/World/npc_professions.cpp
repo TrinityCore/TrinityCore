@@ -24,11 +24,13 @@ SDCategory: NPCs
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Item.h"
 #include "Log.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "WorldSession.h"
 
 /*

@@ -19,10 +19,13 @@
 #include "Chat.h"
 #include "Language.h"
 #include "Log.h"
+#include "Map.h"
 #include "Pet.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "SpellMgr.h"
+#include "WorldSession.h"
 
 static inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
 {

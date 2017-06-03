@@ -21,6 +21,7 @@
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Log.h"
+#include "Map.h"
 #include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"

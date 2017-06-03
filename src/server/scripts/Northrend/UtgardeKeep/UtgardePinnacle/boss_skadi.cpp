@@ -18,6 +18,8 @@
 #include "ScriptMgr.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"

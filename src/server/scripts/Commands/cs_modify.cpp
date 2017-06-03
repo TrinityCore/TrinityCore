@@ -24,13 +24,16 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "ReputationMgr.h"
+#include "SpellMgr.h"
 #include "SpellPackets.h"
+#include "WorldSession.h"
 
 class modify_commandscript : public CommandScript
 {
@@ -322,7 +325,7 @@ public:
         modData.ModifierValue = float(val);
         spellMod.ModifierData.push_back(modData);
         packet.Modifiers.push_back(spellMod);
-        target->GetSession()->SendPacket(packet.Write());
+        target->SendDirectMessage(packet.Write());
 
         return true;
     }

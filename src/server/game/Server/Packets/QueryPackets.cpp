@@ -17,9 +17,10 @@
 
 #include "QueryPackets.h"
 #include "BattlenetAccountMgr.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
-#include "ObjectMgr.h"
+#include "WorldSession.h"
 
 void WorldPackets::Query::QueryCreature::Read()
 {

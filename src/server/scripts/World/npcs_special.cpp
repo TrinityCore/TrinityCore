@@ -24,6 +24,7 @@
 #include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PassiveAI.h"
@@ -34,6 +35,7 @@
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "TemporarySummon.h"
 
 /*########
@@ -2035,10 +2037,10 @@ public:
                     break;
             }
 
-            const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-
-            if (spellInfo && spellInfo->GetEffect(EFFECT_0)->Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
-                return spellInfo->GetEffect(EFFECT_0)->MiscValue;
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+                if (SpellEffectInfo const* effect0 = spellInfo->GetEffect(EFFECT_0))
+                    if (effect0->Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
+                        return effect0->MiscValue;
 
             return 0;
         }

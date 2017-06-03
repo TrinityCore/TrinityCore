@@ -38,12 +38,15 @@
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
+#include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
 #include "LootPackets.h"
 #include "MiscPackets.h"
+#include "MotionMaster.h"
 #include "MovementPackets.h"
 #include "MoveSpline.h"
+#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -10843,6 +10846,11 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
     packet.UnitGUID = guid;
     packet.Reaction = AI_REACTION_HOSTILE;
     owner->ToPlayer()->SendDirectMessage(packet.Write());
+}
+
+void Unit::propagateSpeedChange()
+{
+    GetMotionMaster()->propagateSpeedChange();
 }
 
 ///----------End of Pet responses methods----------

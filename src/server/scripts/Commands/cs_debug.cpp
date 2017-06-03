@@ -23,15 +23,14 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Bag.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
-#include "Cell.h"
 #include "CellImpl.h"
 #include "Chat.h"
 #include "ChatPackets.h"
 #include "Conversation.h"
 #include "GossipDef.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Language.h"
 #include "Log.h"
@@ -42,6 +41,7 @@ EndScriptData */
 #include "RBAC.h"
 #include "SpellPackets.h"
 #include "Transport.h"
+#include "WorldSession.h"
 #include <fstream>
 #include <limits>
 

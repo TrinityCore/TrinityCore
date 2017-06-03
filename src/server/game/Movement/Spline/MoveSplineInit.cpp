@@ -17,10 +17,11 @@
  */
 
 #include "MoveSplineInit.h"
-#include "MoveSpline.h"
-#include "Unit.h"
-#include "Transport.h"
 #include "MovementPackets.h"
+#include "MoveSpline.h"
+#include "PathGenerator.h"
+#include "Transport.h"
+#include "Unit.h"
 
 namespace Movement
 {
@@ -189,7 +190,19 @@ namespace Movement
         args.flags.steering = unit->HasFlag64(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_STEERING);
     }
 
-    void MoveSplineInit::SetFacing(const Unit* target)
+    MoveSplineInit::~MoveSplineInit() = default;
+
+    void MoveSplineInit::SetFacing(Vector3 const& spot)
+    {
+        TransportPathTransform transform(unit, args.TransformForTransport);
+        Vector3 finalSpot = transform(spot);
+        args.facing.f.x = finalSpot.x;
+        args.facing.f.y = finalSpot.y;
+        args.facing.f.z = finalSpot.z;
+        args.facing.type = MONSTER_MOVE_FACING_SPOT;
+    }
+
+    void MoveSplineInit::SetFacing(Unit const* target)
     {
         args.facing.angle = unit->GetAngle(target);
         args.facing.target = target->GetGUID();
@@ -208,6 +221,18 @@ namespace Movement
 
         args.facing.angle = G3D::wrap(angle, 0.f, (float)G3D::twoPi());
         args.facing.type = MONSTER_MOVE_FACING_ANGLE;
+    }
+
+    void MoveSplineInit::MovebyPath(const PointsArray& controls, int32 path_offset)
+    {
+        args.path_Idx_offset = path_offset;
+        args.path.reserve(controls.size());
+        std::transform(controls.begin(), controls.end(), std::back_inserter(args.path), TransportPathTransform(unit, args.TransformForTransport));
+    }
+
+    void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
+    {
+        MoveTo(G3D::Vector3(x, y, z), generatePath, forceDestination);
     }
 
     void MoveSplineInit::MoveTo(const Vector3& dest, bool generatePath, bool forceDestination)

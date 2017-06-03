@@ -18,6 +18,8 @@
 #include "ScriptMgr.h"
 #include "DynamicObject.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -25,6 +27,7 @@
 #include "SpellScript.h"
 #include "stonecore.h"
 #include "Vehicle.h"
+#include <G3D/Vector3.h>
 
 enum Spells
 {

@@ -26,12 +26,13 @@ EndScriptData */
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
-#include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
 
