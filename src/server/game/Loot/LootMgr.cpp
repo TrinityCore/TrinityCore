@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -365,7 +365,7 @@ LootItem::LootItem(LootStoreItem const& li)
     is_blocked = 0;
     is_underthreshold = 0;
     is_counted = 0;
-    canSave = true;
+    rollWinnerGUID = ObjectGuid::Empty;
 }
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
@@ -463,7 +463,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
 
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             if (Player* player = itr->GetSource())   // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
-                FillNotNormalLootFor(player, player->IsAtGroupRewardDistance(lootOwner));
+                if (player->IsInMap(lootOwner))
+                    FillNotNormalLootFor(player, player->IsAtGroupRewardDistance(lootOwner));
 
         for (uint8 i = 0; i < items.size(); ++i)
         {
@@ -690,33 +691,6 @@ void Loot::generateMoneyLoot(uint32 minAmount, uint32 maxAmount)
     }
 }
 
-void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
-{
-    // Deletes a single item associated with an openable item from the DB
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
-    stmt->setUInt32(0, containerID);
-    stmt->setUInt32(1, itemID);
-    CharacterDatabase.Execute(stmt);
-
-    // Mark the item looted to prevent resaving
-    for (LootItemList::iterator _itr = items.begin(); _itr != items.end(); ++_itr)
-    {
-        if (_itr->itemid != itemID)
-            continue;
-
-        _itr->canSave = false;
-        break;
-    }
-}
-
-void Loot::DeleteLootMoneyFromContainerItemDB()
-{
-    // Deletes money loot associated with an openable item from the DB
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
-    stmt->setUInt32(0, containerID);
-    CharacterDatabase.Execute(stmt);
-}
-
 LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, NotNormalLootItem* *qitem, NotNormalLootItem* *ffaitem, NotNormalLootItem* *conditem)
 {
     LootItem* item = NULL;
@@ -920,6 +894,13 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                             default:
                                 continue;
                         }
+                    }
+                    else if (!l.items[i].rollWinnerGUID.IsEmpty())
+                    {
+                        if (l.items[i].rollWinnerGUID == lv.viewer->GetGUID())
+                            slot_type = LOOT_SLOT_TYPE_OWNER;
+                        else
+                            continue;
                     }
                     else if (l.roundRobinPlayer.IsEmpty() || lv.viewer->GetGUID() == l.roundRobinPlayer || !l.items[i].is_underthreshold)
                     {
@@ -1535,6 +1516,9 @@ void LoadLootTemplates_Creature()
 
     for (LootIdSet::const_iterator itr = lootIdSetUsed.begin(); itr != lootIdSetUsed.end(); ++itr)
         lootIdSet.erase(*itr);
+
+    // 1 means loot for player corpse
+    lootIdSet.erase(PLAYER_CORPSE_LOOT_ENTRY);
 
     // output error for any still listed (not referenced from appropriate table) ids
     LootTemplates_Creature.ReportUnusedIds(lootIdSet);

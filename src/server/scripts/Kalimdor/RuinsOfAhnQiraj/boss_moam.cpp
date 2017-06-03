@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -154,7 +154,7 @@ class boss_moam : public CreatureScript
                                         targetList.push_back((*itr)->getTarget());
                             }
 
-                            Trinity::Containers::RandomResizeList(targetList, 5);
+                            Trinity::Containers::RandomResize(targetList, 5);
 
                             for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                                 DoCast(*itr, SPELL_DRAIN_MANA);

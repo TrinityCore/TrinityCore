@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -227,8 +227,8 @@ struct boss_twinemperorsAI : public ScriptedAI
             thisPos.Relocate(me);
             Position otherPos;
             otherPos.Relocate(pOtherBoss);
-            pOtherBoss->SetPosition(thisPos);
-            me->SetPosition(otherPos);
+            pOtherBoss->UpdatePosition(thisPos);
+            me->UpdatePosition(otherPos);
 
             SetAfterTeleport();
             ENSURE_AI(boss_twinemperorsAI, pOtherBoss->AI())->SetAfterTeleport();
@@ -332,7 +332,7 @@ struct boss_twinemperorsAI : public ScriptedAI
                 if (c->isDead())
                 {
                     c->Respawn();
-                    c->setFaction(7);
+                    c->SetFaction(FACTION_CREATURE);
                     c->RemoveAllAuras();
                 }
                 if (c->IsWithinDistInMap(me, ABUSE_BUG_RANGE))
@@ -427,7 +427,7 @@ public:
 
         void CastSpellOnBug(Creature* target) override
         {
-            target->setFaction(14);
+            target->SetFaction(FACTION_MONSTER);
             target->AI()->AttackStart(me->getThreatManager().getHostilTarget());
             target->AddAura(SPELL_MUTATE_BUG, target);
             target->SetFullHealth();
@@ -518,7 +518,7 @@ public:
 
         void CastSpellOnBug(Creature* target) override
         {
-            target->setFaction(14);
+            target->SetFaction(FACTION_MONSTER);
             target->AddAura(SPELL_EXPLODEBUG, target);
             target->SetFullHealth();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -229,8 +229,13 @@ public:
     }
 
     bool IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const;
+
+    /*
+    search using this relation: dist2d < radius && abs(dz) < height
+    */
+    bool IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const;
     bool HasInArc(float arcangle, Position const* pos, float border = 2.0f) const;
-    bool HasInLine(Position const* pos, float width) const;
+    bool HasInLine(Position const* pos, float objSize, float width) const;
     std::string ToString() const;
 
     // modulos a radian orientation to the range of 0..2PI

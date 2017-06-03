@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,6 +28,7 @@
 #include "DBCStores.h"
 #include "Item.h"
 #include "AccountMgr.h"
+#include "CharacterCache.h"
 
 bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 {
@@ -104,7 +105,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     ObjectGuid receiverGuid;
     if (normalizePlayerName(receiverName))
-        receiverGuid = sObjectMgr->GetPlayerGUIDByName(receiverName);
+        receiverGuid = sCharacterCache->GetCharacterGuidByName(receiverName);
 
     if (!receiverGuid)
     {
@@ -160,7 +161,12 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     }
     else
     {
-        receiverTeam = sObjectMgr->GetPlayerTeamByGUID(receiverGuid);
+        if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(receiverGuid))
+        {
+            receiverTeam = Player::TeamForRace(characterInfo->Race);
+            receiverLevel = characterInfo->Level;
+            receiverAccountId = characterInfo->AccountId;
+        }
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_COUNT);
         stmt->setUInt32(0, receiverGuid.GetCounter());
@@ -171,18 +177,6 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
             Field* fields = result->Fetch();
             mailsCount = fields[0].GetUInt64();
         }
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_LEVEL);
-        stmt->setUInt32(0, receiverGuid.GetCounter());
-
-        result = CharacterDatabase.Query(stmt);
-        if (result)
-        {
-            Field* fields = result->Fetch();
-            receiverLevel = fields[0].GetUInt8();
-        }
-
-        receiverAccountId = sObjectMgr->GetPlayerAccountIdByGUID(receiverGuid);
     }
 
     // do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
@@ -515,16 +509,16 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                 else
                 {
                     // can be calculated early
-                    sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
+                    sender_accId = sCharacterCache->GetCharacterAccountIdByGuid(sender_guid);
 
-                    if (!sObjectMgr->GetPlayerNameByGUID(sender_guid, sender_name))
+                    if (!sCharacterCache->GetCharacterNameByGuid(sender_guid, sender_name))
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: %u to player: %s (Account: %u)",
                     GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receiver)
-                sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
+                sender_accId = sCharacterCache->GetCharacterAccountIdByGuid(sender_guid);
 
             // check player existence
             if (receiver || sender_accId)
@@ -745,12 +739,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     if (m->mailTemplateId)
     {
         MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
-        if (!mailTemplateEntry)
-        {
-            player->SendMailResult(mailId, MAIL_MADE_PERMANENT, MAIL_ERR_INTERNAL_ERROR);
-            return;
-        }
-
+        ASSERT(mailTemplateEntry);
         bodyItem->SetText(mailTemplateEntry->content[GetSessionDbcLocale()]);
     }
     else

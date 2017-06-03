@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "sunwell_plateau.h"
 #include "Player.h"
 #include "WorldSession.h"
@@ -149,13 +150,15 @@ public:
 
         void Reset() override
         {
-            SathGUID = instance->GetGuidData(DATA_SATHROVARR);
+            if (Creature* sath = instance->GetCreature(DATA_SATHROVARR))
+                SathGUID = sath->GetGUID();
+
             instance->SetBossState(DATA_KALECGOS, NOT_STARTED);
 
             if (Creature* Sath = ObjectAccessor::GetCreature(*me, SathGUID))
                 Sath->AI()->EnterEvadeMode();
 
-            me->setFaction(14);
+            me->SetFaction(FACTION_MONSTER);
             if (!bJustReset) //first reset at create
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
@@ -379,7 +382,7 @@ public:
             switch (TalkSequence)
             {
                 case 1:
-                    me->setFaction(35);
+                    me->SetFaction(FACTION_FRIENDLY);
                     TalkTimer = 1000;
                     break;
                 case 2:
@@ -431,7 +434,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_kalecAI>(creature);
+        return GetSunwellPlateauAI<boss_kalecAI>(creature);
     }
 
     struct boss_kalecAI : public ScriptedAI
@@ -465,7 +468,8 @@ public:
 
         void Reset() override
         {
-            SathGUID = instance->GetGuidData(DATA_SATHROVARR);
+            if (Creature* sath = instance->GetCreature(DATA_SATHROVARR))
+                SathGUID = sath->GetGUID();
 
             Initialize();
         }
@@ -536,27 +540,35 @@ class kalecgos_teleporter : public GameObjectScript
 public:
     kalecgos_teleporter() : GameObjectScript("kalecgos_teleporter") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct kalecgos_teleporterAI : public GameObjectAI
     {
-#if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
-        uint8 SpectralPlayers = 0;
-        Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-        {
-            if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
-                ++SpectralPlayers;
-        }
+        kalecgos_teleporterAI(GameObject* go) : GameObjectAI(go) { }
 
-        if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM)
+        bool GossipHello(Player* player, bool /*reportUse*/) override
         {
-            return true;
-        }
-#else
-        (void)go;
+#if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
+            uint8 SpectralPlayers = 0;
+            Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            {
+                if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
+                    ++SpectralPlayers;
+            }
+
+            if (player->HasAura(AURA_SPECTRAL_EXHAUSTION) || SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM)
+            {
+                return true;
+            }
 #endif
 
-        player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
-        return true;
+            player->CastSpell(player, SPELL_TELEPORT_SPECTRAL, true);
+            return true;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetSunwellPlateauAI<kalecgos_teleporterAI>(go);
     }
 };
 
@@ -567,7 +579,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_sathrovarrAI>(creature);
+        return GetSunwellPlateauAI<boss_sathrovarrAI>(creature);
     }
 
     struct boss_sathrovarrAI : public ScriptedAI
@@ -607,7 +619,8 @@ public:
         {
             me->SetFullHealth();//dunno why it does not resets health at evade..
             me->setActive(true);
-            KalecgosGUID = instance->GetGuidData(DATA_KALECGOS_DRAGON);
+            if (Creature* kalecgos = instance->GetCreature(DATA_KALECGOS_DRAGON))
+                KalecgosGUID = kalecgos->GetGUID();
             instance->SetBossState(DATA_KALECGOS, NOT_STARTED);
             if (KalecGUID)
             {
@@ -624,7 +637,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            if (Creature* Kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+            if (Creature* Kalec = me->SummonCreature(NPC_KALECGOS_HUMAN, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
             {
                 KalecGUID = Kalec->GetGUID();
                 me->CombatStart(Kalec);
@@ -659,7 +672,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_SATH_DEATH);
-            me->SetPosition(me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
+            me->UpdatePosition(me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
             TeleportAllPlayersBack();
             if (Creature* Kalecgos = ObjectAccessor::GetCreature(*me, KalecgosGUID))
             {

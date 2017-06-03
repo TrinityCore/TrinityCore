@@ -1,0 +1,3 @@
+-- 
+UPDATE `creature` SET `phaseMask` = 2 WHERE `guid` IN (110540,110541,110544,110545,110546,110547,110551,110552,110553,110554);
+UPDATE `creature_addon` SET `bytes1`=1 WHERE  `guid`=111075;

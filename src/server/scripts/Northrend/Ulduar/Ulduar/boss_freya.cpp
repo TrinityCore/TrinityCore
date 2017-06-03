@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -222,7 +222,7 @@ class npc_iron_roots : public CreatureScript
                 SetCombatMovement(false);
 
                 me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); // Death Grip
-                me->setFaction(14);
+                me->SetFaction(FACTION_MONSTER);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -244,7 +244,7 @@ class npc_iron_roots : public CreatureScript
                     target->RemoveAurasDueToSpell(SPELL_ROOTS_FREYA);
                 }
 
-                me->RemoveCorpse(false);
+                me->DespawnOrUnsummon();
             }
 
         private:
@@ -253,7 +253,7 @@ class npc_iron_roots : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_iron_rootsAI(creature);
+            return GetUlduarAI<npc_iron_rootsAI>(creature);
         }
 };
 
@@ -266,6 +266,7 @@ class boss_freya : public CreatureScript
         {
             boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA)
             {
+                _encounterFinished = false;
                 Initialize();
                 memset(elementalTimer, 0, sizeof(elementalTimer));
                 diffTimer = 0;
@@ -308,9 +309,13 @@ class boss_freya : public CreatureScript
             bool checkElementalAlive[2];
             bool trioDefeated[2];
             bool random[3];
+            bool _encounterFinished;
 
             void Reset() override
             {
+                if (_encounterFinished)
+                    return;
+
                 _Reset();
                 Initialize();
             }
@@ -591,6 +596,11 @@ class boss_freya : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
+                if (_encounterFinished)
+                    return;
+
+                _encounterFinished = true;
+
                 //! Freya's chest is dynamically spawned on death by different spells.
                 const uint32 summonSpell[2][4] =
                 {
@@ -602,15 +612,15 @@ class boss_freya : public CreatureScript
                 me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
 
                 Talk(SAY_DEATH);
+
                 me->SetReactState(REACT_PASSIVE);
-                _JustDied();
-                me->RemoveAllAuras();
+                me->InterruptNonMeleeSpells(true);
+                me->RemoveAllAttackers();
                 me->AttackStop();
-                me->setFaction(35);
-                me->DeleteThreatList();
-                me->CombatStop(true);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->DespawnOrUnsummon(7500);
                 me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
+                _JustDied();
 
                 for (uint8 n = 0; n < 3; ++n)
                 {
@@ -1042,7 +1052,7 @@ class npc_detonating_lasher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_detonating_lasherAI(creature);
+            return GetUlduarAI<npc_detonating_lasherAI>(creature);
         }
 };
 
@@ -1057,8 +1067,8 @@ class npc_ancient_water_spirit : public CreatureScript
             {
                 Initialize();
                 instance = me->GetInstanceScript();
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_FREYA)))
-                    waveCount = ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
+                if (Creature* freya = instance->GetCreature(BOSS_FREYA))
+                    waveCount = ENSURE_AI(boss_freya::boss_freyaAI, freya->AI())->trioWaveCount;
                 else
                     waveCount = 0;
             }
@@ -1095,10 +1105,10 @@ class npc_ancient_water_spirit : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_FREYA)))
+                if (Creature* freya = instance->GetCreature(BOSS_FREYA))
                 {
-                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
-                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(1);
+                    ENSURE_AI(boss_freya::boss_freyaAI, freya->AI())->checkElementalAlive[waveCount] = false;
+                    ENSURE_AI(boss_freya::boss_freyaAI, freya->AI())->LasherDead(1);
                 }
             }
 
@@ -1110,7 +1120,7 @@ class npc_ancient_water_spirit : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_ancient_water_spiritAI>(creature);
+            return GetUlduarAI<npc_ancient_water_spiritAI>(creature);
         }
 };
 
@@ -1125,8 +1135,8 @@ class npc_storm_lasher : public CreatureScript
             {
                 Initialize();
                 instance = me->GetInstanceScript();
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_FREYA)))
-                    waveCount = ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
+                if (Creature* freya = instance->GetCreature(BOSS_FREYA))
+                    waveCount = ENSURE_AI(boss_freya::boss_freyaAI, freya->AI())->trioWaveCount;
                 else
                     waveCount = 0;
             }
@@ -1169,10 +1179,10 @@ class npc_storm_lasher : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_FREYA)))
+                if (Creature* freya = instance->GetCreature(BOSS_FREYA))
                 {
-                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
-                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(2);
+                    ENSURE_AI(boss_freya::boss_freyaAI, freya->AI())->checkElementalAlive[waveCount] = false;
+                    ENSURE_AI(boss_freya::boss_freyaAI, freya->AI())->LasherDead(2);
                 }
             }
 
@@ -1185,7 +1195,7 @@ class npc_storm_lasher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_storm_lasherAI>(creature);
+            return GetUlduarAI<npc_storm_lasherAI>(creature);
         }
 };
 
@@ -1199,8 +1209,8 @@ class npc_snaplasher : public CreatureScript
             npc_snaplasherAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_FREYA)))
-                    waveCount = ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
+                if (Creature* freya = instance->GetCreature(BOSS_FREYA))
+                    waveCount = ENSURE_AI(boss_freya::boss_freyaAI, freya->AI())->trioWaveCount;
                 else
                     waveCount = 0;
             }
@@ -1218,10 +1228,10 @@ class npc_snaplasher : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* Freya = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_FREYA)))
+                if (Creature* freya = instance->GetCreature(BOSS_FREYA))
                 {
-                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->checkElementalAlive[waveCount] = false;
-                    ENSURE_AI(boss_freya::boss_freyaAI, Freya->AI())->LasherDead(4);
+                    ENSURE_AI(boss_freya::boss_freyaAI, freya->AI())->checkElementalAlive[waveCount] = false;
+                    ENSURE_AI(boss_freya::boss_freyaAI, freya->AI())->LasherDead(4);
                 }
             }
 
@@ -1232,7 +1242,7 @@ class npc_snaplasher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_snaplasherAI>(creature);
+            return GetUlduarAI<npc_snaplasherAI>(creature);
         }
 };
 
@@ -1309,7 +1319,7 @@ class npc_ancient_conservator : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ancient_conservatorAI(creature);
+            return GetUlduarAI<npc_ancient_conservatorAI>(creature);
         }
 };
 
@@ -1331,7 +1341,7 @@ class npc_sun_beam : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_sun_beamAI(creature);
+            return GetUlduarAI<npc_sun_beamAI>(creature);
         }
 };
 
@@ -1371,7 +1381,7 @@ class npc_healthy_spore : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_healthy_sporeAI(creature);
+            return GetUlduarAI<npc_healthy_sporeAI>(creature);
         }
 };
 
@@ -1411,7 +1421,7 @@ class npc_eonars_gift : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_eonars_giftAI(creature);
+            return GetUlduarAI<npc_eonars_giftAI>(creature);
         }
 };
 
@@ -1453,7 +1463,7 @@ class npc_nature_bomb : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_nature_bombAI(creature);
+            return GetUlduarAI<npc_nature_bombAI>(creature);
         }
 };
 
@@ -1502,7 +1512,7 @@ class npc_unstable_sun_beam : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_unstable_sun_beamAI>(creature);
+            return GetUlduarAI<npc_unstable_sun_beamAI>(creature);
         }
 };
 

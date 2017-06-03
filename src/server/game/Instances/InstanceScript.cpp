@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -120,7 +120,7 @@ void InstanceScript::LoadBossBoundaries(const BossBoundaryData& data)
 {
     for (BossBoundaryEntry const& entry : data)
         if (entry.BossId < bosses.size())
-            bosses[entry.BossId].boundary.insert(entry.Boundary);
+            bosses[entry.BossId].boundary.push_back(entry.Boundary);
 }
 
 void InstanceScript::LoadMinionData(const MinionData* data)
@@ -373,7 +373,7 @@ void InstanceScript::ReadSaveDataBossStates(std::istringstream& data)
     {
         uint32 buff;
         data >> buff;
-        if (buff == IN_PROGRESS || buff == SPECIAL)
+        if (buff == IN_PROGRESS || buff == FAIL || buff == SPECIAL)
             buff = NOT_STARTED;
 
         if (buff < TO_BE_DECIDED)
@@ -651,7 +651,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
                 if (Group* grp = player->GetGroup())
                     if (grp->isLFGGroup())
                     {
-                        sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId);
+                        sLFGMgr->FinishDungeon(grp->GetGUID(), dungeonId, instance);
                         return;
                     }
         }

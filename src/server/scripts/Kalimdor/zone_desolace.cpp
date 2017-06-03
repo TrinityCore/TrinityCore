@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,6 +34,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "GameObjectAI.h"
 #include "Player.h"
 #include "SpellInfo.h"
 
@@ -104,19 +105,19 @@ public:
                 me->DespawnOrUnsummon(60000);
             }
         }
-    };
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+        bool GossipHello(Player* player) override
         {
-            player->TalkedToCreature(creature->GetEntry(), ObjectGuid::Empty);
-            player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
-        }
+            if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+            {
+                player->TalkedToCreature(me->GetEntry(), ObjectGuid::Empty);
+                player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
+            }
 
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            return true;
+        }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -141,12 +142,22 @@ class go_iruxos : public GameObjectScript
     public:
         go_iruxos() : GameObjectScript("go_iruxos") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_iruxosAI : public GameObjectAI
         {
-            if (player->GetQuestStatus(QUEST_HAND_IRUXOS) == QUEST_STATUS_INCOMPLETE && !go->FindNearestCreature(NPC_DEMON_SPIRIT, 25.0f, true))
-                player->SummonCreature(NPC_DEMON_SPIRIT, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+            go_iruxosAI(GameObject* go) : GameObjectAI(go) { }
 
-            return true;
+            bool GossipHello(Player* player, bool /*reportUse*/) override
+            {
+                if (player->GetQuestStatus(QUEST_HAND_IRUXOS) == QUEST_STATUS_INCOMPLETE && !me->FindNearestCreature(NPC_DEMON_SPIRIT, 25.0f, true))
+                    player->SummonCreature(NPC_DEMON_SPIRIT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_iruxosAI(go);
         }
 };
 
@@ -204,20 +215,16 @@ public:
 
             DoMeleeAttackIfReady();
         }
-    };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
-       {
-            if (npc_escortAI* escortAI = CAST_AI(npc_dalinda::npc_dalindaAI, creature->AI()))
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
             {
-                escortAI->Start(true, false, player->GetGUID());
-                creature->setFaction(113);
+                Start(true, false, player->GetGUID());
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
             }
         }
-        return true;
-    }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -153,6 +153,51 @@ enum ReputationRank
     REP_HONORED     = 5,
     REP_REVERED     = 6,
     REP_EXALTED     = 7
+};
+
+enum FactionTemplates
+{
+    FACTION_NONE                        = 0,
+    FACTION_CREATURE                    = 7,
+    FACTION_ESCORTEE_A_NEUTRAL_PASSIVE  = 10,
+    FACTION_MONSTER                     = 14,
+    FACTION_MONSTER_2                   = 16,
+    FACTION_TROLL_BLOODSCALP            = 28,
+    FACTION_PREY                        = 31,
+    FACTION_ESCORTEE_H_NEUTRAL_PASSIVE  = 33,
+    FACTION_FRIENDLY                    = 35,
+    FACTION_OGRE                        = 45,
+    FACTION_ORC_DRAGONMAW               = 62,
+    FACTION_HORDE_GENERIC               = 83,
+    FACTION_ALLIANCE_GENERIC            = 84,
+    FACTION_DEMON                       = 90,
+    FACTION_ELEMENTAL                   = 91,
+    FACTION_DRAGONFLIGHT_BLACK          = 103,
+    FACTION_ESCORTEE_N_NEUTRAL_PASSIVE  = 113,
+    FACTION_ENEMY                       = 168,
+    FACTION_ESCORTEE_A_NEUTRAL_ACTIVE   = 231,
+    FACTION_ESCORTEE_H_NEUTRAL_ACTIVE   = 232,
+    FACTION_ESCORTEE_N_NEUTRAL_ACTIVE   = 250,
+    FACTION_ESCORTEE_N_FRIEND_PASSIVE   = 290,
+    FACTION_TITAN                       = 415,
+    FACTION_ESCORTEE_N_FRIEND_ACTIVE    = 495,
+    FACTION_GOBLIN_DARK_IRON_BAR_PATRON = 736,
+    FACTION_DARK_IRON_DWARVES           = 754,
+    FACTION_ESCORTEE_A_PASSIVE          = 774,
+    FACTION_ESCORTEE_H_PASSIVE          = 775,
+    FACTION_UNDEAD_SCOURGE              = 974,
+    FACTION_EARTHEN_RING                = 1726,
+    FACTION_ALLIANCE_GENERIC_WG         = 1732,
+    FACTION_HORDE_GENERIC_WG            = 1735,
+    FACTION_ARAKKOA                     = 1738,
+    FACTION_ASHTONGUE_DEATHSWORN        = 1820,
+    FACTION_FLAYER_HUNTER               = 1840,
+    FACTION_MONSTER_SPAR_BUDDY          = 1868,
+    FACTION_ESCORTEE_N_ACTIVE           = 1986,
+    FACTION_ESCORTEE_H_ACTIVE           = 2046,
+    FACTION_UNDEAD_SCOURGE_2            = 2068,
+    FACTION_UNDEAD_SCOURGE_3            = 2084,
+    FACTION_SCARLET_CRUSADE             = 2089
 };
 
 #define MIN_REPUTATION_RANK (REP_HATED)
@@ -409,7 +454,7 @@ enum SpellAttr3
     SPELL_ATTR3_REQ_WAND                         = 0x00400000, // 22 Req wand
     SPELL_ATTR3_UNK23                            = 0x00800000, // 23
     SPELL_ATTR3_REQ_OFFHAND                      = 0x01000000, // 24 Req offhand weapon
-    SPELL_ATTR3_UNK25                            = 0x02000000, // 25 no cause spell pushback ?
+    SPELL_ATTR3_TREAT_AS_PERIODIC                = 0x02000000, // 25 Makes the spell appear as periodic in client combat logs - used by spells that trigger another spell on each tick
     SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736 + 52999)
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
@@ -2993,6 +3038,8 @@ enum CorpseDynFlags
     CORPSE_DYNFLAG_LOOTABLE        = 0x0001
 };
 
+#define PLAYER_CORPSE_LOOT_ENTRY 1
+
 enum WeatherType
 {
     WEATHER_TYPE_FINE       = 0,
@@ -3581,6 +3628,25 @@ enum SpellCooldownFlags
     SPELL_COOLDOWN_FLAG_NONE                    = 0x0,
     SPELL_COOLDOWN_FLAG_INCLUDE_GCD             = 0x1,  ///< Starts GCD in addition to normal cooldown specified in the packet
     SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires SPELL_COOLDOWN_FLAG_INCLUDE_GCD set
+};
+
+enum WeaponAttackType : uint8
+{
+    BASE_ATTACK   = 0,
+    OFF_ATTACK    = 1,
+    RANGED_ATTACK = 2,
+    MAX_ATTACK
+};
+
+enum CharterTypes
+{
+    CHARTER_TYPE_NONE           = 0,
+    CHARTER_TYPE_ANY            = 10,
+
+    GUILD_CHARTER_TYPE          = 9,
+    ARENA_TEAM_CHARTER_2v2_TYPE = 2,
+    ARENA_TEAM_CHARTER_3v3_TYPE = 3,
+    ARENA_TEAM_CHARTER_5v5_TYPE = 5
 };
 
 #endif

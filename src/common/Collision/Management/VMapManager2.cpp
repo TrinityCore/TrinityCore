@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -162,7 +162,7 @@ namespace VMAP
         }
     }
 
-    bool VMapManager2::isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2)
+    bool VMapManager2::isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags)
     {
         if (!isLineOfSightCalcEnabled() || IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LOS))
             return true;
@@ -174,7 +174,7 @@ namespace VMAP
             Vector3 pos2 = convertPositionToInternalRep(x2, y2, z2);
             if (pos1 != pos2)
             {
-                return instanceTree->second->isInLineOfSight(pos1, pos2);
+                return instanceTree->second->isInLineOfSight(pos1, pos2, ignoreFlags);
             }
         }
 
@@ -279,7 +279,7 @@ namespace VMAP
         return false;
     }
 
-    WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename)
+    WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags/* Only used when creating the model */)
     {
         //! Critical section, thread safe access to iLoadedModelFiles
         std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
@@ -295,6 +295,9 @@ namespace VMAP
                 return NULL;
             }
             VMAP_DEBUG_LOG("maps", "VMapManager2: loading file '%s%s'", basepath.c_str(), filename.c_str());
+
+            worldmodel->Flags = flags;
+
             model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel>(filename, ManagedModel())).first;
             model->second.setModel(worldmodel);
         }
@@ -321,7 +324,7 @@ namespace VMAP
         }
     }
 
-    bool VMapManager2::existsMap(const char* basePath, unsigned int mapId, int x, int y)
+    LoadResult VMapManager2::existsMap(const char* basePath, unsigned int mapId, int x, int y)
     {
         return StaticMapTree::CanLoadMap(std::string(basePath), mapId, x, y);
     }

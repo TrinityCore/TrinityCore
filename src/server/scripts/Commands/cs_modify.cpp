@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -217,7 +217,7 @@ public:
 
         if (!pfactionid)
         {
-            uint32 factionid = target->getFaction();
+            uint32 factionid = target->GetFaction();
             uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
             uint32 npcflag   = target->GetUInt32Value(UNIT_NPC_FLAGS);
             uint32 dyflag    = target->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
@@ -259,7 +259,7 @@ public:
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().GetCounter(), factionid, flag, npcflag, dyflag);
 
-        target->setFaction(factionid);
+        target->SetFaction(factionid);
         target->SetUInt32Value(UNIT_FIELD_FLAGS, flag);
         target->SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
         target->SetUInt32Value(UNIT_DYNAMIC_FLAGS, dyflag);

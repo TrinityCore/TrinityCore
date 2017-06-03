@@ -758,22 +758,22 @@ CharactersPerAccount = 50
 CharactersPerRealm = 10
 
 #
-#    HeroicCharactersPerRealm
-#        Description: Limit number of heroic class characters per account on this realm.
+#    DeathKnightsPerRealm
+#        Description: Limit number of death knight characters per account on this realm.
 #        Range:       1-10
 #        Default:     1
 
-HeroicCharactersPerRealm = 1
+DeathKnightsPerRealm = 1
 
 #
-#    CharacterCreating.MinLevelForHeroicCharacter
-#        Description: Limit creating heroic characters only for account with another
+#    CharacterCreating.MinLevelForDeathKnight
+#        Description: Limit creating death knights only for account with another
 #                     character of specific level (ignored for GM accounts).
 #        Default:     55 - (Enabled, Requires at least another level 55 character)
 #                     0  - (Disabled)
 #                     1  - (Enabled, Requires at least another level 1 character)
 
-CharacterCreating.MinLevelForHeroicCharacter = 55
+CharacterCreating.MinLevelForDeathKnight = 55
 
 #
 #    SkipCinematics
@@ -810,12 +810,12 @@ MinDualSpecLevel = 40
 StartPlayerLevel = 1
 
 #
-#    StartHeroicPlayerLevel
-#        Description: Staring level for heroic class characters after creation.
+#    StartDeathKnightPlayerLevel
+#        Description: Staring level for death knight characters after creation.
 #        Range:       1-MaxPlayerLevel
 #        Default:     55
 
-StartHeroicPlayerLevel = 55
+StartDeathKnightPlayerLevel = 55
 
 #
 #    StartPlayerMoney
@@ -1226,6 +1226,17 @@ Account.PasswordChangeSecurity = 0
 #
 
 BirthdayTime = 1222964635
+
+#
+#   CacheDataQueries
+#        Description: Server caches data queries at startup. 
+#                     Can be disabled if not enough memory is available.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+#
+#
+
+CacheDataQueries = 1
 
 #
 ###################################################################################################
@@ -1794,6 +1805,14 @@ PreserveCustomChannels = 1
 PreserveCustomChannelDuration = 14
 
 #
+#    PartyRaidWarnings
+#        Description: Allow any user to use raid warnings when in a 5-man party.
+#        Default:     0 - (Disabled, Blizzlike)
+#                     1 - (Enabled)
+
+PartyRaidWarnings = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -1914,6 +1933,7 @@ GM.ForceShutdownThreshold = 30
 #        Default:     1 - (Raid)
 #                     0 - (Party)
 #                     2 - (Faction)
+#                     3 - (None)
 
 Visibility.GroupMode = 1
 
@@ -2780,12 +2800,12 @@ CharDelete.Method = 0
 CharDelete.MinLevel = 0
 
 #
-#    CharDelete.Heroic.MinLevel
-#        Description: Required level to use the unlinking method if enabled for heroic classes.
+#    CharDelete.DeathKnight.MinLevel
+#        Description: Required level to use the unlinking method if enabled for death knights.
 #        Default:     0  - (Same method for every level)
 #                     1+ - (Only characters with the specified level will use the unlinking method)
 
-CharDelete.Heroic.MinLevel = 0
+CharDelete.DeathKnight.MinLevel = 0
 
 #
 #    CharDelete.KeepDays
@@ -3224,6 +3244,15 @@ AuctionHouseBot.ItemsPerCycle.Normal = 20
 AuctionHouseBot.BuyPrice.Seller = 1
 
 #
+#    AuctionHouseBot.BidPrice.*
+#       Description: These values determine the range that the Bid Price will fall into, as a percentage of the Buy Price
+#       Default:     0.6 - (Min)
+#                    0.9 - (Max)
+
+AuctionHouseBot.BidPrice.Min = 0.6
+AuctionHouseBot.BidPrice.Max = 0.9
+
+#
 #    AuctionHouseBot.Alliance.Price.Ratio
 #       Description: Percentage by which the price of items selled on Alliance Auction House is incremented / decreased
 #       Default:     100 - (Not modify)
@@ -3426,7 +3455,7 @@ AuctionHouseBot.forceIncludeItems = ""
 #       Default:     ""
 #
 
-AuctionHouseBot.forceExcludeItems = ""
+AuctionHouseBot.forceExcludeItems = "6343,6345,6376"
 
 #
 #    AuctionHouseBot.Class.RandomStackRatio.*

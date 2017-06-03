@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@
 #include "Object.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"
+#include "WorldPacket.h"
 #include <G3D/Quat.h>
 
 class GameObjectAI;
@@ -423,6 +424,7 @@ struct GameObjectTemplate
 
     std::string AIName;
     uint32 ScriptId;
+    WorldPacket QueryData[TOTAL_LOCALES];
 
     // helpers
     bool IsDespawnAtAction() const
@@ -516,7 +518,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_AREADAMAGE:    autoCloseTime = areadamage.autoCloseTime; break;
             default: break;
         }
-        return autoCloseTime / IN_MILLISECONDS;              // prior to 3.0.3, conversion was / 0x10000;
+        return autoCloseTime;              // prior to 3.0.3, conversion was / 0x10000;
     }
 
     uint32 GetLootId() const
@@ -559,6 +561,9 @@ struct GameObjectTemplate
             default: return 0;
         }
     }
+
+    void InitializeQueryData();
+    WorldPacket BuildQueryData(LocaleConstant loc) const;
 };
 
 // From `gameobject_template_addon`
@@ -635,7 +640,7 @@ enum GOState
 struct GameObjectData
 {
     explicit GameObjectData() : id(0), mapid(0), phaseMask(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
-                                animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0), dbData(true) { }
+                                animprogress(0), go_state(GO_STATE_ACTIVE), spawnMask(0), artKit(0), ScriptId(0), dbData(true) { }
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
     uint32 phaseMask;
@@ -649,6 +654,7 @@ struct GameObjectData
     GOState go_state;
     uint8 spawnMask;
     uint8 artKit;
+    uint32 ScriptId;
     bool dbData;
 };
 
@@ -789,6 +795,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
         void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
+        void SetLootGenerationTime() { m_lootGenerationTime = time(nullptr); }
+        uint32 GetLootGenerationTime() const { return m_lootGenerationTime; }
 
         void AddToSkillupList(ObjectGuid::LowType PlayerGuidLow) { m_SkillupList.push_back(PlayerGuidLow); }
         bool IsInSkillupList(ObjectGuid::LowType PlayerGuidLow) const
@@ -865,10 +873,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void EventInform(uint32 eventId, WorldObject* invoker = NULL);
 
-        virtual uint32 GetScriptId() const { return GetGOInfo()->ScriptId; }
+        uint32 GetScriptId() const;
         GameObjectAI* AI() const { return m_AI; }
 
-        std::string GetAIName() const;
+        std::string const& GetAIName() const;
         void SetDisplayId(uint32 displayid);
         uint32 GetDisplayId() const { return GetUInt32Value(GAMEOBJECT_DISPLAYID); }
 
@@ -887,7 +895,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         float GetStationaryO() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
         void RelocateStationaryPosition(float x, float y, float z, float o) { m_stationaryPosition.Relocate(x, y, z, o); }
 
-        float GetInteractionDistance();
+        float GetInteractionDistance() const;
 
         void UpdateModelPosition();
 
@@ -929,6 +937,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         ObjectGuid m_lootRecipient;
         uint32 m_lootRecipientGroup;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
+        uint32 m_lootGenerationTime;
 
         ObjectGuid m_linkedTrap;
 
@@ -938,7 +947,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void UpdatePackedRotation();
 
         //! Object distance/size - overridden from Object::_IsWithinDist. Needs to take in account proper GO size.
-        bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool /*is3D*/) const override
+        bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool /*is3D*/, bool /*incOwnRadius*/, bool /*incTargetRadius*/) const override
         {
             //! Following check does check 3d distance
             return IsInRange(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), dist2compare);

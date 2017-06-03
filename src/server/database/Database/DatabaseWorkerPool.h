@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,6 @@
 #define _DATABASEWORKERPOOL_H
 
 #include "Common.h"
-#include "QueryCallback.h"
 #include "MySQLConnection.h"
 #include "Transaction.h"
 #include "DatabaseWorker.h"
@@ -33,6 +32,8 @@
 #include <mysqld_error.h>
 #include <memory>
 #include <array>
+
+class QueryCallback;
 
 class PingOperation : public SQLOperation
 {
@@ -192,20 +193,12 @@ class DatabaseWorkerPool
 
         //! Enqueues a query in string format that will set the value of the QueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
-        QueryResultFuture AsyncQuery(const char* sql);
-
-        //! Enqueues a query in string format -with variable args- that will set the value of the QueryResultFuture return object as soon as the query is executed.
-        //! The return value is then processed in ProcessQueryCallback methods.
-        template<typename Format, typename... Args>
-        QueryResultFuture AsyncPQuery(Format&& sql, Args&&... args)
-        {
-            return AsyncQuery(Trinity::StringFormat(std::forward<Format>(sql), std::forward<Args>(args)...).c_str());
-        }
+        QueryCallback AsyncQuery(const char* sql);
 
         //! Enqueues a query in prepared format that will set the value of the PreparedQueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Statement must be prepared with CONNECTION_ASYNC flag.
-        PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt);
+        QueryCallback AsyncQuery(PreparedStatement* stmt);
 
         //! Enqueues a vector of SQL operations (can be both adhoc and prepared) that will set the value of the QueryResultHolderFuture
         //! return object as soon as the query is executed.
@@ -262,7 +255,7 @@ class DatabaseWorkerPool
         //! This object is not tied to the prepared statement on the MySQL context yet until execution.
         PreparedStatement* GetPreparedStatement(PreparedStatementIndex index)
         {
-            return new PreparedStatement(index);
+            return new PreparedStatement(index, _preparedStatementSize[index]);
         }
 
         //! Apply escape string'ing for current collation. (utf8)
@@ -301,6 +294,7 @@ class DatabaseWorkerPool
         std::unique_ptr<ProducerConsumerQueue<SQLOperation*>> _queue;
         std::array<std::vector<std::unique_ptr<T>>, IDX_SIZE> _connections;
         std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
+        std::vector<uint8> _preparedStatementSize;
         uint8 _async_threads, _synch_threads;
 };
 

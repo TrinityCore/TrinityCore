@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,7 +49,8 @@ enum Events
     EVENT_CLEAVE,
     EVENT_ENERVATING_BRAND,
     EVENT_INTRO_TALK,
-    EVENT_SUMMONS_ATTACK
+    EVENT_SUMMONS_ATTACK,
+    EVENT_CLONE
 };
 
 enum Actions
@@ -71,18 +72,17 @@ class boss_baltharus_the_warborn : public CreatureScript
 
         struct boss_baltharus_the_warbornAI : public BossAI
         {
-            boss_baltharus_the_warbornAI(Creature* creature) : BossAI(creature, DATA_BALTHARUS_THE_WARBORN), _introDone(false)
-            {
-                _cloneCount = RAID_MODE<uint8>(1, 2, 2, 2);
-            }
+            boss_baltharus_the_warbornAI(Creature* creature) : BossAI(creature, DATA_BALTHARUS_THE_WARBORN),
+                _cloneCount(0), _introDone(false) { }
 
             void Reset() override
             {
                 _Reset();
                 events.SetPhase(PHASE_INTRO);
                 instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetMaxHealth());
-                if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CRYSTAL_CHANNEL_TARGET)))
+                if (Creature* channelTarget = instance->GetCreature(DATA_CRYSTAL_CHANNEL_TARGET))
                     DoCast(channelTarget, SPELL_BARRIER_CHANNEL);
+                _cloneCount = 0;
             }
 
             void DoAction(int32 action) override
@@ -98,11 +98,10 @@ class boss_baltharus_the_warborn : public CreatureScript
                         break;
                     case ACTION_CLONE:
                     {
-                        DoCastSelf(SPELL_CLEAR_DEBUFFS);
-                        DoCastSelf(SPELL_CLONE);
+                        DoCastSelf(SPELL_CLEAR_DEBUFFS, true);
+                        DoCastSelf(SPELL_CLONE, true);
                         DoCastSelf(SPELL_REPELLING_WAVE);
                         Talk(SAY_CLONE);
-                        --_cloneCount;
                         break;
                     }
                     default:
@@ -126,7 +125,7 @@ class boss_baltharus_the_warborn : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                if (Creature* xerestrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_XERESTRASZA)))
+                if (Creature* xerestrasza = instance->GetCreature(DATA_XERESTRASZA))
                     xerestrasza->AI()->DoAction(ACTION_BALTHARUS_DEATH);
             }
 
@@ -147,15 +146,24 @@ class boss_baltharus_the_warborn : public CreatureScript
             {
                 if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                 {
-                    if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 1)
-                        DoAction(ACTION_CLONE);
+                    if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 0)
+                    {
+                        ++_cloneCount;
+                        events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
+                    }
                 }
                 else
                 {
-                    if (me->HealthBelowPctDamaged(66, damage) && _cloneCount == 2)
-                        DoAction(ACTION_CLONE);
+                    if (me->HealthBelowPctDamaged(66, damage) && _cloneCount == 0)
+                    {
+                        ++_cloneCount;
+                        events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
+                    }
                     else if (me->HealthBelowPctDamaged(33, damage) && _cloneCount == 1)
-                        DoAction(ACTION_CLONE);
+                    {
+                        ++_cloneCount;
+                        events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
+                    }
                 }
 
                 if (me->GetHealth() > damage)
@@ -171,18 +179,17 @@ class boss_baltharus_the_warborn : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                bool introPhase = events.IsInPhase(PHASE_INTRO);
 
-                if (!introPhase && !UpdateVictim())
+                if (!events.IsInPhase(PHASE_INTRO) && !UpdateVictim())
                     return;
 
-                if (!introPhase)
+                if (!events.IsInPhase(PHASE_INTRO))
                     me->SetHealth(instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
 
-                events.Update(diff);
-
-                if (!introPhase && me->HasUnitState(UNIT_STATE_CASTING))
+                if (!events.IsInPhase(PHASE_INTRO) && me->HasUnitState(UNIT_STATE_CASTING))
                     return;
+
+                events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -207,6 +214,9 @@ class boss_baltharus_the_warborn : public CreatureScript
                             break;
                         case EVENT_SUMMONS_ATTACK:
                             summons.DoZoneInCombat(NPC_BALTHARUS_THE_WARBORN_CLONE);
+                            break;
+                        case EVENT_CLONE:
+                            DoAction(ACTION_CLONE);
                             break;
                         default:
                             break;
@@ -266,7 +276,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             void JustDied(Unit* killer) override
             {
                 // This is here because DamageTaken wont trigger if the damage is deadly.
-                if (Creature* baltharus = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BALTHARUS_THE_WARBORN)))
+                if (Creature* baltharus = instance->GetCreature(DATA_BALTHARUS_THE_WARBORN))
                     killer->Kill(baltharus);
             }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -75,7 +75,7 @@ public:
         {
             Initialize();
             creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            creature->setFaction(35);
+            creature->SetFaction(FACTION_FRIENDLY);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
@@ -153,7 +153,7 @@ public:
                             events.ScheduleEvent(EVENT_SPEECH_4, 16000);
                             break;
                         case EVENT_SPEECH_4:
-                            me->setFaction(103);
+                            me->SetFaction(FACTION_DRAGONFLIGHT_BLACK);
                             if (PlayerGUID && ObjectAccessor::GetUnit(*me, PlayerGUID))
                                 AttackStart(ObjectAccessor::GetUnit(*me, PlayerGUID));;
                             break;
@@ -222,13 +222,14 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_ID && gossipListId == 0)
             {
                 CloseGossipMenuFor(player);
                 BeginSpeech(player);
             }
+            return false;
         }
 
         private:

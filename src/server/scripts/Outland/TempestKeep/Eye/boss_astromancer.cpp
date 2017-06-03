@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -288,7 +288,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         Phase1_Timer = 50000;
                         //After these 50 seconds she portals to the middle of the room and disappears, leaving 3 light portals behind.
                         me->GetMotionMaster()->Clear();
-                        me->SetPosition(CENTER_X, CENTER_Y, CENTER_Z, CENTER_O);
+                        me->UpdatePosition(CENTER_X, CENTER_Y, CENTER_Z, CENTER_O);
                         for (uint8 i=0; i <= 2; ++i)
                         {
                             if (!i)
@@ -354,7 +354,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         //15 seconds later Solarian reappears out of one of the 3 portals. Simultaneously, 2 healers appear in the two other portals.
                         int i = rand32() % 3;
                         me->GetMotionMaster()->Clear();
-                        me->SetPosition(Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
+                        me->UpdatePosition(Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
 
                         for (int j=0; j <= 2; j++)
                             if (j != i)

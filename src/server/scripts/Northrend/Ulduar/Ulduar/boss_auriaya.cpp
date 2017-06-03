@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -324,7 +324,7 @@ class npc_auriaya_seeping_trigger : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_auriaya_seeping_triggerAI>(creature);
+            return GetUlduarAI<npc_auriaya_seeping_triggerAI>(creature);
         }
 };
 
@@ -391,8 +391,8 @@ class npc_sanctum_sentry : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_AURIAYA)))
-                    Auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
+                if (Creature* auriaya = instance->GetCreature(BOSS_AURIAYA))
+                    auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
             }
 
         private:
@@ -402,7 +402,7 @@ class npc_sanctum_sentry : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_sanctum_sentryAI>(creature);
+            return GetUlduarAI<npc_sanctum_sentryAI>(creature);
         }
 };
 
@@ -470,8 +470,8 @@ class npc_feral_defender : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 DoCast(me, SPELL_SUMMON_ESSENCE);
-                if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_AURIAYA)))
-                    Auriaya->AI()->DoAction(ACTION_RESPAWN_DEFENDER);
+                if (Creature* auriaya = instance->GetCreature(BOSS_AURIAYA))
+                    auriaya->AI()->DoAction(ACTION_RESPAWN_DEFENDER);
             }
 
         private:
@@ -481,7 +481,7 @@ class npc_feral_defender : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_feral_defenderAI>(creature);
+            return GetUlduarAI<npc_feral_defenderAI>(creature);
         }
 };
 

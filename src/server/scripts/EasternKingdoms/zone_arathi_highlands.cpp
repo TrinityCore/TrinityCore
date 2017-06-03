@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,8 +52,7 @@ enum ProfessorPhizzlethorpe
     // Quests
     QUEST_SUNKEN_TREASURE   = 665,
     // Creatures
-    NPC_VENGEFUL_SURGE      = 2776,
-    FACTION_SUNKEN_TREASURE = 113
+    NPC_VENGEFUL_SURGE      = 2776
 };
 
 class npc_professor_phizzlethorpe : public CreatureScript
@@ -114,13 +113,13 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void sQuestAccept(Player* player, Quest const* quest) override
+            void QuestAccept(Player* player, Quest const* quest) override
             {
                 if (quest->GetQuestId() == QUEST_SUNKEN_TREASURE)
                 {
                     Talk(SAY_PROGRESS_1, player);
                     npc_escortAI::Start(false, false, player->GetGUID(), quest);
-                    me->setFaction(FACTION_SUNKEN_TREASURE);
+                    me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 }
             }
 

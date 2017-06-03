@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "GameObjectAI.h"
 #include "CreatureAIImpl.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 
 enum FireworksShowTypeObjects
 {
@@ -792,13 +793,12 @@ public:
         {
             _events.Update(diff);
 
-            time_t time = sWorld->GetGameTime();
+            time_t time = GameTime::GetGameTime();
             tm localTm;
             localtime_r(&time, &localTm);
 
             // Start
-            if (((localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR)) ||
-                ((localTm.tm_hour == 0 && localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started && IsEventActive(GAME_EVENT_NEW_YEAR)))
+            if ((localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started && (IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR) || IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
                 _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
                 _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
@@ -806,14 +806,14 @@ public:
             }
 
             // Event is active
-            if ((localTm.tm_min >= 0 && localTm.tm_sec >= 1 && localTm.tm_min <= 9 && localTm.tm_sec <= 59) && !_started && IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR))
+            if ((localTm.tm_min >= 0 && localTm.tm_sec >= 1 && localTm.tm_min <= 9 && localTm.tm_sec <= 59 && !_started) && (IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR) || IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
                 _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
                 _started = true;
             }
 
             // Stop
-            if ((localTm.tm_min == 10 && localTm.tm_sec == 0) || (localTm.tm_min == 10 && localTm.tm_sec == 0 && localTm.tm_hour == 0 && _started == true))
+            if ((localTm.tm_min == 10 && localTm.tm_sec == 0) && _started == true)
             {
                 _started = false;
                 _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
@@ -843,12 +843,12 @@ public:
                 {
                 case EVENT_CHEER:
                 {
-                    go->PlayDistanceSound(CheerPicker());
+                    me->PlayDistanceSound(CheerPicker());
                     break;
                 }
                 case EVENT_FIRE:
                 {
-                    auto it = pos.find(go->GetZoneId());
+                    auto it = pos.find(me->GetZoneId());
                     if (it != pos.end())
                     {
                         Position const& rndpos = Trinity::Containers::SelectRandomContainerElement(it->second);
@@ -857,7 +857,7 @@ public:
 
                         if (_big)
                         {
-                            if (GameObject* firework = go->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
+                            if (GameObject* firework = me->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
                             {
                                 firework->SetRespawnTime(0);
                                 firework->Delete();
@@ -865,7 +865,7 @@ public:
                         }
                         else
                         {
-                            if (GameObject* firework = go->SummonGameObject(FireworksPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
+                            if (GameObject* firework = me->SummonGameObject(FireworksPicker(), rndpos, G3D::Quat(0.f, 0.f, rndrot, rndrot2), 300))
                             {
                                 firework->SetRespawnTime(0);
                                 firework->Delete();

@@ -1,25 +1,26 @@
 /*
-* Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "AuthSession.h"
 #include "Log.h"
 #include "AuthCodes.h"
 #include "Database/DatabaseEnv.h"
+#include "QueryCallback.h"
 #include "SHA1.h"
 #include "TOTP.h"
 #include "openssl/crypto.h"
@@ -169,8 +170,7 @@ void AuthSession::Start()
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
-    _queryCallback = std::bind(&AuthSession::CheckIpCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::CheckIpCallback, this, std::placeholders::_1)));
 }
 
 bool AuthSession::Update()
@@ -178,12 +178,7 @@ bool AuthSession::Update()
     if (!AuthSocket::Update())
         return false;
 
-    if (_queryFuture.valid() && _queryFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        auto callback = _queryCallback;
-        _queryCallback = nullptr;
-        callback(_queryFuture.get());
-    }
+    _queryProcessor.ProcessReadyQueries();
 
     return true;
 }
@@ -293,18 +288,6 @@ bool AuthSession::HandleLogonChallenge()
     std::string login((const char*)challenge->I, challenge->I_len);
     TC_LOG_DEBUG("server.authserver", "[AuthChallenge] '%s'", login.c_str());
 
-    if (_queryCallback)
-    {
-        ByteBuffer pkt;
-        pkt << uint8(AUTH_LOGON_CHALLENGE);
-        pkt << uint8(0x00);
-        pkt << uint8(WOW_FAIL_DB_BUSY);
-        SendPacket(pkt);
-
-        TC_LOG_DEBUG("server.authserver", "[AuthChallenge] %s attempted to log too quick after previous attempt!", login.c_str());
-        return true;
-    }
-
     _build = challenge->build;
     _expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
     std::array<char, 5> os;
@@ -323,8 +306,7 @@ bool AuthSession::HandleLogonChallenge()
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGONCHALLENGE);
     stmt->setString(0, login);
 
-    _queryCallback = std::bind(&AuthSession::LogonChallengeCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::LogonChallengeCallback, this, std::placeholders::_1)));
     return true;
 }
 
@@ -495,7 +477,7 @@ bool AuthSession::HandleLogonProof()
     A.SetBinary(logonProof->A, 32);
 
     // SRP safeguard: abort if A == 0
-    if (A.IsZero())
+    if ((A % N).IsZero())
         return false;
 
     SHA1Hash sha;
@@ -708,17 +690,6 @@ bool AuthSession::HandleReconnectChallenge()
     std::string login((const char*)challenge->I, challenge->I_len);
     TC_LOG_DEBUG("server.authserver", "[ReconnectChallenge] '%s'", login.c_str());
 
-    if (_queryCallback)
-    {
-        ByteBuffer pkt;
-        pkt << uint8(AUTH_RECONNECT_CHALLENGE);
-        pkt << uint8(WOW_FAIL_DB_BUSY);
-        SendPacket(pkt);
-
-        TC_LOG_DEBUG("server.authserver", "[ReconnectChallenge] %s attempted to log too quick after previous attempt!", login.c_str());
-        return true;
-    }
-
     _build = challenge->build;
     _expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
     std::array<char, 5> os;
@@ -737,8 +708,7 @@ bool AuthSession::HandleReconnectChallenge()
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RECONNECTCHALLENGE);
     stmt->setString(0, login);
 
-    _queryCallback = std::bind(&AuthSession::ReconnectChallengeCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::ReconnectChallengeCallback, this, std::placeholders::_1)));
     return true;
 }
 
@@ -810,17 +780,10 @@ bool AuthSession::HandleRealmList()
 {
     TC_LOG_DEBUG("server.authserver", "Entering _HandleRealmList");
 
-    if (_queryCallback)
-    {
-        TC_LOG_DEBUG("server.authserver", "[RealmList] %s attempted to get realmlist too quick after previous attempt!", _accountInfo.Login.c_str());
-        return false;
-    }
-
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALM_CHARACTER_COUNTS);
     stmt->setUInt32(0, _accountInfo.Id);
 
-    _queryCallback = std::bind(&AuthSession::RealmListCallback, this, std::placeholders::_1);
-    _queryFuture = LoginDatabase.AsyncQuery(stmt);
+    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::RealmListCallback, this, std::placeholders::_1)));
     return true;
 }
 

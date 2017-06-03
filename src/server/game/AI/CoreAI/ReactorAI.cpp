@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 #include "ByteBuffer.h"
 #include "ReactorAI.h"
 
-int ReactorAI::Permissible(const Creature* creature)
+int32 ReactorAI::Permissible(Creature const* creature)
 {
     if (creature->IsCivilian() || creature->IsNeutralToAll())
         return PERMIT_BASE_REACTIVE;

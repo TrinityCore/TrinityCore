@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -78,7 +78,7 @@ enum TrinityStrings
     LANG_UNKNOWN                        = 45,
     LANG_ERROR                          = 46,
     LANG_NON_EXIST_CHARACTER            = 47,
-    LANG_FRIEND_IGNORE_UNKNOWN          = 48,
+    // unused                           = 48,
     LANG_LEVEL_MINREQUIRED              = 49,
     LANG_LEVEL_MINREQUIRED_AND_ITEM     = 50,
     LANG_NPC_TAINER_HELLO               = 51,
@@ -114,7 +114,10 @@ enum TrinityStrings
     LANG_PVPSTATS_DISABLED              = 81,
     LANG_COMMAND_NEARGRAVEYARD          = 82,
     LANG_COMMAND_NEARGRAVEYARD_NOTFOUND = 83,
-    // Free 84 - 95
+    LANG_GOINFO_SIZE                    = 84,
+    LANG_GOINFO_ADDON                   = 85,
+    LANG_GOINFO_MODEL                   = 86,
+    // Free 87 - 95
 
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
@@ -537,7 +540,7 @@ enum TrinityStrings
     LANG_MOVEGENS_IDLE                  = 527,
     LANG_MOVEGENS_RANDOM                = 528,
     LANG_MOVEGENS_WAYPOINT              = 529,
-    LANG_MOVEGENS_ANIMAL_RANDOM         = 530,
+    //                                  = 530, not used
     LANG_MOVEGENS_CONFUSED              = 531,
     LANG_MOVEGENS_CHASE_PLAYER          = 532,
     LANG_MOVEGENS_CHASE_CREATURE        = 533,
@@ -983,7 +986,8 @@ enum TrinityStrings
     LANG_GUILD_INFO_BANK_GOLD           = 1181,
     LANG_GUILD_INFO_MOTD                = 1182,
     LANG_GUILD_INFO_EXTRA_INFO          = 1183,
-    // Room for more level 3              1184-1198 not used
+    LANG_CHANGEACCOUNT_SUCCESS          = 1184,             // log
+    // Room for more level 3              1185-1198 not used
 
     // Debug commands
     LANG_DO_NOT_USE_6X_DEBUG_AREATRIGGER_LEFT = 1999,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -240,7 +240,7 @@ public:
             return true;
 
         float x, y, z;
-        go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
+        go->GetClosePoint(x, y, z, go->GetCombatReach() / 3, 7.0f);
         go->SummonGameObject(GO_HIGH_QUALITY_FUR, *go, G3D::Quat(), 1);
         if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
@@ -412,6 +412,30 @@ public:
     }
 };
 
+// Only used currently for
+// 19169: Nightfall
+class item_generic_limit_chance_above_60 : public ItemScript
+{
+    public:
+        item_generic_limit_chance_above_60() : ItemScript("item_generic_limit_chance_above_60") { }
+
+        bool OnCastItemCombatSpell(Player* /*player*/, Unit* victim, SpellInfo const* /*spellInfo*/, Item* /*item*/) override
+        {
+            // spell proc chance gets severely reduced on victims > 60 (formula unknown)
+            if (victim->getLevel() > 60)
+            {
+                // gives ~0.1% proc chance at lvl 70
+                float const lvlPenaltyFactor = 9.93f;
+                float const failureChance = (victim->getLevel() - 60) * lvlPenaltyFactor;
+
+                // base ppm chance was already rolled, only roll success chance
+                return !roll_chance_f(failureChance);
+            }
+
+            return true;
+        }
+};
+
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
@@ -425,4 +449,5 @@ void AddSC_item_scripts()
     new item_dehta_trap_smasher();
     new item_trident_of_nazjan();
     new item_captured_frog();
+    new item_generic_limit_chance_above_60();
 }

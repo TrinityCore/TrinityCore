@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1286,18 +1286,9 @@ class spell_dk_hungering_cold : public SpellScriptLoader
                 return (spellInfo->Dispel != DISPEL_DISEASE);
             }
 
-            void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                // Prevent console spam
-                PreventDefaultAction();
-            }
-
             void Register() override
             {
                 DoCheckProc += AuraCheckProcFn(spell_dk_hungering_cold_AuraScript::CheckProc);
-
-                OnEffectProc += AuraEffectProcFn(spell_dk_hungering_cold_AuraScript::HandleDummy, EFFECT_1, SPELL_AURA_DUMMY);
-                OnEffectProc += AuraEffectProcFn(spell_dk_hungering_cold_AuraScript::HandleDummy, EFFECT_2, SPELL_AURA_DUMMY);
             }
         };
 
@@ -1390,18 +1381,10 @@ class spell_dk_improved_blood_presence : public SpellScriptLoader
                     target->RemoveAura(SPELL_DK_IMPROVED_BLOOD_PRESENCE_TRIGGERED);
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                // Prevent console spam
-                PreventDefaultAction();
-            }
-
             void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_dk_improved_blood_presence_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_dk_improved_blood_presence_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-
-                OnEffectProc += AuraEffectProcFn(spell_dk_improved_blood_presence_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -2069,34 +2052,6 @@ class spell_dk_rime : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_dk_blade_barrier_AuraScript();
-        }
-};
-
-// 56817 - Rune strike proc (Serverside spell)
-class spell_dk_rune_strike_proc : public SpellScriptLoader
-{
-    public:
-        spell_dk_rune_strike_proc() : SpellScriptLoader("spell_dk_rune_strike_proc") { }
-
-        class spell_dk_rune_strike_proc_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_rune_strike_proc_AuraScript);
-
-            void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                // Prevent console log
-                PreventDefaultAction();
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_dk_rune_strike_proc_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dk_rune_strike_proc_AuraScript();
         }
 };
 
@@ -3068,7 +3023,6 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_presence();
     new spell_dk_raise_dead();
     new spell_dk_rime();
-    new spell_dk_rune_strike_proc();
     new spell_dk_rune_tap_party();
     new spell_dk_scent_of_blood();
     new spell_dk_scent_of_blood_trigger();

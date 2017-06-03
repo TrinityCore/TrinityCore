@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 
 uint32 const EncounterCount = 3;
 
-enum DataTypes
+enum ANDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_KRIKTHIR                   = 0,
@@ -37,7 +37,7 @@ enum DataTypes
     DATA_ANUBARAK_WALL_2
 };
 
-enum CreatureIds
+enum ANCreatureIds
 {
     NPC_KRIKTHIR                    = 28684,
     NPC_HADRONOX                    = 28921,
@@ -54,7 +54,7 @@ enum InstanceActions
     ACTION_GATEWATCHER_GREET        = 1
 };
 
-enum GameObjectIds
+enum ANGameObjectIds
 {
     GO_KRIKTHIR_DOOR                = 192395,
     GO_ANUBARAK_DOOR_1              = 192396,

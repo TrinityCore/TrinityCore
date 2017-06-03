@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -122,7 +122,7 @@ Position const DespawnPoint = { 497.4939f, 183.2081f, 94.53341f };
 
 class EnslavedSoulEvent : public BasicEvent
 {
-    public: explicit EnslavedSoulEvent(Creature* owner) : _owner(owner) { }
+    public: EnslavedSoulEvent(Creature* owner) : _owner(owner) { }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
@@ -346,6 +346,8 @@ public:
                     Talk(SUFF_SAY_RECAP);
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
+                    events.Reset();
+                    me->InterruptNonMeleeSpells(false);
                     me->GetMotionMaster()->MovePoint(RELIQUARY_DESPAWN_WAYPOINT, DespawnPoint);
                 }
             }
@@ -474,6 +476,8 @@ public:
                     Talk(DESI_SAY_RECAP);
                     me->AttackStop();
                     me->SetReactState(REACT_PASSIVE);
+                    events.Reset();
+                    me->InterruptNonMeleeSpells(false);
                     me->GetMotionMaster()->MovePoint(RELIQUARY_DESPAWN_WAYPOINT, DespawnPoint);
                 }
             }
@@ -740,7 +744,7 @@ class spell_reliquary_of_souls_aura_of_desire : public SpellScriptLoader
                 caster->CastCustomSpell(SPELL_AURA_OF_DESIRE_DAMAGE, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
             }
 
-            void UpdateAmount(AuraEffect const* /*effect*/)
+            void UpdateAmount(AuraEffect* /*aurEff*/)
             {
                 if (AuraEffect* effect = GetAura()->GetEffect(EFFECT_1))
                     effect->ChangeAmount(effect->GetAmount() - 5);
@@ -749,7 +753,7 @@ class spell_reliquary_of_souls_aura_of_desire : public SpellScriptLoader
             void Register() override
             {
                 OnEffectProc += AuraEffectProcFn(spell_reliquary_of_souls_aura_of_desire_AuraScript::OnProcSpell, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT);
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_reliquary_of_souls_aura_of_desire_AuraScript::UpdateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_reliquary_of_souls_aura_of_desire_AuraScript::UpdateAmount, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 

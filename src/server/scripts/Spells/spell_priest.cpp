@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -583,7 +583,7 @@ class spell_pri_imp_shadowform : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (roll_chance_i(aurEff->GetAmount()))
-                    eventInfo.GetActor()->RemoveMovementImpairingAuras();
+                    eventInfo.GetActor()->RemoveMovementImpairingAuras(true);
             }
 
             void Register() override
@@ -703,10 +703,37 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
                 }
             }
 
+            void InitializeAmount(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // Attacks done to you equal to 30% of your total health will cancel the effect
+                _remainingAmount = GetTarget()->CountPctFromMaxHealth(30);
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo)
+                    return;
+
+                uint32 damage = damageInfo->GetDamage();
+                if (_remainingAmount <= damage)
+                {
+                    DropCharge(AURA_REMOVE_BY_ENEMY_SPELL);
+                    return;
+                }
+
+                _remainingAmount -= damage;
+            }
+
             void Register() override
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_lightwell_renew_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+
+                AfterEffectApply += AuraEffectApplyFn(spell_pri_lightwell_renew_AuraScript::InitializeAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectProc += AuraEffectProcFn(spell_pri_lightwell_renew_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
+
+            uint32 _remainingAmount = 0;
         };
 
         AuraScript* GetAuraScript() const override
@@ -931,9 +958,9 @@ class spell_pri_penance : public SpellScriptLoader
                     uint8 rank = GetSpellInfo()->GetRank();
 
                     if (caster->IsFriendlyTo(unitTarget))
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), TRIGGERED_DISALLOW_PROC_EVENTS);
                     else
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), TRIGGERED_DISALLOW_PROC_EVENTS);
                 }
             }
 

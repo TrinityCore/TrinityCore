@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -173,7 +173,7 @@ class boss_ragnaros : public CreatureScript
                     {
                         //Become unbanished again
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->setFaction(14);
+                        me->SetFaction(FACTION_MONSTER);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
@@ -251,7 +251,7 @@ class boss_ragnaros : public CreatureScript
                                     me->InterruptNonMeleeSpells(false);
                                     //Root self
                                     //DoCast(me, 23973);
-                                    me->setFaction(35);
+                                    me->SetFaction(FACTION_FRIENDLY);
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
                                     me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);

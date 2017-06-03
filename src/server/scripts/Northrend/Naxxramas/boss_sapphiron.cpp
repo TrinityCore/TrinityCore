@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -388,21 +388,21 @@ class go_sapphiron_birth : public GameObjectScript
         {
             go_sapphiron_birthAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            void OnStateChanged(uint32 state, Unit* who) override
+            void OnLootStateChanged(uint32 state, Unit* who) override
             {
                 if (state == GO_ACTIVATED)
                 {
                     if (who)
                     {
-                        if (Creature* sapphiron = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_SAPPHIRON)))
+                        if (Creature* sapphiron = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SAPPHIRON)))
                             sapphiron->AI()->DoAction(ACTION_BIRTH);
                         instance->SetData(DATA_HAD_SAPPHIRON_BIRTH, 1u);
                     }
                 }
                 else if (state == GO_JUST_DEACTIVATED)
                 { // prevent ourselves from going back to _READY and resetting the client anim
-                    go->SetRespawnTime(0);
-                    go->Delete();
+                    me->SetRespawnTime(0);
+                    me->Delete();
                 }
             }
 

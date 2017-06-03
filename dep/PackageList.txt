@@ -14,11 +14,11 @@ bzip2 (a freely available, patent free, high-quality data compressor)
 
 cppformat (type safe format library)
   https://github.com/cppformat/cppformat
-  Version: 5174b8ca281426af604b85fdf53be8a748b33f56
+  Version: 3.0.1 7fa8f8fa48b0903deab5bb42e6760477173ac485
 
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
-  ff0b69daeca1edf7785a8a580518e462be5a6f3d
+  Version: 1.0.0 e4ead877688b6cd736a2326fb10507fa01c26f8f
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
@@ -50,7 +50,7 @@ utf8-cpp (UTF-8 with C++ in a Portable Way)
 
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
-  Version: 1.2.8
+  Version: 1.2.11
 
 gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
   http://gsoap2.sourceforge.net/

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -21,7 +21,7 @@
 
 #define DataHeader "STR"
 
-enum DataTypes
+enum STRDataTypes
 {
     TYPE_BARON_RUN                      = 1,
     TYPE_BARONESS                       = 2,
@@ -43,7 +43,7 @@ enum DataTypes
     TYPE_SH_AELMAR                      = 25
 };
 
-enum CreatureIds
+enum STRCreatureIds
 {
     NPC_CRYSTAL                         = 10415, // ziggurat crystal
     NPC_BARON                           = 10440, // ziggurat crystal
@@ -56,7 +56,7 @@ enum CreatureIds
     NPC_YSIDA                           = 16031,
 };
 
-enum GameobjectIds
+enum STRGameobjectIds
 {
     GO_DOOR_HALAZZI                     = 186303,
     GO_SERVICE_ENTRANCE                 = 175368,
@@ -71,15 +71,14 @@ enum GameobjectIds
     GO_PORT_ELDERS                      = 175377   // port at elders square
 };
 
-enum QuestIds
+enum STRQuestIds
 {
     QUEST_DEAD_MAN_PLEA                 = 8945
 };
 
-enum SpellIds
+enum STRSpellIds
 {
     SPELL_BARON_ULTIMATUM               = 27861
 };
 
 #endif
-

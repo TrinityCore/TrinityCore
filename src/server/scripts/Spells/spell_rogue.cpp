@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1102,8 +1102,7 @@ class spell_rog_turn_the_tables : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                Unit* target = GetTarget();
-                target->CastSpell((Unit*)nullptr, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff, caster->GetGUID());
+                caster->CastSpell((Unit*)nullptr, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1115,39 +1114,6 @@ class spell_rog_turn_the_tables : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_rog_turn_the_tables_AuraScript();
-        }
-};
-
-// 52910,52914,52915 - Turn the Tables proc
-class spell_rog_turn_the_tables_proc : public SpellScriptLoader
-{
-    public:
-        spell_rog_turn_the_tables_proc() : SpellScriptLoader("spell_rog_turn_the_tables_proc") { }
-
-        class spell_rog_turn_the_tables_proc_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_turn_the_tables_proc_SpellScript);
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                targets.clear();
-
-                Unit* target = GetOriginalCaster();
-                if (!target)
-                    return;
-
-                targets.push_back(target);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_rog_turn_the_tables_proc_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_rog_turn_the_tables_proc_SpellScript();
         }
 };
 
@@ -1173,5 +1139,4 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_honor_among_thieves();
     new spell_rog_honor_among_thieves_proc();
     new spell_rog_turn_the_tables();
-    new spell_rog_turn_the_tables_proc();
 }

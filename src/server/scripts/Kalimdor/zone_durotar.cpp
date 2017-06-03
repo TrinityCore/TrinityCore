@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,95 +20,6 @@
 #include "Vehicle.h"
 #include "SpellScript.h"
 #include "Player.h"
-
-/*######
-##Quest 5441: Lazy Peons
-##npc_lazy_peon
-######*/
-
-enum LazyPeonYells
-{
-    SAY_SPELL_HIT                                 = 0
-};
-
-enum LazyPeon
-{
-    QUEST_LAZY_PEONS                              = 5441,
-    GO_LUMBERPILE                                 = 175784,
-    SPELL_BUFF_SLEEP                              = 17743,
-    SPELL_AWAKEN_PEON                             = 19938
-};
-
-class npc_lazy_peon : public CreatureScript
-{
-public:
-    npc_lazy_peon() : CreatureScript("npc_lazy_peon") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_lazy_peonAI(creature);
-    }
-
-    struct npc_lazy_peonAI : public ScriptedAI
-    {
-        npc_lazy_peonAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            RebuffTimer = 0;
-            work = false;
-        }
-
-        uint32 RebuffTimer;
-        bool work;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void MovementInform(uint32 /*type*/, uint32 id) override
-        {
-            if (id == 1)
-                work = true;
-        }
-
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
-        {
-            if (spell->Id != SPELL_AWAKEN_PEON)
-                return;
-
-            Player* player = caster->ToPlayer();
-            if (player && player->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
-            {
-                player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
-                Talk(SAY_SPELL_HIT, caster);
-                me->RemoveAllAuras();
-                if (GameObject* Lumberpile = me->FindNearestGameObject(GO_LUMBERPILE, 20))
-                    me->GetMotionMaster()->MovePoint(1, Lumberpile->GetPositionX()-1, Lumberpile->GetPositionY(), Lumberpile->GetPositionZ());
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (work == true)
-                me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_CHOPWOOD);
-            if (RebuffTimer <= diff)
-            {
-                DoCast(me, SPELL_BUFF_SLEEP);
-                RebuffTimer = 300000;                 //Rebuff agian in 5 minutes
-            }
-            else
-                RebuffTimer -= diff;
-            if (!UpdateVictim())
-                return;
-            DoMeleeAttackIfReady();
-        }
-    };
-};
 
 enum Texts
 {
@@ -596,7 +507,6 @@ class spell_voodoo : public SpellScriptLoader
 
 void AddSC_durotar()
 {
-    new npc_lazy_peon();
     new npc_tiger_matriarch_credit();
     new npc_tiger_matriarch();
     new npc_troll_volunteer();

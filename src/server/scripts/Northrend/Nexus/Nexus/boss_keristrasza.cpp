@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GameObjectAI.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Player.h"
@@ -224,22 +225,31 @@ class containment_sphere : public GameObjectScript
 public:
     containment_sphere() : GameObjectScript("containment_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    struct containment_sphereAI : public GameObjectAI
     {
-        InstanceScript* instance = go->GetInstanceScript();
+        containment_sphereAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-        Creature* pKeristrasza = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_KERISTRASZA));
-        if (pKeristrasza && pKeristrasza->IsAlive())
+        InstanceScript* instance;
+
+        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
         {
-            // maybe these are hacks :(
-            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+            Creature* keristrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KERISTRASZA));
+            if (keristrasza && keristrasza->IsAlive())
+            {
+                // maybe these are hacks :(
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->SetGoState(GO_STATE_ACTIVE);
 
-            ENSURE_AI(boss_keristrasza::boss_keristraszaAI, pKeristrasza->AI())->CheckContainmentSpheres(true);
+                ENSURE_AI(boss_keristrasza::boss_keristraszaAI, keristrasza->AI())->CheckContainmentSpheres(true);
+            }
+            return true;
         }
-        return true;
-    }
+    };
 
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetInstanceAI<containment_sphereAI>(go);
+    }
 };
 
 class spell_intense_cold : public SpellScriptLoader

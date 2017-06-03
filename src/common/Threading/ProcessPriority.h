@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,11 +28,6 @@
 
 void SetProcessPriority(const std::string& logChannel)
 {
-// Suppresses Mac OS X Warning since logChannel isn't used.
-#if PLATFORM_APPLE
-    (void)logChannel;
-#endif
-
 #if defined(_WIN32) || defined(__linux__)
 
     ///- Handle affinity for multiple processors and process priority
@@ -99,6 +94,9 @@ void SetProcessPriority(const std::string& logChannel)
     }
 
 #endif
+#else
+    // Suppresses unused argument warning for all other platforms
+    (void)logChannel;
 #endif
 }
 

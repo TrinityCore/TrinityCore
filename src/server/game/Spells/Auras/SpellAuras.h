@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -147,8 +147,6 @@ class TC_GAME_API Aura
         uint8 GetStackAmount() const { return m_stackAmount; }
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
-
-        void RefreshSpellMods();
 
         uint8 GetCasterLevel() const { return m_casterLevel; }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -153,8 +153,9 @@ struct TC_GAME_API LootItem
     uint32  itemid;
     uint32  randomSuffix;
     int32   randomPropertyId;
-    ConditionContainer conditions;                               // additional loot condition
+    ConditionContainer conditions;                          // additional loot condition
     AllowedLooterSet allowedGUIDs;
+    ObjectGuid rollWinnerGUID;                              // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
     uint8   count             : 8;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
@@ -163,7 +164,6 @@ struct TC_GAME_API LootItem
     bool    is_counted        : 1;
     bool    needs_quest       : 1;                          // quest drop
     bool    follow_loot_rules : 1;
-    bool    canSave;
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (reference = 0)
@@ -171,8 +171,8 @@ struct TC_GAME_API LootItem
 
     // Empty constructor for creating an empty LootItem to be filled in with DB data
     LootItem() : itemid(0), randomSuffix(0), randomPropertyId(0), count(0), is_looted(false), is_blocked(false),
-                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false),
-                 canSave(true){ };
+                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false)
+                 { };
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const* player) const;
@@ -324,12 +324,8 @@ struct TC_GAME_API Loot
     //  Only set for inventory items that can be right-click looted
     uint32 containerID;
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(), loot_type(LOOT_CORPSE), maxDuplicates(1), containerID(0) { }
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), roundRobinPlayer(), loot_type(LOOT_NONE), maxDuplicates(1), containerID(0) { }
     ~Loot() { clear(); }
-
-    // For deleting items at loot removal since there is no backward interface to the Item()
-    void DeleteLootItemFromContainerItemDB(uint32 itemID);
-    void DeleteLootMoneyFromContainerItemDB();
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)

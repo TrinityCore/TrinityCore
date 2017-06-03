@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -554,9 +554,9 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 ObjectGuid bossGuid = i <= 3 ? FalricGUID : MarwynGUID;
 
                                 if (!i)
-                                    Trinity::Containers::RandomResizeList(tempList, 3);
+                                    Trinity::Containers::RandomResize(tempList, 3);
                                 else if (i < 6 && i != 3)
-                                    Trinity::Containers::RandomResizeList(tempList, 4);
+                                    Trinity::Containers::RandomResize(tempList, 4);
 
                                 for (uint32 entry : tempList)
                                 {

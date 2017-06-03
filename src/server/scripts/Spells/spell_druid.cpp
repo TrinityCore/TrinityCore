@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@
  */
 
 #include "Player.h"
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
@@ -84,7 +85,8 @@ enum DruidSpells
     SPELL_DRUID_REJUVENATION_T10_PROC       = 70691,
     SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
-    SPELL_DRUID_BARKSKIN_01                 = 63058
+    SPELL_DRUID_BARKSKIN_01                 = 63058,
+    SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658
 };
 
 // 22812 - Barkskin
@@ -234,7 +236,7 @@ class spell_dru_eclipse : public SpellScriptLoader
                 if (!spellInfo || !(spellInfo->SpellFamilyFlags[0] & 4)) // Starfire
                     return false;
 
-                return _solarProcCooldownEnd <= std::chrono::steady_clock::now();
+                return _solarProcCooldownEnd <= GameTime::GetGameTimeSteadyPoint();
             }
 
             bool CheckLunar(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -247,14 +249,14 @@ class spell_dru_eclipse : public SpellScriptLoader
                 if (!roll_chance_i(60))
                     return false;
 
-                return _lunarProcCooldownEnd <= std::chrono::steady_clock::now();
+                return _lunarProcCooldownEnd <= GameTime::GetGameTimeSteadyPoint();
             }
 
             void ProcSolar(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
-                _solarProcCooldownEnd = std::chrono::steady_clock::now() + Seconds(30);
+                _solarProcCooldownEnd = GameTime::GetGameTimeSteadyPoint() + Seconds(30);
                 eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_SOLAR_PROC, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
 
@@ -262,7 +264,7 @@ class spell_dru_eclipse : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                _lunarProcCooldownEnd = std::chrono::steady_clock::now() + Seconds(30);
+                _lunarProcCooldownEnd = GameTime::GetGameTimeSteadyPoint() + Seconds(30);
                 eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_LUNAR_PROC, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
 
@@ -309,13 +311,16 @@ class spell_dru_enrage : public SpellScriptLoader
 
             void RecalculateBaseArmor()
             {
+                // Recalculate modifies the list while we're iterating through it, so let's copy it instead
                 Unit::AuraEffectList const& auras = GetTarget()->GetAuraEffectsByType(SPELL_AURA_MOD_BASE_RESISTANCE_PCT);
-                for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                std::vector<AuraEffect*> aurEffs(auras.begin(), auras.end());
+
+                for (AuraEffect* aurEff : aurEffs)
                 {
-                    SpellInfo const* spellInfo = (*i)->GetSpellInfo();
+                    SpellInfo const* spellInfo = aurEff->GetSpellInfo();
                     // Dire- / Bear Form (Passive)
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags.HasFlag(0x0, 0x0, 0x2))
-                        (*i)->RecalculateAmount();
+                        aurEff->RecalculateAmount();
                 }
             }
 
@@ -1538,7 +1543,7 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                Trinity::Containers::RandomResizeList(targets, 2);
+                Trinity::Containers::RandomResize(targets, 2);
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2260,13 +2265,51 @@ class spell_dru_wild_growth : public SpellScriptLoader
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::SetTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
 
-        private:
             std::list<WorldObject*> _targets;
+        };
+
+        class spell_dru_wild_growth_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_wild_growth_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_DRUID_RESTORATION_T10_2P_BONUS });
+            }
+
+            void HandleTickUpdate(AuraEffect* aurEff)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                // calculate from base damage, not from aurEff->GetAmount() (already modified)
+                float damage = caster->CalculateSpellDamage(GetUnitOwner(), GetSpellInfo(), aurEff->GetEffIndex());
+
+                // Wild Growth = first tick gains a 6% bonus, reduced by 2% each tick
+                float reduction = 2.f;
+                if (AuraEffect* bonus = caster->GetAuraEffect(SPELL_DRUID_RESTORATION_T10_2P_BONUS, EFFECT_0))
+                    reduction -= CalculatePct(reduction, bonus->GetAmount());
+                reduction *= (aurEff->GetTickNumber() - 1);
+
+                AddPct(damage, 6.f - reduction);
+                aurEff->SetAmount(int32(damage));
+            }
+
+            void Register() override
+            {
+                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dru_wild_growth_AuraScript::HandleTickUpdate, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
         };
 
         SpellScript* GetSpellScript() const override
         {
             return new spell_dru_wild_growth_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_dru_wild_growth_AuraScript();
         }
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1053,34 +1053,6 @@ class spell_warr_t3_prot_8p_bonus : public SpellScriptLoader
         }
 };
 
-// 32216 - Victorious
-class spell_warr_victorious : public SpellScriptLoader
-{
-    public:
-        spell_warr_victorious() : SpellScriptLoader("spell_warr_victorious") { }
-
-        class spell_warr_victorious_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warr_victorious_AuraScript);
-
-            void HandleDummy(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                // Prevent console log
-                PreventDefaultAction();
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warr_victorious_AuraScript::HandleDummy, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_warr_victorious_AuraScript();
-        }
-};
-
 // 50720 - Vigilance
 class spell_warr_vigilance : public SpellScriptLoader
 {
@@ -1233,7 +1205,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
     new spell_warr_t3_prot_8p_bonus();
-    new spell_warr_victorious();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
 }

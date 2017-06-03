@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,10 +20,10 @@
 #include "Errors.h"
 #include "Player.h"
 
-int GuardAI::Permissible(Creature const* creature)
+int32 GuardAI::Permissible(Creature const* creature)
 {
     if (creature->IsGuard())
-        return PERMIT_BASE_SPECIAL;
+        return PERMIT_BASE_PROACTIVE;
 
     return PERMIT_BASE_NO;
 }

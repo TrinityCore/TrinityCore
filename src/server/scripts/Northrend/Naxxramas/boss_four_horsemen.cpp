@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "Player.h"
+#include "GameTime.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -67,7 +68,7 @@ enum Actions
 
 enum HorsemenData
 {
-    DATA_HORSEMEN_IS_TIMED_KILL = Data::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
+    DATA_HORSEMEN_IS_TIMED_KILL = NAXData::DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT, // inherit from naxxramas.h - this needs to be the first entry to ensure that there are no conflicts
     DATA_MOVEMENT_FINISHED,
     DATA_DEATH_TIME
 };
@@ -264,7 +265,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))
                 {
-                    cBoss->DespawnOrUnsummon(0);
+                    cBoss->DespawnOrUnsummon();
                     cBoss->SetRespawnTime(15);
                 }
                 else
@@ -327,7 +328,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             }
 
             Talk(SAY_DEATH);
-            _timeDied = getMSTime();
+            _timeDied = GameTime::GetGameTimeMS();
             for (Horseman boss : horsemen)
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))

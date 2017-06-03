@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -152,22 +152,6 @@ enum GuildEvents
     GE_BANK_MONEY_SET                   = 17,
     GE_BANK_TAB_AND_MONEY_UPDATED       = 18,
     GE_BANK_TEXT_CHANGED                = 19,
-};
-
-enum PetitionTurns
-{
-    PETITION_TURN_OK                    = 0,
-    PETITION_TURN_ALREADY_IN_GUILD      = 2,
-    PETITION_TURN_NEED_MORE_SIGNATURES  = 4
-};
-
-enum PetitionSigns
-{
-    PETITION_SIGN_OK                    = 0,
-    PETITION_SIGN_ALREADY_SIGNED        = 1,
-    PETITION_SIGN_ALREADY_IN_GUILD      = 2,
-    PETITION_SIGN_CANT_SIGN_OWN         = 3,
-    PETITION_SIGN_NOT_SERVER            = 4
 };
 
 enum GuildBankRights

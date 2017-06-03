@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "GameObjectAI.h"
 #include "Player.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -55,7 +56,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             float x, y, z;
-            me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 0.1f);
+            me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 0.1f);
 
             if (Creature* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000))
             {
@@ -67,8 +68,8 @@ public:
         void LockRageclaw(Creature* rageclaw)
         {
             // pointer check not needed
-            me->SetInFront(rageclaw);
-            rageclaw->SetInFront(me);
+            me->SetFacingToObject(rageclaw);
+            rageclaw->SetFacingToObject(me);
 
             DoCast(rageclaw, SPELL_LEFT_CHAIN, true);
             DoCast(rageclaw, SPELL_RIGHT_CHAIN, true);
@@ -135,7 +136,7 @@ public:
 
         void Reset() override
         {
-            me->setFaction(35);
+            me->SetFaction(FACTION_FRIENDLY);
             DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
         }
 
@@ -148,7 +149,7 @@ public:
                 me->RemoveAurasDueToSpell(SPELL_LEFT_CHAIN);
                 me->RemoveAurasDueToSpell(SPELL_RIGHT_CHAIN);
                 me->RemoveAurasDueToSpell(SPELL_KNEEL);
-                me->setFaction(me->GetCreatureTemplate()->faction);
+                me->SetFaction(me->GetCreatureTemplate()->faction);
                 DoCast(me, SPELL_UNSHACKLED, true);
                 Talk(SAY_RAGECLAW);
                 me->GetMotionMaster()->MoveRandom(10);
@@ -180,7 +181,7 @@ public:
         void Reset() override
         {
             float x, y, z;
-            me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 25.0f);
+            me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 25.0f);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
         }
 
@@ -267,12 +268,13 @@ public:
                 return;
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             _events.ScheduleEvent(EVENT_RECRUIT_1, 100);
             CloseGossipMenuFor(player);
             me->CastSpell(player, SPELL_QUEST_CREDIT, true);
             me->SetFacingToObject(player);
+            return false;
         }
 
         private:
@@ -303,20 +305,29 @@ class go_scourge_enclosure : public GameObjectScript
 public:
     go_scourge_enclosure() : GameObjectScript("go_scourge_enclosure") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct go_scourge_enclosureAI : public GameObjectAI
     {
-        go->UseDoorOrButton();
-        if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
+        go_scourge_enclosureAI(GameObject* go) : GameObjectAI(go) { }
+
+        bool GossipHello(Player* player, bool /*reportUse*/) override
         {
-            Creature* gymerDummy = go->FindNearestCreature(NPC_GYMER_DUMMY, 20.0f);
-            if (gymerDummy)
+            me->UseDoorOrButton();
+            if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
             {
-                player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
-                gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
-                gymerDummy->DespawnOrUnsummon(4 * IN_MILLISECONDS);
+                if (Creature* gymerDummy = me->FindNearestCreature(NPC_GYMER_DUMMY, 20.0f))
+                {
+                    player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
+                    gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
+                    gymerDummy->DespawnOrUnsummon(4 * IN_MILLISECONDS);
+                }
             }
+            return true;
         }
-        return true;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_scourge_enclosureAI(go);
     }
 };
 
@@ -552,13 +563,14 @@ public:
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 CloseGossipMenuFor(player);
                 DoCast(player, SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
                 _playerGUID = player->GetGUID();
                 _getingredienttry = 1;
                 _events.ScheduleEvent(EVENT_EASY_123, 100);
+                return false;
             }
 
         private:
@@ -578,10 +590,20 @@ class go_finklesteins_cauldron : public GameObjectScript
 public:
     go_finklesteins_cauldron() : GameObjectScript("go_finklesteins_cauldron") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
+    struct go_finklesteins_cauldronAI : public GameObjectAI
     {
-        player->CastSpell(player, SPELL_POT_CHECK);
-        return true;
+        go_finklesteins_cauldronAI(GameObject* go) : GameObjectAI(go) { }
+
+        bool GossipHello(Player* player, bool /*reportUse*/) override
+        {
+            player->CastSpell(player, SPELL_POT_CHECK);
+            return true;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_finklesteins_cauldronAI(go);
     }
 };
 

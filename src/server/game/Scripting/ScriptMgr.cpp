@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -378,7 +378,8 @@ class CreatureGameObjectScriptRegistrySwapHooks
         ASSERT(!creature->IsCharmed(),
                "There is a disabled AI which is still loaded.");
 
-        creature->AI()->EnterEvadeMode();
+        if (creature->IsAlive())
+            creature->AI()->EnterEvadeMode();
     }
 
     static void UnloadDestroyScript(Creature* creature)
@@ -1511,15 +1512,6 @@ InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
     return tmpscript->GetInstanceScript(map);
 }
 
-bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target)
-{
-    ASSERT(caster);
-    ASSERT(target);
-
-    GET_SCRIPT_RET(ItemScript, target->GetScriptId(), tmpscript, false);
-    return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
-}
-
 bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
 {
     ASSERT(player);
@@ -1558,85 +1550,15 @@ bool ScriptMgr::OnItemRemove(Player* player, Item* item)
     return tmpscript->OnRemove(player, item);
 }
 
-bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target)
-{
-    ASSERT(caster);
-    ASSERT(target);
-
-    GET_SCRIPT_RET(CreatureScript, target->GetScriptId(), tmpscript, false);
-    return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
-}
-
-bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
+bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo const* spellInfo, Item* item)
 {
     ASSERT(player);
-    ASSERT(creature);
+    ASSERT(victim);
+    ASSERT(spellInfo);
+    ASSERT(item);
 
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnGossipHello(player, creature);
-}
-
-bool ScriptMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
-{
-    ASSERT(player);
-    ASSERT(creature);
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    return tmpscript->OnGossipSelect(player, creature, sender, action);
-}
-
-bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(code);
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    return tmpscript->OnGossipSelectCode(player, creature, sender, action, code);
-}
-
-bool ScriptMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(quest);
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestAccept(player, creature, quest);
-}
-
-bool ScriptMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* quest)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(quest);
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestSelect(player, creature, quest);
-}
-
-bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
-{
-    ASSERT(player);
-    ASSERT(creature);
-    ASSERT(quest);
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestReward(player, creature, quest, opt);
-}
-
-uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
-{
-    ASSERT(player);
-    ASSERT(creature);
-
-    GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, DIALOG_STATUS_SCRIPTED_NO_STATUS);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->GetDialogStatus(player, creature);
+    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, true);
+    return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
 }
 
 bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemplate const* actTemplate, CreatureData const* cData, Map const* map)
@@ -1646,7 +1568,10 @@ bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemp
     CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
     if (!baseTemplate)
         baseTemplate = actTemplate;
-    GET_SCRIPT_RET(CreatureScript, baseTemplate->ScriptID, tmpscript, true);
+    uint32 scriptId = baseTemplate->ScriptID;
+    if (cData && cData->ScriptId)
+        scriptId = cData->ScriptId;
+    GET_SCRIPT_RET(CreatureScript, scriptId, tmpscript, true);
     return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
 }
 
@@ -1664,124 +1589,6 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 
     GET_SCRIPT_RET(GameObjectScript, gameobject->GetScriptId(), tmpscript, NULL);
     return tmpscript->GetAI(gameobject);
-}
-
-void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
-{
-    ASSERT(creature);
-
-    GET_SCRIPT(CreatureScript, creature->GetScriptId(), tmpscript);
-    tmpscript->OnUpdate(creature, diff);
-}
-
-bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
-{
-    ASSERT(player);
-    ASSERT(go);
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnGossipHello(player, go);
-}
-
-bool ScriptMgr::OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action)
-{
-    ASSERT(player);
-    ASSERT(go);
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    return tmpscript->OnGossipSelect(player, go, sender, action);
-}
-
-bool ScriptMgr::OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code)
-{
-    ASSERT(player);
-    ASSERT(go);
-    ASSERT(code);
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    return tmpscript->OnGossipSelectCode(player, go, sender, action, code);
-}
-
-bool ScriptMgr::OnQuestAccept(Player* player, GameObject* go, Quest const* quest)
-{
-    ASSERT(player);
-    ASSERT(go);
-    ASSERT(quest);
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestAccept(player, go, quest);
-}
-
-bool ScriptMgr::OnQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt)
-{
-    ASSERT(player);
-    ASSERT(go);
-    ASSERT(quest);
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnQuestReward(player, go, quest, opt);
-}
-
-uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
-{
-    ASSERT(player);
-    ASSERT(go);
-
-    GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, DIALOG_STATUS_SCRIPTED_NO_STATUS);
-    player->PlayerTalkClass->ClearMenus();
-    return tmpscript->GetDialogStatus(player, go);
-}
-
-void ScriptMgr::OnGameObjectDestroyed(GameObject* go, Player* player)
-{
-    ASSERT(go);
-
-    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnDestroyed(go, player);
-}
-
-void ScriptMgr::OnGameObjectDamaged(GameObject* go, Player* player)
-{
-    ASSERT(go);
-
-    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnDamaged(go, player);
-}
-
-void ScriptMgr::OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit* unit)
-{
-    ASSERT(go);
-
-    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnLootStateChanged(go, state, unit);
-}
-
-void ScriptMgr::OnGameObjectStateChanged(GameObject* go, uint32 state)
-{
-    ASSERT(go);
-
-    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnGameObjectStateChanged(go, state);
-}
-
-void ScriptMgr::OnGameObjectUpdate(GameObject* go, uint32 diff)
-{
-    ASSERT(go);
-
-    GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
-    tmpscript->OnUpdate(go, diff);
-}
-
-bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target)
-{
-    ASSERT(caster);
-    ASSERT(target);
-
-    GET_SCRIPT_RET(GameObjectScript, target->GetScriptId(), tmpscript, false);
-    return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
 }
 
 bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
@@ -2157,6 +1964,11 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newAre
 void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId)
 {
     FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId);
+}
+
+void ScriptMgr::OnPlayerRepop(Player* player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerRepop(player);
 }
 
 // Account

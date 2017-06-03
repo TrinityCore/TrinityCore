@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -241,8 +241,10 @@ enum ProcAttributes
     PROC_ATTR_REQ_SPELLMOD       = 0x0000008, // requires triggering spell to be affected by proccing aura to drop charges
 
     PROC_ATTR_DISABLE_EFF_0      = 0x0000010, // explicitly disables aura proc from effects, USE ONLY IF 100% SURE AURA SHOULDN'T PROC
-    PROC_ATTR_DISABLE_EFF_1      = 0x0000020, // used to avoid a console error if the spell has invalid trigger spell and handled elsewhere
-    PROC_ATTR_DISABLE_EFF_2      = 0x0000040  // or handling not needed
+    PROC_ATTR_DISABLE_EFF_1      = 0x0000020, /// used to avoid a console error if the spell has invalid trigger spell and handled elsewhere
+    PROC_ATTR_DISABLE_EFF_2      = 0x0000040, /// or handling not needed
+
+    PROC_ATTR_REDUCE_PROC_60     = 0x0000080  // aura should have a reduced chance to proc if level of proc Actor > 60
 };
 
 struct SpellProcEntry
@@ -263,11 +265,18 @@ struct SpellProcEntry
 
 typedef std::unordered_map<uint32, SpellProcEntry> SpellProcMap;
 
+enum EnchantProcAttributes
+{
+    ENCHANT_PROC_ATTR_WHITE_HIT  = 0x0000001, // enchant shall only proc off white hits (not abilities)
+    ENCHANT_PROC_ATTR_LIMIT_60   = 0x0000002  // enchant effects shall be reduced past lvl 60
+};
+
 struct SpellEnchantProcEntry
 {
-    uint32      customChance;
-    float       PPMChance;
-    uint32      procEx;
+    float       Chance;         // if nonzero - overwrite SpellItemEnchantment value
+    float       ProcsPerMinute; // if nonzero - chance to proc is equal to value * aura caster's weapon speed / 60
+    uint32      HitMask;        // if nonzero - bitmask for matching proc condition based on hit result, see enum ProcFlagsHit
+    uint32      AttributesMask; // bitmask, see EnchantProcAttributes
 };
 
 typedef std::unordered_map<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
@@ -292,14 +301,26 @@ enum SpellGroup
     SPELL_GROUP_CORE_RANGE_MAX   = 5
 };
 
+namespace std
+{
+    template<>
+    struct hash<SpellGroup>
+    {
+        size_t operator()(SpellGroup const& group) const
+        {
+            return hash<uint32>()(uint32(group));
+        }
+    };
+}
+
 #define SPELL_GROUP_DB_RANGE_MIN 1000
 
 //                  spell_id, group_id
-typedef std::multimap<uint32, SpellGroup > SpellSpellGroupMap;
+typedef std::unordered_multimap<uint32, SpellGroup> SpellSpellGroupMap;
 typedef std::pair<SpellSpellGroupMap::const_iterator, SpellSpellGroupMap::const_iterator> SpellSpellGroupMapBounds;
 
 //                      group_id, spell_id
-typedef std::multimap<SpellGroup, int32> SpellGroupSpellMap;
+typedef std::unordered_multimap<SpellGroup, int32> SpellGroupSpellMap;
 typedef std::pair<SpellGroupSpellMap::const_iterator, SpellGroupSpellMap::const_iterator> SpellGroupSpellMapBounds;
 
 enum SpellGroupStackRule
@@ -312,7 +333,9 @@ enum SpellGroupStackRule
     SPELL_GROUP_STACK_RULE_MAX
 };
 
-typedef std::map<SpellGroup, SpellGroupStackRule> SpellGroupStackMap;
+typedef std::unordered_map<SpellGroup, SpellGroupStackRule> SpellGroupStackMap;
+
+typedef std::unordered_map<SpellGroup, std::unordered_set<uint32 /*auraName*/>> SameEffectStackMap;
 
 struct SpellThreatEntry
 {
@@ -604,7 +627,7 @@ class TC_GAME_API SpellMgr
         void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells, std::set<SpellGroup>& usedGroups) const;
 
         // Spell Group Stack Rules table
-        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, int32 amount, std::map<SpellGroup, int32>& groups) const;
+        bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, uint32 auraType, int32 amount, std::map<SpellGroup, int32>& groups) const;
         SpellGroupStackRule CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const;
         SpellGroupStackRule GetSpellGroupStackRule(SpellGroup groupid) const;
 
@@ -697,6 +720,7 @@ class TC_GAME_API SpellMgr
         SpellSpellGroupMap         mSpellSpellGroup;
         SpellGroupSpellMap         mSpellGroupSpell;
         SpellGroupStackMap         mSpellGroupStack;
+        SameEffectStackMap         mSpellSameEffectStack;
         SpellProcMap               mSpellProcMap;
         SpellBonusMap              mSpellBonusMap;
         SpellThreatMap             mSpellThreatMap;

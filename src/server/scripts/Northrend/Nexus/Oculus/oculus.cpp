@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -141,7 +141,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                 player->DestroyItemCount(itemId, 1, true, false);
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 switch (menuId)
                 {
@@ -156,7 +156,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                             StoreEssence(player, ITEM_EMERALD_ESSENCE);
                             break;
                         }
-                        return;
+                        return false;
                     case GOSSIP_MENU_ETERNOS:
                         if (gossipListId >= 1 && gossipListId <= 3)
                         {
@@ -168,7 +168,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                             StoreEssence(player, ITEM_AMBER_ESSENCE);
                             break;
                         }
-                        return;
+                        return false;
                     case GOSSIP_MENU_BELGARISTRASZ:
                         if (gossipListId <= 2)
                         {
@@ -180,11 +180,12 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                             StoreEssence(player, ITEM_RUBY_ESSENCE);
                             break;
                         }
-                        return;
+                        return false;
                     default:
-                        return;
+                        return false;
                 }
                 player->PlayerTalkClass->SendCloseGossip();
+                return false;
             }
 
             void MovementInform(uint32 /*type*/, uint32 id) override

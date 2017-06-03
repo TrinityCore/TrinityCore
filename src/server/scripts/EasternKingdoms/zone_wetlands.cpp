@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +40,6 @@ EndContentData */
 enum TapokeSlim
 {
     QUEST_MISSING_DIPLO_PT11    = 1249,
-    FACTION_ENEMY               = 168,
     SPELL_STEALTH               = 1785,
     SPELL_CALL_FRIENDS          = 16457,                    //summons 1x friend
     NPC_SLIMS_FRIEND            = 4971,
@@ -85,7 +84,7 @@ public:
                     if (me->HasStealthAura())
                         me->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     SetRun();
-                    me->setFaction(FACTION_ENEMY);
+                    me->SetFaction(FACTION_ENEMY);
                     break;
             }
         }
@@ -149,22 +148,30 @@ class npc_mikhail : public CreatureScript
 public:
     npc_mikhail() : CreatureScript("npc_mikhail") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
+    struct npc_mikhailAI : public ScriptedAI
     {
-        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
+        npc_mikhailAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void QuestAccept(Player* player, Quest const* quest) override
         {
-            Creature* pSlim = creature->FindNearestCreature(NPC_TAPOKE_SLIM_JAHN, 25.0f);
+            if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
+            {
+                Creature* slim = me->FindNearestCreature(NPC_TAPOKE_SLIM_JAHN, 25.0f);
+                if (!slim)
+                    return;
 
-            if (!pSlim)
-                return false;
+                if (!slim->HasStealthAura())
+                    slim->CastSpell(slim, SPELL_STEALTH, true);
 
-            if (!pSlim->HasStealthAura())
-                pSlim->CastSpell(pSlim, SPELL_STEALTH, true);
-
-            if (npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI* pEscortAI = CAST_AI(npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI, pSlim->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), quest);
+                if (npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI* slimAI = CAST_AI(npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI, slim->AI()))
+                    slimAI->Start(false, false, player->GetGUID(), quest);
+            }
         }
-        return false;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_mikhailAI(creature);
     }
 };
 

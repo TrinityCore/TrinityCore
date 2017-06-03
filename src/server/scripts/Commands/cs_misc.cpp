@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
@@ -165,24 +166,54 @@ public:
 
     static bool HandleGPSCommand(ChatHandler* handler, char const* args)
     {
-        WorldObject* object = NULL;
+        WorldObject* object = nullptr;
         if (*args)
         {
-            ObjectGuid guid = handler->extractGuidFromLink((char*)args);
-            if (guid)
-                object = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
-
-            if (!object)
-            {
-                handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                handler->SetSentErrorMessage(true);
+            HighGuid guidHigh;
+            ObjectGuid::LowType guidLow = handler->extractLowGuidFromLink((char*)args, guidHigh);
+            if (!guidLow)
                 return false;
+            switch (guidHigh)
+            {
+                case HighGuid::Player:
+                {
+                    object = ObjectAccessor::FindPlayerByLowGUID(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::Unit:
+                {
+                    object = handler->GetCreatureFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOCREATUREFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::GameObject:
+                {
+                    object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOGAMEOBJECTFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                default:
+                    return false;
             }
+            if (!object)
+                return false;
         }
         else
         {
             object = handler->getSelectedUnit();
-
             if (!object)
             {
                 handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
@@ -530,7 +561,7 @@ public:
 
             // before GM
             float x, y, z;
-            handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, target->GetObjectSize());
+            handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, target->GetCombatReach());
             target->TeleportTo(handler->GetSession()->GetPlayer()->GetMapId(), x, y, z, target->GetOrientation());
             target->SetPhaseMask(handler->GetSession()->GetPlayer()->GetPhaseMask(), true);
         }
@@ -748,26 +779,55 @@ public:
 
     static bool HandleGetDistanceCommand(ChatHandler* handler, char const* args)
     {
-        WorldObject* obj = NULL;
-
+        WorldObject* object = nullptr;
         if (*args)
         {
-            ObjectGuid guid = handler->extractGuidFromLink((char*)args);
-            if (guid)
-                obj = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
-
-            if (!obj)
-            {
-                handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                handler->SetSentErrorMessage(true);
+            HighGuid guidHigh;
+            ObjectGuid::LowType guidLow = handler->extractLowGuidFromLink((char*)args, guidHigh);
+            if (!guidLow)
                 return false;
+            switch (guidHigh)
+            {
+                case HighGuid::Player:
+                {
+                    object = ObjectAccessor::FindPlayerByLowGUID(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::Unit:
+                {
+                    object = handler->GetCreatureFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOCREATUREFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::GameObject:
+                {
+                    object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOGAMEOBJECTFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                default:
+                    return false;
             }
+            if (!object)
+                return false;
         }
         else
         {
-            obj = handler->getSelectedUnit();
-
-            if (!obj)
+            object = handler->getSelectedUnit();
+            if (!object)
             {
                 handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
                 handler->SetSentErrorMessage(true);
@@ -775,7 +835,7 @@ public:
             }
         }
 
-        handler->PSendSysMessage(LANG_DISTANCE, handler->GetSession()->GetPlayer()->GetDistance(obj), handler->GetSession()->GetPlayer()->GetDistance2d(obj), handler->GetSession()->GetPlayer()->GetExactDist(obj), handler->GetSession()->GetPlayer()->GetExactDist2d(obj));
+        handler->PSendSysMessage(LANG_DISTANCE, handler->GetSession()->GetPlayer()->GetDistance(object), handler->GetSession()->GetPlayer()->GetDistance2d(object), handler->GetSession()->GetPlayer()->GetExactDist(object), handler->GetSession()->GetPlayer()->GetExactDist2d(object));
         return true;
     }
     // Teleport player to last position
@@ -1449,7 +1509,7 @@ public:
         ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
 
         // ... and make sure we get a target, somehow.
-        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
+        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, targetName))
         {
             target = ObjectAccessor::FindPlayer(parseGUID);
             targetGuid = parseGUID;
@@ -1856,7 +1916,7 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &targetGuid, &targetName))
             return false;
 
-        uint32 accountId = target ? target->GetSession()->GetAccountId() : sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
+        uint32 accountId = target ? target->GetSession()->GetAccountId() : sCharacterCache->GetCharacterAccountIdByGuid(targetGuid);
 
         // find only player from same account if any
         if (!target)
@@ -1925,7 +1985,7 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
 
-        uint32 accountId = target ? target->GetSession()->GetAccountId() : sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
+        uint32 accountId = target ? target->GetSession()->GetAccountId() : sCharacterCache->GetCharacterAccountIdByGuid(targetGuid);
 
         // find only player from same account if any
         if (!target)
@@ -2061,9 +2121,6 @@ public:
                 case WAYPOINT_MOTION_TYPE:
                     handler->SendSysMessage(LANG_MOVEGENS_WAYPOINT);
                     break;
-                case ANIMAL_RANDOM_MOTION_TYPE:
-                    handler->SendSysMessage(LANG_MOVEGENS_ANIMAL_RANDOM);
-                    break;
                 case CONFUSED_MOTION_TYPE:
                     handler->SendSysMessage(LANG_MOVEGENS_CONFUSED);
                     break;
@@ -2166,8 +2223,8 @@ public:
                 return false;
             }
 
-            int32 guid = atoi(guidStr);
-            if (!guid)
+            ObjectGuid::LowType guidLow = atoul(guidStr);
+            if (!guidLow)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
                 handler->SetSentErrorMessage(true);
@@ -2192,14 +2249,10 @@ public:
 
             if (Player* player = handler->GetSession()->GetPlayer())
             {
-                GameObject* go = NULL;
-
-                if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
-                    go = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guid, goData->id);
-
+                GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
                 if (!go)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guid);
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -2212,7 +2265,7 @@ public:
                 }
 
                 go->ModifyHealth(-damage, player);
-                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guid, -damage, go->GetGOValue()->Building.Health);
+                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guidLow, -damage, go->GetGOValue()->Building.Health);
             }
 
             return true;
@@ -2495,22 +2548,16 @@ public:
             if (targetName)
             {
                 // Check for offline players
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_GUID_BY_NAME);
-                stmt->setString(0, name);
-                PreparedQueryResult result = CharacterDatabase.Query(stmt);
-
-                if (!result)
+                ObjectGuid guid = sCharacterCache->GetCharacterGuidByName(name);
+                if (guid.IsEmpty())
                 {
                     handler->SendSysMessage(LANG_COMMAND_FREEZE_WRONG);
                     return true;
                 }
 
                 // If player found: delete his freeze aura
-                Field* fields = result->Fetch();
-                ObjectGuid::LowType lowGuid = fields[0].GetUInt32();
-
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_FROZEN);
-                stmt->setUInt32(0, lowGuid);
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_AURA_FROZEN);
+                stmt->setUInt32(0, guid.GetCounter());
                 CharacterDatabase.Execute(stmt);
 
                 handler->PSendSysMessage(LANG_COMMAND_UNFREEZE, name.c_str());

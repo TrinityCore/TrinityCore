@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -215,7 +215,7 @@ public:
         {
             float x = KaelLocations[0][0];
             float y = KaelLocations[0][1];
-            me->SetPosition(x, y, LOCATION_Z, 0.0f);
+            me->UpdatePosition(x, y, LOCATION_Z, 0.0f);
             ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
             ThreatContainer::StorageType::const_iterator i = threatlist.begin();
             for (i = threatlist.begin(); i != threatlist.end(); ++i)
@@ -460,7 +460,7 @@ public:
             Initialize();
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->setFaction(14);
+            me->SetFaction(FACTION_MONSTER);
 
             DoCast(me, SPELL_FLAMESTRIKE2, true);
         }
@@ -666,7 +666,7 @@ public:
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetDisableGravity(true);
-            me->setFaction(14);
+            me->SetFaction(FACTION_MONSTER);
             DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
         }
 

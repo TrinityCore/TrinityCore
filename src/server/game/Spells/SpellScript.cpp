@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "Spell.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "SpellMgr.h"
 #include <string>
@@ -29,6 +30,20 @@ bool _SpellScript::_Validate(SpellInfo const* entry)
         TC_LOG_ERROR("scripts", "Spell `%u` did not pass Validate() function of script `%s` - script will be not added to the spell", entry->Id, m_scriptName->c_str());
         return false;
     }
+    return true;
+}
+
+bool _SpellScript::ValidateSpellInfo(std::vector<uint32> const& spellIds)
+{
+    for (uint32 spellId : spellIds)
+    {
+        if (!sSpellMgr->GetSpellInfo(spellId))
+        {
+            TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", spellId);
+            return false;
+        }
+    }
+
     return true;
 }
 

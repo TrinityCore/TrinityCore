@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -173,6 +173,7 @@ void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket& recvData)
     if (!npc)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleActivateTaxiExpressOpcode - %s not found or you can't interact with it.", guid.ToString().c_str());
+        SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
         return;
     }
     std::vector<uint32> nodes;
@@ -265,6 +266,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket& recvData)
     if (!npc)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleActivateTaxiOpcode - %s not found or you can't interact with it.", guid.ToString().c_str());
+        SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
         return;
     }
 

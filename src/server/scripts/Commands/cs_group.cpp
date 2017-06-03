@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "Language.h"
 #include "LFG.h"
@@ -134,7 +135,7 @@ public:
 
             // before GM
             float x, y, z;
-            gmPlayer->GetClosePoint(x, y, z, player->GetObjectSize());
+            gmPlayer->GetClosePoint(x, y, z, player->GetCombatReach());
             player->TeleportTo(gmPlayer->GetMapId(), x, y, z, player->GetOrientation());
         }
 
@@ -270,7 +271,7 @@ public:
         ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
 
         // ... and try to extract a player out of it.
-        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
+        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, nameTarget))
         {
             playerTarget = ObjectAccessor::FindPlayer(parseGUID);
             guidTarget = parseGUID;

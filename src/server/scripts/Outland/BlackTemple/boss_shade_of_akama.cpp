@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -80,12 +80,6 @@ enum Creatures
     NPC_ASHTONGUE_CHANNELER          = 23421,
     NPC_ASHTONGUE_BROKEN             = 23319,
     NPC_CREATURE_SPAWNER_AKAMA       = 23210
-};
-
-enum Factions
-{
-    FACTION_FRIENDLY                 = 1820,
-    FACTION_COMBAT                   = 1868
 };
 
 enum Actions
@@ -385,7 +379,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->setFaction(FACTION_FRIENDLY);
+            me->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
             DoCastSelf(SPELL_STEALTH);
 
             if (_instance->GetBossState(DATA_SHADE_OF_AKAMA) != DONE)
@@ -431,7 +425,7 @@ public:
             {
                 _isInCombat = false;
                 me->CombatStop(true);
-                me->setFaction(FACTION_FRIENDLY);
+                me->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
                 me->SetWalk(true);
                 _events.Reset();
                 me->GetMotionMaster()->MovePoint(AKAMA_INTRO_WAYPOINT, AkamaWP[1]);
@@ -485,7 +479,7 @@ public:
                     case EVENT_SHADE_CHANNEL:
                         me->SetFacingTo(FACE_THE_PLATFORM);
                         DoCastSelf(SPELL_AKAMA_SOUL_CHANNEL);
-                        me->setFaction(FACTION_COMBAT);
+                        me->SetFaction(FACTION_MONSTER_SPAR_BUDDY);
                         _events.ScheduleEvent(EVENT_FIXATE, Seconds(5));
                         break;
                     case EVENT_FIXATE:
@@ -500,7 +494,7 @@ public:
                         _events.Repeat(Seconds(3), Seconds(7));
                         break;
                     case EVENT_START_SOUL_RETRIEVE:
-                        me->SetFacingTo(FACE_THE_DOOR, true);
+                        me->SetFacingTo(FACE_THE_DOOR);
                         DoCast(SPELL_AKAMA_SOUL_RETRIEVE);
                         _events.ScheduleEvent(EVENT_START_BROKEN_FREE, Seconds(15));
                         break;
@@ -533,7 +527,7 @@ public:
                 }
             }
 
-            if (me->getFaction() == FACTION_COMBAT)
+            if (me->GetFaction() == FACTION_MONSTER_SPAR_BUDDY)
             {
                 if (!UpdateVictim())
                     return;
@@ -551,13 +545,14 @@ public:
                     shade->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {
                 CloseGossipMenuFor(player);
                 _events.ScheduleEvent(EVENT_SHADE_START, Milliseconds(500));
             }
+            return false;
         }
 
     private:
@@ -1171,7 +1166,7 @@ public:
                     Talk(SAY_BROKEN_SPECIAL);
                     break;
                 case ACTION_BROKEN_HAIL:
-                    me->setFaction(FACTION_FRIENDLY);
+                    me->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
                     Talk(SAY_BROKEN_HAIL);
                     break;
                 case ACTION_BROKEN_EMOTE:

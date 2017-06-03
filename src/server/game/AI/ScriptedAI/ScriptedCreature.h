@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -107,11 +107,11 @@ public:
     }
 
     template <class Predicate>
-    void DoAction(int32 info, Predicate& predicate, uint16 max = 0)
+    void DoAction(int32 info, Predicate&& predicate, uint16 max = 0)
     {
         // We need to use a copy of SummonList here, otherwise original SummonList would be modified
         StorageType listCopy = storage_;
-        Trinity::Containers::RandomResizeList<ObjectGuid, Predicate>(listCopy, predicate, max);
+        Trinity::Containers::RandomResize<StorageType, Predicate>(listCopy, std::forward<Predicate>(predicate), max);
         for (StorageType::iterator i = listCopy.begin(); i != listCopy.end(); )
         {
             Creature* summon = ObjectAccessor::GetCreature(*me, *i++);

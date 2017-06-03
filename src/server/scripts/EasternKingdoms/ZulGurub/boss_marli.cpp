@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,6 +69,13 @@ enum Misc
     NPC_SPIDER                = 15041
 };
 
+// AWFUL HACK WARNING
+// To whoever reads this: Zul'Gurub needs your love
+// Need to do this calculation to increase/decrease Mar'li's damage by 35% (probably some aura missing)
+// This is only to compile the scripts after the aura calculation revamp
+float const DamageIncrease = 35.0f;
+float const DamageDecrease = 100.f / (1.f + DamageIncrease / 100.f) - 100.f;
+
 class boss_marli : public CreatureScript
 {
     public: boss_marli() : CreatureScript("boss_marli") { }
@@ -80,7 +87,7 @@ class boss_marli : public CreatureScript
             void Reset() override
             {
                 if (events.IsInPhase(PHASE_THREE))
-                    me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
+                    me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
                 _Reset();
             }
 
@@ -150,7 +157,7 @@ class boss_marli : public CreatureScript
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                             me->UpdateDamagePhysical(BASE_ATTACK);
                             */
-                            me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, true); // hack
+                            me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageIncrease); // hack
                             DoCastVictim(SPELL_ENVOLWINGWEB);
                             if (DoGetThreat(me->GetVictim()))
                                 DoModifyThreatPercent(me->GetVictim(), -100);
@@ -186,7 +193,7 @@ class boss_marli : public CreatureScript
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
                             me->UpdateDamagePhysical(BASE_ATTACK);
                             */
-                            me->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, 35.0f, false); // hack
+                            me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
                             events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12000, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_TRANSFORM, 45000, 0, PHASE_TWO);
                             events.ScheduleEvent(EVENT_POISON_VOLLEY, 15000);
