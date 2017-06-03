@@ -1238,31 +1238,62 @@ public:
         return true;
     }
 
-    static bool HandleDebugRaidResetCommand(ChatHandler* /*handler*/, char const* args)
+    static bool HandleDebugRaidResetCommand(ChatHandler* handler, char const* args)
     {
         char* map_str = args ? strtok((char*)args, " ") : nullptr;
         char* difficulty_str = args ? strtok(nullptr, " ") : nullptr;
 
         int32 map = map_str ? atoi(map_str) : -1;
-        if (map <= 0)
+        MapEntry const* mEntry = (map >= 0) ? sMapStore.LookupEntry(map) : nullptr;
+        if (!mEntry)
+        {
+            handler->PSendSysMessage("Invalid map specified.");
             return false;
-        MapEntry const* mEntry = sMapStore.LookupEntry(map);
-        if (!mEntry || !mEntry->IsRaid())
-            return false;
+        }
+        if (!mEntry->IsDungeon())
+        {
+            handler->PSendSysMessage("'%s' is not a dungeon map.",
+                    mEntry->MapName[handler->GetSessionDbcLocale()]);
+            return true;
+        }
         int32 difficulty = difficulty_str ? atoi(difficulty_str) : -1;
         if (!sDifficultyStore.HasRecord(difficulty) || difficulty < -1)
+        {
+            handler->PSendSysMessage("Invalid difficulty %d.", difficulty);
             return false;
+        }
+        if (difficulty >= 0 && !sDB2Manager.GetMapDifficultyData(mEntry->ID, Difficulty(difficulty)))
+        {
+            handler->PSendSysMessage("Difficulty %d is not valid for '%s'.",
+                    difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
+            return true;
+        }
 
         if (difficulty == -1)
         {
-            for (DifficultyEntry const* difficulty : sDifficultyStore)
+            handler->PSendSysMessage("Resetting all difficulties for '%s'.",
+                    mEntry->MapName[handler->GetSessionDbcLocale()]);
+            for (DifficultyEntry const* diff : sDifficultyStore)
             {
-                if (sDB2Manager.GetMapDifficultyData(map, Difficulty(difficulty->ID)))
-                    sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty->ID));
+                if (sDB2Manager.GetMapDifficultyData(map, Difficulty(diff->ID)))
+                {
+                    handler->PSendSysMessage("Resetting difficulty %d for '%s'.",
+                            diff->ID, mEntry->MapName[handler->GetSessionDbcLocale()]);
+                    sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(diff->ID));
+                }
             }
         }
+        else if (mEntry->IsNonRaidDungeon() && difficulty == DIFFICULTY_NORMAL)
+        {
+            handler->PSendSysMessage("'%s' does not have any permanent saves for difficulty %d.",
+                    mEntry->MapName[handler->GetSessionDbcLocale()], difficulty);
+        }
         else
+        {
+            handler->PSendSysMessage("Resetting difficulty %d for '%s'.",
+                    difficulty, mEntry->MapName[handler->GetSessionDbcLocale()]);
             sInstanceSaveMgr->ForceGlobalReset(map, Difficulty(difficulty));
+        }
         return true;
     }
 
