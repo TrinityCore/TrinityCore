@@ -28,6 +28,7 @@ EndScriptData */
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"

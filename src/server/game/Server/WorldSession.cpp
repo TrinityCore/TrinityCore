@@ -33,6 +33,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Map.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"

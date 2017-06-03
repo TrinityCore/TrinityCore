@@ -31,6 +31,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "Spline.h"
 #include "Transport.h"
 #include "Unit.h"
 #include "UpdateData.h"
@@ -409,19 +410,17 @@ void AreaTrigger::UpdatePolygonOrientation()
     if (G3D::fuzzyEq(_previousCheckOrientation, newOrientation))
         return;
 
-    _polygonVertices = GetTemplate()->PolygonVertices;
+    _polygonVertices.assign(GetTemplate()->PolygonVertices.begin(), GetTemplate()->PolygonVertices.end());
 
     float angleSin = std::sin(newOrientation);
     float angleCos = std::cos(newOrientation);
 
     // This is needed to rotate the vertices, following orientation
-    for (G3D::Vector2& vertice : _polygonVertices)
+    for (Position& vertice : _polygonVertices)
     {
-        float tempX = vertice.x;
-        float tempY = vertice.y;
-
-        vertice.x = tempX * angleCos - tempY * angleSin;
-        vertice.y = tempX * angleSin + tempY * angleCos;
+        float tempX = vertice.GetPositionX();
+        float tempY = vertice.GetPositionY();
+        vertice.Relocate(tempX * angleCos - tempY * angleSin, tempX * angleSin + tempY * angleCos);
     }
 
     _previousCheckOrientation = newOrientation;
@@ -451,10 +450,10 @@ bool AreaTrigger::CheckIsInPolygon2D(Position const* pos) const
             nextVertex = vertex + 1;
         }
 
-        float vertX_i = GetPositionX() + _polygonVertices[vertex].x;
-        float vertY_i = GetPositionY() + _polygonVertices[vertex].y;
-        float vertX_j = GetPositionX() + _polygonVertices[nextVertex].x;
-        float vertY_j = GetPositionY() + _polygonVertices[nextVertex].y;
+        float vertX_i = GetPositionX() + _polygonVertices[vertex].GetPositionX();
+        float vertY_i = GetPositionY() + _polygonVertices[vertex].GetPositionY();
+        float vertX_j = GetPositionX() + _polygonVertices[nextVertex].GetPositionX();
+        float vertY_j = GetPositionY() + _polygonVertices[nextVertex].GetPositionY();
 
         // following statement checks if testPoint.Y is below Y-coord of i-th vertex
         bool belowLowY = vertY_i > testY;
@@ -561,42 +560,45 @@ void AreaTrigger::DoActions(Unit* unit)
 void AreaTrigger::UndoActions(Unit* unit)
 {
     for (AreaTriggerAction const& action : GetTemplate()->Actions)
-    {
         if (action.ActionType == AREATRIGGER_ACTION_CAST || action.ActionType == AREATRIGGER_ACTION_ADDAURA)
             unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
-    }
 }
 
-void AreaTrigger::InitSplineOffsets(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget)
+void AreaTrigger::InitSplineOffsets(std::vector<Position> const& splinePoints, uint32 timeToTarget)
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
 
     // This is needed to rotate the spline, following caster orientation
-    for (G3D::Vector3& spline : splinePoints)
+    std::vector<G3D::Vector3> rotatedPoints;
+    rotatedPoints.reserve(splinePoints.size());
+    for (Position const& spline : splinePoints)
     {
-        float tempX = spline.x;
-        float tempY = spline.y;
+        float tempX = spline.GetPositionX();
+        float tempY = spline.GetPositionY();
         float tempZ = GetPositionZ();
 
-        spline.x = (tempX * angleCos - tempY * angleSin) + GetPositionX();
-        spline.y = (tempX * angleSin + tempY * angleCos) + GetPositionY();
-        UpdateAllowedPositionZ(spline.x, spline.y, tempZ);
-        spline.z += tempZ;
+        UpdateAllowedPositionZ(spline.GetPositionX(), spline.GetPositionY(), tempZ);
+        rotatedPoints.emplace_back(
+            (tempX * angleCos - tempY * angleSin) + GetPositionX(),
+            (tempX * angleSin + tempY * angleCos) + GetPositionY(),
+            tempZ
+        );
     }
 
-    InitSplines(splinePoints, timeToTarget);
+    InitSplines(std::move(rotatedPoints), timeToTarget);
 }
 
-void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, uint32 timeToTarget)
+void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget)
 {
     if (splinePoints.size() < 2)
         return;
 
     _movementTime = 0;
 
-    _spline.init_spline(&splinePoints[0], splinePoints.size(), ::Movement::SplineBase::ModeLinear);
-    _spline.initLengths();
+    _spline = Trinity::make_unique<::Movement::Spline<int32>>();
+    _spline->init_spline(&splinePoints[0], splinePoints.size(), ::Movement::SplineBase::ModeLinear);
+    _spline->initLengths();
 
     // should be sent in object create packets only
     m_uint32Values[AREATRIGGER_TIME_TO_TARGET] = timeToTarget;
@@ -624,6 +626,11 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, uin
     _reachedDestination = false;
 }
 
+bool AreaTrigger::HasSplines() const
+{
+    return !_spline->empty();
+}
+
 void AreaTrigger::UpdateSplinePosition(uint32 diff)
 {
     if (_reachedDestination)
@@ -637,9 +644,9 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
     if (_movementTime >= GetTimeToTarget())
     {
         _reachedDestination = true;
-        _lastSplineIndex = int32(_spline.last());
+        _lastSplineIndex = int32(_spline->last());
 
-        G3D::Vector3 lastSplinePosition = _spline.getPoint(_lastSplineIndex);
+        G3D::Vector3 lastSplinePosition = _spline->getPoint(_lastSplineIndex);
         GetMap()->AreaTriggerRelocation(this, lastSplinePosition.x, lastSplinePosition.y, lastSplinePosition.z, GetOrientation());
 #ifdef TRINITY_DEBUG
         DebugVisualizePosition();
@@ -669,15 +676,15 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
 
     int lastPositionIndex = 0;
     float percentFromLastPoint = 0;
-    _spline.computeIndex(currentTimePercent, lastPositionIndex, percentFromLastPoint);
+    _spline->computeIndex(currentTimePercent, lastPositionIndex, percentFromLastPoint);
 
     G3D::Vector3 currentPosition;
-    _spline.evaluate_percent(lastPositionIndex, percentFromLastPoint, currentPosition);
+    _spline->evaluate_percent(lastPositionIndex, percentFromLastPoint, currentPosition);
 
     float orientation = GetOrientation();
     if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_FACE_MOVEMENT_DIR))
     {
-        G3D::Vector3 const& nextPoint = _spline.getPoint(lastPositionIndex + 1);
+        G3D::Vector3 const& nextPoint = _spline->getPoint(lastPositionIndex + 1);
         orientation = GetAngle(nextPoint.x, nextPoint.y);
     }
 

@@ -18,6 +18,7 @@
 
 #include "AchievementMgr.h"
 #include "AchievementPackets.h"
+#include "DB2Stores.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
@@ -25,11 +26,13 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Item.h"
 #include "Language.h"
 #include "Log.h"
 #include "Mail.h"
 #include "ObjectMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 
 struct VisibleAchievementCheck
 {
@@ -448,7 +451,7 @@ void PlayerAchievementMgr::SendAchievementInfo(Player* receiver, uint32 /*achiev
         inspectedAchievements.Data.Progress.push_back(progress);
     }
 
-    receiver->GetSession()->SendPacket(inspectedAchievements.Write());
+    receiver->SendDirectMessage(inspectedAchievements.Write());
 }
 
 void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)
@@ -795,7 +798,7 @@ void GuildAchievementMgr::SendAllData(Player const* receiver) const
         allGuildAchievements.Earned.push_back(earned);
     }
 
-    receiver->GetSession()->SendPacket(allGuildAchievements.Write());
+    receiver->SendDirectMessage(allGuildAchievements.Write());
 }
 
 void GuildAchievementMgr::SendAchievementInfo(Player* receiver, uint32 achievementId /*= 0*/) const
@@ -828,7 +831,7 @@ void GuildAchievementMgr::SendAchievementInfo(Player* receiver, uint32 achieveme
         }
     }
 
-    receiver->GetSession()->SendPacket(guildCriteriaUpdate.Write());
+    receiver->SendDirectMessage(guildCriteriaUpdate.Write());
 }
 
 void GuildAchievementMgr::SendAllTrackedCriterias(Player* receiver, std::set<uint32> const& trackedCriterias) const
@@ -854,7 +857,7 @@ void GuildAchievementMgr::SendAllTrackedCriterias(Player* receiver, std::set<uin
         guildCriteriaUpdate.Progress.push_back(guildCriteriaProgress);
     }
 
-    receiver->GetSession()->SendPacket(guildCriteriaUpdate.Write());
+    receiver->SendDirectMessage(guildCriteriaUpdate.Write());
 }
 
 void GuildAchievementMgr::SendAchievementMembers(Player* receiver, uint32 achievementId) const

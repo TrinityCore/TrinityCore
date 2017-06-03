@@ -21,6 +21,7 @@
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellInfo.h"

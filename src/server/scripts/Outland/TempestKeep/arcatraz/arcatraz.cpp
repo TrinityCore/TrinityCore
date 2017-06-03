@@ -32,6 +32,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "arcatraz.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 
 /*#####

@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "halls_of_reflection.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

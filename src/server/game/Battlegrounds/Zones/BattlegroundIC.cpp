@@ -17,9 +17,11 @@
  */
 
 #include "BattlegroundIC.h"
+#include "Creature.h"
 #include "GameObject.h"
 #include "Language.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Transport.h"

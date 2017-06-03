@@ -30,6 +30,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 #include <boost/asio/ip/address_v4.hpp>
 
 class account_commandscript : public CommandScript

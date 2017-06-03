@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Creature.h"
+#include "GameObject.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPNA.h"

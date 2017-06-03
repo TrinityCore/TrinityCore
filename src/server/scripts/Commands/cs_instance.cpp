@@ -33,6 +33,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "WorldSession.h"
 
 class instance_commandscript : public CommandScript
 {

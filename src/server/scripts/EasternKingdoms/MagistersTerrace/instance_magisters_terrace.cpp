@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "magisters_terrace.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 

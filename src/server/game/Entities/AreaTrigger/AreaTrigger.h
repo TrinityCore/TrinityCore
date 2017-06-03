@@ -19,7 +19,6 @@
 #define TRINITYCORE_AREATRIGGER_H
 
 #include "Object.h"
-#include "Spline.h"
 #include "MapObject.h"
 
 class AreaTriggerTemplate;
@@ -30,6 +29,17 @@ class AreaTriggerAI;
 class AuraEffect;
 
 struct AreaTriggerPolygonVertice;
+
+namespace G3D
+{
+    class Vector2;
+    class Vector3;
+}
+namespace Movement
+{
+    template<typename length_type>
+    class Spline;
+}
 
 class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigger>, public MapObject
 {
@@ -71,10 +81,10 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         Position const& GetRollPitchYaw() const { return _rollPitchYaw; }
         Position const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
-        void InitSplineOffsets(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget);
-        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, uint32 timeToTarget);
-        bool HasSplines() const { return !_spline.empty(); }
-        ::Movement::Spline<int32> const& GetSpline() const { return _spline; }
+        void InitSplineOffsets(std::vector<Position> const& splinePoints, uint32 timeToTarget);
+        void InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget);
+        bool HasSplines() const;
+        ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
         void UpdateShape();
@@ -111,8 +121,8 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         Position _rollPitchYaw;
         Position _targetRollPitchYaw;
-        std::vector<G3D::Vector2> _polygonVertices;
-        ::Movement::Spline<int32> _spline;
+        std::vector<Position> _polygonVertices;
+        std::unique_ptr<::Movement::Spline<int32>> _spline;
 
         bool _reachedDestination;
         int32 _lastSplineIndex;

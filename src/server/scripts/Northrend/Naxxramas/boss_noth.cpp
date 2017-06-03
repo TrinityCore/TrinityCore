@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
 #include "ScriptedCreature.h"
 

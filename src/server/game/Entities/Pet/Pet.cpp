@@ -19,10 +19,11 @@
 #include "Pet.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Group.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "PetPackets.h"
 #include "Player.h"
 #include "Spell.h"
@@ -34,7 +35,6 @@
 #include "Unit.h"
 #include "Util.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 
 #define PET_XP_FACTOR 0.05f

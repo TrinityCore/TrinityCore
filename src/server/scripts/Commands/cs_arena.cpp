@@ -30,6 +30,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "WorldSession.h"
 
 class arena_commandscript : public CommandScript
 {

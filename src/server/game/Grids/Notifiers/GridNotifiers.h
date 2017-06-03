@@ -19,9 +19,6 @@
 #ifndef TRINITY_GRIDNOTIFIERS_H
 #define TRINITY_GRIDNOTIFIERS_H
 
-#include "ObjectGridLoader.h"
-#include "UpdateData.h"
-
 #include "AreaTrigger.h"
 #include "Creature.h"
 #include "Corpse.h"
@@ -32,6 +29,7 @@
 #include "Player.h"
 #include "Spell.h"
 #include "UnitAI.h"
+#include "UpdateData.h"
 
 namespace Trinity
 {
@@ -888,9 +886,6 @@ namespace Trinity
 
             bool operator()(Unit* u) const
             {
-                if (G3D::fuzzyEq(_range, 0))
-                    return false;
-
                 if (_raid)
                 {
                     if (!_refUnit->IsInRaidWith(u))
@@ -962,7 +957,7 @@ namespace Trinity
                 : i_obj(obj), i_funit(funit), _spellInfo(NULL), i_range(range)
             {
                 if (DynamicObject const* dynObj = i_obj->ToDynObject())
-                    _spellInfo = sSpellMgr->GetSpellInfo(dynObj->GetSpellId());
+                    _spellInfo = dynObj->GetSpellInfo();
             }
 
             bool operator()(Unit* u) const

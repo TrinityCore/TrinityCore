@@ -18,24 +18,26 @@
 
 #include "Item.h"
 #include "ArtifactPackets.h"
+#include "Bag.h"
 #include "CollectionMgr.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GameTables.h"
 #include "ItemEnchantmentMgr.h"
 #include "ItemPackets.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "TradeData.h"
 #include "UpdateData.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
@@ -958,7 +960,7 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
         // pretend the item never existed
         if (forplayer)
         {
-            RemoveFromUpdateQueueOf(forplayer);
+            RemoveItemFromUpdateQueueOf(this, forplayer);
             forplayer->DeleteRefundReference(GetGUID());
         }
         delete this;
@@ -971,7 +973,7 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
             uState = state;
 
         if (forplayer)
-            AddToUpdateQueueOf(forplayer);
+            AddItemToUpdateQueueOf(this, forplayer);
     }
     else
     {
@@ -982,46 +984,46 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
     }
 }
 
-void Item::AddToUpdateQueueOf(Player* player)
+void AddItemToUpdateQueueOf(Item* item, Player* player)
 {
-    if (IsInUpdateQueue())
+    if (item->IsInUpdateQueue())
         return;
 
     ASSERT(player != NULL);
 
-    if (player->GetGUID() != GetOwnerGUID())
+    if (player->GetGUID() != item->GetOwnerGUID())
     {
         TC_LOG_DEBUG("entities.player.items", "Item::AddToUpdateQueueOf - Owner's guid (%s) and player's guid (%s) don't match!",
-            GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
+            item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
         return;
     }
 
     if (player->m_itemUpdateQueueBlocked)
         return;
 
-    player->m_itemUpdateQueue.push_back(this);
-    uQueuePos = player->m_itemUpdateQueue.size()-1;
+    player->m_itemUpdateQueue.push_back(item);
+    item->uQueuePos = player->m_itemUpdateQueue.size() - 1;
 }
 
-void Item::RemoveFromUpdateQueueOf(Player* player)
+void RemoveItemFromUpdateQueueOf(Item* item, Player* player)
 {
-    if (!IsInUpdateQueue())
+    if (!item->IsInUpdateQueue())
         return;
 
     ASSERT(player != NULL);
 
-    if (player->GetGUID() != GetOwnerGUID())
+    if (player->GetGUID() != item->GetOwnerGUID())
     {
         TC_LOG_DEBUG("entities.player.items", "Item::RemoveFromUpdateQueueOf - Owner's guid (%s) and player's guid (%s) don't match!",
-            GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
+            item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
         return;
     }
 
     if (player->m_itemUpdateQueueBlocked)
         return;
 
-    player->m_itemUpdateQueue[uQueuePos] = NULL;
-    uQueuePos = -1;
+    player->m_itemUpdateQueue[item->uQueuePos] = nullptr;
+    item->uQueuePos = -1;
 }
 
 uint8 Item::GetBagSlot() const
@@ -1042,7 +1044,7 @@ bool Item::CanBeTraded(bool mail, bool trade) const
     if ((!mail || !IsBoundAccountWide()) && (IsSoulBound() && (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE) || !trade)))
         return false;
 
-    if (IsBag() && (Player::IsBagPos(GetPos()) || !((Bag const*)this)->IsEmpty()))
+    if (IsBag() && (Player::IsBagPos(GetPos()) || !ToBag()->IsEmpty()))
         return false;
 
     if (Player* owner = GetOwner())

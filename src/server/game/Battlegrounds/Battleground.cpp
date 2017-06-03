@@ -21,6 +21,7 @@
 #include "BattlegroundMgr.h"
 #include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
+#include "ChatPackets.h"
 #include "Creature.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
@@ -30,8 +31,9 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Log.h"
+#include "Map.h"
 #include "MiscPackets.h"
-#include "Object.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
@@ -39,9 +41,8 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "Util.h"
-#include "WorldPacket.h"
 #include "WorldStatePackets.h"
-#include <G3D/Quat.h>
+#include <cstdarg>
 
 namespace Trinity
 {
@@ -490,7 +491,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
 
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-                player->GetSession()->SendPacket(&data);
+                player->SendDirectMessage(&data);
 
         m_CountdownTimer = 0;
     }
@@ -1147,7 +1148,7 @@ void Battleground::AddPlayer(Player* player)
             data << uint32(0); // unk
             data << uint32(countdownMaxForBGType - (GetElapsedTime() / 1000));
             data << uint32(countdownMaxForBGType);
-            player->GetSession()->SendPacket(&data);
+            player->SendDirectMessage(&data);
         }
     }
 
@@ -1472,11 +1473,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
         TC_LOG_DEBUG("bg.battleground", "Battleground::AddObject: gameoobject [entry: %u, object type: %u] for BG (map: %u) has zeroed rotation fields, "
             "orientation used temporally, but please fix the spawn", entry, type, m_MapId);
 
-        G3D::Quat fallbackRot = G3D::Matrix3::fromEulerAnglesZYX(o, 0.f, 0.f);
-        rot.x = fallbackRot.x;
-        rot.y = fallbackRot.y;
-        rot.z = fallbackRot.z;
-        rot.w = fallbackRot.w;
+        rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
     }
 
     // Must be created this way, adding to godatamap would add it to the base map of the instance

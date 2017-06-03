@@ -27,6 +27,7 @@ EndScriptData */
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "WorldSession.h"
 
 class cheat_commandscript : public CommandScript
 {

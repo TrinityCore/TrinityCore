@@ -613,6 +613,10 @@ enum FactionMasks
     // if none flags set then non-aggressive creature
 };
 
+#define MAX_ITEM_PROTO_FLAGS 3
+#define MAX_ITEM_PROTO_SOCKETS 3
+#define MAX_ITEM_PROTO_STATS  10
+
 enum MapTypes                                               // Lua_IsInInstance
 {
     MAP_COMMON          = 0,                                // none
@@ -798,6 +802,16 @@ enum SpellCategoryFlags
 
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF
+
+enum SpellItemEnchantmentFlags
+{
+    ENCHANTMENT_CAN_SOULBOUND           = 0x01,
+    ENCHANTMENT_UNK1                    = 0x02,
+    ENCHANTMENT_UNK2                    = 0x04,
+    ENCHANTMENT_UNK3                    = 0x08,
+    ENCHANTMENT_COLLECTABLE             = 0x100,
+    ENCHANTMENT_HIDE_IF_NOT_COLLECTED   = 0x200,
+};
 
 enum SpellProcsPerMinuteModType
 {

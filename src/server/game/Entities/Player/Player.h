@@ -19,47 +19,80 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include "DB2Stores.h"
-#include "GroupReference.h"
-#include "MapReference.h"
-#include "CUFProfile.h"
-#include "EquipementSet.h"
-#include "Item.h"
-#include "PetDefines.h"
-#include "QuestDef.h"
-#include "SpellMgr.h"
-#include "SpellHistory.h"
 #include "Unit.h"
-#include "WorldSession.h"
+#include "CUFProfile.h"
+#include "DatabaseEnvFwd.h"
+#include "DBCEnums.h"
+#include "EquipementSet.h"
+#include "GroupReference.h"
+#include "ItemDefines.h"
+#include "ItemEnchantmentMgr.h"
+#include "MapReference.h"
+#include "PetDefines.h"
 #include "PlayerTaxi.h"
-#include "TradeData.h"
-#include "CinematicMgr.h"
+#include "QuestDef.h"
 #include "SceneMgr.h"
 #include <queue>
 
 struct AccessRequirement;
+struct AchievementEntry;
+struct AreaTableEntry;
+struct AreaTriggerEntry;
+struct ArtifactPowerRankEntry;
+struct BarberShopStyleEntry;
+struct CharTitlesEntry;
+struct ChatChannelsEntry;
+struct ChrSpecializationEntry;
 struct CreatureTemplate;
-struct Mail;
+struct CurrencyTypesEntry;
+struct FactionEntry;
 struct ItemExtendedCostEntry;
+struct ItemSetEffect;
+struct ItemTemplate;
+struct Loot;
+struct Mail;
+struct MapEntry;
+struct QuestPackageItemEntry;
+struct SkillRaceClassInfoEntry;
+struct TalentEntry;
 struct TrainerSpell;
 struct VendorItem;
 
-class PlayerAchievementMgr;
-class ReputationMgr;
+class AELootResult;
+class Bag;
+class Battleground;
 class Channel;
+class CinematicMgr;
 class Creature;
 class DynamicObject;
 class Garrison;
 class Group;
 class Guild;
+class Item;
+class LootStore;
 class OutdoorPvP;
 class Pet;
+class PlayerAI;
+class PlayerAchievementMgr;
 class PlayerMenu;
 class PlayerSocial;
+class ReputationMgr;
 class SpellCastTargets;
-class PlayerAI;
+class TradeData;
 
 enum GroupCategory : uint8;
+enum InventoryType : uint8;
+enum ItemClass : uint8;
+enum LootError : uint8;
+enum LootType : uint8;
+
+namespace WorldPackets
+{
+    namespace Character
+    {
+        struct CharacterCreateInfo;
+    }
+}
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -1021,8 +1054,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
     friend class CinematicMgr;
-    friend void Item::AddToUpdateQueueOf(Player* player);
-    friend void Item::RemoveFromUpdateQueueOf(Player* player);
+    friend void AddItemToUpdateQueueOf(Item* item, Player* player);
+    friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
         explicit Player(WorldSession* session);
         ~Player();
@@ -1183,7 +1216,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
         bool HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
-        InventoryResult CanTakeMoreSimilarItems(Item* pItem, uint32* offendingItemId = nullptr) const { return CanTakeMoreSimilarItems(pItem->GetEntry(), pItem->GetCount(), pItem, nullptr, offendingItemId); }
+        InventoryResult CanTakeMoreSimilarItems(Item* pItem, uint32* offendingItemId = nullptr) const;
         InventoryResult CanTakeMoreSimilarItems(uint32 entry, uint32 count, uint32* offendingItemId = nullptr) const { return CanTakeMoreSimilarItems(entry, count, nullptr, nullptr, offendingItemId); }
         InventoryResult CanStoreNewItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 item, uint32 count, uint32* no_space_count = nullptr) const;
         InventoryResult CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap = false) const;
@@ -1288,7 +1321,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         float GetReputationPriceDiscount(Creature const* creature) const;
 
-        Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : nullptr; }
+        Player* GetTrader() const;
         TradeData* GetTradeData() const { return m_trade; }
         void TradeCancel(bool sendback);
 
@@ -2274,7 +2307,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
 
         bool HasTitle(uint32 bitIndex) const;
-        bool HasTitle(CharTitlesEntry const* title) const { return HasTitle(title->MaskID); }
+        bool HasTitle(CharTitlesEntry const* title) const;
         void SetTitle(CharTitlesEntry const* title, bool lost = false);
 
         //bool isActiveObject() const { return true; }
@@ -2686,61 +2719,5 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
 TC_GAME_API void RemoveItemsSetItem(Player* player, ItemTemplate const* proto);
-
-// "the bodies of template functions must be made available in a header file"
-template <class T>
-void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell /*= nullptr*/)
-{
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    if (!spellInfo)
-        return;
-
-    float totalmul = 1.0f;
-    int32 totalflat = 0;
-
-    // Drop charges for triggering spells instead of triggered ones
-    if (m_spellModTakingSpell)
-        spell = m_spellModTakingSpell;
-
-    for (SpellModList::iterator itr = m_spellMods[op][SPELLMOD_FLAT].begin(); itr != m_spellMods[op][SPELLMOD_FLAT].end(); ++itr)
-    {
-        SpellModifier* mod = *itr;
-
-        // Charges can be set only for mods with auras
-        if (!mod->ownerAura)
-            ASSERT(mod->charges == 0);
-
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-            continue;
-
-        totalflat += mod->value;
-        DropModCharge(mod, spell);
-    }
-
-    for (SpellModList::iterator itr = m_spellMods[op][SPELLMOD_PCT].begin(); itr != m_spellMods[op][SPELLMOD_PCT].end(); ++itr)
-    {
-        SpellModifier* mod = *itr;
-
-        // Charges can be set only for mods with auras
-        if (!mod->ownerAura)
-            ASSERT(mod->charges == 0);
-
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-            continue;
-
-        // skip percent mods for null basevalue (most important for spell mods with charges)
-        if (basevalue + totalflat == T(0))
-            continue;
-
-        // special case (skip > 10sec spell casts for instant cast setting)
-        if (mod->op == SPELLMOD_CASTING_TIME && basevalue >= T(10000) && mod->value <= -100)
-            continue;
-
-        totalmul *= 1.0f + CalculatePct(1.0f, mod->value);
-        DropModCharge(mod, spell);
-    }
-
-    basevalue = T(float(basevalue + totalflat) * totalmul);
-}
 
 #endif

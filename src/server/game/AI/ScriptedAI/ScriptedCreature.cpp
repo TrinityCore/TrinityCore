@@ -18,14 +18,18 @@
 
 #include "ScriptedCreature.h"
 #include "AreaBoundary.h"
+#include "DB2Stores.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Log.h"
-#include "ObjectMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Spell.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 // Spell summary for ScriptedAI::SelectSpell
 struct TSpellSummary

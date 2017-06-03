@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "halls_of_stone.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 

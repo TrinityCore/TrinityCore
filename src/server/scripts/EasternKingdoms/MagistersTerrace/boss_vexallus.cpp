@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "magisters_terrace.h"
+#include "MotionMaster.h"
 
 enum Yells
 {

@@ -21,11 +21,13 @@
 #include "Common.h"
 #include "Corpse.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
 #include "LootPackets.h"
@@ -552,11 +554,9 @@ void WorldSession::HandleSetLootSpecialization(WorldPackets::Loot::SetLootSpecia
     if (packet.SpecID)
     {
         if (ChrSpecializationEntry const* chrSpec = sChrSpecializationStore.LookupEntry(packet.SpecID))
-        {
             if (chrSpec->ClassID == GetPlayer()->getClass())
                 GetPlayer()->SetLootSpecId(packet.SpecID);
-        }
     }
     else
-        GetPlayer()->SetLootSpecId(packet.SpecID);
+        GetPlayer()->SetLootSpecId(0);
 }

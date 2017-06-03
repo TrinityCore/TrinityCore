@@ -23,7 +23,7 @@
 #include "Log.h"
 #include "LootPackets.h"
 #include "MiscPackets.h"
-#include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 #include "PartyPackets.h"
 #include "Player.h"
 #include "SocialMgr.h"

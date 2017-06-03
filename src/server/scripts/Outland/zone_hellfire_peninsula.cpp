@@ -32,6 +32,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "QuestDef.h"

@@ -22,6 +22,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
+#include "GameObject.h"
 #include "GameTables.h"
 #include "GridDefines.h"
 #include "GossipDef.h"
@@ -33,7 +34,7 @@
 #include "LootMgr.h"
 #include "Mail.h"
 #include "MapManager.h"
-#include "Object.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "Player.h"
@@ -50,6 +51,7 @@
 #include "Vehicle.h"
 #include "VMapFactory.h"
 #include "World.h"
+#include <G3D/g3dmath.h>
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
