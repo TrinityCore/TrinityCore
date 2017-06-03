@@ -155,7 +155,9 @@ public:
 
         void Reset() override
         {
-            SathGUID = instance->GetGuidData(DATA_SATHROVARR);
+            if (Creature* sath = instance->GetCreature(DATA_SATHROVARR))
+                SathGUID = sath->GetGUID();
+
             instance->SetBossState(DATA_KALECGOS, NOT_STARTED);
 
             if (Creature* Sath = ObjectAccessor::GetCreature(*me, SathGUID))
@@ -474,7 +476,8 @@ public:
 
         void Reset() override
         {
-            SathGUID = instance->GetGuidData(DATA_SATHROVARR);
+            if (Creature* sath = instance->GetCreature(DATA_SATHROVARR))
+                SathGUID = sath->GetGUID();
 
             Initialize();
         }
@@ -624,7 +627,8 @@ public:
         {
             me->SetFullHealth();//dunno why it does not resets health at evade..
             me->setActive(true);
-            KalecgosGUID = instance->GetGuidData(DATA_KALECGOS_DRAGON);
+            if (Creature* kalecgos = instance->GetCreature(DATA_KALECGOS_DRAGON))
+                KalecgosGUID = kalecgos->GetGUID();
             instance->SetBossState(DATA_KALECGOS, NOT_STARTED);
             if (!KalecGUID.IsEmpty())
             {
@@ -641,7 +645,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
-            if (Creature* Kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+            if (Creature* Kalec = me->SummonCreature(NPC_KALECGOS_HUMAN, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
             {
                 KalecGUID = Kalec->GetGUID();
                 me->CombatStart(Kalec);
