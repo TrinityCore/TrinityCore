@@ -65,7 +65,13 @@ public:
         PrepareSpellScript(spell_hallows_end_bucket_lands_SpellScript);
 
         bool handled;
-        bool Load() { handled = false; return true; }
+        
+        bool Load() override
+        {
+            handled = false;
+            return true;
+        }
+        
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (handled || !GetCaster())
@@ -240,7 +246,7 @@ public:
                     if (stackAmount > 10)
                         aura->SetStackAmount(stackAmount-10);
                     else
-                        me->RemoveAura(SPELL_SMALL_FIRE);
+                        me->RemoveAurasDueToSpell(SPELL_SMALL_FIRE);
                 }
 
                 if (Aura* aura = me->GetAura(SPELL_BIG_FIRE))
@@ -249,7 +255,7 @@ public:
                     if (aura->GetStackAmount() > 10)
                         aura->SetStackAmount(stackAmount-10);
                     else
-                        me->RemoveAura(SPELL_BIG_FIRE);
+                        me->RemoveAurasDueToSpell(SPELL_BIG_FIRE);
                 }
             }
         }
@@ -382,7 +388,7 @@ public:
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, 0);
                 me->SetDisableGravity(false);
-                me->RemoveAura(SPELL_HORSEMAN_MOUNT);
+                me->RemoveAurasDueToSpell(SPELL_HORSEMAN_MOUNT);
                 //me->Dismount();
                 if (Unit* target = me->SelectNearestPlayer(30.0f))
                     AttackStart(target);
