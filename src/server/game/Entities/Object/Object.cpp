@@ -1485,13 +1485,13 @@ float WorldObject::GetGridActivationRange() const
     if (isActiveObject())
     {
         if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->GetCinematicMgr()->IsOnCinematic())
-            return std::max(DEFAULT_VISIBILITY_INSTANCE, GetMap()->GetVisibilityRange());
+            return std::max(DEFAULT_VISIBILITY_INSTANCE, GetMap()->GetVisibilityRange() * 5);
 
         return GetMap()->GetVisibilityRange();
     }
 
     if (Creature const* thisCreature = ToCreature())
-        return thisCreature->m_SightDistance;
+        return thisCreature->GetVisibilityRange();
 
     return 0.0f;
 }
@@ -1500,33 +1500,37 @@ float WorldObject::GetVisibilityRange() const
 {
     if (isActiveObject() && !ToPlayer())
         return MAX_VISIBILITY_DISTANCE;
-    else
-        return GetMap()->GetVisibilityRange();
+    else if (Creature const* creature = ToCreature())
+        return creature->GetVisibilityRange();
+    else if (GameObject const* go = ToGameObject())
+        return go->GetVisibilityRange();
+
+    return GetMap()->GetVisibilityRange();
 }
 
-float WorldObject::GetSightRange(const WorldObject* target) const
+float WorldObject::GetSightRange(WorldObject const* target) const
 {
     if (ToUnit())
     {
-        if (ToPlayer())
+        if (Player const* player = ToPlayer())
         {
             if (target && target->isActiveObject() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
-            else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
+            else if (target && target->ToCreature())
+                return target->ToCreature()->GetVisibilityRange();
+            else if (player->GetCinematicMgr()->IsOnCinematic())
                 return DEFAULT_VISIBILITY_INSTANCE;
             else
                 return GetMap()->GetVisibilityRange();
         }
-        else if (ToCreature())
-            return ToCreature()->m_SightDistance;
+        else if (Creature const* creature = ToCreature())
+            return creature->GetVisibilityRange();
         else
             return SIGHT_RANGE_UNIT;
     }
 
     if (ToDynObject() && isActiveObject())
-    {
         return GetMap()->GetVisibilityRange();
-    }
 
     return 0.0f;
 }

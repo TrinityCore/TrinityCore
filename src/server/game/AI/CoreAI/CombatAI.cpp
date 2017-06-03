@@ -183,7 +183,6 @@ ArcherAI::ArcherAI(Creature* c) : CreatureAI(c)
     if (!m_minRange)
         m_minRange = MELEE_RANGE;
     me->m_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
-    me->m_SightDistance = me->m_CombatDistance;
 }
 
 void ArcherAI::AttackStart(Unit* who)
@@ -229,7 +228,6 @@ TurretAI::TurretAI(Creature* c) : CreatureAI(c)
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->m_spells[0]);
     m_minRange = spellInfo ? spellInfo->GetMinRange(false) : 0;
     me->m_CombatDistance = spellInfo ? spellInfo->GetMaxRange(false) : 0;
-    me->m_SightDistance = me->m_CombatDistance;
 }
 
 bool TurretAI::CanAIAttack(const Unit* /*who*/) const

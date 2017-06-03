@@ -343,6 +343,7 @@ struct CreatureAddon
     uint32 bytes2;
     uint32 emote;
     std::vector<uint32> auras;
+    float visibilityRange;
 };
 
 typedef std::unordered_map<ObjectGuid::LowType, CreatureAddon> CreatureAddonContainer;
@@ -702,7 +703,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         static float _GetDamageMod(int32 Rank);
 
-        float m_SightDistance, m_CombatDistance;
+        float m_CombatDistance;
 
         bool m_isTempWorldObject; //true when possessed
 
@@ -723,6 +724,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
+
+        float GetVisibilityRange() const { return m_VisibilityRange; }
+        void SetVisibilityRange(float visibilityRange) { m_VisibilityRange = visibilityRange; }
 
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
@@ -799,6 +803,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
+
+        float m_VisibilityRange;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

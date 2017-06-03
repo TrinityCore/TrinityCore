@@ -274,6 +274,11 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
         return false;
     }
 
+    if (m_goTemplateAddon && m_goTemplateAddon->visibilityRange)
+        SetVisibilityRange(m_goTemplateAddon->visibilityRange);
+    else
+        SetVisibilityRange(GetMap()->GetVisibilityRange());
+
     SetWorldRotation(rotation);
     GameObjectAddon const* gameObjectAddon = sObjectMgr->GetGameObjectAddon(GetSpawnId());
 
