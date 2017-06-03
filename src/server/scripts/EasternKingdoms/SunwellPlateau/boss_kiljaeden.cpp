@@ -233,7 +233,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_kalecgos_kjAI>(creature);
+        return GetSunwellPlateauAI<boss_kalecgos_kjAI>(creature);
     }
 
     struct boss_kalecgos_kjAI : public ScriptedAI
@@ -377,7 +377,7 @@ class go_orb_of_the_blue_flight : public GameObjectScript
                     player->CastSpell(player, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);
                     me->SetFaction(FACTION_NONE);
 
-                    if (Creature* pKalec = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_KALECGOS_KJ)))
+                    if (Creature* pKalec = instance->GetCreature(DATA_KALECGOS_KJ))
                         ENSURE_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalec->AI())->SetRingOfBlueFlames();
 
                     me->Refresh();
@@ -400,7 +400,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kiljaeden_controllerAI>(creature);
+        return GetSunwellPlateauAI<npc_kiljaeden_controllerAI>(creature);
     }
 
     struct npc_kiljaeden_controllerAI : public ScriptedAI
@@ -445,7 +445,7 @@ public:
         {
             Initialize();
 
-            if (Creature* pKalecKJ = ObjectAccessor::GetCreature((*me), instance->GetGuidData(DATA_KALECGOS_KJ)))
+            if (Creature* pKalecKJ = instance->GetCreature(DATA_KALECGOS_KJ))
                 ENSURE_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalecKJ->AI())->ResetOrbs();
             summons.DespawnAll();
         }
@@ -579,7 +579,7 @@ public:
         {
             Initialize();
 
-            if (Creature* pKalec = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_KJ)))
+            if (Creature* pKalec = instance->GetCreature(DATA_KALECGOS_KJ))
                 pKalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
 
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 12);
@@ -639,7 +639,7 @@ public:
             summons.DespawnAll();
 
             // Reset the controller
-            if (Creature* pControl = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
+            if (Creature* pControl = instance->GetCreature(DATA_KILJAEDEN_CONTROLLER))
                 ENSURE_AI(npc_kiljaeden_controller::npc_kiljaeden_controllerAI, pControl->AI())->Reset();
         }
 
@@ -721,10 +721,10 @@ public:
                             if (Speeches[speechCount].timer < SpeechTimer)
                             {
                                 SpeechTimer = 0;
-                                if (Creature* speechCreature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(Speeches[speechCount].creature)))
+                                if (Creature* speechCreature = instance->GetCreature(Speeches[speechCount].creature))
                                     speechCreature->AI()->Talk(Speeches[speechCount].textid);
                                 if (speechCount == 12)
-                                    if (Creature* pAnveena =  ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ANVEENA)))
+                                    if (Creature* pAnveena = instance->GetCreature(DATA_ANVEENA))
                                         pAnveena->CastSpell(me, SPELL_SACRIFICE_OF_ANVEENA, false);
                                 //   ChangeTimers(true, 10000); // Kil should do an emote while screaming without attacking for 10 seconds
                                 if (speechCount == speechPhaseEnd)
@@ -823,7 +823,7 @@ public:
                             }
                             break;
                         case TIMER_ORBS_EMPOWER: //Phase 3
-                            if (Creature* pKalec = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KALECGOS_KJ)))
+                            if (Creature* pKalec = instance->GetCreature(DATA_KALECGOS_KJ))
                             {
                                 switch (Phase)
                                 {
@@ -949,7 +949,7 @@ public:
         void EnterCombat(Unit* who) override
         {
             instance->SetBossState(DATA_KILJAEDEN, IN_PROGRESS);
-            if (Creature* pControl = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
+            if (Creature* pControl = instance->GetCreature(DATA_KILJAEDEN_CONTROLLER))
                 pControl->AddThreat(who, 1.0f);
 
             me->InterruptNonMeleeSpells(true);
@@ -957,7 +957,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Creature* pControl = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KILJAEDEN_CONTROLLER)))
+            if (Creature* pControl = instance->GetCreature(DATA_KILJAEDEN_CONTROLLER))
                 ++(ENSURE_AI(npc_kiljaeden_controller::npc_kiljaeden_controllerAI, pControl->AI())->deceiverDeathCount);
         }
 
@@ -1016,7 +1016,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_felfire_portalAI(creature);
+        return GetSunwellPlateauAI<npc_felfire_portalAI>(creature);
     }
 
     struct npc_felfire_portalAI : public ScriptedAI
@@ -1069,7 +1069,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_volatile_felfire_fiendAI(creature);
+        return GetSunwellPlateauAI<npc_volatile_felfire_fiendAI>(creature);
     }
 
     struct npc_volatile_felfire_fiendAI : public ScriptedAI
@@ -1134,7 +1134,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_armageddonAI(creature);
+        return GetSunwellPlateauAI<npc_armageddonAI>(creature);
     }
 
     struct npc_armageddonAI : public ScriptedAI
@@ -1196,7 +1196,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_shield_orbAI>(creature);
+        return GetSunwellPlateauAI<npc_shield_orbAI>(creature);
     }
 
     struct npc_shield_orbAI : public ScriptedAI
@@ -1291,7 +1291,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_sinster_reflectionAI(creature);
+        return GetSunwellPlateauAI<npc_sinster_reflectionAI>(creature);
     }
 
     struct npc_sinster_reflectionAI : public ScriptedAI
