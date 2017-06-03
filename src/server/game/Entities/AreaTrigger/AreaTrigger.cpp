@@ -69,6 +69,16 @@ void AreaTrigger::RemoveFromWorld()
     ///- Remove the AreaTrigger from the accessor and from all lists of objects in world
     if (IsInWorld())
     {
+        _isRemoved = true;
+
+        if (Unit* caster = GetCaster())
+            caster->_UnregisterAreaTrigger(this);
+
+        // Handle removal of all units, calling OnUnitExit & deleting auras if needed
+        HandleUnitEnterExit({});
+
+        _ai->OnRemove();
+
         WorldObject::RemoveFromWorld();
         GetMap()->GetObjectsStore().Remove<AreaTrigger>(GetGUID());
     }
@@ -194,16 +204,6 @@ void AreaTrigger::Remove()
 {
     if (IsInWorld())
     {
-        _isRemoved = true;
-
-        if (Unit* caster = GetCaster())
-            caster->_UnregisterAreaTrigger(this);
-
-        // Handle removal of all units, calling OnUnitExit & deleting auras if needed
-        HandleUnitEnterExit({});
-
-        _ai->OnRemove();
-
         AddObjectToRemoveList(); // calls RemoveFromWorld
     }
 }
