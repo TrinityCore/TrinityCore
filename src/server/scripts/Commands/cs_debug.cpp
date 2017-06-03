@@ -1506,19 +1506,19 @@ public:
             handler->PSendSysMessage("'%s' is not a dungeon map.", mEntry->name[LOCALE_enUS]);
             return true;
         }
-        Difficulty difficulty = Difficulty(difficulty_str ? atoi(difficulty_str) : -1);
+        int32 difficulty = difficulty_str ? atoi(difficulty_str) : -1;
         if (difficulty >= MAX_RAID_DIFFICULTY || difficulty < -1)
         {
             handler->PSendSysMessage("Invalid difficulty %d - specify in range [0,%d).", difficulty, MAX_RAID_DIFFICULTY);
             return false;
         }
-        if (difficulty >= 0 && !GetMapDifficultyData(mEntry->MapID, difficulty))
+        if (difficulty >= 0 && !GetMapDifficultyData(mEntry->MapID, Difficulty(difficulty)))
         {
             handler->PSendSysMessage("Difficulty %d is not valid for '%s'.", difficulty, mEntry->name[LOCALE_enUS]);
             return true;
         }
 
-        if (difficulty == Difficulty(-1))
+        if (difficulty == -1)
         {
             handler->PSendSysMessage("Resetting all difficulties for '%s'.", mEntry->name[LOCALE_enUS]);
             for (uint8 diff = (mEntry->IsRaid() ? 0 : 1); diff < (mEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY); ++diff)
@@ -1537,7 +1537,7 @@ public:
         else
         {
             handler->PSendSysMessage("Resetting difficulty %d for '%s'.", difficulty, mEntry->name[LOCALE_enUS]);
-            sInstanceSaveMgr->ForceGlobalReset(mEntry->MapID, difficulty);
+            sInstanceSaveMgr->ForceGlobalReset(mEntry->MapID, Difficulty(difficulty));
         }
         return true;
     }
