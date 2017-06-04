@@ -352,7 +352,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool precise
             bool isDetail = (MOPY[2 * i] & WMO_MATERIAL_DETAIL);
             bool isCollision = (MOPY[2 * i] & WMO_MATERIAL_COLLISION);
 
-            if (!(isRenderFace || isDetail || isCollision))
+            if (!isRenderFace && !isDetail && !isCollision)
                 continue;
             // Use this triangle
             for (int j=0; j<3; ++j)
@@ -510,7 +510,7 @@ WMOInstance::WMOInstance(MPQFile& f, char const* WmoInstName, uint32 mapID, uint
 
     // destructible wmo, do not dump. we can handle the vmap for these
     // in dynamic tree (gameobject vmaps)
-    if (fflags & 0x01)
+    if ((fflags & 0x01) != 0)
         return;
 
     //-----------add_in _dir_file----------------
