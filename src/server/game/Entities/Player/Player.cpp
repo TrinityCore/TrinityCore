@@ -33,6 +33,7 @@
 #include "CharacterCache.h"
 #include "CharacterDatabaseCleaner.h"
 #include "Chat.h"
+#include <cmath>
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
@@ -50,6 +51,7 @@
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
+#include "IRCClient.h"
 #include "KillRewarder.h"
 #include "LFGMgr.h"
 #include "Language.h"
@@ -2153,6 +2155,15 @@ void Player::RemoveFromWorld()
             TC_LOG_ERROR("entities.player", "Player::RemoveFromWorld: Player '%s' (%s) has viewpoint (Entry:%u, Type: %u) when removed from world",
                 GetName().c_str(), GetGUID().ToString().c_str(), viewpoint->GetEntry(), viewpoint->GetTypeId());
             SetViewpoint(viewpoint, false);
+        }
+    }
+    // TODO: FIXME
+    if (sIRC->ajoin == 1)
+    {
+        QueryResult result = WorldDatabase.PQuery("SELECT `name` FROM `irc_inchan` WHERE `name` = '%s'", Unit::GetName().c_str());
+        if (!result)
+        {
+            sIRC->AutoJoinChannel(this);
         }
     }
 }

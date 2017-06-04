@@ -33,6 +33,7 @@
 #include "Player.h"
 #include "Pet.h"
 #include "LFG.h"
+#include "IRCClient.h"
 #include "GroupMgr.h"
 #include "MMapFactory.h"
 #include "DisableMgr.h"
@@ -99,6 +100,7 @@ public:
             { "unstuck",          rbac::RBAC_PERM_COMMAND_UNSTUCK,           true, &HandleUnstuckCommand,          "" },
             { "wchange",          rbac::RBAC_PERM_COMMAND_WCHANGE,          false, &HandleChangeWeather,           "" },
             { "mailbox",          rbac::RBAC_PERM_COMMAND_MAILBOX,          false, &HandleMailBoxCommand,          "" },
+            { "tccrecon",         SEC_MODERATOR,                            false, HandleIRCRelogCommand,          "" },
         };
         return commandTable;
     }
@@ -586,6 +588,24 @@ public:
                 targetGuid, dummy);
         }
 
+        return true;
+    }
+
+    static bool HandleIRCpmCommand(ChatHandler* handler, const char* args)
+    {
+        std::string Msg = args;
+        if (Msg.find(" ") == std::string::npos)
+            return false;
+        std::string To = Msg.substr(0, Msg.find(" "));
+        Msg = Msg.substr(Msg.find(" ") + 1);
+        std::size_t pos;
+        while ((pos = To.find("||")) != std::string::npos)
+        {
+            std::size_t find1 = To.find("||", pos);
+            To.replace(pos, find1 - pos + 2, "|");
+        }
+        sIRC->SendIRC("PRIVMSG "+To+" : <WoW>["+handler->GetSession()->GetPlayerName()+"] : " + Msg);
+        sIRC->Send_WoW_Player(handler->GetSession()->GetPlayer(), "|cffCC4ACCTo ["+To+"]: "+Msg);
         return true;
     }
 
@@ -2628,6 +2648,14 @@ public:
         sWorld->SendGlobalMessage(&data);
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
+        return true;
+    }
+
+    static bool HandleIRCRelogCommand(ChatHandler* handler, const char *args)
+    {
+        handler->SendSysMessage("TriniChat is dropping from IRC Server");
+        sIRC->ResetIRC();
+        handler->SendSysMessage("TriniChat is reconnecting to IRC Server");
         return true;
     }
 

@@ -56,6 +56,7 @@
 
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
+#include "IRCClient.h"
 
 #ifndef _TRINITY_CORE_CONFIG
     #define _TRINITY_CORE_CONFIG  "worldserver.conf"
@@ -231,6 +232,15 @@ extern int main(int argc, char** argv)
         soapThread = new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878)));
     }
 
+    // Start up TriniChat
+    boost::thread* triniChatThread = nullptr;
+    if (sIRC->Active == 1)
+    {
+        triniChatThread = new boost::thread(TrinityChatThread);
+    }
+    else
+        TC_LOG_INFO("misc", "*** TriniChat Is Disabled. *");
+
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
@@ -294,6 +304,16 @@ extern int main(int argc, char** argv)
     {
         soapThread->join();
         delete soapThread;
+    }
+
+    // Clean TrinityChat
+    if (triniChatThread != nullptr)
+    {
+        // for some reason on win32 "sIRC->Active && !World::IsStopped()" fail to go false in time and the thread is stalled
+        // so we make sure the condition to live will fail from here, since we are shutting down...
+        sIRC->Active = 0;
+        triniChatThread->join();
+        delete triniChatThread;
     }
 
     delete raAcceptor;

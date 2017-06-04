@@ -29,6 +29,7 @@ EndScriptData */
 #include "Language.h"
 #include "Player.h"
 #include "ObjectMgr.h"
+#include "IRCClient.h"
 
 class message_commandscript : public CommandScript
 {
@@ -152,6 +153,12 @@ public:
             name = session->GetPlayer()->GetName();
 
         sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args);
+        //send to irc
+        if(sIRC->_staffLink == 1)
+        {
+            std::string sMsg = "[<WoW>"+name+"]: "+args;
+            sIRC->Send_IRC_Channel(sIRC->_staffChan, sMsg, false, "PRIVMSG");
+        }
         return true;
     }
     // global announce
@@ -159,6 +166,13 @@ public:
     {
         if (!*args)
             return false;
+
+        if ((sIRC->BOTMASK & 256) != 0 && sIRC->anchn.size() > 0)
+        {
+            std::string ircchan = "#";
+            ircchan += sIRC->anchn;
+            sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("\00304,08\037/!\\\037\017\00304 System Message \00304,08\037/!\\\037\017 %s", "%s", args), true);
+        }
 
         sWorld->SendServerMessage(SERVER_MSG_STRING, Trinity::StringFormat(handler->GetTrinityString(LANG_SYSTEMMESSAGE), args).c_str());
         return true;
@@ -177,6 +191,13 @@ public:
     {
         if (!*args)
             return false;
+
+        if ((sIRC->BOTMASK & 256) != 0 && sIRC->anchn.size() > 0)
+        {
+            std::string ircchan = "#";
+            ircchan += sIRC->anchn;
+            sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg("\00304,08\037/!\\\037\017\00304 Global Notify \00304,08\037/!\\\037\017 %s", "%s", args), true);
+        }
 
         std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
         str += args;

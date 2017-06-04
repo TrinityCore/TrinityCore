@@ -31,6 +31,7 @@ EndScriptData */
 #include "Player.h"
 #include "TicketMgr.h"
 #include "ScriptMgr.h"
+#include "IRCClient.h"
 
 class ticket_commandscript : public CommandScript
 {

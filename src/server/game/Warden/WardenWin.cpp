@@ -32,6 +32,7 @@
 #include "WardenModuleWin.h"
 #include "WardenCheckMgr.h"
 #include <openssl/md5.h>
+#include "IRCClient.h"
 
 WardenWin::WardenWin() : Warden(), _serverTicks(0) {}
 
@@ -337,6 +338,15 @@ void WardenWin::HandleData(ByteBuffer &buff)
     {
         buff.rpos(buff.wpos());
         TC_LOG_WARN("warden", "%s failed checksum. Action: %s", _session->GetPlayerInfo().c_str(), Penalty().c_str());
+        if ((sIRC->BOTMASK & 2048) != 0 && sIRC->anchn.size() > 0)
+        {
+            // announce warden penalties to irc status channel
+            std::string ircchan = "#";
+            std::ostringstream smsg;
+            ircchan += sIRC->anchn;
+            smsg << _session->GetPlayerInfo().c_str() << " failed checksum. Action: " << Penalty().c_str();
+            sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg(" %s", " %s", smsg.str().c_str()), true);
+        }
         return;
     }
 
@@ -348,6 +358,15 @@ void WardenWin::HandleData(ByteBuffer &buff)
         if (result == 0x00)
         {
             TC_LOG_WARN("warden", "%s failed timing check. Action: %s", _session->GetPlayerInfo().c_str(), Penalty().c_str());
+            if ((sIRC->BOTMASK & 2048) != 0 && sIRC->anchn.size() > 0)
+            {
+                // announce warden penalties to irc status channel
+                std::string ircchan = "#";
+                std::ostringstream smsg;
+                ircchan += sIRC->anchn;
+                smsg << _session->GetPlayerInfo().c_str() << " failed timing check. Action: " << Penalty().c_str();
+                sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg(" %s", " %s", smsg.str().c_str()), true);
+            }
             return;
         }
 
@@ -490,6 +509,15 @@ void WardenWin::HandleData(ByteBuffer &buff)
     {
         WardenCheck* check = sWardenCheckMgr->GetWardenDataById(checkFailed);
         TC_LOG_WARN("warden", "%s failed Warden check %u. Action: %s", _session->GetPlayerInfo().c_str(), checkFailed, Penalty(check).c_str());
+        if ((sIRC->BOTMASK & 2048) != 0 && sIRC->anchn.size() > 0)
+        {
+            // announce warden penalties to irc status channel
+            std::string ircchan = "#";
+            std::ostringstream smsg;
+            ircchan += sIRC->anchn;
+            smsg << _session->GetPlayerInfo().c_str() << " failed Warden check " << checkFailed << ". Action: " << Penalty(check).c_str();
+            sIRC->Send_IRC_Channel(ircchan, sIRC->MakeMsg(" %s", " %s", smsg.str().c_str()), true);
+        }
     }
 
     // Set hold off timer, minimum timer should at least be 1 second

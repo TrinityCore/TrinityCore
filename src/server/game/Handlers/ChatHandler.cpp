@@ -466,6 +466,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             {
                 sScriptMgr->OnPlayerChat(sender, type, lang, msg, chn);
                 chn->Say(sender->GetGUID(), msg.c_str(), lang);
+                sIRC->Send_WoW_IRC(sender, channel, msg);
             }
             break;
         }
