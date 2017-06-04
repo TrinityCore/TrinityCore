@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Spell.h"
+#include "SpellMgr.h"
 #include "ToyPackets.h"
 
 void WorldSession::HandleAddToy(WorldPackets::Toy::AddToy& packet)

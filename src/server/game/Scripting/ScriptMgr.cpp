@@ -26,6 +26,7 @@
 #include "Errors.h"
 #include "GameObject.h"
 #include "GossipDef.h"
+#include "Item.h"
 #include "LFGScripts.h"
 #include "Log.h"
 #include "Map.h"

@@ -24,7 +24,6 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
 
 enum Phases
@@ -168,7 +167,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_thaddiusAI>(creature);
+        return GetNaxxramasAI<boss_thaddiusAI>(creature);
     }
 
     struct boss_thaddiusAI : public BossAI
@@ -484,7 +483,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_stalaggAI>(creature);
+        return GetNaxxramasAI<npc_stalaggAI>(creature);
     }
 
     struct npc_stalaggAI : public ScriptedAI
@@ -752,7 +751,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_feugenAI>(creature);
+        return GetNaxxramasAI<npc_feugenAI>(creature);
     }
 
     struct npc_feugenAI : public ScriptedAI
@@ -1023,7 +1022,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_teslaAI>(creature);
+        return GetNaxxramasAI<npc_teslaAI>(creature);
     }
 
     struct npc_teslaAI : public ScriptedAI
@@ -1048,15 +1047,16 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return (
-                    sSpellMgr->GetSpellInfo(SPELL_POLARITY_SHIFT) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_AMP) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_AMP)
-                    );
+                return ValidateSpellInfo(
+                {
+                    SPELL_POLARITY_SHIFT,
+                    SPELL_POSITIVE_CHARGE_APPLY,
+                    SPELL_POSITIVE_CHARGE_TICK,
+                    SPELL_POSITIVE_CHARGE_AMP,
+                    SPELL_NEGATIVE_CHARGE_APPLY,
+                    SPELL_NEGATIVE_CHARGE_TICK,
+                    SPELL_NEGATIVE_CHARGE_AMP
+                });
             }
 
             void HandleTargets(std::list<WorldObject*>& targetList)
@@ -1146,15 +1146,16 @@ class spell_thaddius_polarity_shift : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return (
-                    sSpellMgr->GetSpellInfo(SPELL_POLARITY_SHIFT) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_AMP) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_AMP)
-                    );
+                return ValidateSpellInfo(
+                {
+                    SPELL_POLARITY_SHIFT,
+                    SPELL_POSITIVE_CHARGE_APPLY,
+                    SPELL_POSITIVE_CHARGE_TICK,
+                    SPELL_POSITIVE_CHARGE_AMP,
+                    SPELL_NEGATIVE_CHARGE_APPLY,
+                    SPELL_NEGATIVE_CHARGE_TICK,
+                    SPELL_NEGATIVE_CHARGE_AMP
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1198,7 +1199,7 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_PULL) ? true : false;
+                return ValidateSpellInfo({ SPELL_MAGNETIC_PULL });
             }
 
             void HandleCast() // only feugen ever casts this according to wowhead data

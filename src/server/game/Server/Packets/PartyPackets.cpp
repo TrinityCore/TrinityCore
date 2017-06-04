@@ -23,6 +23,7 @@
 #include "SpellAuras.h"
 #include "Vehicle.h"
 #include "World.h"
+#include "WorldSession.h"
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
 {

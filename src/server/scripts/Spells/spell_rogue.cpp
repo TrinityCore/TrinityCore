@@ -23,11 +23,14 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "DB2Stores.h"
+#include "Item.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 
 enum RogueSpells
@@ -78,9 +81,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -139,9 +140,7 @@ class spell_rog_cheat_death : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_CHEAT_DEATH_COOLDOWN))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_CHEAT_DEATH_COOLDOWN });
             }
 
             bool Load() override
@@ -201,9 +200,7 @@ class spell_rog_crippling_poison : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_CRIPPLING_POISON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_CRIPPLING_POISON });
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -371,11 +368,12 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_KILLING_SPREE_TELEPORT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG)
-                    || !sSpellMgr->GetSpellInfo(SPELL_ROGUE_KILLING_SPREE_DMG_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ROGUE_KILLING_SPREE_TELEPORT,
+                    SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG,
+                    SPELL_ROGUE_KILLING_SPREE_DMG_BUFF
+                });
             }
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -439,9 +437,7 @@ class spell_rog_master_of_subtlety : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -481,9 +477,7 @@ class spell_rog_preparation : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_GLYPH_OF_PREPARATION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_GLYPH_OF_PREPARATION });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -586,9 +580,7 @@ class spell_rog_shiv : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_SHIV_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_SHIV_TRIGGERED });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -622,14 +614,15 @@ class spell_rog_stealth : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_SANCTUARY) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_STEALTH_STEALTH_AURA) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
+                    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
+                    SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC,
+                    SPELL_ROGUE_SANCTUARY,
+                    SPELL_ROGUE_STEALTH_STEALTH_AURA,
+                    SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA
+                });
             }
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -682,10 +675,7 @@ class spell_rog_vanish : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_VANISH_AURA) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_VANISH_AURA, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA });
             }
 
             void OnLaunchTarget(SpellEffIndex effIndex)
@@ -730,9 +720,7 @@ class spell_rog_vanish_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_STEALTH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_STEALTH });
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -771,11 +759,7 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST, SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

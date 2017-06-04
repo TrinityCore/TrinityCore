@@ -18,6 +18,8 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
+#include "DB2Stores.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -501,12 +503,13 @@ class spell_wintergrasp_force_building : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BUILD_CATAPULT_FORCE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BUILD_DEMOLISHER_FORCE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BUILD_SIEGE_VEHICLE_FORCE_HORDE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_BUILD_CATAPULT_FORCE,
+                    SPELL_BUILD_DEMOLISHER_FORCE,
+                    SPELL_BUILD_SIEGE_VEHICLE_FORCE_HORDE,
+                    SPELL_BUILD_SIEGE_VEHICLE_FORCE_ALLIANCE
+                });
             }
 
             void HandleScript(SpellEffIndex effIndex)

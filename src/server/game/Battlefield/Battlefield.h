@@ -76,8 +76,8 @@ class Map;
 class Player;
 class Unit;
 class WorldPacket;
-
 struct Position;
+struct QuaternionData;
 struct WorldSafeLocsEntry;
 
 namespace WorldPackets
@@ -86,11 +86,6 @@ namespace WorldPackets
     {
         class InitWorldStates;
     }
-}
-
-namespace G3D
-{
-    class Quat;
 }
 
 typedef std::vector<BfGraveyard*> GraveyardVect;
@@ -313,7 +308,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         // Misc methods
         Creature* SpawnCreature(uint32 entry, Position const& pos);
-        GameObject* SpawnGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot);
+        GameObject* SpawnGameObject(uint32 entry, Position const& pos, QuaternionData const& rot);
 
         Creature* GetCreature(ObjectGuid guid);
         GameObject* GetGameObject(ObjectGuid guid);

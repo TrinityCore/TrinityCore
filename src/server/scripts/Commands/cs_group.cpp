@@ -18,12 +18,17 @@
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GroupMgr.h"
 #include "Language.h"
 #include "LFG.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "WorldSession.h"
 
 class group_commandscript : public CommandScript
 {

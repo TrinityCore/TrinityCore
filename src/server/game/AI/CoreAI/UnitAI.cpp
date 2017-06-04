@@ -17,14 +17,15 @@
  */
 
 #include "UnitAI.h"
-#include "Player.h"
 #include "Creature.h"
-#include "SpellAuras.h"
-#include "SpellAuraEffects.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
-#include "Spell.h"
 #include "CreatureAIImpl.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 
 void UnitAI::AttackStart(Unit* victim)
 {
@@ -38,6 +39,12 @@ void UnitAI::AttackStart(Unit* victim)
         }
         me->GetMotionMaster()->MoveChase(victim);
     }
+}
+
+void UnitAI::InitializeAI()
+{
+    if (!me->isDead())
+        Reset();
 }
 
 void UnitAI::AttackStartCaster(Unit* victim, float dist)
@@ -230,6 +237,11 @@ void UnitAI::FillAISpellInfo()
     }
 }
 
+ThreatManager& UnitAI::GetThreatManager()
+{
+    return me->getThreatManager();
+}
+
 bool DefaultTargetSelector::operator()(Unit const* target) const
 {
     if (!me)
@@ -346,4 +358,9 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
         return target->GetGUID() != currentVictim->getUnitGuid();
 
     return target != _source->GetVictim();
+}
+
+void SortByDistanceTo(Unit* reference, std::list<Unit*>& targets)
+{
+    targets.sort(Trinity::ObjectDistanceOrderPred(reference));
 }

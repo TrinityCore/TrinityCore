@@ -21,6 +21,7 @@
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Log.h"
+#include "Map.h"
 #include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
@@ -556,7 +557,7 @@ class boss_gothik : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_gothikAI>(creature);
+            return GetNaxxramasAI<boss_gothikAI>(creature);
         }
 };
 
@@ -663,7 +664,7 @@ class npc_gothik_minion_livingtrainee : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gothik_minion_livingtraineeAI>(creature);
+            return GetNaxxramasAI<npc_gothik_minion_livingtraineeAI>(creature);
         }
 };
 
@@ -692,7 +693,7 @@ class npc_gothik_minion_livingknight : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gothik_minion_livingknightAI>(creature);
+            return GetNaxxramasAI<npc_gothik_minion_livingknightAI>(creature);
         }
 };
 
@@ -722,7 +723,7 @@ class npc_gothik_minion_livingrider : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gothik_minion_livingriderAI>(creature);
+            return GetNaxxramasAI<npc_gothik_minion_livingriderAI>(creature);
         }
 };
 
@@ -751,7 +752,7 @@ class npc_gothik_minion_spectraltrainee : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectraltraineeAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectraltraineeAI>(creature);
     }
 };
 
@@ -780,7 +781,7 @@ class npc_gothik_minion_spectralknight : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectralknightAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectralknightAI>(creature);
     }
 };
 
@@ -845,7 +846,7 @@ class npc_gothik_minion_spectralrider : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectralriderAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectralriderAI>(creature);
     }
 };
 
@@ -874,7 +875,7 @@ class npc_gothik_minion_spectralhorse : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_minion_spectralhorseAI>(creature);
+        return GetNaxxramasAI<npc_gothik_minion_spectralhorseAI>(creature);
     }
 };
 
@@ -885,7 +886,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gothik_triggerAI>(creature);
+        return GetNaxxramasAI<npc_gothik_triggerAI>(creature);
     }
 
     struct npc_gothik_triggerAI : public ScriptedAI

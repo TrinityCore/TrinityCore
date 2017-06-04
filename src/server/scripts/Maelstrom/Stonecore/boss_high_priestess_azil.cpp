@@ -18,14 +18,16 @@
 #include "ScriptMgr.h"
 #include "DynamicObject.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "stonecore.h"
 #include "Vehicle.h"
+#include <G3D/Vector3.h>
 
 enum Spells
 {
@@ -300,7 +302,7 @@ class boss_high_priestess_azil : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_high_priestess_azilAI>(creature);
+            return GetStonecoreAI<boss_high_priestess_azilAI>(creature);
         }
 };
 
@@ -334,7 +336,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_devout_followerAI>(creature);
+        return GetStonecoreAI<npc_devout_followerAI>(creature);
     }
 };
 
@@ -351,7 +353,7 @@ public:
             DoCast(me, SPELL_GRAVITY_WELL_VISUAL);
             events.ScheduleEvent(EVENT_GRAVITY_WELL_AURA_DAMAGE, 3200);
             events.ScheduleEvent(EVENT_GRAVITY_WELL_AURA_PULL, 4500);
-            if (!me->GetMap()->IsHeroic())
+            if (!IsHeroic())
                 me->DespawnOrUnsummon(23200);
         }
 
@@ -392,7 +394,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gravity_wellAI>(creature);
+        return GetStonecoreAI<npc_gravity_wellAI>(creature);
     }
 };
 
@@ -465,7 +467,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_seismic_shardAI>(creature);
+        return GetStonecoreAI<npc_seismic_shardAI>(creature);
     }
 };
 
@@ -481,9 +483,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ADD_SOUTH))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SUMMON_ADD_SOUTH });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)
@@ -517,9 +517,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ADD_WEST))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SUMMON_ADD_WEST });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)

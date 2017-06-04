@@ -24,9 +24,10 @@ SDCategory: Halls of Lightning
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "halls_of_lightning.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "halls_of_lightning.h"
 
 enum Texts
 {
@@ -205,7 +206,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lokenAI>(creature);
+        return GetHallsOfLightningAI<boss_lokenAI>(creature);
     }
 };
 

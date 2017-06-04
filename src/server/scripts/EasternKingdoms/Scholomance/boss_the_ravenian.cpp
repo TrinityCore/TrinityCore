@@ -103,7 +103,7 @@ class boss_the_ravenian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_theravenianAI(creature);
+            return GetScholomanceAI<boss_theravenianAI>(creature);
         }
 };
 

@@ -16,11 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "blackfathom_deeps.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellScript.h"
 
 enum Spells
@@ -74,7 +75,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_blackfathom_deeps_eventAI>(creature);
+        return GetBlackfathomDeepsAI<npc_blackfathom_deeps_eventAI>(creature);
     }
 
     struct npc_blackfathom_deeps_eventAI : public ScriptedAI
@@ -83,10 +84,7 @@ public:
         {
             Initialize();
             if (creature->IsSummon())
-            {
                 creature->SetHomePosition(HomePosition);
-                AttackPlayer();
-            }
 
             instance = creature->GetInstanceScript();
         }
@@ -113,28 +111,9 @@ public:
             Initialize();
         }
 
-        void AttackPlayer()
+        void IsSummonedBy(Unit*) override
         {
-            Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
-
-            if (PlList.isEmpty())
-                return;
-
-            for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-            {
-                if (Player* player = i->GetSource())
-                {
-                    if (player->IsGameMaster())
-                        continue;
-
-                    if (player->IsAlive())
-                    {
-                        me->SetInCombatWith(player);
-                        player->SetInCombatWith(me);
-                        me->AddThreat(player, 0.0f);
-                    }
-                }
-            }
+            DoZoneInCombat();
         }
 
         void UpdateAI(uint32 diff) override

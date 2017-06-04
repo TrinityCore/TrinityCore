@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "sunwell_plateau.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "sunwell_plateau.h"
 
 enum Spells
 {
@@ -581,10 +583,7 @@ class spell_summon_blood_elves_script : SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                for (uint8 i = 0; i < MAX_SUMMON_BLOOD_ELVES; ++i)
-                    if (!sSpellMgr->GetSpellInfo(SummonBloodElvesSpells[i]))
-                        return false;
-                return true;
+                return ValidateSpellInfo(SummonBloodElvesSpells);
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -616,10 +615,7 @@ class spell_muru_darkness : SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                for (uint8 i = 0; i < MAX_SUMMON_DARK_FIEND; ++i)
-                    if (!sSpellMgr->GetSpellInfo(SummonDarkFiendSpells[i]))
-                        return false;
-                return true;
+                return ValidateSpellInfo(SummonDarkFiendSpells);
             }
 
             void HandleAfterCast()

@@ -29,6 +29,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "DuelPackets.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
@@ -38,10 +39,13 @@
 #include "Group.h"
 #include "Guild.h"
 #include "InstanceScript.h"
+#include "Item.h"
 #include "Language.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "Map.h"
 #include "MiscPackets.h"
+#include "MotionMaster.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
@@ -65,7 +69,7 @@
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include <G3D/Quat.h>
+#include "WorldSession.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -3159,7 +3163,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     Map* map = target->GetMap();
 
-    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f);
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.f, 0.f);
     if (!pGameObj->Create(gameobject_id, map, m_caster->GetPhaseMask(), Position(x, y, z, target->GetOrientation()), rot, 255, GO_STATE_READY))
     {
         delete pGameObj;
@@ -3735,8 +3739,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     };
 
     Map* map = m_caster->GetMap();
-    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
-    if (!pGameObj->Create(gameobject_id, map, m_caster->GetPhaseMask(), pos, rot, 0, GO_STATE_READY))
+    if (!pGameObj->Create(gameobject_id, map, m_caster->GetPhaseMask(), pos, QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f), 0, GO_STATE_READY))
     {
         delete pGameObj;
         return;
@@ -3763,8 +3766,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     packet.RequestedByWowAccount = caster->GetSession()->GetAccountGUID();
 
     WorldPacket const* worldPacket = packet.Write();
-    caster->GetSession()->SendPacket(worldPacket);
-    target->GetSession()->SendPacket(worldPacket);
+    caster->SendDirectMessage(worldPacket);
+    target->SendDirectMessage(worldPacket);
 
     // create duel-info
     DuelInfo* duel   = new DuelInfo;
@@ -4071,8 +4074,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
         m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
 
     Map* map = m_caster->GetMap();
-    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f);
-    if (!go->Create(go_id, map, m_caster->GetPhaseMask(), Position(x, y, z, m_caster->GetOrientation()), rot, 255, GO_STATE_READY))
+    if (!go->Create(go_id, map, m_caster->GetPhaseMask(), Position(x, y, z, m_caster->GetOrientation()), QuaternionData::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f), 255, GO_STATE_READY))
     {
         delete go;
         return;
@@ -4755,7 +4757,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     GameObject* pGameObj = new GameObject();
 
     Position pos = { fx, fy, fz, m_caster->GetOrientation() };
-    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f);
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f);
     if (!pGameObj->Create(name_id, cMap, m_caster->GetPhaseMask(), pos, rot, 255, GO_STATE_READY))
     {
         delete pGameObj;
@@ -5347,7 +5349,7 @@ void Spell::EffectPlayMusic(SpellEffIndex /*effIndex*/)
         return;
     }
 
-    unitTarget->ToPlayer()->GetSession()->SendPacket(WorldPackets::Misc::PlayMusic(soundid).Write());
+    unitTarget->ToPlayer()->SendDirectMessage(WorldPackets::Misc::PlayMusic(soundid).Write());
 }
 
 void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)

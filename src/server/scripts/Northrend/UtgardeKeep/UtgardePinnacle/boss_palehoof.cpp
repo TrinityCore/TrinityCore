@@ -23,9 +23,13 @@ SDComment:
 SDCategory:
 Script Data End */
 
-#include <algorithm>
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "utgarde_pinnacle.h"
 
 enum Spells
@@ -261,7 +265,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ravenous_furbolgAI>(creature);
+        return GetUtgardePinnacleAI<npc_ravenous_furbolgAI>(creature);
     }
 
     struct npc_ravenous_furbolgAI : public ScriptedAI
@@ -375,7 +379,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_frenzied_worgenAI>(creature);
+        return GetUtgardePinnacleAI<npc_frenzied_worgenAI>(creature);
     }
 
     struct npc_frenzied_worgenAI : public ScriptedAI
@@ -491,7 +495,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ferocious_rhinoAI>(creature);
+        return GetUtgardePinnacleAI<npc_ferocious_rhinoAI>(creature);
     }
 
     struct npc_ferocious_rhinoAI : public ScriptedAI
@@ -612,7 +616,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_massive_jormungarAI>(creature);
+        return GetUtgardePinnacleAI<npc_massive_jormungarAI>(creature);
     }
 
     struct npc_massive_jormungarAI : public ScriptedAI
@@ -719,7 +723,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_palehoof_orbAI>(creature);
+        return GetUtgardePinnacleAI<npc_palehoof_orbAI>(creature);
     }
 
     struct npc_palehoof_orbAI : public ScriptedAI

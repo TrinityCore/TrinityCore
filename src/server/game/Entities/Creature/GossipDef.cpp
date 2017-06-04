@@ -17,12 +17,16 @@
  */
 
 #include "GossipDef.h"
-#include "Formulas.h"
+#include "Creature.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "NPCPackets.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "QuestDef.h"
 #include "QuestPackets.h"
+#include "World.h"
 #include "WorldSession.h"
 
 GossipMenu::GossipMenu()

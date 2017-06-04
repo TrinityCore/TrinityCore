@@ -15,15 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
-#include "Group.h"
-#include "Spell.h"
 #include "icecrown_citadel.h"
-#include "Vehicle.h"
+#include "DB2Stores.h"
+#include "GameObject.h"
 #include "GridNotifiers.h"
+#include "Group.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Say
 {
@@ -882,11 +891,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* spell) override
             {
-                if (!spell->ExcludeTargetAuraSpell)
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(spell->ExcludeTargetAuraSpell))
-                    return false;
-                return true;
+                return spell->ExcludeTargetAuraSpell && ValidateSpellInfo({ spell->ExcludeTargetAuraSpell });
             }
 
             // set up initial variables and check if caster is creature
@@ -1104,14 +1109,8 @@ class spell_putricide_ooze_tank_protection : public SpellScriptLoader
             bool Validate(SpellInfo const* spellInfo) override
             {
                 SpellEffectInfo const* effect0 = spellInfo->GetEffect(EFFECT_0);
-                if (!effect0 || !sSpellMgr->GetSpellInfo(effect0->TriggerSpell))
-                    return false;
-
                 SpellEffectInfo const* effect1 = spellInfo->GetEffect(EFFECT_1);
-                if (!effect1 || !sSpellMgr->GetSpellInfo(effect1->TriggerSpell))
-                    return false;
-
-                return true;
+                return effect0 && effect1 && ValidateSpellInfo({ effect0->TriggerSpell, effect1->TriggerSpell });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1180,11 +1179,7 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_UNBOUND_PLAGUE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_UNBOUND_PLAGUE_SEARCHER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_UNBOUND_PLAGUE, SPELL_UNBOUND_PLAGUE_SEARCHER });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1197,7 +1192,6 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
                         return;
                     }
                 }
-
 
                 targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_UNBOUND_PLAGUE));
                 Trinity::Containers::RandomResize(targets, 1);

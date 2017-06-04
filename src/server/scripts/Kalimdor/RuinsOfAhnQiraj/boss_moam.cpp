@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
 
 enum Texts
 {
@@ -183,7 +183,7 @@ class boss_moam : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_moamAI(creature);
+            return GetAQ20AI<boss_moamAI>(creature);
         }
 };
 

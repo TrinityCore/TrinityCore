@@ -15,14 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "MiscPackets.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 #include "Weather.h"
-#include "WorldPacket.h"
 
 enum Texts
 {
@@ -118,7 +122,8 @@ class boss_ossirian : public CreatureScript
                     if (spell->Id == SpellWeakness[i])
                     {
                         me->RemoveAurasDueToSpell(SPELL_SUPREME);
-                        ((TempSummon*)caster)->UnSummon();
+                        if (Creature* creatureCaster = caster->ToCreature())
+                            creatureCaster->DespawnOrUnsummon();
                         SpawnNextCrystal();
                     }
                 }
@@ -127,7 +132,7 @@ class boss_ossirian : public CreatureScript
             void DoAction(int32 action) override
             {
                 if (action == ACTION_TRIGGER_WEAKNESS)
-                    if (Creature* Trigger = me->GetMap()->GetCreature(TriggerGUID))
+                    if (Creature* Trigger = ObjectAccessor::GetCreature(*me, TriggerGUID))
                         if (!Trigger->HasUnitState(UNIT_STATE_CASTING))
                             Trigger->CastSpell(Trigger, SpellWeakness[urand(0, 4)], false);
             }
@@ -178,7 +183,7 @@ class boss_ossirian : public CreatureScript
 
             void Cleanup()
             {
-                if (GameObject* Crystal = me->GetMap()->GetGameObject(CrystalGUID))
+                if (GameObject* Crystal = ObjectAccessor::GetGameObject(*me, CrystalGUID))
                     Crystal->Use(me);
             }
 
@@ -187,10 +192,10 @@ class boss_ossirian : public CreatureScript
                 if (CrystalIterator == NUM_CRYSTALS)
                     CrystalIterator = 0;
 
-                if (Creature* Trigger = me->GetMap()->SummonCreature(NPC_OSSIRIAN_TRIGGER, CrystalCoordinates[CrystalIterator]))
+                if (Creature* Trigger = me->SummonCreature(NPC_OSSIRIAN_TRIGGER, CrystalCoordinates[CrystalIterator]))
                 {
                     TriggerGUID = Trigger->GetGUID();
-                    if (GameObject* Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL, CrystalCoordinates[CrystalIterator], G3D::Quat(), uint32(-1)))
+                    if (GameObject* Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL, CrystalCoordinates[CrystalIterator], QuaternionData(), uint32(-1)))
                     {
                         CrystalGUID = Crystal->GetGUID();
                         ++CrystalIterator;
@@ -269,7 +274,7 @@ class boss_ossirian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_ossirianAI>(creature);
+            return GetAQ20AI<boss_ossirianAI>(creature);
         }
 };
 

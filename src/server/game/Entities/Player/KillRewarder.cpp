@@ -16,8 +16,8 @@
  */
 
 #include "KillRewarder.h"
-#include "SpellAuraEffects.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "Formulas.h"
 #include "Group.h"
 #include "Guild.h"
@@ -26,6 +26,7 @@
 #include "Pet.h"
 #include "Player.h"
 #include "Scenario.h"
+#include "SpellAuraEffects.h"
 
  // == KillRewarder ====================================================
  // KillRewarder encapsulates logic of rewarding player upon kill with:
@@ -276,7 +277,7 @@ void KillRewarder::Reward()
     {
         if (victim->IsDungeonBoss())
             if (InstanceScript* instance = _victim->GetInstanceScript())
-                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, _victim->GetEntry(), _victim);
+                instance->UpdateEncounterStateForKilledCreature(_victim->GetEntry(), _victim);
 
         if (ObjectGuid::LowType guildId = victim->GetMap()->GetOwnerGuildId())
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))

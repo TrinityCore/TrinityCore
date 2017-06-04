@@ -1517,10 +1517,6 @@ struct ItemSetSpellEntry
     uint8 Threshold;
 };
 
-#define MAX_ITEM_PROTO_FLAGS 3
-#define MAX_ITEM_PROTO_SOCKETS 3
-#define MAX_ITEM_PROTO_STATS  10
-
 struct ItemSparseEntry
 {
     uint32 ID;

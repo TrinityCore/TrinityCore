@@ -19,9 +19,12 @@
 #include "Battleground.h"
 #include "ConditionMgr.h"
 #include "Corpse.h"
+#include "DB2Stores.h"
 #include "GameTables.h"
 #include "InstanceScript.h"
+#include "ItemTemplate.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
@@ -30,6 +33,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
+#include <G3D/g3dmath.h>
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {

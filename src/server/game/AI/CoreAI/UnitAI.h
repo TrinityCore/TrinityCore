@@ -19,11 +19,10 @@
 #ifndef TRINITY_UNITAI_H
 #define TRINITY_UNITAI_H
 
-#include "Define.h"
-#include "Unit.h"
 #include "Containers.h"
 #include "EventMap.h"
-#include <list>
+#include "ObjectGuid.h"
+#include "ThreatManager.h"
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 #define ENSURE_AI(a,b)  (EnsureAI<a>(b))
@@ -38,7 +37,11 @@ inline T* EnsureAI(U* ai)
 
 class Player;
 class Quest;
+class SpellInfo;
+class Unit;
 struct AISpellInfoType;
+enum DamageEffectType : uint8;
+enum SpellEffIndex : uint8;
 
 //Selection method used by SelectTarget
 enum SelectAggroTarget
@@ -51,9 +54,9 @@ enum SelectAggroTarget
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria
-struct TC_GAME_API DefaultTargetSelector : public std::unary_function<Unit*, bool>
+struct TC_GAME_API DefaultTargetSelector
 {
-    const Unit* me;
+    Unit const* me;
     float m_dist;
     bool m_playerOnly;
     int32 m_aura;
@@ -94,6 +97,8 @@ struct TC_GAME_API NonTankTargetSelector : public std::unary_function<Unit*, boo
         bool _playerOnly;
 };
 
+TC_GAME_API void SortByDistanceTo(Unit* reference, std::list<Unit*>& targets);
+
 class TC_GAME_API UnitAI
 {
     protected:
@@ -106,7 +111,7 @@ class TC_GAME_API UnitAI
         virtual void AttackStart(Unit* /*target*/);
         virtual void UpdateAI(uint32 diff) = 0;
 
-        virtual void InitializeAI() { if (!me->isDead()) Reset(); }
+        virtual void InitializeAI();
 
         virtual void Reset() { }
 
@@ -122,16 +127,16 @@ class TC_GAME_API UnitAI
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satisfying the predicate.
-        // predicate shall extend std::unary_function<Unit*, bool>
-        template<class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
+        template<class PREDICATE>
+        Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
         {
-            ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType const& threatlist = GetThreatManager().getThreatList();
             if (position >= threatlist.size())
                 return nullptr;
 
             std::list<Unit*> targetList;
             Unit* currentVictim = nullptr;
-            if (auto currentVictimReference = me->getThreatManager().getCurrentVictim())
+            if (auto currentVictimReference = GetThreatManager().getCurrentVictim())
             {
                 currentVictim = currentVictimReference->getTarget();
 
@@ -140,42 +145,38 @@ class TC_GAME_API UnitAI
                     targetList.push_back(currentVictim);
             }
 
-            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+            for (HostileReference* hostileRef : threatlist)
             {
-                if (currentVictim != nullptr && (*itr)->getTarget() != currentVictim && predicate((*itr)->getTarget()))
-                    targetList.push_back((*itr)->getTarget());
-                else if (currentVictim == nullptr && predicate((*itr)->getTarget()))
-                    targetList.push_back((*itr)->getTarget());
+                if (currentVictim != nullptr && hostileRef->getTarget() != currentVictim && predicate(hostileRef->getTarget()))
+                    targetList.push_back(hostileRef->getTarget());
+                else if (currentVictim == nullptr && predicate(hostileRef->getTarget()))
+                    targetList.push_back(hostileRef->getTarget());
             }
 
             if (position >= targetList.size())
                 return nullptr;
 
             if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-                targetList.sort(Trinity::ObjectDistanceOrderPred(me));
+                SortByDistanceTo(me, targetList);
 
             switch (targetType)
             {
                 case SELECT_TARGET_NEAREST:
                 case SELECT_TARGET_TOPAGGRO:
                 {
-                    std::list<Unit*>::iterator itr = targetList.begin();
+                    auto itr = targetList.begin();
                     std::advance(itr, position);
                     return *itr;
                 }
                 case SELECT_TARGET_FARTHEST:
                 case SELECT_TARGET_BOTTOMAGGRO:
                 {
-                    std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
+                    auto ritr = targetList.rbegin();
                     std::advance(ritr, position);
                     return *ritr;
                 }
                 case SELECT_TARGET_RANDOM:
-                {
-                    std::list<Unit*>::iterator itr = targetList.begin();
-                    std::advance(itr, urand(position, uint32(targetList.size() - 1)));
-                    return *itr;
-                }
+                    return Trinity::Containers::SelectRandomContainerElement(targetList);
                 default:
                     break;
             }
@@ -186,22 +187,22 @@ class TC_GAME_API UnitAI
         void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
 
         // Select the targets satifying the predicate.
-        // predicate shall extend std::unary_function<Unit*, bool>
-        template <class PREDICATE> void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
+        template <class PREDICATE>
+        void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
-            ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType const& threatlist = GetThreatManager().getThreatList();
             if (threatlist.empty())
                 return;
 
-            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                if (predicate((*itr)->getTarget()))
-                    targetList.push_back((*itr)->getTarget());
+            for (HostileReference* hostileRef : threatlist)
+                if (predicate(hostileRef->getTarget()))
+                    targetList.push_back(hostileRef->getTarget());
 
             if (targetList.size() < maxTargets)
                 return;
 
             if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-                targetList.sort(Trinity::ObjectDistanceOrderPred(me));
+                SortByDistanceTo(me, targetList);
 
             if (targetType == SELECT_TARGET_FARTHEST || targetType == SELECT_TARGET_BOTTOMAGGRO)
                 targetList.reverse();
@@ -256,6 +257,8 @@ class TC_GAME_API UnitAI
     private:
         UnitAI(UnitAI const& right) = delete;
         UnitAI& operator=(UnitAI const& right) = delete;
+
+        ThreatManager& GetThreatManager();
 };
 
 #endif

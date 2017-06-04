@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -395,7 +396,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_veknilashAI>(creature);
+        return GetAQ40AI<boss_veknilashAI>(creature);
     }
 
     struct boss_veknilashAI : public boss_twinemperorsAI
@@ -483,7 +484,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_veklorAI>(creature);
+        return GetAQ40AI<boss_veklorAI>(creature);
     }
 
     struct boss_veklorAI : public boss_twinemperorsAI

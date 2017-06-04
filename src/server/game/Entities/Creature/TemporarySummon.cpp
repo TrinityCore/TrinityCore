@@ -16,11 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
-#include "ObjectAccessor.h"
-#include "CreatureAI.h"
-#include "ObjectMgr.h"
 #include "TemporarySummon.h"
+#include "CreatureAI.h"
+#include "DB2Structure.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
 
@@ -252,7 +253,7 @@ void TempSummon::UnSummon(uint32 msTime)
     //ASSERT(!IsPet());
     if (IsPet())
     {
-        ((Pet*)this)->Remove(PET_SAVE_NOT_IN_SLOT);
+        ToPet()->Remove(PET_SAVE_NOT_IN_SLOT);
         ASSERT(!IsInWorld());
         return;
     }

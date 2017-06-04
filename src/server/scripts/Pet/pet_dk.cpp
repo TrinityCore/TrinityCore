@@ -21,12 +21,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "CombatAI.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
+#include "CombatAI.h"
 #include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
 
 enum DeathKnightSpells
 {

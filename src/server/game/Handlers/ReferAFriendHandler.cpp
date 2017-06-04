@@ -17,7 +17,7 @@
 
 #include "WorldSession.h"
 #include "Log.h"
-#include "ObjectMgr.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ReferAFriendPackets.h"
 #include "World.h"

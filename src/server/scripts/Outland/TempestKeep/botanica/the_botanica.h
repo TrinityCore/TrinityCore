@@ -19,6 +19,9 @@
 #ifndef DEF_THE_BOTANICA_H
 #define DEF_THE_BOTANICA_H
 
+#include "CreatureAIImpl.h"
+
+#define BotanicaScriptName "instance_the_botanica"
 #define DataHeader "BC"
 
 uint32 const EncounterCount = 5;
@@ -40,5 +43,11 @@ enum BCCreatureIds
     NPC_LAJ                             = 17980,
     NPC_WARP_SPLINTER                   = 17977
 };
+
+template<typename AI>
+inline AI* GetBotanicaAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, BotanicaScriptName);
+}
 
 #endif

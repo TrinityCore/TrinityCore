@@ -18,6 +18,8 @@
 #ifndef SCARLET_M_
 #define SCARLET_M_
 
+#include "CreatureAIImpl.h"
+
 #define SMScriptName "instance_scarlet_monastery"
 #define DataHeader "SM"
 
@@ -60,7 +62,7 @@ enum SMGameObjectIds
     GO_PUMPKIN_SHRINE               = 186267
 };
 
-template<class AI>
+template<typename AI>
 inline AI* GetScarletMonasteryAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, SMScriptName);

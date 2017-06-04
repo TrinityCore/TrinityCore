@@ -46,7 +46,7 @@ namespace Movement
 #define VISUAL_WAYPOINT 1
 
 // values 0 ... MAX_DB_MOTION_TYPE-1 used in DB
-enum MovementGeneratorType
+enum MovementGeneratorType : uint8
 {
     IDLE_MOTION_TYPE      = 0,                              // IdleMovementGenerator.h
     RANDOM_MOTION_TYPE    = 1,                              // RandomMovementGenerator.h
@@ -215,7 +215,7 @@ class TC_GAME_API MotionMaster //: private std::stack<MovementGenerator *>
         }
         void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
-        void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk = false, bool fly = false);
+        void MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk = false, bool fly = false);
         // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
         void MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk);
         void MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk);

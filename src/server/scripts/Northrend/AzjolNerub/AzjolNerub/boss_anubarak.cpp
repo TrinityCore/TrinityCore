@@ -20,11 +20,11 @@
 #include "azjol_nerub.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
@@ -653,7 +653,7 @@ class spell_anubarak_pound : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_POUND_DAMAGE) != nullptr;
+                return ValidateSpellInfo({ SPELL_POUND_DAMAGE });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -686,7 +686,7 @@ class spell_anubarak_carrion_beetles : public SpellScriptLoader
 
                 bool Validate(SpellInfo const* /*spell*/) override
                 {
-                    return (sSpellMgr->GetSpellInfo(SPELL_CARRION_BEETLE) != nullptr);
+                    return ValidateSpellInfo({ SPELL_CARRION_BEETLE });
                 }
 
                 void HandlePeriodic(AuraEffect const* /*eff*/)

@@ -16,11 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellInfo.h"
 #include "mechanar.h"
-#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -156,7 +155,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_mechano_lord_capacitusAI(creature);
+            return GetMechanarAI<boss_mechano_lord_capacitusAI>(creature);
         }
 };
 
@@ -171,24 +170,22 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_STACK))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_STACK))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_POSITIVE_CHARGE,
+                    SPELL_POSITIVE_CHARGE_STACK,
+                    SPELL_NEGATIVE_CHARGE,
+                    SPELL_NEGATIVE_CHARGE_STACK
+                });
             }
 
             void HandleTargets(std::list<WorldObject*>& targetList)
             {
                 uint8 count = 0;
-                for (std::list<WorldObject*>::iterator ihit = targetList.begin(); ihit != targetList.end(); ++ihit)
-                    if ((*ihit)->GetGUID() != GetCaster()->GetGUID())
-                        if (Player* target = (*ihit)->ToPlayer())
-                            if (target->HasAura(GetTriggeringSpell()->Id))
+                for (WorldObject* target : targetList)
+                    if (target->GetGUID() != GetCaster()->GetGUID())
+                        if (target->GetTypeId() == TYPEID_PLAYER)
+                            if (target->ToUnit()->HasAura(GetTriggeringSpell()->Id))
                                 ++count;
 
                 if (count)
@@ -239,9 +236,7 @@ class spell_capacitus_polarity_shift : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_POLARITY) || !sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_POLARITY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_POSITIVE_POLARITY, SPELL_NEGATIVE_POLARITY });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)

@@ -16,9 +16,11 @@
  */
 
 #include "TradeData.h"
+#include "Item.h"
 #include "Player.h"
 #include "Random.h"
 #include "TradePackets.h"
+#include "WorldSession.h"
 
 TradeData* TradeData::GetTraderData() const
 {

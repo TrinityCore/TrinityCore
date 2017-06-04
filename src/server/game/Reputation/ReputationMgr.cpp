@@ -19,6 +19,7 @@
 #include "ReputationMgr.h"
 #include "CharacterPackets.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"

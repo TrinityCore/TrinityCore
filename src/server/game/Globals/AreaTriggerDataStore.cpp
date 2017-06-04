@@ -18,6 +18,7 @@
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerTemplate.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "Timer.h"
@@ -31,9 +32,9 @@ namespace
 void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 {
     uint32 oldMSTime = getMSTime();
-    std::unordered_map<uint32, std::vector<G3D::Vector2>> verticesByAreaTrigger;
-    std::unordered_map<uint32, std::vector<G3D::Vector2>> verticesTargetByAreaTrigger;
-    std::unordered_map<uint32, std::vector<G3D::Vector3>> splinesBySpellMisc;
+    std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesByAreaTrigger;
+    std::unordered_map<uint32, std::vector<TaggedPosition<Position::XY>>> verticesTargetByAreaTrigger;
+    std::unordered_map<uint32, std::vector<Position>> splinesBySpellMisc;
     std::unordered_map<uint32, std::vector<AreaTriggerAction>> actionsByAreaTrigger;
 
     //                                                            0              1           2            3
@@ -102,13 +103,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         {
             Field* splineFields = splines->Fetch();
             uint32 spellMiscId = splineFields[0].GetUInt32();
-
-            G3D::Vector3 spline;
-            spline.x = splineFields[1].GetFloat();
-            spline.y = splineFields[2].GetFloat();
-            spline.z = splineFields[3].GetFloat();
-
-            splinesBySpellMisc[spellMiscId].push_back(spline);
+            splinesBySpellMisc[spellMiscId].emplace_back(splineFields[1].GetFloat(), splineFields[2].GetFloat(), splineFields[3].GetFloat());
         }
         while (splines->NextRow());
     }

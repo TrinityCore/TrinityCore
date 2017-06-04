@@ -24,6 +24,8 @@
 
 namespace Movement
 {
+    template<class index_type>
+    class Spline;
     class MoveSpline;
 }
 
@@ -111,6 +113,7 @@ namespace WorldPackets
         {
         public:
             static void WriteCreateObjectSplineDataBlock(::Movement::MoveSpline const& moveSpline, ByteBuffer& data);
+            static void WriteCreateObjectAreaTriggerSpline(::Movement::Spline<int32> const& spline, ByteBuffer& data);
         };
 
         class MonsterMove final : public ServerPacket

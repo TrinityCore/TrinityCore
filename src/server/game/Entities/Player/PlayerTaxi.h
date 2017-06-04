@@ -1,10 +1,19 @@
 #ifndef __PLAYERTAXI_H__
 #define __PLAYERTAXI_H__
 
-#include "DB2Stores.h"
+#include "DBCEnums.h"
 #include "Define.h"
-#include "WorldSession.h"
-#include <map>
+#include <deque>
+#include <iosfwd>
+#include <vector>
+
+namespace WorldPackets
+{
+    namespace Taxi
+    {
+        class ShowTaxiNodes;
+    }
+}
 
 class TC_GAME_API PlayerTaxi
 {

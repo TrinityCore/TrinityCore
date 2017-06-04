@@ -26,6 +26,7 @@ EndScriptData */
 #include "AchievementMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -33,6 +34,7 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 #include "World.h"
+#include "WorldSession.h"
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
 

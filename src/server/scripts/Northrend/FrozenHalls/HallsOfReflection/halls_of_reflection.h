@@ -18,6 +18,12 @@
 #ifndef HALLS_OF_REFLECTION_H_
 #define HALLS_OF_REFLECTION_H_
 
+#include "CreatureAIImpl.h"
+#include "EventProcessor.h"
+#include "ObjectGuid.h"
+
+class Unit;
+
 #define HoRScriptName "instance_halls_of_reflection"
 #define DataHeader    "HOR"
 
@@ -192,51 +198,12 @@ enum HORInstanceYells
     SAY_CAPTAIN_FINAL                           = 1
 };
 
-// Base class for FALRIC and MARWYN
-struct boss_horAI : BossAI
-{
-    boss_horAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId) { }
-
-    void Reset() override
-    {
-        _Reset();
-        me->SetVisible(false);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-        me->SetReactState(REACT_PASSIVE);
-        if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
-            instance->ProcessEvent(NULL, EVENT_DO_WIPE);
-    }
-
-    void DoAction(int32 actionId) override
-    {
-        switch (actionId)
-        {
-            case ACTION_ENTER_COMBAT: // called by InstanceScript when boss shall enter in combat.
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                me->SetReactState(REACT_AGGRESSIVE);
-                DoZoneInCombat(me, 150.0f);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void JustSummoned(Creature* summon) override
-    {
-        summons.Summon(summon);
-    }
-};
-
 class GameObjectDeleteDelayEvent : public BasicEvent
 {
     public:
         GameObjectDeleteDelayEvent(Unit* owner, ObjectGuid gameObjectGUID) : _owner(owner), _gameObjectGUID(gameObjectGUID) { }
 
-        void DeleteGameObject()
-        {
-            if (GameObject* go = ObjectAccessor::GetGameObject(*_owner, _gameObjectGUID))
-                go->Delete();
-        }
+        void DeleteGameObject();
 
         bool Execute(uint64 /*execTime*/, uint32 /*diff*/) override
         {
@@ -254,8 +221,8 @@ class GameObjectDeleteDelayEvent : public BasicEvent
         ObjectGuid _gameObjectGUID;
 };
 
-template<class AI>
-AI* GetHallsOfReflectionAI(Creature* creature)
+template<typename AI>
+inline AI* GetHallsOfReflectionAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, HoRScriptName);
 }
