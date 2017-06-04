@@ -19,6 +19,7 @@
 #define RestMgr_h__
 
 #include "Define.h"
+#include <ctime>
 
 class Player;
 
