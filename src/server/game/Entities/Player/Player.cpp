@@ -352,7 +352,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     _advancedCombatLoggingEnabled = false;
 
-    _restMgr = std::move(Trinity::make_unique<RestMgr>(this));
+    _restMgr = Trinity::make_unique<RestMgr>(this);
 }
 
 Player::~Player()
