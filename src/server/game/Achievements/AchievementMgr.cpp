@@ -517,7 +517,7 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
             std::string text = reward->Body;
 
             LocaleConstant localeConstant = _owner->GetSession()->GetSessionDbLocaleIndex();
-            if (localeConstant >= LOCALE_enUS)
+            if (localeConstant != LOCALE_enUS)
             {
                 if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
                 {

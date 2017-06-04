@@ -117,7 +117,7 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
                 stats.QuestItems.push_back(item);
 
         LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-        if (localeConstant >= LOCALE_enUS)
+        if (localeConstant != LOCALE_enUS)
             if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(packet.CreatureID))
             {
                 ObjectMgr::GetLocaleString(creatureLocale->Name, localeConstant, stats.Name[0]);
@@ -150,7 +150,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         stats.UnkString = gameObjectInfo->unk1;
 
         LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-        if (localeConstant >= LOCALE_enUS)
+        if (localeConstant != LOCALE_enUS)
             if (GameObjectLocale const* gameObjectLocale = sObjectMgr->GetGameObjectLocale(packet.GameObjectID))
             {
                 ObjectMgr::GetLocaleString(gameObjectLocale->Name, localeConstant, stats.Name[0]);
@@ -267,7 +267,7 @@ void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packe
         page.Flags = pageText->Flags;
 
         LocaleConstant locale = GetSessionDbLocaleIndex();
-        if (locale >= LOCALE_enUS)
+        if (locale != LOCALE_enUS)
             if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
                 ObjectMgr::GetLocaleString(pageTextLocale->Text, locale, page.Text);
 
