@@ -761,6 +761,19 @@ void Spell::SelectExplicitTargets()
     }
 }
 
+bool Spell::BlackListMinLevel()
+{
+    // Check against spells listed in SpellMinLevelBlackList Enum.
+    switch (m_spellInfo->Id)
+    {    
+        case SPELL_NO_MIN_LEVEL_BEAST_LORE : return true;
+        // Add other blacklisted spells here.
+        default : return false;
+    }
+    
+    return false;
+}
+
 void Spell::SelectSpellTargets()
 {
     // select targets for cast phase
@@ -818,6 +831,12 @@ void Spell::SelectSpellTargets()
                 // remove targets which did not pass min level check
                 if (m_auraScaleMask && ihit->effectMask == m_auraScaleMask)
                 {
+                    // Do not check for non min-level spells
+                    if(BlackListMinLevel())
+                    {
+                        continue;
+                    }
+                    
                     // Do not check for selfcast
                     if (!ihit->scaleAura && ihit->targetGUID != m_caster->GetGUID())
                     {

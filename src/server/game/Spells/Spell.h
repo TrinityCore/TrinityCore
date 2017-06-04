@@ -145,6 +145,11 @@ enum SpellRangeFlag
     SPELL_RANGE_RANGED              = 2      //hunter range and ranged weapon
 };
 
+enum SpellMinLevelBlackList : uint32
+{
+    SPELL_NO_MIN_LEVEL_BEAST_LORE = 1462 // Beast Lore Spell ID
+};
+
 struct TC_GAME_API SpellDestination
 {
     SpellDestination();
@@ -484,6 +489,8 @@ class TC_GAME_API Spell
         void InitExplicitTargets(SpellCastTargets const& targets);
         void SelectExplicitTargets();
 
+        bool BlackListMinLevel();
+        
         void SelectSpellTargets();
         void SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32& processedEffectMask);
         void SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
