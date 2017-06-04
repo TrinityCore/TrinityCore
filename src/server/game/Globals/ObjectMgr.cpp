@@ -5494,7 +5494,7 @@ void ObjectMgr::LoadPageTextLocales()
         if (locale == LOCALE_enUS)
             continue;
 
-        data.Text[locale] = text;
+        AddLocaleString(text, locale, data.Text);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u PageText locale strings in %u ms", uint32(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));
