@@ -335,7 +335,7 @@ class boss_hexlord_malacrass : public CreatureScript
             void SelectAddEntry()
             {
                 std::list<uint32> addList(&AddEntryList[0], &AddEntryList[AddCount]);
-                Trinity::Containers::RandomResizeList(addList, 4);
+                Trinity::Containers::RandomResize(addList, 4);
 
                 uint8 i = 0;
                 for (auto itr = addList.begin(); itr != addList.end(); ++itr, ++i)
