@@ -1377,6 +1377,9 @@ void GameObject::Use(Unit* user)
 
             return;
         }
+        case GAMEOBJECT_TYPE_SPELL_FOCUS:                   //8
+            SetLootState(GO_JUST_DEACTIVATED);
+            break;
         //big gun, its a spell/aura
         case GAMEOBJECT_TYPE_GOOBER:                        //10
         {
