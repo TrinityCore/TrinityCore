@@ -120,7 +120,7 @@ void PlayerbotHolder::OnBotLogin(Player * const bot)
     ai->TellMaster("Hello!");
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Bot %s logged in", bot->GetName());
 
-	uint32 account = sObjectMgr->GetPlayerAccountIdByGUID(bot->GetGUID());
+	uint32 account = sCharacterCache->GetCharacterAccountIdByGuid(bot->GetGUID());
 	if (sPlayerbotAIConfig.IsInRandomAccountList(account))
 	{
 		sLog->outMessage("playerbot", LOG_LEVEL_INFO, "%d/%d Bot %s logged in", playerBots.size(), sRandomPlayerbotMgr.GetMaxAllowedBotCount(), bot->GetName());
