@@ -418,9 +418,9 @@ void AreaTrigger::UpdatePolygonOrientation()
     // This is needed to rotate the vertices, following orientation
     for (Position& vertice : _polygonVertices)
     {
-        float tempX = vertice.GetPositionX();
-        float tempY = vertice.GetPositionY();
-        vertice.Relocate(tempX * angleCos - tempY * angleSin, tempX * angleSin + tempY * angleCos);
+        float x = vertice.GetPositionX() * angleCos - vertice.GetPositionY() * angleSin;
+        float y = vertice.GetPositionY() * angleCos + vertice.GetPositionX() * angleSin;
+        vertice.Relocate(x, y);
     }
 
     _previousCheckOrientation = newOrientation;
@@ -564,26 +564,24 @@ void AreaTrigger::UndoActions(Unit* unit)
             unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
 }
 
-void AreaTrigger::InitSplineOffsets(std::vector<Position> const& splinePoints, uint32 timeToTarget)
+void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget)
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
 
     // This is needed to rotate the spline, following caster orientation
     std::vector<G3D::Vector3> rotatedPoints;
-    rotatedPoints.reserve(splinePoints.size());
-    for (Position const& spline : splinePoints)
+    rotatedPoints.reserve(offsets.size());
+    for (Position const& offset : offsets)
     {
-        float tempX = spline.GetPositionX();
-        float tempY = spline.GetPositionY();
-        float tempZ = GetPositionZ();
+        float x = GetPositionX() + (offset.GetPositionX() * angleCos - offset.GetPositionY() * angleSin);
+        float y = GetPositionY() + (offset.GetPositionY() * angleCos + offset.GetPositionX() * angleSin);
+        float z = GetPositionZ();
 
-        UpdateAllowedPositionZ(spline.GetPositionX(), spline.GetPositionY(), tempZ);
-        rotatedPoints.emplace_back(
-            (tempX * angleCos - tempY * angleSin) + GetPositionX(),
-            (tempX * angleSin + tempY * angleCos) + GetPositionY(),
-            tempZ
-        );
+        UpdateAllowedPositionZ(x, y, z);
+        z += offset.GetPositionZ();
+
+        rotatedPoints.emplace_back(x, y, z);
     }
 
     InitSplines(std::move(rotatedPoints), timeToTarget);
@@ -628,7 +626,7 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 tim
 
 bool AreaTrigger::HasSplines() const
 {
-    return !_spline->empty();
+    return bool(_spline);
 }
 
 void AreaTrigger::UpdateSplinePosition(uint32 diff)
