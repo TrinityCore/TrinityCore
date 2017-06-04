@@ -54,6 +54,7 @@ struct Loot;
 struct Mail;
 struct MapEntry;
 struct QuestPackageItemEntry;
+struct RewardPackEntry;
 struct SkillRaceClassInfoEntry;
 struct TalentEntry;
 struct TrainerSpell;
