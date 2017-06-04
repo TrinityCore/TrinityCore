@@ -511,7 +511,6 @@ void TransmogDisplayVendorMgr::HandleTransmogrify(Player* player, Creature* /*cr
             //itemTransmogrifier->ClearSoulboundTradeable(player);
         }
 
-        player->PlayDirectSound(3337);
         player->GetSession()->SendAreaTriggerMessage("%s transmogrified", slotname);
         //return LANG_ERR_TRANSMOG_OK;
     }
