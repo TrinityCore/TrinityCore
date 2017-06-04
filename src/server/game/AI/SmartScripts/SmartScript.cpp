@@ -1871,7 +1871,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SEND_TARGET_TO_TARGET:
         {
-            ObjectVector const* storedTargets = GetStoredTargetVector(e.action.sendTargetToTarget.id);
+            WorldObject* ref = GetBaseObject();
+            if (!ref)
+                ref = unit;
+
+            if (!ref)
+                break;
+
+            ObjectVector const* storedTargets = GetStoredTargetVector(e.action.sendTargetToTarget.id, *ref);
             if (!storedTargets)
                 break;
 
@@ -2613,8 +2620,13 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         }
         case SMART_TARGET_STORED:
         {
-            if (ObjectVector const* stored = GetStoredTargetVector(e.target.stored.id))
-                targets.assign(stored->begin(), stored->end());
+            WorldObject* ref = GetBaseObject();
+            if (!ref)
+                ref = scriptTrigger;
+
+            if (ref)
+                if (ObjectVector const* stored = GetStoredTargetVector(e.target.stored.id, *ref))
+                    targets.assign(stored->begin(), stored->end());
             break;
         }
         case SMART_TARGET_CLOSEST_CREATURE:

@@ -1554,34 +1554,32 @@ typedef std::vector<WorldObject*> ObjectVector;
 class ObjectGuidVector
 {
     public:
-        ObjectGuidVector(WorldObject* baseObject, ObjectVector const& objectVector) : _baseObject(baseObject), _objectVector(objectVector)
+        explicit ObjectGuidVector(ObjectVector const& objectVector) : _objectVector(objectVector)
         {
             _guidVector.reserve(_objectVector.size());
             for (WorldObject* obj : _objectVector)
                 _guidVector.push_back(obj->GetGUID());
         }
 
-        ObjectVector const* GetObjectVector() const
+        ObjectVector const* GetObjectVector(WorldObject const& ref) const
         {
-            UpdateObjects();
+            UpdateObjects(ref);
             return &_objectVector;
         }
 
         ~ObjectGuidVector() { }
 
     private:
-        WorldObject* const _baseObject;
+        GuidVector _guidVector;
         mutable ObjectVector _objectVector;
 
-        GuidVector _guidVector;
-
         //sanitize vector using _guidVector
-        void UpdateObjects() const
+        void UpdateObjects(WorldObject const& ref) const
         {
             _objectVector.clear();
 
             for (ObjectGuid const& guid : _guidVector)
-                if (WorldObject* obj = ObjectAccessor::GetWorldObject(*_baseObject, guid))
+                if (WorldObject* obj = ObjectAccessor::GetWorldObject(ref, guid))
                     _objectVector.push_back(obj);
         }
 };
