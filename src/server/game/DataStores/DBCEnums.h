@@ -245,6 +245,8 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_MISSION_TYPE         = 167, // NYI
     CRITERIA_ADDITIONAL_CONDITION_PLAYER_ITEM_LEVEL             = 169, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ILVL        = 184,
+    CRITERIA_ADDITIONAL_CONDITION_HONOR_LEVEL                   = 193,
+    CRITERIA_ADDITIONAL_CONDITION_PRESTIGE_LEVEL                = 194
 };
 
 enum CriteriaFlags
@@ -980,6 +982,11 @@ enum CurrencyTypes
     CURRENCY_TYPE_VALOR_POINTS          = 396,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
     CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
+};
+
+enum PrestigeLevelInfoFlags
+{
+    PRESTIGE_FLAG_DISABLED = 0x01 // Prestige levels with this flag won't be included to calculate max prestigelevel.
 };
 
 #endif
