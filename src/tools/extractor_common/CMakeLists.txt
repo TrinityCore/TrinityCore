@@ -14,7 +14,7 @@ CollectSourceFiles(
 
 add_library(extractor_common STATIC ${PRIVATE_SOURCES})
 
-target_link_libraries(extractor_common 
+target_link_libraries(extractor_common
   PUBLIC
     casc
     common)
