@@ -173,7 +173,6 @@ public:
                         if (removed)
                         {
                             session->SendAreaTriggerMessage("Transmogrifications removed from equipped items");
-                            player->PlayDirectSound(3337);
                         }
                         else
                         {
@@ -191,7 +190,6 @@ public:
                                 TransmogDisplayVendorMgr::DeleteFakeEntry(player, newItem);
                                 if (slotname)
                                     session->SendAreaTriggerMessage("%s transmogrification removed", slotname);
-                                player->PlayDirectSound(3337);
                             }
                             else if (slotname)
                             {
