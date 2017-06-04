@@ -45,6 +45,7 @@
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
 #include "Player.h"
+#include "RestMgr.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellPackets.h"
@@ -529,7 +530,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (sObjectMgr->IsTavernAreaTrigger(packet.AreaTriggerID))
     {
         // set resting flag we are in the inn
-        player->SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
+        player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
 
         if (sWorld->IsFFAPvPRealm())
             player->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
@@ -1179,4 +1180,10 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial
 void WorldSession::HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite)
 {
     _collectionMgr->MountSetFavorite(mountSetFavorite.MountSpellID, mountSetFavorite.IsFavorite);
+}
+
+void WorldSession::HandlePvpPrestigeRankUp(WorldPackets::Misc::PvpPrestigeRankUp& /*pvpPrestigeRankUp*/)
+{
+    if (_player->CanPrestige())
+        _player->Prestige();
 }

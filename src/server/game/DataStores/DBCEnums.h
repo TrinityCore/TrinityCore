@@ -245,6 +245,8 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_MISSION_TYPE         = 167, // NYI
     CRITERIA_ADDITIONAL_CONDITION_PLAYER_ITEM_LEVEL             = 169, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ILVL        = 184,
+    CRITERIA_ADDITIONAL_CONDITION_HONOR_LEVEL                   = 193,
+    CRITERIA_ADDITIONAL_CONDITION_PRESTIGE_LEVEL                = 194
 };
 
 enum CriteriaFlags
@@ -767,6 +769,11 @@ enum MountFlags
     MOUNT_FLAG_PREFERRED_SWIMMING       = 0x10,
     MOUNT_FLAG_PREFERRED_WATER_WALKING  = 0x20,
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
+};
+
+enum PrestigeLevelInfoFlags : uint8
+{
+    PRESTIGE_FLAG_DISABLED  = 0x01                      // Prestige levels with this flag won't be included to calculate max prestigelevel.
 };
 
 enum QuestPackageFilter

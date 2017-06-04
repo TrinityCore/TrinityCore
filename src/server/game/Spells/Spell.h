@@ -476,6 +476,7 @@ class TC_GAME_API Spell
         void EffectGiveArtifactPower(SpellEffIndex effIndex);
         void EffectGiveArtifactPowerNoBonus(SpellEffIndex effIndex);
         void EffectPlayScene(SpellEffIndex effIndex);
+        void EffectGiveHonor(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 

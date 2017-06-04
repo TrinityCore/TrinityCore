@@ -61,6 +61,7 @@
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
+#include "GameTables.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "InstancePackets.h"
@@ -91,6 +92,7 @@
 #include "QuestPackets.h"
 #include "Realm.h"
 #include "ReputationMgr.h"
+#include "RestMgr.h"
 #include "Scenario.h"
 #include "SkillDiscovery.h"
 #include "SocialMgr.h"
@@ -244,13 +246,6 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_oldpetspell = 0;
     m_lastpetnumber = 0;
 
-    ////////////////////Rest System/////////////////////
-    _restTime = 0;
-    inn_triggerId = 0;
-    m_rest_bonus = 0;
-    _restFlagMask = 0;
-    ////////////////////Rest System/////////////////////
-
     m_mailsLoaded = false;
     m_mailsUpdated = false;
     unReadMails = 0;
@@ -356,6 +351,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
         _CUFProfiles[i] = nullptr;
 
     _advancedCombatLoggingEnabled = false;
+
+    _restMgr = std::move(Trinity::make_unique<RestMgr>(this));
 }
 
 Player::~Player()
@@ -483,6 +480,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
         SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i, createInfo->CustomDisplay[i]);
     SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
+    SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_HONOR, REST_STATE_NOT_RAF_LINKED);
     SetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER, createInfo->Sex);
     SetByteValue(PLAYER_BYTES_4, PLAYER_BYTES_4_OFFSET_ARENA_FACTION, 0);
 
@@ -1209,24 +1207,7 @@ void Player::Update(uint32 p_time)
     }
 
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
-    {
-        if (roll_chance_i(3) && _restTime > 0)      // freeze update
-        {
-            time_t currTime = time(nullptr);
-            time_t timeDiff = currTime - _restTime;
-            if (timeDiff >= 10)                               // freeze update
-            {
-                _restTime = currTime;
-
-                float bubble = 0.125f * sWorld->getRate(RATE_REST_INGAME);
-                float extraPerSec = ((float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 72000.0f) * bubble;
-
-                // speed collect rest bonus (section/in hour)
-                float currRestBonus = GetRestBonus();
-                SetRestBonus(currRestBonus + timeDiff * extraPerSec);
-            }
-        }
-    }
+        _restMgr->Update(now);
 
     if (m_weaponChangeTimer > 0)
     {
@@ -1241,11 +1222,11 @@ void Player::Update(uint32 p_time)
         if (p_time >= m_zoneUpdateTimer)
         {
             // On zone update tick check if we are still in an inn if we are supposed to be in one
-            if (HasRestFlag(REST_FLAG_IN_TAVERN))
+            if (_restMgr->HasRestFlag(REST_FLAG_IN_TAVERN))
             {
-                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(GetInnTriggerId());
+                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(_restMgr->GetInnTriggerID());
                 if (!atEntry || !IsInAreaTriggerRadius(atEntry))
-                    RemoveRestFlag(REST_FLAG_IN_TAVERN);
+                    _restMgr->RemoveRestFlag(REST_FLAG_IN_TAVERN);
             }
 
             uint32 newzone, newarea;
@@ -2382,7 +2363,7 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     if (recruitAFriend)
         bonus_xp = 2 * xp; // xp + bonus_xp must add up to 3 * xp for RaF; calculation for quests done client-side
     else
-        bonus_xp = victim ? GetXPRestBonus(xp) : 0; // XP resting bonus
+        bonus_xp = victim ? _restMgr->GetRestBonusFor(REST_TYPE_XP, xp) : 0; // XP resting bonus
 
     WorldPackets::Character::LogXPGain packet;
     packet.Victim = victim ? victim->GetGUID() : ObjectGuid::Empty;
@@ -6414,6 +6395,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
         // apply honor multiplier from aura (not stacking-get highest)
         AddPct(honor_f, GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HONOR_GAIN_PCT));
+        honor_f += _restMgr->GetRestBonusFor(REST_TYPE_HONOR, honor_f);
     }
 
     honor_f *= sWorld->getRate(RATE_HONOR);
@@ -6432,7 +6414,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
 
     GetSession()->SendPacket(data.Write());
 
-    // TODO: add honor xp
+    AddHonorXP(honor);
 
     if (InBattleground() && honor > 0)
     {
@@ -6467,6 +6449,116 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     return true;
 }
 
+void Player::_InitHonorLevelOnLoadFromDB(uint32 honor, uint32 honorLevel, uint32 prestigeLevel)
+{
+    SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, honorLevel);
+    SetUInt32Value(PLAYER_FIELD_PRESTIGE, prestigeLevel);
+    UpdateHonorNextLevel();
+
+    AddHonorXP(honor);
+    if (CanPrestige())
+        Prestige();
+}
+
+void Player::RewardPlayerWithRewardPack(uint32 rewardPackID)
+{
+    RewardPlayerWithRewardPack(sRewardPackStore.LookupEntry(rewardPackID));
+}
+
+void Player::RewardPlayerWithRewardPack(RewardPackEntry const* rewardPackEntry)
+{
+    if (!rewardPackEntry)
+        return;
+
+    if (CharTitlesEntry const* charTitlesEntry = sCharTitlesStore.LookupEntry(rewardPackEntry->TitleID))
+        SetTitle(charTitlesEntry);
+
+    ModifyMoney(rewardPackEntry->Money);
+    if (std::vector<RewardPackXItemEntry const*> const* rewardPackXItems = sDB2Manager.GetRewardPackItemsByRewardID(rewardPackEntry->ID))
+        for (RewardPackXItemEntry const* rewardPackXItem : *rewardPackXItems)
+            AddItem(rewardPackXItem->ItemID, rewardPackXItem->Amount);
+}
+
+void Player::AddHonorXP(uint32 xp)
+{
+    uint32 currentHonorXP = GetUInt32Value(PLAYER_FIELD_HONOR);
+    uint32 nextHonorLevelXP = GetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL);
+    uint32 newHonorXP = currentHonorXP + xp;
+    uint32 honorLevel = GetHonorLevel();
+
+    if (xp < 1 || getLevel() < PLAYER_LEVEL_MIN_HONOR || IsMaxHonorLevelAndPrestige())
+        return;
+
+    while (newHonorXP >= nextHonorLevelXP)
+    {
+        newHonorXP -= nextHonorLevelXP;
+
+        if (honorLevel < PLAYER_MAX_HONOR_LEVEL)
+            SetHonorLevel(honorLevel + 1);
+
+        honorLevel = GetHonorLevel();
+        nextHonorLevelXP = GetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL);
+    }
+
+    SetUInt32Value(PLAYER_FIELD_HONOR, IsMaxHonorLevelAndPrestige() ? 0 : newHonorXP);
+}
+
+void Player::SetHonorLevel(uint8 level)
+{
+    uint8 oldHonorLevel = GetHonorLevel();
+    uint8 prestige = GetPrestigeLevel();
+    if (level == oldHonorLevel)
+        return;
+
+    uint32 rewardPackID = sDB2Manager.GetRewardPackIDForPvpRewardByHonorLevelAndPrestige(level, prestige);
+    RewardPlayerWithRewardPack(rewardPackID);
+
+    SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, level);
+    UpdateHonorNextLevel();
+
+    UpdateCriteria(CRITERIA_TYPE_HONOR_LEVEL_REACHED);
+
+    // This code is here because no link was found between those items and this reward condition in the db2 files.
+    // Interesting CriteriaTree found: Tree ids: 51140, 51156 (criteria id 31773, modifier tree id 37759)
+    if (level == 50 && prestige == 1)
+    {
+        if (GetTeam() == ALLIANCE)
+            AddItem(138992, 1);
+        else
+            AddItem(138996, 1);
+    }
+
+    if (CanPrestige())
+        Prestige();
+}
+
+void Player::Prestige()
+{
+    SetUInt32Value(PLAYER_FIELD_PRESTIGE, GetPrestigeLevel() + 1);
+    SetUInt32Value(PLAYER_FIELD_HONOR_LEVEL, 1);
+    UpdateHonorNextLevel();
+
+    UpdateCriteria(CRITERIA_TYPE_PRESTIGE_REACHED);
+}
+
+bool Player::CanPrestige() const
+{
+    if (GetSession()->GetExpansion() >= EXPANSION_LEGION && getLevel() >= PLAYER_LEVEL_MIN_HONOR && GetHonorLevel() >= PLAYER_MAX_HONOR_LEVEL && GetPrestigeLevel() < sDB2Manager.GetMaxPrestige())
+        return true;
+
+    return false;
+}
+
+bool Player::IsMaxPrestige() const
+{
+    return GetPrestigeLevel() == sDB2Manager.GetMaxPrestige();
+}
+
+void Player::UpdateHonorNextLevel()
+{
+    uint32 prestige = std::min(static_cast<uint32>(PRESTIGE_COLUMN_COUNT - 1), GetPrestigeLevel());
+    SetUInt32Value(PLAYER_FIELD_HONOR_NEXT_LEVEL, sHonorLevelGameTable.GetRow(GetHonorLevel())->Prestige[prestige]);
+}
 
 void Player::_LoadCurrency(PreparedQueryResult result)
 {
@@ -6947,9 +7039,9 @@ void Player::UpdateArea(uint32 newArea)
 
     uint32 const areaRestFlag = (GetTeam() == ALLIANCE) ? AREA_FLAG_REST_ZONE_ALLIANCE : AREA_FLAG_REST_ZONE_HORDE;
     if (area && area->Flags[0] & areaRestFlag)
-        SetRestFlag(REST_FLAG_IN_FACTION_AREA);
+        _restMgr->SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
-        RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
+        _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -7019,11 +7111,11 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     if (zone->Flags[0] & AREA_FLAG_CAPITAL) // Is in a capital city
     {
         if (!pvpInfo.IsHostile || zone->IsSanctuary())
-            SetRestFlag(REST_FLAG_IN_CITY);
+            _restMgr->SetRestFlag(REST_FLAG_IN_CITY);
         pvpInfo.IsInNoPvPArea = true;
     }
     else
-        RemoveRestFlag(REST_FLAG_IN_CITY);
+        _restMgr->RemoveRestFlag(REST_FLAG_IN_CITY);
 
     UpdatePvPState();
 
@@ -9231,19 +9323,6 @@ void Player::SendBattlefieldWorldStates() const
             SendUpdateWorldState(TB_WS_TIME_NEXT_BATTLE, uint32(!tb->IsWarTime() ? uint32(time(nullptr) + timer) : 0));
         }
     }
-}
-
-uint32 Player::GetXPRestBonus(uint32 xp)
-{
-    uint32 rested_bonus = (uint32)GetRestBonus();           // xp for each rested bonus
-
-    if (rested_bonus > xp)                                   // max rested_bonus == xp or (r+x) = 200% xp
-        rested_bonus = xp;
-
-    SetRestBonus(GetRestBonus() - rested_bonus);
-
-    TC_LOG_DEBUG("entities.player", "Player::GetXPRestBonus: Player '%s' (%s) gain %u xp (+%u Rested Bonus). Rested points=%f", GetGUID().ToString().c_str(), GetName().c_str(), xp + rested_bonus, rested_bonus, GetRestBonus());
-    return rested_bonus;
 }
 
 void Player::SetBindPoint(ObjectGuid guid) const
@@ -17291,6 +17370,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     //"totalKills, todayKills, yesterdayKills, chosenTitle, watchedFaction, drunk, "
     // 55      56      57      58      59      60      61      62           63                 64          65             66           67          68               69              70                    71
     //"health, power1, power2, power3, power4, power5, power6, instance_id, activeTalentGroup, lootSpecId, exploredZones, knownTitles, actionBars, grantableLevels, raidDifficulty, legacyRaidDifficulty, fishing_steps "
+    // 72     73          74             75                76
+    //"honor, honorLevel, prestigeLevel, honor_rest_state, honor_rest_bonus "
     //
     //"FROM characters WHERE guid = ?", CONNECTION_ASYNC);
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
@@ -17830,21 +17911,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     InitRunes();
 
     // rest bonus can only be calculated after InitStatsForLevel()
-    SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, fields[18].GetUInt8());
-    m_rest_bonus = fields[30].GetFloat();
-
-    if (time_diff > 0)
-    {
-        //speed collect rest bonus in offline, in logout, far from tavern, city (section/in hour)
-        float bubble0 = 0.031f;
-        //speed collect rest bonus in offline, in logout, in tavern, city (section/in hour)
-        float bubble1 = 0.125f;
-        float bubble = fields[32].GetUInt8() > 0
-            ? bubble1*sWorld->getRate(RATE_REST_OFFLINE_IN_TAVERN_OR_CITY)
-            : bubble0*sWorld->getRate(RATE_REST_OFFLINE_IN_WILDERNESS);
-
-        SetRestBonus(GetRestBonus() + time_diff*((float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP) / 72000)*bubble);
-    }
+    _restMgr->LoadRestBonus(REST_TYPE_XP, PlayerRestState(fields[18].GetUInt8()), fields[30].GetFloat());
 
     // load skills after InitStatsForLevel because it triggering aura apply also
     _LoadSkills(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_SKILLS));
@@ -18032,6 +18099,22 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
         holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWERS),
         holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GARRISON_FOLLOWER_ABILITIES)))
         _garrison = std::move(garrison);
+
+    _InitHonorLevelOnLoadFromDB(fields[72].GetUInt32(), fields[73].GetUInt32(), fields[74].GetUInt32());
+
+    _restMgr->LoadRestBonus(REST_TYPE_HONOR, PlayerRestState(fields[75].GetUInt8()), fields[76].GetFloat());
+    if (time_diff > 0)
+    {
+        //speed collect rest bonus in offline, in logout, far from tavern, city (section/in hour)
+        float bubble0 = 0.031f;
+        //speed collect rest bonus in offline, in logout, in tavern, city (section/in hour)
+        float bubble1 = 0.125f;
+        float bubble = fields[31].GetUInt8() > 0
+            ? bubble1 * sWorld->getRate(RATE_REST_OFFLINE_IN_TAVERN_OR_CITY)
+            : bubble0 * sWorld->getRate(RATE_REST_OFFLINE_IN_WILDERNESS);
+
+        _restMgr->AddRestBonus(REST_TYPE_XP, time_diff * _restMgr->CalcExtraPerSec(REST_TYPE_XP, bubble));
+    }
 
     m_achievementMgr->CheckAllAchievementCriteria(this);
     return true;
@@ -19678,7 +19761,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, m_cinematic);
         stmt->setUInt32(index++, m_Played_time[PLAYED_TIME_TOTAL]);
         stmt->setUInt32(index++, m_Played_time[PLAYED_TIME_LEVEL]);
-        stmt->setFloat(index++, finiteAlways(m_rest_bonus));
+        stmt->setFloat(index++, finiteAlways(_restMgr->GetRestBonus(REST_TYPE_XP)));
         stmt->setUInt32(index++, uint32(time(nullptr)));
         stmt->setUInt8(index++,  (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0));
         //save, far from tavern/city
@@ -19820,7 +19903,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, m_cinematic);
         stmt->setUInt32(index++, m_Played_time[PLAYED_TIME_TOTAL]);
         stmt->setUInt32(index++, m_Played_time[PLAYED_TIME_LEVEL]);
-        stmt->setFloat(index++, finiteAlways(m_rest_bonus));
+        stmt->setFloat(index++, finiteAlways(_restMgr->GetRestBonus(REST_TYPE_XP)));
         stmt->setUInt32(index++, uint32(time(nullptr)));
         stmt->setUInt8(index++,  (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) ? 1 : 0));
         //save, far from tavern/city
@@ -19900,6 +19983,12 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, m_grantableLevels);
 
         stmt->setUInt8(index++, IsInWorld() && !GetSession()->PlayerLogout() ? 1 : 0);
+        stmt->setUInt32(index++, GetUInt32Value(PLAYER_FIELD_HONOR));
+        stmt->setUInt32(index++, GetHonorLevel());
+        stmt->setUInt32(index++, GetPrestigeLevel());
+        stmt->setUInt8(index++, uint8(GetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_HONOR)));
+        stmt->setFloat(index++, finiteAlways(_restMgr->GetRestBonus(REST_TYPE_HONOR)));
+
         // Index
         stmt->setUInt64(index, GetGUID().GetCounter());
     }
@@ -21802,37 +21891,6 @@ void Player::LeaveAllArenaTeams(ObjectGuid guid)
         }
     }
     while (result->NextRow());
-}
-
-void Player::SetRestBonus(float rest_bonus_new)
-{
-    // Prevent resting on max level
-    if (getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        rest_bonus_new = 0;
-
-    if (rest_bonus_new < 0)
-        rest_bonus_new = 0;
-
-    float rest_bonus_max = (float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP)*1.5f/2;
-
-    if (rest_bonus_new > rest_bonus_max)
-        m_rest_bonus = rest_bonus_max;
-    else
-        m_rest_bonus = rest_bonus_new;
-
-    // update data for client
-    if ((GetsRecruitAFriendBonus(true) && (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0)))
-        SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, REST_STATE_RAF_LINKED);
-    else
-    {
-        if (m_rest_bonus > 10)
-            SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, REST_STATE_RESTED);
-        else if (m_rest_bonus <= 1)
-            SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, REST_STATE_NOT_RAF_LINKED);
-    }
-
-    //RestTickUpdate
-    SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_RESTED_XP, uint32(m_rest_bonus));
 }
 
 bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/, uint32 preferredMountDisplay /*= 0*/)
@@ -27640,33 +27698,6 @@ void Player::SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const
     raidGroupOnly.Reason = reason;
 
     GetSession()->SendPacket(raidGroupOnly.Write());
-}
-
-void Player::SetRestFlag(RestFlag restFlag, uint32 triggerId /*= 0*/)
-{
-    uint32 oldRestMask = _restFlagMask;
-    _restFlagMask |= restFlag;
-
-    if (!oldRestMask && _restFlagMask) // only set flag/time on the first rest state
-    {
-        _restTime = time(nullptr);
-        SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-    }
-
-    if (triggerId)
-        inn_triggerId = triggerId;
-}
-
-void Player::RemoveRestFlag(RestFlag restFlag)
-{
-    uint32 oldRestMask = _restFlagMask;
-    _restFlagMask &= ~restFlag;
-
-    if (oldRestMask && !_restFlagMask) // only remove flag/time on the last rest state remove
-    {
-        _restTime = 0;
-        RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-    }
 }
 
 uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
