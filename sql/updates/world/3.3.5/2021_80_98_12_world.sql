@@ -65,15 +65,10 @@ UPDATE `creature_template` SET `ScriptName`='npc_expedition_trapper' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='npc_expedition_engineer' WHERE `entry`=33287;
 UPDATE `creature_template` SET `ScriptName`='npc_razorscale_spawner' WHERE `entry`=33245;
 UPDATE `creature_template` SET `ScriptName`='npc_razorscale_harpoon_fire_state' WHERE `entry`=33282;
-UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=34188; -- Razorscale Devouring Flame Stalker
+UPDATE `creature_template` SET `ScriptName`='npc_razorscale_devouring_flame' WHERE `entry`=34188; -- Razorscale Devouring Flame Stalker
 UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=33233; -- Razorscale Controller
 
 UPDATE `gameobject_template` SET `ScriptName`='go_razorscale_mole_machine' WHERE `entry`=194316;
-
-DELETE FROM `creature_template_addon` WHERE `entry` IN (34188,34189);
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
-(34188,0,0,33554688,0,0,64709), --  Razorscale Devouring Flame Stalker cast Devouring Flame Ground
-(34189,0,0,33554688,0,0,64709); --  Razorscale Devouring Flame Stalker cast Devouring Flame Ground
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
 'spell_razorscale_summon_iron_dwarves',

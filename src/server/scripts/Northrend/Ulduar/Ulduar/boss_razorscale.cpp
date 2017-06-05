@@ -101,7 +101,10 @@ enum Spells
     SPELL_THREAT                            = 65146,
 
     // Expedition Trapper
-    SPELL_SHACKLE                           = 62646
+    SPELL_SHACKLE                           = 62646,
+
+    // Devouring Flame Trigger
+    SPELL_DEVOURING_FLAME                   = 64709
 };
 
 enum Actions
@@ -354,7 +357,6 @@ public:
             init.SetCyclic();
             init.SetFly();
             init.Launch();
-            me->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, Position(), false);
         }
 >>>>>>> Core/Scripts: Razorscale Rewrite
 
@@ -1631,6 +1633,27 @@ public:
     }
 };
 
+class npc_razorscale_devouring_flame : public CreatureScript
+{
+public:
+    npc_razorscale_devouring_flame() : CreatureScript("npc_razorscale_devouring_flame") { }
+
+    struct npc_razorscale_devouring_flameAI : public PassiveAI
+    {
+        npc_razorscale_devouring_flameAI(Creature* creature) : PassiveAI(creature) { }
+
+        void Reset() override
+        {
+            DoCastSelf(SPELL_DEVOURING_FLAME);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetUlduarAI<npc_razorscale_devouring_flameAI>(creature);
+    }
+};
+
 class go_razorscale_harpoon : public GameObjectScript
 {
 public:
@@ -1942,6 +1965,7 @@ void AddSC_boss_razorscale()
     new npc_darkrune_guardian();
     new npc_darkrune_sentinel();
     new npc_razorscale_harpoon_fire_state();
+    new npc_razorscale_devouring_flame();
     new go_razorscale_harpoon();
     new go_razorscale_mole_machine();
     new spell_razorscale_flame_breath();
