@@ -747,7 +747,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_SERVER_RESTART_FORCE                   = 840,
     RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
     RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 842, // not on 3.3.5a
-    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843, // not on 3.3.5a
+    RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843,
     RBAC_PERM_COMMAND_SCENE                                  = 844, // not on 3.3.5a
     RBAC_PERM_COMMAND_SCENE_DEBUG                            = 845, // not on 3.3.5a
     RBAC_PERM_COMMAND_SCENE_PLAY                             = 846, // not on 3.3.5a
