@@ -382,15 +382,15 @@ void Eluna::GetScripts(std::string path)
             std::string fullpath = dir_iter->path().generic_string();
 
             // Check if file is hidden
-#if PLATFORM == PLATFORM_WINDOWS
+/*#if PLATFORM == PLATFORM_WINDOWS
             DWORD dwAttrib = GetFileAttributes(fullpath.c_str());
             if (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_HIDDEN))
                 continue;
-#else
+#else*/
             std::string name = dir_iter->path().filename().generic_string().c_str();
             if (name[0] == '.')
                 continue;
-#endif
+//#endif
 
             // load subfolder
             if (boost::filesystem::is_directory(dir_iter->status()))
