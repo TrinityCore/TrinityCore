@@ -196,7 +196,6 @@ enum MovePoints
     POINT_RAZORSCALE_FLIGHT_2,
     POINT_RAZORSCALE_LAND,
     POINT_RAZORSCALE_GROUND,
-    POINT_START_WAYPOINT,
 };
 
 enum EngineersSplineMovements
@@ -320,7 +319,6 @@ public:
             _permaGround = false;
             _flyCount = 0;
             me->SetCanFly(true);
-            me->SetDisableGravity(true);
             me->SetControlled(false, UNIT_STATE_ROOT);
         }
 
@@ -334,7 +332,7 @@ public:
             if (Is25ManRaid())
                 me->SummonCreatureGroup(RAZORSCALE_FIRE_STATE_25_GROUP);
 
-            me->GetMotionMaster()->MovePoint(POINT_START_WAYPOINT, RazorscalePath[0]);
+            HandleInitialMovement();
         }
 
 <<<<<<< HEAD
@@ -354,13 +352,13 @@ public:
 =======
         void HandleInitialMovement()
         {
-            me->StopMoving();
             Movement::PointsArray path(RazorscalePath, RazorscalePath + pathSize);
             Movement::MoveSplineInit init(me);
             init.MovebyPath(path, 0);
             init.SetCyclic();
             init.SetFly();
             init.Launch();
+            me->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, Position(), false);
         }
 >>>>>>> Core/Scripts: Razorscale Rewrite
 
@@ -532,9 +530,6 @@ public:
                 case POINT_RAZORSCALE_LAND:
                     ChangeOrientation(RazorscaleLand.GetOrientation());
                     events.ScheduleEvent(EVENT_LAND, Milliseconds(1));
-                    break;
-                case POINT_START_WAYPOINT:
-                    HandleInitialMovement();
                     break;
                 default:
                     break;

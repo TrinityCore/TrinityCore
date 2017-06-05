@@ -59,6 +59,7 @@ UPDATE `creature_text` SET `comment`='Expedition Engineer SAY_AGGRO' WHERE `Crea
 UPDATE `creature_text` SET `comment`='Expedition Engineer SAY_START_REPAIR' WHERE `CreatureID`='33287' AND `GroupID`=1;
 UPDATE `creature_text` SET `comment`='Expedition Engineer SAY_REBUILD_TURRETS' WHERE `CreatureID`='33287' AND `GroupID`=2;
 
+UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry`IN (33186, 33724); -- Razorscale
 UPDATE `creature_template` SET `gossip_menu_id`=10314 WHERE `entry` IN (33210,34254); -- Expedition Commander
 UPDATE `creature_template` SET `ScriptName`='npc_expedition_defender' WHERE `entry`=33816;
 UPDATE `creature_template` SET `ScriptName`='npc_expedition_trapper' WHERE `entry`=33259;
