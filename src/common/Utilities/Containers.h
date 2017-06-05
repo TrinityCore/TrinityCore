@@ -84,12 +84,10 @@ namespace Trinity
         {
             //! First use predicate filter
             C containerCopy;
+            std::copy_if(std::begin(container), std::end(container), std::inserter(containerCopy, std::end(containerCopy)), predicate);
 
             if (requestedSize)
-            {
-                std::copy_if(std::begin(container), std::end(container), std::inserter(containerCopy, std::end(containerCopy)), predicate);
                 RandomResize(containerCopy, requestedSize);
-            }
 
             container = std::move(containerCopy);
         }
