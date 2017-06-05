@@ -243,20 +243,11 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
 
             nonCombatEngine->addStrategy("dps assist");
             break;
-        case CLASS_DRUID:
-            if (tab == 1)
-                nonCombatEngine->addStrategy("tank aoe");
-            else
-                nonCombatEngine->addStrategy("dps assist");
-            break;
         case CLASS_WARRIOR:
             if (tab == 2)
                 nonCombatEngine->addStrategy("tank aoe");
             else
                 nonCombatEngine->addStrategy("dps assist");
-            break;
-        default:
-            nonCombatEngine->addStrategy("dps assist");
             break;
 		case CLASS_ROGUE:
 			nonCombatEngine->addStrategy("stealth");
@@ -268,14 +259,6 @@ void AiFactory::AddDefaultNonCombatStrategies(Player* player, PlayerbotAI* const
                 nonCombatEngine->addStrategy("tank aoe");
             else
                 nonCombatEngine->addStrategy("dps assist");
-            break;
-        case CLASS_WARRIOR:
-            if (tab == 2)
-                nonCombatEngine->addStrategy("tank aoe");
-            else
-                nonCombatEngine->addStrategy("dps assist");
-            break;
-            nonCombatEngine->addStrategy("dps assist");
             break;
         case CLASS_DEATH_KNIGHT:
             if (tab == 0)
