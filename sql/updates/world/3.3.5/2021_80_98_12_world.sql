@@ -1,6 +1,5 @@
-DELETE FROM `spelldifficulty_dbc` WHERE  `id` IN (63815,64709,63317,64704,64758,63809);
+DELETE FROM `spelldifficulty_dbc` WHERE  `id` IN (64709,63317,64704,64758,63809);
 INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`, `spellid2`, `spellid3`) VALUES
-(63815, 63815, 62796, 0, 0), -- Fireball
 (64709, 64709, 64734, 0, 0), -- Devouring Flame (Ground)
 (63317, 63317, 64021, 0, 0), -- Flame Breath
 (64704, 64704, 64733, 0, 0), -- Devouring Flame Damage

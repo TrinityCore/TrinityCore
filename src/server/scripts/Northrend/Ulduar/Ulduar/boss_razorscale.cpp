@@ -129,7 +129,6 @@ enum Events
     EVENT_DEVOURING_FLAME,
     EVENT_SUMMON_MINIONS,
     EVENT_SUMMON_MINIONS_2,
-    EVENT_CHANGE_ORIENTATION,
     EVENT_FLAME_BREATH,
     EVENT_FLAME_BREATH_GROUND,
     EVENT_WING_BUFFET,
@@ -193,6 +192,7 @@ enum MovePoints
     POINT_RAZORSCALE_FLIGHT_2,
     POINT_RAZORSCALE_LAND,
     POINT_RAZORSCALE_GROUND,
+    POINT_START_WAYPOINT,
 };
 
 enum EngineersSplineMovements
@@ -312,7 +312,6 @@ public:
             _engineersSummonCount = 0;
             _harpoonHitCount = 0;
             _trappersCount = 0;
-            _orientation = 0.0f;
             _permaGround = false;
             _flyCount = 0;
             me->SetCanFly(true);
@@ -329,7 +328,7 @@ public:
             if (Is25ManRaid())
                 me->SummonCreatureGroup(RAZORSCALE_FIRE_STATE_25_GROUP);
 
-            HandleInitialMovement();
+            me->GetMotionMaster()->MovePoint(POINT_START_WAYPOINT, RazorscalePath[0]);
         }
 
 <<<<<<< HEAD
@@ -447,12 +446,6 @@ public:
             events.ScheduleEvent(EVENT_DEVOURING_FLAME, Seconds(22), 0, PHASE_PERMA_GROUND);
         }
 
-        void ChangeOrientation(float ori)
-        {
-            _orientation = ori;
-            events.ScheduleEvent(EVENT_CHANGE_ORIENTATION, Milliseconds(1));
-        }
-
         void DoAction(int32 actionId) override
         {
             switch (actionId)
@@ -494,10 +487,13 @@ public:
 
             switch (pointId)
             {
+                case POINT_START_WAYPOINT:
+                    HandleInitialMovement();
+                    break;
                 case POINT_RAZORSCALE_FLIGHT:
                     me->SetSpeedRate(MOVE_RUN, 1.0f);
+                    me->SetFacingTo(RazorFlightPosition.GetOrientation());
                     me->SetControlled(true, UNIT_STATE_ROOT);
-                    ChangeOrientation(RazorFlightPosition.GetOrientation());
                     DoZoneInCombat();
                     break;
                 case POINT_RAZORSCALE_GROUND:
@@ -516,7 +512,7 @@ public:
                     me->GetMotionMaster()->MovePoint(POINT_RAZORSCALE_FLIGHT_2, RazorFlightPositionPhase2);
                     break;
                 case POINT_RAZORSCALE_FLIGHT_2:
-                    ChangeOrientation(RazorFlightPositionPhase2.GetOrientation());
+                    me->SetFacingTo(RazorFlightPositionPhase2.GetOrientation());
                     me->SetControlled(true, UNIT_STATE_ROOT);
                     me->SetReactState(REACT_AGGRESSIVE);
                     ScheduleAirPhaseEvents();
@@ -632,10 +628,10 @@ public:
             if (!UpdateVictim())
                 return;
 
+            events.Update(diff);
+
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            events.Update(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -672,9 +668,6 @@ public:
                     }
                     case EVENT_SUMMON_MINIONS_2:
                         SummonMinions();
-                        break;
-                    case EVENT_CHANGE_ORIENTATION:
-                        me->SetFacingTo(_orientation);
                         break;
                     case EVENT_FLAME_BREATH:
                         me->SetControlled(false, UNIT_STATE_ROOT);
@@ -738,7 +731,6 @@ public:
         uint8 _defendersCount;
         uint8 _harpoonHitCount;
         uint8 _trappersCount;
-        float _orientation;
         bool _permaGround;
         uint32 _flyCount;
 
