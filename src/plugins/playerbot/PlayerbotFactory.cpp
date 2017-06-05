@@ -9,6 +9,9 @@
 #include "../ahbot/AhBot.h"
 #include "../Entities/Pet/Pet.h"
 #include "RandomPlayerbotFactory.h"
+#include "AiFactory.h"
+#include "../Entities/Player/Player.h"
+#include "strategy/Engine.h"
 
 using namespace ai;
 using namespace std;
@@ -59,16 +62,26 @@ void PlayerbotFactory::Prepare()
 {
     if (!itemQuality)
     {
-        if (level <= 10)
-            itemQuality = urand(ITEM_QUALITY_NORMAL, ITEM_QUALITY_UNCOMMON);
-        else if (level <= 20)
-            itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_RARE);
-        else if (level <= 40)
-            itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
-        else if (level < 60)
-            itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
-        else
-            itemQuality = urand(ITEM_QUALITY_RARE, ITEM_QUALITY_EPIC);
+				if (level <= 10)
+					itemQuality = urand(ITEM_QUALITY_NORMAL, ITEM_QUALITY_UNCOMMON);
+				else if (level <= 15)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_RARE);
+				else if (level <= 20)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_RARE);
+				else if (level <= 30)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_RARE);
+				else if (level <= 40)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
+				else if (level < 60)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
+				else if (level < 65)
+					itemQuality = urand(ITEM_QUALITY_RARE, ITEM_QUALITY_EPIC);
+				else if (level < 70)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
+				else if (level < 79)
+					itemQuality = urand(ITEM_QUALITY_UNCOMMON, ITEM_QUALITY_EPIC);
+				 else
+					itemQuality = urand(ITEM_QUALITY_RARE, ITEM_QUALITY_EPIC);
     }
 
     if (bot->isDead())
@@ -136,7 +149,7 @@ void PlayerbotFactory::Randomize(bool incremental)
     UpdateTradeSkills();
     bot->SaveToDB();
 
-    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing equipmemt...");
+    sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing equipment...");
     InitEquipment(incremental);
 
     sLog->outMessage("playerbot", LOG_LEVEL_INFO, "Initializing bags...");
@@ -366,121 +379,276 @@ bool PlayerbotFactory::CanEquipArmor(ItemTemplate const* proto)
 
     if (proto->Quality <= ITEM_QUALITY_NORMAL)
         return true;
-
-    uint8 sp = 0, ap = 0, tank = 0;
+	//Lidocain//
+	//sph - spellpower healer,
+	//spd - spellpower dps,
+	//apa - attackpower based on agility, 
+	//aps - attackpower based on strenght,
+	//apr - attackpower based on ranged (agility),
+	//tank - tank
+    uint8 sph = 0, spd = 0, apa = 0, aps = 0, apr = 0, tank = 0;
     for (int j = 0; j < MAX_ITEM_PROTO_STATS; ++j)
     {
         // for ItemStatValue != 0
         if(!proto->ItemStat[j].ItemStatValue)
             continue;
 
-        AddItemStats(proto->ItemStat[j].ItemStatType, sp, ap, tank);
+        AddItemStats(proto->ItemStat[j].ItemStatType, sph, spd, apa, aps, apr, tank);
     }
 
-    return CheckItemStats(sp, ap, tank);
+    return CheckItemStats(sph, spd, apa, aps, apr, tank);
 }
 
-bool PlayerbotFactory::CheckItemStats(uint8 sp, uint8 ap, uint8 tank)
-{
-    switch (bot->getClass())
-    {
-    case CLASS_PRIEST:
-    case CLASS_MAGE:
-    case CLASS_WARLOCK:
-        if (!sp || ap > sp || tank > sp)
-            return false;
-        break;
-    case CLASS_PALADIN:
-    case CLASS_WARRIOR:
+
+	bool PlayerbotFactory::CheckItemStats(uint8 sph, uint8 spd, uint8 apa, uint8 aps, uint8 apr, uint8 tank)
+	{
+
+		uint8 tab = AiFactory::GetPlayerSpecTab(bot);
+
+		switch (bot->getClass())
+		{
+
+		case CLASS_PRIEST:
+
+
+
+			if (tab == 1)
+			{
+
+				if (!sph || apa > sph || aps > sph || apr > sph || tank > sph || spd > sph)
+					return false;
+			}
+			else if (tab == 0)
+			{
+				if (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd)
+					return false;
+			}
+			else if (tab == 2)
+			{
+				if (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd)
+					return false;
+			}
+			break;
+
+		case CLASS_MAGE:
+		case CLASS_WARLOCK:
+			if (!spd || sph > spd || aps > spd || apr > spd || tank > spd || apa > spd)
+				return false;
+			break;
+
+		case CLASS_PALADIN:
+
+			if
+				(tab == 0)
+			{
+				if (!sph || spd > sph || aps > sph || apr > sph || tank > sph || apa > sph)
+					return false;
+			}
+
+			else if (tab == 1)
+			{
+				if (!tank || aps > tank || spd > tank || apr > tank || apa > tank || sph > tank)
+					return false;
+			}
+			else if (tab == 2)
+			{
+				if (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps)
+					return false;
+			}
+			break;
+
+		case CLASS_WARRIOR:
+
+			if (tab == 2)
+			{
+				if (!tank || apa > tank || spd > tank || apr > tank || aps > tank || sph > tank)
+					return false;
+			}
+			else if (tab == 0)
+			{
+				if (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps)
+				return false;
+			}
+			else if (tab == 1)
+			{
+				if (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps)
+				return false;
+			}
+		break;
+	
 	case CLASS_DEATH_KNIGHT:
-        if ((!ap && !tank) || sp > ap || sp > tank)
-            return false;
-        break;
+	
+
+			if (tab == 0)
+			{
+			if (!tank || apa > tank || spd > tank || apr > tank || aps > tank || sph > tank)
+			return false;
+			}
+			else if (tab != 0)
+			{
+				if (!aps || apa > aps || spd > aps || apr > aps || tank > aps || sph > aps)
+					return false;
+			}
+			break;   
+		
     case CLASS_HUNTER:
+		if (!apr || aps > apr || spd > apr || apa > apr || tank > apr || sph > apr)
+			return false;
+		break;
+			
     case CLASS_ROGUE:
-        if (!ap || sp > ap || sp > tank)
-            return false;
-        break;
+		if (!apa || aps > apa || spd > apa || apr > apa || tank > apa || sph > apa)
+			return false;
+		break;
+	
+	case CLASS_SHAMAN:
+	
+		if (tab == 0)
+		{
+			if (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd)
+			return false;
+		}
+		else if (tab == 1)
+		{
+			if (!apa || aps > apa || spd > apa || apr > apa || tank > apa || sph > apa)
+			return false;
+		}
+		else if (tab == 2) 
+		{
+			if (!sph || apa > sph || aps > sph || apr > sph || tank > sph || spd > sph)
+			return false;
+		}
+				break;
+			
+	case CLASS_DRUID:
+	
+		if (tab == 0)
+		{
+			if (!spd || apa > spd || aps > spd || apr > spd || tank > spd || sph > spd)
+				return false;
+		}
+		else if (tab == 1)
+		{
+			if (!tank || apa > tank || spd > tank || apr > tank || aps > tank || sph > tank)
+				return false;
+		}
+		else if (tab == 2)
+		{
+			if (!sph || apa > sph || aps > sph || apr > sph || tank > sph || spd > sph)
+			return false;
+		}
+				break;
+
     }
 
-    return sp || ap || tank;
+    return spd || sph || apa || aps || apr || tank;
 }
 
-void PlayerbotFactory::AddItemStats(uint32 mod, uint8 &sp, uint8 &ap, uint8 &tank)
+void PlayerbotFactory::AddItemStats(uint32 mod, uint8 &sph, uint8 &spd, uint8 &apa, uint8 &aps, uint8 &apr, uint8 &tank)
 {
+
     switch (mod)
     {
-    case ITEM_MOD_HIT_RATING:
-    case ITEM_MOD_CRIT_RATING:
-    case ITEM_MOD_HASTE_RATING:
-    case ITEM_MOD_HEALTH:
-    case ITEM_MOD_STAMINA:
-    case ITEM_MOD_HEALTH_REGEN:
     case ITEM_MOD_MANA:
     case ITEM_MOD_INTELLECT:
     case ITEM_MOD_SPIRIT:
+	case ITEM_MOD_HIT_RATING:
+	case ITEM_MOD_CRIT_RATING:
+	case ITEM_MOD_HASTE_RATING:
     case ITEM_MOD_MANA_REGENERATION:
     case ITEM_MOD_SPELL_POWER:
-    case ITEM_MOD_SPELL_PENETRATION:
-    case ITEM_MOD_HIT_SPELL_RATING:
-    case ITEM_MOD_CRIT_SPELL_RATING:
-    case ITEM_MOD_HASTE_SPELL_RATING:
-        sp++;
+	case ITEM_MOD_HASTE_SPELL_RATING:
+	case ITEM_MOD_SPELL_HEALING_DONE:
+        sph++;
         break;
-    }
-
+	}
+	switch (mod)
+	{
+	case ITEM_MOD_INTELLECT:
+	case ITEM_MOD_HIT_RATING:
+	case ITEM_MOD_CRIT_RATING:
+	case ITEM_MOD_HASTE_RATING:
+	case ITEM_MOD_SPELL_POWER:
+	case ITEM_MOD_SPELL_PENETRATION:
+	case ITEM_MOD_HIT_SPELL_RATING:
+	case ITEM_MOD_CRIT_SPELL_RATING:
+	case ITEM_MOD_HASTE_SPELL_RATING:
+	case ITEM_MOD_SPELL_HEALING_DONE:
+	case ITEM_MOD_SPELL_DAMAGE_DONE:
+		spd++;
+		break;
+	}
     switch (mod)
     {
-    case ITEM_MOD_HIT_RATING:
-    case ITEM_MOD_CRIT_RATING:
-    case ITEM_MOD_HASTE_RATING:
-    case ITEM_MOD_AGILITY:
-    case ITEM_MOD_STRENGTH:
-    case ITEM_MOD_HEALTH:
-    case ITEM_MOD_STAMINA:
-    case ITEM_MOD_HEALTH_REGEN:
-    case ITEM_MOD_DEFENSE_SKILL_RATING:
-    case ITEM_MOD_DODGE_RATING:
-    case ITEM_MOD_PARRY_RATING:
-    case ITEM_MOD_BLOCK_RATING:
-    case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
-    case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
-    case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
-    case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
-    case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
-    case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
-    case ITEM_MOD_HIT_TAKEN_RATING:
-    case ITEM_MOD_CRIT_TAKEN_RATING:
-    case ITEM_MOD_RESILIENCE_RATING:
-    case ITEM_MOD_BLOCK_VALUE:
+	case ITEM_MOD_HEALTH:
+	case ITEM_MOD_STAMINA:
+	case ITEM_MOD_DEFENSE_SKILL_RATING:
+	case ITEM_MOD_DODGE_RATING:
+	case ITEM_MOD_PARRY_RATING:
+	case ITEM_MOD_BLOCK_RATING:
+	case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
+	case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
+	case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
+	case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
+	case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
+	case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
+	case ITEM_MOD_HIT_TAKEN_RATING:
+	case ITEM_MOD_CRIT_TAKEN_RATING:
+	case ITEM_MOD_RESILIENCE_RATING:
         tank++;
         break;
-    }
-
+    
+	}
     switch (mod)
     {
-    case ITEM_MOD_HEALTH:
-    case ITEM_MOD_STAMINA:
-    case ITEM_MOD_HEALTH_REGEN:
     case ITEM_MOD_AGILITY:
-    case ITEM_MOD_STRENGTH:
+	case ITEM_MOD_HIT_RATING:
+	case ITEM_MOD_CRIT_RATING:
+	case ITEM_MOD_HASTE_RATING:
     case ITEM_MOD_HIT_MELEE_RATING:
-    case ITEM_MOD_HIT_RANGED_RATING:
-    case ITEM_MOD_CRIT_MELEE_RATING:
-    case ITEM_MOD_CRIT_RANGED_RATING:
-    case ITEM_MOD_HASTE_MELEE_RATING:
-    case ITEM_MOD_HASTE_RANGED_RATING:
-    case ITEM_MOD_HIT_RATING:
-    case ITEM_MOD_CRIT_RATING:
-    case ITEM_MOD_HASTE_RATING:
-    case ITEM_MOD_EXPERTISE_RATING:
+	case ITEM_MOD_CRIT_MELEE_RATING:
+	case ITEM_MOD_HASTE_MELEE_RATING:
+	case ITEM_MOD_EXPERTISE_RATING:
     case ITEM_MOD_ATTACK_POWER:
-    case ITEM_MOD_RANGED_ATTACK_POWER:
     case ITEM_MOD_ARMOR_PENETRATION_RATING:
-        ap++;
+        apa++;
         break;
-    }
+	}
+	switch (mod)
+	{
+	case ITEM_MOD_STRENGTH:
+	case ITEM_MOD_HIT_RATING:
+	case ITEM_MOD_CRIT_RATING:
+	case ITEM_MOD_HASTE_RATING:
+	case ITEM_MOD_HIT_MELEE_RATING:
+	case ITEM_MOD_CRIT_MELEE_RATING:
+	case ITEM_MOD_HASTE_MELEE_RATING:
+	case ITEM_MOD_EXPERTISE_RATING:
+	case ITEM_MOD_ATTACK_POWER:
+	case ITEM_MOD_ARMOR_PENETRATION_RATING:
+		aps++;
+		break;
+	}
+	switch (mod)
+	{
+	case ITEM_MOD_AGILITY:
+	case ITEM_MOD_HIT_RATING:
+	case ITEM_MOD_CRIT_RATING:
+	case ITEM_MOD_HASTE_RATING:
+	case ITEM_MOD_HIT_RANGED_RATING:
+	case ITEM_MOD_CRIT_RANGED_RATING:
+	case ITEM_MOD_HASTE_RANGED_RATING:
+	case ITEM_MOD_HIT_MELEE_RATING:
+	case ITEM_MOD_CRIT_MELEE_RATING:
+	case ITEM_MOD_HASTE_MELEE_RATING:
+	case ITEM_MOD_RANGED_ATTACK_POWER:
+	case ITEM_MOD_ATTACK_POWER:
+	case ITEM_MOD_ARMOR_PENETRATION_RATING:
+		apr++;
+		break;
+	}
 }
+	
 
 bool PlayerbotFactory::CanEquipWeapon(ItemTemplate const* proto)
 {
@@ -664,11 +832,19 @@ void PlayerbotFactory::InitEquipment(bool incremental)
 
                 if (proto->Class == ITEM_CLASS_ARMOR && (
                     slot == EQUIPMENT_SLOT_HEAD ||
+					slot == EQUIPMENT_SLOT_NECK ||
                     slot == EQUIPMENT_SLOT_SHOULDERS ||
+					slot == EQUIPMENT_SLOT_BODY ||
                     slot == EQUIPMENT_SLOT_CHEST ||
+					slot == EQUIPMENT_SLOT_BACK ||
+					slot == EQUIPMENT_SLOT_TABARD ||
                     slot == EQUIPMENT_SLOT_WAIST ||
                     slot == EQUIPMENT_SLOT_LEGS ||
                     slot == EQUIPMENT_SLOT_FEET ||
+					slot == EQUIPMENT_SLOT_FINGER1 ||
+					slot == EQUIPMENT_SLOT_FINGER2 ||
+					slot == EQUIPMENT_SLOT_TRINKET1 ||
+					slot == EQUIPMENT_SLOT_TRINKET2 ||
                     slot == EQUIPMENT_SLOT_WRISTS ||
                     slot == EQUIPMENT_SLOT_HANDS) && !CanEquipArmor(proto))
                         continue;
@@ -929,16 +1105,16 @@ void PlayerbotFactory::EnchantItem(Item* item)
             if (enchant->requiredLevel && enchant->requiredLevel > level)
                 continue;
 
-            uint8 sp = 0, ap = 0, tank = 0;
+            uint8 sph = 0, spd = 0, apa = 0, aps = 0, apr = 0, tank = 0;
             for (int i = 0; i < 3; ++i)
             {
                 if (enchant->type[i] != ITEM_ENCHANTMENT_TYPE_STAT)
                     continue;
 
-                AddItemStats(enchant->spellid[i], sp, ap, tank);
+                AddItemStats(enchant->spellid[i], sph, spd, apa, aps, apr, tank);
             }
 
-            if (!CheckItemStats(sp, ap, tank))
+            if (!CheckItemStats(sph, spd, apa, aps, apr, tank))
                 continue;
 
             if (enchant->EnchantmentCondition && !bot->EnchantmentFitsRequirements(enchant->EnchantmentCondition, -1))
