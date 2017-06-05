@@ -35,7 +35,7 @@ class TC_GAME_API MovementGenerator
         virtual void Initialize(WorldObject*) = 0;
 		virtual void Finalize(WorldObject*) = 0;
 		virtual void Reset(WorldObject*) = 0;
-        virtual bool Update(WorldObjectit*, uint32 diff) = 0;
+        virtual bool Update(WorldObject*, uint32 diff) = 0;
 
         virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 

@@ -136,8 +136,8 @@ template bool PointMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 
 void AssistanceMovementGenerator::Finalize(WorldObject* owner)
 {
-    owner->ClearUnitState(UNIT_STATE_ROAMING);
-    owner->StopMoving();
+    ((Unit *)owner)->ClearUnitState(UNIT_STATE_ROAMING);
+	((Unit *)owner)->StopMoving();
     owner->ToCreature()->SetNoCallAssistance(false);
     owner->ToCreature()->CallAssistance();
     if (((Unit *)owner)->IsAlive())
@@ -153,7 +153,7 @@ bool EffectMovementGenerator::Update(WorldObject* owner, uint32 /*diff*/)
 
 void EffectMovementGenerator::Finalize(WorldObject* owner)
 {
-    MovementInform(owner);
+    MovementInform((Unit *)owner);
 }
 
 void EffectMovementGenerator::MovementInform(Unit* owner)

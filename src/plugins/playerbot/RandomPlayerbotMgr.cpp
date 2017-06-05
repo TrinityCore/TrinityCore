@@ -267,7 +267,7 @@ void RandomPlayerbotMgr::Revive(Player* player)
     sLog->outMessage("playerbot", LOG_LEVEL_DEBUG, "Reviving dead bot %d", bot);
     SetEventValue(bot, "dead", 0, 0);
     SetEventValue(bot, "revive", 0, 0);
-    RandomTeleportForLevel(ai->GetBot());
+    RandomTeleport(player, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 }
 
 void RandomPlayerbotMgr::RandomTeleport(Player* bot, vector<WorldLocation> &locs)

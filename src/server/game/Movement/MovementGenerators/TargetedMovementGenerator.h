@@ -32,7 +32,7 @@ class TargetedMovementGeneratorBase
         }
 
         bool IsTargetValid() const { return _target.isValid(); }
-        Unit* GetTarget() const { return _target.getTarget(); }
+        WorldObject* GetTarget() const { return _target.getTarget(); }
         void stopFollowing() { }
 
     private:
@@ -43,7 +43,7 @@ template<class T, typename D>
 class TargetedMovementGenerator : public MovementGeneratorMedium< T, D >, public TargetedMovementGeneratorBase
 {
     public:
-        explicit TargetedMovementGenerator(Unit* target, float offset, float angle) : TargetedMovementGeneratorBase(target), _path(nullptr), _timer(0), _offset(offset), _angle(angle), _recalculateTravel(false), _speedChanged(false), _targetReached(false), _interrupt(false) { }
+        explicit TargetedMovementGenerator(WorldObject* target, float offset, float angle) : TargetedMovementGeneratorBase(target), _path(nullptr), _timer(0), _offset(offset), _angle(angle), _recalculateTravel(false), _speedChanged(false), _targetReached(false), _interrupt(false) { }
         ~TargetedMovementGenerator();
 
         bool DoUpdate(T*, uint32);

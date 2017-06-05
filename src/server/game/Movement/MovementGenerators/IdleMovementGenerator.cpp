@@ -74,7 +74,7 @@ bool RotateMovementGenerator::Update(WorldObject* owner, uint32 diff)
     return true;
 }
 
-void RotateMovementGenerator::Finalize(WorldObject* unit)
+void RotateMovementGenerator::Finalize(WorldObject* owner)
 {
     ((Unit *)owner)->ClearUnitState(UNIT_STATE_ROTATING);
     if (owner->GetTypeId() == TYPEID_UNIT)
