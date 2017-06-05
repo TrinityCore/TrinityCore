@@ -5841,6 +5841,7 @@ void ObjectMgr::LoadQuestGreetings()
                 }
                 break;
             default:
+                TC_LOG_ERROR("sql.sql", "Table `quest_greeting`: unknown type = %u for entry = %u. Skipped.", type, id);
                 continue;
         }
 
