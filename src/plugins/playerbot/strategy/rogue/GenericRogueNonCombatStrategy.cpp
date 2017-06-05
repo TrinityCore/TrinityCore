@@ -7,25 +7,10 @@
 
 using namespace ai;
 
-class GenericRogueNonCombatStrategyActionNodeFactory : public NamedObjectFactory<ActionNode>
-{
-public:
-	GenericRogueNonCombatStrategyActionNodeFactory()
-	{
-	
-	}
-	
-};
-
-
-GenericRogueNonCombatStrategy::GenericRogueNonCombatStrategy(PlayerbotAI* ai) : NonCombatStrategy(ai)
-{
-	actionNodeFactories.Add(new GenericRogueNonCombatStrategyActionNodeFactory());
-}
-/*
 void GenericRogueNonCombatStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
-{
-    NonCombatStrategy::InitTriggers(triggers);
-        
-}
-*/
+	{
+    	NonCombatStrategy::InitTriggers(triggers);
+    		triggers.push_back(new TriggerNode(
+		"in battleground without flag",
+			NextAction::array(0, new NextAction("mount", 1.0f), NULL)));    
+	}
