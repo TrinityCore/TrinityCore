@@ -9663,7 +9663,7 @@ void Unit::SetPower(Powers power, int32 val)
         WorldPackets::Combat::PowerUpdate packet;
         packet.Guid = GetGUID();
         /// @todo: Support multiple counts ?
-        packet.Powers.emplace_back(val, powerIndex);
+        packet.Powers.emplace_back(val, power);
         SendMessageToSet(packet.Write(), GetTypeId() == TYPEID_PLAYER);
     }
 
