@@ -134,11 +134,8 @@ enum Events
     EVENT_FLAME_BREATH_GROUND,
     EVENT_WING_BUFFET,
     EVENT_RESUME_AIR_PHASE,
-    EVENT_FINISH_AIR_MOVEMENT,
     EVENT_FIREBOLT,
     EVENT_FUSE_ARMOR,
-    EVENT_START_GROUND_MOVEMENT,
-    EVENT_LAND,
     EVENT_RESUME_MOVE_CHASE,
 
     // Expedition Commander
@@ -430,8 +427,7 @@ public:
             _EnterCombat();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
             ScheduleAirPhaseEvents();
-            DummyEntryCheckPredicate pred;
-            summons.DoAction(ACTION_START_FIGHT, pred);
+            summons.DoAction(ACTION_START_FIGHT, DummyEntryCheckPredicate());
             events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
             HandleMusic(true);
         }
@@ -468,12 +464,11 @@ public:
                     me->GetMotionMaster()->MovePoint(POINT_RAZORSCALE_FLIGHT, RazorFlightPosition);
                     break;
                 case ACTION_GROUND_PHASE:
-                    me->SetCanFly(false);
                     me->SetControlled(false, UNIT_STATE_ROOT);
                     me->InterruptNonMeleeSpells(false);
                     events.SetPhase(PHASE_GROUND);
                     _harpoonHitCount = 0;
-                    events.ScheduleEvent(EVENT_START_GROUND_MOVEMENT, Seconds(1));
+                    me->GetMotionMaster()->MovePoint(POINT_RAZORSCALE_LAND, RazorscaleLand);
                     break;
                 case ACTION_START_PERMA_GROUND:
                 {
@@ -506,19 +501,19 @@ public:
                     DoZoneInCombat();
                     break;
                 case POINT_RAZORSCALE_GROUND:
-                {
-                    if (_permaGround)
-                        break;
-                    DoCastSelf(SPELL_STUN_SELF, true);
-                    EntryCheckPredicate pred(NPC_EXPEDITION_TRAPPER);
-                    summons.DoAction(ACTION_SHACKLE_RAZORSCALE, pred);
-                    if (Creature* commander = instance->GetCreature(DATA_EXPEDITION_COMMANDER))
-                        commander->AI()->DoAction(ACTION_GROUND_PHASE);
-                    events.ScheduleEvent(EVENT_FLAME_BREATH, Seconds(30), 0, PHASE_GROUND);
+                    me->SetCanFly(false);
+                    if (!_permaGround)
+                    {
+                        DoCastSelf(SPELL_STUN_SELF, true);
+                        EntryCheckPredicate pred(NPC_EXPEDITION_TRAPPER);
+                        summons.DoAction(ACTION_SHACKLE_RAZORSCALE, pred);
+                        if (Creature* commander = instance->GetCreature(DATA_EXPEDITION_COMMANDER))
+                            commander->AI()->DoAction(ACTION_GROUND_PHASE);
+                        events.ScheduleEvent(EVENT_FLAME_BREATH, Seconds(30), 0, PHASE_GROUND);
+                    }
                     break;
-                }
                 case POINT_RAZORSCALE_TAKEOFF:
-                    events.ScheduleEvent(EVENT_FINISH_AIR_MOVEMENT, Milliseconds(1));
+                    me->GetMotionMaster()->MovePoint(POINT_RAZORSCALE_FLIGHT_2, RazorFlightPositionPhase2);
                     break;
                 case POINT_RAZORSCALE_FLIGHT_2:
                     ChangeOrientation(RazorFlightPositionPhase2.GetOrientation());
@@ -528,8 +523,8 @@ public:
                     ++_flyCount;
                     break;
                 case POINT_RAZORSCALE_LAND:
-                    ChangeOrientation(RazorscaleLand.GetOrientation());
-                    events.ScheduleEvent(EVENT_LAND, Milliseconds(1));
+                    me->SetFacingTo(RazorscaleLand.GetOrientation());
+                    me->GetMotionMaster()->MoveLand(POINT_RAZORSCALE_GROUND, RazorscaleGroundPosition);
                     break;
                 default:
                     break;
@@ -679,7 +674,7 @@ public:
                         SummonMinions();
                         break;
                     case EVENT_CHANGE_ORIENTATION:
-                        me->SetFacingTo(_orientation, true);
+                        me->SetFacingTo(_orientation);
                         break;
                     case EVENT_FLAME_BREATH:
                         me->SetControlled(false, UNIT_STATE_ROOT);
@@ -707,29 +702,19 @@ public:
                         me->SetCanFly(true);
                         events.SetPhase(PHASE_AIR);
                         me->SetReactState(REACT_PASSIVE);
-                        Position pos;
-                        pos.Relocate(me);
+                        Position pos = me->GetPosition();
                         pos.m_positionZ += 10.0f;
                         me->GetMotionMaster()->MoveTakeoff(POINT_RAZORSCALE_TAKEOFF, pos);
                         EntryCheckPredicate pred(NPC_EXPEDITION_ENGINEER);
                         summons.DoAction(ACTION_FIX_HARPOONS, pred);
                         break;
                     }
-                    case EVENT_FINISH_AIR_MOVEMENT:
-                        me->GetMotionMaster()->MovePoint(POINT_RAZORSCALE_FLIGHT_2, RazorFlightPositionPhase2);
-                        break;
                     case EVENT_FIREBOLT:
                         DoCastSelf(SPELL_FIREBOLT);
                         break;
                     case EVENT_FUSE_ARMOR:
                         DoCastVictim(SPELL_FUSE_ARMOR);
                         events.Repeat(Seconds(10), Seconds(15));
-                        break;
-                    case EVENT_START_GROUND_MOVEMENT:
-                        me->GetMotionMaster()->MovePoint(POINT_RAZORSCALE_LAND, RazorscaleLand);
-                        break;
-                    case EVENT_LAND:
-                        me->GetMotionMaster()->MoveLand(POINT_RAZORSCALE_GROUND, RazorscaleGroundPosition);
                         break;
                     case EVENT_RESUME_MOVE_CHASE:
                         if (Unit* victim = me->GetVictim())
@@ -1151,7 +1136,7 @@ public:
         {
             _scheduler.Schedule(Milliseconds(1), [this, orientation](TaskContext /*context*/)
             {
-                me->SetFacingTo(orientation, true);
+                me->SetFacingTo(orientation);
             });
         }
 
