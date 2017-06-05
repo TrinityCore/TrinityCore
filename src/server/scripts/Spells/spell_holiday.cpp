@@ -1606,6 +1606,103 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
         }
 };
 
+enum HallowendCandysSpells
+{
+    SPELL_HALLOWS_END_CANDY_ORANGE_GIANT          = 24924, // Effect 1: Apply Aura: Mod Size, Value: 30%
+    SPELL_HALLOWS_END_CANDY_SKELETON              = 24925, // Effect 1: Apply Aura: Change Model (Skeleton). Effect 2: Apply Aura: Underwater Breathing
+    SPELL_HALLOWS_END_CANDY_PIRATE                = 24926, // Effect 1: Apply Aura: Increase Swim Speed, Value: 50%
+    SPELL_HALLOWS_END_CANDY_GHOST                 = 24927, // Effect 1: Apply Aura: Levitate / Hover. Effect 2: Apply Aura: Slow Fall, Effect 3: Apply Aura: Water Walking
+    SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE  = 44742, // Effect 1: Apply Aura: Change Model (Defias Pirate, Female). Effect 2: Increase Swim Speed, Value: 50%
+    SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE    = 44743  // Effect 1: Apply Aura: Change Model (Defias Pirate, Male).   Effect 2: Increase Swim Speed, Value: 50%
+};
+
+class spell_hallow_end_candy : public SpellScriptLoader
+{
+public:
+    spell_hallow_end_candy() : SpellScriptLoader("spell_hallow_end_candy") { }
+
+    class  spell_hallow_end_candy_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hallow_end_candy_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_ORANGE_GIANT)
+                || !sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_SKELETON)
+                || !sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_PIRATE)
+                || !sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_GHOST))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            GetCaster()->CastSpell(GetCaster(), spells[urand(0, 3)], true);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_hallow_end_candy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+
+    private:
+        uint32 spells[4] = 
+        {
+            SPELL_HALLOWS_END_CANDY_ORANGE_GIANT,
+            SPELL_HALLOWS_END_CANDY_SKELETON,
+            SPELL_HALLOWS_END_CANDY_PIRATE,
+            SPELL_HALLOWS_END_CANDY_GHOST
+        };
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new  spell_hallow_end_candy_SpellScript();
+    }
+};
+
+class spell_hallow_end_candy_pirate : public SpellScriptLoader
+{
+public:
+    spell_hallow_end_candy_pirate() : SpellScriptLoader("spell_hallow_end_candy_pirate") { }
+
+    class spell_hallow_end_candy_pirate_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hallow_end_candy_pirate_AuraScript);
+
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE)
+                || !sSpellMgr->GetSpellInfo(SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE))
+                return false;
+            return true;
+        }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            uint32 spell = GetTarget()->getGender() ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
+            GetTarget()->CastSpell(GetTarget(), spell, true);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            uint32 spell = GetTarget()->getGender() ? SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE : SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE;
+            GetTarget()->RemoveAurasDueToSpell(spell);
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_hallow_end_candy_pirate_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_INCREASE_SWIM_SPEED, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_hallow_end_candy_pirate_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_INCREASE_SWIM_SPEED, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_hallow_end_candy_pirate_AuraScript();
+    }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -1617,6 +1714,8 @@ void AddSC_holiday_spell_scripts()
     new spell_hallow_end_trick_or_treat();
     new spell_hallow_end_tricky_treat();
     new spell_hallow_end_wand();
+    new spell_hallow_end_candy();
+    new spell_hallow_end_candy_pirate();
     // Pilgrims Bounty
     new spell_pilgrims_bounty_buff_food("spell_gen_slow_roasted_turkey", SPELL_WELL_FED_AP_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_cranberry_chutney", SPELL_WELL_FED_ZM_TRIGGER);
