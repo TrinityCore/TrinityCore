@@ -104,7 +104,7 @@ enum Spells
     SPELL_SHACKLE                           = 62646,
 
     // Devouring Flame Trigger
-    SPELL_DEVOURING_FLAME                   = 64709
+    SPELL_DEVOURING_FLAME_GROUND            = 64709
 };
 
 enum Actions
@@ -1644,7 +1644,7 @@ public:
 
         void Reset() override
         {
-            DoCastSelf(SPELL_DEVOURING_FLAME);
+            DoCastSelf(SPELL_DEVOURING_FLAME_GROUND);
         }
     };
 
