@@ -102,7 +102,7 @@ void UpdateTime::_RecordUpdateTimeDuration(std::string const& text, uint32 minUp
     uint32 diff = getMSTimeDiff(_recordedTime, thisTime);
 
     if (diff > minUpdateTime)
-        TC_LOG_INFO("misc", "Recored Update Time of %s: %u.", text.c_str(), diff);
+        TC_LOG_DEBUG("misc", "Recored Update Time of %s: %u.", text.c_str(), diff);
 
     _recordedTime = thisTime;
 }
