@@ -375,7 +375,7 @@ class go_orb_of_the_blue_flight : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (me->GetFaction() == 35)
                 {

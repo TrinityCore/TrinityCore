@@ -49,7 +49,7 @@ class TC_GAME_API GameObjectAI
         static int32 Permissible(GameObject const* /*go*/);
 
         // Called when a player opens a gossip dialog with the gameobject.
-        virtual bool GossipHello(Player* /*player*/, bool /*reportUse*/) { return false; }
+        virtual bool GossipHello(Player* /*player*/) { return false; }
 
         // Called when a player selects a gossip item in the gameobject's gossip menu.
         virtual bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) { return false; }
@@ -65,6 +65,10 @@ class TC_GAME_API GameObjectAI
 
         // Called when the dialog status between a player and the gameobject is requested.
         virtual uint32 GetDialogStatus(Player* player);
+
+        // Called when a Player clicks a GameObject, before GossipHello
+        // prevents achievement tracking if returning true
+        virtual bool OnReportUse(Player* /*player*/) { return false; }
 
         virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) { }
         virtual void Damaged(Player* /*player*/, uint32 /*eventId*/) { }
