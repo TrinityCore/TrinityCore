@@ -286,7 +286,7 @@ class spell_hun_exhilaration : public SpellScriptLoader
             void HandleOnHit()
             {
                 if (GetCaster()->HasAura(SPELL_HUNTER_EXHILARATION_R2))
-                    GetCaster()->CastSpell((Unit*)0, SPELL_HUNTER_EXHILARATION_PET, true);
+                    GetCaster()->CastSpell((Unit*)nullptr, SPELL_HUNTER_EXHILARATION_PET, true);
             }
 
             void Register() override
