@@ -24,11 +24,13 @@ SDCategory: Npc
 EndScriptData */
 
 #include "ScriptedEscortAI.h"
+#include "Creature.h"
 #include "Group.h"
 #include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 
 enum Points
 {

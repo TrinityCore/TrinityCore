@@ -23,12 +23,16 @@ SDComment:
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
-#include "Log.h"
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
-#include "Player.h"
-#include "WorldSession.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -435,7 +439,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_kalecAI>(creature);
+        return GetSunwellPlateauAI<boss_kalecAI>(creature);
     }
 
     struct boss_kalecAI : public ScriptedAI
@@ -571,7 +575,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_sathrovarrAI>(creature);
+        return GetSunwellPlateauAI<boss_sathrovarrAI>(creature);
     }
 
     struct boss_sathrovarrAI : public ScriptedAI

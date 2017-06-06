@@ -33,6 +33,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "SupportMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 
 class ticket_commandscript : public CommandScript
 {

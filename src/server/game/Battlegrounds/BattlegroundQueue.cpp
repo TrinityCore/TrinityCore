@@ -22,6 +22,7 @@
 #include "BattlegroundMgr.h"
 #include "BattlegroundPackets.h"
 #include "Chat.h"
+#include "DB2Stores.h"
 #include "Group.h"
 #include "Language.h"
 #include "Log.h"

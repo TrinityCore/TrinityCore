@@ -16,9 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "ScriptedCreature.h"
 #include "drak_tharon_keep.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 enum Yells
 {
@@ -393,9 +397,7 @@ class spell_novos_summon_minions : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_COPY_OF_MINIONS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_COPY_OF_MINIONS });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

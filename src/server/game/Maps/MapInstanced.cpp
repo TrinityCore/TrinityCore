@@ -18,6 +18,7 @@
 
 #include "MapInstanced.h"
 #include "Battleground.h"
+#include "DB2Stores.h"
 #include "GarrisonMap.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"

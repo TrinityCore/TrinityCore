@@ -17,6 +17,7 @@
 
 #include "LFGMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "Group.h"
@@ -27,6 +28,8 @@
 #include "LFGQueue.h"
 #include "LFGScripts.h"
 #include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"

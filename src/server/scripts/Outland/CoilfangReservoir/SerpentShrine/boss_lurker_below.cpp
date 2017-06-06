@@ -24,10 +24,14 @@ SDCategory: The Lurker Below
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
-#include "Spell.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -83,7 +87,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_the_lurker_belowAI>(creature);
+        return GetSerpentshrineCavernAI<boss_the_lurker_belowAI>(creature);
     }
 
     struct boss_the_lurker_belowAI : public ScriptedAI
@@ -370,7 +374,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_coilfang_ambusherAI(creature);
+        return GetSerpentshrineCavernAI<npc_coilfang_ambusherAI>(creature);
     }
 
     struct npc_coilfang_ambusherAI : public ScriptedAI

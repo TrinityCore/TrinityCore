@@ -19,12 +19,12 @@
 #ifndef TRINITYCORE_CREATURE_H
 #define TRINITYCORE_CREATURE_H
 
-#include "Common.h"
-#include "Duration.h"
 #include "Unit.h"
-#include "ItemTemplate.h"
-#include "Loot.h"
+#include "Common.h"
+#include "CreatureData.h"
 #include "DatabaseEnvFwd.h"
+#include "Duration.h"
+#include "Loot.h"
 #include "MapObject.h"
 
 #include <list>
@@ -36,6 +36,7 @@ class Quest;
 class Player;
 class SpellInfo;
 class WorldSession;
+enum MovementGeneratorType : uint8;
 
 struct ScriptParam;
 
@@ -629,7 +630,7 @@ struct VendorItemData
 
 struct VendorItemCount
 {
-    explicit VendorItemCount(uint32 _item, uint32 _count)
+    VendorItemCount(uint32 _item, uint32 _count)
         : itemId(_item), count(_count), lastIncrementTime(time(NULL)) { }
 
     uint32 itemId;
@@ -638,43 +639,6 @@ struct VendorItemCount
 };
 
 typedef std::list<VendorItemCount> VendorItemCounts;
-
-#define MAX_TRAINERSPELL_ABILITY_REQS 3
-
-struct TrainerSpell
-{
-    TrainerSpell() : SpellID(0), MoneyCost(0), ReqSkillLine(0), ReqSkillRank(0), ReqLevel(0), Index(0)
-    {
-        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
-            ReqAbility[i] = 0;
-    }
-
-    uint32 SpellID;
-    uint32 MoneyCost;
-    uint32 ReqSkillLine;
-    uint32 ReqSkillRank;
-    uint32 ReqLevel;
-    uint32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS];
-    uint32 Index;
-
-    // helpers
-    bool IsCastable() const { return ReqAbility[0] != SpellID; }
-};
-
-typedef std::unordered_map<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
-
-struct TC_GAME_API TrainerSpellData
-{
-    TrainerSpellData() : trainerType(0) { }
-    ~TrainerSpellData() { spellList.clear(); }
-
-    TrainerSpellMap spellList;
-    uint32 trainerType;                                     // trainer type based at trainer spells, can be different from creature_template value.
-                                                            // req. for correct show non-prof. trainers like weaponmaster, allowed values 0 and 2.
-    TrainerSpell const* Find(uint32 spell_id) const;
-};
-
-typedef std::map<uint32, time_t> CreatureSpellCooldowns;
 
 // max different by z coordinate for creature aggro reaction
 #define CREATURE_Z_ATTACK_RANGE 3

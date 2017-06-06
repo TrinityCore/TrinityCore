@@ -18,6 +18,9 @@
 #ifndef DEF_GNOMEREGAN_H
 #define DEF_GNOMEREGAN_H
 
+#include "CreatureAIImpl.h"
+
+#define GNOScriptName "instance_gnomeregan"
 #define DataHeader "GNO"
 
 enum GNOGameObjectIds
@@ -46,5 +49,11 @@ enum GNOData64
     DATA_GO_CAVE_IN_RIGHT,
     DATA_NPC_BASTMASTER_EMI_SHORTFUSE
 };
+
+template<typename AI>
+inline AI* GetGnomereganAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, GNOScriptName);
+}
 
 #endif

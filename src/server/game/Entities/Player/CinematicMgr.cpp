@@ -16,8 +16,9 @@
  */
 
 #include "CinematicMgr.h"
-#include "Creature.h"
 #include "M2Stores.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "TemporarySummon.h"
 

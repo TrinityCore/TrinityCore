@@ -66,13 +66,10 @@ bool AuctionBotSeller::Initialize()
     const CreatureTemplateContainer* creatures = sObjectMgr->GetCreatureTemplates();
     std::set<uint32> tempItems;
     for (CreatureTemplateContainer::const_iterator it = creatures->begin(); it != creatures->end(); ++it)
-    {
         if (const VendorItemData* data = sObjectMgr->GetNpcVendorItemList(it->first))
-        {
-            for (VendorItemList::const_iterator it2 = data->m_items.begin(); it2 != data->m_items.end(); ++it2)
-                tempItems.insert((*it2)->item);
-        }
-    }
+            for (VendorItem const& it2 : data->m_items)
+                tempItems.insert(it2.item);
+
     for (uint32 itemId : tempItems)
         npcItems.push_back(itemId);
 

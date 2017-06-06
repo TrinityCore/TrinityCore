@@ -16,8 +16,16 @@
  */
 
 #include "PlayerAI.h"
+#include "Creature.h"
+#include "Item.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
 
 enum Spells
 {
@@ -383,6 +391,25 @@ enum Spells
     SPELL_LIFEBLOOM           = 48451
 };
 
+PlayerAI::PlayerAI(Player* player) : UnitAI(player), me(player),
+    _selfSpec(player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID)),
+    _isSelfHealer(PlayerAI::IsPlayerHealer(player)),
+    _isSelfRangedAttacker(PlayerAI::IsPlayerRangedAttacker(player))
+{
+}
+
+Creature* PlayerAI::GetCharmer() const
+{
+    if (me->GetCharmerGUID().IsCreature())
+        return ObjectAccessor::GetCreature(*me, me->GetCharmerGUID());
+    return nullptr;
+}
+
+uint16 PlayerAI::GetSpec(Player const* who /*= nullptr*/) const
+{
+    return (!who || who == me) ? _selfSpec : who->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+}
+
 bool PlayerAI::IsPlayerHealer(Player const* who)
 {
     if (!who)
@@ -543,6 +570,13 @@ PlayerAI::TargetedSpell PlayerAI::SelectSpellCast(PossibleSpellVector& spells)
     return selected;
 }
 
+void PlayerAI::DoCastAtTarget(TargetedSpell spell)
+{
+    SpellCastTargets targets;
+    targets.SetUnitTarget(spell.second);
+    spell.first->prepare(&targets);
+}
+
 void PlayerAI::DoRangedAttackIfReady()
 {
     if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -614,6 +648,11 @@ void PlayerAI::CancelAllShapeshifts()
         me->RemoveOwnedAura(aura, AURA_REMOVE_BY_CANCEL);
 }
 
+Unit* PlayerAI::SelectAttackTarget() const
+{
+    return me->GetCharmer() ? me->GetCharmer()->GetVictim() : nullptr;
+}
+
 struct UncontrolledTargetSelectPredicate : public std::unary_function<Unit*, bool>
 {
     bool operator()(Unit const* target) const
@@ -621,6 +660,7 @@ struct UncontrolledTargetSelectPredicate : public std::unary_function<Unit*, boo
         return !target->HasBreakableByDamageCrowdControlAura();
     }
 };
+
 Unit* SimpleCharmedPlayerAI::SelectAttackTarget() const
 {
     if (Unit* charmer = me->GetCharmer())

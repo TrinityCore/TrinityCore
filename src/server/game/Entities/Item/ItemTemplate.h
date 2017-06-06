@@ -293,13 +293,6 @@ enum CurrencyCategory
     // ...
 };
 
-enum ItemVendorType
-{
-    ITEM_VENDOR_TYPE_NONE     = 0,
-    ITEM_VENDOR_TYPE_ITEM     = 1,
-    ITEM_VENDOR_TYPE_CURRENCY = 2,
-};
-
 enum BAG_FAMILY_MASK
 {
     BAG_FAMILY_MASK_NONE                      = 0x00000000,
@@ -348,7 +341,7 @@ extern uint32 const SocketColorToGemTypeMask[19];
 
 #define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
-enum InventoryType
+enum InventoryType : uint8
 {
     INVTYPE_NON_EQUIP                           = 0,
     INVTYPE_HEAD                                = 1,
@@ -813,8 +806,5 @@ struct TC_GAME_API ItemTemplate
     bool IsUsableByLootSpecialization(Player const* player) const;
     static std::size_t CalculateItemSpecBit(ChrSpecializationEntry const* spec);
 };
-
-// Benchmarked: Faster than std::map (insert/find)
-typedef std::unordered_map<uint32, ItemTemplate> ItemTemplateContainer;
 
 #endif

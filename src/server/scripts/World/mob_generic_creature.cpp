@@ -17,8 +17,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellMgr.h"
 
 class trigger_periodic : public CreatureScript
 {

@@ -16,13 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "culling_of_stratholme.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -343,7 +347,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_arthasAI>(creature);
+        return GetCullingOfStratholmeAI<npc_arthasAI>(creature);
     }
 
     struct npc_arthasAI : public npc_escortAI
@@ -1256,7 +1260,7 @@ class npc_crate_helper : public CreatureScript
                         instance->SetData(DATA_CRATE_COUNT, instance->GetData(DATA_CRATE_COUNT) + 1);
                     if (GameObject* crate = me->FindNearestGameObject(GO_SUSPICIOUS_CRATE, 5.0f))
                     {
-                        crate->SummonGameObject(GO_PLAGUED_CRATE, *crate, G3D::Quat(), DAY);
+                        crate->SummonGameObject(GO_PLAGUED_CRATE, *crate, QuaternionData(), DAY);
                         crate->Delete();
                     }
                 }
@@ -1268,7 +1272,7 @@ class npc_crate_helper : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_crate_helperAI(creature);
+            return GetCullingOfStratholmeAI<npc_crate_helperAI>(creature);
         }
 };
 

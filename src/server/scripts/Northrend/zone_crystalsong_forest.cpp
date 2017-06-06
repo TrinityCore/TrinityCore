@@ -24,8 +24,8 @@ SDCategory: CrystalsongForest
 Script Data End */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "Player.h"
 
 /*******************************************************
  * npc_warmage_violetstand
@@ -68,32 +68,27 @@ public:
             if (me->IsNonMeleeSpellCast(false))
                 return;
 
-            if (me->GetEntry() == NPC_WARMAGE_SARINA)
-            {
                 if (!targetGUID)
                 {
-                    std::list<Creature*> orbList;
-                    GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
-                    if (!orbList.empty())
+                    if (me->GetEntry() == NPC_WARMAGE_SARINA)
                     {
-                        for (Creature* orb : orbList)
+                        std::list<Creature*> orbList;
+                        GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
+                        if (!orbList.empty())
                         {
-                            if (orb->GetPositionY() < 1000)
+                            for (Creature* orb : orbList)
                             {
-                                targetGUID = orb->GetGUID();
-                                break;
+                                if (orb->GetPositionY() < 1000)
+                                {
+                                    targetGUID = orb->GetGUID();
+                                    break;
+                                }
                             }
                         }
                     }
-                }
-            }
-            else
-            {
-                if (!targetGUID)
-                    if (Creature* pOrb = GetClosestCreatureWithEntry(me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f))
+                    else if (Creature* pOrb = GetClosestCreatureWithEntry(me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f))
                         targetGUID = pOrb->GetGUID();
-
-            }
+                }
 
             if (Creature* pOrb = ObjectAccessor::GetCreature(*me, targetGUID))
                 DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
@@ -109,5 +104,5 @@ public:
 
 void AddSC_crystalsong_forest()
 {
-    new npc_warmage_violetstand;
+    new npc_warmage_violetstand();
 }

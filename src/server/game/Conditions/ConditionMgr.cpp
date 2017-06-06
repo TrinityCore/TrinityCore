@@ -20,12 +20,15 @@
 #include "AchievementMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Pet.h"
@@ -34,6 +37,7 @@
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
@@ -1785,7 +1789,6 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             break;
         }
         case CONDITION_SOURCE_TYPE_QUEST_ACCEPT:
-        case CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK:
             if (!sObjectMgr->GetQuestTemplate(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry specifies non-existing quest, skipped.", cond->ToString().c_str());

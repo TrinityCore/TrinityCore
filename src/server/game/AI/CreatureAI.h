@@ -20,15 +20,19 @@
 #define TRINITY_CREATUREAI_H
 
 #include "UnitAI.h"
-#include "AreaBoundary.h"
 #include "Common.h"
+#include "ObjectDefines.h"
 
-class WorldObject;
-class Unit;
+class AreaBoundary;
+class AreaTrigger;
 class Creature;
-class Player;
+class DynamicObject;
+class GameObject;
 class PlayerAI;
-class SpellInfo;
+class WorldObject;
+struct Position;
+
+typedef std::set<AreaBoundary const*> CreatureBoundary;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
@@ -64,7 +68,6 @@ enum SCEquip
     EQUIP_UNEQUIP   = 0
 };
 
-typedef std::set<AreaBoundary const*> CreatureBoundary;
 class TC_GAME_API CreatureAI : public UnitAI
 {
     protected:

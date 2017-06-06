@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "DB2Stores.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"

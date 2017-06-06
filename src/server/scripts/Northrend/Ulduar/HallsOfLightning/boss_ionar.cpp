@@ -21,8 +21,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum Spells
@@ -69,7 +72,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_ionarAI>(creature);
+        return GetHallsOfLightningAI<boss_ionarAI>(creature);
     }
 
     struct boss_ionarAI : public ScriptedAI
@@ -376,7 +379,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_spark_of_ionarAI>(creature);
+        return GetHallsOfLightningAI<npc_spark_of_ionarAI>(creature);
     }
 };
 

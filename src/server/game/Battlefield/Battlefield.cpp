@@ -21,6 +21,7 @@
 #include "BattlegroundPackets.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
+#include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
@@ -31,7 +32,9 @@
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "WorldSession.h"
 #include "WorldStatePackets.h"
+#include <G3D/g3dmath.h>
 
 Battlefield::Battlefield()
 {
@@ -822,7 +825,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
 }
 
 // Method for spawning gameobject on map
-GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot)
+GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, QuaternionData const& rot)
 {
     // Get map object
     Map* map = sMapMgr->CreateBaseMap(m_MapId);

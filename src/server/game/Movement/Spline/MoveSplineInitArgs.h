@@ -22,7 +22,6 @@
 #include "MoveSplineFlag.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
-#include <G3D/Vector3.h>
 
 class Unit;
 
@@ -32,7 +31,10 @@ namespace Movement
 
     struct FacingInfo
     {
-        G3D::Vector3 f;
+        struct
+        {
+            float x, y, z;
+        } f;
         ObjectGuid target;
         float angle;
 
@@ -51,12 +53,8 @@ namespace Movement
 
     struct MoveSplineInitArgs
     {
-        MoveSplineInitArgs(size_t path_capacity = 16) : path_Idx_offset(0), velocity(0.f),
-            parabolic_amplitude(0.f), time_perc(0.f), splineId(0), initialOrientation(0.f),
-            walk(false), HasVelocity(false), TransformForTransport(true)
-        {
-            path.reserve(path_capacity);
-        }
+        explicit MoveSplineInitArgs(size_t path_capacity = 16);
+        ~MoveSplineInitArgs();
 
         PointsArray path;
         FacingInfo facing;

@@ -16,11 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "PlayerAI.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -161,7 +167,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
     public:
         KelThuzadCharmedPlayerAI(Player* player) : SimpleCharmedPlayerAI(player) { }
 
-        struct CharmedPlayerTargetSelectPred : public std::unary_function<Unit*, bool>
+        struct CharmedPlayerTargetSelectPred
         {
             bool operator()(Unit const* target) const
             {
@@ -568,7 +574,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_kelthuzadAI>(creature);
+        return GetNaxxramasAI<boss_kelthuzadAI>(creature);
     }
 };
 
@@ -699,7 +705,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_skeletonAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_skeletonAI>(creature);
     }
 };
 
@@ -725,7 +731,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_bansheeAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_bansheeAI>(creature);
     }
 };
 
@@ -768,7 +774,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_abominationAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_abominationAI>(creature);
     }
 };
 
@@ -862,7 +868,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_kelthuzad_guardianAI>(creature);
+        return GetNaxxramasAI<npc_kelthuzad_guardianAI>(creature);
     }
 };
 
@@ -915,9 +921,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MANA_DETONATION_DAMAGE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_MANA_DETONATION_DAMAGE });
         }
 
         void HandleScript(AuraEffect const* aurEff)

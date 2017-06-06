@@ -23,10 +23,12 @@ SDComment: Timers need to be confirmed, Golemagg's Trust need to be checked
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "molten_core.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -121,7 +123,7 @@ class boss_golemagg : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_golemaggAI(creature);
+            return GetMoltenCoreAI<boss_golemaggAI>(creature);
         }
 };
 
@@ -188,7 +190,7 @@ class npc_core_rager : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_core_ragerAI>(creature);
+            return GetMoltenCoreAI<npc_core_ragerAI>(creature);
         }
 };
 

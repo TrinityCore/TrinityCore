@@ -22,6 +22,7 @@
 #include "DatabaseEnv.h"
 #include "Group.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"

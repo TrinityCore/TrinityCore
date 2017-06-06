@@ -22,6 +22,10 @@
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "SplineChain.h"
+
+SystemMgr::SystemMgr() = default;
+SystemMgr::~SystemMgr() = default;
 
 SystemMgr* SystemMgr::instance()
 {
@@ -109,7 +113,7 @@ void SystemMgr::LoadScriptSplineChains()
             uint32 entry = fieldsMeta[0].GetUInt32();
             uint16 chainId = fieldsMeta[1].GetUInt16();
             uint8 splineId = fieldsMeta[2].GetUInt8();
-            SplineChain& chain = m_mSplineChainsMap[{entry,chainId}];
+            std::vector<SplineChainLink>& chain = m_mSplineChainsMap[{entry,chainId}];
 
             if (splineId != chain.size())
             {
@@ -117,8 +121,9 @@ void SystemMgr::LoadScriptSplineChains()
                 continue;
             }
 
-            uint32 expectedDuration = fieldsMeta[3].GetUInt32(), msUntilNext = fieldsMeta[4].GetUInt32();
-            chain.push_back(SplineChainLink(expectedDuration, msUntilNext));
+            uint32 expectedDuration = fieldsMeta[3].GetUInt32();
+            uint32 msUntilNext = fieldsMeta[4].GetUInt32();
+            chain.emplace_back(expectedDuration, msUntilNext);
 
             if (splineId == 0)
                 ++chainCount;
@@ -138,7 +143,7 @@ void SystemMgr::LoadScriptSplineChains()
                 TC_LOG_WARN("server.loading", "Creature #%u has waypoint data for spline chain %u. No such chain exists - entry skipped.", entry, chainId);
                 continue;
             }
-            SplineChain& chain = it->second;
+            std::vector<SplineChainLink>& chain = it->second;
             if (splineId >= chain.size())
             {
                 TC_LOG_WARN("server.loading", "Creature #%u has waypoint data for spline (%u,%u). The specified chain does not have a spline with this index - entry skipped.", entry, chainId, splineId);
@@ -158,7 +163,15 @@ void SystemMgr::LoadScriptSplineChains()
     }
 }
 
-SplineChain const* SystemMgr::GetSplineChain(Creature const* who, uint16 id) const
+std::vector<SplineChainLink> const* SystemMgr::GetSplineChain(uint32 entry, uint16 chainId) const
+{
+    auto it = m_mSplineChainsMap.find({ entry, chainId });
+    if (it != m_mSplineChainsMap.end())
+        return &it->second;
+    return nullptr;
+}
+
+std::vector<SplineChainLink> const* SystemMgr::GetSplineChain(Creature const* who, uint16 id) const
 {
     return GetSplineChain(who->GetEntry(), id);
 }

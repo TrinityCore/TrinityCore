@@ -22,6 +22,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
+#include "GameObject.h"
 #include "GameTables.h"
 #include "GridDefines.h"
 #include "GossipDef.h"
@@ -33,7 +34,7 @@
 #include "LootMgr.h"
 #include "Mail.h"
 #include "MapManager.h"
-#include "Object.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "Player.h"
@@ -50,6 +51,7 @@
 #include "Vehicle.h"
 #include "VMapFactory.h"
 #include "World.h"
+#include <G3D/g3dmath.h>
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -1272,7 +1274,7 @@ void ObjectMgr::LoadGameObjectAddons()
         }
 
         GameObjectAddon& gameObjectAddon = _gameObjectAddonStore[guid];
-        gameObjectAddon.ParentRotation = G3D::Quat(fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
+        gameObjectAddon.ParentRotation = QuaternionData(fields[1].GetFloat(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat());
         gameObjectAddon.invisibilityType = InvisibilityType(fields[5].GetUInt8());
         gameObjectAddon.InvisibilityValue = fields[6].GetUInt32();
 
@@ -1292,7 +1294,7 @@ void ObjectMgr::LoadGameObjectAddons()
         if (!gameObjectAddon.ParentRotation.isUnit())
         {
             TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid parent rotation in `gameobject_addon`, set to default", guid);
-            gameObjectAddon.ParentRotation = G3D::Quat();
+            gameObjectAddon.ParentRotation = QuaternionData();
         }
 
         ++count;
@@ -5560,7 +5562,7 @@ void ObjectMgr::LoadPageTextLocales()
         if (locale == LOCALE_enUS)
             continue;
 
-        data.Text[locale] = text;
+        AddLocaleString(text, locale, data.Text);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u PageText locale strings in %u ms", uint32(_pageTextLocaleStore.size()), GetMSTimeDiffToNow(oldMSTime));

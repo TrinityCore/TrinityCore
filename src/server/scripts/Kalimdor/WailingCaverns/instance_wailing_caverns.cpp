@@ -23,9 +23,11 @@ SDComment: Everything seems to work, still need some checking
 SDCategory: Wailing Caverns
 EndScriptData */
 
-#include "Log.h"
-#include "InstanceScript.h"
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 #include "wailing_caverns.h"
 
 #define MAX_ENCOUNTER   9
@@ -33,7 +35,7 @@ EndScriptData */
 class instance_wailing_caverns : public InstanceMapScript
 {
 public:
-    instance_wailing_caverns() : InstanceMapScript("instance_wailing_caverns", 43) { }
+    instance_wailing_caverns() : InstanceMapScript(WCScriptName, 43) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
