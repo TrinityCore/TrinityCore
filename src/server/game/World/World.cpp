@@ -457,7 +457,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_defaultDbcLocale = LocaleConstant(sConfigMgr->GetIntDefault("DBC.Locale", 0));
 
-    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale < LOCALE_enUS || m_defaultDbcLocale == LOCALE_none)
+    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale == LOCALE_none)
     {
         TC_LOG_ERROR("server.loading", "Incorrect DBC.Locale! Must be >= 0 and < %d and not %d (set to 0)", TOTAL_LOCALES, LOCALE_none);
         m_defaultDbcLocale = LOCALE_enUS;
