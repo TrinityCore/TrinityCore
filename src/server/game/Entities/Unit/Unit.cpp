@@ -13837,20 +13837,25 @@ void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
     }
 }
 
-void Unit::SendTeleportPacket(Position const& pos)
+void Unit::SendTeleportPacket(Position const& pos, bool teleportingTransport /*= false*/)
 {
     // MSG_MOVE_TELEPORT is sent to nearby players to signal the teleport
     // MSG_MOVE_TELEPORT_ACK is sent to self in order to trigger ACK and update the position server side
 
     MovementInfo teleportMovementInfo = m_movementInfo;
     teleportMovementInfo.pos.Relocate(pos);
-    Position transportPos = pos;
+    Position transportPos = m_movementInfo.transport.pos;
     if (TransportBase* transportBase = GetDirectTransport())
     {
-        float x, y, z, o;
-        pos.GetPosition(x, y, z, o);
-        transportBase->CalculatePassengerOffset(x, y, z, &o);
-        transportPos.Relocate(x, y, z, o);
+        // if its the transport that is teleported then we have old transport position here and cannot use it to calculate offsets
+        // assume that both transport teleport and teleport within transport cannot happen at the same time
+        if (!teleportingTransport)
+        {
+            float x, y, z, o;
+            pos.GetPosition(x, y, z, o);
+            transportBase->CalculatePassengerOffset(x, y, z, &o);
+            transportPos.Relocate(x, y, z, o);
+        }
     }
 
     WorldPacket moveUpdateTeleport(MSG_MOVE_TELEPORT, 38);
