@@ -19,7 +19,7 @@ install:
   - mysql -uroot -e 'create database test_mysql;'
   - mkdir bin
   - cd bin
-  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS="dynamic" -DSERVERS=1 -DNOJEM=1 -DWITH_DYNAMIC_LINKING=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_INSTALL_PREFIX=check_install
+  - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS="dynamic" -DSERVERS=1 -DNOJEM=1 -DWITH_DYNAMIC_LINKING=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror -DNDEBUG" -DCMAKE_CXX_FLAGS="-Werror -DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
   - cd ..
   - chmod +x contrib/check_updates.sh
 
@@ -36,7 +36,7 @@ script:
   - cat sql/updates/hotfixes/master/*.sql | mysql -utrinity -ptrinity hotfixes
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
-  - make -j 8 -k && make install
+  - make -j 4 -k && make install
   - cd check_install/bin
   - ./bnetserver --version
   - ./worldserver --version
