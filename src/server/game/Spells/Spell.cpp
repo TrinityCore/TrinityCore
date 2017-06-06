@@ -2482,6 +2482,11 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     if (!unit || !effectMask)
         return SPELL_MISS_EVADE;
 
+    // Target may have begun evading between launch and hit phases - re-check now
+    if (Creature* creatureTarget = unit->ToCreature())
+        if (creatureTarget->IsEvadingAttacks())
+            return SPELL_MISS_EVADE;
+
     // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
     if (m_spellInfo->Speed && unit->IsImmunedToSpell(m_spellInfo, m_caster))
         return SPELL_MISS_IMMUNE;
