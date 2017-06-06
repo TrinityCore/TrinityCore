@@ -2277,8 +2277,8 @@ void SmartScript::ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, ui
     // We may want to execute action rarely and because of this if condition is not fulfilled the action will be rechecked in a long time
     if (sConditionMgr->IsObjectMeetingSmartEventConditions(e.entryOrGuid, e.event_id, e.source_type, unit, GetBaseObject()))
     {
-        ProcessAction(e, unit, var0, var1, bvar, spell, gob, varString);
         RecalcTimer(e, min, max);
+        ProcessAction(e, unit, var0, var1, bvar, spell, gob, varString);
     }
     else
         RecalcTimer(e, std::min<uint32>(min, 5000), std::min<uint32>(min, 5000));
