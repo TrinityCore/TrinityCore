@@ -113,6 +113,8 @@ bool PlayerbotAIConfig::Initialize()
     randomBotNonCombatStrategies = config.GetStringDefault("AiPlayerbot.RandomBotNonCombatStrategies", "+grind,+move random");
 	combatStrategies = config.GetStringDefault("AiPlayerbot.CombatStrategies", "+custom::say");
 	nonCombatStrategies = config.GetStringDefault("AiPlayerbot.NonCombatStrategies", "+custom::say,+loot");
+	combatStrategies = config.GetStringDefault("AiPlayerbot.CombatStrategies", "+custom::say");
+	nonCombatStrategies = config.GetStringDefault("AiPlayerbot.NonCombatStrategies", "+custom::say");
 
     commandPrefix = config.GetStringDefault("AiPlayerbot.CommandPrefix", "");
 

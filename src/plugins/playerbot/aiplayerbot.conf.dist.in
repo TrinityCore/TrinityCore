@@ -111,6 +111,8 @@ AiPlayerbot.RandomBotCombatStrategies = +racials
 AiPlayerbot.RandomBotNonCombatStrategies = +grind,+move random
 AiPlayerbot.CombatStrategies = +custom::say"
 AiPlayerbot.NonCombatStrategies = +custom::say,+loot
+AiPlayerbot.CombatStrategies = +custom::say
+AiPlayerbot.NonCombatStrategies = +custom::say
 
 # Create random bot characters automatically
 AiPlayerbot.RandomBotAutoCreate = 1
