@@ -31,7 +31,6 @@
 #include "DynamicTree.h"
 #include "GameObjectModel.h"
 #include "ObjectGuid.h"
-#include "IVMapManager.h"
 
 #include <bitset>
 #include <list>
@@ -161,7 +160,14 @@ struct LiquidData
 
 struct PositionFullTerrainStatus
 {
-    typedef VMAP::AreaAndLiquidData::AreaInfo AreaInfo;
+    struct AreaInfo
+    {
+        AreaInfo(int32 _adtId, int32 _rootId, int32 _groupId, uint32 _flags) : adtId(_adtId), rootId(_rootId), groupId(_groupId), mogpFlags(_flags) { }
+        int32 const adtId;
+        int32 const rootId;
+        int32 const groupId;
+        uint32 const mogpFlags;
+    };
 
     uint32 areaId;
     ZLiquidStatus liquidStatus;

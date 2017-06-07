@@ -2606,7 +2606,7 @@ void Map::GetFullTerrainStatusForPosition(float x, float y, float z, PositionFul
     VMAP::AreaAndLiquidData vmapData;
     vmgr->getAreaAndLiquidData(GetId(), x, y, z, reqLiquidType, vmapData);
     if (vmapData.areaInfo)
-        data.areaInfo.emplace(*vmapData.areaInfo);
+        data.areaInfo = boost::in_place(vmapData.areaInfo->adtId, vmapData.areaInfo->rootId, vmapData.areaInfo->groupId, vmapData.areaInfo->mogpFlags);
 
     GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y);
     float mapHeight = gmap->getHeight(x, y);
@@ -2662,7 +2662,7 @@ void Map::GetFullTerrainStatusForPosition(float x, float y, float z, PositionFul
             }
         }
 
-        data.liquidInfo.emplace();
+        data.liquidInfo = boost::in_place();
         data.liquidInfo->level = vmapData.liquidInfo->level;
         data.liquidInfo->depth_level = vmapData.floorZ;
         data.liquidInfo->entry = liquidType;
