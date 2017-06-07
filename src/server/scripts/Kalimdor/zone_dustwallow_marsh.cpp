@@ -120,17 +120,6 @@ public:
             me->RestoreFaction();
         }
 
-        void AttackedBy(Unit* pAttacker) override
-        {
-            if (me->GetVictim())
-                return;
-
-            if (me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
-
         void DamageTaken(Unit* pDoneBy, uint32 &Damage) override
         {
             if (Damage > me->GetHealth() || me->HealthBelowPctDamaged(20, Damage))
