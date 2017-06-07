@@ -278,11 +278,11 @@ std::vector<uint8> RealmList::GetRealmEntryJSON(Battlenet::RealmHandle const& id
 
             std::string json = "JamJSONRealmEntry:" + JSON::Serialize(realmEntry);
 
-            uLong compressedLength = compressBound(json.length());
+            uLong compressedLength = compressBound(uLong(json.length()));
             compressed.resize(compressedLength + 4);
-            *reinterpret_cast<uint32*>(compressed.data()) = json.length() + 1;
+            *reinterpret_cast<uint32*>(compressed.data()) = uint32(json.length() + 1);
 
-            if (compress(compressed.data() + 4, &compressedLength, reinterpret_cast<uint8 const*>(json.c_str()), json.length() + 1) == Z_OK)
+            if (compress(compressed.data() + 4, &compressedLength, reinterpret_cast<uint8 const*>(json.c_str()), uLong(json.length() + 1)) == Z_OK)
                 compressed.resize(compressedLength + 4);
             else
                 compressed.clear();
@@ -337,12 +337,12 @@ std::vector<uint8> RealmList::GetRealmList(uint32 build, std::string const& subR
 
     std::string json = "JSONRealmListUpdates:" + JSON::Serialize(realmList);
 
-    uLong compressedLength = compressBound(json.length());
+    uLong compressedLength = compressBound(uLong(json.length()));
     std::vector<uint8> compressed;
     compressed.resize(4 + compressedLength);
-    *reinterpret_cast<uint32*>(compressed.data()) = json.length() + 1;
+    *reinterpret_cast<uint32*>(compressed.data()) = uint32(json.length() + 1);
 
-    compress(compressed.data() + 4, &compressedLength, reinterpret_cast<uint8 const*>(json.c_str()), json.length() + 1);
+    compress(compressed.data() + 4, &compressedLength, reinterpret_cast<uint8 const*>(json.c_str()), uLong(json.length() + 1));
 
     compressed.resize(compressedLength + 4);
 
@@ -367,12 +367,12 @@ uint32 RealmList::JoinRealm(uint32 realmAddress, uint32 build, boost::asio::ip::
 
         std::string json = "JSONRealmListServerIPAddresses:" + JSON::Serialize(serverAddresses);
 
-        uLong compressedLength = compressBound(json.length());
+        uLong compressedLength = compressBound(uLong(json.length()));
         std::vector<uint8> compressed;
         compressed.resize(4 + compressedLength);
-        *reinterpret_cast<uint32*>(compressed.data()) = json.length() + 1;
+        *reinterpret_cast<uint32*>(compressed.data()) = uint32(json.length() + 1);
 
-        if (compress(compressed.data() + 4, &compressedLength, reinterpret_cast<uint8 const*>(json.c_str()), json.length() + 1) != Z_OK)
+        if (compress(compressed.data() + 4, &compressedLength, reinterpret_cast<uint8 const*>(json.c_str()), uLong(json.length() + 1)) != Z_OK)
             return ERROR_UTIL_SERVER_FAILED_TO_SERIALIZE_RESPONSE;
 
         BigNumber serverSecret;

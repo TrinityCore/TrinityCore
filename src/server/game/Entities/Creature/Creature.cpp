@@ -1283,7 +1283,7 @@ float Creature::_GetHealthMod(int32 Rank)
     }
 }
 
-void Creature::LowerPlayerDamageReq(uint32 unDamage)
+void Creature::LowerPlayerDamageReq(uint64 unDamage)
 {
     if (m_PlayerDamageReq)
         m_PlayerDamageReq > unDamage ? m_PlayerDamageReq -= unDamage : m_PlayerDamageReq = 0;

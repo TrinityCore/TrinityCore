@@ -2253,7 +2253,7 @@ enum Targets
     TOTAL_SPELL_TARGETS
 };
 
-enum SpellMissInfo
+enum SpellMissInfo : uint8
 {
     SPELL_MISS_NONE                    = 0,
     SPELL_MISS_MISS                    = 1,

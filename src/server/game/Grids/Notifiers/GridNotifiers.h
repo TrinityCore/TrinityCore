@@ -770,7 +770,7 @@ namespace Trinity
         private:
             Unit const* i_obj;
             float i_range;
-            uint32 i_hp;
+            uint64 i_hp;
     };
 
     class FriendlyCCedInRange

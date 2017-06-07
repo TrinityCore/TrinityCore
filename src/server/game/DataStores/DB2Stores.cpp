@@ -1412,7 +1412,7 @@ EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8
     if (itr != _emoteTextSounds.end())
         return itr->second;
 
-    itr = _emoteTextSounds.find(EmotesTextSoundContainer::key_type(emote, race, gender, 0));
+    itr = _emoteTextSounds.find(EmotesTextSoundContainer::key_type(emote, race, gender, uint8(0)));
     if (itr != _emoteTextSounds.end())
         return itr->second;
 

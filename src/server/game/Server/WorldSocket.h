@@ -36,7 +36,7 @@ class EncryptablePacket;
 class WorldPacket;
 class WorldSession;
 enum ConnectionType : int8;
-enum OpcodeClient : uint32;
+enum OpcodeClient : uint16;
 
 namespace WorldPackets
 {
