@@ -284,7 +284,7 @@ class spell_call_the_wind : public SpellScriptLoader
                     return;
 
                 targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_CALL_THE_WIND_AURA));
-                Trinity::Containers::RandomResizeList(targets, 1);
+                Trinity::Containers::RandomResize(targets, 1);
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

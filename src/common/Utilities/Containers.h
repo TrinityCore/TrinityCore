@@ -54,7 +54,7 @@ namespace Trinity
         }
 
         template<class C>
-        void RandomResizeList(C& container, std::size_t requestedSize)
+        void RandomResize(C& container, std::size_t requestedSize)
         {
             uint32 currentSize = uint32(Size(container));
             while (currentSize > requestedSize)
@@ -67,7 +67,7 @@ namespace Trinity
         }
 
         template<class C, class Predicate>
-        void RandomResizeList(C& container, Predicate&& predicate, std::size_t requestedSize)
+        void RandomResize(C& container, Predicate&& predicate, std::size_t requestedSize)
         {
             //! First use predicate filter
             C containerCopy;
@@ -75,7 +75,7 @@ namespace Trinity
             if (requestedSize)
             {
                 std::copy_if(std::begin(container), std::end(container), std::inserter(containerCopy, std::end(containerCopy)), predicate);
-                RandomResizeList(containerCopy, requestedSize);
+                RandomResize(containerCopy, requestedSize);
             }
 
             container = std::move(containerCopy);
@@ -87,7 +87,7 @@ namespace Trinity
          * Note: container cannot be empty
          */
         template<class C>
-        inline auto SelectRandomContainerElement(C const& container) -> decltype(*std::begin(container)) const&
+        inline auto SelectRandomContainerElement(C const& container) -> typename std::add_const<decltype(*std::begin(container))>::type&
         {
             auto it = std::begin(container);
             std::advance(it, urand(0, uint32(Size(container)) - 1));
@@ -104,7 +104,7 @@ namespace Trinity
          * Note: container cannot be empty
          */
         template<class C>
-        auto SelectRandomWeightedContainerElement(C const& container, std::vector<double> weights) -> decltype(std::begin(container))
+        inline auto SelectRandomWeightedContainerElement(C const& container, std::vector<double> weights) -> decltype(std::begin(container))
         {
             auto it = std::begin(container);
             std::advance(it, urandweighted(weights.size(), weights.data()));

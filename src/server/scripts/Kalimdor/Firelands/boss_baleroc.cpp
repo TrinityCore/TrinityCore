@@ -436,7 +436,7 @@ class spell_countdown_p1 : public SpellScriptLoader
                     return;
                 }
 
-                Trinity::Containers::RandomResizeList(targets, 2);
+                Trinity::Containers::RandomResize(targets, 2);
                 target1 = targets.front();
                 target2 = targets.back();
             }
@@ -614,7 +614,7 @@ class spell_shards_of_torment : public SpellScriptLoader
                 if ((targets.size() > numtargets) && GetCaster()->GetVictim())
                     targets.remove(GetCaster()->ToCreature()->GetVictim()); //Safe to remove tank from list
 
-                Trinity::Containers::RandomResizeList(targets, numtargets);
+                Trinity::Containers::RandomResize(targets, numtargets);
             }
 
             void Register() override

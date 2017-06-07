@@ -599,7 +599,7 @@ public:
 
         void SelectRandom(std::list<WorldObject*>& targets)
         {
-            Trinity::Containers::RandomResizeList(targets, 1);
+            Trinity::Containers::RandomResize(targets, 1);
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)

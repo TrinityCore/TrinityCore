@@ -972,7 +972,7 @@ public:
 
         void FilterTargets(std::list<WorldObject*>& targets)
         {
-            Trinity::Containers::RandomResizeList(targets, 1);
+            Trinity::Containers::RandomResize(targets, 1);
         }
 
         void Register()

@@ -483,7 +483,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             if (e.action.cast.targetsLimit > 0 && targets->size() > e.action.cast.targetsLimit)
-                Trinity::Containers::RandomResizeList(*targets, e.action.cast.targetsLimit);
+                Trinity::Containers::RandomResize(*targets, e.action.cast.targetsLimit);
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
@@ -556,7 +556,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             if (e.action.cast.targetsLimit > 0 && targets->size() > e.action.cast.targetsLimit)
-                Trinity::Containers::RandomResizeList(*targets, e.action.cast.targetsLimit);
+                Trinity::Containers::RandomResize(*targets, e.action.cast.targetsLimit);
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
