@@ -471,6 +471,11 @@ struct TrinityString
     StringVector Content;
 };
 
+struct QuestGreetingLocale
+{
+    StringVector greeting;
+};
+
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
 typedef std::unordered_map<ObjectGuid::LowType, CreatureData> CreatureDataContainer;
 typedef std::unordered_map<ObjectGuid::LowType, GameObjectData> GameObjectDataContainer;
@@ -484,6 +489,7 @@ typedef std::unordered_map<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef std::unordered_map<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef std::unordered_map<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
+typedef std::unordered_map<uint32, QuestGreetingLocale> QuestGreetingLocaleContainer;
 
 typedef std::unordered_map<uint32, TrinityString> TrinityStringContainer;
 
@@ -1033,6 +1039,7 @@ class TC_GAME_API ObjectMgr
         void LoadPageTextLocales();
         void LoadGossipMenuItemsLocales();
         void LoadPointOfInterestLocales();
+        void LoadQuestGreetingsLocales();
         void LoadInstanceTemplate();
         void LoadInstanceEncounters();
         void LoadMailLevelRewards();
@@ -1224,6 +1231,12 @@ class TC_GAME_API ObjectMgr
         {
             PointOfInterestLocaleContainer::const_iterator itr = _pointOfInterestLocaleStore.find(id);
             if (itr == _pointOfInterestLocaleStore.end()) return nullptr;
+            return &itr->second;
+        }
+        QuestGreetingLocale const* GetQuestGreetingLocale(uint32 id) const
+        {
+            QuestGreetingLocaleContainer::const_iterator itr = _questGreetingLocaleStore.find(id);
+            if (itr == _questGreetingLocaleStore.end()) return nullptr;
             return &itr->second;
         }
 
@@ -1496,6 +1509,7 @@ class TC_GAME_API ObjectMgr
         PageTextLocaleContainer _pageTextLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
+        QuestGreetingLocaleContainer _questGreetingLocaleStore;
 
         TrinityStringContainer _trinityStringStore;
 

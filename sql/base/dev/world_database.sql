@@ -2735,6 +2735,23 @@ CREATE TABLE `quest_greeting` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `quest_greeting_locale`
+--
+
+DROP TABLE IF EXISTS `quest_greeting_locale`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `quest_greeting_locale` (
+  `ID` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+  `Type` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  `locale` VARCHAR(4) NOT NULL,
+  `Greeting` TEXT,
+  `VerifiedBuild` SMALLINT(5) DEFAULT '0',
+  PRIMARY KEY (`ID`,`Type`)
+) ENGINE=MYISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `quest_mail_sender`
 --
 
