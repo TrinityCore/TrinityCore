@@ -25,6 +25,9 @@ CollectSourceFiles(
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/protoPCH.h)
   set(PRIVATE_PCH_SOURCE PrecompiledHeaders/protoPCH.cpp)
+  if (MSVC)
+    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/protoPCH.cpp)
+  endif (MSVC)
 endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
@@ -32,7 +35,6 @@ GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DTRINITY_API_EXPORT_PROTO)
 
 add_library(proto
-  ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
 )
 
