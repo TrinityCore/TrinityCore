@@ -32,6 +32,7 @@
 
 enum HunterSpells
 {
+    SPELL_HUNTER_ARCANE_SHOT_FOCUS                  = 187675,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
@@ -111,6 +112,43 @@ class spell_hun_ancient_hysteria : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_hun_ancient_hysteria_SpellScript();
+        }
+};
+
+// 185358 - Arcane Shot
+class spell_hun_arcane_shot : public SpellScriptLoader
+{
+    public:
+        spell_hun_arcane_shot() : SpellScriptLoader("spell_hun_arcane_shot") { }
+
+        class spell_hun_arcane_shot_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_arcane_shot_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_HUNTER_ARCANE_SHOT_FOCUS });
+            }
+
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleOnHit()
+            {
+                GetCaster()->CastSpell((Unit*)nullptr, SPELL_HUNTER_ARCANE_SHOT_FOCUS, true);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_hun_arcane_shot_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_arcane_shot_SpellScript();
         }
 };
 
