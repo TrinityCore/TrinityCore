@@ -35,7 +35,7 @@
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
 UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE), _lastShootPos()
 {
-    for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
+    for (int8 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
         if (uint32 seatId = _vehicleInfo->SeatID[i])
             if (VehicleSeatEntry const* veSeat = sVehicleSeatStore.LookupEntry(seatId))
