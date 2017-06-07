@@ -125,7 +125,7 @@ public:
             { "points_of_interest",            rbac::RBAC_PERM_COMMAND_RELOAD_POINTS_OF_INTEREST,               true,  &HandleReloadPointsOfInterestCommand,           "" },
             { "prospecting_loot_template",     rbac::RBAC_PERM_COMMAND_RELOAD_PROSPECTING_LOOT_TEMPLATE,        true,  &HandleReloadLootTemplatesProspectingCommand,   "" },
             { "quest_greeting",                rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING,                   true,  &HandleReloadQuestGreetingCommand,              "" },
-            { "quest_greeting_locale",         rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING_LOCALE,            true,  &HandleReloadQuestGreetingLocaleCommand,        "" },
+            { "quest_greeting_locale",         rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING_LOCALE,            true,  &HandleReloadLocalesQuestGreetingCommand,       "" },
             { "quest_poi",                     rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_POI,                        true,  &HandleReloadQuestPOICommand,                   "" },
             { "quest_template",                rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_TEMPLATE,                   true,  &HandleReloadQuestTemplateCommand,              "" },
             { "rbac",                          rbac::RBAC_PERM_COMMAND_RELOAD_RBAC,                             true,  &HandleReloadRBACCommand,                       "" },
@@ -315,6 +315,7 @@ public:
         HandleReloadLocalesPageTextCommand(handler, "a");
         HandleReloadLocalesPointsOfInterestCommand(handler, "a");
         HandleReloadLocalesQuestCommand(handler, "a");
+        HandleReloadLocalesQuestGreetingCommand(handler, "");
         return true;
     }
 
@@ -529,7 +530,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadQuestGreetingLocaleCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadLocalesQuestGreetingCommand(ChatHandler* handler, const char* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading Quest Greeting locales...");
         sObjectMgr->LoadQuestGreetingsLocales();
