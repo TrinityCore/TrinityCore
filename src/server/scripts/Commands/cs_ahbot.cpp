@@ -142,12 +142,35 @@ public:
     static bool HandleAHBotRebuildCommand(ChatHandler* /*handler*/, const char* args)
     {
         char* arg = strtok((char*)args, " ");
+        char* ahMapIdStr = strtok(NULL, " ");
+        uint32 ahMapID = MAX_AUCTION_HOUSE_TYPE;
 
         bool all = false;
         if (arg && strcmp(arg, "all") == 0)
             all = true;
 
-        sAuctionBot->Rebuild(all);
+        if (ahMapIdStr)
+        {
+            switch (ahMapIdStr[0])
+            {
+                case 'n':
+                case 'N':
+                    ahMapID = AUCTION_HOUSE_NEUTRAL;
+                    break;
+                case 'a':
+                case 'A':
+                    ahMapID = AUCTION_HOUSE_ALLIANCE;
+                    break;
+                case 'h':
+                case 'H':
+                    ahMapID = AUCTION_HOUSE_HORDE;
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        sAuctionBot->Rebuild(all, ahMapID);
         return true;
     }
 

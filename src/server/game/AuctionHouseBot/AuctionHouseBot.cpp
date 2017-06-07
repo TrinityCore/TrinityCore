@@ -500,10 +500,13 @@ void AuctionHouseBot::PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo)
     }
 }
 
-void AuctionHouseBot::Rebuild(bool all)
+void AuctionHouseBot::Rebuild(bool all, uint32 houseId)
 {
     for (uint32 i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
     {
+        if ((houseId != MAX_AUCTION_HOUSE_TYPE) && (i != houseId))
+            continue; // if specific house ID sent, increment until we get a match
+
         AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(AuctionHouseType(i));
         for (AuctionHouseObject::AuctionEntryMap::const_iterator itr = auctionHouse->GetAuctionsBegin(); itr != auctionHouse->GetAuctionsEnd(); ++itr)
             if (!itr->second->owner || sAuctionBotConfig->IsBotChar(itr->second->owner)) // ahbot auction

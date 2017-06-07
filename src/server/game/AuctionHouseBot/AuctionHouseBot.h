@@ -298,7 +298,7 @@ public:
     void SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY]);
     void SetItemsAmountForQuality(AuctionQuality quality, uint32 val);
     void ReloadAllConfig();
-    void Rebuild(bool all);
+    void Rebuild(bool all, uint32 houseId);
 
     void PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo);
 private:

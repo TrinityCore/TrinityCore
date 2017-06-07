@@ -1,0 +1,2 @@
+DELETE FROM `command` WHERE `name` = 'ahbot rebuild';
+INSERT INTO `command` (`name`, `permission`, `help`) values('ahbot rebuild','791','Syntax: .ahbot rebuild [all] [[a]lliance [h]orde [n]eutral]\r\n\r\nExpire all actual auction of ahbot except bided by player. Binded auctions included to expire if \"all\" option used. If one of \"a\" \"h\" or \"n\" option is used, only the auctions of that house will expire otherwise all houses will expire. Ahbot re-fill auctions base at current settings then.');
