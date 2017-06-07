@@ -5874,7 +5874,10 @@ void ObjectMgr::LoadQuestGreetingsLocales()
     //                                               0     1      2       3
     QueryResult result = WorldDatabase.Query("SELECT ID, Type, Locale, Greeting FROM quest_greeting_locale");
     if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 quest_greeting locales. DB table `quest_greeting_locale` is empty.");
         return;
+    }
 
     do
     {
