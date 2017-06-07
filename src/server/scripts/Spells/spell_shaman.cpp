@@ -609,6 +609,11 @@ class spell_sha_fire_nova : public SpellScriptLoader
                     return SPELL_FAILED_CUSTOM_ERROR;
                 }
 
+                float distance = 30.0f;
+                Creature* totem = GetCaster()->GetMap()->GetCreature(GetCaster()->m_SummonSlot[1]);
+                if (GetCaster()->GetExactDist2d(totem->GetPositionX(), totem->GetPositionY()) > distance)
+                    return SPELL_FAILED_OUT_OF_RANGE;
+
                 return SPELL_CAST_OK;
             }
 
@@ -619,7 +624,7 @@ class spell_sha_fire_nova : public SpellScriptLoader
                 {
                     uint8 rank = GetSpellInfo()->GetRank();
                     if (totem->IsTotem())
-                        caster->CastSpell(totem, sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1, rank), true);
+                        totem->CastSpell(totem, sSpellMgr->GetSpellWithRank(SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1, rank), true, nullptr, nullptr, caster->GetGUID());
                 }
             }
 
