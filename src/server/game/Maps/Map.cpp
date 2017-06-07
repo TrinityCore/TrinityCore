@@ -2618,9 +2618,13 @@ void Map::GetFullTerrainStatusForPosition(float x, float y, float z, PositionFul
             areaEntry = sAreaTableStore.LookupEntry(wmoEntry->areaId);
 
     if (areaEntry)
+    {
+        data.floorZ = vmapData.floorZ;
         data.areaId = areaEntry->ID;
+    }
     else
     {
+        data.floorZ = mapHeight;
         if (gmap)
             data.areaId = gmap->getArea(x, y);
         else

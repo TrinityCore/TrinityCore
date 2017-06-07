@@ -620,6 +620,13 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual float GetStationaryZ() const { return GetPositionZ(); }
         virtual float GetStationaryO() const { return GetOrientation(); }
 
+        float GetFloorZ() const
+        {
+            if (!IsInWorld())
+                return m_staticFloorZ;
+            return std::max<float>(m_staticFloorZ, GetMap()->GetGameObjectFloor(GetPhaseMask(), GetPositionX(), GetPositionY(), GetPositionZ()));
+        }
+
     protected:
         std::string m_name;
         bool m_isActive;
@@ -632,6 +639,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual void ProcessPositionDataChanged(PositionFullTerrainStatus const& data);
         uint32 m_zoneId;
         uint32 m_areaId;
+        float m_staticFloorZ;
 
         //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
         //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!

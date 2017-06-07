@@ -1000,7 +1000,7 @@ void MovementInfo::OutDebug()
 
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
 m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(NULL),
-m_transport(NULL), m_zoneId(0), m_areaId(0), m_currMap(NULL), m_InstanceId(0),
+m_transport(NULL), m_zoneId(0), m_areaId(0), m_staticFloorZ(VMAP_INVALID_HEIGHT), m_currMap(NULL), m_InstanceId(0),
 m_phaseMask(PHASEMASK_NORMAL), m_notifyflags(0), m_executed_notifies(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
@@ -1087,6 +1087,7 @@ void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& da
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(m_areaId))
         if (area->zone)
             m_zoneId = area->zone;
+    m_staticFloorZ = data.floorZ;
 }
 
 void WorldObject::AddToWorld()
