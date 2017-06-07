@@ -620,12 +620,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual float GetStationaryZ() const { return GetPositionZ(); }
         virtual float GetStationaryO() const { return GetOrientation(); }
 
-        float GetFloorZ() const
-        {
-            if (!IsInWorld())
-                return m_staticFloorZ;
-            return std::max<float>(m_staticFloorZ, GetMap()->GetGameObjectFloor(GetPhaseMask(), GetPositionX(), GetPositionY(), GetPositionZ()));
-        }
+        float GetFloorZ() const;
 
     protected:
         std::string m_name;
