@@ -1043,6 +1043,8 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_DEATH_BONES_BG_OR_ARENA]        = sConfigMgr->GetBoolDefault("Death.Bones.BattlegroundOrArena", true);
 
     m_bool_configs[CONFIG_DIE_COMMAND_MODE] = sConfigMgr->GetBoolDefault("Die.Command.Mode", true);
+		
+	m_float_configs[CONFIG_GAMETIME_SCALE] = sConfigMgr->GetFloatDefault("Gametime.Scale", 1.0f);
 
     m_float_configs[CONFIG_THREAT_RADIUS] = sConfigMgr->GetFloatDefault("ThreatRadius", 60.0f);
 

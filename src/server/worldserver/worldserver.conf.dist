@@ -2318,6 +2318,13 @@ Death.Bones.BattlegroundOrArena = 1
 Die.Command.Mode = 1
 
 #
+#    Gametime.Scale
+#        Description: Sets the scale of the in-game day/night cycle.
+#        Default:     1
+
+Gametime.Scale = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################
