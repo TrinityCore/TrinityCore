@@ -5838,7 +5838,7 @@ void Spell::EffectUpdatePlayerPhase(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!unitTarget || (unitTarget->GetTypeId() != TYPEID_PLAYER && !unitTarget->IsPet()))
         return;
 
     unitTarget->UpdateAreaAndZonePhase();
