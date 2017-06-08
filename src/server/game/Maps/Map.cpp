@@ -2331,7 +2331,15 @@ float Map::GetWaterOrGroundLevel(uint32 phasemask, float x, float y, float z, fl
         LiquidData liquid_status;
 
         ZLiquidStatus res = GetLiquidStatus(x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status);
-        return res ? liquid_status.level : ground_z;
+        switch (res)
+        {
+            case LIQUID_MAP_ABOVE_WATER:
+                return std::max<float>(liquid_status.level, ground_z);
+            case LIQUID_MAP_NO_WATER:
+                return ground_z;
+            default:
+                return liquid_status.level;
+        }
     }
 
     return VMAP_INVALID_HEIGHT_VALUE;
@@ -2727,7 +2735,7 @@ bool Map::getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float 
 
 float Map::GetHeight(uint32 phasemask, float x, float y, float z, bool vmap/*=true*/, float maxSearchDist/*=DEFAULT_HEIGHT_SEARCH*/) const
 {
-    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phasemask));
+    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), GetGameObjectFloor(phasemask, x, y, z, maxSearchDist));
 }
 
 bool Map::IsInWater(float x, float y, float pZ, LiquidData* data) const
