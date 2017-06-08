@@ -31,9 +31,9 @@ website at [TrinityCore.org](https://www.trinitycore.org).
 
 + Platform: Linux, Windows or Mac
 + Processor with SSE2 support
-+ Boost ≥ 1.59 (1.63 recommended on windows)
-+ MySQL ≥ 5.3.0
-+ CMake ≥ 3.3.2 / 3.0.2 (Windows / Linux)
++ Boost ≥ 1.55 (Linux) 1.63 (Windows)
++ MySQL ≥ 5.1.0
++ CMake ≥ 3.0.2 (Linux) 3.3.2 (Windows)
 + OpenSSL = 1.0.x
 + GCC ≥ 4.9.2 (Linux only) (clang 3.5 heavy recommended)
 + MS Visual Studio ≥ 14 (2015) (Windows only)
