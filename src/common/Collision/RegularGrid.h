@@ -66,7 +66,7 @@ public:
 
     void remove(const T& value)
     {
-        for (MemberTable::value_type& p : Trinity::Containers::MapEqualRange(memberTable, &value))
+        for (typename MemberTable::value_type& p : Trinity::Containers::MapEqualRange(memberTable, &value))
             p.second->remove(value);
         // Remove the member
         memberTable.erase(&value);
