@@ -1091,8 +1091,11 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             {
                 targets.remove_if([](WorldObject* obj) -> bool
                 {
-                    // SPELL_ATTR3_ONLY_TARGET_PLAYERS present on the spell, we can safely cast to Player if not corpse
-                    return obj->GetTypeId() == TYPEID_CORPSE || ASSERT_NOTNULL(obj->ToPlayer())->IsGameMaster();
+                    // remove GMs
+                    if (Player* player = obj->ToPlayer())
+                        return player->IsGameMaster();
+
+                    return false;
                 });
 
                 _targetCount = targets.size();
