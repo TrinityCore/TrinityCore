@@ -143,7 +143,7 @@ enum PlayerUnderwaterState
     UNDERWATER_INWATER                  = 0x01,             // terrain type is water and player is afflicted by it
     UNDERWATER_INLAVA                   = 0x02,             // terrain type is lava and player is afflicted by it
     UNDERWATER_INSLIME                  = 0x04,             // terrain type is lava and player is afflicted by it
-    UNDERWARER_INDARKWATER              = 0x08,             // terrain type is dark water and player is afflicted by it
+    UNDERWATER_INDARKWATER              = 0x08,             // terrain type is dark water and player is afflicted by it
 
     UNDERWATER_EXIST_TIMERS             = 0x10
 };
