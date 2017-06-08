@@ -1060,13 +1060,6 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sindragosa_s_fury_SpellScript);
 
-        public:
-            spell_sindragosa_s_fury_SpellScript()
-            {
-                _targetCount = 0;
-            }
-
-        private:
             bool Load() override
             {
                 // This script should execute only in Icecrown Citadel
@@ -1094,8 +1087,8 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             {
                 targets.remove_if([](WorldObject* obj) -> bool
                 {
-                    // SPELL_ATTR3_ONLY_TARGET_PLAYERS present on the spell, we can safely cast to Player
-                    return ASSERT_NOTNULL(obj->ToPlayer())->IsGameMaster();
+                    // SPELL_ATTR3_ONLY_TARGET_PLAYERS present on the spell, we can safely cast to Player if not corpse
+                    return obj->GetTypeId() == TYPEID_CORPSE || ASSERT_NOTNULL(obj->ToPlayer())->IsGameMaster();
                 });
 
                 _targetCount = targets.size();
@@ -1133,7 +1126,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_sindragosa_s_fury_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
 
-            uint32 _targetCount;
+            uint32 _targetCount = 0;
         };
 
         SpellScript* GetSpellScript() const override
