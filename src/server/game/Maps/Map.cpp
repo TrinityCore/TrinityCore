@@ -2333,12 +2333,12 @@ float Map::GetWaterOrGroundLevel(uint32 phasemask, float x, float y, float z, fl
         ZLiquidStatus res = GetLiquidStatus(x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status);
         switch (res)
         {
-	        case LIQUID_MAP_ABOVE_WATER:
-		        return std::max<float>(liquid_status.level, ground_z);
-	        case LIQUID_MAP_NO_WATER:
-		        return ground_z;
-	        default:
-		        return liquid_status.level;
+            case LIQUID_MAP_ABOVE_WATER:
+                return std::max<float>(liquid_status.level, ground_z);
+            case LIQUID_MAP_NO_WATER:
+                return ground_z;
+            default:
+                return liquid_status.level;
         }
     }
 
