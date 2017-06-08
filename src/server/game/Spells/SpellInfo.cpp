@@ -2813,6 +2813,13 @@ void SpellInfo::_LoadImmunityInfo()
                 break;
             case 49039: // Lichborne, don't allow normal stuns
                 break;
+            case 1044: // Hand of Freedom
+                _allowedMechanicMask |=
+                    (1 << MECHANIC_STUN) |
+                    (1 << MECHANIC_FREEZE) |
+                    (1 << MECHANIC_SAPPED) |
+                    (1 << MECHANIC_SLEEP);
+                break;
             default:
                 _allowedMechanicMask |= (1 << MECHANIC_STUN);
                 break;
