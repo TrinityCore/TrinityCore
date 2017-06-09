@@ -187,7 +187,7 @@ namespace WorldPackets
         class QuestUpdateAddCredit final : public ServerPacket
         {
         public:
-            QuestUpdateAddCredit() : ServerPacket(SMSG_QUEST_UPDATE_ADD_CREDIT, 16+4+4+2+2+1) { }
+            QuestUpdateAddCredit() : ServerPacket(SMSG_QUEST_UPDATE_ADD_CREDIT, 16 + 4 + 4 + 2 + 2 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -196,6 +196,18 @@ namespace WorldPackets
             int32 QuestID       = 0;
             uint16 Count        = 0;
             uint16 Required     = 0;
+            uint8 ObjectiveType = 0;
+        };
+
+        class QuestUpdateAddCreditSimple final : public ServerPacket
+        {
+        public:
+            QuestUpdateAddCreditSimple() : ServerPacket(SMSG_QUEST_UPDATE_ADD_CREDIT_SIMPLE, 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 QuestID = 0;
+            int32 ObjectID = 0;
             uint8 ObjectiveType = 0;
         };
 
