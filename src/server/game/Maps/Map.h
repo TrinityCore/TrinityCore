@@ -520,9 +520,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RemoveGameObjectModel(const GameObjectModel& model) { _dynamicTree.remove(model); }
         void InsertGameObjectModel(const GameObjectModel& model) { _dynamicTree.insert(model); }
         bool ContainsGameObjectModel(const GameObjectModel& model) const { return _dynamicTree.contains(model);}
-        float GetGameObjectFloor(uint32 phasemask, float x, float y, float z, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const
+        float GetGameObjectFloor(std::set<uint32> phases, float x, float y, float z, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const
         {
-            return _dynamicTree.getHeight(x, y, z, maxSearchDist, phasemask);
+            return _dynamicTree.getHeight(x, y, z, maxSearchDist, phases);
         }
         bool getObjectHitPos(std::set<uint32> const& phases, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist);
 

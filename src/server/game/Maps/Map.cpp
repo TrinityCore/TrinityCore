@@ -2250,7 +2250,7 @@ float Map::GetWaterOrGroundLevel(std::set<uint32> const& phases, float x, float 
 
         LiquidData liquid_status;
 
-        ZLiquidStatus res = getLiquidStatus(x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status);
+        ZLiquidStatus res = GetLiquidStatus(x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status);
         switch (res)
         {
             case LIQUID_MAP_ABOVE_WATER:

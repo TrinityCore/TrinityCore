@@ -101,8 +101,7 @@ class TC_GAME_API Object
         bool IsInWorld() const { return m_inWorld; }
 
         virtual void AddToWorld();
-        void AddToWorld() override;
-        void RemoveFromWorld() override;
+        virtual void RemoveFromWorld();
 
         ObjectGuid GetGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
         PackedGuid const& GetPackGUID() const { return m_PackGUID; }
@@ -457,6 +456,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual void Update (uint32 /*time_diff*/) { }
 
         void _Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32 phaseMask);
+        void AddToWorld() override;
         virtual void RemoveFromWorld() override;
 
         void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;
