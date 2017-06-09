@@ -23,7 +23,7 @@
 class TC_GAME_API AreaBoundary
 {
     public:
-        bool IsWithinBoundary(Position const* pos) const { return (IsWithinBoundaryArea(pos) != _isInvertedBoundary); }
+        bool IsWithinBoundary(Position const* pos) const { return pos && (IsWithinBoundaryArea(pos) != _isInvertedBoundary); }
         bool IsWithinBoundary(Position const& pos) const { return IsWithinBoundary(&pos); }
 
         virtual ~AreaBoundary() { }
@@ -148,6 +148,19 @@ class TC_GAME_API ZRangeBoundary : public AreaBoundary
 
     private:
         float const _minZ, _maxZ;
+};
+
+class TC_GAME_API BoundaryUnionBoundary : public AreaBoundary
+{
+    public:
+        BoundaryUnionBoundary(AreaBoundary const* b1, AreaBoundary const* b2, bool isInverted = false);
+
+    protected:
+        bool IsWithinBoundaryArea(Position const* pos) const override;
+
+    private:
+        AreaBoundary const* const _b1;
+        AreaBoundary const* const _b2;
 };
 
 #endif //TRINITY_AREA_BOUNDARY_H
