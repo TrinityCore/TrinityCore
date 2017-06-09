@@ -839,6 +839,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_UPDATE_CLIENT_SETTINGS,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPDATE_MISSILE_TRAJECTORY,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateMissileTrajectory);
     DEFINE_HANDLER(CMSG_UPDATE_RAID_TARGET,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateRaidTargetOpcode);
+    DEFINE_HANDLER(CMSG_UPDATE_SPELL_VISUAL,                                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPDATE_VAS_PURCHASE_STATES,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST,                  STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateListedAuctionableTokens);
     DEFINE_HANDLER(CMSG_UPDATE_WOW_TOKEN_COUNT,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
