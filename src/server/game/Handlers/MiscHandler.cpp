@@ -511,11 +511,12 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
                 if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                 {
-                    for (uint8 j = 0; j < qInfo->Objectives.size(); ++j)
+                    for (QuestObjective const& obj : qInfo->Objectives)
                     {
-                        if (qInfo->Objectives[j].Type == QUEST_OBJECTIVE_AREATRIGGER)
+                        if (obj.Type == QUEST_OBJECTIVE_AREATRIGGER && !player->IsQuestObjectiveComplete(obj))
                         {
-                            player->SetQuestObjectiveData(qInfo, j, int32(true));
+                            player->SetQuestObjectiveData(obj, 1);
+                            player->SendQuestUpdateAddCreditSimple(obj);
                             break;
                         }
                     }
