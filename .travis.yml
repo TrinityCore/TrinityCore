@@ -26,11 +26,8 @@ addons:
       - libzmq3-dev
 
 before_install:
-  - wget -O - http://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-  - echo "yes" | sudo add-apt-repository 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main'
   - git config user.email "travis@build.bot" && git config user.name "Travis CI"
   - git tag -a -m "Travis build" init
-  - export CC=clang-3.9 CXX=clang++-3.9
 
 install:
   - mysql -uroot -e 'create database test_mysql;'
