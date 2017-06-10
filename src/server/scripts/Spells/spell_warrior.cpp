@@ -69,6 +69,7 @@ enum WarriorSpells
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
+    SPELL_WARRIOR_TRAUMA_EFFECT                     = 215537,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_1        = 46859,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_2        = 46860,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
@@ -1112,6 +1113,43 @@ class spell_warr_sword_and_board : public SpellScriptLoader
         }
 };
 
+// 215538 - Trauma
+class spell_warr_trauma : public SpellScriptLoader
+{
+public:
+    spell_warr_trauma() : SpellScriptLoader("spell_warr_trauma") { }
+
+    class spell_warr_trauma_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_trauma_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_WARRIOR_TRAUMA_EFFECT });
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            Unit* target = eventInfo.GetActionTarget());
+            //Get the Remaining Damage from the aura (if exist)
+            int32 remainingDamage = target->GetRemainingPeriodicAmount(target->GetGUID(), SPELL_WARRIOR_TRAUMA_EFFECT, SPELL_AURA_PERIODIC_DAMAGE);
+            //Get 25% of damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
+            int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_TRAUMA_EFFECT)->GetMaxTicks(DIFFICULTY_NONE)) + remainingDamage;
+            GetCaster()->CastCustomSpell(SPELL_WARRIOR_TRAUMA_EFFECT, SPELLVALUE_BASE_POINT0, damage, target, true);
+        }
+
+        void Register() override
+        {
+            OnEffectProc += AuraEffectProcFn(spell_warr_trauma_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_warr_trauma_AuraScript();
+    }
+};
+
 // 28845 - Cheat Death
 class spell_warr_t3_prot_8p_bonus : public SpellScriptLoader
 {
@@ -1350,6 +1388,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_sudden_death();
     new spell_warr_sweeping_strikes();
     new spell_warr_sword_and_board();
+    new spell_warr_trauma();
     new spell_warr_t3_prot_8p_bonus();
     new spell_warr_victorious_state();
     new spell_warr_victory_rush();
