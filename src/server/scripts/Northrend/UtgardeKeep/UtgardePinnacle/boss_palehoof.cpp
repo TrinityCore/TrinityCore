@@ -562,7 +562,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             if (Creature* palehoof = instance->GetCreature(DATA_GORTOK_PALEHOOF))
             {
