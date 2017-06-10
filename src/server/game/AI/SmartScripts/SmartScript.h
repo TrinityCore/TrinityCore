@@ -107,23 +107,12 @@ class TC_GAME_API SmartScript
         CounterMap mCounterList;
 
     private:
+
         void IncPhase(uint32 p);
-        void DecPhase(uint32 p)
-        {
-            if (p >= mEventPhase)
-                mEventPhase = 0;
-            else
-                mEventPhase -= p;
-        }
+        void DecPhase(uint32 p);
 
-        bool IsInPhase(uint32 p) const
-        {
-            if (mEventPhase == 0)
-                return false;
-            return ((1 << (mEventPhase - 1)) & p) != 0;
-        }
-
-        void SetPhase(uint32 p = 0) { mEventPhase = p; }
+        void SetPhase(uint32 p);
+        bool IsInPhase(uint32 p) const;
 
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;
