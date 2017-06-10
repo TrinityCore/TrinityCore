@@ -1543,7 +1543,7 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                Trinity::Containers::RandomResizeList(targets, 2);
+                Trinity::Containers::RandomResize(targets, 2);
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
