@@ -36,6 +36,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -45,6 +46,7 @@ EndContentData */
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include "WorldSession.h"
 
 /*######
 ## npc_sinkhole_kill_credit
@@ -442,7 +444,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
+            if (GameObject* go_caribou = ObjectAccessor::GetGameObject(*me, go_caribouGUID))
                 go_caribou->SetLootState(GO_JUST_DEACTIVATED);
 
             if (TempSummon* summon = me->ToTempSummon())
@@ -451,7 +453,7 @@ public:
                         if (Player* player = temp->ToPlayer())
                             player->KilledMonsterCredit(me->GetEntry());
 
-            if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
+            if (GameObject* go_caribou = ObjectAccessor::GetGameObject(*me, go_caribouGUID))
                 go_caribou->SetGoState(GO_STATE_READY);
         }
 

@@ -65,9 +65,10 @@ void AreaTriggerTemplate::InitMaxSearchRadius()
             if (PolygonDatas.Height <= 0.0f)
                 PolygonDatas.Height = 1.0f;
 
-            for (G3D::Vector2 const& vertice : PolygonVertices)
+            Position center(0.0f, 0.0f);
+            for (TaggedPosition<Position::XY> const& vertice : PolygonVertices)
             {
-                float pointDist = vertice.length();
+                float pointDist = center.GetExactDist2d(vertice);
 
                 if (pointDist > MaxSearchRadius)
                     MaxSearchRadius = pointDist;

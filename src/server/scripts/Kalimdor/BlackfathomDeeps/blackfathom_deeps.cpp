@@ -84,10 +84,7 @@ public:
         {
             Initialize();
             if (creature->IsSummon())
-            {
                 creature->SetHomePosition(HomePosition);
-                AttackPlayer();
-            }
 
             instance = creature->GetInstanceScript();
         }
@@ -114,28 +111,9 @@ public:
             Initialize();
         }
 
-        void AttackPlayer()
+        void IsSummonedBy(Unit*) override
         {
-            Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
-
-            if (PlList.isEmpty())
-                return;
-
-            for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-            {
-                if (Player* player = i->GetSource())
-                {
-                    if (player->IsGameMaster())
-                        continue;
-
-                    if (player->IsAlive())
-                    {
-                        me->SetInCombatWith(player);
-                        player->SetInCombatWith(me);
-                        me->AddThreat(player, 0.0f);
-                    }
-                }
-            }
+            DoZoneInCombat();
         }
 
         void UpdateAI(uint32 diff) override

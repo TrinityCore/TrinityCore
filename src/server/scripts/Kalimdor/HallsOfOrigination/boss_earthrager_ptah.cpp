@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"

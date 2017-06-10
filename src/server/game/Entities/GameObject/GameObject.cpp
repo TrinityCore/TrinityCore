@@ -28,9 +28,11 @@
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
+#include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
 #include "MiscPackets.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "PoolMgr.h"
@@ -40,6 +42,17 @@
 #include "UpdateFieldFlags.h"
 #include "World.h"
 #include <G3D/Quat.h>
+
+bool QuaternionData::isUnit() const
+{
+    return fabs(x * x + y * y + z * z + w * w - 1.0f) < 1e-5;
+}
+
+QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
+{
+    G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(Z, Y, X));
+    return QuaternionData(quat.x, quat.y, quat.z, quat.w);
+}
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_model(nullptr), m_goValue(), m_AI(nullptr), _animKitId(0)

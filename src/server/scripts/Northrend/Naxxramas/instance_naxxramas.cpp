@@ -23,6 +23,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
 #include "TemporarySummon.h"
 

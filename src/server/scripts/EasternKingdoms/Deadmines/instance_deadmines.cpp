@@ -28,6 +28,7 @@ EndScriptData */
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "TemporarySummon.h"
 
 enum Sounds

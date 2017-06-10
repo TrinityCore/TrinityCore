@@ -16,15 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
+#include "GameObject.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
 #include "SpellInfo.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
-#include "CellImpl.h"
 
 /*####
 # npc_omen

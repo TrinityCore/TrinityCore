@@ -20,6 +20,8 @@
 #include "DB2Stores.h"
 #include "firelands.h"
 #include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"

@@ -20,6 +20,7 @@
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "ChannelPackets.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "ObjectMgr.h"                                      // for normalizePlayerName
 #include "Player.h"

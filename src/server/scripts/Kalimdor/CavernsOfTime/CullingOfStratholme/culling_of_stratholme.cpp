@@ -19,6 +19,7 @@
 #include "culling_of_stratholme.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"

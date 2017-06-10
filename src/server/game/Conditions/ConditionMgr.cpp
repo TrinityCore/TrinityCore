@@ -20,12 +20,15 @@
 #include "AchievementMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Pet.h"
@@ -34,6 +37,7 @@
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {

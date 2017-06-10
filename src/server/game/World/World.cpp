@@ -65,6 +65,7 @@
 #include "MiscPackets.h"
 #include "MMapFactory.h"
 #include "Object.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
@@ -75,6 +76,7 @@
 #include "ScriptReloadMgr.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
+#include "SpellMgr.h"
 #include "SmartScriptMgr.h"
 #include "SupportMgr.h"
 #include "TaxiPathGraph.h"
@@ -455,7 +457,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_defaultDbcLocale = LocaleConstant(sConfigMgr->GetIntDefault("DBC.Locale", 0));
 
-    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale < LOCALE_enUS || m_defaultDbcLocale == LOCALE_none)
+    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale == LOCALE_none)
     {
         TC_LOG_ERROR("server.loading", "Incorrect DBC.Locale! Must be >= 0 and < %d and not %d (set to 0)", TOTAL_LOCALES, LOCALE_none);
         m_defaultDbcLocale = LOCALE_enUS;

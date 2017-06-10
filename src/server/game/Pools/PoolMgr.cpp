@@ -18,7 +18,9 @@
 
 #include "PoolMgr.h"
 #include "Containers.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
+#include "GameObject.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"

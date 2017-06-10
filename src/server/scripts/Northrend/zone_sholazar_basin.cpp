@@ -30,6 +30,8 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "CombatAI.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"

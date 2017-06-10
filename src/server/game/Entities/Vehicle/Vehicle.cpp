@@ -16,24 +16,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Log.h"
-#include "ObjectMgr.h"
 #include "Vehicle.h"
+#include "Battleground.h"
+#include "Common.h"
+#include "CreatureAI.h"
+#include "DB2Stores.h"
+#include "EventProcessor.h"
+#include "Log.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "TemporarySummon.h"
 #include "Unit.h"
 #include "Util.h"
-#include "ScriptMgr.h"
-#include "CreatureAI.h"
-#include "MoveSplineInit.h"
-#include "TemporarySummon.h"
-#include "EventProcessor.h"
-#include "Player.h"
-#include "Battleground.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
 UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE), _lastShootPos()
 {
-    for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
+    for (int8 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
         if (uint32 seatId = _vehicleInfo->SeatID[i])
             if (VehicleSeatEntry const* veSeat = sVehicleSeatStore.LookupEntry(seatId))

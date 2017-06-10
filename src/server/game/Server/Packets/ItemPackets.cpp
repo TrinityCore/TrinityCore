@@ -340,8 +340,8 @@ void WorldPackets::Item::UpgradeItem::Read()
 void WorldPackets::Item::SocketGems::Read()
 {
     _worldPacket >> ItemGuid;
-    for (uint32 i = 0; i < MAX_GEM_SOCKETS; ++i)
-        _worldPacket >> GemItem[i];
+    for (ObjectGuid& gemGuid : GemItem)
+        _worldPacket >> gemGuid;
 }
 
 WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()

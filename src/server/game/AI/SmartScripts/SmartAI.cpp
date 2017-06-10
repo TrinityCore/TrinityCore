@@ -16,10 +16,12 @@
  */
 
 #include "SmartAI.h"
+#include "DB2Structure.h"
 #include "Creature.h"
 #include "GameObject.h"
 #include "Group.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PetDefines.h"
 #include "Player.h"

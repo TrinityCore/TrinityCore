@@ -20,6 +20,8 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MoveSplineInitArgs.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Spline.h"
 #include "Transport.h"

@@ -22,6 +22,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "oculus.h"
 #include "TemporarySummon.h"
 #include "WorldStatePackets.h"

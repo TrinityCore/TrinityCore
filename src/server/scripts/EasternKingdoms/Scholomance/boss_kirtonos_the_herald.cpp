@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -162,13 +163,13 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 events.ScheduleEvent(INTRO_3, 1000);
                                 break;
                             case INTRO_3:
-                                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_GATE_KIRTONOS)))
+                                if (GameObject* gate = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_GATE_KIRTONOS)))
                                     gate->SetGoState(GO_STATE_READY);
                                 me->SetFacingTo(0.01745329f);
                                 events.ScheduleEvent(INTRO_4, 3000);
                                 break;
                             case INTRO_4:
-                                if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
+                                if (GameObject* brazier = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(GO_BRAZIER_OF_THE_HERALD)))
                                     brazier->SetGoState(GO_STATE_READY);
                                 me->SetWalk(true);
                                 me->SetDisableGravity(false);

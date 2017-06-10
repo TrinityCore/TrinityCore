@@ -20,6 +20,7 @@
 #include "azjol_nerub.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"

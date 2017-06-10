@@ -27,10 +27,10 @@
 #include "Player.h"
 #include "SocialMgr.h"
 #include "Spell.h"
+#include "SpellMgr.h"
 #include "TradeData.h"
 #include "TradePackets.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 void WorldSession::SendTradeStatus(WorldPackets::Trade::TradeStatus& info)
 {

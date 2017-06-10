@@ -18,6 +18,8 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PetAI.h"
 #include "Player.h"
 #include "razorfen_kraul.h"
@@ -171,7 +173,7 @@ public:
         {
             if (type == POINT_MOTION_TYPE && id == POINT_TUBBER)
             {
-                if (GameObject* go = me->GetMap()->GetGameObject(TargetTubberGUID))
+                if (GameObject* go = ObjectAccessor::GetGameObject(*me, TargetTubberGUID))
                 {
                     go->SetRespawnTime(5 * MINUTE);
                     go->Refresh();

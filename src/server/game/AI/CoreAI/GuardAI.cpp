@@ -20,6 +20,7 @@
 #include "Creature.h"
 #include "Errors.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "Player.h"
 
 GuardAI::GuardAI(Creature* creature) : ScriptedAI(creature)

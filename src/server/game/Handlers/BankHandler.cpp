@@ -16,6 +16,8 @@
  */
 
 #include "BankPackets.h"
+#include "Item.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "NPCPackets.h"
 #include "Opcodes.h"

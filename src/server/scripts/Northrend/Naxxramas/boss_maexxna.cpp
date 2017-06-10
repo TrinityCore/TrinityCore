@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"

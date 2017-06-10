@@ -17,12 +17,15 @@
 
 #include "SpellHistory.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Item.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "PetPackets.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "World.h"
 

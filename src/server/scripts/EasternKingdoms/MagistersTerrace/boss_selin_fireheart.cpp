@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "magisters_terrace.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 

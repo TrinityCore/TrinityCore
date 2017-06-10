@@ -17,6 +17,7 @@
 
 #include "OutdoorPvPMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "Log.h"
 #include "ObjectMgr.h"

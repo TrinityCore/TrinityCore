@@ -36,6 +36,7 @@ EndContentData */
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"

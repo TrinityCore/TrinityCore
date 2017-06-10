@@ -62,7 +62,6 @@ class boss_pit_lord_argaloth : public CreatureScript
 
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                me->GetMotionMaster()->MoveTargetedHome();
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 _DespawnAtEvade();
             }

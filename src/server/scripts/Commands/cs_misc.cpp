@@ -26,6 +26,7 @@
 #include "Group.h"
 #include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
+#include "Item.h"
 #include "Language.h"
 #include "LFG.h"
 #include "Log.h"
@@ -42,11 +43,13 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellHistory.h"
+#include "SpellMgr.h"
 #include "TargetedMovementGenerator.h"
 #include "Transport.h"
 #include "Weather.h"
 #include "WeatherMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 #include <boost/asio/ip/address_v4.hpp>
 
  // temporary hack until database includes are sorted out (don't want to pull in Windows.h everywhere from mysql.h)

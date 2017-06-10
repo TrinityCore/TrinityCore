@@ -24,12 +24,16 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "Language.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "WaypointManager.h"
+#include "WorldSession.h"
 
 class wp_commandscript : public CommandScript
 {

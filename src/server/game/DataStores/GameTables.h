@@ -103,6 +103,12 @@ struct GtCombatRatingsMultByILvl
     float JewelryMultiplier = 0.0f;
 };
 
+uint8 constexpr PRESTIGE_COLUMN_COUNT = 16;
+struct GtHonorLevelEntry
+{
+    float Prestige[PRESTIGE_COLUMN_COUNT] = { };
+};
+
 struct GtHpPerStaEntry
 {
     float Health = 0.0f;
@@ -208,6 +214,7 @@ TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopC
 TC_GAME_API extern GameTable<GtBaseMPEntry>                         sBaseMPGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatingsGameTable;
 TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
+TC_GAME_API extern GameTable<GtHonorLevelEntry>                     sHonorLevelGameTable;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
 TC_GAME_API extern GameTable<GtNpcDamageByClassEntry>               sNpcDamageByClassGameTable[MAX_EXPANSIONS];

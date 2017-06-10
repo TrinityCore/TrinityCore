@@ -19,6 +19,7 @@
 #include "DB2Stores.h"
 #include "GameObject.h"
 #include "Language.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPSI.h"
 #include "Player.h"

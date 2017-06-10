@@ -25,6 +25,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Util.h"
+#include "WorldSession.h"
 #include <boost/asio/ip/address_v4.hpp>
 
 class battlenet_account_commandscript : public CommandScript

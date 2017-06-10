@@ -35,15 +35,15 @@ enum ConnectionType : int8
     CONNECTION_TYPE_DEFAULT     = -1
 };
 
-enum OpcodeMisc : uint32
+enum OpcodeMisc : uint16
 {
     MAX_OPCODE                                        = 0x3FFF,
     NUM_OPCODE_HANDLERS                               = (MAX_OPCODE + 1),
-    UNKNOWN_OPCODE                                    = (0xFFFF + 1),
+    UNKNOWN_OPCODE                                    = 0xFFFF,
     NULL_OPCODE                                       = 0xBADD
 };
 
-enum OpcodeClient : uint32
+enum OpcodeClient : uint16
 {
     CMSG_ACCEPT_GUILD_INVITE                          = 0x35FB,
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x34EF,
@@ -735,6 +735,7 @@ enum OpcodeClient : uint32
     CMSG_UPDATE_CLIENT_SETTINGS                       = 0x3665,
     CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x3A3E,
     CMSG_UPDATE_RAID_TARGET                           = 0x3651,
+    CMSG_UPDATE_SPELL_VISUAL                          = 0x3281,
     CMSG_UPDATE_VAS_PURCHASE_STATES                   = 0x36F5,
     CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST            = 0x36F0,
     CMSG_UPDATE_WOW_TOKEN_COUNT                       = 0x36E6,
@@ -759,7 +760,7 @@ enum OpcodeClient : uint32
     CMSG_BF_MGR_QUEUE_EXIT_REQUEST                    = 0xBADD,
 };
 
-enum OpcodeServer : uint32
+enum OpcodeServer : uint16
 {
     SMSG_ABORT_NEW_WORLD                              = 0x25AD,
     SMSG_ACCOUNT_CRITERIA_UPDATE                      = 0x2652,

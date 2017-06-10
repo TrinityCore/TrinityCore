@@ -19,6 +19,7 @@
 #include "forge_of_souls.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
