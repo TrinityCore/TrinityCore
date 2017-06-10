@@ -1095,7 +1095,8 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
                     if (Player* player = obj->ToPlayer())
                         return player->IsGameMaster();
 
-                    return false;
+                    // remove non-players too
+                    return true;
                 });
 
                 _targetCount = targets.size();
