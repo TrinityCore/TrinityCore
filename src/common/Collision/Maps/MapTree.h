@@ -35,6 +35,7 @@ namespace VMAP
     struct TC_COMMON_API LocationInfo
     {
         LocationInfo(): hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
+        int32 rootId;
         const ModelInstance* hitInstance;
         const GroupModel* hitModel;
         float ground_Z;
