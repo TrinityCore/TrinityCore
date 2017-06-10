@@ -45,6 +45,7 @@ enum HunterSpells
     SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
+    SPELL_HUNTER_MULTI_SHOT_FOCUS                   = 213363,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX           = 55709,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
@@ -533,6 +534,43 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
         {
             return new spell_hun_misdirection_proc_AuraScript();
         }
+};
+
+// 2643 - Multi-Shot
+class spell_hun_multi_shot : public SpellScriptLoader
+{
+public:
+    spell_hun_multi_shot() : SpellScriptLoader("spell_hun_multi_shot") { }
+
+    class spell_hun_multi_shot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_multi_shot_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_HUNTER_MULTI_SHOT_FOCUS });
+        }
+
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void HandleOnHit()
+        {
+            GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_MULTI_SHOT_FOCUS, true);
+        }
+
+        void Register() override
+        {
+            OnHit += SpellHitFn(spell_hun_multi_shot_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_hun_multi_shot_SpellScript();
+    }
 };
 
 // 54044 - Pet Carrion Feeder
