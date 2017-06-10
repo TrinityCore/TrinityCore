@@ -558,7 +558,7 @@ class spell_hun_multi_shot : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_MULTI_SHOT_FOCUS, true);
+                GetCaster()->CastSpell((Unit*)nullptr, SPELL_HUNTER_MULTI_SHOT_FOCUS, true);
             }
 
             void Register() override
