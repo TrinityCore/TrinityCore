@@ -26,6 +26,7 @@ Script Data End */
 #include "ScriptMgr.h"
 #include "culling_of_stratholme.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"

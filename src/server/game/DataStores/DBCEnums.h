@@ -245,6 +245,8 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_MISSION_TYPE         = 167, // NYI
     CRITERIA_ADDITIONAL_CONDITION_PLAYER_ITEM_LEVEL             = 169, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ILVL        = 184,
+    CRITERIA_ADDITIONAL_CONDITION_HONOR_LEVEL                   = 193,
+    CRITERIA_ADDITIONAL_CONDITION_PRESTIGE_LEVEL                = 194
 };
 
 enum CriteriaFlags
@@ -613,6 +615,10 @@ enum FactionMasks
     // if none flags set then non-aggressive creature
 };
 
+#define MAX_ITEM_PROTO_FLAGS 3
+#define MAX_ITEM_PROTO_SOCKETS 3
+#define MAX_ITEM_PROTO_STATS  10
+
 enum MapTypes                                               // Lua_IsInInstance
 {
     MAP_COMMON          = 0,                                // none
@@ -765,6 +771,11 @@ enum MountFlags
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
 };
 
+enum PrestigeLevelInfoFlags : uint8
+{
+    PRESTIGE_FLAG_DISABLED  = 0x01                      // Prestige levels with this flag won't be included to calculate max prestigelevel.
+};
+
 enum QuestPackageFilter
 {
     QUEST_PACKAGE_FILTER_LOOT_SPECIALIZATION    = 0,    // Players can select this quest reward if it matches their selected loot specialization
@@ -798,6 +809,16 @@ enum SpellCategoryFlags
 
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF
+
+enum SpellItemEnchantmentFlags
+{
+    ENCHANTMENT_CAN_SOULBOUND           = 0x01,
+    ENCHANTMENT_UNK1                    = 0x02,
+    ENCHANTMENT_UNK2                    = 0x04,
+    ENCHANTMENT_UNK3                    = 0x08,
+    ENCHANTMENT_COLLECTABLE             = 0x100,
+    ENCHANTMENT_HIDE_IF_NOT_COLLECTED   = 0x200,
+};
 
 enum SpellProcsPerMinuteModType
 {

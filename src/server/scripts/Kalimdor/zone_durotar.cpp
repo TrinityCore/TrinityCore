@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CreatureAIImpl.h"
 #include "GameObject.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"

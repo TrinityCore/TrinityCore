@@ -33,6 +33,7 @@ EndScriptData */
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
+#include "ItemEnchantmentMgr.h"
 #include "Language.h"
 #include "LFGMgr.h"
 #include "Log.h"
@@ -47,6 +48,7 @@ EndScriptData */
 #include "SupportMgr.h"
 #include "WardenCheckMgr.h"
 #include "WaypointManager.h"
+#include "World.h"
 
 class reload_commandscript : public CommandScript
 {

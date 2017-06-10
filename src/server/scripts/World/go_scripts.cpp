@@ -45,13 +45,16 @@ go_toy_train_set
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "DB2Structure.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
+#include "WorldSession.h"
 
 /*######
 ## go_cat_figurine

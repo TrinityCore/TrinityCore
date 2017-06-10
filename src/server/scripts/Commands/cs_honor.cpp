@@ -28,6 +28,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "WorldSession.h"
 
 class honor_commandscript : public CommandScript
 {

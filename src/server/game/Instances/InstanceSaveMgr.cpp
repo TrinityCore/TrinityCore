@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "GridStates.h"
 #include "Group.h"

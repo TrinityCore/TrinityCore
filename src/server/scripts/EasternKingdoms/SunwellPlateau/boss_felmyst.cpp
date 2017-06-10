@@ -25,6 +25,7 @@ EndScriptData */
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"

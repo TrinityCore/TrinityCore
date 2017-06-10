@@ -21,6 +21,7 @@
 #include "Errors.h"
 #include "Group.h"
 #include "Log.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"

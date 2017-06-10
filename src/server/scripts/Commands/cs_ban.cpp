@@ -31,6 +31,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 
 class ban_commandscript : public CommandScript
 {

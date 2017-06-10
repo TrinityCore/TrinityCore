@@ -102,7 +102,7 @@ enum LootType : uint8
     LOOT_FISHING_JUNK           = 22                        // unsupported by client, sending LOOT_FISHING instead
 };
 
-enum LootError
+enum LootError : uint8
 {
     LOOT_ERROR_DIDNT_KILL               = 0,    // You don't have permission to loot that corpse.
     LOOT_ERROR_TOO_FAR                  = 4,    // You are too far away to loot that corpse.

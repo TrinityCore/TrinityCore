@@ -19,13 +19,8 @@
 #define TRINITYCORE_AREATRIGGER_TEMPLATE_H
 
 #include "Define.h"
+#include "Position.h"
 #include <vector>
-
-namespace G3D
-{
-    class Vector2;
-    class Vector3;
-}
 
 #define MAX_AREATRIGGER_ENTITY_DATA 6
 #define MAX_AREATRIGGER_SCALE 7
@@ -117,8 +112,8 @@ public:
     uint32 Flags;
     uint32 ScriptId;
     float MaxSearchRadius;
-    std::vector<G3D::Vector2> PolygonVertices;
-    std::vector<G3D::Vector2> PolygonVerticesTarget;
+    std::vector<TaggedPosition<Position::XY>> PolygonVertices;
+    std::vector<TaggedPosition<Position::XY>> PolygonVerticesTarget;
     std::vector<AreaTriggerAction> Actions;
 
     union
@@ -186,7 +181,7 @@ public:
     AreaTriggerScaleInfo ScaleInfo;
 
     AreaTriggerTemplate const* Template;
-    std::vector<G3D::Vector3> SplinePoints;
+    std::vector<Position> SplinePoints;
 };
 
 #endif

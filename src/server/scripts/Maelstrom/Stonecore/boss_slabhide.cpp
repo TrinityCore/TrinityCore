@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellScript.h"

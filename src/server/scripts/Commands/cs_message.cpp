@@ -28,11 +28,14 @@ EndScriptData */
 #include "Channel.h"
 #include "ChannelMgr.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Language.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "World.h"
+#include "WorldSession.h"
 
 class message_commandscript : public CommandScript
 {

@@ -31,6 +31,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GuardAI.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellInfo.h"

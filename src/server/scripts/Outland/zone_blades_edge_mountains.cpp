@@ -34,6 +34,7 @@ EndContentData */
 #include "CreatureAIImpl.h"
 #include "GameObject.h"
 #include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"

@@ -28,6 +28,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "trial_of_the_champion.h"
 

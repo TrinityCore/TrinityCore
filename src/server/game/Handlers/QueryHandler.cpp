@@ -18,10 +18,14 @@
 
 #include "WorldSession.h"
 #include "Common.h"
+#include "Corpse.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Item.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "NPCHandler.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "QueryPackets.h"
@@ -108,12 +112,12 @@ void WorldSession::HandleCreatureQuery(WorldPackets::Query::QueryCreature& packe
         //stats.TitleAlt = ;
         stats.CursorName = creatureInfo->IconName;
 
-        if (CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
+        if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(packet.CreatureID))
             for (uint32 item : *items)
                 stats.QuestItems.push_back(item);
 
         LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-        if (localeConstant >= LOCALE_enUS)
+        if (localeConstant != LOCALE_enUS)
             if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(packet.CreatureID))
             {
                 ObjectMgr::GetLocaleString(creatureLocale->Name, localeConstant, stats.Name[0]);
@@ -146,7 +150,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
         stats.UnkString = gameObjectInfo->unk1;
 
         LocaleConstant localeConstant = GetSessionDbLocaleIndex();
-        if (localeConstant >= LOCALE_enUS)
+        if (localeConstant != LOCALE_enUS)
             if (GameObjectLocale const* gameObjectLocale = sObjectMgr->GetGameObjectLocale(packet.GameObjectID))
             {
                 ObjectMgr::GetLocaleString(gameObjectLocale->Name, localeConstant, stats.Name[0]);
@@ -156,7 +160,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPackets::Query::QueryGameObj
 
         stats.Size = gameObjectInfo->size;
 
-        if (GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID))
+        if (std::vector<uint32> const* items = sObjectMgr->GetGameObjectQuestItemList(packet.GameObjectID))
             for (int32 item : *items)
                 stats.QuestItems.push_back(item);
 
@@ -263,7 +267,7 @@ void WorldSession::HandleQueryPageText(WorldPackets::Query::QueryPageText& packe
         page.Flags = pageText->Flags;
 
         LocaleConstant locale = GetSessionDbLocaleIndex();
-        if (locale >= LOCALE_enUS)
+        if (locale != LOCALE_enUS)
             if (PageTextLocale const* pageTextLocale = sObjectMgr->GetPageTextLocale(pageID))
                 ObjectMgr::GetLocaleString(pageTextLocale->Text, locale, page.Text);
 

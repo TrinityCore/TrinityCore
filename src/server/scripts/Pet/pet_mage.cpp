@@ -24,6 +24,7 @@
 #include "CellImpl.h"
 #include "CombatAI.h"
 #include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
 #include "Pet.h"
 #include "PetAI.h"
 #include "Player.h"

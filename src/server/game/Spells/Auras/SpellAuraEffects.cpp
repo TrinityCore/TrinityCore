@@ -22,11 +22,13 @@
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "Common.h"
-#include "GridNotifiers.h"
+#include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
+#include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
 #include "MiscPackets.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -44,6 +46,8 @@
 #include "Weather.h"
 #include "WeatherMgr.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
+#include <G3D/g3dmath.h>
 
 class Aura;
 //
@@ -6341,7 +6345,7 @@ void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mod
     if (apply)
     {
         WorldPackets::Misc::Weather weather(WeatherState(GetMiscValue()), 1.0f);
-        target->GetSession()->SendPacket(weather.Write());
+        target->SendDirectMessage(weather.Write());
     }
     else
     {

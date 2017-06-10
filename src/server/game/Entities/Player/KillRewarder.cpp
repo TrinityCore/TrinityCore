@@ -16,8 +16,8 @@
  */
 
 #include "KillRewarder.h"
-#include "SpellAuraEffects.h"
 #include "Creature.h"
+#include "DB2Stores.h"
 #include "Formulas.h"
 #include "Group.h"
 #include "Guild.h"
@@ -26,6 +26,7 @@
 #include "Pet.h"
 #include "Player.h"
 #include "Scenario.h"
+#include "SpellAuraEffects.h"
 
  // == KillRewarder ====================================================
  // KillRewarder encapsulates logic of rewarding player upon kill with:

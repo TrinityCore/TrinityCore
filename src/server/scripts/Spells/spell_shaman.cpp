@@ -27,9 +27,10 @@
 #include "GridNotifiersImpl.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "SpellScript.h"
-#include "SpellHistory.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum ShamanSpells
 {
@@ -93,9 +94,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_GUIDANCE_HEAL });
         }
 
         bool CheckProc(ProcEventInfo& eventInfo)
@@ -138,9 +137,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ANCESTRAL_GUIDANCE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_GUIDANCE });
         }
 
         void ResizeTargets(std::list<WorldObject*>& targets)
@@ -172,12 +169,13 @@ class spell_sha_bloodlust : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_SATED)
-                    || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_INSANITY)
-                    || !sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_DISPLACEMENT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_PET_NETHERWINDS_FATIGUED))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SHAMAN_SATED,
+                    SPELL_HUNTER_INSANITY,
+                    SPELL_MAGE_TEMPORAL_DISPLACEMENT,
+                    SPELL_PET_NETHERWINDS_FATIGUED
+                });
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
@@ -219,9 +217,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE });
         }
 
         void CountTargets(std::list<WorldObject*>& targets)
@@ -264,9 +260,7 @@ class spell_sha_earth_shield : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTH_SHIELD_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_EARTH_SHIELD_HEAL });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -308,11 +302,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC, SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE });
         }
 
         void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -354,11 +344,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE, SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE });
         }
 
         void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -396,13 +382,12 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY))
-                return false;
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_ELEMENTAL_BLAST_CRIT,
+                SPELL_SHAMAN_ELEMENTAL_BLAST_HASTE,
+                SPELL_SHAMAN_ELEMENTAL_BLAST_MASTERY
+            });
         }
 
         bool Load() override
@@ -471,9 +456,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FLAMETONGUE_ATTACK))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_FLAMETONGUE_ATTACK });
         }
 
         void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -544,12 +527,13 @@ class spell_sha_heroism : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EXHAUSTION)
-                    || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_INSANITY)
-                    || !sSpellMgr->GetSpellInfo(SPELL_MAGE_TEMPORAL_DISPLACEMENT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_PET_NETHERWINDS_FATIGUED))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SHAMAN_EXHAUSTION,
+                    SPELL_HUNTER_INSANITY,
+                    SPELL_MAGE_TEMPORAL_DISPLACEMENT,
+                    SPELL_PET_NETHERWINDS_FATIGUED
+                });
             }
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
@@ -591,9 +575,7 @@ class spell_sha_item_lightning_shield : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -626,9 +608,7 @@ class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -661,9 +641,7 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ITEM_MANA_SURGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_ITEM_MANA_SURGE });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -713,10 +691,7 @@ class spell_sha_item_t6_trinket : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ENERGY_SURGE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_POWER_SURGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_ENERGY_SURGE, SPELL_SHAMAN_POWER_SURGE });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -778,9 +753,7 @@ class spell_sha_item_t10_elemental_2p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELEMENTAL_MASTERY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_MASTERY });
             }
 
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -843,11 +816,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_PATH_OF_FLAMES_TALENT))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_PATH_OF_FLAMES_TALENT, SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)
@@ -882,9 +851,7 @@ class spell_sha_lava_surge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_SURGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_SURGE });
             }
 
             void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -917,9 +884,7 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_BURST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST });
             }
 
             bool Load() override
@@ -956,9 +921,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM });
         }
 
         void FilterTargets(std::list<WorldObject*>& targets)
@@ -1010,9 +973,7 @@ class spell_sha_tidal_waves : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_TIDAL_WAVES))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_TIDAL_WAVES });
             }
 
             void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -1048,12 +1009,13 @@ class spell_sha_t3_6p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_TOTEMIC_POWER_ARMOR) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_TOTEMIC_POWER_SPELL_POWER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_SHAMAN_TOTEMIC_POWER_MP5))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SHAMAN_TOTEMIC_POWER_ARMOR,
+                    SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER,
+                    SPELL_SHAMAN_TOTEMIC_POWER_SPELL_POWER,
+                    SPELL_SHAMAN_TOTEMIC_POWER_MP5
+                });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -1114,9 +1076,7 @@ class spell_sha_t8_elemental_4p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_ELECTRIFIED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_ELECTRIFIED });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1163,9 +1123,7 @@ class spell_sha_t9_elemental_4p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1257,9 +1215,7 @@ class spell_sha_t10_restoration_4p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_CHAINED_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHAMAN_CHAINED_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1306,9 +1262,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_WINDFURY_ATTACK))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHAMAN_WINDFURY_ATTACK });
         }
 
         void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

@@ -21,6 +21,7 @@
 
 #include "Spline.h"
 #include "MoveSplineInitArgs.h"
+#include <G3D/Vector3.h>
 
 namespace WorldPackets
 {

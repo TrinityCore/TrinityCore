@@ -21,6 +21,7 @@
 #include "ChannelAppenders.h"
 #include "Chat.h"
 #include "ChatPackets.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -31,6 +32,7 @@
 #include "Player.h"
 #include "SocialMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 #include <sstream>
 
 Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zoneEntry /*= nullptr*/) :

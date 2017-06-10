@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "mana_tombs.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 
 enum Yells

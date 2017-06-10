@@ -19,12 +19,13 @@
 #ifndef TRINITY_FORMULAS_H
 #define TRINITY_FORMULAS_H
 
-#include "World.h"
-#include "SharedDefines.h"
-#include "ScriptMgr.h"
-#include "Player.h"
-#include "GameTables.h"
 #include "Creature.h"
+#include "GameTables.h"
+#include "Map.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "SharedDefines.h"
+#include "World.h"
 
 namespace Trinity
 {

@@ -289,6 +289,21 @@ struct QuestObjective
     float  ProgressBarWeight = 0.0f;
     std::string Description;
     std::vector<int32> VisualEffects;
+
+    bool IsStoringFlag() const
+    {
+        switch (Type)
+        {
+            case QUEST_OBJECTIVE_AREATRIGGER:
+            case QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC:
+            case QUEST_OBJECTIVE_DEFEATBATTLEPET:
+            case QUEST_OBJECTIVE_CRITERIA_TREE:
+                return true;
+            default:
+                break;
+        }
+        return false;
+    }
 };
 
 typedef std::vector<QuestObjective> QuestObjectives;
