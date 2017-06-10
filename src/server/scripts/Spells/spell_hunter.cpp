@@ -539,38 +539,38 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
 // 2643 - Multi-Shot
 class spell_hun_multi_shot : public SpellScriptLoader
 {
-public:
-    spell_hun_multi_shot() : SpellScriptLoader("spell_hun_multi_shot") { }
+    public:
+        spell_hun_multi_shot() : SpellScriptLoader("spell_hun_multi_shot") { }
 
-    class spell_hun_multi_shot_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_hun_multi_shot_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_hun_multi_shot_SpellScript : public SpellScript
         {
-            return ValidateSpellInfo({ SPELL_HUNTER_MULTI_SHOT_FOCUS });
-        }
+            PrepareSpellScript(spell_hun_multi_shot_SpellScript);
 
-        bool Load() override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_HUNTER_MULTI_SHOT_FOCUS });
+            }
+
+            bool Load() override
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleOnHit()
+            {
+                GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_MULTI_SHOT_FOCUS, true);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_hun_multi_shot_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            return new spell_hun_multi_shot_SpellScript();
         }
-
-        void HandleOnHit()
-        {
-            GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_MULTI_SHOT_FOCUS, true);
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_hun_multi_shot_SpellScript::HandleOnHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_hun_multi_shot_SpellScript();
-    }
 };
 
 // 54044 - Pet Carrion Feeder
