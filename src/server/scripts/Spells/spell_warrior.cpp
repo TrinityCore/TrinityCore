@@ -1130,7 +1130,7 @@ public:
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
-            Unit* target = eventInfo.GetActionTarget());
+            Unit* target = eventInfo.GetActionTarget();
             //Get the Remaining Damage from the aura (if exist)
             int32 remainingDamage = target->GetRemainingPeriodicAmount(target->GetGUID(), SPELL_WARRIOR_TRAUMA_EFFECT, SPELL_AURA_PERIODIC_DAMAGE);
             //Get 25% of damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
