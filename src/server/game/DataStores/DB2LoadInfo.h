@@ -824,15 +824,15 @@ struct ConversationLineLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT,   "ID" },
-            { false, FT_INT,   "BroadcastTextID" },
-            { false, FT_INT,   "SpellVisualKitID" },
-            { false, FT_INT,   "Duration" },
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "BroadcastTextID" },
+            { false, FT_INT, "SpellVisualKitID" },
+            { false, FT_INT, "Duration" },
             { false, FT_SHORT, "NextLineID" },
             { false, FT_SHORT, "Unk1" },
-            { false, FT_BYTE,  "Yell" },
-            { false, FT_BYTE,  "Unk2" },
-            { false, FT_BYTE,  "Unk3" },
+            { false, FT_BYTE, "Yell" },
+            { false, FT_BYTE, "Unk2" },
+            { false, FT_BYTE, "Unk3" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ConversationLineMeta::Instance(), HOTFIX_SEL_CONVERSATION_LINE);
         return &loadInfo;
@@ -3395,6 +3395,23 @@ struct PowerTypeLoadInfo
     }
 };
 
+struct PrestigeLevelInfoLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "IconID" },
+            { false, FT_STRING, "PrestigeText" },
+            { false, FT_BYTE, "PrestigeLevel" },
+            { false, FT_BYTE, "Flags" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PrestigeLevelInfoMeta::Instance(), HOTFIX_SEL_PRESTIGE_LEVEL_INFO);
+        return &loadInfo;
+    }
+};
+
 struct PvpDifficultyLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -3408,6 +3425,22 @@ struct PvpDifficultyLoadInfo
             { false, FT_BYTE, "MaxLevel" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpDifficultyMeta::Instance(), HOTFIX_SEL_PVP_DIFFICULTY);
+        return &loadInfo;
+    }
+};
+
+struct PvpRewardLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "HonorLevel" },
+            { false, FT_INT, "Prestige" },
+            { false, FT_INT, "RewardPackID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpRewardMeta::Instance(), HOTFIX_SEL_PVP_REWARD);
         return &loadInfo;
     }
 };
@@ -3551,6 +3584,41 @@ struct RandPropPointsLoadInfo
             { false, FT_INT, "UncommonPropertiesPoints5" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RandPropPointsMeta::Instance(), HOTFIX_SEL_RAND_PROP_POINTS);
+        return &loadInfo;
+    }
+};
+
+struct RewardPackLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "Money" },
+            { false, FT_FLOAT, "ArtifactXPMultiplier" },
+            { false, FT_BYTE, "ArtifactXPDifficulty" },
+            { false, FT_BYTE, "ArtifactCategoryID" },
+            { false, FT_INT, "TitleID" },
+            { false, FT_INT, "Unused" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RewardPackMeta::Instance(), HOTFIX_SEL_REWARD_PACK);
+        return &loadInfo;
+    }
+};
+
+struct RewardPackXItemLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "ItemID" },
+            { false, FT_INT, "RewardPackID" },
+            { false, FT_INT, "Amount" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, RewardPackXItemMeta::Instance(), HOTFIX_SEL_REWARD_PACK_X_ITEM);
         return &loadInfo;
     }
 };

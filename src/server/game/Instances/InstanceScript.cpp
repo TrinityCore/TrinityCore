@@ -39,6 +39,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>
+#include <cstdarg>
 
 BossBoundaryData::~BossBoundaryData()
 {

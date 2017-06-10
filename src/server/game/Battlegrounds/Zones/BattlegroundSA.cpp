@@ -17,11 +17,14 @@
  */
 
 #include "BattlegroundSA.h"
+#include "Creature.h"
 #include "CreatureAI.h"
+#include "DB2Stores.h"
 #include "GameObject.h"
 #include "Language.h"
 #include "Log.h"
-#include "ObjectMgr.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "Random.h"
 #include "UpdateData.h"

@@ -16,6 +16,7 @@
  */
 
 #include "CharacterPackets.h"
+#include "DB2Stores.h"
 #include "Field.h"
 #include "ObjectMgr.h"
 #include "Player.h"

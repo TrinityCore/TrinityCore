@@ -25,16 +25,19 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GameEventMgr.h"
+#include "GameObject.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "RBAC.h"
-#include <G3D/Quat.h>
+#include "WorldSession.h"
 
 class gobject_commandscript : public CommandScript
 {
@@ -141,8 +144,7 @@ public:
 
         GameObject* object = new GameObject();
 
-        G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
-        if (!object->Create(objectInfo->entry, map, 0, *player, QuaternionData(rot.x, rot.y, rot.z, rot.w), 255, GO_STATE_READY))
+        if (!object->Create(objectInfo->entry, map, 0, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
         {
             delete object;
             return false;
@@ -197,7 +199,6 @@ public:
         if (spawntime)
             spawntm = atoul(spawntime);
 
-        G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
         uint32 objectId = atoul(id);
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
@@ -207,7 +208,7 @@ public:
             return false;
         }
 
-        player->SummonGameObject(objectId, *player, QuaternionData(rotation.x, rotation.y, rotation.z, rotation.w), spawntm);
+        player->SummonGameObject(objectId, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), spawntm);
 
         return true;
     }

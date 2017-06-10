@@ -880,6 +880,14 @@ namespace WorldPackets
             uint32 MountSpellID = 0;
             bool IsFavorite = false;
         };
+
+        class PvpPrestigeRankUp final : public ClientPacket
+        {
+        public:
+            PvpPrestigeRankUp(WorldPacket&& packet) : ClientPacket(CMSG_PVP_PRESTIGE_RANK_UP, std::move(packet)) { }
+
+            void Read() override { }
+        };
     }
 }
 

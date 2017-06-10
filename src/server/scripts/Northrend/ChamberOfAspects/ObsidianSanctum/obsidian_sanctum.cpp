@@ -19,6 +19,7 @@
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "obsidian_sanctum.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"

@@ -23,7 +23,6 @@
 #define MAX_BAG_SIZE 36                                     // 2.0.12
 
 #include "Item.h"
-#include "ItemTemplate.h"
 
 class TC_GAME_API Bag : public Item
 {

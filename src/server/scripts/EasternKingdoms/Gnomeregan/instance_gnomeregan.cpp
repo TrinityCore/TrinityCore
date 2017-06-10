@@ -21,7 +21,7 @@
 #include "gnomeregan.h"
 #include "InstanceScript.h"
 #include "Log.h"
-#include "Player.h"
+#include "Map.h"
 
 #define    MAX_ENCOUNTER  1
 

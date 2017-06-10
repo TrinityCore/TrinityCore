@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "black_temple.h"
+#include "Containers.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 
@@ -83,7 +84,7 @@ uint32 PrismaticAuras[]=
     40897,                                                  // Holy
 };
 
-G3D::Vector3 const TeleportPoint[]=
+Position const TeleportPoint[]=
 {
     {959.996f, 212.576f, 193.843f},
     {932.537f, 231.813f, 193.838f},
@@ -150,10 +151,10 @@ public:
 
         void TeleportPlayers()
         {
-            uint32 random = urand(0, 6);
-            float X = TeleportPoint[random].x;
-            float Y = TeleportPoint[random].y;
-            float Z = TeleportPoint[random].z;
+            Position const& random = Trinity::Containers::SelectRandomContainerElement(TeleportPoint);
+            float X = random.GetPositionX();
+            float Y = random.GetPositionY();
+            float Z = random.GetPositionZ();
             for (uint8 i = 0; i < 3; ++i)
             {
                 if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 1))

@@ -17,8 +17,10 @@
 
 #include "InstanceScenario.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 

@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "gruuls_lair.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 

@@ -21,6 +21,8 @@
 #include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectMgr.h"
 
 #define MAX_DESYNC 5.0f

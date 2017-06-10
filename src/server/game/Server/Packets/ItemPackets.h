@@ -19,10 +19,13 @@
 #define ItemPackets_h__
 
 #include "Packet.h"
-#include "Item.h"
+#include "DBCEnums.h"
+#include "ItemDefines.h"
 #include "ItemPacketsCommon.h"
 #include "PacketUtilities.h"
+#include "ObjectGuid.h"
 #include "Optional.h"
+#include <array>
 
 struct VoidStorageItem;
 
@@ -476,7 +479,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid ItemGuid;
-            ObjectGuid GemItem[MAX_GEM_SOCKETS];
+            std::array<ObjectGuid, MAX_ITEM_PROTO_SOCKETS> GemItem;
         };
 
         class SocketGemsResult final : public ServerPacket

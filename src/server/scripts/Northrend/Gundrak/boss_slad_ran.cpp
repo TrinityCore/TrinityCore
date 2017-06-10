@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "gundrak.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"

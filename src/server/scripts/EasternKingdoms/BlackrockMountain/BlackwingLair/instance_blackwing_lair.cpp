@@ -19,6 +19,8 @@
 #include "blackwing_lair.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"

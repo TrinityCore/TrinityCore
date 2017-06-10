@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

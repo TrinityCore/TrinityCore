@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "mechanar.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 
 enum Says

@@ -26,6 +26,7 @@ Script Data End */
 #include "GameObject.h"
 #include "gnomeregan.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"

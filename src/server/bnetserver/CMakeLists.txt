@@ -26,12 +26,14 @@ endif()
 if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/bnetPCH.h)
   set(PRIVATE_PCH_SOURCE PrecompiledHeaders/bnetPCH.cpp)
+  if (MSVC)
+    list(INSERT PRIVATE_SOURCES 0 PrecompiledHeaders/bnetPCH.cpp)
+  endif (MSVC)
 endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(bnetserver
-  ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
 )
 

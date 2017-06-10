@@ -22,6 +22,7 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 
 #define TIMER_TOMBOFTHESEVEN    15000

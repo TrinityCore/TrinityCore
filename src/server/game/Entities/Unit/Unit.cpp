@@ -38,12 +38,15 @@
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
+#include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
 #include "LootPackets.h"
 #include "MiscPackets.h"
+#include "MotionMaster.h"
 #include "MovementPackets.h"
 #include "MoveSpline.h"
+#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -9660,7 +9663,7 @@ void Unit::SetPower(Powers power, int32 val)
         WorldPackets::Combat::PowerUpdate packet;
         packet.Guid = GetGUID();
         /// @todo: Support multiple counts ?
-        packet.Powers.emplace_back(val, powerIndex);
+        packet.Powers.emplace_back(val, power);
         SendMessageToSet(packet.Write(), GetTypeId() == TYPEID_PLAYER);
     }
 
@@ -10843,6 +10846,11 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
     packet.UnitGUID = guid;
     packet.Reaction = AI_REACTION_HOSTILE;
     owner->ToPlayer()->SendDirectMessage(packet.Write());
+}
+
+void Unit::propagateSpeedChange()
+{
+    GetMotionMaster()->propagateSpeedChange();
 }
 
 ///----------End of Pet responses methods----------
@@ -13843,7 +13851,7 @@ void Unit::SendThreatListUpdate()
         {
             WorldPackets::Combat::ThreatInfo info;
             info.UnitGUID = (*itr)->getUnitGuid();
-            info.Threat = (*itr)->getThreat() * 100;
+            info.Threat = int32((*itr)->getThreat() * 100);
             packet.ThreatList.push_back(info);
         }
         SendMessageToSet(packet.Write(), false);

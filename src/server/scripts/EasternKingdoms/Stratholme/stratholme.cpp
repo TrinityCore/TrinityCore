@@ -34,6 +34,7 @@ EndContentData */
 #include "GameObject.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
