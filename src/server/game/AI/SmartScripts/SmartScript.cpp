@@ -953,11 +953,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (e.action.morphOrMount.creature > 0)
                     {
                         if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
-<<<<<<< HEAD
-                            (*itr)->ToUnit()->Mount(sObjectMgr->GetCreatureDisplay(ObjectMgr::ChooseDisplayId(cInfo)));
-=======
-                            target->ToUnit()->Mount(ObjectMgr::ChooseDisplayId(cInfo));
->>>>>>> 3.3.5
+                            target->ToUnit()->Mount(sObjectMgr->GetCreatureDisplay(ObjectMgr::ChooseDisplayId(cInfo)));
                     }
                     else
                         target->ToUnit()->Mount(e.action.morphOrMount.model);
