@@ -233,14 +233,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(e.action.morphOrMount.creature))
                         {
-                            Creature* crea = (*itr)->ToCreature();
+                            Creature* crea = target->ToCreature();
                             ASSERT(crea);
                             crea->SetOutfit(ObjectMgr::ChooseDisplayId(ci));
                             uint32 displayId = sObjectMgr->GetCreatureDisplay(crea->GetOutfit());
                             if (crea->GetOutfit() < 0 && displayId)
-                                (*itr)->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+                                target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
                             else
-                                (*itr)->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
+                                target->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_MIRROR_IMAGE);
                             target->ToCreature()->SetDisplayId(displayId);
                             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry %u, GuidLow %u set displayid to %u",
                                 target->GetEntry(), target->GetGUID().GetCounter(), displayId);
