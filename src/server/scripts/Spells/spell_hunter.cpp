@@ -558,7 +558,9 @@ class spell_hun_multi_shot : public SpellScriptLoader
 
             void HandleOnHit()
             {
-                GetCaster()->CastSpell((Unit*)nullptr, SPELL_HUNTER_MULTI_SHOT_FOCUS, true);
+                // We need to check hunter's spec because it doesn't generate focus on other specs than MM
+                if(GetCaster()->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_HUNTER_MARKSMAN)
+                    GetCaster()->CastSpell((Unit*)nullptr, SPELL_HUNTER_MULTI_SHOT_FOCUS, true);
             }
 
             void Register() override
@@ -1109,6 +1111,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_masters_call();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
+    new spell_hun_multi_shot();
     new spell_hun_pet_carrion_feeder();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_readiness();
