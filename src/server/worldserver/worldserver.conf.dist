@@ -436,6 +436,15 @@ vmap.enableIndoorCheck = 1
 DetectPosCollision = 1
 
 #
+#    CheckGameObjectLoS
+#        Description: Include dynamic game objects (doors, chests etc.) in line of sight checks.
+#                     This increases CPU usage somewhat.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled, may break some boss encounters)
+
+CheckGameObjectLoS = 1
+
+#
 #    TargetPosRecalculateRange
 #        Description: Max distance from movement target point (+moving unit size) and targeted
 #                     object (+size) after that new target movement point calculated.
