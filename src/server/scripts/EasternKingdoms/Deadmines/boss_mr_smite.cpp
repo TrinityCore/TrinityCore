@@ -25,6 +25,7 @@ EndScriptData */
 #include "deadmines.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 

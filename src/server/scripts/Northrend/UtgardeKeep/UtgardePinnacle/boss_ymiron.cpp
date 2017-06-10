@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"

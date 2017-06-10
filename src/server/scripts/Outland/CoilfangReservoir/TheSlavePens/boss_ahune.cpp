@@ -22,6 +22,7 @@
 #include "InstanceScript.h"
 #include "LFGMgr.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedGossip.h"

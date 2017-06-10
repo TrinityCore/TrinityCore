@@ -30,6 +30,7 @@
 #include "ScriptMgr.h"
 #include "DB2Structure.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "PetDefines.h"

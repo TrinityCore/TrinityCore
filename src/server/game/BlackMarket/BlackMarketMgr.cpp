@@ -20,6 +20,7 @@
 #include "BlackMarketPackets.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "Item.h"
 #include "Language.h"
 #include "Log.h"
 #include "Mail.h"
@@ -28,6 +29,7 @@
 #include "Player.h"
 #include "Realm.h"
 #include "World.h"
+#include "WorldSession.h"
 #include <sstream>
 
 BlackMarketMgr::BlackMarketMgr()

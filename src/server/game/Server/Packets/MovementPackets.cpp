@@ -347,7 +347,7 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
         if (HasSpecialTime)
             data << uint32(moveSpline.effect_start_time);                       // SpecialTime
 
-        data.append<G3D::Vector3>(&moveSpline.getPath()[0], moveSpline.getPath().size());
+        data.append(moveSpline.getPath().data(), moveSpline.getPath().size());
 
         if (moveSpline.spell_effect_extra)
         {
@@ -357,6 +357,12 @@ void WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(::
             data << uint32(moveSpline.spell_effect_extra->ParabolicCurveId);
         }
     }
+}
+
+void WorldPackets::Movement::CommonMovement::WriteCreateObjectAreaTriggerSpline(::Movement::Spline<int32> const& spline, ByteBuffer& data)
+{
+    data.WriteBits(spline.getPoints().size(), 16);
+    data.append<G3D::Vector3>(spline.getPoints().data(), spline.getPoints().size());
 }
 
 void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)

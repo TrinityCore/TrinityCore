@@ -29,6 +29,8 @@
 #define BASE_MAXDAMAGE 2.0f
 #define BASE_ATTACK_TIME 2000
 
+#define MAX_EQUIPMENT_ITEMS 3
+
 // byte value (UNIT_FIELD_BYTES_1, 0)
 enum UnitStandStateType : uint8
 {
@@ -355,6 +357,33 @@ enum HitInfo
 struct DeclinedName
 {
     std::string name[MAX_DECLINED_NAME_CASES];
+};
+
+enum ActiveStates
+{
+    ACT_PASSIVE  = 0x01,                                    // 0x01 - passive
+    ACT_DISABLED = 0x81,                                    // 0x80 - castable
+    ACT_ENABLED  = 0xC1,                                    // 0x40 | 0x80 - auto cast + castable
+    ACT_COMMAND  = 0x07,                                    // 0x01 | 0x02 | 0x04
+    ACT_REACTION = 0x06,                                    // 0x02 | 0x04
+    ACT_DECIDE   = 0x00                                     // custom
+};
+
+enum ReactStates
+{
+    REACT_PASSIVE    = 0,
+    REACT_DEFENSIVE  = 1,
+    REACT_AGGRESSIVE = 2,
+    REACT_ASSIST     = 3
+};
+
+enum CommandStates : uint8
+{
+    COMMAND_STAY    = 0,
+    COMMAND_FOLLOW  = 1,
+    COMMAND_ATTACK  = 2,
+    COMMAND_ABANDON = 3,
+    COMMAND_MOVE_TO = 4
 };
 
 #endif // UnitDefines_h__

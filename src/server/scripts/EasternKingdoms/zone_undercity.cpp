@@ -29,6 +29,7 @@ npc_highborne_lamenter
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"

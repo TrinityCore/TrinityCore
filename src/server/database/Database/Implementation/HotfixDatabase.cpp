@@ -667,8 +667,15 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_POWER_TYPE, "SELECT ID, PowerTypeToken, PowerCostToken, RegenerationPeace, RegenerationCombat, MaxPower, "
         "RegenerationDelay, Flags, PowerTypeEnum, RegenerationMin, RegenerationCenter, RegenerationMax, UIModifier FROM power_type ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // PrestigeLevelInfo.db2
+    PrepareStatement(HOTFIX_SEL_PRESTIGE_LEVEL_INFO, "SELECT ID, IconID, PrestigeText, PrestigeLevel, Flags FROM prestige_level_info ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_PRESTIGE_LEVEL_INFO, "SELECT ID, PrestigeText_lang FROM prestige_level_info_locale WHERE locale = ?", CONNECTION_SYNCH);
+
     // PvpDifficulty.db2
     PrepareStatement(HOTFIX_SEL_PVP_DIFFICULTY, "SELECT ID, MapID, BracketID, MinLevel, MaxLevel FROM pvp_difficulty ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // PvpReward.db2
+    PrepareStatement(HOTFIX_SEL_PVP_REWARD, "SELECT ID, HonorLevel, Prestige, RewardPackID FROM pvp_reward ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // QuestFactionReward.db2
     PrepareStatement(HOTFIX_SEL_QUEST_FACTION_REWARD, "SELECT ID, QuestRewFactionValue1, QuestRewFactionValue2, QuestRewFactionValue3, "
@@ -697,6 +704,13 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "EpicPropertiesPoints4, EpicPropertiesPoints5, RarePropertiesPoints1, RarePropertiesPoints2, RarePropertiesPoints3, RarePropertiesPoints4, "
         "RarePropertiesPoints5, UncommonPropertiesPoints1, UncommonPropertiesPoints2, UncommonPropertiesPoints3, UncommonPropertiesPoints4, "
         "UncommonPropertiesPoints5 FROM rand_prop_points ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // RewardPack.db2
+    PrepareStatement(HOTFIX_SEL_REWARD_PACK, "SELECT ID, Money, ArtifactXPMultiplier, ArtifactXPDifficulty, ArtifactCategoryID, TitleID, Unused"
+        " FROM reward_pack ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // RewardPackXItem.db2
+    PrepareStatement(HOTFIX_SEL_REWARD_PACK_X_ITEM, "SELECT ID, ItemID, RewardPackID, Amount FROM reward_pack_x_item ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // RulesetItemUpgrade.db2
     PrepareStatement(HOTFIX_SEL_RULESET_ITEM_UPGRADE, "SELECT ID, ItemID, ItemUpgradeID FROM ruleset_item_upgrade ORDER BY ID DESC", CONNECTION_SYNCH);

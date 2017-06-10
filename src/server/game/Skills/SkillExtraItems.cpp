@@ -19,9 +19,9 @@
 #include "SkillExtraItems.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "Player.h"
 #include "ObjectMgr.h"
-#include <map>
+#include "Player.h"
+#include "SpellMgr.h"
 
 // some type definitions
 // no use putting them in the header file, they're only used in this .cpp

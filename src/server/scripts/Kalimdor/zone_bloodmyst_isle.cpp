@@ -31,6 +31,7 @@ EndContentData */
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"

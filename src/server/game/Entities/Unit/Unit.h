@@ -19,19 +19,19 @@
 #ifndef __UNIT_H
 #define __UNIT_H
 
-#include "UnitDefines.h"
+#include "Object.h"
 #include "EventProcessor.h"
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
 #include "HostileRefManager.h"
-#include "MotionMaster.h"
-#include "Object.h"
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
-#include "MoveSplineInit.h"
 #include "Timer.h"
+#include "UnitDefines.h"
 #include "Util.h"
 #include <boost/container/flat_set.hpp>
+#include <algorithm>
+#include <map>
 
 #define WORLD_TRIGGER   12999
 #define ARTIFACTS_ALL_WEAPONS_GENERAL_WEAPON_EQUIPPED_PASSIVE 197886
@@ -275,32 +275,34 @@ struct LiquidTypeEntry;
 struct MountCapabilityEntry;
 struct SpellValue;
 
-class AuraApplication;
 class Aura;
-class UnitAura;
+class AuraApplication;
 class AuraEffect;
 class Creature;
-class Spell;
-class SpellInfo;
-class SpellEffectInfo;
-class SpellHistory;
 class DynamicObject;
 class GameObject;
+class Guardian;
 class Item;
+class Minion;
+class MotionMaster;
 class Pet;
 class PetAura;
-class Minion;
-class Guardian;
-class UnitAI;
+class Spell;
+class SpellCastTargets;
+class SpellEffectInfo;
+class SpellHistory;
+class SpellInfo;
 class Totem;
 class Transport;
+class TransportBase;
+class UnitAI;
+class UnitAura;
 class Vehicle;
 class VehicleJoinEvent;
-class TransportBase;
-class SpellCastTargets;
 namespace Movement
 {
     class MoveSpline;
+    struct SpellEffectExtraData;
 }
 namespace WorldPackets
 {
@@ -819,33 +821,6 @@ enum CurrentSpellTypes : uint8
 #define CURRENT_FIRST_NON_MELEE_SPELL 1
 #define CURRENT_MAX_SPELL             4
 
-enum ActiveStates
-{
-    ACT_PASSIVE  = 0x01,                                    // 0x01 - passive
-    ACT_DISABLED = 0x81,                                    // 0x80 - castable
-    ACT_ENABLED  = 0xC1,                                    // 0x40 | 0x80 - auto cast + castable
-    ACT_COMMAND  = 0x07,                                    // 0x01 | 0x02 | 0x04
-    ACT_REACTION = 0x06,                                    // 0x02 | 0x04
-    ACT_DECIDE   = 0x00                                     // custom
-};
-
-enum ReactStates
-{
-    REACT_PASSIVE    = 0,
-    REACT_DEFENSIVE  = 1,
-    REACT_AGGRESSIVE = 2,
-    REACT_ASSIST     = 3
-};
-
-enum CommandStates : uint8
-{
-    COMMAND_STAY    = 0,
-    COMMAND_FOLLOW  = 1,
-    COMMAND_ATTACK  = 2,
-    COMMAND_ABANDON = 3,
-    COMMAND_MOVE_TO = 4
-};
-
 #define UNIT_ACTION_BUTTON_ACTION(X) (uint32(X) & 0x00FFFFFF)
 #define UNIT_ACTION_BUTTON_TYPE(X)   ((uint32(X) & 0xFF000000) >> 24)
 #define MAKE_UNIT_ACTION_BUTTON(A, T) (uint32(A) | (uint32(T) << 24))
@@ -998,8 +973,6 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_WATER = 82,
     SUMMON_TYPE_TOTEM_AIR   = 83
 };
-
-#define MAX_EQUIPMENT_ITEMS 3
 
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
@@ -1874,7 +1847,7 @@ class TC_GAME_API Unit : public WorldObject
         void SendPetAIReaction(ObjectGuid guid);
         ///----------End of Pet responses methods----------
 
-        void propagateSpeedChange() { GetMotionMaster()->propagateSpeedChange(); }
+        void propagateSpeedChange();
 
         // reactive attacks
         void ClearAllReactives();

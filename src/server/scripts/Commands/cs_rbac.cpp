@@ -30,6 +30,7 @@ EndScriptData */
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 
 struct RBACCommandData
 {

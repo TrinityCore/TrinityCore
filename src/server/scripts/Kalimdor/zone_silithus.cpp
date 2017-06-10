@@ -39,6 +39,7 @@ EndContentData */
 #include "CreatureAIImpl.h"
 #include "GameObject.h"
 #include "Group.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"

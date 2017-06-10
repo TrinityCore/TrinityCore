@@ -16,13 +16,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DynamicObject.h"
 #include "Common.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptMgr.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "Transport.h"
+#include "Unit.h"
+#include "UpdateData.h"
 #include "World.h"
 
 DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
@@ -235,4 +241,9 @@ void DynamicObject::UnbindFromCaster()
     ASSERT(_caster);
     _caster->_UnregisterDynObject(this);
     _caster = NULL;
+}
+
+SpellInfo const* DynamicObject::GetSpellInfo() const
+{
+    return sSpellMgr->GetSpellInfo(GetSpellId());
 }

@@ -18,7 +18,9 @@
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MiscPackets.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
@@ -130,7 +132,7 @@ class boss_ossirian : public CreatureScript
             void DoAction(int32 action) override
             {
                 if (action == ACTION_TRIGGER_WEAKNESS)
-                    if (Creature* Trigger = me->GetMap()->GetCreature(TriggerGUID))
+                    if (Creature* Trigger = ObjectAccessor::GetCreature(*me, TriggerGUID))
                         if (!Trigger->HasUnitState(UNIT_STATE_CASTING))
                             Trigger->CastSpell(Trigger, SpellWeakness[urand(0, 4)], false);
             }
@@ -181,7 +183,7 @@ class boss_ossirian : public CreatureScript
 
             void Cleanup()
             {
-                if (GameObject* Crystal = me->GetMap()->GetGameObject(CrystalGUID))
+                if (GameObject* Crystal = ObjectAccessor::GetGameObject(*me, CrystalGUID))
                     Crystal->Use(me);
             }
 

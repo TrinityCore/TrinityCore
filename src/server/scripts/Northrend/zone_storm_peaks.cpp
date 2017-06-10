@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CombatAI.h"
 #include "GameObject.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
@@ -26,6 +27,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
+#include "WorldSession.h"
 
 /////////////////////
 ///npc_injured_goblin

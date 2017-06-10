@@ -325,7 +325,7 @@ bool Deserializer::Double(double d)
     switch (field->cpp_type())
     {
         case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
-            SET_FIELD(message, field, Float, d);
+            SET_FIELD(message, field, Float, float(d));
             break;
         case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
             SET_FIELD(message, field, Double, d);

@@ -21,7 +21,9 @@
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "MovementPackets.h"
+#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
@@ -35,6 +37,7 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "Vehicle.h"
+#include <G3D/Vector3.h>
 
 enum Texts
 {

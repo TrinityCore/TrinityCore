@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "blackrock_spire.h"
 #include "GameObject.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -374,37 +375,37 @@ public:
                             me->SummonCreature(NPC_GYTH, 211.762f, -397.5885f, 111.1817f, 4.747295f);
                             break;
                         case EVENT_WAVE_1:
-                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
                         case EVENT_WAVE_2:
                             // spawn wave
-                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
                         case EVENT_WAVE_3:
                             // spawn wave
-                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
                         case EVENT_WAVE_4:
                             // spawn wave
-                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
                         case EVENT_WAVE_5:
                             // spawn wave
-                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;
                         case EVENT_WAVE_6:
                             // spawn wave
-                            if (GameObject* portcullis = me->GetMap()->GetGameObject(portcullisGUID))
+                            if (GameObject* portcullis = ObjectAccessor::GetGameObject(*me, portcullisGUID))
                                 portcullis->UseDoorOrButton();
                             // move wave
                             break;

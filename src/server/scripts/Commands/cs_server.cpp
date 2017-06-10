@@ -33,6 +33,7 @@ EndScriptData */
 #include "RBAC.h"
 #include "Util.h"
 #include "World.h"
+#include "WorldSession.h"
 
 class server_commandscript : public CommandScript
 {

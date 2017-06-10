@@ -21,6 +21,7 @@
 #include "DatabaseEnv.h"
 #include "Group.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"

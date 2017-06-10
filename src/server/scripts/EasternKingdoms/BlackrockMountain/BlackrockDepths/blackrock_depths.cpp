@@ -552,7 +552,7 @@ public:
 
         void DoGo(uint32 id, uint32 state)
         {
-            if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(id)))
+            if (GameObject* go = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(id)))
                 go->SetGoState((GOState)state);
         }
 

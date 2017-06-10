@@ -38,6 +38,7 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "WorldSession.h"
 
 /*######
 ## npc_unkor_the_ruthless

@@ -157,9 +157,11 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
         case HighGuid::AreaTrigger:
             if (typemask & TYPEMASK_AREATRIGGER)
                 return GetAreaTrigger(p, guid);
+            break;
         case HighGuid::Conversation:
             if (typemask & TYPEMASK_CONVERSATION)
                 return GetConversation(p, guid);
+            break;
         case HighGuid::Corpse:
             break;
         default:

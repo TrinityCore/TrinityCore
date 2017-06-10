@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CreatureTextMgr.h"
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 

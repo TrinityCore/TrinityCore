@@ -21,6 +21,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
@@ -70,7 +71,7 @@ Position const PortalIntroPositions[PortalIntroPositionsSize] = // sniff
 uint32 const EncouterPortalsCount = PortalPositionsSize + PortalElitePositionsSize;
 
 uint32 const MoraggPathSize = 3;
-G3D::Vector3 const MoraggPath[MoraggPathSize] = // sniff
+Position const MoraggPath[MoraggPathSize] = // sniff
 {
     { 1893.895f, 728.1261f, 47.75016f },
     { 1892.997f, 738.4987f, 47.66684f },
@@ -78,7 +79,7 @@ G3D::Vector3 const MoraggPath[MoraggPathSize] = // sniff
 };
 
 uint32 const ErekemPathSize = 3;
-G3D::Vector3 const ErekemPath[ErekemPathSize] = // sniff
+Position const ErekemPath[ErekemPathSize] = // sniff
 {
     { 1871.456f, 871.0361f, 43.41524f },
     { 1874.948f, 859.5452f, 43.33349f },
@@ -86,7 +87,7 @@ G3D::Vector3 const ErekemPath[ErekemPathSize] = // sniff
 };
 
 uint32 const ErekemGuardLeftPathSize = 3;
-G3D::Vector3 const ErekemGuardLeftPath[ErekemGuardLeftPathSize] = // sniff
+Position const ErekemGuardLeftPath[ErekemGuardLeftPathSize] = // sniff
 {
     { 1853.752f, 862.4528f, 43.41614f },
     { 1866.931f, 854.577f,  43.3335f  },
@@ -94,7 +95,7 @@ G3D::Vector3 const ErekemGuardLeftPath[ErekemGuardLeftPathSize] = // sniff
 };
 
 uint32 const ErekemGuardRightPathSize = 3;
-G3D::Vector3 const ErekemGuardRightPath[ErekemGuardRightPathSize] = // sniff
+Position const ErekemGuardRightPath[ErekemGuardRightPathSize] = // sniff
 {
     { 1892.418f, 872.2831f, 43.41563f },
     { 1885.639f, 859.0245f, 43.3335f  },
@@ -102,7 +103,7 @@ G3D::Vector3 const ErekemGuardRightPath[ErekemGuardRightPathSize] = // sniff
 };
 
 uint32 const IchoronPathSize = 5;
-G3D::Vector3 const IchoronPath[IchoronPathSize] = // sniff
+Position const IchoronPath[IchoronPathSize] = // sniff
 {
     { 1942.041f, 749.5228f, 30.95229f },
     { 1930.571f, 762.9065f, 31.98814f },
@@ -112,7 +113,7 @@ G3D::Vector3 const IchoronPath[IchoronPathSize] = // sniff
 };
 
 uint32 const LavanthorPathSize = 3;
-G3D::Vector3 const LavanthorPath[LavanthorPathSize] = // sniff
+Position const LavanthorPath[LavanthorPathSize] = // sniff
 {
     { 1844.557f, 748.7083f, 38.74205f },
     { 1854.618f, 761.5295f, 38.65631f },
@@ -120,7 +121,7 @@ G3D::Vector3 const LavanthorPath[LavanthorPathSize] = // sniff
 };
 
 uint32 const XevozzPathSize = 3;
-G3D::Vector3 const XevozzPath[XevozzPathSize] = // sniff
+Position const XevozzPath[XevozzPathSize] = // sniff
 {
     { 1908.417f, 845.8502f, 38.71947f },
     { 1905.557f, 841.3157f, 38.65529f },
@@ -128,7 +129,7 @@ G3D::Vector3 const XevozzPath[XevozzPathSize] = // sniff
 };
 
 uint32 const ZuramatPathSize = 3;
-G3D::Vector3 const ZuramatPath[ZuramatPathSize] = // sniff
+Position const ZuramatPath[ZuramatPathSize] = // sniff
 {
     { 1934.151f, 860.9463f, 47.29499f },
     { 1927.085f, 852.1342f, 47.19214f },
