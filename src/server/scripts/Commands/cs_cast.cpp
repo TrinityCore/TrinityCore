@@ -27,6 +27,9 @@ EndScriptData */
 #include "Creature.h"
 #include "Language.h"
 #include "Player.h"
+#include "RBAC.h"
+#include "SpellMgr.h"
+#include "WorldSession.h"
 
 class cast_commandscript : public CommandScript
 {

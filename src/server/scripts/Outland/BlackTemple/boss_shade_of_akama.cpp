@@ -15,15 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "ScriptedGossip.h"
-#include "GridNotifiers.h"
 #include "black_temple.h"
-#include "SpellScript.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -351,7 +356,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_shade_of_akamaAI>(creature);
+        return GetBlackTempleAI<boss_shade_of_akamaAI>(creature);
     }
 };
 
@@ -567,7 +572,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_akamaAI>(creature);
+        return GetBlackTempleAI<npc_akamaAI>(creature);
     }
 };
 
@@ -613,7 +618,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_channelerAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_channelerAI>(creature);
     }
 };
 
@@ -711,7 +716,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_creature_generator_akamaAI>(creature);
+        return GetBlackTempleAI<npc_creature_generator_akamaAI>(creature);
     }
 };
 
@@ -819,7 +824,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_sorcererAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_sorcererAI>(creature);
     }
 };
 
@@ -897,7 +902,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_defenderAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_defenderAI>(creature);
     }
 };
 
@@ -966,7 +971,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_rogueAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_rogueAI>(creature);
     }
 };
 
@@ -1035,7 +1040,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_elementalistAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_elementalistAI>(creature);
     }
 };
 
@@ -1136,7 +1141,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_spiritbinderAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_spiritbinderAI>(creature);
     }
 };
 
@@ -1187,7 +1192,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ashtongue_brokenAI>(creature);
+        return GetBlackTempleAI<npc_ashtongue_brokenAI>(creature);
     }
 };
 
@@ -1202,9 +1207,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHADE_SOUL_CHANNEL_2))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHADE_SOUL_CHANNEL_2 });
         }
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

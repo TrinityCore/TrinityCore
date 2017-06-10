@@ -15,12 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
 #include "Language.h"
+#include "Log.h"
+#include "Map.h"
 #include "Pet.h"
-#include "Player.h"
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "Player.h"
+#include "RBAC.h"
+#include "SpellMgr.h"
+#include "WorldSession.h"
 
 static inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
 {

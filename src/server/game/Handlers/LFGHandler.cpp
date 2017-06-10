@@ -15,13 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LFGMgr.h"
-#include "ObjectMgr.h"
-#include "Group.h"
-#include "Player.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Group.h"
+#include "LFGMgr.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "WorldPacket.h"
 
 void BuildPlayerLockDungeonBlock(WorldPacket& data, lfg::LfgLockMap const& lock)
 {
@@ -460,19 +462,19 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, boo
         GetPlayerInfo().c_str(), updateData.updateType, party ? "true" : "false");
 
     WorldPacket data(SMSG_LFG_UPDATE_STATUS, 1 + 8 + 3 + 2 + 1 + updateData.comment.length() + 4 + 4 + 1 + 1 + 1 + 4 + size);
-    data.WriteBit(guid[1]);
+    data.WriteBit(guid[1] != 0);
     data.WriteBit(party);
     data.WriteBits(size, 24);
-    data.WriteBit(guid[6]);
+    data.WriteBit(guid[6] != 0);
     data.WriteBit(size > 0);                               // Extra info
     data.WriteBits(updateData.comment.length(), 9);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[2]);
+    data.WriteBit(guid[4] != 0);
+    data.WriteBit(guid[7] != 0);
+    data.WriteBit(guid[2] != 0);
     data.WriteBit(join);                                   // LFG Join
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0] != 0);
+    data.WriteBit(guid[3] != 0);
+    data.WriteBit(guid[5] != 0);
     data.WriteBit(queued);                                 // Join the queue
 
     data << uint8(updateData.updateType);                  // Lfg Update type
@@ -573,29 +575,29 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
     data << uint32(queueId);                               // Queue Id
     data << uint8(joinData.state);                         // Check Value
     data << uint32(time(NULL));                            // Join date
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[0]);
+    data.WriteBit(guid[2] != 0);
+    data.WriteBit(guid[7] != 0);
+    data.WriteBit(guid[3] != 0);
+    data.WriteBit(guid[0] != 0);
     data.WriteBits(joinData.lockmap.size(), 24);
     for (lfg::LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
     {
         ObjectGuid playerGuid = it->first;
-        data.WriteBit(playerGuid[7]);
-        data.WriteBit(playerGuid[5]);
-        data.WriteBit(playerGuid[3]);
-        data.WriteBit(playerGuid[6]);
-        data.WriteBit(playerGuid[0]);
-        data.WriteBit(playerGuid[2]);
-        data.WriteBit(playerGuid[4]);
-        data.WriteBit(playerGuid[1]);
+        data.WriteBit(playerGuid[7] != 0);
+        data.WriteBit(playerGuid[5] != 0);
+        data.WriteBit(playerGuid[3] != 0);
+        data.WriteBit(playerGuid[6] != 0);
+        data.WriteBit(playerGuid[0] != 0);
+        data.WriteBit(playerGuid[2] != 0);
+        data.WriteBit(playerGuid[4] != 0);
+        data.WriteBit(playerGuid[1] != 0);
         data.WriteBits(it->second.size(), 22);
     }
 
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[6]);
+    data.WriteBit(guid[4] != 0);
+    data.WriteBit(guid[5] != 0);
+    data.WriteBit(guid[1] != 0);
+    data.WriteBit(guid[6] != 0);
     for (lfg::LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
     {
         ObjectGuid playerGuid = it->first;
@@ -643,14 +645,14 @@ void WorldSession::SendLfgQueueStatus(lfg::LfgQueueStatusData const& queueData)
 
     ObjectGuid guid = _player->GetGUID();
     WorldPacket data(SMSG_LFG_QUEUE_STATUS, 4 + 4 + 4 + 4 + 4 + 4 + 1 + 1 + 1 + 4 + 4 + 4 + 4 + 8);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[4]);
+    data.WriteBit(guid[3] != 0);
+    data.WriteBit(guid[0] != 0);
+    data.WriteBit(guid[2] != 0);
+    data.WriteBit(guid[6] != 0);
+    data.WriteBit(guid[5] != 0);
+    data.WriteBit(guid[7] != 0);
+    data.WriteBit(guid[1] != 0);
+    data.WriteBit(guid[4] != 0);
 
     data.WriteByteSeq(guid[0]);
     data << uint8(queueData.tanks);                        // Tanks needed
@@ -761,20 +763,17 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
     data << uint32(proposal.id);                           // Proposal Id
     data << uint8(proposal.state);                         // State
 
-    ObjectGuid guid1 = guid;
-    ObjectGuid guid2 = gguid;
-
-    data.WriteBit(guid2[4]);
-    data.WriteBit(guid1[3]);
-    data.WriteBit(guid1[7]);
-    data.WriteBit(guid1[0]);
-    data.WriteBit(guid2[1]);
+    data.WriteBit(gguid[4] != 0);
+    data.WriteBit(guid[3] != 0);
+    data.WriteBit(guid[7] != 0);
+    data.WriteBit(guid[0] != 0);
+    data.WriteBit(gguid[1] != 0);
     data.WriteBit(silent);
-    data.WriteBit(guid1[4]);
-    data.WriteBit(guid1[5]);
-    data.WriteBit(guid2[3]);
+    data.WriteBit(guid[4] != 0);
+    data.WriteBit(guid[5] != 0);
+    data.WriteBit(gguid[3] != 0);
     data.WriteBits(proposal.players.size(), 23);
-    data.WriteBit(guid2[7]);
+    data.WriteBit(gguid[7] != 0);
 
     for (lfg::LfgProposalPlayerContainer::const_iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
     {
@@ -782,8 +781,8 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
 
         if (!player.group)
         {
-            data.WriteBit(0);
-            data.WriteBit(0);
+            data.WriteBit(false);
+            data.WriteBit(false);
         }
         else
         {
@@ -796,21 +795,21 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
         data.WriteBit(it->first == guid);
     }
 
-    data.WriteBit(guid2[5]);
-    data.WriteBit(guid1[6]);
-    data.WriteBit(guid2[2]);
-    data.WriteBit(guid2[6]);
-    data.WriteBit(guid1[2]);
-    data.WriteBit(guid1[1]);
-    data.WriteBit(guid2[0]);
+    data.WriteBit(gguid[5] != 0);
+    data.WriteBit(guid[6] != 0);
+    data.WriteBit(gguid[2] != 0);
+    data.WriteBit(gguid[6] != 0);
+    data.WriteBit(guid[2] != 0);
+    data.WriteBit(guid[1] != 0);
+    data.WriteBit(gguid[0] != 0);
 
-    data.WriteByteSeq(guid1[5]);
-    data.WriteByteSeq(guid2[3]);
-    data.WriteByteSeq(guid2[6]);
-    data.WriteByteSeq(guid1[6]);
-    data.WriteByteSeq(guid1[0]);
-    data.WriteByteSeq(guid2[5]);
-    data.WriteByteSeq(guid1[1]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(gguid[3]);
+    data.WriteByteSeq(gguid[6]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(gguid[5]);
+    data.WriteByteSeq(guid[1]);
 
     for (lfg::LfgProposalPlayerContainer::const_iterator it = proposal.players.begin(); it != proposal.players.end(); ++it)
     {
@@ -818,15 +817,15 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
         data << uint32(player.role);
     }
 
-    data.WriteByteSeq(guid2[7]);
-    data.WriteByteSeq(guid1[4]);
-    data.WriteByteSeq(guid2[0]);
-    data.WriteByteSeq(guid2[1]);
-    data.WriteByteSeq(guid1[2]);
-    data.WriteByteSeq(guid1[7]);
-    data.WriteByteSeq(guid2[2]);
-    data.WriteByteSeq(guid1[3]);
-    data.WriteByteSeq(guid2[4]);
+    data.WriteByteSeq(gguid[7]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(gguid[0]);
+    data.WriteByteSeq(gguid[1]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(gguid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(gguid[4]);
 
     SendPacket(&data);
 }

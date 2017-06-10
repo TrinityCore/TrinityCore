@@ -16,17 +16,20 @@
  */
 
 #include "OutdoorPvP.h"
-#include "OutdoorPvPMgr.h"
-#include "ObjectAccessor.h"
-#include "ObjectMgr.h"
+#include "CellImpl.h"
+#include "ChatPackets.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GridNotifiersImpl.h"
+#include "Group.h"
+#include "Log.h"
 #include "Map.h"
 #include "MapManager.h"
-#include "Group.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
 #include "WorldPacket.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
-#include "Packets/ChatPackets.h"
+#include "WorldSession.h"
 
 class DefenseMessageBuilder
 {
@@ -307,7 +310,7 @@ bool OPvPCapturePoint::Update(uint32 diff)
     std::list<Player*> players;
     Trinity::AnyPlayerInObjectRangeCheck checker(m_capturePoint, radius);
     Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(m_capturePoint, players, checker);
-    m_capturePoint->VisitNearbyWorldObject(radius, searcher);
+    Cell::VisitWorldObjects(m_capturePoint, searcher, radius);
 
     for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
     {

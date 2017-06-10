@@ -19,6 +19,9 @@
 #ifndef DEF_TOC_H
 #define DEF_TOC_H
 
+#include "CreatureAIImpl.h"
+
+#define ToCScriptName "instance_trial_of_the_champion"
 #define DataHeader "TC"
 
 enum TCData
@@ -126,5 +129,11 @@ enum TCVehicles
 
     VEHICLE_BLACK_KNIGHT                            = 35491
 };
+
+template<class AI>
+inline AI* GetTrialOfTheChampionAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, ToCScriptName);
+}
 
 #endif

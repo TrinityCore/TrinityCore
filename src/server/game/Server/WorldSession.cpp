@@ -20,41 +20,35 @@
     \ingroup u2w
 */
 
-#include "WorldSocket.h"
-#include "Config.h"
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "QueryCallback.h"
-#include "AccountMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Player.h"
-#include "Vehicle.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "Group.h"
-#include "Guild.h"
-#include "World.h"
-#include "ObjectAccessor.h"
-#include "BattlegroundMgr.h"
-#include "OutdoorPvPMgr.h"
-#include "SocialMgr.h"
-#include "ScriptMgr.h"
-#include "WardenWin.h"
+#include "QueryHolder.h"
+#include "AccountMgr.h"
 #include "AuthenticationPackets.h"
+#include "BattlePetMgr.h"
+#include "BattlegroundMgr.h"
 #include "BattlenetPackets.h"
 #include "CharacterPackets.h"
-#include "ClientConfigPackets.h"
-#include "MiscPackets.h"
 #include "ChatPackets.h"
-#include "BattlePetMgr.h"
-#include "PacketUtilities.h"
-#include "CollectionMgr.h"
+#include "DatabaseEnv.h"
+#include "Group.h"
+#include "Guild.h"
+#include "GuildMgr.h"
+#include "Map.h"
 #include "Metric.h"
-
-#include <zlib.h>
+#include "MiscPackets.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
+#include "PacketUtilities.h"
+#include "Player.h"
+#include "QueryHolder.h"
+#include "Random.h"
+#include "RBAC.h"
+#include "Realm.h"
+#include "ScriptMgr.h"
+#include "SocialMgr.h"
+#include "WardenWin.h"
+#include "World.h"
+#include "WorldSocket.h"
 
 namespace {
 
@@ -695,6 +689,11 @@ char const* WorldSession::GetTrinityString(uint32 entry) const
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
 }
 
+void WorldSession::ResetTimeOutTime()
+{
+    m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
+}
+
 void WorldSession::Handle_NULL(WorldPackets::Null& null)
 {
     TC_LOG_ERROR("network.opcode", "Received unhandled opcode %s from %s", GetOpcodeNameForLogging(null.GetOpcode()).c_str(), GetPlayerInfo().c_str());
@@ -709,8 +708,7 @@ void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial serial)
 {
     boost::system::error_code ignored_error;
-    boost::asio::ip::tcp::endpoint instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
-    instanceAddress.port(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
+    boost::asio::ip::address instanceAddress = realm.GetAddressForClient(boost::asio::ip::address::from_string(GetRemoteAddress(), ignored_error));
 
     _instanceConnectKey.Fields.AccountId = GetAccountId();
     _instanceConnectKey.Fields.ConnectionType = CONNECTION_TYPE_INSTANCE;
@@ -719,7 +717,17 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
     WorldPackets::Auth::ConnectTo connectTo;
     connectTo.Key = _instanceConnectKey.Raw;
     connectTo.Serial = serial;
-    connectTo.Payload.Where = instanceAddress;
+    connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_INSTANCE);
+    if (instanceAddress.is_v4())
+    {
+        memcpy(connectTo.Payload.Where.data(), instanceAddress.to_v4().to_bytes().data(), 4);
+        connectTo.Payload.Type = WorldPackets::Auth::ConnectTo::IPv4;
+    }
+    else
+    {
+        memcpy(connectTo.Payload.Where.data(), instanceAddress.to_v6().to_bytes().data(), 16);
+        connectTo.Payload.Type = WorldPackets::Auth::ConnectTo::IPv6;
+    }
     connectTo.Con = CONNECTION_TYPE_INSTANCE;
 
     SendPacket(connectTo.Write());
@@ -1375,4 +1383,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
     }
 
     return maxPacketCounterAllowed;
+}
+
+WorldSession::DosProtection::DosProtection(WorldSession* s) : Session(s), _policy((Policy)sWorld->getIntConfig(CONFIG_PACKET_SPOOF_POLICY))
+{
 }

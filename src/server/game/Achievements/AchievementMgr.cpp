@@ -18,13 +18,21 @@
 
 #include "AchievementMgr.h"
 #include "AchievementPackets.h"
+#include "DB2Stores.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
+#include "DatabaseEnv.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
+#include "Guild.h"
 #include "GuildMgr.h"
+#include "Item.h"
 #include "Language.h"
+#include "Log.h"
+#include "Mail.h"
 #include "ObjectMgr.h"
+#include "World.h"
+#include "WorldSession.h"
 
 struct VisibleAchievementCheck
 {
@@ -443,7 +451,7 @@ void PlayerAchievementMgr::SendAchievementInfo(Player* receiver, uint32 /*achiev
         inspectedAchievements.Data.Progress.push_back(progress);
     }
 
-    receiver->GetSession()->SendPacket(inspectedAchievements.Write());
+    receiver->SendDirectMessage(inspectedAchievements.Write());
 }
 
 void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievement, Player* referencePlayer)
@@ -509,7 +517,7 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
             std::string text = reward->Body;
 
             LocaleConstant localeConstant = _owner->GetSession()->GetSessionDbLocaleIndex();
-            if (localeConstant >= LOCALE_enUS)
+            if (localeConstant != LOCALE_enUS)
             {
                 if (AchievementRewardLocale const* loc = sAchievementMgr->GetAchievementRewardLocale(achievement))
                 {
@@ -599,8 +607,8 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
         {
             Trinity::BroadcastTextBuilder _builder(_owner, CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, _owner, achievement->ID);
             Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> _localizer(_builder);
-            Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> > _worker(_owner, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _localizer);
-            _owner->VisitNearbyWorldObject(sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _worker);
+            Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder>> _worker(_owner, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _localizer);
+            Cell::VisitWorldObjects(_owner, _worker, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
         }
     }
 
@@ -790,7 +798,7 @@ void GuildAchievementMgr::SendAllData(Player const* receiver) const
         allGuildAchievements.Earned.push_back(earned);
     }
 
-    receiver->GetSession()->SendPacket(allGuildAchievements.Write());
+    receiver->SendDirectMessage(allGuildAchievements.Write());
 }
 
 void GuildAchievementMgr::SendAchievementInfo(Player* receiver, uint32 achievementId /*= 0*/) const
@@ -823,7 +831,7 @@ void GuildAchievementMgr::SendAchievementInfo(Player* receiver, uint32 achieveme
         }
     }
 
-    receiver->GetSession()->SendPacket(guildCriteriaUpdate.Write());
+    receiver->SendDirectMessage(guildCriteriaUpdate.Write());
 }
 
 void GuildAchievementMgr::SendAllTrackedCriterias(Player* receiver, std::set<uint32> const& trackedCriterias) const
@@ -849,7 +857,7 @@ void GuildAchievementMgr::SendAllTrackedCriterias(Player* receiver, std::set<uin
         guildCriteriaUpdate.Progress.push_back(guildCriteriaProgress);
     }
 
-    receiver->GetSession()->SendPacket(guildCriteriaUpdate.Write());
+    receiver->SendDirectMessage(guildCriteriaUpdate.Write());
 }
 
 void GuildAchievementMgr::SendAchievementMembers(Player* receiver, uint32 achievementId) const

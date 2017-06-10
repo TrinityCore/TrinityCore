@@ -24,8 +24,8 @@ SDCategory:
 Script Data End */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "culling_of_stratholme.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -114,7 +114,7 @@ class boss_epoch : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_epochAI>(creature);
+            return GetCullingOfStratholmeAI<boss_epochAI>(creature);
         }
 };
 

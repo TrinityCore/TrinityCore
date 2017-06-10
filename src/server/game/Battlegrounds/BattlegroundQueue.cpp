@@ -16,15 +16,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BattlegroundQueue.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
-#include "BattlegroundQueue.h"
+#include "BattlegroundPackets.h"
 #include "Chat.h"
+#include "DB2Stores.h"
 #include "Group.h"
-#include "Log.h"
 #include "Language.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "World.h"
 
 /*********************************************************/
 /***            BATTLEGROUND QUEUE SYSTEM              ***/

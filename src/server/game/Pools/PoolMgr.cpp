@@ -18,9 +18,17 @@
 
 #include "PoolMgr.h"
 #include "Containers.h"
-#include "ObjectMgr.h"
+#include "Creature.h"
+#include "DatabaseEnv.h"
+#include "GameObject.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "ObjectMgr.h"
+#include <sstream>
+
+PoolObject::PoolObject(uint64 _guid, float _chance) : guid(_guid), chance(std::fabs(_chance))
+{
+}
 
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData
@@ -701,8 +709,9 @@ void PoolMgr::LoadFromDB()
 
                 GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(data->id);
                 if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
-                    goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
-                    goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)
+                    goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE &&
+                    goinfo->type != GAMEOBJECT_TYPE_GATHERING_NODE &&
+                    goinfo->type != GAMEOBJECT_TYPE_GOOBER)
                 {
                     TC_LOG_ERROR("sql.sql", "`pool_gameobject` has a not lootable gameobject spawn (GUID: " UI64FMTD ", type: %u) defined for pool id (%u), skipped.", guid, goinfo->type, pool_id);
                     continue;

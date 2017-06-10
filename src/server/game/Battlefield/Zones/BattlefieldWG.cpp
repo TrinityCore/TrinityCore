@@ -21,15 +21,20 @@
 
 #include "BattlefieldWG.h"
 #include "AchievementMgr.h"
-#include "CreatureTextMgr.h"
 #include "Battleground.h"
+#include "CreatureTextMgr.h"
+#include "GameObject.h"
+#include "DB2Stores.h"
+#include "Log.h"
 #include "MapManager.h"
-#include "ObjectMgr.h"
-#include "Opcodes.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "Random.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
+#include "World.h"
 #include "WorldSession.h"
+#include "WorldStatePackets.h"
 
 struct BfWGCoordGY
 {
@@ -57,7 +62,7 @@ uint32 const WintergraspFaction[]      = { 1732, 1735, 35 };
 Position const WintergraspStalkerPos   = { 4948.985f, 2937.789f, 550.5172f,  1.815142f };
 
 Position const WintergraspRelicPos     = { 5440.379f, 2840.493f, 430.2816f, -1.832595f };
-G3D::Quat const WintergraspRelicRot    = { 0.f, 0.f, -0.7933531f, 0.6087617f };
+QuaternionData const WintergraspRelicRot    = { 0.f, 0.f, -0.7933531f, 0.6087617f };
 
 uint8 const WG_MAX_OBJ              = 32;
 uint8 const WG_MAX_TURRET           = 15;
@@ -77,7 +82,7 @@ struct WintergraspBuildingSpawnData
     uint32 entry;
     uint32 WorldState;
     Position pos;
-    G3D::Quat rot;
+    QuaternionData rot;
     WintergraspGameObjectBuildingType type;
 };
 
@@ -250,7 +255,7 @@ WintergraspObjectPositionData const WGOutsideNPC[WG_MAX_OUTSIDE_NPC] =
 struct WintergraspGameObjectData
 {
     Position Pos;
-    G3D::Quat Rot;
+    QuaternionData Rot;
     uint32 HordeEntry;
     uint32 AllianceEntry;
 };

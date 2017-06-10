@@ -24,12 +24,17 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "black_temple.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "PassiveAI.h"
-#include "black_temple.h"
-#include "Player.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 // Other defines
 #define CENTER_X            676.740f
@@ -298,7 +303,7 @@ static const Yells Conversation[22] =
     {0,     "", EMPTY, 1000, 0, false} // 21
 };
 
-G3D::Vector3 const HoverPosition[4]=
+Position const HoverPosition[4]=
 {
     {657.0f, 340.0f, 355.0f},
     {657.0f, 275.0f, 355.0f},
@@ -306,7 +311,7 @@ G3D::Vector3 const HoverPosition[4]=
     {705.0f, 340.0f, 355.0f}
 };
 
-G3D::Vector3 const GlaivePosition[4]=
+Position const GlaivePosition[4]=
 {
     {695.105f, 305.303f, 354.256f},
     {659.338f, 305.303f, 354.256f}, // the distance between two glaives is 36
@@ -314,13 +319,13 @@ G3D::Vector3 const GlaivePosition[4]=
     {664.338f, 305.303f, 354.256f}
 };
 
-G3D::Vector3 const EyeBlast[2]=
+Position const EyeBlast[2]=
 {
     {677.0f, 350.0f, 354.0f}, // start point, pass through glaive point
     {677.0f, 260.0f, 354.0f}
 };
 
-G3D::Vector3 const AkamaWP[13]=
+Position const AkamaWP[13]=
 {
     {770.01f, 304.50f, 312.29f}, // Bottom of the first stairs, at the doors
     {780.66f, 304.50f, 319.74f}, // Top of the first stairs
@@ -337,7 +342,7 @@ G3D::Vector3 const AkamaWP[13]=
     {782.01f, 304.55f, 319.76f}  // Final location - back at the initial gates. This is where he will fight the minions! (12)
 };
 // 755.762f, 304.0747f, 312.1769f -- This is where Akama should be spawned
-G3D::Vector3 const SpiritSpawns[2]=
+Position const SpiritSpawns[2]=
 {
     {755.5426f, 309.9156f, 312.2129f},
     {755.5426f, 298.7923f, 312.0834f}
@@ -463,7 +468,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new flame_of_azzinothAI(creature);
+        return GetBlackTempleAI<flame_of_azzinothAI>(creature);
     }
 };
 
@@ -725,29 +730,29 @@ public:
             float distx, disty, dist[2];
             for (uint8 i = 0; i < 2; ++i)
             {
-                distx = EyeBlast[i].x - HoverPosition[HoverPoint].x;
-                disty = EyeBlast[i].y - HoverPosition[HoverPoint].y;
+                distx = EyeBlast[i].GetPositionX() - HoverPosition[HoverPoint].GetPositionX();
+                disty = EyeBlast[i].GetPositionY() - HoverPosition[HoverPoint].GetPositionY();
                 dist[i] = distx * distx + disty * disty;
             }
-            G3D::Vector3 initial = EyeBlast[dist[0] < dist[1] ? 0 : 1];
+            Position const& initial = EyeBlast[dist[0] < dist[1] ? 0 : 1];
             for (uint8 i = 0; i < 2; ++i)
             {
-                distx = GlaivePosition[i].x - HoverPosition[HoverPoint].x;
-                disty = GlaivePosition[i].y - HoverPosition[HoverPoint].y;
+                distx = GlaivePosition[i].GetPositionX() - HoverPosition[HoverPoint].GetPositionX();
+                disty = GlaivePosition[i].GetPositionY() - HoverPosition[HoverPoint].GetPositionY();
                 dist[i] = distx * distx + disty * disty;
             }
-            G3D::Vector3 final = GlaivePosition[dist[0] < dist[1] ? 0 : 1];
+            Position final = GlaivePosition[dist[0] < dist[1] ? 0 : 1];
 
-            final.x = 2 * final.x - initial.x;
-            final.y = 2 * final.y - initial.y;
+            final.m_positionX = 2 * final.GetPositionX() - initial.GetPositionX();
+            final.m_positionY = 2 * final.GetPositionY() - initial.GetPositionY();
 
-            Creature* Trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
+            Creature* Trigger = me->SummonCreature(23069, initial, TEMPSUMMON_TIMED_DESPAWN, 13000);
             if (!Trigger)
                 return;
 
             Trigger->SetSpeedRate(MOVE_WALK, 3);
             Trigger->SetWalk(true);
-            Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
+            Trigger->GetMotionMaster()->MovePoint(0, final);
 
             // Trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetTarget(Trigger->GetGUID());
@@ -762,7 +767,7 @@ public:
             {
                 if (Creature* glaive = ObjectAccessor::GetCreature(*me, GlaiveGUID[i]))
                 {
-                    if (Creature* flame = me->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2].x, GlaivePosition[i+2].y, GlaivePosition[i+2].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                    if (Creature* flame = me->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
                     {
                         flame->setFaction(me->getFaction()); // Just in case the database has it as a different faction
                         flame->SetMeleeDamageSchool(SPELL_SCHOOL_FIRE);
@@ -805,7 +810,7 @@ public:
                 case 3: // throw one glaive
                     {
                         uint8 i=1;
-                        Creature* Glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        Creature* Glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
                         if (Glaive)
                         {
                             GlaiveGUID[i] = Glaive->GetGUID();
@@ -821,7 +826,7 @@ public:
                     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                     {
                         uint8 i=0;
-                        Creature* Glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        Creature* Glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
                         if (Glaive)
                         {
                             GlaiveGUID[i] = Glaive->GetGUID();
@@ -838,7 +843,7 @@ public:
                     Timer[EVENT_FLIGHT_SEQUENCE] = 3000;
                     break;
                 case 6: // fly to hover point
-                    me->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint].x, HoverPosition[HoverPoint].y, HoverPosition[HoverPoint].z);
+                    me->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint]);
                     Timer[EVENT_FLIGHT_SEQUENCE] = 0;
                     break;
                 case 7: // return to center
@@ -1084,7 +1089,7 @@ public:
                         HoverPoint += (rand32() % 3 + 1);
                         if (HoverPoint > 3)
                             HoverPoint -= 4;
-                        me->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint].x, HoverPosition[HoverPoint].y, HoverPosition[HoverPoint].z);
+                        me->GetMotionMaster()->MovePoint(0, HoverPosition[HoverPoint]);
                         break;
 
                     default:
@@ -1140,7 +1145,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_illidan_stormrageAI>(creature);
+        return GetBlackTempleAI<boss_illidan_stormrageAI>(creature);
     }
 };
 
@@ -1280,7 +1285,7 @@ public:
                 if (!target || !me->IsWithinDistInMap(target, 80) || illidan->IsWithinDistInMap(target, 20))
                 {
                     uint8 pos = rand32() % 4;
-                    BlinkTo(HoverPosition[pos].x, HoverPosition[pos].y, HoverPosition[pos].z);
+                    BlinkTo(HoverPosition[pos].GetPositionX(), HoverPosition[pos].GetPositionY(), HoverPosition[pos].GetPositionZ());
                 }
                 else
                 {
@@ -1371,7 +1376,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_maievAI(creature);
+        return GetBlackTempleAI<boss_maievAI>(creature);
     }
 };
 
@@ -1515,7 +1520,7 @@ public:
             }
 
             for (uint8 i = 0; i < 2; ++i)
-                if (Creature* Spirit = me->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                if (Creature* Spirit = me->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i], TEMPSUMMON_TIMED_DESPAWN, 20000))
                 {
                     Spirit->SetVisible(false);
                     SpiritGUID[i] = Spirit->GetGUID();
@@ -1526,7 +1531,7 @@ public:
         {
             me->SetWalk(false);
             me->SetSpeedRate(MOVE_RUN, 1.0f);
-            me->GetMotionMaster()->MovePoint(0, AkamaWP[WalkCount].x, AkamaWP[WalkCount].y, AkamaWP[WalkCount].z);
+            me->GetMotionMaster()->MovePoint(0, AkamaWP[WalkCount]);
         }
 
         void EnterPhase(PhaseAkama NextPhase)
@@ -1693,7 +1698,7 @@ public:
             {
                 Timer = 0;
                 ++WalkCount;
-                me->GetMotionMaster()->MovePoint(WalkCount, AkamaWP[WalkCount].x, AkamaWP[WalkCount].y, AkamaWP[WalkCount].z);
+                me->GetMotionMaster()->MovePoint(WalkCount, AkamaWP[WalkCount]);
             }
         }
 
@@ -1804,7 +1809,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_akama_illidanAI>(creature);
+        return GetBlackTempleAI<npc_akama_illidanAI>(creature);
     }
 };
 
@@ -2047,7 +2052,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new cage_trap_triggerAI(creature);
+        return GetBlackTempleAI<cage_trap_triggerAI>(creature);
     }
 };
 
@@ -2056,11 +2061,8 @@ class gameobject_cage_trap : public GameObjectScript
 public:
     gameobject_cage_trap() : GameObjectScript("gameobject_cage_trap") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
-        float x, y, z;
-        player->GetPosition(x, y, z);
-
         // Grid search for nearest live Creature of entry 23304 within 10 yards
         if (Creature* pTrigger = go->FindNearestCreature(23304, 10.0f))
             ENSURE_AI(npc_cage_trap_trigger::cage_trap_triggerAI, pTrigger->AI())->Active = true;
@@ -2121,7 +2123,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new shadow_demonAI(creature);
+        return GetBlackTempleAI<shadow_demonAI>(creature);
     }
 };
 
@@ -2143,7 +2145,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new blade_of_azzinothAI(creature);
+        return GetBlackTempleAI<blade_of_azzinothAI>(creature);
     }
 };
 
@@ -2233,7 +2235,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_parasitic_shadowfiendAI>(creature);
+        return GetBlackTempleAI<npc_parasitic_shadowfiendAI>(creature);
     }
 };
 

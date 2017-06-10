@@ -201,6 +201,15 @@ WorldPacket const* WorldPackets::Quest::QuestUpdateAddCredit::Write()
     return &_worldPacket;
 };
 
+WorldPacket const* WorldPackets::Quest::QuestUpdateAddCreditSimple::Write()
+{
+    _worldPacket << int32(QuestID);
+    _worldPacket << int32(ObjectID);
+    _worldPacket << uint8(ObjectiveType);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Quest::QuestUpdateAddPvPCredit::Write()
 {
     _worldPacket << int32(QuestID);

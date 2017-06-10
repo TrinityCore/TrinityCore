@@ -16,16 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
 #include "Mail.h"
-#include "Log.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "Item.h"
 #include "AuctionHouseMgr.h"
 #include "BlackMarketMgr.h"
 #include "CalendarMgr.h"
+#include "DatabaseEnv.h"
+#include "Item.h"
+#include "Log.h"
+#include "LootMgr.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "World.h"
 
 MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery(stationery)
 {
@@ -184,7 +186,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
 void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
 {
     Player* pReceiver = receiver.GetPlayer();               // can be NULL
-    Player* pSender = sObjectMgr->GetPlayerByLowGUID(sender.GetSenderId());
+    Player* pSender = ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(sender.GetSenderId()));
 
     if (pReceiver)
         prepareItems(pReceiver, trans);                            // generate mail template items

@@ -16,18 +16,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "Item.h"
-#include "DB2Stores.h"
-#include "NPCPackets.h"
-#include "ItemPackets.h"
 #include "BattlePetMgr.h"
+#include "Common.h"
+#include "Creature.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Item.h"
+#include "ItemPackets.h"
+#include "Log.h"
+#include "NPCPackets.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {
@@ -467,7 +469,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                 {
                     _player->ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
                     _player->RemoveItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
-                    pItem->RemoveFromUpdateQueueOf(_player);
+                    RemoveItemFromUpdateQueueOf(pItem, _player);
                     _player->AddItemToBuyBackSlot(pItem);
                 }
 
@@ -876,7 +878,7 @@ void WorldSession::HandleWrapItem(WorldPackets::Item::WrapItem& packet)
     if (item->GetState() == ITEM_NEW) // save new item, to have alway for `character_gifts` record in `item_instance`
     {
         // after save it will be impossible to remove the item from the queue
-        item->RemoveFromUpdateQueueOf(_player);
+        RemoveItemFromUpdateQueueOf(item, _player);
         item->SaveToDB(trans); // item gave inventory record unchanged and can be save standalone
     }
     CharacterDatabase.CommitTransaction(trans);

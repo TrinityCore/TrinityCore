@@ -27,11 +27,13 @@ EndScriptData */
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "QuestDef.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "Player.h"
 #include "WorldSession.h"
 
 /*######
@@ -247,9 +249,7 @@ class spell_ooze_zap : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_OOZE_ZAP))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_OOZE_ZAP });
             }
 
             SpellCastResult CheckRequirement()
@@ -294,9 +294,7 @@ class spell_ooze_zap_channel_end : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_OOZE_ZAP_CHANNEL_END))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_OOZE_ZAP_CHANNEL_END });
             }
 
             void HandleDummy(SpellEffIndex effIndex)
@@ -330,9 +328,7 @@ class spell_energize_aoe : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ENERGIZED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ENERGIZED });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

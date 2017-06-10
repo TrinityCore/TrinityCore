@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
+#include "CombatPackets.h"
 #include "Common.h"
 #include "CreatureAI.h"
 #include "CreatureAISelector.h"
@@ -27,29 +28,29 @@
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GossipDef.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "MiscPackets.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
 #include "QuestDef.h"
+#include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
+#include "Transport.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "CombatPackets.h"
-#include "MiscPackets.h"
-
-#include "Transport.h"
-#include "ScriptedGossip.h"
+#include <G3D/g3dmath.h>
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -60,27 +61,27 @@ TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
     return nullptr;
 }
 
+bool VendorItem::IsGoldRequired(ItemTemplate const* pProto) const
+{
+    return pProto->GetFlags2() & ITEM_FLAG2_DONT_IGNORE_BUY_PRICE || !ExtendedCost;
+}
+
 bool VendorItemData::RemoveItem(uint32 item_id, uint8 type)
 {
-    bool found = false;
-    for (VendorItemList::iterator i = m_items.begin(); i != m_items.end();)
+    auto newEnd = std::remove_if(m_items.begin(), m_items.end(), [=](VendorItem const& vendorItem)
     {
-        if ((*i)->item == item_id && (*i)->Type == type)
-        {
-            i = m_items.erase(i++);
-            found = true;
-        }
-        else
-            ++i;
-    }
+        return vendorItem.item == item_id && vendorItem.Type == type;
+    });
+    bool found = newEnd != m_items.end();
+    m_items.erase(newEnd, m_items.end());
     return found;
 }
 
 VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extendedCost, uint8 type) const
 {
-    for (VendorItemList::const_iterator i = m_items.begin(); i != m_items.end(); ++i)
-        if ((*i)->item == item_id && (*i)->ExtendedCost == extendedCost && (*i)->Type == type)
-            return *i;
+    for (VendorItem const& vendorItem : m_items)
+        if (vendorItem.item == item_id && vendorItem.ExtendedCost == extendedCost && vendorItem.Type == type)
+            return &vendorItem;
     return nullptr;
 }
 
@@ -422,19 +423,20 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     setFaction(cInfo->faction);
 
-    uint32 unit_flags, dynamicflags;
-    uint64 npcflag;
-    ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, unit_flags, dynamicflags, data);
+    uint64 npcFlags;
+    uint32 unitFlags, unitFlags2, unitFlags3, dynamicFlags;
+    ObjectMgr::ChooseCreatureFlags(cInfo, npcFlags, unitFlags, unitFlags2, unitFlags3, dynamicFlags, data);
 
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
-        SetUInt64Value(UNIT_NPC_FLAGS, npcflag | sGameEventMgr->GetNPCFlag(this));
+        SetUInt64Value(UNIT_NPC_FLAGS, npcFlags | sGameEventMgr->GetNPCFlag(this));
     else
-        SetUInt64Value(UNIT_NPC_FLAGS, npcflag);
+        SetUInt64Value(UNIT_NPC_FLAGS, npcFlags);
 
-    SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
-    SetUInt32Value(UNIT_FIELD_FLAGS_2, cInfo->unit_flags2);
+    SetUInt32Value(UNIT_FIELD_FLAGS, unitFlags);
+    SetUInt32Value(UNIT_FIELD_FLAGS_2, unitFlags2);
+    SetUInt32Value(UNIT_FIELD_FLAGS_3, unitFlags3);
 
-    SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicflags);
+    SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicFlags);
 
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
@@ -784,16 +786,9 @@ void Creature::DoFleeToGetAssistance()
     if (radius >0)
     {
         Creature* creature = nullptr;
-
-        CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-        Cell cell(p);
-        cell.SetNoCreate();
         Trinity::NearestAssistCreatureInCreatureRangeCheck u_check(this, GetVictim(), radius);
         Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck> searcher(this, creature, u_check);
-
-        TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck>, GridTypeMapContainer > grid_creature_searcher(searcher);
-
-        cell.Visit(p, grid_creature_searcher, *GetMap(), *this, radius);
+        Cell::VisitGridObjects(this, searcher, radius);
 
         SetNoSearchAssistance(true);
         UpdateSpeed(MOVE_RUN);
@@ -1090,7 +1085,9 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
 
     uint32 displayId = GetNativeDisplayId();
     uint64 npcflag = GetUInt64Value(UNIT_NPC_FLAGS);
-    uint32 unit_flags = GetUInt32Value(UNIT_FIELD_FLAGS);
+    uint32 unitFlags = GetUInt32Value(UNIT_FIELD_FLAGS);
+    uint32 unitFlags2 = GetUInt32Value(UNIT_FIELD_FLAGS_2);
+    uint32 unitFlags3 = GetUInt32Value(UNIT_FIELD_FLAGS_3);
     uint32 dynamicflags = GetUInt32Value(OBJECT_DYNAMIC_FLAGS);
 
     // check if it's a custom model and if not, use 0 for displayId
@@ -1104,8 +1101,14 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
         if (npcflag == cinfo->npcflag)
             npcflag = 0;
 
-        if (unit_flags == cinfo->unit_flags)
-            unit_flags = 0;
+        if (unitFlags == cinfo->unit_flags)
+            unitFlags = 0;
+
+        if (unitFlags2 == cinfo->unit_flags2)
+            unitFlags2 = 0;
+
+        if (unitFlags3 == cinfo->unit_flags3)
+            unitFlags3 = 0;
 
         if (dynamicflags == cinfo->dynamicflags)
             dynamicflags = 0;
@@ -1143,7 +1146,9 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
         ? IDLE_MOTION_TYPE : GetDefaultMovementType();
     data.spawnMask = spawnMask;
     data.npcflag = npcflag;
-    data.unit_flags = unit_flags;
+    data.unit_flags = unitFlags;
+    data.unit_flags2 = unitFlags2;
+    data.unit_flags3 = unitFlags3;
     data.dynamicflags = dynamicflags;
 
     data.phaseid = GetDBPhase() > 0 ? GetDBPhase() : 0;
@@ -1178,7 +1183,9 @@ void Creature::SaveToDB(uint32 mapid, uint32 spawnMask, uint32 phaseMask)
     stmt->setUInt32(index++, GetPower(POWER_MANA));
     stmt->setUInt8(index++, uint8(GetDefaultMovementType()));
     stmt->setUInt64(index++, npcflag);
-    stmt->setUInt32(index++, unit_flags);
+    stmt->setUInt32(index++, unitFlags);
+    stmt->setUInt32(index++, unitFlags2);
+    stmt->setUInt32(index++, unitFlags3);
     stmt->setUInt32(index++, dynamicflags);
     trans->Append(stmt);
 
@@ -1276,7 +1283,7 @@ float Creature::_GetHealthMod(int32 Rank)
     }
 }
 
-void Creature::LowerPlayerDamageReq(uint32 unDamage)
+void Creature::LowerPlayerDamageReq(uint64 unDamage)
 {
     if (m_PlayerDamageReq)
         m_PlayerDamageReq > unDamage ? m_PlayerDamageReq -= unDamage : m_PlayerDamageReq = 0;
@@ -1729,19 +1736,25 @@ void Creature::setDeathState(DeathState s)
         if (!IsPet())
         {
             CreatureData const* creatureData = GetCreatureData();
-            CreatureTemplate const* cinfo = GetCreatureTemplate();
+            CreatureTemplate const* cInfo = GetCreatureTemplate();
 
-            uint64 npcflag;
-            uint32 unit_flags, dynamicflags;
-            ObjectMgr::ChooseCreatureFlags(cinfo, npcflag, unit_flags, dynamicflags, creatureData);
+            uint64 npcFlags;
+            uint32 unitFlags, unitFlags2, unitFlags3, dynamicFlags;
+            ObjectMgr::ChooseCreatureFlags(cInfo, npcFlags, unitFlags, unitFlags2, unitFlags3, dynamicFlags, creatureData);
 
-            SetUInt64Value(UNIT_NPC_FLAGS, npcflag);
-            SetUInt32Value(UNIT_FIELD_FLAGS, unit_flags);
-            SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicflags);
+            if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
+                SetUInt64Value(UNIT_NPC_FLAGS, npcFlags | sGameEventMgr->GetNPCFlag(this));
+            else
+                SetUInt64Value(UNIT_NPC_FLAGS, npcFlags);
+
+            SetUInt32Value(UNIT_FIELD_FLAGS, unitFlags);
+            SetUInt32Value(UNIT_FIELD_FLAGS_2, unitFlags2);
+            SetUInt32Value(UNIT_FIELD_FLAGS_3, unitFlags3);
+            SetUInt32Value(OBJECT_DYNAMIC_FLAGS, dynamicFlags);
 
             RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
-            SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));
+            SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
         }
 
         Motion_Initialize();
@@ -1884,7 +1897,7 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo) const
 
 bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
-    SpellEffectInfo const* effect = spellInfo->GetEffect(this, index);
+    SpellEffectInfo const* effect = spellInfo->GetEffect(GetMap()->GetDifficultyID(), index);
     if (!effect)
         return true;
     if (GetCreatureTemplate()->MechanicImmuneMask & (1 << (effect->Mechanic - 1)))
@@ -1945,8 +1958,8 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
         if (bcontinue)
             continue;
 
-        std::vector<SpellInfo::CostData> costs = spellInfo->CalcPowerCost(this, SpellSchoolMask(spellInfo->SchoolMask));
-        auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA; });
+        std::vector<SpellPowerCost> costs = spellInfo->CalcPowerCost(this, SpellSchoolMask(spellInfo->SchoolMask));
+        auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
         if (m != costs.end())
             if (m->Amount > GetPower(POWER_MANA))
                 continue;
@@ -1993,8 +2006,8 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
         if (bcontinue)
             continue;
 
-        std::vector<SpellInfo::CostData> costs = spellInfo->CalcPowerCost(this, SpellSchoolMask(spellInfo->SchoolMask));
-        auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA; });
+        std::vector<SpellPowerCost> costs = spellInfo->CalcPowerCost(this, SpellSchoolMask(spellInfo->SchoolMask));
+        auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
         if (m != costs.end())
             if (m->Amount > GetPower(POWER_MANA))
                 continue;
@@ -2018,55 +2031,29 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* victim)
 // select nearest hostile unit within the given distance (regardless of threat list).
 Unit* Creature::SelectNearestTarget(float dist, bool playerOnly /* = false */) const
 {
-    CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-    Cell cell(p);
-    cell.SetNoCreate();
+    if (dist == 0.0f)
+        dist = MAX_VISIBILITY_DISTANCE;
 
     Unit* target = nullptr;
-
-    {
-        if (dist == 0.0f)
-            dist = MAX_VISIBILITY_DISTANCE;
-
-        Trinity::NearestHostileUnitCheck u_check(this, dist, playerOnly);
-        Trinity::UnitLastSearcher<Trinity::NearestHostileUnitCheck> searcher(this, target, u_check);
-
-        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-        cell.Visit(p, world_unit_searcher, *GetMap(), *this, dist);
-        cell.Visit(p, grid_unit_searcher, *GetMap(), *this, dist);
-    }
-
+    Trinity::NearestHostileUnitCheck u_check(this, dist, playerOnly);
+    Trinity::UnitLastSearcher<Trinity::NearestHostileUnitCheck> searcher(this, target, u_check);
+    Cell::VisitAllObjects(this, searcher, dist);
     return target;
 }
 
 // select nearest hostile unit within the given attack distance (i.e. distance is ignored if > than ATTACK_DISTANCE), regardless of threat list.
 Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
 {
-    CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-    Cell cell(p);
-    cell.SetNoCreate();
-
-    Unit* target = nullptr;
-
     if (dist > MAX_VISIBILITY_DISTANCE)
     {
         TC_LOG_ERROR("entities.unit", "Creature (%s) SelectNearestTargetInAttackDistance called with dist > MAX_VISIBILITY_DISTANCE. Distance set to ATTACK_DISTANCE.", GetGUID().ToString().c_str());
         dist = ATTACK_DISTANCE;
     }
 
-    {
-        Trinity::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);
-        Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck> searcher(this, target, u_check);
-
-        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
-
-        cell.Visit(p, world_unit_searcher, *GetMap(), *this, ATTACK_DISTANCE > dist ? ATTACK_DISTANCE : dist);
-        cell.Visit(p, grid_unit_searcher, *GetMap(), *this, ATTACK_DISTANCE > dist ? ATTACK_DISTANCE : dist);
-    }
-
+    Unit* target = nullptr;
+    Trinity::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);
+    Trinity::UnitLastSearcher<Trinity::NearestHostileUnitInAttackDistanceCheck> searcher(this, target, u_check);
+    Cell::VisitAllObjects(this, searcher, std::max(dist, ATTACK_DISTANCE));
     return target;
 }
 
@@ -2076,7 +2063,7 @@ Player* Creature::SelectNearestPlayer(float distance) const
 
     Trinity::NearestPlayerInObjectRangeCheck checker(this, distance);
     Trinity::PlayerLastSearcher<Trinity::NearestPlayerInObjectRangeCheck> searcher(this, target, checker);
-    VisitNearbyObject(distance, searcher);
+    Cell::VisitAllObjects(this, searcher, distance);
 
     return target;
 }
@@ -2104,19 +2091,9 @@ void Creature::CallAssistance()
         if (radius > 0)
         {
             std::list<Creature*> assistList;
-
-            {
-                CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-                Cell cell(p);
-                cell.SetNoCreate();
-
-                Trinity::AnyAssistCreatureInRangeCheck u_check(this, GetVictim(), radius);
-                Trinity::CreatureListSearcher<Trinity::AnyAssistCreatureInRangeCheck> searcher(this, assistList, u_check);
-
-                TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AnyAssistCreatureInRangeCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
-
-                cell.Visit(p, grid_creature_searcher, *GetMap(), *this, radius);
-            }
+            Trinity::AnyAssistCreatureInRangeCheck u_check(this, GetVictim(), radius);
+            Trinity::CreatureListSearcher<Trinity::AnyAssistCreatureInRangeCheck> searcher(this, assistList, u_check);
+            Cell::VisitGridObjects(this, searcher, radius);
 
             if (!assistList.empty())
             {
@@ -2138,16 +2115,9 @@ void Creature::CallForHelp(float radius)
     if (radius <= 0.0f || !GetVictim() || IsPet() || IsCharmed())
         return;
 
-    CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
-    Cell cell(p);
-    cell.SetNoCreate();
-
     Trinity::CallOfHelpCreatureInRangeDo u_do(this, GetVictim(), radius);
     Trinity::CreatureWorker<Trinity::CallOfHelpCreatureInRangeDo> worker(this, u_do);
-
-    TypeContainerVisitor<Trinity::CreatureWorker<Trinity::CallOfHelpCreatureInRangeDo>, GridTypeMapContainer >  grid_creature_searcher(worker);
-
-    cell.Visit(p, grid_creature_searcher, *GetMap(), *this, radius);
+    Cell::VisitGridObjects(this, worker, radius);
 }
 
 bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /*= true*/) const
@@ -2692,12 +2662,10 @@ Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
 
     Unit* target = NULL;
 
-    {
-        Trinity::NearestHostileUnitInAggroRangeCheck u_check(this, useLOS);
-        Trinity::UnitSearcher<Trinity::NearestHostileUnitInAggroRangeCheck> searcher(this, target, u_check);
+    Trinity::NearestHostileUnitInAggroRangeCheck u_check(this, useLOS);
+    Trinity::UnitSearcher<Trinity::NearestHostileUnitInAggroRangeCheck> searcher(this, target, u_check);
 
-        VisitNearbyGridObject(MAX_AGGRO_RADIUS, searcher);
-    }
+    Cell::VisitGridObjects(this, searcher, MAX_AGGRO_RADIUS);
 
     return target;
 }

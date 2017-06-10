@@ -24,7 +24,9 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "the_eye.h"
 
 /* The Eye encounters:
@@ -52,7 +54,7 @@ ObjectData const gameObjectData[] =
 class instance_the_eye : public InstanceMapScript
 {
     public:
-        instance_the_eye() : InstanceMapScript("instance_the_eye", 550) { }
+        instance_the_eye() : InstanceMapScript(TheEyeScriptName, 550) { }
 
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {

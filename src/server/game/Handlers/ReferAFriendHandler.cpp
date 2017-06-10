@@ -16,10 +16,11 @@
  */
 
 #include "WorldSession.h"
-#include "Player.h"
-#include "ObjectMgr.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ReferAFriendPackets.h"
+#include "World.h"
 
 inline uint32 GetMaxLevelForExpansion(uint32 expansion)
 {

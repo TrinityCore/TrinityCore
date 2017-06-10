@@ -17,12 +17,15 @@
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "Language.h"
-#include "LFGMgr.h"
-#include "ObjectMgr.h"
+#include "DatabaseEnv.h"
 #include "Group.h"
 #include "GroupMgr.h"
+#include "Language.h"
+#include "LFGMgr.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "RBAC.h"
 
 void GetPlayerInfo(ChatHandler* handler, Player* player)
 {

@@ -22,11 +22,13 @@ Comment: All titles related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
+#include "DB2Stores.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
 
 class titles_commandscript : public CommandScript
 {

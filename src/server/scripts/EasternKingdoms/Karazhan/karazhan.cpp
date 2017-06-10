@@ -29,11 +29,16 @@ npc_image_of_medivh
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
-#include "ScriptedEscortAI.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -406,7 +411,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_barnesAI>(creature);
+        return GetKarazhanAI<npc_barnesAI>(creature);
     }
 };
 
@@ -435,7 +440,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_image_of_medivhAI>(creature);
+        return GetKarazhanAI<npc_image_of_medivhAI>(creature);
     }
 
     struct npc_image_of_medivhAI : public ScriptedAI
@@ -474,7 +479,7 @@ public:
             if (instance->GetGuidData(DATA_IMAGE_OF_MEDIVH).IsEmpty())
             {
                 instance->SetGuidData(DATA_IMAGE_OF_MEDIVH, me->GetGUID());
-                (*me).GetMotionMaster()->MovePoint(1, MedivPos[0], MedivPos[1], MedivPos[2]);
+                me->GetMotionMaster()->MovePoint(1, MedivPos[0], MedivPos[1], MedivPos[2]);
                 Step = 0;
             }
             else

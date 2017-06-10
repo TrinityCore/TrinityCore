@@ -17,17 +17,19 @@
  */
 
 #include "PetAI.h"
+#include "Creature.h"
 #include "Errors.h"
+#include "Group.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
 #include "Spell.h"
-#include "ObjectAccessor.h"
-#include "SpellMgr.h"
-#include "Creature.h"
-#include "Util.h"
-#include "Group.h"
-#include "SpellInfo.h"
 #include "SpellHistory.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "Util.h"
 
 int PetAI::Permissible(const Creature* creature)
 {

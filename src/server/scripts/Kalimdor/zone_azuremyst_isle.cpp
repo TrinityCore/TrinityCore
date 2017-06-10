@@ -33,13 +33,14 @@ npc_death_ravager
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
-#include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
-#include "GridNotifiers.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_draenei_survivor
@@ -573,7 +574,7 @@ public:
             std::list<Player*> players;
             Trinity::AnyPlayerInObjectRangeCheck checker(me, radius);
             Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-            me->VisitNearbyWorldObject(radius, searcher);
+            Cell::VisitWorldObjects(me, searcher, radius);
 
             for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && (*itr)->HasAura(SPELL_TREE_DISGUISE))

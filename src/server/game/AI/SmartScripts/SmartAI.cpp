@@ -15,15 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
-#include "ObjectMgr.h"
-#include "ObjectDefines.h"
-#include "GridDefines.h"
-#include "GridNotifiers.h"
-#include "SpellMgr.h"
-#include "Cell.h"
-#include "Group.h"
 #include "SmartAI.h"
+#include "DB2Structure.h"
+#include "Creature.h"
+#include "GameObject.h"
+#include "Group.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PetDefines.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 
 SmartAI::SmartAI(Creature* c) : CreatureAI(c)

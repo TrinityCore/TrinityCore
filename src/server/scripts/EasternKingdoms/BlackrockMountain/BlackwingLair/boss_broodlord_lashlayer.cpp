@@ -110,7 +110,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_broodlordAI>(creature);
+        return GetBlackwingLairAI<boss_broodlordAI>(creature);
     }
 };
 

@@ -22,14 +22,17 @@ Comment: All learn related commands
 Category: commandscripts
 EndScriptData */
 
-#include "Chat.h"
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
+#include "Chat.h"
+#include "DB2Stores.h"
 #include "Language.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
-#include "Player.h"
+#include "ObjectMgr.h"
 #include "Pet.h"
+#include "Player.h"
+#include "RBAC.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "WorldSession.h"
 
 class learn_commandscript : public CommandScript
 {

@@ -20,12 +20,8 @@
 #define SC_SCRIPTMGR_H
 
 #include "Common.h"
-#include <atomic>
-#include "DB2Stores.h"
-#include "QuestDef.h"
-#include "SharedDefines.h"
-#include "World.h"
-#include "Weather.h"
+#include "ObjectGuid.h"
+#include <vector>
 
 class AccountMgr;
 class AreaTrigger;
@@ -60,6 +56,7 @@ class SpellCastTargets;
 class Transport;
 class Unit;
 class Vehicle;
+class Weather;
 class WorldPacket;
 class WorldSocket;
 class WorldObject;
@@ -75,6 +72,17 @@ struct ItemTemplate;
 struct MapEntry;
 struct OutdoorPvPData;
 struct SceneTemplate;
+
+enum BattlegroundTypeId : uint32;
+enum Difficulty : uint8;
+enum DuelCompleteType : uint8;
+enum QuestStatus : uint8;
+enum RemoveMethod : uint8;
+enum ShutdownExitCode : uint32;
+enum ShutdownMask : uint32;
+enum SpellEffIndex : uint8;
+enum WeatherState : uint32;
+enum XPColorChar : uint8;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
@@ -296,18 +304,14 @@ class TC_GAME_API FormulaScript : public ScriptObject
         virtual void OnGroupRateCalculation(float& /*rate*/, uint32 /*count*/, bool /*isRaid*/) { }
 };
 
-template<class TMap> class MapScript : public UpdatableScript<TMap>
+template<class TMap>
+class MapScript : public UpdatableScript<TMap>
 {
     MapEntry const* _mapEntry;
 
     protected:
 
-        MapScript(uint32 mapId)
-            : _mapEntry(sMapStore.LookupEntry(mapId))
-        {
-            if (!_mapEntry)
-                TC_LOG_ERROR("scripts", "Invalid MapScript for %u; no such map ID.", mapId);
-        }
+        MapScript(MapEntry const* mapEntry) : _mapEntry(mapEntry) { }
 
     public:
 
@@ -437,7 +441,7 @@ class TC_GAME_API CreatureScript : public UnitScript, public UpdatableScript<Cre
         virtual bool OnQuestReward(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the creature is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
+        virtual uint32 GetDialogStatus(Player* /*player*/, Creature* /*creature*/);
 
         // Called when the creature tries to spawn. Return false to block spawn and re-evaluate on next tick.
         virtual bool CanSpawn(ObjectGuid::LowType /*spawnId*/, uint32 /*entry*/, CreatureTemplate const* /*baseTemplate*/, CreatureTemplate const* /*actTemplate*/, CreatureData const* /*cData*/, Map const* /*map*/) const { return true; }
@@ -473,7 +477,7 @@ class TC_GAME_API GameObjectScript : public ScriptObject, public UpdatableScript
         virtual bool OnQuestReward(Player* /*player*/, GameObject* /*go*/, Quest const* /*quest*/, uint32 /*opt*/) { return false; }
 
         // Called when the dialog status between a player and the gameobject is requested.
-        virtual uint32 GetDialogStatus(Player* /*player*/, GameObject* /*go*/) { return DIALOG_STATUS_SCRIPTED_NO_STATUS; }
+        virtual uint32 GetDialogStatus(Player* /*player*/, GameObject* /*go*/);
 
         // Called when the game object is destroyed (destructible buildings only).
         virtual void OnDestroyed(GameObject* /*go*/, Player* /*player*/) { }

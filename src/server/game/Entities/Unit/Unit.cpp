@@ -17,59 +17,65 @@
  */
 
 #include "Unit.h"
-#include "Common.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
+#include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
 #include "CellImpl.h"
+#include "ChatPackets.h"
 #include "ChatTextBuilder.h"
+#include "CombatLogPackets.h"
+#include "CombatPackets.h"
+#include "Common.h"
 #include "ConditionMgr.h"
+#include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"
-#include "Creature.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
+#include "Item.h"
 #include "Log.h"
+#include "LootMgr.h"
+#include "LootPackets.h"
+#include "MiscPackets.h"
+#include "MotionMaster.h"
+#include "MovementPackets.h"
 #include "MoveSpline.h"
+#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
+#include "PartyPackets.h"
 #include "PassiveAI.h"
-#include "PetAI.h"
 #include "Pet.h"
+#include "PetAI.h"
 #include "Player.h"
 #include "PlayerAI.h"
 #include "QuestDef.h"
 #include "ReputationMgr.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
-#include "Spell.h"
-#include "SpellInfo.h"
 #include "SpellHistory.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "TemporarySummon.h"
-#include "Transport.h"
 #include "Totem.h"
+#include "Transport.h"
 #include "UpdateFieldFlags.h"
 #include "Util.h"
 #include "Vehicle.h"
+#include "VehiclePackets.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ChatPackets.h"
-#include "MiscPackets.h"
-#include "MovementPackets.h"
-#include "CombatPackets.h"
-#include "CombatLogPackets.h"
-#include "VehiclePackets.h"
-#include "LootPackets.h"
-#include "PartyPackets.h"
 #include <cmath>
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
@@ -5007,6 +5013,20 @@ void Unit::RemoveAreaTrigger(uint32 spellId)
     }
 }
 
+void Unit::RemoveAreaTrigger(AuraEffect const* aurEff)
+{
+    if (m_areaTrigger.empty())
+        return;
+    for (AreaTrigger* areaTrigger : m_areaTrigger)
+    {
+        if (areaTrigger->GetAuraEffect() == aurEff)
+        {
+            areaTrigger->Remove();
+            break; // There can only be one AreaTrigger per AuraEffect
+        }
+    }
+}
+
 void Unit::RemoveAllAreaTriggers()
 {
     while (!m_areaTrigger.empty())
@@ -5147,38 +5167,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 /*damage*/, AuraEffect* trig
     Item* castItem = !triggeredByAura->GetBase()->GetCastItemGUID().IsEmpty() && GetTypeId() == TYPEID_PLAYER
         ? ToPlayer()->GetItemByGuid(triggeredByAura->GetBase()->GetCastItemGUID()) : NULL;
 
-    uint32 triggered_spell_id = 0;
     Unit* target = victim;
 
-    switch (dummySpell->SpellFamilyName)
-    {
-        case SPELLFAMILY_GENERIC:
-        {
-            switch (dummySpell->Id)
-            {
-                case 47020: // Enter vehicle XT-002 (Scrapbot)
-                {
-                    if (GetTypeId() != TYPEID_UNIT)
-                        return false;
-
-                    Unit* vehicleBase = GetVehicleBase();
-                    if (!vehicleBase)
-                        return false;
-
-                    // Todo: Check if this amount is blizzlike
-                    vehicleBase->ModifyHealth(int32(vehicleBase->CountPctFromMaxHealth(1)));
-                    break;
-                }
-            }
-            break;
-        }
-        default:
-            break;
-    }
-
-    // if not handled by custom case, get triggered spell from dummySpell proto
-    if (!triggered_spell_id)
-        triggered_spell_id = triggeredByAura->GetSpellEffectInfo()->TriggerSpell;
+    uint32 triggered_spell_id = triggeredByAura->GetSpellEffectInfo()->TriggerSpell;
 
     // processed charge only counting case
     if (!triggered_spell_id)
@@ -9672,7 +9663,7 @@ void Unit::SetPower(Powers power, int32 val)
         WorldPackets::Combat::PowerUpdate packet;
         packet.Guid = GetGUID();
         /// @todo: Support multiple counts ?
-        packet.Powers.emplace_back(val, powerIndex);
+        packet.Powers.emplace_back(val, power);
         SendMessageToSet(packet.Write(), GetTypeId() == TYPEID_PLAYER);
     }
 
@@ -10628,8 +10619,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         // Skip melee hits and spells ws wrong school or zero cost
                         if (procSpell && (triggeredByAura->GetMiscValue() & procSpell->SchoolMask)) // School check
                         {
-                            std::vector<SpellInfo::CostData> costs = procSpell->CalcPowerCost(this, procSpell->GetSchoolMask());
-                            auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Amount > 0; });
+                            std::vector<SpellPowerCost> costs = procSpell->CalcPowerCost(this, procSpell->GetSchoolMask());
+                            auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Amount > 0; });
                             if (m != costs.end())
                                 takeCharges = true;
                         }
@@ -10857,6 +10848,11 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
     owner->ToPlayer()->SendDirectMessage(packet.Write());
 }
 
+void Unit::propagateSpeedChange()
+{
+    GetMotionMaster()->propagateSpeedChange();
+}
+
 ///----------End of Pet responses methods----------
 
 void Unit::StopMoving()
@@ -11011,7 +11007,7 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
     std::list<Unit*> targets;
     Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
     Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(this, targets, u_check);
-    VisitNearbyObject(dist, searcher);
+    Cell::VisitAllObjects(this, searcher, dist);
 
     // remove current target
     if (GetVictim())
@@ -12683,7 +12679,7 @@ void Unit::SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisua
     WorldPackets::Spells::PlayOrphanSpellVisual playOrphanSpellVisual;
     playOrphanSpellVisual.SourceLocation = GetPosition();
     if (withSourceOrientation)
-        playOrphanSpellVisual.SourceOrientation.z = GetOrientation();
+        playOrphanSpellVisual.SourceRotation = Position(0.0f, 0.0f, GetOrientation());
     playOrphanSpellVisual.Target = target; // exclusive with TargetLocation
     playOrphanSpellVisual.SpellVisualID = spellVisualId;
     playOrphanSpellVisual.TravelSpeed = travelSpeed;
@@ -12692,12 +12688,12 @@ void Unit::SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisua
     SendMessageToSet(playOrphanSpellVisual.Write(), true);
 }
 
-void Unit::SendPlayOrphanSpellVisual(G3D::Vector3 const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime /*= false*/, bool withSourceOrientation /*= false*/)
+void Unit::SendPlayOrphanSpellVisual(Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime /*= false*/, bool withSourceOrientation /*= false*/)
 {
     WorldPackets::Spells::PlayOrphanSpellVisual playOrphanSpellVisual;
     playOrphanSpellVisual.SourceLocation = GetPosition();
     if (withSourceOrientation)
-        playOrphanSpellVisual.SourceOrientation.z = GetOrientation();
+        playOrphanSpellVisual.SourceRotation = Position(0.0f, 0.0f, GetOrientation());
     playOrphanSpellVisual.TargetLocation = targetLocation; // exclusive with Target
     playOrphanSpellVisual.SpellVisualID = spellVisualId;
     playOrphanSpellVisual.TravelSpeed = travelSpeed;
@@ -12727,7 +12723,7 @@ void Unit::SendPlaySpellVisual(ObjectGuid const& targetGuid, uint32 spellVisualI
     SendMessageToSet(playSpellVisual.Write(), true);
 }
 
-void Unit::SendPlaySpellVisual(G3D::Vector3 const& targetPosition, float o, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/)
+void Unit::SendPlaySpellVisual(Position const& targetPosition, float o, uint32 spellVisualId, uint16 missReason, uint16 reflectStatus, float travelSpeed, bool speedAsTime /*= false*/)
 {
     WorldPackets::Spells::PlaySpellVisual playSpellVisual;
     playSpellVisual.Source = GetGUID();
@@ -12877,7 +12873,7 @@ void Unit::UpdateObjectVisibility(bool forced)
         WorldObject::UpdateObjectVisibility(true);
         // call MoveInLineOfSight for nearby creatures
         Trinity::AIRelocationNotifier notifier(*this);
-        VisitNearbyObject(GetVisibilityRange(), notifier);
+        Cell::VisitAllObjects(this, notifier, GetVisibilityRange());
     }
 }
 
@@ -12888,8 +12884,7 @@ void Unit::SendMoveKnockBack(Player* player, float speedXY, float speedZ, float 
     moveKnockBack.SequenceIndex = m_movementCounter++;
     moveKnockBack.Speeds.HorzSpeed = speedXY;
     moveKnockBack.Speeds.VertSpeed = speedZ;
-    moveKnockBack.Direction.x = vcos;
-    moveKnockBack.Direction.y = vsin;
+    moveKnockBack.Direction = Position(vcos, vsin);
     player->GetSession()->SendPacket(moveKnockBack.Write());
 }
 
@@ -13759,13 +13754,16 @@ void Unit::SendTeleportPacket(Position const& pos)
 
     if (Player* playerMover = GetPlayerBeingMoved())
     {
+        float x, y, z, o;
+        pos.GetPosition(x, y, z, o);
+        if (TransportBase* transportBase = GetDirectTransport())
+            transportBase->CalculatePassengerOffset(x, y, z, &o);
+
         WorldPackets::Movement::MoveTeleport moveTeleport;
         moveTeleport.MoverGUID = GetGUID();
-        moveTeleport.Pos.Relocate(pos);
-        if (TransportBase* transportBase = GetDirectTransport())
-            transportBase->CalculatePassengerOffset(moveTeleport.Pos.m_positionX, moveTeleport.Pos.m_positionY, moveTeleport.Pos.m_positionZ);
+        moveTeleport.Pos = Position(x, y, z);
         moveTeleport.TransportGUID = GetTransGUID();
-        moveTeleport.Facing = pos.GetOrientation();
+        moveTeleport.Facing = o;
         moveTeleport.SequenceIndex = m_movementCounter++;
         playerMover->SendDirectMessage(moveTeleport.Write());
 
@@ -13853,7 +13851,7 @@ void Unit::SendThreatListUpdate()
         {
             WorldPackets::Combat::ThreatInfo info;
             info.UnitGUID = (*itr)->getUnitGuid();
-            info.Threat = (*itr)->getThreat() * 100;
+            info.Threat = int32((*itr)->getThreat() * 100);
             packet.ThreatList.push_back(info);
         }
         SendMessageToSet(packet.Write(), false);
@@ -14798,7 +14796,7 @@ void Unit::Talk(std::string const& text, ChatMsg msgType, Language language, flo
     Trinity::CustomChatTextBuilder builder(this, msgType, text, language, target);
     Trinity::LocalizedPacketDo<Trinity::CustomChatTextBuilder> localizer(builder);
     Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::CustomChatTextBuilder> > worker(this, textRange, localizer);
-    VisitNearbyWorldObject(textRange, worker);
+    Cell::VisitWorldObjects(this, worker, textRange);
 }
 
 void Unit::Say(std::string const& text, Language language, WorldObject const* target /*= nullptr*/)
@@ -14864,7 +14862,7 @@ void Unit::Talk(uint32 textId, ChatMsg msgType, float textRange, WorldObject con
     Trinity::BroadcastTextBuilder builder(this, msgType, textId, target);
     Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> localizer(builder);
     Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> > worker(this, textRange, localizer);
-    VisitNearbyWorldObject(textRange, worker);
+    Cell::VisitWorldObjects(this, worker, textRange);
 }
 
 void Unit::Say(uint32 textId, WorldObject const* target /*= nullptr*/)
@@ -15034,7 +15032,7 @@ void CombatLogSender::Visit(DynamicObjectMapType& m)
 void Unit::SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* combatLog) const
 {
     CombatLogSender notifier(this, combatLog, GetVisibilityRange());
-    VisitNearbyWorldObject(GetVisibilityRange(), notifier);
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 }
 
 bool Unit::VisibleAuraSlotCompare::operator()(AuraApplication* left, AuraApplication* right) const

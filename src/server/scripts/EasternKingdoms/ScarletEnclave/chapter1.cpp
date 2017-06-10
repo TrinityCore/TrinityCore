@@ -16,17 +16,20 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "Vehicle.h"
-#include "ObjectMgr.h"
-#include "ScriptedEscortAI.h"
 #include "CombatAI.h"
+#include "CreatureTextMgr.h"
+#include "GameObject.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
-#include "CreatureTextMgr.h"
-#include "MoveSplineInit.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 /*######
 ##Quest 12848
@@ -949,15 +952,10 @@ public:
             std::list<TempSummon*> MinionList;
             owner->GetAllMinionsByEntry(MinionList, NPC_GHOULS);
 
-            if (!MinionList.empty())
-            {
-                for (TempSummon* summon : MinionList)
-                {
-                    if (summon->GetOwnerGUID() == me->GetOwnerGUID())
-                        if (summon->IsInCombat() && summon->getAttackerForHelper())
-                            AttackStart(summon->getAttackerForHelper());
-                }
-            }
+            for (TempSummon* summon : MinionList)
+                if (summon->GetOwnerGUID() == me->GetOwnerGUID())
+                    if (summon->IsInCombat() && summon->getAttackerForHelper())
+                        AttackStart(summon->getAttackerForHelper());
         }
 
         void UpdateAI(uint32 /*diff*/) override

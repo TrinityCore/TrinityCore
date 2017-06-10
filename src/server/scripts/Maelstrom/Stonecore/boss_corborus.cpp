@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "CreatureGroups.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 #include "stonecore.h"
 
 // TO-DO:
@@ -250,7 +251,7 @@ class boss_corborus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_corborusAI>(creature);
+            return GetStonecoreAI<boss_corborusAI>(creature);
         }
 };
 
@@ -312,7 +313,7 @@ class npc_rock_borer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_rock_borerAI>(creature);
+            return GetStonecoreAI<npc_rock_borerAI>(creature);
         }
 };
 

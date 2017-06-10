@@ -23,10 +23,10 @@
 #ifndef _OPCODES_H
 #define _OPCODES_H
 
-#include "Common.h"
-#include <iomanip>
+#include "Define.h"
+#include <string>
 
-enum ConnectionType
+enum ConnectionType : int8
 {
     CONNECTION_TYPE_REALM       = 0,
     CONNECTION_TYPE_INSTANCE    = 1,
@@ -35,15 +35,15 @@ enum ConnectionType
     CONNECTION_TYPE_DEFAULT     = -1
 };
 
-enum OpcodeMisc : uint32
+enum OpcodeMisc : uint16
 {
     MAX_OPCODE                                        = 0x3FFF,
     NUM_OPCODE_HANDLERS                               = (MAX_OPCODE + 1),
-    UNKNOWN_OPCODE                                    = (0xFFFF + 1),
+    UNKNOWN_OPCODE                                    = 0xFFFF,
     NULL_OPCODE                                       = 0xBADD
 };
 
-enum OpcodeClient : uint32
+enum OpcodeClient : uint16
 {
     CMSG_ACCEPT_GUILD_INVITE                          = 0x35FB,
     CMSG_ACCEPT_LEVEL_GRANT                           = 0x34EF,
@@ -735,6 +735,7 @@ enum OpcodeClient : uint32
     CMSG_UPDATE_CLIENT_SETTINGS                       = 0x3665,
     CMSG_UPDATE_MISSILE_TRAJECTORY                    = 0x3A3E,
     CMSG_UPDATE_RAID_TARGET                           = 0x3651,
+    CMSG_UPDATE_SPELL_VISUAL                          = 0x3281,
     CMSG_UPDATE_VAS_PURCHASE_STATES                   = 0x36F5,
     CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST            = 0x36F0,
     CMSG_UPDATE_WOW_TOKEN_COUNT                       = 0x36E6,
@@ -759,7 +760,7 @@ enum OpcodeClient : uint32
     CMSG_BF_MGR_QUEUE_EXIT_REQUEST                    = 0xBADD,
 };
 
-enum OpcodeServer : uint32
+enum OpcodeServer : uint16
 {
     SMSG_ABORT_NEW_WORLD                              = 0x25AD,
     SMSG_ACCOUNT_CRITERIA_UPDATE                      = 0x2652,
@@ -1785,8 +1786,6 @@ enum PacketProcessing
 class WorldPacket;
 class WorldSession;
 
-#pragma pack(push, 1)
-
 class OpcodeHandler
 {
 public:
@@ -1820,23 +1819,12 @@ public:
 class OpcodeTable
 {
     public:
-        OpcodeTable()
-        {
-            memset(_internalTableClient, 0, sizeof(_internalTableClient));
-            memset(_internalTableServer, 0, sizeof(_internalTableServer));
-        }
+        OpcodeTable();
 
         OpcodeTable(OpcodeTable const&) = delete;
         OpcodeTable& operator=(OpcodeTable const&) = delete;
 
-        ~OpcodeTable()
-        {
-            for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
-            {
-                delete _internalTableClient[i];
-                delete _internalTableServer[i];
-            }
-        }
+        ~OpcodeTable();
 
         void Initialize();
 
@@ -1862,29 +1850,9 @@ class OpcodeTable
 
 extern OpcodeTable opcodeTable;
 
-#pragma pack(pop)
-
-/// Lookup opcode name for human understandable logging (T = OpcodeClient|OpcodeServer)
-template<typename T>
-inline std::string GetOpcodeNameForLogging(T id)
-{
-    uint32 opcode = uint32(id);
-    std::ostringstream ss;
-    ss << '[';
-
-    if (static_cast<uint32>(id) < NUM_OPCODE_HANDLERS)
-    {
-        if (OpcodeHandler const* handler = opcodeTable[id])
-            ss << handler->Name;
-        else
-            ss << "UNKNOWN OPCODE";
-    }
-    else
-        ss << "INVALID OPCODE";
-
-    ss << " 0x" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << opcode << std::nouppercase << std::dec << " (" << opcode << ")]";
-    return ss.str();
-}
+/// Lookup opcode name for human understandable logging
+std::string GetOpcodeNameForLogging(OpcodeClient opcode);
+std::string GetOpcodeNameForLogging(OpcodeServer opcode);
 
 #endif
 /// @}

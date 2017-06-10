@@ -19,11 +19,14 @@
 #include "AccountMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
-#include "Util.h"
 #include "SHA1.h"
+#include "Util.h"
+#include "World.h"
 #include "WorldSession.h"
 
 AccountMgr::AccountMgr() { }

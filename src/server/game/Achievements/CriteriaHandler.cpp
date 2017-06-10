@@ -18,12 +18,14 @@
 #include "CriteriaHandler.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
+#include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "Garrison.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -31,6 +33,7 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 bool CriteriaData::IsValid(Criteria const* criteria)
 {
@@ -499,6 +502,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_ON_LOGIN:
             case CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
             case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
+            case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
+            case CRITERIA_TYPE_PRESTIGE_REACHED:
                 SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -768,8 +773,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_WITH_QUALITY:
             case CRITERIA_TYPE_ARTIFACT_POWER_EARNED:
             case CRITERIA_TYPE_ARTIFACT_TRAITS_UNLOCKED:
-            case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
-            case CRITERIA_TYPE_PRESTIGE_REACHED:
             case CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED:
             case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
             case CRITERIA_TYPE_ORDER_HALL_RECRUIT_TROOP:
@@ -1139,6 +1142,8 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_EXPLORE_AREA:
         case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
         case CRITERIA_TYPE_OWN_BATTLE_PET:
+        case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
+        case CRITERIA_TYPE_PRESTIGE_REACHED:
             return progress->Counter >= 1;
         case CRITERIA_TYPE_LEARN_SKILL_LEVEL:
             return progress->Counter >= (requiredAmount * 75);
@@ -1659,8 +1664,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
         {
             if (!unit)
                 return false;
-            Creature const* const creature = unit->ToCreature();
-            if (!creature || creature->GetCreatureType() != reqValue)
+            if (unit->GetTypeId() != TYPEID_UNIT || unit->GetCreatureType() != reqValue)
                 return false;
             break;
         }
@@ -1747,6 +1751,14 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
                 return false;
             break;
         }
+        case CRITERIA_ADDITIONAL_CONDITION_HONOR_LEVEL: // 193
+            if (!referencePlayer || referencePlayer->GetHonorLevel() != reqValue)
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_PRESTIGE_LEVEL: // 194
+            if (!referencePlayer || referencePlayer->GetPrestigeLevel() != reqValue)
+                return false;
+            break;
         default:
             break;
     }

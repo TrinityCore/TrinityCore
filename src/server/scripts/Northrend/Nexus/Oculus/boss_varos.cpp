@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "oculus.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -255,7 +258,7 @@ class npc_azure_ring_captain : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_azure_ring_captainAI>(creature);
+            return GetOculusAI<npc_azure_ring_captainAI>(creature);
         }
 };
 
@@ -271,7 +274,7 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
             bool Load() override
             {
                 Unit* caster = GetCaster();
-                return (caster && caster->ToCreature());
+                return caster && caster->GetTypeId() == TYPEID_UNIT;
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

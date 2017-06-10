@@ -19,7 +19,9 @@
 #ifndef TRINITY_WAYPOINTMANAGER_H
 #define TRINITY_WAYPOINTMANAGER_H
 
+#include "Define.h"
 #include <vector>
+#include <unordered_map>
 
 enum WaypointMoveType
 {

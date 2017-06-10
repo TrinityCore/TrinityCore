@@ -16,22 +16,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Player.h"
-#include "GridNotifiers.h"
-#include "Log.h"
-#include "GridStates.h"
-#include "Map.h"
-#include "MapManager.h"
-#include "MapInstanced.h"
 #include "InstanceSaveMgr.h"
-#include "Timer.h"
+#include "Common.h"
 #include "Config.h"
-#include "ObjectMgr.h"
-#include "World.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GridNotifiers.h"
+#include "GridStates.h"
 #include "Group.h"
-#include "InstanceScript.h"
 #include "InstanceScenario.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "MapInstanced.h"
+#include "MapManager.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "Timer.h"
+#include "World.h"
 
 uint16 InstanceSaveManager::ResetTimeDelay[] = {3600, 900, 300, 60};
 
@@ -476,6 +478,13 @@ time_t InstanceSaveManager::GetSubsequentResetTime(uint32 mapid, Difficulty diff
         period = DAY;
 
     return ((resetTime + MINUTE) / DAY * DAY) + period + diff;
+}
+
+void InstanceSaveManager::SetResetTimeFor(uint32 mapid, Difficulty d, time_t t)
+{
+    ResetTimeByMapDifficultyMap::iterator itr = m_resetTimeByMapDifficulty.find(MAKE_PAIR64(mapid, d));
+    ASSERT(itr != m_resetTimeByMapDifficulty.end());
+    itr->second = t;
 }
 
 void InstanceSaveManager::ScheduleReset(bool add, time_t time, InstResetEvent event)

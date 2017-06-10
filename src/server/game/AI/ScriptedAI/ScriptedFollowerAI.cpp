@@ -23,10 +23,14 @@ SDComment: This AI is under development
 SDCategory: Npc
 EndScriptData */
 
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptedFollowerAI.h"
+#include "Creature.h"
 #include "Group.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 
 const float MAX_PLAYER_DISTANCE = 100.0f;
 

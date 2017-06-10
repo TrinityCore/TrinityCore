@@ -29,12 +29,12 @@ npc_OOX17
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
-#include "Player.h"
-#include "WorldSession.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_aquementas

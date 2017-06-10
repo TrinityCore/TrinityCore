@@ -19,7 +19,9 @@
 #define VoidStoragePackets_h__
 
 #include "Packet.h"
-#include "ItemPackets.h"
+#include "ItemPacketsCommon.h"
+#include "ObjectGuid.h"
+#include "SharedDefines.h"
 
 namespace WorldPackets
 {

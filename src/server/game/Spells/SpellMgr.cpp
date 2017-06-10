@@ -17,15 +17,19 @@
  */
 
 #include "SpellMgr.h"
-#include "SpellInfo.h"
-#include "ObjectMgr.h"
-#include "SpellAuraDefines.h"
-#include "SharedDefines.h"
-#include "Chat.h"
-#include "BattlegroundMgr.h"
-#include "BattlefieldWG.h"
 #include "BattlefieldMgr.h"
+#include "BattlefieldWG.h"
+#include "BattlegroundMgr.h"
+#include "Chat.h"
+#include "DB2Stores.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "SharedDefines.h"
+#include "SpellAuraDefines.h"
+#include "SpellInfo.h"
 
 PetFamilySpellsStore sPetFamilySpellsStore;
 

@@ -20,11 +20,12 @@
 #define TRINITYCORE_GROUP_H
 
 #include "DBCEnums.h"
+#include "DatabaseEnvFwd.h"
 #include "GroupRefManager.h"
-#include "LootMgr.h"
-#include "QueryResult.h"
-#include "SharedDefines.h"
+#include "Loot.h"
 #include "Object.h"
+#include "SharedDefines.h"
+#include <map>
 
 class Battlefield;
 class Battleground;

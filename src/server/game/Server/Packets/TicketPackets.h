@@ -19,8 +19,9 @@
 #define TicketPackets_h__
 
 #include "Packet.h"
-#include "LFGPackets.h"
-#include <G3D/Vector3.h>
+#include "LFGPacketsCommon.h"
+#include "Optional.h"
+#include "Position.h"
 
 namespace WorldPackets
 {
@@ -29,7 +30,7 @@ namespace WorldPackets
         struct SupportTicketHeader
         {
             int32 MapID = 0;
-            G3D::Vector3 Position;
+            TaggedPosition<::Position::XYZ> Position;
             float Facing = 0.0f;
         };
 

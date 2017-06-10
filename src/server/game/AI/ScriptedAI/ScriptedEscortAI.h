@@ -19,7 +19,10 @@
 #ifndef SC_ESCORTAI_H
 #define SC_ESCORTAI_H
 
+#include "ScriptedCreature.h"
 #include "ScriptSystem.h"
+
+class Quest;
 
 #define DEFAULT_MAX_PLAYER_DISTANCE 50
 
@@ -106,7 +109,7 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
         ObjectGuid GetEventStarterGUID() const { return m_uiPlayerGUID; }
 
     protected:
-        Player* GetPlayerForEscort() { return ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID); }
+        Player* GetPlayerForEscort();
 
     private:
         bool AssistPlayerInCombatAgainst(Unit* who);

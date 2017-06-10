@@ -22,8 +22,8 @@
  */
 
 #include "CellImpl.h"
+#include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -104,9 +104,7 @@ class spell_q2203_thaumaturgy_channel : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_THAUMATURGY_CHANNEL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_THAUMATURGY_CHANNEL });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -152,9 +150,7 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_RESONATING_SKULL) || !sSpellMgr->GetSpellInfo(SPELL_CREATE_BONE_DUST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CREATE_RESONATING_SKULL, SPELL_CREATE_BONE_DUST });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -316,9 +312,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3) || !sSpellMgr->GetSpellInfo(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3, SPELL_SCOURGING_CRYSTAL_CONTROLLER });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -354,9 +348,7 @@ class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3 });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -417,9 +409,7 @@ class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ARCANE_PRISONER_MALE) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_ARCANE_PRISONER_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_ARCANE_PRISONER_KILL_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_ARCANE_PRISONER_MALE, SPELL_SUMMON_ARCANE_PRISONER_FEMALE, SPELL_ARCANE_PRISONER_KILL_CREDIT });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -480,9 +470,15 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SCAVENGEBOT_004A8) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SENTRYBOT_57K) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_DEFENDOTANK_66D) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SCAVENGEBOT_005B6) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_55D_COLLECTATRON) || !sSpellMgr->GetSpellInfo(SPELL_ROBOT_KILL_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SUMMON_SCAVENGEBOT_004A8,
+                    SPELL_SUMMON_SENTRYBOT_57K,
+                    SPELL_SUMMON_DEFENDOTANK_66D,
+                    SPELL_SUMMON_SCAVENGEBOT_005B6,
+                    SPELL_SUMMON_55D_COLLECTATRON,
+                    SPELL_ROBOT_KILL_CREDIT
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -592,9 +588,13 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BANANAS_FALL_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_ORANGE_FALLS_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_PAPAYA_FALLS_TO_GROUND) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_ADVENTUROUS_DWARF))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_BANANAS_FALL_TO_GROUND,
+                    SPELL_ORANGE_FALLS_TO_GROUND,
+                    SPELL_PAPAYA_FALLS_TO_GROUND,
+                    SPELL_SUMMON_ADVENTUROUS_DWARF
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -744,9 +744,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TRIGGER_AID_OF_THE_EARTHEN))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TRIGGER_AID_OF_THE_EARTHEN });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -790,9 +788,7 @@ class spell_q10041_q10040_who_are_they : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MALE_DISGUISE) || !sSpellMgr->GetSpellInfo(SPELL_FEMALE_DISGUISE) || !sSpellMgr->GetSpellInfo(SPELL_GENERIC_DISGUISE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MALE_DISGUISE, SPELL_FEMALE_DISGUISE, SPELL_GENERIC_DISGUISE });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -1051,9 +1047,13 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SUMMON_ANGRY_KVALDIR) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_MAKO) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_THRESHER) || !sSpellMgr->GetSpellInfo(SUMMON_NORTH_SEA_BLUE_SHARK))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SUMMON_ANGRY_KVALDIR,
+                    SUMMON_NORTH_SEA_MAKO,
+                    SUMMON_NORTH_SEA_THRESHER,
+                    SUMMON_NORTH_SEA_BLUE_SHARK
+                });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -1594,12 +1594,12 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
                 std::list<Player*> playerList;
                 Trinity::AnyPlayerInObjectRangeCheck checker(caster, 65.0f);
                 Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);
-                caster->VisitNearbyWorldObject(65.0f, searcher);
-                    for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+                Cell::VisitWorldObjects(caster, searcher, 65.0f);
+                for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                     // Check if found player target is on fly mount or using flying form
-                        if ((*itr)->HasAuraType(SPELL_AURA_FLY) || (*itr)->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
-                            // Summom Fel Cannon (bunny version) at found player
-                            caster->SummonCreature(NPC_FEL_CANNON2, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ());
+                    if ((*itr)->HasAuraType(SPELL_AURA_FLY) || (*itr)->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+                        // Summom Fel Cannon (bunny version) at found player
+                        caster->SummonCreature(NPC_FEL_CANNON2, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ());
             }
 
             void Register() override
@@ -1662,9 +1662,7 @@ class spell_q12527_zuldrak_rat : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_GORGED_LURKING_BASILISK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_GORGED_LURKING_BASILISK });
             }
 
             void HandleScriptEffect(SpellEffIndex /* effIndex */)
@@ -1734,9 +1732,7 @@ class spell_q12730_quenching_mist : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLICKERING_FLAMES))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FLICKERING_FLAMES });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -1777,10 +1773,7 @@ class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public 
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RIDE))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_RIDE });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1880,10 +1873,7 @@ class spell_q13011_bear_flank_master : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BEAR_FLANK_MASTER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_BEAR_FLANK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BEAR_FLANK_MASTER, SPELL_CREATE_BEAR_FLANK });
             }
 
             bool Load() override
@@ -1929,9 +1919,7 @@ class spell_q13086_cannons_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->CalcValue()))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
             }
 
             void HandleEffectDummy(SpellEffIndex /*effIndex*/)
@@ -1980,14 +1968,15 @@ class spell_q12690_burst_at_the_seams : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_DMG)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_DMG_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_BONE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_MEAT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_BURST_AT_THE_SEAMS_BMEAT))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_BURST_AT_THE_SEAMS,
+                    SPELL_BURST_AT_THE_SEAMS_DMG,
+                    SPELL_BURST_AT_THE_SEAMS_DMG_2,
+                    SPELL_BURST_AT_THE_SEAMS_BONE,
+                    SPELL_BURST_AT_THE_SEAMS_MEAT,
+                    SPELL_BURST_AT_THE_SEAMS_BMEAT
+                });
             }
 
             bool Load() override
@@ -2056,9 +2045,7 @@ class spell_q12308_escape_from_silverbrook : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_WORGEN))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_WORGEN });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2134,12 +2121,13 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FORGE_CREDIT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_TOWN_HALL_CREDIT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_SCARLET_HOLD_CREDIT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_CHAPEL_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_FORGE_CREDIT,
+                    SPELL_TOWN_HALL_CREDIT,
+                    SPELL_SCARLET_HOLD_CREDIT,
+                    SPELL_CHAPEL_CREDIT
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2289,9 +2277,7 @@ class spell_q12919_gymers_grab : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RIDE_GYMER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RIDE_GYMER });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2368,9 +2354,7 @@ class spell_q13400_illidan_kill_master : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ILLIDAN_KILL_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ILLIDAN_KILL_CREDIT });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2410,9 +2394,7 @@ class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TOTEM_OF_THE_EARTHEN_RING))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TOTEM_OF_THE_EARTHEN_RING });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -2451,11 +2433,7 @@ class spell_q10929_fumping : SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SAND_GNOME))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_BONE_SLICER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER });
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2497,9 +2475,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_RENEWED_LIFE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_RENEWED_LIFE });
         }
 
         void HandleDummyEffect()

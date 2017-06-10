@@ -24,10 +24,12 @@ SDCategory: Deadmines
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "deadmines.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "TemporarySummon.h"
-#include "WorldPacket.h"
 
 enum Sounds
 {
@@ -49,8 +51,7 @@ enum Misc
 class instance_deadmines : public InstanceMapScript
 {
     public:
-        instance_deadmines()
-            : InstanceMapScript("instance_deadmines", 36)
+        instance_deadmines() : InstanceMapScript(DMScriptName, 36)
         {
         }
 

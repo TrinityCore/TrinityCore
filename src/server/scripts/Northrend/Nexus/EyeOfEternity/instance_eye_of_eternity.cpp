@@ -16,9 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "InstanceScript.h"
+#include "AreaBoundary.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 #include "eye_of_eternity.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
 
 BossBoundaryData const boundaries =
@@ -29,7 +33,7 @@ BossBoundaryData const boundaries =
 class instance_eye_of_eternity : public InstanceMapScript
 {
 public:
-    instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) { }
+    instance_eye_of_eternity() : InstanceMapScript(EoEScriptName, 616) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -60,9 +64,9 @@ public:
             {
                 if (state == FAIL)
                 {
-                    for (GuidList::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
+                    for (ObjectGuid const& portalTriggerGuid : portalTriggers)
                     {
-                        if (Creature* trigger = instance->GetCreature(*itr_trigger))
+                        if (Creature* trigger = instance->GetCreature(portalTriggerGuid))
                         {
                             // just in case
                             trigger->RemoveAllAuras();
@@ -86,7 +90,7 @@ public:
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
             GameObject* go = new GameObject();
-            if (!go->Create(entry, instance, PHASEMASK_NORMAL, pos, G3D::Quat(), 255, GO_STATE_READY))
+            if (!go->Create(entry, instance, PHASEMASK_NORMAL, pos, QuaternionData(), 255, GO_STATE_READY))
             {
                 delete go;
                 return;

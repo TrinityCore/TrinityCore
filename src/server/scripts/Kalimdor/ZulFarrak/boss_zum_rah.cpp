@@ -21,6 +21,7 @@ Category: Tanaris, ZulFarrak
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "zulfarrak.h"
 
@@ -157,7 +158,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_zum_rahAI>(creature);
+        return GetZulFarrakAI<boss_zum_rahAI>(creature);
     }
 };
 

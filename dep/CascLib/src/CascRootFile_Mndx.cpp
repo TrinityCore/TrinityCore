@@ -3069,10 +3069,24 @@ static LPBYTE MndxHandler_Search(TRootHandler_MNDX * pRootHandler, TCascSearch *
     assert(pSearch->pRootContext != NULL);
     pStruct1C = (TMndxFindResult *)pSearch->pRootContext;
 
-    // Search the next file name (our code)
-    pMarFile->pDatabasePtr->sub_1956CE0(pStruct1C, &bFindResult);
-    if(bFindResult == false)
-        return NULL;
+    // Keep searching
+    for(;;)
+    {
+        // Search the next file name (our code)
+        pMarFile->pDatabasePtr->sub_1956CE0(pStruct1C, &bFindResult);
+        if (bFindResult == false)
+            return NULL;
+
+        // If we have no wild mask, we found it
+        if (pSearch->szMask == NULL || pSearch->szMask[0] == 0)
+            break;
+
+        // Copy the found name to the buffer
+        memcpy(pSearch->szFileName, pStruct1C->szFoundPath, pStruct1C->cchFoundPath);
+        pSearch->szFileName[pStruct1C->cchFoundPath] = 0;
+        if (CheckWildCard(pSearch->szFileName, pSearch->szMask))
+            break;
+    }
 
     // Give the file size and encoding key
     return FillFindData(pRootHandler, pSearch, pStruct1C, PtrFileSize);

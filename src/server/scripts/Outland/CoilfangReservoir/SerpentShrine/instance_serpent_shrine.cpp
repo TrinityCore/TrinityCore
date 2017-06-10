@@ -24,9 +24,12 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "serpent_shrine.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "serpent_shrine.h"
 #include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER 6
@@ -81,7 +84,7 @@ class go_bridge_console : public GameObjectScript
 class instance_serpent_shrine : public InstanceMapScript
 {
     public:
-        instance_serpent_shrine() : InstanceMapScript("instance_serpent_shrine", 548) { }
+        instance_serpent_shrine() : InstanceMapScript(SSCScriptName, 548) { }
 
         struct instance_serpentshrine_cavern_InstanceMapScript : public InstanceScript
         {

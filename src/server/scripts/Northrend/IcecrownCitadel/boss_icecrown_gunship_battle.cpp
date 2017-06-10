@@ -15,23 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "icecrown_citadel.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
 #include "GridNotifiersImpl.h"
-#include "GossipDef.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "MovementPackets.h"
-#include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
-#include "ScriptMgr.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Transport.h"
-#include "TransportMgr.h"
 #include "Vehicle.h"
-#include "icecrown_citadel.h"
+#include <G3D/Vector3.h>
 
 enum Texts
 {
@@ -1392,7 +1398,7 @@ class npc_zafod_boombox : public CreatureScript
             void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 player->AddItem(ITEM_GOBLIN_ROCKET_PACK, 1);
-                player->PlayerTalkClass->SendCloseGossip();
+                CloseGossipMenuFor(player);
             }
 
             void UpdateAI(uint32 /*diff*/) override
@@ -1466,7 +1472,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
             std::list<Player*> players;
             Trinity::UnitAuraCheck check(true, Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
             Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
-            me->VisitNearbyWorldObject(200.0f, searcher);
+            Cell::VisitWorldObjects(me, searcher, 200.0f);
 
             players.remove_if([this](Player* player)
             {
@@ -1530,7 +1536,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
         std::list<Player*> players;
         Trinity::UnitAuraCheck check(true, Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_ON_ORGRIMS_HAMMER_DECK : SPELL_ON_SKYBREAKER_DECK);
         Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
-        me->VisitNearbyWorldObject(200.0f, searcher);
+        Cell::VisitWorldObjects(me, searcher,200.0f );
 
         players.remove_if([this](Player* player)
         {
@@ -1820,16 +1826,16 @@ class spell_igb_rocket_pack : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROCKET_PACK_DAMAGE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROCKET_BURST))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ROCKET_PACK_DAMAGE,
+                    SPELL_ROCKET_BURST
+                });
             }
 
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
-                if (GetTarget()->movespline->Finalized())
+                if (!GetTarget()->IsSplineEnabled())
                     Remove(AURA_REMOVE_BY_EXPIRE);
             }
 
@@ -2092,7 +2098,7 @@ class spell_igb_overheat : public SpellScriptLoader
                             WorldPackets::Movement::ControlUpdate data;
                             data.Guid = GetUnitOwner()->GetGUID();
                             data.On = value;
-                            player->GetSession()->SendPacket(data.Write());
+                            player->SendDirectMessage(data.Write());
                         }
                     }
                 }

@@ -18,8 +18,6 @@
 #ifndef ToyPackets_h__
 #define ToyPackets_h__
 
-#include "Packet.h"
-#include "ObjectGuid.h"
 #include "SpellPackets.h"
 #include "CollectionMgr.h"
 

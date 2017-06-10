@@ -16,35 +16,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "ObjectAccessor.h"
-#include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-
 #include "ArenaTeam.h"
-#include "BattlegroundMgr.h"
-#include "Battleground.h"
-#include "Chat.h"
-#include "Language.h"
-#include "Log.h"
-#include "Player.h"
-#include "Object.h"
-#include "Opcodes.h"
-#include "DisableMgr.h"
-#include "Group.h"
+#include "ArenaTeamMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "Battleground.h"
+#include "BattlegroundMgr.h"
+#include "BattlegroundPackets.h"
+#include "Chat.h"
+#include "Common.h"
+#include "Creature.h"
+#include "DB2Stores.h"
+#include "DisableMgr.h"
+#include "Group.h"
+#include "Language.h"
+#include "Log.h"
+#include "MotionMaster.h"
 #include "NPCPackets.h"
+#include "Object.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello)
 {
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(hello.Unit);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(hello.Unit, UNIT_NPC_FLAG_BATTLEMASTER);
     if (!unit)
-        return;
-
-    if (!unit->IsBattleMaster())                             // it's not battlemaster
         return;
 
     // Stop the npc if moving
@@ -642,7 +641,7 @@ void WorldSession::HandleRequestPvpReward(WorldPackets::Battleground::RequestPVP
 
 void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground::AreaSpiritHealerQuery& areaSpiritHealerQuery)
 {
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(areaSpiritHealerQuery.HealerGuid);
+    Creature* unit = ObjectAccessor::GetCreature(*GetPlayer(), areaSpiritHealerQuery.HealerGuid);
     if (!unit)
         return;
 
@@ -658,7 +657,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground:
 
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground::AreaSpiritHealerQueue& areaSpiritHealerQueue)
 {
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(areaSpiritHealerQueue.HealerGuid);
+    Creature* unit = ObjectAccessor::GetCreature(*GetPlayer(), areaSpiritHealerQueue.HealerGuid);
     if (!unit)
         return;
 

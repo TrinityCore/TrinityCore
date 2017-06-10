@@ -19,10 +19,13 @@
 #define QueryPackets_h__
 
 #include "Packet.h"
-#include "Creature.h"
+#include "AuthenticationPackets.h"
 #include "NPCHandler.h"
-#include "G3D/Vector3.h"
-#include "DB2Stores.h"
+#include "ObjectGuid.h"
+#include "Position.h"
+#include "SharedDefines.h"
+#include "UnitDefines.h"
+#include <array>
 
 class Player;
 
@@ -56,11 +59,11 @@ namespace WorldPackets
             int32 HealthScalingExpansion = 0;
             uint32 RequiredExpansion = 0;
             uint32 VignetteID = 0;
-            uint32 Flags[2];
-            uint32 ProxyCreatureID[MAX_KILL_CREDIT];
-            uint32 CreatureDisplayID[MAX_CREATURE_MODELS];
-            std::string Name[MAX_CREATURE_NAMES];
-            std::string NameAlt[MAX_CREATURE_NAMES];
+            std::array<uint32, 2> Flags;
+            std::array<uint32, 2> ProxyCreatureID;
+            std::array<uint32, 4> CreatureDisplayID;
+            std::array<std::string, 4> Name;
+            std::array<std::string, 4> NameAlt;
         };
 
         class QueryCreatureResponse final : public ServerPacket
@@ -232,7 +235,7 @@ namespace WorldPackets
 
             ObjectGuid Player;
             ObjectGuid Transport;
-            G3D::Vector3 Position;
+            TaggedPosition<::Position::XYZ> Position;
             int32 ActualMapID = 0;
             int32 MapID = 0;
             bool Valid = false;
@@ -257,7 +260,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Player;
-            G3D::Vector3 Position;
+            TaggedPosition<::Position::XYZ> Position;
             float Facing = 0.0f;
         };
 
@@ -406,6 +409,28 @@ namespace WorldPackets
             ObjectGuid Id;
             bool Valid = false;
             ItemTextCache Item;
+        };
+
+        class QueryRealmName final : public ClientPacket
+        {
+        public:
+            QueryRealmName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_REALM_NAME, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 VirtualRealmAddress = 0;
+        };
+
+        class RealmQueryResponse final : public ServerPacket
+        {
+        public:
+            RealmQueryResponse() : ServerPacket(SMSG_REALM_QUERY_RESPONSE) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 VirtualRealmAddress = 0;
+            uint8 LookupState = 0;
+            WorldPackets::Auth::VirtualRealmNameInfo NameInfo;
         };
     }
 }

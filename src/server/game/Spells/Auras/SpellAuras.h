@@ -22,7 +22,6 @@
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
 #include "Unit.h"
-#include <boost/any.hpp>
 
 class SpellInfo;
 struct SpellModifier;
@@ -295,16 +294,6 @@ class TC_GAME_API Aura
         SpellEffectInfoVector GetSpellEffectInfos() const { return _spelEffectInfos; }
         SpellEffectInfo const* GetSpellEffectInfo(uint32 index) const;
 
-        template<typename T>
-        T const* GetCastExtraParam(std::string const& key) const
-        {
-            auto itr = m_castExtraParams.find(key);
-            if (itr != m_castExtraParams.end())
-                return boost::any_cast<T>(&itr->second);
-            return nullptr;
-        }
-        void SetCastExtraParam(std::string const& keyVal, boost::any&& value) { m_castExtraParams[keyVal] = std::move(value); }
-
     private:
         void _DeleteRemovedApplications();
 
@@ -339,9 +328,6 @@ class TC_GAME_API Aura
         std::chrono::steady_clock::time_point m_procCooldown;
         std::chrono::steady_clock::time_point m_lastProcAttemptTime;
         std::chrono::steady_clock::time_point m_lastProcSuccessTime;
-
-        // Used to store extra parameters for an aura, eg. data across different auras
-        std::unordered_map<std::string, boost::any> m_castExtraParams;
 
     private:
         Unit::AuraApplicationList m_removedApplications;

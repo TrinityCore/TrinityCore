@@ -18,10 +18,14 @@
 
 #include "DisableMgr.h"
 #include "CriteriaHandler.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
-#include "SpellMgr.h"
 #include "Player.h"
+#include "SpellMgr.h"
+#include "VMapManager2.h"
 #include "World.h"
 
 namespace DisableMgr

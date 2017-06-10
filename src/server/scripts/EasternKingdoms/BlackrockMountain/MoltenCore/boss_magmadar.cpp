@@ -23,10 +23,9 @@ SDComment: Conflag on ground nyi
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "molten_core.h"
+#include "ScriptedCreature.h"
 
 enum Texts
 {
@@ -115,7 +114,7 @@ class boss_magmadar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_magmadarAI(creature);
+            return GetMoltenCoreAI<boss_magmadarAI>(creature);
         }
 };
 

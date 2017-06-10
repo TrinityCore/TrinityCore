@@ -29,8 +29,10 @@ boss_harbinger_skyriss_illusion
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "arcatraz.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -293,7 +295,7 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_harbinger_skyriss_illusionAI(creature);
+            return GetArcatrazAI<boss_harbinger_skyriss_illusionAI>(creature);
         }
 };
 

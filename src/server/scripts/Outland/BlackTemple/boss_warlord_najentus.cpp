@@ -16,9 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum Texts
@@ -150,7 +153,7 @@ public:
                         DoCast(target, SPELL_IMPALING_SPINE, true);
                         SpineTargetGUID = target->GetGUID();
                         //must let target summon, otherwise you cannot click the spine
-                        target->SummonGameObject(GO_NAJENTUS_SPINE, *target, G3D::Quat(), 30);
+                        target->SummonGameObject(GO_NAJENTUS_SPINE, *target, QuaternionData(), 30);
                         Talk(SAY_NEEDLE);
                         events.DelayEvents(1500, GCD_CAST);
                         events.DelayEvents(15000, GCD_YELL);

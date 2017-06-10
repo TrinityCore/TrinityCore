@@ -16,24 +16,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "Item.h"
-#include "ObjectMgr.h"
-#include "WorldPacket.h"
-#include "DatabaseEnv.h"
-#include "ItemEnchantmentMgr.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
-#include "ScriptMgr.h"
-#include "ConditionMgr.h"
-#include "Player.h"
-#include "Opcodes.h"
-#include "WorldSession.h"
-#include "ItemPackets.h"
-#include "TradeData.h"
-#include "GameTables.h"
-#include "CollectionMgr.h"
 #include "ArtifactPackets.h"
+#include "Bag.h"
+#include "CollectionMgr.h"
+#include "Common.h"
+#include "ConditionMgr.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GameTables.h"
+#include "ItemEnchantmentMgr.h"
+#include "ItemPackets.h"
+#include "Log.h"
+#include "LootMgr.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "TradeData.h"
+#include "UpdateData.h"
+#include "WorldSession.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {
@@ -725,6 +730,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     SetModifier(ITEM_MODIFIER_BATTLE_PET_LEVEL, fields[17].GetUInt16());
     SetModifier(ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID, fields[18].GetUInt32());
 
+    SetUInt32Value(ITEM_FIELD_CONTEXT, fields[19].GetUInt8());
+
     Tokenizer bonusListIDs(fields[20].GetString(), ' ');
     for (char const* token : bonusListIDs)
     {
@@ -897,31 +904,6 @@ uint32 Item::GetSkill()
     return proto->GetSkill();
 }
 
-ItemRandomEnchantmentId Item::GenerateItemRandomPropertyId(uint32 item_id)
-{
-    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
-    if (!itemProto)
-        return{};
-
-    // item must have one from this field values not null if it can have random enchantments
-    if (!itemProto->GetRandomProperty() && !itemProto->GetRandomSuffix())
-        return{};
-
-    // item can have not null only one from field values
-    if (itemProto->GetRandomProperty() && itemProto->GetRandomSuffix())
-    {
-        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->GetId(), itemProto->GetRandomProperty(), itemProto->GetRandomSuffix());
-        return{};
-    }
-
-    // RandomProperty case
-    if (itemProto->GetRandomProperty())
-        return GetItemEnchantMod(itemProto->GetRandomProperty(), ItemRandomEnchantmentType::Property);
-    // RandomSuffix case
-    else
-        return GetItemEnchantMod(itemProto->GetRandomSuffix(), ItemRandomEnchantmentType::Suffix);
-}
-
 void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
 {
     if (!randomPropId.Id)
@@ -978,7 +960,7 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
         // pretend the item never existed
         if (forplayer)
         {
-            RemoveFromUpdateQueueOf(forplayer);
+            RemoveItemFromUpdateQueueOf(this, forplayer);
             forplayer->DeleteRefundReference(GetGUID());
         }
         delete this;
@@ -991,7 +973,7 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
             uState = state;
 
         if (forplayer)
-            AddToUpdateQueueOf(forplayer);
+            AddItemToUpdateQueueOf(this, forplayer);
     }
     else
     {
@@ -1002,46 +984,46 @@ void Item::SetState(ItemUpdateState state, Player* forplayer)
     }
 }
 
-void Item::AddToUpdateQueueOf(Player* player)
+void AddItemToUpdateQueueOf(Item* item, Player* player)
 {
-    if (IsInUpdateQueue())
+    if (item->IsInUpdateQueue())
         return;
 
     ASSERT(player != NULL);
 
-    if (player->GetGUID() != GetOwnerGUID())
+    if (player->GetGUID() != item->GetOwnerGUID())
     {
         TC_LOG_DEBUG("entities.player.items", "Item::AddToUpdateQueueOf - Owner's guid (%s) and player's guid (%s) don't match!",
-            GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
+            item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
         return;
     }
 
     if (player->m_itemUpdateQueueBlocked)
         return;
 
-    player->m_itemUpdateQueue.push_back(this);
-    uQueuePos = player->m_itemUpdateQueue.size()-1;
+    player->m_itemUpdateQueue.push_back(item);
+    item->uQueuePos = player->m_itemUpdateQueue.size() - 1;
 }
 
-void Item::RemoveFromUpdateQueueOf(Player* player)
+void RemoveItemFromUpdateQueueOf(Item* item, Player* player)
 {
-    if (!IsInUpdateQueue())
+    if (!item->IsInUpdateQueue())
         return;
 
     ASSERT(player != NULL);
 
-    if (player->GetGUID() != GetOwnerGUID())
+    if (player->GetGUID() != item->GetOwnerGUID())
     {
         TC_LOG_DEBUG("entities.player.items", "Item::RemoveFromUpdateQueueOf - Owner's guid (%s) and player's guid (%s) don't match!",
-            GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
+            item->GetOwnerGUID().ToString().c_str(), player->GetGUID().ToString().c_str());
         return;
     }
 
     if (player->m_itemUpdateQueueBlocked)
         return;
 
-    player->m_itemUpdateQueue[uQueuePos] = NULL;
-    uQueuePos = -1;
+    player->m_itemUpdateQueue[item->uQueuePos] = nullptr;
+    item->uQueuePos = -1;
 }
 
 uint8 Item::GetBagSlot() const
@@ -1062,7 +1044,7 @@ bool Item::CanBeTraded(bool mail, bool trade) const
     if ((!mail || !IsBoundAccountWide()) && (IsSoulBound() && (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_BOP_TRADEABLE) || !trade)))
         return false;
 
-    if (IsBag() && (Player::IsBagPos(GetPos()) || !((Bag const*)this)->IsEmpty()))
+    if (IsBag() && (Player::IsBagPos(GetPos()) || !ToBag()->IsEmpty()))
         return false;
 
     if (Player* owner = GetOwner())

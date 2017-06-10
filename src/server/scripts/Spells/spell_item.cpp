@@ -21,14 +21,21 @@
  * Scriptnames of files in this file should be prefixed with "spell_item_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
+#include "Battleground.h"
+#include "CreatureAIImpl.h"
+#include "DB2Stores.h"
+#include "Item.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "SkillDiscovery.h"
-#include "Battleground.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
@@ -50,9 +57,7 @@ class spell_item_trigger_spell : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(_triggeredSpellId))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ _triggeredSpellId });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -91,9 +96,7 @@ class spell_item_aegis_of_preservation : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AEGIS_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AEGIS_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -120,13 +123,13 @@ enum AlchemistStone
     SPELL_ALCHEMIST_STONE_EXTRA_MANA       = 21400
 };
 
-// Item - 13503: Alchemist's Stone 
-// Item - 35748: Guardian's Alchemist Stone 
-// Item - 35749: Sorcerer's Alchemist Stone 
-// Item - 35750: Redeemer's Alchemist Stone 
-// Item - 35751: Assassin's Alchemist Stone 
-// Item - 44322: Mercurial Alchemist Stone 
-// Item - 44323: Indestructible Alchemist's Stone 
+// Item - 13503: Alchemist's Stone
+// Item - 35748: Guardian's Alchemist Stone
+// Item - 35749: Sorcerer's Alchemist Stone
+// Item - 35750: Redeemer's Alchemist Stone
+// Item - 35751: Assassin's Alchemist Stone
+// Item - 44322: Mercurial Alchemist Stone
+// Item - 44323: Indestructible Alchemist's Stone
 // Item - 44324: Mighty Alchemist's Stone
 
 // 17619 - Alchemist Stone
@@ -141,10 +144,7 @@ class spell_item_alchemist_stone : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ALCHEMIST_STONE_EXTRA_HEAL) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ALCHEMIST_STONE_EXTRA_MANA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ALCHEMIST_STONE_EXTRA_HEAL, SPELL_ALCHEMIST_STONE_EXTRA_MANA });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -294,7 +294,7 @@ enum AuraOfMadness
     SAY_MADNESS             = 21954
 };
 
-// Item - 31859: Darkmoon Card: Madness 
+// Item - 31859: Darkmoon Card: Madness
 // 39446 - Aura of Madness
 class spell_item_aura_of_madness : public SpellScriptLoader
 {
@@ -307,18 +307,18 @@ class spell_item_aura_of_madness : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SOCIOPATH) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_DELUSIONAL) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_KLEPTOMANIA) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MEGALOMANIA) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PARANOIA) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MANIC) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_NARCISSISM) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MARTYR_COMPLEX) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_DEMENTIA) ||
-                    !sBroadcastTextStore.LookupEntry(SAY_MADNESS))
-                    return false;
-                return true;
+                return sBroadcastTextStore.LookupEntry(SAY_MADNESS) && ValidateSpellInfo(
+                {
+                    SPELL_SOCIOPATH,
+                    SPELL_DELUSIONAL,
+                    SPELL_KLEPTOMANIA,
+                    SPELL_MEGALOMANIA,
+                    SPELL_PARANOIA,
+                    SPELL_MANIC,
+                    SPELL_NARCISSISM,
+                    SPELL_MARTYR_COMPLEX,
+                    SPELL_DEMENTIA
+                });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -384,10 +384,7 @@ class spell_item_dementia : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DEMENTIA_POS) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_DEMENTIA_NEG))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DEMENTIA_POS, SPELL_DEMENTIA_NEG });
             }
 
             void HandlePeriodicDummy(AuraEffect const* /*aurEff*/)
@@ -425,9 +422,7 @@ class spell_item_blessing_of_ancient_kings : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PROTECTION_OF_ANCIENT_KINGS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PROTECTION_OF_ANCIENT_KINGS });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -514,9 +509,7 @@ class spell_item_deadly_precision_dummy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DEADLY_PRECISION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DEADLY_PRECISION });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -703,9 +696,7 @@ class spell_item_defibrillate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (_failSpell && !sSpellMgr->GetSpellInfo(_failSpell))
-                    return false;
-                return true;
+                return !_failSpell || ValidateSpellInfo({ _failSpell });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -755,9 +746,7 @@ class spell_item_desperate_defense : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DESPERATE_RAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DESPERATE_RAGE });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -805,10 +794,7 @@ class spell_item_deviate_fish : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                for (uint32 spellId = SPELL_SLEEPY; spellId <= SPELL_HEALTHY_SPIRIT; ++spellId)
-                    if (!sSpellMgr->GetSpellInfo(spellId))
-                        return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SLEEPY, SPELL_INVIGORATE, SPELL_SHRINK, SPELL_PARTY_TIME, SPELL_HEALTHY_SPIRIT });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -847,9 +833,7 @@ class spell_item_discerning_eye_beast_dummy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DISCERNING_EYE_BEAST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DISCERNING_EYE_BEAST });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -921,9 +905,7 @@ class spell_item_fate_rune_of_unsurpassed_vigor : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_UNSURPASSED_VIGOR))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_UNSURPASSED_VIGOR });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -964,9 +946,12 @@ class spell_item_flask_of_the_north : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_THE_NORTH_SP) || !sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_THE_NORTH_AP) || !sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_THE_NORTH_STR))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_FLASK_OF_THE_NORTH_SP,
+                    SPELL_FLASK_OF_THE_NORTH_AP,
+                    SPELL_FLASK_OF_THE_NORTH_STR
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1038,9 +1023,7 @@ class spell_item_frozen_shadoweave : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOWMEND))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SHADOWMEND });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1086,9 +1069,7 @@ class spell_item_gnomish_death_ray : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GNOMISH_DEATH_RAY_SELF) || !sSpellMgr->GetSpellInfo(SPELL_GNOMISH_DEATH_RAY_TARGET))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_GNOMISH_DEATH_RAY_SELF, SPELL_GNOMISH_DEATH_RAY_TARGET });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1258,9 +1239,14 @@ class spell_item_make_a_wish : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MR_PINCHYS_BLESSING) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_MIGHTY_MR_PINCHY) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_FURIOUS_MR_PINCHY) || !sSpellMgr->GetSpellInfo(SPELL_TINY_MAGICAL_CRAWDAD) || !sSpellMgr->GetSpellInfo(SPELL_MR_PINCHYS_GIFT))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_MR_PINCHYS_BLESSING,
+                    SPELL_SUMMON_MIGHTY_MR_PINCHY,
+                    SPELL_SUMMON_FURIOUS_MR_PINCHY,
+                    SPELL_TINY_MAGICAL_CRAWDAD,
+                    SPELL_MR_PINCHYS_GIFT
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1294,8 +1280,8 @@ enum MarkOfConquest
     SPELL_MARK_OF_CONQUEST_ENERGIZE     = 39599
 };
 
-// Item - 27920: Mark of Conquest 
-// Item - 27921: Mark of Conquest 
+// Item - 27920: Mark of Conquest
+// Item - 27921: Mark of Conquest
 // 33510 - Health Restore
 class spell_item_mark_of_conquest : public SpellScriptLoader
 {
@@ -1308,9 +1294,7 @@ class spell_item_mark_of_conquest : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_CONQUEST_ENERGIZE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_CONQUEST_ENERGIZE });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -1409,9 +1393,7 @@ class spell_item_necrotic_touch : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ITEM_NECROTIC_TOUCH_PROC))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ITEM_NECROTIC_TOUCH_PROC });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1459,9 +1441,12 @@ class spell_item_net_o_matic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NET_O_MATIC_TRIGGERED1) || !sSpellMgr->GetSpellInfo(SPELL_NET_O_MATIC_TRIGGERED2) || !sSpellMgr->GetSpellInfo(SPELL_NET_O_MATIC_TRIGGERED3))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_NET_O_MATIC_TRIGGERED1,
+                    SPELL_NET_O_MATIC_TRIGGERED2,
+                    SPELL_NET_O_MATIC_TRIGGERED3
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1516,9 +1501,12 @@ class spell_item_noggenfogger_elixir : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1) || !sSpellMgr->GetSpellInfo(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED2) || !sSpellMgr->GetSpellInfo(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1,
+                    SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED2,
+                    SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1560,8 +1548,8 @@ class spell_item_pendant_of_the_violet_eye : public SpellScriptLoader
             {
                 if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
                 {
-                    std::vector<SpellInfo::CostData> costs = spellInfo->CalcPowerCost(GetTarget(), spellInfo->GetSchoolMask());
-                    auto m = std::find_if(costs.begin(), costs.end(), [](SpellInfo::CostData const& cost) { return cost.Power == POWER_MANA && cost.Amount > 0; });
+                    std::vector<SpellPowerCost> costs = spellInfo->CalcPowerCost(GetTarget(), spellInfo->GetSchoolMask());
+                    auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA && cost.Amount > 0; });
                     if (m != costs.end())
                         return true;
                 }
@@ -1598,9 +1586,7 @@ class spell_item_persistent_shield : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PERSISTENT_SHIELD_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PERSISTENT_SHIELD_TRIGGERED });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1654,9 +1640,7 @@ class spell_item_pet_healing : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HEALTH_LINK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_HEALTH_LINK });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1738,10 +1722,7 @@ class spell_item_savory_deviate_delight : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                for (uint32 spellId = SPELL_FLIP_OUT_MALE; spellId <= SPELL_YAAARRRR_FEMALE; ++spellId)
-                    if (!sSpellMgr->GetSpellInfo(spellId))
-                        return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FLIP_OUT_MALE, SPELL_FLIP_OUT_FEMALE, SPELL_YAAARRRR_MALE, SPELL_YAAARRRR_FEMALE });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1936,13 +1917,12 @@ class spell_item_shadowmourne : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOWMOURNE_CHAOS_BANE_DAMAGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOWMOURNE_SOUL_FRAGMENT))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SHADOWMOURNE_CHAOS_BANE_DAMAGE,
+                    SPELL_SHADOWMOURNE_SOUL_FRAGMENT,
+                    SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF
+                });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -1993,9 +1973,12 @@ class spell_item_shadowmourne_soul_fragment : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOWMOURNE_VISUAL_LOW) || !sSpellMgr->GetSpellInfo(SPELL_SHADOWMOURNE_VISUAL_HIGH) || !sSpellMgr->GetSpellInfo(SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SHADOWMOURNE_VISUAL_LOW,
+                    SPELL_SHADOWMOURNE_VISUAL_HIGH,
+                    SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF
+                });
             }
 
             void OnStackChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2062,9 +2045,15 @@ class spell_item_six_demon_bag : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FROSTBOLT) || !sSpellMgr->GetSpellInfo(SPELL_POLYMORPH) || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_FELHOUND_MINION) || !sSpellMgr->GetSpellInfo(SPELL_FIREBALL) || !sSpellMgr->GetSpellInfo(SPELL_CHAIN_LIGHTNING) || !sSpellMgr->GetSpellInfo(SPELL_ENVELOPING_WINDS))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_FROSTBOLT,
+                    SPELL_POLYMORPH,
+                    SPELL_SUMMON_FELHOUND_MINION,
+                    SPELL_FIREBALL,
+                    SPELL_CHAIN_LIGHTNING,
+                    SPELL_ENVELOPING_WINDS
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2127,9 +2116,7 @@ class spell_item_swift_hand_justice_dummy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SWIFT_HAND_OF_JUSTICE_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SWIFT_HAND_OF_JUSTICE_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -2206,9 +2193,12 @@ class spell_item_underbelly_elixir : public SpellScriptLoader
             }
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_UNDERBELLY_ELIXIR_TRIGGERED1) || !sSpellMgr->GetSpellInfo(SPELL_UNDERBELLY_ELIXIR_TRIGGERED2) || !sSpellMgr->GetSpellInfo(SPELL_UNDERBELLY_ELIXIR_TRIGGERED3))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_UNDERBELLY_ELIXIR_TRIGGERED1,
+                    SPELL_UNDERBELLY_ELIXIR_TRIGGERED2,
+                    SPELL_UNDERBELLY_ELIXIR_TRIGGERED3
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2248,7 +2238,7 @@ enum WormholeGeneratorPandariaSpell
     SPELL_WORMHOLE_PANDARIA_WHITEPETAL_LAKE     = 126764,
 };
 
-std::vector<uint32> const WormholeTargetLocations =
+uint32 const WormholeTargetLocations[] =
 {
     SPELL_WORMHOLE_PANDARIA_ISLE_OF_RECKONING,
     SPELL_WORMHOLE_PANDARIA_KUNLAI_UNDERWATER,
@@ -2273,10 +2263,7 @@ class spell_item_wormhole_pandaria : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                for (uint32 spellId : WormholeTargetLocations)
-                    if (!sSpellMgr->GetSpellInfo(spellId))
-                        return false;
-                return true;
+                return ValidateSpellInfo(WormholeTargetLocations);
             }
 
             void HandleTeleport(SpellEffIndex effIndex)
@@ -2367,9 +2354,7 @@ class spell_item_red_rider_air_rifle : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AIR_RIFLE_HOLD_VISUAL) || !sSpellMgr->GetSpellInfo(SPELL_AIR_RIFLE_SHOOT) || !sSpellMgr->GetSpellInfo(SPELL_AIR_RIFLE_SHOOT_SELF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AIR_RIFLE_HOLD_VISUAL, SPELL_AIR_RIFLE_SHOOT, SPELL_AIR_RIFLE_SHOOT_SELF });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -2598,9 +2583,7 @@ class spell_item_vanquished_clutches : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CRUSHER) || !sSpellMgr->GetSpellInfo(SPELL_CONSTRICTOR) || !sSpellMgr->GetSpellInfo(SPELL_CORRUPTOR))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CRUSHER, SPELL_CONSTRICTOR, SPELL_CORRUPTOR });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2784,9 +2767,7 @@ class spell_item_purify_helboar_meat : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_PURIFIED_HELBOAR_MEAT) ||  !sSpellMgr->GetSpellInfo(SPELL_SUMMON_TOXIC_HELBOAR_MEAT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_PURIFIED_HELBOAR_MEAT, SPELL_SUMMON_TOXIC_HELBOAR_MEAT });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -2833,7 +2814,7 @@ class spell_item_crystal_prison_dummy_dnd : public SpellScriptLoader
                 if (Creature* target = GetHitCreature())
                     if (target->isDead() && !target->IsPet())
                     {
-                        GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, G3D::Quat(), uint32(target->GetRespawnTime()-time(NULL)));
+                        GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, QuaternionData(), uint32(target->GetRespawnTime()-time(NULL)));
                         target->DespawnOrUnsummon();
                     }
             }
@@ -2870,11 +2851,14 @@ class spell_item_reindeer_transformation : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLYING_REINDEER_310) || !sSpellMgr->GetSpellInfo(SPELL_FLYING_REINDEER_280)
-                    || !sSpellMgr->GetSpellInfo(SPELL_FLYING_REINDEER_60) || !sSpellMgr->GetSpellInfo(SPELL_REINDEER_100)
-                    || !sSpellMgr->GetSpellInfo(SPELL_REINDEER_60))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_FLYING_REINDEER_310,
+                    SPELL_FLYING_REINDEER_280,
+                    SPELL_FLYING_REINDEER_60,
+                    SPELL_REINDEER_100,
+                    SPELL_REINDEER_60
+                });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -2935,9 +2919,7 @@ class spell_item_nigh_invulnerability : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NIGH_INVULNERABILITY) || !sSpellMgr->GetSpellInfo(SPELL_COMPLETE_VULNERABILITY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NIGH_INVULNERABILITY, SPELL_COMPLETE_VULNERABILITY });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -2981,9 +2963,7 @@ class spell_item_poultryizer : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_POULTRYIZER_SUCCESS) || !sSpellMgr->GetSpellInfo(SPELL_POULTRYIZER_BACKFIRE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_POULTRYIZER_SUCCESS, SPELL_POULTRYIZER_BACKFIRE });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -3025,9 +3005,7 @@ class spell_item_socrethars_stone : public SpellScriptLoader
             }
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SOCRETHAR_TO_SEAT) || !sSpellMgr->GetSpellInfo(SPELL_SOCRETHAR_FROM_SEAT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SOCRETHAR_TO_SEAT, SPELL_SOCRETHAR_FROM_SEAT });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -3076,9 +3054,9 @@ class spell_item_demon_broiled_surprise : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_DEMON_BROILED_SURPRISE) || !sObjectMgr->GetCreatureTemplate(NPC_ABYSSAL_FLAMEBRINGER) || !sObjectMgr->GetQuestTemplate(QUEST_SUPER_HOT_STEW))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CREATE_DEMON_BROILED_SURPRISE }) &&
+                    sObjectMgr->GetCreatureTemplate(NPC_ABYSSAL_FLAMEBRINGER) &&
+                    sObjectMgr->GetQuestTemplate(QUEST_SUPER_HOT_STEW);
             }
 
             bool Load() override
@@ -3133,9 +3111,7 @@ class spell_item_complete_raptor_capture : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RAPTOR_CAPTURE_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RAPTOR_CAPTURE_CREDIT });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -3227,9 +3203,13 @@ class spell_item_brewfest_mount_transformation : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOUNT_RAM_100) || !sSpellMgr->GetSpellInfo(SPELL_MOUNT_RAM_60) || !sSpellMgr->GetSpellInfo(SPELL_MOUNT_KODO_100) || !sSpellMgr->GetSpellInfo(SPELL_MOUNT_KODO_60))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_MOUNT_RAM_100,
+                    SPELL_MOUNT_RAM_60,
+                    SPELL_MOUNT_KODO_100,
+                    SPELL_MOUNT_KODO_60
+                });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -3297,9 +3277,7 @@ class spell_item_nitro_boots : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NITRO_BOOTS_SUCCESS) || !sSpellMgr->GetSpellInfo(SPELL_NITRO_BOOTS_BACKFIRE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NITRO_BOOTS_SUCCESS, SPELL_NITRO_BOOTS_BACKFIRE });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -3343,9 +3321,7 @@ class spell_item_teach_language : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LEARN_GNOMISH_BINARY) || !sSpellMgr->GetSpellInfo(SPELL_LEARN_GOBLIN_BINARY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_LEARN_GNOMISH_BINARY, SPELL_LEARN_GOBLIN_BINARY });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -3389,9 +3365,7 @@ class spell_item_rocket_boots : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROCKET_BOOTS_PROC))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROCKET_BOOTS_PROC });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -3441,9 +3415,7 @@ class spell_item_pygmy_oil : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PYGMY_OIL_PYGMY_AURA) || !sSpellMgr->GetSpellInfo(SPELL_PYGMY_OIL_SMALLER_AURA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PYGMY_OIL_PYGMY_AURA, SPELL_PYGMY_OIL_SMALLER_AURA });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -3527,9 +3499,9 @@ class spell_item_chicken_cover : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CHICKEN_NET) || !sSpellMgr->GetSpellInfo(SPELL_CAPTURE_CHICKEN_ESCAPE) || !sObjectMgr->GetQuestTemplate(QUEST_CHICKEN_PARTY) || !sObjectMgr->GetQuestTemplate(QUEST_FLOWN_THE_COOP))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CHICKEN_NET, SPELL_CAPTURE_CHICKEN_ESCAPE }) &&
+                    sObjectMgr->GetQuestTemplate(QUEST_CHICKEN_PARTY) &&
+                    sObjectMgr->GetQuestTemplate(QUEST_FLOWN_THE_COOP);
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -3693,12 +3665,13 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_DRUID) ||
-                !sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_PALADIN) ||
-                !sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_PRIEST) ||
-                !sSpellMgr->GetSpellInfo(SPELL_SOUL_PRESERVER_SHAMAN))
-                return false;
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_SOUL_PRESERVER_DRUID,
+                SPELL_SOUL_PRESERVER_PALADIN,
+                SPELL_SOUL_PRESERVER_PRIEST,
+                SPELL_SOUL_PRESERVER_SHAMAN
+            });
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -3880,12 +3853,13 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_NORMAL_STRENGTH) ||
-                !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_NORMAL_AGILITY) ||
-                !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_HEROIC_STRENGTH) ||
-                !sSpellMgr->GetSpellInfo(SPELL_DEATH_CHOICE_HEROIC_AGILITY))
-                return false;
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_DEATH_CHOICE_NORMAL_STRENGTH,
+                SPELL_DEATH_CHOICE_NORMAL_AGILITY,
+                SPELL_DEATH_CHOICE_HEROIC_STRENGTH,
+                SPELL_DEATH_CHOICE_HEROIC_AGILITY
+            });
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -3966,9 +3940,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(_stackSpell) || !sSpellMgr->GetSpellInfo(_triggerSpell))
-                return false;
-            return true;
+            return ValidateSpellInfo({ _stackSpell, _triggerSpell });
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -4031,12 +4003,13 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_STRENGHT) ||
-                !sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_AGILITY) ||
-                !sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_INTELLECT) ||
-                !sSpellMgr->GetSpellInfo(SPELL_DARKMOON_CARD_VERSATILITY))
-                return false;
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_DARKMOON_CARD_STRENGHT,
+                SPELL_DARKMOON_CARD_AGILITY,
+                SPELL_DARKMOON_CARD_INTELLECT,
+                SPELL_DARKMOON_CARD_VERSATILITY
+            });
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -4109,10 +4082,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MANA_DRAIN_ENERGIZE)
-                || !sSpellMgr->GetSpellInfo(SPELL_MANA_DRAIN_LEECH))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_MANA_DRAIN_ENERGIZE, SPELL_MANA_DRAIN_LEECH });
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -4160,11 +4130,8 @@ class spell_item_taunt_flag_targeting : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TAUNT_FLAG))
-                    return false;
-                if (!sBroadcastTextStore.LookupEntry(EMOTE_PLANTS_FLAG))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TAUNT_FLAG }) &&
+                    sBroadcastTextStore.LookupEntry(EMOTE_PLANTS_FLAG);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -4230,9 +4197,7 @@ class spell_item_zandalarian_charm : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(_spellId))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ _spellId });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -4369,9 +4334,7 @@ class spell_item_talisman_of_ascendance : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TALISMAN_OF_ASCENDANCE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TALISMAN_OF_ASCENDANCE });
             }
 
             void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
@@ -4403,9 +4366,7 @@ class spell_item_jom_gabbar : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_JOM_GABBAR))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_JOM_GABBAR });
             }
 
             void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
@@ -4437,9 +4398,7 @@ class spell_item_battle_trance : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BATTLE_TRANCE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BATTLE_TRANCE });
             }
 
             void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
@@ -4471,9 +4430,7 @@ class spell_item_world_queller_focus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WORLD_QUELLER_FOCUS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WORLD_QUELLER_FOCUS });
             }
 
             void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)
@@ -4509,17 +4466,14 @@ class spell_item_water_strider : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AZURE_WATER_STRIDER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_CRIMSON_WATER_STRIDER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_ORANGE_WATER_STRIDER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_JADE_WATER_STRIDER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_GOLDEN_WATER_STRIDER))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_AZURE_WATER_STRIDER,
+                    SPELL_CRIMSON_WATER_STRIDER,
+                    SPELL_ORANGE_WATER_STRIDER,
+                    SPELL_JADE_WATER_STRIDER,
+                    SPELL_GOLDEN_WATER_STRIDER
+                });
             }
 
             void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
@@ -4552,11 +4506,7 @@ class spell_item_brutal_kinship : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BRUTAL_KINSHIP_1))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_BRUTAL_KINSHIP_2))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BRUTAL_KINSHIP_1, SPELL_BRUTAL_KINSHIP_2 });
             }
 
             void OnRemove(AuraEffect const* effect, AuraEffectHandleModes /*mode*/)

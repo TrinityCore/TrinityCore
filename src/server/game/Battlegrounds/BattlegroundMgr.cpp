@@ -16,33 +16,42 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "ObjectMgr.h"
-#include "World.h"
-#include "WorldPacket.h"
-
 #include "BattlegroundMgr.h"
-#include "BattlegroundAV.h"
 #include "BattlegroundAB.h"
-#include "BattlegroundEY.h"
-#include "BattlegroundWS.h"
-#include "BattlegroundNA.h"
+#include "BattlegroundAV.h"
 #include "BattlegroundBE.h"
-#include "BattlegroundRL.h"
-#include "BattlegroundSA.h"
-#include "BattlegroundDS.h"
-#include "BattlegroundRV.h"
-#include "BattlegroundIC.h"
-#include "BattlegroundTP.h"
 #include "BattlegroundBFG.h"
+#include "BattlegroundDS.h"
+#include "BattlegroundEY.h"
+#include "BattlegroundIC.h"
+#include "BattlegroundNA.h"
+#include "BattlegroundPackets.h"
+#include "BattlegroundRL.h"
+#include "BattlegroundRV.h"
+#include "BattlegroundSA.h"
+#include "BattlegroundTP.h"
+#include "BattlegroundWS.h"
+#include "Common.h"
+#include "Containers.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "DisableMgr.h"
+#include "GameEventMgr.h"
+#include "Log.h"
 #include "Map.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
-#include "Player.h"
-#include "GameEventMgr.h"
-#include "SharedDefines.h"
-#include "DisableMgr.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "Player.h"
+#include "SharedDefines.h"
+#include "World.h"
+#include "WorldPacket.h"
+
+bool BattlegroundTemplate::IsArena() const
+{
+    return BattlemasterEntry->InstanceType == MAP_ARENA;
+}
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
@@ -611,7 +620,7 @@ void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battlegrou
     WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
     areaSpiritHealerTime.HealerGuid = guid;
     areaSpiritHealerTime.TimeLeft = time_;
-    player->GetSession()->SendPacket(areaSpiritHealerTime.Write());
+    player->SendDirectMessage(areaSpiritHealerTime.Write());
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
@@ -866,9 +875,11 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
-        uint32 weight = 0;
         BattlegroundSelectionWeightMap selectionWeights;
-
+        std::vector<BattlegroundTypeId> ids;
+        ids.reserve(16);
+        std::vector<double> weights;
+        weights.reserve(16);
         for (int32 mapId : bgTemplate->BattlemasterEntry->MapID)
         {
             if (mapId == -1)
@@ -876,28 +887,12 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 
             if (BattlegroundTemplate const* bg = GetBattlegroundTemplateByMapId(mapId))
             {
-                weight += bg->Weight;
-                selectionWeights[bg->Id] = bg->Weight;
+                ids.push_back(bg->Id);
+                weights.push_back(bg->Weight);
             }
         }
 
-        // there is only one bg to select
-        if (selectionWeights.size() == 1)
-            return selectionWeights.begin()->first;
-
-        if (weight)
-        {
-            // Select a random value
-            uint32 selectedWeight = urand(0, weight - 1);
-            // Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
-            weight = 0;
-            for (auto it : selectionWeights)
-            {
-                weight += it.second;
-                if (selectedWeight < weight)
-                    return it.first;
-            }
-        }
+        return *Trinity::Containers::SelectRandomWeightedContainerElement(ids, weights);
     }
 
     return BATTLEGROUND_TYPE_NONE;

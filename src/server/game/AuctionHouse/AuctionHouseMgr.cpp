@@ -16,19 +16,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AuctionHouseMgr.h"
+#include "AuctionHousePackets.h"
+#include "AccountMgr.h"
+#include "Bag.h"
+#include "DB2Stores.h"
 #include "Common.h"
+#include "DatabaseEnv.h"
+#include "Language.h"
+#include "Log.h"
+#include "Mail.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Realm.h"
+#include "ScriptMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
-#include "ScriptMgr.h"
-#include "AccountMgr.h"
-#include "AuctionHouseMgr.h"
-#include "Item.h"
-#include "Language.h"
-#include "Log.h"
 #include <vector>
 
 enum eAuctionHouse

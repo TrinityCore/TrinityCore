@@ -25,15 +25,17 @@
 
 #include "BattlefieldTB.h"
 #include "AchievementMgr.h"
-#include "CreatureTextMgr.h"
 #include "Battleground.h"
+#include "CreatureTextMgr.h"
+#include "GameObject.h"
 #include "MapManager.h"
-#include "ObjectMgr.h"
-#include "Opcodes.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "Random.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
-#include "WorldSession.h"
+#include "World.h"
+#include "WorldStatePackets.h"
 
 BattlefieldTB::~BattlefieldTB() { }
 
@@ -96,7 +98,7 @@ bool BattlefieldTB::SetupBattlefield()
         TolBaradCapturePoint* capturePoint = new TolBaradCapturePoint(this, GetDefenderTeam());
 
         //Spawn flag pole
-        if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, G3D::Quat()))
+        if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData()))
         {
             go->SetGoArtKit(GetDefenderTeam() == TEAM_ALLIANCE ? TB_GO_ARTKIT_FLAG_ALLIANCE : TB_GO_ARTKIT_FLAG_HORDE);
             capturePoint->SetCapturePointData(go);
@@ -106,7 +108,7 @@ bool BattlefieldTB::SetupBattlefield()
 
     // Spawn towers
     for (uint8 i = 0; i < TB_TOWERS_COUNT; i++)
-        if (GameObject* go = SpawnGameObject(TBTowers[i].entry, TBTowers[i].pos, G3D::Quat()))
+        if (GameObject* go = SpawnGameObject(TBTowers[i].entry, TBTowers[i].pos, QuaternionData()))
             Towers.insert(go->GetGUID());
 
     // Init Graveyards
@@ -510,7 +512,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
             TolBaradCapturePoint* capturePoint = new TolBaradCapturePoint(this, GetDefenderTeam());
 
             //Spawn flag pole
-            if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, G3D::Quat()))
+            if (GameObject* go = SpawnGameObject(TBCapturePoints[i].entryFlagPole[GetDefenderTeam()], TBCapturePoints[i].pos, QuaternionData()))
             {
                 go->SetGoArtKit(GetDefenderTeam() == TEAM_ALLIANCE ? TB_GO_ARTKIT_FLAG_ALLIANCE : TB_GO_ARTKIT_FLAG_HORDE);
                 capturePoint->SetCapturePointData(go);
@@ -547,7 +549,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
 
         // Spawn portals
         for (uint8 i = 0; i < TB_PORTAL_MAX; i++)
-            if (GameObject* go = SpawnGameObject(TBPortalEntry[GetDefenderTeam()], TBPortals[i], G3D::Quat()))
+            if (GameObject* go = SpawnGameObject(TBPortalEntry[GetDefenderTeam()], TBPortals[i], QuaternionData()))
                 TemporaryGOs.insert(go->GetGUID());
 
         // Update towers
@@ -573,7 +575,7 @@ void BattlefieldTB::UpdateNPCsAndGameObjects()
 
     // Spawn banners
     for (uint8 i = 0; i < TB_BANNER_MAX; i++)
-        if (GameObject* go = SpawnGameObject(TBBannerEntry[GetDefenderTeam()], TBBanners[i], G3D::Quat()))
+        if (GameObject* go = SpawnGameObject(TBBannerEntry[GetDefenderTeam()], TBBanners[i], QuaternionData()))
             TemporaryGOs.insert(go->GetGUID());
 
     // Set graveyard controls

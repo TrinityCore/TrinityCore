@@ -17,16 +17,20 @@
  */
 
 #include "GameEventMgr.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "PoolMgr.h"
+#include "BattlegroundMgr.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "BattlegroundMgr.h"
-#include "UnitAI.h"
-#include "GameObjectAI.h"
+#include "PoolMgr.h"
+#include "World.h"
 #include "WorldStatePackets.h"
 
 GameEventMgr* GameEventMgr::instance()

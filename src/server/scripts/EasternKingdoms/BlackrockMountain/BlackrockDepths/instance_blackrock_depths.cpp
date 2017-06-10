@@ -17,9 +17,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "InstanceScript.h"
 #include "blackrock_depths.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 
 #define TIMER_TOMBOFTHESEVEN    15000
 #define MAX_ENCOUNTER           6
@@ -67,7 +71,7 @@ enum GameObjects
 class instance_blackrock_depths : public InstanceMapScript
 {
 public:
-    instance_blackrock_depths() : InstanceMapScript("instance_blackrock_depths", 230) { }
+    instance_blackrock_depths() : InstanceMapScript(BRDScriptName, 230) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {

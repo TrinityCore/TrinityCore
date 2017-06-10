@@ -17,10 +17,12 @@
  */
 
 #include "ByteBuffer.h"
+#include "Errors.h"
 #include "MessageBuffer.h"
-#include "Common.h"
 #include "Log.h"
+#include "Util.h"
 #include <sstream>
+#include <ctime>
 
 ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0), _storage(buffer.Move())
 {
@@ -35,6 +37,80 @@ ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size
        << ")";
 
     message().assign(ss.str());
+}
+
+ByteBuffer& ByteBuffer::operator>>(float& value)
+{
+    value = read<float>();
+    if (!std::isfinite(value))
+        throw ByteBufferException();
+    return *this;
+}
+
+ByteBuffer& ByteBuffer::operator>>(double& value)
+{
+    value = read<double>();
+    if (!std::isfinite(value))
+        throw ByteBufferException();
+    return *this;
+}
+
+uint32 ByteBuffer::ReadPackedTime()
+{
+    uint32 packedDate = read<uint32>();
+    tm lt = tm();
+
+    lt.tm_min = packedDate & 0x3F;
+    lt.tm_hour = (packedDate >> 6) & 0x1F;
+    //lt.tm_wday = (packedDate >> 11) & 7;
+    lt.tm_mday = ((packedDate >> 14) & 0x3F) + 1;
+    lt.tm_mon = (packedDate >> 20) & 0xF;
+    lt.tm_year = ((packedDate >> 24) & 0x1F) + 100;
+
+    return uint32(mktime(&lt));
+}
+
+void ByteBuffer::append(const uint8 *src, size_t cnt)
+{
+    ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
+    ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
+    ASSERT(size() < 10000000);
+
+    FlushBits();
+    _storage.insert(_storage.begin() + _wpos, src, src + cnt);
+    _wpos += cnt;
+}
+
+void ByteBuffer::AppendPackedTime(time_t time)
+{
+    tm lt;
+    localtime_r(&time, &lt);
+    append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
+}
+
+void ByteBuffer::put(size_t pos, const uint8 *src, size_t cnt)
+{
+    ASSERT(pos + cnt <= size(), "Attempted to put value with size: " SZFMTD " in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", cnt, pos, size());
+    ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", pos, size());
+    ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", pos, size());
+
+    std::memcpy(&_storage[pos], src, cnt);
+}
+
+void ByteBuffer::PutBits(std::size_t pos, std::size_t value, uint32 bitCount)
+{
+    ASSERT(pos + bitCount <= size() * 8, "Attempted to put %u bits in ByteBuffer (bitpos: " SZFMTD " size: " SZFMTD ")", bitCount, pos, size());
+    ASSERT(bitCount, "Attempted to put a zero bits in ByteBuffer");
+
+    for (uint32 i = 0; i < bitCount; ++i)
+    {
+        std::size_t wp = (pos + i) / 8;
+        std::size_t bit = (pos + i) % 8;
+        if ((value >> (bitCount - i - 1)) & 1)
+            _storage[wp] |= 1 << (7 - bit);
+        else
+            _storage[wp] &= ~(1 << (7 - bit));
+    }
 }
 
 void ByteBuffer::print_storage() const

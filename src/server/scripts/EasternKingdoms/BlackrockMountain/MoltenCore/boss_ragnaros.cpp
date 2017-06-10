@@ -24,8 +24,11 @@ SDCategory: Molten Core
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "molten_core.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -309,7 +312,7 @@ class boss_ragnaros : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_ragnarosAI>(creature);
+            return GetMoltenCoreAI<boss_ragnarosAI>(creature);
         }
 };
 
@@ -344,7 +347,7 @@ class npc_son_of_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_son_of_flameAI>(creature);
+            return GetMoltenCoreAI<npc_son_of_flameAI>(creature);
         }
 };
 

@@ -16,10 +16,11 @@
  */
 
 #include "ChatPackets.h"
+#include "Creature.h"
 #include "Group.h"
 #include "Player.h"
 #include "World.h"
-#include "Creature.h"
+#include "WorldSession.h"
 
 void WorldPackets::Chat::ChatMessage::Read()
 {

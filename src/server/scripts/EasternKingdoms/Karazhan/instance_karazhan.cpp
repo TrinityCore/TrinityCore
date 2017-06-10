@@ -24,8 +24,11 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "karazhan.h"
+#include "Map.h"
 
 /*
 0  - Attumen + Midnight (optional)
@@ -52,7 +55,7 @@ const Position OptionalSpawn[] =
 class instance_karazhan : public InstanceMapScript
 {
 public:
-    instance_karazhan() : InstanceMapScript("instance_karazhan", 532) { }
+    instance_karazhan() : InstanceMapScript(KZScriptName, 532) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -156,7 +159,7 @@ public:
                         HandleGameObject(StageDoorRightGUID, true);
                         if (GameObject* sideEntrance = instance->GetGameObject(SideEntranceDoor))
                             sideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
-                        UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, 16812, NULL);
+                        UpdateEncounterStateForKilledCreature(16812, NULL);
                     }
                     break;
                 case DATA_CHESS:
