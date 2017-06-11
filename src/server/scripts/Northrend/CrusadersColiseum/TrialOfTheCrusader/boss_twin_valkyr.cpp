@@ -759,17 +759,16 @@ class spell_valkyr_essences : public SpellScriptLoader
                         {
                             if (dmgInfo.GetSpellInfo()->Id == SPELL_DARK_VORTEX_DAMAGE || dmgInfo.GetSpellInfo()->Id == SPELL_LIGHT_VORTEX_DAMAGE)
                             {
-                                Aura* pAura = owner->GetAura(SPELL_POWERING_UP);
-                                if (pAura)
+                                if (Aura* aura = owner->GetAura(SPELL_POWERING_UP))
                                 {
-                                    pAura->ModStackAmount(stacksCount);
+                                    aura->ModStackAmount(stacksCount);
                                     owner->CastSpell(owner, SPELL_POWERING_UP, true);
                                 }
                                 else
                                 {
                                     owner->CastSpell(owner, SPELL_POWERING_UP, true);
-                                    if (Aura* pTemp = owner->GetAura(SPELL_POWERING_UP))
-                                        pTemp->ModStackAmount(stacksCount);
+                                    if (Aura* newAura = owner->GetAura(SPELL_POWERING_UP))
+                                        newAura->ModStackAmount(stacksCount);
                                 }
                             }
                         }
@@ -778,18 +777,17 @@ class spell_valkyr_essences : public SpellScriptLoader
                         if (dmgInfo.GetSpellInfo()->Id == SPELL_UNLEASHED_DARK || dmgInfo.GetSpellInfo()->Id == SPELL_UNLEASHED_LIGHT)
                         {
                             // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
-                            Aura* pAura = owner->GetAura(SPELL_POWERING_UP);
-                            if (pAura)
+                            if (Aura* aura = owner->GetAura(SPELL_POWERING_UP))
                             {
                                 // 2 lines together add the correct amount of buff stacks
-                                pAura->ModStackAmount(stacksCount);
+                                aura->ModStackAmount(stacksCount);
                                 owner->CastSpell(owner, SPELL_POWERING_UP, true);
                             }
                             else
                             {
                                 owner->CastSpell(owner, SPELL_POWERING_UP, true);
-                                if (Aura* pTemp = owner->GetAura(SPELL_POWERING_UP))
-                                    pTemp->ModStackAmount(stacksCount);
+                                if (Aura* newAura = owner->GetAura(SPELL_POWERING_UP))
+                                    newAura->ModStackAmount(stacksCount);
                             }
                         }
                     }
