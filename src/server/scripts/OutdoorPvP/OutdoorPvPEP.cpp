@@ -65,7 +65,7 @@ go_type const EPTowerFlags[EP_TOWER_NUM] =
     { 182106, 0, { 1838.42f, -3703.56f, 167.713f, 0.890118f }, { 0.0f, 0.0f, 0.430511f, 0.902585f } }
 };
 
-uint8 const EP_NUM_CREATURES = 6;
+// uint8 const EP_NUM_CREATURES = 6;
 uint8 const EP_EWT_NUM_CREATURES = 5;
 
 // one lordaeron commander, 4 soldiers
