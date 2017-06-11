@@ -27,21 +27,17 @@
 OutdoorPvPMgr::OutdoorPvPMgr()
 {
     m_UpdateTimer = 0;
-    //TC_LOG_DEBUG("outdoorpvp", "Instantiating OutdoorPvPMgr");
 }
 
 void OutdoorPvPMgr::Die()
 {
-    //TC_LOG_DEBUG("outdoorpvp", "Deleting OutdoorPvPMgr");
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
         delete *itr;
 
     m_OutdoorPvPSet.clear();
 
-    for (OutdoorPvPDataMap::iterator itr = m_OutdoorPvPDatas.begin(); itr != m_OutdoorPvPDatas.end(); ++itr)
-        delete itr->second;
-
-    m_OutdoorPvPDatas.clear();
+    for (uint32 i = 0; i < MAX_OUTDOORPVP_TYPES; ++i)
+        m_OutdoorPvPDatas[i] = 0;
 
     m_OutdoorPvPMap.clear();
 }
@@ -58,7 +54,6 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
     //                                                 0       1
     QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
-
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
@@ -83,11 +78,8 @@ void OutdoorPvPMgr::InitOutdoorPvP()
             continue;
         }
 
-        OutdoorPvPData* data = new OutdoorPvPData();
         OutdoorPvPTypes realTypeId = OutdoorPvPTypes(typeId);
-        data->TypeId = realTypeId;
-        data->ScriptId = sObjectMgr->GetScriptId(fields[1].GetString());
-        m_OutdoorPvPDatas[realTypeId] = data;
+        m_OutdoorPvPDatas[realTypeId] = sObjectMgr->GetScriptId(fields[1].GetString());
 
         ++count;
     }
@@ -96,14 +88,13 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     OutdoorPvP* pvp;
     for (uint8 i = 1; i < MAX_OUTDOORPVP_TYPES; ++i)
     {
-        OutdoorPvPDataMap::iterator iter = m_OutdoorPvPDatas.find(OutdoorPvPTypes(i));
-        if (iter == m_OutdoorPvPDatas.end())
+        if (!m_OutdoorPvPDatas[i])
         {
             TC_LOG_ERROR("sql.sql", "Could not initialize OutdoorPvP object for type ID %u; no entry in database.", uint32(i));
             continue;
         }
 
-        pvp = sScriptMgr->CreateOutdoorPvP(iter->second);
+        pvp = sScriptMgr->CreateOutdoorPvP(m_OutdoorPvPDatas[i]);
         if (!pvp)
         {
             TC_LOG_ERROR("outdoorpvp", "Could not initialize OutdoorPvP object for type ID %u; got NULL pointer from script.", uint32(i));

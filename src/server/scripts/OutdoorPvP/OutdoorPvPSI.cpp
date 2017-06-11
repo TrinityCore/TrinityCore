@@ -28,6 +28,19 @@
 #include "World.h"
 #include "WorldStatePackets.h"
 
+uint32 const SI_MAX_RESOURCES = 200;
+
+uint32 const SI_AREATRIGGER_H = 4168;
+uint32 const SI_AREATRIGGER_A = 4162;
+
+uint32 const SI_TURNIN_QUEST_CM_A = 17090;
+uint32 const SI_TURNIN_QUEST_CM_H = 18199;
+
+uint32 const SI_SILITHYST_MOUND = 181597;
+
+uint8 const OutdoorPvPSIBuffZonesNum = 3;
+uint32 const OutdoorPvPSIBuffZones[OutdoorPvPSIBuffZonesNum] = { 1377, 3428, 3429 };
+
 OutdoorPvPSI::OutdoorPvPSI()
 {
     m_TypeId = OUTDOOR_PVP_SI;
