@@ -106,7 +106,7 @@ class TC_GAME_API SmartScript
         {
             // insert or replace
             _storedTargets.erase(id);
-            _storedTargets.emplace(id, ObjectGuidVector(GetBaseObject(), targets));
+            _storedTargets.emplace(id, ObjectGuidVector(targets));
         }
 
         bool IsSmart(Creature* c = nullptr)
@@ -138,11 +138,11 @@ class TC_GAME_API SmartScript
             return smart;
         }
 
-        ObjectVector const* GetStoredTargetVector(uint32 id) const
+        ObjectVector const* GetStoredTargetVector(uint32 id, WorldObject const& ref) const
         {
             auto itr = _storedTargets.find(id);
             if (itr != _storedTargets.end())
-                return itr->second.GetObjectVector();
+                return itr->second.GetObjectVector(ref);
             return nullptr;
         }
 
@@ -232,28 +232,12 @@ class TC_GAME_API SmartScript
         CounterMap mCounterList;
 
     private:
-        void IncPhase(uint32 p)
-        {
-            // protect phase from overflowing
-            mEventPhase = std::min<uint32>(SMART_EVENT_PHASE_12, mEventPhase + p);
-        }
 
-        void DecPhase(uint32 p)
-        {
-            if (p >= mEventPhase)
-                mEventPhase = 0;
-            else
-                mEventPhase -= p;
-        }
+        void IncPhase(uint32 p);
+        void DecPhase(uint32 p);
 
-        bool IsInPhase(uint32 p) const
-        {
-            if (mEventPhase == 0)
-                return false;
-            return ((1 << (mEventPhase - 1)) & p) != 0;
-        }
-
-        void SetPhase(uint32 p = 0) { mEventPhase = p; }
+        void SetPhase(uint32 p);
+        bool IsInPhase(uint32 p) const;
 
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;

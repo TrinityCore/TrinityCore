@@ -177,7 +177,7 @@ enum SMART_EVENT
     SMART_EVENT_JUST_CREATED             = 63,      // none
     SMART_EVENT_GOSSIP_HELLO             = 64,      // noReportUse (for GOs)
     SMART_EVENT_FOLLOW_COMPLETED         = 65,      // none
-    // 66 unused
+    SMART_EVENT_EVENT_PHASE_CHANGE       = 66,      // event phase mask (<= SMART_EVENT_PHASE_ALL)
     SMART_EVENT_IS_BEHIND_TARGET         = 67,      // cooldownMin, CooldownMax
     SMART_EVENT_GAME_EVENT_START         = 68,      // game_event.Entry
     SMART_EVENT_GAME_EVENT_END           = 69,      // game_event.Entry
@@ -385,6 +385,11 @@ struct SmartEvent
             uint32 spell;
             uint32 effIndex;
         } dummy;
+
+        struct
+        {
+            uint32 phasemask;
+        } eventPhaseChange;
 
         struct
         {
@@ -1417,7 +1422,7 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_JUST_CREATED,              SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GOSSIP_HELLO,              SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_FOLLOW_COMPLETED,          SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {66,                                    0                               }, // unused
+    {SMART_EVENT_EVENT_PHASE_CHANGE,        SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_IS_BEHIND_TARGET,          SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_GAME_EVENT_START,          SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GAME_EVENT_END,            SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
@@ -1495,34 +1500,32 @@ typedef std::vector<WorldObject*> ObjectVector;
 class ObjectGuidVector
 {
     public:
-        ObjectGuidVector(WorldObject* baseObject, ObjectVector const& objectVector) : _baseObject(baseObject), _objectVector(objectVector)
+        explicit ObjectGuidVector(ObjectVector const& objectVector) : _objectVector(objectVector)
         {
             _guidVector.reserve(_objectVector.size());
             for (WorldObject* obj : _objectVector)
                 _guidVector.push_back(obj->GetGUID());
         }
 
-        ObjectVector const* GetObjectVector() const
+        ObjectVector const* GetObjectVector(WorldObject const& ref) const
         {
-            UpdateObjects();
+            UpdateObjects(ref);
             return &_objectVector;
         }
 
         ~ObjectGuidVector() { }
 
     private:
-        WorldObject* const _baseObject;
+        GuidVector _guidVector;
         mutable ObjectVector _objectVector;
 
-        GuidVector _guidVector;
-
         //sanitize vector using _guidVector
-        void UpdateObjects() const
+        void UpdateObjects(WorldObject const& ref) const
         {
             _objectVector.clear();
 
             for (ObjectGuid const& guid : _guidVector)
-                if (WorldObject* obj = ObjectAccessor::GetWorldObject(*_baseObject, guid))
+                if (WorldObject* obj = ObjectAccessor::GetWorldObject(ref, guid))
                     _objectVector.push_back(obj);
         }
 };

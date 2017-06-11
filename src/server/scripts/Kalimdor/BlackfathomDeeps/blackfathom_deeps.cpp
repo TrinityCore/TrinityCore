@@ -43,7 +43,7 @@ class go_blackfathom_altar : public GameObjectScript
         {
             go_blackfathom_altarAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
                     player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
@@ -68,7 +68,7 @@ class go_blackfathom_fire : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 me->SetGoState(GO_STATE_ACTIVE);
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);

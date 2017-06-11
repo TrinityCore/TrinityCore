@@ -439,7 +439,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual void Update(uint32 /*time_diff*/);
 
         void _Create(ObjectGuid::LowType guidlow, HighGuid guidhigh, uint32 phaseMask);
-        virtual void RemoveFromWorld() override;
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
         void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const;
@@ -465,9 +466,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool InSamePhase(WorldObject const* obj) const;
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
 
-        uint32 GetZoneId() const;
-        uint32 GetAreaId() const;
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const;
+        uint32 GetZoneId() const { return m_zoneId; }
+        uint32 GetAreaId() const { return m_areaId; }
+        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const { zoneid = m_zoneId, areaid = m_areaId; }
 
         InstanceScript* GetInstanceScript();
 
@@ -492,8 +493,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         // use only if you will sure about placing both object at same map
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const;
         bool IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true) const;
-        bool IsWithinLOS(float x, float y, float z, VMAP::ModelIgnoreFlags ignoreFlags = VMAP::ModelIgnoreFlags::Nothing) const;
-        bool IsWithinLOSInMap(WorldObject const* obj, VMAP::ModelIgnoreFlags ignoreFlags = VMAP::ModelIgnoreFlags::Nothing) const;
+        bool IsWithinLOS(float x, float y, float z, LineOfSightChecks checks = LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags ignoreFlags = VMAP::ModelIgnoreFlags::Nothing) const;
+        bool IsWithinLOSInMap(WorldObject const* obj, LineOfSightChecks checks = LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags ignoreFlags = VMAP::ModelIgnoreFlags::Nothing) const;
         Position GetHitSpherePointFor(Position const& dest) const;
         void GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;
@@ -577,6 +578,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         {
             UpdateObjectVisibility(true);
         }
+        void UpdatePositionData();
 
         void BuildUpdate(UpdateDataMapType&) override;
 
@@ -621,6 +623,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual float GetStationaryZ() const { return GetPositionZ(); }
         virtual float GetStationaryO() const { return GetOrientation(); }
 
+        float GetFloorZ() const;
+
 #ifdef ELUNA
         ElunaEventProcessor* elunaEvents;
 #endif
@@ -634,6 +638,11 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         // transports
         Transport* m_transport;
 
+        virtual void ProcessPositionDataChanged(PositionFullTerrainStatus const& data);
+        uint32 m_zoneId;
+        uint32 m_areaId;
+        float m_staticFloorZ;
+
         //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
         //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!
         //mapId/instanceId should be set in SetMap() function!
@@ -646,11 +655,11 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
         virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
     private:
-        Map* m_currMap;                                    //current object's Map location
+        Map* m_currMap;                                   // current object's Map location
 
-        //uint32 m_mapId;                                     // object at map with map_id
-        uint32 m_InstanceId;                                // in map copy with instance id
-        uint32 m_phaseMask;                                 // in area phase state
+        //uint32 m_mapId;                                 // object at map with map_id
+        uint32 m_InstanceId;                              // in map copy with instance id
+        uint32 m_phaseMask;                               // in area phase state
 
         uint16 m_notifyflags;
         uint16 m_executed_notifies;

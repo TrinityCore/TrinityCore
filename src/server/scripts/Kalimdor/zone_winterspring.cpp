@@ -614,7 +614,7 @@ public:
     {
         go_elune_fireAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             // Check if we are using the torches or the altar
             bool isAltar = false;
