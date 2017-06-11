@@ -37,6 +37,7 @@ enum HunterSpells
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
+    SPELL_HUNTER_EXHILARATION_R2                    = 231546,
     SPELL_HUNTER_FIRE                               = 82926,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
     SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
@@ -261,6 +262,42 @@ class spell_hun_disengage : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_hun_disengage_SpellScript();
+        }
+};
+
+// 109304 - Exhilaration
+class spell_hun_exhilaration : public SpellScriptLoader
+{
+    public:
+        spell_hun_exhilaration() : SpellScriptLoader("spell_hun_exhilaration") { }
+
+        class spell_hun_exhilaration_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_exhilaration_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo
+                ({
+                    SPELL_HUNTER_EXHILARATION_R2
+                });
+            }
+
+            void HandleOnHit()
+            {
+                if (GetCaster()->HasAura(SPELL_HUNTER_EXHILARATION_R2))
+                    GetCaster()->CastSpell((Unit*)nullptr, SPELL_HUNTER_EXHILARATION_PET, true);
+            }
+
+            void Register() override
+            {
+                OnHit += SpellHitFn(spell_hun_exhilaration_SpellScript::HandleOnHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_exhilaration_SpellScript();
         }
 };
 
@@ -1026,6 +1063,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_chimera_shot();
     new spell_hun_cobra_shot();
     new spell_hun_disengage();
+    new spell_hun_exhilaration();
     new spell_hun_hunting_party();
     new spell_hun_improved_mend_pet();
     new spell_hun_last_stand_pet();
