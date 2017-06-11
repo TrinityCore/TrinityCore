@@ -79,7 +79,7 @@ bool OutdoorPvPHP::SetupOutdoorPvP()
     m_AllianceTowersControlled = 0;
     m_HordeTowersControlled = 0;
     // add the zones affected by the pvp buff
-    for (int i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
+    for (uint32 i = 0; i < OutdoorPvPHPBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPHPBuffZones[i]);
 
     AddCapturePoint(new OPvPCapturePointHP(this, HP_TOWER_BROKEN_HILL));
