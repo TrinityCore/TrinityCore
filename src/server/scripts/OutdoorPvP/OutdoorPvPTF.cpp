@@ -71,6 +71,7 @@ tf_tower_world_state const TFTowerWorldStates[TF_TOWER_NUM] =
     { 0xa85, 0xa84, 0xa83 }
 };
 
+/*
 uint32 const TFTowerPlayerEnterEvents[TF_TOWER_NUM] =
 {
     12226,
@@ -88,6 +89,7 @@ uint32 const TFTowerPlayerLeaveEvents[TF_TOWER_NUM] =
     12498,
     12500
 };
+*/
 
 OutdoorPvPTF::OutdoorPvPTF()
 {
