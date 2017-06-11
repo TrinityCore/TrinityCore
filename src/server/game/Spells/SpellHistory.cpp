@@ -570,6 +570,35 @@ void SpellHistory::ModifyCooldown(uint32 spellId, Clock::duration offset)
     }
 }
 
+void SpellHistory::ModifyCharge(uint32 chargeCategoryId, int32 cooldownModMs)
+{
+    Clock::duration offset = std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(cooldownModMs));
+    auto itr = _categoryCharges.find(chargeCategoryId);
+
+    if (itr != _categoryCharges.end() && !itr->second.empty())
+    {
+        for(std::deque<SpellHistory::ChargeEntry>::iterator it = itr->second.begin(); it != itr->second.end(); it++)
+        {
+            it->RechargeEnd += offset;
+            it->RechargeStart += offset;
+        }
+
+        if (Player* player = GetPlayerOwner())
+        {
+            WorldPackets::Spells::SetSpellCharges setSpellCharges;
+            setSpellCharges.Category = chargeCategoryId;
+
+            if (!itr->second.empty())
+                setSpellCharges.NextRecoveryTime = uint32(std::chrono::duration_cast<std::chrono::milliseconds>(itr->second.front().RechargeEnd - Clock::now()).count());
+
+            setSpellCharges.ConsumedCharges = uint8(itr->second.size());
+            setSpellCharges.IsPet = player != _owner;
+
+            player->SendDirectMessage(setSpellCharges.Write());
+        }
+    }
+}
+
 void SpellHistory::ResetCooldown(uint32 spellId, bool update /*= false*/)
 {
     auto itr = _spellCooldowns.find(spellId);

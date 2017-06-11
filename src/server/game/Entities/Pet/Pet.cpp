@@ -1703,6 +1703,10 @@ void Pet::CastPetAuras(bool current)
     if (!IsPermanentPetFor(owner))
         return;
 
+    //Adding flanking spell aura, it's to allow casting flanking strike. Checked on client
+    if (this->getPetType() == HUNTER_PET && this->GetOwner()->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) == TALENT_SPEC_HUNTER_SURVIVAL)
+        this->CastSpell(this, 240152, true);
+
     for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end();)
     {
         PetAura const* pa = *itr;

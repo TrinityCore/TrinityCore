@@ -32,18 +32,34 @@
 
 enum HunterSpells
 {
+    SPELL_HUNTER_ANIMAL_INSTINCTS                   = 204315,
+    SPELL_HUNTER_ASPECT_BEAST                       = 191384,
     SPELL_HUNTER_ASPECT_CHEETAH_SLOW                = 186258,
+    SPELL_HUNTER_ASPECT_EAGLE                       = 186289,
+    SPELL_HUNTER_ASPECT_EAGLE_PET                   = 231555,
+    SPELL_HUNTER_BESTIAL_CUNNING                    = 191397,
+    SPELL_HUNTER_BESTIAL_TENACITY                   = 191414,
+    SPELL_HUNTER_BESTIAL_FEROCITY                   = 191413,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_FIRE                               = 82926,
+    SPELL_HUNTER_FLANKING_STRIKE                    = 202800,
+    SPELL_HUNTER_FLANKING_STRIKE_R2                 = 237327,
+    SPELL_HUNTER_FLANKING_STRIKE_PET                = 204740,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
+    SPELL_HUNTER_HARPOON                            = 190925,
+    SPELL_HUNTER_HUNTING_COMPANION_MASTERY          = 191334,
+    SPELL_HUNTER_HUNTING_COMPANION_GAIN_CHARGE      = 191335,
+    SPELL_HUNTER_HUNTING_COMPANION_AURA             = 191336,
     SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
     SPELL_HUNTER_INSANITY                           = 95809,
     SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
+    SPELL_HUNTER_MONGOOSE_BITE                      = 190928,
+    SPELL_HUNTER_MONGOOSE_FURY                      = 190931,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX           = 55709,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
@@ -147,6 +163,46 @@ class spell_hun_aspect_cheetah : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
              return new spell_hun_aspect_cheetah_AuraScript();
+        }
+};
+
+// 186289 - Aspect of the Eagle
+class spell_hun_aspect_eagle : public SpellScriptLoader
+{
+    public:
+        spell_hun_aspect_eagle() : SpellScriptLoader("spell_hun_aspect_eagle") { }
+
+        class spell_hun_aspect_eagle_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_aspect_eagle_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo
+                ({
+                    SPELL_HUNTER_ASPECT_EAGLE_PET
+                });
+            }
+
+            void HandleAfterCast()
+            {
+                if (Unit *pet = GetCaster()->GetGuardianPet())
+                    if (AuraEffect const* aurEff = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_HUNTER_ASPECT_EAGLE_PET, EFFECT_0))
+                    {
+                        int32 basepoints = aurEff->GetAmount();
+                        pet->CastCustomSpell(pet, SPELL_HUNTER_ASPECT_EAGLE, &basepoints, NULL, NULL, true, NULL, aurEff);
+                    }
+            }
+
+            void Register() override
+            {
+                AfterCast += SpellCastFn(spell_hun_aspect_eagle_SpellScript::HandleAfterCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_aspect_eagle_SpellScript();
         }
 };
 
@@ -261,6 +317,281 @@ class spell_hun_disengage : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_hun_disengage_SpellScript();
+        }
+};
+
+// 202800 - Flanking Strike
+class spell_hun_flanking_strike : public SpellScriptLoader
+{
+    public:
+        spell_hun_flanking_strike() : SpellScriptLoader("spell_hun_flanking_strike") { }
+
+        class spell_hun_flanking_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_flanking_strike_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo
+                ({
+                    SPELL_HUNTER_ASPECT_BEAST,
+                    SPELL_HUNTER_ASPECT_EAGLE,
+                    SPELL_HUNTER_ANIMAL_INSTINCTS,
+                    SPELL_HUNTER_BESTIAL_CUNNING,
+                    SPELL_HUNTER_BESTIAL_FEROCITY,
+                    SPELL_HUNTER_BESTIAL_TENACITY,
+                    SPELL_HUNTER_FLANKING_STRIKE,
+                    SPELL_HUNTER_FLANKING_STRIKE_PET, 
+                    SPELL_HUNTER_HARPOON,
+                    SPELL_HUNTER_MONGOOSE_BITE
+                });
+            }
+
+            void HandleOnCast()
+            {
+                if (Unit *target = GetExplTargetUnit())
+                    if (Unit* guardian = GetCaster()->GetGuardianPet())
+                        guardian->CastSpell(target, SPELL_HUNTER_FLANKING_STRIKE_PET, true);
+            }
+
+            void CalculateDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit *target = GetHitUnit())
+                    if (target->GetVictim() != GetCaster())
+                        SetHitDamage(GetHitDamage()*1.5);
+            }
+
+            SpellCastResult CheckCast()
+            {
+                if (Unit* guardian = GetCaster()->GetGuardianPet())
+                {
+                    if (Unit *target = GetExplTargetUnit())
+                    {
+                        if (target->GetDistance(guardian->GetPosition()) > 8)
+                        {
+                            SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_PET_OUT_OF_RANGE);
+                            return SPELL_FAILED_CUSTOM_ERROR;
+                        }
+                        else if (!guardian->IsAlive())
+                        {
+                            SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_PET_IS_DEAD);
+                            return SPELL_FAILED_CUSTOM_ERROR;
+                        }
+                        return SPELL_CAST_OK;
+                    }
+                }
+                return SPELL_FAILED_SUCCESS;
+            }
+
+            void HandleAfterHit()
+            {
+                if (GetCaster()->HasAura(SPELL_HUNTER_ANIMAL_INSTINCTS))
+                {
+                    std::vector<int32> spellCds;
+                    std::vector<int32> spellIDs;
+
+                    spellIDs.push_back(SPELL_HUNTER_ASPECT_EAGLE);
+                    spellIDs.push_back(SPELL_HUNTER_FLANKING_STRIKE);
+                    spellIDs.push_back(SPELL_HUNTER_HARPOON);
+                    spellIDs.push_back(SPELL_HUNTER_MONGOOSE_BITE);
+
+                    for (std::vector<int32>::iterator itr = spellIDs.begin(); itr != spellIDs.end(); ++itr)
+                        if (GetCaster()->GetSpellHistory()->HasCooldown(sSpellMgr->GetSpellInfo(*itr))
+                            || !GetCaster()->GetSpellHistory()->HasCharge(sSpellMgr->GetSpellInfo(*itr)->ChargeCategoryId))
+                            spellCds.push_back(*itr);
+
+                    int32 selector = irand(0, spellCds.size() - 1);
+                    int32 value = -GetCaster()->GetFloatValue(UNIT_MOD_CAST_HASTE) * sSpellMgr->GetSpellInfo(SPELL_HUNTER_FLANKING_STRIKE)->RecoveryTime * 0.5f;
+                        // The Cooldown reducement is based on Flanking Strike's CD, the seconds reduced it's always half Flanking Strikes cd
+
+                    if (GetCaster()->GetSpellHistory()->HasCooldown(sSpellMgr->GetSpellInfo(spellCds.at(selector))))
+                        GetCaster()->GetSpellHistory()->ModifyCooldown(spellCds.at(selector), value);
+                    else
+                        GetCaster()->GetSpellHistory()->ModifyCharge(sSpellMgr->GetSpellInfo(spellCds.at(selector))->ChargeCategoryId, value);
+                }
+
+                if (GetCaster()->HasAura(SPELL_HUNTER_ASPECT_BEAST))
+                {
+                    Unit *target = GetHitUnit();
+                    Pet *pet = GetCaster()->ToPlayer()->GetPet();
+                    uint16 spec = GetCaster()->GetGuardianPet()->ToPet()->GetSpecialization();
+
+                    switch (spec)
+                    {
+                    case 81:    // tenacity = 81
+                        pet->CastSpell(target, SPELL_HUNTER_BESTIAL_TENACITY, true);
+                        break;
+                    case 79:   // cunning = 79
+                        pet->CastSpell(target, SPELL_HUNTER_BESTIAL_CUNNING, true);
+                        break;
+                    case 74:  // ferocity = 74
+                        pet->CastSpell(target, SPELL_HUNTER_BESTIAL_FEROCITY, true);
+                        break;
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_flanking_strike_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+                OnCast += SpellCastFn(spell_hun_flanking_strike_SpellScript::HandleOnCast);
+                OnCheckCast += SpellCheckCastFn(spell_hun_flanking_strike_SpellScript::CheckCast);
+                AfterHit += SpellHitFn(spell_hun_flanking_strike_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_flanking_strike_SpellScript();
+        }
+};
+
+// 204740 - Flanking Strike pet
+class spell_hun_flanking_strike_pet : public SpellScriptLoader
+{
+    public:
+        spell_hun_flanking_strike_pet() : SpellScriptLoader("spell_hun_flanking_strike_pet") { }
+
+        class spell_hun_flanking_strike_pet_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_flanking_strike_pet_SpellScript);
+
+            void CalculateDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit *target = GetHitUnit())
+                {
+                    if(Unit *caster = GetCaster())
+                        if (Unit *owner = GetCaster()->GetOwner())
+                        {
+                            int32 ap = owner->ToPlayer()->GetInt32Value(UNIT_FIELD_ATTACK_POWER);
+                            int32 level = caster->getLevel();
+                            //formula taken from tooltip
+                            float result = 1.5*(ap*2.152)*(std::min(20, level)*0.05f);
+
+                            if (target->GetVictim() == owner && caster->IsPet())
+                            {
+                                SetHitDamage(result*1.5);
+                                caster->getThreatManager().modifyThreatPercent(caster->GetVictim(), 400);
+                            }
+                            else
+                                SetHitDamage(result);
+                        }
+                }
+            }
+            
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_hun_flanking_strike_pet_SpellScript::CalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_flanking_strike_pet_SpellScript();
+        }
+};
+
+// 191335 - Hunting Companion (gain charge)
+class spell_hun_hunting_companion_gain_charge : public SpellScriptLoader
+{
+    public:
+        spell_hun_hunting_companion_gain_charge() : SpellScriptLoader("spell_hun_hunting_companion_gain_charge") { }
+
+        class spell_hun_hunting_companion_gain_charge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_hunting_companion_gain_charge_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo
+                ({
+                    SPELL_HUNTER_HUNTING_COMPANION_AURA,
+                    SPELL_HUNTER_MONGOOSE_BITE  
+                });
+            }
+
+            void OnCaste()
+            {
+                Unit *caster = GetCaster();
+                if (Unit *owner = GetCaster()->GetOwner())
+                    if (caster->HasAura(SPELL_HUNTER_HUNTING_COMPANION_AURA))
+                        owner->GetSpellHistory()->RestoreCharge(sSpellMgr->GetSpellInfo(SPELL_HUNTER_MONGOOSE_BITE)->ChargeCategoryId);
+            }
+
+            void Register() override
+            {
+                OnCast += SpellCastFn(spell_hun_hunting_companion_gain_charge_SpellScript::OnCaste);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_hunting_companion_gain_charge_SpellScript();
+        }
+};
+
+// 191336 - Hunting Companion (Pet Aura)
+class spell_hun_hunting_companion : public SpellScriptLoader
+{
+    public:
+        spell_hun_hunting_companion() : SpellScriptLoader("spell_hun_hunting_companion") { }
+
+        class spell_hun_hunting_companion_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_hunting_companion_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo
+                ({
+                    SPELL_HUNTER_ASPECT_EAGLE,
+                    SPELL_HUNTER_FLANKING_STRIKE_PET,
+                    SPELL_HUNTER_FLANKING_STRIKE_R2,
+                    SPELL_HUNTER_HUNTING_COMPANION_MASTERY 
+                });
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (Unit *owner = GetTarget()->GetOwner())
+                    if (Aura *mast = owner->GetAura(SPELL_HUNTER_HUNTING_COMPANION_MASTERY))
+                    {
+                        if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+                        {
+                            if (spellInfo->Id == SPELL_HUNTER_FLANKING_STRIKE_PET)
+                            {
+                                if (GetTarget()->HasAura(SPELL_HUNTER_ASPECT_EAGLE))
+                                {
+                                    // Aspect of the Eagle + Flanking strike;
+                                    if (owner->HasAura(SPELL_HUNTER_FLANKING_STRIKE_R2))
+                                        return roll_chance_f(mast->GetEffect(EFFECT_0)->GetAmount() * 2 + 25);
+                                    else
+                                        return roll_chance_f(mast->GetEffect(EFFECT_0)->GetAmount() + 25);
+                                }
+                                    // Flanking Strike
+                                if (owner->HasAura(SPELL_HUNTER_FLANKING_STRIKE_R2))
+                                    return roll_chance_f(mast->GetEffect(EFFECT_0)->GetAmount() * 2);
+                                else
+                                    return roll_chance_f(mast->GetEffect(EFFECT_0)->GetAmount());
+                            }
+                                    // Basic Attack
+                            return roll_chance_f(mast->GetEffect(EFFECT_0)->GetAmount());
+                        }
+                        if (GetTarget()->HasAura(SPELL_HUNTER_ASPECT_EAGLE))   // Aspect of the Eagle 
+                            return roll_chance_f(mast->GetEffect(EFFECT_0)->GetAmount() + 25);
+                    }
+                return false;
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_hun_hunting_companion_AuraScript::CheckProc);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hun_hunting_companion_AuraScript();
         }
 };
 
@@ -494,6 +825,49 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_hun_misdirection_proc_AuraScript();
+        }
+};
+
+// 190928 - Mongoose Bite
+class spell_hun_mongoose_bite : public SpellScriptLoader
+{
+    public:
+        spell_hun_mongoose_bite() : SpellScriptLoader("spell_hun_mongoose_bite") { }
+
+        class spell_hun_mongoose_bite_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_mongoose_bite_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo
+                ({
+                    SPELL_HUNTER_MONGOOSE_FURY
+                });
+            }
+
+            void HandleAfterHit()
+            {
+                Unit *caster = GetCaster();
+                if (Aura *aura = caster->GetAura(SPELL_HUNTER_MONGOOSE_FURY))
+                {
+                    int32 time_left = aura->GetDuration();
+                    caster->CastSpell(caster, SPELL_HUNTER_MONGOOSE_FURY, true);
+                    caster->GetAura(SPELL_HUNTER_MONGOOSE_FURY)->SetDuration(time_left);
+                }
+                else
+                    caster->CastSpell(caster, SPELL_HUNTER_MONGOOSE_FURY, true);
+            }
+
+            void Register() override
+            {
+                AfterHit += SpellHitFn(spell_hun_mongoose_bite_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_hun_mongoose_bite_SpellScript();
         }
 };
 
@@ -1023,15 +1397,21 @@ void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
     new spell_hun_aspect_cheetah();
+    new spell_hun_aspect_eagle();
     new spell_hun_chimera_shot();
     new spell_hun_cobra_shot();
     new spell_hun_disengage();
+    new spell_hun_flanking_strike();
+    new spell_hun_flanking_strike_pet();
+    new spell_hun_hunting_companion();
+    new spell_hun_hunting_companion_gain_charge();
     new spell_hun_hunting_party();
     new spell_hun_improved_mend_pet();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
+    new spell_hun_mongoose_bite();
     new spell_hun_pet_carrion_feeder();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_readiness();
