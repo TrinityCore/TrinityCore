@@ -1267,7 +1267,8 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (197,857),
 (197,858),
 (197,859),
-(197,860)
+(197,860),
+(197,865),
 (198,218),
 (198,300),
 (198,312),
@@ -2099,6 +2100,7 @@ INSERT INTO `rbac_permissions` VALUES
 (858,'Command: gobject spawngroup'),
 (859,'Command: gobject despawngroup'),
 (860,'Command: list respawns'),
+(865,'Command: npc showloot'),
 (868,'Command: modify power'),
 (869,'Command: debug send playerchoice'),
 (872,'Command: server debug');
