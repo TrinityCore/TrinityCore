@@ -22,18 +22,17 @@
 #include "SharedDefines.h"
 #include "ZoneScript.h"
 
-class GameObject;
+#include <G3D/Quat.h>
 
 enum OutdoorPvPTypes
 {
-    OUTDOOR_PVP_HP = 1,
-    OUTDOOR_PVP_NA = 2,
-    OUTDOOR_PVP_TF = 3,
-    OUTDOOR_PVP_ZM = 4,
-    OUTDOOR_PVP_SI = 5
-};
-
-#define MAX_OUTDOORPVP_TYPES 6
+    OUTDOOR_PVP_HP,
+    OUTDOOR_PVP_NA,
+    OUTDOOR_PVP_TF,
+    OUTDOOR_PVP_ZM,
+    OUTDOOR_PVP_SI,
+    MAX_OUTDOORPVP_TYPES
+}
 
 enum ObjectiveStates
 {
@@ -53,14 +52,8 @@ struct go_type
 {
     uint32 entry;
     uint32 map;
-    float x;
-    float y;
-    float z;
-    float o;
-    float rot0;
-    float rot1;
-    float rot2;
-    float rot3;
+    Position pos;
+    G3D::Quat rot;
 };
 
 // struct for creature spawning
@@ -68,10 +61,7 @@ struct creature_type
 {
     uint32 entry;
     uint32 map;
-    float x;
-    float y;
-    float z;
-    float o;
+    Position pos;
 };
 
 // some class predefs
@@ -134,17 +124,15 @@ class TC_GAME_API OPvPCapturePoint
         void AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry = 0);
         void AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entry = 0);
 
-        bool SetCapturePointData(uint32 entry, uint32 map, float x, float y, float z, float o = 0,
-            float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
+        bool SetCapturePointData(uint32 entry, uint32 map, Position const& pos, G3D::Quat const& rot);
 
     protected:
 
-        bool AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o,
-            float rotation0, float rotation1, float rotation2, float rotation3);
-        virtual bool AddCreature(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, TeamId teamId = TEAM_NEUTRAL, uint32 spawntimedelay = 0);
+        bool AddObject(uint32 type, uint32 entry, uint32 map, Position const& pos, G3D::Quat const& rot);
+        bool AddCreature(uint32 type, uint32 entry, uint32 map, Position const& pos, TeamId teamId = TEAM_NEUTRAL, uint32 spawntimedelay = 0);
 
-        bool DelCreature(uint32 type);
         bool DelObject(uint32 type);
+        bool DelCreature(uint32 type);
 
         bool DelCapturePoint();
 

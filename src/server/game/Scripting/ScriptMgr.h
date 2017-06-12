@@ -70,7 +70,6 @@ struct Condition;
 struct CreatureTemplate;
 struct CreatureData;
 struct ItemTemplate;
-struct OutdoorPvPData;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
@@ -989,7 +988,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* OutdoorPvPScript */
 
-        OutdoorPvP* CreateOutdoorPvP(OutdoorPvPData const* data);
+        OutdoorPvP* CreateOutdoorPvP(uint32 scriptId);
 
     public: /* CommandScript */
 
