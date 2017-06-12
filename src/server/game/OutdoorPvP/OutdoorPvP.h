@@ -32,7 +32,7 @@ enum OutdoorPvPTypes
     OUTDOOR_PVP_ZM,
     OUTDOOR_PVP_SI,
     MAX_OUTDOORPVP_TYPES
-}
+};
 
 enum ObjectiveStates
 {
