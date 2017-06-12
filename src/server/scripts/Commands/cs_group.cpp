@@ -78,7 +78,6 @@ public:
         }
 
         Player* gmPlayer = handler->GetSession()->GetPlayer();
-        Group* gmGroup = gmPlayer->GetGroup();
         Map* gmMap = gmPlayer->GetMap();
         bool toInstance = gmMap->Instanceable();
         bool onlyLocalSummon = false;
