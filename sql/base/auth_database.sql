@@ -1263,6 +1263,11 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (197,819),
 (197,821),
 (197,827),
+(197,856),
+(197,857),
+(197,858),
+(197,859),
+(197,860)
 (198,218),
 (198,300),
 (198,312),
@@ -2089,6 +2094,11 @@ INSERT INTO `rbac_permissions` VALUES
 (853,'Command: .reload conversation_template'),
 (854,'Command: .debug conversation'),
 (855,'Command: debug play music'),
+(856,'Command: npc spawngroup'),
+(857,'Command: npc despawngroup'),
+(858,'Command: gobject spawngroup'),
+(859,'Command: gobject despawngroup'),
+(860,'Command: list respawns'),
 (868,'Command: modify power'),
 (869,'Command: debug send playerchoice'),
 (872,'Command: server debug');
