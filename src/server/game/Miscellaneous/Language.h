@@ -222,7 +222,8 @@ enum TrinityStrings
 
     //                                    185 not used
     LANG_TRANSPORT_POSITION             = 186,
-    // Room for more level 1              187-199 not used
+    LANG_PARTIAL_GROUP_SUMMON           = 187,
+    // Room for more level 1              188-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
