@@ -39,8 +39,17 @@ public:
 
     std::vector<ChatCommand> GetCommands() const override
     {
+        static std::vector<ChatCommand> groupSetCommandTable =
+        {
+            { "leader",     rbac::RBAC_PERM_COMMAND_GROUP_LEADER,     false, &HandleGroupLeaderCommand,     "" },
+            { "assistant",  rbac::RBAC_PERM_COMMAND_GROUP_ASSISTANT,  false, &HandleGroupAssistantCommand,  "" },
+            { "maintank",   rbac::RBAC_PERM_COMMAND_GROUP_MAINTANK,   false, &HandleGroupMainTankCommand,   "" },
+            { "mainassist", rbac::RBAC_PERM_COMMAND_GROUP_MAINASSIST, false, &HandleGroupMainAssistCommand, "" },
+        };
+
         static std::vector<ChatCommand> groupCommandTable =
         {
+            { "set",     rbac::RBAC_PERM_COMMAND_GROUP_SET,     false, nullptr,                    "", groupSetCommandTable },
             { "leader",  rbac::RBAC_PERM_COMMAND_GROUP_LEADER,  false, &HandleGroupLeaderCommand,  "" },
             { "disband", rbac::RBAC_PERM_COMMAND_GROUP_DISBAND, false, &HandleGroupDisbandCommand, "" },
             { "remove",  rbac::RBAC_PERM_COMMAND_GROUP_REMOVE,  false, &HandleGroupRemoveCommand,  "" },
@@ -51,7 +60,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "group", rbac::RBAC_PERM_COMMAND_GROUP, false, NULL, "", groupCommandTable },
+            { "group", rbac::RBAC_PERM_COMMAND_GROUP, false, nullptr, "", groupCommandTable },
         };
         return commandTable;
     }
@@ -154,8 +163,8 @@ public:
 
     static bool HandleGroupLeaderCommand(ChatHandler* handler, char const* args)
     {
-        Player* player = NULL;
-        Group* group = NULL;
+        Player* player = nullptr;
+        Group* group = nullptr;
         ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
@@ -178,10 +187,69 @@ public:
         return true;
     }
 
+    static bool GroupFlagCommand(ChatHandler* handler, char const* args, GroupMemberFlags flag, const char* what)
+    {
+        Player* player = nullptr;
+        Group* group = nullptr;
+        ObjectGuid guid;
+        char* nameStr = strtok((char*)args, " ");
+
+        if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
+            return false;
+
+        if (!group)
+        {
+            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, player->GetName().c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!group->isRaidGroup())
+        {
+            handler->PSendSysMessage(LANG_GROUP_NOT_IN_RAID_GROUP, player->GetName().c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (flag == MEMBER_FLAG_ASSISTANT && group->IsLeader(guid))
+        {
+            handler->PSendSysMessage(LANG_LEADER_CANNOT_BE_ASSISTANT, player->GetName().c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (group->GetMemberFlags(guid) & flag)
+        {
+            group->SetGroupMemberFlag(guid, false, flag);
+            handler->PSendSysMessage(LANG_GROUP_ROLE_CHANGED, player->GetName().c_str(), "no longer", what);
+        }
+        else
+        {
+            group->SetGroupMemberFlag(guid, true, flag);
+            handler->PSendSysMessage(LANG_GROUP_ROLE_CHANGED, player->GetName().c_str(), "now", what);
+        }
+        return true;
+    }
+
+    static bool HandleGroupAssistantCommand(ChatHandler* handler, char const* args)
+    {
+        return GroupFlagCommand(handler, args, MEMBER_FLAG_ASSISTANT, "Assistant");
+    }
+
+    static bool HandleGroupMainTankCommand(ChatHandler* handler, char const* args)
+    {
+        return GroupFlagCommand(handler, args, MEMBER_FLAG_MAINTANK, "Main Tank");
+    }
+
+    static bool HandleGroupMainAssistCommand(ChatHandler* handler, char const* args)
+    {
+        return GroupFlagCommand(handler, args, MEMBER_FLAG_MAINASSIST, "Main Assist");
+    }
+
     static bool HandleGroupDisbandCommand(ChatHandler* handler, char const* args)
     {
-        Player* player = NULL;
-        Group* group = NULL;
+        Player* player = nullptr;
+        Group* group = nullptr;
         ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
@@ -201,8 +269,8 @@ public:
 
     static bool HandleGroupRemoveCommand(ChatHandler* handler, char const* args)
     {
-        Player* player = NULL;
-        Group* group = NULL;
+        Player* player = nullptr;
+        Group* group = nullptr;
         ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
@@ -225,10 +293,10 @@ public:
         if (!*args)
             return false;
 
-        Player* playerSource = NULL;
-        Player* playerTarget = NULL;
-        Group* groupSource = NULL;
-        Group* groupTarget = NULL;
+        Player* playerSource = nullptr;
+        Player* playerTarget = nullptr;
+        Group* groupSource = nullptr;
+        Group* groupTarget = nullptr;
         ObjectGuid guidSource;
         ObjectGuid guidTarget;
         char* nameplgrStr = strtok((char*)args, " ");
@@ -290,7 +358,7 @@ public:
             return false;
 
         // Next, we need a group. So we define a group variable.
-        Group* groupTarget = NULL;
+        Group* groupTarget = nullptr;
 
         // We try to extract a group from an online player.
         if (playerTarget)

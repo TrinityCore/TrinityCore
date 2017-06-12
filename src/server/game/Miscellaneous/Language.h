@@ -928,7 +928,10 @@ enum TrinityStrings
     LANG_DISALLOW_TICKETS_CONFIG        = 1190,
     LANG_BAN_EXISTS                     = 1191,
 	LANG_CHANGEACCOUNT_SUCCESS          = 1192,
-    // Room for more level 3              1193-1198 not used
+    LANG_GROUP_NOT_IN_RAID_GROUP        = 1193,
+    LANG_GROUP_ROLE_CHANGED             = 1194,
+    LANG_LEADER_CANNOT_BE_ASSISTANT     = 1195,
+    // Room for more level 3              1196-1198 not used
 
     // Debug commands
     LANG_DEBUG_AREATRIGGER_LEFT         = 1999,

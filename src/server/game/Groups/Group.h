@@ -310,7 +310,11 @@ class TC_GAME_API Group
         bool IsMember(ObjectGuid guid) const;
         bool IsLeader(ObjectGuid guid) const;
         ObjectGuid GetMemberGUID(const std::string& name);
-        bool IsAssistant(ObjectGuid guid) const;
+        uint8 GetMemberFlags(ObjectGuid guid) const;
+        bool IsAssistant(ObjectGuid guid) const
+        {
+            return (GetMemberFlags(guid) & MEMBER_FLAG_ASSISTANT) == MEMBER_FLAG_ASSISTANT;
+        }
 
         Player* GetInvited(ObjectGuid guid) const;
         Player* GetInvited(const std::string& name) const;
