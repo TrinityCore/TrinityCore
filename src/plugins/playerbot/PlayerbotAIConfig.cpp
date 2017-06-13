@@ -50,7 +50,7 @@ bool PlayerbotAIConfig::Initialize()
     aracgen = config.GetBoolDefault("AiPlayerbot.ARAC", true);
     
     globalCoolDown = (uint32) config.GetIntDefault("AiPlayerbot.GlobalCooldown", 500);
-    maxWaitForMove = config.GetIntDefault("AiPlayerbot.MaxWaitForMove", 1000);
+    maxWaitForMove = config.GetIntDefault("AiPlayerbot.MaxWaitForMove", 3000);
     reactDelay = (uint32) config.GetIntDefault("AiPlayerbot.ReactDelay", 100);
 
     sightDistance = config.GetFloatDefault("AiPlayerbot.SightDistance", 50.0f);
@@ -117,10 +117,10 @@ bool PlayerbotAIConfig::Initialize()
 
     randomChangeMultiplier = config.GetFloatDefault("AiPlayerbot.RandomChangeMultiplier", 1.0);
 
-    randomBotCombatStrategies = config.GetStringDefault("AiPlayerbot.RandomBotCombatStrategies", "+racials");
-    randomBotNonCombatStrategies = config.GetStringDefault("AiPlayerbot.RandomBotNonCombatStrategies", "+grind,+move random");
+    randomBotCombatStrategies = config.GetStringDefault("AiPlayerbot.RandomBotCombatStrategies", "+dps,+attack weak,-threat");
+    randomBotNonCombatStrategies = config.GetStringDefault("AiPlayerbot.RandomBotNonCombatStrategies", "+grind,+move random,+loot");
 	combatStrategies = config.GetStringDefault("AiPlayerbot.CombatStrategies", "+custom::say");
-	nonCombatStrategies = config.GetStringDefault("AiPlayerbot.NonCombatStrategies", "+custom::say,+loot");
+	nonCombatStrategies = config.GetStringDefault("AiPlayerbot.NonCombatStrategies", "+custom::say");
 
     commandPrefix = config.GetStringDefault("AiPlayerbot.CommandPrefix", "");
 

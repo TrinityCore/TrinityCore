@@ -124,7 +124,7 @@ AiPlayerbot.IterationsPerTick = 100
 AiPlayerbot.GlobalCooldown = 500
 
 # Max wait time when moving
-AiPlayerbot.MaxWaitForMove = 1000
+AiPlayerbot.MaxWaitForMove = 3000
 
 # Delay between two bot actions
 AiPlayerbot.ReactDelay = 100
@@ -155,10 +155,8 @@ AiPlayerbot.LowMana = 15
 AiPlayerbot.MediumMana = 40
 
 # Random bot default strategies (applied after defaults)
-AiPlayerbot.RandomBotCombatStrategies = +racials 
-AiPlayerbot.RandomBotNonCombatStrategies = +grind,+move random
-AiPlayerbot.CombatStrategies = +custom::say
-AiPlayerbot.NonCombatStrategies = +custom::say,+loot
+AiPlayerbot.RandomBotCombatStrategies = +dps,+dps assist,-threat
+AiPlayerbot.RandomBotNonCombatStrategies = +grind,+move random,+loot
 
 # Create random bot characters automatically
 AiPlayerbot.RandomBotAutoCreate = 1
