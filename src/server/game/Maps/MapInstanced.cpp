@@ -153,7 +153,11 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player, u
             if (loginInstanceId) // if the player has a saved instance id on login, we either use this instance or relocate him out (return null)
             {
                 map = FindInstanceMap(loginInstanceId);
-                return (map && map->GetId() == GetId()) ? map : nullptr; // is this check necessary? or does MapInstanced only find instances of itself?
+                if (map && map->GetId() == GetId()) // is this check necessary? or does MapInstanced only find instances of itself?
+                    return map;
+
+                if (!player->CanBeGameMaster())
+                    return nullptr;
             }
 
             InstanceGroupBind* groupBind = nullptr;
