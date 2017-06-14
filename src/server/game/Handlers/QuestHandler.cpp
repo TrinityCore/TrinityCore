@@ -114,7 +114,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     else
         object = ObjectAccessor::FindPlayer(guid);
 
-#define CLOSE_GOSSIP_CLEAR_DIVIDER() \
+#define CLOSE_GOSSIP_CLEAR_SHARING_INFO() \
     do { \
         _player->PlayerTalkClass->SendCloseGossip(); \
         _player->ClearQuestSharingInfo(); \
@@ -123,7 +123,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     // no or incorrect quest giver
     if (!object)
     {
-        CLOSE_GOSSIP_CLEAR_DIVIDER();
+        CLOSE_GOSSIP_CLEAR_SHARING_INFO();
         return;
     }
 
@@ -131,12 +131,12 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     {
         if ((_player->GetPlayerSharingQuest() && _player->GetPlayerSharingQuest() != guid) || !playerQuestObject->CanShareQuest(questId))
         {
-            CLOSE_GOSSIP_CLEAR_DIVIDER();
+            CLOSE_GOSSIP_CLEAR_SHARING_INFO();
             return;
         }
         if (!_player->IsInSameRaidWith(playerQuestObject))
         {
-            CLOSE_GOSSIP_CLEAR_DIVIDER();
+            CLOSE_GOSSIP_CLEAR_SHARING_INFO();
             return;
         }
     }
@@ -144,7 +144,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     {
         if (!object->hasQuest(questId))
         {
-            CLOSE_GOSSIP_CLEAR_DIVIDER();
+            CLOSE_GOSSIP_CLEAR_SHARING_INFO();
             return;
         }
     }
@@ -152,7 +152,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     // some kind of WPE protection
     if (!_player->CanInteractWithQuestGiver(object))
     {
-        CLOSE_GOSSIP_CLEAR_DIVIDER();
+        CLOSE_GOSSIP_CLEAR_SHARING_INFO();
         return;
     }
 
@@ -161,7 +161,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         // prevent cheating
         if (!GetPlayer()->CanTakeQuest(quest, true))
         {
-            CLOSE_GOSSIP_CLEAR_DIVIDER();
+            CLOSE_GOSSIP_CLEAR_SHARING_INFO();
             return;
         }
 
@@ -212,9 +212,9 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
         }
     }
 
-    CLOSE_GOSSIP_CLEAR_DIVIDER();
+    CLOSE_GOSSIP_CLEAR_SHARING_INFO();
 
-#undef CLOSE_GOSSIP_CLEAR_DIVIDER
+#undef CLOSE_GOSSIP_CLEAR_SHARING_INFO
 }
 
 void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& recvData)
