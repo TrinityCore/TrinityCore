@@ -103,7 +103,7 @@ struct GtCombatRatingsMultByILvl
     float JewelryMultiplier = 0.0f;
 };
 
-uint8 constexpr PRESTIGE_COLUMN_COUNT = 16;
+uint8 constexpr PRESTIGE_COLUMN_COUNT = 33;
 struct GtHonorLevelEntry
 {
     float Prestige[PRESTIGE_COLUMN_COUNT] = { };
