@@ -1236,7 +1236,7 @@ class go_wind_stone : public GameObjectScript
                 }
 
             public:
-                bool GossipHello(Player* player, bool /*reportUse*/) override
+                bool GossipHello(Player* player) override
                 {
                     uint8 rank = GetPlayerRank(player);
 

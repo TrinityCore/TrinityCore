@@ -80,14 +80,6 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void AttackedBy(Unit* pAttacker) override
-        {
-            if (me->GetVictim() || me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
-
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
         {
             if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(15, uiDamage))
@@ -183,7 +175,7 @@ class go_mausoleum_door : public GameObjectScript
         {
             go_mausoleum_doorAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
                     return false;
@@ -216,7 +208,7 @@ class go_mausoleum_trigger : public GameObjectScript
         {
             go_mausoleum_triggerAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
                     return false;
