@@ -109,7 +109,7 @@ void protobuf_AssignDesc_RealmList_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ClientVersion));
   ClientInformation_descriptor_ = file->message_type(2);
-  static const int ClientInformation_offsets_[10] = {
+  static const int ClientInformation_offsets_[14] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientInformation, platform_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientInformation, buildvariant_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientInformation, type_),
@@ -120,6 +120,10 @@ void protobuf_AssignDesc_RealmList_2eproto() {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientInformation, versiondatabuild_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientInformation, version_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientInformation, secret_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientInformation, clientarch_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientInformation, systemversion_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientInformation, platformtype_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ClientInformation, systemarch_),
   };
   ClientInformation_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -359,34 +363,37 @@ void protobuf_AddDesc_RealmList_2eproto() {
     "\002(\007\022\031\n\021gameAccountRegion\030\002 \002(\r\"j\n\rClient"
     "Version\022\024\n\014versionMajor\030\001 \002(\r\022\024\n\014version"
     "Minor\030\002 \002(\r\022\027\n\017versionRevision\030\003 \002(\r\022\024\n\014"
-    "versionBuild\030\004 \002(\007\"\363\001\n\021ClientInformation"
+    "versionBuild\030\004 \002(\007\"\310\002\n\021ClientInformation"
     "\022\020\n\010platform\030\001 \002(\007\022\024\n\014buildVariant\030\002 \002(\t"
     "\022\014\n\004type\030\003 \002(\007\022\020\n\010timeZone\030\004 \002(\t\022\023\n\013curr"
     "entTime\030\005 \002(\r\022\022\n\ntextLocale\030\006 \002(\007\022\023\n\013aud"
     "ioLocale\030\007 \002(\007\022\030\n\020versionDataBuild\030\010 \002(\007"
     "\022.\n\007version\030\t \002(\0132\035.JSON.RealmList.Clien"
-    "tVersion\022\016\n\006secret\030\n \002(\014\"S\n RealmListTic"
-    "ketClientInformation\022/\n\004info\030\001 \002(\0132!.JSO"
-    "N.RealmList.ClientInformation\"B\n\030RealmCh"
-    "aracterCountEntry\022\027\n\017wowRealmAddress\030\001 \002"
-    "(\007\022\r\n\005count\030\002 \002(\r\"S\n\027RealmCharacterCount"
-    "List\0228\n\006counts\030\001 \003(\0132(.JSON.RealmList.Re"
-    "almCharacterCountEntry\"\377\001\n\nRealmEntry\022\027\n"
-    "\017wowRealmAddress\030\001 \002(\007\022\026\n\016cfgTimezonesID"
-    "\030\002 \002(\r\022\027\n\017populationState\030\003 \002(\r\022\027\n\017cfgCa"
-    "tegoriesID\030\004 \002(\r\022.\n\007version\030\005 \002(\0132\035.JSON"
-    ".RealmList.ClientVersion\022\023\n\013cfgRealmsID\030"
-    "\006 \002(\r\022\r\n\005flags\030\007 \002(\r\022\014\n\004name\030\010 \002(\t\022\024\n\014cf"
-    "gConfigsID\030\t \002(\r\022\026\n\016cfgLanguagesID\030\n \002(\r"
-    "\"J\n\nRealmState\022*\n\006update\030\001 \001(\0132\032.JSON.Re"
-    "almList.RealmEntry\022\020\n\010deleting\030\002 \002(\010\"\?\n\020"
-    "RealmListUpdates\022+\n\007updates\030\001 \003(\0132\032.JSON"
-    ".RealmList.RealmState\"%\n\tIPAddress\022\n\n\002ip"
-    "\030\001 \002(\t\022\014\n\004port\030\002 \002(\r\"T\n\024RealmIPAddressFa"
-    "mily\022\016\n\006family\030\001 \002(\r\022,\n\taddresses\030\002 \003(\0132"
-    "\031.JSON.RealmList.IPAddress\"T\n\032RealmListS"
-    "erverIPAddresses\0226\n\010families\030\001 \003(\0132$.JSO"
-    "N.RealmList.RealmIPAddressFamilyB\002H\002", 1316);
+    "tVersion\022\016\n\006secret\030\n \002(\014\022\022\n\nclientArch\030\013"
+    " \002(\007\022\025\n\rsystemVersion\030\014 \002(\t\022\024\n\014platformT"
+    "ype\030\r \002(\007\022\022\n\nsystemArch\030\016 \002(\007\"S\n RealmLi"
+    "stTicketClientInformation\022/\n\004info\030\001 \002(\0132"
+    "!.JSON.RealmList.ClientInformation\"B\n\030Re"
+    "almCharacterCountEntry\022\027\n\017wowRealmAddres"
+    "s\030\001 \002(\007\022\r\n\005count\030\002 \002(\r\"S\n\027RealmCharacter"
+    "CountList\0228\n\006counts\030\001 \003(\0132(.JSON.RealmLi"
+    "st.RealmCharacterCountEntry\"\377\001\n\nRealmEnt"
+    "ry\022\027\n\017wowRealmAddress\030\001 \002(\007\022\026\n\016cfgTimezo"
+    "nesID\030\002 \002(\r\022\027\n\017populationState\030\003 \002(\r\022\027\n\017"
+    "cfgCategoriesID\030\004 \002(\r\022.\n\007version\030\005 \002(\0132\035"
+    ".JSON.RealmList.ClientVersion\022\023\n\013cfgReal"
+    "msID\030\006 \002(\r\022\r\n\005flags\030\007 \002(\r\022\014\n\004name\030\010 \002(\t\022"
+    "\024\n\014cfgConfigsID\030\t \002(\r\022\026\n\016cfgLanguagesID\030"
+    "\n \002(\r\"J\n\nRealmState\022*\n\006update\030\001 \001(\0132\032.JS"
+    "ON.RealmList.RealmEntry\022\020\n\010deleting\030\002 \002("
+    "\010\"\?\n\020RealmListUpdates\022+\n\007updates\030\001 \003(\0132\032"
+    ".JSON.RealmList.RealmState\"%\n\tIPAddress\022"
+    "\n\n\002ip\030\001 \002(\t\022\014\n\004port\030\002 \002(\r\"T\n\024RealmIPAddr"
+    "essFamily\022\016\n\006family\030\001 \002(\r\022,\n\taddresses\030\002"
+    " \003(\0132\031.JSON.RealmList.IPAddress\"T\n\032Realm"
+    "ListServerIPAddresses\0226\n\010families\030\001 \003(\0132"
+    "$.JSON.RealmList.RealmIPAddressFamilyB\002H"
+    "\002", 1401);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "RealmList.proto", &protobuf_RegisterTypes);
   RealmListTicketIdentity::default_instance_ = new RealmListTicketIdentity();
@@ -590,6 +597,10 @@ const int ClientInformation::kAudioLocaleFieldNumber;
 const int ClientInformation::kVersionDataBuildFieldNumber;
 const int ClientInformation::kVersionFieldNumber;
 const int ClientInformation::kSecretFieldNumber;
+const int ClientInformation::kClientArchFieldNumber;
+const int ClientInformation::kSystemVersionFieldNumber;
+const int ClientInformation::kPlatformTypeFieldNumber;
+const int ClientInformation::kSystemArchFieldNumber;
 #endif  // !_MSC_VER
 
 ClientInformation::ClientInformation()
@@ -622,6 +633,10 @@ void ClientInformation::SharedCtor() {
   versiondatabuild_ = 0u;
   version_ = NULL;
   secret_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  clientarch_ = 0u;
+  systemversion_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  platformtype_ = 0u;
+  systemarch_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -639,6 +654,9 @@ void ClientInformation::SharedDtor() {
   }
   if (secret_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete secret_;
+  }
+  if (systemversion_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete systemversion_;
   }
   if (this != default_instance_) {
     delete version_;

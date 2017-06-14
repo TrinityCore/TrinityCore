@@ -349,6 +349,39 @@ class TC_PROTO_API ClientInformation : public ::google::protobuf::Message {
   inline ::std::string* release_secret();
   inline void set_allocated_secret(::std::string* secret);
 
+  // required fixed32 clientArch = 11;
+  inline bool has_clientarch() const;
+  inline void clear_clientarch();
+  static const int kClientArchFieldNumber = 11;
+  inline ::google::protobuf::uint32 clientarch() const;
+  inline void set_clientarch(::google::protobuf::uint32 value);
+
+  // required string systemVersion = 12;
+  inline bool has_systemversion() const;
+  inline void clear_systemversion();
+  static const int kSystemVersionFieldNumber = 12;
+  inline const ::std::string& systemversion() const;
+  inline void set_systemversion(const ::std::string& value);
+  inline void set_systemversion(const char* value);
+  inline void set_systemversion(const char* value, size_t size);
+  inline ::std::string* mutable_systemversion();
+  inline ::std::string* release_systemversion();
+  inline void set_allocated_systemversion(::std::string* systemversion);
+
+  // required fixed32 platformType = 13;
+  inline bool has_platformtype() const;
+  inline void clear_platformtype();
+  static const int kPlatformTypeFieldNumber = 13;
+  inline ::google::protobuf::uint32 platformtype() const;
+  inline void set_platformtype(::google::protobuf::uint32 value);
+
+  // required fixed32 systemArch = 14;
+  inline bool has_systemarch() const;
+  inline void clear_systemarch();
+  static const int kSystemArchFieldNumber = 14;
+  inline ::google::protobuf::uint32 systemarch() const;
+  inline void set_systemarch(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:JSON.RealmList.ClientInformation)
  private:
   inline void set_has_platform();
@@ -371,6 +404,14 @@ class TC_PROTO_API ClientInformation : public ::google::protobuf::Message {
   inline void clear_has_version();
   inline void set_has_secret();
   inline void clear_has_secret();
+  inline void set_has_clientarch();
+  inline void clear_has_clientarch();
+  inline void set_has_systemversion();
+  inline void clear_has_systemversion();
+  inline void set_has_platformtype();
+  inline void clear_has_platformtype();
+  inline void set_has_systemarch();
+  inline void clear_has_systemarch();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -386,6 +427,10 @@ class TC_PROTO_API ClientInformation : public ::google::protobuf::Message {
   ::google::protobuf::uint32 versiondatabuild_;
   ::JSON::RealmList::ClientVersion* version_;
   ::std::string* secret_;
+  ::std::string* systemversion_;
+  ::google::protobuf::uint32 clientarch_;
+  ::google::protobuf::uint32 platformtype_;
+  ::google::protobuf::uint32 systemarch_;
   friend void TC_PROTO_API protobuf_AddDesc_RealmList_2eproto();
   friend void protobuf_AssignDesc_RealmList_2eproto();
   friend void protobuf_ShutdownFile_RealmList_2eproto();
@@ -1718,6 +1763,154 @@ inline void ClientInformation::set_allocated_secret(::std::string* secret) {
     secret_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.ClientInformation.secret)
+}
+
+// required fixed32 clientArch = 11;
+inline bool ClientInformation::has_clientarch() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void ClientInformation::set_has_clientarch() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void ClientInformation::clear_has_clientarch() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void ClientInformation::clear_clientarch() {
+  clientarch_ = 0u;
+  clear_has_clientarch();
+}
+inline ::google::protobuf::uint32 ClientInformation::clientarch() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.ClientInformation.clientArch)
+  return clientarch_;
+}
+inline void ClientInformation::set_clientarch(::google::protobuf::uint32 value) {
+  set_has_clientarch();
+  clientarch_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.ClientInformation.clientArch)
+}
+
+// required string systemVersion = 12;
+inline bool ClientInformation::has_systemversion() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void ClientInformation::set_has_systemversion() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void ClientInformation::clear_has_systemversion() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void ClientInformation::clear_systemversion() {
+  if (systemversion_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    systemversion_->clear();
+  }
+  clear_has_systemversion();
+}
+inline const ::std::string& ClientInformation::systemversion() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.ClientInformation.systemVersion)
+  return *systemversion_;
+}
+inline void ClientInformation::set_systemversion(const ::std::string& value) {
+  set_has_systemversion();
+  if (systemversion_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    systemversion_ = new ::std::string;
+  }
+  systemversion_->assign(value);
+  // @@protoc_insertion_point(field_set:JSON.RealmList.ClientInformation.systemVersion)
+}
+inline void ClientInformation::set_systemversion(const char* value) {
+  set_has_systemversion();
+  if (systemversion_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    systemversion_ = new ::std::string;
+  }
+  systemversion_->assign(value);
+  // @@protoc_insertion_point(field_set_char:JSON.RealmList.ClientInformation.systemVersion)
+}
+inline void ClientInformation::set_systemversion(const char* value, size_t size) {
+  set_has_systemversion();
+  if (systemversion_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    systemversion_ = new ::std::string;
+  }
+  systemversion_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:JSON.RealmList.ClientInformation.systemVersion)
+}
+inline ::std::string* ClientInformation::mutable_systemversion() {
+  set_has_systemversion();
+  if (systemversion_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    systemversion_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:JSON.RealmList.ClientInformation.systemVersion)
+  return systemversion_;
+}
+inline ::std::string* ClientInformation::release_systemversion() {
+  clear_has_systemversion();
+  if (systemversion_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = systemversion_;
+    systemversion_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ClientInformation::set_allocated_systemversion(::std::string* systemversion) {
+  if (systemversion_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete systemversion_;
+  }
+  if (systemversion) {
+    set_has_systemversion();
+    systemversion_ = systemversion;
+  } else {
+    clear_has_systemversion();
+    systemversion_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:JSON.RealmList.ClientInformation.systemVersion)
+}
+
+// required fixed32 platformType = 13;
+inline bool ClientInformation::has_platformtype() const {
+  return (_has_bits_[0] & 0x00001000u) != 0;
+}
+inline void ClientInformation::set_has_platformtype() {
+  _has_bits_[0] |= 0x00001000u;
+}
+inline void ClientInformation::clear_has_platformtype() {
+  _has_bits_[0] &= ~0x00001000u;
+}
+inline void ClientInformation::clear_platformtype() {
+  platformtype_ = 0u;
+  clear_has_platformtype();
+}
+inline ::google::protobuf::uint32 ClientInformation::platformtype() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.ClientInformation.platformType)
+  return platformtype_;
+}
+inline void ClientInformation::set_platformtype(::google::protobuf::uint32 value) {
+  set_has_platformtype();
+  platformtype_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.ClientInformation.platformType)
+}
+
+// required fixed32 systemArch = 14;
+inline bool ClientInformation::has_systemarch() const {
+  return (_has_bits_[0] & 0x00002000u) != 0;
+}
+inline void ClientInformation::set_has_systemarch() {
+  _has_bits_[0] |= 0x00002000u;
+}
+inline void ClientInformation::clear_has_systemarch() {
+  _has_bits_[0] &= ~0x00002000u;
+}
+inline void ClientInformation::clear_systemarch() {
+  systemarch_ = 0u;
+  clear_has_systemarch();
+}
+inline ::google::protobuf::uint32 ClientInformation::systemarch() const {
+  // @@protoc_insertion_point(field_get:JSON.RealmList.ClientInformation.systemArch)
+  return systemarch_;
+}
+inline void ClientInformation::set_systemarch(::google::protobuf::uint32 value) {
+  set_has_systemarch();
+  systemarch_ = value;
+  // @@protoc_insertion_point(field_set:JSON.RealmList.ClientInformation.systemArch)
 }
 
 // -------------------------------------------------------------------
