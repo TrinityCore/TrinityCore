@@ -106,7 +106,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     }
 
     Player* invitingPlayer = GetPlayer();
-    Player* invitedPlayer = ObjectAccessor::FindPlayerByName(membername);
+    Player* invitedPlayer = ObjectAccessor::FindPlayerByName(memberName);
 
     // no player
     if (!invitedPlayer)
@@ -159,7 +159,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
         return;
     }
 
-    ObjectGuid invitedGuid = player->GetGUID();
+    ObjectGuid invitedGuid = _player->GetGUID();
 
     Group* group = invitingPlayer->GetGroup();
     if (group && group->isBGGroup())
