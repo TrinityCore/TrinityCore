@@ -1431,9 +1431,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 oldCount, uint16 addCount);
         void SendQuestGiverStatusMultiple();
 
-        uint32 GetDividedQuest() const { return m_dividedQuest; }
-        ObjectGuid GetDivider() const { return m_divider; }
-        void SetDivideInfo(ObjectGuid guid, uint32 id) { m_divider = guid; m_dividedQuest = id; }
+        uint32 GetSharedQuestID() const { return m_sharedQuestId; }
+        ObjectGuid GetPlayerSharingQuest() const { return m_playerSharingQuest; }
+        void SetQuestSharingInfo(ObjectGuid guid, uint32 id) { m_playerSharingQuest = guid; m_sharedQuestId = id; }
+        void ClearQuestSharingInfo() { m_playerSharingQuest = ObjectGuid::Empty; m_sharedQuestId = 0; }
 
         uint32 GetInGameTime() const { return m_ingametime; }
         void SetInGameTime(uint32 time) { m_ingametime = time; }
@@ -2337,8 +2338,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         QuestSet m_monthlyquests;
         SeasonalEventQuestMap m_seasonalquests;
 
-        ObjectGuid m_divider;
-        uint32 m_dividedQuest;
+        ObjectGuid m_playerSharingQuest;
+        uint32 m_sharedQuestId;
         uint32 m_ingametime;
 
         /*********************************************************/

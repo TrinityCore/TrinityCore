@@ -22644,12 +22644,12 @@ void Player::SendInitialPacketsAfterAddToMap()
     else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
         SendRaidDifficulty(GetGroup() != NULL);
 
-    if (GetDivider())
+    if (GetPlayerSharingQuest())
     {
-        if (Quest const* quest = sObjectMgr->GetQuestTemplate(GetDividedQuest()))
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(GetSharedQuestID()))
             PlayerTalkClass->SendQuestGiverQuestDetails(quest, GetGUID(), true);
         else
-            SetDivideInfo(ObjectGuid::Empty, 0);
+            ClearQuestSharingInfo();
     }
 }
 
