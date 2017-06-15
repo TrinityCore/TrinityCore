@@ -659,6 +659,116 @@ public:
     }
 };
 
+enum NecroOverlordMezhenBeamTarget
+{
+    BUNNY_BEAM_TARGET = 24021
+};
+
+enum NecroOverlordMezhenEvents
+{
+    EVENT_CAST_IDLE_BEAM = 1,
+    EVENT_CAST_DRAIN_SOUL,
+    EVENT_CAST_RAISE_DEAD
+};
+
+enum NecroOverlordMezhenSpells
+{
+    SPELL_IDLE_PURPLE_BEAM = 43151,
+    SPELL_DRAIN_SOUL = 32862,
+    SPELL_RAISE_DEAD = 43559
+};
+
+class npc_necro_overlord_mezhen : public CreatureScript
+{
+public:
+    npc_necro_overlord_mezhen() : CreatureScript("npc_necro_overlord_mezhen") { }
+
+    struct npc_necro_overlord_mezhenAI : public ScriptedAI
+    {
+        npc_necro_overlord_mezhenAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
+        {
+            events.Reset();
+
+            events.ScheduleEvent(EVENT_CAST_IDLE_BEAM, 333);
+        }
+
+        void EnterCombat(Unit* /*victim*/) override
+        {
+            events.ScheduleEvent(EVENT_CAST_DRAIN_SOUL, randtime(Seconds(0), Seconds(5)));
+            events.ScheduleEvent(EVENT_CAST_RAISE_DEAD, randtime(Seconds(0), Seconds(10)));
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eid = events.ExecuteEvent())
+            {
+                switch (eid)
+                {
+                    case EVENT_CAST_IDLE_BEAM:
+                        if (me->isMoving())
+                        {
+                            events.Repeat(Seconds(3));
+                            return;
+                        }
+
+                        if (Unit* target = me->FindNearestCreature(BUNNY_BEAM_TARGET, 16.0f))
+                        {
+                            me->CastSpell(target, SPELL_IDLE_PURPLE_BEAM, false);
+                            events.Repeat(Seconds(60));
+                        }
+                        else
+                        {
+                            events.Repeat(Seconds(5));
+                        }
+
+                        return;
+                    case EVENT_CAST_DRAIN_SOUL:
+                        if (!UpdateVictim())
+                            return;
+
+                        me->StopMoving();
+
+                        DoCastVictim(SPELL_DRAIN_SOUL);
+
+                        auto channel_time = Seconds(5);
+                        events.Repeat(randtime(channel_time + Seconds(3), channel_time + Seconds(10)));
+
+                        break;
+                    case EVENT_CAST_RAISE_DEAD:
+                        if (!UpdateVictim())
+                            return;
+
+                        me->StopMoving();
+
+                        DoCast(SPELL_RAISE_DEAD);
+
+                        auto cast_time = Milliseconds(1500);
+                        events.Repeat(randtime(cast_time + Seconds(30), cast_time + Seconds(60)));
+
+                        break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_necro_overlord_mezhenAI(creature);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     new npc_apothecary_hanes();
@@ -668,4 +778,5 @@ void AddSC_howling_fjord()
     new npc_mindless_abomination();
     new spell_mindless_abomination_explosion_fx_master();
     new npc_riven_widow_cocoon();
+    new npc_necro_overlord_mezhen();
  }
