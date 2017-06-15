@@ -762,3 +762,4 @@ void AddSC_howling_fjord()
     new npc_riven_widow_cocoon();
     new npc_necro_overlord_mezhen();
  }
+ 
