@@ -889,7 +889,7 @@ StartPlayerLevel = 1
 
 #
 #    StartDeathKnightPlayerLevel
-#        Description: Staring level for death knights after creation.
+#        Description: Starting level for death knights after creation.
 #        Range:       1-MaxPlayerLevel
 #        Default:     55
 
