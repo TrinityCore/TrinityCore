@@ -15,17 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Sholazar_Basin
-SD%Complete: 100
-SDComment: Quest support: 11253, 11241.
-SDCategory: howling_fjord
-EndScriptData */
+ /* ScriptData
+ SDName: Sholazar_Basin
+ SD%Complete: 100
+ SDComment: Quest support: 11253, 11241.
+ SDCategory: howling_fjord
+ EndScriptData */
 
-/* ContentData
-npc_plaguehound_tracker
-npc_apothecary_hanes
-EndContentData */
+ /* ContentData
+ npc_plaguehound_tracker
+ npc_apothecary_hanes
+ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -35,30 +35,30 @@ EndContentData */
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
-/*######
-## npc_apothecary_hanes
-######*/
+ /*######
+ ## npc_apothecary_hanes
+ ######*/
 enum Entries
 {
     NPC_APOTHECARY_HANES = 23784,
-    QUEST_TRAIL_OF_FIRE  = 11241,
+    QUEST_TRAIL_OF_FIRE = 11241,
 
     SPELL_HEALING_POTION = 17534,
-    SPELL_BURN           = 42685,
+    SPELL_BURN = 42685,
 
-    EVENT_EMOTE_BEG    = 1,
-    EVENT_BEGIN        = 2,
+    EVENT_EMOTE_BEG = 1,
+    EVENT_BEGIN = 2,
     EVENT_START_ESCORT = 3,
-    EVENT_TALK_1       = 4,
-    EVENT_KNEEL        = 5,
-    EVENT_TALK_2       = 6,
-    EVENT_BURN_CRATES  = 7,
-    EVENT_TALK_3       = 8,
-    EVENT_TALK_4       = 9,
-    EVENT_LAUGH        = 10,
-    EVENT_TALK_5       = 11,
-    EVENT_TALK_6       = 12,
-    EVENT_TALK_8       = 13,
+    EVENT_TALK_1 = 4,
+    EVENT_KNEEL = 5,
+    EVENT_TALK_2 = 6,
+    EVENT_BURN_CRATES = 7,
+    EVENT_TALK_3 = 8,
+    EVENT_TALK_4 = 9,
+    EVENT_LAUGH = 10,
+    EVENT_TALK_5 = 11,
+    EVENT_TALK_6 = 12,
+    EVENT_TALK_8 = 13,
 
     TALK_0 = 0,
     TALK_1 = 1,
@@ -125,7 +125,8 @@ public:
                 {
                     DoCast(me, SPELL_HEALING_POTION, true);
                     PotTimer = 10000;
-                } else PotTimer -= diff;
+                }
+                else PotTimer -= diff;
             }
 
             if (GetAttack() && UpdateVictim())
@@ -262,7 +263,7 @@ public:
 
 enum Plaguehound
 {
-    QUEST_SNIFF_OUT_ENEMY        = 11253
+    QUEST_SNIFF_OUT_ENEMY = 11253
 };
 
 class npc_plaguehound_tracker : public CreatureScript
@@ -394,20 +395,20 @@ public:
 
 enum Daegarnn
 {
-    QUEST_DEFEAT_AT_RING            = 11300,
+    QUEST_DEFEAT_AT_RING = 11300,
 
-    NPC_FIRJUS                      = 24213,
-    NPC_JLARBORN                    = 24215,
-    NPC_YOROS                       = 24214,
-    NPC_OLUF                        = 23931,
+    NPC_FIRJUS = 24213,
+    NPC_JLARBORN = 24215,
+    NPC_YOROS = 24214,
+    NPC_OLUF = 23931,
 
-    NPC_PRISONER_1                  = 24253,  // looks the same but has different abilities
-    NPC_PRISONER_2                  = 24254,
-    NPC_PRISONER_3                  = 24255,
+    NPC_PRISONER_1 = 24253,  // looks the same but has different abilities
+    NPC_PRISONER_2 = 24254,
+    NPC_PRISONER_3 = 24255,
 };
 
-static float afSummon[] = {838.81f, -4678.06f, -94.182f};
-static float afCenter[] = {801.88f, -4721.87f, -96.143f};
+static float afSummon[] = { 838.81f, -4678.06f, -94.182f };
+static float afCenter[] = { 801.88f, -4721.87f, -96.143f };
 
 class npc_daegarn : public CreatureScript
 {
@@ -464,7 +465,7 @@ public:
 
         void SummonGladiator(uint32 uiEntry)
         {
-            me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30*IN_MILLISECONDS);
+            me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30 * IN_MILLISECONDS);
         }
 
         void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) override
@@ -498,7 +499,7 @@ public:
 
 enum MindlessAbomination
 {
-    EVENT_CHECK_CHARMED                = 1
+    EVENT_CHECK_CHARMED = 1
 };
 
 class npc_mindless_abomination : public CreatureScript
@@ -551,61 +552,61 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
         SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE = 43401
     };
 
-    public:
-        spell_mindless_abomination_explosion_fx_master() : SpellScriptLoader("spell_mindless_abomination_explosion_fx_master") { }
+public:
+    spell_mindless_abomination_explosion_fx_master() : SpellScriptLoader("spell_mindless_abomination_explosion_fx_master") { }
 
-        class spell_mindless_abomination_explosion_fx_master_SpellScript : public SpellScript
+    class spell_mindless_abomination_explosion_fx_master_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mindless_abomination_explosion_fx_master_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            PrepareSpellScript(spell_mindless_abomination_explosion_fx_master_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON) || !sSpellMgr->GetSpellInfo(SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE))
-                    return false;
-                return true;
-            }
-
-            void HandleScript(SpellEffIndex /*eff*/)
-            {
-                Creature* caster = GetCaster()->ToCreature();
-                if (!caster)
-                    return;
-
-                caster->CastSpell(caster, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE);
-
-                for (uint8 i = 0; i < 10; ++i)
-                    caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
-
-                caster->DespawnOrUnsummon(4000);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_mindless_abomination_explosion_fx_master_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_mindless_abomination_explosion_fx_master_SpellScript();
+            if (!sSpellMgr->GetSpellInfo(SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON) || !sSpellMgr->GetSpellInfo(SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE))
+                return false;
+            return true;
         }
+
+        void HandleScript(SpellEffIndex /*eff*/)
+        {
+            Creature* caster = GetCaster()->ToCreature();
+            if (!caster)
+                return;
+
+            caster->CastSpell(caster, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE);
+
+            for (uint8 i = 0; i < 10; ++i)
+                caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+
+            caster->DespawnOrUnsummon(4000);
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_mindless_abomination_explosion_fx_master_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mindless_abomination_explosion_fx_master_SpellScript();
+    }
 };
 
 enum SummonSpells
 {
-    SPELL_SUMMON_BABY_RIVEN_WIDOWS        = 43275,
-    SPELL_SUMMON_DARKCLAW_BAT             = 43276,
-    SPELL_SUMMON_FANGGORE_WORG            = 43277,
-    SPELL_SUMMON_GJALERBRON_RUNECASTER    = 43278,
-    SPELL_SUMMON_GJALERBRON_SLEEPWATCHER  = 43279,
-    SPELL_SUMMON_GJALERBRON_WARRIOR       = 43280,
-    SPELL_SUMMON_PUTRID_HORROR            = 43281,
-    SPELL_SUMMON_WINTERSKORN_BERSERKER    = 43282,
-    SPELL_SUMMON_WINTERSKORN_WOODSMAN     = 43283,
-    SPELL_SUMMON_WINTERSKORN_TRIBESMAN    = 43284,
-    SPELL_SUMMON_WINTERSKORN_ORACLE       = 43285,
+    SPELL_SUMMON_BABY_RIVEN_WIDOWS = 43275,
+    SPELL_SUMMON_DARKCLAW_BAT = 43276,
+    SPELL_SUMMON_FANGGORE_WORG = 43277,
+    SPELL_SUMMON_GJALERBRON_RUNECASTER = 43278,
+    SPELL_SUMMON_GJALERBRON_SLEEPWATCHER = 43279,
+    SPELL_SUMMON_GJALERBRON_WARRIOR = 43280,
+    SPELL_SUMMON_PUTRID_HORROR = 43281,
+    SPELL_SUMMON_WINTERSKORN_BERSERKER = 43282,
+    SPELL_SUMMON_WINTERSKORN_WOODSMAN = 43283,
+    SPELL_SUMMON_WINTERSKORN_TRIBESMAN = 43284,
+    SPELL_SUMMON_WINTERSKORN_ORACLE = 43285,
     SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT = 43289,
-    NPC_MIST_WHISPER_SCOUT                = 24211
+    NPC_MIST_WHISPER_SCOUT = 24211
 };
 
 const uint32 rivenWidowCocoonVictims[11] =
@@ -659,6 +660,13 @@ public:
     }
 };
 
+enum NecroOverlordMezhenEvents
+{
+    EVENT_CAST_IDLE_BEAM = 1,
+    EVENT_CAST_DRAIN_SOUL,
+    EVENT_CAST_RAISE_DEAD
+};
+
 enum NecroOverlordMezhenSpells
 {
     SPELL_IDLE_PURPLE_BEAM = 43151,
@@ -673,76 +681,82 @@ public:
 
     struct npc_necro_overlord_mezhenAI : public ScriptedAI
     {
-        uint32 idle_purple_beam_timer;
-        uint32 raise_dead_timer;
-        uint32 drain_soul_timer;
-
         npc_necro_overlord_mezhenAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
-            idle_purple_beam_timer = 3000;
-            raise_dead_timer = 333;
-            drain_soul_timer = 5000;
+            events.Reset();
+
+            events.ScheduleEvent(EVENT_CAST_IDLE_BEAM, 333);
+        }
+
+        void EnterCombat(Unit* /*victim*/) override
+        {
+            events.ScheduleEvent(EVENT_CAST_DRAIN_SOUL, randtime(Seconds(0), Seconds(5)));
+            events.ScheduleEvent(EVENT_CAST_RAISE_DEAD, randtime(Seconds(0), Seconds(10)));
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (!me->IsInCombat() && !me->isMoving())
-            {
-                if (!me->HasUnitState(UNIT_STATE_CASTING))
-                {
-                    if (idle_purple_beam_timer <= diff)
-                    {
-                        Unit* target = me->FindNearestCreature(24021, 16.0f);
-                        me->CastSpell(target, SPELL_IDLE_PURPLE_BEAM, false);
-
-                        idle_purple_beam_timer = 30000;
-
-                        return;
-                    }
-                    else
-                    {
-                        idle_purple_beam_timer -= diff;
-                    }
-                }
-            }
-
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            if (!UpdateVictim())
-                return;
+            events.Update(diff);
 
-            if (raise_dead_timer <= diff)
+            while (uint32 eid = events.ExecuteEvent())
             {
-                DoCast(SPELL_RAISE_DEAD);
+                switch (eid)
+                {
+                    case EVENT_CAST_IDLE_BEAM:
+                        if (me->isMoving())
+                        {
+                            events.Repeat(Milliseconds(3000));
+                            return;
+                        }
 
-                raise_dead_timer = 1500 + 60000;
-                return;
-            }
-            else
-            {
-                raise_dead_timer -= diff;
-            }
+                        if (Unit* target = me->FindNearestCreature(24021, 16.0f))
+                        {
+                            me->CastSpell(target, SPELL_IDLE_PURPLE_BEAM, false);
+                            events.Repeat(Seconds(60));
+                        }
+                        else
+                        {
+                            events.Repeat(Milliseconds(5000));
+                        }
 
-            if (drain_soul_timer <= diff)
-            {
-                me->StopMoving();
+                        return;
+                    case EVENT_CAST_DRAIN_SOUL:
+                        if (!UpdateVictim())
+                            return;
 
-                DoCastVictim(SPELL_DRAIN_SOUL);
+                        me->StopMoving();
 
-                drain_soul_timer = 5000 + 10000;
+                        DoCastVictim(SPELL_DRAIN_SOUL);
 
-                return;
-            }
-            else
-            {
-                drain_soul_timer -= diff;
+                        auto channel_time = Seconds(5);
+                        events.Repeat(randtime(channel_time + Seconds(3), channel_time + Seconds(10)));
+
+                        break;
+                    case EVENT_CAST_RAISE_DEAD:
+                        if (!UpdateVictim())
+                            return;
+
+                        me->StopMoving();
+
+                        DoCast(SPELL_RAISE_DEAD);
+
+                        auto cast_time = Milliseconds(1500);
+                        events.Repeat(randtime(cast_time + Seconds(30), cast_time + Seconds(60)));
+
+                        break;
+                }
             }
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        EventMap events;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
