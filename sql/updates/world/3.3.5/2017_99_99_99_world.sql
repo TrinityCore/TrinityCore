@@ -1,4 +1,4 @@
--- Necro Lord Mezhen (24018)
+-- Necro Overlord Mezhen (24018)
 UPDATE `creature_template` SET `AIName` = '', `ScriptName` = 'npc_necro_overlord_mezhen' WHERE `entry` = 24018;
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 24018; -- entire row missing in TDB 335.63
