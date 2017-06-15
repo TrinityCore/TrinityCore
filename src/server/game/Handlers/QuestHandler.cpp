@@ -655,7 +655,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     {
         if (_player->GetPlayerSharingQuest() == guid)
         {
-            Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
+            Player* player = ObjectAccessor::FindPlayer(_player->GetPlayerSharingQuest());
             if (player)
             {
                 WorldPacket data(MSG_QUEST_PUSH_RESULT, 8 + 4 + 1);

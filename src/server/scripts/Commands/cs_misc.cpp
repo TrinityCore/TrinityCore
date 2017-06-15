@@ -1438,7 +1438,7 @@ public:
         }
 
         // each skills that have max skill value dependent from level seted to current level max skill value
-        player->UpdateSkillsToMaxSkillsForLevel();
+        player->UpdateWeaponsSkillsToMaxSkillsForLevel();
         return true;
     }
 
