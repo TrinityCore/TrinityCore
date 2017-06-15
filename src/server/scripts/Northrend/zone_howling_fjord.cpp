@@ -659,6 +659,11 @@ public:
     }
 };
 
+enum NecroOverlordMezhenBeamTarget
+{
+    BUNNY_BEAM_TARGET = 24021
+};
+
 enum NecroOverlordMezhenEvents
 {
     EVENT_CAST_IDLE_BEAM = 1,
@@ -669,8 +674,8 @@ enum NecroOverlordMezhenEvents
 enum NecroOverlordMezhenSpells
 {
     SPELL_IDLE_PURPLE_BEAM = 43151,
-    SPELL_DRAIN_SOUL       = 32862,
-    SPELL_RAISE_DEAD       = 43559
+    SPELL_DRAIN_SOUL = 32862,
+    SPELL_RAISE_DEAD = 43559
 };
 
 class npc_necro_overlord_mezhen : public CreatureScript
@@ -709,18 +714,18 @@ public:
                     case EVENT_CAST_IDLE_BEAM:
                         if (me->isMoving())
                         {
-                            events.Repeat(Milliseconds(3000));
+                            events.Repeat(Seconds(3));
                             return;
                         }
 
-                        if (Unit* target = me->FindNearestCreature(24021, 16.0f))
+                        if (Unit* target = me->FindNearestCreature(BUNNY_BEAM_TARGET, 16.0f))
                         {
                             me->CastSpell(target, SPELL_IDLE_PURPLE_BEAM, false);
                             events.Repeat(Seconds(60));
                         }
                         else
                         {
-                            events.Repeat(Milliseconds(5000));
+                            events.Repeat(Seconds(5));
                         }
 
                         return;
@@ -774,4 +779,4 @@ void AddSC_howling_fjord()
     new spell_mindless_abomination_explosion_fx_master();
     new npc_riven_widow_cocoon();
     new npc_necro_overlord_mezhen();
-}
+ }
