@@ -447,7 +447,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         //    *data << ObjectGuid(ID);
         //    *data << Vector3(Origin);
         //    *data << Vector3(Direction);
-        //    *data << int32(TransportID);
+        //    *data << uint32(TransportID);
         //    *data << float(Magnitude);
         //    data->WriteBits(Type, 2);
         //}
@@ -503,8 +503,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         *data << uint64(ToGameObject()->GetPackedWorldRotation());      // Rotation
 
     if (GameObject const* go = ToGameObject())
-        for (uint32 i = 0; i < PauseTimesCount; ++i)
-            *data << uint32(go->GetGOValue()->Transport.StopFrames->at(i));
+        data->append(go->GetGOValue()->Transport.StopFrames->data(), PauseTimesCount);
 
     if (HasMovementTransport)
     {
