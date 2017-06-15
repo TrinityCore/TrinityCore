@@ -661,94 +661,94 @@ public:
 
 enum NecroOverlordMezhenSpells
 {
-	SPELL_IDLE_PURPLE_BEAM = 43151,
-	SPELL_DRAIN_SOUL = 32862,
-	SPELL_RAISE_DEAD = 43559
+    SPELL_IDLE_PURPLE_BEAM = 43151,
+    SPELL_DRAIN_SOUL = 32862,
+    SPELL_RAISE_DEAD = 43559
 };
 
 class npc_necro_overlord_mezhen : public CreatureScript
 {
 public:
-	npc_necro_overlord_mezhen() : CreatureScript("npc_necro_overlord_mezhen") { }
+    npc_necro_overlord_mezhen() : CreatureScript("npc_necro_overlord_mezhen") { }
 
-	struct npc_necro_overlord_mezhenAI : public ScriptedAI
-	{
-		uint32 idle_purple_beam_timer;
-		uint32 raise_dead_timer;
-		uint32 drain_soul_timer;
+    struct npc_necro_overlord_mezhenAI : public ScriptedAI
+    {
+        uint32 idle_purple_beam_timer;
+        uint32 raise_dead_timer;
+        uint32 drain_soul_timer;
 
-		npc_necro_overlord_mezhenAI(Creature* creature) : ScriptedAI(creature) { }
+        npc_necro_overlord_mezhenAI(Creature* creature) : ScriptedAI(creature) { }
 
-		void Reset() override
-		{
-			idle_purple_beam_timer = 3000;
-			raise_dead_timer = 333;
-			drain_soul_timer = 5000;
-		}
+        void Reset() override
+        {
+            idle_purple_beam_timer = 3000;
+            raise_dead_timer = 333;
+            drain_soul_timer = 5000;
+        }
 
-		void UpdateAI(uint32 diff) override
-		{
-			if (!me->IsInCombat() && !me->isMoving())
-			{
-				if (!me->HasUnitState(UNIT_STATE_CASTING))
-				{
-					if (idle_purple_beam_timer <= diff)
-					{
-						Unit* target = me->FindNearestCreature(24021, 16.0f);
-						me->CastSpell(target, SPELL_IDLE_PURPLE_BEAM, false);
+        void UpdateAI(uint32 diff) override
+        {
+            if (!me->IsInCombat() && !me->isMoving())
+            {
+                if (!me->HasUnitState(UNIT_STATE_CASTING))
+                {
+                    if (idle_purple_beam_timer <= diff)
+                    {
+                        Unit* target = me->FindNearestCreature(24021, 16.0f);
+                        me->CastSpell(target, SPELL_IDLE_PURPLE_BEAM, false);
 
-						idle_purple_beam_timer = 30000;
+                        idle_purple_beam_timer = 30000;
 
-						return;
-					}
-					else
-					{
-						idle_purple_beam_timer -= diff;
-					}
-				}
-			}
+                        return;
+                    }
+                    else
+                    {
+                        idle_purple_beam_timer -= diff;
+                    }
+                }
+            }
 
-			if (me->HasUnitState(UNIT_STATE_CASTING))
-				return;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
 
-			if (!UpdateVictim())
-				return;
+            if (!UpdateVictim())
+                return;
 
-			if (raise_dead_timer <= diff)
-			{
-				DoCast(SPELL_RAISE_DEAD);
+            if (raise_dead_timer <= diff)
+            {
+                DoCast(SPELL_RAISE_DEAD);
 
-				raise_dead_timer = 1500 + 60000;
-				return;
-			}
-			else
-			{
-				raise_dead_timer -= diff;
-			}
+                raise_dead_timer = 1500 + 60000;
+                return;
+            }
+            else
+            {
+                raise_dead_timer -= diff;
+            }
 
-			if (drain_soul_timer <= diff)
-			{
-				me->StopMoving();
+            if (drain_soul_timer <= diff)
+            {
+                me->StopMoving();
 
-				DoCastVictim(SPELL_DRAIN_SOUL);
+                DoCastVictim(SPELL_DRAIN_SOUL);
 
-				drain_soul_timer = 5000 + 10000;
+                drain_soul_timer = 5000 + 10000;
 
-				return;
-			}
-			else
-			{
-				drain_soul_timer -= diff;
-			}
+                return;
+            }
+            else
+            {
+                drain_soul_timer -= diff;
+            }
 
-			DoMeleeAttackIfReady();
-		}
-	};
+            DoMeleeAttackIfReady();
+        }
+    };
 
-	CreatureAI* GetAI(Creature* creature) const override
-	{
-		return new npc_necro_overlord_mezhenAI(creature);
-	}
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_necro_overlord_mezhenAI(creature);
+    }
 };
 
 void AddSC_howling_fjord()
