@@ -1053,6 +1053,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1105), 42999, false); // The Oracles
             repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1119), 42999, false); // The Sons of Hodir
             repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1091), 42999, false); // The Wyrmrest Accord
+            repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1204), 42999, false); // Avengers of Hyjal
+            repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1158), 42999, false); // Guardians of Hyjal
+            repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1173), 42999, false); // Ramkahen
+            repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1171), 42999, false); // Therazane
+            repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1135), 42999, false); // The Earthen Ring
 
             // Factions depending on team, like cities and some more stuff
             switch (pCurrChar->GetTeam())
@@ -1071,6 +1076,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
                     repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1126), 42999, false); // The Frostborn
                     repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1094), 42999, false); // The Silver Covenant
                     repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1050), 42999, false); // Valiance Expedition
+                    repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1177), 42999, false); // Baradin's Wardens
+                    repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1174), 42999, false); // Wildhammer Clan
                     break;
                 case HORDE:
                     repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(  76), 42999, false); // Orgrimmar
@@ -1086,6 +1093,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
                     repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1124), 42999, false); // The Sunreavers
                     repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1064), 42999, false); // The Taunka
                     repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1085), 42999, false); // Warsong Offensive
+                    repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1172), 42999, false); // Dragonmaw Clan
+                    repMgr.SetOneFactionReputation(sFactionStore.LookupEntry(1178), 42999, false); // Hellscream's Reach
                     break;
                 default:
                     break;

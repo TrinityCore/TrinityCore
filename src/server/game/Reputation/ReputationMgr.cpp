@@ -239,17 +239,7 @@ void ReputationMgr::SendInitialReputations()
     _player->SendDirectMessage(&data);
 }
 
-<<<<<<< HEAD
-void ReputationMgr::SendStates()
-{
-    for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
-        SendState(&(itr->second));
-}
-
 void ReputationMgr::SendVisible(FactionState const* faction, bool visible /* = true*/) const
-=======
-void ReputationMgr::SendVisible(FactionState const* faction) const
->>>>>>> 4b6351e... Fixes to all-reputation and all-skill custom option handling:
 {
     if (_player->GetSession()->PlayerLoading())
         return;
