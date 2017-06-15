@@ -2586,7 +2586,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         MapReference m_mapRef;
 
-        uint32 m_lastFallTime;
+        uint32 m_lastFallTimeClient;
+        uint32 m_fallStartTimeServer;
         float  m_lastFallZ;
 
         int32 m_MirrorTimer[MAX_TIMERS];
