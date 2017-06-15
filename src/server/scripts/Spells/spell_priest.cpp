@@ -197,12 +197,7 @@ public:
             Player* player = GetCaster()->ToPlayer();
 
             SpellInfo const* spellInfoAtonement = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_AURA);
-            if (!spellInfoAtonement || !player->HasAura(SPELL_PRIEST_ATONEMENT_AURA))
-                return;
-
-            if (player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) != TALENT_SPEC_PRIEST_DISCIPLINE)
-                return;
-
+            
             std::list<Unit*> playerGroupList;
             player->GetPartyMembers(playerGroupList);
 
@@ -211,17 +206,14 @@ public:
                 return player->GetDistance(glUnit->GetPositionX(), glUnit->GetPositionY(), glUnit->GetPositionZ()) > spellInfoAtonement->GetEffect(EFFECT_1)->CalcValue();
             });
 
-            if (playerGroupList.size() > 1)
-                playerGroupList.sort(Trinity::HealthPctOrderPred());
-
             DamageInfo* damageInfo = eventInfo.GetDamageInfo();
             int32 heal = CalculatePct(damageInfo->GetDamage(), spellInfoAtonement->GetEffect(EFFECT_0)->CalcValue());
 
-            for (auto itr : playerGroupList)
+            for (Unit* currentPlayer : playerGroupList)
             {
                 //Check if target player have atonement triggered by me
-                if (Aura* aur = itr->GetAura(SPELL_PRIEST_ATONEMENT_AURA_TRIGGERED, player->GetGUID()))
-                    player->CastCustomSpell(itr, SPELL_PRIEST_ATONEMENT_HEAL, &heal, nullptr, nullptr, true);
+                if (Aura* aur = currentPlayer->GetAura(SPELL_PRIEST_ATONEMENT_AURA_TRIGGERED, player->GetGUID()))
+                    player->CastCustomSpell(currentPlayer, SPELL_PRIEST_ATONEMENT_HEAL, &heal, nullptr, nullptr, true);
             }
         }
 
