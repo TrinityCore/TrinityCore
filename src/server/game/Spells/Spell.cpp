@@ -2913,7 +2913,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     m_powerCost = m_CastItem ? 0 : m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, this);
 
     // Set combo point requirement
-    if ((_triggeredCastFlags & TRIGGERED_IGNORE_COMBO_POINTS) || m_CastItem || !m_caster->m_playerMovingMe)
+    if ((_triggeredCastFlags & TRIGGERED_IGNORE_COMBO_POINTS) || m_CastItem || (!m_caster->GetPlayerMovingMe() && !m_caster->IsPet()))
         m_needComboPoints = false;
 
     uint32 param1 = 0, param2 = 0;
@@ -3479,15 +3479,22 @@ void Spell::_handle_immediate_phase()
 
 void Spell::_handle_finish_phase()
 {
-    if (m_caster->m_playerMovingMe)
+    if (Player* player = m_caster->GetPlayerMovingMe())
     {
         // Take for real after all targets are processed
         if (m_needComboPoints)
-            m_caster->m_playerMovingMe->ClearComboPoints();
+            player->ClearComboPoints();
 
         // Real add combo points from effects
         if (m_comboPointGain)
-            m_caster->m_playerMovingMe->GainSpellComboPoints(m_comboPointGain);
+            player->GainSpellComboPoints(m_comboPointGain);
+    }
+    else if (Pet* pet = m_caster->ToPet())
+    {
+        if (m_needComboPoints)
+            pet->ClearComboPoints();
+        if (m_comboPointGain)
+            pet->AddComboPoints(m_comboPointGain);
     }
 
     if (m_caster->m_extraAttacks && m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
@@ -5708,11 +5715,22 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 return SPELL_FAILED_ITEM_ALREADY_ENCHANTED;
     }
 
-    // check if caster has at least 1 combo point for spells that require combo points
+    // check if caster has at least 1 combo point on the target for spells that require combo points
     if (m_needComboPoints)
-        if (Player* plrCaster = m_caster->ToPlayer())
-            if (!plrCaster->GetComboPoints())
+    {
+        if (Player* plrCaster = m_caster->GetPlayerMovingMe())
+        {
+            if (!plrCaster->GetComboPoints(m_targets.GetUnitTargetGUID()))
                 return SPELL_FAILED_NO_COMBO_POINTS;
+        }
+        else if (Pet* petCaster = m_caster->ToPet())
+        {
+            if (!petCaster->GetComboPoints(m_targets.GetUnitTargetGUID()))
+                return SPELL_FAILED_NO_COMBO_POINTS;
+        }
+        else
+            return SPELL_FAILED_NO_COMBO_POINTS;
+    }
 
     // all ok
     return SPELL_CAST_OK;

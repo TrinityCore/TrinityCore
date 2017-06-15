@@ -3980,13 +3980,13 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (!unitTarget)
         return;
 
-    if (!m_caster->m_playerMovingMe)
-        return;
-
     if (damage <= 0)
         return;
 
-    m_caster->m_playerMovingMe->AddComboPoints(unitTarget, damage, this);
+    if (Player* player = m_caster->GetPlayerMovingMe())
+        player->AddComboPoints(unitTarget, damage, this);
+    else if (Pet* pet = m_caster->ToPet())
+        pet->AddComboPoints(unitTarget, damage);
 }
 
 void Spell::EffectDuel(SpellEffIndex effIndex)

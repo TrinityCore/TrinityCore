@@ -2106,6 +2106,12 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         DamageInfo dmgInfo(damageInfo);
         ProcSkillsAndAuras(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, PROC_SPELL_TYPE_NONE, PROC_SPELL_PHASE_NONE, dmgInfo.GetHitMask(), nullptr, &dmgInfo, nullptr);
 
+        if (dmgInfo.GetHitMask() & PROC_HIT_CRITICAL) // @todo is there a better place to put this hack? there doesn't seem to be any aura applied on talent
+            if (Pet* pet = ToPet())
+                if (pet->HasSpell(53508)) // Wolverine Bite
+                    pet->AddComboPoints(damageInfo.target, 1);
+
+
         if (GetTypeId() == TYPEID_PLAYER)
             TC_LOG_DEBUG("entities.unit", "AttackerStateUpdate: (Player) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
                 GetGUID().GetCounter(), victim->GetGUID().GetCounter(), victim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
@@ -9729,7 +9735,7 @@ int32 Unit::CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto
 
 int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
 {
-    uint8 comboPoints = m_playerMovingMe ? m_playerMovingMe->GetComboPoints() : 0;
+    uint8 comboPoints = GetPlayerMovingMe() ? GetPlayerMovingMe()->GetComboPoints() : 0;
 
     int32 minduration = spellProto->GetDuration();
     int32 maxduration = spellProto->GetMaxDuration();
@@ -11478,10 +11484,25 @@ void Unit::ClearComboPointHolders()
     {
         ObjectGuid guid = *m_ComboPointHolders.begin();
 
-        Player* player = ObjectAccessor::GetPlayer(*this, guid);
-        if (player && player->GetComboTarget() == GetGUID())         // recheck for safe
-            player->ClearComboPoints();                        // remove also guid from m_ComboPointHolders;
-        else
+        bool cleared = false;
+        if (Player* player = ObjectAccessor::GetPlayer(*this, guid))
+        {
+            if (player->GetComboTarget() == GetGUID())         // recheck for safe
+            {
+                player->ClearComboPoints();                        // remove also guid from m_ComboPointHolders;
+                cleared = true;
+            }
+        }
+        else if (Pet* pet = ObjectAccessor::GetPet(*this, guid))
+        {
+            if (pet->GetComboTarget() == GetGUID())
+            {
+                pet->ClearComboPoints();
+                cleared = true;
+            }
+        }
+
+        if (!cleared)
             m_ComboPointHolders.erase(guid);             // or remove manually
     }
 }

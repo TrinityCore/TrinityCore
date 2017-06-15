@@ -37,7 +37,7 @@
 Pet::Pet(Player* owner, PetType type) :
     Guardian(NULL, owner, true), m_usedTalentCount(0), m_removed(false),
     m_happinessTimer(7500), m_petType(type), m_duration(0), m_auraRaidUpdateMask(0), m_loading(false),
-    m_declinedname(NULL)
+    m_comboPoints(0), m_declinedname(NULL)
 {
     ASSERT(GetOwner());
 
@@ -1920,6 +1920,57 @@ void Pet::SynchronizeLevelWithOwner()
         default:
             break;
     }
+}
+
+void Pet::SendComboPoints() const
+{
+    Unit* target = ObjectAccessor::GetUnit(*this, m_comboTarget);
+    if (!target)
+        return;
+
+    Player* owner = GetOwner();
+    if (!owner)
+        return;
+
+    WorldPacket data;
+    data.Initialize(SMSG_PET_UPDATE_COMBO_POINTS, GetPackGUID().size() + target->GetPackGUID().size() + 1);
+    data << GetPackGUID();
+    data << target->GetPackGUID();
+    data << uint8(m_comboPoints);
+    owner->GetSession()->SendPacket(&data);
+}
+
+static const uint8 MAX_PET_COMBO_POINTS = 1;
+void Pet::AddComboPoints(Unit* target, uint8 count)
+{
+    if (!count)
+        return;
+
+    if (target && target->GetGUID() != m_comboTarget)
+    {
+        if (m_comboTarget)
+            if (Unit* oldTarget = ObjectAccessor::GetUnit(*this, m_comboTarget))
+                oldTarget->RemoveComboPointHolder(GetGUID());
+        
+        m_comboTarget = target->GetGUID();
+        target->AddComboPointHolder(GetGUID());
+    }
+    else
+        count += m_comboPoints;
+
+    m_comboPoints = std::min<uint8>(count, MAX_PET_COMBO_POINTS);
+    SendComboPoints();
+}
+
+void Pet::ClearComboPoints()
+{
+    if (!m_comboTarget)
+        return;
+    m_comboPoints = 0;
+    SendComboPoints();
+    if (Unit* oldTarget = ObjectAccessor::GetUnit(*this, m_comboTarget))
+        oldTarget->RemoveComboPointHolder(GetGUID());
+    m_comboTarget.Clear();
 }
 
 Player* Pet::GetOwner() const

@@ -141,6 +141,15 @@ class TC_GAME_API Pet : public Guardian
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         void ResetAuraUpdateMaskForRaid() { m_auraRaidUpdateMask = 0; }
 
+        void SendComboPoints() const;
+        void AddComboPoints(Unit* target, uint8 count);
+        void AddComboPoints(uint8 count) { AddComboPoints(nullptr, count); }
+        void ClearComboPoints();
+        uint8 GetComboPoints() const { return m_comboPoints; }
+        uint8 GetComboPoints(ObjectGuid const& guid) const { return (guid && guid != m_comboTarget) ? 0 : m_comboPoints; }
+        uint8 GetComboPoints(Unit* target) const { return target ? GetComboPoints(target->GetGUID()) : GetComboPoints(); }
+        ObjectGuid GetComboTarget() const { return m_comboTarget; }
+
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
 
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
@@ -148,12 +157,14 @@ class TC_GAME_API Pet : public Guardian
         Player* GetOwner() const;
 
     protected:
-        uint32  m_happinessTimer;
+        uint32 m_happinessTimer;
         PetType m_petType;
-        int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
-        uint64  m_auraRaidUpdateMask;
-        bool    m_loading;
-        uint32  m_focusRegenTimer;
+        int32 m_duration; // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
+        uint64 m_auraRaidUpdateMask;
+        bool m_loading;
+        uint32 m_focusRegenTimer;
+        uint8 m_comboPoints; // only used for Wolverine Bite talent (max 1 CP)
+        ObjectGuid m_comboTarget;
 
         DeclinedName *m_declinedname;
 
