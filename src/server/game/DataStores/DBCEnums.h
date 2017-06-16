@@ -147,7 +147,7 @@ enum ArtifactPowerFlag : uint8
     ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 2051
+#define BATTLE_PET_SPECIES_MAX_ID 2073
 
 enum ChrSpecializationFlag
 {
@@ -481,7 +481,7 @@ enum CriteriaTypes : uint8
     // 204 - Special criteria type to award players for some external events? Comes with what looks like an identifier, so guessing it's not unique.
 };
 
-#define CRITERIA_TYPE_TOTAL 207
+#define CRITERIA_TYPE_TOTAL 208
 
 enum CriteriaTreeFlags : uint16
 {
@@ -559,11 +559,14 @@ enum Difficulty : uint8
     DIFFICULTY_EVENT_DUNGEON        = 19,
     DIFFICULTY_EVENT_SCENARIO       = 20,
     DIFFICULTY_MYTHIC               = 23,
-    DIFFICULTY_TIMEWALKER           = 24,
+    DIFFICULTY_TIMEWALKING          = 24,
     DIFFICULTY_WORLD_PVP_SCENARIO   = 25,
     DIFFICULTY_5_MAN_SCENARIO_N     = 26,
     DIFFICULTY_20_MAN_SCENARIO_N    = 27,
     DIFFICULTY_PVEVP_SCENARIO       = 29,
+    DIFFICULTY_EVENT_SCENARIO_6     = 30,
+    DIFFICULTY_WORLD_PVP_SCENARIO_2 = 32,
+    DIFFICULTY_TIMEWALKING_RAID     = 33,
 
     MAX_DIFFICULTY
 };
@@ -754,6 +757,11 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_RELIC_HOLY       = 39,
 
     ITEM_SPEC_STAT_NONE             = 40
+};
+
+enum MapDifficultyFlags : uint8
+{
+    MAP_DIFFICULTY_FLAG_CANNOT_EXTEND   = 0x10
 };
 
 enum MountCapabilityFlags

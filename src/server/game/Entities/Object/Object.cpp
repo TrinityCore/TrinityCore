@@ -355,10 +355,16 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool SmoothPhasing = false;
     bool SceneObjCreate = false;
     bool PlayerCreateData = false;
+    std::vector<uint32> const* PauseTimes = nullptr;
     uint32 PauseTimesCount = 0;
     if (GameObject const* go = ToGameObject())
+    {
         if (go->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
-            PauseTimesCount = go->GetGOValue()->Transport.StopFrames->size();
+        {
+            PauseTimes = go->GetGOValue()->Transport.StopFrames;
+            PauseTimesCount = PauseTimes->size();
+        }
+    }
 
     data->WriteBit(NoBirthAnim);
     data->WriteBit(EnablePortals);
@@ -447,7 +453,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         //    *data << ObjectGuid(ID);
         //    *data << Vector3(Origin);
         //    *data << Vector3(Direction);
-        //    *data << int32(TransportID);
+        //    *data << uint32(TransportID);
         //    *data << float(Magnitude);
         //    data->WriteBits(Type, 2);
         //}
@@ -502,9 +508,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     if (Rotation)
         *data << uint64(ToGameObject()->GetPackedWorldRotation());      // Rotation
 
-    if (GameObject const* go = ToGameObject())
-        for (uint32 i = 0; i < PauseTimesCount; ++i)
-            *data << uint32(go->GetGOValue()->Transport.StopFrames->at(i));
+    if (PauseTimes)
+        data->append(PauseTimes->data(), PauseTimes->size());
 
     if (HasMovementTransport)
     {
