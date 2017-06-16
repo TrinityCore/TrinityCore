@@ -302,7 +302,7 @@ typedef std::unordered_map<uint32, WorldMapAreaEntry const*> WorldMapAreaByAreaI
 namespace
 {
     StorageMap _stores;
-    std::map<int32, HotfixData> _hotfixData;
+    std::map<uint64, int32> _hotfixData;
 
     AreaGroupMemberContainer _areaGroupMembers;
     ArtifactPowersContainer _artifactPowers;
@@ -1094,7 +1094,7 @@ void DB2Manager::LoadHotfixData()
     {
         Field* fields = result->Fetch();
 
-        int32 id = fields[0].GetInt32();
+        uint32 id = fields[0].GetUInt32();
         uint32 tableHash = fields[1].GetUInt32();
         int32 recordId = fields[2].GetInt32();
         bool deleted = fields[3].GetBool();
@@ -1104,9 +1104,7 @@ void DB2Manager::LoadHotfixData()
             continue;
         }
 
-        HotfixData& data = _hotfixData[id];
-        data.Id = id;
-        data.Records.emplace_back(tableHash, recordId);
+        _hotfixData[MAKE_PAIR64(id, tableHash)] = recordId;
         deletedRecords[std::make_pair(tableHash, recordId)] = deleted;
         ++count;
     } while (result->NextRow());
@@ -1119,7 +1117,7 @@ void DB2Manager::LoadHotfixData()
     TC_LOG_INFO("server.loading", ">> Loaded %u hotfix records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-std::map<int32, HotfixData> const& DB2Manager::GetHotfixData() const
+std::map<uint64, int32> const& DB2Manager::GetHotfixData() const
 {
     return _hotfixData;
 }

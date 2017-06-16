@@ -58,7 +58,7 @@ WorldPacket const* WorldPackets::Combat::ThreatUpdate::Write()
     for (WorldPackets::Combat::ThreatInfo const& threatInfo : ThreatList)
     {
         _worldPacket << threatInfo.UnitGUID;
-        _worldPacket << threatInfo.Threat;
+        _worldPacket << int64(threatInfo.Threat);
     }
 
     return &_worldPacket;
@@ -72,7 +72,7 @@ WorldPacket const* WorldPackets::Combat::HighestThreatUpdate::Write()
     for (WorldPackets::Combat::ThreatInfo const& threatInfo : ThreatList)
     {
         _worldPacket << threatInfo.UnitGUID;
-        _worldPacket << threatInfo.Threat;
+        _worldPacket << int64(threatInfo.Threat);
     }
 
     return &_worldPacket;

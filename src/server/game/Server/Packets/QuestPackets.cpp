@@ -300,8 +300,8 @@ WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
 {
     _worldPacket << QuestData; // WorldPackets::Quest::QuestGiverOfferReward
     _worldPacket << int32(QuestPackageID);
-    _worldPacket << int32(PortraitTurnIn);
     _worldPacket << int32(PortraitGiver);
+    _worldPacket << int32(PortraitTurnIn);
 
     _worldPacket.WriteBits(QuestTitle.size(), 9);
     _worldPacket.WriteBits(RewardText.size(), 12);
@@ -359,13 +359,13 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket << int32(QuestID);
     _worldPacket << int32(QuestPackageID);
     _worldPacket << int32(PortraitGiver);
-    _worldPacket << int32(SuggestedPartyMembers);
+    _worldPacket << int32(PortraitTurnIn);
     _worldPacket << uint32(QuestFlags[0]); // Flags
     _worldPacket << uint32(QuestFlags[1]); // FlagsEx
-    _worldPacket << int32(PortraitTurnIn);
+    _worldPacket << int32(SuggestedPartyMembers);
     _worldPacket << uint32(LearnSpells.size());
-    _worldPacket << int32(DescEmotes.size());
-    _worldPacket << int32(Objectives.size());
+    _worldPacket << uint32(DescEmotes.size());
+    _worldPacket << uint32(Objectives.size());
     _worldPacket << int32(QuestStartItemID);
 
     for (int32 spell : LearnSpells)
@@ -392,9 +392,9 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     _worldPacket.WriteBits(PortraitGiverName.size(), 8);
     _worldPacket.WriteBits(PortraitTurnInText.size(), 10);
     _worldPacket.WriteBits(PortraitTurnInName.size(), 8);
-    _worldPacket.WriteBit(DisplayPopup);
-    _worldPacket.WriteBit(StartCheat);
     _worldPacket.WriteBit(AutoLaunched);
+    _worldPacket.WriteBit(StartCheat);
+    _worldPacket.WriteBit(DisplayPopup);
     _worldPacket.FlushBits();
 
     _worldPacket << Rewards; // WorldPackets::Quest::QuestRewards

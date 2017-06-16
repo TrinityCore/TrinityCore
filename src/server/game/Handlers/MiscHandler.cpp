@@ -768,26 +768,6 @@ void WorldSession::HandlePlayedTime(WorldPackets::Character::RequestPlayedTime& 
     SendPacket(playedTime.Write());
 }
 
-void WorldSession::HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& worldTeleport)
-{
-    if (GetPlayer()->IsInFlight())
-    {
-        TC_LOG_DEBUG("network", "Player '%s' (%s) in flight, ignore worldport command.",
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
-        return;
-    }
-
-    WorldLocation loc(worldTeleport.MapID, worldTeleport.Pos);
-    loc.SetOrientation(worldTeleport.Facing);
-    TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, map = %u, pos = %s",
-        GetPlayer()->GetName().c_str(), worldTeleport.MapID, loc.ToString().c_str());
-
-    if (HasPermission(rbac::RBAC_PERM_OPCODE_WORLD_TELEPORT))
-        GetPlayer()->TeleportTo(loc);
-    else
-        SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
-}
-
 void WorldSession::HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet)
 {
     TC_LOG_DEBUG("network", "Received whois command from player %s for character %s",
