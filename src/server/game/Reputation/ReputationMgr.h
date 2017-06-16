@@ -139,7 +139,6 @@ class TC_GAME_API ReputationMgr
         void SendInitialReputations();
         void SendForceReactions();
         void SendState(FactionState const* faction);
-        void SendStates();
 
     private:                                                // internal helper functions
         void Initialize();
