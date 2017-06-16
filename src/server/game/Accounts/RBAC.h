@@ -244,7 +244,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_SPAWNVEHICLE                     = 336,
     RBAC_PERM_COMMAND_DEBUG_THREAT                           = 337,
     RBAC_PERM_COMMAND_DEBUG_UPDATE                           = 338, // DEPRECATED: DON'T REUSE
-    RBAC_PERM_COMMAND_DEBUG_UWS                              = 339,
+    RBAC_PERM_COMMAND_DEBUG_WORLDSTATE                       = 339,
     RBAC_PERM_COMMAND_WPGPS                                  = 340,
     RBAC_PERM_COMMAND_DESERTER                               = 341,
     RBAC_PERM_COMMAND_DESERTER_BG                            = 342,
