@@ -256,7 +256,7 @@ class TC_GAME_API UnitAI
                 targetList.reverse();
 
             if (targetType == SELECT_TARGET_RANDOM)
-                Trinity::Containers::RandomResizeList(targetList, maxTargets);
+                Trinity::Containers::RandomResize(targetList, maxTargets);
             else
                 targetList.resize(maxTargets);
         }
@@ -266,7 +266,6 @@ class TC_GAME_API UnitAI
 
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
-        // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
         virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) { }
 
         // Called when the creature receives heal

@@ -1874,7 +1874,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
         if (sEluna->OnGameObjectUse(player, gameObjTarget))
             return;
 #endif
-        if (gameObjTarget->AI()->GossipHello(player, false))
+        if (gameObjTarget->AI()->GossipHello(player))
             return;
 
         switch (gameObjTarget->GetGoType())
