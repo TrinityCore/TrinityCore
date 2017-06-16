@@ -1039,8 +1039,6 @@ struct CurrencyTypesLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_STRING, "Name" },
-            { false, FT_STRING_NOT_LOCALIZED, "InventoryIcon1" },
-            { false, FT_STRING_NOT_LOCALIZED, "InventoryIcon2" },
             { false, FT_INT, "MaxQty" },
             { false, FT_INT, "MaxEarnablePerWeek" },
             { false, FT_INT, "Flags" },
@@ -1048,6 +1046,7 @@ struct CurrencyTypesLoadInfo
             { false, FT_BYTE, "CategoryID" },
             { false, FT_BYTE, "SpellCategory" },
             { false, FT_BYTE, "Quality" },
+            { false, FT_INT, "InventoryIconFileDataID" },
             { false, FT_INT, "SpellWeight" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CurrencyTypesMeta::Instance(), HOTFIX_SEL_CURRENCY_TYPES);
@@ -1235,12 +1234,12 @@ struct EmotesLoadInfo
             { false, FT_STRING_NOT_LOCALIZED, "EmoteSlashCommand" },
             { false, FT_INT, "SpellVisualKitID" },
             { false, FT_INT, "EmoteFlags" },
+            { true, FT_INT, "RaceMask" },
             { false, FT_SHORT, "AnimID" },
             { false, FT_BYTE, "EmoteSpecProc" },
             { false, FT_INT, "EmoteSpecProcParam" },
             { false, FT_INT, "EmoteSoundID" },
             { true, FT_INT, "ClassMask" },
-            { true, FT_INT, "RaceMask" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, EmotesMeta::Instance(), HOTFIX_SEL_EMOTES);
         return &loadInfo;
@@ -1795,8 +1794,10 @@ struct HeirloomLoadInfo
             { false, FT_INT, "NextDifficultyItemID" },
             { false, FT_INT, "UpgradeItemID1" },
             { false, FT_INT, "UpgradeItemID2" },
+            { false, FT_INT, "UpgradeItemID3" },
             { false, FT_SHORT, "ItemBonusListID1" },
             { false, FT_SHORT, "ItemBonusListID2" },
+            { false, FT_SHORT, "ItemBonusListID3" },
             { false, FT_BYTE, "Flags" },
             { false, FT_BYTE, "Source" },
             { false, FT_INT, "ID" },
@@ -1829,7 +1830,6 @@ struct HolidaysLoadInfo
             { false, FT_INT, "Date14" },
             { false, FT_INT, "Date15" },
             { false, FT_INT, "Date16" },
-            { false, FT_STRING_NOT_LOCALIZED, "TextureFilename" },
             { false, FT_SHORT, "Duration1" },
             { false, FT_SHORT, "Duration2" },
             { false, FT_SHORT, "Duration3" },
@@ -1857,6 +1857,9 @@ struct HolidaysLoadInfo
             { false, FT_BYTE, "Flags" },
             { false, FT_INT, "HolidayNameID" },
             { false, FT_INT, "HolidayDescriptionID" },
+            { true, FT_INT, "TextureFileDataID1" },
+            { true, FT_INT, "TextureFileDataID2" },
+            { true, FT_INT, "TextureFileDataID3" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, HolidaysMeta::Instance(), HOTFIX_SEL_HOLIDAYS);
         return &loadInfo;
@@ -2723,9 +2726,9 @@ struct LfgDungeonsLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
+            { false, FT_INT, "ID" },
             { false, FT_STRING, "Name" },
             { false, FT_INT, "Flags" },
-            { false, FT_STRING_NOT_LOCALIZED, "TextureFilename" },
             { false, FT_STRING, "Description" },
             { false, FT_FLOAT, "MinItemLevel" },
             { false, FT_SHORT, "MaxLevel" },
@@ -2754,7 +2757,9 @@ struct LfgDungeonsLoadInfo
             { false, FT_BYTE, "MinCountDamage" },
             { false, FT_BYTE, "SubType" },
             { false, FT_BYTE, "MentorCharLevel" },
-            { false, FT_INT, "ID" },
+            { true, FT_INT, "TextureFileDataID" },
+            { true, FT_INT, "RewardIconFileDataID" },
+            { true, FT_INT, "ProposalTextureFileDataID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, LfgDungeonsMeta::Instance(), HOTFIX_SEL_LFG_DUNGEONS);
         return &loadInfo;
@@ -2959,6 +2964,7 @@ struct MapDifficultyLoadInfo
             { false, FT_BYTE, "RaidDurationType" },
             { false, FT_BYTE, "MaxPlayers" },
             { false, FT_BYTE, "LockID" },
+            { false, FT_BYTE, "Flags" },
             { false, FT_BYTE, "ItemBonusTreeModID" },
             { false, FT_INT, "Context" },
         };

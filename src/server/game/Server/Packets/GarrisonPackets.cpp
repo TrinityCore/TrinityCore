@@ -148,7 +148,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
     data << uint32(garrison.ArchivedMissions.size());
     data << int32(garrison.NumFollowerActivationsRemaining);
     data << uint32(garrison.NumMissionsStartedToday);
-    data << int32(garrison.FollowerSoftCap);
 
     for (WorldPackets::Garrison::GarrisonPlotInfo* plot : garrison.Plots)
         data << *plot;
@@ -193,10 +192,21 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::GarrisonInfo co
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Garrison::FollowerSoftCapInfo const& followerSoftCapInfo)
+{
+    data << int32(followerSoftCapInfo.GarrFollowerTypeID);
+    data << uint32(followerSoftCapInfo.Count);
+    return data;
+}
+
 WorldPacket const* WorldPackets::Garrison::GetGarrisonInfoResult::Write()
 {
     _worldPacket << int32(FactionIndex);
     _worldPacket << uint32(Garrisons.size());
+    _worldPacket << uint32(FollowerSoftCaps.size());
+    for (FollowerSoftCapInfo const& followerSoftCapInfo : FollowerSoftCaps)
+        _worldPacket << followerSoftCapInfo;
+
     for (GarrisonInfo const& garrison : Garrisons)
         _worldPacket << garrison;
 

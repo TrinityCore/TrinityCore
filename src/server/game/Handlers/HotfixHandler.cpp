@@ -60,30 +60,22 @@ void WorldSession::SendHotfixList(int32 version)
 
 void WorldSession::HandleHotfixQuery(WorldPackets::Hotfix::HotfixQuery& hotfixQuery)
 {
-    std::map<int32, HotfixData> const& hotfixes = sDB2Manager.GetHotfixData();
+    std::map<uint64, int32> const& hotfixes = sDB2Manager.GetHotfixData();
     WorldPackets::Hotfix::HotfixQueryResponse hotfixQueryResponse;
     hotfixQueryResponse.Hotfixes.reserve(hotfixQuery.Hotfixes.size());
-    for (int32 hotfixId : hotfixQuery.Hotfixes)
+    for (uint64 hotfixId : hotfixQuery.Hotfixes)
     {
-        if (HotfixData const* hotfix = Trinity::Containers::MapGetValuePtr(hotfixes, hotfixId))
+        if (int32 const* hotfix = Trinity::Containers::MapGetValuePtr(hotfixes, hotfixId))
         {
+            DB2StorageBase const* storage = sDB2Manager.GetStorage(PAIR64_HIPART(hotfixId));
+
             WorldPackets::Hotfix::HotfixQueryResponse::HotfixData hotfixData;
-            hotfixData.ID = hotfix->Id;
-
-            for (HotfixRecord const& hotfixRecord : hotfix->Records)
+            hotfixData.ID = hotfixId;
+            hotfixData.RecordID = *hotfix;
+            if (storage->HasRecord(hotfixData.RecordID))
             {
-                DB2StorageBase const* storage = sDB2Manager.GetStorage(hotfixRecord.TableHash);
-
-                WorldPackets::Hotfix::HotfixQueryResponse::HotfixRecord record;
-                record.TableHash = hotfixRecord.TableHash;
-                record.RecordID = hotfixRecord.RecordId;
-                if (storage->HasRecord(hotfixRecord.RecordId))
-                {
-                    record.HotfixData = boost::in_place();
-                    storage->WriteRecord(hotfixRecord.RecordId, GetSessionDbcLocale(), *record.HotfixData);
-                }
-
-                hotfixData.Records.emplace_back(std::move(record));
+                hotfixData.Data = boost::in_place();
+                storage->WriteRecord(hotfixData.RecordID, GetSessionDbcLocale(), *hotfixData.Data);
             }
 
             hotfixQueryResponse.Hotfixes.emplace_back(std::move(hotfixData));
