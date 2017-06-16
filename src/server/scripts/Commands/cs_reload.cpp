@@ -102,6 +102,7 @@ public:
             { "item_enchantment_template",     rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_ENCHANTMENT_TEMPLATE,        true,  &HandleReloadItemEnchantementsCommand,          "" },
             { "item_loot_template",            rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_LOOT_TEMPLATE,               true,  &HandleReloadLootTemplatesItemCommand,          "" },
             { "item_set_names",                rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_SET_NAMES,                   true,  &HandleReloadItemSetNamesCommand,               "" },
+            { "lfg_dungeon_template",          rbac::RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_TEMPLATE,             true,  &HandleReloadLfgDungeonTemplatesCommand,        "" },
             { "lfg_dungeon_rewards",           rbac::RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_REWARDS,              true,  &HandleReloadLfgRewardsCommand,                 "" },
             { "achievement_reward_locale",     rbac::RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_REWARD_LOCALE,        true,  &HandleReloadLocalesAchievementRewardCommand,   "" },
             { "creature_template_locale",      rbac::RBAC_PERM_COMMAND_RELOAD_CRETURE_TEMPLATE_LOCALE,          true,  &HandleReloadLocalesCreatureCommand,            "" },
@@ -994,6 +995,14 @@ public:
         TC_LOG_INFO("misc", "Re-Loading Achievement Reward Data Locale...");
         sAchievementMgr->LoadRewardLocales();
         handler->SendGlobalGMSysMessage("DB table `achievement_reward_locale` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadLfgDungeonTemplatesCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        TC_LOG_INFO("misc", "Re-Loading lfg dungeon templates...");
+        sLFGMgr->LoadLFGDungeons(true);
+        handler->SendGlobalGMSysMessage("DB table `lfg_dungeon_template` reloaded.");
         return true;
     }
 

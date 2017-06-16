@@ -770,6 +770,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GROUP_MAINTANK                         = 863,
     RBAC_PERM_COMMAND_GROUP_MAINASSIST                       = 864,
     RBAC_PERM_COMMAND_NPC_SHOWLOOT                           = 865,
+    RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_TEMPLATE            = 866,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
