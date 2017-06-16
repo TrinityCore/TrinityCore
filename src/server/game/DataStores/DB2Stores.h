@@ -223,20 +223,6 @@ TC_GAME_API extern TaxiMask                                         sAllianceTax
 TC_GAME_API extern TaxiPathSetBySource                              sTaxiPathSetBySource;
 TC_GAME_API extern TaxiPathNodesByPath                              sTaxiPathNodesByPath;
 
-struct HotfixRecord
-{
-    HotfixRecord(uint32 tableHash, int32 recordId) : TableHash(tableHash), RecordId(recordId) { }
-
-    uint32 TableHash;
-    int32 RecordId;
-};
-
-struct HotfixData
-{
-    int32 Id;
-    std::vector<HotfixRecord> Records;
-};
-
 #define DEFINE_DB2_SET_COMPARATOR(structure) \
     struct structure ## Comparator \
     { \
@@ -260,7 +246,7 @@ public:
     DB2StorageBase const* GetStorage(uint32 type) const;
 
     void LoadHotfixData();
-    std::map<int32, HotfixData> const& GetHotfixData() const;
+    std::map<uint64, int32> const& GetHotfixData() const;
 
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
     std::vector<ArtifactPowerEntry const*> GetArtifactPowers(uint8 artifactId) const;
