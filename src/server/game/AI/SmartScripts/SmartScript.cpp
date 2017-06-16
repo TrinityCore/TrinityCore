@@ -81,7 +81,7 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
         if (eventType == SMART_EVENT_LINK)//special handling
             continue;
 
-        if (eventType == e /*&& (!i->event.event_phase_mask || IsInPhase(i->event.event_phase_mask)) && !(i->event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE && i->runOnce)*/)
+        if (eventType == e)
             if (sConditionMgr->IsObjectMeetingSmartEventConditions(i->entryOrGuid, i->event_id, i->source_type, unit, GetBaseObject()))
                 ProcessEvent(*i, unit, var0, var1, bvar, spell, gob);
     }
@@ -2907,6 +2907,14 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessAction(e, unit, var0, var1);
             break;
         }
+        case SMART_EVENT_EVENT_PHASE_CHANGE:
+        {
+            if (!IsInPhase(e.event.eventPhaseChange.phasemask))
+                return;
+
+            ProcessAction(e, GetLastInvoker());
+            break;
+        }
         case SMART_EVENT_GAME_EVENT_START:
         case SMART_EVENT_GAME_EVENT_END:
         {
@@ -3426,4 +3434,35 @@ Unit* SmartScript::GetLastInvoker(Unit* invoker) const
         return ObjectAccessor::GetUnit(*invoker, mLastInvoker);
 
     return nullptr;
+}
+
+void SmartScript::IncPhase(uint32 p)
+{
+    // protect phase from overflowing
+    SetPhase(std::min<uint32>(SMART_EVENT_PHASE_12, mEventPhase + p));
+}
+
+void SmartScript::DecPhase(uint32 p)
+{
+    if (p >= mEventPhase)
+        SetPhase(0);
+    else
+        SetPhase(mEventPhase - p);
+}
+
+void SmartScript::SetPhase(uint32 p)
+{
+    uint32 oldPhase = mEventPhase;
+
+    mEventPhase = p;
+
+    if (oldPhase != mEventPhase)
+        ProcessEventsFor(SMART_EVENT_EVENT_PHASE_CHANGE);
+}
+
+bool SmartScript::IsInPhase(uint32 p) const
+{
+    if (mEventPhase == 0)
+        return false;
+    return ((1 << (mEventPhase - 1)) & p) != 0;
 }
