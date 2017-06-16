@@ -82,7 +82,7 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
         owner->SetWalk(true);
         owner->LoadCreaturesAddon();
         owner->AI()->JustReachedHome();
-        if (owner->isRegeneratingHealth() && (owner->IsDungeonBoss() || owner->isWorldBoss()))
+        if (owner->isRegeneratingHealth())
         {
             owner->SetFullHealth();
             owner->SetPower(POWER_MANA, owner->GetMaxPower(POWER_MANA));
