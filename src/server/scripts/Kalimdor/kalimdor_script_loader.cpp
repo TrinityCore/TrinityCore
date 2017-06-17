@@ -83,6 +83,13 @@ void AddSC_npc_anubisath_sentinel();
 void AddSC_instance_temple_of_ahnqiraj();
 void AddSC_wailing_caverns();                //Wailing caverns
 void AddSC_instance_wailing_caverns();
+void AddSC_boss_lady_anacondra();
+void AddSC_boss_kresh();
+void AddSC_boss_lord_pythas();
+void AddSC_boss_lord_cobrahn();
+void AddSC_boss_lord_serpentis();
+void AddSC_boss_verdan_the_everliving();
+void AddSC_boss_skum();
 void AddSC_boss_zum_rah();                   //Zul'Farrak
 void AddSC_zulfarrak();
 void AddSC_instance_zulfarrak();
@@ -185,6 +192,13 @@ void AddKalimdorScripts()
     AddSC_instance_temple_of_ahnqiraj();
     AddSC_wailing_caverns();                //Wailing caverns
     AddSC_instance_wailing_caverns();
+    AddSC_boss_lady_anacondra();
+    AddSC_boss_kresh();
+    AddSC_boss_lord_pythas();
+    AddSC_boss_lord_cobrahn();
+    AddSC_boss_lord_serpentis();
+    AddSC_boss_verdan_the_everliving();
+    AddSC_boss_skum();
     AddSC_boss_zum_rah();                   //Zul'Farrak
     AddSC_zulfarrak();
     AddSC_instance_zulfarrak();

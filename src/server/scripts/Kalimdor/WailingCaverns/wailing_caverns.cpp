@@ -65,24 +65,13 @@ enum Enums
     SPELL_MARK_OF_THE_WILD_RANK_2 = 5232,
     SPELL_SERPENTINE_CLEANSING    = 6270,
     SPELL_NARALEXS_AWAKENING      = 6271,
-    SPELL_FLIGHT_FORM             = 33943,
-
-    NPC_DEVIATE_RAVAGER           = 3636,
-    NPC_DEVIATE_VIPER             = 5755,
-    NPC_DEVIATE_MOCCASIN          = 5762,
-    NPC_NIGHTMARE_ECTOPLASM       = 5763,
-    NPC_MUTANUS_THE_DEVOURER      = 3654,
+    SPELL_FLIGHT_FORM             = 33943
 };
 
 class npc_disciple_of_naralex : public CreatureScript
 {
 public:
     npc_disciple_of_naralex() : CreatureScript("npc_disciple_of_naralex") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetInstanceAI<npc_disciple_of_naralexAI>(creature);
-    }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
@@ -92,7 +81,7 @@ public:
         {
             CloseGossipMenuFor(player);
             if (instance)
-                instance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_NARALEX_EVENT, IN_PROGRESS);
 
             creature->AI()->Talk(SAY_MAKE_PREPARATIONS);
 
@@ -108,21 +97,19 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature) override
     {
-        InstanceScript* instance = creature->GetInstanceScript();
-
-        if (instance)
+        if(InstanceScript* instance = creature->GetInstanceScript())
         {
             creature->CastSpell(player, SPELL_MARK_OF_THE_WILD_RANK_2, true);
-            if ((instance->GetData(TYPE_LORD_COBRAHN) == DONE) && (instance->GetData(TYPE_LORD_PYTHAS) == DONE) &&
-                (instance->GetData(TYPE_LADY_ANACONDRA) == DONE) && (instance->GetData(TYPE_LORD_SERPENTIS) == DONE))
+            if ((instance->GetBossState(DATA_LORD_COBRAHN) == DONE) && (instance->GetBossState(DATA_LORD_PYTHAS) == DONE) &&
+                (instance->GetBossState(DATA_LADY_ANACONDRA) == DONE) && (instance->GetBossState(DATA_LORD_SERPENTIS) == DONE))
             {
                 AddGossipItemFor(player, GOSSIP_OPTION_LET_EVENT_BEGIN, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, NPC_TEXT_FANGLORDS_ARE_DEAD, creature->GetGUID());
 
-                if (!instance->GetData(TYPE_NARALEX_YELLED))
+                if (!instance->GetData(DATA_NARALEX_YELLED))
                 {
                     creature->AI()->Talk(SAY_AT_LAST);
-                    instance->SetData(TYPE_NARALEX_YELLED, 1);
+                    instance->SetData(DATA_NARALEX_YELLED, 1);
                 }
             }
             else
@@ -145,10 +132,7 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
-        uint32 eventTimer;
-        uint32 currentEvent;
-        uint32 eventProgress;
-        InstanceScript* instance;
+
 
         void WaypointReached(uint32 waypointId) override
         {
@@ -156,25 +140,25 @@ public:
             {
                 case 4:
                     eventProgress = 1;
-                    currentEvent = TYPE_NARALEX_PART1;
-                    instance->SetData(TYPE_NARALEX_PART1, IN_PROGRESS);
+                    currentEvent = DATA_NARALEX_PART1;
+                    instance->SetData(DATA_NARALEX_PART1, IN_PROGRESS);
                     break;
                 case 5:
                     Talk(SAY_MUST_CONTINUE);
-                    instance->SetData(TYPE_NARALEX_PART1, DONE);
+                    instance->SetData(DATA_NARALEX_PART1, DONE);
                     break;
                 case 11:
                     eventProgress = 1;
-                    currentEvent = TYPE_NARALEX_PART2;
-                    instance->SetData(TYPE_NARALEX_PART2, IN_PROGRESS);
+                    currentEvent = DATA_NARALEX_PART2;
+                    instance->SetData(DATA_NARALEX_PART2, IN_PROGRESS);
                     break;
                 case 19:
                     Talk(SAY_BEYOND_THIS_CORRIDOR);
                     break;
                 case 24:
                     eventProgress = 1;
-                    currentEvent = TYPE_NARALEX_PART3;
-                    instance->SetData(TYPE_NARALEX_PART3, IN_PROGRESS);
+                    currentEvent = DATA_NARALEX_PART3;
+                    instance->SetData(DATA_NARALEX_PART3, IN_PROGRESS);
                     break;
             }
         }
@@ -191,10 +175,10 @@ public:
 
         void JustDied(Unit* /*slayer*/) override
         {
-            instance->SetData(TYPE_NARALEX_EVENT, FAIL);
-            instance->SetData(TYPE_NARALEX_PART1, FAIL);
-            instance->SetData(TYPE_NARALEX_PART2, FAIL);
-            instance->SetData(TYPE_NARALEX_PART3, FAIL);
+            instance->SetData(DATA_NARALEX_EVENT, FAIL);
+            instance->SetData(DATA_NARALEX_PART1, FAIL);
+            instance->SetData(DATA_NARALEX_PART2, FAIL);
+            instance->SetData(DATA_NARALEX_PART3, FAIL);
         }
 
         void JustSummoned(Creature* summoned) override
@@ -204,7 +188,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (currentEvent != TYPE_NARALEX_PART3)
+            if (currentEvent != DATA_NARALEX_PART3)
                 npc_escortAI::UpdateAI(diff);
 
             if (eventTimer <= diff)
@@ -214,7 +198,7 @@ public:
                 {
                     switch (currentEvent)
                     {
-                        case TYPE_NARALEX_PART1:
+                        case DATA_NARALEX_PART1:
                             if (eventProgress == 1)
                             {
                                 ++eventProgress;
@@ -223,7 +207,7 @@ public:
                                 me->SummonCreature(NPC_DEVIATE_RAVAGER, -72.9506f, 216.645f, -93.6756f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
                             }
                         break;
-                        case TYPE_NARALEX_PART2:
+                        case DATA_NARALEX_PART2:
                             if (eventProgress == 1)
                             {
                                 ++eventProgress;
@@ -240,12 +224,12 @@ public:
                             {
                                 //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(true);
                                 Talk(SAY_CAVERNS_PURIFIED);
-                                instance->SetData(TYPE_NARALEX_PART2, DONE);
+                                instance->SetData(DATA_NARALEX_PART2, DONE);
                                 if (me->HasAura(SPELL_SERPENTINE_CLEANSING))
                                     me->RemoveAura(SPELL_SERPENTINE_CLEANSING);
                             }
                         break;
-                        case TYPE_NARALEX_PART3:
+                        case DATA_NARALEX_PART3:
                             if (eventProgress == 1)
                             {
                                 ++eventProgress;
@@ -297,10 +281,10 @@ public:
                                     naralex->AI()->Talk(EMOTE_HORRENDOUS_VISION);
                                 me->SummonCreature(NPC_MUTANUS_THE_DEVOURER, 150.872f, 262.905f, -103.503f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                                 Talk(SAY_MUTANUS_THE_DEVOURER);
-                                instance->SetData(TYPE_MUTANUS_THE_DEVOURER, IN_PROGRESS);
+                                instance->SetData(DATA_MUTANUS_THE_DEVOURER, IN_PROGRESS);
                             }
                             else
-                            if (eventProgress == 6 && instance->GetData(TYPE_MUTANUS_THE_DEVOURER) == DONE)
+                            if (eventProgress == 6 && instance->GetData(DATA_MUTANUS_THE_DEVOURER) == DONE)
                             {
                                 ++eventProgress;
                                 eventTimer = 3000;
@@ -362,14 +346,25 @@ public:
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetGuidData(DATA_NARALEX)))
                                     naralex->SetVisible(false);
                                 me->SetVisible(false);
-                                instance->SetData(TYPE_NARALEX_PART3, DONE);
+                                instance->SetData(DATA_NARALEX_PART3, DONE);
                             }
                         break;
                     }
                 }
             } else eventTimer -= diff;
         }
+
+        private:
+            uint32 eventTimer;
+            uint32 currentEvent;
+            uint32 eventProgress;
+            InstanceScript* instance;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetWailingCavernsAI<npc_disciple_of_naralexAI>(creature);
+    }
 
 };
 
