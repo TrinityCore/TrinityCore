@@ -1137,7 +1137,7 @@ class spell_warl_soul_swap : public SpellScriptLoader
 class spell_warl_soul_swap_override : public SpellScriptLoader
 {
     public:
-        static char constexpr ScriptName[] = "spell_warl_soul_swap_override";
+        static char constexpr const ScriptName[] = "spell_warl_soul_swap_override";
 
         spell_warl_soul_swap_override() : SpellScriptLoader(ScriptName) { }
 

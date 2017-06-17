@@ -328,7 +328,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
 class spell_rog_killing_spree : public SpellScriptLoader
 {
     public:
-        static char constexpr ScriptName[] = "spell_rog_killing_spree";
+        static char constexpr const ScriptName[] = "spell_rog_killing_spree";
 
         spell_rog_killing_spree() : SpellScriptLoader(ScriptName) { }
 
