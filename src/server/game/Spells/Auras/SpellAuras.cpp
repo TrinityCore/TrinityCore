@@ -364,7 +364,7 @@ AuraScript* Aura::GetScriptByName(std::string const& scriptName) const
     for (auto itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
         if ((*itr)->_GetScriptName()->compare(scriptName) == 0)
             return *itr;
-    return NULL;
+    return nullptr;
 }
 
 SpellEffectInfo const* Aura::GetSpellEffectInfo(uint32 index) const

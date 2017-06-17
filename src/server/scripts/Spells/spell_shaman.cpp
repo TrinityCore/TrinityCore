@@ -294,7 +294,9 @@ class spell_sha_earth_shield : public SpellScriptLoader
 class spell_sha_earthen_rage_passive : public SpellScriptLoader
 {
 public:
-    spell_sha_earthen_rage_passive() : SpellScriptLoader("spell_sha_earthen_rage_passive") { }
+    static char constexpr ScriptName[] = "spell_sha_earthen_rage_passive";
+
+    spell_sha_earthen_rage_passive() : SpellScriptLoader(ScriptName) { }
 
     class spell_sha_earthen_rage_passive_AuraScript : public AuraScript
     {
@@ -353,7 +355,7 @@ public:
 
             PreventDefaultAction();
             if (Aura const* aura = GetCaster()->GetAura(SPELL_SHAMAN_EARTHEN_RAGE_PASSIVE))
-                if (earthen_rage_script_t const* earthen_rage_script = dynamic_cast<earthen_rage_script_t const*>(aura->GetScriptByName("spell_sha_earthen_rage_passive")))
+                if (earthen_rage_script_t const* earthen_rage_script = aura->GetScript<earthen_rage_script_t>(spell_sha_earthen_rage_passive::ScriptName))
                     if (Unit* procTarget = ObjectAccessor::GetUnit(*GetCaster(), earthen_rage_script->GetProcTargetGuid()))
                         GetTarget()->CastSpell(procTarget, SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE, true);
         }

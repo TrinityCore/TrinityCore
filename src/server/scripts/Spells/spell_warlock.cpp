@@ -1133,13 +1133,13 @@ class spell_warl_soul_swap : public SpellScriptLoader
         }
 };
 
-#define SoulSwapOverrideScriptName "spell_warl_soul_swap_override"
-
 // 86211 - Soul Swap Override - Also acts as a dot container
 class spell_warl_soul_swap_override : public SpellScriptLoader
 {
     public:
-        spell_warl_soul_swap_override() : SpellScriptLoader(SoulSwapOverrideScriptName) { }
+        static char constexpr ScriptName[] = "spell_warl_soul_swap_override";
+
+        spell_warl_soul_swap_override() : SpellScriptLoader(ScriptName) { }
 
         class spell_warl_soul_swap_override_AuraScript : public AuraScript
         {
@@ -1187,7 +1187,7 @@ class spell_warl_soul_swap_dot_marker : public SpellScriptLoader
                 Unit::AuraApplicationMap const& appliedAuras = swapVictim->GetAppliedAuras();
                 SoulSwapOverrideAuraScript* swapSpellScript = nullptr;
                 if (Aura* swapOverrideAura = warlock->GetAura(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
-                    swapSpellScript = dynamic_cast<SoulSwapOverrideAuraScript*>(swapOverrideAura->GetScriptByName(SoulSwapOverrideScriptName));
+                    swapSpellScript = swapOverrideAura->GetScript<SoulSwapOverrideAuraScript>(spell_warl_soul_swap_override::ScriptName);
 
                 if (!swapSpellScript)
                     return;
@@ -1237,7 +1237,7 @@ public:
             Unit* currentTarget = GetExplTargetUnit();
             Unit* swapTarget = nullptr;
             if (Aura const* swapOverride = GetCaster()->GetAura(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
-                if (SoulSwapOverrideAuraScript* swapScript = dynamic_cast<SoulSwapOverrideAuraScript*>(swapOverride->GetScriptByName(SoulSwapOverrideScriptName)))
+                if (SoulSwapOverrideAuraScript* swapScript = swapOverride->GetScript<SoulSwapOverrideAuraScript>(spell_warl_soul_swap_override::ScriptName))
                     swapTarget = swapScript->GetOriginalSwapSource();
 
             // Soul Swap Exhale can't be cast on the same target than Soul Swap
@@ -1256,7 +1256,7 @@ public:
             Unit* swapSource = nullptr;
             if (Aura const* swapOverride = GetCaster()->GetAura(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
             {
-                SoulSwapOverrideAuraScript* swapScript = dynamic_cast<SoulSwapOverrideAuraScript*>(swapOverride->GetScriptByName(SoulSwapOverrideScriptName));
+                SoulSwapOverrideAuraScript* swapScript = swapOverride->GetScript<SoulSwapOverrideAuraScript>(spell_warl_soul_swap_override::ScriptName);
                 if (!swapScript)
                     return;
                 dotList = swapScript->GetDotList();

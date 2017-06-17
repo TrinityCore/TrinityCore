@@ -32,10 +32,13 @@
 enum PriestSpells
 {
     SPELL_PRIEST_ABSOLUTION                         = 33167,
-    SPELL_PRIEST_ANGELIC_FEATHER_TRIGGER            = 121536,
-    SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
     SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER        = 158624,
+    SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
+    SPELL_PRIEST_ANGELIC_FEATHER_TRIGGER            = 121536,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
+    SPELL_PRIEST_ATONEMENT                          = 81749,
+    SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
+    SPELL_PRIEST_ATONEMENT_TRIGGERED                = 194384,
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
@@ -68,15 +71,15 @@ enum PriestSpells
     SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
     SPELL_PRIEST_RENEWED_HOPE                       = 197469,
     SPELL_PRIEST_RENEWED_HOPE_EFFECT                = 197470,
-    SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
-    SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
+    SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
+    SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
+    SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_TWIN_DISCIPLINES_RANK_1            = 47586,
-    SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
@@ -162,6 +165,120 @@ class spell_pri_aq_3p_bonus : public SpellScriptLoader
         {
             return new spell_pri_aq_3p_bonus_AuraScript();
         }
+};
+
+// 81749 - Atonement
+class spell_pri_atonement : public SpellScriptLoader
+{
+public:
+    static char constexpr ScriptName[] = "spell_pri_atonement";
+
+    spell_pri_atonement() : SpellScriptLoader(ScriptName) { }
+
+    class spell_pri_atonement_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_atonement_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL });
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            return eventInfo.GetDamageInfo() != nullptr;
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+            int32 heal = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
+            _appliedAtonements.erase(std::remove_if(_appliedAtonements.begin(), _appliedAtonements.end(), [this, heal](ObjectGuid const& targetGuid)
+            {
+                if (Unit* target = ObjectAccessor::GetUnit(*GetTarget(), targetGuid))
+                {
+                    if (target->GetExactDist(GetTarget()) < GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue())
+                        GetTarget()->CastCustomSpell(SPELL_PRIEST_ATONEMENT_HEAL, SPELLVALUE_BASE_POINT0, heal, target, true);
+
+                    return false;
+                }
+                return true;
+            }), _appliedAtonements.end());
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_pri_atonement_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_pri_atonement_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+
+        std::vector<ObjectGuid> _appliedAtonements;
+
+    public:
+        void AddAtonementTarget(ObjectGuid const& target)
+        {
+            _appliedAtonements.push_back(target);
+        }
+
+        void RemoveAtonementTarget(ObjectGuid const& target)
+        {
+            _appliedAtonements.erase(std::remove(_appliedAtonements.begin(), _appliedAtonements.end(), target), _appliedAtonements.end());
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_atonement_AuraScript();
+    }
+};
+
+// 194384 - Atonement
+class spell_pri_atonement_triggered : public SpellScriptLoader
+{
+public:
+    spell_pri_atonement_triggered() : SpellScriptLoader("spell_pri_atonement_triggered") { }
+
+    class spell_pri_atonement_triggered_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_atonement_triggered_AuraScript);
+
+        using AtonementScript = spell_pri_atonement::spell_pri_atonement_AuraScript;
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT });
+        }
+
+        void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            RegisterHelper<&AtonementScript::AddAtonementTarget>();
+        }
+
+        void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            RegisterHelper<&AtonementScript::RemoveAtonementTarget>();
+        }
+
+        template<void(AtonementScript::*func)(ObjectGuid const&)>
+        void RegisterHelper()
+        {
+            if (Unit* caster = GetCaster())
+                if (Aura* atonement = caster->GetAura(SPELL_PRIEST_ATONEMENT))
+                    if (AtonementScript* script = atonement->GetScript<AtonementScript>(spell_pri_atonement::ScriptName))
+                        (script->*func)(GetTarget()->GetGUID());
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_pri_atonement_triggered_AuraScript::HandleOnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_pri_atonement_triggered_AuraScript::HandleOnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_atonement_triggered_AuraScript();
+    }
 };
 
 // 64129 - Body and Soul
@@ -976,7 +1093,7 @@ public:
             }
         }
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void HandleOnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             Unit* target = GetTarget();
@@ -991,6 +1108,8 @@ public:
                 caster->CastSpell(target, SPELL_PRIEST_RENEWED_HOPE_EFFECT, true);
             if (caster->HasAura(SPELL_PRIEST_VOID_SHIELD) && caster == target)
                 caster->CastSpell(target, SPELL_PRIEST_VOID_SHIELD_EFFECT, true);
+            if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
+                caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_TRIGGERED, true);
         }
 
         void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1004,8 +1123,8 @@ public:
         void Register() override
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield_AuraScript::HandleOnRemove, EFFECT_0, AuraType::SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::HandleOnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield_AuraScript::HandleOnRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -1434,6 +1553,8 @@ void AddSC_priest_spell_scripts()
 {
     new spell_pri_aq_3p_bonus();
     new spell_pri_body_and_soul();
+    new spell_pri_atonement();
+    new spell_pri_atonement_triggered();
     new spell_pri_circle_of_healing();
     new spell_pri_dispel_magic();
     new spell_pri_divine_aegis();
