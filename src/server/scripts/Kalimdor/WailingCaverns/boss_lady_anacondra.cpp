@@ -87,7 +87,7 @@ public:
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-            
+
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
@@ -113,7 +113,7 @@ public:
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-            }            
+            }
 
             DoMeleeAttackIfReady();
         }

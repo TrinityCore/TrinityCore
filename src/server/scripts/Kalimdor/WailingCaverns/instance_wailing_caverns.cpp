@@ -72,12 +72,12 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 data) override
+        void SetData(uint32 type, uint32 /*data*/) override
         {
             switch (type)
             {
                 case DATA_NARALEX_YELLED:
-                    yelled = true;      
+                    yelled = true;
                     break;
             }
         }
@@ -86,7 +86,7 @@ public:
         {
             switch (type)
             {
-                case DATA_NARALEX_YELLED:       
+                case DATA_NARALEX_YELLED:
                     return yelled;
             }
             return 0;
