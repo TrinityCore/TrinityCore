@@ -1248,16 +1248,6 @@ BirthdayTime = 1222964635
 CacheDataQueries = 1
 
 #
-#   Anticheat.FallDelayed
-#        Description: Decides what happens with players who show invalid fall behavior.
-#                     Can produce false positives in high latency situations.
-#                     2 - (Force disconnect from server)
-#        Default:     1 - (Kill player using fall damage)
-#                     0 - (Only log to console)
-
-Anticheat.FallDelayed = 1
-
-#
 ###################################################################################################
 
 ###################################################################################################

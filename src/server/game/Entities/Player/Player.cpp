@@ -501,7 +501,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_runes = nullptr;
 
-    m_lastFallTimeClient = 0;
+    m_lastFallTime = 0;
     m_lastFallZ = 0;
 
     m_grantableLevels = 0;
@@ -1512,6 +1512,7 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
+
 }
 
 void Player::setDeathState(DeathState s)
@@ -24851,25 +24852,7 @@ InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 
 
 void Player::SetFallInformation(uint32 time, float z)
 {
-    if (time < m_lastFallTimeClient)
-        m_fallStartTimeServer = GameTime::GetGameTimeMS() - time;
-    else if (m_fallStartTimeServer && time < std::max<uint32>(GameTime::GetGameTimeMS() - m_fallStartTimeServer, 2500) - 2500)
-    {
-        TC_LOG_WARN("cheat", "Player %s found to be delaying their falling movement.", GetName().c_str());
-        switch (sWorld->getIntConfig(CONFIG_ANTICHEAT_FALL_PUNISHMENT))
-        {
-            case 1: // kill
-                EnvironmentalDamage(DAMAGE_FALL, GetMaxHealth());
-                if (!isDead())
-                    Kill(this, false);
-                break;
-            case 2: // disconnect
-                GetSession()->KickPlayer();
-                break;
-        }
-    }
-
-    m_lastFallTimeClient = time;
+    m_lastFallTime = time;
     m_lastFallZ = z;
 }
 
@@ -24877,22 +24860,6 @@ void Player::HandleFall(MovementInfo const& movementInfo)
 {
     // calculate total z distance of the fall
     float z_diff = m_lastFallZ - movementInfo.pos.GetPositionZ();
-    if (m_fallStartTimeServer && movementInfo.fallTime < std::max<uint32>(GameTime::GetGameTimeMS() - m_fallStartTimeServer, 2500) - 2500)
-    {
-        TC_LOG_WARN("cheat", "Player %s found to be delaying their falling movement.", GetName().c_str());
-        switch (sWorld->getIntConfig(CONFIG_ANTICHEAT_FALL_PUNISHMENT))
-        {
-            case 1: // kill
-                z_diff = MAX_HEIGHT;
-                break;
-            case 2: // disconnect
-                GetSession()->KickPlayer();
-                break;
-            default:
-                break;
-        }
-    }
-    m_fallStartTimeServer = 0;
     //TC_LOG_DEBUG("zDiff = %f", z_diff);
 
     //Players with low fall distance, Feather Fall or physical immunity (charges used) are ignored
@@ -25222,7 +25189,7 @@ void Player::AddKnownCurrency(uint32 itemId)
 
 void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
 {
-    if (m_lastFallTimeClient >= minfo.fallTime || m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == MSG_MOVE_FALL_LAND)
+    if (m_lastFallTime >= minfo.fallTime || m_lastFallZ <= minfo.pos.GetPositionZ() || opcode == MSG_MOVE_FALL_LAND)
         SetFallInformation(minfo.fallTime, minfo.pos.GetPositionZ());
 }
 
