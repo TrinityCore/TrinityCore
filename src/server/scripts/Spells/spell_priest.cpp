@@ -194,26 +194,27 @@ public:
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
         {
-            Player* player = GetCaster()->ToPlayer();
-
-            SpellInfo const* spellInfoAtonement = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_AURA);
-            
-            std::list<Unit*> playerGroupList;
-            player->GetPartyMembers(playerGroupList);
-
-            playerGroupList.remove_if([this, player, spellInfoAtonement](Unit* glUnit)
+            if (Player* player = GetCaster()->ToPlayer())
             {
-                return player->GetDistance(glUnit->GetPositionX(), glUnit->GetPositionY(), glUnit->GetPositionZ()) > spellInfoAtonement->GetEffect(EFFECT_1)->CalcValue();
-            });
+                SpellInfo const* spellInfoAtonement = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_AURA);
 
-            DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-            int32 heal = CalculatePct(damageInfo->GetDamage(), spellInfoAtonement->GetEffect(EFFECT_0)->CalcValue());
+                std::list<Unit*> playerGroupList;
+                player->GetPartyMembers(playerGroupList);
 
-            for (Unit* currentPlayer : playerGroupList)
-            {
-                //Check if target player have atonement triggered by me
-                if (Aura* aur = currentPlayer->GetAura(SPELL_PRIEST_ATONEMENT_AURA_TRIGGERED, player->GetGUID()))
-                    player->CastCustomSpell(currentPlayer, SPELL_PRIEST_ATONEMENT_HEAL, &heal, nullptr, nullptr, true);
+                playerGroupList.remove_if([this, player, spellInfoAtonement](Unit* glUnit)
+                {
+                    return player->GetDistance(glUnit->GetPositionX(), glUnit->GetPositionY(), glUnit->GetPositionZ()) > spellInfoAtonement->GetEffect(EFFECT_1)->CalcValue();
+                });
+
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                int32 heal = CalculatePct(damageInfo->GetDamage(), spellInfoAtonement->GetEffect(EFFECT_0)->CalcValue());
+
+                for (Unit* currentPlayer : playerGroupList)
+                {
+                    //Check if target player have atonement triggered by me
+                    if (Aura* aur = currentPlayer->GetAura(SPELL_PRIEST_ATONEMENT_AURA_TRIGGERED, player->GetGUID()))
+                        player->CastCustomSpell(currentPlayer, SPELL_PRIEST_ATONEMENT_HEAL, &heal, nullptr, nullptr, true);
+                }
             }
         }
 
