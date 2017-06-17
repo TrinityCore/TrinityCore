@@ -325,11 +325,12 @@ class spell_rog_deadly_poison : public SpellScriptLoader
 };
 
 // 51690 - Killing Spree
-#define KillingSpreeScriptName "spell_rog_killing_spree"
 class spell_rog_killing_spree : public SpellScriptLoader
 {
     public:
-        spell_rog_killing_spree() : SpellScriptLoader(KillingSpreeScriptName) { }
+        static char constexpr ScriptName[] = "spell_rog_killing_spree";
+
+        spell_rog_killing_spree() : SpellScriptLoader(ScriptName) { }
 
         class spell_rog_killing_spree_SpellScript : public SpellScript
         {
@@ -344,10 +345,8 @@ class spell_rog_killing_spree : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_KILLING_SPREE))
-                {
-                    if (spell_rog_killing_spree_AuraScript* script = dynamic_cast<spell_rog_killing_spree_AuraScript*>(aura->GetScriptByName(KillingSpreeScriptName)))
+                    if (spell_rog_killing_spree_AuraScript* script = aura->GetScript<spell_rog_killing_spree_AuraScript>(ScriptName))
                         script->AddTarget(GetHitUnit());
-                }
             }
 
             void Register() override
