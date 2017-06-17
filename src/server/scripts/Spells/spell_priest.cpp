@@ -36,6 +36,9 @@ enum PriestSpells
     SPELL_PRIEST_ANGELIC_FEATHER_AURA               = 121557,
     SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER        = 158624,
     SPELL_PRIEST_ARMOR_OF_FAITH                     = 28810,
+    SPELL_PRIEST_ATONEMENT_AURA                     = 81749,
+    SPELL_PRIEST_ATONEMENT_AURA_TRIGGERED           = 194384,
+    SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_DISPEL               = 64136,
@@ -162,6 +165,70 @@ class spell_pri_aq_3p_bonus : public SpellScriptLoader
         {
             return new spell_pri_aq_3p_bonus_AuraScript();
         }
+};
+
+// Last Update 7.2.0
+// Called by  Plea - 200829, Power Word: Shield - 17, Shadow Mend - 186263, Power Word: Radiance  - 194509
+// Atonement - 81749
+class spell_pri_atonement : public SpellScriptLoader
+{
+public:
+    spell_pri_atonement() : SpellScriptLoader("spell_pri_atonement") { }
+
+    class spell_pri_atonement_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pri_atonement_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ 
+                SPELL_PRIEST_ATONEMENT_AURA_TRIGGERED,
+                SPELL_PRIEST_ATONEMENT_HEAL
+            });
+        }
+
+        bool CheckProc(ProcEventInfo& eventInfo)
+        {
+            return GetCaster() && eventInfo.GetDamageInfo();
+        }
+
+        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        {
+            if (Player* player = GetCaster()->ToPlayer())
+            {
+                SpellInfo const* spellInfoAtonement = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ATONEMENT_AURA);
+
+                std::list<Unit*> playerGroupList;
+                player->GetPartyMembers(playerGroupList);
+
+                playerGroupList.remove_if([this, player, spellInfoAtonement](Unit* glUnit)
+                {
+                    return player->GetDistance(glUnit->GetPositionX(), glUnit->GetPositionY(), glUnit->GetPositionZ()) > spellInfoAtonement->GetEffect(EFFECT_1)->CalcValue();
+                });
+
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                int32 heal = CalculatePct(damageInfo->GetDamage(), spellInfoAtonement->GetEffect(EFFECT_0)->CalcValue());
+
+                for (Unit* currentPlayer : playerGroupList)
+                {
+                    //Check if target player have atonement triggered by me
+                    if (Aura* aur = currentPlayer->GetAura(SPELL_PRIEST_ATONEMENT_AURA_TRIGGERED, player->GetGUID()))
+                        player->CastCustomSpell(currentPlayer, SPELL_PRIEST_ATONEMENT_HEAL, &heal, nullptr, nullptr, true);
+                }
+            }
+        }
+
+        void Register() override
+        {
+            DoCheckProc += AuraCheckProcFn(spell_pri_atonement_AuraScript::CheckProc);
+            OnEffectProc += AuraEffectProcFn(spell_pri_atonement_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_pri_atonement_AuraScript();
+    }
 };
 
 // 64129 - Body and Soul
@@ -991,6 +1058,8 @@ public:
                 caster->CastSpell(target, SPELL_PRIEST_RENEWED_HOPE_EFFECT, true);
             if (caster->HasAura(SPELL_PRIEST_VOID_SHIELD) && caster == target)
                 caster->CastSpell(target, SPELL_PRIEST_VOID_SHIELD_EFFECT, true);
+            if (caster->HasAura(SPELL_PRIEST_ATONEMENT_AURA))
+                caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_AURA_TRIGGERED, true);
         }
 
         void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1004,7 +1073,7 @@ public:
         void Register() override
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-            OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+            OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             AfterEffectRemove += AuraEffectRemoveFn(spell_pri_power_word_shield_AuraScript::HandleOnRemove, EFFECT_0, AuraType::SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
         }
     };
@@ -1434,6 +1503,7 @@ void AddSC_priest_spell_scripts()
 {
     new spell_pri_aq_3p_bonus();
     new spell_pri_body_and_soul();
+    new spell_pri_atonement();
     new spell_pri_circle_of_healing();
     new spell_pri_dispel_magic();
     new spell_pri_divine_aegis();
