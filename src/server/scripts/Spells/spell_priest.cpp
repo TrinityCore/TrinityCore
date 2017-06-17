@@ -244,7 +244,7 @@ public:
 
         using AtonementScript = spell_pri_atonement::spell_pri_atonement_AuraScript;
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT });
         }
