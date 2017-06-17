@@ -26,11 +26,12 @@
 
 enum OutdoorPvPTypes
 {
-    OUTDOOR_PVP_HP,
+    OUTDOOR_PVP_HP =1,
     OUTDOOR_PVP_NA,
     OUTDOOR_PVP_TF,
     OUTDOOR_PVP_ZM,
     OUTDOOR_PVP_SI,
+
     MAX_OUTDOORPVP_TYPES
 };
 
