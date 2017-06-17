@@ -294,7 +294,7 @@ class spell_sha_earth_shield : public SpellScriptLoader
 class spell_sha_earthen_rage_passive : public SpellScriptLoader
 {
 public:
-    static char constexpr ScriptName[] = "spell_sha_earthen_rage_passive";
+    static char constexpr const ScriptName[] = "spell_sha_earthen_rage_passive";
 
     spell_sha_earthen_rage_passive() : SpellScriptLoader(ScriptName) { }
 
