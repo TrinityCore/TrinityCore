@@ -373,6 +373,6 @@ void MapManager::FreeInstanceId(uint32 instanceId)
     _nextInstanceId = std::min(instanceId, _nextInstanceId);
     _freeInstanceIds[instanceId] = true;
 #ifdef ELUNA
-    sEluna->_freeInstanceIds(instanceId);
+    sEluna->FreeInstanceId(instanceId);
 #endif
 }
