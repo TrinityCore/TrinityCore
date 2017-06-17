@@ -465,6 +465,7 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
     {
         init.SetFly();
         init.SetUncompressed();
+        init.SetSmooth();
     }
 
     Movement::PointsArray path;
@@ -474,7 +475,6 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, si
         return G3D::Vector3(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
     });
     init.MovebyPath(path);
-    init.SetSmooth();
     init.SetWalk(walk);
     init.Launch();
 
