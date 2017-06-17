@@ -3213,11 +3213,15 @@ namespace LuaPlayer
 #endif
 
     /**
-     * Advances all of the [Player]s skills to the maximum amount available
+     * Advances all of the [Player]s weapon skills to the maximum amount available
      */
     int AdvanceSkillsToMax(lua_State* /*L*/, Player* player)
     {
+#ifdef TRINITY
+        player->UpdateWeaponsSkillsToMaxSkillsForLevel();
+#else
         player->UpdateSkillsToMaxSkillsForLevel();
+#endif
         return 0;
     }
 

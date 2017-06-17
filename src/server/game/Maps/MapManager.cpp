@@ -372,7 +372,6 @@ void MapManager::FreeInstanceId(uint32 instanceId)
     // If freed instance id is lower than the next id available for new instances, use the freed one instead
     _nextInstanceId = std::min(instanceId, _nextInstanceId);
     _freeInstanceIds[instanceId] = true;
-
 #ifdef ELUNA
     sEluna->_freeInstanceIds(instanceId);
 #endif

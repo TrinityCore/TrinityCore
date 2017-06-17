@@ -208,15 +208,6 @@ bool Eluna::EnterEvadeMode(Creature* me)
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
 
-// Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
-bool Eluna::AttackedBy(Creature* me, Unit* attacker)
-{
-    START_HOOK_WITH_RETVAL(CREATURE_EVENT_ON_ATTACKED_AT, me, false);
-    Push(me);
-    Push(attacker);
-    return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
-}
-
 // Called when creature is spawned or respawned (for reseting variables)
 bool Eluna::JustRespawned(Creature* me)
 {

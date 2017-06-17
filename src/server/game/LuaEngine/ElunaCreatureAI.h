@@ -140,13 +140,6 @@ struct ElunaCreatureAI : ScriptedAI
     }
 #endif
 
-    // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
-    void AttackedBy(Unit* attacker) override
-    {
-        if (!sEluna->AttackedBy(me, attacker))
-            ScriptedAI::AttackedBy(attacker);
-    }
-
     // Called when creature is spawned or respawned (for reseting variables)
     void JustRespawned() override
     {

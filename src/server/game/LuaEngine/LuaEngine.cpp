@@ -14,6 +14,18 @@
 #include "ElunaCreatureAI.h"
 #include "ElunaInstanceAI.h"
 
+#if defined(TRINITY_PLATFORM) && defined(TRINITY_PLATFORM_WINDOWS)
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#define ELUNA_WINDOWS
+#endif
+#elif defined(PLATFORM) && defined(PLATFORM_WINDOWS)
+#if PLATFORM == PLATFORM_WINDOWS
+#define ELUNA_WINDOWS
+#endif
+#else
+#error Eluna could not determine platform
+#endif
+
 // Some dummy includes containing BOOST_VERSION:
 // ObjectAccessor.h Config.h Log.h
 #ifndef MANGOS
@@ -92,7 +104,7 @@ void Eluna::LoadScriptPaths()
     lua_extensions.clear();
 
     lua_folderpath = eConfigMgr->GetStringDefault("Eluna.ScriptPath", "lua_scripts");
-#if PLATFORM == PLATFORM_UNIX || PLATFORM == PLATFORM_APPLE
+#ifndef ELUNA_WINDOWS
     if (lua_folderpath[0] == '~')
         if (const char* home = getenv("HOME"))
             lua_folderpath.replace(0, 1, home);
@@ -382,15 +394,15 @@ void Eluna::GetScripts(std::string path)
             std::string fullpath = dir_iter->path().generic_string();
 
             // Check if file is hidden
-/*#if PLATFORM == PLATFORM_WINDOWS
+#ifdef ELUNA_WINDOWS
             DWORD dwAttrib = GetFileAttributes(fullpath.c_str());
             if (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_HIDDEN))
                 continue;
-#else*/
+#else
             std::string name = dir_iter->path().filename().generic_string().c_str();
             if (name[0] == '.')
                 continue;
-//#endif
+#endif
 
             // load subfolder
             if (boost::filesystem::is_directory(dir_iter->status()))
@@ -429,7 +441,7 @@ void Eluna::GetScripts(std::string path)
         std::string fullpath = path + "/" + directory->d_name;
 
         // Check if file is hidden
-#if PLATFORM == PLATFORM_WINDOWS
+#ifdef ELUNA_WINDOWS
         DWORD dwAttrib = GetFileAttributes(fullpath.c_str());
         if (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_HIDDEN))
             continue;

@@ -377,7 +377,6 @@ public:
     bool MovementInform(Creature* me, uint32 type, uint32 id);
     bool AttackStart(Creature* me, Unit* target);
     bool EnterEvadeMode(Creature* me);
-    bool AttackedBy(Creature* me, Unit* attacker);
     bool JustRespawned(Creature* me);
     bool JustReachedHome(Creature* me);
     bool ReceiveEmote(Creature* me, Player* player, uint32 emoteId);
