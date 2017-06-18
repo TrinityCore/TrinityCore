@@ -25479,7 +25479,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
 {
     // calculate total z distance of the fall
     float z_diff = m_lastFallZ - movementInfo.pos.GetPositionZ();
-    if (m_fallStartTimeServer && movementInfo.jump.fallTime < std::max<uint32>(GameTime::GetGameTimeMS() - m_fallStartTimeServer, 2500) - 2500)
+    if (m_fallStartTimeServer && movementInfo.fallTime < std::max<uint32>(GameTime::GetGameTimeMS() - m_fallStartTimeServer, 2500) - 2500)
     {
         TC_LOG_WARN("cheat", "Player %s found to be delaying their falling movement.", GetName().c_str());
         switch (sWorld->getIntConfig(CONFIG_ANTICHEAT_FALL_PUNISHMENT))
