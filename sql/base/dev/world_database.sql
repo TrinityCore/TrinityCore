@@ -1299,21 +1299,21 @@ DROP TABLE IF EXISTS `gossip_menu_option`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gossip_menu_option` (
-  `menu_id` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `id` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `option_icon` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `option_text` text,
+  `MenuID` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `OptionID` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `OptionIcon` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `OptionText` text,
   `OptionBroadcastTextID` mediumint(6) NOT NULL DEFAULT '0',
-  `option_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `npc_option_npcflag` int(10) unsigned NOT NULL DEFAULT '0',
-  `action_menu_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `action_poi_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `box_coded` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `box_money` int(10) unsigned NOT NULL DEFAULT '0',
-  `box_text` text,
+  `OptionType` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `OptionNpcFlag` int(10) unsigned NOT NULL DEFAULT '0',
+  `ActionMenuID` int(10) unsigned NOT NULL DEFAULT '0',
+  `ActionPoiID` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `BoxCoded` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `BoxMoney` int(10) unsigned NOT NULL DEFAULT '0',
+  `BoxText` text,
   `BoxBroadcastTextID` mediumint(6) NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`menu_id`,`id`)
+  PRIMARY KEY (`MenuID`,`OptionID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
