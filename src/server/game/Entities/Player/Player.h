@@ -1508,6 +1508,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetSelection(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() const { return m_comboPoints; }
+        uint8 GetComboPoints(ObjectGuid const& guid) const { return (guid && guid != m_comboTarget) ? 0 : m_comboPoints; }
+        uint8 GetComboPoints(Unit* target) const { return target ? GetComboPoints(target->GetGUID()) : GetComboPoints(); }
         ObjectGuid GetComboTarget() const { return m_comboTarget; }
 
         void AddComboPoints(Unit* target, int8 count, Spell* spell = nullptr);
