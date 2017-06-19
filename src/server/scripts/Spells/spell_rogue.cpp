@@ -423,6 +423,7 @@ class spell_rog_killing_spree : public SpellScriptLoader
             return new spell_rog_killing_spree_AuraScript();
         }
 };
+char constexpr const spell_rog_killing_spree::ScriptName[];
 
 // 31666 - Master of Subtlety
 class spell_rog_master_of_subtlety : public SpellScriptLoader

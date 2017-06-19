@@ -1164,6 +1164,7 @@ class spell_warl_soul_swap_override : public SpellScriptLoader
             return new spell_warl_soul_swap_override_AuraScript();
         }
 };
+char constexpr const spell_warl_soul_swap_override::ScriptName[];
 
 typedef spell_warl_soul_swap_override::spell_warl_soul_swap_override_AuraScript SoulSwapOverrideAuraScript;
 
