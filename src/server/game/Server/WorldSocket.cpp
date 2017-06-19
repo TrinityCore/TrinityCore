@@ -45,7 +45,7 @@ std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CON
 
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
-    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false)
+    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false), _sendBufferSize(4096)
 {
     _headerBuffer.Resize(2);
 }
@@ -99,7 +99,7 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
 bool WorldSocket::Update()
 {
     EncryptablePacket* queued;
-    MessageBuffer buffer;
+    MessageBuffer buffer(_sendBufferSize);
     while (_bufferQueue.Dequeue(queued))
     {
         if (_worldSession && queued->size() > 0x400 && !queued->IsCompressed())
@@ -112,7 +112,7 @@ bool WorldSocket::Update()
         if (buffer.GetRemainingSpace() < queued->size() + header.getHeaderLength())
         {
             QueuePacket(std::move(buffer));
-            buffer.Resize(4096);
+            buffer.Resize(_sendBufferSize);
         }
 
         if (buffer.GetRemainingSpace() >= queued->size() + header.getHeaderLength())
