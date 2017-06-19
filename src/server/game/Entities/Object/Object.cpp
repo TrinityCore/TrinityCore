@@ -2122,7 +2122,6 @@ Player* WorldObject::SelectNearestPlayer(float distance) const
 template <typename Container>
 void WorldObject::GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange /*= 250.0f*/) const
 {
-    CellCoord pair(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
     Trinity::AllGameObjectsWithEntryInRange check(this, entry, maxSearchRange);
     Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInRange> searcher(this, gameObjectContainer, check);
     Cell::VisitGridObjects(this, searcher, maxSearchRange);
