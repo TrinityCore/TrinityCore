@@ -252,8 +252,8 @@ void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder
     }
 
     float dist = GetRangeForChatType(msgType);
-    Trinity::PlayerDistWorker<CreatureTextLocalizer<Builder> > worker(source, dist, localizer);
-    source->VisitNearbyWorldObject(dist, worker);
+    Trinity::PlayerDistWorker<CreatureTextLocalizer<Builder>> worker(source, dist, localizer);
+    Cell::VisitWorldObjects(source, worker, dist);
 }
 
 #endif
