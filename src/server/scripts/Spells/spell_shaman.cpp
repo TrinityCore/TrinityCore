@@ -333,6 +333,7 @@ public:
         return new spell_sha_earthen_rage_passive_AuraScript();
     }
 };
+char constexpr const spell_sha_earthen_rage_passive::ScriptName[];
 
 // 170377 - Earthen Rage (Proc Aura)
 class spell_sha_earthen_rage_proc_aura : public SpellScriptLoader

@@ -232,6 +232,7 @@ public:
         return new spell_pri_atonement_AuraScript();
     }
 };
+char constexpr const spell_pri_atonement::ScriptName[];
 
 // 194384 - Atonement
 class spell_pri_atonement_triggered : public SpellScriptLoader
