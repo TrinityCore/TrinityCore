@@ -2235,6 +2235,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         return;
 
     SpellMissInfo missInfo = target->missCondition;
+    SpellMissInfo missInfo2 = SPELL_MISS_NONE;
 
     // Need init unitTarget by default unit (can changed in code on reflect)
     // Or on missInfo != SPELL_MISS_NONE unitTarget undefined (but need in trigger subsystem)
@@ -2273,10 +2274,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (spellHitTarget)
     {
         // if target is flagged for pvp also flag caster if a player
-        if (unit->IsPvP() && m_caster->GetTypeId() == TYPEID_PLAYER)
+        if (unit->IsPvP() && unit != m_caster && m_caster->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->HasAura(SPELL_AURA_BIND_SIGHT))
             enablePvP = true; // Decide on PvP flagging now, but act on it later.
 
-        SpellMissInfo missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
+        missInfo2 = DoSpellHitOnUnit(spellHitTarget, mask, target->scaleAura);
         if (missInfo2 != SPELL_MISS_NONE)
         {
             if (missInfo2 != SPELL_MISS_MISS)
@@ -2436,7 +2437,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     m_hitMask |= hitMask;
 
     // spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
-    if (missInfo != SPELL_MISS_EVADE && spellHitTarget && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
+    if (missInfo != SPELL_MISS_EVADE && missInfo2 != SPELL_MISS_EVADE && !m_spellInfo->HasAura(SPELL_AURA_BIND_SIGHT) && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
     {
         m_caster->CombatStart(unit, m_spellInfo->HasInitialAggro());
 
@@ -2532,12 +2533,13 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
             if (unit->HasUnitState(UNIT_STATE_ATTACK_PLAYER))
             {
                 m_caster->SetContestedPvP();
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                if (m_caster->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->HasAura(SPELL_AURA_BIND_SIGHT))
                     m_caster->ToPlayer()->UpdatePvP(true);
             }
             if (unit->IsInCombat() && m_spellInfo->HasInitialAggro())
             {
-                m_caster->SetInCombatState(unit->GetCombatTimer() > 0, unit);
+                if (Unit* hostile = unit->getAttackerForHelper())
+                    m_caster->CombatStart(hostile, true);
                 unit->getHostileRefManager().threatAssist(m_caster, 0.0f);
             }
         }
@@ -3283,6 +3285,12 @@ void Spell::_cast(bool skipCheck)
         if (modOwner->GetCommandStatus(CHEAT_COOLDOWN))
             m_caster->GetSpellHistory()->ResetCooldown(m_spellInfo->Id, true);
     }
+
+    // start combat at cast for delayed spells, only for explicit target
+    if (Unit* target = m_targets.GetUnitTarget())
+        if (m_caster->GetTypeId() == TYPEID_PLAYER || (m_caster->IsPet() && m_caster->IsControlledByPlayer()))
+            if (GetDelayMoment() > 0 && !m_caster->IsFriendlyTo(target) && !m_spellInfo->HasAura(SPELL_AURA_BIND_SIGHT) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
+                m_caster->CombatStartOnCast(target, m_spellInfo->HasInitialAggro(), GetDelayMoment() + 500); // increase this time so we dont leave and enter combat in a moment
 
     SetExecutedCurrently(false);
 
