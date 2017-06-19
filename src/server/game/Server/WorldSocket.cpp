@@ -45,7 +45,7 @@ std::string const WorldSocket::ClientConnectionInitialize("WORLD OF WARCRAFT CON
 
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
-    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _initialized(false), _sendBufferSize(4096)
+    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr),  _sendBufferSize(4096), _initialized(false)
 {
     _headerBuffer.Resize(2);
 }
