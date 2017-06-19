@@ -5618,7 +5618,7 @@ void Unit::_removeAttacker(Unit* pAttacker)
 Unit* Unit::getAttackerForHelper() const                 // If someone wants to help, who to give them
 {
     if (Unit* victim = GetVictim())
-        if (!IsControlledByPlayer() || IsInCombatWith(victim) || victim->IsInCombatWith(this))
+        if ((!IsPet() && !GetPlayerMovingMe()) || IsInCombatWith(victim) || victim->IsInCombatWith(this))
             return victim;
 
     if (!m_attackers.empty())
@@ -5724,6 +5724,14 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
         SetInCombatWith(victim);
         if (victim->GetTypeId() == TYPEID_PLAYER)
             victim->SetInCombatWith(this);
+
+        if (Unit* owner = victim->GetOwner())
+        {
+            AddThreat(owner, 0.0f);
+            SetInCombatWith(owner);
+            if (owner->GetTypeId() == TYPEID_PLAYER)
+                owner->SetInCombatWith(this);
+        }
 
         creature->SendAIReaction(AI_REACTION_HOSTILE);
         creature->CallAssistance();
