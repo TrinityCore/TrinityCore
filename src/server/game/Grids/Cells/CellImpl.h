@@ -60,6 +60,7 @@ inline CellArea Cell::CalculateCellArea(float x, float y, float radius)
     return CellArea(centerX, centerY);
 }
 
+template<class T, class CONTAINER>
 inline void Cell::Visit(CellCoord const& standing_cell, TypeContainerVisitor<T, CONTAINER>& visitor, Map& map, WorldObject const& obj, float radius) const
 {
     //we should increase search radius by object's radius, otherwise
