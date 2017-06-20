@@ -23,9 +23,12 @@ SDComment:
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "zulaman.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
+#include "zulaman.h"
 
 enum Says
 {
@@ -580,7 +583,7 @@ class npc_zuljin_vortex : public CreatureScript
 
             void EnterCombat(Unit* /*target*/) override { }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_ZAP_INFORM)
                     DoCast(caster, SPELL_ZAP_DAMAGE, true);

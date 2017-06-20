@@ -29,13 +29,14 @@ npc_thrall_warchief
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_shenthul

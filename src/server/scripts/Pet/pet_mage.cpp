@@ -21,14 +21,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "CellImpl.h"
 #include "CombatAI.h"
+#include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
 #include "Pet.h"
 #include "PetAI.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "ScriptedCreature.h"
 
 enum MageSpells
 {

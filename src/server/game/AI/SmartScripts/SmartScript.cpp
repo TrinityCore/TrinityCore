@@ -15,27 +15,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Cell.h"
+#include "SmartScript.h"
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
+#include "Creature.h"
 #include "CreatureTextMgr.h"
-#include "DatabaseEnv.h"
+#include "CreatureTextMgrImpl.h"
+#include "GameEventMgr.h"
+#include "GameObject.h"
 #include "GossipDef.h"
-#include "GridDefines.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceScript.h"
 #include "Language.h"
-#include "ObjectDefines.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "Random.h"
 #include "SmartAI.h"
-#include "SmartScript.h"
+#include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
-#include "GameEventMgr.h"
+#include <G3D/Quat.h>
 
 SmartScript::SmartScript()
 {
@@ -57,6 +61,97 @@ SmartScript::~SmartScript()
 {
 }
 
+bool SmartScript::IsSmart(Creature* c /*= nullptr*/)
+{
+    bool smart = true;
+    if (c && c->GetAIName() != "SmartAI")
+        smart = false;
+
+    if (!me || me->GetAIName() != "SmartAI")
+        smart = false;
+
+    if (!smart)
+        TC_LOG_ERROR("sql.sql", "SmartScript: Action target Creature (GUID: %u Entry: %u) is not using SmartAI, action called by Creature (GUID: %u Entry: %u) skipped to prevent crash.", c ? c->GetSpawnId() : 0, c ? c->GetEntry() : 0, me ? me->GetSpawnId() : 0, me ? me->GetEntry() : 0);
+
+    return smart;
+}
+
+bool SmartScript::IsSmartGO(GameObject* g /*= nullptr*/)
+{
+    bool smart = true;
+    if (g && g->GetAIName() != "SmartGameObjectAI")
+        smart = false;
+
+    if (!go || go->GetAIName() != "SmartGameObjectAI")
+        smart = false;
+    if (!smart)
+        TC_LOG_ERROR("sql.sql", "SmartScript: Action target GameObject (GUID: %u Entry: %u) is not using SmartGameObjectAI, action called by GameObject (GUID: %u Entry: %u) skipped to prevent crash.", g ? g->GetSpawnId() : 0, g ? g->GetEntry() : 0, go ? go->GetSpawnId() : 0, go ? go->GetEntry() : 0);
+
+    return smart;
+}
+
+void SmartScript::StoreTargetList(ObjectVector const& targets, uint32 id)
+{
+    // insert or replace
+    _storedTargets.erase(id);
+    _storedTargets.emplace(id, ObjectGuidVector(targets));
+}
+
+ObjectVector const* SmartScript::GetStoredTargetVector(uint32 id, WorldObject const& ref) const
+{
+    auto itr = _storedTargets.find(id);
+    if (itr != _storedTargets.end())
+        return itr->second.GetObjectVector(ref);
+    return nullptr;
+}
+
+void SmartScript::StoreCounter(uint32 id, uint32 value, uint32 reset)
+{
+    CounterMap::iterator itr = mCounterList.find(id);
+    if (itr != mCounterList.end())
+    {
+        if (reset == 0)
+            itr->second += value;
+        else
+            itr->second = value;
+    }
+    else
+        mCounterList.insert(std::make_pair(id, value));
+
+    ProcessEventsFor(SMART_EVENT_COUNTER_SET, nullptr, id);
+}
+
+uint32 SmartScript::GetCounterValue(uint32 id) const
+{
+    CounterMap::const_iterator itr = mCounterList.find(id);
+    if (itr != mCounterList.end())
+        return itr->second;
+    return 0;
+}
+
+GameObject* SmartScript::FindGameObjectNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
+{
+    auto bounds = searchObject->GetMap()->GetGameObjectBySpawnIdStore().equal_range(guid);
+    if (bounds.first == bounds.second)
+        return nullptr;
+
+    return bounds.first->second;
+}
+
+Creature* SmartScript::FindCreatureNear(WorldObject* searchObject, ObjectGuid::LowType guid) const
+{
+    auto bounds = searchObject->GetMap()->GetCreatureBySpawnIdStore().equal_range(guid);
+    if (bounds.first == bounds.second)
+        return nullptr;
+
+    auto creatureItr = std::find_if(bounds.first, bounds.second, [](Map::CreatureBySpawnIdContainer::value_type const& pair)
+    {
+        return pair.second->IsAlive();
+    });
+
+    return creatureItr != bounds.second ? creatureItr->second : bounds.first->second;
+}
+
 void SmartScript::OnReset()
 {
     ResetBaseObject();
@@ -73,7 +168,37 @@ void SmartScript::OnReset()
     mCounterList.clear();
 }
 
-void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
+void SmartScript::ResetBaseObject()
+{
+    WorldObject* lookupRoot = me;
+    if (!lookupRoot)
+        lookupRoot = go;
+
+    if (lookupRoot)
+    {
+        if (!meOrigGUID.IsEmpty())
+        {
+            if (Creature* m = ObjectAccessor::GetCreature(*lookupRoot, meOrigGUID))
+            {
+                me = m;
+                go = nullptr;
+            }
+        }
+
+        if (!goOrigGUID.IsEmpty())
+        {
+            if (GameObject* o = ObjectAccessor::GetGameObject(*lookupRoot, goOrigGUID))
+            {
+                me = nullptr;
+                go = o;
+            }
+        }
+    }
+    goOrigGUID.Clear();
+    meOrigGUID.Clear();
+}
+
+void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob)
 {
     for (SmartAIEventList::iterator i = mEvents.begin(); i != mEvents.end(); ++i)
     {
@@ -87,7 +212,7 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
     }
 }
 
-void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
+void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob)
 {
     // calc random
     if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance)
@@ -314,7 +439,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_RANDOM_EMOTE:
         {
             std::vector<uint32> emotes;
-            std::copy_if(e.action.randomEmote.emotes.begin(), e.action.randomEmote.emotes.end(),
+            std::copy_if(std::begin(e.action.randomEmote.emotes), std::end(e.action.randomEmote.emotes),
                 std::back_inserter(emotes), [](uint32 emote) { return emote != 0; });
 
             for (WorldObject* target : targets)
@@ -736,7 +861,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             std::vector<uint32> phases;
-            std::copy_if(e.action.randomPhase.phases.begin(), e.action.randomPhase.phases.end(),
+            std::copy_if(std::begin(e.action.randomPhase.phases), std::end(e.action.randomPhase.phases),
                 std::back_inserter(phases), [](uint32 phase) { return phase != 0; });
 
             uint32 phase = Trinity::Containers::SelectRandomContainerElement(phases);
@@ -1064,14 +1189,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : targets)
             {
                 Position pos = target->GetPositionWithOffset(Position(e.target.x, e.target.y, e.target.z, e.target.o));
-                G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
+                QuaternionData rot = QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
                 GetBaseObject()->SummonGameObject(e.action.summonGO.entry, pos, rot, e.action.summonGO.despawnTime);
             }
 
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(e.target.o, 0.f, 0.f);
+            QuaternionData rot = QuaternionData::fromEulerAnglesZYX(e.target.o, 0.f, 0.f);
             GetBaseObject()->SummonGameObject(e.action.summonGO.entry, Position(e.target.x, e.target.y, e.target.z, e.target.o), rot, e.action.summonGO.despawnTime);
             break;
         }
@@ -1350,7 +1475,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         std::copy(std::begin(eInfo->ItemEntry), std::end(eInfo->ItemEntry), std::begin(slot));
                     }
                     else
-                        std::copy(std::begin(e.action.equip.slots), std::end(e.action.equip.slots), std::begin(slot));
+                    {
+                        slot[0] = e.action.equip.slot1;
+                        slot[1] = e.action.equip.slot2;
+                        slot[2] = e.action.equip.slot3;
+                    }
 
                     for (uint32 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
                         if (!e.action.equip.mask || (e.action.equip.mask & (1 << i)))
@@ -1498,7 +1627,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             ObjectVector casters;
-            GetTargets(casters, CreateEvent(SMART_EVENT_UPDATE_IC, 0, 0, 0, 0, 0, SMART_ACTION_NONE, 0, 0, 0, 0, 0, 0, (SMARTAI_TARGETS)e.action.crossCast.targetType, e.action.crossCast.targetParam1, e.action.crossCast.targetParam2, e.action.crossCast.targetParam3, 0), unit);
+            GetTargets(casters, CreateSmartEvent(SMART_EVENT_UPDATE_IC, 0, 0, 0, 0, 0, SMART_ACTION_NONE, 0, 0, 0, 0, 0, 0, (SMARTAI_TARGETS)e.action.crossCast.targetType, e.action.crossCast.targetParam1, e.action.crossCast.targetParam2, e.action.crossCast.targetParam3, 0), unit);
 
             for (WorldObject* caster : casters)
             {
@@ -1533,7 +1662,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST:
         {
             std::vector<uint32> actionLists;
-            std::copy_if(e.action.randTimedActionList.actionLists.begin(), e.action.randTimedActionList.actionLists.end(),
+            std::copy_if(std::begin(e.action.randTimedActionList.actionLists), std::end(e.action.randTimedActionList.actionLists),
                 std::back_inserter(actionLists), [](uint32 actionList) { return actionList != 0; });
 
             uint32 id = Trinity::Containers::SelectRandomContainerElement(actionLists);
@@ -1738,9 +1867,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (e.action.sendGossipMenu.gossipMenuId)
                         player->PrepareGossipMenu(GetBaseObject(), e.action.sendGossipMenu.gossipMenuId, true);
                     else
-                        ClearGossipMenuFor(player);
+                        player->PlayerTalkClass->ClearMenus();
 
-                    SendGossipMenuFor(player, e.action.sendGossipMenu.gossipNpcTextId, GetBaseObject()->GetGUID());
+                    player->PlayerTalkClass->SendGossipMenu(e.action.sendGossipMenu.gossipNpcTextId, GetBaseObject()->GetGUID());
                 }
             }
             break;
@@ -1861,7 +1990,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_START_CLOSEST_WAYPOINT:
         {
             std::vector<uint32> waypoints;
-            std::copy_if(e.action.closestWaypointFromList.wps.begin(), e.action.closestWaypointFromList.wps.end(),
+            std::copy_if(std::begin(e.action.closestWaypointFromList.wps), std::end(e.action.closestWaypointFromList.wps),
                 std::back_inserter(waypoints), [](uint32 wp) { return wp != 0; });
 
             float distanceToClosest = std::numeric_limits<float>::max();
@@ -1904,7 +2033,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_RANDOM_SOUND:
         {
             std::vector<uint32> sounds;
-            std::copy_if(e.action.randomSound.sounds.begin(), e.action.randomSound.sounds.end(),
+            std::copy_if(std::begin(e.action.randomSound.sounds), std::end(e.action.randomSound.sounds),
                 std::back_inserter(sounds), [](uint32 sound) { return sound != 0; });
 
             bool onlySelf = e.action.randomSound.onlySelf != 0;
@@ -1975,7 +2104,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT:
         {
             uint32 eventId = urand(e.action.randomTimedEvent.minId, e.action.randomTimedEvent.maxId);
-            ProcessEventsFor((SMART_EVENT)SMART_EVENT_TIMED_EVENT_TRIGGERED, NULL, eventId);
+            ProcessEventsFor((SMART_EVENT)SMART_EVENT_TIMED_EVENT_TRIGGERED, nullptr, eventId);
             break;
         }
 
@@ -2015,7 +2144,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
     }
 }
 
-void SmartScript::ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
+void SmartScript::ProcessTimedAction(SmartScriptHolder& e, uint32 const& min, uint32 const& max, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob)
 {
     // We may want to execute action rarely and because of this if condition is not fulfilled the action will be rechecked in a long time
     if (sConditionMgr->IsObjectMeetingSmartEventConditions(e.entryOrGuid, e.event_id, e.source_type, unit, GetBaseObject()))
@@ -2105,10 +2234,10 @@ void SmartScript::InstallTemplate(SmartScriptHolder const& e)
 
 void SmartScript::AddEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 phaseMask)
 {
-    mInstallEvents.push_back(CreateEvent(e, event_flags, event_param1, event_param2, event_param3, event_param4, action, action_param1, action_param2, action_param3, action_param4, action_param5, action_param6, t, target_param1, target_param2, target_param3, phaseMask));
+    mInstallEvents.push_back(CreateSmartEvent(e, event_flags, event_param1, event_param2, event_param3, event_param4, action, action_param1, action_param2, action_param3, action_param4, action_param5, action_param6, t, target_param1, target_param2, target_param3, phaseMask));
 }
 
-SmartScriptHolder SmartScript::CreateEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 phaseMask)
+SmartScriptHolder SmartScript::CreateSmartEvent(SMART_EVENT e, uint32 event_flags, uint32 event_param1, uint32 event_param2, uint32 event_param3, uint32 event_param4, SMART_ACTION action, uint32 action_param1, uint32 action_param2, uint32 action_param3, uint32 action_param4, uint32 action_param5, uint32 action_param6, SMARTAI_TARGETS t, uint32 target_param1, uint32 target_param2, uint32 target_param3, uint32 phaseMask)
 {
     SmartScriptHolder script;
     script.event.type = e;
@@ -2373,13 +2502,13 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
         }
         case SMART_TARGET_CLOSEST_CREATURE:
         {
-            if (Creature* target = GetClosestCreatureWithEntry(baseObject, e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100), !e.target.closest.dead))
+            if (Creature* target = baseObject->FindNearestCreature(e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100), !e.target.closest.dead))
                 targets.push_back(target);
             break;
         }
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
         {
-            if (GameObject* target = GetClosestGameObjectWithEntry(baseObject, e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100)))
+            if (GameObject* target = baseObject->FindNearestGameObject(e.target.closest.entry, float(e.target.closest.dist ? e.target.closest.dist : 100)))
                 targets.push_back(target);
             break;
         }
@@ -2496,7 +2625,7 @@ void SmartScript::GetWorldObjectsInDist(ObjectVector& targets, float dist) const
     Cell::VisitAllObjects(obj, searcher, dist);
 }
 
-void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
+void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob)
 {
     if (!e.active && e.GetEventType() != SMART_EVENT_LINK)
         return;
@@ -3180,6 +3309,62 @@ void SmartScript::InstallEvents()
 
         mInstallEvents.clear();
     }
+}
+
+void SmartScript::RemoveStoredEvent(uint32 id)
+{
+    if (!mStoredEvents.empty())
+    {
+        for (auto i = mStoredEvents.begin(); i != mStoredEvents.end(); ++i)
+        {
+            if (i->event_id == id)
+            {
+                mStoredEvents.erase(i);
+                return;
+            }
+        }
+    }
+}
+
+WorldObject* SmartScript::GetBaseObject() const
+{
+    WorldObject* obj = nullptr;
+    if (me)
+        obj = me;
+    else if (go)
+        obj = go;
+    return obj;
+}
+
+bool SmartScript::IsUnit(WorldObject* obj)
+{
+    return obj && (obj->GetTypeId() == TYPEID_UNIT || obj->GetTypeId() == TYPEID_PLAYER);
+}
+
+bool SmartScript::IsPlayer(WorldObject* obj)
+{
+    return obj && obj->GetTypeId() == TYPEID_PLAYER;
+}
+
+bool SmartScript::IsCreature(WorldObject* obj)
+{
+    return obj && obj->GetTypeId() == TYPEID_UNIT;
+}
+
+bool SmartScript::IsCharmedCreature(WorldObject* obj)
+{
+    if (!obj)
+        return false;
+
+    if (Creature* creatureObj = obj->ToCreature())
+        return creatureObj->IsCharmed();
+
+    return false;
+}
+
+bool SmartScript::IsGameObject(WorldObject* obj)
+{
+    return obj && obj->GetTypeId() == TYPEID_GAMEOBJECT;
 }
 
 void SmartScript::OnUpdate(uint32 const diff)

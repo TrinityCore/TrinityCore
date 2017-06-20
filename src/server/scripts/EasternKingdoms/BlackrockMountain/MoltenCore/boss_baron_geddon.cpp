@@ -23,12 +23,12 @@ SDComment:
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "molten_core.h"
+#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "ObjectMgr.h"
 
 enum Emotes
 {
@@ -121,7 +121,7 @@ class boss_baron_geddon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_baron_geddonAI(creature);
+            return GetMoltenCoreAI<boss_baron_geddonAI>(creature);
         }
 };
 

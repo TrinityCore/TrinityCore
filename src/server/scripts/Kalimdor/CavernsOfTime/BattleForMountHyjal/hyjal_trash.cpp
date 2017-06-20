@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
 #include "hyjalAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -446,7 +449,7 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
@@ -458,8 +461,10 @@ public:
             if (Delay <= diff)
             {
                 Delay=0;
-            }else{
-                Delay-=diff;
+            }
+            else
+            {
+                Delay -= diff;
                 return;
             }
             if (!meteor)
@@ -482,7 +487,7 @@ public:
                     CanMove = true;
                     if (instance->GetData(DATA_ALLIANCE_RETREAT) && !instance->GetData(DATA_HORDE_RETREAT))
                     {
-                        Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                        Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                         if (target && target->IsAlive())
                             me->AddThreat(target, 0.0f);
                     } else if (instance->GetData(DATA_ALLIANCE_RETREAT) && instance->GetData(DATA_HORDE_RETREAT)){
@@ -510,7 +515,7 @@ public:
             if (!imol)
             {
                 DoCast(me, SPELL_IMMOLATION);
-                imol=true;
+                imol = true;
             }
             if (FlameBuffetTimer <= diff)
             {
@@ -523,7 +528,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_giant_infernalAI>(creature);
+        return GetHyjalAI<npc_giant_infernalAI>(creature);
     }
 };
 
@@ -534,7 +539,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_abominationAI>(creature);
+        return GetHyjalAI<npc_abominationAI>(creature);
     }
 
     struct npc_abominationAI : public hyjal_trashAI
@@ -559,13 +564,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
@@ -628,7 +633,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ghoulAI>(creature);
+        return GetHyjalAI<npc_ghoulAI>(creature);
     }
 
     struct npc_ghoulAI : public hyjal_trashAI
@@ -657,13 +662,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
@@ -726,7 +731,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_necromancerAI>(creature);
+        return GetHyjalAI<npc_necromancerAI>(creature);
     }
 
     struct npc_necromancerAI : public hyjal_trashAI
@@ -767,13 +772,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
@@ -850,7 +855,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_bansheeAI>(creature);
+        return GetHyjalAI<npc_bansheeAI>(creature);
     }
 
     struct npc_bansheeAI : public hyjal_trashAI
@@ -880,13 +885,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
@@ -950,7 +955,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_crypt_fiendAI>(creature);
+        return GetHyjalAI<npc_crypt_fiendAI>(creature);
     }
 
     struct npc_crypt_fiendAI : public hyjal_trashAI
@@ -976,13 +981,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
@@ -1036,7 +1041,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_fel_stalkerAI>(creature);
+        return GetHyjalAI<npc_fel_stalkerAI>(creature);
     }
 
     struct npc_fel_stalkerAI : public hyjal_trashAI
@@ -1062,13 +1067,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         me->AddThreat(target, 0.0f);
                 }
@@ -1122,7 +1127,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_frost_wyrmAI>(creature);
+        return GetHyjalAI<npc_frost_wyrmAI>(creature);
     }
 
     struct npc_frost_wyrmAI : public hyjal_trashAI
@@ -1154,7 +1159,7 @@ public:
         {
             if (waypointId == 2 && !IsOverrun)
             {
-                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                 if (target && target->IsAlive())
                 {
                     me->AddThreat(target, 0.0f);
@@ -1170,7 +1175,7 @@ public:
 
             float x, y, z;
             me->GetPosition(x, y, z);
-            z = me->GetMap()->GetHeight(me->GetPhaseMask(), x, y, z);
+            me->UpdateGroundPositionZ(x, y, z);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
             me->UpdatePosition(x, y, z, 0);
         }
@@ -1218,7 +1223,9 @@ public:
                 {
                     me->GetMotionMaster()->MoveChase(me->GetVictim());
                     MoveTimer = 2000;
-                } else MoveTimer-=diff;
+                }
+                else
+                    MoveTimer -= diff;
             }
 
             if (FrostBreathTimer <= diff)
@@ -1230,7 +1237,9 @@ public:
                     me->GetMotionMaster()->Clear();
                     FrostBreathTimer = 4000;
                 }
-            } else FrostBreathTimer -= diff;
+            }
+            else
+                FrostBreathTimer -= diff;
         }
     };
 };
@@ -1242,7 +1251,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_gargoyleAI>(creature);
+        return GetHyjalAI<npc_gargoyleAI>(creature);
     }
 
     struct npc_gargoyleAI : public hyjal_trashAI
@@ -1275,7 +1284,7 @@ public:
         {
             if (waypointId == 2 && !IsOverrun)
             {
-                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                 if (target && target->IsAlive())
                 {
                     me->AddThreat(target, 0.0f);
@@ -1288,7 +1297,7 @@ public:
         {
             float x, y, z;
             me->GetPosition(x, y, z);
-            z = me->GetMap()->GetHeight(me->GetPhaseMask(), x, y, z);
+            me->UpdateGroundPositionZ(x, y, z);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
             me->UpdatePosition(x, y, z, 0);
             hyjal_trashAI::JustDied(killer);
@@ -1351,12 +1360,14 @@ public:
                 {
                     float x, y, z;
                     me->EnsureVictim()->GetPosition(x, y, z);
-                    me->GetMotionMaster()->MovePoint(0, x, y, z+Zpos);
+                    me->GetMotionMaster()->MovePoint(0, x, y, z + Zpos);
                     Zpos -= 1.0f;
                     if (Zpos <= 0)
                         Zpos = 0;
                     MoveTimer = 2000;
-                } else MoveTimer-=diff;
+                }
+                else
+                    MoveTimer -= diff;
             }
 
             if (StrikeTimer <= diff)
@@ -1367,8 +1378,12 @@ public:
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
                     StrikeTimer = 2000 + rand32() % 1000;
-                } else StrikeTimer=0;
-            } else StrikeTimer -= diff;
+                }
+                else
+                    StrikeTimer = 0;
+            }
+            else
+                StrikeTimer -= diff;
         }
     };
 };
@@ -1380,7 +1395,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new alliance_riflemanAI(creature);
+        return GetHyjalAI<alliance_riflemanAI>(creature);
     }
 
     struct alliance_riflemanAI : public ScriptedAI

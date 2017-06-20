@@ -129,7 +129,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_mordresh_fire_eyeAI(creature);
+        return GetRazorfenDownsAI<boss_mordresh_fire_eyeAI>(creature);
     }
 };
 

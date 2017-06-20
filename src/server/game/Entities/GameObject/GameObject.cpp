@@ -16,26 +16,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameObjectAI.h"
+#include "GameObject.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CreatureAISelector.h"
+#include "DatabaseEnv.h"
+#include "GameObjectAI.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
+#include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
+#include "Log.h"
+#include "LootMgr.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "PoolMgr.h"
+#include "QueryPackets.h"
 #include "ScriptMgr.h"
 #include "SpellMgr.h"
+#include "Transport.h"
 #include "UpdateFieldFlags.h"
 #include "World.h"
-#include "Transport.h"
-#include "GossipDef.h"
-
-#include "Packets/QueryPackets.h"
+#include <G3D/Quat.h>
 
 void GameObjectTemplate::InitializeQueryData()
 {
@@ -76,12 +81,23 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
     for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
         queryTemp.Stats.QuestItems[i] = 0;
 
-    if (GameObjectQuestItemList const* items = sObjectMgr->GetGameObjectQuestItemList(entry))
+    if (std::vector<uint32> const* items = sObjectMgr->GetGameObjectQuestItemList(entry))
         for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
             if (i < items->size())
                 queryTemp.Stats.QuestItems[i] = (*items)[i];
 
     return *queryTemp.Write();
+}
+
+bool QuaternionData::isUnit() const
+{
+    return fabs(x * x + y * y + z * z + w * w - 1.0f) < 1e-5f;
+}
+
+QuaternionData QuaternionData::fromEulerAnglesZYX(float Z, float Y, float X)
+{
+    G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(Z, Y, X));
+    return QuaternionData(quat.x, quat.y, quat.z, quat.w);
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
@@ -224,7 +240,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, G3D::Quat const& rotation, uint32 animprogress, GOState go_state, uint32 artKit /*= 0*/)
+bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit /*= 0*/)
 {
     ASSERT(map);
     SetMap(map);
@@ -274,11 +290,11 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
         return false;
     }
 
-    SetWorldRotation(rotation);
+    SetWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w);
     GameObjectAddon const* gameObjectAddon = sObjectMgr->GetGameObjectAddon(GetSpawnId());
 
     // For most of gameobjects is (0, 0, 0, 1) quaternion, there are only some transports with not standard rotation
-    G3D::Quat parentRotation;
+    QuaternionData parentRotation;
     if (gameObjectAddon)
         parentRotation = gameObjectAddon->ParentRotation;
 
@@ -417,7 +433,10 @@ void GameObject::Update(uint32 diff)
                         {
                             m_goValue.Transport.CurrentSeg = node->TimeSeg;
 
-                            G3D::Quat rotation = m_goValue.Transport.AnimationInfo->GetAnimRotation(timer);
+                            G3D::Quat rotation;
+                            if (TransportRotationEntry const* rot = m_goValue.Transport.AnimationInfo->GetAnimRotation(timer))
+                                rotation = G3D::Quat(rot->X, rot->Y, rot->Z, rot->W);
+
                             G3D::Vector3 pos = rotation.toRotationMatrix()
                                              * G3D::Matrix3::fromEulerAnglesZYX(GetOrientation(), 0.0f, 0.0f)
                                              * G3D::Vector3(node->X, node->Y, node->Z);
@@ -437,7 +456,7 @@ void GameObject::Update(uint32 diff)
                 case GAMEOBJECT_TYPE_FISHINGNODE:
                 {
                     // fishing code (bobber ready)
-                    if (time(NULL) > m_respawnTime - FISHING_BOBBER_READY_TIME)
+                    if (time(nullptr) > m_respawnTime - FISHING_BOBBER_READY_TIME)
                     {
                         // splash bobber (bobber ready now)
                         Unit* caster = GetOwner();
@@ -469,7 +488,7 @@ void GameObject::Update(uint32 diff)
         {
             if (m_respawnTime > 0)                          // timer on
             {
-                time_t now = time(NULL);
+                time_t now = time(nullptr);
                 if (m_respawnTime <= now)            // timer expired
                 {
                     ObjectGuid dbtableHighGuid(HighGuid::GameObject, GetEntry(), m_spawnId);
@@ -738,7 +757,7 @@ void GameObject::Update(uint32 diff)
                 return;
             }
 
-            m_respawnTime = time(NULL) + m_respawnDelayTime;
+            m_respawnTime = time(nullptr) + m_respawnDelayTime;
 
             // if option not set then object will be saved at grid unload
             if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
@@ -841,8 +860,7 @@ void GameObject::SaveToDB()
 
 void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
 {
-    const GameObjectTemplate* goI = GetGOInfo();
-
+    GameObjectTemplate const* goI = GetGOInfo();
     if (!goI)
         return;
 
@@ -1039,7 +1057,7 @@ Unit* GameObject::GetOwner() const
 
 void GameObject::SaveRespawnTime()
 {
-    if (m_goData && m_goData->dbData && m_respawnTime > time(NULL) && m_spawnedByDefault)
+    if (m_goData && m_goData->dbData && m_respawnTime > time(nullptr) && m_spawnedByDefault)
         GetMap()->SaveGORespawnTime(m_spawnId, m_respawnTime);
 }
 
@@ -1092,11 +1110,19 @@ bool GameObject::IsInvisibleDueToDespawn() const
     return false;
 }
 
+uint8 GameObject::getLevelForTarget(WorldObject const* target) const
+{
+    if (Unit* owner = GetOwner())
+        return owner->getLevelForTarget(target);
+
+    return 1;
+}
+
 void GameObject::Respawn()
 {
     if (m_spawnedByDefault && m_respawnTime > 0)
     {
-        m_respawnTime = time(NULL);
+        m_respawnTime = time(nullptr);
         GetMap()->RemoveGORespawnTime(m_spawnId);
     }
 }
@@ -1208,7 +1234,7 @@ void GameObject::SetGoArtKit(uint8 kit)
 
 void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid)
 {
-    const GameObjectData* data = nullptr;
+    GameObjectData const* data = nullptr;
     if (go)
     {
         go->SetGoArtKit(artkit);
@@ -1981,13 +2007,18 @@ void GameObject::UpdatePackedRotation()
     m_packedRotation = z | (y << 21) | (x << 42);
 }
 
-void GameObject::SetWorldRotation(G3D::Quat const& rot)
+void GameObject::SetWorldRotation(float qx, float qy, float qz, float qw)
 {
-    m_worldRotation = rot.toUnit();
+    G3D::Quat rotation(qx, qy, qz, qw);
+    rotation.unitize();
+    m_worldRotation.x = rotation.x;
+    m_worldRotation.y = rotation.y;
+    m_worldRotation.z = rotation.z;
+    m_worldRotation.w = rotation.w;
     UpdatePackedRotation();
 }
 
-void GameObject::SetParentRotation(G3D::Quat const& rotation)
+void GameObject::SetParentRotation(QuaternionData const& rotation)
 {
     SetFloatValue(GAMEOBJECT_PARENTROTATION + 0, rotation.x);
     SetFloatValue(GAMEOBJECT_PARENTROTATION + 1, rotation.y);
@@ -1997,7 +2028,8 @@ void GameObject::SetParentRotation(G3D::Quat const& rotation)
 
 void GameObject::SetWorldRotationAngles(float z_rot, float y_rot, float x_rot)
 {
-    SetWorldRotation(G3D::Quat(G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot)));
+    G3D::Quat quat(G3D::Matrix3::fromEulerAnglesZYX(z_rot, y_rot, x_rot));
+    SetWorldRotation(quat.x, quat.y, quat.z, quat.w);
 }
 
 void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= nullptr*/, uint32 spellId /*= 0*/)

@@ -24,11 +24,11 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "zulaman.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
 
 enum Yells
 {

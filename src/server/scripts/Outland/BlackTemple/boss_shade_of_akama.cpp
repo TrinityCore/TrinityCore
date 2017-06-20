@@ -15,15 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "ScriptedGossip.h"
-#include "GridNotifiers.h"
 #include "black_temple.h"
-#include "SpellScript.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -286,7 +290,7 @@ public:
 
         void EnterEvadeModeIfNeeded()
         {
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 if (Player* player = i->GetSource())
                     if (player->IsAlive() && !player->IsGameMaster() && CheckBoundary(player))
@@ -1200,9 +1204,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHADE_SOUL_CHANNEL_2))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHADE_SOUL_CHANNEL_2 });
         }
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

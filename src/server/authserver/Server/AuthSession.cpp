@@ -17,16 +17,17 @@
  */
 
 #include "AuthSession.h"
-#include "Log.h"
 #include "AuthCodes.h"
-#include "Database/DatabaseEnv.h"
-#include "QueryCallback.h"
+#include "Config.h"
+#include "Errors.h"
+#include "Log.h"
+#include "DatabaseEnv.h"
+#include "RealmList.h"
 #include "SHA1.h"
 #include "TOTP.h"
-#include "openssl/crypto.h"
-#include "Configuration/Config.h"
-#include "RealmList.h"
+#include "Util.h"
 #include <boost/lexical_cast.hpp>
+#include <openssl/crypto.h>
 
 using boost::asio::ip::tcp;
 
@@ -285,7 +286,7 @@ bool AuthSession::HandleLogonChallenge()
     if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE - 1) != challenge->I_len)
         return false;
 
-    std::string login((const char*)challenge->I, challenge->I_len);
+    std::string login((char const*)challenge->I, challenge->I_len);
     TC_LOG_DEBUG("server.authserver", "[AuthChallenge] '%s'", login.c_str());
 
     _build = challenge->build;
@@ -481,7 +482,7 @@ bool AuthSession::HandleLogonProof()
         return false;
 
     SHA1Hash sha;
-    sha.UpdateBigNumbers(&A, &B, NULL);
+    sha.UpdateBigNumbers(&A, &B, nullptr);
     sha.Finalize();
     BigNumber u;
     u.SetBinary(sha.GetDigest(), 20);
@@ -517,11 +518,11 @@ bool AuthSession::HandleLogonProof()
     uint8 hash[20];
 
     sha.Initialize();
-    sha.UpdateBigNumbers(&N, NULL);
+    sha.UpdateBigNumbers(&N, nullptr);
     sha.Finalize();
     memcpy(hash, sha.GetDigest(), 20);
     sha.Initialize();
-    sha.UpdateBigNumbers(&g, NULL);
+    sha.UpdateBigNumbers(&g, nullptr);
     sha.Finalize();
 
     for (int i = 0; i < 20; ++i)
@@ -537,9 +538,9 @@ bool AuthSession::HandleLogonProof()
     memcpy(t4, sha.GetDigest(), SHA_DIGEST_LENGTH);
 
     sha.Initialize();
-    sha.UpdateBigNumbers(&t3, NULL);
+    sha.UpdateBigNumbers(&t3, nullptr);
     sha.UpdateData(t4, SHA_DIGEST_LENGTH);
-    sha.UpdateBigNumbers(&s, &A, &B, &K, NULL);
+    sha.UpdateBigNumbers(&s, &A, &B, &K, nullptr);
     sha.Finalize();
     BigNumber M;
     M.SetBinary(sha.GetDigest(), sha.GetLength());
@@ -583,7 +584,7 @@ bool AuthSession::HandleLogonProof()
 
         // Finish SRP6 and send the final result to the client
         sha.Initialize();
-        sha.UpdateBigNumbers(&A, &M, &K, NULL);
+        sha.UpdateBigNumbers(&A, &M, &K, nullptr);
         sha.Finalize();
 
         ByteBuffer packet;
@@ -687,7 +688,7 @@ bool AuthSession::HandleReconnectChallenge()
     if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE - 1) != challenge->I_len)
         return false;
 
-    std::string login((const char*)challenge->I, challenge->I_len);
+    std::string login((char const*)challenge->I, challenge->I_len);
     TC_LOG_DEBUG("server.authserver", "[ReconnectChallenge] '%s'", login.c_str());
 
     _build = challenge->build;
@@ -754,7 +755,7 @@ bool AuthSession::HandleReconnectProof()
     SHA1Hash sha;
     sha.Initialize();
     sha.UpdateData(_accountInfo.Login);
-    sha.UpdateBigNumbers(&t1, &_reconnectProof, &K, NULL);
+    sha.UpdateBigNumbers(&t1, &_reconnectProof, &K, nullptr);
     sha.Finalize();
 
     if (!memcmp(sha.GetDigest(), reconnectProof->R2, SHA_DIGEST_LENGTH))
@@ -805,7 +806,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
     size_t RealmListSize = 0;
     for (RealmList::RealmMap::value_type const& i : sRealmList->GetRealms())
     {
-        const Realm &realm = i.second;
+        Realm const& realm = i.second;
         // don't work with realms which not compatible with the client
         bool okBuild = ((_expversion & POST_BC_EXP_FLAG) && realm.Build == _build) || ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(realm.Build));
 

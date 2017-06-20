@@ -30,11 +30,14 @@ go_elune_fire
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 #include "WorldSession.h"
 
 /*######
@@ -168,7 +171,7 @@ public:
     // The array MUST be terminated by {0, 0, 0}
     DialogueHelper(DialogueEntry const* dialogueArray) :
       _dialogueArray(dialogueArray),
-          _currentEntry(NULL),
+          _currentEntry(nullptr),
           _actionTimer(0)
       { }
       // The array MUST be terminated by {0, 0, 0, 0, 0}
@@ -212,7 +215,7 @@ protected:
     /// Will be called when a dialogue step was done
     virtual void JustDidDialogueStep(int32 /*entry*/) { }
     /// Will be called to get a speaker, MUST be implemented if not used in instances
-    virtual Creature* GetSpeakerByEntry(int32 /*entry*/) { return NULL; }
+    virtual Creature* GetSpeakerByEntry(int32 /*entry*/) { return nullptr; }
 
 private:
     void DoNextDialogueStep()
@@ -422,7 +425,7 @@ public:
                         (*itr)->Refresh();
                     }
 
-                    if (GameObject* altar = me->GetMap()->GetGameObject(_altarGUID))
+                    if (GameObject* altar = ObjectAccessor::GetGameObject(*me, _altarGUID))
                         me->SetFacingToObject(altar);
                     break;
                 }
@@ -436,7 +439,7 @@ public:
                 case 44:
                     // Stop the escort and turn towards the altar
                     SetEscortPaused(true);
-                    if (GameObject* altar = me->GetMap()->GetGameObject(_altarGUID))
+                    if (GameObject* altar = ObjectAccessor::GetGameObject(*me, _altarGUID))
                         me->SetFacingToObject(altar);
                     break;
             }
@@ -466,7 +469,7 @@ public:
                     break;
                 case SAY_PRIESTESS_ALTAR_9:
                     // move near the escort npc
-                    if (Creature* priestess = me->GetMap()->GetCreature(_firstPriestessGUID))
+                    if (Creature* priestess = ObjectAccessor::GetCreature(*me, _firstPriestessGUID))
                         priestess->GetMotionMaster()->MovePoint(0, wingThicketLocations[6].m_positionX, wingThicketLocations[6].m_positionY, wingThicketLocations[6].m_positionZ);
                     break;
                 case SAY_PRIESTESS_ALTAR_13:
@@ -477,7 +480,7 @@ public:
                         _guardEluneGUID = guard->GetGUID();
                     }
                     // summon the Voice of Elune
-                    if (GameObject* altar = me->GetMap()->GetGameObject(_altarGUID))
+                    if (GameObject* altar = ObjectAccessor::GetGameObject(*me, _altarGUID))
                     {
                         if (Creature* voice = me->SummonCreature(NPC_VOICE_ELUNE, altar->GetPositionX(), altar->GetPositionY(), altar->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
                             _voiceEluneGUID = voice->GetGUID();
@@ -485,7 +488,7 @@ public:
                     break;
                 case SAY_VOICE_ALTAR_15:
                     // move near the escort npc and continue dialogue
-                    if (Creature* priestess = me->GetMap()->GetCreature(_secondPriestessGUID))
+                    if (Creature* priestess = ObjectAccessor::GetCreature(*me, _secondPriestessGUID))
                     {
                         priestess->AI()->Talk(SAY_PRIESTESS_ALTAR_14);
                         priestess->GetMotionMaster()->MovePoint(0, wingThicketLocations[7].m_positionX, wingThicketLocations[7].m_positionY, wingThicketLocations[7].m_positionZ);
@@ -493,7 +496,7 @@ public:
                     break;
                 case SAY_PRIESTESS_ALTAR_19:
                     // make the voice of elune leave
-                    if (Creature* guard = me->GetMap()->GetCreature(_guardEluneGUID))
+                    if (Creature* guard = ObjectAccessor::GetCreature(*me, _guardEluneGUID))
                     {
                         guard->GetMotionMaster()->MovePoint(0, wingThicketLocations[2].m_positionX, wingThicketLocations[2].m_positionY, wingThicketLocations[2].m_positionZ);
                         guard->DespawnOrUnsummon(4000);
@@ -501,7 +504,7 @@ public:
                     break;
                 case SAY_PRIESTESS_ALTAR_20:
                     // make the first priestess leave
-                    if (Creature* priestess = me->GetMap()->GetCreature(_firstPriestessGUID))
+                    if (Creature* priestess = ObjectAccessor::GetCreature(*me, _firstPriestessGUID))
                     {
                         priestess->GetMotionMaster()->MovePoint(0, wingThicketLocations[0].m_positionX, wingThicketLocations[0].m_positionY, wingThicketLocations[0].m_positionZ);
                         priestess->DespawnOrUnsummon(4000);
@@ -509,7 +512,7 @@ public:
                     break;
                 case SAY_PRIESTESS_ALTAR_21:
                     // make the second priestess leave
-                    if (Creature* priestess = me->GetMap()->GetCreature(_secondPriestessGUID))
+                    if (Creature* priestess = ObjectAccessor::GetCreature(*me, _secondPriestessGUID))
                     {
                         priestess->GetMotionMaster()->MovePoint(0, wingThicketLocations[1].m_positionX, wingThicketLocations[1].m_positionY, wingThicketLocations[1].m_positionZ);
                         priestess->DespawnOrUnsummon(4000);
@@ -525,7 +528,7 @@ public:
                     break;
                 case SAY_RANSHALLA_END_2:
                     // Turn towards the altar and kneel - quest complete
-                    if (GameObject* altar = me->GetMap()->GetGameObject(_altarGUID))
+                    if (GameObject* altar = ObjectAccessor::GetGameObject(*me, _altarGUID))
                     {
                         me->SetFacingToObject(altar);
                         altar->ResetDoorOrButton();
@@ -548,13 +551,13 @@ public:
                 case NPC_RANSHALLA:
                     return me;
                 case NPC_VOICE_ELUNE:
-                    return me->GetMap()->GetCreature(_voiceEluneGUID);
+                    return ObjectAccessor::GetCreature(*me, _voiceEluneGUID);
                 case NPC_PRIESTESS_DATA_1:
-                    return me->GetMap()->GetCreature(_firstPriestessGUID);
+                    return ObjectAccessor::GetCreature(*me, _firstPriestessGUID);
                 case NPC_PRIESTESS_DATA_2:
-                    return me->GetMap()->GetCreature(_secondPriestessGUID);
+                    return ObjectAccessor::GetCreature(*me, _secondPriestessGUID);
                 default:
-                    return NULL;
+                    return nullptr;
             }
 
         }

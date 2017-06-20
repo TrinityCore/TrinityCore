@@ -28,15 +28,16 @@ npc_henry_stern
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "GameObjectAI.h"
-#include "ScriptedGossip.h"
-#include "razorfen_downs.h"
-#include "Player.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
 #include "CellImpl.h"
+#include "GameObjectAI.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "razorfen_downs.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 
 /*###
 ## npc_belnistrasz for Quest 3525 "Extinguishing the Idol"
@@ -203,7 +204,7 @@ public:
                     case EVENT_COMPLETE:
                     {
                         DoCast(me, SPELL_IDOM_ROOM_CAMERA_SHAKE);
-                        me->SummonGameObject(GO_BELNISTRASZS_BRAZIER, 2577.196f, 947.0781f, 53.16757f, 2.356195f, G3D::Quat(0.f, 0.f, 0.9238796f, 0.3826832f), 3600);
+                        me->SummonGameObject(GO_BELNISTRASZS_BRAZIER, 2577.196f, 947.0781f, 53.16757f, 2.356195f, QuaternionData(0.f, 0.f, 0.9238796f, 0.3826832f), 3600);
                         std::list<WorldObject*> ClusterList;
                         Trinity::AllWorldObjectsInRange objects(me, 50.0f);
                         Trinity::WorldObjectListSearcher<Trinity::AllWorldObjectsInRange> searcher(me, ClusterList, objects);
@@ -254,7 +255,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_belnistraszAI>(creature);
+        return GetRazorfenDownsAI<npc_belnistraszAI>(creature);
     }
 };
 
@@ -292,7 +293,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_idol_room_spawnerAI>(creature);
+        return GetRazorfenDownsAI<npc_idol_room_spawnerAI>(creature);
     }
 };
 
@@ -362,7 +363,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_tomb_creatureAI>(creature);
+        return GetRazorfenDownsAI<npc_tomb_creatureAI>(creature);
     }
 };
 

@@ -218,10 +218,11 @@ class spell_mother_shahraz_fatal_attraction : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SABER_LASH_IMMUNITY)
-                    || !sSpellMgr->GetSpellInfo(SPELL_FATAL_ATTRACTION))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SABER_LASH_IMMUNITY,
+                    SPELL_FATAL_ATTRACTION
+                });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -265,9 +266,7 @@ class spell_mother_shahraz_fatal_attraction_link : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FATAL_ATTRACTION_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FATAL_ATTRACTION_DAMAGE });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -299,9 +298,7 @@ class spell_mother_shahraz_saber_lash : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].TriggerSpell))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ spellInfo->Effects[EFFECT_1].TriggerSpell });
             }
 
             void OnTrigger(AuraEffect const* aurEff)
@@ -340,9 +337,7 @@ class spell_mother_shahraz_generic_periodic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
             }
 
             void OnTrigger(AuraEffect const* aurEff)
@@ -378,10 +373,7 @@ class spell_mother_shahraz_random_periodic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                for (uint32 spellId : RandomBeam)
-                    if (!sSpellMgr->GetSpellInfo(spellId))
-                        return false;
-                return true;
+                return ValidateSpellInfo(RandomBeam);
             }
 
             void OnPeriodic(AuraEffect const* /*aurEffect*/)

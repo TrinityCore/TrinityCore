@@ -16,7 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "pit_of_saron.h"
 #include "Player.h"
 
@@ -160,28 +162,6 @@ class instance_pit_of_saron : public InstanceMapScript
                         _cavernstriggersVector.push_back(creature->GetGUID());
                         break;
                     default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_ICE_WALL:
-                    case GO_HALLS_OF_REFLECTION_PORTCULLIS:
-                        AddDoor(go, true);
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_ICE_WALL:
-                    case GO_HALLS_OF_REFLECTION_PORTCULLIS:
-                        AddDoor(go, false);
                         break;
                 }
             }

@@ -21,12 +21,15 @@
 #define OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL 1000
 
 #include "OutdoorPvP.h"
+#include <array>
+#include <unordered_map>
 
 class Player;
 class GameObject;
 class Creature;
 class ZoneScript;
 struct GossipMenuItems;
+enum LocaleConstant : uint8;
 
 // class to handle player enter / leave / areatrigger / GO use events
 class TC_GAME_API OutdoorPvPMgr
@@ -78,7 +81,7 @@ class TC_GAME_API OutdoorPvPMgr
 
     private:
         typedef std::vector<OutdoorPvP*> OutdoorPvPSet;
-        typedef std::unordered_map<uint32 /* zoneid */, OutdoorPvP*> OutdoorPvPMap;
+        typedef std::unordered_map<uint32 /*zoneid*/, OutdoorPvP*> OutdoorPvPMap;
         typedef std::array<uint32, MAX_OUTDOORPVP_TYPES> OutdoorPvPScriptIds;
 
         // contains all initiated outdoor pvp events

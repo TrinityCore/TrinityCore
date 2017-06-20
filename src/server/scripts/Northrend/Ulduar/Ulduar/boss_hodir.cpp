@@ -16,13 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 
 /* @todo Achievements
@@ -959,7 +960,7 @@ class npc_toasty_fire : public CreatureScript
                 DoCast(me, SPELL_SINGED, true);
             }
 
-            void SpellHit(Unit* /*who*/, const SpellInfo* spell) override
+            void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_BLOCK_OF_ICE || spell->Id == SPELL_ICE_SHARD || spell->Id == SPELL_ICE_SHARD_HIT)
                 {
@@ -1048,7 +1049,7 @@ public:
                 return;
 
             int32 damage = int32(200 * std::pow(2.0f, GetStackAmount()));
-            caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, NULL, NULL, true);
+            caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, nullptr, nullptr, true);
 
             if (caster->isMoving())
                 caster->RemoveAuraFromStack(SPELL_BITING_COLD_TRIGGERED);

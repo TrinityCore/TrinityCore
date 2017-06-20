@@ -28,29 +28,30 @@
 #include "GameEventMgr.h"
 #include "GameTime.h"
 #include "GossipDef.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
+#include "MotionMaster.h"
 #include "MoveSpline.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
+#include "QueryPackets.h"
 #include "QuestDef.h"
+#include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
+#include "Transport.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "Transport.h"
-#include "ScriptedGossip.h"
-
-#include "Packets/QueryPackets.h"
+#include <G3D/g3dmath.h>
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -61,27 +62,28 @@ TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
     return nullptr;
 }
 
+bool VendorItem::IsGoldRequired(ItemTemplate const* pProto) const
+{
+    return (pProto->Flags2 & ITEM_FLAG2_DONT_IGNORE_BUY_PRICE) || !ExtendedCost;
+}
+
 bool VendorItemData::RemoveItem(uint32 item_id)
 {
-    bool found = false;
-    for (VendorItemList::iterator i = m_items.begin(); i != m_items.end();)
+    auto newEnd = std::remove_if(m_items.begin(), m_items.end(), [=](VendorItem const& vendorItem)
     {
-        if ((*i)->item == item_id)
-        {
-            i = m_items.erase(i++);
-            found = true;
-        }
-        else
-            ++i;
-    }
+        return vendorItem.item == item_id;
+    });
+
+    bool found = (newEnd != m_items.end());
+    m_items.erase(newEnd, m_items.end());
     return found;
 }
 
 VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extendedCost) const
 {
-    for (VendorItemList::const_iterator i = m_items.begin(); i != m_items.end(); ++i)
-        if ((*i)->item == item_id && (*i)->ExtendedCost == extendedCost)
-            return *i;
+    for (VendorItem const& vendorItem : m_items)
+        if (vendorItem.item == item_id && vendorItem.ExtendedCost == extendedCost)
+            return &vendorItem;
     return nullptr;
 }
 
@@ -192,7 +194,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
     for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
         queryTemp.Stats.QuestItems[i] = 0;
 
-    if (CreatureQuestItemList const* items = sObjectMgr->GetCreatureQuestItemList(Entry))
+    if (std::vector<uint32> const* items = sObjectMgr->GetCreatureQuestItemList(Entry))
         for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
             if (i < items->size())
                 queryTemp.Stats.QuestItems[i] = (*items)[i];
@@ -333,7 +335,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
     if (getDeathState() != CORPSE)
         return;
 
-    m_corpseRemoveTime = time(NULL);
+    m_corpseRemoveTime = time(nullptr);
     setDeathState(DEAD);
     RemoveAllAuras();
     loot.clear();
@@ -346,7 +348,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
 
     // Should get removed later, just keep "compatibility" with scripts
     if (setSpawnTime)
-        m_respawnTime = std::max<time_t>(time(NULL) + respawnDelay, m_respawnTime);
+        m_respawnTime = std::max<time_t>(time(nullptr) + respawnDelay, m_respawnTime);
 
     // if corpse was removed during falling, the falling will continue and override relocation to respawn position
     if (IsFalling())
@@ -583,7 +585,7 @@ void Creature::Update(uint32 diff)
             break;
         case DEAD:
         {
-            time_t now = time(NULL);
+            time_t now = time(nullptr);
             if (m_respawnTime <= now)
             {
                 // First check if there are any scripts that object to us respawning
@@ -636,7 +638,7 @@ void Creature::Update(uint32 diff)
                 }
                 else m_groupLootTimer -= diff;
             }
-            else if (m_corpseRemoveTime <= time(NULL))
+            else if (m_corpseRemoveTime <= time(nullptr))
             {
                 RemoveCorpse(false);
                 TC_LOG_DEBUG("entities.unit", "Removing corpse... %u ", GetUInt32Value(OBJECT_FIELD_ENTRY));
@@ -700,7 +702,7 @@ void Creature::Update(uint32 diff)
 
                 if (m_combatPulseTime == 0)
                 {
-                    Map::PlayerList const &players = GetMap()->GetPlayers();
+                    Map::PlayerList const& players = GetMap()->GetPlayers();
                     if (!players.isEmpty())
                         for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
                         {
@@ -709,11 +711,11 @@ void Creature::Update(uint32 diff)
                                 if (player->IsGameMaster())
                                     continue;
 
-                                if (player->IsAlive() && this->IsHostileTo(player))
+                                if (player->IsAlive() && IsHostileTo(player))
                                 {
                                     if (CanHaveThreatList())
                                         AddThreat(player, 0.0f);
-                                    this->SetInCombatWith(player);
+                                    SetInCombatWith(player);
                                     player->SetInCombatWith(this);
                                 }
                             }
@@ -1486,7 +1488,7 @@ bool Creature::LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool ad
 
     // Is the creature script objecting to us spawning? If yes, delay by one second (then re-check in ::Update)
     if (!m_respawnTime && !sScriptMgr->CanSpawn(spawnId, GetEntry(), GetCreatureTemplate(), GetCreatureData(), map))
-        m_respawnTime = time(NULL)+1;
+        m_respawnTime = time(nullptr)+1;
 
     if (m_respawnTime)                          // respawn on Update
     {
@@ -1620,7 +1622,7 @@ bool Creature::IsInvisibleDueToDespawn() const
     if (Unit::IsInvisibleDueToDespawn())
         return true;
 
-    if (IsAlive() || isDying() || m_corpseRemoveTime > time(NULL))
+    if (IsAlive() || isDying() || m_corpseRemoveTime > time(nullptr))
         return false;
 
     return true;
@@ -1739,11 +1741,11 @@ void Creature::setDeathState(DeathState s)
 
     if (s == JUST_DIED)
     {
-        m_corpseRemoveTime = time(NULL) + m_corpseDelay;
+        m_corpseRemoveTime = time(nullptr) + m_corpseDelay;
         if (IsDungeonBoss() && !m_respawnDelay)
             m_respawnTime = std::numeric_limits<time_t>::max(); // never respawn in this instance
         else
-            m_respawnTime = time(NULL) + m_respawnDelay + m_corpseDelay;
+            m_respawnTime = time(nullptr) + m_respawnDelay + m_corpseDelay;
 
         // always save boss respawn time at death to prevent crash cheating
         if (sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
@@ -1910,7 +1912,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
 
 void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds const& forceRespawnTimer /*= 0*/)
 {
-    if (TempSummon* summon = this->ToTempSummon())
+    if (TempSummon* summon = ToTempSummon())
         summon->UnSummon(msTimeToDespawn);
     else
         ForcedDespawn(msTimeToDespawn, forceRespawnTimer);
@@ -2162,7 +2164,7 @@ void Creature::CallForHelp(float radius)
     Cell::VisitGridObjects(this, worker, radius);
 }
 
-bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /*= true*/) const
+bool Creature::CanAssistTo(Unit const* u, Unit const* enemy, bool checkfaction /*= true*/) const
 {
     if (IsInEvadeMode())
         return false;
@@ -2426,7 +2428,7 @@ void Creature::SetInCombatWithZone()
         return;
     }
 
-    Map::PlayerList const &PlList = map->GetPlayers();
+    Map::PlayerList const& PlList = map->GetPlayers();
 
     if (PlList.isEmpty())
         return;
@@ -2440,7 +2442,7 @@ void Creature::SetInCombatWithZone()
 
             if (player->IsAlive())
             {
-                this->SetInCombatWith(player);
+                SetInCombatWith(player);
                 player->SetInCombatWith(this);
                 AddThreat(player, 0.0f);
             }
@@ -2464,7 +2466,7 @@ bool Creature::HasSpell(uint32 spellID) const
 
 time_t Creature::GetRespawnTimeEx() const
 {
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     if (m_respawnTime > now)
         return m_respawnTime;
     else
@@ -2508,7 +2510,7 @@ void Creature::AllLootRemovedFromCorpse()
         if (LootTemplates_Skinning.HaveLootFor(GetCreatureTemplate()->SkinLootId))
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     // Do not reset corpse remove time if corpse is already removed
     if (m_corpseRemoveTime <= now)
         return;
@@ -2576,7 +2578,7 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
 
     VendorItemCount* vCount = &*itr;
 
-    time_t ptime = time(NULL);
+    time_t ptime = time(nullptr);
 
     if (time_t(vCount->lastIncrementTime + vItem->incrtime) <= ptime)
         if (ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(vItem->item))
@@ -2614,7 +2616,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
     VendorItemCount* vCount = &*itr;
 
-    time_t ptime = time(NULL);
+    time_t ptime = time(nullptr);
 
     if (time_t(vCount->lastIncrementTime + vItem->incrtime) <= ptime)
         if (ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(vItem->item))
@@ -2792,7 +2794,7 @@ float Creature::GetAggroRange(Unit const* target) const
     // Determines the aggro range for creatures (usually pets), used mainly for aggressive pet target selection.
     // Based on data from wowwiki due to lack of 3.3.5a data
 
-    if (target && this->IsPet())
+    if (target && IsPet())
     {
         uint32 targetLevel = 0;
 
@@ -2841,7 +2843,7 @@ Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
     // Selects nearest hostile target within creature's aggro range. Used primarily by
     //  pets set to aggressive. Will not return neutral or friendly targets.
 
-    Unit* target = NULL;
+    Unit* target = nullptr;
 
     Trinity::NearestHostileUnitInAggroRangeCheck u_check(this, useLOS);
     Trinity::UnitSearcher<Trinity::NearestHostileUnitInAggroRangeCheck> searcher(this, target, u_check);

@@ -16,8 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 #include "steam_vault.h"
 
 class go_main_chambers_access_panel : public GameObjectScript

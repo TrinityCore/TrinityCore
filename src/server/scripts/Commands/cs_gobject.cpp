@@ -23,14 +23,20 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "GameEventMgr.h"
-#include "ObjectMgr.h"
-#include "PoolMgr.h"
-#include "MapManager.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "GameEventMgr.h"
 #include "Language.h"
-#include "Player.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "Player.h"
+#include "PoolMgr.h"
+#include "RBAC.h"
+#include "WorldSession.h"
 
 class gobject_commandscript : public CommandScript
 {
@@ -58,12 +64,12 @@ public:
             { "near",     rbac::RBAC_PERM_COMMAND_GOBJECT_NEAR,     false, &HandleGameObjectNearCommand,      ""       },
             { "target",   rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,   false, &HandleGameObjectTargetCommand,    ""       },
             { "turn",     rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,     false, &HandleGameObjectTurnCommand,      ""       },
-            { "add",      rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      false, NULL,            "", gobjectAddCommandTable },
-            { "set",      rbac::RBAC_PERM_COMMAND_GOBJECT_SET,      false, NULL,            "", gobjectSetCommandTable },
+            { "add",      rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      false, nullptr,            "", gobjectAddCommandTable },
+            { "set",      rbac::RBAC_PERM_COMMAND_GOBJECT_SET,      false, nullptr,            "", gobjectSetCommandTable },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "gobject", rbac::RBAC_PERM_COMMAND_GOBJECT, false, NULL, "", gobjectCommandTable },
+            { "gobject", rbac::RBAC_PERM_COMMAND_GOBJECT, false, nullptr, "", gobjectCommandTable },
         };
         return commandTable;
     }
@@ -140,7 +146,7 @@ public:
         GameObject* object = new GameObject();
         ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
 
-        G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
+        QuaternionData rot = QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
         if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), *player, rot, 255, GO_STATE_READY))
         {
             delete object;
@@ -188,13 +194,13 @@ public:
 
         Player* player = handler->GetSession()->GetPlayer();
 
-        char* spawntime = strtok(NULL, " ");
+        char* spawntime = strtok(nullptr, " ");
         uint32 spawntm = 300;
 
         if (spawntime)
             spawntm = atoul(spawntime);
 
-        G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
+        QuaternionData rotation = QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
         uint32 objectId = atoul(id);
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
@@ -233,7 +239,7 @@ public:
                 WorldDatabase.EscapeString(name);
                 result = WorldDatabase.PQuery(
                     "SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ "
-                    "FROM gameobject, gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name " _LIKE_" " _CONCAT3_("'%%'", "'%s'", "'%%'")" ORDER BY order_ ASC LIMIT 1",
+                    "FROM gameobject LEFT JOIN gameobject_template ON gameobject_template.entry = gameobject.id WHERE map = %i AND name LIKE '%%%s%%' ORDER BY order_ ASC LIMIT 1",
                     player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), name.c_str());
             }
         }
@@ -315,7 +321,7 @@ public:
 
         if (target)
         {
-            int32 curRespawnDelay = int32(target->GetRespawnTimeEx() - time(NULL));
+            int32 curRespawnDelay = int32(target->GetRespawnTimeEx() - time(nullptr));
             if (curRespawnDelay < 0)
                 curRespawnDelay = 0;
 
@@ -390,18 +396,18 @@ public:
             return false;
         }
 
-        char* orientation = strtok(NULL, " ");
+        char* orientation = strtok(nullptr, " ");
         float oz = 0.f, oy = 0.f, ox = 0.f;
 
         if (orientation)
         {
             oz = float(atof(orientation));
 
-            orientation = strtok(NULL, " ");
+            orientation = strtok(nullptr, " ");
             if (orientation)
             {
                 oy = float(atof(orientation));
-                orientation = strtok(NULL, " ");
+                orientation = strtok(nullptr, " ");
                 if (orientation)
                     ox = float(atof(orientation));
             }
@@ -454,9 +460,9 @@ public:
             return false;
         }
 
-        char* toX = strtok(NULL, " ");
-        char* toY = strtok(NULL, " ");
-        char* toZ = strtok(NULL, " ");
+        char* toX = strtok(nullptr, " ");
+        char* toY = strtok(nullptr, " ");
+        char* toZ = strtok(nullptr, " ");
 
         float x, y, z;
         if (!toX)
@@ -523,7 +529,7 @@ public:
             return false;
         }
 
-        char* phase = strtok (NULL, " ");
+        char* phase = strtok (nullptr, " ");
         uint32 phaseMask = phase ? atoul(phase) : 0;
         if (phaseMask == 0)
         {
@@ -605,7 +611,7 @@ public:
             if (!cValue)
                 return false;
             ObjectGuid::LowType guidLow = atoul(cValue);
-            const GameObjectData* data = sObjectMgr->GetGOData(guidLow);
+            GameObjectData const* data = sObjectMgr->GetGOData(guidLow);
             if (!data)
                 return false;
             entry = data->id;
@@ -663,7 +669,7 @@ public:
             return false;
         }
 
-        char* type = strtok(NULL, " ");
+        char* type = strtok(nullptr, " ");
         if (!type)
             return false;
 
@@ -677,7 +683,7 @@ public:
             return true;
         }
 
-        char* state = strtok(NULL, " ");
+        char* state = strtok(nullptr, " ");
         if (!state)
             return false;
 

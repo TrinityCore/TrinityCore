@@ -15,22 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
-#include "GridNotifiersImpl.h"
 #include "GossipDef.h"
+#include "GridNotifiersImpl.h"
+#include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellHistory.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "Vehicle.h"
-#include "icecrown_citadel.h"
+#include <G3D/Vector3.h>
 
 enum Texts
 {
@@ -383,7 +389,7 @@ public:
 
     void ResetSlots(uint32 team)
     {
-        _transport = NULL;
+        _transport = nullptr;
         for (uint32 i = 0; i < MAX_SLOTS; ++i)
             _controlledSlots[i].Clear();
 
@@ -398,7 +404,7 @@ public:
             return false;
 
         bool summoned = false;
-        time_t now = time(NULL);
+        time_t now = time(nullptr);
         for (int32 i = first; i <= last; ++i)
         {
             if (_respawnCooldowns[i] > now)
@@ -411,7 +417,7 @@ public:
                     continue;
             }
 
-            if (Creature* passenger = _transport->SummonPassenger(_slotInfo[i].Entry, SelectSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, NULL, 15000))
+            if (Creature* passenger = _transport->SummonPassenger(_slotInfo[i].Entry, SelectSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, nullptr, 15000))
             {
                 _controlledSlots[i] = passenger->GetGUID();
                 _respawnCooldowns[i] = time_t(0);
@@ -426,7 +432,7 @@ public:
     void ClearSlot(PassengerSlots slot)
     {
         _controlledSlots[slot].Clear();
-        _respawnCooldowns[slot] = time(NULL) + _slotInfo[slot].Cooldown;
+        _respawnCooldowns[slot] = time(nullptr) + _slotInfo[slot].Cooldown;
     }
 
     bool SlotsNeedRefill(PassengerSlots first, PassengerSlots last) const
@@ -541,7 +547,7 @@ uint32 const BattleExperienceEvent::ExperiencedTimes[5] = { 100000, 70000, 60000
 struct gunship_npc_AI : public ScriptedAI
 {
     gunship_npc_AI(Creature* creature) : ScriptedAI(creature),
-        Instance(creature->GetInstanceScript()), Slot(NULL), Index(uint32(-1))
+        Instance(creature->GetInstanceScript()), Slot(nullptr), Index(uint32(-1))
     {
         BurningPitchId = Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_BURNING_PITCH_A : SPELL_BURNING_PITCH_H;
         me->setRegeneratingHealth(false);
@@ -677,7 +683,7 @@ class npc_gunship : public CreatureScript
             {
                 if (damage >= me->GetHealth())
                 {
-                    JustDied(NULL);
+                    JustDied(nullptr);
                     damage = me->GetHealth() - 1;
                     return;
                 }
@@ -833,7 +839,7 @@ class npc_gunship : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const override
         {
             if (!creature->GetTransport())
-                return NULL;
+                return nullptr;
 
             return GetIcecrownCitadelAI<npc_gunshipAI>(creature);
         }
@@ -853,7 +859,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 _controller.SetTransport(creature->GetTransport());
                 me->setRegeneratingHealth(false);
                 me->m_CombatDistance = 70.0f;
-                _firstMageCooldown = time(NULL) + 60;
+                _firstMageCooldown = time(nullptr) + 60;
                 _axethrowersYellCooldown = time_t(0);
                 _rocketeersYellCooldown = time_t(0);
             }
@@ -863,7 +869,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 ScriptedAI::InitializeAI();
 
                 _events.Reset();
-                _firstMageCooldown = time(NULL) + 60;
+                _firstMageCooldown = time(nullptr) + 60;
                 _axethrowersYellCooldown = time_t(0);
                 _rocketeersYellCooldown = time_t(0);
             }
@@ -915,7 +921,7 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                 }
                 else if (action == ACTION_SPAWN_MAGE)
                 {
-                    time_t now = time(NULL);
+                    time_t now = time(nullptr);
                     if (_firstMageCooldown > now)
                         _events.ScheduleEvent(EVENT_SUMMON_MAGE, (_firstMageCooldown - now) * IN_MILLISECONDS);
                     else
@@ -1034,10 +1040,10 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                             _controller.SummonCreatures(SLOT_MARINE_1, Is25ManRaid() ? SLOT_MARINE_4 : SLOT_MARINE_2);
                             _controller.SummonCreatures(SLOT_SERGEANT_1, Is25ManRaid() ? SLOT_SERGEANT_2 : SLOT_SERGEANT_1);
                             if (Transport* orgrimsHammer = me->GetTransport())
-                                orgrimsHammer->SummonPassenger(NPC_TELEPORT_PORTAL, OrgrimsHammerTeleportPortal, TEMPSUMMON_TIMED_DESPAWN, NULL, 21000);
+                                orgrimsHammer->SummonPassenger(NPC_TELEPORT_PORTAL, OrgrimsHammerTeleportPortal, TEMPSUMMON_TIMED_DESPAWN, nullptr, 21000);
 
                             if (Transport* skybreaker = HashMapHolder<Transport>::Find(_instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
-                                skybreaker->SummonPassenger(NPC_TELEPORT_EXIT, SkybreakerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, NULL, 23000);
+                                skybreaker->SummonPassenger(NPC_TELEPORT_EXIT, SkybreakerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, nullptr, 23000);
 
                             _events.ScheduleEvent(EVENT_ADDS_BOARD_YELL, 6000);
                             _events.ScheduleEvent(EVENT_ADDS, 60000);
@@ -1049,10 +1055,10 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                         case EVENT_CHECK_RIFLEMAN:
                             if (_controller.SummonCreatures(SLOT_RIFLEMAN_1, Is25ManRaid() ? SLOT_RIFLEMAN_8 : SLOT_RIFLEMAN_4))
                             {
-                                if (_axethrowersYellCooldown < time(NULL))
+                                if (_axethrowersYellCooldown < time(nullptr))
                                 {
                                     Talk(SAY_SAURFANG_AXETHROWERS);
-                                    _axethrowersYellCooldown = time(NULL) + 5;
+                                    _axethrowersYellCooldown = time(nullptr) + 5;
                                 }
                             }
                             _events.ScheduleEvent(EVENT_CHECK_RIFLEMAN, 1000);
@@ -1060,10 +1066,10 @@ class npc_high_overlord_saurfang_igb : public CreatureScript
                         case EVENT_CHECK_MORTAR:
                             if (_controller.SummonCreatures(SLOT_MORTAR_1, Is25ManRaid() ? SLOT_MORTAR_4 : SLOT_MORTAR_2))
                             {
-                                if (_rocketeersYellCooldown < time(NULL))
+                                if (_rocketeersYellCooldown < time(nullptr))
                                 {
                                     Talk(SAY_SAURFANG_ROCKETEERS);
-                                    _rocketeersYellCooldown = time(NULL) + 5;
+                                    _rocketeersYellCooldown = time(nullptr) + 5;
                                 }
                             }
                             _events.ScheduleEvent(EVENT_CHECK_MORTAR, 1000);
@@ -1122,7 +1128,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 _controller.SetTransport(creature->GetTransport());
                 me->setRegeneratingHealth(false);
                 me->m_CombatDistance = 70.0f;
-                _firstMageCooldown = time(NULL) + 60;
+                _firstMageCooldown = time(nullptr) + 60;
                 _riflemanYellCooldown = time_t(0);
                 _mortarYellCooldown = time_t(0);
             }
@@ -1132,7 +1138,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 ScriptedAI::InitializeAI();
 
                 _events.Reset();
-                _firstMageCooldown = time(NULL) + 60;
+                _firstMageCooldown = time(nullptr) + 60;
                 _riflemanYellCooldown = time_t(0);
                 _mortarYellCooldown = time_t(0);
             }
@@ -1184,7 +1190,7 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                 }
                 else if (action == ACTION_SPAWN_MAGE)
                 {
-                    time_t now = time(NULL);
+                    time_t now = time(nullptr);
                     if (_firstMageCooldown > now)
                         _events.ScheduleEvent(EVENT_SUMMON_MAGE, (_firstMageCooldown - now) * IN_MILLISECONDS);
                     else
@@ -1307,10 +1313,10 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                             _controller.SummonCreatures(SLOT_MARINE_1, Is25ManRaid() ? SLOT_MARINE_4 : SLOT_MARINE_2);
                             _controller.SummonCreatures(SLOT_SERGEANT_1, Is25ManRaid() ? SLOT_SERGEANT_2 : SLOT_SERGEANT_1);
                             if (Transport* skybreaker = me->GetTransport())
-                                skybreaker->SummonPassenger(NPC_TELEPORT_PORTAL, SkybreakerTeleportPortal, TEMPSUMMON_TIMED_DESPAWN, NULL, 21000);
+                                skybreaker->SummonPassenger(NPC_TELEPORT_PORTAL, SkybreakerTeleportPortal, TEMPSUMMON_TIMED_DESPAWN, nullptr, 21000);
 
                             if (Transport* orgrimsHammer = HashMapHolder<Transport>::Find(_instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
-                                orgrimsHammer->SummonPassenger(NPC_TELEPORT_EXIT, OrgrimsHammerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, NULL, 23000);
+                                orgrimsHammer->SummonPassenger(NPC_TELEPORT_EXIT, OrgrimsHammerTeleportExit, TEMPSUMMON_TIMED_DESPAWN, nullptr, 23000);
 
                             _events.ScheduleEvent(EVENT_ADDS_BOARD_YELL, 6000);
                             _events.ScheduleEvent(EVENT_ADDS, 60000);
@@ -1322,10 +1328,10 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                         case EVENT_CHECK_RIFLEMAN:
                             if (_controller.SummonCreatures(SLOT_RIFLEMAN_1, Is25ManRaid() ? SLOT_RIFLEMAN_8 : SLOT_RIFLEMAN_4))
                             {
-                                if (_riflemanYellCooldown < time(NULL))
+                                if (_riflemanYellCooldown < time(nullptr))
                                 {
                                     Talk(SAY_MURADIN_RIFLEMAN);
-                                    _riflemanYellCooldown = time(NULL) + 5;
+                                    _riflemanYellCooldown = time(nullptr) + 5;
                                 }
                             }
                             _events.ScheduleEvent(EVENT_CHECK_RIFLEMAN, 1000);
@@ -1333,10 +1339,10 @@ class npc_muradin_bronzebeard_igb : public CreatureScript
                         case EVENT_CHECK_MORTAR:
                             if (_controller.SummonCreatures(SLOT_MORTAR_1, Is25ManRaid() ? SLOT_MORTAR_4 : SLOT_MORTAR_2))
                             {
-                                if (_mortarYellCooldown < time(NULL))
+                                if (_mortarYellCooldown < time(nullptr))
                                 {
                                     Talk(SAY_MURADIN_MORTAR);
-                                    _mortarYellCooldown = time(NULL) + 5;
+                                    _mortarYellCooldown = time(nullptr) + 5;
                                 }
                             }
                             _events.ScheduleEvent(EVENT_CHECK_MORTAR, 1000);
@@ -1814,7 +1820,7 @@ class npc_gunship_cannon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_gunship_cannonAI(creature);
+            return GetIcecrownCitadelAI<npc_gunship_cannonAI>(creature);
         }
 };
 
@@ -1829,11 +1835,7 @@ class spell_igb_rocket_pack : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROCKET_PACK_DAMAGE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROCKET_BURST))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_ROCKET_PACK_DAMAGE, SPELL_ROCKET_BURST });
             }
 
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
@@ -1845,8 +1847,8 @@ class spell_igb_rocket_pack : public SpellScriptLoader
             void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 SpellInfo const* damageInfo = sSpellMgr->AssertSpellInfo(SPELL_ROCKET_PACK_DAMAGE);
-                GetTarget()->CastCustomSpell(SPELL_ROCKET_PACK_DAMAGE, SPELLVALUE_BASE_POINT0, 2 * (damageInfo->Effects[EFFECT_0].CalcValue() + aurEff->GetTickNumber() * aurEff->GetAmplitude()), NULL, TRIGGERED_FULL_MASK);
-                GetTarget()->CastSpell(NULL, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
+                GetTarget()->CastCustomSpell(SPELL_ROCKET_PACK_DAMAGE, SPELLVALUE_BASE_POINT0, 2 * (damageInfo->Effects[EFFECT_0].CalcValue() + aurEff->GetTickNumber() * aurEff->GetAmplitude()), nullptr, TRIGGERED_FULL_MASK);
+                GetTarget()->CastSpell(nullptr, SPELL_ROCKET_BURST, TRIGGERED_FULL_MASK);
             }
 
             void Register() override
@@ -2101,7 +2103,7 @@ class spell_igb_overheat : public SpellScriptLoader
                             WorldPacket data(SMSG_CLIENT_CONTROL_UPDATE, GetUnitOwner()->GetPackGUID().size() + 1);
                             data << GetUnitOwner()->GetPackGUID();
                             data << uint8(value);
-                            player->GetSession()->SendPacket(&data);
+                            player->SendDirectMessage(&data);
                         }
                     }
                 }
@@ -2251,7 +2253,7 @@ class spell_igb_burning_pitch : public SpellScriptLoader
             void HandleDummy(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetCaster()->CastCustomSpell(uint32(GetEffectValue()), SPELLVALUE_BASE_POINT0, 8000, NULL, TRIGGERED_FULL_MASK);
+                GetCaster()->CastCustomSpell(uint32(GetEffectValue()), SPELLVALUE_BASE_POINT0, 8000, nullptr, TRIGGERED_FULL_MASK);
                 GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BURNING_PITCH, TRIGGERED_FULL_MASK);
             }
 
@@ -2317,7 +2319,7 @@ class spell_igb_rocket_artillery_explosion : public SpellScriptLoader
             void DamageGunship(SpellEffIndex /*effIndex*/)
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                    GetCaster()->CastCustomSpell(instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_BURNING_PITCH_DAMAGE_A : SPELL_BURNING_PITCH_DAMAGE_H, SPELLVALUE_BASE_POINT0, 5000, NULL, TRIGGERED_FULL_MASK);
+                    GetCaster()->CastCustomSpell(instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? SPELL_BURNING_PITCH_DAMAGE_A : SPELL_BURNING_PITCH_DAMAGE_H, SPELLVALUE_BASE_POINT0, 5000, nullptr, TRIGGERED_FULL_MASK);
             }
 
             void Register() override
@@ -2402,7 +2404,7 @@ class spell_igb_check_for_players : public SpellScriptLoader
             void TriggerWipe()
             {
                 if (!_playerCount)
-                    GetCaster()->ToCreature()->AI()->JustDied(NULL);
+                    GetCaster()->ToCreature()->AI()->JustDied(nullptr);
             }
 
             void TeleportPlayer(SpellEffIndex /*effIndex*/)

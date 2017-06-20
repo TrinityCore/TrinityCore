@@ -23,23 +23,21 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "GameObjectAI.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "CombatAI.h"
+#include "GameObjectAI.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
-#include "ObjectMgr.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "Vehicle.h"
-#include "VehicleDefines.h"
 #include "ulduar.h"
-#include "Spell.h"
+#include "Vehicle.h"
 
 enum Spells
 {
@@ -1007,7 +1005,7 @@ public:
             npc_escortAI::UpdateAI(diff);
 
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
-                Start(false, true, ObjectGuid::Empty, NULL, false, true);
+                Start(false, true, ObjectGuid::Empty, nullptr, false, true);
             else
             {
                 if (infernoTimer <= diff)
@@ -1755,11 +1753,11 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                         {
                             // use 99 because it is 3d search
                             std::list<WorldObject*> targetList;
-                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, NULL);
+                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr);
                             Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
                             Cell::VisitAllObjects(GetCaster(), searcher, 99.0f);
                             float minDist = 99 * 99;
-                            Unit* target = NULL;
+                            Unit* target = nullptr;
                             for (std::list<WorldObject*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                             {
                                 if (Unit* unit = (*itr)->ToUnit())

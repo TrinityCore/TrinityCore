@@ -21,14 +21,16 @@
 //    - Hardcoded bullets spawner
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
-#include "CellImpl.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 #include "trial_of_the_crusader.h"
 
 enum Texts
@@ -451,7 +453,7 @@ class boss_fjola : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_fjolaAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_fjolaAI>(creature);
         }
 };
 
@@ -484,7 +486,7 @@ class boss_eydis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_eydisAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_eydisAI>(creature);
         }
 };
 
@@ -526,7 +528,7 @@ class npc_essence_of_twin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_essence_of_twinAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_essence_of_twinAI>(creature);
         };
 };
 
@@ -617,7 +619,7 @@ class npc_unleashed_dark : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_unleashed_darkAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_unleashed_darkAI>(creature);
         }
 };
 
@@ -638,9 +640,9 @@ class npc_unleashed_light : public CreatureScript
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
                         me->GetMotionMaster()->MoveIdle();
-                        me->DespawnOrUnsummon(1*IN_MILLISECONDS);
+                        me->DespawnOrUnsummon(1 * IN_MILLISECONDS);
                     }
-                    RangeCheckTimer = 0.5*IN_MILLISECONDS;
+                    RangeCheckTimer = IN_MILLISECONDS / 2;
                 }
                 else
                     RangeCheckTimer -= diff;
@@ -649,7 +651,7 @@ class npc_unleashed_light : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_unleashed_lightAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_unleashed_lightAI>(creature);
         }
 };
 
@@ -678,7 +680,7 @@ class npc_bullet_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_bullet_controllerAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_bullet_controllerAI>(creature);
         }
 };
 
@@ -691,16 +693,8 @@ class spell_powering_up : public SpellScriptLoader
         {
             PrepareSpellScript(spell_powering_up_SpellScript);
 
-        public:
-            spell_powering_up_SpellScript()
-            {
-                spellId = 0;
-                poweringUp = 0;
-            }
-
-        private:
-            uint32 spellId;
-            uint32 poweringUp;
+            uint32 spellId = 0;
+            uint32 poweringUp = 0;
 
             bool Load() override
             {

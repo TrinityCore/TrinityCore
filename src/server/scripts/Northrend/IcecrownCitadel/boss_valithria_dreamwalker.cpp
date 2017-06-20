@@ -15,15 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -684,7 +686,7 @@ class npc_the_lich_king_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_the_lich_king_controllerAI>(creature);
+            return GetIcecrownCitadelAI<npc_the_lich_king_controllerAI>(creature);
         }
 };
 
@@ -1265,9 +1267,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SUPPRESSER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_SUPPRESSER });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
