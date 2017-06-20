@@ -455,8 +455,9 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     for (PvPDifficultyEntry const* entry : sPvPDifficultyStore)
-        if (entry->bracketId > MAX_BATTLEGROUND_BRACKETS)
-            ASSERT(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
+    {
+        ASSERT(entry->bracketId < MAX_BATTLEGROUND_BRACKETS, "PvpDifficulty bracket (%d) exceeded max allowed value (%d)", entry->bracketId, MAX_BATTLEGROUND_BRACKETS);
+    }
 
     for (SkillRaceClassInfoEntry const* entry : sSkillRaceClassInfoStore)
         if (sSkillLineStore.LookupEntry(entry->SkillId))
