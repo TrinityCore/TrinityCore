@@ -1,0 +1,278 @@
+/*
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "CombatManager.h"
+#include "Creature.h"
+#include "Unit.h"
+#include "Player.h"
+
+/*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
+{
+    // Checks combat validity before initial reference creation.
+    // For the combat to be valid...
+    // ...the two units need to be different
+    if (a == b)
+        return false;
+    // ...the two units need to be in the world
+    if (!a->IsInWorld() || !b->IsInWorld())
+        return false;
+    // ...the two units need to both be alive
+    if (!a->IsAlive() || !b->IsAlive())
+        return false;
+    // ...the two units need to be on the same map
+    if (a->GetMap() != b->GetMap())
+        return false;
+    // ...the two units need to be in the same phase
+    if (!(a->GetPhaseMask() & b->GetPhaseMask()))
+        return false;
+    if (a->HasUnitState(UNIT_STATE_EVADE) || b->HasUnitState(UNIT_STATE_EVADE))
+        return false;
+    if (a->HasUnitState(UNIT_STATE_IN_FLIGHT) || b->HasUnitState(UNIT_STATE_IN_FLIGHT))
+        return false;
+    if (a->IsControlledByPlayer() || b->IsControlledByPlayer())
+    { // PvSomething, only block friendly fire
+        if (a->IsFriendlyTo(b) || b->IsFriendlyTo(a))
+            return false;
+    }
+    else
+    { // CvC, need hostile reaction to start a fight
+        if (!a->IsHostileTo(b) && !b->IsHostileTo(a))
+            return false;
+    }
+    Player const* playerA = a->GetCharmerOrOwnerPlayerOrPlayerItself();
+    Player const* playerB = b->GetCharmerOrOwnerPlayerOrPlayerItself();
+    // ...neither of the two units must be (owned by) a player with .gm on
+    if ((playerA && playerA->IsGameMaster()) || (playerB && playerB->IsGameMaster()))
+        return false;
+    return true;
+}
+
+void CombatReference::EndCombat()
+{
+    first->GetThreatManager().ClearThreat(second);
+    second->GetThreatManager().ClearThreat(first);
+    first->GetCombatManager().PurgeReference(second->GetGUID(), _isPvP);
+    second->GetCombatManager().PurgeReference(first->GetGUID(), _isPvP);
+    delete this;
+}
+
+bool PvPCombatReference::Update(uint32 tdiff)
+{
+    if (_combatTimer <= tdiff)
+        return false;
+    _combatTimer -= tdiff;
+    return true;
+}
+
+void PvPCombatReference::Refresh()
+{
+    _combatTimer = PVP_COMBAT_TIMEOUT;
+    if (_suppressFirst)
+    {
+        _suppressFirst = false;
+        first->UpdateCombatState();
+    }
+    if (_suppressSecond)
+    {
+        _suppressSecond = false;
+        second->UpdateCombatState();
+    }
+}
+
+void PvPCombatReference::SuppressFor(Unit* who)
+{
+    Suppress(who);
+    who->UpdateCombatState();
+}
+
+void CombatManager::Update(uint32 tdiff)
+{
+    auto it = _pvpRefs.begin(), end = _pvpRefs.end();
+    while (it != end)
+    {
+        PvPCombatReference* const ref = it->second;
+        if (ref->first == _owner && !ref->Update(tdiff)) // only update if we're the first unit involved (otherwise double decrement)
+        {
+            it = _pvpRefs.erase(it), end = _pvpRefs.end(); // remove it from our refs first to prevent invalidation
+            ref->EndCombat(); // this will remove it from the other side
+        }
+        else
+            ++it;
+    }
+}
+
+bool CombatManager::HasPvPCombat() const
+{
+    for (auto const& pair : _pvpRefs)
+        if (!pair.second->IsSuppressedFor(_owner))
+            return true;
+    return false;
+}
+
+Unit* CombatManager::GetAnyTarget() const
+{
+    if (!_pveRefs.empty())
+        return _pveRefs.begin()->second->GetOther(_owner);
+    for (auto const& pair : _pvpRefs)
+        if (!pair.second->IsSuppressedFor(_owner))
+            return pair.second->GetOther(_owner);
+    return nullptr;
+}
+
+bool CombatManager::SetInCombatWith(Unit* who)
+{
+    // Are we already in combat? If yes, refresh pvp combat
+    auto it = _pvpRefs.find(who->GetGUID());
+    if (it != _pvpRefs.end())
+    {
+        it->second->Refresh();
+        return true;
+    }
+    else if (_pveRefs.find(who->GetGUID()) != _pveRefs.end())
+        return true;
+
+    // Otherwise, check validity...
+    if (!CombatManager::CanBeginCombat(_owner, who))
+        return false;
+
+    // ...then create new reference
+    CombatReference* ref;
+    if (_owner->IsControlledByPlayer() && who->IsControlledByPlayer())
+        ref = new PvPCombatReference(_owner, who);
+    else
+        ref = new CombatReference(_owner, who);
+    PutReference(who->GetGUID(), ref);
+    who->GetCombatManager().PutReference(_owner->GetGUID(), ref);
+    return true;
+}
+
+bool CombatManager::IsInCombatWith(ObjectGuid const& guid) const
+{
+    return (_pveRefs.find(guid) != _pveRefs.end()) || (_pvpRefs.find(guid) != _pvpRefs.end());
+}
+
+bool CombatManager::IsInCombatWith(Unit const* who) const
+{
+    return IsInCombatWith(who->GetGUID());
+}
+
+void CombatManager::InheritCombatStatesFrom(Unit const* who)
+{
+    CombatManager const& mgr = who->GetCombatManager();
+    for (auto& ref : mgr._pveRefs)
+    {
+        if (!IsInCombatWith(ref.first))
+        {
+            Unit* target = ref.second->GetOther(who);
+            if ((_owner->IsImmuneToPC() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE)) ||
+                (_owner->IsImmuneToNPC() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE)))
+                continue;
+            SetInCombatWith(target);
+        }
+    }
+    for (auto& ref : mgr._pvpRefs)
+    {
+        if (!IsInCombatWith(ref.first))
+        {
+            Unit* target = ref.second->GetOther(who);
+            if ((_owner->IsImmuneToPC() && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE)) ||
+                (_owner->IsImmuneToNPC() && !target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE)))
+                continue;
+            SetInCombatWith(target);
+        }
+    }
+}
+
+void CombatManager::EndCombatBeyondRange(float range, bool includingPvP)
+{
+    auto it = _pveRefs.begin(), end = _pveRefs.end();
+    while (it != end)
+    {
+        CombatReference* const ref = it->second;
+        if (!ref->first->IsWithinDistInMap(ref->second, range))
+        {
+            it = _pveRefs.erase(it), end = _pveRefs.end(); // erase manually here to avoid iterator invalidation
+            ref->EndCombat();
+        }
+        else
+            ++it;
+    }
+
+    if (!includingPvP)
+        return;
+
+    auto it2 = _pvpRefs.begin(), end2 = _pvpRefs.end();
+    while (it2 != end2)
+    {
+        CombatReference* const ref = it2->second;
+        if (!ref->first->IsWithinDistInMap(ref->second, range))
+        {
+            it2 = _pvpRefs.erase(it2), end2 = _pvpRefs.end(); // erase manually here to avoid iterator invalidation
+            ref->EndCombat();
+        }
+        else
+            ++it2;
+    }
+}
+
+void CombatManager::SuppressPvPCombat()
+{
+    for (auto const& pair : _pvpRefs)
+        pair.second->Suppress(_owner);
+    _owner->UpdateCombatState();
+}
+
+void CombatManager::EndAllPvECombat()
+{
+    // cannot have threat without combat
+    _owner->GetThreatManager().RemoveMeFromThreatLists();
+    _owner->GetThreatManager().ClearAllThreat();
+    while (!_pveRefs.empty())
+        _pveRefs.begin()->second->EndCombat();
+}
+
+void CombatManager::EndAllPvPCombat()
+{
+    while (!_pvpRefs.empty())
+        _pvpRefs.begin()->second->EndCombat();
+}
+
+void CombatManager::PutReference(ObjectGuid const& guid, CombatReference* ref)
+{
+    if (ref->_isPvP)
+    {
+        auto& inMap = _pvpRefs[guid];
+        ASSERT(!inMap && "Duplicate combat state detected - memory leak!");
+        inMap = static_cast<PvPCombatReference*>(ref);
+    }
+    else
+    {
+        auto& inMap = _pveRefs[guid];
+        ASSERT(!inMap && "Duplicate combat state detected - memory leak!");
+        inMap = ref;
+    }
+    _owner->UpdateCombatState();
+}
+
+void CombatManager::PurgeReference(ObjectGuid const& guid, bool pvp)
+{
+    if (pvp)
+        _pvpRefs.erase(guid);
+    else
+        _pveRefs.erase(guid);
+    _owner->UpdateCombatState();
+}

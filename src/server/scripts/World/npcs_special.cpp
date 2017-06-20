@@ -1817,8 +1817,10 @@ public:
                             // If unit has not dealt damage to training dummy for 5 seconds, remove him from combat
                             if (itr->second < now - 5)
                             {
-                                if (Unit* unit = ObjectAccessor::GetUnit(*me, itr->first))
-                                    unit->getHostileRefManager().deleteReference(me);
+                                auto& refs = me->GetCombatManager().GetPvECombatRefs();
+                                auto it = refs.find(itr->first);
+                                if (it != refs.end())
+                                    (*it).second->EndCombat();
 
                                 itr = _damageTimes.erase(itr);
                             }

@@ -616,6 +616,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     UpdateMovementFlags();
     LoadCreaturesAddon();
     LoadTemplateImmunities();
+
+    GetThreatManager().UpdateOnlineStates(true, true);
     return true;
 }
 
@@ -715,6 +717,8 @@ void Creature::Update(uint32 diff)
             // CORPSE/DEAD state will processed at next tick (in other case death timer will be updated unexpectedly)
             if (!IsAlive())
                 break;
+
+            m_threatManager.Update(diff);
 
             if (m_shouldReacquireTarget && !IsFocusing(nullptr, true))
             {
@@ -1094,7 +1098,104 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, u
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
     }
 
+    m_threatManager.Initialize();
+
     return true;
+}
+
+Unit* Creature::SelectVictim()
+{
+    Unit* target = nullptr;
+
+    if (m_threatManager.CanHaveThreatList())
+    {
+        target = m_threatManager.SelectVictim();
+        while (!target)
+        {
+            Unit* newTarget = nullptr;
+            // nothing found to attack - try to find something we're in combat with (but don't have a threat entry for yet) and start attacking it
+            for (auto const& pair : GetCombatManager().GetPvECombatRefs())
+            {
+                newTarget = pair.second->GetOther(this);
+                if (!m_threatManager.IsThreatenedBy(newTarget, true))
+                {
+                    m_threatManager.AddThreat(newTarget, 0.0f, nullptr, true, true);
+                    break;
+                }
+                else
+                    newTarget = nullptr;
+            }
+            if (!newTarget)
+                break;
+            target = m_threatManager.SelectVictim();
+        }
+    }
+    else if (!HasReactState(REACT_PASSIVE))
+    {
+        // We're a player pet, probably
+        target = getAttackerForHelper();
+        if (!target && IsSummon())
+        {
+            if (Unit* owner = ToTempSummon()->GetOwner())
+            {
+                if (owner->IsInCombat())
+                    target = owner->getAttackerForHelper();
+                if (!target)
+                {
+                    for (ControlList::const_iterator itr = owner->m_Controlled.begin(); itr != owner->m_Controlled.end(); ++itr)
+                    {
+                        if ((*itr)->IsInCombat())
+                        {
+                            target = (*itr)->getAttackerForHelper();
+                            if (target)
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+        return nullptr;
+
+    if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
+    {
+        if (!IsFocusing(nullptr, true))
+            SetInFront(target);
+        return target;
+    }
+
+    /// @todo a vehicle may eat some mob, so mob should not evade
+    if (GetVehicle())
+        return nullptr;
+
+    // search nearby enemy before enter evade mode
+    if (HasReactState(REACT_AGGRESSIVE))
+    {
+        target = SelectNearestTargetInAttackDistance(m_CombatDistance ? m_CombatDistance : ATTACK_DISTANCE);
+
+        if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
+            return target;
+    }
+
+    Unit::AuraEffectList const& iAuras = GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
+    if (!iAuras.empty())
+    {
+        for (Unit::AuraEffectList::const_iterator itr = iAuras.begin(); itr != iAuras.end(); ++itr)
+        {
+            if ((*itr)->GetBase()->IsPermanent())
+            {
+                AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_OTHER);
+                break;
+            }
+        }
+        return nullptr;
+    }
+
+    // enter in evade mode in other case
+    AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_HOSTILES);
+
+    return nullptr;
 }
 
 void Creature::InitializeReactState()
