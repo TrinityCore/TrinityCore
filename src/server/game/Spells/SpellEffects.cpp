@@ -4201,7 +4201,7 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
             spellEffectExtraData->SpellVisualId = effectInfo->MiscValueB;
         }
         // Spell is not using explicit target - no generated path
-        if (m_preGeneratedPath->GetPathType() == PATHFIND_BLANK)
+        if (!m_preGeneratedPath)
         {
             //unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             Position pos = unitTarget->GetFirstCollisionPosition(unitTarget->GetCombatReach(), unitTarget->GetRelativeAngle(m_caster));
