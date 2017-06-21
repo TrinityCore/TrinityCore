@@ -923,7 +923,7 @@ class spell_dk_unholy_blight : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_unholy_blight_SpellScript);
 
-            bool Validate(SpellInfo const* spellInfo) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_DK_FROST_FEVER, SPELL_DK_BLOOD_PLAGUE });
             }
