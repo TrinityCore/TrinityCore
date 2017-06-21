@@ -338,7 +338,7 @@ void MapManager::InitInstanceIds()
     _nextInstanceId = 1;
 
     if (QueryResult result = CharacterDatabase.Query("SELECT IFNULL(MAX(id), 0) FROM instance"))
-        _freeInstanceIds.resize((*result)[0].GetUInt32() + 2, true); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
+        _freeInstanceIds.resize((*result)[0].GetUInt64() + 2, true); // make space for one extra to be able to access [_nextInstanceId] index in case all slots are taken
     else
         _freeInstanceIds.resize(_nextInstanceId + 1, true);
 
