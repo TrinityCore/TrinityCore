@@ -58,4 +58,4 @@ script:
   - ./worldserver --version
 
 after_success:
-  - git push https://$GITHUB_TOKEN@github.com/Rochet2/TrinityCore.git
+  - git push https://$GITHUB_TOKEN@github.com/$TRAVIS_REPO_SLUG.git HEAD:$TRAVIS_BRANCH
