@@ -5,10 +5,6 @@ language: cpp
 compiler:
   - clang
 
-env:
-  GITHUB_TOKEN:
-    secure: "CR5ZeOnTrrjfIod5/xwTTrQ4PtsDE2uUxpinttfPw0hfA3u8yUqswLwkX5Hv0KDAsSqeiTjpYSYFXqMxHCQcjT45DSLCF//o4dUP/9x9ZIgWEqJgCBRGIZPC3jjokxngo/Mgv9KWlDpg3RTFqHmgwT0/WbeKjpUE7DyNfipub+I="
-
 addons:
   apt:
     packages:
