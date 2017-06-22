@@ -5,6 +5,10 @@ language: cpp
 compiler:
   - clang
 
+env:
+  GITHUB_TOKEN
+    secure: "CR5ZeOnTrrjfIod5/xwTTrQ4PtsDE2uUxpinttfPw0hfA3u8yUqswLwkX5Hv0KDAsSqeiTjpYSYFXqMxHCQcjT45DSLCF//o4dUP/9x9ZIgWEqJgCBRGIZPC3jjokxngo/Mgv9KWlDpg3RTFqHmgwT0/WbeKjpUE7DyNfipub+I="
+
 addons:
   apt:
     packages:
@@ -27,7 +31,7 @@ before_install:
 
 install:
   - mysql -uroot -e 'create database test_mysql;'
-  - git pull https://github.com/TrinityCore/TrinityCore.git 3.3.5
+  # - git pull https://github.com/TrinityCore/TrinityCore.git 3.3.5
   - mkdir bin
   - cd bin
   - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
@@ -52,3 +56,6 @@ script:
   - cd check_install/bin
   - ./authserver --version
   - ./worldserver --version
+
+after_success:
+  - git push https://$GITHUB_TOKEN@github.com/Rochet2/TrinityCore.git
