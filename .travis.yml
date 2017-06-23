@@ -6,7 +6,7 @@ compiler:
   - clang
 
 git:
-  depth: 1
+  depth: 100
 
 addons:
   apt:
@@ -25,11 +25,12 @@ addons:
       - libbz2-dev
 
 before_install:
-  - git config user.email "travis@build.bot" && git config user.name "Travis CI"
+  - git config user.email "rochet2@post.com" && git config user.name "Rochet2"
   - git tag -a -m "Travis build" init
 
 install:
   - mysql -uroot -e 'create database test_mysql;'
+  - if [ ${TRAVIS_EVENT_TYPE} == "cron" ]; then git pull https://github.com/TrinityCore/TrinityCore.git 3.3.5; fi
   - mkdir bin
   - cd bin
   - cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=1 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
@@ -51,3 +52,6 @@ script:
   - cd check_install/bin
   - ./authserver --version
   - ./worldserver --version
+
+after_success:
+  - if [ ${TRAVIS_EVENT_TYPE} = "cron" ]; then git push https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git HEAD:${TRAVIS_BRANCH}; fi
