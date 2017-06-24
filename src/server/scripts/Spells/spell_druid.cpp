@@ -991,7 +991,7 @@ public:
 
         bool Load()
         {
-            return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
         }
 
         SpellCastResult CheckCast()
