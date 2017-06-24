@@ -24,11 +24,15 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Item.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "temple_of_ahnqiraj.h"
 #include "WorldPacket.h"
-#include "Item.h"
-#include "Spell.h"
 
 enum Spells
 {
@@ -167,7 +171,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, const SpellInfo* entry) override
+    void SpellHit(Unit* caster, SpellInfo const* entry) override
     {
         if (caster == me)
             return;
@@ -320,9 +324,9 @@ struct boss_twinemperorsAI : public ScriptedAI
         me->GetCreatureListWithEntryInGrid(lUnitList, 15317, 150.0f);
 
         if (lUnitList.empty())
-            return NULL;
+            return nullptr;
 
-        Creature* nearb = NULL;
+        Creature* nearb = nullptr;
 
         for (std::list<Creature*>::const_iterator iter = lUnitList.begin(); iter != lUnitList.end(); ++iter)
         {
@@ -382,9 +386,13 @@ struct boss_twinemperorsAI : public ScriptedAI
             if (!me->IsNonMeleeSpellCast(true))
             {
                 DoCast(me, SPELL_BERSERK);
-                EnrageTimer = 60*60000;
-            } else EnrageTimer = 0;
-        } else EnrageTimer-=diff;
+                EnrageTimer = 60 * 60000;
+            }
+            else
+                EnrageTimer = 0;
+        }
+        else
+            EnrageTimer -= diff;
     }
 };
 
@@ -395,7 +403,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_veknilashAI>(creature);
+        return GetAQ40AI<boss_veknilashAI>(creature);
     }
 
     struct boss_veknilashAI : public boss_twinemperorsAI
@@ -483,7 +491,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_veklorAI>(creature);
+        return GetAQ40AI<boss_veklorAI>(creature);
     }
 
     struct boss_veklorAI : public boss_twinemperorsAI
@@ -550,7 +558,7 @@ public:
             //Blizzard_Timer
             if (Blizzard_Timer <= diff)
             {
-                Unit* target = NULL;
+                Unit* target = nullptr;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
                 if (target)
                     DoCast(target, SPELL_BLIZZARD);

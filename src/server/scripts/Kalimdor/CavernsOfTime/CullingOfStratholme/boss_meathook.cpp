@@ -99,7 +99,7 @@ class boss_meathook : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_meathookAI>(creature);
+            return GetCullingOfStratholmeAI<boss_meathookAI>(creature);
         }
 };
 

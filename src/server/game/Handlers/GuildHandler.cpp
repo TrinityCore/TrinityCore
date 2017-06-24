@@ -16,14 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
-#include "ObjectMgr.h"
+#include "Common.h"
+#include "Guild.h"
 #include "GuildMgr.h"
 #include "Log.h"
-#include "Guild.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 {
@@ -457,7 +457,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvData)
         // Player <-> Bank
         // Allow to work with inventory only
         if (!Player::IsInventoryPos(playerBag, playerSlotId) && !(playerBag == NULL_BAG && playerSlotId == NULL_SLOT))
-            GetPlayer()->SendEquipError(EQUIP_ERR_NONE, NULL);
+            GetPlayer()->SendEquipError(EQUIP_ERR_NONE, nullptr);
         else
             guild->SwapItemsWithInventory(GetPlayer(), toChar != 0, tabId, slotId, playerBag, playerSlotId, splitedAmount);
     }

@@ -28,10 +28,12 @@ npc_ruul_snowhoof
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
 /*####

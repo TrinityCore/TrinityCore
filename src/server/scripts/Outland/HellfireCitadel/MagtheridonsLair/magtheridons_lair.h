@@ -18,6 +18,9 @@
 #ifndef DEF_MAGTHERIDONS_LAIR_H
 #define DEF_MAGTHERIDONS_LAIR_H
 
+#include "CreatureAIImpl.h"
+
+#define MLScriptName "instance_magtheridons_lair"
 #define DataHeader "ML"
 
 uint32 const EncounterCount = 1;
@@ -70,5 +73,11 @@ enum MLGameObjectIds
     GO_MAGTHERIDON_COLUMN_4  = 184636,
     GO_MAGTHERIDON_COLUMN_5  = 184637
 };
+
+template <class AI, class T>
+inline AI* GetMagtheridonsLairAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, MLScriptName);
+}
 
 #endif

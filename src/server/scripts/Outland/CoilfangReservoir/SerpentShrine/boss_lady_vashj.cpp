@@ -24,10 +24,16 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
 #include "Spell.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 #include "WorldSession.h"
 
 enum LadyVashj
@@ -140,7 +146,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lady_vashjAI>(creature);
+        return GetSerpentshrineCavernAI<boss_lady_vashjAI>(creature);
     }
 
     struct boss_lady_vashjAI : public ScriptedAI
@@ -257,7 +263,7 @@ public:
         void EnterCombat(Unit* who) override
         {
             // remove old tainted cores to prevent cheating in phase 2
-            Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+            Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                 if (Player* player = itr->GetSource())
                     player->DestroyItemCount(31088, 1, true);
@@ -327,7 +333,7 @@ public:
                 }
                 else
                 {
-                    AggroTimer-=diff;
+                    AggroTimer -= diff;
                     return;
                 }
             }
@@ -555,7 +561,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_enchanted_elementalAI>(creature);
+        return GetSerpentshrineCavernAI<npc_enchanted_elementalAI>(creature);
     }
 
     struct npc_enchanted_elementalAI : public ScriptedAI
@@ -650,7 +656,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_tainted_elementalAI>(creature);
+        return GetSerpentshrineCavernAI<npc_tainted_elementalAI>(creature);
     }
 
     struct npc_tainted_elementalAI : public ScriptedAI
@@ -724,7 +730,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_toxic_sporebatAI>(creature);
+        return GetSerpentshrineCavernAI<npc_toxic_sporebatAI>(creature);
     }
 
     struct npc_toxic_sporebatAI : public ScriptedAI
@@ -826,7 +832,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_shield_generator_channelAI>(creature);
+        return GetSerpentshrineCavernAI<npc_shield_generator_channelAI>(creature);
     }
 
     struct npc_shield_generator_channelAI : public ScriptedAI

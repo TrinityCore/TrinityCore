@@ -21,6 +21,9 @@
 #include "ObjectRegistry.h"
 #include "FactoryHolder.h"
 
+class GameObject;
+class GameObjectAI;
+
 typedef FactoryHolder<GameObjectAI, GameObject> GameObjectAICreator;
 
 struct SelectableGameObjectAI : public GameObjectAICreator, public Permissible<GameObject>

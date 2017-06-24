@@ -24,10 +24,13 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "zulaman.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
 #include "TemporarySummon.h"
+#include "zulaman.h"
 
 enum Misc
 {

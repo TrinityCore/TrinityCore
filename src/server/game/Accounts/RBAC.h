@@ -40,7 +40,8 @@
 #ifndef _RBAC_H
 #define _RBAC_H
 
-#include "DatabaseEnv.h"
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include <string>
 #include <set>
 #include <map>
@@ -243,7 +244,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_SPAWNVEHICLE                     = 336,
     RBAC_PERM_COMMAND_DEBUG_THREAT                           = 337,
     RBAC_PERM_COMMAND_DEBUG_UPDATE                           = 338,
-    RBAC_PERM_COMMAND_DEBUG_UWS                              = 339,
+    RBAC_PERM_COMMAND_DEBUG_WORLDSTATE                       = 339,
     RBAC_PERM_COMMAND_WPGPS                                  = 340,
     RBAC_PERM_COMMAND_DESERTER                               = 341,
     RBAC_PERM_COMMAND_DESERTER_BG                            = 342,

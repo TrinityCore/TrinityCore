@@ -18,15 +18,19 @@
 
 #include "WorldSocket.h"
 #include "BigNumber.h"
+#include "DatabaseEnv.h"
 #include "Opcodes.h"
-#include "QueryCallback.h"
+#include "PacketLog.h"
+#include "Random.h"
+#include "RBAC.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
 #include "SHA1.h"
-#include "PacketLog.h"
 #ifdef ELUNA
 #include "LuaEngine.h"
 #endif
-
+#include "World.h"
+#include "WorldSession.h"
 #include <memory>
 
 class EncryptablePacket : public WorldPacket
@@ -43,7 +47,7 @@ private:
 using boost::asio::ip::tcp;
 
 WorldSocket::WorldSocket(tcp::socket&& socket)
-    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _authed(false)
+    : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _authed(false), _sendBufferSize(4096)
 {
     _headerBuffer.Resize(sizeof(ClientPktHeader));
 }
@@ -90,7 +94,7 @@ void WorldSocket::CheckIpCallback(PreparedQueryResult result)
 bool WorldSocket::Update()
 {
     EncryptablePacket* queued;
-    MessageBuffer buffer;
+    MessageBuffer buffer(_sendBufferSize);
     while (_bufferQueue.Dequeue(queued))
     {
         ServerPktHeader header(queued->size() + 2, queued->GetOpcode());
@@ -100,7 +104,7 @@ bool WorldSocket::Update()
         if (buffer.GetRemainingSpace() < queued->size() + header.getHeaderLength())
         {
             QueuePacket(std::move(buffer));
-            buffer.Resize(4096);
+            buffer.Resize(_sendBufferSize);
         }
 
         if (buffer.GetRemainingSpace() >= queued->size() + header.getHeaderLength())
@@ -508,7 +512,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     sha.UpdateData((uint8*)&t, 4);
     sha.UpdateData((uint8*)&authSession->LocalChallenge, 4);
     sha.UpdateData((uint8*)&_authSeed, 4);
-    sha.UpdateBigNumbers(&account.SessionKey, NULL);
+    sha.UpdateBigNumbers(&account.SessionKey, nullptr);
     sha.Finalize();
 
     if (memcmp(sha.GetDigest(), authSession->Digest, SHA_DIGEST_LENGTH) != 0)
@@ -549,7 +553,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
-        mutetime = time(NULL) + llabs(mutetime);
+        mutetime = time(nullptr) + llabs(mutetime);
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
         stmt->setInt64(0, mutetime);

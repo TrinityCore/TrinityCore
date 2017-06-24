@@ -17,8 +17,11 @@
  */
 
 #include "Opcodes.h"
+#include "Log.h"
 #include "WorldSession.h"
 #include "Packets/AllPackets.h"
+#include <iomanip>
+#include <sstream>
 
 template<class PacketClass, void(WorldSession::*HandlerFunction)(PacketClass&)>
 class PacketHandler : public ClientOpcodeHandler
@@ -59,6 +62,17 @@ struct get_packet_class<void(WorldSession::*)(PacketClass&)>
     using type = PacketClass;
 };
 
+OpcodeTable::OpcodeTable()
+{
+    memset(_internalTableClient, 0, sizeof(_internalTableClient));
+}
+
+OpcodeTable::~OpcodeTable()
+{
+    for (uint16 i = 0; i < NUM_OPCODE_HANDLERS; ++i)
+        delete _internalTableClient[i];
+}
+
 template<typename Handler, Handler HandlerFunction>
 void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* name, SessionStatus status, PacketProcessing processing)
 {
@@ -74,7 +88,7 @@ void OpcodeTable::ValidateAndSetClientOpcode(OpcodeClient opcode, char const* na
         return;
     }
 
-    if (_internalTableClient[opcode] != NULL)
+    if (_internalTableClient[opcode] != nullptr)
     {
         TC_LOG_ERROR("network", "Tried to override client handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
         return;
@@ -97,7 +111,7 @@ void OpcodeTable::ValidateAndSetServerOpcode(OpcodeServer opcode, char const* na
         return;
     }
 
-    if (_internalTableClient[opcode] != NULL)
+    if (_internalTableClient[opcode] != nullptr)
     {
         TC_LOG_ERROR("network", "Tried to override server handler of %s with %s (opcode %u)", opcodeTable[opcode]->Name, name, opcode);
         return;
@@ -1430,4 +1444,30 @@ void OpcodeTable::Initialize()
 #undef DEFINE_HANDLER
 
 #undef DEFINE_SERVER_OPCODE_HANDLER
-};
+}
+
+template<typename T>
+inline std::string GetOpcodeNameForLoggingImpl(T id)
+{
+    uint16 opcode = uint16(id);
+    std::ostringstream ss;
+    ss << '[';
+
+    if (static_cast<uint16>(id) < NUM_OPCODE_HANDLERS)
+    {
+        if (OpcodeHandler const* handler = opcodeTable[id])
+            ss << handler->Name;
+        else
+            ss << "UNKNOWN OPCODE";
+    }
+    else
+        ss << "INVALID OPCODE";
+
+    ss << " 0x" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << opcode << std::nouppercase << std::dec << " (" << opcode << ")]";
+    return ss.str();
+}
+
+std::string GetOpcodeNameForLogging(Opcodes opcode)
+{
+    return GetOpcodeNameForLoggingImpl(opcode);
+}

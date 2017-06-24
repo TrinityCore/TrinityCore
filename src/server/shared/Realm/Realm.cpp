@@ -16,8 +16,9 @@
  */
 
 #include "Realm.h"
+#include <boost/asio/ip/basic_endpoint.hpp>
 
-boost::asio::ip::tcp::endpoint Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
+boost::asio::ip::tcp_endpoint Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
 {
     boost::asio::ip::address realmIp;
 
@@ -25,29 +26,27 @@ boost::asio::ip::tcp::endpoint Realm::GetAddressForClient(boost::asio::ip::addre
     if (clientAddr.is_loopback())
     {
         // Try guessing if realm is also connected locally
-        if (LocalAddress.is_loopback() || ExternalAddress.is_loopback())
+        if (LocalAddress->is_loopback() || ExternalAddress->is_loopback())
             realmIp = clientAddr;
         else
         {
             // Assume that user connecting from the machine that bnetserver is located on
             // has all realms available in his local network
-            realmIp = LocalAddress;
+            realmIp = *LocalAddress;
         }
     }
     else
     {
         if (clientAddr.is_v4() &&
-            (clientAddr.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()) ==
-            (LocalAddress.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()))
+            (clientAddr.to_v4().to_ulong() & LocalSubnetMask->to_v4().to_ulong()) ==
+            (LocalAddress->to_v4().to_ulong() & LocalSubnetMask->to_v4().to_ulong()))
         {
-            realmIp = LocalAddress;
+            realmIp = *LocalAddress;
         }
         else
-            realmIp = ExternalAddress;
+            realmIp = *ExternalAddress;
     }
 
-    boost::asio::ip::tcp::endpoint endpoint(realmIp, Port);
-
     // Return external IP
-    return endpoint;
+    return boost::asio::ip::tcp_endpoint(realmIp, Port);
 }
