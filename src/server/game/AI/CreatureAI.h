@@ -19,17 +19,19 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
-#include "Creature.h"
 #include "UnitAI.h"
-#include "AreaBoundary.h"
 #include "Common.h"
+#include "ObjectDefines.h"
 
-class WorldObject;
-class Unit;
+class AreaBoundary;
 class Creature;
-class Player;
+class DynamicObject;
+class GameObject;
 class PlayerAI;
-class SpellInfo;
+class WorldObject;
+struct Position;
+
+typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
@@ -65,7 +67,6 @@ enum SCEquip
     EQUIP_UNEQUIP   = 0
 };
 
-typedef std::vector<AreaBoundary const*> CreatureBoundary;
 class TC_GAME_API CreatureAI : public UnitAI
 {
     protected:
@@ -92,11 +93,11 @@ class TC_GAME_API CreatureAI : public UnitAI
             EVADE_REASON_OTHER
         };
 
+        explicit CreatureAI(Creature* creature);
+
+        virtual ~CreatureAI();
+
         void Talk(uint8 id, WorldObject const* whisperTarget = nullptr);
-
-        explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false) { }
-
-        virtual ~CreatureAI() { }
 
         /// == Reactions At =================================
 

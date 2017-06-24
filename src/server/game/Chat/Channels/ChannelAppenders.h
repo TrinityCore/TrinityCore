@@ -20,6 +20,8 @@
 
 #include "Channel.h"
 #include "CharacterCache.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 // initial packet data (notify type and channel name)
 template<class PacketModifier>
@@ -185,10 +187,7 @@ struct ChannelOwnerAppend
 {
     explicit ChannelOwnerAppend(Channel const* channel, ObjectGuid const& ownerGuid) : _channel(channel), _ownerGuid(ownerGuid)
     {
-        CharacterCacheEntry const* cInfo = sCharacterCache->GetCharacterCacheByGuid(_ownerGuid);
-        if (!cInfo || cInfo->Name.empty())
-            _ownerName = "PLAYER_NOT_FOUND";
-        else
+        if (CharacterCacheEntry const* cInfo = sCharacterCache->GetCharacterCacheByGuid(_ownerGuid))
             _ownerName = cInfo->Name;
     }
 

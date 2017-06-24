@@ -18,6 +18,8 @@
 #ifndef SUNWELL_PLATEAU_H
 #define SUNWELL_PLATEAU_H
 
+#include "CreatureAIImpl.h"
+
 #define SunwellPlateauScriptName "instance_sunwell_plateau"
 #define DataHeader "SWP"
 
@@ -112,7 +114,7 @@ enum SWPGameObjectIds
     GO_MURUS_GATE_2                          = 188118
 };
 
-template<class AI, class T>
+template <class AI, class T>
 AI* GetSunwellPlateauAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, SunwellPlateauScriptName);

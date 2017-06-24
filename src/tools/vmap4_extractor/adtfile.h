@@ -126,7 +126,7 @@ public:
 
     //uint32 wmo_count;
 /*
-    const mcell& Getmcell() const
+    mcell const& Getmcell() const
     {
         return Mcell;
     }

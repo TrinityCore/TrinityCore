@@ -24,6 +24,8 @@ SDCategory: Zul'Gurub
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
@@ -164,7 +166,7 @@ class boss_thekal : public CreatureScript
                                 me->SetStandState(UNIT_STAND_STATE_STAND);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 /*
-                                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                                CreatureTemplate const* cinfo = me->GetCreatureTemplate();
                                 me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 40)));
                                 me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 40)));
                                 me->UpdateDamagePhysical(BASE_ATTACK);
@@ -257,7 +259,7 @@ class boss_thekal : public CreatureScript
                         me->SetStandState(UNIT_STAND_STATE_SLEEP);
                         me->AttackStop();
                         instance->SetBossState(DATA_THEKAL, SPECIAL);
-                        WasDead=true;
+                        WasDead = true;
                     }
 
                     if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -269,7 +271,7 @@ class boss_thekal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_thekalAI>(creature);
+            return GetZulGurubAI<boss_thekalAI>(creature);
         }
 };
 
@@ -422,7 +424,7 @@ class npc_zealot_lorkhan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_zealot_lorkhanAI>(creature);
+            return GetZulGurubAI<npc_zealot_lorkhanAI>(creature);
         }
 };
 
@@ -572,7 +574,7 @@ class npc_zealot_zath : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_zealot_zathAI>(creature);
+            return GetZulGurubAI<npc_zealot_zathAI>(creature);
         }
 };
 

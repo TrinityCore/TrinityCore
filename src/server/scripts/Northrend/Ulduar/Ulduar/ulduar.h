@@ -18,6 +18,8 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
+#include "CreatureAIImpl.h"
+
 #define UlduarScriptName "instance_ulduar"
 #define DataHeader "UU"
 
@@ -490,8 +492,8 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-template<class AI, class T>
-AI* GetUlduarAI(T* obj)
+template <class AI, class T>
+inline AI* GetUlduarAI(T* obj)
 {
     return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }

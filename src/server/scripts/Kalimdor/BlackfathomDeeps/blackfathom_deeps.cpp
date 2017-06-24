@@ -16,12 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "blackfathom_deeps.h"
-#include "ScriptedEscortAI.h"
+#include "InstanceScript.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "Map.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 
 enum Spells
 {
@@ -53,7 +55,7 @@ class go_blackfathom_altar : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return GetInstanceAI<go_blackfathom_altarAI>(go);
+            return GetBlackfathomDeepsAI<go_blackfathom_altarAI>(go);
         }
 };
 
@@ -79,7 +81,7 @@ class go_blackfathom_fire : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return GetInstanceAI<go_blackfathom_fireAI>(go);
+            return GetBlackfathomDeepsAI<go_blackfathom_fireAI>(go);
         }
 };
 
@@ -90,7 +92,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_blackfathom_deeps_eventAI>(creature);
+        return GetBlackfathomDeepsAI<npc_blackfathom_deeps_eventAI>(creature);
     }
 
     struct npc_blackfathom_deeps_eventAI : public ScriptedAI
@@ -131,7 +133,7 @@ public:
 
         void AttackPlayer()
         {
-            Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
+            Map::PlayerList const& PlList = me->GetMap()->GetPlayers();
 
             if (PlList.isEmpty())
                 return;
@@ -252,7 +254,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_morriduneAI(creature);
+        return GetBlackfathomDeepsAI<npc_morriduneAI>(creature);
     }
 };
 

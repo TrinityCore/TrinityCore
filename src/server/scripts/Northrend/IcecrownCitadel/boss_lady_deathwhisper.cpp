@@ -15,14 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PoolMgr.h"
 #include "Group.h"
 #include "icecrown_citadel.h"
-#include "SpellInfo.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "PoolMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum ScriptTexts
 {
@@ -453,7 +457,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SUMMON_SPIRITS)
                     _nextVengefulShadeTargetGUID.push_back(target->GetGUID());
@@ -540,7 +544,7 @@ class boss_lady_deathwhisper : public CreatureScript
             }
 
             // helper for summoning wave mobs
-            void Summon(uint32 entry, const Position& pos)
+            void Summon(uint32 entry, Position const& pos)
             {
                 if (TempSummon* summon = me->SummonCreature(entry, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                     summon->CastSpell(summon, SPELL_TELEPORT_VISUAL);
@@ -1044,9 +1048,7 @@ class spell_deathwhisper_dominated_mind : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DOMINATE_MIND_SCALE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DOMINATE_MIND_SCALE });
             }
 
             void HandleApply(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
@@ -1078,9 +1080,7 @@ class spell_deathwhisper_summon_spirits : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SHADE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_SHADE });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)

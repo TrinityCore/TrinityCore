@@ -17,8 +17,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -39,7 +39,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_highlordomokkAI(creature);
+        return GetBlackrockSpireAI<boss_highlordomokkAI>(creature);
     }
 
     struct boss_highlordomokkAI : public BossAI

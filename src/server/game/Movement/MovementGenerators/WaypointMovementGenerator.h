@@ -26,9 +26,11 @@
  */
 
 #include "MovementGenerator.h"
-#include "WaypointManager.h"
+#include "Creature.h"
+#include "DBCStructure.h"
 #include "Player.h"
-#include "World.h"
+#include "Timer.h"
+#include "WaypointManager.h"
 
 #define FLIGHT_TRAVEL_UPDATE  100
 #define TIMEDIFF_NEXT_WP      250
@@ -57,7 +59,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Crea
     public:
         WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true)
             : i_nextMoveTime(0), m_isArrivalDone(false), path_id(_path_id), repeating(_repeating)  { }
-        ~WaypointMovementGenerator() { i_path = NULL; }
+        ~WaypointMovementGenerator() { i_path = nullptr; }
         void DoInitialize(Creature*);
         void DoFinalize(Creature*);
         void DoReset(Creature*);
@@ -148,4 +150,5 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium< Player, Flig
 
         std::deque<TaxiNodeChangeInfo> _pointsForPathSwitch;    //! node indexes and costs where TaxiPath changes
 };
+
 #endif

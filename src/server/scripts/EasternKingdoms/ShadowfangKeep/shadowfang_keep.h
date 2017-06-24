@@ -19,6 +19,9 @@
 #ifndef DEF_SHADOWFANG_H
 #define DEF_SHADOWFANG_H
 
+#include "CreatureAIImpl.h"
+
+#define SFKScriptName "instance_shadowfang_keep"
 #define DataHeader "SK"
 
 enum SKDataTypes
@@ -30,5 +33,11 @@ enum SKDataTypes
     BOSS_ARUGAL                 = 5,
     DATA_APOTHECARY_HUMMEL      = 6
 };
+
+template <class AI, class T>
+inline AI* GetShadowfangKeepAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, SFKScriptName);
+}
 
 #endif

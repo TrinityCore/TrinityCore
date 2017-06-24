@@ -16,12 +16,17 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "Player.h"
-#include "SpellInfo.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -376,7 +381,7 @@ class boss_sapphiron : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_sapphironAI(creature);
+            return GetNaxxramasAI<boss_sapphironAI>(creature);
         }
 };
 
@@ -412,7 +417,7 @@ class go_sapphiron_birth : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return GetInstanceAI<go_sapphiron_birthAI>(go);
+            return GetNaxxramasAI<go_sapphiron_birthAI>(go);
         }
 };
 
@@ -486,7 +491,7 @@ class spell_sapphiron_icebolt : public SpellScriptLoader
                 return;
             float x, y, z;
             GetTarget()->GetPosition(x, y, z);
-            if (GameObject* block = GetTarget()->SummonGameObject(GO_ICEBLOCK, x, y, z, 0.f, G3D::Quat(), 25))
+            if (GameObject* block = GetTarget()->SummonGameObject(GO_ICEBLOCK, x, y, z, 0.f, QuaternionData(), 25))
                 _block = block->GetGUID();
         }
 
@@ -517,7 +522,7 @@ class spell_sapphiron_summon_blizzard : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return !!sSpellMgr->GetSpellInfo(SPELL_SUMMON_BLIZZARD);
+                return ValidateSpellInfo({ SPELL_SUMMON_BLIZZARD });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

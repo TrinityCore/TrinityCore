@@ -17,9 +17,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
 
 /*######
 ## npc_galen_goodward
@@ -74,11 +75,11 @@ public:
         {
             switch (uiPointId)
             {
-            case 0:
+                case 0:
                 {
-                    GameObject* cage = NULL;
+                    GameObject* cage = nullptr;
                     if (galensCageGUID)
-                        cage = me->GetMap()->GetGameObject(galensCageGUID);
+                        cage = ObjectAccessor::GetGameObject(*me, galensCageGUID);
                     else
                         cage = GetClosestGameObjectWithEntry(me, GO_GALENS_CAGE, INTERACTION_DISTANCE);
                     if (cage)
@@ -88,9 +89,9 @@ public:
                     }
                     break;
                 }
-            case 21:
-                Talk(EMOTE_DISAPPEAR);
-                break;
+                case 21:
+                    Talk(EMOTE_DISAPPEAR);
+                    break;
             }
         }
 
@@ -99,7 +100,7 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    if (GameObject* cage = me->GetMap()->GetGameObject(galensCageGUID))
+                    if (GameObject* cage = ObjectAccessor::GetGameObject(*me, galensCageGUID))
                         cage->ResetDoorOrButton();
                     break;
                 case 20:
