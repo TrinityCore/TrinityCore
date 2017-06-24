@@ -1541,10 +1541,7 @@ void AuraEffect::HandleDetectAmore(AuraApplication const* aurApp, uint8 mode, bo
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (GetMiscValue() == 1)
-        target->ApplyModByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, GetMiscValue(), apply);
-    else
-        target->ApplyModByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, GetMiscValue() + 1, apply);
+    target->ApplyModByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, 1 << (GetMiscValue() - 1), apply);
 }
 
 void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 mode, bool apply) const
