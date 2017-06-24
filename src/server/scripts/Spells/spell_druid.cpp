@@ -988,7 +988,7 @@ public:
     {
         PrepareSpellScript(spell_dru_travel_form_SpellScript);
 
-        bool Load()
+        bool Load() override
         {
             return GetCaster()->GetTypeId() == TYPEID_PLAYER;
         }
