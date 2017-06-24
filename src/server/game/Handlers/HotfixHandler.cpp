@@ -20,6 +20,7 @@
 #include "DB2Stores.h"
 #include "HotfixPackets.h"
 #include "Log.h"
+#include "ObjectDefines.h"
 #include "World.h"
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
