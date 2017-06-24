@@ -192,8 +192,8 @@ WorldPacket const* WorldPackets::CombatLog::SpellInterruptLog::Write()
 
 WorldPacket const* WorldPackets::CombatLog::SpellEnergizeLog::Write()
 {
-    *this << CasterGUID;
     *this << TargetGUID;
+    *this << CasterGUID;
 
     *this << int32(SpellID);
     *this << int32(Type);

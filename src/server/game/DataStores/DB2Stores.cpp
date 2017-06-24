@@ -21,6 +21,7 @@
 #include "DB2LoadInfo.h"
 #include "Hash.h"
 #include "Log.h"
+#include "ObjectDefines.h"
 #include "Regex.h"
 #include "Timer.h"
 #include <array>
