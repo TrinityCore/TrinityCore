@@ -16,16 +16,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ArenaTeam.h"
+#include "ArenaTeamMgr.h"
+#include "CharacterCache.h"
+#include "DatabaseEnv.h"
+#include "Group.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "WorldPacket.h"
-#include "ArenaTeam.h"
 #include "World.h"
-#include "Group.h"
-#include "ArenaTeamMgr.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
-#include "CharacterCache.h"
 
 ArenaTeam::ArenaTeam()
     : TeamId(0), Type(0), TeamName(), CaptainGuid(), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),
@@ -399,7 +402,7 @@ void ArenaTeam::Disband()
 
 void ArenaTeam::Roster(WorldSession* session)
 {
-    Player* player = NULL;
+    Player* player = nullptr;
 
     uint8 unk308 = 0;
 
@@ -516,7 +519,7 @@ void ArenaTeam::BroadcastPacket(WorldPacket* packet)
 {
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
         if (Player* player = ObjectAccessor::FindConnectedPlayer(itr->Guid))
-            player->GetSession()->SendPacket(packet);
+            player->SendDirectMessage(packet);
 }
 
 void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, ObjectGuid guid, uint8 strCount, std::string const& str1, std::string const& str2, std::string const& str3)
@@ -811,7 +814,7 @@ void ArenaTeam::OfflineMemberLost(ObjectGuid guid, uint32 againstMatchmakerRatin
         {
             // update personal rating
             int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, false);
-            itr->ModifyPersonalRating(NULL, mod, GetType());
+            itr->ModifyPersonalRating(nullptr, mod, GetType());
 
             // update matchmaker rating
             itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
@@ -960,7 +963,7 @@ ArenaTeamMember* ArenaTeam::GetMember(const std::string& name)
         if (itr->Name == name)
             return &(*itr);
 
-    return NULL;
+    return nullptr;
 }
 
 ArenaTeamMember* ArenaTeam::GetMember(ObjectGuid guid)
@@ -969,5 +972,5 @@ ArenaTeamMember* ArenaTeam::GetMember(ObjectGuid guid)
         if (itr->Guid == guid)
             return &(*itr);
 
-    return NULL;
+    return nullptr;
 }

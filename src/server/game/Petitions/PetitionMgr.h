@@ -21,7 +21,6 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
-
 #include <string>
 #include <utility>
 #include <vector>

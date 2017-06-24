@@ -29,11 +29,16 @@ npc_image_of_medivh
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
-#include "ScriptedEscortAI.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -309,7 +314,7 @@ public:
                 {
                     if (WipeTimer <= diff)
                     {
-                        Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                        Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                         if (PlayerList.isEmpty())
                             return;
 
@@ -429,7 +434,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_image_of_medivhAI>(creature);
+        return GetKarazhanAI<npc_image_of_medivhAI>(creature);
     }
 
     struct npc_image_of_medivhAI : public ScriptedAI
@@ -566,7 +571,7 @@ public:
                 me->SetVisible(false);
                 me->ClearInCombat();
 
-                InstanceMap::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                InstanceMap::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                 for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
                     if (i->GetSource()->IsAlive())
@@ -579,7 +584,7 @@ public:
             }
             case 15:
                 if (Creature* arca = ObjectAccessor::GetCreature(*me, ArcanagosGUID))
-                    arca->DealDamage(arca, arca->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    arca->DealDamage(arca, arca->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 return 5000;
             default:
                 return 9999999;

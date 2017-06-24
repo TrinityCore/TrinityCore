@@ -24,10 +24,12 @@ SDCategory: Halls of Lightning
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
-#include "Player.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 
 enum Texts
 {
@@ -200,7 +202,7 @@ public:
                     summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
 
                 // Why healing when just summoned?
-                summoned->CastSpell(summoned, SPELL_HEAT, false, NULL, NULL, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_HEAT, false, nullptr, nullptr, me->GetGUID());
             }
         }
 
@@ -365,9 +367,8 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_volkhanAI>(creature);
+        return GetHallsOfLightningAI<boss_volkhanAI>(creature);
     }
-
 };
 
 /*######
@@ -381,7 +382,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_molten_golemAI(creature);
+        return GetHallsOfLightningAI<npc_molten_golemAI>(creature);
     }
 
     struct npc_molten_golemAI : public ScriptedAI
@@ -437,7 +438,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell) override
+        void SpellHit(Unit* /*pCaster*/, SpellInfo const* pSpell) override
         {
             // This is the dummy effect of the spells
             if (pSpell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))

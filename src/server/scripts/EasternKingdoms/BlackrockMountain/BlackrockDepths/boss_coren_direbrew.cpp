@@ -16,16 +16,20 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackrock_depths.h"
+#include "GameObjectAI.h"
+#include "GridNotifiers.h"
+#include "Group.h"
+#include "InstanceScript.h"
+#include "LFGMgr.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "blackrock_depths.h"
-#include "Player.h"
-#include "SpellScript.h"
 #include "SpellAuras.h"
-#include "LFGMgr.h"
-#include "Group.h"
-#include "GridNotifiers.h"
-#include "GameObjectAI.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum DirebrewSays
 {
@@ -274,7 +278,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_coren_direbrewAI>(creature);
+        return GetBlackrockDepthsAI<boss_coren_direbrewAI>(creature);
     }
 };
 
@@ -338,7 +342,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_coren_direbrew_sistersAI>(creature);
+        return GetBlackrockDepthsAI<npc_coren_direbrew_sistersAI>(creature);
     }
 };
 
@@ -370,7 +374,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_direbrew_minionAI>(creature);
+        return GetBlackrockDepthsAI<npc_direbrew_minionAI>(creature);
     }
 };
 
@@ -412,7 +416,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_direbrew_antagonistAI>(creature);
+        return GetBlackrockDepthsAI<npc_direbrew_antagonistAI>(creature);
     }
 };
 
@@ -455,7 +459,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return GetInstanceAI<go_direbrew_mole_machineAI>(go);
+        return GetBlackrockDepthsAI<go_direbrew_mole_machineAI>(go);
     }
 };
 
@@ -471,10 +475,7 @@ class spell_direbrew_disarm : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DIREBREW_DISARM)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DIREBREW_DISARM_GROW))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DIREBREW_DISARM, SPELL_DIREBREW_DISARM_GROW });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
@@ -517,9 +518,7 @@ class spell_direbrew_summon_mole_machine_target_picker : public SpellScriptLoade
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOLE_MACHINE_MINION_SUMMONER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MOLE_MACHINE_MINION_SUMMONER });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -603,9 +602,7 @@ class spell_request_second_mug : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SEND_SECOND_MUG))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SEND_SECOND_MUG });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -637,9 +634,7 @@ class spell_send_mug_control_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SEND_MUG_TARGET_PICKER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SEND_MUG_TARGET_PICKER });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)

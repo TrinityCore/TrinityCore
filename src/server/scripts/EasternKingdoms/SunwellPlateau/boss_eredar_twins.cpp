@@ -16,9 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
-#include "sunwell_plateau.h"
 #include "SpellInfo.h"
+#include "sunwell_plateau.h"
 
 enum Quotes
 {
@@ -160,7 +161,7 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {
@@ -266,8 +267,8 @@ public:
 
             if (ShadowimageTimer <= diff)
             {
-                Unit* target = NULL;
-                Creature* temp = NULL;
+                Unit* target = nullptr;
+                Creature* temp = nullptr;
                 for (uint8 i = 0; i<3; ++i)
                 {
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
@@ -436,7 +437,7 @@ public:
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {
@@ -673,7 +674,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {

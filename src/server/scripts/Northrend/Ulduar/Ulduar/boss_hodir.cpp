@@ -16,13 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 
 /* @todo Achievements
@@ -520,7 +521,7 @@ class boss_hodir : public CreatureScript
                 std::list<Unit*> TargetList;
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(me, me, 100.0f);
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
-                me->VisitNearbyObject(100.0f, searcher);
+                Cell::VisitAllObjects(me, searcher, 100.0f);
                 for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                 {
                     Unit* target = *itr;
@@ -694,7 +695,7 @@ class npc_hodir_priest : public CreatureScript
                             std::list<Unit*> TargetList;
                             Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 30.0f);
                             Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
-                            me->VisitNearbyObject(30.0f, searcher);
+                            Cell::VisitAllObjects(me, searcher, 30.0f);
                             for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                                 if ((*itr)->HasAura(SPELL_FREEZE))
                                     DoCast(*itr, SPELL_DISPEL_MAGIC, true);
@@ -959,7 +960,7 @@ class npc_toasty_fire : public CreatureScript
                 DoCast(me, SPELL_SINGED, true);
             }
 
-            void SpellHit(Unit* /*who*/, const SpellInfo* spell) override
+            void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_BLOCK_OF_ICE || spell->Id == SPELL_ICE_SHARD || spell->Id == SPELL_ICE_SHARD_HIT)
                 {
@@ -1048,7 +1049,7 @@ public:
                 return;
 
             int32 damage = int32(200 * std::pow(2.0f, GetStackAmount()));
-            caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, NULL, NULL, true);
+            caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, nullptr, nullptr, true);
 
             if (caster->isMoving())
                 caster->RemoveAuraFromStack(SPELL_BITING_COLD_TRIGGERED);

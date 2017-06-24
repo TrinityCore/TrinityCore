@@ -15,15 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapManager.h"
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "Map.h"
 #include "OutdoorPvPHP.h"
-#include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
-#include "ObjectMgr.h"
 #include "WorldPacket.h"
-
 
 uint32 const OutdoorPvPHPBuffZonesNum = 6;
                                                          //  HP, citadel, ramparts, blood furnace, shattered halls, mag's lair
@@ -254,7 +252,7 @@ void OPvPCapturePointHP::ChangeState()
         break;
     }
 
-    Map* map = sMapMgr->FindMap(530, 0);
+    Map* map = m_PvP->GetMap();
     auto bounds = map->GetGameObjectBySpawnIdStore().equal_range(m_capturePointSpawnId);
     for (auto itr = bounds.first; itr != bounds.second; ++itr)
         itr->second->SetGoArtKit(artkit);

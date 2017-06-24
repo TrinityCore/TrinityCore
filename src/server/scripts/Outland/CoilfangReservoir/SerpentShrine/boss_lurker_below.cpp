@@ -24,11 +24,16 @@ SDCategory: The Lurker Below
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 #include "serpent_shrine.h"
 #include "Spell.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -84,7 +89,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_the_lurker_belowAI>(creature);
+        return GetSerpentshrineCavernAI<boss_the_lurker_belowAI>(creature);
     }
 
     struct boss_the_lurker_belowAI : public ScriptedAI
@@ -170,7 +175,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!CanStartEvent) // boss is invisible, don't attack
                 return;
@@ -239,7 +243,9 @@ public:
                     DoCast(me, SPELL_SUBMERGE);
                     PhaseTimer = 60000; // 60secs submerged
                     Submerged = true;
-                } else PhaseTimer-=diff;
+                }
+                else
+                    PhaseTimer -= diff;
 
                 if (SpoutTimer <= diff)
                 {
@@ -250,19 +256,23 @@ public:
                     WhirlTimer = 20000; // whirl directly after spout
                     RotTimer = 20000;
                     return;
-                } else SpoutTimer -= diff;
+                }
+                else
+                    SpoutTimer -= diff;
 
                 // Whirl directly after a Spout and at random times
                 if (WhirlTimer <= diff)
                 {
                     WhirlTimer = 18000;
                     DoCast(me, SPELL_WHIRL);
-                } else WhirlTimer -= diff;
+                }
+                else
+                    WhirlTimer -= diff;
 
                 if (CheckTimer <= diff)//check if there are players in melee range
                 {
                     InRange = false;
-                    Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                    Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                     if (!PlayerList.isEmpty())
                     {
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -272,11 +282,13 @@ public:
                         }
                     }
                     CheckTimer = 2000;
-                } else CheckTimer -= diff;
+                }
+                else
+                    CheckTimer -= diff;
 
                 if (RotTimer)
                 {
-                    Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                    Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
                         if (i->GetSource() && i->GetSource()->IsAlive() && me->HasInArc(diff/20000.f*float(M_PI)*2.f, i->GetSource()) && me->IsWithinDist(i->GetSource(), SPOUT_DIST) && !i->GetSource()->IsInWater())
@@ -292,7 +304,9 @@ public:
                     if (RotTimer <= diff)
                     {
                         RotTimer = 0;
-                    } else RotTimer -= diff;
+                    }
+                    else
+                        RotTimer -= diff;
                     return;
                 }
 
@@ -304,7 +318,9 @@ public:
                     if (target)
                         DoCast(target, SPELL_GEYSER, true);
                     GeyserTimer = rand32() % 5000 + 15000;
-                } else GeyserTimer -= diff;
+                }
+                else
+                    GeyserTimer -= diff;
 
                 if (!InRange) // if on players in melee range cast Waterbolt
                 {
@@ -316,7 +332,9 @@ public:
                         if (target)
                             DoCast(target, SPELL_WATERBOLT, true);
                         WaterboltTimer = 3000;
-                    } else WaterboltTimer -= diff;
+                    }
+                    else
+                        WaterboltTimer -= diff;
                 }
 
                 if (!UpdateVictim())
@@ -339,7 +357,9 @@ public:
                     SpoutTimer = 3000; // directly cast Spout after emerging!
                     PhaseTimer = 120000;
                     return;
-                } else PhaseTimer-=diff;
+                }
+                else
+                    PhaseTimer -= diff;
 
                 if (me->getThreatManager().getThreatList().empty()) // check if should evade
                 {
@@ -371,7 +391,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_coilfang_ambusherAI(creature);
+        return GetSerpentshrineCavernAI<npc_coilfang_ambusherAI>(creature);
     }
 
     struct npc_coilfang_ambusherAI : public ScriptedAI
@@ -421,7 +441,7 @@ public:
             {
                 int bp0 = 1100;
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    me->CastCustomSpell(target, SPELL_SHOOT, &bp0, NULL, NULL, true);
+                    me->CastCustomSpell(target, SPELL_SHOOT, &bp0, nullptr, nullptr, true);
                 ShootBowTimer = 4000 + rand32() % 5000;
                 MultiShotTimer += 1500; // add global cooldown
             } else ShootBowTimer -= diff;
@@ -460,7 +480,7 @@ class go_strange_pool : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return GetInstanceAI<go_strange_poolAI>(go);
+            return GetSerpentshrineCavernAI<go_strange_poolAI>(go);
         }
 };
 

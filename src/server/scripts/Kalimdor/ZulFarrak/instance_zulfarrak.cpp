@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "zulfarrak.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "TemporarySummon.h"
+#include "zulfarrak.h"
 
 enum Misc
 {
@@ -99,7 +102,7 @@ float Spawnsway[2][3] =
 class instance_zulfarrak : public InstanceMapScript
 {
 public:
-    instance_zulfarrak() : InstanceMapScript("instance_zulfarrak", 209) { }
+    instance_zulfarrak() : InstanceMapScript(ZFScriptName, 209) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -216,9 +219,9 @@ public:
             switch (type)
             {
                 case EVENT_PYRAMID:
-                    PyramidPhase=data;
+                    PyramidPhase = data;
                     break;
-            };
+            }
         }
 
         virtual void Update(uint32 diff) override

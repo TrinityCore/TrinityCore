@@ -16,13 +16,19 @@
  */
 
 #include "ScriptMgr.h"
+#include "halls_of_reflection.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Transport.h"
-#include "Player.h"
-#include "MoveSplineInit.h"
-#include "halls_of_reflection.h"
 
 enum Text
 {
@@ -337,6 +343,12 @@ Position const IceWallTargetPosition[] =
     { 5439.976f, 1879.005f, 752.7048f, 1.064651f  }, // 3rd Icewall
     { 5318.289f, 1749.184f, 771.9423f, 0.8726646f }  // 4th Icewall
 };
+
+void GameObjectDeleteDelayEvent::DeleteGameObject()
+{
+    if (GameObject* go = ObjectAccessor::GetGameObject(*_owner, _gameObjectGUID))
+        go->Delete();
+}
 
 class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
 {
@@ -1641,7 +1653,7 @@ class npc_phantom_hallucination : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_phantom_hallucinationAI(creature);
+            return GetHallsOfReflectionAI<npc_phantom_hallucinationAI>(creature);
         }
 };
 
@@ -1995,7 +2007,7 @@ class npc_spiritual_reflection : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_spiritual_reflectionAI(creature);
+            return GetHallsOfReflectionAI<npc_spiritual_reflectionAI>(creature);
         }
 };
 
@@ -2816,9 +2828,9 @@ class spell_hor_gunship_cannon_fire : public SpellScriptLoader
                 if (!urand(0, 2))
                 {
                     if (GetTarget()->GetEntry() == NPC_GUNSHIP_CANNON_HORDE)
-                        GetTarget()->CastSpell((Unit*)NULL, SPELL_GUNSHIP_CANNON_FIRE_MISSILE_HORDE, true);
+                        GetTarget()->CastSpell((Unit*)nullptr, SPELL_GUNSHIP_CANNON_FIRE_MISSILE_HORDE, true);
                     else
-                        GetTarget()->CastSpell((Unit*)NULL, SPELL_GUNSHIP_CANNON_FIRE_MISSILE_ALLIANCE, true);
+                        GetTarget()->CastSpell((Unit*)nullptr, SPELL_GUNSHIP_CANNON_FIRE_MISSILE_ALLIANCE, true);
                 }
             }
 

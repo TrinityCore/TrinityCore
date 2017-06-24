@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "scholomance.h"
 
 enum Spells
 {
@@ -130,7 +130,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_kormokAI(creature);
+        return GetScholomanceAI<boss_kormokAI>(creature);
     }
 };
 
@@ -154,10 +154,7 @@ class spell_kormok_summon_bone_mages : SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                for (uint32 i = 0; i < 4; ++i)
-                    if (!sSpellMgr->GetSpellInfo(SummonMageSpells[i]))
-                        return false;
-                return true;
+                return ValidateSpellInfo(SummonMageSpells);
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -191,9 +188,7 @@ class spell_kormok_summon_bone_minions : SpellScriptLoader
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_BONE_MINIONS))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SUMMON_BONE_MINIONS });
         }
 
         void HandleScript(SpellEffIndex effIndex)

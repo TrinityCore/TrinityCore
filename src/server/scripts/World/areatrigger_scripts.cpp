@@ -35,10 +35,15 @@ at_brewfest
 at_area_52_entrance
 EndContentData */
 
-#include "GameTime.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "DBCStructure.h"
+#include "GameObject.h"
+#include "GameTime.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 /*######
 ## at_coilfang_waterfall

@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 
 #define LESS_MOB // if you do not have a good server and do not want it to be laggy as hell
 //Light of Dawn
@@ -1084,7 +1088,7 @@ public:
                         case 48: // Show the cleansing effect (dawn of light)
                             //if (GameObject* go = me->GetMap()->GetGameObject(uiDawnofLightGUID))
                             //    go->SetPhaseMask(128, true);
-                            me->SummonGameObject(GO_LIGHT_OF_DAWN, 2283.896f, -5287.914f, 83.066f, 0.f, G3D::Quat(), 30);
+                            me->SummonGameObject(GO_LIGHT_OF_DAWN, 2283.896f, -5287.914f, 83.066f, 0.f, QuaternionData(), 30);
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, uiTirionGUID))
                             {
                                 if (temp->HasAura(SPELL_REBIRTH_OF_THE_ASHBRINGER))
@@ -1262,7 +1266,7 @@ public:
                             //    go->SetPhaseMask(0, true);
                             {
                                 // search players with in 50 yards for quest credit
-                                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                                 if (!PlayerList.isEmpty())
                                 {
                                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -1494,7 +1498,7 @@ public:
 
         void SpawnNPC()
         {
-            Unit* temp = NULL;
+            Unit* temp = nullptr;
 
             // Death
             for (uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)

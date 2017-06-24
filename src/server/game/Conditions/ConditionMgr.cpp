@@ -18,16 +18,21 @@
 
 #include "ConditionMgr.h"
 #include "AchievementMgr.h"
+#include "DatabaseEnv.h"
 #include "GameEventMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "LootMgr.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
@@ -289,12 +294,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_NEAR_CREATURE:
         {
-            condMeets = GetClosestCreatureWithEntry(object, ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) ? true : false;
+            condMeets = object->FindNearestCreature(ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) != nullptr;
             break;
         }
         case CONDITION_NEAR_GAMEOBJECT:
         {
-            condMeets = GetClosestGameObjectWithEntry(object, ConditionValue1, (float)ConditionValue2) ? true : false;
+            condMeets = object->FindNearestGameObject(ConditionValue1, (float)ConditionValue2) != nullptr;
             break;
         }
         case CONDITION_OBJECT_ENTRY_GUID:
@@ -1073,7 +1078,7 @@ void ConditionMgr::LoadConditions(bool isReload)
             }
             cond->ReferenceId = uint32(abs(iConditionTypeOrReference));
 
-            const char* rowType = "reference template";
+            char const* rowType = "reference template";
             if (iSourceTypeOrReferenceId >= 0)
                 rowType = "reference";
             //check for useless data

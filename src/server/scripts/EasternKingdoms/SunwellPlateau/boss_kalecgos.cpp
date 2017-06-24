@@ -24,10 +24,17 @@ SDCategory: Sunwell_Plateau
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
-#include "sunwell_plateau.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "sunwell_plateau.h"
+#include "TemporarySummon.h"
 #include "WorldSession.h"
 
 enum Yells
@@ -548,7 +555,7 @@ public:
         {
 #if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
             uint8 SpectralPlayers = 0;
-            Map::PlayerList const &PlayerList = go->GetMap()->GetPlayers();
+            Map::PlayerList const& PlayerList = go->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
                 if (i->GetSource() && i->GetSource()->GetPositionZ() < DEMON_REALM_Z + 5)
@@ -685,7 +692,7 @@ public:
 
         void TeleportAllPlayersBack()
         {
-            Map::PlayerList const &playerList = me->GetMap()->GetPlayers();
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
             Position const& homePos = me->GetHomePosition();
             for (Map::PlayerList::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
             {

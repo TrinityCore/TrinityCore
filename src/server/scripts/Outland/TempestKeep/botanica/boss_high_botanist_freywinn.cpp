@@ -24,6 +24,8 @@ SDCategory: Tempest Keep, The Botanica
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "the_botanica.h"
 
@@ -210,7 +212,7 @@ class boss_high_botanist_freywinn : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_high_botanist_freywinnAI(creature);
+            return GetBotanicaAI<boss_high_botanist_freywinnAI>(creature);
         }
 };
 

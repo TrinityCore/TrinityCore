@@ -33,12 +33,12 @@ npc_slim
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Group.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "WorldSession.h"
 
 /*######
@@ -110,7 +110,7 @@ public:
             {
                 if (Group* group = player->GetGroup())
                 {
-                    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                     {
                         Player* groupie = itr->GetSource();
                         if (groupie && groupie->IsInMap(player) &&

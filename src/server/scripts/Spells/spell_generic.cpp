@@ -23,21 +23,23 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameTime.h"
 #include "Battleground.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
+#include "DBCStores.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "Item.h"
 #include "LFGMgr.h"
+#include "Log.h"
 #include "Pet.h"
 #include "ReputationMgr.h"
 #include "SkillDiscovery.h"
-#include "SpellHistory.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
 #include "Transmogrification.h"
 
@@ -50,14 +52,7 @@ class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_absorb0_hitlimit1_AuraScript);
 
-        public:
-            spell_gen_absorb0_hitlimit1_AuraScript()
-            {
-                limit = 0;
-            }
-
-        private:
-            uint32 limit;
+            uint32 limit = 0;
 
             bool Load() override
             {
@@ -104,13 +99,14 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_ADAPTIVE_WARDING_FIRE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_GEN_ADAPTIVE_WARDING_NATURE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_GEN_ADAPTIVE_WARDING_FROST) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_GEN_ADAPTIVE_WARDING_SHADOW) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_GEN_ADAPTIVE_WARDING_ARCANE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_GEN_ADAPTIVE_WARDING_FIRE,
+                    SPELL_GEN_ADAPTIVE_WARDING_NATURE,
+                    SPELL_GEN_ADAPTIVE_WARDING_FROST,
+                    SPELL_GEN_ADAPTIVE_WARDING_SHADOW,
+                    SPELL_GEN_ADAPTIVE_WARDING_ARCANE
+                });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -220,9 +216,7 @@ class spell_gen_animal_blood : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SPAWN_BLOOD_POOL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SPAWN_BLOOD_POOL });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -302,9 +296,7 @@ class spell_gen_aura_service_uniform : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SERVICE_UNIFORM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SERVICE_UNIFORM });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -399,9 +391,7 @@ class spell_gen_bandage : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RECENTLY_BANDAGED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RECENTLY_BANDAGED });
             }
 
             SpellCastResult CheckCast()
@@ -451,9 +441,7 @@ class spell_gen_blood_reserve : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_BLOOD_RESERVE_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_GEN_BLOOD_RESERVE_HEAL });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -564,10 +552,8 @@ class spell_gen_bonked : public SpellScriptLoader
                     target->RemoveAurasDueToSpell(SPELL_BONKED);
 
                     if (Aura const* auraOnGuard = target->GetAura(SPELL_ON_GUARD))
-                    {
                         if (Item* item = target->GetItemByGuid(auraOnGuard->GetCastItemGUID()))
                             target->DestroyItemCount(item->GetEntry(), 1, true);
-                    }
                 }
             }
 
@@ -619,7 +605,7 @@ enum BreakShieldSpells
 class spell_gen_break_shield: public SpellScriptLoader
 {
     public:
-        spell_gen_break_shield(const char* name) : SpellScriptLoader(name) { }
+        spell_gen_break_shield(char const* name) : SpellScriptLoader(name) { }
 
         class spell_gen_break_shield_SpellScript : public SpellScript
         {
@@ -732,9 +718,7 @@ class spell_gen_burning_depths_necrolyte_image : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(uint32(spellInfo->Effects[EFFECT_2].CalcValue())))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_2].CalcValue()) });
             }
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -777,20 +761,20 @@ class spell_gen_cannibalize : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CANNIBALIZE_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CANNIBALIZE_TRIGGERED });
             }
 
             SpellCastResult CheckIfCorpseNear()
             {
                 Unit* caster = GetCaster();
                 float max_range = GetSpellInfo()->GetMaxRange(false);
-                WorldObject* result = NULL;
+                WorldObject* result = nullptr;
                 // search for nearby enemy corpse in range
                 Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
                 Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
-                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+                Cell::VisitWorldObjects(caster, searcher, max_range);
+                if (!result)
+                    Cell::VisitGridObjects(caster, searcher, max_range);
                 if (!result)
                     return SPELL_FAILED_NO_EDIBLE_CORPSES;
                 return SPELL_CAST_OK;
@@ -830,16 +814,14 @@ class spell_gen_chaos_blast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CHAOS_BLAST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CHAOS_BLAST });
             }
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 int32 basepoints0 = 100;
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
-                    caster->CastCustomSpell(target, SPELL_CHAOS_BLAST, &basepoints0, NULL, NULL, true);
+                    caster->CastCustomSpell(target, SPELL_CHAOS_BLAST, &basepoints0, nullptr, nullptr, true);
             }
 
             void Register() override
@@ -930,23 +912,17 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_clone_weapon_auraScript);
 
-        public:
-            spell_gen_clone_weapon_auraScript()
-            {
-                prevItem = 0;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_AURA) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_2_AURA) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_COPY_WEAPON_3_AURA) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_AURA) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_COPY_OFFHAND_2_AURA) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_COPY_RANGED_AURA))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_COPY_WEAPON_AURA,
+                    SPELL_COPY_WEAPON_2_AURA,
+                    SPELL_COPY_WEAPON_3_AURA,
+                    SPELL_COPY_OFFHAND_AURA,
+                    SPELL_COPY_OFFHAND_2_AURA,
+                    SPELL_COPY_RANGED_AURA
+                });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1049,8 +1025,7 @@ class spell_gen_clone_weapon_aura : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_gen_clone_weapon_auraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
 
-        private:
-            uint32 prevItem;
+            uint32 prevItem = 0;
         };
 
         AuraScript* GetAuraScript() const override
@@ -1115,10 +1090,11 @@ class spell_gen_create_lance : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_LANCE_ALLIANCE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_LANCE_HORDE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_CREATE_LANCE_ALLIANCE,
+                    SPELL_CREATE_LANCE_HORDE
+                });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -1199,7 +1175,7 @@ enum DalaranDisguiseSpells
 class spell_gen_dalaran_disguise : public SpellScriptLoader
 {
     public:
-        spell_gen_dalaran_disguise(const char* name) : SpellScriptLoader(name) { }
+        spell_gen_dalaran_disguise(char const* name) : SpellScriptLoader(name) { }
 
         class spell_gen_dalaran_disguise_SpellScript : public SpellScript
         {
@@ -1210,17 +1186,22 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
                 switch (spellInfo->Id)
                 {
                     case SPELL_SUNREAVER_DISGUISE_TRIGGER:
-                        if (!sSpellMgr->GetSpellInfo(SPELL_SUNREAVER_DISGUISE_FEMALE) ||
-                            !sSpellMgr->GetSpellInfo(SPELL_SUNREAVER_DISGUISE_MALE))
-                            return false;
-                        break;
+                        return ValidateSpellInfo(
+                        {
+                            SPELL_SUNREAVER_DISGUISE_FEMALE,
+                            SPELL_SUNREAVER_DISGUISE_MALE
+                        });
                     case SPELL_SILVER_COVENANT_DISGUISE_TRIGGER:
-                        if (!sSpellMgr->GetSpellInfo(SPELL_SILVER_COVENANT_DISGUISE_FEMALE) ||
-                            !sSpellMgr->GetSpellInfo(SPELL_SILVER_COVENANT_DISGUISE_MALE))
-                            return false;
+                        return ValidateSpellInfo(
+                        {
+                            SPELL_SILVER_COVENANT_DISGUISE_FEMALE,
+                            SPELL_SILVER_COVENANT_DISGUISE_MALE
+                        });
+                    default:
                         break;
                 }
-                return true;
+
+                return false;
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1279,9 +1260,7 @@ class spell_gen_damage_reduction_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DAMAGE_REDUCTION_AURA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DAMAGE_REDUCTION_AURA });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1334,13 +1313,12 @@ class spell_gen_defend : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_1))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_2))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_3))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_VISUAL_SHIELD_1,
+                    SPELL_VISUAL_SHIELD_2,
+                    SPELL_VISUAL_SHIELD_3
+                });
             }
 
             void RefreshVisualShields(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1352,7 +1330,7 @@ class spell_gen_defend : public SpellScriptLoader
                     for (uint8 i = 0; i < GetSpellInfo()->StackAmount; ++i)
                         target->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
 
-                    target->CastSpell(target, SPELL_VISUAL_SHIELD_1 + GetAura()->GetStackAmount() - 1, true, NULL, aurEff);
+                    target->CastSpell(target, SPELL_VISUAL_SHIELD_1 + GetAura()->GetStackAmount() - 1, true, nullptr, aurEff);
                 }
                 else
                     GetTarget()->RemoveAurasDueToSpell(GetId());
@@ -1456,9 +1434,7 @@ class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DIVINE_STORM))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DIVINE_STORM });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1526,13 +1502,6 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_dungeon_credit_SpellScript);
 
-        public:
-            spell_gen_dungeon_credit_SpellScript()
-            {
-                _handled = false;
-            }
-
-        private:
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -1547,7 +1516,7 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
                 _handled = true;
                 Unit* caster = GetCaster();
                 if (InstanceScript* instance = caster->GetInstanceScript())
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, GetSpellInfo()->Id, caster);
+                    instance->UpdateEncounterStateForSpellCast(GetSpellInfo()->Id, caster);
             }
 
             void Register() override
@@ -1555,8 +1524,7 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
                 AfterHit += SpellHitFn(spell_gen_dungeon_credit_SpellScript::CreditEncounter);
             }
 
-        private:
-            bool _handled;
+            bool _handled = false;
         };
 
         SpellScript* GetSpellScript() const override
@@ -1589,13 +1557,14 @@ class spell_gen_elune_candle : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_HEAD) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_CHEST) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_HAND_R) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_OMEN_HAND_L) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ELUNE_CANDLE_NORMAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ELUNE_CANDLE_OMEN_HEAD,
+                    SPELL_ELUNE_CANDLE_OMEN_CHEST,
+                    SPELL_ELUNE_CANDLE_OMEN_HAND_R,
+                    SPELL_ELUNE_CANDLE_OMEN_HAND_L,
+                    SPELL_ELUNE_CANDLE_NORMAL
+                });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1623,7 +1592,7 @@ class spell_gen_elune_candle : public SpellScriptLoader
                 else
                     spellId = SPELL_ELUNE_CANDLE_NORMAL;
 
-                GetCaster()->CastSpell(GetHitUnit(), spellId, true, NULL);
+                GetCaster()->CastSpell(GetHitUnit(), spellId, true, nullptr);
             }
 
             void Register() override
@@ -1656,11 +1625,12 @@ class spell_gen_gadgetzan_transporter_backfire : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_EVIL_TWIN) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_MALFUNCTION_MISS))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH,
+                    SPELL_TRANSPORTER_EVIL_TWIN,
+                    SPELL_TRANSPORTER_MALFUNCTION_MISS
+                });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -1757,10 +1727,11 @@ class spell_gen_gnomish_transporter : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_SUCCESS) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_FAILURE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_TRANSPORTER_SUCCESS,
+                    SPELL_TRANSPORTER_FAILURE
+                });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
@@ -1819,7 +1790,7 @@ enum GenericLifebloom
 class spell_gen_lifebloom : public SpellScriptLoader
 {
     public:
-        spell_gen_lifebloom(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+        spell_gen_lifebloom(char const* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
 
         class spell_gen_lifebloom_AuraScript : public AuraScript
         {
@@ -1828,11 +1799,10 @@ class spell_gen_lifebloom : public SpellScriptLoader
         public:
             spell_gen_lifebloom_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
 
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(_spellId))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ _spellId });
             }
 
             void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1842,7 +1812,7 @@ class spell_gen_lifebloom : public SpellScriptLoader
                     return;
 
                 // final heal
-                GetTarget()->CastSpell(GetTarget(), _spellId, true, NULL, aurEff, GetCasterGUID());
+                GetTarget()->CastSpell(GetTarget(), _spellId, true, nullptr, aurEff, GetCasterGUID());
             }
 
             void Register() override
@@ -1850,7 +1820,6 @@ class spell_gen_lifebloom : public SpellScriptLoader
                 AfterEffectRemove += AuraEffectRemoveFn(spell_gen_lifebloom_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
             }
 
-        private:
             uint32 _spellId;
         };
 
@@ -1975,7 +1944,7 @@ enum Mounts
 class spell_gen_mount : public SpellScriptLoader
 {
     public:
-        spell_gen_mount(const char* name, uint32 mount0 = 0, uint32 mount60 = 0, uint32 mount100 = 0, uint32 mount150 = 0, uint32 mount280 = 0, uint32 mount310 = 0) : SpellScriptLoader(name),
+        spell_gen_mount(char const* name, uint32 mount0 = 0, uint32 mount60 = 0, uint32 mount100 = 0, uint32 mount150 = 0, uint32 mount280 = 0, uint32 mount310 = 0) : SpellScriptLoader(name),
             _mount0(mount0), _mount60(mount60), _mount100(mount100), _mount150(mount150), _mount280(mount280), _mount310(mount310) { }
 
         class spell_gen_mount_SpellScript : public SpellScript
@@ -1986,21 +1955,24 @@ class spell_gen_mount : public SpellScriptLoader
             spell_gen_mount_SpellScript(uint32 mount0, uint32 mount60, uint32 mount100, uint32 mount150, uint32 mount280, uint32 mount310) : SpellScript(),
                 _mount0(mount0), _mount60(mount60), _mount100(mount100), _mount150(mount150), _mount280(mount280), _mount310(mount310) { }
 
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (_mount0 && !sSpellMgr->GetSpellInfo(_mount0))
-                    return false;
-                if (_mount60 && !sSpellMgr->GetSpellInfo(_mount60))
-                    return false;
-                if (_mount100 && !sSpellMgr->GetSpellInfo(_mount100))
-                    return false;
-                if (_mount150 && !sSpellMgr->GetSpellInfo(_mount150))
-                    return false;
-                if (_mount280 && !sSpellMgr->GetSpellInfo(_mount280))
-                    return false;
-                if (_mount310 && !sSpellMgr->GetSpellInfo(_mount310))
-                    return false;
-                return true;
+                bool result = true;
+                if (_mount0)
+                    result &= ValidateSpellInfo({ _mount0 });
+                if (_mount60)
+                    result &= ValidateSpellInfo({ _mount60 });
+                if (_mount100)
+                    result &= ValidateSpellInfo({ _mount100 });
+                if (_mount150)
+                    result &= ValidateSpellInfo({ _mount150 });
+                if (_mount280)
+                    result &= ValidateSpellInfo({ _mount280 });
+                if (_mount310)
+                    result &= ValidateSpellInfo({ _mount310 });
+
+                return result;
             }
 
             void HandleMount(SpellEffIndex effIndex)
@@ -2061,7 +2033,6 @@ class spell_gen_mount : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_gen_mount_SpellScript::HandleMount, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
-        private:
             uint32 _mount0;
             uint32 _mount60;
             uint32 _mount100;
@@ -2263,9 +2234,7 @@ class spell_gen_moss_covered_feet : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FALL_DOWN))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FALL_DOWN });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -2286,7 +2255,7 @@ class spell_gen_moss_covered_feet : public SpellScriptLoader
         }
 };
 
-enum Netherbloom
+enum Netherbloom : uint32
 {
     SPELL_NETHERBLOOM_POLLEN_1      = 28703
 };
@@ -2304,8 +2273,9 @@ class spell_gen_netherbloom : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 for (uint8 i = 0; i < 5; ++i)
-                    if (!sSpellMgr->GetSpellInfo(SPELL_NETHERBLOOM_POLLEN_1 + i))
+                    if (!ValidateSpellInfo({ SPELL_NETHERBLOOM_POLLEN_1 + i }))
                         return false;
+
                 return true;
             }
 
@@ -2361,9 +2331,7 @@ class spell_gen_nightmare_vine : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NIGHTMARE_POLLEN))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NIGHTMARE_POLLEN });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -2412,14 +2380,15 @@ class spell_gen_obsidian_armor : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_HOLY) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_FIRE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_NATURE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_FROST) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_SHADOW) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_ARCANE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_GEN_OBSIDIAN_ARMOR_HOLY,
+                    SPELL_GEN_OBSIDIAN_ARMOR_FIRE,
+                    SPELL_GEN_OBSIDIAN_ARMOR_NATURE,
+                    SPELL_GEN_OBSIDIAN_ARMOR_FROST,
+                    SPELL_GEN_OBSIDIAN_ARMOR_SHADOW,
+                    SPELL_GEN_OBSIDIAN_ARMOR_ARCANE
+                });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -2462,7 +2431,7 @@ class spell_gen_obsidian_armor : public SpellScriptLoader
                     default:
                         return;
                 }
-                GetTarget()->CastSpell(GetTarget(), spellId, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2540,11 +2509,12 @@ class spell_gen_orc_disguise : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_TRIGGER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_MALE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_FEMALE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ORC_DISGUISE_TRIGGER,
+                    SPELL_ORC_DISGUISE_MALE,
+                    SPELL_ORC_DISGUISE_FEMALE
+                });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2589,9 +2559,7 @@ class spell_gen_paralytic_poison : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PARALYSIS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PARALYSIS });
             }
 
             void HandleStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -2617,7 +2585,7 @@ class spell_gen_paralytic_poison : public SpellScriptLoader
 class spell_gen_proc_below_pct_damaged : public SpellScriptLoader
 {
     public:
-        spell_gen_proc_below_pct_damaged(const char* name) : SpellScriptLoader(name) { }
+        spell_gen_proc_below_pct_damaged(char const* name) : SpellScriptLoader(name) { }
 
         class spell_gen_proc_below_pct_damaged_AuraScript : public AuraScript
         {
@@ -2693,10 +2661,11 @@ class spell_gen_parachute : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PARACHUTE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_PARACHUTE_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_PARACHUTE,
+                    SPELL_PARACHUTE_BUFF
+                });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -2979,9 +2948,7 @@ class spell_gen_seaforium_blast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT });
             }
 
             bool Load() override
@@ -2992,7 +2959,7 @@ class spell_gen_seaforium_blast : public SpellScriptLoader
 
             void AchievementCredit(SpellEffIndex /*effIndex*/)
             {
-                // but in effect handling OriginalCaster can become NULL
+                // but in effect handling OriginalCaster can become nullptr
                 if (Unit* originalCaster = GetOriginalCaster())
                     if (GameObject* go = GetHitGObj())
                         if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
@@ -3067,7 +3034,7 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
                 {
                     WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
                     data << uint64(target->GetGUID());
-                    originalCaster->GetSession()->SendPacket(&data);
+                    originalCaster->SendDirectMessage(&data);
                 }
             }
 
@@ -3092,7 +3059,7 @@ enum SummonElemental
 class spell_gen_summon_elemental : public SpellScriptLoader
 {
     public:
-        spell_gen_summon_elemental(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+        spell_gen_summon_elemental(char const* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
 
         class spell_gen_summon_elemental_AuraScript : public AuraScript
         {
@@ -3101,11 +3068,10 @@ class spell_gen_summon_elemental : public SpellScriptLoader
         public:
             spell_gen_summon_elemental_AuraScript(uint32 spellId) : AuraScript(), _spellId(spellId) { }
 
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(_spellId))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ _spellId });
             }
 
             void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3120,7 +3086,7 @@ class spell_gen_summon_elemental : public SpellScriptLoader
                 if (GetCaster())
                     if (Unit* owner = GetCaster()->GetOwner())
                         if (owner->GetTypeId() == TYPEID_PLAYER) /// @todo this check is maybe wrong
-                            owner->ToPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+                            owner->ToPlayer()->RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
             }
 
             void Register() override
@@ -3129,7 +3095,6 @@ class spell_gen_summon_elemental : public SpellScriptLoader
                  AfterEffectRemove += AuraEffectRemoveFn(spell_gen_summon_elemental_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
-        private:
             uint32 _spellId;
         };
 
@@ -3158,9 +3123,7 @@ class spell_gen_summon_tournament_mount : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LANCE_EQUIPPED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_LANCE_EQUIPPED });
             }
 
             SpellCastResult CheckIfLanceEquiped()
@@ -3234,10 +3197,11 @@ class spell_gen_tournament_duel : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ON_TOURNAMENT_MOUNT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MOUNTED_DUEL))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ON_TOURNAMENT_MOUNT,
+                    SPELL_MOUNTED_DUEL
+                });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -3321,9 +3285,7 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(Triggered))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ Triggered });
             }
 
             void HandleScript()
@@ -3385,7 +3347,7 @@ class spell_gen_turkey_marker : public SpellScriptLoader
 
                 // on stack 15 cast the achievement crediting spell
                 if (GetStackAmount() >= 15)
-                    target->CastSpell(target, SPELL_TURKEY_VENGEANCE, true, NULL, aurEff, GetCasterGUID());
+                    target->CastSpell(target, SPELL_TURKEY_VENGEANCE, true, nullptr, aurEff, GetCasterGUID());
             }
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
@@ -3477,9 +3439,7 @@ class spell_gen_vampiric_touch : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_VAMPIRIC_TOUCH_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_VAMPIRIC_TOUCH_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -3644,15 +3604,13 @@ class spell_gen_whisper_gulch_yogg_saron_whisper : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_YOGG_SARON_WHISPER_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_YOGG_SARON_WHISPER_DUMMY });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell((Unit*)NULL, SPELL_YOGG_SARON_WHISPER_DUMMY, true);
+                GetTarget()->CastSpell((Unit*)nullptr, SPELL_YOGG_SARON_WHISPER_DUMMY, true);
             }
 
             void Register() override
@@ -3747,9 +3705,7 @@ class spell_gen_gm_freeze : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_GM_FREEZE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_GM_FREEZE });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -3932,18 +3888,9 @@ public:
     {
         PrepareAuraScript(spell_gen_mixology_bonus_AuraScript);
 
-    public:
-        spell_gen_mixology_bonus_AuraScript()
-        {
-            bonus = 0;
-        }
-
-    private:
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_MIXOLOGY))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_MIXOLOGY });
         }
 
         bool Load() override
@@ -4129,7 +4076,7 @@ public:
             }
         }
 
-        int32 bonus;
+        int32 bonus = 0;
 
         void Register() override
         {

@@ -20,9 +20,12 @@
 #include <iostream>
 
 #include "TileAssembler.h"
+#include "Banner.h"
 
 int main(int argc, char* argv[])
 {
+    Trinity::Banner::Show("VMAP assembler", [](char const* text) { std::cout << text << std::endl; }, nullptr);
+
     if (argc != 3)
     {
         std::cout << "usage: " << argv[0] << " <raw data dir> <vmap dest dir>" << std::endl;

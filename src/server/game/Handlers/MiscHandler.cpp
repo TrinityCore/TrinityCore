@@ -16,36 +16,42 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Language.h"
-#include "DatabaseEnv.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "Player.h"
-#include "GameTime.h"
-#include "GossipDef.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
 #include "WorldSession.h"
-#include "Chat.h"
-#include "zlib.h"
-#include "ObjectAccessor.h"
-#include "Object.h"
-#include "Battleground.h"
-#include "OutdoorPvP.h"
 #include "AccountMgr.h"
-#include "DBCEnums.h"
-#include "ScriptMgr.h"
-#include "MapManager.h"
-#include "GameObjectAI.h"
-#include "Group.h"
-#include "Spell.h"
-#include "BattlegroundMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "Battleground.h"
+#include "BattlegroundMgr.h"
+#include "Chat.h"
+#include "CinematicMgr.h"
+#include "Common.h"
+#include "Corpse.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "GameTime.h"
+#include "GossipDef.h"
+#include "Group.h"
+#include "GuildMgr.h"
+#include "Language.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "Object.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "OutdoorPvP.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "WhoListStorage.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include <zlib.h>
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -73,7 +79,7 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 
     //this is spirit release confirm?
     GetPlayer()->RemoveGhoul();
-    GetPlayer()->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
+    GetPlayer()->RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT, true);
     GetPlayer()->BuildPlayerRepop();
     GetPlayer()->RepopAtGraveyard();
 }
@@ -102,8 +108,8 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     if (_player->PlayerTalkClass->GetGossipMenu().GetSenderGUID() != guid)
         return;
 
-    Creature* unit = NULL;
-    GameObject* go = NULL;
+    Creature* unit = nullptr;
+    GameObject* go = nullptr;
     if (guid.IsCreatureOrVehicle())
     {
         unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_GOSSIP);
@@ -397,7 +403,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
-    LogoutRequest(time(NULL));
+    LogoutRequest(time(nullptr));
 }
 
 void WorldSession::HandlePlayerLogoutOpcode(WorldPacket& /*recvData*/)
@@ -459,7 +465,7 @@ void WorldSession::HandleTogglePvP(WorldPacket& recvData)
     else
     {
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = time(NULL);     // start toggle-off
+            GetPlayer()->pvpInfo.EndTimer = time(nullptr);     // start toggle-off
     }
 
     //if (OutdoorPvP* pvp = _player->GetOutdoorPvP())
@@ -544,7 +550,7 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
         return;
 
     // prevent resurrect before 30-sec delay after body release not finished
-    if (time_t(corpse->GetGhostTime() + _player->GetCorpseReclaimDelay(corpse->GetType() == CORPSE_RESURRECTABLE_PVP)) > time_t(time(NULL)))
+    if (time_t(corpse->GetGhostTime() + _player->GetCorpseReclaimDelay(corpse->GetType() == CORPSE_RESURRECTABLE_PVP)) > time_t(time(nullptr)))
         return;
 
     if (!corpse->IsWithinDistInMap(_player, CORPSE_RECLAIM_RADIUS, true))
@@ -581,7 +587,7 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
     GetPlayer()->ResurrectUsingRequestData();
 }
 
-void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
+void WorldSession::SendAreaTriggerMessage(char const* Text, ...)
 {
     va_list ap;
     char szStr [1024];
@@ -686,7 +692,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
                     WorldPacket data(SMSG_RAID_GROUP_ONLY, 4 + 4);
                     data << uint32(0);
                     data << uint32(2); // You must be in a raid group to enter this instance.
-                    player->GetSession()->SendPacket(&data);
+                    player->SendDirectMessage(&data);
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter instance map %d", player->GetName().c_str(), at->target_mapId);
                     reviveAtTrigger = true;
                     break;
@@ -694,7 +700,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
                 case Map::CANNOT_ENTER_CORPSE_IN_DIFFERENT_INSTANCE:
                 {
                     WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
-                    player->GetSession()->SendPacket(&data);
+                    player->SendDirectMessage(&data);
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' does not have a corpse in instance map %d and cannot enter", player->GetName().c_str(), at->target_mapId);
                     break;
                 }
@@ -1301,7 +1307,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket& recvData)
     {
         if (group->IsLeader(_player->GetGUID()))
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
                 Player* groupGuy = itr->GetSource();
                 if (!groupGuy)
@@ -1359,7 +1365,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
     {
         if (group->IsLeader(_player->GetGUID()))
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
                 Player* groupGuy = itr->GetSource();
                 if (!groupGuy)
@@ -1471,7 +1477,7 @@ void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)
     TC_LOG_DEBUG("network", "WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
 
     WorldPacket data(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4);
-    data << uint32(time(NULL));
+    data << uint32(time(nullptr));
     SendPacket(&data);
 }
 
@@ -1583,30 +1589,25 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
     ObjectGuid guid;
     uint32 spellId;
     float elevation, speed;
-    float curX, curY, curZ;
-    float targetX, targetY, targetZ;
+    TaggedPosition<Position::XYZ> firePos;
+    TaggedPosition<Position::XYZ> impactPos;
     uint8 moveStop;
 
     recvPacket >> guid >> spellId >> elevation >> speed;
-    recvPacket >> curX >> curY >> curZ;
-    recvPacket >> targetX >> targetY >> targetZ;
+    recvPacket >> firePos;
+    recvPacket >> impactPos;
     recvPacket >> moveStop;
 
     Unit* caster = ObjectAccessor::GetUnit(*_player, guid);
-    Spell* spell = caster ? caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) : NULL;
+    Spell* spell = caster ? caster->GetCurrentSpell(CURRENT_GENERIC_SPELL) : nullptr;
     if (!spell || spell->m_spellInfo->Id != spellId || !spell->m_targets.HasDst() || !spell->m_targets.HasSrc())
     {
         recvPacket.rfinish();
         return;
     }
 
-    Position pos = *spell->m_targets.GetSrcPos();
-    pos.Relocate(curX, curY, curZ);
-    spell->m_targets.ModSrc(pos);
-
-    pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(targetX, targetY, targetZ);
-    spell->m_targets.ModDst(pos);
+    spell->m_targets.ModSrc(firePos);
+    spell->m_targets.ModDst(impactPos);
 
     spell->m_targets.SetElevation(elevation);
     spell->m_targets.SetSpeed(speed);

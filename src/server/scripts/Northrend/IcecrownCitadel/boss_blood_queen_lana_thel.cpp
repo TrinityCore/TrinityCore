@@ -15,13 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Spell.h"
-#include "SpellAuraEffects.h"
 #include "GridNotifiers.h"
 #include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 
 enum Texts
 {
@@ -372,7 +377,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         }
                         case EVENT_BLOOD_MIRROR:
                         {
-                            // victim can be NULL when this is processed in the same update tick as EVENT_AIR_PHASE
+                            // victim can be nullptr when this is processed in the same update tick as EVENT_AIR_PHASE
                             if (me->GetVictim())
                             {
                                 Player* newOfftank = SelectRandomTarget(true);
@@ -477,13 +482,13 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
         private:
             // offtank for this encounter is the player standing closest to main tank
-            Player* SelectRandomTarget(bool includeOfftank, std::list<Player*>* targetList = NULL)
+            Player* SelectRandomTarget(bool includeOfftank, std::list<Player*>* targetList = nullptr)
             {
                 std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
                 std::list<Player*> tempTargets;
 
                 if (threatlist.empty())
-                    return NULL;
+                    return nullptr;
 
                 for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     if (Unit* refTarget = (*itr)->getTarget())
@@ -491,12 +496,12 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             tempTargets.push_back(refTarget->ToPlayer());
 
                 if (tempTargets.empty())
-                    return NULL;
+                    return nullptr;
 
                 if (targetList)
                 {
                     *targetList = tempTargets;
-                    return NULL;
+                    return nullptr;
                 }
 
                 if (includeOfftank)
@@ -535,13 +540,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_FRENZIED_BLOODTHIRST))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRESENCE_OF_THE_DARKFALLEN))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, SPELL_FRENZIED_BLOODTHIRST, SPELL_PRESENCE_OF_THE_DARKFALLEN });
             }
 
             SpellCastResult CheckTarget()
@@ -671,9 +670,7 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TWILIGHT_BLOODBOLT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TWILIGHT_BLOODBOLT });
             }
 
             bool Load() override
@@ -722,9 +719,7 @@ class spell_blood_queen_essence_of_the_blood_queen : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_HEAL });
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -809,9 +804,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE });
             }
 
             // this is an additional effect to be executed

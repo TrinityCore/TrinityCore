@@ -17,9 +17,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "InstanceScript.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 #include "trial_of_the_crusader.h"
 
 enum Yells
@@ -207,7 +210,7 @@ class boss_jaraxxus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_jaraxxusAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_jaraxxusAI>(creature);
         }
 };
 
@@ -243,7 +246,7 @@ class npc_legion_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_legion_flameAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_legion_flameAI>(creature);
         }
 };
 
@@ -297,7 +300,7 @@ class npc_infernal_volcano : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_infernal_volcanoAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_infernal_volcanoAI>(creature);
         }
 };
 
@@ -350,7 +353,7 @@ class npc_fel_infernal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_fel_infernalAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_fel_infernalAI>(creature);
         }
 };
 
@@ -401,7 +404,7 @@ class npc_nether_portal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_nether_portalAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_nether_portalAI>(creature);
         }
 };
 
@@ -479,7 +482,7 @@ class npc_mistress_of_pain : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_mistress_of_painAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_mistress_of_painAI>(creature);
         }
 };
 
@@ -591,9 +594,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FEL_STREAK))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_FEL_STREAK });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)

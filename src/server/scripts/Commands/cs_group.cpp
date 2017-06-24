@@ -15,14 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "GroupMgr.h"
 #include "Language.h"
 #include "LFG.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "ObjectMgr.h"
-#include "GroupMgr.h"
-#include "ScriptMgr.h"
+#include "RBAC.h"
+#include "WorldSession.h"
 
 class group_commandscript : public CommandScript
 {
@@ -292,7 +298,7 @@ public:
         ObjectGuid guidSource;
         ObjectGuid guidTarget;
         char* nameplgrStr = strtok((char*)args, " ");
-        char* nameplStr = strtok(NULL, " ");
+        char* nameplStr = strtok(nullptr, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameplgrStr, playerSource, groupSource, guidSource, true))
             return false;
@@ -335,7 +341,7 @@ public:
         ObjectGuid guidTarget;
         std::string nameTarget;
         std::string zoneName;
-        const char* onlineState = "";
+        char const* onlineState = "";
 
         // Parse the guid to uint32...
         ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
