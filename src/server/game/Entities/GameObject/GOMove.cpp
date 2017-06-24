@@ -25,6 +25,8 @@ http://rochet2.github.io/
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "ObjectAccessor.h"
+#include "DBCStores.h"
 
 GameObjectStore GOMove::Store;
 
@@ -118,7 +120,7 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
     GameObject* object = new GameObject();
     ObjectGuid::LowType guidLow = map->GenerateLowGuid<HighGuid::GameObject>();
 
-    G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
     if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), pos, rot, 255, GO_STATE_READY))
     {
         delete object;
@@ -220,6 +222,6 @@ std::list<GameObject*> GOMove::GetNearbyGameObjects(Player* player, float range)
     std::list<GameObject*> objects;
     Trinity::GameObjectInRangeCheck check(x, y, z, range);
     Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(player, objects, check);
-    player->VisitNearbyGridObject(SIZE_OF_GRIDS, searcher);
+    Cell::VisitGridObjects(player, searcher, SIZE_OF_GRIDS);
     return objects;
 }

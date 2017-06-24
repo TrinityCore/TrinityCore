@@ -23,6 +23,7 @@ http://rochet2.github.io/
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 
 class GOMove_commandscript : public CommandScript
 {
