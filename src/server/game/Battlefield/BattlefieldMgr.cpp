@@ -17,6 +17,7 @@
 
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
+#include "Log.h"
 #include "Player.h"
 
 BattlefieldMgr::BattlefieldMgr()

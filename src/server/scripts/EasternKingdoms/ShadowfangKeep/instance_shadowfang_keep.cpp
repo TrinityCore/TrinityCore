@@ -23,10 +23,13 @@ SDComment:
 SDCategory: Shadowfang Keep
 EndScriptData */
 
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "shadowfang_keep.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
+#include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER              4
@@ -69,7 +72,7 @@ const Position SpawnLocation[] =
 class instance_shadowfang_keep : public InstanceMapScript
 {
 public:
-    instance_shadowfang_keep() : InstanceMapScript("instance_shadowfang_keep", 33) { }
+    instance_shadowfang_keep() : InstanceMapScript(SFKScriptName, 33) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -214,7 +217,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {

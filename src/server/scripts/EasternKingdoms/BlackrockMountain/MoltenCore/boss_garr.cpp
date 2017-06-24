@@ -23,10 +23,10 @@ SDComment: Adds NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "molten_core.h"
+#include "ObjectMgr.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -100,7 +100,7 @@ class boss_garr : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_garrAI(creature);
+            return GetMoltenCoreAI<boss_garrAI>(creature);
         }
 };
 
@@ -160,7 +160,7 @@ class npc_firesworn : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_fireswornAI(creature);
+            return GetMoltenCoreAI<npc_fireswornAI>(creature);
         }
 };
 

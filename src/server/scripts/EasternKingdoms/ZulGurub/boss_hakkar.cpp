@@ -23,6 +23,7 @@ Category: Zul'Gurub
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
@@ -173,7 +174,7 @@ class boss_hakkar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_hakkarAI>(creature);
+            return GetZulGurubAI<boss_hakkarAI>(creature);
         }
 };
 

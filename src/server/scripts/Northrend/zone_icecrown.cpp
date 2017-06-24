@@ -17,12 +17,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "CombatAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
-#include "Player.h"
 #include "TemporarySummon.h"
-#include "CombatAI.h"
 
 /*######
 ## npc_argent_valiant

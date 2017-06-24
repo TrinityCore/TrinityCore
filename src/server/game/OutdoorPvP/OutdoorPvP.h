@@ -18,11 +18,11 @@
 #ifndef OUTDOOR_PVP_H_
 #define OUTDOOR_PVP_H_
 
-#include "Util.h"
+#include "GameObjectData.h"
+#include "Position.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
-
-#include <G3D/Quat.h>
+#include <map>
 
 enum OutdoorPvPTypes
 {
@@ -55,7 +55,7 @@ struct go_type
     uint32 entry;
     uint32 map;
     Position pos;
-    G3D::Quat rot;
+    QuaternionData rot;
 };
 
 // struct for creature spawning
@@ -66,14 +66,14 @@ struct creature_type
     Position pos;
 };
 
-// some class predefs
-class Player;
-class GameObject;
-class WorldPacket;
 class Creature;
-class Unit;
-struct GossipMenuItems;
+class GameObject;
+class Map;
 class OutdoorPvP;
+class Player;
+class Unit;
+class WorldPacket;
+struct GossipMenuItems;
 
 class TC_GAME_API OPvPCapturePoint
 {
@@ -126,11 +126,11 @@ class TC_GAME_API OPvPCapturePoint
         void AddGO(uint32 type, ObjectGuid::LowType guid, uint32 entry = 0);
         void AddCre(uint32 type, ObjectGuid::LowType guid, uint32 entry = 0);
 
-        bool SetCapturePointData(uint32 entry, uint32 map, Position const& pos, G3D::Quat const& rot);
+        bool SetCapturePointData(uint32 entry, uint32 map, Position const& pos, QuaternionData const& rot);
 
     protected:
 
-        bool AddObject(uint32 type, uint32 entry, uint32 map, Position const& pos, G3D::Quat const& rot);
+        bool AddObject(uint32 type, uint32 entry, uint32 map, Position const& pos, QuaternionData const& rot);
         bool AddCreature(uint32 type, uint32 entry, uint32 map, Position const& pos, TeamId teamId = TEAM_NEUTRAL, uint32 spawntimedelay = 0);
 
         bool DelObject(uint32 type);

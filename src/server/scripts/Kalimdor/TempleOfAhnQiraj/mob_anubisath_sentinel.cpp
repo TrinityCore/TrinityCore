@@ -24,17 +24,9 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "WorldPacket.h"
-
-#include "Item.h"
-#include "Player.h"
-#include "Spell.h"
-
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "temple_of_ahnqiraj.h"
 
 enum Spells
 {
@@ -66,7 +58,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new aqsentinelAI(creature);
+        return GetAQ40AI<aqsentinelAI>(creature);
     }
 
     struct aqsentinelAI : public ScriptedAI

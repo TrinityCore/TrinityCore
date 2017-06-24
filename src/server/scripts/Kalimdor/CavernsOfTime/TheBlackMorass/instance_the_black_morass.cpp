@@ -24,12 +24,14 @@ Category: Caverns of Time, The Black Morass
 */
 
 #include "ScriptMgr.h"
+#include "EventMap.h"
 #include "InstanceScript.h"
-#include "the_black_morass.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
-#include "TemporarySummon.h"
 #include "SpellInfo.h"
-#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
+#include "the_black_morass.h"
 
 enum Misc
 {
@@ -71,7 +73,7 @@ enum EventIds
 class instance_the_black_morass : public InstanceMapScript
 {
 public:
-    instance_the_black_morass() : InstanceMapScript("instance_the_black_morass", 269) { }
+    instance_the_black_morass() : InstanceMapScript(TBMScriptName, 269) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -180,7 +182,7 @@ public:
                         {
                             if (medivh->IsAlive())
                             {
-                                medivh->DealDamage(medivh, medivh->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                                medivh->DealDamage(medivh, medivh->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                                 m_auiEncounter[0] = FAIL;
                                 m_auiEncounter[1] = NOT_STARTED;
                             }
@@ -276,7 +278,7 @@ public:
                 return summon;
 
             TC_LOG_DEBUG("scripts", "Instance The Black Morass: What just happened there? No boss, no loot, no fun...");
-            return NULL;
+            return nullptr;
         }
 
         void DoSpawnPortal()

@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
 
 enum Say
 {
@@ -188,11 +188,7 @@ class spell_mark_of_frost : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_FROST))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_AURA_OF_FROST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_FROST, SPELL_AURA_OF_FROST });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
