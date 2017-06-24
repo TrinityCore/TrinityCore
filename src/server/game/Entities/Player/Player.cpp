@@ -27509,7 +27509,7 @@ void Player::LearnSpecializationSpells()
     {
         for (size_t j = 0; j < specSpells->size(); ++j)
         {
-            SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+            SpecializationSpellsEntry const* specSpell = (*specSpells)[j];
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(specSpell->SpellID);
             if (!spellInfo || spellInfo->SpellLevel > getLevel())
                 continue;
@@ -27531,7 +27531,7 @@ void Player::RemoveSpecializationSpells()
             {
                 for (size_t j = 0; j < specSpells->size(); ++j)
                 {
-                    SpecializationSpellsEntry const* specSpell = specSpells->at(j);
+                    SpecializationSpellsEntry const* specSpell = (*specSpells)[j];
                     RemoveSpell(specSpell->SpellID, true);
                     if (specSpell->OverridesSpellID)
                         RemoveOverrideSpell(specSpell->OverridesSpellID, specSpell->SpellID);

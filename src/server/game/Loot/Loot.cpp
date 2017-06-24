@@ -343,7 +343,7 @@ LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qite
         QuestItemMap::const_iterator itr = PlayerQuestItems.find(player->GetGUID());
         if (itr != PlayerQuestItems.end() && questSlot < itr->second->size())
         {
-            QuestItem* qitem2 = &itr->second->at(questSlot);
+            QuestItem* qitem2 = &(*itr->second)[questSlot];
             if (qitem)
                 *qitem = qitem2;
             item = &quest_items[qitem2->index];
@@ -613,7 +613,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!fi->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = items.size() + fi->index + 1;
+                lootItem.LootListID = fi->index + 1;
                 lootItem.UIType = slotType;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
@@ -633,7 +633,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
             if (!ci->is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = items.size() + ci->index + 1;
+                lootItem.LootListID = ci->index + 1;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
 
