@@ -23,10 +23,10 @@ SDComment:
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "molten_core.h"
+#include "ObjectMgr.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -101,7 +101,7 @@ class boss_lucifron : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_lucifronAI(creature);
+            return GetMoltenCoreAI<boss_lucifronAI>(creature);
         }
 };
 

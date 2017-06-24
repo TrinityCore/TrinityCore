@@ -19,6 +19,7 @@
 #ifndef __UPDATEDATA_H
 #define __UPDATEDATA_H
 
+#include "Define.h"
 #include "ByteBuffer.h"
 #include "ObjectGuid.h"
 #include <set>
@@ -62,7 +63,7 @@ class UpdateData
 
         void AddOutOfRangeGUID(GuidSet& guids);
         void AddOutOfRangeGUID(ObjectGuid guid);
-        void AddUpdateBlock(const ByteBuffer &block);
+        void AddUpdateBlock(ByteBuffer const& block);
         bool BuildPacket(WorldPacket* packet);
         bool HasData() const { return m_blockCount > 0 || !m_outOfRangeGUIDs.empty(); }
         void Clear();

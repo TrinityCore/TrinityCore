@@ -28,10 +28,13 @@ at_malfurion_Stormrage_trigger
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
-#include "sunken_temple.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "sunken_temple.h"
 
 /*#####
 # at_malfurion_Stormrage_trigger
@@ -49,7 +52,7 @@ class at_malfurion_stormrage : public AreaTriggerScript
     public:
         at_malfurion_stormrage() : AreaTriggerScript("at_malfurion_stormrage") { }
 
-        bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
         {
             if (player->GetInstanceScript() && !player->FindNearestCreature(NPC_MALFURION_STORMRAGE, 15.0f) &&
                 player->GetQuestStatus(QUEST_THE_CHARGE_OF_DRAGONFLIGHTS) == QUEST_STATUS_REWARDED && player->GetQuestStatus(QUEST_ERANIKUS_TYRANT_OF_DREAMS) != QUEST_STATUS_REWARDED)
@@ -82,7 +85,7 @@ class go_atalai_statue : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return GetInstanceAI<go_atalai_statueAI>(go);
+            return GetSunkenTempleAI<go_atalai_statueAI>(go);
         }
 };
 

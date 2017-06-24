@@ -17,10 +17,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedGossip.h"
-#include "ScriptedCreature.h"
 #include "blackwing_lair.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 
 enum Events
 {
@@ -351,7 +355,7 @@ public:
                                         nefarian->setActive(true);
                                         nefarian->SetCanFly(true);
                                         nefarian->SetDisableGravity(true);
-                                        nefarian->CastSpell((Unit*)NULL, SPELL_SHADOWFLAME_INITIAL);
+                                        nefarian->CastSpell((Unit*)nullptr, SPELL_SHADOWFLAME_INITIAL);
                                         nefarian->GetMotionMaster()->MovePoint(1, NefarianLoc[1]);
                                     }
                                     events.CancelEvent(EVENT_MIND_CONTROL);
@@ -388,7 +392,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_victor_nefariusAI>(creature);
+        return GetBlackwingLairAI<boss_victor_nefariusAI>(creature);
     }
 };
 
@@ -594,7 +598,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_nefarianAI>(creature);
+        return GetBlackwingLairAI<boss_nefarianAI>(creature);
     }
 };
 

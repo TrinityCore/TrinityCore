@@ -20,16 +20,18 @@
 #define _MMAP_COMMON_H
 
 #include "Common.h"
-
+#include <string>
 #include <vector>
 
 #ifndef _WIN32
-    #include <stddef.h>
+    #include <cstddef>
     #include <dirent.h>
+#else
+    #include <Windows.h>
 #endif
 
-#ifdef __linux__
-    #include <errno.h>
+#ifndef _WIN32
+    #include <cerrno>
 #endif
 
 enum NavTerrain
@@ -48,7 +50,7 @@ enum NavTerrain
 
 namespace MMAP
 {
-    inline bool matchWildcardFilter(const char* filter, const char* str)
+    inline bool matchWildcardFilter(char const* filter, char const* str)
     {
         if (!filter || !str)
             return false;
@@ -116,7 +118,7 @@ namespace MMAP
         while (dirp)
         {
             errno = 0;
-            if ((dp = readdir(dirp)) != NULL)
+            if ((dp = readdir(dirp)) != nullptr)
             {
                 if (matchWildcardFilter(filter.c_str(), dp->d_name))
                     fileList.push_back(std::string(dp->d_name));

@@ -102,7 +102,7 @@ namespace VMAP
             ~VMapManager2(void);
 
             void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);
-            int loadMap(const char* pBasePath, unsigned int mapId, int x, int y) override;
+            int loadMap(char const* pBasePath, unsigned int mapId, int x, int y) override;
 
             void unloadMap(unsigned int mapId, int x, int y) override;
             void unloadMap(unsigned int mapId) override;
@@ -128,7 +128,7 @@ namespace VMAP
             {
                 return getMapFileName(mapId);
             }
-            virtual LoadResult existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
+            virtual LoadResult existsMap(char const* basePath, unsigned int mapId, int x, int y) override;
 
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
 

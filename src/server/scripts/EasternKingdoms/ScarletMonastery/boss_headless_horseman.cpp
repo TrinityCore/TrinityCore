@@ -24,14 +24,20 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
-#include "SpellMgr.h"
-#include "scarlet_monastery.h"
-#include "LFGMgr.h"
-#include "Player.h"
 #include "Group.h"
+#include "InstanceScript.h"
+#include "LFGMgr.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "scarlet_monastery.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 //this texts are already used by 3975 and 3976
 enum Says
@@ -96,7 +102,7 @@ enum Spells
     SPELL_DEATH                 = 42566       //not correct spell
 };
 
-G3D::Vector3 const FlightPoint[]=
+Position const FlightPoint[]=
 {
     {1754.00f, 1346.00f, 17.50f},
     {1765.00f, 1347.00f, 19.00f},
@@ -121,7 +127,7 @@ G3D::Vector3 const FlightPoint[]=
     {1758.00f, 1367.00f, 19.51f}
 };
 
-G3D::Vector3 const Spawn[]=
+Position const Spawn[]=
 {
     {1776.27f, 1348.74f, 19.20f},       //spawn point for pumpkin shrine mob
     {1765.28f, 1347.46f, 17.55f}     //spawn point for smoke
@@ -142,7 +148,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_wisp_invisAI(creature);
+        return GetScarletMonasteryAI<npc_wisp_invisAI>(creature);
     }
 
     struct npc_wisp_invisAI : public ScriptedAI
@@ -183,7 +189,7 @@ public:
                 DoCast(me, _spell);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_WISP_FLIGHT_PORT && Creaturetype == 4)
                 me->SetDisplayId(2027);
@@ -221,7 +227,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_headAI(creature);
+        return GetScarletMonasteryAI<npc_headAI>(creature);
     }
 
     struct npc_headAI : public ScriptedAI
@@ -298,7 +304,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (!withbody)
                 return;
@@ -374,7 +380,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_headless_horsemanAI>(creature);
+        return GetScarletMonasteryAI<boss_headless_horsemanAI>(creature);
     }
 
     struct boss_headless_horsemanAI : public ScriptedAI
@@ -473,7 +479,7 @@ public:
                     break;
                 case 1:
                 {
-                    if (Creature* smoke = me->SummonCreature(HELPER, Spawn[1].x, Spawn[1].y, Spawn[1].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                    if (Creature* smoke = me->SummonCreature(HELPER, Spawn[1], TEMPSUMMON_TIMED_DESPAWN, 20000))
                         ENSURE_AI(npc_wisp_invis::npc_wisp_invisAI, smoke->AI())->SetType(3);
                     DoCast(me, SPELL_RHYME_BIG);
                     break;
@@ -536,9 +542,9 @@ public:
 
         Player* SelectRandomPlayer(float range = 0.0f, bool checkLoS = true)
         {
-            Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+            Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
             if (PlayerList.isEmpty())
-                return NULL;
+                return nullptr;
 
             std::list<Player*> temp;
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -552,10 +558,10 @@ public:
                 advance(j, rand32() % temp.size());
                 return (*j);
             }
-            return NULL;
+            return nullptr;
         }
 
-        void SpellHitTarget(Unit* unit, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* unit, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_CONFLAGRATION && unit->HasAura(SPELL_CONFLAGRATION))
                 SaySound(SAY_CONFLAGRATION, unit);
@@ -581,7 +587,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (withhead)
                 return;
@@ -682,7 +688,7 @@ public:
                             {
                                 wp_reached = false;
                                 me->GetMotionMaster()->Clear(false);
-                                me->GetMotionMaster()->MovePoint(id, FlightPoint[id].x, FlightPoint[id].y, FlightPoint[id].z);
+                                me->GetMotionMaster()->MovePoint(id, FlightPoint[id]);
                             }
                         }
                     }
@@ -692,7 +698,7 @@ public:
                             break;
                         if (burn <= diff)
                         {
-                            if (Creature* flame = me->SummonCreature(HELPER, Spawn[0].x, Spawn[0].y, Spawn[0].z, 0, TEMPSUMMON_TIMED_DESPAWN, 17000))
+                            if (Creature* flame = me->SummonCreature(HELPER, Spawn[0], TEMPSUMMON_TIMED_DESPAWN, 17000))
                                 ENSURE_AI(npc_wisp_invis::npc_wisp_invisAI, flame->AI())->SetType(2);
                             burned = true;
                         }
@@ -784,7 +790,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_pulsing_pumpkinAI(creature);
+        return GetScarletMonasteryAI<npc_pulsing_pumpkinAI>(creature);
     }
 
     struct npc_pulsing_pumpkinAI : public ScriptedAI
@@ -820,7 +826,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_SPROUTING)
             {
@@ -900,7 +906,7 @@ class go_loosely_turned_soil : public GameObjectScript
                     return;
 
                 player->AreaExploredOrEventHappens(11405);
-                if (Creature* horseman = me->SummonCreature(HH_MOUNTED, FlightPoint[20].x, FlightPoint[20].y, FlightPoint[20].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
+                if (Creature* horseman = me->SummonCreature(HH_MOUNTED, FlightPoint[20], TEMPSUMMON_MANUAL_DESPAWN, 0))
                 {
                     ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = player->GetGUID();
                     ENSURE_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->FlyMode();

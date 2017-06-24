@@ -24,6 +24,7 @@ gets instead the deserter debuff.
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 
 // Bosses (East)
 // 0 - Pusillin
@@ -67,7 +68,6 @@ public:
     {
         return new instance_dire_maul_InstanceMapScript(map);
     }
-
 };
 
 void AddSC_instance_dire_maul()

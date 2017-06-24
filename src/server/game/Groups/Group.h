@@ -20,10 +20,11 @@
 #define TRINITYCORE_GROUP_H
 
 #include "DBCEnums.h"
+#include "DatabaseEnvFwd.h"
 #include "GroupRefManager.h"
-#include "LootMgr.h"
-#include "QueryResult.h"
+#include "Loot.h"
 #include "SharedDefines.h"
+#include <map>
 
 class Battlefield;
 class Battleground;
@@ -153,7 +154,7 @@ struct InstanceGroupBind
     bool perm;
     /* permanent InstanceGroupBinds exist if the leader has a permanent
        PlayerInstanceBind for the same instance. */
-    InstanceGroupBind() : save(NULL), perm(false) { }
+    InstanceGroupBind() : save(nullptr), perm(false) { }
 };
 
 /** request member stats checken **/
@@ -192,7 +193,7 @@ class TC_GAME_API Group
         void   RemoveAllInvites();
         bool   AddLeaderInvite(Player* player);
         bool   AddMember(Player* player);
-        bool   RemoveMember(ObjectGuid guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = NULL);
+        bool   RemoveMember(ObjectGuid guid, RemoveMethod const& method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, char const* reason = nullptr);
         void   ChangeLeader(ObjectGuid guid);
  static void   ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
         void   SetLootMethod(LootMethod method);
@@ -272,7 +273,7 @@ class TC_GAME_API Group
         //void SendInit(WorldSession* session);
         void SendTargetIconList(WorldSession* session);
         void SendUpdate();
-        void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = NULL);
+        void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = nullptr);
         void UpdatePlayerOutOfRange(Player* player);
 
         template<class Worker>
@@ -298,10 +299,10 @@ class TC_GAME_API Group
         /*********************************************************/
 
         bool isRollLootActive() const;
-        void SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r);
+        void SendLootStartRoll(uint32 CountDown, uint32 mapid, Roll const& r);
         void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r);
-        void SendLootRoll(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
-        void SendLootRollWon(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
+        void SendLootRoll(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, Roll const& r);
+        void SendLootRollWon(ObjectGuid SourceGuid, ObjectGuid TargetGuid, uint8 RollNumber, uint8 RollType, Roll const& r);
         void SendLootAllPassed(Roll const& roll);
         void SendLooter(Creature* creature, Player* pLooter);
         void GroupLoot(Loot* loot, WorldObject* pLootedObject);

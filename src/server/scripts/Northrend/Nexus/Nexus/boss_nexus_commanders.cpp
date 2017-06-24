@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "nexus.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -100,7 +100,7 @@ class boss_nexus_commanders : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_nexus_commandersAI>(creature);
+            return GetNexusAI<boss_nexus_commandersAI>(creature);
         }
 };
 

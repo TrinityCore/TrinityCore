@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ByteBuffer.h"
 #include "ReactorAI.h"
+#include "Creature.h"
 
 int32 ReactorAI::Permissible(Creature const* creature)
 {

@@ -15,12 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SpellScript.h"
+#include "Log.h"
 #include "Spell.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include "SpellScript.h"
 #include "SpellMgr.h"
+#include <sstream>
 #include <string>
 
 bool _SpellScript::_Validate(SpellInfo const* entry)
@@ -33,18 +35,20 @@ bool _SpellScript::_Validate(SpellInfo const* entry)
     return true;
 }
 
-bool _SpellScript::ValidateSpellInfo(std::vector<uint32> const& spellIds)
+bool _SpellScript::_ValidateSpellInfo(uint32 const* begin, uint32 const* end)
 {
-    for (uint32 spellId : spellIds)
+    bool allValid = true;
+    while (begin != end)
     {
-        if (!sSpellMgr->GetSpellInfo(spellId))
+        if (!sSpellMgr->GetSpellInfo(*begin))
         {
-            TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", spellId);
-            return false;
+            TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", *begin);
+            allValid = false;
         }
-    }
 
-    return true;
+        ++begin;
+    }
+    return allValid;
 }
 
 void _SpellScript::_Register()
@@ -422,7 +426,7 @@ WorldLocation const* SpellScript::GetExplTargetDest()
 {
     if (m_spell->m_targets.HasDst())
         return m_spell->m_targets.GetDstPos();
-    return NULL;
+    return nullptr;
 }
 
 void SpellScript::SetExplTargetDest(WorldLocation& loc)
@@ -455,7 +459,7 @@ Unit* SpellScript::GetHitUnit()
     if (!IsInTargetHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetHitUnit was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
-        return NULL;
+        return nullptr;
     }
     return m_spell->unitTarget;
 }
@@ -465,12 +469,12 @@ Creature* SpellScript::GetHitCreature()
     if (!IsInTargetHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetHitCreature was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
-        return NULL;
+        return nullptr;
     }
     if (m_spell->unitTarget)
         return m_spell->unitTarget->ToCreature();
     else
-        return NULL;
+        return nullptr;
 }
 
 Player* SpellScript::GetHitPlayer()
@@ -478,12 +482,12 @@ Player* SpellScript::GetHitPlayer()
     if (!IsInTargetHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetHitPlayer was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
-        return NULL;
+        return nullptr;
     }
     if (m_spell->unitTarget)
         return m_spell->unitTarget->ToPlayer();
     else
-        return NULL;
+        return nullptr;
 }
 
 Item* SpellScript::GetHitItem()
@@ -491,7 +495,7 @@ Item* SpellScript::GetHitItem()
     if (!IsInTargetHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetHitItem was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
-        return NULL;
+        return nullptr;
     }
     return m_spell->itemTarget;
 }
@@ -501,7 +505,7 @@ GameObject* SpellScript::GetHitGObj()
     if (!IsInTargetHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetHitGObj was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
-        return NULL;
+        return nullptr;
     }
     return m_spell->gameObjTarget;
 }
@@ -511,7 +515,7 @@ WorldLocation* SpellScript::GetHitDest()
     if (!IsInEffectHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetHitDest was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
-        return NULL;
+        return nullptr;
     }
     return m_spell->destTarget;
 }
@@ -561,12 +565,12 @@ Aura* SpellScript::GetHitAura()
     if (!IsInTargetHook())
     {
         TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetHitAura was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
-        return NULL;
+        return nullptr;
     }
     if (!m_spell->m_spellAura)
-        return NULL;
+        return nullptr;
     if (m_spell->m_spellAura->IsRemoved())
-        return NULL;
+        return nullptr;
     return m_spell->m_spellAura;
 }
 
@@ -941,7 +945,7 @@ void AuraScript::EffectProcHandler::Call(AuraScript* auraScript, AuraEffect cons
 bool AuraScript::_Load(Aura* aura)
 {
     m_aura = aura;
-    _PrepareScriptCall((AuraScriptHookType)SPELL_SCRIPT_STATE_LOADING, NULL);
+    _PrepareScriptCall((AuraScriptHookType)SPELL_SCRIPT_STATE_LOADING, nullptr);
     bool load = Load();
     _FinishScriptCall();
     return load;
@@ -1189,7 +1193,7 @@ Unit* AuraScript::GetTarget() const
             TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u` AuraScript::GetTarget called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);
     }
 
-    return NULL;
+    return nullptr;
 }
 
 AuraApplication const* AuraScript::GetTargetApplication() const

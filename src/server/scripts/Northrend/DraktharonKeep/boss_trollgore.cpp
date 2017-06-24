@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "drak_tharon_keep.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -136,7 +139,7 @@ class boss_trollgore : public CreatureScript
                         case EVENT_SPAWN:
                             for (uint8 i = 0; i < 3; ++i)
                                 if (Creature* trigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TROLLGORE_INVADER_SUMMONER_1 + i)))
-                                    trigger->CastSpell(trigger, RAND(SPELL_SUMMON_INVADER_A, SPELL_SUMMON_INVADER_B, SPELL_SUMMON_INVADER_C), true, NULL, NULL, me->GetGUID());
+                                    trigger->CastSpell(trigger, RAND(SPELL_SUMMON_INVADER_A, SPELL_SUMMON_INVADER_B, SPELL_SUMMON_INVADER_C), true, nullptr, nullptr, me->GetGUID());
 
                             events.ScheduleEvent(EVENT_SPAWN, urand(30000, 40000));
                             break;
@@ -234,9 +237,7 @@ class spell_trollgore_consume : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CONSUME_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CONSUME_BUFF });
             }
 
             void HandleConsume(SpellEffIndex /*effIndex*/)
@@ -269,16 +270,14 @@ class spell_trollgore_corpse_explode : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CORPSE_EXPLODE_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CORPSE_EXPLODE_DAMAGE });
             }
 
             void PeriodicTick(AuraEffect const* aurEff)
             {
                 if (aurEff->GetTickNumber() == 2)
                     if (Unit* caster = GetCaster())
-                        caster->CastSpell(GetTarget(), SPELL_CORPSE_EXPLODE_DAMAGE, true, NULL, aurEff);
+                        caster->CastSpell(GetTarget(), SPELL_CORPSE_EXPLODE_DAMAGE, true, nullptr, aurEff);
             }
 
             void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -312,9 +311,7 @@ class spell_trollgore_invader_taunt : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_0].CalcValue()) });
             }
 
             void HandleTaunt(SpellEffIndex /*effIndex*/)

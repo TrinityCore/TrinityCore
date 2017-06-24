@@ -27,10 +27,14 @@ On his death the vault door opens.
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
-#include "uldaman.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "uldaman.h"
 
 enum Says
 {
@@ -125,10 +129,10 @@ class boss_archaedas : public CreatureScript
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 // Being woken up from the altar, start the awaken sequence
-                if (spell == sSpellMgr->GetSpellInfo(SPELL_ARCHAEDAS_AWAKEN))
+                if (spell->Id == SPELL_ARCHAEDAS_AWAKEN)
                 {
                     Talk(SAY_AGGRO);
                     iAwakenTimer = 4000;
@@ -212,7 +216,7 @@ class boss_archaedas : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_archaedasAI>(creature);
+            return GetUldamanAI<boss_archaedasAI>(creature);
         }
 };
 
@@ -276,10 +280,10 @@ class npc_archaedas_minions : public CreatureScript
                 bAmIAwake = true;
             }
 
-            void SpellHit(Unit * /*caster*/, const SpellInfo* spell) override
+            void SpellHit(Unit * /*caster*/, SpellInfo const* spell) override
             {
                 // time to wake up, start animation
-                if (spell == sSpellMgr->GetSpellInfo(SPELL_ARCHAEDAS_AWAKEN))
+                if (spell->Id == SPELL_ARCHAEDAS_AWAKEN)
                 {
                     iAwakenTimer = 5000;
                     bWakingUp = true;
@@ -318,7 +322,7 @@ class npc_archaedas_minions : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_archaedas_minionsAI>(creature);
+            return GetUldamanAI<npc_archaedas_minionsAI>(creature);
         }
 };
 
@@ -381,7 +385,7 @@ class npc_stonekeepers : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_stonekeepersAI>(creature);
+            return GetUldamanAI<npc_stonekeepersAI>(creature);
         }
 };
 
@@ -414,7 +418,7 @@ class go_altar_of_archaedas : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return GetInstanceAI<go_altar_of_archaedasAI>(go);
+            return GetUldamanAI<go_altar_of_archaedasAI>(go);
         }
 };
 

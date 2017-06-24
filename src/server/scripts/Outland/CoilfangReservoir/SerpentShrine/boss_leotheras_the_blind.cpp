@@ -24,9 +24,14 @@ SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum LeotherasTheBlind
 {
@@ -76,7 +81,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_inner_demonAI(creature);
+        return GetSerpentshrineCavernAI<npc_inner_demonAI>(creature);
     }
 
     struct npc_inner_demonAI : public ScriptedAI
@@ -153,7 +158,7 @@ public:
                     AttackStart(owner);
                 } else if (owner && owner->isDead())
                 {
-                    me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                     return;
                 }
             }
@@ -186,7 +191,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_leotheras_the_blindAI>(creature);
+        return GetSerpentshrineCavernAI<boss_leotheras_the_blindAI>(creature);
     }
 
     struct boss_leotheras_the_blindAI : public ScriptedAI
@@ -327,7 +332,7 @@ public:
 
                 if (instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
                 {
-                    Unit* victim = NULL;
+                    Unit* victim = nullptr;
                     victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         me->getThreatManager().addThreat(victim, 1);
@@ -514,7 +519,7 @@ public:
                     {
                         //DoCastVictim(SPELL_CHAOS_BLAST, true);
                         int damage = 100;
-                        me->CastCustomSpell(me->GetVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, me->GetGUID());
+                        me->CastCustomSpell(me->GetVictim(), SPELL_CHAOS_BLAST, &damage, nullptr, nullptr, false, nullptr, nullptr, me->GetGUID());
                     }
                     ChaosBlast_Timer = 3000;
                 } else ChaosBlast_Timer -= diff;
@@ -580,7 +585,7 @@ public:
                 //at this point he divides himself in two parts
                 CastConsumingMadness();
                 DespawnDemon();
-                Creature* Copy = NULL;
+                Creature* Copy = nullptr;
                 Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000);
                 if (Copy)
                 {
@@ -608,7 +613,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_leotheras_the_blind_demonformAI(creature);
+        return GetSerpentshrineCavernAI<boss_leotheras_the_blind_demonformAI>(creature);
     }
 
     struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
@@ -672,7 +677,7 @@ public:
                 {
                     //DoCastVictim(SPELL_CHAOS_BLAST, true);
                     int damage = 100;
-                    me->CastCustomSpell(me->GetVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, me->GetGUID());
+                    me->CastCustomSpell(me->GetVictim(), SPELL_CHAOS_BLAST, &damage, nullptr, nullptr, false, nullptr, nullptr, me->GetGUID());
                     ChaosBlast_Timer = 3000;
                 }
              } else ChaosBlast_Timer -= diff;
@@ -689,7 +694,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_greyheart_spellbinderAI>(creature);
+        return GetSerpentshrineCavernAI<npc_greyheart_spellbinderAI>(creature);
     }
 
     struct npc_greyheart_spellbinderAI : public ScriptedAI
@@ -758,7 +763,7 @@ public:
 
             if (!me->IsInCombat() && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
             {
-                Unit* victim = NULL;
+                Unit* victim = nullptr;
                 victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
                 if (victim)
                     AttackStart(victim);
@@ -778,7 +783,7 @@ public:
 
             if (Mindblast_Timer <= diff)
             {
-                Unit* target = NULL;
+                Unit* target = nullptr;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (target)DoCast(target, SPELL_MINDBLAST);
@@ -788,7 +793,7 @@ public:
 
             if (Earthshock_Timer <= diff)
             {
-                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                 {
                     if (Player* i_pl = itr->GetSource())

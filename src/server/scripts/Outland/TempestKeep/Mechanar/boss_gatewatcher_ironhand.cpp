@@ -24,8 +24,8 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "mechanar.h"
+#include "ScriptedCreature.h"
 
 enum Says
 {
@@ -127,7 +127,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_gatewatcher_iron_handAI(creature);
+            return GetMechanarAI<boss_gatewatcher_iron_handAI>(creature);
         }
 };
 
