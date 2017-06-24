@@ -19,7 +19,7 @@
  * Scripts for spells with SPELLFAMILY_DRUID and SPELLFAMILY_GENERIC spells used by druid players.
  * Ordered alphabetically using scriptname.
  * Scriptnames of files in this file should be prefixed with "spell_dru_".
-, */
+ */
 
 #include "ScriptMgr.h"
 #include "Containers.h"
