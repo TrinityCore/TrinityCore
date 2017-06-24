@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "naxxramas.h"
-#include "Player.h"
 
 enum Spells
 {
@@ -77,7 +81,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_heiganAI>(creature);
+        return GetNaxxramasAI<boss_heiganAI>(creature);
     }
 
     struct boss_heiganAI : public BossAI
@@ -131,8 +135,8 @@ public:
                 _eruptTiles[section].clear();
                 for (uint8 i = 0; i < numEruptions[section]; ++i)
                 {
-                    std::pair<std::unordered_multimap<uint32, GameObject*>::const_iterator, std::unordered_multimap<uint32, GameObject*>::const_iterator> tileIt = mapGOs.equal_range(spawnId++);
-                    for (std::unordered_multimap<uint32, GameObject*>::const_iterator it = tileIt.first; it != tileIt.second; ++it)
+                    auto tileIt = mapGOs.equal_range(spawnId++);
+                    for (auto it = tileIt.first; it != tileIt.second; ++it)
                         _eruptTiles[section].push_back(it->second->GetGUID());
                 }
             }
@@ -230,13 +234,13 @@ class spell_heigan_eruption : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*eff*/)
             {
                 Unit* caster = GetCaster();
-                if (!caster || !GetHitPlayer())
+                if (!caster || !GetHitUnit())
                     return;
 
-                if (GetHitDamage() >= int32(GetHitPlayer()->GetHealth()))
+                if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_HEIGAN)))
-                            Heigan->AI()->KilledUnit(GetHitPlayer());
+                            Heigan->AI()->KilledUnit(GetHitUnit());
             }
 
             void Register() override

@@ -16,13 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "black_temple.h"
+#include "GameObjectAI.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "GridNotifiers.h"
 
 enum Texts
 {
@@ -88,7 +90,7 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
             {
@@ -140,7 +142,7 @@ public:
                         DoCast(target, SPELL_IMPALING_SPINE, true);
                         SpineTargetGUID = target->GetGUID();
                         //must let target summon, otherwise you cannot click the spine
-                        target->SummonGameObject(GO_NAJENTUS_SPINE, *target, G3D::Quat(), 30);
+                        target->SummonGameObject(GO_NAJENTUS_SPINE, *target, QuaternionData(), 30);
                         Talk(SAY_NEEDLE);
                     }
                     events.Repeat(Seconds(20), Seconds(25));
@@ -211,9 +213,7 @@ class spell_najentus_needle_spine : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NEEDLE_SPINE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NEEDLE_SPINE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

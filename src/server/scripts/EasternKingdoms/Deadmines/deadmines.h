@@ -18,6 +18,9 @@
 #ifndef DEF_DEADMINES_H
 #define DEF_DEADMINES_H
 
+#include "CreatureAIImpl.h"
+
+#define DMScriptName "instance_deadmines"
 #define DataHeader "DM"
 
 enum DMCannonState
@@ -60,5 +63,11 @@ enum DMInstanceTexts
     SAY_ALARM1 = 0,
     SAY_ALARM2 = 1
 };
+
+template <class AI, class T>
+inline AI* GetDeadminesAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, DMScriptName);
+}
 
 #endif

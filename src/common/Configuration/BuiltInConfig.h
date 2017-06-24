@@ -18,8 +18,8 @@
 #ifndef BUILT_IN_CONFIG_H
 #define BUILT_IN_CONFIG_H
 
-#include <string>
 #include "Define.h"
+#include <string>
 
 /// Provides helper functions to access built-in values
 /// which can be overwritten in config

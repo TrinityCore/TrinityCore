@@ -46,14 +46,22 @@ go_bells
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "DBCStructure.h"
+#include "GameEventMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "GameTime.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "GameObjectAI.h"
 #include "Spell.h"
-#include "Player.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 #include "WorldSession.h"
-#include "GameEventMgr.h"
-#include "GameTime.h"
 
 /*######
 ## go_cat_figurine
@@ -1765,7 +1773,7 @@ public:
                             break;
 
                         std::vector<Player*> playersNearby;
-                        me->GetPlayerListInGrid(playersNearby, me->GetMap()->GetVisibilityRange());
+                        me->GetPlayerListInGrid(playersNearby, me->GetVisibilityRange());
                         for (Player* player : playersNearby)
                         {
                             if (player->GetTeamId() == TEAM_HORDE)

@@ -19,20 +19,21 @@
 #ifndef TRINITYCORE_CHAT_H
 #define TRINITYCORE_CHAT_H
 
+#include "Common.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
-#include "WorldSession.h"
-#include "RBAC.h"
-
 #include <vector>
 
 class ChatHandler;
 class Creature;
+class GameObject;
 class Group;
 class Player;
 class Unit;
 class WorldSession;
 class WorldObject;
+class WorldPacket;
 
 struct GameTele;
 
@@ -41,8 +42,7 @@ class TC_GAME_API ChatCommand
     typedef bool(*pHandler)(ChatHandler*, char const*);
 
     public:
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>())
-            : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands)) { }
+        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>());
 
         char const* Name;
         uint32 Permission;                   // function pointer required correct align (use uint32)
@@ -105,8 +105,8 @@ class TC_GAME_API ChatHandler
 
         // function with different implementation for chat/console
         virtual bool isAvailable(ChatCommand const& cmd) const;
-        virtual bool HasPermission(uint32 permission) const { return m_session->HasPermission(permission); }
-        virtual std::string GetNameLink() const { return GetNameLink(m_session->GetPlayer()); }
+        virtual bool HasPermission(uint32 permission) const;
+        virtual std::string GetNameLink() const;
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
         virtual int GetSessionDbLocaleIndex() const;

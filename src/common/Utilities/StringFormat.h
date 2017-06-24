@@ -31,7 +31,7 @@ namespace Trinity
     }
 
     /// Returns true if the given char pointer is null.
-    inline bool IsFormatEmptyOrNull(const char* fmt)
+    inline bool IsFormatEmptyOrNull(char const* fmt)
     {
         return fmt == nullptr;
     }

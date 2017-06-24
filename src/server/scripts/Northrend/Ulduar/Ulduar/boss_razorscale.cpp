@@ -18,13 +18,19 @@
 /// @todo Harpoon chain from 62505 should not get removed when other chain is applied
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "GameObjectAI.h"
-#include "SpellScript.h"
-#include "ulduar.h"
 #include "SpellInfo.h"
-#include "Player.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "ulduar.h"
 
 enum Says
 {
@@ -250,7 +256,7 @@ class boss_razorscale_controller : public CreatureScript
                         break;
                     case ACTION_PLACE_BROKEN_HARPOON:
                         for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
-                            me->SummonGameObject(GO_RAZOR_BROKEN_HARPOON, PosHarpoon[n].GetPositionX(), PosHarpoon[n].GetPositionY(), PosHarpoon[n].GetPositionZ(), 2.286f, G3D::Quat(), 180);
+                            me->SummonGameObject(GO_RAZOR_BROKEN_HARPOON, PosHarpoon[n].GetPositionX(), PosHarpoon[n].GetPositionY(), PosHarpoon[n].GetPositionZ(), 2.286f, QuaternionData(), 180);
                         break;
                 }
             }
@@ -265,7 +271,7 @@ class boss_razorscale_controller : public CreatureScript
                     {
                         case EVENT_BUILD_HARPOON_1:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, G3D::Quat(), uint32(me->GetRespawnTime())))
+                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* brokenHarpoon = harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f)) //only nearest broken harpoon
                                     brokenHarpoon->RemoveFromWorld();
@@ -275,7 +281,7 @@ class boss_razorscale_controller : public CreatureScript
                             return;
                         case EVENT_BUILD_HARPOON_2:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_2, PosHarpoon[1].GetPositionX(), PosHarpoon[1].GetPositionY(), PosHarpoon[1].GetPositionZ(), 4.659f, G3D::Quat(), uint32(me->GetRespawnTime())))
+                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_2, PosHarpoon[1].GetPositionX(), PosHarpoon[1].GetPositionY(), PosHarpoon[1].GetPositionZ(), 4.659f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* brokenHarpoon = harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
                                     brokenHarpoon->RemoveFromWorld();
@@ -284,7 +290,7 @@ class boss_razorscale_controller : public CreatureScript
                             return;
                         case EVENT_BUILD_HARPOON_3:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_3, PosHarpoon[2].GetPositionX(), PosHarpoon[2].GetPositionY(), PosHarpoon[2].GetPositionZ(), 5.382f, G3D::Quat(), uint32(me->GetRespawnTime())))
+                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_3, PosHarpoon[2].GetPositionX(), PosHarpoon[2].GetPositionY(), PosHarpoon[2].GetPositionZ(), 5.382f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* brokenHarpoon = harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
                                     brokenHarpoon->RemoveFromWorld();
@@ -294,7 +300,7 @@ class boss_razorscale_controller : public CreatureScript
                             return;
                         case EVENT_BUILD_HARPOON_4:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_4, PosHarpoon[3].GetPositionX(), PosHarpoon[3].GetPositionY(), PosHarpoon[3].GetPositionZ(), 4.266f, G3D::Quat(), uint32(me->GetRespawnTime())))
+                            if (GameObject* harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_4, PosHarpoon[3].GetPositionX(), PosHarpoon[3].GetPositionY(), PosHarpoon[3].GetPositionZ(), 4.266f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* brokenHarpoon = harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
                                     brokenHarpoon->RemoveFromWorld();

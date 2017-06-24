@@ -21,12 +21,17 @@
  * Scriptnames of files in this file should be prefixed with "spell_rog_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "SpellScript.h"
+#include "Containers.h"
+#include "DBCStores.h"
+#include "Item.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "Containers.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum RogueSpells
 {
@@ -60,18 +65,9 @@ class spell_rog_blade_flurry : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_blade_flurry_AuraScript);
 
-        public:
-            spell_rog_blade_flurry_AuraScript()
-            {
-                _procTarget = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -96,8 +92,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
                 OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE);
             }
 
-        private:
-            Unit* _procTarget;
+            Unit* _procTarget = nullptr;
         };
 
         AuraScript* GetAuraScript() const override
@@ -116,20 +111,11 @@ class spell_rog_cheat_death : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_cheat_death_AuraScript);
 
-        public:
-            spell_rog_cheat_death_AuraScript()
-            {
-                absorbChance = 0;
-            }
-
-        private:
-            uint32 absorbChance;
+            uint32 absorbChance = 0;
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_CHEAT_DEATH_COOLDOWN))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_CHEAT_DEATH_COOLDOWN });
             }
 
             bool Load() override
@@ -227,9 +213,7 @@ class spell_rog_deadly_brew : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_CRIPPLING_POISON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_CRIPPLING_POISON });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -260,13 +244,6 @@ class spell_rog_deadly_poison : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_deadly_poison_SpellScript);
 
-        public:
-            spell_rog_deadly_poison_SpellScript()
-            {
-                _stackAmount = 0;
-            }
-
-        private:
             bool Load() override
             {
                 // at this point CastItem must already be initialized
@@ -341,7 +318,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                 AfterHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleAfterHit);
             }
 
-            uint8 _stackAmount;
+            uint8 _stackAmount = 0;
         };
 
         SpellScript* GetSpellScript() const override
@@ -351,11 +328,12 @@ class spell_rog_deadly_poison : public SpellScriptLoader
 };
 
 // 51690 - Killing Spree
-#define KillingSpreeScriptName "spell_rog_killing_spree"
 class spell_rog_killing_spree : public SpellScriptLoader
 {
     public:
-        spell_rog_killing_spree() : SpellScriptLoader(KillingSpreeScriptName) { }
+        static char constexpr const ScriptName[] = "spell_rog_killing_spree";
+
+        spell_rog_killing_spree() : SpellScriptLoader(ScriptName) { }
 
         class spell_rog_killing_spree_SpellScript : public SpellScript
         {
@@ -370,10 +348,8 @@ class spell_rog_killing_spree : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Aura* aura = GetCaster()->GetAura(SPELL_ROGUE_KILLING_SPREE))
-                {
-                    if (spell_rog_killing_spree_AuraScript* script = dynamic_cast<spell_rog_killing_spree_AuraScript*>(aura->GetScriptByName(KillingSpreeScriptName)))
+                    if (spell_rog_killing_spree_AuraScript* script = aura->GetScript<spell_rog_killing_spree_AuraScript>(ScriptName))
                         script->AddTarget(GetHitUnit());
-                }
             }
 
             void Register() override
@@ -394,11 +370,12 @@ class spell_rog_killing_spree : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_KILLING_SPREE_TELEPORT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG)
-                    || !sSpellMgr->GetSpellInfo(SPELL_ROGUE_KILLING_SPREE_DMG_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ROGUE_KILLING_SPREE_TELEPORT,
+                    SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG,
+                    SPELL_ROGUE_KILLING_SPREE_DMG_BUFF
+                });
             }
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -449,6 +426,7 @@ class spell_rog_killing_spree : public SpellScriptLoader
             return new spell_rog_killing_spree_AuraScript();
         }
 };
+char constexpr const spell_rog_killing_spree::ScriptName[];
 
 // -31130 - Nerves of Steel
 class spell_rog_nerves_of_steel : public SpellScriptLoader
@@ -518,9 +496,7 @@ class spell_rog_preparation : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_GLYPH_OF_PREPARATION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_GLYPH_OF_PREPARATION });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -566,9 +542,7 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_PREY_ON_THE_WEAK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_PREY_ON_THE_WEAK });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -611,9 +585,7 @@ class spell_rog_quick_recovery : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_QUICK_RECOVERY_ENERGY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_QUICK_RECOVERY_ENERGY });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -641,11 +613,12 @@ class spell_rog_quick_recovery : public SpellScriptLoader
 };
 
 // -1943 - Rupture
-static char const* const RuptureScriptName = "spell_rog_rupture";
 class spell_rog_rupture : public SpellScriptLoader
 {
     public:
-        spell_rog_rupture() : SpellScriptLoader(RuptureScriptName) { }
+        static char constexpr const ScriptName[] = "spell_rog_rupture";
+
+        spell_rog_rupture() : SpellScriptLoader(ScriptName) { }
 
         class spell_rog_rupture_AuraScript : public AuraScript
         {
@@ -703,6 +676,7 @@ class spell_rog_rupture : public SpellScriptLoader
             return new spell_rog_rupture_AuraScript();
         }
 };
+char constexpr const spell_rog_rupture::ScriptName[];
 
 // 56800 - Glyph of Backstab (dummy)
 class spell_rog_glyph_of_backstab : public SpellScriptLoader
@@ -716,9 +690,7 @@ class spell_rog_glyph_of_backstab : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_GLYPH_OF_BACKSTAB_TRIGGER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_GLYPH_OF_BACKSTAB_TRIGGER });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -759,7 +731,7 @@ class spell_rog_glyph_of_backstab_triggered : public SpellScriptLoader
                 // search our Rupture aura on target
                 if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00100000, 0, 0, caster->GetGUID()))
                 {
-                    RuptureAuraScript* ruptureAuraScript = dynamic_cast<RuptureAuraScript*>(aurEff->GetBase()->GetScriptByName(RuptureScriptName));
+                    RuptureAuraScript* ruptureAuraScript = aurEff->GetBase()->GetScript<RuptureAuraScript>(spell_rog_rupture::ScriptName);
                     if (!ruptureAuraScript)
                         return;
 
@@ -843,9 +815,7 @@ class spell_rog_shiv : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_SHIV_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ROGUE_SHIV_TRIGGERED });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -877,20 +847,13 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_tricks_of_the_trade_AuraScript);
 
-        public:
-            spell_rog_tricks_of_the_trade_AuraScript()
-            {
-                _redirectTarget = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST,
+                    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC
+                });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -922,8 +885,7 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
                 OnEffectProc += AuraEffectProcFn(spell_rog_tricks_of_the_trade_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
 
-        private:
-            Unit* _redirectTarget;
+            Unit* _redirectTarget = nullptr;
         };
 
         AuraScript* GetAuraScript() const override
@@ -971,10 +933,11 @@ public:
 
         bool Validate(SpellInfo const* spellInfo) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_HONOR_AMONG_THIEVES_2) ||
-                !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
-                return false;
-            return true;
+            return ValidateSpellInfo(
+            {
+                SPELL_ROGUE_HONOR_AMONG_THIEVES_2,
+                spellInfo->Effects[EFFECT_0].TriggerSpell
+            });
         }
 
         bool CheckProc(ProcEventInfo& /*eventInfo*/)
@@ -1023,10 +986,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC))
-                return false;
-
-            return true;
+            return ValidateSpellInfo({ SPELL_ROGUE_HONOR_AMONG_THIEVES_PROC });
         }
 
         void FilterTargets(std::list<WorldObject*>& targets)
@@ -1089,9 +1049,7 @@ class spell_rog_turn_the_tables : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)

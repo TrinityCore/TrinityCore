@@ -24,16 +24,19 @@ SDCategory: Razorfen Kraul
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "razorfen_kraul.h"
+#include "Log.h"
+#include "Map.h"
 #include "Player.h"
+#include "razorfen_kraul.h"
 
 #define WARD_KEEPERS_NR 2
 
 class instance_razorfen_kraul : public InstanceMapScript
 {
 public:
-    instance_razorfen_kraul() : InstanceMapScript("instance_razorfen_kraul", 47) { }
+    instance_razorfen_kraul() : InstanceMapScript(RFKScriptName, 47) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -60,7 +63,7 @@ public:
                     return player;
             }
             TC_LOG_DEBUG("scripts", "Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
-            return NULL;
+            return nullptr;
         }
 
         void OnGameObjectCreate(GameObject* go) override

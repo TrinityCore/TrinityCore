@@ -17,7 +17,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "zulgurub.h"
 
 enum Say
@@ -164,7 +167,7 @@ class boss_jindo : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_jindoAI(creature);
+            return GetZulGurubAI<boss_jindoAI>(creature);
         }
 };
 
@@ -213,7 +216,7 @@ class npc_healing_ward : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_healing_wardAI>(creature);
+            return GetZulGurubAI<npc_healing_wardAI>(creature);
         }
 };
 
@@ -260,7 +263,7 @@ class npc_shade_of_jindo : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_shade_of_jindoAI(creature);
+            return GetZulGurubAI<npc_shade_of_jindoAI>(creature);
         }
 };
 

@@ -56,7 +56,7 @@
 #endif
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-#  define TRINITY_PATH_MAX MAX_PATH
+#  define TRINITY_PATH_MAX 260
 #  define _USE_MATH_DEFINES
 #  ifndef DECLSPEC_NORETURN
 #    define DECLSPEC_NORETURN __declspec(noreturn)
