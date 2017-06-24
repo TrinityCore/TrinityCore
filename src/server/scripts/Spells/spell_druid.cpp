@@ -58,132 +58,20 @@ enum DruidSpells
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
+    SPELL_DRUID_TRAVEL_FORM                 = 783
     SPELL_DRUID_REJUVENATION_T10_PROC       = 70691,
     SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
     SPELL_DRUID_SUNFIRE_DAMAGE              = 164815,
-    SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
-    SPELL_DRUID_TRAVEL_FORM                 = 783
+    SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322
 };
 
 enum DruidForms
 {
     DRUID_AQUATIC_FORM                      = 1066,
     DRUID_FLIGHT_FORM                       = 33943,
-    DRUID_SWIFT_FLIGHT_FORM                 = 40120,
-    DRUID_STAG_FORM                         = 165961
-};
-
-// 783 - Travel Form
-class spell_dru_travel_form : public SpellScriptLoader
-{
-public:
-    spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
-
-    class spell_dru_travel_form_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dru_travel_form_SpellScript);
-
-        bool Load()
-        {
-            return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
-        }
-
-        SpellCastResult CheckCast()
-        {
-            Player* player = GetCaster()->ToPlayer();
-            if (player->IsInDisallowedMountForm())
-                return SPELL_FAILED_NOT_SHAPESHIFT;
-            if (!player->IsInWater() && !player->GetMap()->IsOutdoors(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
-                return SPELL_FAILED_ONLY_OUTDOORS;
-
-            return SPELL_CAST_OK;
-        }
-
-        void Register() override
-        {
-            OnCheckCast += SpellCheckCastFn(spell_dru_travel_form_SpellScript::CheckCast);
-        }
-    };
-
-    class spell_dru_travel_form_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dru_travel_form_AuraScript);
-
-        void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Player* player = GetTarget()->ToPlayer();
-            if (player->IsInWater())
-                player->CastSpell(player, DRUID_AQUATIC_FORM, true);
-            else if (player->IsInCombat())
-                player->CastSpell(player, DRUID_STAG_FORM, true);
-            else if ((player->GetMapId() == 530) || (player->GetMapId() == 571 && player->HasSpell(54197)) || ((player->GetMapId() == 0 || player->GetMapId() == 1) && player->HasSpell(90267)))
-            {
-                if (player->getLevel() >= 71)
-                    player->CastSpell(player, DRUID_SWIFT_FLIGHT_FORM, true);
-                else if (player->getLevel() >= 58)
-                    player->CastSpell(player, DRUID_FLIGHT_FORM, true);
-                else
-                    player->CastSpell(player, DRUID_STAG_FORM, true);
-            }
-            else
-                player->CastSpell(player, DRUID_STAG_FORM, true);
-        }
-
-        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Player* player = GetTarget()->ToPlayer();
-            if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEFAULT) //Automatic Form Swapping
-            {
-                if (player->IsInWater())
-                    player->CastSpell(player, DRUID_AQUATIC_FORM, true);
-                else if (!player->GetMap()->IsOutdoors(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
-                {
-                    player->RemoveAura(SPELL_DRUID_TRAVEL_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
-                    player->RemoveAura(DRUID_STAG_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
-                    player->RemoveAura(DRUID_AQUATIC_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
-                    player->RemoveAura(DRUID_FLIGHT_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
-                    player->RemoveAura(DRUID_SWIFT_FLIGHT_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
-                }
-                else if ((player->GetMapId() == 530) || (player->GetMapId() == 571 && player->HasSpell(54197)) || ((player->GetMapId() == 0 || player->GetMapId() == 1) && player->HasSpell(90267)))
-                {
-                    if (player->getLevel() >= 71)
-                        player->CastSpell(player, DRUID_SWIFT_FLIGHT_FORM, true);
-                    else if (player->getLevel() >= 58)
-                        player->CastSpell(player, DRUID_FLIGHT_FORM, true);
-                    else
-                        player->CastSpell(player, DRUID_STAG_FORM, true);
-                }
-                else
-                    player->CastSpell(player, DRUID_STAG_FORM, true);
-            }
-            else
-            {
-                player->RemoveAura(SPELL_DRUID_TRAVEL_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
-                player->RemoveAura(DRUID_STAG_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
-                player->RemoveAura(DRUID_AQUATIC_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
-                player->RemoveAura(DRUID_FLIGHT_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
-                player->RemoveAura(DRUID_SWIFT_FLIGHT_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
-            }
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectApplyFn(spell_dru_travel_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dru_travel_form_SpellScript();
-    }
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_dru_travel_form_AuraScript();
-    }
+    DRUID_STAG_FORM                         = 165961,
+    DRUID_SWIFT_FLIGHT_FORM                 = 40120
 };
 
 // 1850 - Dash
@@ -1091,6 +979,118 @@ class spell_dru_t4_2p_bonus : public SpellScriptLoader
         }
 };
 
+// 783 - Travel Form
+class spell_dru_travel_form : public SpellScriptLoader
+{
+public:
+    spell_dru_travel_form() : SpellScriptLoader("spell_dru_travel_form") { }
+
+    class spell_dru_travel_form_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dru_travel_form_SpellScript);
+
+        bool Load()
+        {
+            return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        SpellCastResult CheckCast()
+        {
+            Player* player = GetCaster()->ToPlayer();
+            if (player->IsInDisallowedMountForm())
+                return SPELL_FAILED_NOT_SHAPESHIFT;
+            if (!player->IsInWater() && !player->GetMap()->IsOutdoors(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
+                return SPELL_FAILED_ONLY_OUTDOORS;
+
+            return SPELL_CAST_OK;
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_dru_travel_form_SpellScript::CheckCast);
+        }
+    };
+
+    class spell_dru_travel_form_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_travel_form_AuraScript);
+
+        void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Player* player = GetTarget()->ToPlayer();
+            if (player->IsInWater())
+                player->CastSpell(player, DRUID_AQUATIC_FORM, true);
+            else if (player->IsInCombat())
+                player->CastSpell(player, DRUID_STAG_FORM, true);
+            else if ((player->GetMapId() == 530) || (player->GetMapId() == 571 && player->HasSpell(54197)) || ((player->GetMapId() == 0 || player->GetMapId() == 1) && player->HasSpell(90267)))
+            {
+                if (player->getLevel() >= 71)
+                    player->CastSpell(player, DRUID_SWIFT_FLIGHT_FORM, true);
+                else if (player->getLevel() >= 58)
+                    player->CastSpell(player, DRUID_FLIGHT_FORM, true);
+                else
+                    player->CastSpell(player, DRUID_STAG_FORM, true);
+            }
+            else
+                player->CastSpell(player, DRUID_STAG_FORM, true);
+        }
+
+        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Player* player = GetTarget()->ToPlayer();
+            if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEFAULT) //Automatic Form Swapping
+            {
+                if (player->IsInWater())
+                    player->CastSpell(player, DRUID_AQUATIC_FORM, true);
+                else if (!player->GetMap()->IsOutdoors(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()))
+                {
+                    player->RemoveAura(SPELL_DRUID_TRAVEL_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
+                    player->RemoveAura(DRUID_STAG_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
+                    player->RemoveAura(DRUID_AQUATIC_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
+                    player->RemoveAura(DRUID_FLIGHT_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
+                    player->RemoveAura(DRUID_SWIFT_FLIGHT_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
+                }
+                else if ((player->GetMapId() == 530) || (player->GetMapId() == 571 && player->HasSpell(54197)) || ((player->GetMapId() == 0 || player->GetMapId() == 1) && player->HasSpell(90267)))
+                {
+                    if (player->getLevel() >= 71)
+                        player->CastSpell(player, DRUID_SWIFT_FLIGHT_FORM, true);
+                    else if (player->getLevel() >= 58)
+                        player->CastSpell(player, DRUID_FLIGHT_FORM, true);
+                    else
+                        player->CastSpell(player, DRUID_STAG_FORM, true);
+                }
+                else
+                    player->CastSpell(player, DRUID_STAG_FORM, true);
+            }
+            else
+            {
+                player->RemoveAura(SPELL_DRUID_TRAVEL_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
+                player->RemoveAura(DRUID_STAG_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
+                player->RemoveAura(DRUID_AQUATIC_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
+                player->RemoveAura(DRUID_FLIGHT_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
+                player->RemoveAura(DRUID_SWIFT_FLIGHT_FORM, ObjectGuid::Empty, 0U, AURA_REMOVE_BY_CANCEL);
+            }
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_dru_travel_form_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_dru_travel_form_SpellScript();
+    }
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dru_travel_form_AuraScript();
+    }
+};
+
 // 40442 - Druid Tier 6 Trinket
 class spell_dru_item_t6_trinket : public SpellScriptLoader
 {
@@ -1385,7 +1385,6 @@ public:
 
 void AddSC_druid_spell_scripts()
 {
-    new spell_dru_travel_form();
     new spell_dru_dash();
     new spell_dru_flight_form();
     new spell_dru_forms_trinket();
@@ -1407,6 +1406,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t3_6p_bonus();
     new spell_dru_t3_8p_bonus();
     new spell_dru_t4_2p_bonus();
+    new spell_dru_travel_form();
     new spell_dru_item_t6_trinket();
     new spell_dru_t10_balance_4p_bonus();
     new spell_dru_t10_restoration_4p_bonus();
