@@ -2931,7 +2931,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     m_powerCost = m_CastItem ? 0 : m_spellInfo->CalcPowerCost(m_caster, m_spellSchoolMask, this);
 
     // Set combo point requirement
-    if ((_triggeredCastFlags & TRIGGERED_IGNORE_COMBO_POINTS) || m_CastItem || !m_caster->m_playerMovingMe)
+    if ((_triggeredCastFlags & TRIGGERED_IGNORE_COMBO_POINTS) || m_CastItem)
         m_needComboPoints = false;
 
     uint32 param1 = 0, param2 = 0;
@@ -3497,16 +3497,13 @@ void Spell::_handle_immediate_phase()
 
 void Spell::_handle_finish_phase()
 {
-    if (m_caster->m_playerMovingMe)
-    {
-        // Take for real after all targets are processed
-        if (m_needComboPoints)
-            m_caster->m_playerMovingMe->ClearComboPoints();
+    // Take for real after all targets are processed
+    if (m_needComboPoints)
+        m_caster->ClearComboPoints();
 
-        // Real add combo points from effects
-        if (m_comboPointGain)
-            m_caster->m_playerMovingMe->GainSpellComboPoints(m_comboPointGain);
-    }
+    // Real add combo points from effects
+    if (m_comboTarget && m_comboPointGain)
+        m_caster->AddComboPoints(m_comboTarget, m_comboPointGain);
 
     if (m_caster->m_extraAttacks && m_spellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
     {
@@ -5733,11 +5730,20 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 return SPELL_FAILED_ITEM_ALREADY_ENCHANTED;
     }
 
-    // check if caster has at least 1 combo point for spells that require combo points
+    // check if caster has at least 1 combo point on target for spells that require combo points
     if (m_needComboPoints)
-        if (Player* plrCaster = m_caster->ToPlayer())
-            if (!plrCaster->GetComboPoints())
+    {
+        if (m_spellInfo->NeedsExplicitUnitTarget())
+        {
+            if (!m_caster->GetComboPoints(m_targets.GetUnitTarget()))
                 return SPELL_FAILED_NO_COMBO_POINTS;
+        }
+        else
+        {
+            if (!m_caster->GetComboPoints())
+                return SPELL_FAILED_NO_COMBO_POINTS;
+        }
+    }
 
     // all ok
     return SPELL_CAST_OK;
