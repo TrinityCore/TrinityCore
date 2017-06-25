@@ -1,4 +1,5 @@
 -- 
+/*
 DELETE FROM `quest_details` WHERE `ID` IN (363, 3901,3098,3099,6395,380, 3902,381, 382, 365, 427, 367, 368, 369, 5482,590, 1881, 370, 371, 374, 405, 1478,1473,1471);
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES 
 (363, 1, 0, 0, 0, 0, 0, 0, 0, 0),
@@ -74,3 +75,5 @@ UPDATE `quest_request_items` SET `EmoteOnComplete`=0 WHERE `ID`=357;
 UPDATE `quest_offer_reward` SET `Emote1`=1 WHERE `ID`=1478;
 UPDATE `quest_offer_reward` SET `Emote1`=1 WHERE `ID`=409;
 UPDATE `quest_request_items` SET `EmoteOnComplete`=0 WHERE `ID`=411;
+*/
+

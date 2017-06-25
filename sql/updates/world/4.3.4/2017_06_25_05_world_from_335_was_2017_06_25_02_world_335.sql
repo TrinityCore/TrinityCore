@@ -1,5 +1,6 @@
 -- 
 -- The Absent Minded Prospector (943)
+/*
 DELETE FROM smart_scripts WHERE entryorguid=2911 AND source_type=0;
 DELETE FROM smart_scripts WHERE entryorguid=2911*100 AND source_type=9;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
@@ -29,3 +30,5 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (3582, 3, 0, "Digging too deep into your past might bring an abrupt end to your future.", 12, 0, 100, 0, 0, 0,1185, 0, 'Aman'),
 (3582, 4, 0, "%s dissipates before your eyes.", 16, 0, 100, 0, 0, 0,1187, 0, 'Aman'),
 (2911, 2, 0, "%s begins to manipulate the Stone of Relu over the two fossils.", 16, 0, 100, 0, 0, 0,1179, 0, 'Archaeologist Flagongut');
+*/
+
