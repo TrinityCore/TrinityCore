@@ -492,6 +492,18 @@ class TC_GAME_API Spell
         uint32 m_glyphIndex;
         uint32 m_preCastSpell;
         SpellCastTargets m_targets;
+
+        void AddComboPointGain(Unit* target, int8 amount)
+        {
+            if (target != m_comboTarget)
+            {
+                m_comboTarget = target;
+                m_comboPointGain = amount;
+            }
+            else
+                m_comboPointGain += amount;
+        }
+        Unit* m_comboTarget;
         int8 m_comboPointGain;
         SpellCustomErrors m_customError;
 
