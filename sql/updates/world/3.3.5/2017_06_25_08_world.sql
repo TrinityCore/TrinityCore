@@ -1,5 +1,5 @@
 -- 
-SET @guid:=112809;
+SET @guid:=134935;
 DELETE FROM `creature` WHERE `id` IN (30083);
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `curhealth`, `curmana`, `MovementType`) VALUES 
 (@guid+0, 30083, 533, 3, 1, 0, 0, 3410.94, -3084.66, 294.662, 2.42642, 7200, 0, 0,  0, 0),
