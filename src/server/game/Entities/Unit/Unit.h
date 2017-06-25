@@ -912,12 +912,13 @@ struct TC_GAME_API CharmInfo
 
 enum ReactiveType
 {
-    REACTIVE_DEFENSE      = 0,
-    REACTIVE_HUNTER_PARRY = 1,
-    REACTIVE_OVERPOWER    = 2
+    REACTIVE_DEFENSE        = 0,
+    REACTIVE_HUNTER_PARRY   = 1,
+    REACTIVE_OVERPOWER      = 2,
+    REACTIVE_WOLVERINE_BITE = 3,
+    MAX_REACTIVE
 };
 
-#define MAX_REACTIVE 3
 #define SUMMON_SLOT_PET     0
 #define SUMMON_SLOT_TOTEM   1
 #define MAX_TOTEM_SLOT      5
@@ -1794,8 +1795,19 @@ class TC_GAME_API Unit : public WorldObject
 
         void SetControlled(bool apply, UnitState state);
 
-        void AddComboPointHolder(ObjectGuid lowguid) { m_ComboPointHolders.insert(lowguid); }
-        void RemoveComboPointHolder(ObjectGuid lowguid) { m_ComboPointHolders.erase(lowguid); }
+        ///-----------Combo point system-------------------
+        // This unit having CP on other units
+        uint8 GetComboPoints(Unit const* who = nullptr) const { return (who && m_comboTarget != who) ? 0 : m_comboPoints; }
+        uint8 GetComboPoints(ObjectGuid const& guid) const { return (m_comboTarget && m_comboTarget->GetGUID() == guid) ? m_comboPoints : 0; }
+        Unit* GetComboTarget() const { return m_comboTarget; }
+        ObjectGuid GetComboTargetGUID() const { return m_comboTarget ? m_comboTarget->GetGUID() : ObjectGuid::Empty; }
+        void AddComboPoints(Unit* target, int8 count);
+        void AddComboPoints(int8 count) { AddComboPoints(nullptr, count); }
+        void ClearComboPoints();
+        void SendComboPoints();
+        // Other units having CP on this unit
+        void AddComboPointHolder(Unit* unit) { m_ComboPointHolders.insert(unit); }
+        void RemoveComboPointHolder(Unit* unit) { m_ComboPointHolders.erase(unit); }
         void ClearComboPointHolders();
 
         ///----------Pet responses methods-----------------
@@ -1862,6 +1874,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool CanFly() const = 0;
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_DISABLE_GRAVITY); }
         bool IsFalling() const;
+        virtual bool CanSwim() const;
 
         void RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
 
@@ -2013,7 +2026,9 @@ class TC_GAME_API Unit : public WorldObject
 
         FollowerRefManager m_FollowingRefManager;
 
-        GuidSet m_ComboPointHolders;
+        Unit* m_comboTarget;
+        int8 m_comboPoints;
+        std::unordered_set<Unit*> m_ComboPointHolders;
 
         RedirectThreatInfo _redirectThreadInfo;
 
