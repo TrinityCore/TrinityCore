@@ -46,6 +46,9 @@ script:
   - ./contrib/check_updates.sh characters 3.3.5 characters
   - mysql -utrinity -ptrinity world < sql/base/dev/world_database.sql
   - cat sql/updates/world/3.3.5/*.sql | mysql -utrinity -ptrinity world
+  - cat sql/custom/auth/*.sql | mysql -utrinity -ptrinity auth
+  - cat sql/custom/characters/*.sql | mysql -utrinity -ptrinity characters
+  - cat sql/custom/world/*.sql | mysql -utrinity -ptrinity world
   - mysql -uroot < sql/create/drop_mysql.sql
   - cd bin
   - make -j 4 -k && make install
