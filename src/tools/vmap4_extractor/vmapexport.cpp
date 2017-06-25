@@ -337,6 +337,35 @@ bool processArgv(int argc, char ** argv, const char *versionString)
     return result;
 }
 
+static bool RetardCheck()
+{
+    try
+    {
+        boost::filesystem::path storageDir(boost::filesystem::canonical(input_path) / "Data");
+        boost::filesystem::directory_iterator end;
+        for (boost::filesystem::directory_iterator itr(storageDir); itr != end; ++itr)
+        {
+            if (itr->path().extension() == ".MPQ")
+            {
+                printf("MPQ files found in Data directory!\n");
+                printf("This tool works only with World of Warcraft: Legion\n");
+                printf("\n");
+                printf("To extract maps for Wrath of the Lich King, rebuild tools using 3.3.5 branch!\n");
+                printf("\n");
+                printf("Press ENTER to exit...\n");
+                getchar();
+                return false;
+            }
+        }
+    }
+    catch (std::exception const& error)
+    {
+        printf("Error checking client version: %s\n", error.what());
+    }
+
+    return true;
+}
+
 //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 // Main
 //
@@ -355,6 +384,9 @@ int main(int argc, char ** argv)
 
     // Use command line arguments, when some
     if (!processArgv(argc, argv, versionString))
+        return 1;
+
+    if (!RetardCheck())
         return 1;
 
     // some simple check if working dir is dirty
