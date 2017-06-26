@@ -562,14 +562,15 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
     QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(viewer->GetGUID());
     if (q_itr != lootPlayerQuestItems.end())
     {
-        QuestItemList* q_list = q_itr->second;
-        for (QuestItemList::const_iterator qi = q_list->begin(); qi != q_list->end(); ++qi)
+        QuestItemList const& q_list = *q_itr->second;
+        for (std::size_t i = 0; i < q_list.size(); ++i)
         {
-            LootItem const& item = quest_items[qi->index];
-            if (!qi->is_looted && !item.is_looted)
+            QuestItem const& qi = q_list[i];
+            LootItem const& item = quest_items[qi.index];
+            if (!qi.is_looted && !item.is_looted)
             {
                 WorldPackets::Loot::LootItemData lootItem;
-                lootItem.LootListID = items.size() + qi->index + 1;
+                lootItem.LootListID = items.size() + i + 1;
                 lootItem.Quantity = item.count;
                 lootItem.Loot.Initialize(item);
 
