@@ -410,7 +410,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
         if (*iter == sess)
         {
             sess->SetInQueue(false);
-            sess->ResetTimeOutTime();
+            sess->ResetTimeOutTime(false);
             iter = m_QueuedPlayer.erase(iter);
             found = true;                                   // removing queued session
             break;
@@ -753,6 +753,7 @@ void World::LoadConfigSettings(bool reload)
     }
 
     m_int_configs[CONFIG_SOCKET_TIMEOUTTIME] = sConfigMgr->GetIntDefault("SocketTimeOutTime", 900000);
+    m_int_configs[CONFIG_SOCKET_TIMEOUTTIME_ACTIVE] = sConfigMgr->GetIntDefault("SocketTimeOutTimeActive", 60000);
     m_int_configs[CONFIG_SESSION_ADD_DELAY] = sConfigMgr->GetIntDefault("SessionAddDelay", 10000);
 
     m_float_configs[CONFIG_GROUP_XP_DISTANCE] = sConfigMgr->GetFloatDefault("MaxGroupXPDistance", 74.0f);
