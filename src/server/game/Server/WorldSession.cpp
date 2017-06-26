@@ -137,7 +137,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     if (sock)
     {
         m_Address = sock->GetRemoteIpAddress().to_string();
-        ResetTimeOutTime();
+        ResetTimeOutTime(false);
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
 
@@ -271,7 +271,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     UpdateTimeOutTime(diff);
 
     ///- Before we process anything:
-    /// If necessary, kick the player from the character select screen
+    /// If necessary, kick the player because the client didn't send anything for too long
+    /// (or they've been idling in character select)
     if (IsConnectionIdle())
         m_Socket->CloseSocket();
 
@@ -633,9 +634,12 @@ char const* WorldSession::GetTrinityString(uint32 entry) const
     return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
 }
 
-void WorldSession::ResetTimeOutTime()
+void WorldSession::ResetTimeOutTime(bool onlyActive)
 {
-    m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
+    if (GetPlayer())
+        m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME_ACTIVE));
+    else if (!onlyActive)
+        m_timeOutTime = int32(sWorld->getIntConfig(CONFIG_SOCKET_TIMEOUTTIME));
 }
 
 void WorldSession::Handle_NULL(WorldPacket& null)
@@ -1198,7 +1202,7 @@ void WorldSession::InitializeSessionCallback(SQLQueryHolder* realmHolder)
         SendAuthWaitQue(0);
 
     SetInQueue(false);
-    ResetTimeOutTime();
+    ResetTimeOutTime(false);
 
     SendAddonsInfo();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
