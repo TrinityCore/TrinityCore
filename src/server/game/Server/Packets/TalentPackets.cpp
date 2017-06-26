@@ -89,3 +89,10 @@ WorldPacket const* WorldPackets::Talent::ActiveGlyphs::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Talent::LearnPvpTalents::Read()
+{
+    Talents.resize(_worldPacket.ReadBits(6));
+    for (uint32 i = 0; i < Talents.size(); ++i)
+        _worldPacket >> Talents[i];
+}
