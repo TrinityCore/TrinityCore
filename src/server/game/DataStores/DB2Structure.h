@@ -94,6 +94,12 @@ struct AreaTableEntry
             return true;
         return (Flags[0] & AREA_FLAG_SANCTUARY) != 0;
     }
+
+    // Checks if zone activates pvp (FFA, battlegrounds, battlefields, arenas)
+    bool IsPvpZone() const
+    {
+        return !IsSanctuary() && (Flags[0] & (AREA_FLAG_ARENA | AREA_FLAG_WINTERGRASP | AREA_FLAG_ARENA_INSTANCE)) != 0;
+    }
 };
 
 struct AreaTriggerEntry
@@ -2107,6 +2113,32 @@ struct PvpRewardEntry
     uint32 HonorLevel;
     uint32 Prestige;
     uint32 RewardPackID;
+};
+
+#define MAX_PVP_TALENT_TIERS 6
+#define MAX_PVP_TALENT_COLUMNS 3
+
+struct PvpTalentEntry
+{
+    uint32 ID;
+    uint32 SpellID;
+    uint32 OverridesSpellID;
+    LocalizedString* Description;
+    int32 ExtraSpellID;
+    int32 TierID;
+    int32 ColumnIndex;
+    int32 Flags;
+    int32 ClassID;
+    int32 SpecID;
+    int32 Role;
+};
+
+struct PvpTalentUnlockEntry
+{
+    uint32 ID;
+    uint32 TierID;
+    uint32 ColumnIndex;
+    uint32 HonorLevel;
 };
 
 struct QuestFactionRewardEntry

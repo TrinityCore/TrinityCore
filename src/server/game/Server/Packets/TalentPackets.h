@@ -113,6 +113,16 @@ namespace WorldPackets
             std::vector<GlyphBinding> Glyphs;
             bool IsFullUpdate = false;
         };
+
+        class LearnPvpTalents final : public ClientPacket
+        {
+        public:
+            LearnPvpTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_PVP_TALENTS, std::move(packet)) { }
+
+            void Read() override;
+
+            Array<uint16, 6> Talents;
+        };
     }
 }
 
