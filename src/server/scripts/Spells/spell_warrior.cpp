@@ -34,7 +34,7 @@ enum WarriorSpells
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST                       = 23885,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
-    SPELL_WARRIOR_BLOODSURGE_R1                     = 29723,
+    SPELL_WARRIOR_BLOODSURGE_R1                     = 46913,
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_DAMAGE_SHIELD_DAMAGE              = 59653,
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_1                = 12162,
@@ -52,7 +52,7 @@ enum WarriorSpells
     SPELL_WARRIOR_RETALIATION_DAMAGE                = 22858,
     SPELL_WARRIOR_SLAM                              = 50783,
     SPELL_WARRIOR_SLAM_GCD_REDUCED                  = 71072,
-    SPELL_WARRIOR_SUDDEN_DEATH_R1                   = 46913,
+    SPELL_WARRIOR_SUDDEN_DEATH_R1                   = 29723,
     SPELL_WARRIOR_SUNDER_ARMOR                      = 58567,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
@@ -412,8 +412,8 @@ class spell_warr_execute : public SpellScriptLoader
         }
 };
 
-// -29723 - Bloodsurge
-// -46913 - Sudden Death
+// -29723 - Sudden Death
+// -46913 - Bloodsurge
 class spell_warr_extra_proc : public SpellScriptLoader
 {
     public:

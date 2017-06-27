@@ -3170,10 +3170,8 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             {
                 // Hemorrhage
                 if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
-                {
-                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                        m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
-                }
+                    AddComboPointGain(unitTarget, 1);
+
                 // 50% more damage with daggers
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
@@ -3228,10 +3226,8 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         {
             // Mangle (Cat): CP
             if (m_spellInfo->SpellFamilyFlags[1] & 0x400)
-            {
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
-            }
+                AddComboPointGain(unitTarget, 1);
+            
             // Shred, Maul - Rend and Tear
             else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING))
             {
@@ -4001,13 +3997,10 @@ void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
     if (!unitTarget)
         return;
 
-    if (!m_caster->m_playerMovingMe)
-        return;
-
     if (damage <= 0)
         return;
 
-    m_caster->m_playerMovingMe->AddComboPoints(unitTarget, damage, this);
+    AddComboPointGain(unitTarget, damage);
 }
 
 void Spell::EffectDuel(SpellEffIndex effIndex)
