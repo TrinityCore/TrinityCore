@@ -3548,13 +3548,13 @@ struct PvpTalentLoadInfo
             { false, FT_INT, "SpellID" },
             { false, FT_INT, "OverridesSpellID" },
             { false, FT_STRING, "Description" },
-            { true, FT_INT, "ExtraSpellID" },
-            { true, FT_INT, "TierID" },
-            { true, FT_INT, "ColumnIndex" },
-            { true, FT_INT, "Flags" },
-            { true, FT_INT, "ClassID" },
-            { true, FT_INT, "SpecID" },
-            { true, FT_INT, "Role" },
+            { false, FT_INT, "ExtraSpellID" },
+            { false, FT_INT, "TierID" },
+            { false, FT_INT, "ColumnIndex" },
+            { false, FT_INT, "Flags" },
+            { false, FT_INT, "ClassID" },
+            { false, FT_INT, "SpecID" },
+            { false, FT_INT, "Role" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpTalentMeta::Instance(), HOTFIX_SEL_PVP_TALENT);
         return &loadInfo;
