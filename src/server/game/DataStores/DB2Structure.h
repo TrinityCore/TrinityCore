@@ -2124,13 +2124,13 @@ struct PvpTalentEntry
     uint32 SpellID;
     uint32 OverridesSpellID;
     LocalizedString* Description;
-    int32 ExtraSpellID;
-    int32 TierID;
-    int32 ColumnIndex;
-    int32 Flags;
-    int32 ClassID;
-    int32 SpecID;
-    int32 Role;
+    uint32 ExtraSpellID;
+    uint32 TierID;
+    uint32 ColumnIndex;
+    uint32 Flags;
+    uint32 ClassID;
+    uint32 SpecID;
+    uint32 Role;
 };
 
 struct PvpTalentUnlockEntry
