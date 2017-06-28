@@ -24,6 +24,7 @@
 #include "MapInstanced.h"
 #include "GridStates.h"
 #include "MapUpdater.h"
+#include <boost/dynamic_bitset.hpp>
 
 class Transport;
 struct TransportCreatureProto;
@@ -74,7 +75,7 @@ class TC_GAME_API MapManager
             i_timer.Reset();
         }
 
-        //void LoadGrid(int mapid, int instId, float x, float y, const WorldObject* obj, bool no_unload = false);
+        //void LoadGrid(int mapid, int instId, float x, float y, WorldObject const* obj, bool no_unload = false);
         void UnloadAll();
 
         static bool ExistMapAndVMap(uint32 mapid, float x, float y);
@@ -115,9 +116,6 @@ class TC_GAME_API MapManager
         void RegisterInstanceId(uint32 instanceId);
         void FreeInstanceId(uint32 instanceId);
 
-        uint32 GetNextInstanceId() const { return _nextInstanceId; };
-        void SetNextInstanceId(uint32 nextInstanceId) { _nextInstanceId = nextInstanceId; };
-
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
         template<typename Worker>
@@ -133,7 +131,7 @@ class TC_GAME_API MapManager
 
     private:
         typedef std::unordered_map<uint32, Map*> MapMapType;
-        typedef std::vector<bool> InstanceIds;
+        typedef boost::dynamic_bitset<size_t> InstanceIds;
 
         MapManager();
         ~MapManager();
@@ -141,18 +139,18 @@ class TC_GAME_API MapManager
         Map* FindBaseMap(uint32 mapId) const
         {
             MapMapType::const_iterator iter = i_maps.find(mapId);
-            return (iter == i_maps.end() ? NULL : iter->second);
+            return (iter == i_maps.end() ? nullptr : iter->second);
         }
 
-        MapManager(const MapManager &);
-        MapManager& operator=(const MapManager &);
+        MapManager(MapManager const&) = delete;
+        MapManager& operator=(MapManager const&) = delete;
 
         std::mutex _mapsLock;
         uint32 i_gridCleanUpDelay;
         MapMapType i_maps;
         IntervalTimer i_timer;
 
-        InstanceIds _instanceIds;
+        InstanceIds _freeInstanceIds;
         uint32 _nextInstanceId;
         MapUpdater m_updater;
 

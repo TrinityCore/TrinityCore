@@ -28,12 +28,14 @@ npc_apothecary_hanes
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_apothecary_hanes
@@ -232,12 +234,12 @@ public:
                     events.ScheduleEvent(EVENT_TALK_6, Seconds(17));
                     break;
                 case 35:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                        Talk(TALK_7, player);
+                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
+                        Talk(TALK_7, pl);
                     break;
                 case 40:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                        player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
+                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
+                        pl->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
                     events.ScheduleEvent(EVENT_TALK_8, Seconds(4));
                     break;
             }
@@ -560,9 +562,7 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON) || !sSpellMgr->GetSpellInfo(SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE });
             }
 
             void HandleScript(SpellEffIndex /*eff*/)

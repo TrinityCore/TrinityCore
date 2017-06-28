@@ -16,11 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Creature.h"
 #include "CreatureGroups.h"
-#include "ObjectMgr.h"
-
+#include "Creature.h"
 #include "CreatureAI.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
 
 #define MAX_DESYNC 5.0f
 
@@ -164,19 +167,16 @@ void CreatureGroup::AddMember(Creature* member)
 void CreatureGroup::RemoveMember(Creature* member)
 {
     if (m_leader == member)
-        m_leader = NULL;
+        m_leader = nullptr;
 
     m_members.erase(member);
-    member->SetFormation(NULL);
+    member->SetFormation(nullptr);
 }
 
 void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
 {
     uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetSpawnId()]->groupAI;
     if (!groupAI)
-        return;
-
-    if (groupAI == 1 && member != m_leader)
         return;
 
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
@@ -196,7 +196,7 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
         if (other->GetVictim())
             continue;
 
-        if (other->IsValidAttackTarget(target))
+        if (((other != m_leader && groupAI & FLAG_AGGRO_ON_AGGRO) || (other == m_leader && groupAI & FLAG_TO_AGGRO_ON_AGGRO)) && other->IsValidAttackTarget(target))
             other->AI()->AttackStart(target);
     }
 }
@@ -217,7 +217,7 @@ void CreatureGroup::FormationReset(bool dismiss)
     m_Formed = !dismiss;
 }
 
-void CreatureGroup::LeaderMoveTo(Position destination, uint32 id /*= 0*/, uint32 moveType /*= 0*/, bool orientation /*= false*/)
+void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/, uint32 moveType /*= 0*/, bool orientation /*= false*/)
 {
     //! To do: This should probably get its own movement generator or use WaypointMovementGenerator.
     //! If the leader's path is known, member's path can be plotted as well using formation offsets.
@@ -231,7 +231,8 @@ void CreatureGroup::LeaderMoveTo(Position destination, uint32 id /*= 0*/, uint32
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         Creature* member = itr->first;
-        if (member == m_leader || !member->IsAlive() || member->GetVictim())
+        uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetSpawnId()]->groupAI;
+        if (member == m_leader || !member->IsAlive() || member->GetVictim() || !(groupAI & FLAG_FOLLOW))
             continue;
 
         if (itr->second->point_1)

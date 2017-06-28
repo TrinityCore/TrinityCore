@@ -23,6 +23,8 @@ SDComment: Find a way to start the intro, best code for the intro
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Log.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 
@@ -147,7 +149,7 @@ public:
             if (!Intro || IsIntro)
                 return;
 
-            if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MADRIGOSA)))
+            if (Creature* Madrigosa = instance->GetCreature(DATA_MADRIGOSA))
             {
                 Madrigosa->Respawn();
                 Madrigosa->setActive(true);
@@ -182,7 +184,7 @@ public:
 
         void DoIntro()
         {
-            Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MADRIGOSA));
+            Creature* Madrigosa = instance->GetCreature(DATA_MADRIGOSA);
             if (!Madrigosa)
                 return;
 
@@ -285,7 +287,7 @@ public:
                 {
                     if (IntroFrostBoltTimer <= diff)
                     {
-                        if (Creature* Madrigosa = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_MADRIGOSA)))
+                        if (Creature* Madrigosa = instance->GetCreature(DATA_MADRIGOSA))
                         {
                             Madrigosa->CastSpell(me, SPELL_INTRO_FROSTBOLT, true);
                             IntroFrostBoltTimer = 2000;

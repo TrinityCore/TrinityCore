@@ -22,12 +22,14 @@ SDComment:
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
 #include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -196,7 +198,7 @@ public:
             instance->SetBossState(DATA_FELMYST, DONE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             // workaround for linked aura
             /*if (spell->Id == SPELL_VAPOR_FORCE)
@@ -215,7 +217,7 @@ public:
                     summon->CastSpell(summon, SPELL_FOG_CHARM, true);
                     summon->CastSpell(summon, SPELL_FOG_CHARM2, true);
                 }
-                me->DealDamage(caster, caster->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                me->DealDamage(caster, caster->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             }
         }
 
@@ -360,7 +362,7 @@ public:
                 }
                 case 6:
                     me->SetFacingTo(me->GetAngle(breathX, breathY));
-                    //DoTextEmote("takes a deep breath.", NULL);
+                    //DoTextEmote("takes a deep breath.", nullptr);
                     events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
                     break;
                 case 7:
@@ -485,14 +487,9 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
 
-            CellCoord pair(Trinity::ComputeCellCoord(x, y));
-            Cell cell(pair);
-            cell.SetNoCreate();
-
             Trinity::AllCreaturesOfEntryInRange check(me, entry, 100);
             Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-            TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
-            cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
+            Cell::VisitGridObjects(me, searcher, me->GetGridActivationRange());
 
             for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
             {
@@ -520,7 +517,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_felmyst_vaporAI(creature);
+        return GetSunwellPlateauAI<npc_felmyst_vaporAI>(creature);
     }
 
     struct npc_felmyst_vaporAI : public ScriptedAI
@@ -554,7 +551,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_felmyst_trailAI(creature);
+        return GetSunwellPlateauAI<npc_felmyst_trailAI>(creature);
     }
 
     struct npc_felmyst_trailAI : public ScriptedAI

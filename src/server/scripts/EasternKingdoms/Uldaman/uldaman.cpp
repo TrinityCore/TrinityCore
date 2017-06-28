@@ -30,10 +30,12 @@ at_map_chamber
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
-#include "uldaman.h"
+#include "InstanceScript.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "uldaman.h"
 
 /*######
 ## npc_jadespine_basilisk
@@ -107,7 +109,7 @@ class npc_jadespine_basilisk : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_jadespine_basiliskAI(creature);
+            return GetUldamanAI<npc_jadespine_basiliskAI>(creature);
         }
 };
 
@@ -126,7 +128,7 @@ class go_keystone_chamber : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
                 return false;
@@ -135,7 +137,7 @@ class go_keystone_chamber : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return GetInstanceAI<go_keystone_chamberAI>(go);
+            return GetUldamanAI<go_keystone_chamberAI>(go);
         }
 };
 

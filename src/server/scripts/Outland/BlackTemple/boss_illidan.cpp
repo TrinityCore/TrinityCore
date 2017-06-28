@@ -16,15 +16,20 @@
  */
 
 #include "ScriptMgr.h"
+#include "black_temple.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "PassiveAI.h"
-#include "black_temple.h"
-#include "Player.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "GridNotifiersImpl.h"
+#include "TemporarySummon.h"
 
 enum IllidanSay
 {
@@ -434,7 +439,7 @@ public:
 
     bool operator()(Unit* unit) const
     {
-        return _me->GetDistance2d(unit) > 25.0f;
+        return unit->GetTypeId() == TYPEID_PLAYER && _me->GetDistance2d(unit) > 25.0f;
     }
 
 private:
@@ -676,7 +681,7 @@ public:
 
         void EnterEvadeModeIfNeeded()
         {
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 if (Player* player = i->GetSource())
                     if (player->IsAlive() && !player->IsGameMaster() && CheckBoundary(player))
@@ -1889,9 +1894,7 @@ class spell_illidan_akama_door_channel : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ARCANE_EXPLOSION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ARCANE_EXPLOSION });
             }
 
             void OnRemoveDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1928,9 +1931,7 @@ class spell_illidan_draw_soul : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DRAW_SOUL_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DRAW_SOUL_HEAL });
             }
 
             void HandleScriptEffect(SpellEffIndex effIndex)
@@ -1964,9 +1965,7 @@ class spell_illidan_parasitic_shadowfiend : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_PARASITIC_SHADOWFIENDS))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_PARASITIC_SHADOWFIENDS });
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2028,9 +2027,7 @@ class spell_illidan_tear_of_azzinoth_channel : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_UNCAGED_WRATH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_UNCAGED_WRATH });
             }
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
@@ -2071,15 +2068,14 @@ class spell_illidan_flame_blast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLAZE_SUMMON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLAZE_SUMMON });
             }
 
             void HandleBlaze(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
-                target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
             }
 
             void Register() override
@@ -2134,9 +2130,7 @@ class spell_illidan_agonizing_flames : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AGONIZING_FLAMES))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AGONIZING_FLAMES });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2179,9 +2173,7 @@ class spell_illidan_demon_transform1 : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DEMON_TRANSFORM_2))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DEMON_TRANSFORM_2 });
             }
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
@@ -2215,10 +2207,7 @@ class spell_illidan_demon_transform2 : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DEMON_FORM)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DEMON_TRANSFORM_3))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DEMON_FORM, SPELL_DEMON_TRANSFORM_3 });
             }
 
             void OnPeriodic(AuraEffect const* aurEff)
@@ -2266,9 +2255,7 @@ class spell_illidan_flame_burst : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_BURST_EFFECT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FLAME_BURST_EFFECT });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -2300,9 +2287,7 @@ class spell_illidan_find_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PARALYZE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PARALYZE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2419,9 +2404,7 @@ class spell_illidan_caged : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_CAGED_DEBUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CAGED_DEBUFF });
             }
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)

@@ -16,12 +16,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 
 enum FreyaYells
@@ -266,6 +268,7 @@ class boss_freya : public CreatureScript
         {
             boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA)
             {
+                _encounterFinished = false;
                 Initialize();
                 memset(elementalTimer, 0, sizeof(elementalTimer));
                 diffTimer = 0;
@@ -308,9 +311,13 @@ class boss_freya : public CreatureScript
             bool checkElementalAlive[2];
             bool trioDefeated[2];
             bool random[3];
+            bool _encounterFinished;
 
             void Reset() override
             {
+                if (_encounterFinished)
+                    return;
+
                 _Reset();
                 Initialize();
             }
@@ -591,6 +598,11 @@ class boss_freya : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
+                if (_encounterFinished)
+                    return;
+
+                _encounterFinished = true;
+
                 //! Freya's chest is dynamically spawned on death by different spells.
                 const uint32 summonSpell[2][4] =
                 {
@@ -599,18 +611,18 @@ class boss_freya : public CreatureScript
                     /* 25N */    {62955, 62956, 62957, 62958}
                 };
 
-                me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
+                me->CastSpell((Unit*)nullptr, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
 
                 Talk(SAY_DEATH);
+
                 me->SetReactState(REACT_PASSIVE);
-                _JustDied();
-                me->RemoveAllAuras();
+                me->InterruptNonMeleeSpells(true);
+                me->RemoveAllAttackers();
                 me->AttackStop();
                 me->SetFaction(FACTION_FRIENDLY);
-                me->DeleteThreatList();
-                me->CombatStop(true);
                 me->DespawnOrUnsummon(7500);
                 me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
+                _JustDied();
 
                 for (uint8 n = 0; n < 3; ++n)
                 {
@@ -829,7 +841,7 @@ class boss_elder_stonebark : public CreatureScript
                 if (me->HasAura(SPELL_PETRIFIED_BARK))
                 {
                     int32 reflect = damage;
-                    who->CastCustomSpell(who, SPELL_PETRIFIED_BARK_DMG, &reflect, NULL, NULL, true);
+                    who->CastCustomSpell(who, SPELL_PETRIFIED_BARK_DMG, &reflect, nullptr, nullptr, true);
                     damage = 0;
                 }
             }

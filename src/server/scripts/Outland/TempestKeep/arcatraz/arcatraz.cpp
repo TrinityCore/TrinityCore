@@ -30,8 +30,10 @@ npc_zerekethvoidzone
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "arcatraz.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ScriptedCreature.h"
 
 /*#####
 # npc_millhouse_manastorm
@@ -549,7 +551,7 @@ class npc_zerekethvoidzone : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_zerekethvoidzoneAI(creature);
+            return GetArcatrazAI<npc_zerekethvoidzoneAI>(creature);
         }
 };
 

@@ -15,14 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "Vehicle.h"
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Item.h"
+#include "Map.h"
+#include "Player.h"
+#include "Spell.h"
 #include "SpellScript.h"
-#include "WorldPacket.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
+#include "Vehicle.h"
+#include "WorldPacket.h"
 
 static BossBoundaryData const boundaries =
 {
@@ -32,9 +38,9 @@ static BossBoundaryData const boundaries =
     { BOSS_XT002, new RectangleBoundary(755.0f, 940.0f, -125.0f, 95.0f) },
     { BOSS_ASSEMBLY_OF_IRON, new CircleBoundary(Position(1587.2f, 121.0f), 90.0) },
     { BOSS_ALGALON, new CircleBoundary(Position(1632.668f, -307.7656f), 45.0) },
-    { BOSS_ALGALON, new ZRangeBoundary(410.0f, 440.0f) },
+    { BOSS_ALGALON, new ZRangeBoundary(410.0f, 470.0f) },
     { BOSS_HODIR, new EllipseBoundary(Position(2001.5f, -240.0f), 50.0, 75.0) },
-    // Thorim sets boundaries dinamically
+    // Thorim sets boundaries dynamically
     { BOSS_FREYA, new RectangleBoundary(2094.6f, 2520.0f, -250.0f, 200.0f) },
     { BOSS_MIMIRON, new CircleBoundary(Position(2744.0f, 2569.0f), 70.0) },
     { BOSS_VEZAX, new RectangleBoundary(1740.0f, 1930.0f, 31.0f, 228.0f) },
@@ -885,7 +891,7 @@ class instance_ulduar : public InstanceMapScript
                 return 0;
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = NULL */, uint32 /* = 0 */) override
+            bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const*, Unit const* /* = nullptr */, uint32 /* = 0 */) override
             {
                 switch (criteriaId)
                 {

@@ -18,9 +18,10 @@
 
 #include "PoolMgr.h"
 #include "Containers.h"
-#include "ObjectMgr.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "ObjectMgr.h"
 
 ////////////////////////////////////////////////////////////
 // template class ActivePoolData
@@ -34,36 +35,31 @@ uint32 ActivePoolData::GetActiveObjectCount(uint32 pool_id) const
 
 // Method that tell if a creature is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<Creature>(uint32 db_guid) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Creature>(uint32 db_guid) const
 {
     return mSpawnedCreatures.find(db_guid) != mSpawnedCreatures.end();
 }
 
 // Method that tell if a gameobject is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<GameObject>(uint32 db_guid) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<GameObject>(uint32 db_guid) const
 {
     return mSpawnedGameobjects.find(db_guid) != mSpawnedGameobjects.end();
 }
 
 // Method that tell if a pool is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<Pool>(uint32 sub_pool_id) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Pool>(uint32 sub_pool_id) const
 {
     return mSpawnedPools.find(sub_pool_id) != mSpawnedPools.end();
 }
 
 // Method that tell if a quest can be started
 template<>
-bool ActivePoolData::IsActiveObject<Quest>(uint32 quest_id) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Quest>(uint32 quest_id) const
 {
     return mActiveQuests.find(quest_id) != mActiveQuests.end();
 }
-
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Creature>(uint32) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<GameObject>(uint32) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Pool>(uint32) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Quest>(uint32) const;
 
 template<>
 void ActivePoolData::ActivateObject<Creature>(uint32 db_guid, uint32 pool_id)
@@ -182,7 +178,7 @@ PoolObject* PoolGroup<T>::RollOne(ActivePoolData& spawns, uint32 triggerFrom)
            return &EqualChanced[index];
     }
 
-    return NULL;
+    return nullptr;
 }
 
 // Main method to despawn a creature or gameobject in a pool
@@ -802,8 +798,8 @@ void PoolMgr::LoadFromDB()
                     if (checkedPools.find(poolItr->second) != checkedPools.end())
                     {
                         std::ostringstream ss;
-                        ss<< "The pool(s) ";
-                        for (std::set<uint32>::const_iterator itr=checkedPools.begin(); itr != checkedPools.end(); ++itr)
+                        ss << "The pool(s) ";
+                        for (std::set<uint32>::const_iterator itr = checkedPools.begin(); itr != checkedPools.end(); ++itr)
                             ss << *itr << ' ';
                         ss << "create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool "
                             << poolItr->first << " and child pool " << poolItr->second;
@@ -914,8 +910,8 @@ void PoolMgr::LoadFromDB()
         uint32 oldMSTime = getMSTime();
 
         QueryResult result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_pool.pool_id, pool_pool.mother_pool FROM pool_template"
-            " LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry"
-            " LEFT JOIN pool_pool ON pool_template.entry=pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL");
+            " LEFT JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry"
+            " LEFT JOIN pool_pool ON pool_template.entry = pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL");
 
         if (!result)
         {
@@ -958,7 +954,6 @@ void PoolMgr::LoadFromDB()
 
 void PoolMgr::LoadQuestPools()
 {
-
 }
 
 void PoolMgr::SaveQuestsToDB()

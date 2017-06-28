@@ -17,18 +17,31 @@
  */
 
 #include "GuardAI.h"
+#include "Creature.h"
 #include "Errors.h"
+#include "Log.h"
+#include "MotionMaster.h"
 #include "Player.h"
 
-int GuardAI::Permissible(Creature const* creature)
+GuardAI::GuardAI(Creature* creature) : ScriptedAI(creature)
+{
+}
+
+int32 GuardAI::Permissible(Creature const* creature)
 {
     if (creature->IsGuard())
-        return PERMIT_BASE_SPECIAL;
+        return PERMIT_BASE_PROACTIVE;
 
     return PERMIT_BASE_NO;
 }
 
-GuardAI::GuardAI(Creature* creature) : ScriptedAI(creature) { }
+void GuardAI::UpdateAI(uint32 /*diff*/)
+{
+    if (!UpdateVictim())
+        return;
+
+    DoMeleeAttackIfReady();
+}
 
 bool GuardAI::CanSeeAlways(WorldObject const* obj)
 {

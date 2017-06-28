@@ -29,11 +29,12 @@ spell_gordunni_trap
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "Player.h"
 #include "WorldSession.h"
 
 /*######
@@ -166,7 +167,7 @@ class spell_gordunni_trap : public SpellScriptLoader
             void HandleDummy()
             {
                 Unit* caster = GetCaster();
-                if (GameObject* chest = caster->SummonGameObject(urand(0, 1) ? GO_GORDUNNI_DIRT_MOUND_1 : GO_GORDUNNI_DIRT_MOUND_2, *caster, G3D::Quat(), 0))
+                if (GameObject* chest = caster->SummonGameObject(urand(0, 1) ? GO_GORDUNNI_DIRT_MOUND_1 : GO_GORDUNNI_DIRT_MOUND_2, *caster, QuaternionData(), 0))
                 {
                     chest->SetSpellId(GetSpellInfo()->Id);
                     caster->RemoveGameObject(chest, false);

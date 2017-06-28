@@ -20,11 +20,22 @@
 #define _FORMATIONS_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include <unordered_map>
 #include <map>
 
+enum GroupAIFlags
+{
+    FLAG_AGGRO_NONE        = 0,          // If any creature from group is attacked, members won't assist and won't follow
+    FLAG_AGGRO_ON_AGGRO    = 0x00000001, // The member aggroes if the leader aggroes
+    FLAG_TO_AGGRO_ON_AGGRO = 0x00000002, // The leader aggroes if the member aggroes
+    FLAG_FOLLOW            = 0x00000004, // The member will follow the leader
+};
+
 class Creature;
 class CreatureGroup;
+class Unit;
+struct Position;
 
 struct FormationInfo
 {
@@ -65,7 +76,7 @@ class TC_GAME_API CreatureGroup
 
     public:
         //Group cannot be created empty
-        explicit CreatureGroup(uint32 id) : m_leader(NULL), m_groupID(id), m_Formed(false) { }
+        explicit CreatureGroup(uint32 id) : m_leader(nullptr), m_groupID(id), m_Formed(false) { }
         ~CreatureGroup() { }
 
         Creature* getLeader() const { return m_leader; }
@@ -77,7 +88,7 @@ class TC_GAME_API CreatureGroup
         void RemoveMember(Creature* member);
         void FormationReset(bool dismiss);
 
-        void LeaderMoveTo(Position destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
+        void LeaderMoveTo(Position const& destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
         void MemberAttackStart(Creature* member, Unit* target);
 };
 

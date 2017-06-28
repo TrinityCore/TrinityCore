@@ -15,11 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "ServerMotd.h"
-
+#include "Common.h"
 #include "ScriptMgr.h"
+#include "Util.h"
+#include "WorldPacket.h"
+#include <iterator>
+#include <sstream>
 
 namespace
 {

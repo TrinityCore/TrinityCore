@@ -24,9 +24,12 @@ Category: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "hellfire_ramparts.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "hellfire_ramparts.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -108,7 +111,7 @@ class boss_nazan : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* entry) override
+            void SpellHitTarget(Unit* target, SpellInfo const* entry) override
             {
                 if (target && entry->Id == uint32(SPELL_FIREBALL))
                     me->SummonCreature(NPC_LIQUID_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
@@ -196,7 +199,7 @@ class boss_nazan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_nazanAI(creature);
+            return GetHellfireRampartsAI<boss_nazanAI>(creature);
         }
 };
 
@@ -282,7 +285,7 @@ class boss_vazruden : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_vazrudenAI(creature);
+            return GetHellfireRampartsAI<boss_vazrudenAI>(creature);
         }
 };
 
@@ -454,7 +457,7 @@ class boss_vazruden_the_herald : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_vazruden_the_heraldAI(creature);
+            return GetHellfireRampartsAI<boss_vazruden_the_heraldAI>(creature);
         }
 };
 
@@ -511,7 +514,7 @@ class npc_hellfire_sentry : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_hellfire_sentryAI(creature);
+            return GetHellfireRampartsAI<npc_hellfire_sentryAI>(creature);
         }
 };
 void AddSC_boss_vazruden_the_herald()

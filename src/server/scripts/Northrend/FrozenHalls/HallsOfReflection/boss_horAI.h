@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,15 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_MOVEMENTGENERATOR_IMPL_H
-#define TRINITY_MOVEMENTGENERATOR_IMPL_H
+#ifndef boss_horAI_h__
+#define boss_horAI_h__
 
-#include "MovementGenerator.h"
+#include "ScriptedCreature.h"
 
-template<class Movement>
-inline MovementGenerator* MovementGeneratorFactory<Movement>::Create(void * /*data*/) const
+// Base class for FALRIC and MARWYN
+struct boss_horAI : BossAI
 {
-    return (new Movement());
-}
+    boss_horAI(Creature* creature, uint32 bossId);
+    void Reset() override;
+    void DoAction(int32 actionId) override;
+    void JustSummoned(Creature* summon) override;
+};
 
-#endif
+#endif // boss_horAI_h__

@@ -19,11 +19,14 @@
 #include "AccountMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Realm.h"
 #include "ScriptMgr.h"
-#include "Util.h"
 #include "SHA1.h"
+#include "Util.h"
+#include "World.h"
 #include "WorldSession.h"
 
 AccountMgr::AccountMgr() { }
@@ -438,7 +441,7 @@ void AccountMgr::LoadRBAC()
     }
 
     uint32 permissionId = 0;
-    rbac::RBACPermission* permission = NULL;
+    rbac::RBACPermission* permission = nullptr;
 
     do
     {
@@ -470,12 +473,12 @@ void AccountMgr::LoadRBAC()
     }
 
     uint8 secId = 255;
-    rbac::RBACPermissionContainer* permissions = NULL;
+    rbac::RBACPermissionContainer* permissions = nullptr;
     do
     {
         Field* field = result->Fetch();
         uint32 newId = field[0].GetUInt32();
-        if (secId != newId || permissions == NULL)
+        if (secId != newId || permissions == nullptr)
         {
             secId = newId;
             permissions = &_defaultPermissions[secId];
@@ -530,7 +533,7 @@ rbac::RBACPermission const* AccountMgr::GetRBACPermission(uint32 permissionId) c
     if (it != _permissions.end())
         return it->second;
 
-    return NULL;
+    return nullptr;
 }
 
 bool AccountMgr::HasPermission(uint32 accountId, uint32 permissionId, uint32 realmId)
