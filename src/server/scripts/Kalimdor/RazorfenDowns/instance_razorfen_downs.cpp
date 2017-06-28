@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
 #include "razorfen_downs.h"
-#include "Player.h"
 #include "TemporarySummon.h"
 
 Position const PosSummonTutenkash[15] =

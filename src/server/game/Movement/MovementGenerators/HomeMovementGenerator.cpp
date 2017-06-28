@@ -16,11 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "HomeMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "MoveSplineInit.h"
 #include "MoveSpline.h"
-#include "HomeMovementGenerator.h"
+#include "MoveSplineInit.h"
+#include "PathGenerator.h"
 
 template<class T>
 HomeMovementGenerator<T>::~HomeMovementGenerator() { }
@@ -82,7 +83,11 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
         owner->SetWalk(true);
         owner->LoadCreaturesAddon();
         owner->AI()->JustReachedHome();
-        owner->SetSpawnHealth();
+        if (owner->isRegeneratingHealth())
+        {
+            owner->SetFullHealth();
+            owner->SetPower(POWER_MANA, owner->GetMaxPower(POWER_MANA));
+        }
     }
 }
 

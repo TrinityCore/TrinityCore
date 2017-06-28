@@ -17,11 +17,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackwing_lair.h"
+#include "InstanceScript.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "GameObjectAI.h"
-#include "blackwing_lair.h"
-#include "Player.h"
 
 enum Say
 {
@@ -169,7 +171,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_razorgoreAI>(creature);
+        return GetBlackwingLairAI<boss_razorgoreAI>(creature);
     }
 };
 
@@ -184,7 +186,7 @@ class go_orb_of_domination : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (instance->GetData(DATA_EGG_EVENT) != DONE)
                 {
@@ -200,7 +202,7 @@ class go_orb_of_domination : public GameObjectScript
 
         GameObjectAI* GetAI(GameObject* go) const override
         {
-            return GetInstanceAI<go_orb_of_dominationAI>(go);
+            return GetBlackwingLairAI<go_orb_of_dominationAI>(go);
         }
 };
 

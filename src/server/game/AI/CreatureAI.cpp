@@ -17,16 +17,20 @@
  */
 
 #include "CreatureAI.h"
-#include "CreatureAIImpl.h"
+#include "AreaBoundary.h"
 #include "Creature.h"
-#include "World.h"
-#include "SpellMgr.h"
-#include "Vehicle.h"
-#include "Log.h"
-#include "MapReference.h"
-#include "Player.h"
+#include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
 #include "Language.h"
+#include "Log.h"
+#include "Map.h"
+#include "MapReference.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
+#include "World.h"
 
 //Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool apply)
@@ -39,7 +43,15 @@ void CreatureAI::OnCharmed(bool apply)
 }
 
 AISpellInfoType* UnitAI::AISpellInfo;
-AISpellInfoType* GetAISpellInfo(uint32 i) { return &CreatureAI::AISpellInfo[i]; }
+AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
+
+CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), m_MoveInLineOfSight_locked(false)
+{
+}
+
+CreatureAI::~CreatureAI()
+{
+}
 
 void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
 {
@@ -132,15 +144,22 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
     if (me->GetVictim())
         return;
 
-    if (me->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET) // non-combat pets should just stand there and look good;)
-        return;
-
     if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false))
         AttackStart(who);
-    //else if (who->GetVictim() && me->IsFriendlyTo(who)
-    //    && me->IsWithinDistInMap(who, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
-    //    && me->CanStartAttack(who->GetVictim(), true)) /// @todo if we use true, it will not attack it when it arrives
-    //    me->GetMotionMaster()->MoveChase(who->GetVictim());
+}
+
+void CreatureAI::_OnOwnerCombatInteraction(Unit* target)
+{
+    if (!target || !me->IsAlive())
+        return;
+
+    if (!me->HasReactState(REACT_PASSIVE) && me->CanStartAttack(target, true))
+    {
+        if (me->IsInCombat())
+            me->AddThreat(target, 0.0f);
+        else
+            AttackStart(target);
+    }
 }
 
 // Distract creature, if player gets too close while stealthed/prowling
@@ -195,12 +214,6 @@ void CreatureAI::EnterEvadeMode(EvadeReason why)
     if (me->IsVehicle()) // use the same sequence of addtoworld, aireset may remove all summons!
         me->GetVehicleKit()->Reset(true);
 }
-
-/*void CreatureAI::AttackedBy(Unit* attacker)
-{
-    if (!me->GetVictim())
-        AttackStart(attacker);
-}*/
 
 void CreatureAI::SetGazeOn(Unit* target)
 {
@@ -390,7 +403,7 @@ void CreatureAI::SetBoundary(CreatureBoundary const* boundary, bool negateBounda
     me->DoImmediateBoundaryCheck();
 }
 
-Creature* CreatureAI::DoSummon(uint32 entry, const Position& pos, uint32 despawnTime, TempSummonType summonType)
+Creature* CreatureAI::DoSummon(uint32 entry, Position const& pos, uint32 despawnTime, TempSummonType summonType)
 {
     return me->SummonCreature(entry, pos, summonType, despawnTime);
 }

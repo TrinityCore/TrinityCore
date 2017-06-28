@@ -20,12 +20,8 @@
 #define SC_SCRIPTMGR_H
 
 #include "Common.h"
-#include <atomic>
-#include "DBCStores.h"
-#include "QuestDef.h"
-#include "SharedDefines.h"
-#include "World.h"
-#include "Weather.h"
+#include "ObjectGuid.h"
+#include <vector>
 
 class AccountMgr;
 class AuctionHouseObject;
@@ -59,19 +55,33 @@ class SpellCastTargets;
 class Transport;
 class Unit;
 class Vehicle;
+class Weather;
 class WorldPacket;
 class WorldSocket;
 class WorldObject;
 class WorldSession;
 
 struct AchievementCriteriaData;
+struct AreaTriggerEntry;
 struct AuctionEntry;
 struct ConditionSourceInfo;
 struct Condition;
 struct CreatureTemplate;
 struct CreatureData;
 struct ItemTemplate;
-struct OutdoorPvPData;
+struct MapEntry;
+
+enum BattlegroundTypeId : uint32;
+enum ContentLevels : uint8;
+enum Difficulty : uint8;
+enum DuelCompleteType : uint8;
+enum QuestStatus : uint8;
+enum RemoveMethod : uint8;
+enum ShutdownExitCode : uint32;
+enum ShutdownMask : uint32;
+enum SpellEffIndex : uint8;
+enum WeatherState : uint32;
+enum XPColorChar : uint8;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
@@ -101,7 +111,7 @@ struct OutdoorPvPData;
 
         protected:
 
-            MyScriptType(const char* name, uint32 someId)
+            MyScriptType(char const* name, uint32 someId)
                 : ScriptObject(name), _someId(someId)
             {
                 ScriptRegistry<MyScriptType>::AddScript(this);
@@ -162,7 +172,7 @@ class TC_GAME_API ScriptObject
 
     protected:
 
-        ScriptObject(const char* name);
+        ScriptObject(char const* name);
         virtual ~ScriptObject();
 
     private:
@@ -189,22 +199,22 @@ class TC_GAME_API SpellScriptLoader : public ScriptObject
 {
     protected:
 
-        SpellScriptLoader(const char* name);
+        SpellScriptLoader(char const* name);
 
     public:
 
         // Should return a fully valid SpellScript pointer.
-        virtual SpellScript* GetSpellScript() const { return NULL; }
+        virtual SpellScript* GetSpellScript() const { return nullptr; }
 
         // Should return a fully valid AuraScript pointer.
-        virtual AuraScript* GetAuraScript() const { return NULL; }
+        virtual AuraScript* GetAuraScript() const { return nullptr; }
 };
 
 class TC_GAME_API ServerScript : public ScriptObject
 {
     protected:
 
-        ServerScript(const char* name);
+        ServerScript(char const* name);
 
     public:
 
@@ -234,7 +244,7 @@ class TC_GAME_API WorldScript : public ScriptObject
 {
     protected:
 
-        WorldScript(const char* name);
+        WorldScript(char const* name);
 
     public:
 
@@ -267,7 +277,7 @@ class TC_GAME_API FormulaScript : public ScriptObject
 {
     protected:
 
-        FormulaScript(const char* name);
+        FormulaScript(char const* name);
 
     public:
 
@@ -299,12 +309,7 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
 
     protected:
 
-        MapScript(uint32 mapId)
-            : _mapEntry(sMapStore.LookupEntry(mapId))
-        {
-            if (!_mapEntry)
-                TC_LOG_ERROR("scripts", "Invalid MapScript for %u; no such map ID.", mapId);
-        }
+        MapScript(MapEntry const* mapEntry) : _mapEntry(mapEntry) { }
 
     public:
 
@@ -334,7 +339,7 @@ class TC_GAME_API WorldMapScript : public ScriptObject, public MapScript<Map>
 {
     protected:
 
-        WorldMapScript(const char* name, uint32 mapId);
+        WorldMapScript(char const* name, uint32 mapId);
 };
 
 class TC_GAME_API InstanceMapScript
@@ -342,26 +347,26 @@ class TC_GAME_API InstanceMapScript
 {
     protected:
 
-        InstanceMapScript(const char* name, uint32 mapId);
+        InstanceMapScript(char const* name, uint32 mapId);
 
     public:
 
         // Gets an InstanceScript object for this instance.
-        virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return NULL; }
+        virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return nullptr; }
 };
 
 class TC_GAME_API BattlegroundMapScript : public ScriptObject, public MapScript<BattlegroundMap>
 {
     protected:
 
-        BattlegroundMapScript(const char* name, uint32 mapId);
+        BattlegroundMapScript(char const* name, uint32 mapId);
 };
 
 class TC_GAME_API ItemScript : public ScriptObject
 {
     protected:
 
-        ItemScript(const char* name);
+        ItemScript(char const* name);
 
     public:
 
@@ -385,7 +390,7 @@ class TC_GAME_API UnitScript : public ScriptObject
 {
     protected:
 
-        UnitScript(const char* name, bool addToScripts = true);
+        UnitScript(char const* name, bool addToScripts = true);
 
     public:
         // Called when a unit deals healing to another unit
@@ -408,7 +413,7 @@ class TC_GAME_API CreatureScript : public UnitScript
 {
     protected:
 
-        CreatureScript(const char* name);
+        CreatureScript(char const* name);
 
     public:
 
@@ -423,7 +428,7 @@ class TC_GAME_API GameObjectScript : public ScriptObject
 {
     protected:
 
-        GameObjectScript(const char* name);
+        GameObjectScript(char const* name);
 
     public:
 
@@ -435,7 +440,7 @@ class TC_GAME_API AreaTriggerScript : public ScriptObject
 {
     protected:
 
-        AreaTriggerScript(const char* name);
+        AreaTriggerScript(char const* name);
 
     public:
 
@@ -447,7 +452,7 @@ class TC_GAME_API BattlegroundScript : public ScriptObject
 {
     protected:
 
-        BattlegroundScript(const char* name);
+        BattlegroundScript(char const* name);
 
     public:
 
@@ -459,7 +464,7 @@ class TC_GAME_API OutdoorPvPScript : public ScriptObject
 {
     protected:
 
-        OutdoorPvPScript(const char* name);
+        OutdoorPvPScript(char const* name);
 
     public:
 
@@ -471,7 +476,7 @@ class TC_GAME_API CommandScript : public ScriptObject
 {
     protected:
 
-        CommandScript(const char* name);
+        CommandScript(char const* name);
 
     public:
 
@@ -483,7 +488,7 @@ class TC_GAME_API WeatherScript : public ScriptObject, public UpdatableScript<We
 {
     protected:
 
-        WeatherScript(const char* name);
+        WeatherScript(char const* name);
 
     public:
 
@@ -495,7 +500,7 @@ class TC_GAME_API AuctionHouseScript : public ScriptObject
 {
     protected:
 
-        AuctionHouseScript(const char* name);
+        AuctionHouseScript(char const* name);
 
     public:
 
@@ -516,7 +521,7 @@ class TC_GAME_API ConditionScript : public ScriptObject
 {
     protected:
 
-        ConditionScript(const char* name);
+        ConditionScript(char const* name);
 
     public:
 
@@ -528,7 +533,7 @@ class TC_GAME_API VehicleScript : public ScriptObject
 {
     protected:
 
-        VehicleScript(const char* name);
+        VehicleScript(char const* name);
 
     public:
 
@@ -555,14 +560,14 @@ class TC_GAME_API DynamicObjectScript : public ScriptObject, public UpdatableScr
 {
     protected:
 
-        DynamicObjectScript(const char* name);
+        DynamicObjectScript(char const* name);
 };
 
 class TC_GAME_API TransportScript : public ScriptObject, public UpdatableScript<Transport>
 {
     protected:
 
-        TransportScript(const char* name);
+        TransportScript(char const* name);
 
     public:
 
@@ -583,7 +588,7 @@ class TC_GAME_API AchievementCriteriaScript : public ScriptObject
 {
     protected:
 
-        AchievementCriteriaScript(const char* name);
+        AchievementCriteriaScript(char const* name);
 
     public:
 
@@ -595,7 +600,7 @@ class TC_GAME_API PlayerScript : public UnitScript
 {
     protected:
 
-        PlayerScript(const char* name);
+        PlayerScript(char const* name);
 
     public:
 
@@ -695,7 +700,7 @@ class TC_GAME_API AccountScript : public ScriptObject
 {
     protected:
 
-        AccountScript(const char* name);
+        AccountScript(char const* name);
 
     public:
 
@@ -722,7 +727,7 @@ class TC_GAME_API GuildScript : public ScriptObject
 {
     protected:
 
-        GuildScript(const char* name);
+        GuildScript(char const* name);
 
     public:
 
@@ -763,7 +768,7 @@ class TC_GAME_API GroupScript : public ScriptObject
 {
     protected:
 
-        GroupScript(const char* name);
+        GroupScript(char const* name);
 
     public:
 
@@ -774,7 +779,7 @@ class TC_GAME_API GroupScript : public ScriptObject
         virtual void OnInviteMember(Group* /*group*/, ObjectGuid /*guid*/) { }
 
         // Called when a member is removed from a group.
-        virtual void OnRemoveMember(Group* /*group*/, ObjectGuid /*guid*/, RemoveMethod /*method*/, ObjectGuid /*kicker*/, const char* /*reason*/) { }
+        virtual void OnRemoveMember(Group* /*group*/, ObjectGuid /*guid*/, RemoveMethod /*method*/, ObjectGuid /*kicker*/, char const* /*reason*/) { }
 
         // Called when the leader of a group is changed.
         virtual void OnChangeLeader(Group* /*group*/, ObjectGuid /*newLeaderGuid*/, ObjectGuid /*oldLeaderGuid*/) { }
@@ -919,7 +924,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* OutdoorPvPScript */
 
-        OutdoorPvP* CreateOutdoorPvP(OutdoorPvPData const* data);
+        OutdoorPvP* CreateOutdoorPvP(uint32 scriptId);
 
     public: /* CommandScript */
 
@@ -1028,7 +1033,7 @@ class TC_GAME_API ScriptMgr
 
         void OnGroupAddMember(Group* group, ObjectGuid guid);
         void OnGroupInviteMember(Group* group, ObjectGuid guid);
-        void OnGroupRemoveMember(Group* group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, const char* reason);
+        void OnGroupRemoveMember(Group* group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, char const* reason);
         void OnGroupChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid);
         void OnGroupDisband(Group* group);
 

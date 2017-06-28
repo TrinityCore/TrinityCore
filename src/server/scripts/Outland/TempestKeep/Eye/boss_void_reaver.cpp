@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "the_eye.h"
 
@@ -110,7 +111,7 @@ class boss_void_reaver : public CreatureScript
                             break;
                         case EVENT_ARCANE_ORB:
                         {
-                            Unit* target = NULL;
+                            Unit* target = nullptr;
                             std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
                             std::vector<Unit*> target_list;
                             for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr != t_list.end(); ++itr)
@@ -121,7 +122,7 @@ class boss_void_reaver : public CreatureScript
                                 // exclude pets & totems, 18 yard radius minimum
                                 if (target->GetTypeId() == TYPEID_PLAYER && target->IsAlive() && !target->IsWithinDist(me, 18, false))
                                     target_list.push_back(target);
-                                target = NULL;
+                                target = nullptr;
                             }
 
                             if (!target_list.empty())
@@ -130,7 +131,7 @@ class boss_void_reaver : public CreatureScript
                                 target = me->GetVictim();
 
                             if (target)
-                                me->CastSpell(target, SPELL_ARCANE_ORB, false, NULL, NULL);
+                                me->CastSpell(target, SPELL_ARCANE_ORB, false, nullptr, nullptr);
 
                             events.ScheduleEvent(EVENT_ARCANE_ORB, 3000);
                             break;
@@ -167,7 +168,7 @@ class boss_void_reaver : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_void_reaverAI>(creature);
+            return GetTheEyeAI<boss_void_reaverAI>(creature);
         }
 };
 

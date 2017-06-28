@@ -16,12 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
-#include "SpellScript.h"
+#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -334,15 +337,12 @@ public:
         {
             if (Creature* teron = _instance->GetCreature(DATA_TERON_GOREFIEND))
             {
-                if (Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_SPIRITUAL_VENGEANCE))
-                {
-                    DoResetThreat();
-                    AttackStart(target);
-                    me->AddThreat(target, 1000000.0f);
-                    targetGUID = target->GetGUID();
-                }
+                Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_SPIRITUAL_VENGEANCE);
                 // He should target Vengeful Spirits only if has no other player available
-                else if (Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (!target)
+                    target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
+
+                if (target)
                 {
                     DoResetThreat();
                     AttackStart(target);
@@ -391,15 +391,16 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SPIRIT)
-                    || !sSpellMgr->GetSpellInfo(SPELL_POSSESS_SPIRIT_IMMUNE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SPIRITUAL_VENGEANCE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SKELETRON_1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SKELETRON_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SKELETRON_3)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SUMMON_SKELETRON_4))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SUMMON_SPIRIT,
+                    SPELL_POSSESS_SPIRIT_IMMUNE,
+                    SPELL_SPIRITUAL_VENGEANCE,
+                    SPELL_SUMMON_SKELETRON_1,
+                    SPELL_SUMMON_SKELETRON_2,
+                    SPELL_SUMMON_SKELETRON_3,
+                    SPELL_SUMMON_SKELETRON_4
+                });
             }
 
             void Absorb(AuraEffect* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& /*absorbAmount*/)
@@ -475,11 +476,12 @@ class spell_teron_gorefiend_shadow_of_death_remove : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SHADOW_OF_DEATH)
-                    || !sSpellMgr->GetSpellInfo(SPELL_POSSESS_SPIRIT_IMMUNE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SPIRITUAL_VENGEANCE))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_SHADOW_OF_DEATH,
+                    SPELL_POSSESS_SPIRIT_IMMUNE,
+                    SPELL_SPIRITUAL_VENGEANCE
+                });
             }
 
             void RemoveAuras()

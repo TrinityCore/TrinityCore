@@ -16,14 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "PlayerDump.h"
-#include "DatabaseEnv.h"
-#include "UpdateFields.h"
-#include "ObjectMgr.h"
-#include "Player.h"
 #include "AccountMgr.h"
 #include "CharacterCache.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "UpdateFields.h"
 #include "World.h"
 
 // static data
@@ -414,7 +415,7 @@ inline std::string GetTableName(std::string const& str)
 {
     // length of "INSERT INTO `"
     static std::string::size_type const s = 13;
-    std::string::size_type e = str.find(_TABLE_SIM_, s);
+    std::string::size_type e = str.find('`', s);
     if (e == std::string::npos)
         return "";
 
@@ -437,7 +438,7 @@ inline bool ValidateFields(TableStruct const& ts, std::string const& str, size_t
     s += 4;
 
     std::string::size_type valPos = str.find("VALUES ('");
-    std::string::size_type e = str.find(_TABLE_SIM_, s);
+    std::string::size_type e = str.find('`', s);
     if (e == std::string::npos || valPos == std::string::npos)
     {
         TC_LOG_ERROR("misc", "LoadPlayerDump: (line " UI64FMTD ") unexpected end of line", lineNumber);
@@ -456,7 +457,7 @@ inline bool ValidateFields(TableStruct const& ts, std::string const& str, size_t
 
         // length of "`, `"
         s = e + 4;
-        e = str.find(_TABLE_SIM_, s);
+        e = str.find('`', s);
     } while (e < valPos);
 
     return true;
@@ -518,10 +519,10 @@ inline void AppendTableDump(StringTransaction& trans, TableStruct const& tableSt
     do
     {
         std::ostringstream ss;
-        ss << "INSERT INTO " << _TABLE_SIM_ << tableStruct.TableName << _TABLE_SIM_ << " (";
+        ss << "INSERT INTO `" << tableStruct.TableName << "` (";
         for (auto itr = tableStruct.TableFields.begin(); itr != tableStruct.TableFields.end();)
         {
-            ss << _TABLE_SIM_ << itr->FieldName << _TABLE_SIM_;
+            ss << '`' << itr->FieldName << '`';
             ++itr;
 
             if (itr != tableStruct.TableFields.end())
