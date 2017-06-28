@@ -4,7 +4,7 @@ INSERT INTO `command` (`name`, `permission`, `help`) VALUES
 
 DELETE FROM `command` WHERE `name`='reload quest_greeting_locale';
 INSERT INTO `command` (`name`, `permission`, `help`) VALUES
-('reload quest_greeting_locale', 857, 'Syntax: .reload quest_greeting_locale\nReload quest_greeting_locale table.');
+('reload quest_greeting_locale', 866, 'Syntax: .reload quest_greeting_locale\nReload quest_greeting_locale table.');
 
 DROP TABLE IF EXISTS `quest_greeting`;
 CREATE TABLE `quest_greeting` (
