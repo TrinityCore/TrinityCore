@@ -83,8 +83,8 @@ class boss_grilek : public CreatureScript // grilek
                             DoCast(me, SPELL_AVATAR);
                             if (Unit* victim = me->GetVictim())
                             {
-                                if (DoGetThreat(victim))
-                                    DoModifyThreatPercent(victim, -50);
+                                if (GetThreat(victim))
+                                    ModifyThreatByPercent(victim, -50);
                             }
 
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))

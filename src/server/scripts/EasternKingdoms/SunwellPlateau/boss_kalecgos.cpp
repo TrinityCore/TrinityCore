@@ -301,7 +301,7 @@ public:
 
                 if (SpectralBlastTimer <= diff)
                 {
-                    ThreatContainer::StorageType const& m_threatlist = me->getThreatManager().getThreatList();
+                    ThreatContainer::StorageType const& m_threatlist = me->GetThreatManager().getThreatList();
                     std::list<Unit*> targetList;
                     for (ThreatContainer::StorageType::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
                     {
@@ -775,12 +775,12 @@ public:
 
             if (ResetThreat <= diff)
             {
-                ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
+                ThreatContainer::StorageType threatlist = me->GetThreatManager().getThreatList();
                 for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                 {
                     if (Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
                         if (unit->GetPositionZ() > me->GetPositionZ() + 5)
-                            me->getThreatManager().modifyThreatPercent(unit, -100);
+                            me->GetThreatManager().ModifyThreatByPercent(unit, -100);
                 }
                 ResetThreat = 1000;
             } else ResetThreat -= diff;

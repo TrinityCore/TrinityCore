@@ -191,7 +191,7 @@ public:
                     else
                     {
                         who->SetInCombatWith(me);
-                        me->AddThreat(who, 0.0f);
+                        AddThreat(who, 0.0f);
                     }
                 }
             }

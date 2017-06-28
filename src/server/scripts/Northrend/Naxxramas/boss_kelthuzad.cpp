@@ -426,7 +426,7 @@ public:
                             me->CastStop();
                             events.SetPhase(PHASE_TWO);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
-                            me->getThreatManager().resetAllAggro();
+                            ResetThreatList();
                             me->SetReactState(REACT_AGGRESSIVE);
                             Talk(EMOTE_PHASE_TWO);
 

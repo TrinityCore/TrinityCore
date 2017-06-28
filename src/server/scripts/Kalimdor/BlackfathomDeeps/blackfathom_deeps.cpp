@@ -149,7 +149,7 @@ public:
                     {
                         me->SetInCombatWith(player);
                         player->SetInCombatWith(me);
-                        me->AddThreat(player, 0.0f);
+                        AddThreat(player, 0.0f);
                     }
                 }
             }

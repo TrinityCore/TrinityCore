@@ -95,7 +95,7 @@ class boss_shazzrah : public CreatureScript
                             events.ScheduleEvent(EVENT_COUNTERSPELL, urand(16000, 20000));
                             break;
                         case EVENT_SHAZZRAH_GATE:
-                            DoResetThreat();
+                            ResetThreatList();
                             DoCastAOE(SPELL_SHAZZRAH_GATE_DUMMY);
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_TRIGGERED, 2000);
                             events.RescheduleEvent(EVENT_ARCANE_EXPLOSION, urand(3000, 6000));

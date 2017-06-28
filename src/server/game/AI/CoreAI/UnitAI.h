@@ -158,27 +158,35 @@ class TC_GAME_API UnitAI
         template<class PREDICATE>
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
         {
-            ThreatContainer::StorageType const& threatlist = GetThreatManager().getThreatList();
-            if (position >= threatlist.size())
+            ThreatManager& mgr = GetThreatManager();
+            if (position >= mgr.GetThreatListSize())
                 return nullptr;
 
             std::list<Unit*> targetList;
-            Unit* currentVictim = nullptr;
-            if (auto currentVictimReference = GetThreatManager().getCurrentVictim())
+            if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
             {
-                currentVictim = currentVictimReference->getTarget();
-
-                // Current victim always goes first
+                for (ThreatReference* ref : mgr.GetUnsortedThreatList())
+                {
+                    if (ref->IsOffline())
+                        continue;
+                    Unit* thisTarget = ref->GetVictim();
+                    if (predicate(thisTarget))
+                        targetList.push_back(thisTarget);
+                }
+            }
+            else
+            {
+                Unit* currentVictim = mgr.GetCurrentVictim();
                 if (currentVictim && predicate(currentVictim))
                     targetList.push_back(currentVictim);
-            }
-
-            for (HostileReference* hostileRef : threatlist)
-            {
-                if (currentVictim != nullptr && hostileRef->getTarget() != currentVictim && predicate(hostileRef->getTarget()))
-                    targetList.push_back(hostileRef->getTarget());
-                else if (currentVictim == nullptr && predicate(hostileRef->getTarget()))
-                    targetList.push_back(hostileRef->getTarget());
+                for (ThreatReference* ref : mgr.GetSortedThreatList())
+                {
+                    if (ref->IsOffline())
+                        continue;
+                    Unit* thisTarget = ref->GetVictim();
+                    if (thisTarget != currentVictim && predicate(thisTarget))
+                        targetList.push_back(thisTarget);
+                }
             }
 
             if (position >= targetList.size())
@@ -204,6 +212,8 @@ class TC_GAME_API UnitAI
                     return *ritr;
                 }
                 case SELECT_TARGET_RANDOM:
+                    for (uint32 i = 0; i < position; ++i)
+                        targetList.pop_front();
                     return Trinity::Containers::SelectRandomContainerElement(targetList);
                 default:
                     break;
@@ -219,13 +229,35 @@ class TC_GAME_API UnitAI
         template <class PREDICATE>
         void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
-            ThreatContainer::StorageType const& threatlist = GetThreatManager().getThreatList();
-            if (threatlist.empty())
+            ThreatManager& mgr = GetThreatManager();
+            if (mgr.IsThreatListEmpty())
                 return;
 
-            for (HostileReference* hostileRef : threatlist)
-                if (predicate(hostileRef->getTarget()))
-                    targetList.push_back(hostileRef->getTarget());
+            if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+            {
+                for (ThreatReference* ref : mgr.GetUnsortedThreatList())
+                {
+                    if (ref->IsOffline())
+                        continue;
+                    Unit* thisTarget = ref->GetVictim();
+                    if (predicate(thisTarget))
+                        targetList.push_back(thisTarget);
+                }
+            }
+            else
+            {
+                Unit* currentVictim = mgr.GetCurrentVictim();
+                if (currentVictim && predicate(currentVictim))
+                    targetList.push_back(currentVictim);
+                for (ThreatReference* ref : mgr.GetSortedThreatList())
+                {
+                    if (ref->IsOffline())
+                        continue;
+                    Unit* thisTarget = ref->GetVictim();
+                    if (thisTarget != currentVictim && predicate(thisTarget))
+                        targetList.push_back(thisTarget);
+                }
+            }
 
             if (targetList.size() < maxTargets)
                 return;

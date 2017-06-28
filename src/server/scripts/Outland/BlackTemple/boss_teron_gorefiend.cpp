@@ -344,9 +344,9 @@ public:
 
                 if (target)
                 {
-                    DoResetThreat();
+                    ResetThreatList();
                     AttackStart(target);
-                    me->AddThreat(target, 1000000.0f);
+                    AddThreat(target, 1000000.0f);
                     targetGUID = target->GetGUID();
                 }
             }

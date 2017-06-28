@@ -103,8 +103,7 @@ bool npc_escortAI::AssistPlayerInCombatAgainst(Unit* who)
         }
         else
         {
-            who->SetInCombatWith(me);
-            me->AddThreat(who, 0.0f);
+            me->EngageWithTarget(who);
             return true;
         }
     }
@@ -126,24 +125,7 @@ void npc_escortAI::MoveInLineOfSight(Unit* who)
         {
             float fAttackRadius = me->GetAttackDistance(who);
             if (me->IsWithinDistInMap(who, fAttackRadius) && me->IsWithinLOSInMap(who))
-            {
-                if (!me->GetVictim())
-                {
-                    // Clear distracted state on combat
-                    if (me->HasUnitState(UNIT_STATE_DISTRACTED))
-                    {
-                        me->ClearUnitState(UNIT_STATE_DISTRACTED);
-                        me->GetMotionMaster()->Clear();
-                    }
-
-                    AttackStart(who);
-                }
-                else if (me->GetMap()->IsDungeon())
-                {
-                    who->SetInCombatWith(me);
-                    me->AddThreat(who, 0.0f);
-                }
-            }
+                me->EngageWithTarget(who);
         }
     }
 }

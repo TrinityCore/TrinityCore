@@ -302,7 +302,7 @@ class boss_zuljin : public CreatureScript
                     case 3:
                     case 4:
                         DoTeleportTo(CENTER_X, CENTER_Y, CENTER_Z, 100);
-                        DoResetThreat();
+                        ResetThreatList();
                         me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
                         me->RemoveAurasDueToSpell(Transform[Phase].unaura);
                         DoCast(me, Transform[Phase].spell);

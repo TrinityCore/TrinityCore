@@ -263,7 +263,7 @@ public:
                         Player* player = itr->GetSource();
                         if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
-                            DoResetThreat();
+                            ResetThreatList();
                             me->AddThreat(player, 1.0f);
                             DoCast(player, SPELL_CHARGE);
                             break;
@@ -409,7 +409,7 @@ public:
                         Player* player = itr->GetSource();
                         if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
-                            DoResetThreat();
+                            ResetThreatList();
                             me->AddThreat(player, 5.0f);
                             DoCast(player, SPELL_INTERCEPT);
                             break;

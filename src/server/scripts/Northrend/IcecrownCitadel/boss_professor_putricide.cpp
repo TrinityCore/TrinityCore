@@ -503,10 +503,9 @@ class boss_professor_putricide : public CreatureScript
                             {
                                 std::list<Unit*> targetList;
                                 {
-                                    const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-                                    for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                        if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER)
-                                            targetList.push_back((*itr)->getTarget());
+                                    for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+                                        if (Player* target = ref->GetVictim()->ToPlayer())
+                                            targetList.push_back(target);
                                 }
 
                                 size_t half = targetList.size()/2;
@@ -927,7 +926,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
                 GetCaster()->ClearUnitState(UNIT_STATE_CASTING);
                 GetCaster()->DeleteThreatList();
                 GetCaster()->ToCreature()->AI()->AttackStart(GetHitUnit());
-                GetCaster()->AddThreat(GetHitUnit(), 500000000.0f);    // value seen in sniff
+                GetCaster()->AddThreat(GetHitUnit(), 500000000.0f, nullptr, true, true);    // value seen in sniff
             }
 
             void Register() override

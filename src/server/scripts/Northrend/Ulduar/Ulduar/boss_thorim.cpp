@@ -607,7 +607,7 @@ class boss_thorim : public CreatureScript
                 if (type != EFFECT_MOTION_TYPE || id != EVENT_JUMP)
                     return;
 
-                me->getThreatManager().resetAllAggro();
+                me->ResetThreatList();
                 SetBoundary(&ArenaBoundaries);
             }
 

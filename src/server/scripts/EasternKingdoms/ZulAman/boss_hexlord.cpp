@@ -614,7 +614,7 @@ class boss_alyson_antille : public CreatureScript
                     if (me->Attack(who, false))
                     {
                         me->GetMotionMaster()->MoveChase(who, 20);
-                        me->AddThreat(who, 0.0f);
+                        AddThreat(who, 0.0f);
                     }
                 }
             }
@@ -874,7 +874,7 @@ class boss_slither : public CreatureScript
                     if (me->Attack(who, false))
                     {
                         me->GetMotionMaster()->MoveChase(who, 20);
-                        me->AddThreat(who, 0.0f);
+                        AddThreat(who, 0.0f);
                     }
                 }
             }

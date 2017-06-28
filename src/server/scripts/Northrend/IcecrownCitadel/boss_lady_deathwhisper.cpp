@@ -414,7 +414,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     Talk(SAY_PHASE_2);
                     Talk(EMOTE_PHASE_2);
                     DoStartMovement(me->GetVictim());
-                    DoResetThreat();
+                    ResetThreatList();
                     damage -= me->GetPower(POWER_MANA);
                     me->SetPower(POWER_MANA, 0);
                     me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);

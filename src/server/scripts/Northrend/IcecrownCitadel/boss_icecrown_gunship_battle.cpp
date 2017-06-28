@@ -639,7 +639,7 @@ protected:
 
             return me->GetVictim() != nullptr;
         }
-        else if (me->getThreatManager().isThreatListEmpty())
+        else if (me->GetThreatManager().IsThreatListEmpty())
         {
             EnterEvadeMode(EVADE_REASON_OTHER);
             return false;
@@ -1492,7 +1492,7 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
             {
                 players.sort(Trinity::ObjectDistanceOrderPred(me));
                 for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
-                    me->AddThreat(*itr, 1.0f);
+                    AddThreat(*itr, 1.0f);
 
                 AttackStart(players.front());
             }
