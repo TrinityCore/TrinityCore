@@ -527,7 +527,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadQuestGreetingCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadQuestGreetingCommand(ChatHandler* handler, char const* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading Quest Greeting ...");
         sObjectMgr->LoadQuestGreetings();
@@ -535,7 +535,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadLocalesQuestGreetingCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadLocalesQuestGreetingCommand(ChatHandler* handler, char const* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading Quest Greeting locales...");
         sObjectMgr->LoadQuestGreetingsLocales();
