@@ -516,7 +516,7 @@ struct TrinityString
 
 struct QuestGreetingLocale
 {
-    StringVector greeting;
+    std::vector<std::string> greeting;
 };
 
 typedef std::map<ObjectGuid, ObjectGuid> LinkedRespawnContainer;
