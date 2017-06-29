@@ -1221,8 +1221,8 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
                     float feugenTankThreat = feugenThreat.GetThreat(feugenTank);
                     float stalaggTankThreat = stalaggThreat.GetThreat(stalaggTank);
 
-                    feugen->AddThreat(feugenTank, stalaggTankThreat - feugenTankThreat, nullptr, true, true);
-                    stalagg->AddThreat(stalaggTank, feugenTankThreat - stalaggTankThreat, nullptr, true, true);
+                    feugen->GetThreatManager().AddThreat(feugenTank, stalaggTankThreat - feugenTankThreat, nullptr, true, true);
+                    stalagg->GetThreatManager().AddThreat(stalaggTank, feugenTankThreat - stalaggTankThreat, nullptr, true, true);
 
                     feugen->CastSpell(stalaggTank, SPELL_MAGNETIC_PULL_EFFECT, true);
                 }
@@ -1234,12 +1234,12 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
                     float stalaggOtherThreat = stalaggThreat.GetThreat(feugenTank);
 
                     // set the two entries in feugen's threat table to be equal to the ones in stalagg's
-                    stalagg->AddThreat(stalaggTank, stalaggTankThreat - feugenOtherThreat, nullptr, true, true);
-                    stalagg->AddThreat(feugenTank, stalaggOtherThreat - feugenTankThreat, nullptr, true, true);
+                    stalagg->GetThreatManager().AddThreat(stalaggTank, stalaggTankThreat - feugenOtherThreat, nullptr, true, true);
+                    stalagg->GetThreatManager().AddThreat(feugenTank, stalaggOtherThreat - feugenTankThreat, nullptr, true, true);
 
                     // set the two entries in stalagg's threat table to be equal to the ones in feugen's
-                    stalagg->AddThreat(feugenTank, feugenTankThreat - stalaggOtherThreat, nullptr, true, true);
-                    stalagg->AddThreat(stalaggTank, feugenOtherThreat - stalaggTankThreat, nullptr, true, true);
+                    stalagg->GetThreatManager().AddThreat(feugenTank, feugenTankThreat - stalaggOtherThreat, nullptr, true, true);
+                    stalagg->GetThreatManager().AddThreat(stalaggTank, feugenOtherThreat - stalaggTankThreat, nullptr, true, true);
 
                     // pull the two tanks across
                     feugenTank->CastSpell(stalaggTank, SPELL_MAGNETIC_PULL_EFFECT, true);

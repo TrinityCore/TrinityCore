@@ -202,9 +202,11 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
 
 void ScriptedAI::AddThreat(Unit* victim, float amount, Unit* who)
 {
+    if (!victim)
+        return;
     if (!who)
         who = me;
-    who->AddThreat(victim, amount, nullptr, true, true);
+    who->GetThreatManager().AddThreat(victim, amount, nullptr, true, true);
 }
 
 void ScriptedAI::ModifyThreatByPercent(Unit* victim, int32 pct, Unit* who)

@@ -208,7 +208,7 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
                     me->InterruptNonMeleeSpells(true);
                     me->RemoveAllAuras();
-                    me->DeleteThreatList();
+                    me->GetThreatManager().ClearAllThreat();
                     me->CombatStop();
                     ++TalkSequence;
                 }
@@ -648,7 +648,7 @@ public:
             {
                 KalecGUID = Kalec->GetGUID();
                 me->CombatStart(Kalec);
-                me->AddThreat(Kalec, 100.0f);
+                AddThreat(Kalec, 100.0f);
                 Kalec->setActive(true);
             }
             Talk(SAY_SATH_AGGRO);

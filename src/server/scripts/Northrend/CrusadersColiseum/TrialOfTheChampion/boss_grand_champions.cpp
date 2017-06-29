@@ -115,7 +115,7 @@ void AggroAllPlayers(Creature* temp)
                 temp->SetReactState(REACT_AGGRESSIVE);
                 temp->SetInCombatWith(player);
                 player->SetInCombatWith(temp);
-                temp->AddThreat(player, 0.0f);
+                temp->GetThreatManager().AddThreat(player, 0.0f);
             }
         }
     }
@@ -264,7 +264,7 @@ public:
                         if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
                             ResetThreatList();
-                            me->AddThreat(player, 1.0f);
+                            me->GetThreatManager().AddThreat(player, 1.0f);
                             DoCast(player, SPELL_CHARGE);
                             break;
                         }
@@ -410,7 +410,7 @@ public:
                         if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
                             ResetThreatList();
-                            me->AddThreat(player, 5.0f);
+                            me->GetThreatManager().AddThreat(player, 5.0f);
                             DoCast(player, SPELL_INTERCEPT);
                             break;
                         }

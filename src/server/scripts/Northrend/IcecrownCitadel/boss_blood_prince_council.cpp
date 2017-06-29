@@ -1151,7 +1151,7 @@ class npc_dark_nucleus : public CreatureScript
                 if (attacker == me)
                     return;
 
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
                 AddThreat(attacker, 500000000.0f);
             }
 

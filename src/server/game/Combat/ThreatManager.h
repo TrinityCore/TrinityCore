@@ -233,6 +233,8 @@ class TC_GAME_API ThreatManager
         void ResetAllThreat() { resetAllAggro(); }
         float GetThreat(Unit const* who, bool includeOffline = false) const { if (auto* ref = FindReference(who, includeOffline)) return ref->GetThreat(); return 0.0f; }
         void ClearThreat(Unit const* who) { if (auto* ref = FindReference(who, true)) ref->removeReference(); }
+        void ClearAllThreat();
+        void AddThreat(Unit* victim, float amount, SpellInfo const* spell = nullptr, bool ignoreModifiers = false, bool ignoreRedirection = false);
     private:
         HostileReference* FindReference(Unit const* who, bool includeOffline) const { if (auto* ref = iThreatContainer.getReferenceByTarget(who)) return ref; if (includeOffline) if (auto* ref = iThreatOfflineContainer.getReferenceByTarget(who)) return ref; return nullptr; }
     

@@ -401,6 +401,23 @@ void ThreatManager::ForwardThreatForAssistingMe(Unit* victim, float amount, Spel
     GetOwner()->getHostileRefManager().threatAssist(victim, amount, spell);
 }
 
+void ThreatManager::AddThreat(Unit* victim, float amount, SpellInfo const* spell, bool ignoreModifiers, bool ignoreRedirection)
+{
+    (void)ignoreModifiers; (void)ignoreRedirection;
+    if (!iOwner->CanHaveThreatList() || iOwner->HasUnitState(UNIT_STATE_EVADE))
+        return;
+    iOwner->SetInCombatWith(victim);
+    victim->SetInCombatWith(iOwner);
+    addThreat(victim, amount, spell ? spell->GetSchoolMask() : victim->GetMeleeDamageSchoolMask(), spell);
+}
+
+void ThreatManager::ClearAllThreat()
+{
+    if (iOwner->CanHaveThreatList(true) && !isThreatListEmpty())
+        iOwner->SendClearThreatListOpcode();
+    clearReferences();
+}
+
 //============================================================
 
 void ThreatManager::clearReferences()

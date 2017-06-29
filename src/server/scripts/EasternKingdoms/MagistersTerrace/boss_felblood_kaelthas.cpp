@@ -207,7 +207,7 @@ public:
                 if (unit && unit->IsAlive())
                 {
                     float threat = me->GetThreatManager().getThreat(unit);
-                    summonedUnit->AddThreat(unit, threat);
+                    AddThreat(unit, threat, summonedUnit);
                 }
             }
         }
@@ -399,7 +399,7 @@ public:
                                     if (Orb && target)
                                     {
                                         Orb->SetSpeedRate(MOVE_RUN, 0.5f);
-                                        Orb->AddThreat(target, 1000000.0f);
+                                        AddThreat(target, 1000000.0f, Orb);
                                         Orb->AI()->AttackStart(target);
                                     }
                                 }
@@ -680,7 +680,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
-                    me->AddThreat(target, 1.0f);
+                    AddThreat(target, 1.0f);
                     me->TauntApply(target);
                     AttackStart(target);
                 }

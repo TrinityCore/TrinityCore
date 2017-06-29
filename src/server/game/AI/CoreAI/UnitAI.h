@@ -212,9 +212,7 @@ class TC_GAME_API UnitAI
                     return *ritr;
                 }
                 case SELECT_TARGET_RANDOM:
-                    for (uint32 i = 0; i < position; ++i)
-                        targetList.pop_front();
-                    return Trinity::Containers::SelectRandomContainerElement(targetList);
+                    return Trinity::Containers::SelectRandomContainerElement(targetList, position);
                 default:
                     break;
             }
