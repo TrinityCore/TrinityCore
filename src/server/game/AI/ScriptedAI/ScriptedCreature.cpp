@@ -231,7 +231,7 @@ void ScriptedAI::ResetThreatList(Unit* who)
 {
     if (!who)
         who = me;
-    who->ResetThreatList();
+    who->GetThreatManager().ResetAllThreat();
 }
 
 float ScriptedAI::GetThreat(Unit const* victim, Unit const* who)

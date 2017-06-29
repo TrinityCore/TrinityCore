@@ -1228,7 +1228,6 @@ class TC_GAME_API Unit : public WorldObject
         void EngageWithTarget(Unit* who) { SetInCombatWith(who); who->SetInCombatWith(this); GetThreatManager().AddThreat(who, 0.0f); }
         bool IsThreatened() const { return CanHaveThreatList() && !GetThreatManager().IsThreatListEmpty(); }
         bool IsThreatenedBy(Unit const* who) const { return who && CanHaveThreatList() && GetThreatManager().IsThreatenedBy(who); }
-        void ResetThreatList() { GetThreatManager().resetAllAggro(); }
 
         bool IsInCombat()  const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT); }
         bool IsPetInCombat() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT); }

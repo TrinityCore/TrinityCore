@@ -626,7 +626,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                 if (Player* newTarget = FindEligibleTarget(me, _gateIsOpen))
                 {
                     me->RemoveAurasByType(SPELL_AURA_MOD_TAUNT);
-                    me->ResetThreatList();
+                    ResetThreatList();
                     AddThreat(newTarget, 1.0f);
                     AttackStart(newTarget);
                 }
