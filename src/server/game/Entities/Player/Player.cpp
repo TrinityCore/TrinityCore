@@ -26225,24 +26225,11 @@ bool Player::IsAreaThatActivatesPvpTalents(uint32 areaID) const
         if (area->IsSanctuary())
             return false;
 
-        bool inEnemyArea = false;
-        switch (area->FactionGroupMask)
-        {
-            case AREATEAM_ALLY:
-                inEnemyArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || area->Flags[0] & AREA_FLAG_CAPITAL);
-                break;
-            case AREATEAM_HORDE:
-                inEnemyArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || area->Flags[0] & AREA_FLAG_CAPITAL);
-                break;
-            default:
-                break;
-        }
-
-        if (!area->IsPvpZone() && !inEnemyArea)
+        if (!area->IsPvpZone())
             if (area->ParentAreaID)
                 return IsAreaThatActivatesPvpTalents(area->ParentAreaID);
 
-        return area->IsPvpZone() || inEnemyArea;
+        return area->IsPvpZone();
     }
 
     return false;
