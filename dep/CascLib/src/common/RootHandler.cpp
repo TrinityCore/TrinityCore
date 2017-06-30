@@ -17,7 +17,7 @@
 
 int RootHandler_Insert(TRootHandler * pRootHandler, const char * szFileName, LPBYTE pbEncodingKey)
 {
-    if(pRootHandler == NULL || pRootHandler->Insert == NULL)
+    if(pRootHandler == NULL || pRootHandler->Insert == NULL || pbEncodingKey == NULL)
         return ERROR_NOT_SUPPORTED;
 
     return pRootHandler->Insert(pRootHandler, szFileName, pbEncodingKey);
