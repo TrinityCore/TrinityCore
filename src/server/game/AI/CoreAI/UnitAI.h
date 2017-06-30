@@ -292,6 +292,15 @@ class TC_GAME_API UnitAI
                 return;
             }
 
+            // filter by predicate
+            for (auto it = targetList.begin(), end = targetList.end(); it != end;)
+            {
+                if (predicate(*it))
+                    ++it;
+                else
+                    it = targetList.erase(it), end = targetList.end();
+            }
+
             // right now, list is unsorted for DISTANCE types - re-sort by MAXDISTANCE
             if (targetType == SELECT_TARGET_MAXDISTANCE || targetType == SELECT_TARGET_MINDISTANCE)
                 SortByDistance(targetList, false);
@@ -303,14 +312,6 @@ class TC_GAME_API UnitAI
             {
                 targetList.pop_front();
                 --offset;
-            }
-            // and filter by predicate
-            for (auto it = targetList.begin(), end = targetList.end(); it != end;)
-            {
-                if (predicate(*it))
-                    ++it;
-                else
-                    it = targetList.erase(it), end = targetList.end();
             }
 
             if (targetList.size() <= num)
