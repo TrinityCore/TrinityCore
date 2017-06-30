@@ -85,13 +85,11 @@ namespace Trinity
          * Note: container cannot be empty
          */
         template<class C>
-        inline auto SelectRandomContainerElement(C const& container, uint32 offset = 0) -> typename std::add_const<decltype(*std::begin(container))>::type&
+        inline auto SelectRandomContainerElement(C const& container) -> typename std::add_const<decltype(*std::begin(container))>::type&
         {
             ASSERT(Size(container));
-            uint32 const max = Size(container) - 1;
-            ASSERT(offset <= max);
             auto it = std::begin(container);
-            std::advance(it, urand(offset, max));
+            std::advance(it, urand(0, Size(container) - 1));
             return *it;
         }
 

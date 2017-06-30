@@ -604,7 +604,7 @@ class boss_professor_putricide : public CreatureScript
                         case EVENT_SLIME_PUDDLE:
                         {
                             std::list<Unit*> targets;
-                            SelectTargetList(targets, 2, SELECT_TARGET_RANDOM, 0.0f, true);
+                            SelectTargetList(targets, 2, SELECT_TARGET_RANDOM, 0, 0.0f, true);
                             if (!targets.empty())
                                 for (std::list<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                                     DoCast(*itr, SPELL_SLIME_PUDDLE_TRIGGER);
@@ -634,7 +634,7 @@ class boss_professor_putricide : public CreatureScript
                             if (Is25ManRaid())
                             {
                                 std::list<Unit*> targets;
-                                SelectTargetList(targets, 2, SELECT_TARGET_RANDOM, -7.0f, true);
+                                SelectTargetList(targets, 2, SELECT_TARGET_RANDOM, 0, -7.0f, true);
                                 if (!targets.empty())
                                 {
                                     Talk(EMOTE_MALLEABLE_GOO);

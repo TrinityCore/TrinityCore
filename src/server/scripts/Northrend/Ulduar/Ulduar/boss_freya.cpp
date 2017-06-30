@@ -446,7 +446,7 @@ class boss_freya : public CreatureScript
                             break;
                         case EVENT_STRENGTHENED_IRON_ROOTS:
                             Talk(EMOTE_IRON_ROOTS);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_ROOTS_FREYA))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_ROOTS_FREYA))
                                 target->CastSpell(target, SPELL_ROOTS_FREYA, true); // This must be cast by Target self
                             events.ScheduleEvent(EVENT_STRENGTHENED_IRON_ROOTS, urand(12000, 20000));
                             break;
@@ -958,7 +958,7 @@ class boss_elder_ironbranch : public CreatureScript
                             events.ScheduleEvent(EVENT_IMPALE, urand(15000, 25000));
                             break;
                         case EVENT_IRON_ROOTS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_ROOTS_IRONBRANCH))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_ROOTS_IRONBRANCH))
                                 target->CastSpell(target, SPELL_ROOTS_IRONBRANCH, true);
                             events.ScheduleEvent(EVENT_IRON_ROOTS, urand(10000, 20000));
                             break;
@@ -1302,7 +1302,7 @@ class npc_ancient_conservator : public CreatureScript
 
                 if (natureFuryTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_NATURE_FURY))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_NATURE_FURY))
                         DoCast(target, SPELL_NATURE_FURY);
                     me->AddAura(SPELL_CONSERVATOR_GRIP, me);
                     natureFuryTimer = 5000;
