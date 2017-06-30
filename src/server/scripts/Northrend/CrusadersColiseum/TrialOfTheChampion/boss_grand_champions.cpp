@@ -847,7 +847,7 @@ public:
 
             if (uiShootTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30.0f))
+                if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 30.0f))
                 {
                     uiTargetGUID = target->GetGUID();
                     DoCast(target, SPELL_SHOOT);

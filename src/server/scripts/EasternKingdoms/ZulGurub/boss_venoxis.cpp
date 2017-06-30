@@ -190,7 +190,7 @@ class boss_venoxis : public CreatureScript
 
                             for (uint8 i = 0; i < 10; ++i)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, i))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, i))
                                     // check if target is within melee-distance
                                     if (me->IsWithinMeleeRange(target))
                                         ++_inMeleeRange;

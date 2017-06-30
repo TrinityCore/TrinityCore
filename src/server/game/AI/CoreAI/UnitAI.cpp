@@ -254,6 +254,11 @@ ThreatManager& UnitAI::GetThreatManager()
     return me->GetThreatManager();
 }
 
+void UnitAI::SortByDistance(std::list<Unit*> list, bool ascending)
+{
+    list.sort(Trinity::ObjectDistanceOrderPred(me, ascending));
+}
+
 bool DefaultTargetSelector::operator()(Unit const* target) const
 {
     if (!me)

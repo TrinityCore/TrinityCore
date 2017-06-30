@@ -399,7 +399,7 @@ public:
                             me->SetReactState(REACT_AGGRESSIVE);
 
                             DoZoneInCombat();
-                            if (Unit* closest = SelectTarget(SELECT_TARGET_NEAREST, 0, 500.0f))
+                            if (Unit* closest = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 500.0f))
                                 AttackStart(closest);
                             else // if there is no nearest target, then there is no target, meaning we should reset
                             {

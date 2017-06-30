@@ -624,7 +624,7 @@ class boss_kaelthas : public CreatureScript
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->RemoveAurasDueToSpell(SPELL_FULLPOWER);
 
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                             AttackStart(target);
 
                         DoAction(ACTION_SCHEDULE_COMBAT_EVENTS);

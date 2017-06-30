@@ -202,7 +202,7 @@ class TC_GAME_API UnitAI
 
             // right now, list is unsorted for DISTANCE types - re-sort by MAXDISTANCE
             if (targetType == SELECT_TARGET_MAXDISTANCE || targetType == SELECT_TARGET_MINDISTANCE)
-                targetList.sort(Trinity::ObjectDistanceOrderPred(me, false));
+                SortByDistance(targetList, false);
             // then reverse the sorting for MIN sortings
             if (targetType == SELECT_TARGET_MINTHREAT || targetType == SELECT_TARGET_MAXDISTANCE)
                 targetList.reverse();
@@ -294,7 +294,7 @@ class TC_GAME_API UnitAI
 
             // right now, list is unsorted for DISTANCE types - re-sort by MAXDISTANCE
             if (targetType == SELECT_TARGET_MAXDISTANCE || targetType == SELECT_TARGET_MINDISTANCE)
-                targetList.sort(Trinity::ObjectDistanceOrderPred(me, false));
+                SortByDistance(targetList, false);
             // now the list is MAX sorted, reverse for MIN types
             if (targetType == SELECT_TARGET_MINTHREAT || targetType == SELECT_TARGET_MINDISTANCE)
                 targetList.reverse();
@@ -383,6 +383,7 @@ class TC_GAME_API UnitAI
         UnitAI& operator=(UnitAI const& right) = delete;
 
         ThreatManager& GetThreatManager();
+        void SortByDistance(std::list<Unit*> list, bool ascending = true);
 };
 
 #endif

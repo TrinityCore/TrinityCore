@@ -89,7 +89,7 @@ namespace Trinity
         {
             ASSERT(Size(container));
             auto it = std::begin(container);
-            std::advance(it, urand(0, Size(container) - 1));
+            std::advance(it, urand(0, uint32(Size(container)) - 1));
             return *it;
         }
 

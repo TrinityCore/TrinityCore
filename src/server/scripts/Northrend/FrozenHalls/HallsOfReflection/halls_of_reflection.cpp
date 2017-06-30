@@ -1927,7 +1927,7 @@ class npc_frostsworn_general : public CreatureScript
             void SummonClones()
             {
                 std::list<Unit*> playerList;
-                SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, 0.0f, true);
+                SelectTargetList(playerList, 5, SELECT_TARGET_MAXTHREAT, 0, 0.0f, true);
                 for (Unit* target : playerList)
                 {
                     if (Creature* reflection = me->SummonCreature(NPC_REFLECTION, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000))
@@ -2290,7 +2290,7 @@ class npc_risen_witch_doctor : public CreatureScript
                         _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_CURSE, urand(10000, 15000));
                         break;
                     case EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 20.0f, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 20.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
                         _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT, urand(2000, 3000));
                         break;

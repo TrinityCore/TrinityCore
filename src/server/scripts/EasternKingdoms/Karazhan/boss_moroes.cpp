@@ -300,7 +300,7 @@ public:
 
                 if (Blind_Timer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 0.0f, true, false))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 0.0f, true, false))
                       DoCast(target, SPELL_BLIND);
                     Blind_Timer = 40000;
                 } else Blind_Timer -= diff;
