@@ -49,8 +49,8 @@ enum SelectAggroTarget
     SELECT_TARGET_RANDOM = 0,  // just pick a random target
     SELECT_TARGET_MAXTHREAT,   // prefer targets higher in the threat list
     SELECT_TARGET_MINTHREAT,   // prefer targets lower in the threat list
-    SELECT_TARGET_MAXDISTANCE, // prefer targets closer to us
-    SELECT_TARGET_MINDISTANCE  // prefer targets further from us
+    SELECT_TARGET_MAXDISTANCE, // prefer targets further from us
+    SELECT_TARGET_MINDISTANCE  // prefer targets closer to us
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria
@@ -178,6 +178,7 @@ class TC_GAME_API UnitAI
                 {
                     if (ref->IsOffline())
                         continue;
+
                     targetList.push_back(ref->GetVictim());
                 }
             }
@@ -186,35 +187,33 @@ class TC_GAME_API UnitAI
                 Unit* currentVictim = mgr.GetCurrentVictim();
                 if (currentVictim)
                     targetList.push_back(currentVictim);
+
                 for (ThreatReference* ref : mgr.GetSortedThreatList())
                 {
                     if (ref->IsOffline())
                         continue;
+
                     Unit* thisTarget = ref->GetVictim();
                     if (thisTarget != currentVictim)
                         targetList.push_back(thisTarget);
                 }
             }
 
+            // filter by predicate
+            targetList.remove_if([&predicate](Unit* target) { return !predicate(target); });
+
             // shortcut: the list certainly isn't gonna get any larger after this point
             if (targetList.size() <= offset)
                 return nullptr;
 
-            // filter by predicate
-            for (auto it = targetList.begin(), end = targetList.end(); it != end;)
-            {
-                if (predicate(*it))
-                    ++it;
-                else
-                    it = targetList.erase(it), end = targetList.end();
-            }
-
             // right now, list is unsorted for DISTANCE types - re-sort by MAXDISTANCE
             if (targetType == SELECT_TARGET_MAXDISTANCE || targetType == SELECT_TARGET_MINDISTANCE)
-                SortByDistance(targetList, false);
+                SortByDistance(targetList, targetType == SELECT_TARGET_MINDISTANCE);
+
             // then reverse the sorting for MIN sortings
-            if (targetType == SELECT_TARGET_MINTHREAT || targetType == SELECT_TARGET_MAXDISTANCE)
+            if (targetType == SELECT_TARGET_MINTHREAT)
                 targetList.reverse();
+
             // now pop the first <offset> elements
             while (offset)
             {
@@ -268,6 +267,7 @@ class TC_GAME_API UnitAI
                 {
                     if (ref->IsOffline())
                         continue;
+
                     targetList.push_back(ref->GetVictim());
                 }
             }
@@ -276,15 +276,20 @@ class TC_GAME_API UnitAI
                 Unit* currentVictim = mgr.GetCurrentVictim();
                 if (currentVictim)
                     targetList.push_back(currentVictim);
+
                 for (ThreatReference* ref : mgr.GetSortedThreatList())
                 {
                     if (ref->IsOffline())
                         continue;
+
                     Unit* thisTarget = ref->GetVictim();
                     if (thisTarget != currentVictim)
                         targetList.push_back(thisTarget);
                 }
             }
+
+            // filter by predicate
+            targetList.remove_if([&predicate](Unit* target) { return !predicate(target); });
 
             // shortcut: the list isn't gonna get any larger
             if (targetList.size() <= offset)
@@ -293,21 +298,14 @@ class TC_GAME_API UnitAI
                 return;
             }
 
-            // filter by predicate
-            for (auto it = targetList.begin(), end = targetList.end(); it != end;)
-            {
-                if (predicate(*it))
-                    ++it;
-                else
-                    it = targetList.erase(it), end = targetList.end();
-            }
-
             // right now, list is unsorted for DISTANCE types - re-sort by MAXDISTANCE
             if (targetType == SELECT_TARGET_MAXDISTANCE || targetType == SELECT_TARGET_MINDISTANCE)
-                SortByDistance(targetList, false);
+                SortByDistance(targetList, targetType == SELECT_TARGET_MINDISTANCE);
+
             // now the list is MAX sorted, reverse for MIN types
-            if (targetType == SELECT_TARGET_MINTHREAT || targetType == SELECT_TARGET_MINDISTANCE)
+            if (targetType == SELECT_TARGET_MINTHREAT)
                 targetList.reverse();
+
             // ignore the first <offset> elements
             while (offset)
             {

@@ -79,7 +79,7 @@ class boss_ironaya : public CreatureScript
                 {
                     DoCastVictim(SPELL_KNOCKAWAY, true);
                     me->GetThreatManager().ResetThreat(me->EnsureVictim());
-                    
+
                     //Shouldn't cast this agian
                     bHasCastKnockaway = true;
                 }

@@ -128,7 +128,7 @@ public:
                         auto it = pair.begin(), end = pair.end();
                         if (it == end)
                             EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
-                        
+
                         if ((*it)->GetVictim() != currentVictim)
                             secondThreat = *it;
                         if ((!secondThreat || Is25ManRaid()) && (++it != end))

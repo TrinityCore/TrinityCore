@@ -325,7 +325,7 @@ public:
                 if (target != tank && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
                     targets.push_back(target);
             }
-                      
+
             if (targets.empty())
               return;
 
