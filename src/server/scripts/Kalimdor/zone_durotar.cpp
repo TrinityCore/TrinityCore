@@ -174,7 +174,7 @@ class npc_tiger_matriarch : public CreatureScript
                 _tigerGuid = summoner->GetVehicle()->GetBase()->GetGUID();
                 if (Unit* tiger = ObjectAccessor::GetUnit(*me, _tigerGuid))
                 {
-                    me->AddThreat(tiger, 500000.0f);
+                    AddThreat(tiger, 500000.0f);
                     DoCast(me, SPELL_FURIOUS_BITE);
                 }
             }

@@ -539,10 +539,7 @@ public:
             BossAI::JustSummoned(summon);
             if (summon->GetEntry() == NPC_ILLIDARI_ELITE)
                 if (Creature* akama = instance->GetCreature(DATA_AKAMA))
-                {
-                    summon->CombatStart(akama);
-                    summon->AddThreat(akama, 1000.0f);
-                }
+                    AddThreat(akama, 1000.0f, summon);
         }
 
         void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
@@ -939,7 +936,7 @@ public:
                         events.ScheduleEvent(EVENT_SCHEDULE_DEMON_SPELLS, Seconds(15));
                         break;
                     case EVENT_SCHEDULE_DEMON_SPELLS:
-                        DoResetThreat();
+                        ResetThreatList();
                         ScheduleEvents(GROUP_PHASE_DEMON, GROUP_PHASE_DEMON);
                         break;
                     case EVENT_DEMON_TEXT:
@@ -948,7 +945,7 @@ public:
                     case EVENT_RESUME_COMBAT_DEMON:
                     {
                         uint8 group = _phase == PHASE_3 ? GROUP_PHASE_3 : GROUP_PHASE_4;
-                        DoResetThreat();
+                        ResetThreatList();
                         ScheduleEvents(group, group);
                         me->LoadEquipment(1, true);
                         break;
