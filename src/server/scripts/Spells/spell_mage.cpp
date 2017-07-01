@@ -386,6 +386,11 @@ class spell_mage_combustion_proc : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mage_combustion_proc_AuraScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_MAGE_COMBUSTION });
+            }
+
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetTarget()->RemoveAurasDueToSpell(SPELL_MAGE_COMBUSTION);

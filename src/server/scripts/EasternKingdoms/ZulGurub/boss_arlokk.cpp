@@ -227,7 +227,7 @@ class boss_arlokk : public CreatureScript
                             break;
                         case EVENT_MARK_OF_ARLOKK:
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, urand(1, 3), 0.0f, false, -SPELL_MARK_OF_ARLOKK);
+                            Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, urand(1, 3), 0.0f, false, true, -SPELL_MARK_OF_ARLOKK);
                             if (!target)
                                 target = me->GetVictim();
                             if (target)
@@ -250,7 +250,7 @@ class boss_arlokk : public CreatureScript
                             me->UpdateDamagePhysical(BASE_ATTACK);
                             */
                             me->AttackStop();
-                            DoResetThreat();
+                            ResetThreatList();
                             me->SetReactState(REACT_PASSIVE);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                             DoCast(me, SPELL_VANISH_VISUAL);
