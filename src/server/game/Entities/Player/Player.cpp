@@ -15310,7 +15310,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     SQLTransaction trans = SQLTransaction(nullptr);
     _SaveQuestStatus(trans);
 
-    SendQuestReward(quest, questGiver->ToCreature(), XP, !announce);
+    SendQuestReward(quest, questGiver ? questGiver->ToCreature() : nullptr, XP, !announce);
 
     // cast spells after mark quest complete (some spells have quest completed state requirements in spell_area data)
     if (quest->GetRewSpell() > 0)
