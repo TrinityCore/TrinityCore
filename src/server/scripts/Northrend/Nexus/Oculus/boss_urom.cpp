@@ -290,7 +290,7 @@ class boss_urom : public CreatureScript
             {
                 me->RemoveAllAuras();
                 me->CombatStop(false);
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override

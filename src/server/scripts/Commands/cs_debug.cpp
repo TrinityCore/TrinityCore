@@ -846,7 +846,7 @@ public:
         if (!target || target->IsTotem() || target->IsPet())
             return false;
 
-        ThreatContainer::StorageType const& threatList = target->getThreatManager().getThreatList();
+        ThreatContainer::StorageType const& threatList = target->GetThreatManager().getThreatList();
         ThreatContainer::StorageType::const_iterator itr;
         uint32 count = 0;
         handler->PSendSysMessage("Threat list of %s (guid %u)", target->GetName().c_str(), target->GetGUID().GetCounter());
