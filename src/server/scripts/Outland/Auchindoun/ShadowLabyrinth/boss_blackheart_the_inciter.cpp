@@ -25,7 +25,6 @@ Category: Auchindoun, Shadow Labyrinth
 #include "ScriptMgr.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "Player.h"
 #include "shadow_labyrinth.h"
 
 enum BlackheartTheInciter
@@ -111,10 +110,8 @@ class boss_blackheart_the_inciter : public CreatureScript
                             DoCast(me, SPELL_INCITE_CHAOS);
 
                             for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
-                            {
-                                if (Player* target = ref->GetVictim()->ToPlayer())
-                                    me->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
-                            }
+                                if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+                                    me->CastSpell(ref->GetVictim, SPELL_INCITE_CHAOS_B, true);
 
                             ResetThreatList();
                             events.ScheduleEvent(EVENT_INCITE_CHAOS, 40000);
