@@ -115,7 +115,7 @@ void AggroAllPlayers(Creature* temp)
                 temp->SetReactState(REACT_AGGRESSIVE);
                 temp->SetInCombatWith(player);
                 player->SetInCombatWith(temp);
-                temp->AddThreat(player, 0.0f);
+                temp->GetThreatManager().AddThreat(player, 0.0f);
             }
         }
     }
@@ -263,8 +263,8 @@ public:
                         Player* player = itr->GetSource();
                         if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
-                            DoResetThreat();
-                            me->AddThreat(player, 1.0f);
+                            ResetThreatList();
+                            me->GetThreatManager().AddThreat(player, 1.0f);
                             DoCast(player, SPELL_CHARGE);
                             break;
                         }
@@ -409,8 +409,8 @@ public:
                         Player* player = itr->GetSource();
                         if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
-                            DoResetThreat();
-                            me->AddThreat(player, 5.0f);
+                            ResetThreatList();
+                            me->GetThreatManager().AddThreat(player, 5.0f);
                             DoCast(player, SPELL_INTERCEPT);
                             break;
                         }
@@ -847,7 +847,7 @@ public:
 
             if (uiShootTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30.0f))
+                if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 30.0f))
                 {
                     uiTargetGUID = target->GetGUID();
                     DoCast(target, SPELL_SHOOT);
