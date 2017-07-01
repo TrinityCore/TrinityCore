@@ -87,6 +87,7 @@ namespace Trinity
         template<class C>
         inline auto SelectRandomContainerElement(C const& container) -> typename std::add_const<decltype(*std::begin(container))>::type&
         {
+            ASSERT(Size(container));
             auto it = std::begin(container);
             std::advance(it, urand(0, uint32(Size(container)) - 1));
             return *it;
@@ -196,6 +197,7 @@ namespace Trinity
         {
         public:
             IteratorPair() : _iterators() { }
+            IteratorPair(iterator first, iterator second) : _iterators(first, second) { }
             IteratorPair(std::pair<iterator, iterator> iterators) : _iterators(iterators) { }
 
             iterator begin() const { return _iterators.first; }

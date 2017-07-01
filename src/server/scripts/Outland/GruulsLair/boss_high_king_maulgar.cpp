@@ -249,7 +249,7 @@ public:
 
             if (me->Attack(who, true))
             {
-                me->AddThreat(who, 0.0f);
+                AddThreat(who, 0.0f);
                 me->SetInCombatWith(who);
                 who->SetInCombatWith(me);
 
@@ -558,17 +558,14 @@ public:
             //BlastWave_Timer
             if (BlastWave_Timer <= diff)
             {
-                Unit* target = nullptr;
-                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
                 std::vector<Unit*> target_list;
-                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
                 {
-                    target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-                                                                //15 yard radius minimum
-                    if (target && target->IsWithinDist(me, 15, false))
+                    Unit* target = ref->GetVictim();
+                    if (target && target->IsWithinDist(me, 15, false)) // 15 yard radius minimum
                         target_list.push_back(target);
-                    target = nullptr;
                 }
+                Unit* target = nullptr;
                 if (!target_list.empty())
                     target = *(target_list.begin() + rand32() % target_list.size());
 

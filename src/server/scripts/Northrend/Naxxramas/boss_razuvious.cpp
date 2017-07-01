@@ -231,7 +231,7 @@ class npc_dk_understudy : public CreatureScript
                 {
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (Unit* charmer = ObjectAccessor::GetUnit(*me, _charmer))
-                        me->AddThreat(charmer, 100000.0f);
+                        AddThreat(charmer, 100000.0f);
                     DoZoneInCombat(nullptr, 250.0f);
                 }
             }

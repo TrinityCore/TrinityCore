@@ -124,8 +124,8 @@ class boss_jindo : public CreatureScript
                             if (Unit* target = me->GetVictim())
                             {
                                 DoCast(target, SPELL_HEX, true);
-                                if (DoGetThreat(target))
-                                    DoModifyThreatPercent(target, -80);
+                                if (GetThreat(target))
+                                    ModifyThreatByPercent(target, -80);
                             }
                             events.ScheduleEvent(EVENT_HEX, urand(12000, 20000));
                             break;
@@ -143,8 +143,8 @@ class boss_jindo : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             {
                                 DoTeleportPlayer(target, TeleportLoc.GetPositionX(), TeleportLoc.GetPositionY(), TeleportLoc.GetPositionZ(), TeleportLoc.GetOrientation());
-                                if (DoGetThreat(me->GetVictim()))
-                                    DoModifyThreatPercent(target, -100);
+                                if (GetThreat(me->GetVictim()))
+                                    ModifyThreatByPercent(target, -100);
 
                                 // Summon a formation of trolls
                                 for (uint8 i = 0; i < 10; ++i)
