@@ -79,7 +79,7 @@ public:
                 {
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
                     me->CombatStop();                   //stop combat
-                    me->DeleteThreatList();             //unsure of this
+                    me->GetThreatManager().ClearAllThreat();             //unsure of this
                     me->SetFaction(FACTION_HORDE_GENERIC);
 
                     bReset = true;
@@ -111,7 +111,7 @@ public:
                         if (player->GetTeam() == HORDE)
                         {
                             me->CombatStop();
-                            me->DeleteThreatList();
+                            me->GetThreatManager().ClearAllThreat();
                         }
                     }
                 }
