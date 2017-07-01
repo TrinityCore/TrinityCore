@@ -113,9 +113,11 @@ class boss_void_reaver : public CreatureScript
                         {
                             std::vector<Unit*> target_list;
                             for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
-                                if (Player* target = ref->GetVictim()->ToPlayer())
-                                    if (target->IsAlive() && !target->IsWithinDist(me, 18, false))
-                                        target_list.push_back(target);
+                            {
+                                Unit* target = ref->GetVictim();
+                                if (target->GetTypeId() == TYPEID_PLAYER && target->IsAlive() && !target->IsWithinDist(me, 18, false))
+                                    target_list.push_back(target);
+                            }
 
                             Unit* target;
                             if (!target_list.empty())
