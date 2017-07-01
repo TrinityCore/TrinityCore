@@ -121,7 +121,7 @@ public:
                 if (temp->isDead())
                     temp->Respawn();
                 else if (temp->GetVictim())
-                    me->getThreatManager().addThreat(temp->GetVictim(), 0.0f);
+                    AddThreat(temp->GetVictim(), 0.0f);
             }
 
             if (!me->IsInCombat())
@@ -276,7 +276,7 @@ public:
                     temp = DoSpawnCreature(NPC_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
                     if (temp && target)
                     {
-                        temp->AddThreat(target, 1000000); //don't change target(healers)
+                        AddThreat(target, 1000000.0f, temp); //don't change target(healers)
                         temp->AI()->AttackStart(target);
                     }
                 }
@@ -373,7 +373,7 @@ public:
                 if (temp->isDead())
                     temp->Respawn();
                 else if (temp->GetVictim())
-                    me->getThreatManager().addThreat(temp->GetVictim(), 0.0f);
+                    AddThreat(temp->GetVictim(), 0.0f);
             }
 
             if (!me->IsInCombat())
@@ -551,7 +551,7 @@ public:
                 Creature* sisiter = instance->GetCreature(DATA_SACROLASH);
                 if (sisiter && !sisiter->isDead() && sisiter->GetVictim())
                 {
-                    me->AddThreat(sisiter->GetVictim(), 0.0f);
+                    AddThreat(sisiter->GetVictim(), 0.0f);
                     DoStartNoMovement(sisiter->GetVictim());
                     me->Attack(sisiter->GetVictim(), false);
                 }

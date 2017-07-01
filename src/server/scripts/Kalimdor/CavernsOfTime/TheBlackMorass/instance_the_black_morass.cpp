@@ -304,10 +304,10 @@ public:
                     if (Creature* boss = SummonedPortalBoss(temp))
                     {
                         if (boss->GetEntry() == NPC_AEONUS)
-                            boss->AddThreat(medivh, 0.0f);
+                            boss->GetThreatManager().AddThreat(medivh, 0.0f);
                         else
                         {
-                            boss->AddThreat(temp, 0.0f);
+                            boss->GetThreatManager().AddThreat(temp, 0.0f);
                             temp->CastSpell(boss, SPELL_RIFT_CHANNEL, false);
                         }
                     }

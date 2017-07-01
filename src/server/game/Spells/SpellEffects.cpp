@@ -2214,7 +2214,7 @@ void Spell::EffectDistract(SpellEffIndex /*effIndex*/)
         return;
 
     // Check for possible target
-    if (!unitTarget || unitTarget->IsInCombat())
+    if (!unitTarget || unitTarget->IsEngaged())
         return;
 
     // target must be OK to do this
@@ -2730,17 +2730,17 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
         return;
     }
 
-    if (!unitTarget->getThreatManager().getOnlineContainer().empty())
+    if (!unitTarget->GetThreatManager().getOnlineContainer().empty())
     {
         // Also use this effect to set the taunter's threat to the taunted creature's highest value
-        float myThreat = unitTarget->getThreatManager().getThreat(m_caster);
-        float topThreat = unitTarget->getThreatManager().getOnlineContainer().getMostHated()->getThreat();
+        float myThreat = unitTarget->GetThreatManager().getThreat(m_caster);
+        float topThreat = unitTarget->GetThreatManager().getOnlineContainer().getMostHated()->getThreat();
         if (topThreat > myThreat)
-            unitTarget->getThreatManager().doAddThreat(m_caster, topThreat - myThreat);
+            unitTarget->GetThreatManager().doAddThreat(m_caster, topThreat - myThreat);
 
         //Set aggro victim to caster
-        if (HostileReference* forcedVictim = unitTarget->getThreatManager().getOnlineContainer().getReferenceByTarget(m_caster))
-            unitTarget->getThreatManager().setCurrentVictim(forcedVictim);
+        if (HostileReference* forcedVictim = unitTarget->GetThreatManager().getOnlineContainer().getReferenceByTarget(m_caster))
+            unitTarget->GetThreatManager().setCurrentVictim(forcedVictim);
     }
 
     if (unitTarget->ToCreature()->IsAIEnabled && !unitTarget->ToCreature()->HasReactState(REACT_PASSIVE))
@@ -2950,7 +2950,7 @@ void Spell::EffectThreat(SpellEffIndex /*effIndex*/)
     if (!unitTarget->CanHaveThreatList())
         return;
 
-    unitTarget->AddThreat(m_caster, float(damage));
+    unitTarget->GetThreatManager().AddThreat(m_caster, float(damage));
 }
 
 void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
@@ -4589,7 +4589,7 @@ void Spell::EffectModifyThreatPercent(SpellEffIndex /*effIndex*/)
     if (!unitTarget)
         return;
 
-    unitTarget->getThreatManager().modifyThreatPercent(m_caster, damage);
+    unitTarget->GetThreatManager().ModifyThreatByPercent(m_caster, damage);
 }
 
 void Spell::EffectTransmitted(SpellEffIndex effIndex)

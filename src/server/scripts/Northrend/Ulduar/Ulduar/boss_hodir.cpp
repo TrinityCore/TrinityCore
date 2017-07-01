@@ -235,7 +235,7 @@ class npc_flash_freeze : public CreatureScript
             {
                 targetGUID = summoner->GetGUID();
                 me->SetInCombatWith(summoner);
-                me->AddThreat(summoner, 250.0f);
+                AddThreat(summoner, 250.0f);
                 if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                 {
                     DoCast(target, SPELL_BLOCK_OF_ICE, true);
@@ -279,8 +279,8 @@ class npc_ice_block : public CreatureScript
                 summoner->AddUnitFlag(UnitFlags(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED));
                 summoner->SetControlled(true, UNIT_STATE_ROOT);
                 me->SetInCombatWith(summoner);
-                me->AddThreat(summoner, 250.0f);
-                summoner->AddThreat(me, 250.0f);
+                AddThreat(summoner, 250.0f);
+                AddThreat(me, 250.0f, summoner);
                 if (Creature* target = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
                     DoCast(target, SPELL_FLASH_FREEZE_HELPER, true);
@@ -489,7 +489,7 @@ class boss_hodir : public CreatureScript
 
                 if (gettingColdInHereTimer <= diff && gettingColdInHere)
                 {
-                    std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
+                    std::list<HostileReference*> ThreatList = me->GetThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                         if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
                             if (Aura* BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))

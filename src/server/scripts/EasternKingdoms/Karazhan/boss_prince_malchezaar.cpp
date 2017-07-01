@@ -315,19 +315,18 @@ public:
             if (!info)
                 return;
 
-            ThreatContainer::StorageType const& t_list = me->getThreatManager().getThreatList();
+            Unit* tank = me->GetThreatManager().GetCurrentVictim();
             std::vector<Unit*> targets;
 
-            if (t_list.empty())
-                return;
+            for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+            {
+                Unit* target = ref->GetVictim();
+                if (target != tank && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                    targets.push_back(target);
+            }
 
-            //begin + 1, so we don't target the one with the highest threat
-            ThreatContainer::StorageType::const_iterator itr = t_list.begin();
-            std::advance(itr, 1);
-            for (; itr != t_list.end(); ++itr) //store the threat list in a different container
-                if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
-                    if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
-                        targets.push_back(target);
+            if (targets.empty())
+              return;
 
             //cut down to size if we have more than 5 targets
             while (targets.size() > 5)
@@ -454,9 +453,7 @@ public:
                             if (target)
                             {
                                 axe->AI()->AttackStart(target);
-                                //axe->getThreatManager().tauntApply(target); //Taunt Apply and fade out does not work properly
-                                                                // So we'll use a hack to add a lot of threat to our target
-                                axe->AddThreat(target, 10000000.0f);
+                                AddThreat(target, 10000000.0f, axe);
                             }
                         }
                     }
@@ -492,11 +489,9 @@ public:
                             if (Unit* axe = ObjectAccessor::GetUnit(*me, axes[i]))
                             {
                                 if (axe->GetVictim())
-                                    DoModifyThreatPercent(axe->GetVictim(), -100);
+                                    ResetThreat(axe->GetVictim(), axe);
                                 if (target)
-                                    axe->AddThreat(target, 1000000.0f);
-                                //axe->getThreatManager().tauntFadeOut(axe->GetVictim());
-                                //axe->getThreatManager().tauntApply(target);
+                                    AddThreat(target, 1000000.0f, axe);
                             }
                         }
                     }

@@ -952,7 +952,7 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_SOUL_REAPER, urand(33000, 35000), 0, PHASE_TWO_THREE);
                             break;
                         case EVENT_DEFILE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_HARVEST_SOUL_VALKYR))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_HARVEST_SOUL_VALKYR))
                             {
                                 Talk(EMOTE_DEFILE_WARNING);
                                 DoCast(target, SPELL_DEFILE);
@@ -1770,7 +1770,7 @@ class npc_terenas_menethil : public CreatureScript
                 if (!me->IsAlive())
                     return;
 
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(false);
             }
 
@@ -2772,7 +2772,7 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
                     return;
 
                 GetCaster()->ToCreature()->AI()->AttackStart(GetHitUnit());
-                GetCaster()->AddThreat(GetHitUnit(), 100000.0f);
+                GetCaster()->GetThreatManager().AddThreat(GetHitUnit(), 100000.0f);
             }
 
             void Register() override

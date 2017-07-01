@@ -1234,8 +1234,7 @@ class go_wind_stone : public GameObjectScript
                         break;
                     }
                     summons->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    summons->SendMeleeAttackStart(player);
-                    summons->CombatStart(player);
+                    summons->EngageWithTarget(player);
                 }
 
             public:

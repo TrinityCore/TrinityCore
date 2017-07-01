@@ -346,7 +346,7 @@ class boss_halion : public CreatureScript
                             break;
                         case EVENT_METEOR_STRIKE:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_TWILIGHT_REALM))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_TWILIGHT_REALM))
                             {
                                 _meteorStrikePos = target->GetPosition();
                                 me->CastSpell(_meteorStrikePos.GetPositionX(), _meteorStrikePos.GetPositionY(), _meteorStrikePos.GetPositionZ(), SPELL_METEOR_STRIKE, true, nullptr, nullptr, me->GetGUID());
@@ -357,7 +357,7 @@ class boss_halion : public CreatureScript
                         }
                         case EVENT_FIERY_COMBUSTION:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_TWILIGHT_REALM))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_TWILIGHT_REALM))
                                 me->CastSpell(target, SPELL_FIERY_COMBUSTION, TRIGGERED_IGNORE_SET_FACING);
                             events.ScheduleEvent(EVENT_FIERY_COMBUSTION, Seconds(25));
                             break;
@@ -528,7 +528,7 @@ class boss_twilight_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_BREATH, randtime(Seconds(10), Seconds(14)));
                             break;
                         case EVENT_SOUL_CONSUMPTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, SPELL_TWILIGHT_REALM))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, SPELL_TWILIGHT_REALM))
                                 me->CastSpell(target, SPELL_SOUL_CONSUMPTION, TRIGGERED_IGNORE_SET_FACING);
                             events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, Seconds(20));
                             break;
