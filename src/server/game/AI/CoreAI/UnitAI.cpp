@@ -259,6 +259,11 @@ void UnitAI::SortByDistance(std::list<Unit*> list, bool ascending)
     list.sort(Trinity::ObjectDistanceOrderPred(me, ascending));
 }
 
+DefaultTargetSelector::DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withMainTank, int32 aura)
+    : me(unit), m_dist(dist), m_playerOnly(playerOnly), except(withMainTank ? unit->GetThreatManager().GetCurrentVictim() : nullptr), m_aura(aura)
+{
+}
+
 bool DefaultTargetSelector::operator()(Unit const* target) const
 {
     if (!me)

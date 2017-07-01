@@ -67,8 +67,7 @@ struct TC_GAME_API DefaultTargetSelector
     // playerOnly: self explaining
     // withMainTank: allow current tank to be selected
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
-    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withMainTank, int32 aura) : me(unit), m_dist(dist), m_playerOnly(playerOnly), except(withMainTank ? me->GetThreatManager().GetCurrentVictim() : nullptr), m_aura(aura) { }
-
+    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withMainTank, int32 aura);
     bool operator()(Unit const* target) const;
 };
 
