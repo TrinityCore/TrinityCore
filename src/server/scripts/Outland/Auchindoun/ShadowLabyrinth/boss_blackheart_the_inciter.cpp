@@ -112,7 +112,7 @@ class boss_blackheart_the_inciter : public CreatureScript
 
                             for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
                                 if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER)
-                                    me->CastSpell(ref->GetVictim, SPELL_INCITE_CHAOS_B, true);
+                                    me->CastSpell(ref->GetVictim(), SPELL_INCITE_CHAOS_B, true);
 
                             ResetThreatList();
                             events.ScheduleEvent(EVENT_INCITE_CHAOS, 40000);
