@@ -26,6 +26,7 @@ Category: Auchindoun, Shadow Labyrinth
 #include "ScriptMgr.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "Player.h"
 #include "shadow_labyrinth.h"
 
 enum BlackheartTheInciter
