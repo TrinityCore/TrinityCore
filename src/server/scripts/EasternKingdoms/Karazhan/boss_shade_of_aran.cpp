@@ -187,9 +187,11 @@ public:
             std::vector<Unit*> targets;
             //store the threat list in a different container
             for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
-                if (Player* target = ref->GetVictim()->ToPlayer())
-                    if (target->IsAlive())
-                        targets.push_back(target);
+            {
+                Unit* target = ref->GetVictim();
+                if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->IsAlive())
+                    targets.push_back(target);
+            }
 
             //cut down to size if we have more than 3 targets
             while (targets.size() > 3)
