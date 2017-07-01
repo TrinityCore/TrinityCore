@@ -223,7 +223,7 @@ class TC_GAME_API ThreatManager
         Trinity::Containers::IteratorPair<std::list<ThreatReference*>::const_iterator> GetSortedThreatList() const { auto& list = iThreatContainer.getThreatList(); return { list.cbegin(), list.cend() }; }
         Trinity::Containers::IteratorPair<std::list<ThreatReference*>::const_iterator> GetUnsortedThreatList() const { return GetSortedThreatList(); }
         Unit* SelectVictim() { return getHostilTarget(); }
-        Unit* GetCurrentVictim() const { return getCurrentVictim()->GetVictim(); }
+        Unit* GetCurrentVictim() const { if (ThreatReference* ref = getCurrentVictim()) return ref->GetVictim(); else return nullptr; }
         bool IsThreatListEmpty(bool includeOffline = false) const { return includeOffline ? areThreatListsEmpty() : isThreatListEmpty(); }
         bool IsThreatenedBy(Unit const* who, bool includeOffline = false) const { return (FindReference(who, includeOffline) != nullptr); }
         size_t GetThreatListSize() const { return iThreatContainer.iThreatList.size(); }
