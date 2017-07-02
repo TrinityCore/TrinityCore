@@ -4631,20 +4631,11 @@ class spell_gen_pvp_rules_enabled : public SpellScriptLoader
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 GetAura()->SetDuration(-1);
-                if (Player* player = GetTarget()->ToPlayer())
-                    player->TogglePvpTalents(true);
-            }
-
-            void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Player* player = GetTarget()->ToPlayer())
-                    player->TogglePvpTalents(false);
             }
 
             void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_gen_pvp_rules_enabled_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_gen_pvp_rules_enabled_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT, AURA_EFFECT_HANDLE_REAL);
             }
         };
 

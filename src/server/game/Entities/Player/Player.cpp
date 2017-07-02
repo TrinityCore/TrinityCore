@@ -17968,7 +17968,6 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // after spell and quest load
     InitTalentForLevel();
-    TogglePvpTalents(false);
     LearnDefaultSkills();
     LearnCustomSpells();
 
