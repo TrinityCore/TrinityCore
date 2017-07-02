@@ -1029,6 +1029,7 @@ struct PlayerDynamicFieldSpellModByLabel
 
 uint8 const PLAYER_MAX_HONOR_LEVEL = 50;
 uint8 const PLAYER_LEVEL_MIN_HONOR = 110;
+uint32 const SPELL_PVP_RULES_ENABLED = 134735;
 
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
@@ -1638,6 +1639,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemovePvpTalent(PvpTalentEntry const* talent);
         void TogglePvpTalents(bool enable);
         bool HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const;
+        void EnablePvpRules();
+        void DisablePvpRules();
+        bool HasPvpRulesEnabled() const;
         bool IsInAreaThatActivatesPvpTalents() const;
         bool IsAreaThatActivatesPvpTalents(uint32 areaID) const;
 

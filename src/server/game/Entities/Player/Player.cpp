@@ -6976,10 +6976,10 @@ void Player::UpdateArea(uint32 newArea)
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
 
-    if (IsInAreaThatActivatesPvpTalents())
-        TogglePvpTalents(true);
+    if (IsAreaThatActivatesPvpTalents(newArea))
+        EnablePvpRules();
     else if (!IsInCombat())
-        TogglePvpTalents(false);
+        DisablePvpRules();
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -26154,7 +26154,7 @@ bool Player::AddPvpTalent(PvpTalentEntry const* talent, uint8 activeTalentGroup,
         return false;
     }
 
-    if (IsInAreaThatActivatesPvpTalents())
+    if (HasPvpRulesEnabled())
         LearnSpell(talent->SpellID, false);
 
     // Move this to toggle ?
@@ -26207,11 +26207,23 @@ bool Player::HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const
     return (itr != GetPvpTalentMap(activeTalentGroup)->end() && itr->second != PLAYERSPELL_REMOVED);
 }
 
+void Player::EnablePvpRules()
+{
+    CastSpell(this, SPELL_PVP_RULES_ENABLED);
+}
+
+void Player::DisablePvpRules()
+{
+    RemoveAurasDueToSpell(SPELL_PVP_RULES_ENABLED);
+}
+
+bool Player::HasPvpRulesEnabled() const
+{
+    return HasAura(SPELL_PVP_RULES_ENABLED);
+}
+
 bool Player::IsInAreaThatActivatesPvpTalents() const
 {
-    if (InBattleground())
-        return true;
-
     uint32 zoneID, areaID;
     GetZoneAndAreaId(zoneID, areaID);
 
@@ -26220,16 +26232,19 @@ bool Player::IsInAreaThatActivatesPvpTalents() const
 
 bool Player::IsAreaThatActivatesPvpTalents(uint32 areaID) const
 {
+    if (InBattleground())
+        return true;
+
     if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(areaID))
     {
         if (area->IsSanctuary())
             return false;
 
-        if (!area->IsPvpZone())
+        if (!area->ActivatesPvpTalents())
             if (area->ParentAreaID)
                 return IsAreaThatActivatesPvpTalents(area->ParentAreaID);
 
-        return area->IsPvpZone();
+        return area->ActivatesPvpTalents();
     }
 
     return false;
@@ -27348,7 +27363,8 @@ void Player::OnCombatExit()
     UpdatePotionCooldown();
     m_combatExitTime = getMSTime();
     if (!IsInAreaThatActivatesPvpTalents())
-        TogglePvpTalents(false);
+        if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
+            aura->SetDuration(20000);
 }
 
 void Player::CreateGarrison(uint32 garrSiteId)

@@ -7822,7 +7822,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
     {
         m_CombatTimer = 5000;
         if (Player* me = ToPlayer())
-            me->TogglePvpTalents(true);
+            me->EnablePvpRules();
     }
 
     if (IsInCombat() || HasUnitState(UNIT_STATE_EVADE))
