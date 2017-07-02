@@ -2902,6 +2902,11 @@ void ObjectMgr::LoadItemTemplates()
             }
         }
 
+        // Items that have no specializations set can be used by everyone
+        for (auto& specs : itemTemplate.Specializations)
+            if (specs.count() == 0)
+                specs.set();
+
         ++sparseCount;
     }
 

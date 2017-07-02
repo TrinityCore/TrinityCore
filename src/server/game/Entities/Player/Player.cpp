@@ -15103,7 +15103,7 @@ bool Player::CanSelectQuestPackageItem(QuestPackageItemEntry const* questPackage
     switch (questPackageItem->FilterType)
     {
         case QUEST_PACKAGE_FILTER_LOOT_SPECIALIZATION:
-            return rewardProto->IsUsableByLootSpecialization(this);
+            return rewardProto->IsUsableByLootSpecialization(this, true);
         case QUEST_PACKAGE_FILTER_CLASS:
             return !rewardProto->ItemSpecClassMask || (rewardProto->ItemSpecClassMask & getClassMask()) != 0;
         case QUEST_PACKAGE_FILTER_EVERYONE:
