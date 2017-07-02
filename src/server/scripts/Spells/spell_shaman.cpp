@@ -1608,7 +1608,7 @@ public:
                     // Threat reduction is around 10% confirmed in retail and from wiki
                     Unit* attacker = eventInfo.GetActor();
                     if (attacker->IsAlive())
-                        attacker->getThreatManager().modifyThreatPercent(target, -10);
+                        attacker->GetThreatManager().ModifyThreatByPercent(target, -10);
                 }
             }
         }

@@ -119,8 +119,7 @@ public:
                     //Attack random Gamers
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
-                        me->AddThreat(target, 1.0f);
-                        me->TauntApply(target);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
                     WhirlWindRandom_Timer = urand(3000, 7000);
@@ -147,8 +146,7 @@ public:
                     //Attack random Gamers
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
-                        me->AddThreat(target, 1.0f);
-                        me->TauntApply(target);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
                     AggroReset = true;
@@ -262,8 +260,7 @@ public:
                     //Attack random Gamers
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
-                        me->AddThreat(target, 1.0f);
-                        me->TauntApply(target);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
 
@@ -283,8 +280,7 @@ public:
                     //Attack random Gamers
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
-                        me->AddThreat(target, 1.0f);
-                        me->TauntApply(target);
+                        AddThreat(target, 1.0f);
                         AttackStart(target);
                     }
 
