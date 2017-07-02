@@ -4614,6 +4614,46 @@ class spell_gen_impatient_mind : public SpellScriptLoader
         }
 };
 
+class spell_gen_pvp_rules_enabled : public SpellScriptLoader
+{
+    public:
+        spell_gen_pvp_rules_enabled() : SpellScriptLoader("spell_gen_pvp_rules_enabled") { }
+
+        class spell_gen_pvp_rules_enabled_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_pvp_rules_enabled_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                return ValidateSpellInfo({ SPELL_PVP_RULES_ENABLED }); // SPELL_PVP_RULES_ENABLED - defined in Player.h
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetAura()->SetDuration(-1);
+                if (Player* player = GetTarget()->ToPlayer())
+                    player->TogglePvpTalents(true);
+            }
+
+            void OnRemove(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* player = GetTarget()->ToPlayer())
+                    player->TogglePvpTalents(false);
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_gen_pvp_rules_enabled_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_pvp_rules_enabled_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_HEALING_PCT, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_gen_pvp_rules_enabled_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -4719,4 +4759,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_azgalor_rain_of_fire_hellfire_citadel();
     new spell_gen_face_rage();
     new spell_gen_impatient_mind();
+    new spell_gen_pvp_rules_enabled();
 }
