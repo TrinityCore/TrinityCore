@@ -1827,7 +1827,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
             {
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
-                    for (ThreatReference* ref : caster->GetThreatManager().GetUnsortedThreatList())
+                    for (ThreatReference const* ref : caster->GetThreatManager().GetUnsortedThreatList())
                     {
                         if (Player* targetPlayer = ref->GetVictim()->ToPlayer())
                         {
