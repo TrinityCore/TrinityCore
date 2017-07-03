@@ -173,7 +173,7 @@ class TC_GAME_API UnitAI
             std::list<Unit*> targetList;
             if (targetType == SELECT_TARGET_MAXDISTANCE || targetType == SELECT_TARGET_MINDISTANCE)
             {
-                for (ThreatReference* ref : mgr.GetUnsortedThreatList())
+                for (ThreatReference const* ref : mgr.GetUnsortedThreatList())
                 {
                     if (ref->IsOffline())
                         continue;
@@ -187,7 +187,7 @@ class TC_GAME_API UnitAI
                 if (currentVictim)
                     targetList.push_back(currentVictim);
 
-                for (ThreatReference* ref : mgr.GetSortedThreatList())
+                for (ThreatReference const* ref : mgr.GetSortedThreatList())
                 {
                     if (ref->IsOffline())
                         continue;
@@ -262,7 +262,7 @@ class TC_GAME_API UnitAI
 
             if (targetType == SELECT_TARGET_MAXDISTANCE || targetType == SELECT_TARGET_MINDISTANCE)
             {
-                for (ThreatReference* ref : mgr.GetUnsortedThreatList())
+                for (ThreatReference const* ref : mgr.GetUnsortedThreatList())
                 {
                     if (ref->IsOffline())
                         continue;
@@ -276,7 +276,7 @@ class TC_GAME_API UnitAI
                 if (currentVictim)
                     targetList.push_back(currentVictim);
 
-                for (ThreatReference* ref : mgr.GetSortedThreatList())
+                for (ThreatReference const* ref : mgr.GetSortedThreatList())
                 {
                     if (ref->IsOffline())
                         continue;

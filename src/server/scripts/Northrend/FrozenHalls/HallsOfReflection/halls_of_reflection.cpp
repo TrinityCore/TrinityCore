@@ -960,12 +960,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
 
             void DeleteAllFromThreatList(Unit* target, ObjectGuid except)
             {
-                std::vector<ThreatReference*> toClear;
-                for (ThreatReference* ref : target->GetThreatManager().GetUnsortedThreatList())
+                for (ThreatReference* ref : target->GetThreatManager().GetModifiableThreatList())
                   if (ref->GetVictim()->GetGUID() != except)
-                    toClear.push_back(ref);
-                for (ThreatReference* ref : toClear)
-                  ref->ClearThreat();
+                    ref->ClearThreat();
             }
 
             void UpdateAI(uint32 diff) override
