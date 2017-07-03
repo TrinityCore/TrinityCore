@@ -703,7 +703,10 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.QuestFlags[0] = quest->GetFlags();
     packet.QuestFlags[1] = quest->GetFlagsEx();
     packet.SuggestPartyMembers = quest->GetSuggestedPlayers();
-    packet.StatusFlags = 0xDF; // Unk, send common value
+
+    // incomplete: FD
+    // incomplete quest with item objective but item objective is complete DD
+    packet.StatusFlags = canComplete ? 0xFF ? 0xFD;
 
     packet.MoneyToGet = 0;
     for (QuestObjective const& obj : quest->GetObjectives())
