@@ -527,7 +527,7 @@ public:
                     ThreatManager const& mgr = me->GetThreatManager();
                     std::list<Unit*> TargetList;
                     Unit* currentVictim = mgr.GetCurrentVictim();
-                    for (ThreatReference* ref : mgr.GetSortedThreatList())
+                    for (ThreatReference const* ref : mgr.GetSortedThreatList())
                     {
                         if (Player* tempTarget = ref->GetVictim()->ToPlayer())
                             if (tempTarget != currentVictim && TargetList.size()<5)
