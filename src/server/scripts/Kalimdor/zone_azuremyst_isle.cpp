@@ -123,7 +123,7 @@ public:
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     player->KilledMonsterCredit(me->GetEntry());
 
-                me->SetFacingToObject(Caster);			
+                me->SetFacingToObject(Caster);
                 DoCast(me, SPELL_STUNNED, true);
                 _events.ScheduleEvent(EVENT_THANK_PLAYER, Seconds(4));
             }
