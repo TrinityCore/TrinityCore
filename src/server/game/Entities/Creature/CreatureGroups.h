@@ -26,10 +26,11 @@
 
 enum GroupAIFlags
 {
-    FLAG_AGGRO_NONE        = 0,          // If any creature from group is attacked, members won't assist and won't follow
-    FLAG_AGGRO_ON_AGGRO    = 0x00000001, // The member aggroes if the leader aggroes
-    FLAG_TO_AGGRO_ON_AGGRO = 0x00000002, // The leader aggroes if the member aggroes
-    FLAG_FOLLOW            = 0x00000004, // The member will follow the leader
+    FLAG_AGGRO_NONE            = 0,                                                         // No creature group behavior
+    FLAG_MEMBERS_ASSIST_LEADER = 0x00000001,                                                // The member aggroes if the leader aggroes
+    FLAG_LEADER_ASSISTS_MEMBER = 0x00000002,                                                // The leader aggroes if the member aggroes
+    FLAG_MEMBERS_ASSIST_MEMBER = (FLAG_MEMBERS_ASSIST_LEADER | FLAG_LEADER_ASSISTS_MEMBER), // every member will assist if any member is attacked
+    FLAG_IDLE_IN_FORMATION     = 0x00000004,                                                // The member will follow the leader when pathing idly
 };
 
 class Creature;
