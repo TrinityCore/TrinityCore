@@ -318,7 +318,7 @@ public:
             Unit* tank = me->GetThreatManager().GetCurrentVictim();
             std::vector<Unit*> targets;
 
-            for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+            for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
             {
                 Unit* target = ref->GetVictim();
                 if (target != tank && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)

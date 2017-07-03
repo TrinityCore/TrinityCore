@@ -221,6 +221,7 @@ class TC_GAME_API ThreatManager
         // -- compatibility layer for combat rewrite (PR #19930)
         Trinity::IteratorPair<std::list<ThreatReference*>::const_iterator> GetSortedThreatList() const { auto& list = iThreatContainer.getThreatList(); return { list.cbegin(), list.cend() }; }
         Trinity::IteratorPair<std::list<ThreatReference*>::const_iterator> GetUnsortedThreatList() const { return GetSortedThreatList(); }
+        std::list<ThreatReference*> GetModifiableThreatList() const { return iThreatContainer.getThreatList(); }
         Unit* SelectVictim() { return getHostilTarget(); }
         Unit* GetCurrentVictim() const { if (ThreatReference* ref = getCurrentVictim()) return ref->GetVictim(); else return nullptr; }
         bool IsThreatListEmpty(bool includeOffline = false) const { return includeOffline ? areThreatListsEmpty() : isThreatListEmpty(); }

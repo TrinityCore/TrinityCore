@@ -505,7 +505,7 @@ class boss_professor_putricide : public CreatureScript
                             {
                                 std::list<Unit*> targetList;
                                 {
-                                    for (ThreatReference* ref : me->GetThreatManager().GetUnsortedThreatList())
+                                    for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
                                         if (Player* target = ref->GetVictim()->ToPlayer())
                                             targetList.push_back(target);
                                 }
