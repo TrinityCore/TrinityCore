@@ -84,7 +84,7 @@ public:
             Initialize();
             _events.Reset();
 
-            DoCast(me, SPELL_IRRIDATION, true);
+            DoCastSelf(SPELL_IRRIDATION, true);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -107,9 +107,9 @@ public:
             }
         }
 
-        void SpellHit(Unit* Caster, const SpellInfo* Spell) override
+        void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
-            if (Spell->SpellFamilyFlags[2] & 0x080000000 && !_tappedBySpell)
+            if (spell->SpellFamilyFlags[2] & 0x080000000 && !_tappedBySpell)
             {
                 _events.Reset();
                 _tappedBySpell = true;
@@ -119,12 +119,12 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
-                _playerGUID = Caster->GetGUID();
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                _playerGUID = caster->GetGUID();
+                if (Player* player = caster->ToPlayer())
                     player->KilledMonsterCredit(me->GetEntry());
 
-                me->SetFacingToObject(Caster);
-                DoCast(me, SPELL_STUNNED, true);
+                me->SetFacingToObject(caster);
+                DoCastSelf(SPELL_STUNNED, true);
                 _events.ScheduleEvent(EVENT_THANK_PLAYER, Seconds(4));
             }
         }
@@ -140,26 +140,27 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_CAN_ASK_FOR_HELP:
-                    _canAskForHelp = true;
-                    _canUpdateEvents = false;
-                    break;
-                case EVENT_THANK_PLAYER:
-                    me->RemoveAurasDueToSpell(SPELL_IRRIDATION);
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                        Talk(SAY_THANK_FOR_HEAL, player);
-                    _events.ScheduleEvent(EVENT_RUN_AWAY, Seconds(10));
-                    break;
-                case EVENT_RUN_AWAY:
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (std::cos(me->GetAngle(CrashSite)) * 28.0f), me->GetPositionY() + (std::sin(me->GetAngle(CrashSite)) * 28.0f), me->GetPositionZ() + 1.0f);
-                    me->DespawnOrUnsummon(Seconds(4));
-                    break;
-                default:
-                    break;
+                    case EVENT_CAN_ASK_FOR_HELP:
+                        _canAskForHelp = true;
+                        _canUpdateEvents = false;
+                        break;
+                    case EVENT_THANK_PLAYER:
+                        me->RemoveAurasDueToSpell(SPELL_IRRIDATION);
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                            Talk(SAY_THANK_FOR_HEAL, player);
+                        _events.ScheduleEvent(EVENT_RUN_AWAY, Seconds(10));
+                        break;
+                    case EVENT_RUN_AWAY:
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (std::cos(me->GetAngle(CrashSite)) * 28.0f), me->GetPositionY() + (std::sin(me->GetAngle(CrashSite)) * 28.0f), me->GetPositionZ() + 1.0f);
+                        me->DespawnOrUnsummon(Seconds(4));
+                        break;
+                    default:
+                        break;
                 }
             }
         }
+
     private:
         EventMap _events;
         bool _canUpdateEvents;
