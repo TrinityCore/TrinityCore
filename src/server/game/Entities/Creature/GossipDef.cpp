@@ -706,7 +706,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
 
     // incomplete: FD
     // incomplete quest with item objective but item objective is complete DD
-    packet.StatusFlags = canComplete ? 0xFF ? 0xFD;
+    packet.StatusFlags = canComplete ? 0xFF : 0xFD;
 
     packet.MoneyToGet = 0;
     for (QuestObjective const& obj : quest->GetObjectives())
