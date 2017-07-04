@@ -17,23 +17,26 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "World.h"
-#include "PassiveAI.h"
-#include "GameEventMgr.h"
-#include "GameObjectAI.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "SpellAuras.h"
-#include "Pet.h"
 #include "CreatureTextMgr.h"
+#include "GameEventMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "GridNotifiersImpl.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "PassiveAI.h"
+#include "Player.h"
+#include "QuestDef.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "SpellAuras.h"
 #include "SpellHistory.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 /*########
 # npc_air_force_bots
@@ -561,7 +564,7 @@ public:
             std::list<Player*> players;
             Trinity::UnitAuraCheck check(true, SPELL_RIBBON_DANCE_COSMETIC);
             Trinity::PlayerListSearcher<Trinity::UnitAuraCheck> searcher(me, players, check);
-            me->VisitNearbyWorldObject(10.0f, searcher);
+            Cell::VisitWorldObjects(me, searcher, 10.0f);
 
             return players.empty();
         }
@@ -2034,10 +2037,10 @@ public:
                     break;
             }
 
-            const SpellInfo* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-
-            if (spellInfo && spellInfo->GetEffect(EFFECT_0)->Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
-                return spellInfo->GetEffect(EFFECT_0)->MiscValue;
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
+                if (SpellEffectInfo const* effect0 = spellInfo->GetEffect(EFFECT_0))
+                    if (effect0->Effect == SPELL_EFFECT_SUMMON_OBJECT_WILD)
+                        return effect0->MiscValue;
 
             return 0;
         }
@@ -2079,7 +2082,7 @@ public:
 
                 float displacement = 0.7f;
                 for (uint8 i = 0; i < 4; i++)
-                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), G3D::Quat(), 1);
+                    me->SummonGameObject(GetFireworkGameObjectId(), me->GetPositionX() + (i % 2 == 0 ? displacement : -displacement), me->GetPositionY() + (i > 1 ? displacement : -displacement), me->GetPositionZ() + 4.0f, me->GetOrientation(), QuaternionData(), 1);
             }
             else
                 //me->CastSpell(me, GetFireworkSpell(me->GetEntry()), true);

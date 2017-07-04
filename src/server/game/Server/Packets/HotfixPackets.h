@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "DB2Stores.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 
 namespace WorldPackets
 {
@@ -61,13 +62,13 @@ namespace WorldPackets
         class HotfixList final : public ServerPacket
         {
         public:
-            HotfixList(int32 hotfixCacheVersion, std::map<int32, HotfixData> const& hotfixes)
+            HotfixList(int32 hotfixCacheVersion, std::map<uint64, int32> const& hotfixes)
                 : ServerPacket(SMSG_HOTFIX_LIST), HotfixCacheVersion(hotfixCacheVersion), Hotfixes(hotfixes) { }
 
             WorldPacket const* Write() override;
 
             int32 HotfixCacheVersion;
-            std::map<int32, HotfixData> const& Hotfixes;
+            std::map<uint64, int32> const& Hotfixes;
         };
 
         class HotfixQuery final : public ClientPacket
@@ -77,23 +78,17 @@ namespace WorldPackets
 
             void Read() override;
 
-            std::vector<int32> Hotfixes;
+            std::vector<uint64> Hotfixes;
         };
 
         class HotfixQueryResponse final : public ServerPacket
         {
         public:
-            struct HotfixRecord
-            {
-                uint32 TableHash = 0;
-                int32 RecordID = 0;
-                Optional<ByteBuffer> HotfixData;
-            };
-
             struct HotfixData
             {
-                int32 ID = 0;
-                std::vector<HotfixRecord> Records;
+                uint64 ID = 0;
+                int32 RecordID = 0;
+                Optional<ByteBuffer> Data;
             };
 
             HotfixQueryResponse() : ServerPacket(SMSG_HOTFIX_QUERY_RESPONSE) { }

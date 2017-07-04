@@ -18,13 +18,21 @@
 #ifndef _GUILDMGR_H
 #define _GUILDMGR_H
 
-#include "Guild.h"
+#include "Define.h"
+#include "ObjectGuid.h"
+#include <unordered_map>
+#include <vector>
+
+class Guild;
+struct GuildReward;
 
 class TC_GAME_API GuildMgr
 {
 private:
     GuildMgr();
     ~GuildMgr();
+    GuildMgr(GuildMgr const&) = delete;
+    GuildMgr& operator=(GuildMgr const&) = delete;
 
 public:
     static GuildMgr* instance();

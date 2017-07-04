@@ -27,6 +27,10 @@ message ClientInformation {
   required fixed32 versionDataBuild = 8;
   required ClientVersion version = 9;
   required bytes secret = 10;
+  required fixed32 clientArch = 11;
+  required string systemVersion = 12;
+  required fixed32 platformType = 13;
+  required fixed32 systemArch = 14;
 }
 
 message RealmListTicketClientInformation {

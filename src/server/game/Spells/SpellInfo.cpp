@@ -16,17 +16,24 @@
  */
 
 #include "SpellInfo.h"
-#include "SpellAuraDefines.h"
+#include "Battleground.h"
+#include "ConditionMgr.h"
+#include "Corpse.h"
+#include "DB2Stores.h"
+#include "GameTables.h"
+#include "InstanceScript.h"
+#include "ItemTemplate.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Pet.h"
+#include "Player.h"
+#include "Random.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
-#include "Spell.h"
-#include "ConditionMgr.h"
-#include "GameTables.h"
-#include "Player.h"
-#include "Battleground.h"
 #include "Vehicle.h"
-#include "Pet.h"
-#include "InstanceScript.h"
+#include <G3D/g3dmath.h>
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -917,7 +924,7 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 195 SPELL_EFFECT_195
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 196 SPELL_EFFECT_196
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 197 SPELL_EFFECT_197
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 198 SPELL_EFFECT_PLAY_SCENE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_DEST}, // 198 SPELL_EFFECT_PLAY_SCENE
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 199 SPELL_EFFECT_199
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 201 SPELL_EFFECT_ENABLE_BATTLE_PETS
@@ -938,7 +945,7 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 216 SPELL_EFFECT_CREATE_SHIPMENT
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 217 SPELL_EFFECT_UPGRADE_GARRISON
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 218 SPELL_EFFECT_218
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 219 SPELL_EFFECT_219
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 219 SPELL_EFFECT_CREATE_CONVERSATION
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 221 SPELL_EFFECT_221
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
@@ -972,7 +979,7 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 250 SPELL_EFFECT_TAKE_SCREENSHOT
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 251 SPELL_EFFECT_SET_GARRISON_CACHE_SIZE
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 252 SPELL_EFFECT_252
-    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 253 SPELL_EFFECT_253
+    {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 253 SPELL_EFFECT_GIVE_HONOR
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 254 SPELL_EFFECT_254
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 255 SPELL_EFFECT_255
 };
@@ -2569,9 +2576,9 @@ uint32 SpellInfo::GetRecoveryTime() const
     return RecoveryTime > CategoryRecoveryTime ? RecoveryTime : CategoryRecoveryTime;
 }
 
-std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const
+std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const
 {
-    std::vector<CostData> costs;
+    std::vector<SpellPowerCost> costs;
     auto collector = [this, caster, schoolMask, &costs](std::vector<SpellPowerEntry const*> const& powers)
     {
         costs.reserve(powers.size());
@@ -2595,7 +2602,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
                 // Else drain all power
                 if (power->PowerType < MAX_POWERS)
                 {
-                    CostData cost;
+                    SpellPowerCost cost;
                     cost.Power = Powers(power->PowerType);
                     cost.Amount = caster->GetPower(cost.Power);
                     costs.push_back(cost);
@@ -2712,7 +2719,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
             }
 
             bool found = false;
-            for (CostData& cost : costs)
+            for (SpellPowerCost& cost : costs)
             {
                 if (cost.Power == Powers(power->PowerType))
                 {
@@ -2723,7 +2730,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
 
             if (!found)
             {
-                CostData cost;
+                SpellPowerCost cost;
                 cost.Power = Powers(power->PowerType);
                 cost.Amount = powerCost;
                 costs.push_back(cost);
@@ -2732,7 +2739,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
 
         if (healthCost > 0)
         {
-            CostData cost;
+            SpellPowerCost cost;
             cost.Power = POWER_HEALTH;
             cost.Amount = healthCost;
             costs.push_back(cost);
@@ -2745,7 +2752,7 @@ std::vector<SpellInfo::CostData> SpellInfo::CalcPowerCost(Unit const* caster, Sp
         collector(sDB2Manager.GetSpellPowers(Id, caster->GetMap()->GetDifficultyID()));
 
     // POWER_RUNES is handled by SpellRuneCost.db2, and cost.Amount is always 0 (see Spell::TakeRunePower)
-    costs.erase(std::remove_if(costs.begin(), costs.end(), [](CostData const& cost) { return cost.Power != POWER_RUNES && cost.Amount <= 0; }), costs.end());
+    costs.erase(std::remove_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power != POWER_RUNES && cost.Amount <= 0; }), costs.end());
     return costs;
 }
 
@@ -3357,18 +3364,18 @@ bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
 void SpellInfo::_UnloadImplicitTargetConditionLists()
 {
     // find the same instances of ConditionList and delete them.
-    for (uint32 d = 0; d < MAX_DIFFICULTY; ++d)
+    for (auto itr = _effects.begin(); itr != _effects.end(); ++itr)
     {
-        for (uint32 i = 0; i < _effects.size(); ++i)
+        for (uint32 i = 0; i < itr->second.size(); ++i)
         {
-            if (SpellEffectInfo const* effect = GetEffect(d, i))
+            if (SpellEffectInfo const* effect = itr->second[i])
             {
                 ConditionContainer* cur = effect->ImplicitTargetConditions;
                 if (!cur)
                     continue;
-                for (uint8 j = i; j < _effects.size(); ++j)
+                for (uint8 j = i; j < itr->second.size(); ++j)
                 {
-                    if (SpellEffectInfo const* eff = GetEffect(d, j))
+                    if (SpellEffectInfo const* eff = itr->second[j])
                     {
                         if (eff->ImplicitTargetConditions == cur)
                             const_cast<SpellEffectInfo*>(eff)->ImplicitTargetConditions = NULL;

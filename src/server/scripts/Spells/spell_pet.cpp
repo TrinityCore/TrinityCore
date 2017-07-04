@@ -22,11 +22,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Unit.h"
-#include "Player.h"
+#include "ObjectMgr.h"
 #include "Pet.h"
+#include "Player.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum HunterPetCalculate
 {

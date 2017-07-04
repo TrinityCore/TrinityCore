@@ -17,8 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "sethekk_halls.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -173,9 +173,7 @@ class spell_talon_king_ikiss_blink : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLINK_TELEPORT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLINK_TELEPORT });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

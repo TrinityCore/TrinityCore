@@ -24,13 +24,15 @@ SDCategory: Hellfire Ramparts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "GameObject.h"
 #include "hellfire_ramparts.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 class instance_ramparts : public InstanceMapScript
 {
     public:
-        instance_ramparts() : InstanceMapScript("instance_ramparts", 543) { }
+        instance_ramparts() : InstanceMapScript(HRScriptName, 543) { }
 
         struct instance_ramparts_InstanceMapScript : public InstanceScript
         {

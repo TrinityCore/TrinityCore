@@ -24,11 +24,17 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "karazhan.h"
 #include "GameObject.h"
-#include "SpellInfo.h"
+#include "InstanceScript.h"
+#include "Item.h"
+#include "karazhan.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 enum ShadeOfAran
 {
@@ -103,7 +109,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_aranAI>(creature);
+        return GetKarazhanAI<boss_aranAI>(creature);
     }
 
     struct boss_aranAI : public ScriptedAI
@@ -566,7 +572,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new water_elementalAI(creature);
+        return GetKarazhanAI<water_elementalAI>(creature);
     }
 
     struct water_elementalAI : public ScriptedAI

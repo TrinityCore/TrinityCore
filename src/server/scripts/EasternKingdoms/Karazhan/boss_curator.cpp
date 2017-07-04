@@ -24,6 +24,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "karazhan.h"
 #include "ScriptedCreature.h"
 
 enum Curator
@@ -45,9 +46,6 @@ enum Curator
     SPELL_BERSERK                   = 26662,
 };
 
-
-
-
 class boss_curator : public CreatureScript
 {
 public:
@@ -55,7 +53,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_curatorAI(creature);
+        return GetKarazhanAI<boss_curatorAI>(creature);
     }
 
     struct boss_curatorAI : public ScriptedAI

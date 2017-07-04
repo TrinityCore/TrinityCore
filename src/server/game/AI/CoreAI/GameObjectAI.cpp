@@ -17,6 +17,8 @@
  */
 
 #include "GameObjectAI.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 
 //GameObjectAI::GameObjectAI(GameObject* g) : go(g) { }
 int GameObjectAI::Permissible(const GameObject* go)
@@ -27,3 +29,8 @@ int GameObjectAI::Permissible(const GameObject* go)
 }
 
 NullGameObjectAI::NullGameObjectAI(GameObject* g) : GameObjectAI(g) { }
+
+int NullGameObjectAI::Permissible(GameObject const* /*go*/)
+{
+    return PERMIT_BASE_IDLE;
+}

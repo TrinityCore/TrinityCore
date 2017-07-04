@@ -17,40 +17,48 @@
 
 #include "Realm.h"
 #include "StringFormat.h"
+#include <boost/asio/ip/address.hpp>
+#include <algorithm>
+#include <cctype>
 
-ip::tcp::endpoint Realm::GetAddressForClient(ip::address const& clientAddr) const
+void Realm::SetName(std::string name)
 {
-    ip::address realmIp;
+    Name = name;
+    NormalizedName = std::move(name);
+    NormalizedName.erase(std::remove_if(NormalizedName.begin(), NormalizedName.end(), ::isspace), NormalizedName.end());
+}
+
+boost::asio::ip::address Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
+{
+    boost::asio::ip::address realmIp;
 
     // Attempt to send best address for client
     if (clientAddr.is_loopback())
     {
         // Try guessing if realm is also connected locally
-        if (LocalAddress.is_loopback() || ExternalAddress.is_loopback())
+        if (LocalAddress->is_loopback() || ExternalAddress->is_loopback())
             realmIp = clientAddr;
         else
         {
             // Assume that user connecting from the machine that bnetserver is located on
             // has all realms available in his local network
-            realmIp = LocalAddress;
+            realmIp = *LocalAddress;
         }
     }
     else
     {
         if (clientAddr.is_v4() &&
-            (clientAddr.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()) ==
-            (LocalAddress.to_v4().to_ulong() & LocalSubnetMask.to_v4().to_ulong()))
+            (clientAddr.to_v4().to_ulong() & LocalSubnetMask->to_v4().to_ulong()) ==
+            (LocalAddress->to_v4().to_ulong() & LocalSubnetMask->to_v4().to_ulong()))
         {
-            realmIp = LocalAddress;
+            realmIp = *LocalAddress;
         }
         else
-            realmIp = ExternalAddress;
+            realmIp = *ExternalAddress;
     }
 
-    ip::tcp::endpoint endpoint(realmIp, Port);
-
     // Return external IP
-    return endpoint;
+    return realmIp;
 }
 
 uint32 Realm::GetConfigId() const

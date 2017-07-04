@@ -23,22 +23,25 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
+#include "Bag.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
-#include "Chat.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
+#include "Chat.h"
+#include "ChatPackets.h"
+#include "Conversation.h"
 #include "GossipDef.h"
-#include "M2Stores.h"
-#include "Transport.h"
+#include "GridNotifiersImpl.h"
 #include "Language.h"
+#include "Log.h"
+#include "M2Stores.h"
 #include "MapManager.h"
 #include "MovementPackets.h"
+#include "ObjectMgr.h"
+#include "RBAC.h"
 #include "SpellPackets.h"
-
+#include "Transport.h"
+#include "WorldSession.h"
 #include <fstream>
 #include <limits>
 
@@ -102,6 +105,7 @@ public:
             { "boundary",      rbac::RBAC_PERM_COMMAND_DEBUG_BOUNDARY,      false, &HandleDebugBoundaryCommand,         "" },
             { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" },
             { "neargraveyard", rbac::RBAC_PERM_COMMAND_NEARGRAVEYARD,       false, &HandleDebugNearGraveyard,           "" },
+            { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -139,7 +143,7 @@ public:
             uint32 count = 1;
             for (FlyByCamera const& cam : *flyByCameras)
             {
-                handler->PSendSysMessage("%02u - %7ums [%f, %f, %f] Facing %f (%f degrees)", count, cam.timeStamp, cam.locations.x, cam.locations.y, cam.locations.z, cam.locations.w, cam.locations.w * (180 / M_PI));
+                handler->PSendSysMessage("%02u - %7ums [%s (%f degrees)]", count, cam.timeStamp, cam.locations.ToString().c_str(), cam.locations.GetOrientation() * (180 / M_PI));
                 count++;
             }
             handler->PSendSysMessage(SZFMTD " waypoints dumped", flyByCameras->size());
@@ -376,26 +380,6 @@ public:
                 std::string val6;
                 parsedStream >> val6;
                 data << val6;
-            }
-            else if (type == "appitsguid")
-            {
-                data << unit->GetPackGUID();
-            }
-            else if (type == "appmyguid")
-            {
-                data << player->GetPackGUID();
-            }
-            else if (type == "appgoguid")
-            {
-                GameObject* obj = handler->GetNearbyGameObject();
-                if (!obj)
-                {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, UI64LIT(0));
-                    handler->SetSentErrorMessage(true);
-                    ifs.close();
-                    return false;
-                }
-                data << obj->GetPackGUID();
             }
             else if (type == "goguid")
             {
@@ -900,7 +884,7 @@ public:
             Creature* passenger = NULL;
             Trinity::AllCreaturesOfEntryInRange check(handler->GetSession()->GetPlayer(), entry, 20.0f);
             Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(handler->GetSession()->GetPlayer(), passenger, check);
-            handler->GetSession()->GetPlayer()->VisitNearbyObject(30.0f, searcher);
+            Cell::VisitAllObjects(handler->GetSession()->GetPlayer(), searcher, 30.0f);
             if (!passenger || passenger == target)
                 return false;
             passenger->EnterVehicle(target, seatId);
@@ -1566,6 +1550,29 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_NEARGRAVEYARD_NOTFOUND);
 
         return true;
+    }
+
+    static bool HandleDebugConversationCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char const* conversationEntryStr = strtok((char*)args, " ");
+
+        if (!conversationEntryStr)
+            return false;
+
+        uint32 conversationEntry = atoi(conversationEntryStr);
+        Player* target = handler->getSelectedPlayerOrSelf();
+
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        return Conversation::CreateConversation(conversationEntry, target, *target, { target->GetGUID() }) != nullptr;
     }
 };
 

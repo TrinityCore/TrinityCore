@@ -15,17 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
-#include "Map.h"
-#include "PoolMgr.h"
-#include "AccountMgr.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "halls_of_origination.h"
-#include "Player.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {

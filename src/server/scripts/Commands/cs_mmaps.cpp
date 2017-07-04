@@ -24,18 +24,18 @@
 */
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
 #include "Chat.h"
 #include "DisableMgr.h"
-#include "ObjectMgr.h"
+#include "GridNotifiersImpl.h"
+#include "Map.h"
+#include "MMapFactory.h"
+#include "PathGenerator.h"
 #include "Player.h"
 #include "PointMovementGenerator.h"
-#include "PathGenerator.h"
-#include "MMapFactory.h"
-#include "Map.h"
+#include "RBAC.h"
 #include "TargetedMovementGenerator.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
+#include "WorldSession.h"
 
 class mmaps_commandscript : public CommandScript
 {
@@ -261,18 +261,11 @@ public:
         float radius = 40.0f;
         WorldObject* object = handler->GetSession()->GetPlayer();
 
-        CellCoord pair(Trinity::ComputeCellCoord(object->GetPositionX(), object->GetPositionY()));
-        Cell cell(pair);
-        cell.SetNoCreate();
-
+        // Get Creatures
         std::list<Creature*> creatureList;
-
         Trinity::AnyUnitInObjectRangeCheck go_check(object, radius);
         Trinity::CreatureListSearcher<Trinity::AnyUnitInObjectRangeCheck> go_search(object, creatureList, go_check);
-        TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AnyUnitInObjectRangeCheck>, GridTypeMapContainer> go_visit(go_search);
-
-        // Get Creatures
-        cell.Visit(pair, go_visit, *(object->GetMap()), *object, radius);
+        Cell::VisitGridObjects(object, go_search, radius);
 
         if (!creatureList.empty())
         {

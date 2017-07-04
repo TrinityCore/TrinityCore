@@ -21,9 +21,12 @@
 #include "GuildMgr.h"
 #include "Guild.h"
 #include "Language.h"
+#include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "World.h"
+#include "WorldStatePackets.h"
 #include "WorldSession.h"
 
 Arena::Arena()

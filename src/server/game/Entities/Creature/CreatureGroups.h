@@ -20,11 +20,21 @@
 #define _FORMATIONS_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include <unordered_map>
 #include <map>
 
+enum GroupAIFlags
+{
+    FLAG_AGGRO_NONE        = 0,          // If any creature from group is attacked, members won't assist and won't follow
+    FLAG_AGGRO_ON_AGGRO    = 0x00000001, // The member aggroes if the leader aggroes
+    FLAG_TO_AGGRO_ON_AGGRO = 0x00000002, // The leader aggroes if the member aggroes
+    FLAG_FOLLOW            = 0x00000004, // The member will follow the leader
+};
+
 class Creature;
 class CreatureGroup;
+class Unit;
 
 struct FormationInfo
 {

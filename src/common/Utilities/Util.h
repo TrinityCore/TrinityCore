@@ -21,25 +21,9 @@
 
 #include "Define.h"
 #include "Errors.h"
-#include "Random.h"
-
-#include <algorithm>
 #include <string>
 #include <sstream>
 #include <vector>
-#include <list>
-#include <map>
-#include <ctime>
-
-// Searcher for map of structs
-template<typename T, class S> struct Finder
-{
-    T val_;
-    T S::* idMember_;
-
-    Finder(T val, T S::* idMember) : val_(val), idMember_(idMember) {}
-    bool operator()(const std::pair<int, S> &obj) { return obj.second.*idMember_ == val_; }
-};
 
 class TC_COMMON_API Tokenizer
 {
@@ -297,15 +281,8 @@ inline wchar_t wcharToLower(wchar_t wchar)
     return wchar;
 }
 
-inline void wstrToUpper(std::wstring& str)
-{
-    std::transform( str.begin(), str.end(), str.begin(), wcharToUpper );
-}
-
-inline void wstrToLower(std::wstring& str)
-{
-    std::transform( str.begin(), str.end(), str.begin(), wcharToLower );
-}
+TC_COMMON_API void wstrToUpper(std::wstring& str);
+TC_COMMON_API void wstrToLower(std::wstring& str);
 
 TC_COMMON_API std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);
 

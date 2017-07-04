@@ -17,9 +17,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "Player.h"
+#include "Map.h"
 #include "nexus.h"
+#include "Player.h"
 
 enum Factions
 {

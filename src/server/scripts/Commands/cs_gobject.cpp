@@ -23,14 +23,21 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "GameEventMgr.h"
-#include "ObjectMgr.h"
-#include "PoolMgr.h"
-#include "MapManager.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GameEventMgr.h"
+#include "GameObject.h"
 #include "Language.h"
-#include "Player.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "Player.h"
+#include "PoolMgr.h"
+#include "RBAC.h"
+#include "WorldSession.h"
 
 class gobject_commandscript : public CommandScript
 {
@@ -137,8 +144,7 @@ public:
 
         GameObject* object = new GameObject();
 
-        G3D::Quat rot = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
-        if (!object->Create(objectInfo->entry, map, 0, *player, rot, 255, GO_STATE_READY))
+        if (!object->Create(objectInfo->entry, map, 0, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
         {
             delete object;
             return false;
@@ -193,7 +199,6 @@ public:
         if (spawntime)
             spawntm = atoul(spawntime);
 
-        G3D::Quat rotation = G3D::Matrix3::fromEulerAnglesZYX(player->GetOrientation(), 0.f, 0.f);
         uint32 objectId = atoul(id);
 
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
@@ -203,7 +208,7 @@ public:
             return false;
         }
 
-        player->SummonGameObject(objectId, *player, rotation, spawntm);
+        player->SummonGameObject(objectId, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), spawntm);
 
         return true;
     }
@@ -232,7 +237,7 @@ public:
                 WorldDatabase.EscapeString(name);
                 result = WorldDatabase.PQuery(
                     "SELECT guid, id, position_x, position_y, position_z, orientation, map, PhaseId, PhaseGroup, (POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ "
-                    "FROM gameobject, gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name " _LIKE_" " _CONCAT3_("'%%'", "'%s'", "'%%'")" ORDER BY order_ ASC LIMIT 1",
+                    "FROM gameobject LEFT JOIN gameobject_template ON gameobject_template.entry = gameobject.id WHERE map = %i AND name LIKE '%%%s%%' ORDER BY order_ ASC LIMIT 1",
                     player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), name.c_str());
             }
         }

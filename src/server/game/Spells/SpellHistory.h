@@ -19,10 +19,11 @@
 #define SpellHistory_h__
 
 #include "SharedDefines.h"
-#include "QueryResult.h"
-#include "Transaction.h"
+#include "DatabaseEnvFwd.h"
 #include <chrono>
 #include <deque>
+#include <vector>
+#include <unordered_map>
 
 class Item;
 class Player;

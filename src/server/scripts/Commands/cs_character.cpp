@@ -24,11 +24,17 @@ EndScriptData */
 
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PlayerDump.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
+#include "World.h"
+#include "WorldSession.h"
 
 class character_commandscript : public CommandScript
 {

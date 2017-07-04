@@ -16,7 +16,6 @@
  */
 
 #include "Random.h"
-#include "Common.h"
 #include "Errors.h"
 #include "SFMT.h"
 #include <boost/thread/tss.hpp>
@@ -53,8 +52,8 @@ uint32 urand(uint32 min, uint32 max)
 uint32 urandms(uint32 min, uint32 max)
 {
     ASSERT(max >= min);
-    ASSERT(INT_MAX / IN_MILLISECONDS >= max);
-    return GetRng()->URandom(min * IN_MILLISECONDS, max * IN_MILLISECONDS);
+    ASSERT(std::numeric_limits<uint32>::max() / Milliseconds::period::den >= max);
+    return GetRng()->URandom(min * Milliseconds::period::den, max * Milliseconds::period::den);
 }
 
 float frand(float min, float max)
@@ -67,8 +66,8 @@ Milliseconds randtime(Milliseconds const& min, Milliseconds const& max)
 {
     long long diff = max.count() - min.count();
     ASSERT(diff >= 0);
-    ASSERT(diff <= (uint32)-1);
-    return min + Milliseconds(urand(0, diff));
+    ASSERT(diff <= 0xFFFFFFFF);
+    return min + Milliseconds(urand(0, uint32(diff)));
 }
 
 uint32 rand32()

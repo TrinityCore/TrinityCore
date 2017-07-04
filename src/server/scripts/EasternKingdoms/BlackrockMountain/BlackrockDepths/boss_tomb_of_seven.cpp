@@ -17,10 +17,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackrock_depths.h"
+#include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "blackrock_depths.h"
-#include "Player.h"
 
 enum Spells
 {
@@ -254,7 +255,7 @@ class boss_doomrel : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_doomrelAI>(creature);
+            return GetBlackrockDepthsAI<boss_doomrelAI>(creature);
         }
 };
 

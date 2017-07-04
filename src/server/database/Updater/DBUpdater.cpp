@@ -16,17 +16,18 @@
  */
 
 #include "DBUpdater.h"
-#include "Log.h"
-#include "GitRevision.h"
-#include "UpdateFetcher.h"
-#include "DatabaseLoader.h"
-#include "Config.h"
 #include "BuiltInConfig.h"
+#include "Config.h"
+#include "DatabaseEnv.h"
+#include "DatabaseLoader.h"
+#include "GitRevision.h"
+#include "Log.h"
+#include "QueryResult.h"
 #include "StartProcess.h"
-
+#include "UpdateFetcher.h"
+#include <boost/filesystem/operations.hpp>
 #include <fstream>
 #include <iostream>
-#include <unordered_map>
 
 std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 {
@@ -41,18 +42,12 @@ bool DBUpdaterUtil::CheckExecutable()
     boost::filesystem::path exe(GetCorrectedMySQLExecutable());
     if (!exists(exe))
     {
-        exe.clear();
-
-        if (auto path = Trinity::SearchExecutableInPath("mysql"))
+        exe = Trinity::SearchExecutableInPath("mysql");
+        if (!exe.empty() && exists(exe))
         {
-            exe = std::move(*path);
-
-            if (!exe.empty() && exists(exe))
-            {
-                // Correct the path to the cli
-                corrected_path() = absolute(exe).generic_string();
-                return true;
-            }
+            // Correct the path to the cli
+            corrected_path() = absolute(exe).generic_string();
+            return true;
         }
 
         TC_LOG_FATAL("sql.updates", "Didn't find any executable MySQL binary at \'%s\' or in path, correct the path in the *.conf (\"MySQLExecutable\").",
@@ -347,7 +342,7 @@ bool DBUpdater<T>::Populate(DatabaseWorkerPool<T>& pool)
 template<class T>
 QueryResult DBUpdater<T>::Retrieve(DatabaseWorkerPool<T>& pool, std::string const& query)
 {
-    return pool.PQuery(query.c_str());
+    return pool.Query(query.c_str());
 }
 
 template<class T>

@@ -31,11 +31,9 @@ npc_kayra_longmane
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Player.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
-#include "Player.h"
-#include "WorldSession.h"
 
 /*######
 ## npcs_ashyen_and_keleth

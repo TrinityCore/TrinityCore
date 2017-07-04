@@ -16,15 +16,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GossipDef.h"
 #include "Map.h"
+#include "CellImpl.h"
+#include "GossipDef.h"
+#include "GridNotifiers.h"
+#include "Item.h"
+#include "Log.h"
 #include "MapManager.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
-#include "Item.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
 #include "WaypointManager.h"
@@ -702,7 +704,7 @@ void Map::ScriptsProcess()
                         break;
                     case SF_CASTSPELL_SEARCH_CREATURE: // source -> creature with entry
                         uSource = source ? source->ToUnit() : NULL;
-                        uTarget = uSource ? GetClosestCreatureWithEntry(uSource, abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : NULL;
+                        uTarget = uSource ? uSource->FindNearestCreature(abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : NULL;
                         break;
                 }
 
@@ -887,7 +889,7 @@ void Map::ScriptsProcess()
                 break;
 
             case SCRIPT_COMMAND_MOVEMENT:
-                // Source must be Creature.                
+                // Source must be Creature.
                 if (Creature* cSource = _GetScriptCreature(source, true, step.script))
                 {
                     if (!cSource->IsAlive())

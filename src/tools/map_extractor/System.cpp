@@ -16,9 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _CRT_SECURE_NO_DEPRECATE
-#define WIN32_LEAN_AND_MEAN
-
 #include "Banner.h"
 #include "CascHandles.h"
 #include "Common.h"
@@ -35,6 +32,7 @@
 #include <deque>
 #include <fstream>
 #include <set>
+#include <unordered_map>
 #include <cstdlib>
 #include <cstring>
 
@@ -325,51 +323,6 @@ void HandleArgs(int argc, char* arg[])
                 break;
         }
     }
-}
-
-uint32 ReadBuild(int locale)
-{
-    // include build info file also
-    std::string filename = Trinity::StringFormat("component.wow-%s.txt", localeNames[locale]);
-    //printf("Read %s file... ", filename.c_str());
-
-    CASC::FileHandle dbcFile = CASC::OpenFile(CascStorage, filename.c_str(), CASC_LOCALE_ALL);
-    if (!dbcFile)
-    {
-        printf("Locale %s not installed.\n", localeNames[locale]);
-        return 0;
-    }
-
-    char buff[512];
-    DWORD readBytes = 0;
-    CASC::ReadFile(dbcFile, buff, 512, &readBytes);
-    if (!readBytes)
-    {
-        printf("Fatal error: Not found %s file!\n", filename.c_str());
-        exit(1);
-    }
-
-    std::string text = std::string(buff, readBytes);
-
-    size_t pos = text.find("version=\"");
-    size_t pos1 = pos + strlen("version=\"");
-    size_t pos2 = text.find("\"", pos1);
-    if (pos == text.npos || pos2 == text.npos || pos1 >= pos2)
-    {
-        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
-        exit(1);
-    }
-
-    std::string build_str = text.substr(pos1,pos2-pos1);
-
-    int build = atoi(build_str.c_str());
-    if (build <= 0)
-    {
-        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
-        exit(1);
-    }
-
-    return build;
 }
 
 void ReadMapDBC()
@@ -1353,11 +1306,40 @@ bool OpenCascStorage(int locale)
 
         return true;
     }
-    catch (boost::filesystem::filesystem_error& error)
+    catch (boost::filesystem::filesystem_error const& error)
     {
-        printf("error opening casc storage : %s\n", error.what());
+        printf("Error opening CASC storage: %s\n", error.what());
         return false;
     }
+}
+
+static bool RetardCheck()
+{
+    try
+    {
+        boost::filesystem::path storageDir(boost::filesystem::canonical(input_path) / "Data");
+        boost::filesystem::directory_iterator end;
+        for (boost::filesystem::directory_iterator itr(storageDir); itr != end; ++itr)
+        {
+            if (itr->path().extension() == ".MPQ")
+            {
+                printf("MPQ files found in Data directory!\n");
+                printf("This tool works only with World of Warcraft: Legion\n");
+                printf("\n");
+                printf("To extract maps for Wrath of the Lich King, rebuild tools using 3.3.5 branch!\n");
+                printf("\n");
+                printf("Press ENTER to exit...\n");
+                getchar();
+                return false;
+            }
+        }
+    }
+    catch (std::exception const& error)
+    {
+        printf("Error checking client version: %s\n", error.what());
+    }
+
+    return true;
 }
 
 int main(int argc, char * arg[])
@@ -1371,6 +1353,9 @@ int main(int argc, char * arg[])
 
     int FirstLocale = -1;
     uint32 build = 0;
+
+    if (!RetardCheck())
+        return 1;
 
     for (int i = 0; i < TOTAL_LOCALES; ++i)
     {
@@ -1386,7 +1371,7 @@ int main(int argc, char * arg[])
         if ((CONF_extract & EXTRACT_DBC) == 0)
         {
             FirstLocale = i;
-            build = ReadBuild(i);
+            build = CASC::GetBuildNumber(CascStorage);
             if (!build)
             {
                 CascStorage.reset();
@@ -1398,7 +1383,7 @@ int main(int argc, char * arg[])
         }
 
         //Extract DBC files
-        uint32 tempBuild = ReadBuild(i);
+        uint32 tempBuild = CASC::GetBuildNumber(CascStorage);
         if (!tempBuild)
         {
             CascStorage.reset();

@@ -16,15 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Opcodes.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "TaxiPackets.h"
@@ -33,10 +32,9 @@
 
 void WorldSession::HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& enableTaxiNode)
 {
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(enableTaxiNode.Unit);
-    SendLearnNewTaxiNode(unit);
+    if (Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(enableTaxiNode.Unit, UNIT_NPC_FLAG_FLIGHTMASTER))
+        SendLearnNewTaxiNode(unit);
 }
-
 
 void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeStatusQuery& taxiNodeStatusQuery)
 {
@@ -46,7 +44,7 @@ void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeS
 void WorldSession::SendTaxiStatus(ObjectGuid guid)
 {
     // cheating checks
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
+    Creature* unit = ObjectAccessor::GetCreature(*GetPlayer(), guid);
     if (!unit)
     {
         TC_LOG_DEBUG("network", "WorldSession::SendTaxiStatus - %s not found.", guid.ToString().c_str());

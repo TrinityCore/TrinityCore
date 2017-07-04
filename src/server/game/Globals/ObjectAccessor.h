@@ -19,27 +19,27 @@
 #ifndef TRINITY_OBJECTACCESSOR_H
 #define TRINITY_OBJECTACCESSOR_H
 
-#include <mutex>
-#include <set>
+#include "ObjectGuid.h"
 #include <unordered_map>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
 
-#include "Define.h"
-#include "GridDefines.h"
-#include "UpdateData.h"
-#include "Object.h"
-
-class Creature;
+class AreaTrigger;
+class Conversation;
 class Corpse;
-class Unit;
-class GameObject;
+class Creature;
 class DynamicObject;
-class WorldObject;
-class Vehicle;
+class GameObject;
 class Map;
-class WorldRunnable;
+class Object;
+class Pet;
+class Player;
 class Transport;
+class Unit;
+class WorldObject;
+
+namespace boost
+{
+    class shared_mutex;
+}
 
 template <class T>
 class TC_GAME_API HashMapHolder
@@ -48,10 +48,6 @@ class TC_GAME_API HashMapHolder
     HashMapHolder() { }
 
 public:
-    static_assert(std::is_same<Player, T>::value
-        || std::is_same<Transport, T>::value,
-        "Only Player and Transport can be registered in global HashMapHolder");
-
     typedef std::unordered_map<ObjectGuid, T*> MapType;
 
     static void Insert(T* o);
@@ -76,6 +72,7 @@ namespace ObjectAccessor
     TC_GAME_API Transport* GetTransport(ObjectGuid const& guid);
     TC_GAME_API DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API AreaTrigger* GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid);
+    TC_GAME_API Conversation* GetConversation(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API Unit* GetUnit(WorldObject const&, ObjectGuid const& guid);
     TC_GAME_API Creature* GetCreature(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API Pet* GetPet(WorldObject const&, ObjectGuid const& guid);

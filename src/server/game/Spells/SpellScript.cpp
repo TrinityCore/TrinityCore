@@ -15,12 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SpellScript.h"
+#include "Log.h"
 #include "Spell.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include "SpellScript.h"
-
+#include <sstream>
 #include <string>
 
 bool _SpellScript::_Validate(SpellInfo const* entry)
@@ -33,15 +34,19 @@ bool _SpellScript::_Validate(SpellInfo const* entry)
     return true;
 }
 
-bool _SpellScript::ValidateSpellInfo(std::vector<uint32> spellIds)
+bool _SpellScript::_ValidateSpellInfo(uint32 const* begin, uint32 const* end)
 {
-    for (uint32 spellId : spellIds)
-        if (!sSpellMgr->GetSpellInfo(spellId))
+    bool allValid = true;
+    while (begin != end)
+    {
+        if (!sSpellMgr->GetSpellInfo(*begin))
         {
-            TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", spellId);
-            return false;
+            TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", *begin);
+            allValid = false;
         }
-    return true;
+        ++begin;
+    }
+    return allValid;
 }
 
 void _SpellScript::_Register()

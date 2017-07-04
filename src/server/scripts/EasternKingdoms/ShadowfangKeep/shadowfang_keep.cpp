@@ -28,13 +28,13 @@ npc_shadowfang_prisoner
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "ScriptedEscortAI.h"
-#include "shadowfang_keep.h"
+#include "InstanceScript.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "shadowfang_keep.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_shadowfang_prisoner
@@ -70,7 +70,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_shadowfang_prisonerAI>(creature);
+        return GetShadowfangKeepAI<npc_shadowfang_prisonerAI>(creature);
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
@@ -155,7 +155,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_arugal_voidwalkerAI>(creature);
+        return GetShadowfangKeepAI<npc_arugal_voidwalkerAI>(creature);
     }
 
     struct npc_arugal_voidwalkerAI : public ScriptedAI

@@ -27,14 +27,15 @@ EndScriptData */
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "ScriptedEscortAI.h"
-#include "Vehicle.h"
 #include "CombatAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "Vehicle.h"
 
 /*#####
 # npc_commander_eligor_dawnbringer

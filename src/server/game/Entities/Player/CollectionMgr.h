@@ -18,16 +18,24 @@
 #ifndef CollectionMgr_h__
 #define CollectionMgr_h__
 
-#include "WorldSession.h"
-#include <boost/dynamic_bitset.hpp>
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
+#include "ObjectGuid.h"
+#include <boost/dynamic_bitset_fwd.hpp>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
 
+class Item;
+class WorldSession;
 struct ItemModifiedAppearanceEntry;
 
 enum HeirloomPlayerFlags
 {
     HEIRLOOM_FLAG_NONE                    = 0x00,
     HEIRLOOM_FLAG_BONUS_LEVEL_90          = 0x01,
-    HEIRLOOM_FLAG_BONUS_LEVEL_100         = 0x02
+    HEIRLOOM_FLAG_BONUS_LEVEL_100         = 0x02,
+    HEIRLOOM_FLAG_BONUS_LEVEL_110         = 0x04
 };
 
 enum HeirloomItemFlags
@@ -62,6 +70,7 @@ class TC_GAME_API CollectionMgr
 {
 public:
     explicit CollectionMgr(WorldSession* owner);
+    ~CollectionMgr();
 
     static void LoadMountDefinitions();
 
@@ -132,7 +141,7 @@ private:
     ToyBoxContainer _toys;
     HeirloomContainer _heirlooms;
     MountContainer _mounts;
-    boost::dynamic_bitset<uint32> _appearances;
+    std::unique_ptr<boost::dynamic_bitset<uint32>> _appearances;
     std::unordered_map<uint32, std::unordered_set<ObjectGuid>> _temporaryAppearances;
     std::unordered_map<uint32, FavoriteAppearanceState> _favoriteAppearances;
 };

@@ -49,7 +49,7 @@ WorldPacket const* WorldPackets::Hotfix::HotfixList::Write()
     _worldPacket << int32(HotfixCacheVersion);
     _worldPacket << uint32(Hotfixes.size());
     for (auto const& hotfixEntry : Hotfixes)
-        _worldPacket << int32(hotfixEntry.first);
+        _worldPacket << uint64(hotfixEntry.first);
 
     return &_worldPacket;
 }
@@ -61,32 +61,22 @@ void WorldPackets::Hotfix::HotfixQuery::Read()
         throw PacketArrayMaxCapacityException(hotfixCount, sDB2Manager.GetHotfixData().size());
 
     Hotfixes.resize(hotfixCount);
-    for (int32& hotfixId : Hotfixes)
+    for (uint64& hotfixId : Hotfixes)
         _worldPacket >> hotfixId;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Hotfix::HotfixQueryResponse::HotfixRecord const& hotfixRecord)
-{
-    data << uint32(hotfixRecord.TableHash);
-    data << int32(hotfixRecord.RecordID);
-    data.WriteBit(hotfixRecord.HotfixData.is_initialized());
-    if (hotfixRecord.HotfixData)
-    {
-        data << uint32(hotfixRecord.HotfixData->size());
-        data.append(*hotfixRecord.HotfixData);
-    }
-    else
-        data << uint32(0);
-
-    return data;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Hotfix::HotfixQueryResponse::HotfixData const& hotfixData)
 {
-    data << int32(hotfixData.ID);
-    data << uint32(hotfixData.Records.size());
-    for (WorldPackets::Hotfix::HotfixQueryResponse::HotfixRecord const& hotfixRecord : hotfixData.Records)
-        data << hotfixRecord;
+    data << uint64(hotfixData.ID);
+    data << int32(hotfixData.RecordID);
+    data.WriteBit(hotfixData.Data.is_initialized());
+    if (hotfixData.Data)
+    {
+        data << uint32(hotfixData.Data->size());
+        data.append(*hotfixData.Data);
+    }
+    else
+        data << uint32(0);
 
     return data;
 }

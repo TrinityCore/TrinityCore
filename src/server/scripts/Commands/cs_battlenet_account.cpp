@@ -15,13 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlenetAccountMgr.h"
 #include "AccountMgr.h"
+#include "BattlenetAccountMgr.h"
+#include "BigNumber.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
+#include "Log.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Util.h"
+#include "WorldSession.h"
+#include <boost/asio/ip/address_v4.hpp>
 
 class battlenet_account_commandscript : public CommandScript
 {
@@ -139,7 +144,7 @@ public:
             if (param == "on")
             {
                 PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGON_COUNTRY);
-                uint32 ip = inet_addr(handler->GetSession()->GetRemoteAddress().c_str());
+                uint32 ip = boost::asio::ip::address_v4::from_string(handler->GetSession()->GetRemoteAddress()).to_ulong();
                 EndianConvertReverse(ip);
                 stmt->setUInt32(0, ip);
                 PreparedQueryResult result = LoginDatabase.Query(stmt);

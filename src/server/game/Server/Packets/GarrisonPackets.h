@@ -22,6 +22,9 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "PacketUtilities.h"
+#include <list>
+#include <unordered_set>
+#include <vector>
 
 struct GarrAbilityEntry;
 
@@ -62,7 +65,7 @@ namespace WorldPackets
         struct GarrisonPlotInfo
         {
             uint32 GarrPlotInstanceID = 0;
-            Position PlotPos;
+            TaggedPosition<Position::XYZO> PlotPos;
             uint32 PlotType = 0;
         };
 
@@ -139,7 +142,6 @@ namespace WorldPackets
             uint32 GarrSiteLevelID = 0;
             uint32 NumFollowerActivationsRemaining = 0;
             uint32 NumMissionsStartedToday = 0;   // might mean something else, but sending 0 here enables follower abilities "Increase success chance of the first mission of the day by %."
-            int32 FollowerSoftCap = 0;
             std::vector<GarrisonPlotInfo*> Plots;
             std::vector<GarrisonBuildingInfo const*> Buildings;
             std::vector<GarrisonFollower const*> Followers;
@@ -152,6 +154,12 @@ namespace WorldPackets
             std::vector<int32> ArchivedMissions;
         };
 
+        struct FollowerSoftCapInfo
+        {
+            int32 GarrFollowerTypeID;
+            uint32 Count;
+        };
+
         class GetGarrisonInfoResult final : public ServerPacket
         {
         public:
@@ -161,6 +169,7 @@ namespace WorldPackets
 
             uint32 FactionIndex = 0;
             std::vector<GarrisonInfo> Garrisons;
+            std::vector<FollowerSoftCapInfo> FollowerSoftCaps;
         };
 
         struct GarrisonRemoteBuildingInfo
@@ -295,7 +304,7 @@ namespace WorldPackets
             GarrisonBuildingLandmark(uint32 buildingPlotInstId, Position const& pos) : GarrBuildingPlotInstID(buildingPlotInstId), Pos(pos) { }
 
             uint32 GarrBuildingPlotInstID;
-            Position Pos;
+            TaggedPosition<Position::XYZ> Pos;
         };
 
         class GarrisonBuildingLandmarks final : public ServerPacket

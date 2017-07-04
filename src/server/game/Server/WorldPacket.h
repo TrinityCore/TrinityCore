@@ -19,9 +19,8 @@
 #ifndef TRINITYCORE_WORLDPACKET_H
 #define TRINITYCORE_WORLDPACKET_H
 
-#include "Common.h"
-#include "Opcodes.h"
 #include "ByteBuffer.h"
+#include "Opcodes.h"
 
 class WorldPacket : public ByteBuffer
 {

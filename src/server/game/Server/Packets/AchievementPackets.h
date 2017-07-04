@@ -18,8 +18,8 @@
 #ifndef game_AchievementPackets_h__
 #define game_AchievementPackets_h__
 
-#include "ObjectGuid.h"
 #include "Packet.h"
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {

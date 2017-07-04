@@ -18,6 +18,8 @@
 #ifndef SETHEKK_HALLS_H_
 #define SETHEKK_HALLS_H_
 
+#include "CreatureAIImpl.h"
+
 #define SHScriptName "instance_sethekk_halls"
 #define DataHeader "SH"
 
@@ -46,8 +48,8 @@ enum SHGameObjectIds
     GO_TALON_KING_COFFER                = 187372
 };
 
-template<class AI>
-AI* GetSethekkHallsAI(Creature* creature)
+template<typename AI>
+inline AI* GetSethekkHallsAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, SHScriptName);
 }

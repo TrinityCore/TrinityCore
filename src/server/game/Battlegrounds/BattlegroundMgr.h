@@ -23,6 +23,10 @@
 #include "DBCEnums.h"
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
+#include <unordered_map>
+
+class Battleground;
+struct BattlemasterListEntry;
 
 typedef std::map<uint32, Battleground*> BattlegroundContainer;
 typedef std::set<uint32> BattlegroundClientIdsContainer;
@@ -54,7 +58,7 @@ struct BattlegroundTemplate
     uint32 ScriptId;
     BattlemasterListEntry const* BattlemasterEntry;
 
-    bool IsArena() const { return BattlemasterEntry->InstanceType == MAP_ARENA; }
+    bool IsArena() const;
 };
 
 namespace WorldPackets

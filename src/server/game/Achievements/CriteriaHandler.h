@@ -20,8 +20,12 @@
 
 #include "DBCEnums.h"
 #include "ObjectGuid.h"
-#include "Transaction.h"
+#include "DatabaseEnvFwd.h"
 #include "Common.h"
+#include <map>
+#include <unordered_map>
+#include <vector>
+#include <ctime>
 
 class Player;
 class Unit;

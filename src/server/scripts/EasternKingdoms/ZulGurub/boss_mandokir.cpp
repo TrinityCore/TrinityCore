@@ -17,11 +17,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
 #include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "zulgurub.h"
 
 enum Yells
@@ -489,11 +492,7 @@ class spell_mandokir_bloodletting : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOODLETTING_DAMAGE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOODLETTING_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOODLETTING_DAMAGE, SPELL_BLOODLETTING_HEAL });
             }
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)

@@ -16,11 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "AccountMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
+#include "BattlegroundPackets.h"
 #include "BattlePetPackets.h"
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
@@ -28,33 +30,36 @@
 #include "ClientConfigPackets.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "EquipmentSetPackets.h"
+#include "GameObject.h"
+#include "GitRevision.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
+#include "Item.h"
 #include "Language.h"
 #include "Log.h"
+#include "Map.h"
+#include "Metric.h"
 #include "MiscPackets.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Pet.h"
-#include "PlayerDump.h"
 #include "Player.h"
-#include "QueryCallback.h"
+#include "PlayerDump.h"
+#include "QueryHolder.h"
 #include "QueryPackets.h"
+#include "Realm.h"
 #include "ReputationMgr.h"
-#include "GitRevision.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SystemPackets.h"
 #include "Util.h"
 #include "World.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Metric.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -1462,13 +1467,13 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
     if (!go)
     {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
+        SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::NotOnChair).Write());
         return;
     }
 
     if (_player->GetStandState() != UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight))
     {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
+        SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::NotOnChair).Write());
         return;
     }
 
@@ -1479,11 +1484,11 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     // 2 - you have to sit on barber chair
     if (!_player->HasEnoughMoney((uint64)cost))
     {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NO_MONEY);
+        SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::NoMoney).Write());
         return;
     }
 
-    SendBarberShopResult(BARBER_SHOP_RESULT_SUCCESS);
+    SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::Success).Write());
 
     _player->ModifyMoney(-int64(cost));                     // it isn't free
     _player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
@@ -2336,7 +2341,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::Genera
 
     WorldPackets::Character::GenerateRandomCharacterNameResult result;
     result.Success = true;
-    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex, GetSessionDbcLocale());
+    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex, GetSessionDbcLocale(), sWorld->GetDefaultDbcLocale());
 
     SendPacket(result.Write());
 }
@@ -2566,13 +2571,6 @@ void WorldSession::SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, O
     packet.ResultCode = result;
     packet.Player = guid;
 
-    SendPacket(packet.Write());
-}
-
-void WorldSession::SendBarberShopResult(BarberShopResult result)
-{
-    WorldPackets::Character::BarberShopResultServer packet;
-    packet.Result = result;
     SendPacket(packet.Write());
 }
 

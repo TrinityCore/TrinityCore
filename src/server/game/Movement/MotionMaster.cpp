@@ -20,7 +20,8 @@
 #include "CreatureAISelector.h"
 #include "Creature.h"
 #include "ScriptSystem.h"
-
+#include "Log.h"
+#include "Map.h"
 #include "ConfusedMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
 #include "HomeMovementGenerator.h"
@@ -457,13 +458,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     init.Launch();
 }
 
-void MotionMaster::MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk, bool fly)
-{
-    Movement::PointsArray path(pathPoints, pathPoints + pathSize);
-    MoveSmoothPath(pointId, path, walk, fly);
-}
-
-void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& path, bool walk, bool fly)
+void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk, bool fly)
 {
     Movement::MoveSplineInit init(_owner);
     if (fly)
@@ -472,6 +467,12 @@ void MotionMaster::MoveSmoothPath(uint32 pointId, Movement::PointsArray const& p
         init.SetUncompressed();
     }
 
+    Movement::PointsArray path;
+    path.reserve(pathSize);
+    std::transform(pathPoints, pathPoints + pathSize, std::back_inserter(path), [](Position const& point)
+    {
+        return G3D::Vector3(point.GetPositionX(), point.GetPositionY(), point.GetPositionZ());
+    });
     init.MovebyPath(path);
     init.SetSmooth();
     init.SetWalk(walk);
@@ -493,7 +494,7 @@ void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool w
         TC_LOG_ERROR("misc", "MotionMaster::MoveAlongSplineChain: non-creature %s tried to walk along DB spline chain. Ignoring.", _owner->GetGUID().ToString().c_str());
         return;
     }
-    SplineChain const* chain = sScriptSystemMgr->GetSplineChain(owner, dbChainId);
+    std::vector<SplineChainLink> const* chain = sScriptSystemMgr->GetSplineChain(owner, dbChainId);
     if (!chain)
     {
         TC_LOG_ERROR("misc", "MotionMaster::MoveAlongSplineChain: creature with entry %u tried to walk along non-existing spline chain with DB id %u.", owner->GetEntry(), dbChainId);
@@ -502,7 +503,7 @@ void MotionMaster::MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool w
     MoveAlongSplineChain(pointId, *chain, walk);
 }
 
-void MotionMaster::MoveAlongSplineChain(uint32 pointId, SplineChain const& chain, bool walk)
+void MotionMaster::MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk)
 {
     Mutate(new SplineChainMovementGenerator(pointId, chain, walk), MOTION_SLOT_ACTIVE);
 }

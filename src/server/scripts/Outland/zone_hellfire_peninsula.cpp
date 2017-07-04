@@ -31,11 +31,13 @@ npc_fel_guard_hound
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "WorldSession.h"
+#include "QuestDef.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_aeranas
@@ -660,7 +662,7 @@ public:
             switch (gossipListId)
             {
                 case 1:
-                    player->PlayerTalkClass->SendCloseGossip();
+                    CloseGossipMenuFor(player);
                     me->AI()->Talk(SAY_BARADA_1);
                     me->AI()->DoAction(ACTION_START_EVENT);
                     break;

@@ -18,11 +18,11 @@
 #ifndef MailPackets_h__
 #define MailPackets_h__
 
-#include "ItemPackets.h"
 #include "Packet.h"
-#include "QueryPackets.h"
+#include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
 
+class Player;
 struct Mail;
 
 namespace WorldPackets

@@ -16,7 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "Creature.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "obsidian_sanctum.h"
 
 /* Obsidian Sanctum encounters:

@@ -16,13 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
 #include "BattlegroundIC.h"
+#include "GameObject.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "Player.h"
-#include "Vehicle.h"
-#include "SpellScript.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
+#include "Vehicle.h"
 
 // TO-DO: This should be done with SmartAI, but yet it does not correctly support vehicles's AIs.
 //        Even adding ReactState Passive we still have issues using SmartAI.
@@ -278,9 +282,7 @@ class spell_ioc_seaforium_blast_credit : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_A_BOMB_INABLE_CREDIT) || !sSpellMgr->GetSpellInfo(SPELL_A_BOMB_INATION_CREDIT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_A_BOMB_INABLE_CREDIT, SPELL_A_BOMB_INATION_CREDIT });
             }
 
             void HandleAchievementCredit(SpellEffIndex /*effIndex*/)

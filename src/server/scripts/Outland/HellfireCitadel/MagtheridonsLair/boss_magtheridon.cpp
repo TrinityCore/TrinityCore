@@ -24,10 +24,14 @@ SDCategory: Hellfire Citadel, Magtheridon's lair
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
 #include "magtheridons_lair.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -196,7 +200,7 @@ class npc_abyssal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_abyssalAI(creature);
+            return GetMagtheridonsLairAI<npc_abyssalAI>(creature);
         }
 };
 
@@ -463,7 +467,7 @@ class boss_magtheridon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_magtheridonAI>(creature);
+            return GetMagtheridonsLairAI<boss_magtheridonAI>(creature);
         }
 };
 
@@ -585,7 +589,7 @@ class npc_hellfire_channeler : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_hellfire_channelerAI>(creature);
+            return GetMagtheridonsLairAI<npc_hellfire_channelerAI>(creature);
         }
 };
 

@@ -19,14 +19,16 @@
  * Interaction between core and LFGScripts
  */
 
-#include "Common.h"
-#include "SharedDefines.h"
-#include "Player.h"
-#include "Group.h"
 #include "LFGScripts.h"
+#include "Common.h"
+#include "Group.h"
 #include "LFGMgr.h"
-#include "ScriptMgr.h"
+#include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "SharedDefines.h"
 #include "WorldSession.h"
 
 namespace lfg

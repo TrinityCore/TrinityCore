@@ -18,6 +18,8 @@
 #ifndef DEF_RAZORFEN_DOWNS_H
 #define DEF_RAZORFEN_DOWNS_H
 
+#include "CreatureAIImpl.h"
+
 #define RFDScriptName "instance_razorfen_downs"
 #define DataHeader "RFD"
 
@@ -61,8 +63,8 @@ enum RFDGameObjectIds
     GO_BELNISTRASZS_BRAZIER                = 152097
 };
 
-template<class AI>
-AI* GetRazorfenDownsAI(Creature* creature)
+template<typename AI>
+inline AI* GetRazorfenDownsAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, RFDScriptName);
 }

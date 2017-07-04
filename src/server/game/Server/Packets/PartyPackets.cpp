@@ -16,13 +16,14 @@
  */
 
 #include "PartyPackets.h"
-
-#include "Player.h"
 #include "Pet.h"
-#include "Vehicle.h"
-#include "SpellAuras.h"
+#include "Player.h"
+#include "Realm.h"
 #include "SpellAuraEffects.h"
-#include "ObjectMgr.h"
+#include "SpellAuras.h"
+#include "Vehicle.h"
+#include "World.h"
+#include "WorldSession.h"
 
 WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
 {
@@ -97,9 +98,9 @@ void WorldPackets::Party::PartyInvite::Initialize(Player* const inviter, int32 p
 
     ProposedRoles = proposedRoles;
 
-    InviterVirtualRealmAddress = GetVirtualRealmAddress();
-    InviterRealmNameActual = sObjectMgr->GetRealmName(realm.Id.Realm);
-    InviterRealmNameNormalized = sObjectMgr->GetNormalizedRealmName(realm.Id.Realm);
+    InviterVirtualRealmAddress = realm.Id.GetAddress();
+    InviterRealmNameActual = realm.Name;
+    InviterRealmNameNormalized = realm.NormalizedName;
 }
 
 void WorldPackets::Party::PartyInviteResponse::Read()

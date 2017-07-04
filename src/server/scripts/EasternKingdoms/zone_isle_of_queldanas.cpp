@@ -28,8 +28,8 @@ npc_greengill_slave
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 /*######

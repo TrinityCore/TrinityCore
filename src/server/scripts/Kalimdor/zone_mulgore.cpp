@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 
 /*######
@@ -28,8 +29,7 @@ enum EagleSpirit
     SPELL_SPIRIT_FORM          = 69324
 };
 
-uint32 const EagleSpiritflightPathSize = 7;
-G3D::Vector3 const EagleSpiritflightPath[EagleSpiritflightPathSize] =
+Position const EagleSpiritflightPath[] =
 {
     { -2884.155f, -71.08681f, 242.0678f },
     { -2720.592f, -111.0035f, 242.5955f },
@@ -39,6 +39,7 @@ G3D::Vector3 const EagleSpiritflightPath[EagleSpiritflightPathSize] =
     { -2465.321f, -502.4896f, 190.7347f },
     { -2343.872f, -401.8281f, -8.320873f }
 };
+size_t const EagleSpiritflightPathSize = std::extent<decltype(EagleSpiritflightPath)>::value;
 
 class npc_eagle_spirit : public CreatureScript
 {
@@ -54,7 +55,7 @@ public:
             if (!apply)
                 return;
 
-            me->GetMotionMaster()->MoveSmoothPath(EagleSpiritflightPathSize, EagleSpiritflightPath, EagleSpiritflightPathSize, false, true);
+            me->GetMotionMaster()->MoveSmoothPath(uint32(EagleSpiritflightPathSize), EagleSpiritflightPath, EagleSpiritflightPathSize, false, true);
             me->CastSpell(me, SPELL_SPIRIT_FORM);
         }
 

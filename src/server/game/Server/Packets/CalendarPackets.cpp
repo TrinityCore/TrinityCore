@@ -16,7 +16,6 @@
  */
 
 #include "CalendarPackets.h"
-#include "CalendarMgr.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Calendar::CalendarSendCalendarEventInfo const& eventInfo)
 {
