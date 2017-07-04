@@ -332,7 +332,8 @@ bool GameObject::Create(uint32 name_id, Map* map, uint32 /*phaseMask*/, Position
             break;
         }
         case GAMEOBJECT_TYPE_FISHINGNODE:
-            SetGoAnimProgress(0);
+            SetUInt32Value(GAMEOBJECT_LEVEL, 1);
+            SetGoAnimProgress(255);
             break;
         case GAMEOBJECT_TYPE_TRAP:
             if (GetGOInfo()->trap.stealthed)
