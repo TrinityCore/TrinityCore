@@ -491,6 +491,38 @@ namespace WorldPackets
 
             ObjectGuid Item;
         };
+
+        class SortBags final : public ClientPacket
+        {
+        public:
+            SortBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SortBankBags final : public ClientPacket
+        {
+        public:
+            SortBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_BANK_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SortReagentBankBags final : public ClientPacket
+        {
+        public:
+            SortReagentBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_REAGENT_BANK_BAGS, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class SortBagsResult final : public ServerPacket
+        {
+        public:
+            SortBagsResult() : ServerPacket(SMSG_SORT_BAGS_RESULT, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
     }
 }
 
