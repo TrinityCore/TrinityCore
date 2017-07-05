@@ -55,7 +55,6 @@ namespace Trinity
 
         // resizes <container> to have at most <requestedSize> elements
         // if it has more than <requestedSize> elements, the elements to keep are selected randomly
-        // note: after calling this method, the elements remaining in <container> will not necessarily have the same order as they did before the call
         template<class C>
         void RandomResize(C& container, std::size_t requestedSize)
         {
