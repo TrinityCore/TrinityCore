@@ -4772,7 +4772,10 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     {
         case GAMEOBJECT_TYPE_FISHINGNODE:
         {
-            m_caster->AddChannelObject(pGameObj->GetGUID());
+            pGameObj->SetFaction(m_caster->getFaction());
+            ObjectGuid bobberGuid = pGameObj->GetGUID();
+            // client requires fishing bobber guid in channel object slot 0 to be usable
+            m_caster->SetDynamicStructuredValue(UNIT_DYNAMIC_FIELD_CHANNEL_OBJECTS, 0, &bobberGuid);
             m_caster->AddGameObject(pGameObj);              // will removed at spell cancel
 
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))
