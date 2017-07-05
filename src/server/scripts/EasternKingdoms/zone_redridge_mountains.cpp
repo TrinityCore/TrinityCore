@@ -106,7 +106,7 @@ public:
                 damage = 0;
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 /*diff*/) override
         {
             DoMeleeAttackIfReady();
         }
