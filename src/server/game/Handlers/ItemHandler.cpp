@@ -1247,3 +1247,24 @@ void WorldSession::HandleUpgradeItem(WorldPackets::Item::UpgradeItem& upgradeIte
     item->SetState(ITEM_CHANGED, _player);
     _player->ModifyCurrency(itemUpgradeEntry->CurrencyID, -int32(itemUpgradeEntry->CurrencyCost));
 }
+
+void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
+{
+    // TODO: Implement sorting
+    // Placeholder to prevent completely locking out bags clientside
+    SendPacket(WorldPackets::Item::SortBagsResult().Write());
+}
+
+void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBankBags*/)
+{
+    // TODO: Implement sorting
+    // Placeholder to prevent completely locking out bags clientside
+    SendPacket(WorldPackets::Item::SortBagsResult().Write());
+}
+
+void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBankBags& /*sortReagentBankBags*/)
+{
+    // TODO: Implement sorting
+    // Placeholder to prevent completely locking out bags clientside
+    SendPacket(WorldPackets::Item::SortBagsResult().Write());
+}
