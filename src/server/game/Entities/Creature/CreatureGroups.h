@@ -42,7 +42,7 @@ struct FormationInfo
     ObjectGuid::LowType leaderGUID;
     float follow_dist;
     float follow_angle;
-    uint8 groupAI;
+    uint32 groupAI;
     uint32 point_1;
     uint32 point_2;
 };
