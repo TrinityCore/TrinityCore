@@ -232,8 +232,7 @@ void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/,
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         Creature* member = itr->first;
-        uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetSpawnId()]->groupAI;
-        if (member == m_leader || !member->IsAlive() || member->GetVictim() || !(groupAI & FLAG_IDLE_IN_FORMATION))
+        if (member == m_leader || !member->IsAlive() || member->IsEngaged() || !(itr->second->groupAI & FLAG_IDLE_IN_FORMATION))
             continue;
 
         if (itr->second->point_1)
