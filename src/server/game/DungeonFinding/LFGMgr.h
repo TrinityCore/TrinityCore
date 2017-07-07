@@ -163,11 +163,11 @@ struct LfgJoinResultData
 // Data needed by SMSG_LFG_UPDATE_STATUS
 struct LfgUpdateData
 {
-    LfgUpdateData(LfgUpdateType _type = LFG_UPDATETYPE_DEFAULT): updateType(_type), state(LFG_STATE_NONE), comment("") { }
-    LfgUpdateData(LfgUpdateType _type, LfgDungeonSet const& _dungeons, std::string const& _comment):
-        updateType(_type), state(LFG_STATE_NONE), dungeons(_dungeons), comment(_comment) { }
-    LfgUpdateData(LfgUpdateType _type, LfgState _state, LfgDungeonSet const& _dungeons, std::string const& _comment = ""):
-        updateType(_type), state(_state), dungeons(_dungeons), comment(_comment) { }
+    LfgUpdateData(LfgUpdateType _type = LFG_UPDATETYPE_DEFAULT): updateType(_type), state(LFG_STATE_NONE) { }
+    LfgUpdateData(LfgUpdateType _type, LfgDungeonSet const& _dungeons):
+        updateType(_type), state(LFG_STATE_NONE), dungeons(_dungeons) { }
+    LfgUpdateData(LfgUpdateType _type, LfgState _state, LfgDungeonSet const& _dungeons):
+        updateType(_type), state(_state), dungeons(_dungeons) { }
 
     LfgUpdateType updateType;
     LfgState state;
@@ -337,8 +337,6 @@ class TC_GAME_API LFGMgr
         // cs_lfg
         /// Get current player roles
         uint8 GetRoles(ObjectGuid guid);
-        /// Get current player comment (used for LFR)
-        std::string const& GetComment(ObjectGuid gguid);
         /// Gets current lfg options
         uint32 GetOptions();
         /// Sets new lfg options
@@ -391,10 +389,8 @@ class TC_GAME_API LFGMgr
         void UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid = ObjectGuid::Empty, uint8 roles = PLAYER_ROLE_NONE);
         /// Sets player lfg roles
         void SetRoles(ObjectGuid guid, uint8 roles);
-        /// Sets player lfr comment
-        void SetComment(ObjectGuid guid, std::string const& comment);
         /// Join Lfg with selected roles, dungeons and comment
-        void JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, std::string const& comment);
+        void JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons);
         /// Leaves lfg
         void LeaveLfg(ObjectGuid guid, bool disconnected = false);
 

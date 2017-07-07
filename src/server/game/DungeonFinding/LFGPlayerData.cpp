@@ -21,7 +21,7 @@ namespace lfg
 {
 
 LfgPlayerData::LfgPlayerData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE),
-    m_Team(0), m_Group(), m_Roles(0), m_Comment("")
+    m_Team(0), m_Group(), m_Roles(0)
 { }
 
 LfgPlayerData::~LfgPlayerData() { }
@@ -34,7 +34,6 @@ void LfgPlayerData::SetState(LfgState state)
         case LFG_STATE_FINISHED_DUNGEON:
             m_Roles = 0;
             m_SelectedDungeons.clear();
-            m_Comment.clear();
             // No break on purpose
         case LFG_STATE_DUNGEON:
             m_OldState = state;
@@ -69,11 +68,6 @@ void LfgPlayerData::SetRoles(uint8 roles)
     m_Roles = roles;
 }
 
-void LfgPlayerData::SetComment(std::string const& comment)
-{
-    m_Comment = comment;
-}
-
 void LfgPlayerData::SetSelectedDungeons(LfgDungeonSet const& dungeons)
 {
     m_SelectedDungeons = dungeons;
@@ -102,11 +96,6 @@ ObjectGuid LfgPlayerData::GetGroup() const
 uint8 LfgPlayerData::GetRoles() const
 {
     return m_Roles;
-}
-
-std::string const& LfgPlayerData::GetComment() const
-{
-    return m_Comment;
 }
 
 LfgDungeonSet const& LfgPlayerData::GetSelectedDungeons() const
