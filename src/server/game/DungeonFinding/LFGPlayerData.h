@@ -40,7 +40,6 @@ class TC_GAME_API LfgPlayerData
 
         // Queue
         void SetRoles(uint8 roles);
-        void SetComment(std::string const& comment);
         void SetSelectedDungeons(const LfgDungeonSet& dungeons);
 
         // General
@@ -51,7 +50,6 @@ class TC_GAME_API LfgPlayerData
 
         // Queue
         uint8 GetRoles() const;
-        std::string const& GetComment() const;
         LfgDungeonSet const& GetSelectedDungeons() const;
 
     private:
@@ -64,7 +62,6 @@ class TC_GAME_API LfgPlayerData
 
         // Queue
         uint8 m_Roles;                                     ///< Roles the player selected when joined LFG
-        std::string m_Comment;                             ///< Player comment used when joined LFG
         LfgDungeonSet m_SelectedDungeons;                  ///< Selected Dungeons when joined LFG
 };
 

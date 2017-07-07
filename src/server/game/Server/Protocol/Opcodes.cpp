@@ -355,13 +355,10 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_DF_BOOT_PLAYER_VOTE,                                STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgSetBootVoteOpcode);
     DEFINE_HANDLER(CMSG_DF_GET_JOIN_STATUS,                                 STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleDFGetJoinStatus);
     DEFINE_HANDLER(CMSG_DF_GET_SYSTEM_INFO,                                 STATUS_UNHANDLED, PROCESS_THREADSAFE,   &WorldSession::HandleDFGetSystemInfo);
-    DEFINE_HANDLER(CMSG_DF_JOIN,                                            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleLfgJoinOpcode);
-    DEFINE_HANDLER(CMSG_DF_LEAVE,                                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleLfgLeaveOpcode);
+    DEFINE_HANDLER(CMSG_DF_JOIN,                                            STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgJoinOpcode);
+    DEFINE_HANDLER(CMSG_DF_LEAVE,                                           STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgLeaveOpcode);
     DEFINE_HANDLER(CMSG_DF_PROPOSAL_RESPONSE,                               STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgProposalResultOpcode);
     DEFINE_HANDLER(CMSG_DF_READY_CHECK_RESPONSE,                            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
-    //DEFINE_HANDLER(CMSG_DF_SEARCH_JOIN,                                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
-    //DEFINE_HANDLER(CMSG_DF_SEARCH_LEAVE,                                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
-    //DEFINE_HANDLER(CMSG_DF_SET_COMMENT,                                     STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::HandleLfgSetCommentOpcode);
     DEFINE_HANDLER(CMSG_DF_SET_ROLES,                                       STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgSetRolesOpcode);
     DEFINE_HANDLER(CMSG_DF_TELEPORT,                                        STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::HandleLfgTeleportOpcode);
     DEFINE_HANDLER(CMSG_DISCARDED_TIME_SYNC_ACKS,                           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
