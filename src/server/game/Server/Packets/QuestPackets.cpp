@@ -475,20 +475,20 @@ void WorldPackets::Quest::QuestLogRemoveQuest::Read()
     _worldPacket >> Entry;
 }
 
-WorldPacket const* WorldPackets::Quest::QuestGiverQuestList::Write()
+WorldPacket const* WorldPackets::Quest::QuestGiverQuestListMessage::Write()
 {
     _worldPacket << QuestGiverGUID;
     _worldPacket << uint32(GreetEmoteDelay);
     _worldPacket << uint32(GreetEmoteType);
-    _worldPacket << uint32(GossipTexts.size());
+    _worldPacket << uint32(QuestDataText.size());
     _worldPacket.WriteBits(Greeting.size(), 11);
     _worldPacket.FlushBits();
 
-    for (GossipTextData const& gossip : GossipTexts)
+    for (GossipText const& gossip : QuestDataText)
     {
         _worldPacket << uint32(gossip.QuestID);
         _worldPacket << uint32(gossip.QuestType);
-        _worldPacket << uint32(gossip.QuestLevel);
+        _worldPacket << int32(gossip.QuestLevel);
         _worldPacket << uint32(gossip.QuestFlags);
         _worldPacket << uint32(gossip.QuestFlagsEx);
         _worldPacket.WriteBit(gossip.Repeatable);

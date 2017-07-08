@@ -14605,7 +14605,7 @@ void Player::SendPreparedQuest(ObjectGuid guid)
         }
     }
 
-    PlayerTalkClass->SendQuestGiverQuestList(guid);
+    PlayerTalkClass->SendQuestGiverQuestListMessage(guid);
 }
 
 bool Player::IsActiveQuest(uint32 quest_id) const
