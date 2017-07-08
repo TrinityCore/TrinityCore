@@ -90,17 +90,29 @@ class DuelResetScript : public PlayerScript
 
         static void ResetSpellCooldowns(Player* player, bool onStartDuel)
         {
-            // remove cooldowns on spells that have < 10 min CD, has no onHold and Aura
+            // remove cooldowns on spells that have < 10 min CD > 30 sec and has no onHold
             player->GetSpellHistory()->ResetCooldowns([player, onStartDuel](SpellHistory::CooldownStorageType::iterator itr) -> bool
             {
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
                 uint32 remainingCooldown = player->GetSpellHistory()->GetRemainingCooldown(spellInfo);
+                int32 totalCooldown = spellInfo->RecoveryTime;
+                int32 categoryCooldown = spellInfo->CategoryRecoveryTime;
+
+                player->ApplySpellMod<SPELLMOD_COOLDOWN>(spellInfo->Id, totalCooldown, nullptr);
+
+                if (int32 cooldownMod = player->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
+                    totalCooldown += cooldownMod * IN_MILLISECONDS;
+
+                if (!spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
+                    player->ApplySpellMod<SPELLMOD_COOLDOWN>(spellInfo->Id, categoryCooldown, nullptr);
+
                 return remainingCooldown > 0
                     && !itr->second.OnHold
-                    && Milliseconds(spellInfo->RecoveryTime) < Minutes(10)
-                    && Milliseconds(spellInfo->CategoryRecoveryTime) < Minutes(10)
+                    && Milliseconds(totalCooldown) < Minutes(10)
+                    && Milliseconds(categoryCooldown) < Minutes(10)
                     && Milliseconds(remainingCooldown) < Minutes(10)
-                    && (onStartDuel ? !player->HasAura(spellInfo->Id) : true);
+                    && (onStartDuel ? Milliseconds(totalCooldown - remainingCooldown) > Seconds(30) : true)
+                    && (onStartDuel ? Milliseconds(categoryCooldown - remainingCooldown) > Seconds(30) : true);
             }, true);
 
             // pet cooldowns
