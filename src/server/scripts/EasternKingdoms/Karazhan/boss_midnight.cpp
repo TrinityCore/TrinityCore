@@ -237,30 +237,31 @@ public:
                     midnight->AttackStop();
                     midnight->RemoveAllAttackers();
                     midnight->SetReactState(REACT_PASSIVE);
-                    midnight->GetMotionMaster()->MoveChase(me);
+                    midnight->GetMotionMaster()->MoveFollow(me, 2.0f, 0.0f);
                     midnight->AI()->Talk(EMOTE_MOUNT_UP);
 
                     me->AttackStop();
                     me->RemoveAllAttackers();
                     me->SetReactState(REACT_PASSIVE);
-                    me->GetMotionMaster()->MoveChase(midnight);
+                    me->GetMotionMaster()->MoveFollow(midnight, 2.0f, 0.0f);
                     Talk(SAY_MOUNT);
 
-                    scheduler.Schedule(Seconds(3), [this](TaskContext task)
+                    scheduler.Schedule(Seconds(1), [this](TaskContext task)
                     {
                         if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
                         {
-                            if (me->IsWithinMeleeRange(midnight))
+                            if (me->IsWithinDist2d(midnight, 5.0f))
                             {
                                 DoCastAOE(SPELL_SUMMON_ATTUMEN_MOUNTED);
                                 me->SetVisible(false);
+                                me->GetMotionMaster()->Clear();
                                 midnight->SetVisible(false);
                             }
                             else
                             {
-                                midnight->GetMotionMaster()->MoveChase(me);
-                                me->GetMotionMaster()->MoveChase(midnight);
-                                task.Repeat(Seconds(3));
+                                midnight->GetMotionMaster()->MoveFollow(me, 2.0f, 0.0f);
+                                me->GetMotionMaster()->MoveFollow(midnight, 2.0f, 0.0f);
+                                task.Repeat();
                             }
                         }
                     });
