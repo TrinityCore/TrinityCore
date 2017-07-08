@@ -331,9 +331,9 @@ void QuestMenu::ClearMenu()
     _questMenuItems.clear();
 }
 
-void PlayerMenu::SendQuestGiverQuestList(ObjectGuid guid)
+void PlayerMenu::SendQuestGiverQuestListMessage(ObjectGuid guid)
 {
-    WorldPackets::Quest::QuestGiverQuestList questList;
+    WorldPackets::Quest::QuestGiverQuestListMessage questList;
     questList.QuestGiverGUID = guid;
 
     if  (QuestGreeting const* questGreeting = sObjectMgr->GetQuestGreeting(guid))
@@ -368,7 +368,7 @@ void PlayerMenu::SendQuestGiverQuestList(ObjectGuid guid)
 
             bool repeatable = false; // NYI
 
-            questList.GossipTexts.emplace_back(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, title);
+            questList.QuestDataText.emplace_back(questID, questMenuItem.QuestIcon, quest->GetQuestLevel(), quest->GetFlags(), quest->GetFlagsEx(), repeatable, title);
         }
     }
 
