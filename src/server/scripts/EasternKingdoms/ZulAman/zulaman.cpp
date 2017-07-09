@@ -381,13 +381,13 @@ class npc_harrison_jones : public CreatureScript
                                     if (target->GetPositionX() > 120)
                                     {
                                         target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_SPEAR));
-                                        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                        target->SetImmuneToPC(true);
                                         target->SetReactState(REACT_PASSIVE);
                                         target->AI()->SetData(0, 1);
                                     }
                                     else
                                     {
-                                        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                        target->SetImmuneToPC(true);
                                         target->SetReactState(REACT_PASSIVE);
                                         target->AI()->SetData(0, 2);
                                     }

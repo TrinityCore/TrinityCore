@@ -370,7 +370,7 @@ public:
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 me->SetFullHealth();
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 Talk(SAY_OOX_START);
 
                 Start(true, false, player->GetGUID());
