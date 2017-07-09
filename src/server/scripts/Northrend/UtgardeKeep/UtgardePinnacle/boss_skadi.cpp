@@ -265,7 +265,8 @@ public:
                     Talk(SAY_DRAKE_DEATH);
                     DoCast(me, SPELL_SKADI_TELEPORT, true);
                     summons.DespawnEntry(NPC_WORLD_TRIGGER);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetImmuneToPC(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     _phase = PHASE_GROUND;
 

@@ -221,7 +221,7 @@ public:
         {
             _Reset();
             Initialize();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
             me->SetWalk(true);
@@ -262,7 +262,7 @@ public:
             {
                 _isInPhaseOne = false;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
 

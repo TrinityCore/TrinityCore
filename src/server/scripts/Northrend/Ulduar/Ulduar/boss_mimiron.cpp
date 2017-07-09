@@ -981,7 +981,8 @@ class boss_vx_001 : public CreatureScript
                         events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_VX, 6000);
                         [[fallthrough]];
                     case DO_START_VX001:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetImmuneToPC(false);
                         me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE); // Remove emotestate.
                         //me->SetHover(true); // Blizzard handles hover animation like this it seems.
@@ -1157,7 +1158,8 @@ class boss_aerial_command_unit : public CreatureScript
                         events.ScheduleEvent(EVENT_SUMMON_FIRE_BOTS, 1000, 0, PHASE_AERIAL_COMMAND_UNIT);
                         [[fallthrough]];
                     case DO_START_AERIAL:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetHover(true);
                         me->SetDisableGravity(false);

@@ -175,7 +175,10 @@ class instance_ruby_sanctum : public InstanceMapScript
             {
                 if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                     if (Creature* zarithrian = GetCreature(DATA_GENERAL_ZARITHRIAN))
-                        zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                    {
+                        zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        zarithrian->SetImmuneToPC(false);
+                    }
             }
 
             void SetData(uint32 type, uint32 data) override

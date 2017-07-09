@@ -95,7 +95,8 @@ class boss_kelidan_the_breaker : public CreatureScript
                 Initialize();
                 SummonChannelers();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetImmuneToAll(true);
             }
 
             void JustEngagedWith(Unit* who) override
@@ -139,7 +140,8 @@ class boss_kelidan_the_breaker : public CreatureScript
                         return;
                 }
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetImmuneToAll(false);
                 if (killer)
                     AttackStart(killer);
             }

@@ -299,7 +299,7 @@ public:
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_PHASE_TWO_LANDING, SPLINE_CHAIN_SECOND_LANDING, false);
                     break;
                 case EVENT_INTRO_LANDING:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     me->SetInCombatWithZone();
                     break;
                 case EVENT_LAND:
