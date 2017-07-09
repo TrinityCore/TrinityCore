@@ -242,12 +242,12 @@ public:
         }
 
         // We compare the old, saved password to the entered old password - no chance for the unauthorized.
-        if (!Battlenet::AccountMgr::CheckPassword(handler->GetSession()->GetAccountId(), std::string(oldPassword)))
+        if (!Battlenet::AccountMgr::CheckPassword(handler->GetSession()->GetBattlenetAccountId(), std::string(oldPassword)))
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             handler->SetSentErrorMessage(true);
             TC_LOG_INFO("entities.player.character", "Battle.net account: %u (IP: %s) Character:[%s] (%s) Tried to change password, but the provided old password is wrong.",
-                handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
+                handler->GetSession()->GetBattlenetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str());
             return false;
         }
