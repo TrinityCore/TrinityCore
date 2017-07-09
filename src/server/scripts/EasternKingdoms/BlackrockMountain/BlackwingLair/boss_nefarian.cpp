@@ -213,7 +213,7 @@ public:
             me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
             DoCast(me, SPELL_NEFARIANS_BARRIER);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
             AttackStart(target);
             events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(3000, 10000));
             events.ScheduleEvent(EVENT_FEAR, urand(10000, 20000));

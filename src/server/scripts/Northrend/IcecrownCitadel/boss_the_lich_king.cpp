@@ -527,7 +527,7 @@ class boss_the_lich_king : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
                 me->SetReactState(REACT_PASSIVE);
                 events.SetPhase(PHASE_INTRO);
                 Initialize();
@@ -936,7 +936,7 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_FINISH_INTRO:
                             me->SetWalk(false);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
                             me->SetReactState(REACT_AGGRESSIVE);
                             events.SetPhase(PHASE_ONE);
                             DoZoneInCombat();
@@ -1855,7 +1855,7 @@ class npc_terenas_menethil : public CreatureScript
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING)))
                             {
                                 lichKing->AI()->DoAction(ACTION_FINISH_OUTRO);
-                                lichKing->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                                lichKing->SetImmuneToNPC(false);
                                 if (Creature* tirion = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HIGHLORD_TIRION_FORDRING)))
                                     tirion->AI()->AttackStart(lichKing);
                             }

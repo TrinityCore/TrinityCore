@@ -205,7 +205,8 @@ class boss_gormok : public CreatureScript
                 {
                     case 0:
                         instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
                         break;
@@ -614,7 +615,8 @@ struct boss_jormungarAI : public BossAI
                 case EVENT_SUMMON_ACIDMAW:
                     if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        acidmaw->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        acidmaw->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        acidmaw->SetImmuneToPC(false);
                         acidmaw->SetReactState(REACT_AGGRESSIVE);
                         acidmaw->SetInCombatWithZone();
                         acidmaw->CastSpell(acidmaw, SPELL_EMERGE);
@@ -771,7 +773,8 @@ class boss_dreadscale : public CreatureScript
                 {
                     case 0:
                         instance->DoCloseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
                         break;
@@ -944,7 +947,8 @@ class boss_icehowl : public CreatureScript
                         break;
                     case 2:
                         instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
                         break;
