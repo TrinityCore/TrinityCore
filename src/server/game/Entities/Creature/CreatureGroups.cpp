@@ -179,6 +179,14 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
     if (!groupAI)
         return;
 
+    if (member == m_leader)
+    {
+        if (!(groupAI & FLAG_MEMBERS_ASSIST_LEADER))
+            return;
+    }
+    else if (!(groupAI & FLAG_LEADER_ASSISTS_MEMBER))
+        return;
+
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         if (m_leader) // avoid crash if leader was killed and reset.
@@ -196,7 +204,7 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
         if (other->GetVictim())
             continue;
 
-        if (((other != m_leader && groupAI & FLAG_AGGRO_ON_AGGRO) || (other == m_leader && groupAI & FLAG_TO_AGGRO_ON_AGGRO)) && other->IsValidAttackTarget(target))
+        if (((other != m_leader && (groupAI & FLAG_MEMBERS_ASSIST_LEADER)) || (other == m_leader && (groupAI & FLAG_LEADER_ASSISTS_MEMBER))) && other->IsValidAttackTarget(target))
             other->AI()->AttackStart(target);
     }
 }
@@ -230,7 +238,7 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
     {
         Creature* member = itr->first;
         uint8 groupAI = sFormationMgr->CreatureGroupMap[member->GetSpawnId()]->groupAI;
-        if (member == m_leader || !member->IsAlive() || member->GetVictim() || !(groupAI & FLAG_FOLLOW))
+        if (member == m_leader || !member->IsAlive() || member->GetVictim() || !(groupAI & FLAG_IDLE_IN_FORMATION))
             continue;
 
         if (itr->second->point_1)
