@@ -909,7 +909,7 @@ namespace MMAP
     bool MapBuilder::shouldSkipMap(uint32 mapID)
     {
         if (m_mapid >= 0)
-            return m_mapid != mapID;
+            return static_cast<uint32>(m_mapid) != mapID;
 
         if (m_skipContinents)
             switch (mapID)
