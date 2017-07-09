@@ -335,7 +335,7 @@ public:
 
         void AttackStart(Unit* who) override
         {
-            if (who && !who->HasUnitFlag(UNIT_FLAG_IMMUNE_TO_PC))
+            if (who && !who->IsImmuneToPC())
                 npc_escortAI::AttackStart(who);
         }
 
@@ -359,7 +359,7 @@ public:
                 if (Creature* temp = me->SummonCreature((uint32)RiftAndSpawnsLocations[i][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
                 {
                     guidVector[i-timeRiftID-1] = temp->GetGUID();
-                    temp->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                    temp->SetImmuneToAll(true);
                     temp->SetReactState(REACT_PASSIVE);
                     temp->GetMotionMaster()->MovePoint(0, RiftAndSpawnsLocations[i][1], RiftAndSpawnsLocations[i][2], RiftAndSpawnsLocations[i][3]);
                     if ((uint32)RiftAndSpawnsLocations[i][0] == NPC_EPOCH)
@@ -951,7 +951,7 @@ public:
                             {
                                 disguised2->UpdateEntry(NPC_INFINITE_HUNTER);
                                 //Make them unattackable
-                                disguised2->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                disguised2->SetImmuneToAll(true);
                                 disguised2->SetReactState(REACT_PASSIVE);
                             }
                             JumpToNextStep(2000);
@@ -961,7 +961,7 @@ public:
                             {
                                 disguised1->UpdateEntry(NPC_INFINITE_AGENT);
                                 //Make them unattackable
-                                disguised1->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                disguised1->SetImmuneToAll(true);
                                 disguised1->SetReactState(REACT_PASSIVE);
                             }
                             JumpToNextStep(2000);
@@ -971,7 +971,7 @@ public:
                             {
                                 disguised0->UpdateEntry(NPC_INFINITE_ADVERSARY);
                                 //Make them unattackable
-                                disguised0->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                disguised0->SetImmuneToAll(true);
                                 disguised0->SetReactState(REACT_PASSIVE);
                             }
                             JumpToNextStep(2000);
@@ -985,7 +985,7 @@ public:
                             for (uint32 i = 0; i< ENCOUNTER_DRACONIAN_NUMBER; ++i)
                                 if (Creature* temp = ObjectAccessor::GetCreature(*me, infiniteDraconianGUID[i]))
                                 {
-                                    temp->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                    temp->SetImmuneToAll(false);
                                     temp->SetReactState(REACT_AGGRESSIVE);
                                 }
                             JumpToNextStep(5000);
@@ -1043,7 +1043,7 @@ public:
                                 if (Creature* epoch = ObjectAccessor::GetCreature(*me, epochGUID))
                                 {
                                     //Make Epoch attackable
-                                    epoch->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NON_ATTACKABLE));
+                                    epoch->SetImmuneToAll(false);
                                     epoch->SetReactState(REACT_AGGRESSIVE);
                                 }
 

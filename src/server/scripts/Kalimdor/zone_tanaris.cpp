@@ -365,7 +365,7 @@ public:
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 me->SetFullHealth();
                 me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 Talk(SAY_OOX_START);
 
                 Start(true, false, player->GetGUID());

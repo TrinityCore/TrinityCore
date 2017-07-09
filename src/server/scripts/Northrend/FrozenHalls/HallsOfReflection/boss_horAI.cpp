@@ -27,7 +27,7 @@ void boss_horAI::Reset()
 {
     _Reset();
     me->SetVisible(false);
-    me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+    me->SetImmuneToAll(true);
     me->SetReactState(REACT_PASSIVE);
     if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
         instance->ProcessEvent(nullptr, EVENT_DO_WIPE);
@@ -38,7 +38,7 @@ void boss_horAI::DoAction(int32 actionId)
     switch (actionId)
     {
         case ACTION_ENTER_COMBAT: // called by InstanceScript when boss shall enter in combat.
-            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+            me->SetImmuneToAll(false);
             me->SetReactState(REACT_AGGRESSIVE);
             DoZoneInCombat(me, 150.0f);
             break;

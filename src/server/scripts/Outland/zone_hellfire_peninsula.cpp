@@ -959,7 +959,7 @@ public:
             me->RestoreFaction();
             me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
             me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
@@ -974,7 +974,7 @@ public:
                 me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
-                me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
                 Talk(SAY_DEFEATED);
 
                 _events.ScheduleEvent(EVENT_EVADE, Minutes(1));
@@ -994,7 +994,7 @@ public:
                     _events.ScheduleEvent(EVENT_ATTACK, Seconds(2));
                     break;
                 case EVENT_ATTACK:
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     me->SetFaction(FACTION_MONSTER_2);
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                         me->EngageWithTarget(player);
