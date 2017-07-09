@@ -153,7 +153,7 @@ class boss_doomrel : public CreatureScript
                 me->SetFaction(FACTION_FRIENDLY);
 
                 // was set before event start, so set again
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
 
                 if (_instance->GetData(DATA_GHOSTKILL) >= 7)
                     me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
@@ -241,7 +241,7 @@ class boss_doomrel : public CreatureScript
                         CloseGossipMenuFor(player);
                         //start event here
                         me->SetFaction(FACTION_DARK_IRON_DWARVES);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetImmuneToPC(false);
                         me->AI()->AttackStart(player);
 
                         _instance->SetGuidData(DATA_EVENSTARTER, player->GetGUID());
