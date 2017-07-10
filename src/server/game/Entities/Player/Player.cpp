@@ -1077,6 +1077,11 @@ void Player::Update(uint32 p_time)
 
     UpdateAfkReport(now);
 
+    if (IsInCombat())
+        if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
+            if (!aura->IsPermanent())
+                aura->SetDuration(aura->GetSpellInfo()->GetMaxDuration());
+
     if (IsAIEnabled && GetAI())
         GetAI()->UpdateAI(p_time);
     else if (NeedChangeAI)
@@ -6958,6 +6963,11 @@ void Player::UpdateArea(uint32 newArea)
     UpdateAreaDependentAuras(newArea);
     UpdateAreaAndZonePhase();
 
+    if (IsAreaThatActivatesPvpTalents(newArea))
+        EnablePvpRules();
+    else
+        DisablePvpRules();
+
     // previously this was in UpdateZone (but after UpdateArea) so nothing will break
     pvpInfo.IsInNoPvPArea = false;
     if (area && area->IsSanctuary())    // in sanctuary
@@ -6975,11 +6985,6 @@ void Player::UpdateArea(uint32 newArea)
         _restMgr->SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
-
-    if (IsAreaThatActivatesPvpTalents(newArea))
-        EnablePvpRules();
-    else if (!IsInCombat())
-        DisablePvpRules();
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -26206,14 +26211,28 @@ bool Player::HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const
     return (itr != GetPvpTalentMap(activeTalentGroup)->end() && itr->second != PLAYERSPELL_REMOVED);
 }
 
-void Player::EnablePvpRules()
+void Player::EnablePvpRules(bool dueToCombat /*= false*/)
 {
+    if (HasPvpRulesEnabled())
+        return;
+
     CastSpell(this, SPELL_PVP_RULES_ENABLED);
+    if (!dueToCombat)
+    {
+        if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
+        {
+            aura->SetMaxDuration(-1);
+            aura->SetDuration(-1);
+        }
+    }
 }
 
 void Player::DisablePvpRules()
 {
-    RemoveAurasDueToSpell(SPELL_PVP_RULES_ENABLED);
+    if (!IsInCombat())
+        RemoveAurasDueToSpell(SPELL_PVP_RULES_ENABLED);
+    else if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
+        aura->SetDuration(aura->GetSpellInfo()->GetMaxDuration());
 }
 
 bool Player::HasPvpRulesEnabled() const
@@ -27361,9 +27380,6 @@ void Player::OnCombatExit()
 {
     UpdatePotionCooldown();
     m_combatExitTime = getMSTime();
-    if (!IsInAreaThatActivatesPvpTalents())
-        if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
-            aura->SetDuration(20000);
 }
 
 void Player::CreateGarrison(uint32 garrSiteId)

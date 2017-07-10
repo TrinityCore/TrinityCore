@@ -1639,7 +1639,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemovePvpTalent(PvpTalentEntry const* talent);
         void TogglePvpTalents(bool enable);
         bool HasPvpTalent(uint32 talentID, uint8 activeTalentGroup) const;
-        void EnablePvpRules();
+        void EnablePvpRules(bool dueToCombat = false);
         void DisablePvpRules();
         bool HasPvpRulesEnabled() const;
         bool IsInAreaThatActivatesPvpTalents() const;
