@@ -375,24 +375,6 @@ void WorldSession::SendLfgPartyLockInfo()
     SendPacket(&data);
 }
 
-void WorldSession::HandleLfrJoinOpcode(WorldPacket& recvData)
-{
-    uint32 entry;                                          // Raid id to search
-    recvData >> entry;
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_LFR_JOIN %s dungeon entry: %u",
-        GetPlayerInfo().c_str(), entry);
-    //SendLfrUpdateListOpcode(entry);
-}
-
-void WorldSession::HandleLfrLeaveOpcode(WorldPacket& recvData)
-{
-    uint32 dungeonId;                                      // Raid id queue to leave
-    recvData >> dungeonId;
-    TC_LOG_DEBUG("lfg", "CMSG_LFG_LFR_LEAVE %s dungeonId: %u",
-        GetPlayerInfo().c_str(), dungeonId);
-    //sLFGMgr->LeaveLfr(GetPlayer(), dungeonId);
-}
-
 void WorldSession::HandleDFGetJoinStatus(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("lfg", "CMSG_DF_GET_JOIN_STATUS %s", GetPlayerInfo().c_str());
