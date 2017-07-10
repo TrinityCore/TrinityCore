@@ -7148,6 +7148,9 @@ void Player::DuelComplete(DuelCompleteType type)
         SendMessageToSet(duelWinner.Write(), true);
     }
 
+    duel->opponent->DisablePvpRules();
+    duel->initiator->DisablePvpRules();
+
     sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);
 
     switch (type)
