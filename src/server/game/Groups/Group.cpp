@@ -1496,7 +1496,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     {
         partyUpdate.LfgInfos = boost::in_place();
 
-        partyUpdate.LfgInfos->Slot = sLFGMgr->GetDungeon(m_guid);
+        partyUpdate.LfgInfos->Slot = sLFGMgr->GetLFGDungeonEntry(sLFGMgr->GetDungeon(m_guid));
         partyUpdate.LfgInfos->BootCount = 0;
         partyUpdate.LfgInfos->Aborted = false;
 
