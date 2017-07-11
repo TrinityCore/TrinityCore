@@ -422,21 +422,21 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
 
     // Check player or group member restrictions
     if (!player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER))
-        joinData.result = LFG_JOIN_NOT_MEET_REQS;
+        joinData.result = LFG_JOIN_NO_SLOTS_PLAYER;
     else if (player->InBattleground() || player->InArena() || player->InBattlegroundQueue())
-        joinData.result = LFG_JOIN_USING_BG_SYSTEM;
+        joinData.result = LFG_JOIN_CANT_USE_DUNGEONS;
     else if (player->HasAura(LFG_SPELL_DUNGEON_DESERTER))
-        joinData.result = LFG_JOIN_DESERTER;
+        joinData.result = LFG_JOIN_DESERTER_PLAYER;
     else if (player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
-        joinData.result = LFG_JOIN_RANDOM_COOLDOWN;
+        joinData.result = LFG_JOIN_RANDOM_COOLDOWN_PLAYER;
     else if (dungeons.empty())
-        joinData.result = LFG_JOIN_NOT_MEET_REQS;
+        joinData.result = LFG_JOIN_NO_SLOTS_PLAYER;
     else if (player->HasAura(9454)) // check Freeze debuff
-        joinData.result = LFG_JOIN_NOT_MEET_REQS;
+        joinData.result = LFG_JOIN_NO_SLOTS_PLAYER;
     else if (grp)
     {
         if (grp->GetMembersCount() > MAX_GROUP_SIZE)
-            joinData.result = LFG_JOIN_TOO_MUCH_MEMBERS;
+            joinData.result = LFG_JOIN_TOO_MANY_MEMBERS;
         else
         {
             uint8 memberCount = 0;
@@ -445,13 +445,13 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
                 if (Player* plrg = itr->GetSource())
                 {
                     if (!plrg->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER))
-                        joinData.result = LFG_JOIN_INTERNAL_ERROR;
+                        joinData.result = LFG_JOIN_NO_LFG_OBJECT;
                     if (plrg->HasAura(LFG_SPELL_DUNGEON_DESERTER))
-                        joinData.result = LFG_JOIN_PARTY_DESERTER;
+                        joinData.result = LFG_JOIN_DESERTER_PARTY;
                     else if (plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
-                        joinData.result = LFG_JOIN_PARTY_RANDOM_COOLDOWN;
+                        joinData.result = LFG_JOIN_RANDOM_COOLDOWN_PARTY;
                     else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
-                        joinData.result = LFG_JOIN_USING_BG_SYSTEM;
+                        joinData.result = LFG_JOIN_CANT_USE_DUNGEONS;
                     else if (plrg->HasAura(9454)) // check Freeze debuff
                         joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
                     ++memberCount;
@@ -460,7 +460,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
             }
 
             if (joinData.result == LFG_JOIN_OK && memberCount != grp->GetMembersCount())
-                joinData.result = LFG_JOIN_DISCONNECTED;
+                joinData.result = LFG_JOIN_MEMBERS_NOT_PRESENT;
         }
     }
     else
@@ -478,23 +478,23 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
             {
                 case LFG_TYPE_RANDOM:
                     if (dungeons.size() > 1)               // Only allow 1 random dungeon
-                        joinData.result = LFG_JOIN_DUNGEON_INVALID;
+                        joinData.result = LFG_JOIN_INVALID_SLOT;
                     else
                         rDungeonId = (*dungeons.begin());
                     // No break on purpose (Random can only be dungeon or heroic dungeon)
                 case LFG_TYPE_HEROIC:
                 case LFG_TYPE_DUNGEON:
                     if (isRaid)
-                        joinData.result = LFG_JOIN_MIXED_RAID_DUNGEON;
+                        joinData.result = LFG_JOIN_MISMATCHED_SLOTS;
                     isDungeon = true;
                     break;
                 case LFG_TYPE_RAID:
                     if (isDungeon)
-                        joinData.result = LFG_JOIN_MIXED_RAID_DUNGEON;
+                        joinData.result = LFG_JOIN_MISMATCHED_SLOTS;
                     isRaid = true;
                     break;
                 default:
-                    joinData.result = LFG_JOIN_DUNGEON_INVALID;
+                    joinData.result = LFG_JOIN_INVALID_SLOT;
                     break;
             }
         }
@@ -509,7 +509,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
             // if we have lockmap then there are no compatible dungeons
             GetCompatibleDungeons(dungeons, players, joinData.lockmap, isContinue);
             if (dungeons.empty())
-                joinData.result = grp ? LFG_JOIN_INTERNAL_ERROR : LFG_JOIN_NOT_MEET_REQS;
+                joinData.result = grp ? LFG_JOIN_NO_LFG_OBJECT : LFG_JOIN_NO_SLOTS_PLAYER;
         }
     }
 
@@ -531,6 +531,11 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
         return;
     }
 
+    WorldPackets::LFG::RideTicket ticket;
+    ticket.RequesterGuid = guid;
+    ticket.Id = GetQueueId(gguid);
+    ticket.Type = WorldPackets::LFG::RideType::Lfg;
+    ticket.Time = int32(time(nullptr));
     std::string debugNames = "";
     if (grp)                                               // Begin rolecheck
     {
@@ -558,6 +563,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
                 ObjectGuid pguid = plrg->GetGUID();
                 plrg->GetSession()->SendLfgUpdateStatus(updateData, true);
                 SetState(pguid, LFG_STATE_ROLECHECK);
+                SetTicket(pguid, ticket);
                 if (!isContinue)
                     SetSelectedDungeons(pguid, dungeons);
                 roleCheck.roles[pguid] = 0;
@@ -586,10 +592,12 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
             SetSelectedDungeons(guid, dungeons);
         }
         // Send update to player
-        player->GetSession()->SendLfgJoinResult(joinData);
-        player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons), false);
-        SetState(gguid, LFG_STATE_QUEUED);
+        SetTicket(guid, ticket);
         SetRoles(guid, roles);
+        player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE_INITIAL, dungeons), false);
+        SetState(guid, LFG_STATE_QUEUED);
+        player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons), false);
+        player->GetSession()->SendLfgJoinResult(joinData);
         debugNames.append(player->GetName());
     }
 
@@ -670,6 +678,15 @@ void LFGMgr::LeaveLfg(ObjectGuid guid, bool disconnected)
     }
 }
 
+WorldPackets::LFG::RideTicket const* LFGMgr::GetTicket(ObjectGuid guid) const
+{
+    auto itr = PlayersStore.find(guid);
+    if (itr != PlayersStore.end())
+        return &itr->second.GetTicket();
+
+    return nullptr;
+}
+
 /**
    Update the Role check info with the player selected role.
 
@@ -717,11 +734,7 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
     else
         dungeons = roleCheck.dungeons;
 
-    LfgJoinResult joinResult = LFG_JOIN_FAILED;
-    if (roleCheck.state == LFG_ROLECHECK_MISSING_ROLE || roleCheck.state == LFG_ROLECHECK_WRONG_ROLES)
-        joinResult = LFG_JOIN_ROLE_CHECK_FAILED;
-
-    LfgJoinResultData joinData = LfgJoinResultData(joinResult, roleCheck.state);
+    LfgJoinResultData joinData = LfgJoinResultData(LFG_JOIN_ROLE_CHECK_FAILED, roleCheck.state);
     for (LfgRolesMap::const_iterator it = roleCheck.roles.begin(); it != roleCheck.roles.end(); ++it)
     {
         ObjectGuid pguid = it->first;
@@ -1282,7 +1295,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
     {
         TC_LOG_DEBUG("lfg.teleport", "Player %s not in group/lfggroup or dungeon not found!",
             player->GetName().c_str());
-        player->GetSession()->SendLfgTeleportError(uint8(LFG_TELEPORTERROR_INVALID_LOCATION));
+        player->GetSession()->SendLfgTeleportError(LFG_TELEPORT_RESULT_NO_RETURN_LOCATION);
         return;
     }
 
@@ -1296,20 +1309,20 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         return;
     }
 
-    LfgTeleportError error = LFG_TELEPORTERROR_OK;
+    LfgTeleportResult error = LFG_TELEPORT_RESULT_NONE;
 
     if (!player->IsAlive())
-        error = LFG_TELEPORTERROR_PLAYER_DEAD;
+        error = LFG_TELEPORT_RESULT_DEAD;
     else if (player->IsFalling() || player->HasUnitState(UNIT_STATE_JUMPING))
-        error = LFG_TELEPORTERROR_FALLING;
+        error = LFG_TELEPORT_RESULT_FALLING;
     else if (player->IsMirrorTimerActive(FATIGUE_TIMER))
-        error = LFG_TELEPORTERROR_FATIGUE;
+        error = LFG_TELEPORT_RESULT_EXHAUSTION;
     else if (player->GetVehicle())
-        error = LFG_TELEPORTERROR_IN_VEHICLE;
+        error = LFG_TELEPORT_RESULT_ON_TRANSPORT;
     else if (!player->GetCharmGUID().IsEmpty())
-        error = LFG_TELEPORTERROR_CHARMING;
+        error = LFG_TELEPORT_RESULT_IMMUNE_TO_SUMMONS;
     else if (player->HasAura(9454)) // check Freeze debuff
-        error = LFG_TELEPORTERROR_INVALID_LOCATION;
+        error = LFG_TELEPORT_RESULT_NO_RETURN_LOCATION;
     else if (player->GetMapId() != uint32(dungeon->map))  // Do not teleport players in dungeon to the entrance
     {
         uint32 mapid = dungeon->map;
@@ -1346,13 +1359,13 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         }
 
         if (!player->TeleportTo(mapid, x, y, z, orientation))
-            error = LFG_TELEPORTERROR_INVALID_LOCATION;
+            error = LFG_TELEPORT_RESULT_NO_RETURN_LOCATION;
     }
     else
-        error = LFG_TELEPORTERROR_INVALID_LOCATION;
+        error = LFG_TELEPORT_RESULT_NO_RETURN_LOCATION;
 
-    if (error != LFG_TELEPORTERROR_OK)
-        player->GetSession()->SendLfgTeleportError(uint8(error));
+    if (error != LFG_TELEPORT_RESULT_NONE)
+        player->GetSession()->SendLfgTeleportError(error);
 
     TC_LOG_DEBUG("lfg.teleport", "Player %s is being teleported in to map %u "
         "(x: %f, y: %f, z: %f) Result: %u", player->GetName().c_str(), dungeon->map,
@@ -1742,6 +1755,11 @@ void LFGMgr::DecreaseKicksLeft(ObjectGuid guid)
 {
     GroupsStore[guid].DecreaseKicksLeft();
     TC_LOG_TRACE("lfg.data.group.kicksleft.decrease", "Group: %s, Kicks: %u", guid.ToString().c_str(), GroupsStore[guid].GetKicksLeft());
+}
+
+void LFGMgr::SetTicket(ObjectGuid guid, WorldPackets::LFG::RideTicket const& ticket)
+{
+    PlayersStore[guid].SetTicket(ticket);
 }
 
 void LFGMgr::RemovePlayerData(ObjectGuid guid)
