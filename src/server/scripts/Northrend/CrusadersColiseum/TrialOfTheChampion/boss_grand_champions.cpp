@@ -263,7 +263,7 @@ public:
                         if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
                             ResetThreatList();
-                            me->GetThreatManager().AddThreat(player, 1.0f);
+                            AddThreat(player, 1.0f);
                             DoCast(player, SPELL_CHARGE);
                             break;
                         }
@@ -410,7 +410,7 @@ public:
                         if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
                             ResetThreatList();
-                            me->GetThreatManager().AddThreat(player, 5.0f);
+                            AddThreat(player, 5.0f);
                             DoCast(player, SPELL_INTERCEPT);
                             break;
                         }
