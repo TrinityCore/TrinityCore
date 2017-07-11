@@ -1092,7 +1092,7 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
                     }
 
                     // this guy will get hit - achievement failure trigger
-                    if (Creature* thaddius = (*it)->FindNearestCreature(NPC_THADDIUS,200.0f))
+                    if (Creature* thaddius = (*it)->FindNearestCreature(NPC_THADDIUS, 200.0f))
                         thaddius->AI()->DoAction(ACTION_POLARITY_CROSSED);
 
                     ++it;
@@ -1222,8 +1222,8 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
                     float stalaggOtherThreat = stalaggThreat.GetThreat(feugenTank);
 
                     // set the two entries in feugen's threat table to be equal to the ones in stalagg's
-                    stalagg->GetThreatManager().AddThreat(stalaggTank, stalaggTankThreat - feugenOtherThreat, nullptr, true, true);
-                    stalagg->GetThreatManager().AddThreat(feugenTank, stalaggOtherThreat - feugenTankThreat, nullptr, true, true);
+                    feugen->GetThreatManager().AddThreat(stalaggTank, stalaggTankThreat - feugenOtherThreat, nullptr, true, true);
+                    feugen->GetThreatManager().AddThreat(feugenTank, stalaggOtherThreat - feugenTankThreat, nullptr, true, true);
 
                     // set the two entries in stalagg's threat table to be equal to the ones in feugen's
                     stalagg->GetThreatManager().AddThreat(feugenTank, feugenTankThreat - stalaggOtherThreat, nullptr, true, true);
