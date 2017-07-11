@@ -172,7 +172,6 @@ void WorldSession::SendLfgPlayerLockInfo()
         playerDungeonInfo.EncounterMask = 0;
 
         Quest const* quest = nullptr;
-        bool done = false;
         if (lfg::LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(slot, level))
         {
             if (Quest const* quest = sObjectMgr->GetQuestTemplate(reward->firstQuest))
