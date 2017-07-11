@@ -245,7 +245,7 @@ public:
                         events.SetPhase(PHASE_BALCONY);
                         me->SetReactState(REACT_PASSIVE);
                         me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetImmuneToPC(true, true);
+                        me->SetImmuneToPC(true);
                         me->AttackStop();
                         me->StopMoving();
                         me->RemoveAllAuras();
