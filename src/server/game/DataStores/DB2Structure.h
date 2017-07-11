@@ -739,6 +739,8 @@ struct CurrencyTypesEntry
 {
     uint32 ID;
     LocalizedString* Name;
+    char const* InventoryIcon;
+    char const* InventoryIcon2;
     uint32 MaxQty;
     uint32 MaxEarnablePerWeek;
     uint32 Flags;
@@ -746,7 +748,6 @@ struct CurrencyTypesEntry
     uint8 CategoryID;
     uint8 SpellCategory;
     uint8 Quality;
-    uint32 InventoryIconFileDataID;
     uint32 SpellWeight;
 };
 
@@ -841,14 +842,14 @@ struct EmotesEntry
 {
     uint32 ID;
     char const* EmoteSlashCommand;
-    uint32 SpellVisualKitID;
     uint32 EmoteFlags;
-    int32 RaceMask;
+    uint32 SpellVisualKitID;
     uint16 AnimID;
     uint8 EmoteSpecProc;
-    uint32 EmoteSpecProcParam;
-    uint32 EmoteSoundID;
-    int32 ClassMask;
+    uint8 EmoteSpecProcParam;
+    uint16 EmoteSoundID;
+    int8 ClassMask;
+    int32 RaceMask;
 };
 
 struct EmotesTextEntry
@@ -1221,6 +1222,7 @@ struct HolidaysEntry
 {
     uint32 ID;
     uint32 Date[MAX_HOLIDAY_DATES];                                 // dates in unix time starting at January, 1, 2000
+    char const* TextureFileData;
     uint16 Duration[MAX_HOLIDAY_DURATIONS];
     uint16 Region;
     uint8 Looping;
@@ -1228,9 +1230,8 @@ struct HolidaysEntry
     uint8 Priority;
     int8 CalendarFilterType;
     uint8 Flags;
-    uint32 HolidayNameID;
-    uint32 HolidayDescriptionID;
-    int32 TextureFileDataID[3];
+    uint16 HolidayNameID;
+    uint8 HolidayDescriptionID;
 };
 
 struct ImportPriceArmorEntry
@@ -1631,9 +1632,9 @@ struct KeyChainEntry
 
 struct LfgDungeonsEntry
 {
-    uint32 ID;
     LocalizedString* Name;
     uint32 Flags;
+    char const* TextureFilename;
     LocalizedString* Description;
     float MinItemLevel;
     uint16 MaxLevel;
@@ -1662,9 +1663,7 @@ struct LfgDungeonsEntry
     uint8 MinCountDamage;
     uint8 SubType;
     uint8 MentorCharLevel;
-    int32 TextureFileDataID;
-    int32 RewardIconFileDataID;
-    int32 ProposalTextureFileDataID;
+    uint32 ID;
 
     // Helpers
     uint32 Entry() const { return ID + (Type << 24); }
@@ -1724,7 +1723,7 @@ struct MailTemplateEntry
 struct MapEntry
 {
     uint32 ID;
-    char* Directory;
+    char const* Directory;
     uint32 Flags[2];
     float MinimapIconScale;
     DBCPosition2D CorpsePos;                                        // entrance coordinates in ghost mode  (in most cases = normal entrance)
@@ -1787,7 +1786,6 @@ struct MapDifficultyEntry
     uint8 RaidDurationType;                                 // 1 means daily reset, 2 means weekly
     uint8 MaxPlayers;                                       // m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
     uint8 LockID;
-    uint8 Flags;
     uint8 ItemBonusTreeModID;
     uint32 Context;
 
