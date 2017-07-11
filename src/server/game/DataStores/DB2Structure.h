@@ -98,8 +98,7 @@ struct AreaTableEntry
     // Checks if zone activates pvp talents.
     bool ActivatesPvpTalents() const
     {
-        return (!IsSanctuary() && (Flags[0] & (AREA_FLAG_ARENA | AREA_FLAG_WINTERGRASP)) != 0)
-            || ID == 8320 || ID == 8304 || ID == 8078 || ID == 8051 || ID == 8324 || ID == 8328 || ID == 5095;
+        return (!IsSanctuary() && (Flags[0] & (AREA_FLAG_ARENA | AREA_FLAG_WINTERGRASP)) != 0) || ID == 5095 /*Tol Barad*/;
     }
 };
 
