@@ -8551,8 +8551,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (54130, 0, 7, 0, 4, 0, 100, 0, 0, 0, 0, 0, 23, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Amberleaf Scamp - On Aggro - Increment Event Phase'),
 (54130, 0, 8, 0, 7, 0, 100, 0, 0, 0, 0, 0, 23, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Amberleaf Scamp - On Evade - Decrement Event Phase'),
 (54130, 0, 9, 0, 0, 0, 100, 0, 2500, 2500, 6000, 6000, 11, 109081, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Amberleaf Scamp - Update IC - Cast Take this!'),
-(54130, 0, 10, 0, 1, 2, 100, 0, 0, 30000, 30000, 120000, 117, 574, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Amberleaf Scamp - Update OOC - Play Animkit'),
-(54130, 0, 11, 0, 1, 2, 100, 0, 0, 30000, 30000, 60000, 117, 1842, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Amberleaf Scamp - Update OOC - Play Animkit'),
+(54130, 0, 10, 0, 1, 2, 100, 0, 0, 30000, 30000, 120000, 128, 574, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Amberleaf Scamp - Update OOC - Play Animkit'),
+(54130, 0, 11, 0, 1, 2, 100, 0, 0, 30000, 30000, 60000, 128, 1842, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Amberleaf Scamp - Update OOC - Play Animkit'),
 -- Trigger 6958 Cart Driver
 (6958, 2, 0, 0, 46, 0, 100, 0, 6958, 0, 0, 0, 86, 106206, 2, 10, @CGUID+427, 54855, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Cast Forcecast Summon Cart Driver'),
 -- Min Dimwind
@@ -8947,7 +8947,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Jojo Ironbrow
 (57638, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5763800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5763800, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
-(5763800, 9, 1, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
+(5763800, 9, 1, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
 (5763800, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1039.19, 3284.26, 129.3971, 0, 'Jojo Ironbrow - Move to Pos'),
 (5763800, 9, 3, 0, 0, 0, 100, 0, 3200, 3200, 0, 0, 11, 129272, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast Jojo Headbash, Reeds Cast'),
 (5763800, 9, 4, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
@@ -8976,7 +8976,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Whitefeather Crane
 (55015, 0, 0, 0, 0, 0, 100, 0, 2000, 5000, 8000, 12000, 11, 109088, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Whitefeather Crane - Update IC - Cast Razor Beak'),
 -- Water Pincer
-(60411, 0, 0, 0, 1, 0, 100, 0, 2000, 10000, 8000, 10000, 117, 2354, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Water Pincer - Update OOC - Play AnimKit'),
+(60411, 0, 0, 0, 1, 0, 100, 0, 2000, 10000, 8000, 10000, 128, 2354, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Water Pincer - Update OOC - Play AnimKit'),
 (60411, 0, 1, 0, 0, 0, 100, 0, 1000, 2000, 5000, 8000, 11, 128448, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Water Pincer - Update IC - Cast Phlogiston'),
 -- Barbed Ray
 (54976, 0, 0, 0, 0, 0, 100, 0, 3000, 5000, 15000, 20000, 11, 128407, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Barbed Ray - Update IC - Cast Poisoned Barb'),
@@ -9105,7 +9105,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Jojo Ironbrow
 (57669, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5766900, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5766900, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
-(5766900, 9, 1, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
+(5766900, 9, 1, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
 (5766900, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 599.215, 3132.27, 89.06574, 0, 'Jojo Ironbrow - Move to Pos'),
 (5766900, 9, 3, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 11, 129293, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast Jojo Headbash, Planks Cast'),
 (5766900, 9, 4, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
@@ -9467,7 +9467,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Jojo Ironbrow
 (57670, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5767000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5767000, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
-(5767000, 9, 1, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
+(5767000, 9, 1, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
 (5767000, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1077.31, 4179.94, 205.7737, 0, 'Jojo Ironbrow - Move to Pos'),
 (5767000, 9, 3, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 11, 129294, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast Jojo Headbash, Blocks Cast'),
 (5767000, 9, 4, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
@@ -9600,17 +9600,17 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Jojo Ironbrow
 (57692, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5769200, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5769200, 9, 0, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
-(5769200, 9, 1, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
+(5769200, 9, 1, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
 (5769200, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1077.47, 4180.03, 205.7929, 0, 'Jojo Ironbrow - Move to Pos'),
 (5769200, 9, 3, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5769200, 9, 4, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 11, 129297, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast Jojo Headbash, Pillar Cast'),
-(5769200, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 117, 1078, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
+(5769200, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 1078, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
 (5769200, 9, 6, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 2, 2, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Data'),
 (5769200, 9, 7, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5769200, 9, 8, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 3, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5769200, 9, 9, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 59, 1, 2, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Run'),
 (5769200, 9, 10, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1078.09, 4177.64, 205.7422, 0, 'Jojo Ironbrow - Move to Pos'),
-(57692, 0, 1, 2, 34, 0, 100, 0, 8, 2, 0, 0, 117, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set AI AnimKit'),
+(57692, 0, 1, 2, 34, 0, 100, 0, 8, 2, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set AI AnimKit'),
 (57692, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 90, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set Bytes1'),
 -- Frightened Winds
 (-@CGUID-1759, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Frightened Winds - On Respawn - Set React State'),
@@ -9672,7 +9672,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Firework Launcher
 (64507, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Respawn - Set Event Phase 1'),
 (64507, 0, 1, 2, 8, 1, 100, 0, 125961, 0, 0, 0, 11, 125970, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Cast AICast Overpacked Firework'),
-(64507, 0, 2, 3, 61, 1, 100, 0, 0, 0, 0, 0, 117, 2538, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Play Oneshot AnimKit'),
+(64507, 0, 2, 3, 61, 1, 100, 0, 0, 0, 0, 0, 128, 2538, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Play Oneshot AnimKit'),
 (64507, 0, 3, 4, 61, 1, 100, 0, 0, 0, 0, 0, 11, 125964, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Cast Firework Launcher Inactive'),
 (64507, 0, 4, 5, 61, 1, 100, 0, 0, 0, 0, 0, 11, 104080, 0, 0, 0, 0, 0, 10, @CGUID+1781, 64505, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Set Data'),
 (64507, 0, 5, 6, 61, 1, 100, 0, 0, 0, 0, 0, 80, 6450700, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Run Script'),

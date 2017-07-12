@@ -1569,16 +1569,6 @@ class TC_GAME_API SmartAIMgr
         bool IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry);
         bool IsSoundValid(SmartScriptHolder const& e, uint32 entry);
         bool IsAnimKitValid(SmartScriptHolder const& e, uint32 entry);
-                return false;
-            }
-            return true;
-        }
-
-        bool IsAnimKitValid(SmartScriptHolder const& e, uint32 entry)
-        {
-            if (!sAnimKitStore.LookupEntry(entry))
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses non-existent AnimKit entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
         bool IsTextValid(SmartScriptHolder const& e, uint32 id);
 
         // Helpers
