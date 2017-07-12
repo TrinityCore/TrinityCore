@@ -15,19 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Spell.h"
-#include "Vehicle.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CreatureTextMgr.h"
 #include "icecrown_citadel.h"
+#include "CellImpl.h"
+#include "CreatureTextMgr.h"
+#include "GameObject.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
+#include "Weather.h"
 
 enum Texts
 {
@@ -516,7 +521,7 @@ class boss_the_lich_king : public CreatureScript
                 // Reset The Frozen Throne gameobjects
                 FrozenThroneResetWorker reset;
                 Trinity::GameObjectWorker<FrozenThroneResetWorker> worker(me, reset);
-                me->VisitNearbyGridObject(333.0f, worker);
+                Cell::VisitGridObjects(me, worker, 333.0f);
 
                 // Reset any light override
                 me->GetMap()->SetZoneOverrideLight(AREA_THE_FROZEN_THRONE, 0, 5000);
@@ -813,7 +818,7 @@ class boss_the_lich_king : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_TALK_1, 9000, 0, PHASE_INTRO);
                         break;
                     case POINT_CENTER_1:
-                        me->SetFacingTo(0.0f);
+                        me->SetFacingTo(0.0f, true);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         me->GetMap()->SetZoneMusic(AREA_THE_FROZEN_THRONE, MUSIC_SPECIAL);
                         DoCast(me, SPELL_REMORSELESS_WINTER_1);
@@ -828,7 +833,7 @@ class boss_the_lich_king : public CreatureScript
                         events.ScheduleEvent(EVENT_SOUL_REAPER, 94000, 0, PHASE_TWO);
                         break;
                     case POINT_CENTER_2:
-                        me->SetFacingTo(0.0f);
+                        me->SetFacingTo(0.0f, true);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         me->GetMap()->SetZoneMusic(AREA_THE_FROZEN_THRONE, MUSIC_SPECIAL);
                         DoCast(me, SPELL_REMORSELESS_WINTER_2);
@@ -1104,6 +1109,9 @@ class boss_the_lich_king : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING) && !(events.IsInPhase(PHASE_TRANSITION) || events.IsInPhase(PHASE_OUTRO) || events.IsInPhase(PHASE_FROSTMOURNE)))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -2041,9 +2049,7 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NECROTIC_PLAGUE_JUMP))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NECROTIC_PLAGUE_JUMP });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2313,9 +2319,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ICE_BURST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ICE_BURST });
             }
 
             void CheckTargetCount(std::list<WorldObject*>& unitList)
@@ -2354,11 +2358,10 @@ class spell_the_lich_king_raging_spirit : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_raging_spirit_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) override
+            bool Validate(SpellInfo const* spell) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LIFE_SIPHON_HEAL))
-                    return false;
-                return true;
+                SpellEffectInfo const* effect0 = spell->GetEffect(EFFECT_0);
+                return effect0 && ValidateSpellInfo({ uint32(effect0->CalcValue()) });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -2478,9 +2481,7 @@ class spell_the_lich_king_soul_reaper : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_REAPER_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SOUL_REAPER_BUFF });
             }
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
@@ -2519,9 +2520,7 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ICE_BURST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_CHARGE });
             }
 
             void SelectTarget(std::list<WorldObject*>& targets)
@@ -2605,9 +2604,7 @@ class spell_the_lich_king_life_siphon : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LIFE_SIPHON_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_LIFE_SIPHON_HEAL });
             }
 
             void TriggerHeal()
@@ -2965,9 +2962,7 @@ class spell_the_lich_king_dark_hunger : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DARK_HUNGER_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DARK_HUNGER_HEAL });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

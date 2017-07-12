@@ -18,6 +18,8 @@
 #ifndef HALLS_OF_STONE_H_
 #define HALLS_OF_STONE_H_
 
+#include "CreatureAIImpl.h"
+
 #define HoSScriptName "instance_halls_of_stone"
 #define DataHeader    "HOS"
 
@@ -67,8 +69,8 @@ enum HOSGameObjectIds
     GO_TRIBUNAL_SKY_FLOOR       = 191527
 };
 
-template<class AI>
-AI* GetHallsOfStoneAI(Creature* creature)
+template<typename AI>
+inline AI* GetHallsOfStoneAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, HoSScriptName);
 }

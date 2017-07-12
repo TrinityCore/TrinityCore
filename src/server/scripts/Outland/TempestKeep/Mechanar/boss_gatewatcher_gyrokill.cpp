@@ -23,8 +23,8 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "mechanar.h"
+#include "ScriptedCreature.h"
 
 enum Say
 {
@@ -109,6 +109,9 @@ class boss_gatewatcher_gyrokill : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -117,7 +120,7 @@ class boss_gatewatcher_gyrokill : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_gatewatcher_gyrokillAI(creature);
+            return GetMechanarAI<boss_gatewatcher_gyrokillAI>(creature);
         }
 };
 

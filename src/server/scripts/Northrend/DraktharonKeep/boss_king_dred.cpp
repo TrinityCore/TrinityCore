@@ -20,8 +20,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "drak_tharon_keep.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -151,6 +153,9 @@ class boss_king_dred : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

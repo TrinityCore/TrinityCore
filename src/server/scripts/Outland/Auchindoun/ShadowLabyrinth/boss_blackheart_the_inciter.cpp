@@ -24,6 +24,7 @@ Category: Auchindoun, Shadow Labyrinth
 */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
 
@@ -131,6 +132,9 @@ class boss_blackheart_the_inciter : public CreatureScript
                             events.ScheduleEvent(EVENT_WAR_STOMP, urand(18000, 24000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

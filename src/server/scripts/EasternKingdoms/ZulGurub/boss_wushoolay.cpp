@@ -73,6 +73,9 @@ class boss_wushoolay : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
                 */
 
@@ -82,7 +85,7 @@ class boss_wushoolay : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_wushoolayAI(creature);
+            return GetZulGurubAI<boss_wushoolayAI>(creature);
         }
 };
 

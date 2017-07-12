@@ -22,14 +22,18 @@ Comment: All modify related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "Chat.h"
+#include "DB2Stores.h"
+#include "Log.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
+#include "RBAC.h"
 #include "ReputationMgr.h"
-#include "ScriptMgr.h"
+#include "SpellMgr.h"
 #include "SpellPackets.h"
+#include "WorldSession.h"
 
 class modify_commandscript : public CommandScript
 {
@@ -321,7 +325,7 @@ public:
         modData.ModifierValue = float(val);
         spellMod.ModifierData.push_back(modData);
         packet.Modifiers.push_back(spellMod);
-        target->GetSession()->SendPacket(packet.Write());
+        target->SendDirectMessage(packet.Write());
 
         return true;
     }
@@ -741,14 +745,14 @@ public:
         target->Mount(mId);
 
         WorldPacket data(SMSG_MOVE_SET_RUN_SPEED, (8+4+1+4));
-        data << target->GetPackGUID();
+        data << target->GetGUID();
         data << (uint32)0;
         data << (uint8)0;                                       //new 2.1.0
         data << float(speed);
         target->SendMessageToSet(&data, true);
 
         data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, (8+4+4));
-        data << target->GetPackGUID();
+        data << target->GetGUID();
         data << (uint32)0;
         data << float(speed);
         target->SendMessageToSet(&data, true);
@@ -1047,13 +1051,20 @@ public:
         if (!*args)
             return false;
 
-        uint32 phase = (uint32)atoi((char*)args);
+        uint32 phaseId = uint32(atoul(args));
+
+        if (!sPhaseStore.LookupEntry(phaseId))
+        {
+            handler->SendSysMessage(LANG_PHASE_NOTFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
         Unit* target = handler->getSelectedUnit();
         if (!target)
             target = handler->GetSession()->GetPlayer();
 
-        target->SetInPhase(phase, true, !target->IsInPhase(phase));
+        target->SetInPhase(phaseId, true, !target->IsInPhase(phaseId));
 
         if (target->GetTypeId() == TYPEID_PLAYER)
             target->ToPlayer()->SendUpdatePhasing();

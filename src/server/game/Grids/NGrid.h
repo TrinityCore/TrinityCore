@@ -29,15 +29,11 @@
 
 #define DEFAULT_VISIBILITY_NOTIFY_PERIOD      1000
 
-class GridInfo
+class TC_GAME_API GridInfo
 {
 public:
-    GridInfo()
-        : i_timer(0), vis_Update(0, irand(0, DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
-          i_unloadActiveLockCount(0), i_unloadExplicitLock(false), i_unloadReferenceLock(false) { }
-    GridInfo(time_t expiry, bool unload = true )
-        : i_timer(expiry), vis_Update(0, irand(0, DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
-          i_unloadActiveLockCount(0), i_unloadExplicitLock(!unload), i_unloadReferenceLock(false) { }
+    GridInfo();
+    GridInfo(time_t expiry, bool unload = true );
     const TimeTracker& getTimeTracker() const { return i_timer; }
     bool getUnloadLock() const { return i_unloadActiveLockCount || i_unloadExplicitLock || i_unloadReferenceLock; }
     void setUnloadExplicitLock(bool on) { i_unloadExplicitLock = on; }

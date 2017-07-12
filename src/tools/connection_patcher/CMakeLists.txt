@@ -8,29 +8,15 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(HEADER_FILES
-  Helper.hpp
-  Patcher.hpp
-  Constants/BinaryTypes.hpp
-  Patches/Common.hpp
-  Patches/Mac.hpp
-  Patches/Windows.hpp
-  Patterns/Common.hpp
-  Patterns/Mac.hpp
-  Patterns/Windows.hpp
-)
-
-set(SRC_FILES
-  Helper.cpp
-  Patcher.cpp
-  Program.cpp
-)
+CollectSourceFiles(${CMAKE_CURRENT_SOURCE_DIR} PRIVATE_SOURCES)
 
 if (WIN32)
-  list(APPEND SRC_FILES ${sources_windows})
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
 endif()
 
-add_executable(connection_patcher ${HEADER_FILES} ${SRC_FILES})
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
+
+add_executable(connection_patcher ${PRIVATE_SOURCES})
 
 target_link_libraries(connection_patcher
   PUBLIC

@@ -74,6 +74,7 @@ static bool BaseFile_Create(TFileStream * pStream)
         handle = open(pStream->szFileName, O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if(handle == -1)
         {
+            pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
             SetLastError(errno);
             return false;
         }
@@ -123,6 +124,7 @@ static bool BaseFile_Open(TFileStream * pStream, const TCHAR * szFileName, DWORD
         intptr_t handle;
 
         // Open the file
+        pStream->Base.File.hFile = INVALID_HANDLE_VALUE;
         handle = open(szFileName, oflag | O_LARGEFILE);
         if(handle == -1)
         {

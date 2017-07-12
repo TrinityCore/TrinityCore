@@ -19,18 +19,13 @@
 #ifndef TRINITYCORE_QUEST_H
 #define TRINITYCORE_QUEST_H
 
-#include "Define.h"
-#include "DatabaseEnv.h"
-#include "SharedDefines.h"
-#include "WorldPacket.h"
+#include "Common.h"
 #include "DBCEnums.h"
-
-#include <string>
+#include "DatabaseEnvFwd.h"
+#include "SharedDefines.h"
 #include <vector>
 
 class Player;
-
-class ObjectMgr;
 
 namespace WorldPackets
 {
@@ -106,7 +101,7 @@ enum QuestTradeSkill
     QUEST_TRSKILL_JEWELCRAFTING  = 14
 };
 
-enum QuestStatus
+enum QuestStatus : uint8
 {
     QUEST_STATUS_NONE           = 0,
     QUEST_STATUS_COMPLETE       = 1,
@@ -242,31 +237,49 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_OBTAIN_CURRENCY         = 17    // requires the player to gain X currency after starting the quest but not required to keep it until the end (does not consume)
 };
 
+enum QuestObjectiveFlags
+{
+    QUEST_OBJECTIVE_FLAG_TRACKED_ON_MINIMAP                 = 0x01, // client displays large yellow blob on minimap for creature/gameobject
+    QUEST_OBJECTIVE_FLAG_SEQUENCED                          = 0x02, // client will not see the objective displayed until all previous objectives are completed
+    QUEST_OBJECTIVE_FLAG_OPTIONAL                           = 0x04, // not required to complete the quest
+    QUEST_OBJECTIVE_FLAG_HIDDEN                             = 0x08, // never displayed in quest log
+    QUEST_OBJECTIVE_FLAG_HIDE_ITEM_GAINS                    = 0x10, // skip showing item objective progress
+    QUEST_OBJECTIVE_FLAG_PROGRESS_COUNTS_ITEMS_IN_INVENTORY = 0x20, // item objective progress counts items in inventory instead of reading it from updatefields
+    QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR               = 0x40, // hidden objective used to calculate progress bar percent (quests are limited to a single progress bar objective)
+};
+
 struct QuestTemplateLocale
 {
-    StringVector LogTitle;
-    StringVector LogDescription;
-    StringVector QuestDescription;
-    StringVector AreaDescription;
-    StringVector PortraitGiverText;
-    StringVector PortraitGiverName;
-    StringVector PortraitTurnInText;
-    StringVector PortraitTurnInName;
-    StringVector QuestCompletionLog;
+    std::vector<std::string> LogTitle;
+    std::vector<std::string> LogDescription;
+    std::vector<std::string> QuestDescription;
+    std::vector<std::string> AreaDescription;
+    std::vector<std::string> PortraitGiverText;
+    std::vector<std::string> PortraitGiverName;
+    std::vector<std::string> PortraitTurnInText;
+    std::vector<std::string> PortraitTurnInName;
+    std::vector<std::string> QuestCompletionLog;
+};
 
-    /// @todo: implemente this in new tables
-    StringVector OfferRewardText;
-    StringVector RequestItemsText;
+struct QuestRequestItemsLocale
+{
+    std::vector<std::string> CompletionText;
 };
 
 struct QuestObjectivesLocale
 {
-    StringVector Description;
+    std::vector<std::string> Description;
+};
+
+struct QuestOfferRewardLocale
+{
+    std::vector<std::string> RewardText;
 };
 
 struct QuestObjective
 {
     uint32 ID           = 0;
+    uint32 QuestID      = 0;
     uint8  Type         = 0;
     int8   StorageIndex = 0;
     int32  ObjectID     = 0;
@@ -276,6 +289,21 @@ struct QuestObjective
     float  ProgressBarWeight = 0.0f;
     std::string Description;
     std::vector<int32> VisualEffects;
+
+    bool IsStoringFlag() const
+    {
+        switch (Type)
+        {
+            case QUEST_OBJECTIVE_AREATRIGGER:
+            case QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC:
+            case QUEST_OBJECTIVE_DEFEATBATTLEPET:
+            case QUEST_OBJECTIVE_CRITERIA_TREE:
+                return true;
+            default:
+                break;
+        }
+        return false;
+    }
 };
 
 typedef std::vector<QuestObjective> QuestObjectives;
@@ -359,6 +387,7 @@ class TC_GAME_API Quest
         uint32 GetRewSpell() const { return RewardSpell; }
         uint32 GetRewMailTemplateId() const { return RewardMailTemplateId; }
         uint32 GetRewMailDelaySecs() const { return RewardMailDelay; }
+        uint32 GetRewMailSenderEntry() const { return RewardMailSenderEntry; }
         uint32 GetRewTitle() const { return RewardTitleId; }
         uint32 GetPOIContinent() const { return POIContinent; }
         float  GetPOIx() const { return POIx; }
@@ -379,6 +408,7 @@ class TC_GAME_API Quest
         uint32 GetRewardSkillPoints() const { return RewardSkillPoints; }
         uint32 GetRewardReputationMask() const { return RewardReputationMask; }
         uint32 GetRewardId() const { return QuestRewardID; }
+        int32 GetExpansion() const { return Expansion; }
         uint32 GetQuestGiverPortrait() const { return QuestGiverPortrait; }
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
         bool   IsDaily() const { return (Flags & QUEST_FLAGS_DAILY) != 0; }
@@ -465,6 +495,7 @@ class TC_GAME_API Quest
         uint32 LimitTime;
         int32  AllowableRaces;
         uint32 QuestRewardID;
+        int32 Expansion;
         QuestObjectives Objectives;
         std::string LogTitle;
         std::string LogDescription;
@@ -510,6 +541,7 @@ class TC_GAME_API Quest
         uint32 RequiredMaxRepFaction = 0;
         int32  RequiredMaxRepValue  = 0;
         uint32 SourceItemIdCount    = 0;
+        uint32 RewardMailSenderEntry = 0;
         uint32 SpecialFlags         = 0; // custom flags, not sniffed/WDB
 };
 

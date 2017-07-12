@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackfathom_deeps.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -90,6 +90,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -98,7 +101,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_kelrisAI>(creature);
+        return GetBlackfathomDeepsAI<boss_kelrisAI>(creature);
     }
 };
 

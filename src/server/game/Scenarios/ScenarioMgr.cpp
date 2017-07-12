@@ -19,6 +19,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "InstanceScenario.h"
+#include "Log.h"
 #include "Map.h"
 #include "ScenarioPackets.h"
 

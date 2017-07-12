@@ -16,17 +16,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
+#include "AccountMgr.h"
+#include "AuctionHouseMgr.h"
+#include "AuctionHousePackets.h"
+#include "Creature.h"
+#include "DatabaseEnv.h"
+#include "Item.h"
+#include "Language.h"
+#include "Log.h"
+#include "Mail.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
-#include "AuctionHouseMgr.h"
-#include "Log.h"
-#include "Language.h"
-#include "Util.h"
-#include "AccountMgr.h"
-#include "AuctionHousePackets.h"
 
 //void called when player click on auctioneer npc
 void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& packet)
@@ -110,12 +115,6 @@ void WorldSession::SendAuctionOwnerBidNotification(AuctionEntry const* auction, 
 //this void creates new auction and adds auction to some auctionhouse
 void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSellItem& packet)
 {
-    if (packet.Items.size() > MAX_AUCTION_ITEMS)
-    {
-        SendAuctionCommandResult(NULL, AUCTION_SELL_ITEM, ERR_AUCTION_DATABASE_ERROR);
-        return;
-    }
-
     for (auto const& item : packet.Items)
         if (!item.Guid || !item.UseCount || item.UseCount > 1000)
             return;
@@ -535,7 +534,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
     {
         SendAuctionCommandResult(NULL, AUCTION_CANCEL, ERR_AUCTION_DATABASE_ERROR);
         //this code isn't possible ... maybe there should be assert
-        TC_LOG_ERROR("network", "CHEATER: %s tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUID().ToString().c_str(), packet.AuctionItemID);
+        TC_LOG_ERROR("entities.player.cheat", "CHEATER: %s tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUID().ToString().c_str(), packet.AuctionItemID);
         return;
     }
 

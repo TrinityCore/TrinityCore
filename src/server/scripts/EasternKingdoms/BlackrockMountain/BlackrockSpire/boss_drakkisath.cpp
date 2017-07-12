@@ -17,8 +17,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -95,6 +95,9 @@ public:
                         events.ScheduleEvent(EVENT_THUNDERCLAP, 20000);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }

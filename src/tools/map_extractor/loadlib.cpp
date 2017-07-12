@@ -19,6 +19,7 @@
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include "loadlib.h"
+#include <CascLib.h>
 
 u_map_fcc MverMagic = { { 'R','E','V','M' } };
 
@@ -40,9 +41,16 @@ bool ChunkedFile::loadFile(CASC::StorageHandle const& mpq, std::string const& fi
     if (!file)
         return false;
 
-    data_size = CASC::GetFileSize(file, nullptr);
+    DWORD fileSize = CASC::GetFileSize(file, nullptr);
+    if (fileSize == CASC_INVALID_SIZE)
+        return false;
+
+    data_size = fileSize;
     data = new uint8[data_size];
-    CASC::ReadFile(file, data, data_size, nullptr/*bytesRead*/);
+    DWORD bytesRead = 0;
+    if (!CASC::ReadFile(file, data, data_size, &bytesRead) || bytesRead != data_size)
+        return false;
+
     parseChunks();
     if (prepareLoadedData())
         return true;

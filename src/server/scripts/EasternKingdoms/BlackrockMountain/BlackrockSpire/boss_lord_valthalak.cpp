@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -104,6 +105,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             if (!frenzy40)
@@ -135,7 +139,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lord_valthalakAI>(creature);
+        return GetBlackrockSpireAI<boss_lord_valthalakAI>(creature);
     }
 };
 

@@ -19,6 +19,9 @@
 #ifndef DEF_KARAZHAN_H
 #define DEF_KARAZHAN_H
 
+#include "CreatureAIImpl.h"
+
+#define KZScriptName "instance_karazhan"
 #define DataHeader "KZ"
 
 uint32 const EncounterCount = 12;
@@ -70,6 +73,9 @@ enum KZMiscCreatures
     NPC_SHADIKITH_THE_GLIDER        = 16180,
     NPC_TERESTIAN_ILLHOOF           = 15688,
     NPC_MOROES                      = 15687,
+    NPC_ATTUMEN_UNMOUNTED           = 15550,
+    NPC_ATTUMEN_MOUNTED             = 16152,
+    NPC_MIDNIGHT                    = 16151,
 
     // Trash
     NPC_COLDMIST_WIDOW              = 16171,
@@ -103,5 +109,11 @@ enum KZMisc
 {
     OPTIONAL_BOSS_REQUIRED_DEATH_COUNT = 50
 };
+
+template<typename AI>
+inline AI* GetKarazhanAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, KZScriptName);
+}
 
 #endif

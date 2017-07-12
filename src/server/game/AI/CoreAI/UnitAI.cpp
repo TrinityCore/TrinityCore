@@ -17,14 +17,15 @@
  */
 
 #include "UnitAI.h"
-#include "Player.h"
 #include "Creature.h"
-#include "SpellAuras.h"
-#include "SpellAuraEffects.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
-#include "Spell.h"
 #include "CreatureAIImpl.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 
 void UnitAI::AttackStart(Unit* victim)
 {
@@ -38,6 +39,12 @@ void UnitAI::AttackStart(Unit* victim)
         }
         me->GetMotionMaster()->MoveChase(victim);
     }
+}
+
+void UnitAI::InitializeAI()
+{
+    if (!me->isDead())
+        Reset();
 }
 
 void UnitAI::AttackStartCaster(Unit* victim, float dist)
@@ -56,24 +63,17 @@ void UnitAI::DoMeleeAttackIfReady()
     if (!me->IsWithinMeleeRange(victim))
         return;
 
-    bool sparAttack = me->GetFactionTemplateEntry()->ShouldSparAttack() && victim->GetFactionTemplateEntry()->ShouldSparAttack();
     //Make sure our attack is ready and we aren't currently casting before checking distance
     if (me->isAttackReady())
     {
-        if (sparAttack)
-            me->FakeAttackerStateUpdate(victim);
-        else
-            me->AttackerStateUpdate(victim);
+        me->AttackerStateUpdate(victim);
 
         me->resetAttackTimer();
     }
 
     if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK))
     {
-        if (sparAttack)
-            me->FakeAttackerStateUpdate(victim, OFF_ATTACK);
-        else
-            me->AttackerStateUpdate(victim, OFF_ATTACK);
+        me->AttackerStateUpdate(victim, OFF_ATTACK);
 
         me->resetAttackTimer(OFF_ATTACK);
     }
@@ -237,6 +237,45 @@ void UnitAI::FillAISpellInfo()
     }
 }
 
+ThreatManager& UnitAI::GetThreatManager()
+{
+    return me->getThreatManager();
+}
+
+bool DefaultTargetSelector::operator()(Unit const* target) const
+{
+    if (!me)
+        return false;
+
+    if (!target)
+        return false;
+
+    if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
+        return false;
+
+    if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
+        return false;
+
+    if (m_dist < 0.0f && me->IsWithinCombatRange(target, -m_dist))
+        return false;
+
+    if (m_aura)
+    {
+        if (m_aura > 0)
+        {
+            if (!target->HasAura(m_aura))
+                return false;
+        }
+        else
+        {
+            if (target->HasAura(-m_aura))
+                return false;
+        }
+    }
+
+    return true;
+}
+
 SpellTargetSelector::SpellTargetSelector(Unit* caster, uint32 spellId) :
     _caster(caster), _spellInfo(sSpellMgr->GetSpellInfo(spellId))
 {
@@ -260,10 +299,7 @@ bool SpellTargetSelector::operator()(Unit const* target) const
         if (_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE)
         {
             rangeMod = _caster->GetCombatReach() + 4.0f / 3.0f;
-            if (target)
-                rangeMod += target->GetCombatReach();
-            else
-                rangeMod += _caster->GetCombatReach();
+            rangeMod += target->GetCombatReach();
 
             rangeMod = std::max(rangeMod, NOMINAL_MELEE_RANGE);
         }
@@ -273,10 +309,7 @@ bool SpellTargetSelector::operator()(Unit const* target) const
             if (_spellInfo->RangeEntry->Flags & SPELL_RANGE_RANGED)
             {
                 meleeRange = _caster->GetCombatReach() + 4.0f / 3.0f;
-                if (target)
-                    meleeRange += target->GetCombatReach();
-                else
-                    meleeRange += _caster->GetCombatReach();
+                meleeRange += target->GetCombatReach();
 
                 meleeRange = std::max(meleeRange, NOMINAL_MELEE_RANGE);
             }
@@ -284,19 +317,16 @@ bool SpellTargetSelector::operator()(Unit const* target) const
             minRange = _caster->GetSpellMinRangeForTarget(target, _spellInfo) + meleeRange;
             maxRange = _caster->GetSpellMaxRangeForTarget(target, _spellInfo);
 
-            if (target)
-            {
-                rangeMod = _caster->GetCombatReach();
-                rangeMod += target->GetCombatReach();
+            rangeMod = _caster->GetCombatReach();
+            rangeMod += target->GetCombatReach();
 
-                if (minRange > 0.0f && !(_spellInfo->RangeEntry->Flags & SPELL_RANGE_RANGED))
-                    minRange += rangeMod;
-            }
+            if (minRange > 0.0f && !(_spellInfo->RangeEntry->Flags & SPELL_RANGE_RANGED))
+                minRange += rangeMod;
         }
 
-        if (target && _caster->isMoving() && target->isMoving() && !_caster->IsWalking() && !target->IsWalking() &&
+        if (_caster->isMoving() && target->isMoving() && !_caster->IsWalking() && !target->IsWalking() &&
             (_spellInfo->RangeEntry->Flags & SPELL_RANGE_MELEE || target->GetTypeId() == TYPEID_PLAYER))
-            rangeMod += 5.0f / 3.0f;
+            rangeMod += 8.0f / 3.0f;
     }
 
     maxRange += rangeMod;
@@ -304,7 +334,7 @@ bool SpellTargetSelector::operator()(Unit const* target) const
     minRange *= minRange;
     maxRange *= maxRange;
 
-    if (target && target != _caster)
+    if (target != _caster)
     {
         if (_caster->GetExactDistSq(target) > maxRange)
             return false;
@@ -328,4 +358,9 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
         return target->GetGUID() != currentVictim->getUnitGuid();
 
     return target != _source->GetVictim();
+}
+
+void SortByDistanceTo(Unit* reference, std::list<Unit*>& targets)
+{
+    targets.sort(Trinity::ObjectDistanceOrderPred(reference));
 }

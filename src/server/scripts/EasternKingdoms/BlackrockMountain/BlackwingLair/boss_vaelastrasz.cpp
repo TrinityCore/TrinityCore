@@ -17,10 +17,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackwing_lair.h"
-#include "ScriptedGossip.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 
 enum Says
 {
@@ -209,6 +210,9 @@ public:
                         events.ScheduleEvent(EVENT_BURNINGADRENALINE_TANK, 45000);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             // Yell if hp lower than 15%
@@ -225,7 +229,7 @@ public:
         {
             if (menuId == GOSSIP_ID && gossipListId == 0)
             {
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
                 BeginSpeech(player);
             }
         }
@@ -237,7 +241,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_vaelAI(creature);
+        return GetBlackwingLairAI<boss_vaelAI>(creature);
     }
 };
 

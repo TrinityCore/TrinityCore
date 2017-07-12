@@ -26,12 +26,15 @@ SDCategory: Onyxia's Lair
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
+#include "CreatureAIImpl.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "onyxias_lair.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Yells
 {
@@ -246,7 +249,7 @@ public:
                         me->SetCanFly(true);
                         me->SetDisableGravity(true);
                         me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                        me->SetFacingTo(me->GetOrientation() + float(M_PI));
+                        me->SetFacingTo(me->GetOrientation() + float(M_PI), true);
                         if (Creature * trigger = me->SummonCreature(NPC_TRIGGER, MiddleRoomLocation, TEMPSUMMON_CORPSE_DESPAWN))
                             triggerGUID = trigger->GetGUID();
                         me->GetMotionMaster()->MoveTakeoff(11, Phase2Floating);
@@ -342,6 +345,9 @@ public:
 
                 events.Update(diff);
 
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -353,7 +359,7 @@ public:
                             GameObject* Floor = NULL;
                             Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
                             Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
-                            me->VisitNearbyGridObject(30, searcher);
+                            Cell::VisitGridObjects(me, searcher, 30.0f);
                             if (Floor)
                                 instance->SetGuidData(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
                             events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
@@ -378,6 +384,9 @@ public:
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
                 DoMeleeAttackIfReady();
             }
@@ -401,6 +410,9 @@ public:
                         me->SetFacingToObject(trigger);
 
                 events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -464,6 +476,9 @@ public:
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
             }
         }
@@ -480,7 +495,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_onyxiaAI>(creature);
+        return GetInstanceAI<boss_onyxiaAI>(creature, OLScriptName);
     }
 };
 

@@ -31,9 +31,9 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/program_options.hpp>
 
-#if PLATFORM == PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include <Shlobj.h>
-#elif PLATFORM == PLATFORM_UNIX
+#elif TRINITY_PLATFORM == TRINITY_PLATFORM_UNIX
 #include <pwd.h>
 #endif
 

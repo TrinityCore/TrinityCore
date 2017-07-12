@@ -19,16 +19,14 @@
 #ifndef TRINITYCORE_CHAT_H
 #define TRINITYCORE_CHAT_H
 
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
-#include "WorldSession.h"
-#include "RBAC.h"
-#include "Packets/ChatPackets.h"
-
 #include <vector>
 
 class ChatHandler;
 class Creature;
+class GameObject;
 class Group;
 class Player;
 class Unit;
@@ -37,13 +35,14 @@ class WorldObject;
 
 struct GameTele;
 
+enum LocaleConstant : uint8;
+
 class TC_GAME_API ChatCommand
 {
     typedef bool(*pHandler)(ChatHandler*, char const*);
 
     public:
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>())
-            : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands)) { }
+        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>());
 
         char const* Name;
         uint32 Permission;                   // function pointer required correct align (use uint32)
@@ -98,8 +97,8 @@ class TC_GAME_API ChatHandler
 
         // function with different implementation for chat/console
         virtual bool isAvailable(ChatCommand const& cmd) const;
-        virtual bool HasPermission(uint32 permission) const { return m_session->HasPermission(permission); }
-        virtual std::string GetNameLink() const { return GetNameLink(m_session->GetPlayer()); }
+        virtual bool HasPermission(uint32 permission) const;
+        virtual std::string GetNameLink() const;
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
         virtual int GetSessionDbLocaleIndex() const;
@@ -123,7 +122,7 @@ class TC_GAME_API ChatHandler
         char*     extractQuotedArg(char* args);
 
         uint32    extractSpellIdFromLink(char* text);
-        ObjectGuid extractGuidFromLink(char* text);
+        ObjectGuid::LowType extractLowGuidFromLink(char* text, HighGuid& guidHigh);
         GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
@@ -134,7 +133,8 @@ class TC_GAME_API ChatHandler
         std::string GetNameLink(Player* chr) const;
 
         GameObject* GetNearbyGameObject();
-        GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(ObjectGuid::LowType lowguid, uint32 entry);
+        GameObject* GetObjectFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
+        Creature* GetCreatureFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
         bool HasSentErrorMessage() const { return sentErrorMessage; }
         void SetSentErrorMessage(bool val){ sentErrorMessage = val; }
 

@@ -16,9 +16,11 @@
  */
 
 #include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "ruby_sanctum.h"
 
 enum Texts
@@ -211,6 +213,9 @@ class boss_baltharus_the_warborn : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING) && !introPhase)
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

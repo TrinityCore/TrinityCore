@@ -31,10 +31,13 @@ go_captain_tyralius_prison
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "QuestDef.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 
 /*######
 ## npc_commander_dawnforge

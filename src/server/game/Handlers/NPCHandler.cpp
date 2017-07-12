@@ -16,31 +16,35 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Language.h"
-#include "DatabaseEnv.h"
-#include "QueryCallback.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "ObjectMgr.h"
-#include "SpellMgr.h"
-#include "Player.h"
-#include "GossipDef.h"
-#include "ObjectAccessor.h"
+#include "Battleground.h"
+#include "BattlegroundMgr.h"
+#include "Common.h"
 #include "Creature.h"
+#include "CreatureAI.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "GossipDef.h"
+#include "Item.h"
+#include "ItemPackets.h"
+#include "Language.h"
+#include "Log.h"
+#include "MailPackets.h"
+#include "Map.h"
+#include "NPCPackets.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "Pet.h"
 #include "PetPackets.h"
+#include "Player.h"
 #include "ReputationMgr.h"
-#include "BattlegroundMgr.h"
-#include "Battleground.h"
 #include "ScriptMgr.h"
-#include "CreatureAI.h"
-#include "GameObjectAI.h"
 #include "SpellInfo.h"
-#include "NPCPackets.h"
-#include "MailPackets.h"
+#include "SpellMgr.h"
+#include "WorldPacket.h"
 
 enum StableResultCode
 {
@@ -88,13 +92,13 @@ void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
     SendTrainerList(packet.Unit);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid)
+void WorldSession::SendTrainerList(ObjectGuid guid, uint32 index)
 {
     std::string str = GetTrinityString(LANG_NPC_TAINER_HELLO);
-    SendTrainerList(guid, str);
+    SendTrainerList(guid, str, index);
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
+void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle, uint32 index)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
@@ -126,6 +130,9 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle)
     for (TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
     {
         TrainerSpell const* tSpell = &itr->second;
+
+        if (index && tSpell->Index != index)
+            continue;
 
         bool valid = true;
         for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
@@ -188,8 +195,8 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL %s, learn spell id is: %i", packet.TrainerGUID.ToString().c_str(), packet.SpellID);
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER);
-    if (!unit)
+    Creature* trainer = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER);
+    if (!trainer)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - %s not found or you can not interact with him.", packet.TrainerGUID.ToString().c_str());
         return;
@@ -199,8 +206,20 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
+    // check race for mount trainers
+    if (trainer->GetCreatureTemplate()->trainer_type == TRAINER_TYPE_MOUNTS)
+    {
+        if (uint32 trainerRace = trainer->GetCreatureTemplate()->trainer_race)
+            if (_player->getRace() != trainerRace)
+                return;
+    }
+
+    // check class for class trainers
+    if (_player->getClass() != trainer->GetCreatureTemplate()->trainer_class && trainer->GetCreatureTemplate()->trainer_type == TRAINER_TYPE_CLASS)
+        return;
+
     // check present spell in trainer spell list
-    TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
+    TrainerSpellData const* trainer_spells = trainer->GetTrainerSpells();
     if (!trainer_spells)
     {
         SendTrainerBuyFailed(packet.TrainerGUID, packet.SpellID, 0);
@@ -223,7 +242,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
     }
 
     // apply reputation discount
-    uint32 nSpellCost = uint32(floor(trainerSpell->MoneyCost * _player->GetReputationPriceDiscount(unit)));
+    uint32 nSpellCost = uint32(floor(trainerSpell->MoneyCost * _player->GetReputationPriceDiscount(trainer)));
 
     // check money requirement
     if (!_player->HasEnoughMoney(uint64(nSpellCost)))
@@ -234,8 +253,8 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
 
     _player->ModifyMoney(-int64(nSpellCost));
 
-    unit->SendPlaySpellVisualKit(179, 0);       // 53 SpellCastDirected
-    _player->SendPlaySpellVisualKit(362, 1);    // 113 EmoteSalute
+    trainer->SendPlaySpellVisualKit(179, 0, 0);    // 53 SpellCastDirected
+    _player->SendPlaySpellVisualKit(362, 1, 0);    // 113 EmoteSalute
 
     // learn explicitly or cast explicitly
     if (trainerSpell->IsCastable())
@@ -335,14 +354,14 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if ((unit && unit->GetCreatureTemplate()->ScriptID != unit->LastUsedScriptID) || (go && go->GetGOInfo()->ScriptId != go->LastUsedScriptID))
+    if ((unit && unit->GetScriptId() != unit->LastUsedScriptID) || (go && go->GetScriptId() != go->LastUsedScriptID))
     {
         TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - Script reloaded while in use, ignoring and set new scipt id");
         if (unit)
-            unit->LastUsedScriptID = unit->GetCreatureTemplate()->ScriptID;
+            unit->LastUsedScriptID = unit->GetScriptId();
 
         if (go)
-            go->LastUsedScriptID = go->GetGOInfo()->ScriptId;
+            go->LastUsedScriptID = go->GetScriptId();
         _player->PlayerTalkClass->SendCloseGossip();
         return;
     }

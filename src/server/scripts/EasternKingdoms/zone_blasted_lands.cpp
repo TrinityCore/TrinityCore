@@ -48,9 +48,7 @@ class spell_razelikh_teleport_group : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TELEPORT_SINGLE) && !sSpellMgr->GetSpellInfo(SPELL_TELEPORT_SINGLE_IN_GROUP))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TELEPORT_SINGLE, SPELL_TELEPORT_SINGLE_IN_GROUP });
             }
 
             void HandleScriptEffect(SpellEffIndex /* effIndex */)

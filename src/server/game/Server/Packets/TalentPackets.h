@@ -19,8 +19,9 @@
 #define TalentPackets_h__
 
 #include "Packet.h"
+#include "DBCEnums.h"
+#include "ObjectGuid.h"
 #include "PacketUtilities.h"
-#include "Player.h"
 
 namespace WorldPackets
 {

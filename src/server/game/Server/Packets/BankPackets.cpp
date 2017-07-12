@@ -16,7 +16,6 @@
  */
 
 #include "BankPackets.h"
-#include "ItemPackets.h"
 
 void WorldPackets::Bank::AutoBankItem::Read()
 {

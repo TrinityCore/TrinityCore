@@ -73,6 +73,9 @@ class boss_grilek : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
                 */
 
@@ -82,7 +85,7 @@ class boss_grilek : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_grilekAI(creature);
+            return GetZulGurubAI<boss_grilekAI>(creature);
         }
 };
 

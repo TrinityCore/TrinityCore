@@ -20,7 +20,6 @@
 #define TRINITYSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
-#include "PathGenerator.h"
 
 class Unit;
 
@@ -54,6 +53,9 @@ namespace Movement
     public:
 
         explicit MoveSplineInit(Unit* m);
+        ~MoveSplineInit();
+        MoveSplineInit(MoveSplineInit const&) = delete;
+        MoveSplineInit& operator=(MoveSplineInit const&) = delete;
 
         /*  Final pass of initialization that launches spline movement.
          */
@@ -80,7 +82,7 @@ namespace Movement
          */
         void SetFacing(float angle);
         void SetFacing(Vector3 const& point);
-        void SetFacing(const Unit* target);
+        void SetFacing(Unit const* target);
 
         /* Initializes movement by path
          * @param path - array of points, shouldn't be empty
@@ -133,7 +135,7 @@ namespace Movement
 
         /* Inverses unit model orientation. Disabled by default
          */
-        void SetOrientationInversed();
+        void SetBackward();
 
         /* Fixes unit's model rotation. Disabled by default
          */
@@ -145,6 +147,8 @@ namespace Movement
          * velocity shouldn't be negative
          */
         void SetVelocity(float velocity);
+
+        void SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData);
 
         PointsArray& Path() { return args.path; }
 
@@ -158,27 +162,15 @@ namespace Movement
     };
 
     inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
-    inline void MoveSplineInit::SetWalk(bool enable) { args.flags.walkmode = enable; }
+    inline void MoveSplineInit::SetWalk(bool enable) { args.walk = enable; }
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
     inline void MoveSplineInit::SetUncompressed() { args.flags.uncompressedPath = true; }
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
-    inline void MoveSplineInit::SetOrientationInversed() { args.flags.orientationInversed = true;}
+    inline void MoveSplineInit::SetBackward() { args.flags.backward = true; }
     inline void MoveSplineInit::SetTransportEnter() { args.flags.EnableTransportEnter(); }
     inline void MoveSplineInit::SetTransportExit() { args.flags.EnableTransportExit(); }
     inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.orientationFixed = enable; }
-
-    inline void MoveSplineInit::MovebyPath(const PointsArray& controls, int32 path_offset)
-    {
-        args.path_Idx_offset = path_offset;
-        args.path.resize(controls.size());
-        std::transform(controls.begin(), controls.end(), args.path.begin(), TransportPathTransform(unit, args.TransformForTransport));
-    }
-
-    inline void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
-    {
-        MoveTo(G3D::Vector3(x, y, z), generatePath, forceDestination);
-    }
 
     inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)
     {
@@ -193,16 +185,11 @@ namespace Movement
         args.flags.EnableAnimation((uint8)anim);
     }
 
-    inline void MoveSplineInit::SetFacing(Vector3 const& spot)
-    {
-        TransportPathTransform transform(unit, args.TransformForTransport);
-        Vector3 finalSpot = transform(spot);
-        args.facing.f.x = finalSpot.x;
-        args.facing.f.y = finalSpot.y;
-        args.facing.f.z = finalSpot.z;
-        args.facing.type = MONSTER_MOVE_FACING_SPOT;
-    }
-
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
+
+    inline void MoveSplineInit::SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData)
+    {
+        args.spellEffectExtra = spellEffectExtraData;
+    }
 }
 #endif // TRINITYSERVER_MOVESPLINEINIT_H

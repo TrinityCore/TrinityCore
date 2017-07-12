@@ -15,10 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InstanceScript.h"
-#include "Player.h"
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "halls_of_stone.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {

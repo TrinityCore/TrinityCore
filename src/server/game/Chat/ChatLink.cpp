@@ -16,10 +16,14 @@
  */
 
 #include "ChatLink.h"
-#include "SpellMgr.h"
-#include "ObjectMgr.h"
-#include "SpellInfo.h"
 #include "AchievementMgr.h"
+#include "DB2Stores.h"
+#include "Item.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "QuestDef.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid:0:0:0:0:0:0:0:0|h[name]|h|r
@@ -378,24 +382,17 @@ bool ItemChatLink::ValidateName(char* buffer, char const* context)
 
     LocalizedString* suffixStrings = _suffix ? _suffix->Name : (_property ? _property->Name : nullptr);
 
-    bool res = (FormatName(LOCALE_enUS, suffixStrings) == buffer);
-    if (!res)
+    for (uint8 locale = LOCALE_enUS; locale < TOTAL_LOCALES; ++locale)
     {
-        for (uint8 index = LOCALE_koKR; index < TOTAL_LOCALES; ++index)
-        {
-            if (index == LOCALE_none)
-                continue;
+        if (locale == LOCALE_none)
+            continue;
 
-            if (FormatName(index, suffixStrings) == buffer)
-            {
-                res = true;
-                break;
-            }
-        }
+        if (FormatName(locale, suffixStrings) == buffer)
+            return true;
     }
-    if (!res)
-        TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked item (id: %u) name wasn't found in any localization", context, _item->GetId());
-    return res;
+
+    TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): linked item (id: %u) name wasn't found in any localization", context, _item->GetId());
+    return false;
 }
 
 // |color|Hquest:quest_id:quest_level|h[name]|h|r

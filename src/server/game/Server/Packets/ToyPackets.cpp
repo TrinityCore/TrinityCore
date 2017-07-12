@@ -47,9 +47,3 @@ WorldPacket const* WorldPackets::Toy::AccountToysUpdate::Write()
 
     return &_worldPacket;
 }
-
-void WorldPackets::Toy::ToySetFavorite::Read()
-{
-    _worldPacket >> ItemID;
-    Favorite = _worldPacket.ReadBit();
-}

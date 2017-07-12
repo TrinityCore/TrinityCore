@@ -15,12 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LFGPackets.h"
 #include "TicketPackets.h"
 #include "PacketUtilities.h"
 #include "SupportMgr.h"
-
-using namespace WorldPackets;
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Ticket::SupportTicketHeader& header)
 {
@@ -191,8 +188,8 @@ ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Ticket::SupportT
 void WorldPackets::Ticket::SupportTicketSubmitComplaint::Read()
 {
     _worldPacket >> Header;
-    _worldPacket >> ChatLog;
     _worldPacket >> TargetCharacterGUID;
+    _worldPacket >> ChatLog;
     ComplaintType = _worldPacket.ReadBits(5);
 
     uint32 noteLength = _worldPacket.ReadBits(10);

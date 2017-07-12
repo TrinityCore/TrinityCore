@@ -26,9 +26,11 @@
  */
 
 #include "MovementGenerator.h"
-#include "WaypointManager.h"
+#include "Creature.h"
+#include "DB2Stores.h"
 #include "Player.h"
-#include "World.h"
+#include "Timer.h"
+#include "WaypointManager.h"
 
 #define FLIGHT_TRAVEL_UPDATE  100
 #define TIMEDIFF_NEXT_WP      250

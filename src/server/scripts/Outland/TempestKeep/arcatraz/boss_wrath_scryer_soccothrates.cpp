@@ -23,8 +23,11 @@ SDCategory: Tempest Keep, The Arcatraz
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "arcatraz.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Say
 {
@@ -258,6 +261,9 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (HealthBelowPct(25) && !dalliahTaunt)

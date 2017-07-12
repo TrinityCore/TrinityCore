@@ -114,7 +114,10 @@ enum TrinityStrings
     LANG_PVPSTATS_DISABLED              = 81,
     LANG_COMMAND_NEARGRAVEYARD          = 82,
     LANG_COMMAND_NEARGRAVEYARD_NOTFOUND = 83,
-    // Free 84 - 95
+    LANG_GOINFO_SIZE                    = 84,
+    LANG_GOINFO_ADDON                   = 85,
+    LANG_GOINFO_MODEL                   = 86,
+    // Free 87 - 95
 
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
@@ -558,7 +561,7 @@ enum TrinityStrings
     LANG_NPCINFO_CHAR                   = 539,
     LANG_NPCINFO_LEVEL                  = 540,
     LANG_NPCINFO_HEALTH                 = 541,
-    LANG_NPCINFO_FLAGS                  = 542,
+    LANG_NPCINFO_DYNAMIC_FLAGS          = 542,
     LANG_NPCINFO_LOOT                   = 543,
     LANG_NPCINFO_POSITION               = 544,
     LANG_NPCINFO_VENDOR                 = 545,
@@ -826,7 +829,7 @@ enum TrinityStrings
     LANG_PINFO_CHR_LEVEL_LOW            = 843,
     LANG_PINFO_CHR_RACE                 = 844,
     LANG_PINFO_CHR_ALIVE                = 845,
-    LANG_PINFO_CHR_PHASE                = 846,
+    LANG_PINFO_CHR_PHASES               = 846,
     LANG_PINFO_CHR_MONEY                = 847,
     LANG_PINFO_CHR_MAP                  = 848,
     LANG_PINFO_CHR_GUILD                = 849,
@@ -873,7 +876,7 @@ enum TrinityStrings
     LANG_ACCOUNT_NOT_DELETED_SQL_ERROR  = 1002,
     LANG_ACCOUNT_NOT_DELETED            = 1003,
     LANG_ACCOUNT_CREATED                = 1004,
-    LANG_ACCOUNT_TOO_LONG               = 1005,
+    LANG_ACCOUNT_NAME_TOO_LONG          = 1005,
     LANG_ACCOUNT_ALREADY_EXIST          = 1006,
     LANG_ACCOUNT_NOT_CREATED_SQL_ERROR  = 1007,
     LANG_ACCOUNT_NOT_CREATED            = 1008,
@@ -1147,7 +1150,11 @@ enum TrinityStrings
     LANG_DEBUG_SCENE_OBJECT_LIST        = 5068,
     LANG_DEBUG_SCENE_OBJECT_DETAIL      = 5069,
 
-    // Room for more Trinity strings      5070-9999
+    LANG_NPCINFO_UNIT_FIELD_FLAGS_2     = 5070,
+    LANG_NPCINFO_UNIT_FIELD_FLAGS_3     = 5071,
+    LANG_NPCINFO_NPC_FLAGS              = 5072,
+
+    // Room for more Trinity strings      5073-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
@@ -1238,5 +1245,7 @@ enum TrinityStrings
     LANG_INSTANCE_BIND_MISMATCH                   = 11014,
     LANG_CREATURE_NOT_AI_ENABLED                  = 11015,
     LANG_SELECT_PLAYER_OR_PET                     = 11016,
+    LANG_SHUTDOWN_DELAYED                         = 11017,
+    LANG_SHUTDOWN_CANCELLED                       = 11018
 };
 #endif

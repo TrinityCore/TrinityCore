@@ -18,10 +18,9 @@
 #ifndef OUTDOOR_PVP_H_
 #define OUTDOOR_PVP_H_
 
-#include "Util.h"
 #include "SharedDefines.h"
 #include "ZoneScript.h"
-#include "Packets/WorldStatePackets.h"
+#include <map>
 
 class GameObject;
 
@@ -75,14 +74,22 @@ struct creature_type
     float o;
 };
 
-// some class predefs
-class Player;
-class GameObject;
-class WorldPacket;
 class Creature;
-class Unit;
-struct GossipMenuItems;
+class GameObject;
+class Map;
 class OutdoorPvP;
+class Player;
+class Unit;
+class WorldPacket;
+struct GossipMenuItems;
+
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
 
 class TC_GAME_API OPvPCapturePoint
 {

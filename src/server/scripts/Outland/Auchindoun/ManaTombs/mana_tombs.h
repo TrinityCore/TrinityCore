@@ -18,6 +18,8 @@
 #ifndef MANA_TOMBS_H_
 #define MANA_TOMBS_H_
 
+#include "CreatureAIImpl.h"
+
 #define MTScriptName "instance_mana_tombs"
 #define DataHeader "MT"
 
@@ -32,8 +34,8 @@ enum MTDataTypes
     DATA_YOR                    = 3
 };
 
-template<class AI>
-AI* GetManaTombsAI(Creature* creature)
+template<typename AI>
+inline AI* GetManaTombsAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, MTScriptName);
 }

@@ -16,27 +16,33 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Player.h"
-#include "Pet.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "GroupMgr.h"
 #include "Group.h"
-#include "Formulas.h"
-#include "ObjectAccessor.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
-#include "MapManager.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "Formulas.h"
+#include "GameObject.h"
+#include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
-#include "Util.h"
 #include "LFGMgr.h"
-#include "UpdateFieldFlags.h"
-#include "PartyPackets.h"
+#include "Log.h"
+#include "LootMgr.h"
 #include "LootPackets.h"
+#include "MapManager.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "PartyPackets.h"
+#include "Pet.h"
+#include "Player.h"
+#include "Random.h"
+#include "SpellAuras.h"
+#include "UpdateData.h"
+#include "UpdateFieldFlags.h"
+#include "Util.h"
+#include "World.h"
+#include "WorldSession.h"
 
 Roll::Roll(LootItem const& li) : itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -73,9 +79,12 @@ Group::~Group()
     if (m_bgGroup)
     {
         TC_LOG_DEBUG("bg.battleground", "Group::~Group: battleground group being deleted.");
-        if (m_bgGroup->GetBgRaid(ALLIANCE) == this) m_bgGroup->SetBgRaid(ALLIANCE, NULL);
-        else if (m_bgGroup->GetBgRaid(HORDE) == this) m_bgGroup->SetBgRaid(HORDE, NULL);
-        else TC_LOG_ERROR("misc", "Group::~Group: battleground group is not linked to the correct battleground.");
+        if (m_bgGroup->GetBgRaid(ALLIANCE) == this)
+            m_bgGroup->SetBgRaid(ALLIANCE, NULL);
+        else if (m_bgGroup->GetBgRaid(HORDE) == this)
+            m_bgGroup->SetBgRaid(HORDE, NULL);
+        else
+            TC_LOG_ERROR("misc", "Group::~Group: battleground group is not linked to the correct battleground.");
     }
     Rolls::iterator itr;
     while (!RollId.empty())
@@ -449,23 +458,20 @@ bool Group::AddMember(Player* player)
         player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, false);
         player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true, true);
 
-        if (player->getLevel() >= LEVELREQUIREMENT_HEROIC)
+        if (player->GetDungeonDifficultyID() != GetDungeonDifficultyID())
         {
-            if (player->GetDungeonDifficultyID() != GetDungeonDifficultyID())
-            {
-                player->SetDungeonDifficultyID(GetDungeonDifficultyID());
-                player->SendDungeonDifficulty();
-            }
-            if (player->GetRaidDifficultyID() != GetRaidDifficultyID())
-            {
-                player->SetRaidDifficultyID(GetRaidDifficultyID());
-                player->SendRaidDifficulty(false);
-            }
-            if (player->GetLegacyRaidDifficultyID() != GetLegacyRaidDifficultyID())
-            {
-                player->SetLegacyRaidDifficultyID(GetLegacyRaidDifficultyID());
-                player->SendRaidDifficulty(true);
-            }
+            player->SetDungeonDifficultyID(GetDungeonDifficultyID());
+            player->SendDungeonDifficulty();
+        }
+        if (player->GetRaidDifficultyID() != GetRaidDifficultyID())
+        {
+            player->SetRaidDifficultyID(GetRaidDifficultyID());
+            player->SendRaidDifficulty(false);
+        }
+        if (player->GetLegacyRaidDifficultyID() != GetLegacyRaidDifficultyID())
+        {
+            player->SetLegacyRaidDifficultyID(GetLegacyRaidDifficultyID());
+            player->SendRaidDifficulty(true);
         }
     }
 
@@ -536,6 +542,22 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
 
     sScriptMgr->OnGroupRemoveMember(this, guid, method, kicker, reason);
 
+    Player* player = ObjectAccessor::FindConnectedPlayer(guid);
+    if (player)
+    {
+        for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
+        {
+            if (Player* groupMember = itr->GetSource())
+            {
+                if (groupMember->GetGUID() == guid)
+                    continue;
+
+                groupMember->RemoveAllGroupBuffsFromCaster(guid);
+                player->RemoveAllGroupBuffsFromCaster(groupMember->GetGUID());
+            }
+        }
+    }
+
     // LFG group vote kick handled in scripts
     if (isLFGGroup() && method == GROUP_REMOVEMETHOD_KICK)
         return !m_memberSlots.empty();
@@ -543,7 +565,6 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
     if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
     {
-        Player* player = ObjectAccessor::FindConnectedPlayer(guid);
         if (player)
         {
             // Battleground group handling
@@ -948,6 +969,7 @@ void Group::SendLooter(Creature* creature, Player* groupLooter)
     WorldPackets::Loot::LootList lootList;
 
     lootList.Owner = creature->GetGUID();
+    lootList.LootObj = creature->loot.GetGUID();
 
     if (GetLootMethod() == MASTER_LOOT && creature->loot.hasOverThresholdItem())
         lootList.Master = GetMasterLooterGuid();
@@ -1254,7 +1276,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
-                    player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters(), item->BonusListIDs);
+                    player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
                 }
                 else
                 {
@@ -1306,7 +1328,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                         item->is_looted = true;
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         roll->getLoot()->unlootedCount--;
-                        player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters(), item->BonusListIDs);
+                        player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters(), item->context, item->BonusListIDs);
                     }
                     else
                     {
@@ -1474,7 +1496,7 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
     {
         partyUpdate.LfgInfos = boost::in_place();
 
-        partyUpdate.LfgInfos->Slot = sLFGMgr->GetDungeon(m_guid);
+        partyUpdate.LfgInfos->Slot = sLFGMgr->GetLFGDungeonEntry(sLFGMgr->GetDungeon(m_guid));
         partyUpdate.LfgInfos->BootCount = 0;
         partyUpdate.LfgInfos->Aborted = false;
 

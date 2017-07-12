@@ -17,8 +17,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "nexus.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -189,7 +192,7 @@ class boss_anomalus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_anomalusAI>(creature);
+            return GetNexusAI<boss_anomalusAI>(creature);
         }
 };
 
@@ -263,7 +266,7 @@ class npc_chaotic_rift : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_chaotic_riftAI>(creature);
+            return GetNexusAI<npc_chaotic_riftAI>(creature);
         }
 };
 

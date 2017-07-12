@@ -15,9 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Item.h"
-#include "ToyPackets.h"
 #include "WorldSession.h"
+#include "DB2Stores.h"
+#include "Item.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "Spell.h"
+#include "SpellMgr.h"
+#include "ToyPackets.h"
 
 void WorldSession::HandleAddToy(WorldPackets::Toy::AddToy& packet)
 {
@@ -87,9 +93,4 @@ void WorldSession::HandleUseToy(WorldPackets::Toy::UseToy& packet)
     spell->m_misc.Raw.Data[1] = packet.Cast.Misc[1];
     spell->m_castFlagsEx |= CAST_FLAG_EX_USE_TOY_SPELL;
     spell->prepare(&targets);
-}
-
-void WorldSession::HandleToySetFavorite(WorldPackets::Toy::ToySetFavorite& packet)
-{
-    _collectionMgr->ToySetFavorite(packet.ItemID, packet.Favorite);
 }

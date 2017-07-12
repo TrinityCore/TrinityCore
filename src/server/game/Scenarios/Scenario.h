@@ -19,6 +19,7 @@
 #define Scenario_h__
 
 #include "CriteriaHandler.h"
+#include <unordered_set>
 
 struct ScenarioData;
 struct ScenarioStepEntry;

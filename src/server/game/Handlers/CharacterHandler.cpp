@@ -16,11 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "AccountMgr.h"
 #include "ArenaTeam.h"
 #include "ArenaTeamMgr.h"
 #include "AuthenticationPackets.h"
 #include "Battleground.h"
+#include "BattlegroundPackets.h"
 #include "BattlePetPackets.h"
 #include "CalendarMgr.h"
 #include "CharacterPackets.h"
@@ -28,33 +30,36 @@
 #include "ClientConfigPackets.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "EquipmentSetPackets.h"
+#include "GameObject.h"
+#include "GitRevision.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
+#include "Item.h"
 #include "Language.h"
 #include "Log.h"
+#include "Map.h"
+#include "Metric.h"
 #include "MiscPackets.h"
+#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Pet.h"
-#include "PlayerDump.h"
 #include "Player.h"
-#include "QueryCallback.h"
+#include "PlayerDump.h"
+#include "QueryHolder.h"
 #include "QueryPackets.h"
+#include "Realm.h"
 #include "ReputationMgr.h"
-#include "GitRevision.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "SystemPackets.h"
 #include "Util.h"
 #include "World.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Metric.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -297,6 +302,9 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             {
                 TC_LOG_ERROR("entities.player.loading", "Player %s has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString().c_str());
 
+                // Make sure customization always works properly - send all zeroes instead
+                charInfo.Skin = 0, charInfo.Face = 0, charInfo.HairStyle = 0, charInfo.HairColor = 0, charInfo.FacialHair = 0;
+
                 if (!(charInfo.CustomizationFlag == CHAR_CUSTOMIZE_FLAG_CUSTOMIZE))
                 {
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
@@ -445,7 +453,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     uint8 raceExpansionRequirement = sObjectMgr->GetRaceExpansionRequirement(charCreate.CreateInfo->Race);
     if (raceExpansionRequirement > GetExpansion())
     {
-        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", GetExpansion(), GetAccountId(), raceExpansionRequirement, charCreate.CreateInfo->Race);
+        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u race (%u)", GetExpansion(), GetAccountId(), raceExpansionRequirement, charCreate.CreateInfo->Race);
         SendCharCreate(CHAR_CREATE_EXPANSION);
         return;
     }
@@ -454,7 +462,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     uint8 classExpansionRequirement = sObjectMgr->GetClassExpansionRequirement(charCreate.CreateInfo->Class);
     if (classExpansionRequirement > GetExpansion())
     {
-        TC_LOG_ERROR("network", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", GetExpansion(), GetAccountId(), classExpansionRequirement, charCreate.CreateInfo->Class);
+        TC_LOG_ERROR("entities.player.cheat", "Expansion %u account:[%d] tried to Create character with expansion %u class (%u)", GetExpansion(), GetAccountId(), classExpansionRequirement, charCreate.CreateInfo->Class);
         SendCharCreate(CHAR_CREATE_EXPANSION_CLASS);
         return;
     }
@@ -482,7 +490,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
     // prevent character creating with invalid name
     if (!normalizePlayerName(charCreate.CreateInfo->Name))
     {
-        TC_LOG_ERROR("network", "Account:[%d] but tried to Create character with empty [name] ", GetAccountId());
+        TC_LOG_ERROR("entities.player.cheat", "Account:[%d] but tried to Create character with empty [name] ", GetAccountId());
         SendCharCreate(CHAR_NAME_NO_NAME);
         return;
     }
@@ -501,17 +509,17 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         return;
     }
 
-    if (charCreate.CreateInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_HEROIC_CHARACTER))
+    if (charCreate.CreateInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT))
     {
-        // speedup check for heroic class disabled case
-        if (!sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM))
+        // speedup check for death knight class disabled case
+        if (!sWorld->getIntConfig(CONFIG_DEATH_KNIGHTS_PER_REALM))
         {
             SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
             return;
         }
 
-        // speedup check for heroic class disabled case
-        if (sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER) > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        // speedup check for death knight class disabled case
+        if (sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT) > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
             SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
             return;
@@ -574,44 +582,44 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
         std::function<void(PreparedQueryResult)> finalizeCharacterCreation = [this, createInfo](PreparedQueryResult result)
         {
             bool haveSameRace = false;
-            uint32 heroicReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
+            uint32 deathKnightReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT);
             uint32 demonHunterReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER);
-            bool hasHeroicReqLevel = (heroicReqLevel == 0);
+            bool hasDeathKnightReqLevel = (deathKnightReqLevel == 0);
             bool hasDemonHunterReqLevel = (demonHunterReqLevel == 0);
             bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(rbac::RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
-            bool checkHeroicReqs = createInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_HEROIC_CHARACTER);
+            bool checkDeathKnightReqs = createInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEATH_KNIGHT);
             bool checkDemonHunterReqs = createInfo->Class == CLASS_DEMON_HUNTER && !HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
 
             if (result)
             {
                 uint32 team = Player::TeamForRace(createInfo->Race);
-                uint32 freeHeroicSlots = sWorld->getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
+                uint32 freeDeathKnightSlots = sWorld->getIntConfig(CONFIG_DEATH_KNIGHTS_PER_REALM);
                 uint32 freeDemonHunterSlots = sWorld->getIntConfig(CONFIG_DEMON_HUNTERS_PER_REALM);
 
                 Field* field = result->Fetch();
                 uint8 accRace = field[1].GetUInt8();
 
-                if (checkHeroicReqs)
+                if (checkDeathKnightReqs)
                 {
                     uint8 accClass = field[2].GetUInt8();
                     if (accClass == CLASS_DEATH_KNIGHT)
                     {
-                        if (freeHeroicSlots > 0)
-                            --freeHeroicSlots;
+                        if (freeDeathKnightSlots > 0)
+                            --freeDeathKnightSlots;
 
-                        if (freeHeroicSlots == 0)
+                        if (freeDeathKnightSlots == 0)
                         {
                             SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
                             return;
                         }
                     }
 
-                    if (!hasHeroicReqLevel)
+                    if (!hasDeathKnightReqLevel)
                     {
                         uint8 accLevel = field[0].GetUInt8();
-                        if (accLevel >= heroicReqLevel)
-                            hasHeroicReqLevel = true;
+                        if (accLevel >= deathKnightReqLevel)
+                            hasDeathKnightReqLevel = true;
                     }
                 }
 
@@ -666,26 +674,26 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                     if (!haveSameRace)
                         haveSameRace = createInfo->Race == accRace;
 
-                    if (checkHeroicReqs)
+                    if (checkDeathKnightReqs)
                     {
                         uint8 acc_class = field[2].GetUInt8();
                         if (acc_class == CLASS_DEATH_KNIGHT)
                         {
-                            if (freeHeroicSlots > 0)
-                                --freeHeroicSlots;
+                            if (freeDeathKnightSlots > 0)
+                                --freeDeathKnightSlots;
 
-                            if (freeHeroicSlots == 0)
+                            if (freeDeathKnightSlots == 0)
                             {
                                 SendCharCreate(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
                                 return;
                             }
                         }
 
-                        if (!hasHeroicReqLevel)
+                        if (!hasDeathKnightReqLevel)
                         {
                             uint8 acc_level = field[0].GetUInt8();
-                            if (acc_level >= heroicReqLevel)
-                                hasHeroicReqLevel = true;
+                            if (acc_level >= deathKnightReqLevel)
+                                hasDeathKnightReqLevel = true;
                         }
                     }
 
@@ -714,7 +722,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
                 }
             }
 
-            if (checkHeroicReqs && !hasHeroicReqLevel)
+            if (checkDeathKnightReqs && !hasDeathKnightReqLevel)
             {
                 SendCharCreate(CHAR_CREATE_LEVEL_REQUIREMENT);
                 return;
@@ -929,6 +937,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         return;
     }
 
+    pCurrChar->SetUInt32Value(PLAYER_FIELD_VIRTUAL_PLAYER_REALM, GetVirtualRealmAddress());
+
     SendTutorialsData();
 
     pCurrChar->GetMotionMaster()->Initialize();
@@ -997,10 +1007,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     //WorldPacket data(SMSG_LEARNED_DANCE_MOVES, 4+4);
     //data << uint64(0);
     //SendPacket(&data);
-
-    WorldPackets::Query::HotfixNotifyBlob hotfixInfo;
-    hotfixInfo.Hotfixes = sDB2Manager.GetHotfixData();
-    SendPacket(hotfixInfo.Write());
 
     // TODO: Move this to BattlePetMgr::SendJournalLock() just to have all packets in one file
     WorldPackets::BattlePet::BattlePetJournalLockAcquired lock;
@@ -1461,13 +1467,13 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     GameObject* go = _player->FindNearestGameObjectOfType(GAMEOBJECT_TYPE_BARBER_CHAIR, 5.0f);
     if (!go)
     {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
+        SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::NotOnChair).Write());
         return;
     }
 
     if (_player->GetStandState() != UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + go->GetGOInfo()->barberChair.chairheight))
     {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NOT_ON_CHAIR);
+        SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::NotOnChair).Write());
         return;
     }
 
@@ -1478,11 +1484,11 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     // 2 - you have to sit on barber chair
     if (!_player->HasEnoughMoney((uint64)cost))
     {
-        SendBarberShopResult(BARBER_SHOP_RESULT_NO_MONEY);
+        SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::NoMoney).Write());
         return;
     }
 
-    SendBarberShopResult(BARBER_SHOP_RESULT_SUCCESS);
+    SendPacket(WorldPackets::Character::BarberShopResult(WorldPackets::Character::BarberShopResult::ResultEnum::Success).Write());
 
     _player->ModifyMoney(-int64(cost));                     // it isn't free
     _player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
@@ -1507,7 +1513,7 @@ void WorldSession::HandleCharCustomizeOpcode(WorldPackets::Character::CharCustom
 {
     if (!IsLegitCharacterForAccount(packet.CustomizeInfo->CharGUID))
     {
-        TC_LOG_ERROR("network", "Account %u, IP: %s tried to customise %s, but it does not belong to their account!",
+        TC_LOG_ERROR("entities.player.cheat", "Account %u, IP: %s tried to customise %s, but it does not belong to their account!",
             GetAccountId(), GetRemoteAddress().c_str(), packet.CustomizeInfo->CharGUID.ToString().c_str());
         KickPlayer();
         return;
@@ -1777,6 +1783,7 @@ void WorldSession::HandleUseEquipmentSet(WorldPackets::EquipmentSet::UseEquipmen
     }
 
     WorldPackets::EquipmentSet::UseEquipmentSetResult result;
+    result.GUID = useEquipmentSet.GUID;
     result.Reason = 0; // 4 - equipment swap failed - inventory is full
     SendPacket(result.Write());
 }
@@ -1785,7 +1792,7 @@ void WorldSession::HandleCharRaceOrFactionChangeOpcode(WorldPackets::Character::
 {
     if (!IsLegitCharacterForAccount(packet.RaceOrFactionChangeInfo->Guid))
     {
-        TC_LOG_ERROR("network", "Account %u, IP: %s tried to factionchange character %s, but it does not belong to their account!",
+        TC_LOG_ERROR("entities.player.cheat", "Account %u, IP: %s tried to factionchange character %s, but it does not belong to their account!",
             GetAccountId(), GetRemoteAddress().c_str(), packet.RaceOrFactionChangeInfo->Guid.ToString().c_str());
         KickPlayer();
         return;
@@ -2334,7 +2341,7 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPackets::Character::Genera
 
     WorldPackets::Character::GenerateRandomCharacterNameResult result;
     result.Success = true;
-    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex, GetSessionDbcLocale());
+    result.Name = sDB2Manager.GetNameGenEntry(packet.Race, packet.Sex, GetSessionDbcLocale(), sWorld->GetDefaultDbcLocale());
 
     SendPacket(result.Write());
 }
@@ -2455,7 +2462,8 @@ void WorldSession::HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCha
 
         /// @todo: add more safety checks
         /// * max char count per account
-        /// * max heroic char count
+        /// * max death knight count
+        /// * max demon hunter count
         /// * team violation
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
@@ -2563,13 +2571,6 @@ void WorldSession::SendSetPlayerDeclinedNamesResult(DeclinedNameResult result, O
     packet.ResultCode = result;
     packet.Player = guid;
 
-    SendPacket(packet.Write());
-}
-
-void WorldSession::SendBarberShopResult(BarberShopResult result)
-{
-    WorldPackets::Character::BarberShopResultServer packet;
-    packet.Result = result;
     SendPacket(packet.Write());
 }
 

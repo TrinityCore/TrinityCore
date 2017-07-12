@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "oculus.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -121,6 +123,9 @@ class boss_drakos : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -198,7 +203,7 @@ class npc_unstable_sphere : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_unstable_sphereAI(creature);
+            return GetOculusAI<npc_unstable_sphereAI>(creature);
         }
 };
 

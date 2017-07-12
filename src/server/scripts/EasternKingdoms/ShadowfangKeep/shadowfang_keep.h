@@ -19,6 +19,9 @@
 #ifndef DEF_SHADOWFANG_H
 #define DEF_SHADOWFANG_H
 
+#include "CreatureAIImpl.h"
+
+#define SFKScriptName "instance_shadowfang_keep"
 #define DataHeader "SK"
 
 enum SKDataTypes
@@ -28,6 +31,12 @@ enum SKDataTypes
     TYPE_FENRUS                 = 3,
     TYPE_NANDOS                 = 4
 };
+
+template<typename AI>
+inline AI* GetShadowfangKeepAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, SFKScriptName);
+}
 
 #endif
 

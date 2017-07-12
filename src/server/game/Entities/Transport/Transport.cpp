@@ -16,17 +16,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
 #include "Transport.h"
-#include "MapManager.h"
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "GameObjectAI.h"
-#include "Vehicle.h"
-#include "Player.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "Common.h"
+#include "GameObjectAI.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptMgr.h"
+#include "Spline.h"
 #include "Totem.h"
+#include "UpdateData.h"
+#include "Vehicle.h"
+#include <G3D/Vector3.h>
 
 Transport::Transport() : GameObject(),
     _transportInfo(NULL), _isMoving(true), _pendingStop(false),
@@ -95,7 +99,8 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, uint32 mapid, 
     SetGoType(GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT);
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
-    UpdateRotationFields(0.0f, 1.0f);
+    SetWorldRotation(0.0f, 0.0f, 0.0f, 1.0f);
+    SetParentRotation(QuaternionData());
 
     m_model = CreateModel();
     return true;
@@ -627,6 +632,11 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z, fl
         {
             if ((*itr)->GetTypeId() == TYPEID_PLAYER)
             {
+                // will be relocated in UpdatePosition of the vehicle
+                if (Unit* veh = (*itr)->ToUnit()->GetVehicleBase())
+                    if (veh->GetTransport() == this)
+                        continue;
+
                 float destX, destY, destZ, destO;
                 (*itr)->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
                 TransportBase::CalculatePassengerPosition(destX, destY, destZ, &destO, x, y, z, o);

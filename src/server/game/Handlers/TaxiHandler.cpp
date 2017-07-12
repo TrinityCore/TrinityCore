@@ -16,12 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
+#include "Common.h"
+#include "ConditionMgr.h"
+#include "Containers.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "TaxiPackets.h"
@@ -30,10 +32,9 @@
 
 void WorldSession::HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& enableTaxiNode)
 {
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(enableTaxiNode.Unit);
-    SendLearnNewTaxiNode(unit);
+    if (Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(enableTaxiNode.Unit, UNIT_NPC_FLAG_FLIGHTMASTER))
+        SendLearnNewTaxiNode(unit);
 }
-
 
 void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeStatusQuery& taxiNodeStatusQuery)
 {
@@ -43,7 +44,7 @@ void WorldSession::HandleTaxiNodeStatusQueryOpcode(WorldPackets::Taxi::TaxiNodeS
 void WorldSession::SendTaxiStatus(ObjectGuid guid)
 {
     // cheating checks
-    Creature* unit = GetPlayer()->GetMap()->GetCreature(guid);
+    Creature* unit = ObjectAccessor::GetCreature(*GetPlayer(), guid);
     if (!unit)
     {
         TC_LOG_DEBUG("network", "WorldSession::SendTaxiStatus - %s not found.", guid.ToString().c_str());
@@ -184,8 +185,25 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
 
     uint32 preferredMountDisplay = 0;
     if (MountEntry const* mount = sMountStore.LookupEntry(activateTaxi.FlyingMountID))
+    {
         if (GetPlayer()->HasSpell(mount->SpellId))
-            preferredMountDisplay = mount->DisplayId;
+        {
+            if (DB2Manager::MountXDisplayContainer const* mountDisplays = sDB2Manager.GetMountDisplays(mount->ID))
+            {
+                DB2Manager::MountXDisplayContainer usableDisplays;
+                std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [this](MountXDisplayEntry const* mountDisplay)
+                {
+                    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
+                        return sConditionMgr->IsPlayerMeetingCondition(GetPlayer(), playerCondition);
+
+                    return true;
+                });
+
+                if (!usableDisplays.empty())
+                    preferredMountDisplay = Trinity::Containers::SelectRandomContainerElement(usableDisplays)->DisplayID;
+            }
+        }
+    }
 
     std::vector<uint32> nodes;
     sTaxiPathGraph.GetCompleteNodeRoute(from, to, GetPlayer(), nodes);

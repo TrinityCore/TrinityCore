@@ -16,39 +16,45 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "Language.h"
-#include "DatabaseEnv.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "Player.h"
-#include "GossipDef.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
 #include "WorldSession.h"
-#include "Chat.h"
-#include "zlib.h"
-#include "ObjectAccessor.h"
-#include "Object.h"
-#include "Battleground.h"
-#include "OutdoorPvP.h"
 #include "AccountMgr.h"
-#include "DBCEnums.h"
-#include "ScriptMgr.h"
-#include "MapManager.h"
-#include "Group.h"
-#include "Spell.h"
-#include "SpellPackets.h"
-#include "CharacterPackets.h"
-#include "ClientConfigPackets.h"
-#include "MiscPackets.h"
 #include "AchievementPackets.h"
-#include "WhoPackets.h"
+#include "AreaTriggerPackets.h"
+#include "Battleground.h"
+#include "CharacterPackets.h"
+#include "Chat.h"
+#include "CinematicMgr.h"
+#include "ClientConfigPackets.h"
+#include "Common.h"
+#include "Corpse.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GossipDef.h"
+#include "Group.h"
+#include "Guild.h"
+#include "GuildMgr.h"
 #include "InstancePackets.h"
 #include "InstanceScript.h"
-#include "AreaTriggerPackets.h"
+#include "Language.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "MiscPackets.h"
+#include "Object.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "OutdoorPvP.h"
+#include "Player.h"
+#include "RestMgr.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
+#include "SpellPackets.h"
+#include "WhoPackets.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
+#include <zlib.h>
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
@@ -505,11 +511,12 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
                 if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                 {
-                    for (uint8 j = 0; j < qInfo->Objectives.size(); ++j)
+                    for (QuestObjective const& obj : qInfo->Objectives)
                     {
-                        if (qInfo->Objectives[j].Type == QUEST_OBJECTIVE_AREATRIGGER)
+                        if (obj.Type == QUEST_OBJECTIVE_AREATRIGGER && !player->IsQuestObjectiveComplete(obj))
                         {
-                            player->SetQuestObjectiveData(qInfo, j, int32(true));
+                            player->SetQuestObjectiveData(obj, 1);
+                            player->SendQuestUpdateAddCreditSimple(obj);
                             break;
                         }
                     }
@@ -524,7 +531,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (sObjectMgr->IsTavernAreaTrigger(packet.AreaTriggerID))
     {
         // set resting flag we are in the inn
-        player->SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
+        player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN, atEntry->ID);
 
         if (sWorld->IsFFAPvPRealm())
             player->RemoveByteFlag(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_PVP_FLAG, UNIT_BYTE2_FLAG_FFA_PVP);
@@ -720,10 +727,14 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPackets::Spells::SetActionBu
 
 void WorldSession::HandleCompleteCinematic(WorldPackets::Misc::CompleteCinematic& /*packet*/)
 {
+    // If player has sight bound to visual waypoint NPC we should remove it
+    GetPlayer()->GetCinematicMgr()->EndCinematic();
 }
 
 void WorldSession::HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCamera& /*packet*/)
 {
+    // Sent by client when cinematic actually begun. So we begin the server side process
+    GetPlayer()->GetCinematicMgr()->BeginCinematic();
 }
 
 void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*packet*/)
@@ -755,24 +766,6 @@ void WorldSession::HandlePlayedTime(WorldPackets::Character::RequestPlayedTime& 
     playedTime.LevelTime = _player->GetLevelPlayedTime();
     playedTime.TriggerEvent = packet.TriggerScriptEvent;  // 0-1 - will not show in chat frame
     SendPacket(playedTime.Write());
-}
-
-void WorldSession::HandleWorldTeleportOpcode(WorldPackets::Misc::WorldTeleport& worldTeleport)
-{
-    if (GetPlayer()->IsInFlight())
-    {
-        TC_LOG_DEBUG("network", "Player '%s' (%s) in flight, ignore worldport command.",
-            GetPlayer()->GetName().c_str(), GetPlayer()->GetGUID().ToString().c_str());
-        return;
-    }
-
-    TC_LOG_DEBUG("network", "CMSG_WORLD_TELEPORT: Player = %s, map = %u, x = %f, y = %f, z = %f, o = %f",
-        GetPlayer()->GetName().c_str(), worldTeleport.MapID, worldTeleport.Pos.x, worldTeleport.Pos.y, worldTeleport.Pos.z, worldTeleport.Facing);
-
-    if (HasPermission(rbac::RBAC_PERM_OPCODE_WORLD_TELEPORT))
-        GetPlayer()->TeleportTo(worldTeleport.MapID, worldTeleport.Pos.x, worldTeleport.Pos.y, worldTeleport.Pos.z, worldTeleport.Facing);
-    else
-        SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
 }
 
 void WorldSession::HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet)
@@ -835,7 +828,7 @@ void WorldSession::HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet)
         if (WorldObject* target = _player->GetViewpoint())
             _player->SetSeer(target);
         else
-            TC_LOG_ERROR("network", "Player %s (%s) requests non-existing seer %s", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->GetGuidValue(PLAYER_FARSIGHT).ToString().c_str());
+            TC_LOG_DEBUG("network", "Player %s (%s) requests non-existing seer %s", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), _player->GetGuidValue(PLAYER_FARSIGHT).ToString().c_str());
     }
     else
     {
@@ -1168,4 +1161,10 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial
 void WorldSession::HandleMountSetFavorite(WorldPackets::Misc::MountSetFavorite& mountSetFavorite)
 {
     _collectionMgr->MountSetFavorite(mountSetFavorite.MountSpellID, mountSetFavorite.IsFavorite);
+}
+
+void WorldSession::HandlePvpPrestigeRankUp(WorldPackets::Misc::PvpPrestigeRankUp& /*pvpPrestigeRankUp*/)
+{
+    if (_player->CanPrestige())
+        _player->Prestige();
 }

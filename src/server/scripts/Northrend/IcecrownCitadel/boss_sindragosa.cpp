@@ -15,12 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
 #include "icecrown_citadel.h"
+#include "GameObject.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -361,12 +371,12 @@ class boss_sindragosa : public CreatureScript
                         break;
                     case POINT_AIR_PHASE:
                         me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL, TRIGGERED_FULL_MASK);
-                        me->SetFacingTo(float(M_PI));
+                        me->SetFacingTo(float(M_PI), true);
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1);
                         events.ScheduleEvent(EVENT_FROST_BOMB, 9000);
                         break;
                     case POINT_AIR_PHASE_FAR:
-                        me->SetFacingTo(float(M_PI));
+                        me->SetFacingTo(float(M_PI), true);
                         events.ScheduleEvent(EVENT_LAND, 30000);
                         break;
                     case POINT_LAND:
@@ -542,6 +552,9 @@ class boss_sindragosa : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -719,7 +732,7 @@ class npc_spinestalker : public CreatureScript
                 me->SetDisableGravity(false);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetHomePosition(SpinestalkerLandPos);
-                me->SetFacingTo(SpinestalkerLandPos.GetOrientation());
+                me->SetFacingTo(SpinestalkerLandPos.GetOrientation(), true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
@@ -856,7 +869,7 @@ class npc_rimefang : public CreatureScript
                 me->SetDisableGravity(false);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->SetHomePosition(RimefangLandPos);
-                me->SetFacingTo(RimefangLandPos.GetOrientation());
+                me->SetFacingTo(RimefangLandPos.GetOrientation(), true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
@@ -1063,12 +1076,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             bool Load() override
             {
                 // This script should execute only in Icecrown Citadel
-                if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
-                    if (instance->GetInstanceScript())
-                        if (instance->GetScriptId() == sObjectMgr->GetScriptId(ICCScriptName))
-                            return true;
-
-                return false;
+                return InstanceHasScript(GetCaster(), ICCScriptName);
             }
 
             void SelectDest()
@@ -1101,7 +1109,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
                 uint32 damage = (uint32(GetEffectValue() / _targetCount) * randomResist) / 10;
 
-                SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
+                SpellNonMeleeDamage damageInfo(GetCaster(), GetHitUnit(), GetSpellInfo()->Id, GetSpell()->m_SpellVisual, GetSpellInfo()->SchoolMask);
                 damageInfo.damage = damage;
                 GetCaster()->DealSpellDamage(&damageInfo, false);
                 GetCaster()->SendSpellNonMeleeDamageLog(&damageInfo);
@@ -1150,7 +1158,7 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
                 unitList.remove_if(UnchainedMagicTargetSelector());
                 uint32 maxSize = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 2);
                 if (unitList.size() > maxSize)
-                    Trinity::Containers::RandomResizeList(unitList, maxSize);
+                    Trinity::Containers::RandomResize(unitList, maxSize);
             }
 
             void Register() override
@@ -1221,9 +1229,7 @@ class spell_sindragosa_instability : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BACKLASH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BACKLASH });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1255,9 +1261,7 @@ class spell_sindragosa_frost_beacon : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ICE_TOMB_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ICE_TOMB_DAMAGE });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
@@ -1311,7 +1315,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                         {
                             summon->AI()->SetGUID(GetTarget()->GetGUID(), DATA_TRAPPED_PLAYER);
                             GetTarget()->CastSpell(GetTarget(), SPELL_ICE_TOMB_UNTARGETABLE);
-                            if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
+                            if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos, QuaternionData(), 0))
                             {
                                 go->SetSpellId(SPELL_ICE_TOMB_DAMAGE);
                                 summon->AddGameObject(go);
@@ -1350,9 +1354,7 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ICY_GRIP_JUMP))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ICY_GRIP_JUMP });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -1424,9 +1426,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ICY_BLAST_AREA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ICY_BLAST_AREA });
             }
 
             void HandleTriggerMissile(SpellEffIndex effIndex)
@@ -1476,9 +1476,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FOCUS_FIRE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FOCUS_FIRE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1551,7 +1549,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                 {
-                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->GetEffect(caster, EFFECT_1)->CalcValue()));
+                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->GetEffect(caster->GetMap()->GetDifficultyID(), EFFECT_1)->CalcValue()));
                     caster->GetAI()->SetData(DATA_WHELP_MARKER, 0);
                 }
             }

@@ -18,6 +18,8 @@
 #ifndef OBSIDIAN_SANCTUM_H_
 #define OBSIDIAN_SANCTUM_H_
 
+#include "CreatureAIImpl.h"
+
 #define OSScriptName "instance_obsidian_sanctum"
 #define DataHeader "OS"
 
@@ -46,8 +48,8 @@ enum OSGameObjectIds
     GO_TWILIGHT_PORTAL          = 193988
 };
 
-template<class AI>
-AI* GetObsidianSanctumAI(Creature* creature)
+template<typename AI>
+inline AI* GetObsidianSanctumAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, OSScriptName);
 }

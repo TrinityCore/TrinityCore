@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AccountMgr.h"
 #include "BattlenetAccountMgr.h"
+#include "AccountMgr.h"
 #include "DatabaseEnv.h"
 #include "Util.h"
 #include "SHA256.h"
@@ -35,7 +35,7 @@ AccountOpResult Battlenet::AccountMgr::CreateBattlenetAccount(std::string email,
     Utf8ToUpperOnlyLatin(password);
 
     if (GetId(email))
-         return AccountOpResult::AOR_NAME_ALREADY_EXIST;
+        return AccountOpResult::AOR_NAME_ALREADY_EXIST;
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_ACCOUNT);
     stmt->setString(0, email);

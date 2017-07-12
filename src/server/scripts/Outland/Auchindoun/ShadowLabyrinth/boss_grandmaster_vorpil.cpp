@@ -23,9 +23,14 @@ Category: Auchindoun, Shadow Labyrinth
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
-#include "Player.h"
+#include "TemporarySummon.h"
 
 enum GrandmasterVorpil
 {
@@ -203,6 +208,9 @@ class boss_grandmaster_vorpil : public CreatureScript
                                 events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5000);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();

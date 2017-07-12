@@ -18,6 +18,8 @@
 #ifndef DEF_STONECORE_H
 #define DEF_STONECORE_H
 
+#include "CreatureAIImpl.h"
+
 #define SCScriptName "instance_stonecore"
 #define DataHeader "SC"
 
@@ -73,5 +75,11 @@ enum SCMisc
     CREATURE_FORMATION_MILLHOUSE_EVENT_TRASH      = 340418,
     CREATURE_FORMATION_MILLHOUSE_EVENT_LAST_GROUP = 340492,
 };
+
+template<typename AI>
+inline AI* GetStonecoreAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, SCScriptName);
+}
 
 #endif // DEF_STONECORE

@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "stratholme.h"
 
 enum Spells
 {
@@ -76,7 +77,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_dathrohan_balnazzarAI(creature);
+        return GetStratholmeAI<boss_dathrohan_balnazzarAI>(creature);
     }
 
     struct boss_dathrohan_balnazzarAI : public ScriptedAI

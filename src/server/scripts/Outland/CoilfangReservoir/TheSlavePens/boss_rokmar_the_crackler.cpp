@@ -108,6 +108,9 @@ class boss_rokmar_the_crackler : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (HealthBelowPct(10) && !rokmarFrenzy)
@@ -125,7 +128,7 @@ class boss_rokmar_the_crackler : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_rokmar_the_cracklerAI(creature);
+            return GetSlavePensAI<boss_rokmar_the_cracklerAI>(creature);
         }
 };
 

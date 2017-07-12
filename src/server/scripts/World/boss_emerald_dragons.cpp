@@ -16,13 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "Spell.h"
-#include "SpellAuraEffects.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 //
 //  Emerald Dragon NPCs and IDs (kept here for reference)
@@ -148,7 +148,12 @@ struct emerald_dragonAI : public WorldBossAI
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
+        {
             ExecuteEvent(eventId);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
 
         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, -50.0f, true))
             DoCast(target, SPELL_SUMMON_PLAYER);
@@ -765,11 +770,7 @@ class spell_mark_of_nature : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_NATURE))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_AURA_OF_NATURE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_NATURE, SPELL_AURA_OF_NATURE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

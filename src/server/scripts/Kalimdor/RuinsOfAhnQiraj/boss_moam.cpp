@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
 
 enum Texts
 {
@@ -154,7 +154,7 @@ class boss_moam : public CreatureScript
                                         targetList.push_back((*itr)->getTarget());
                             }
 
-                            Trinity::Containers::RandomResizeList(targetList, 5);
+                            Trinity::Containers::RandomResize(targetList, 5);
 
                             for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                                 DoCast(*itr, SPELL_DRAIN_MANA);
@@ -183,7 +183,7 @@ class boss_moam : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_moamAI(creature);
+            return GetAQ20AI<boss_moamAI>(creature);
         }
 };
 

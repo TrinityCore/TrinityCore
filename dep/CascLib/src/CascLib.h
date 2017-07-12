@@ -94,6 +94,7 @@ extern "C" {
 // Return value for CascGetFileSize and CascSetFilePointer
 #define CASC_INVALID_SIZE           0xFFFFFFFF
 #define CASC_INVALID_POS            0xFFFFFFFF
+#define CASC_INVALID_ID             0xFFFFFFFF
 
 // Flags for CascGetStorageInfo
 #define CASC_FEATURE_LISTFILE       0x00000001  // The storage supports listfile
@@ -125,6 +126,7 @@ typedef struct _CASC_FIND_DATA
     char * szPlainName;                         // Plain name of the found file
     BYTE   EncodingKey[MD5_HASH_SIZE];          // Encoding key
     DWORD  dwLocaleFlags;                       // Locale flags (WoW only)
+    DWORD  dwFileDataId;                        // File data ID (WoW only) 
     DWORD  dwFileSize;                          // Size of the file
 
 } CASC_FIND_DATA, *PCASC_FIND_DATA;
@@ -151,6 +153,7 @@ bool  WINAPI CascOpenFileByIndexKey(HANDLE hStorage, PQUERY_KEY pIndexKey, DWORD
 bool  WINAPI CascOpenFileByEncodingKey(HANDLE hStorage, PQUERY_KEY pEncodingKey, DWORD dwFlags, HANDLE * phFile);
 bool  WINAPI CascOpenFile(HANDLE hStorage, const char * szFileName, DWORD dwLocale, DWORD dwFlags, HANDLE * phFile);
 DWORD WINAPI CascGetFileSize(HANDLE hFile, PDWORD pdwFileSizeHigh);
+DWORD WINAPI CascGetFileId(HANDLE hStorage, const char * szFileName);
 DWORD WINAPI CascSetFilePointer(HANDLE hFile, LONG lFilePos, LONG * plFilePosHigh, DWORD dwMoveMethod);
 bool  WINAPI CascReadFile(HANDLE hFile, void * lpBuffer, DWORD dwToRead, PDWORD pdwRead);
 bool  WINAPI CascCloseFile(HANDLE hFile);

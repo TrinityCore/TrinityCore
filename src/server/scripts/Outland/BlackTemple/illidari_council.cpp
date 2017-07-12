@@ -24,10 +24,12 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "black_temple.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "black_temple.h"
 
 enum IllidariCouncil
 {
@@ -90,8 +92,6 @@ enum IllidariCouncil
     SPELL_BERSERK               = 45078
 };
 
-#define ERROR_INST_DATA           "SD2 ERROR: Instance Data for Black Temple not set properly; Illidari Council event will not function properly."
-
 struct CouncilYells
 {
     int32 entry;
@@ -122,7 +122,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const override
     {
-        return new npc_blood_elf_council_voice_triggerAI(c);
+        return GetBlackTempleAI<npc_blood_elf_council_voice_triggerAI>(c);
     }
 
     struct npc_blood_elf_council_voice_triggerAI : public ScriptedAI
@@ -165,7 +165,7 @@ public:
                 Council[1] = instance->GetGuidData(DATA_VERAS_DARKSHADOW);
                 Council[2] = instance->GetGuidData(DATA_LADY_MALANDE);
                 Council[3] = instance->GetGuidData(DATA_HIGH_NETHERMANCER_ZEREVOR);
-            } else TC_LOG_ERROR("scripts", ERROR_INST_DATA);
+            }
         }
 
         void EnterCombat(Unit* /*who*/) override { }
@@ -222,7 +222,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_illidari_councilAI>(creature);
+        return GetBlackTempleAI<npc_illidari_councilAI>(creature);
     }
 
     struct npc_illidari_councilAI : public ScriptedAI
@@ -231,6 +231,7 @@ public:
         {
             Initialize();
             instance = creature->GetInstanceScript();
+            SetBoundary(instance->GetBossBoundary(DATA_ILLIDARI_COUNCIL));
         }
 
         void Initialize()
@@ -257,7 +258,7 @@ public:
         {
             Initialize();
 
-            Creature* pMember = NULL;
+            Creature* pMember = nullptr;
             for (uint8 i = 0; i < 4; ++i)
             {
                 pMember = ObjectAccessor::GetCreature((*me), Council[i]);
@@ -330,16 +331,16 @@ public:
                     if (DeathCount > 3)
                     {
                         if (Creature* VoiceTrigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_ELF_COUNCIL_VOICE)))
-                            VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                            VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                         instance->SetBossState(DATA_ILLIDARI_COUNCIL, DONE);
                         //me->SummonCreature(AKAMAID, 746.466980f, 304.394989f, 311.90208f, 6.272870f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                         return;
                     }
 
                     Creature* pMember = (ObjectAccessor::GetCreature(*me, Council[DeathCount]));
                     if (pMember && pMember->IsAlive())
-                        pMember->DealDamage(pMember, pMember->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        pMember->DealDamage(pMember, pMember->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                     ++DeathCount;
                     EndEventTimer = 1500;
                 } else EndEventTimer -= diff;
@@ -457,7 +458,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_gathios_the_shattererAI>(creature);
+        return GetBlackTempleAI<boss_gathios_the_shattererAI>(creature);
     }
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
@@ -597,7 +598,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_high_nethermancer_zerevorAI>(creature);
+        return GetBlackTempleAI<boss_high_nethermancer_zerevorAI>(creature);
     }
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
@@ -709,7 +710,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lady_malandeAI>(creature);
+        return GetBlackTempleAI<boss_lady_malandeAI>(creature);
     }
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
@@ -795,7 +796,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_veras_darkshadowAI>(creature);
+        return GetBlackTempleAI<boss_veras_darkshadowAI>(creature);
     }
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI
@@ -913,7 +914,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_T) != nullptr;
+            return ValidateSpellInfo({ SPELL_REFLECTIVE_SHIELD_T });
         }
 
         void Trigger(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
@@ -922,7 +923,7 @@ public:
             if (dmgInfo.GetAttacker() == target)
                 return;
             int32 bp = absorbAmount / 2;
-            target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_REFLECTIVE_SHIELD_T, &bp, NULL, NULL, true, NULL, aurEff);
+            target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_REFLECTIVE_SHIELD_T, &bp, nullptr, nullptr, true, nullptr, aurEff);
         }
 
         void Register() override

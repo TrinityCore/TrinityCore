@@ -19,6 +19,9 @@
 #ifndef DEF_ZF_H
 #define DEF_ZF_H
 
+#include "CreatureAIImpl.h"
+
+#define ZFScriptName "instance_zulfarrak"
 #define DataHeader "ZF"
 
 enum ZFEntries
@@ -53,5 +56,11 @@ enum ZFPyramidPhases
     PYRAMID_WAVE_3,
     PYRAMID_KILLED_ALL_TROLLS,
 };
+
+template<typename AI>
+inline AI* GetZulFarrakAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, ZFScriptName);
+}
 
 #endif

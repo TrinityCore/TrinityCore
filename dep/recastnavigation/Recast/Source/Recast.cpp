@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <new>
 #include "Recast.h"
 #include "RecastAlloc.h"
 #include "RecastAssert.h"
@@ -72,23 +73,39 @@ void rcContext::log(const rcLogCategory category, const char* format, ...)
 
 rcHeightfield* rcAllocHeightfield()
 {
-	rcHeightfield* hf = (rcHeightfield*)rcAlloc(sizeof(rcHeightfield), RC_ALLOC_PERM);
-	memset(hf, 0, sizeof(rcHeightfield));
-	return hf;
+	return new (rcAlloc(sizeof(rcHeightfield), RC_ALLOC_PERM)) rcHeightfield;
+}
+
+rcHeightfield::rcHeightfield()
+	: width()
+	, height()
+	, bmin()
+	, bmax()
+	, cs()
+	, ch()
+	, spans()
+	, pools()
+	, freelist()
+{
+}
+
+rcHeightfield::~rcHeightfield()
+{
+	// Delete span array.
+	rcFree(spans);
+	// Delete span pools.
+	while (pools)
+	{
+		rcSpanPool* next = pools->next;
+		rcFree(pools);
+		pools = next;
+	}
 }
 
 void rcFreeHeightField(rcHeightfield* hf)
 {
 	if (!hf) return;
-	// Delete span array.
-	rcFree(hf->spans);
-	// Delete span pools.
-	while (hf->pools)
-	{
-		rcSpanPool* next = hf->pools->next;
-		rcFree(hf->pools);
-		hf->pools = next;
-	}
+	hf->~rcHeightfield();
 	rcFree(hf);
 }
 
@@ -108,7 +125,6 @@ void rcFreeCompactHeightfield(rcCompactHeightfield* chf)
 	rcFree(chf->areas);
 	rcFree(chf);
 }
-
 
 rcHeightfieldLayerSet* rcAllocHeightfieldLayerSet()
 {
@@ -245,11 +261,12 @@ static void calcTriNormal(const float* v0, const float* v1, const float* v2, flo
 /// 
 /// @see rcHeightfield, rcClearUnwalkableTriangles, rcRasterizeTriangles
 void rcMarkWalkableTriangles(rcContext* ctx, const float walkableSlopeAngle,
-							 const float* verts, int /*nv*/,
+							 const float* verts, int nv,
 							 const int* tris, int nt,
 							 unsigned char* areas)
 {
 	rcIgnoreUnused(ctx);
+	rcIgnoreUnused(nv);
 	
 	const float walkableThr = cosf(walkableSlopeAngle/180.0f*RC_PI);
 
@@ -329,7 +346,7 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 {
 	rcAssert(ctx);
 	
-	ctx->startTimer(RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
+	rcScopedTimer timer(ctx, RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
 	
 	const int w = hf.width;
 	const int h = hf.height;
@@ -456,8 +473,6 @@ bool rcBuildCompactHeightfield(rcContext* ctx, const int walkableHeight, const i
 		ctx->log(RC_LOG_ERROR, "rcBuildCompactHeightfield: Heightfield has too many layers %d (max: %d)",
 				 tooHighNeighbour, MAX_LAYERS);
 	}
-		
-	ctx->stopTimer(RC_TIMER_BUILD_COMPACTHEIGHTFIELD);
 	
 	return true;
 }

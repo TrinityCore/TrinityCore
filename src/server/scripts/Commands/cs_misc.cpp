@@ -15,31 +15,47 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Chat.h"
-#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "ArenaTeamMgr.h"
 #include "CellImpl.h"
+#include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "DisableMgr.h"
 #include "GridNotifiers.h"
 #include "Group.h"
+#include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
+#include "Item.h"
 #include "Language.h"
+#include "LFG.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "MiscPackets.h"
+#include "MMapFactory.h"
 #include "MovementGenerator.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
-#include "SpellAuras.h"
-#include "TargetedMovementGenerator.h"
-#include "WeatherMgr.h"
-#include "Player.h"
 #include "Pet.h"
-#include "LFG.h"
-#include "GroupMgr.h"
-#include "MMapFactory.h"
-#include "DisableMgr.h"
+#include "Player.h"
+#include "Realm.h"
+#include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "SpellHistory.h"
-#include "MiscPackets.h"
+#include "SpellMgr.h"
+#include "TargetedMovementGenerator.h"
 #include "Transport.h"
-#include "MapManager.h"
+#include "Weather.h"
+#include "WeatherMgr.h"
+#include "World.h"
+#include "WorldSession.h"
+#include <boost/asio/ip/address_v4.hpp>
+
+ // temporary hack until database includes are sorted out (don't want to pull in Windows.h everywhere from mysql.h)
+#ifdef GetClassName
+#undef GetClassName
+#endif
 
 class misc_commandscript : public CommandScript
 {
@@ -168,19 +184,50 @@ public:
 
     static bool HandleGPSCommand(ChatHandler* handler, char const* args)
     {
-        WorldObject* object = NULL;
+        WorldObject* object = nullptr;
         if (*args)
         {
-            ObjectGuid guid = handler->extractGuidFromLink((char*)args);
-            if (!guid.IsEmpty())
-                object = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
-
-            if (!object)
-            {
-                handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                handler->SetSentErrorMessage(true);
+            HighGuid guidHigh;
+            ObjectGuid::LowType guidLow = handler->extractLowGuidFromLink((char*)args, guidHigh);
+            if (!guidLow)
                 return false;
+            switch (guidHigh)
+            {
+                case HighGuid::Player:
+                {
+                    object = ObjectAccessor::FindConnectedPlayer(ObjectGuid::Create<HighGuid::Player>(guidLow));
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::Creature:
+                {
+                    object = handler->GetCreatureFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOCREATUREFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::GameObject:
+                {
+                    object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOGAMEOBJECTFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                default:
+                    return false;
             }
+            if (!object)
+                return false;
         }
         else
         {
@@ -211,8 +258,8 @@ public:
         sDB2Manager.Map2ZoneCoordinates(zoneId, zoneX, zoneY);
 
         Map const* map = object->GetMap();
-        float groundZ = map->GetHeight(object->GetPhaseMask(), object->GetPositionX(), object->GetPositionY(), MAX_HEIGHT);
-        float floorZ = map->GetHeight(object->GetPhaseMask(), object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
+        float groundZ = map->GetHeight(object->GetPhases(), object->GetPositionX(), object->GetPositionY(), MAX_HEIGHT);
+        float floorZ = map->GetHeight(object->GetPhases(), object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
 
         GridCoord gridCoord = Trinity::ComputeGridCoord(object->GetPositionX(), object->GetPositionY());
 
@@ -235,15 +282,11 @@ public:
 
         char const* unknown = handler->GetTrinityString(LANG_UNKNOWN);
 
-        std::ostringstream phases;
-        for (uint32 phaseId : object->GetPhases())
-            phases << phaseId << ", ";
-
         handler->PSendSysMessage(LANG_MAP_POSITION,
             mapId, (mapEntry ? mapEntry->MapName->Str[handler->GetSessionDbcLocale()] : unknown),
             zoneId, (zoneEntry ? zoneEntry->AreaName->Str[handler->GetSessionDbcLocale()] : unknown),
             areaId, (areaEntry ? areaEntry->AreaName->Str[handler->GetSessionDbcLocale()] : unknown),
-            object->GetPhaseMask(), phases.str().c_str(),
+            object->GetPhaseMask(), StringJoin(object->GetPhases(), ", ").c_str(),
             object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation());
         if (Transport* transport = object->GetTransport())
             handler->PSendSysMessage(LANG_TRANSPORT_POSITION,
@@ -778,26 +821,55 @@ public:
 
     static bool HandleGetDistanceCommand(ChatHandler* handler, char const* args)
     {
-        WorldObject* obj = NULL;
-
+        WorldObject* object = nullptr;
         if (*args)
         {
-            ObjectGuid guid = handler->extractGuidFromLink((char*)args);
-            if (!guid.IsEmpty())
-                obj = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
-
-            if (!obj)
-            {
-                handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                handler->SetSentErrorMessage(true);
+            HighGuid guidHigh;
+            ObjectGuid::LowType guidLow = handler->extractLowGuidFromLink((char*)args, guidHigh);
+            if (!guidLow)
                 return false;
+            switch (guidHigh)
+            {
+                case HighGuid::Player:
+                {
+                    object = ObjectAccessor::GetPlayer(*handler->GetSession()->GetPlayer(), ObjectGuid::Create<HighGuid::Player>(guidLow));
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::Creature:
+                {
+                    object = handler->GetCreatureFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOCREATUREFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                case HighGuid::GameObject:
+                {
+                    object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
+                    if (!object)
+                    {
+                        handler->SendSysMessage(LANG_COMMAND_NOGAMEOBJECTFOUND);
+                        handler->SetSentErrorMessage(true);
+                    }
+                    break;
+                }
+                default:
+                    return false;
             }
+            if (!object)
+                return false;
         }
         else
         {
-            obj = handler->getSelectedUnit();
-
-            if (!obj)
+            object = handler->getSelectedUnit();
+            if (!object)
             {
                 handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
                 handler->SetSentErrorMessage(true);
@@ -805,7 +877,7 @@ public:
             }
         }
 
-        handler->PSendSysMessage(LANG_DISTANCE, handler->GetSession()->GetPlayer()->GetDistance(obj), handler->GetSession()->GetPlayer()->GetDistance2d(obj), handler->GetSession()->GetPlayer()->GetExactDist(obj), handler->GetSession()->GetPlayer()->GetExactDist2d(obj));
+        handler->PSendSysMessage(LANG_DISTANCE, handler->GetSession()->GetPlayer()->GetDistance(object), handler->GetSession()->GetPlayer()->GetDistance2d(object), handler->GetSession()->GetPlayer()->GetExactDist(object), handler->GetSession()->GetPlayer()->GetExactDist2d(object));
         return true;
     }
     // Teleport player to last position
@@ -1295,7 +1367,7 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId), GuidSet(), bonusListIDs);
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId), GuidSet(), 0, bonusListIDs);
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
@@ -1364,7 +1436,7 @@ public:
                 InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.GetId(), 1);
                 if (msg == EQUIP_ERR_OK)
                 {
-                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true, {}, GuidSet(), bonusListIDs);
+                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true, {}, GuidSet(), 0, bonusListIDs);
 
                     // remove binding (let GM give it to another player later)
                     if (player == playerTarget)
@@ -1567,7 +1639,7 @@ public:
          * * Level: %u (%u/%u XP (%u XP left)        - X.    LANG_PINFO_CHR_LEVEL
          * * Race: %s %s, Class %s                   - XI.   LANG_PINFO_CHR_RACE
          * * Alive ?: %s                             - XII.  LANG_PINFO_CHR_ALIVE
-         * * Phase: %s                               - XIII. LANG_PINFO_CHR_PHASE (if not GM)
+         * * Phases: %s                              - XIII. LANG_PINFO_CHR_PHASE (if not GM)
          * * Money: %ug%us%uc                        - XIV.  LANG_PINFO_CHR_MONEY
          * * Map: %s, Area: %s                       - XV.   LANG_PINFO_CHR_MAP
          * * Guild: %s (Id: %u)                      - XVI.  LANG_PINFO_CHR_GUILD (if in guild)
@@ -1623,7 +1695,7 @@ public:
         // Position data print
         uint32 mapId;
         uint32 areaId;
-        uint32 phase            = 0;
+        std::set<uint32> phases;
         std::string areaName    = handler->GetTrinityString(LANG_UNKNOWN);
         std::string zoneName    = handler->GetTrinityString(LANG_UNKNOWN);
 
@@ -1655,7 +1727,7 @@ public:
             areaId            = target->GetAreaId();
             alive             = target->IsAlive() ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO);
             gender            = target->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER);
-            phase             = target->GetPhaseMask();
+            phases            = target->GetPhases();
         }
         // get additional information from DB
         else
@@ -1712,7 +1784,7 @@ public:
                 lastIp    = fields[4].GetString();
                 lastLogin = fields[5].GetString();
 
-                uint32 ip = inet_addr(lastIp.c_str());
+                uint32 ip = boost::asio::ip::address_v4::from_string(lastIp).to_ulong();;
                 EndianConvertReverse(ip);
 
                 // If ip2nation table is populated, it displays the country
@@ -1840,10 +1912,10 @@ public:
         // Output XII. LANG_PINFO_CHR_ALIVE
         handler->PSendSysMessage(LANG_PINFO_CHR_ALIVE, alive.c_str());
 
-        // Output XIII. LANG_PINFO_CHR_PHASE if player is not in GM mode (GM is in every phase)
-        if (target && !target->IsGameMaster())                            // IsInWorld() returns false on loadingscreen, so it's more
-            handler->PSendSysMessage(LANG_PINFO_CHR_PHASE, phase);        // precise than just target (safer ?).
-                                                                          // However, as we usually just require a target here, we use target instead.
+        // Output XIII. LANG_PINFO_CHR_PHASES
+        if (target && !phases.empty())
+            handler->PSendSysMessage(LANG_PINFO_CHR_PHASES, StringJoin(phases, ", ").c_str());
+
         // Output XIV. LANG_PINFO_CHR_MONEY
         uint32 gold                   = money / GOLD;
         uint32 silv                   = (money % GOLD) / SILVER;
@@ -1922,7 +1994,7 @@ public:
 
         Trinity::RespawnDo u_do;
         Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(player, u_do);
-        player->VisitNearbyGridObject(player->GetGridActivationRange(), worker);
+        Cell::VisitGridObjects(player, worker, player->GetGridActivationRange());
 
         return true;
     }
@@ -2257,8 +2329,8 @@ public:
                 return false;
             }
 
-            ObjectGuid::LowType guid = strtoull(guidStr, nullptr, 10);
-            if (!guid)
+            ObjectGuid::LowType guidLow = atoull(guidStr);
+            if (!guidLow)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
                 handler->SetSentErrorMessage(true);
@@ -2283,14 +2355,10 @@ public:
 
             if (Player* player = handler->GetSession()->GetPlayer())
             {
-                GameObject* go = NULL;
-
-                if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
-                    go = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guid, goData->id);
-
+                GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
                 if (!go)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guid);
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -2303,7 +2371,7 @@ public:
                 }
 
                 go->ModifyHealth(-damage, player);
-                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guid, -damage, go->GetGOValue()->Building.Health);
+                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guidLow, -damage, go->GetGOValue()->Building.Health);
             }
 
             return true;
@@ -2379,10 +2447,11 @@ public:
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
         uint32 spellid = handler->extractSpellIdFromLink((char*)args);
-        if (!spellid || !sSpellMgr->GetSpellInfo(spellid))
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellid);
+        if (!spellInfo)
             return false;
 
-        SpellNonMeleeDamage damageInfo(handler->GetSession()->GetPlayer(), target, spellid, sSpellMgr->GetSpellInfo(spellid)->SchoolMask);
+        SpellNonMeleeDamage damageInfo(handler->GetSession()->GetPlayer(), target, spellid, spellInfo->GetSpellXSpellVisualId(handler->GetSession()->GetPlayer()), spellInfo->SchoolMask);
         damageInfo.damage = damage;
         handler->GetSession()->GetPlayer()->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
         target->DealSpellDamage(&damageInfo, true);

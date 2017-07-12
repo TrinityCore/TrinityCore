@@ -24,9 +24,13 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "karazhan.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
 
 // 18 Coordinates for Infernal spawns
 struct InfernalPoint
@@ -104,7 +108,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new netherspite_infernalAI(creature);
+        return GetKarazhanAI<netherspite_infernalAI>(creature);
     }
 
     struct netherspite_infernalAI : public ScriptedAI
@@ -179,7 +183,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_malchezaarAI>(creature);
+        return GetKarazhanAI<boss_malchezaarAI>(creature);
     }
 
     struct boss_malchezaarAI : public ScriptedAI
@@ -308,11 +312,11 @@ public:
 
         void EnfeebleHealthEffect()
         {
-            const SpellInfo* info = sSpellMgr->GetSpellInfo(SPELL_ENFEEBLE_EFFECT);
+            SpellInfo const* info = sSpellMgr->GetSpellInfo(SPELL_ENFEEBLE_EFFECT);
             if (!info)
                 return;
 
-            ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType const& t_list = me->getThreatManager().getThreatList();
             std::vector<Unit*> targets;
 
             if (t_list.empty())

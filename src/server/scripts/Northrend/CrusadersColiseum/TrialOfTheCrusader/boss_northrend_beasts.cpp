@@ -20,12 +20,17 @@
 // Gormok - Snobolled (creature at back)
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "trial_of_the_crusader.h"
-#include "Vehicle.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "TemporarySummon.h"
+#include "trial_of_the_crusader.h"
+#include "Vehicle.h"
 
 enum Yells
 {
@@ -288,7 +293,7 @@ class boss_gormok : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_gormokAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_gormokAI>(creature);
         }
 };
 
@@ -449,7 +454,7 @@ class npc_snobold_vassal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_snobold_vassalAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_snobold_vassalAI>(creature);
         }
 };
 
@@ -485,7 +490,7 @@ class npc_firebomb : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_firebombAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_firebombAI>(creature);
         }
 };
 
@@ -646,7 +651,7 @@ struct boss_jormungarAI : public BossAI
         // if the worm was mobile before submerging, make him stationary now
         if (WasMobile)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+            me->SetControlled(true, UNIT_STATE_ROOT);
             SetCombatMovement(false);
             me->SetDisplayId(ModelStationary);
             me->CastSpell(me, SPELL_GROUND_VISUAL_1, true);
@@ -658,7 +663,7 @@ struct boss_jormungarAI : public BossAI
         }
         else
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+            me->SetControlled(false, UNIT_STATE_ROOT);
             SetCombatMovement(true);
             me->GetMotionMaster()->MoveChase(me->GetVictim());
             me->SetDisplayId(ModelMobile);
@@ -713,7 +718,7 @@ class boss_acidmaw : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_acidmawAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_acidmawAI>(creature);
         }
 };
 
@@ -777,7 +782,7 @@ class boss_dreadscale : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_dreadscaleAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_dreadscaleAI>(creature);
         }
 };
 
@@ -824,7 +829,7 @@ class npc_slime_pool : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_slime_poolAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_slime_poolAI>(creature);
         }
 };
 
@@ -1004,6 +1009,9 @@ class boss_icehowl : public CreatureScript
                                 default:
                                     break;
                             }
+
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                                return;
                         }
                         DoMeleeAttackIfReady();
                         break;
@@ -1023,7 +1031,8 @@ class boss_icehowl : public CreatureScript
                             me->SetTarget(_trampleTargetGUID);
                             _trampleCast = false;
                             SetCombatMovement(false);
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            me->SetControlled(true, UNIT_STATE_ROOT);
                             me->GetMotionMaster()->Clear();
                             me->GetMotionMaster()->MoveIdle();
                             events.ScheduleEvent(EVENT_TRAMPLE, 4*IN_MILLISECONDS);
@@ -1050,6 +1059,7 @@ class boss_icehowl : public CreatureScript
                                         _trampleTargetZ = target->GetPositionZ();
                                         // 2: Hop Backwards
                                         me->GetMotionMaster()->MoveJump(2*me->GetPositionX() - _trampleTargetX, 2*me->GetPositionY() - _trampleTargetY, me->GetPositionZ(), me->GetOrientation(), 30.0f, 20.0f, 0);
+                                        me->SetControlled(false, UNIT_STATE_ROOT);
                                         _stage = 7; //Invalid (Do nothing more than move)
                                     }
                                     else
@@ -1059,6 +1069,9 @@ class boss_icehowl : public CreatureScript
                                 default:
                                     break;
                             }
+
+                            if (me->HasUnitState(UNIT_STATE_CASTING))
+                                return;
                         }
                         break;
                     case 4:
@@ -1107,7 +1120,7 @@ class boss_icehowl : public CreatureScript
                             Talk(EMOTE_TRAMPLE_FAIL);
                         }
                         _movementStarted = false;
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         SetCombatMovement(true);
                         me->GetMotionMaster()->MovementExpired();
                         me->GetMotionMaster()->Clear();
@@ -1133,7 +1146,7 @@ class boss_icehowl : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_icehowlAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_icehowlAI>(creature);
         }
 };
 
@@ -1148,9 +1161,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PARALYSIS))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_PARALYSIS });
         }
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1219,9 +1230,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(_spellId))
-                return false;
-            return true;
+            return ValidateSpellInfo({ _spellId });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)

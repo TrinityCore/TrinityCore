@@ -18,8 +18,9 @@
 #ifndef BattlePetMgr_h__
 #define BattlePetMgr_h__
 
-#include "DB2Stores.h"
 #include "BattlePetPackets.h"
+#include "DatabaseEnvFwd.h"
+#include <unordered_map>
 
 enum BattlePetMisc
 {

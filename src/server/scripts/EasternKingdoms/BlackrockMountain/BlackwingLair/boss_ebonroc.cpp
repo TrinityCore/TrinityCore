@@ -79,6 +79,9 @@ public:
                         events.ScheduleEvent(EVENT_SHADOWOFEBONROC, urand(8000, 10000));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -87,7 +90,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_ebonrocAI>(creature);
+        return GetBlackwingLairAI<boss_ebonrocAI>(creature);
     }
 };
 

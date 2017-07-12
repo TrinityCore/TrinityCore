@@ -1,7 +1,7 @@
 #ifndef _WHEATYEXCEPTIONREPORT_
 #define _WHEATYEXCEPTIONREPORT_
 
-#if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && !defined(__MINGW32__)
 
 #include <winnt.h>
 #include <winternl.h>

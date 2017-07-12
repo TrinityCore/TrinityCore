@@ -48,7 +48,6 @@ WorldPacket const* WorldPackets::Loot::LootResponse::Write()
     _worldPacket << uint32(Currencies.size());
     _worldPacket.WriteBit(Acquired);
     _worldPacket.WriteBit(AELooting);
-    _worldPacket.WriteBit(PersonalLooting);
     _worldPacket.FlushBits();
 
     for (LootItemData const& item : Items)
@@ -127,6 +126,7 @@ WorldPacket const* WorldPackets::Loot::LootReleaseResponse::Write()
 WorldPacket const* WorldPackets::Loot::LootList::Write()
 {
     _worldPacket << Owner;
+    _worldPacket << LootObj;
 
     _worldPacket.WriteBit(Master.is_initialized());
     _worldPacket.WriteBit(RoundRobinWinner.is_initialized());

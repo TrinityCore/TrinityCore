@@ -19,8 +19,8 @@
 #define ArtifactPackets_h__
 
 #include "Packet.h"
-#include "PacketUtilities.h"
 #include "ObjectGuid.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -97,7 +97,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid ArtifactGUID;
-            int32 Amount = 0;
+            uint64 Amount = 0;
         };
     }
 }
