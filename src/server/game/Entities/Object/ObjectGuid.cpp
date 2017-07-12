@@ -150,18 +150,6 @@ void ObjectGuid::SetRawValue(std::vector<uint8> const& guid)
     memcpy(this, guid.data(), sizeof(*this));
 }
 
-uint8& ObjectGuid::operator[](uint32 index)
-{
-    ASSERT(index < sizeof(uint64) * 2);
-    return ((uint8*)&_low)[index];
-}
-
-uint8 const& ObjectGuid::operator[](uint32 index) const
-{
-    ASSERT(index < sizeof(uint64) * 2);
-    return ((uint8 const*)&_low)[index];
-}
-
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
 {
     uint8 lowMask = 0;
