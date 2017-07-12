@@ -785,6 +785,7 @@ bool AuthSession::HandleRealmList()
     stmt->setUInt32(0, _accountInfo.Id);
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::RealmListCallback, this, std::placeholders::_1)));
+    _status = STATUS_WAITING_FOR_REALM_LIST;
     return true;
 }
 
