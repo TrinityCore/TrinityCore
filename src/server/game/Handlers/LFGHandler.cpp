@@ -171,7 +171,6 @@ void WorldSession::SendLfgPlayerLockInfo()
         playerDungeonInfo.CompletedMask = 0;
         playerDungeonInfo.EncounterMask = 0;
 
-        Quest const* quest = nullptr;
         if (lfg::LfgReward const* reward = sLFGMgr->GetRandomDungeonReward(slot, level))
         {
             if (Quest const* quest = sObjectMgr->GetQuestTemplate(reward->firstQuest))
@@ -234,7 +233,6 @@ void WorldSession::SendLfgUpdateStatus(lfg::LfgUpdateData const& updateData, boo
 {
     bool join = false;
     bool queued = false;
-    ObjectGuid guid = _player->GetGUID();
 
     switch (updateData.updateType)
     {
@@ -348,7 +346,6 @@ void WorldSession::SendLfgJoinResult(lfg::LfgJoinResultData const& joinData)
         WorldPackets::LFG::LFGJoinBlackList& blackList = lfgJoinResult.BlackList.back();
         blackList.Guid = it->first;
 
-        ObjectGuid playerGuid = it->first;
         for (lfg::LfgLockMap::const_iterator itr = it->second.begin(); itr != it->second.end(); ++itr)
         {
             TC_LOG_TRACE("lfg", "SendLfgJoinResult:: %s DungeonID: %u Lock status: %u Required itemLevel: %u Current itemLevel: %f",
