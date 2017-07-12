@@ -87,6 +87,9 @@ public:
                         events.ScheduleEvent(EVENT_FRENZY, urand(8000, 10000));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -95,7 +98,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_flamegorAI>(creature);
+        return GetBlackwingLairAI<boss_flamegorAI>(creature);
     }
 };
 

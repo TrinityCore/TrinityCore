@@ -35,14 +35,18 @@ npc_nexus_drake_hatchling
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "GameObject.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
-#include "Player.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
-#include "WorldSession.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "WorldSession.h"
 
 /*######
 ## npc_sinkhole_kill_credit
@@ -247,18 +251,18 @@ public:
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(QUEST_ACES_HIGH) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_ACES_HIGH_DAILY) == QUEST_STATUS_INCOMPLETE) //It's the same dragon for both quests.
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_C_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_C_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
 
             player->CastSpell(player, SPELL_SUMMON_WYRMREST_SKYTALON, true);
             player->CastSpell(player, SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC, true);
@@ -290,7 +294,7 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetQuestStatus(QUEST_SPIRITS_WATCH_OVER_US) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_I, creature->GetGUID());
         return true;
@@ -298,12 +302,12 @@ public:
 
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CastSpell(player, SPELL_CREATURE_TOTEM_OF_ISSLIRUK, true);
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
                 break;
 
         }
@@ -440,7 +444,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
+            if (GameObject* go_caribou = ObjectAccessor::GetGameObject(*me, go_caribouGUID))
                 go_caribou->SetLootState(GO_JUST_DEACTIVATED);
 
             if (TempSummon* summon = me->ToTempSummon())
@@ -449,7 +453,7 @@ public:
                         if (Player* player = temp->ToPlayer())
                             player->KilledMonsterCredit(me->GetEntry());
 
-            if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
+            if (GameObject* go_caribou = ObjectAccessor::GetGameObject(*me, go_caribouGUID))
                 go_caribou->SetGoState(GO_STATE_READY);
         }
 
@@ -1124,16 +1128,16 @@ public:
             player->PrepareQuestMenu(creature->GetGUID());
 
         if (player->GetQuestStatus(QUEST_LAST_RITES) == QUEST_STATUS_INCOMPLETE && creature->GetAreaId() == 4128)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
 
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
@@ -2382,23 +2386,23 @@ public:
         }
 
         if (player->HasAura(SPELL_RIGHTEOUS_VISION) && player->GetQuestStatus(QUEST_THE_HUNT_IS_ON) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, charGossipItem, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, charGossipItem, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         if (creature->IsVendor())
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-        player->SEND_GOSSIP_MENU(uiGossipText, creature->GetGUID());
+        SendGossipMenuFor(player, uiGossipText, creature->GetGUID());
 
         return true;
     }
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
     {
-        player->PlayerTalkClass->ClearMenus();
+        ClearGossipMenuFor(player);
 
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            player->CLOSE_GOSSIP_MENU();
+            CloseGossipMenuFor(player);
             creature->AI()->SetGUID(player->GetGUID());
             creature->AI()->DoAction(1);
         }

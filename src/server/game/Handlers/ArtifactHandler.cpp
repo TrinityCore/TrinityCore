@@ -18,7 +18,9 @@
 #include "WorldSession.h"
 #include "ArtifactPackets.h"
 #include "ConditionMgr.h"
+#include "DB2Stores.h"
 #include "GameTables.h"
+#include "Item.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
@@ -33,11 +35,11 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     if (!artifact)
         return;
 
-    int32 xpCost = 0;
+    uint64 xpCost = 0;
     if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
-        xpCost = int32(cost->XP);
+        xpCost = uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
 
-    if (xpCost > artifact->GetInt32Value(ITEM_FIELD_ARTIFACT_XP))
+    if (xpCost > artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP))
         return;
 
     if (artifactAddPower.PowerChoices.empty())
@@ -111,7 +113,7 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
         }
     }
 
-    artifact->ApplyModInt32Value(ITEM_FIELD_ARTIFACT_XP, xpCost, false);
+    artifact->SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP) - xpCost);
     artifact->SetState(ITEM_CHANGED, _player);
 }
 
@@ -168,17 +170,17 @@ void WorldSession::HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmAr
     if (!artifact)
         return;
 
-    uint32 xpCost = 0;
+    uint64 xpCost = 0;
     if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(artifact->GetTotalPurchasedArtifactPowers() + 1))
-        xpCost = uint32(cost->XP);
+        xpCost = uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
 
-    if (xpCost > artifact->GetUInt32Value(ITEM_FIELD_ARTIFACT_XP))
+    if (xpCost > artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP))
         return;
 
-    uint32 newAmount = artifact->GetUInt32Value(ITEM_FIELD_ARTIFACT_XP) - xpCost;
+    uint64 newAmount = artifact->GetUInt64Value(ITEM_FIELD_ARTIFACT_XP) - xpCost;
     for (uint32 i = 0; i <= artifact->GetTotalPurchasedArtifactPowers(); ++i)
         if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(i))
-            newAmount += uint32(cost->XP);
+            newAmount += uint64(artifact->GetModifier(ITEM_MODIFIER_ARTIFACT_TIER) == 1 ? cost->XP2 : cost->XP);
 
     for (ItemDynamicFieldArtifactPowers const& artifactPower : artifact->GetArtifactPowers())
     {
@@ -213,6 +215,6 @@ void WorldSession::HandleConfirmArtifactRespec(WorldPackets::Artifact::ConfirmAr
         _player->ApplyArtifactPowerRank(artifact, scaledArtifactPowerRank, false);
     }
 
-    artifact->SetUInt32Value(ITEM_FIELD_ARTIFACT_XP, newAmount);
+    artifact->SetUInt64Value(ITEM_FIELD_ARTIFACT_XP, newAmount);
     artifact->SetState(ITEM_CHANGED, _player);
 }

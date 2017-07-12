@@ -120,6 +120,9 @@ class boss_postmaster_malown : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -128,7 +131,7 @@ class boss_postmaster_malown : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_postmaster_malownAI>(creature);
+            return GetStratholmeAI<boss_postmaster_malownAI>(creature);
         }
 };
 

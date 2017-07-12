@@ -110,6 +110,9 @@ class boss_baron_geddon : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -118,7 +121,7 @@ class boss_baron_geddon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_baron_geddonAI(creature);
+            return GetMoltenCoreAI<boss_baron_geddonAI>(creature);
         }
 };
 

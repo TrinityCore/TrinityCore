@@ -50,17 +50,6 @@ namespace WorldPackets
             bool CurrentSpecOnly = false;
         };
 
-        class TransmogAppearanceSetFavorite final : public ClientPacket
-        {
-        public:
-            TransmogAppearanceSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOG_APPEARANCE_SET_FAVORITE, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 ItemModifiedAppearanceID = 0;
-            bool IsFavorite = false;
-        };
-
         class TransmogCollectionUpdate final : public ServerPacket
         {
         public:

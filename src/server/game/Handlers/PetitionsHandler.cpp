@@ -16,16 +16,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "GuildMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
 #include "Guild.h"
+#include "GuildMgr.h"
+#include "Item.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "PetitionPackets.h"
+#include "Player.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include <sstream>
 
 #define CHARTER_DISPLAY_ID 16161
 #define GUILD_CHARTER_ITEM_ID 5863
@@ -465,7 +470,7 @@ void WorldSession::HandleTurnInPetition(WorldPackets::Petition::TurnInPetition& 
     }
     else
     {
-        TC_LOG_ERROR("network", "Player %s (%s) tried to turn in petition (%s) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), packet.Item.ToString().c_str());
+        TC_LOG_ERROR("entities.player.cheat", "Player %s (%s) tried to turn in petition (%s) that is not present in the database", _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), packet.Item.ToString().c_str());
         return;
     }
 

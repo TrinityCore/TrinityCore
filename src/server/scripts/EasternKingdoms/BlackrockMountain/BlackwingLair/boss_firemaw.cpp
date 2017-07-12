@@ -81,6 +81,9 @@ public:
                         events.ScheduleEvent(EVENT_FLAMEBUFFET, 5000);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -89,7 +92,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_firemawAI>(creature);
+        return GetBlackwingLairAI<boss_firemawAI>(creature);
     }
 };
 

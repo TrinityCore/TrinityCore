@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "razorfen_downs.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -90,6 +90,9 @@ public:
                         events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, urand(15000, 25000));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }
@@ -97,7 +100,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_tuten_kashAI(creature);
+        return GetRazorfenDownsAI<boss_tuten_kashAI>(creature);
     }
 };
 

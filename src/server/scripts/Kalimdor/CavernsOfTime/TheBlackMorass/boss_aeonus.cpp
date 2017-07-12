@@ -24,6 +24,7 @@ Category: Caverns of Time, The Dark Portal
 */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "the_black_morass.h"
 
@@ -131,6 +132,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }
@@ -138,7 +142,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_aeonusAI>(creature);
+        return GetBlackMorassAI<boss_aeonusAI>(creature);
     }
 };
 

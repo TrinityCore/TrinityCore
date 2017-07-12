@@ -18,8 +18,6 @@
 #ifndef ToyPackets_h__
 #define ToyPackets_h__
 
-#include "Packet.h"
-#include "ObjectGuid.h"
 #include "SpellPackets.h"
 #include "CollectionMgr.h"
 
@@ -57,17 +55,6 @@ namespace WorldPackets
 
             bool IsFullUpdate = false;
             ToyBoxContainer const* Toys = nullptr;
-        };
-
-        class ToySetFavorite final : public ClientPacket
-        {
-        public:
-            ToySetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_TOY_SET_FAVORITE, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 ItemID = 0;
-            bool Favorite = false;
         };
     }
 }

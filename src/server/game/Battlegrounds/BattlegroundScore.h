@@ -18,9 +18,10 @@
 #ifndef TRINITY_BATTLEGROUND_SCORE_H
 #define TRINITY_BATTLEGROUND_SCORE_H
 
-#include "WorldPacket.h"
-#include "Player.h"
-#include "ObjectAccessor.h"
+#include "Errors.h"
+#include "ObjectGuid.h"
+#include "SharedDefines.h"
+#include <string>
 
 enum ScoreType
 {

@@ -18,27 +18,35 @@
 #ifndef __SPELL_SCRIPT_H
 #define __SPELL_SCRIPT_H
 
-#include "Util.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
-#include "Spell.h"
-#include "ScriptReloadMgr.h"
+#include "Util.h"
+#include <memory>
 #include <stack>
 
-class Unit;
+class Aura;
+class AuraApplication;
+class AuraEffect;
+class Creature;
+class DamageInfo;
+class DispelInfo;
+class DynamicObject;
+class GameObject;
+class Item;
+class ModuleReference;
+class Player;
+class ProcEventInfo;
+class Spell;
+class SpellEffectInfo;
 class SpellInfo;
 class SpellScript;
-class Spell;
-class Aura;
-class AuraEffect;
-struct SpellModifier;
-class Creature;
-class GameObject;
-class DynamicObject;
-class Player;
-class Item;
+class Unit;
 class WorldLocation;
 class WorldObject;
+struct SpellDestination;
+struct SpellModifier;
+struct SpellValue;
 
 #define SPELL_EFFECT_ANY (uint16)-1
 #define SPELL_AURA_ANY (uint16)-1
@@ -133,7 +141,19 @@ class TC_GAME_API _SpellScript
         // use for: deallocating memory allocated by script
         virtual void Unload() { }
         // Helpers
-        static bool ValidateSpellInfo(std::vector<uint32> spellIds);
+        static bool ValidateSpellInfo(std::initializer_list<uint32> spellIds)
+        {
+            return _ValidateSpellInfo(spellIds.begin(), spellIds.end());
+        }
+
+        template<class T>
+        static bool ValidateSpellInfo(T const& spellIds)
+        {
+            return _ValidateSpellInfo(std::begin(spellIds), std::end(spellIds));
+        }
+
+private:
+        static bool _ValidateSpellInfo(uint32 const* begin, uint32 const* end);
 };
 
 // SpellScript interface - enum used for runtime checks of script function calls

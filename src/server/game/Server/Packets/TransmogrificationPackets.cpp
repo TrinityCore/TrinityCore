@@ -36,12 +36,6 @@ void WorldPackets::Transmogrification::TransmogrifyItems::Read()
     CurrentSpecOnly = _worldPacket.ReadBit();
 }
 
-void WorldPackets::Transmogrification::TransmogAppearanceSetFavorite::Read()
-{
-    _worldPacket >> ItemModifiedAppearanceID;
-    IsFavorite = _worldPacket.ReadBit();
-}
-
 WorldPacket const* WorldPackets::Transmogrification::TransmogCollectionUpdate::Write()
 {
     _worldPacket.WriteBit(IsFullUpdate);

@@ -19,8 +19,16 @@
 #define CharacterPackets_h__
 
 #include "Packet.h"
-#include "Player.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
 #include "PacketUtilities.h"
+#include "Position.h"
+#include "SharedDefines.h"
+#include "UnitDefines.h"
+#include <array>
+#include <memory>
+
+class Field;
 
 namespace WorldPackets
 {
@@ -29,10 +37,7 @@ namespace WorldPackets
         class EnumCharacters final : public ClientPacket
         {
         public:
-            EnumCharacters(WorldPacket&& packet) : ClientPacket(std::move(packet))
-            {
-                ASSERT(GetOpcode() == CMSG_ENUM_CHARACTERS || GetOpcode() == CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT);
-            }
+            EnumCharacters(WorldPacket&& packet);
 
             void Read() override { }
         };
@@ -130,7 +135,7 @@ namespace WorldPackets
                 uint8 Level              = 0;
                 int32 ZoneId             = 0;
                 int32 MapId              = 0;
-                G3D::Vector3 PreLoadPosition;
+                TaggedPosition<Position::XYZ> PreLoadPosition;
                 ObjectGuid GuildGuid;
                 uint32 Flags             = 0; ///< Character flag @see enum CharacterFlags
                 uint32 CustomizationFlag = 0; ///< Character customization flags @see enum CharacterCustomizeFlags
@@ -159,7 +164,7 @@ namespace WorldPackets
                     uint8 InventoryType     = 0;
                 };
 
-                VisualItemInfo VisualItems[INVENTORY_SLOT_BAG_END];
+                std::array<VisualItemInfo, 23> VisualItems;
             };
 
             struct RestrictedFactionChangeRuleInfo
@@ -442,7 +447,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MapID = -1;
-            Position Pos;
+            TaggedPosition<Position::XYZO> Pos;
             uint32 Reason = 0;
         };
 
@@ -596,14 +601,22 @@ namespace WorldPackets
             std::array<uint32, PLAYER_CUSTOM_DISPLAY_SIZE> NewCustomDisplay;
         };
 
-        class BarberShopResultServer final : public ServerPacket
+        class BarberShopResult final : public ServerPacket
         {
         public:
-            BarberShopResultServer() : ServerPacket(SMSG_BARBER_SHOP_RESULT, 4) { }
+            enum class ResultEnum : uint8
+            {
+                Success = 0,
+                NoMoney = 1,
+                NotOnChair = 2,
+                NoMoney2 = 3
+            };
+
+            BarberShopResult(ResultEnum result) : ServerPacket(SMSG_BARBER_SHOP_RESULT, 4), Result(result) { }
 
             WorldPacket const* Write() override;
 
-            BarberShopResult Result = BARBER_SHOP_RESULT_SUCCESS;
+            ResultEnum Result = ResultEnum::Success;
         };
 
         class LogXPGain final : public ServerPacket

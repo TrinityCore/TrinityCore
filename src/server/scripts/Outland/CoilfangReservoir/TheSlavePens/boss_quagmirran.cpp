@@ -106,6 +106,9 @@ class boss_quagmirran : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -114,7 +117,7 @@ class boss_quagmirran : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_quagmirranAI(creature);
+            return GetSlavePensAI<boss_quagmirranAI>(creature);
         }
 };
 

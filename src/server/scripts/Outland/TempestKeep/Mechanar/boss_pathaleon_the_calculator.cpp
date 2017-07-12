@@ -24,8 +24,9 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "mechanar.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -152,6 +153,9 @@ class boss_pathaleon_the_calculator : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -160,7 +164,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_pathaleon_the_calculatorAI(creature);
+            return GetMechanarAI<boss_pathaleon_the_calculatorAI>(creature);
         }
 };
 
@@ -240,7 +244,7 @@ class npc_nether_wraith : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_nether_wraithAI(creature);
+            return GetMechanarAI<npc_nether_wraithAI>(creature);
         }
 };
 

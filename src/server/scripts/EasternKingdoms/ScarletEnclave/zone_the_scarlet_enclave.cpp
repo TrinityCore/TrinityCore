@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "MotionMaster.h"
 #include "PassiveAI.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 /*####
 ## npc_valkyr_battle_maiden

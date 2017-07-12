@@ -23,9 +23,13 @@ SDCategory: Ulduar - Ulduar
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 
 enum AssemblySpells
@@ -264,6 +268,9 @@ class boss_steelbreaker : public CreatureScript
                             events.ScheduleEvent(EVENT_OVERWHELMING_POWER, RAID_MODE(60000, 35000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -429,6 +436,9 @@ class boss_runemaster_molgeim : public CreatureScript
                             events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(30000, 45000));
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -637,6 +647,9 @@ class boss_stormcaller_brundir : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -716,9 +729,7 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RUNE_OF_SUMMONING_SUMMON))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RUNE_OF_SUMMONING_SUMMON });
             }
 
             void HandlePeriodic(AuraEffect const* aurEff)

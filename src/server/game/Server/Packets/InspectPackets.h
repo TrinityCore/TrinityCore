@@ -18,8 +18,9 @@
 #pragma once
 
 #include "Packet.h"
-#include "ItemPackets.h"
+#include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
 
 class Item;
 

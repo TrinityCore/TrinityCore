@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #define _CRT_SECURE_NO_DEPRECATE
 #ifndef _CRT_SECURE_NO_WARNINGS // fuck the police^Wwarnings
 #define _CRT_SECURE_NO_WARNINGS
@@ -6,33 +23,12 @@
 #ifndef MPQ_H
 #define MPQ_H
 
-#include <string.h>
-#include <ctype.h>
-#include <vector>
-#include <iostream>
-#include <deque>
-#include <cstdint>
+#include "Define.h"
 #include "CascHandles.h"
-#include "CascLib.h"
-
-typedef int64_t            int64;
-typedef int32_t            int32;
-typedef int16_t            int16;
-typedef int8_t             int8;
-typedef uint64_t           uint64;
-typedef uint32_t           uint32;
-typedef uint16_t           uint16;
-typedef uint8_t            uint8;
-
-#ifdef _WIN32
-#include <Windows.h>    // mainly only HANDLE definition is required
-#else
-int GetLastError();
-#endif
+#include <utility>
 
 class CASCFile
 {
-    //MPQHANDLE handle;
     bool eof;
     char *buffer;
     size_t pointer,size;
@@ -57,13 +53,8 @@ public:
 
 inline void flipcc(char *fcc)
 {
-    char t;
-    t=fcc[0];
-    fcc[0]=fcc[3];
-    fcc[3]=t;
-    t=fcc[1];
-    fcc[1]=fcc[2];
-    fcc[2]=t;
+    std::swap(fcc[0], fcc[3]);
+    std::swap(fcc[1], fcc[2]);
 }
 
 #endif

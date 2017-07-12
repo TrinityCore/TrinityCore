@@ -23,15 +23,22 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
 #include "Chat.h"
-#include "Transport.h"
-#include "CreatureGroups.h"
-#include "Language.h"
-#include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureAI.h"
-#include "Player.h"
+#include "CreatureGroups.h"
+#include "DatabaseEnv.h"
+#include "Language.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Pet.h"
+#include "Player.h"
+#include "RBAC.h"
+#include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
+#include "Transport.h"
+#include "World.h"
+#include "WorldSession.h"
 
 template<typename E, typename T = char const*>
 struct EnumName
@@ -42,10 +49,10 @@ struct EnumName
 
 #define CREATE_NAMED_ENUM(VALUE) { VALUE, STRINGIZE(VALUE) }
 
-#define NPCFLAG_COUNT   24
+#define NPC_FLAG_COUNT    24
 #define FLAGS_EXTRA_COUNT 19
 
-EnumName<NPCFlags, int32> const npcFlagTexts[NPCFLAG_COUNT] =
+EnumName<NPCFlags, uint32> const npcFlagTexts[NPC_FLAG_COUNT] =
 {
     { UNIT_NPC_FLAG_AUCTIONEER,         LANG_NPCINFO_AUCTIONEER         },
     { UNIT_NPC_FLAG_BANKER,             LANG_NPCINFO_BANKER             },
@@ -144,6 +151,34 @@ EnumName<UnitFlags> const unitFlags[MAX_UNIT_FLAGS] =
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_29),
     CREATE_NAMED_ENUM(UNIT_FLAG_SHEATHE),
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_31)
+};
+
+EnumName<UnitFlags2> const unitFlags2[MAX_UNIT_FLAGS_2] =
+{
+    CREATE_NAMED_ENUM(UNIT_FLAG2_FEIGN_DEATH),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_UNK1),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_IGNORE_REPUTATION),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_COMPREHEND_LANG),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_MIRROR_IMAGE),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_INSTANTLY_APPEAR_MODEL),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_FORCE_MOVEMENT),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_DISARM_OFFHAND),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_DISABLE_PRED_STATS),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_DISARM_RANGED),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_REGENERATE_POWER),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_RESTRICT_PARTY_INTERACTION),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_PREVENT_SPELL_CLICK),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_ALLOW_ENEMY_INTERACT),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_DISABLE_TURN),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_UNK2),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_PLAY_DEATH_ANIM),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_ALLOW_CHEAT_SPELLS),
+    CREATE_NAMED_ENUM(UNIT_FLAG2_NO_ACTIONS)
+};
+
+EnumName<UnitFlags3> const unitFlags3[MAX_UNIT_FLAGS_3] =
+{
+    CREATE_NAMED_ENUM(UNIT_FLAG3_UNK1)
 };
 
 EnumName<CreatureFlagsExtra> const flagsExtra[FLAGS_EXTRA_COUNT] =
@@ -245,7 +280,7 @@ public:
         if (!charID)
             return false;
 
-        uint32 id  = atoi(charID);
+        uint32 id  = atoul(charID);
         if (!sObjectMgr->GetCreatureTemplate(id))
             return false;
 
@@ -368,7 +403,7 @@ public:
         char* guidStr = strtok((char*)args, " ");
         char* waitStr = strtok((char*)nullptr, " ");
 
-        ObjectGuid::LowType lowGuid = strtoull(guidStr, nullptr, 10);
+        ObjectGuid::LowType lowGuid = atoull(guidStr);
 
         // attempt check creature existence by DB data
         CreatureData const* data = sObjectMgr->GetCreatureData(lowGuid);
@@ -417,7 +452,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 newEntryNum = atoi(args);
+        uint32 newEntryNum = atoul(args);
         if (!newEntryNum)
             return false;
 
@@ -442,7 +477,7 @@ public:
         if (!*args)
             return false;
 
-        uint8 lvl = (uint8) atoi((char*)args);
+        uint8 lvl = (uint8) atoi(args);
         if (lvl < 1 || lvl > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) + 3)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -477,12 +512,10 @@ public:
             if (!cId)
                 return false;
 
-            ObjectGuid::LowType lowguid = strtoull(cId, nullptr, 10);
+            ObjectGuid::LowType lowguid = atoull(cId);
             if (!lowguid)
                 return false;
-
-            if (CreatureData const* cr_data = sObjectMgr->GetCreatureData(lowguid))
-                unit = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(ObjectGuid::Create<HighGuid::Creature>(cr_data->mapid, cr_data->id, lowguid));
+            unit = handler->GetCreatureFromPlayerMapByDbGuid(lowguid);
         }
         else
             unit = handler->getSelectedCreature();
@@ -548,7 +581,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 factionId = (uint32) atoi((char*)args);
+        uint32 factionId = atoul(args);
 
         if (!sFactionTemplateStore.LookupEntry(factionId))
         {
@@ -591,7 +624,7 @@ public:
         if (!*args)
             return false;
 
-        uint64 npcFlags = std::strtoull(args, nullptr, 10);
+        uint64 npcFlags = atoull(args);
 
         Creature* creature = handler->getSelectedCreature();
 
@@ -706,7 +739,17 @@ public:
             if (target->GetUInt32Value(UNIT_FIELD_FLAGS) & unitFlags[i].Value)
                 handler->PSendSysMessage("%s (0x%X)", unitFlags[i].Name, unitFlags[i].Value);
 
-        handler->PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS_2), target->GetUInt32Value(OBJECT_DYNAMIC_FLAGS), target->getFaction());
+        handler->PSendSysMessage(LANG_NPCINFO_UNIT_FIELD_FLAGS_2, target->GetUInt32Value(UNIT_FIELD_FLAGS_2));
+        for (uint8 i = 0; i < MAX_UNIT_FLAGS_2; ++i)
+            if (target->GetUInt32Value(UNIT_FIELD_FLAGS_2) & unitFlags2[i].Value)
+                handler->PSendSysMessage("%s (0x%X)", unitFlags2[i].Name, unitFlags2[i].Value);
+
+        handler->PSendSysMessage(LANG_NPCINFO_UNIT_FIELD_FLAGS_3, target->GetUInt32Value(UNIT_FIELD_FLAGS_3));
+        for (uint8 i = 0; i < MAX_UNIT_FLAGS_3; ++i)
+            if (target->GetUInt32Value(UNIT_FIELD_FLAGS_3) & unitFlags3[i].Value)
+                handler->PSendSysMessage("%s (0x%X)", unitFlags3[i].Name, unitFlags3[i].Value);
+
+        handler->PSendSysMessage(LANG_NPCINFO_DYNAMIC_FLAGS, target->GetUInt32Value(OBJECT_DYNAMIC_FLAGS));
         handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
         handler->PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
         handler->PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
@@ -735,7 +778,8 @@ public:
             if (cInfo->flags_extra & flagsExtra[i].Value)
                 handler->PSendSysMessage("%s (0x%X)", flagsExtra[i].Name, flagsExtra[i].Value);
 
-        for (uint8 i = 0; i < NPCFLAG_COUNT; i++)
+        handler->PSendSysMessage(LANG_NPCINFO_NPC_FLAGS, npcflags);
+        for (uint8 i = 0; i < NPC_FLAG_COUNT; i++)
             if (npcflags & npcFlagTexts[i].Value)
                 handler->PSendSysMessage(npcFlagTexts[i].Name, npcFlagTexts[i].Value);
 
@@ -807,7 +851,7 @@ public:
             if (!cId)
                 return false;
 
-            lowguid = strtoull(cId, nullptr, 10);
+            lowguid = atoull(cId);
 
             // Attempting creature load from DB data
             CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
@@ -893,7 +937,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 displayId = (uint32) atoi((char*)args);
+        uint32 displayId = atoul(args);
 
         Creature* creature = handler->getSelectedCreature();
 
@@ -987,12 +1031,10 @@ public:
         }
         else                                                    // case .setmovetype #creature_guid $move_type (with selected creature)
         {
-            lowguid = strtoull(guid_str, nullptr, 10);
+            lowguid = atoull(guid_str);
 
-            /* impossible without entry
             if (lowguid)
-                creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
-            */
+                creature = handler->GetCreatureFromPlayerMapByDbGuid(lowguid);
 
             // attempt check creature existence by DB data
             if (!creature)
@@ -1095,7 +1137,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 phaseID = uint32(atoi((char*)args));
+        uint32 phaseID = atoul(args);
         if (!sPhaseStore.LookupEntry(phaseID))
         {
             handler->SendSysMessage(LANG_PHASE_NOTFOUND);
@@ -1177,7 +1219,7 @@ public:
         if (!stime)
             return false;
 
-        int spawnTime = atoi((char*)stime);
+        int spawnTime = atoi(stime);
 
         if (spawnTime < 0)
         {
@@ -1376,7 +1418,7 @@ public:
 
         Player* chr = handler->GetSession()->GetPlayer();
 
-        uint32 id = atoi(charID);
+        uint32 id = atoul(charID);
         if (!id)
             return false;
 
@@ -1505,7 +1547,7 @@ public:
         if (!*args)
             return false;
 
-        ObjectGuid::LowType leaderGUID = strtoull(args, nullptr, 10);
+        ObjectGuid::LowType leaderGUID = atoull(args);
         Creature* creature = handler->getSelectedCreature();
 
         if (!creature || !creature->GetSpawnId())
@@ -1557,7 +1599,7 @@ public:
         if (!*args)
             return false;
 
-        ObjectGuid::LowType linkguid = strtoull(args, nullptr, 10);
+        ObjectGuid::LowType linkguid = atoull(args);
 
         Creature* creature = handler->getSelectedCreature();
 

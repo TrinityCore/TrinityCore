@@ -17,10 +17,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedGossip.h"
-#include "ScriptedCreature.h"
 #include "blackwing_lair.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 
 enum Events
 {
@@ -363,6 +367,9 @@ public:
                             events.ScheduleEvent(EVENT_SPAWN_ADD, 4000);
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
             }
         }
@@ -371,7 +378,7 @@ public:
         {
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
-                player->CLOSE_GOSSIP_MENU();
+                CloseGossipMenuFor(player);
                 Talk(SAY_GAMESBEGIN_1);
                 BeginEvent(player);
             }
@@ -383,7 +390,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_victor_nefariusAI>(creature);
+        return GetBlackwingLairAI<boss_victor_nefariusAI>(creature);
     }
 };
 
@@ -553,6 +560,9 @@ public:
                         events.ScheduleEvent(EVENT_CLASSCALL, urand(30000, 35000));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             // Phase3 begins when health below 20 pct
@@ -586,7 +596,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_nefarianAI>(creature);
+        return GetBlackwingLairAI<boss_nefarianAI>(creature);
     }
 };
 

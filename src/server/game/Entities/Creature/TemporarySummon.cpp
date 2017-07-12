@@ -16,11 +16,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Log.h"
-#include "ObjectAccessor.h"
-#include "CreatureAI.h"
-#include "ObjectMgr.h"
 #include "TemporarySummon.h"
+#include "CreatureAI.h"
+#include "DB2Structure.h"
+#include "Log.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
 
@@ -252,7 +253,7 @@ void TempSummon::UnSummon(uint32 msTime)
     //ASSERT(!IsPet());
     if (IsPet())
     {
-        ((Pet*)this)->Remove(PET_SAVE_NOT_IN_SLOT);
+        ToPet()->Remove(PET_SAVE_NOT_IN_SLOT);
         ASSERT(!IsInWorld());
         return;
     }
@@ -331,7 +332,7 @@ Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool is
 {
     memset(m_statFromOwner, 0, sizeof(float)*MAX_STATS);
     m_unitTypeMask |= UNIT_MASK_GUARDIAN;
-    if (properties && properties->Type == SUMMON_TYPE_PET)
+    if (properties && (properties->Type == SUMMON_TYPE_PET || properties->Category == SUMMON_CATEGORY_PET))
     {
         m_unitTypeMask |= UNIT_MASK_CONTROLABLE_GUARDIAN;
         InitCharmInfo();

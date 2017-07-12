@@ -23,6 +23,7 @@
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
 #include "MoveSplineInitArgs.h"
+#include <G3D/Vector3.h>
 
 class Unit;
 

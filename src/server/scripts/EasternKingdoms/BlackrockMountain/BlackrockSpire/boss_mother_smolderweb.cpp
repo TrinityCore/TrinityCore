@@ -17,8 +17,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackrock_spire.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -40,7 +40,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_mothersmolderwebAI(creature);
+        return GetBlackrockSpireAI<boss_mothersmolderwebAI>(creature);
     }
 
     struct boss_mothersmolderwebAI : public BossAI
@@ -93,6 +93,9 @@ public:
                         events.ScheduleEvent(EVENT_MOTHERS_MILK, urand(5 * IN_MILLISECONDS, 12500));
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
             DoMeleeAttackIfReady();
         }

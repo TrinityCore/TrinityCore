@@ -17,16 +17,20 @@
  */
 
 #include "CreatureAI.h"
-#include "CreatureAIImpl.h"
+#include "AreaBoundary.h"
 #include "Creature.h"
-#include "World.h"
-#include "SpellMgr.h"
-#include "Vehicle.h"
-#include "Log.h"
-#include "MapReference.h"
-#include "Player.h"
+#include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
 #include "Language.h"
+#include "Log.h"
+#include "Map.h"
+#include "MapReference.h"
+#include "MotionMaster.h"
+#include "Player.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
+#include "World.h"
 
 //Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool apply)
@@ -39,7 +43,15 @@ void CreatureAI::OnCharmed(bool apply)
 }
 
 AISpellInfoType* UnitAI::AISpellInfo;
-AISpellInfoType* GetAISpellInfo(uint32 i) { return &CreatureAI::AISpellInfo[i]; }
+AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
+
+CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), m_MoveInLineOfSight_locked(false)
+{
+}
+
+CreatureAI::~CreatureAI()
+{
+}
 
 void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
 {
@@ -82,7 +94,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= nullptr*/, float maxRange
     // If it can't find a suitable attack target then we should error out.
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->GetVictim())
     {
-        TC_LOG_ERROR("misc", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
+        TC_LOG_ERROR("misc.dozoneincombat", "DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
         return;
     }
 
@@ -162,7 +174,7 @@ void CreatureAI::TriggerAlert(Unit const* who) const
     me->SendAIReaction(AI_REACTION_ALERT);
 
     // Face the unit (stealthed player) and set distracted state for 5 seconds
-    me->SetFacingTo(me->GetAngle(who->GetPositionX(), who->GetPositionY()));
+    me->SetFacingTo(me->GetAngle(who->GetPositionX(), who->GetPositionY()), true);
     me->StopMoving();
     me->GetMotionMaster()->MoveDistract(5 * IN_MILLISECONDS);
 }
@@ -264,7 +276,6 @@ bool CreatureAI::_EnterEvadeMode(EvadeReason /*why*/)
     // sometimes bosses stuck in combat?
     me->DeleteThreatList();
     me->CombatStop(true);
-    me->LoadCreaturesAddon();
     me->SetLootRecipient(nullptr);
     me->ResetPlayerDamageReq();
     me->SetLastDamagedTime(0);
@@ -357,11 +368,17 @@ bool CreatureAI::CheckBoundary(Position const* who) const
         who = me;
 
     if (_boundary)
-        for (CreatureBoundary::const_iterator it = _boundary->begin(); it != _boundary->end(); ++it)
-            if (!(*it)->IsWithinBoundary(who))
+        for (AreaBoundary const* boundary : *_boundary)
+            if (!boundary->IsWithinBoundary(who))
                 return false;
 
     return true;
+}
+
+void CreatureAI::SetBoundary(CreatureBoundary const* boundary)
+{
+    _boundary = boundary;
+    me->DoImmediateBoundaryCheck();
 }
 
 bool CreatureAI::CheckInRoom()

@@ -19,6 +19,11 @@
 #ifndef DEF_MOLTEN_CORE_H
 #define DEF_MOLTEN_CORE_H
 
+#include "CreatureAIImpl.h"
+
+struct Position;
+
+#define MCScriptName "instance_molten_core"
 #define DataHeader "MC"
 
 enum MCEncounters
@@ -42,8 +47,8 @@ enum MCActions
     ACTION_START_RAGNAROS_ALT   = 1,
 };
 
-Position const RagnarosTelePos   = {829.159f, -815.773f, -228.972f, 5.30500f};
-Position const RagnarosSummonPos = {838.510f, -829.840f, -232.000f, 2.00000f};
+extern Position const RagnarosTelePos;
+extern Position const RagnarosSummonPos;
 
 enum MCCreatures
 {
@@ -70,5 +75,11 @@ enum MCData
 {
     DATA_RAGNAROS_ADDS  = 0,
 };
+
+template<typename AI>
+inline AI* GetMoltenCoreAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, MCScriptName);
+}
 
 #endif

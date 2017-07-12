@@ -16,8 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
+#include "WorldStatePackets.h"
 #include "zulaman.h"
 
 class instance_zulaman : public InstanceMapScript

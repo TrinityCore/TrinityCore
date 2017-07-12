@@ -21,7 +21,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "CreatureAIImpl.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 
 enum HunterSpells
 {

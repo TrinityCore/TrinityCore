@@ -23,9 +23,12 @@ SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "utgarde_keep.h"
 
 enum KelsethEncounter
@@ -213,6 +216,9 @@ class boss_keleseth : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -310,6 +316,9 @@ class npc_vrykul_skeleton : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))

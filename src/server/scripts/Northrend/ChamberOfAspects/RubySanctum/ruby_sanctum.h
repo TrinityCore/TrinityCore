@@ -18,12 +18,12 @@
 #ifndef RUBY_SANCTUM_H_
 #define RUBY_SANCTUM_H_
 
+#include "CreatureAIImpl.h"
+
 #define RSScriptName "instance_ruby_sanctum"
 #define DataHeader "RS"
 
 uint32 const EncounterCount = 4;
-
-Position const HalionControllerSpawnPos = {3156.037f, 533.2656f, 72.97205f, 0.0f};
 
 enum RSDataTypes
 {
@@ -127,25 +127,10 @@ enum RSInstanceSpell
     SPELL_BERSERK                       = 26662,
 };
 
-template<class AI>
-CreatureAI* GetRubySanctumAI(Creature* creature)
+template<typename AI, typename T>
+inline AI* GetRubySanctumAI(T* obj)
 {
-    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(RSScriptName))
-                return new AI(creature);
-    return NULL;
-}
-
-template<class AI>
-GameObjectAI* GetRubySanctumAI(GameObject* go)
-{
-    if (InstanceMap* instance = go->GetMap()->ToInstanceMap())
-        if (instance->GetInstanceScript())
-            if (instance->GetScriptId() == sObjectMgr->GetScriptId(RSScriptName))
-                return new AI(go);
-
-    return NULL;
+    return GetInstanceAI<AI>(obj, RSScriptName);
 }
 
 #endif // RUBY_SANCTUM_H_

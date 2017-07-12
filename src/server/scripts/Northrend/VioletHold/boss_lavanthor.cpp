@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
 
@@ -36,25 +37,10 @@ class boss_lavanthor : public CreatureScript
         {
             boss_lavanthorAI(Creature* creature) : BossAI(creature, DATA_LAVANTHOR) { }
 
-            void Reset() override
-            {
-                BossAI::Reset();
-            }
-
-            void EnterCombat(Unit* who) override
-            {
-                BossAI::EnterCombat(who);
-            }
-
             void JustReachedHome() override
             {
                 BossAI::JustReachedHome();
                 instance->SetData(DATA_HANDLE_CELLS, DATA_LAVANTHOR);
-            }
-
-            void JustDied(Unit* killer) override
-            {
-                BossAI::JustDied(killer);
             }
 
             void UpdateAI(uint32 diff) override

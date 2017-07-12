@@ -16,12 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "Player.h"
-#include "ObjectGuid.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 #include "naxxramas.h"
-
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Phases
 {
@@ -164,7 +167,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_thaddiusAI>(creature);
+        return GetNaxxramasAI<boss_thaddiusAI>(creature);
     }
 
     struct boss_thaddiusAI : public BossAI
@@ -480,7 +483,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_stalaggAI>(creature);
+        return GetNaxxramasAI<npc_stalaggAI>(creature);
     }
 
     struct npc_stalaggAI : public ScriptedAI
@@ -748,7 +751,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_feugenAI>(creature);
+        return GetNaxxramasAI<npc_feugenAI>(creature);
     }
 
     struct npc_feugenAI : public ScriptedAI
@@ -1019,7 +1022,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_teslaAI>(creature);
+        return GetNaxxramasAI<npc_teslaAI>(creature);
     }
 
     struct npc_teslaAI : public ScriptedAI
@@ -1044,15 +1047,16 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return (
-                    sSpellMgr->GetSpellInfo(SPELL_POLARITY_SHIFT) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_AMP) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_AMP)
-                    );
+                return ValidateSpellInfo(
+                {
+                    SPELL_POLARITY_SHIFT,
+                    SPELL_POSITIVE_CHARGE_APPLY,
+                    SPELL_POSITIVE_CHARGE_TICK,
+                    SPELL_POSITIVE_CHARGE_AMP,
+                    SPELL_NEGATIVE_CHARGE_APPLY,
+                    SPELL_NEGATIVE_CHARGE_TICK,
+                    SPELL_NEGATIVE_CHARGE_AMP
+                });
             }
 
             void HandleTargets(std::list<WorldObject*>& targetList)
@@ -1075,29 +1079,28 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
                 }
 
                 uint8 maxStacks = 0;
-                if (GetCaster())
-                    switch (GetCaster()->GetMap()->GetDifficultyID())
-                    {
-                        case DIFFICULTY_10_N:
-                            maxStacks = MAX_POLARITY_10M;
-                            break;
-                        case DIFFICULTY_25_N:
-                            maxStacks = MAX_POLARITY_25M;
-                            break;
-                        default:
-                            break;
-                    }
+                switch (GetCaster()->GetMap()->GetDifficultyID())
+                {
+                    case DIFFICULTY_10_N:
+                        maxStacks = MAX_POLARITY_10M;
+                        break;
+                    case DIFFICULTY_25_N:
+                        maxStacks = MAX_POLARITY_25M;
+                        break;
+                    default:
+                        break;
+                }
 
                 uint8 stacksCount = 1; // do we get a stack for our own debuff?
                 std::list<WorldObject*>::iterator it = targetList.begin();
-                while(it != targetList.end())
+                while (it != targetList.end())
                 {
                     if ((*it)->GetTypeId() != TYPEID_PLAYER)
                     {
                         it = targetList.erase(it);
                         continue;
                     }
-                    if ((*it)->ToPlayer()->HasAura(triggeringId))
+                    if ((*it)->ToUnit()->HasAura(triggeringId))
                     {
                         it = targetList.erase(it);
                         if (stacksCount < maxStacks)
@@ -1112,11 +1115,11 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
                     ++it;
                 }
 
-                if (GetCaster() && GetCaster()->ToPlayer())
+                if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (!GetCaster()->ToPlayer()->HasAura(ampId))
-                        GetCaster()->ToPlayer()->AddAura(ampId, GetCaster());
-                    GetCaster()->ToPlayer()->SetAuraStack(ampId, GetCaster(), stacksCount);
+                    if (!GetCaster()->HasAura(ampId))
+                        GetCaster()->AddAura(ampId, GetCaster());
+                    GetCaster()->SetAuraStack(ampId, GetCaster(), stacksCount);
                 }
             }
 
@@ -1143,15 +1146,16 @@ class spell_thaddius_polarity_shift : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return (
-                    sSpellMgr->GetSpellInfo(SPELL_POLARITY_SHIFT) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_AMP) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_APPLY) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_TICK) &&
-                    sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_AMP)
-                    );
+                return ValidateSpellInfo(
+                {
+                    SPELL_POLARITY_SHIFT,
+                    SPELL_POSITIVE_CHARGE_APPLY,
+                    SPELL_POSITIVE_CHARGE_TICK,
+                    SPELL_POSITIVE_CHARGE_AMP,
+                    SPELL_NEGATIVE_CHARGE_APPLY,
+                    SPELL_NEGATIVE_CHARGE_TICK,
+                    SPELL_NEGATIVE_CHARGE_AMP
+                });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1195,7 +1199,7 @@ class spell_thaddius_magnetic_pull : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_PULL) ? true : false;
+                return ValidateSpellInfo({ SPELL_MAGNETIC_PULL });
             }
 
             void HandleCast() // only feugen ever casts this according to wowhead data

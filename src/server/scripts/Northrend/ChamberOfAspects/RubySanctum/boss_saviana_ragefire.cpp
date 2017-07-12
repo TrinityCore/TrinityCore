@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "ruby_sanctum.h"
 
 enum Texts
 {
@@ -192,6 +194,9 @@ class boss_saviana_ragefire : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -229,7 +234,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
                 targets.remove_if(ConflagrationTargetSelector());
                 uint8 maxSize = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 3);
                 if (targets.size() > maxSize)
-                    Trinity::Containers::RandomResizeList(targets, maxSize);
+                    Trinity::Containers::RandomResize(targets, maxSize);
             }
 
             void HandleDummy(SpellEffIndex effIndex)

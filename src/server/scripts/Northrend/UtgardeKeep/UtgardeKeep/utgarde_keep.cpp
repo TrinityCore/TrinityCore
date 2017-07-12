@@ -16,15 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
-#include "utgarde_keep.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-
-enum Spells
-{
-    SPELL_UK_SECOUND_WIND_TRIGGER    = 42771
-};
+#include "utgarde_keep.h"
 
 uint32 ForgeSearch[3] =
 {
@@ -135,9 +133,7 @@ class spell_ticking_time_bomb : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TICKING_TIME_BOMB_EXPLODE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_TICKING_TIME_BOMB_EXPLODE });
             }
 
             void HandleOnEffectRemove(AuraEffect const* /* aurEff */, AuraEffectHandleModes /* mode */)
@@ -174,9 +170,7 @@ class spell_fixate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FIXATE_TRIGGER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FIXATE_TRIGGER });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -193,6 +187,55 @@ class spell_fixate : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_fixate_SpellScript();
+        }
+};
+
+enum SecondWind
+{
+    SPELL_SECOND_WIND_TRIGGER = 42771
+};
+
+// 42770 - Second Wind
+class spell_uk_second_wind : public SpellScriptLoader
+{
+    public:
+        spell_uk_second_wind() : SpellScriptLoader("spell_uk_second_wind") { }
+
+        class spell_uk_second_wind_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_uk_second_wind_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_SECOND_WIND_TRIGGER });
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+                if (!spellInfo)
+                    return false;
+
+                return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))) != 0;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                Unit* caster = eventInfo.GetActionTarget();
+                caster->CastSpell(caster, SPELL_SECOND_WIND_TRIGGER, true);
+            }
+
+            void Register() override
+            {
+                DoCheckProc += AuraCheckProcFn(spell_uk_second_wind_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_uk_second_wind_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_uk_second_wind_AuraScript();
         }
 };
 
@@ -296,52 +339,7 @@ class npc_enslaved_proto_drake : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_enslaved_proto_drakeAI(creature);
-        }
-};
-
-class spell_uk_second_wind_proc : public SpellScriptLoader
-{
-    public:
-        spell_uk_second_wind_proc() : SpellScriptLoader("spell_uk_second_wind_proc") { }
-
-        class spell_uk_second_wind_proc_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_uk_second_wind_proc_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_UK_SECOUND_WIND_TRIGGER))
-                    return false;
-                return true;
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                if (eventInfo.GetProcTarget() == GetTarget())
-                    return false;
-                if (!(eventInfo.GetDamageInfo() || eventInfo.GetDamageInfo()->GetSpellInfo()->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_STUN))))
-                    return false;
-                return true;
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastCustomSpell(SPELL_UK_SECOUND_WIND_TRIGGER, SPELLVALUE_BASE_POINT0, 5, GetTarget(), true, NULL, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_uk_second_wind_proc_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_uk_second_wind_proc_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_uk_second_wind_proc_AuraScript();
+            return GetUtgardeKeepAI<npc_enslaved_proto_drakeAI>(creature);
         }
 };
 
@@ -351,5 +349,5 @@ void AddSC_utgarde_keep()
     new npc_enslaved_proto_drake();
     new spell_ticking_time_bomb();
     new spell_fixate();
-    new spell_uk_second_wind_proc();
+    new spell_uk_second_wind();
 }

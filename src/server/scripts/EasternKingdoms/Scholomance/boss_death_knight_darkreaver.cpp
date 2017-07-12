@@ -24,6 +24,7 @@ SDCategory: Scholomance
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 
 class boss_death_knight_darkreaver : public CreatureScript
@@ -33,7 +34,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_death_knight_darkreaverAI(creature);
+        return GetScholomanceAI<boss_death_knight_darkreaverAI>(creature);
     }
 
     struct boss_death_knight_darkreaverAI : public ScriptedAI

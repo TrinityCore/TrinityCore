@@ -143,26 +143,6 @@ namespace WorldPackets
 
             QualifiedGUID Player;
         };
-
-        class VoiceAddIgnore final : public ClientPacket
-        {
-        public:
-            VoiceAddIgnore(WorldPacket&& packet) : ClientPacket(CMSG_VOICE_ADD_IGNORE, std::move(packet)) { }
-
-            void Read() override;
-
-            std::string OffenderName;
-        };
-
-        class VoiceDelIgnore final : public ClientPacket
-        {
-        public:
-            VoiceDelIgnore(WorldPacket&& packet) : ClientPacket(CMSG_VOICE_DEL_IGNORE, std::move(packet)) { }
-
-            void Read() override;
-
-            QualifiedGUID Player;
-        };
     }
 }
 

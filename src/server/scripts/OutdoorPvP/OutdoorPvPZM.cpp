@@ -15,16 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapManager.h"
 #include "ScriptMgr.h"
-#include "OutdoorPvPZM.h"
-#include "ObjectMgr.h"
-#include "OutdoorPvPMgr.h"
-#include "Player.h"
 #include "Creature.h"
-#include "ObjectAccessor.h"
-#include "WorldPacket.h"
 #include "GossipDef.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPZM.h"
+#include "Player.h"
+#include "WorldStatePackets.h"
 
 OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type)
 : OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(ZM_TOWERSTATE_N)

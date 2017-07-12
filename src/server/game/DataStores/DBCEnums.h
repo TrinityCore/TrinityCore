@@ -147,7 +147,7 @@ enum ArtifactPowerFlag : uint8
     ARTIFACT_POWER_FLAG_DONT_COUNT_FIRST_BONUS_RANK = 0x10,
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 2023
+#define BATTLE_PET_SPECIES_MAX_ID 2073
 
 enum ChrSpecializationFlag
 {
@@ -191,7 +191,7 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_UNK16                         = 16,
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_AREA_OR_ZONE           = 17,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_AREA_OR_ZONE           = 18,
-    CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY                = 20,
+    CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY_OLD            = 20,
     CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_YIELDS_XP     = 21, // NYI
     CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE                    = 24,
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_RACE                   = 25,
@@ -217,9 +217,25 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_REQUIRES_GUILD_GROUP          = 61, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GUILD_REPUTATION              = 62, // NYI
     CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND            = 63, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND_RATING     = 64,
     CRITERIA_ADDITIONAL_CONDITION_PROJECT_RARITY                = 65,
     CRITERIA_ADDITIONAL_CONDITION_PROJECT_RACE                  = 66,
+    CRITERIA_ADDITIONAL_CONDITION_WORLD_STATE                   = 67, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY                = 68, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_PLAYER_LEVEL                  = 69, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_PLAYER_LEVEL           = 70, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_PLAYER_LEVEL_ON_ACCOUNT       = 71, // Not verified
+    //CRITERIA_ADDITIONAL_CONDITION_UNK73       = 73, // References another modifier tree id
+    CRITERIA_ADDITIONAL_CONDITION_SCENARIO_ID                   = 74, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_FAMILY             = 78, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_HEALTH_PCT         = 79, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK80                         = 80 // Something to do with world bosses
+    CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_ENTRY              = 81, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_ENTRY_ID           = 82, // Some sort of data id?
     CRITERIA_ADDITIONAL_CONDITION_CHALLENGE_MODE_MEDAL          = 83, // NYI
+    //CRITERIA_ADDITIONAL_CONDITION_UNK84                         = 84, // Quest id
+    //CRITERIA_ADDITIONAL_CONDITION_UNK86                         = 86, // Some external event id
+    //CRITERIA_ADDITIONAL_CONDITION_UNK87                         = 87, // Achievement id
     CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES            = 91,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ENTRY       = 144,
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_QUALITY     = 145,
@@ -227,7 +243,10 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_RARE_MISSION         = 147, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_BUILDING_LEVEL       = 149, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_MISSION_TYPE         = 167, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_PLAYER_ITEM_LEVEL             = 169, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_ILVL        = 184,
+    CRITERIA_ADDITIONAL_CONDITION_HONOR_LEVEL                   = 193,
+    CRITERIA_ADDITIONAL_CONDITION_PRESTIGE_LEVEL                = 194
 };
 
 enum CriteriaFlags
@@ -240,7 +259,7 @@ enum CriteriaFlags
     CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020    // Displays counter as money
 };
 
-enum CriteriaTimedTypes
+enum CriteriaTimedTypes : uint8
 {
     CRITERIA_TIMED_TYPE_EVENT           = 1,    // Timer is started by internal event with id in timerStartEvent
     CRITERIA_TIMED_TYPE_QUEST           = 2,    // Timer is started by accepting quest with entry in timerStartEvent
@@ -255,7 +274,7 @@ enum CriteriaTimedTypes
     CRITERIA_TIMED_TYPE_MAX
 };
 
-enum CriteriaTypes
+enum CriteriaTypes : uint8
 {
     CRITERIA_TYPE_KILL_CREATURE                         = 0,
     CRITERIA_TYPE_WIN_BG                                = 1,
@@ -462,7 +481,7 @@ enum CriteriaTypes
     // 204 - Special criteria type to award players for some external events? Comes with what looks like an identifier, so guessing it's not unique.
 };
 
-#define CRITERIA_TYPE_TOTAL 205
+#define CRITERIA_TYPE_TOTAL 208
 
 enum CriteriaTreeFlags : uint16
 {
@@ -528,7 +547,7 @@ enum Difficulty : uint8
     DIFFICULTY_10_HC                = 5,
     DIFFICULTY_25_HC                = 6,
     DIFFICULTY_LFR                  = 7,
-    DIFFICULTY_CHALLENGE            = 8,
+    DIFFICULTY_MYTHIC_KEYSTONE      = 8,
     DIFFICULTY_40                   = 9,
     DIFFICULTY_3_MAN_SCENARIO_HC    = 11,
     DIFFICULTY_3_MAN_SCENARIO_N     = 12,
@@ -540,10 +559,14 @@ enum Difficulty : uint8
     DIFFICULTY_EVENT_DUNGEON        = 19,
     DIFFICULTY_EVENT_SCENARIO       = 20,
     DIFFICULTY_MYTHIC               = 23,
-    DIFFICULTY_TIMEWALKER           = 24,
-    DIFFICULTY_PVP_SCENARIO         = 25,
+    DIFFICULTY_TIMEWALKING          = 24,
+    DIFFICULTY_WORLD_PVP_SCENARIO   = 25,
     DIFFICULTY_5_MAN_SCENARIO_N     = 26,
     DIFFICULTY_20_MAN_SCENARIO_N    = 27,
+    DIFFICULTY_PVEVP_SCENARIO       = 29,
+    DIFFICULTY_EVENT_SCENARIO_6     = 30,
+    DIFFICULTY_WORLD_PVP_SCENARIO_2 = 32,
+    DIFFICULTY_TIMEWALKING_RAID     = 33,
 
     MAX_DIFFICULTY
 };
@@ -581,7 +604,6 @@ enum SpawnMask
 
 enum FactionTemplateFlags
 {
-    FACTION_TEMPLATE_ENEMY_SPAR             = 0x00000020,   // guessed, sparring with enemies?
     FACTION_TEMPLATE_FLAG_PVP               = 0x00000800,   // flagged for PvP
     FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   = 0x00001000,   // faction will attack players that were involved in PvP combats
     FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT= 0x00002000
@@ -595,6 +617,10 @@ enum FactionMasks
     FACTION_MASK_MONSTER  = 8                               // aggressive creature from monster team
     // if none flags set then non-aggressive creature
 };
+
+#define MAX_ITEM_PROTO_FLAGS 3
+#define MAX_ITEM_PROTO_SOCKETS 3
+#define MAX_ITEM_PROTO_STATS  10
 
 enum MapTypes                                               // Lua_IsInInstance
 {
@@ -641,7 +667,8 @@ enum ItemEnchantmentType
     ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_TYPE = 9,
     ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID   = 10,
     ITEM_ENCHANTMENT_TYPE_BONUS_LIST_ID                     = 11,
-    ITEM_ENCHANTMENT_TYPE_BONUS_LIST_CURVE                  = 12
+    ITEM_ENCHANTMENT_TYPE_BONUS_LIST_CURVE                  = 12,
+    ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_PICKER  = 13
 };
 
 enum ItemExtendedCostFlags
@@ -669,7 +696,10 @@ enum ItemBonusType
     ITEM_BONUS_SCALING_STAT_DISTRIBUTION    = 11,
     ITEM_BONUS_DISENCHANT_LOOT_ID           = 12,
     ITEM_BONUS_SCALING_STAT_DISTRIBUTION_2  = 13,
-    ITEM_BONUS_ITEM_LEVEL_OVERRIDE          = 14
+    ITEM_BONUS_ITEM_LEVEL_OVERRIDE          = 14,
+    ITEM_BONUS_RANDOM_ENCHANTMENT           = 15,                 // Responsible for showing "<Random additional stats>" or "+%d Rank Random Minor Trait" in the tooltip before item is obtained
+    ITEM_BONUS_BONDING                      = 16,
+    ITEM_BONUS_RELIC_TYPE                   = 17
 };
 
 enum ItemLimitCategoryMode
@@ -729,6 +759,11 @@ enum ItemSpecStat
     ITEM_SPEC_STAT_NONE             = 40
 };
 
+enum MapDifficultyFlags : uint8
+{
+    MAP_DIFFICULTY_FLAG_CANNOT_EXTEND   = 0x10
+};
+
 enum MountCapabilityFlags
 {
     MOUNT_CAPABILITY_FLAG_CAN_PITCH     = 0x4,                    // client checks MOVEMENTFLAG2_FULL_SPEED_PITCHING
@@ -742,6 +777,11 @@ enum MountFlags
     MOUNT_FLAG_PREFERRED_SWIMMING       = 0x10,
     MOUNT_FLAG_PREFERRED_WATER_WALKING  = 0x20,
     MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
+};
+
+enum PrestigeLevelInfoFlags : uint8
+{
+    PRESTIGE_FLAG_DISABLED  = 0x01                      // Prestige levels with this flag won't be included to calculate max prestigelevel.
 };
 
 enum QuestPackageFilter
@@ -775,6 +815,19 @@ enum SpellCategoryFlags
     SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
 };
 
+#define MAX_SPELL_EFFECTS 32
+#define MAX_EFFECT_MASK 0xFFFFFFFF
+
+enum SpellItemEnchantmentFlags
+{
+    ENCHANTMENT_CAN_SOULBOUND           = 0x01,
+    ENCHANTMENT_UNK1                    = 0x02,
+    ENCHANTMENT_UNK2                    = 0x04,
+    ENCHANTMENT_UNK3                    = 0x08,
+    ENCHANTMENT_COLLECTABLE             = 0x100,
+    ENCHANTMENT_HIDE_IF_NOT_COLLECTED   = 0x200,
+};
+
 enum SpellProcsPerMinuteModType
 {
     SPELL_PPM_MOD_HASTE         = 1,
@@ -799,7 +852,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 239
+#define TaxiMaskSize 243
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
@@ -868,6 +921,9 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK20           = 0x00080000,
     SUMMON_PROP_FLAG_UNK21           = 0x00100000           // Totems
 };
+
+#define MAX_TALENT_TIERS 7
+#define MAX_TALENT_COLUMNS 3
 
 enum TaxiNodeFlags
 {
@@ -939,15 +995,6 @@ enum CurrencyTypes
     CURRENCY_TYPE_VALOR_POINTS          = 396,
     CURRENCY_TYPE_APEXIS_CRYSTALS       = 823,
     CURRENCY_TYPE_ARTIFACT_KNOWLEDGE    = 1171,
-};
-
-enum SceneFlags
-{
-    SCENEFLAG_UNK1              = 0x01,
-    SCENEFLAG_UNK2              = 0x02,
-    SCENEFLAG_NOT_CANCELABLE    = 0x04,
-    SCENEFLAG_UNK8              = 0x08,
-    SCENEFLAG_UNK16             = 0x10, // 16, most common value
 };
 
 #endif

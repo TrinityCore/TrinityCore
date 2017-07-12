@@ -18,6 +18,8 @@
 #ifndef BLACKROCKCAVERNS_H_
 #define BLACKROCKCAVERNS_H_
 
+#include "CreatureAIImpl.h"
+
 #define BCScriptName "instance_blackrock_caverns"
 #define DataHeader "BRC"
 
@@ -43,7 +45,7 @@ enum BRCCreatureIds
     NPC_ROMOGG_BONECRUSHER              = 39665
 };
 
-template<class AI>
+template<typename AI>
 inline AI* GetBlackrockCavernsAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, BCScriptName);

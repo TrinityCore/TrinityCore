@@ -18,12 +18,14 @@
 #include "CriteriaHandler.h"
 #include "ArenaTeamMgr.h"
 #include "Battleground.h"
+#include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
 #include "Garrison.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -31,6 +33,7 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "World.h"
 
 bool CriteriaData::IsValid(Criteria const* criteria)
 {
@@ -66,6 +69,8 @@ bool CriteriaData::IsValid(Criteria const* criteria)
         case CRITERIA_TYPE_GET_KILLING_BLOWS:
         case CRITERIA_TYPE_REACH_LEVEL:
         case CRITERIA_TYPE_ON_LOGIN:
+        case CRITERIA_TYPE_LOOT_EPIC_ITEM:
+        case CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
             break;
         default:
             if (DataType != CRITERIA_DATA_TYPE_SCRIPT)
@@ -219,10 +224,10 @@ bool CriteriaData::IsValid(Criteria const* criteria)
         }
         case CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE:
             return true;                                    // not check correctness node indexes
-        case CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
+        case CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
             if (EquippedItem.Quality >= MAX_ITEM_QUALITY)
             {
-                TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_EQUIPED_ITEM (%u) contains an unknown quality state value in value1 (%u), ignored.",
+                TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM (%u) contains an unknown quality state value in value2 (%u), ignored.",
                     criteria->ID, criteria->Entry->Type, DataType, EquippedItem.Quality);
                 return false;
             }
@@ -259,6 +264,14 @@ bool CriteriaData::IsValid(Criteria const* criteria)
             {
                 TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_KNOWN_TITLE (%u) contains an unknown title_id in value1 (%u), ignore.",
                     criteria->ID, criteria->Entry->Type, DataType, KnownTitle.Id);
+                return false;
+            }
+            return true;
+        case CRITERIA_DATA_TYPE_S_ITEM_QUALITY:
+            if (ItemQuality.Quality >= MAX_ITEM_QUALITY)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `criteria_data` (Entry: %u Type: %u) for data type CRITERIA_DATA_TYPE_S_ITEM_QUALITY (%u) contains an unknown quality state value in value1 (%u), ignored.",
+                    criteria->ID, criteria->Entry->Type, DataType, ItemQuality.Quality);
                 return false;
             }
             return true;
@@ -355,7 +368,7 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
             }
             return instance->CheckAchievementCriteriaMeet(criteriaId, source, target, miscValue1);
         }
-        case CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
+        case CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM:
         {
             ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
             if (!pProto)
@@ -370,6 +383,13 @@ bool CriteriaData::Meets(uint32 criteriaId, Player const* source, Unit const* ta
                 return source && source->HasTitle(titleInfo->MaskID);
 
             return false;
+        }
+        case CRITERIA_DATA_TYPE_S_ITEM_QUALITY:
+        {
+            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
+            if (!pProto)
+                return false;
+            return pProto->GetQuality() == ItemQuality.Quality;
         }
         default:
             break;
@@ -482,6 +502,8 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_ON_LOGIN:
             case CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
             case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
+            case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
+            case CRITERIA_TYPE_PRESTIGE_REACHED:
                 SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -751,8 +773,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER_WITH_QUALITY:
             case CRITERIA_TYPE_ARTIFACT_POWER_EARNED:
             case CRITERIA_TYPE_ARTIFACT_TRAITS_UNLOCKED:
-            case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
-            case CRITERIA_TYPE_PRESTIGE_REACHED:
             case CRITERIA_TYPE_ORDER_HALL_TALENT_LEARNED:
             case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
             case CRITERIA_TYPE_ORDER_HALL_RECRUIT_TROOP:
@@ -1122,6 +1142,8 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_EXPLORE_AREA:
         case CRITERIA_TYPE_RECRUIT_GARRISON_FOLLOWER:
         case CRITERIA_TYPE_OWN_BATTLE_PET:
+        case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
+        case CRITERIA_TYPE_PRESTIGE_REACHED:
             return progress->Counter >= 1;
         case CRITERIA_TYPE_LEARN_SKILL_LEVEL:
             return progress->Counter >= (requiredAmount * 75);
@@ -1566,6 +1588,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA: // 10
             if (!unit || !unit->HasAura(reqValue))
                 return false;
+            break;
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA_TYPE: // 11
             if (!unit || !unit->HasAuraType(AuraType(reqValue)))
                 return false;
@@ -1604,11 +1627,14 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
                 return false;
             break;
         }
-        case CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY: // 20
-            if (uint32(referencePlayer->GetMap()->GetDifficultyID()) != reqValue)
+        case CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY_OLD: // 20
+        {
+            DifficultyEntry const* difficulty = sDifficultyStore.LookupEntry(referencePlayer->GetMap()->GetDifficultyID());
+            if (!difficulty || difficulty->OldEnumValue == -1 || uint32(difficulty->OldEnumValue) != reqValue)
                 return false;
             break;
-        case CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE:
+        }
+        case CRITERIA_ADDITIONAL_CONDITION_ARENA_TYPE: // 24
         {
             Battleground* bg = referencePlayer->GetBattleground();
             if (!bg || !bg->isArena() || bg->GetArenaType() != reqValue)
@@ -1639,8 +1665,7 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
         {
             if (!unit)
                 return false;
-            Creature const* const creature = unit->ToCreature();
-            if (!creature || creature->GetCreatureType() != reqValue)
+            if (unit->GetTypeId() != TYPEID_UNIT || unit->GetCreatureType() != reqValue)
                 return false;
             break;
         }
@@ -1667,6 +1692,10 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
             break;
         case CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PERCENT_BELOW: // 46
             if (!unit || unit->GetHealthPct() >= reqValue)
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND_RATING: // 64
+            if (referencePlayer->GetRBGPersonalRating() < reqValue)
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_BATTLE_PET_SPECIES: // 91
@@ -1723,6 +1752,14 @@ bool CriteriaHandler::AdditionalRequirementsSatisfied(ModifierTreeNode const* tr
                 return false;
             break;
         }
+        case CRITERIA_ADDITIONAL_CONDITION_HONOR_LEVEL: // 193
+            if (!referencePlayer || referencePlayer->GetHonorLevel() != reqValue)
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_PRESTIGE_LEVEL: // 194
+            if (!referencePlayer || referencePlayer->GetPrestigeLevel() != reqValue)
+                return false;
+            break;
         default:
             break;
     }

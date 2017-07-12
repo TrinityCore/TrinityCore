@@ -37,13 +37,17 @@ npc_enraged_spirit
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "GameObject.h"
 #include "Group.h"
-#include "SpellScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
-#include "WorldSession.h"
+#include "QuestDef.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*#####
 # npc_invis_infernal_caster
@@ -74,7 +78,8 @@ public:
 
         void Reset() override
         {
-            ground = me->GetMap()->GetHeight(me->GetPositionX(), me->GetPositionY(), me->GetPositionZMinusOffset());
+            ground = me->GetPositionZ();
+            me->UpdateGroundPositionZ(me->GetPositionX(), me->GetPositionY(), ground);
             SummonInfernal();
             events.ScheduleEvent(EVENT_CAST_SUMMON_INFERNAL, urand(1000, 3000));
         }

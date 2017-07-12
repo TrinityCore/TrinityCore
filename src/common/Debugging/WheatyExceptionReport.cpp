@@ -5,8 +5,10 @@
 //==========================================
 #include "CompilerDefs.h"
 
-#if PLATFORM == PLATFORM_WINDOWS && !defined(__MINGW32__)
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && !defined(__MINGW32__)
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #pragma warning(disable:4996)
 #pragma warning(disable:4312)
 #pragma warning(disable:4311)
@@ -21,6 +23,7 @@
 
 #include "Common.h"
 #include "GitRevision.h"
+#include <algorithm>
 
 #define CrashFolder _T("Crashes")
 #pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")

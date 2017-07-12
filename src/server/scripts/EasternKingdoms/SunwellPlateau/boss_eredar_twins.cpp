@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "sunwell_plateau.h"
 #include "SpellInfo.h"
+#include "sunwell_plateau.h"
 
 enum Quotes
 {
@@ -644,7 +646,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_shadow_imageAI(creature);
+        return GetSunwellPlateauAI<npc_shadow_imageAI>(creature);
     };
 
     struct npc_shadow_imageAI : public ScriptedAI

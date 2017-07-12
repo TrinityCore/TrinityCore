@@ -15,17 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "CollectionMgr.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "World.h"
+#include "Bag.h"
+#include "CollectionMgr.h"
+#include "Common.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "VoidStoragePackets.h"
+#include "World.h"
 
 void WorldSession::SendVoidStorageTransferResult(VoidTransferError result)
 {
@@ -157,7 +156,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
         VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR),
             item->GetItemRandomEnchantmentId(), item->GetItemSuffixFactor(), item->GetModifier(ITEM_MODIFIER_UPGRADE_ID),
             item->GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL), item->GetModifier(ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL),
-            item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS));
+            uint8(item->GetUInt32Value(ITEM_FIELD_CONTEXT)), item->GetDynamicValues(ITEM_DYNAMIC_FIELD_BONUSLIST_IDS));
 
         WorldPackets::VoidStorage::VoidItem voidItem;
         voidItem.Guid = ObjectGuid::Create<HighGuid::Item>(itemVS.ItemId);
@@ -194,7 +193,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPackets::VoidStorage::VoidStor
             return;
         }
 
-        Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->ItemRandomPropertyId, GuidSet(), itemVS->BonusListIDs);
+        Item* item = _player->StoreNewItem(dest, itemVS->ItemEntry, true, itemVS->ItemRandomPropertyId, GuidSet(), itemVS->Context, itemVS->BonusListIDs);
         item->SetUInt32Value(ITEM_FIELD_PROPERTY_SEED, itemVS->ItemSuffixFactor);
         item->SetGuidValue(ITEM_FIELD_CREATOR, itemVS->CreatorGuid);
         item->SetModifier(ITEM_MODIFIER_UPGRADE_ID, itemVS->ItemUpgradeId);

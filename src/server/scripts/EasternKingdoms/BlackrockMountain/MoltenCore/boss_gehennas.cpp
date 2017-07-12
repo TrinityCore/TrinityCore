@@ -92,6 +92,9 @@ class boss_gehennas : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -100,7 +103,7 @@ class boss_gehennas : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_gehennasAI(creature);
+            return GetMoltenCoreAI<boss_gehennasAI>(creature);
         }
 };
 

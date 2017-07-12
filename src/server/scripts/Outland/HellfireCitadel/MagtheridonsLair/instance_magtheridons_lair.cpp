@@ -24,9 +24,12 @@ SDCategory: Hellfire Citadel, Magtheridon's lair
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
+#include "Map.h"
 
 enum Spells
 {
@@ -45,8 +48,7 @@ enum Spells
 class instance_magtheridons_lair : public InstanceMapScript
 {
     public:
-        instance_magtheridons_lair()
-            : InstanceMapScript("instance_magtheridons_lair", 544)
+        instance_magtheridons_lair() : InstanceMapScript(MLScriptName, 544)
         {
         }
 

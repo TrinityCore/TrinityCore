@@ -137,6 +137,9 @@ class boss_thorngrin_the_tender : public CreatureScript
                         default:
                             break;
                     }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
                 }
 
                 DoMeleeAttackIfReady();
@@ -149,7 +152,7 @@ class boss_thorngrin_the_tender : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_thorngrin_the_tenderAI(creature);
+            return GetBotanicaAI<boss_thorngrin_the_tenderAI>(creature);
         }
 };
 

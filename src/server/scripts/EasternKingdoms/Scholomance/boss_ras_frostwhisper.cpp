@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -104,6 +105,9 @@ public:
                     default:
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             DoMeleeAttackIfReady();
@@ -115,7 +119,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_rasfrostAI(creature);
+        return GetScholomanceAI<boss_rasfrostAI>(creature);
     }
 };
 

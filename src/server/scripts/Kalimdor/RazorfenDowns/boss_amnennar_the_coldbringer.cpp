@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "razorfen_downs.h"
+#include "ScriptedCreature.h"
 
 enum Say
 {
@@ -115,6 +115,9 @@ public:
                         events.ScheduleEvent(EVENT_FROST_NOVA, 15000);
                         break;
                 }
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
             }
 
             if (!hp60Spectrals && HealthBelowPct(60))
@@ -148,7 +151,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_amnennar_the_coldbringerAI(creature);
+        return GetRazorfenDownsAI<boss_amnennar_the_coldbringerAI>(creature);
     }
 };
 

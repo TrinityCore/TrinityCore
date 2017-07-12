@@ -15,12 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "BattlePetMgr.h"
+#include "DB2Stores.h"
 #include "Containers.h"
+#include "DatabaseEnv.h"
+#include "Item.h"
+#include "Log.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldSession.h"
-
 
 void BattlePetMgr::BattlePet::CalculateStats()
 {

@@ -21,6 +21,7 @@
 */
 
 #include "World.h"
+#include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AreaTriggerDataStore.h"
 #include "ArenaTeamMgr.h"
@@ -36,49 +37,57 @@
 #include "CharacterDatabaseCleaner.h"
 #include "CharacterTemplateDataStore.h"
 #include "Chat.h"
+#include "ChatPackets.h"
 #include "Config.h"
+#include "ConversationDataStore.h"
 #include "CreatureAIRegistry.h"
 #include "CreatureGroups.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "GameObjectModel.h"
 #include "GameTables.h"
 #include "GarrisonMgr.h"
 #include "GitRevision.h"
 #include "GridNotifiersImpl.h"
 #include "GroupMgr.h"
 #include "GuildFinderMgr.h"
-#include "GameObjectModel.h"
+#include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "Language.h"
 #include "LFGMgr.h"
+#include "LootMgr.h"
+#include "M2Stores.h"
 #include "MapManager.h"
 #include "Memory.h"
+#include "Metric.h"
 #include "MiscPackets.h"
 #include "MMapFactory.h"
+#include "Object.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "PoolMgr.h"
-#include "QueryCallback.h"
+#include "Realm.h"
 #include "ScenarioMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
-#include "SmartAI.h"
-#include "Metric.h"
+#include "SpellMgr.h"
+#include "SmartScriptMgr.h"
 #include "SupportMgr.h"
 #include "TaxiPathGraph.h"
 #include "TransportMgr.h"
 #include "Unit.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "WardenCheckMgr.h"
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "WorldSession.h"
-#include "ChatPackets.h"
 #include "WorldSocket.h"
 
 #include <boost/algorithm/string.hpp>
@@ -448,7 +457,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_defaultDbcLocale = LocaleConstant(sConfigMgr->GetIntDefault("DBC.Locale", 0));
 
-    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale < LOCALE_enUS || m_defaultDbcLocale == LOCALE_none)
+    if (m_defaultDbcLocale >= TOTAL_LOCALES || m_defaultDbcLocale == LOCALE_none)
     {
         TC_LOG_ERROR("server.loading", "Incorrect DBC.Locale! Must be >= 0 and < %d and not %d (set to 0)", TOTAL_LOCALES, LOCALE_none);
         m_defaultDbcLocale = LOCALE_enUS;
@@ -661,7 +670,10 @@ void World::LoadConfigSettings(bool reload)
     }
     m_int_configs[CONFIG_CHAT_CHANNEL_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Channel", 1);
     m_int_configs[CONFIG_CHAT_WHISPER_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Whisper", 1);
+    m_int_configs[CONFIG_CHAT_EMOTE_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Emote", 1);
     m_int_configs[CONFIG_CHAT_SAY_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Say", 1);
+    m_int_configs[CONFIG_CHAT_YELL_LEVEL_REQ] = sConfigMgr->GetIntDefault("ChatLevelReq.Yell", 1);
+    m_int_configs[CONFIG_PARTY_LEVEL_REQ] = sConfigMgr->GetIntDefault("PartyLevelReq", 1);
     m_int_configs[CONFIG_TRADE_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Trade", 1);
     m_int_configs[CONFIG_AUCTION_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Auction", 1);
     m_int_configs[CONFIG_MAIL_LEVEL_REQ] = sConfigMgr->GetIntDefault("LevelReq.Mail", 1);
@@ -809,14 +821,14 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT] = m_int_configs[CONFIG_CHARACTERS_PER_REALM];
     }
 
-    m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] = sConfigMgr->GetIntDefault("HeroicCharactersPerRealm", 1);
-    if (int32(m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] > 12)
+    m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM] = sConfigMgr->GetIntDefault("DeathKnightsPerRealm", 1);
+    if (int32(m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM] > 12)
     {
-        TC_LOG_ERROR("server.loading", "HeroicCharactersPerRealm (%i) must be in range 0..12. Set to 1.", m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]);
-        m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] = 1;
+        TC_LOG_ERROR("server.loading", "DeathKnightsPerRealm (%i) must be in range 0..12. Set to 1.", m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM]);
+        m_int_configs[CONFIG_DEATH_KNIGHTS_PER_REALM] = 1;
     }
 
-    m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForHeroicCharacter", 55);
+    m_int_configs[CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEATH_KNIGHT] = sConfigMgr->GetIntDefault("CharacterCreating.MinLevelForDeathKnight", 55);
 
     m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] = sConfigMgr->GetIntDefault("DemonHuntersPerRealm", 1);
     if (int32(m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_DEMON_HUNTERS_PER_REALM] > 12)
@@ -863,18 +875,18 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_START_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
-    m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("StartHeroicPlayerLevel", 55);
-    if (m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] < 1)
+    m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("StartDeathKnightPlayerLevel", 55);
+    if (m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] < 1)
     {
-        TC_LOG_ERROR("server.loading", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 55.",
-            m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
-        m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = 55;
+        TC_LOG_ERROR("server.loading", "StartDeathKnightPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 55.",
+            m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+        m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] = 55;
     }
-    else if (m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
+    else if (m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
-        TC_LOG_ERROR("server.loading", "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",
-            m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
-        m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
+        TC_LOG_ERROR("server.loading", "StartDeathKnightPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",
+            m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+        m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
     m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("StartDemonHunterPlayerLevel", 98);
@@ -969,6 +981,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CAST_UNSTUCK] = sConfigMgr->GetBoolDefault("CastUnstuck", true);
     m_int_configs[CONFIG_INSTANCE_RESET_TIME_HOUR]  = sConfigMgr->GetIntDefault("Instance.ResetTimeHour", 4);
     m_int_configs[CONFIG_INSTANCE_UNLOAD_DELAY] = sConfigMgr->GetIntDefault("Instance.UnloadDelay", 30 * MINUTE * IN_MILLISECONDS);
+    m_int_configs[CONFIG_DAILY_QUEST_RESET_TIME_HOUR] = sConfigMgr->GetIntDefault("Quests.DailyResetTime", 3);
 
     m_int_configs[CONFIG_MAX_PRIMARY_TRADE_SKILL] = sConfigMgr->GetIntDefault("MaxPrimaryTradeSkill", 2);
     m_int_configs[CONFIG_MIN_PETITION_SIGNS] = sConfigMgr->GetIntDefault("MinPetitionSigns", 4);
@@ -1154,6 +1167,17 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE]       = sConfigMgr->GetBoolDefault("Battleground.QueueAnnouncer.Enable", false);
     m_bool_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY]   = sConfigMgr->GetBoolDefault("Battleground.QueueAnnouncer.PlayerOnly", false);
     m_bool_configs[CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE]      = sConfigMgr->GetBoolDefault("Battleground.StoreStatistics.Enable", false);
+    m_int_configs[CONFIG_BATTLEGROUND_REPORT_AFK]                    = sConfigMgr->GetIntDefault("Battleground.ReportAFK", 3);
+    if (m_int_configs[CONFIG_BATTLEGROUND_REPORT_AFK] < 1)
+    {
+        TC_LOG_ERROR("server.loading", "Battleground.ReportAFK (%d) must be >0. Using 3 instead.", m_int_configs[CONFIG_BATTLEGROUND_REPORT_AFK]);
+        m_int_configs[CONFIG_BATTLEGROUND_REPORT_AFK] = 3;
+    }
+    if (m_int_configs[CONFIG_BATTLEGROUND_REPORT_AFK] > 9)
+    {
+        TC_LOG_ERROR("server.loading", "Battleground.ReportAFK (%d) must be <10. Using 3 instead.", m_int_configs[CONFIG_BATTLEGROUND_REPORT_AFK]);
+        m_int_configs[CONFIG_BATTLEGROUND_REPORT_AFK] = 3;
+    }
     m_int_configs[CONFIG_BATTLEGROUND_INVITATION_TYPE]               = sConfigMgr->GetIntDefault ("Battleground.InvitationType", 0);
     m_int_configs[CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER]        = sConfigMgr->GetIntDefault ("Battleground.PrematureFinishTimer", 5 * MINUTE * IN_MILLISECONDS);
     m_int_configs[CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH]  = sConfigMgr->GetIntDefault ("Battleground.PremadeGroupWaitForMatch", 30 * MINUTE * IN_MILLISECONDS);
@@ -1188,6 +1212,18 @@ void World::LoadConfigSettings(bool reload)
         }
         else
             TC_LOG_ERROR("server.loading", "ClientCacheVersion can't be negative %d, ignored.", clientCacheId);
+    }
+
+    if (int32 hotfixCacheId = sConfigMgr->GetIntDefault("HotfixCacheVersion", 0))
+    {
+        // overwrite DB/old value
+        if (hotfixCacheId > 0)
+        {
+            m_int_configs[CONFIG_HOTFIX_CACHE_VERSION] = hotfixCacheId;
+            TC_LOG_INFO("server.loading", "Hotfix cache version set to: %u", hotfixCacheId);
+        }
+        else
+            TC_LOG_ERROR("server.loading", "HotfixCacheVersion can't be negative %d, ignored.", hotfixCacheId);
     }
 
     m_int_configs[CONFIG_GUILD_NEWS_LOG_COUNT] = sConfigMgr->GetIntDefault("Guild.NewsLogRecordsCount", GUILD_NEWSLOG_MAX_RECORDS);
@@ -1246,7 +1282,8 @@ void World::LoadConfigSettings(bool reload)
     ///- Load the CharDelete related config options
     m_int_configs[CONFIG_CHARDELETE_METHOD] = sConfigMgr->GetIntDefault("CharDelete.Method", 0);
     m_int_configs[CONFIG_CHARDELETE_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.MinLevel", 0);
-    m_int_configs[CONFIG_CHARDELETE_HEROIC_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.Heroic.MinLevel", 0);
+    m_int_configs[CONFIG_CHARDELETE_DEATH_KNIGHT_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.DeathKnight.MinLevel", 0);
+    m_int_configs[CONFIG_CHARDELETE_DEMON_HUNTER_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.DemonHunter.MinLevel", 0);
     m_int_configs[CONFIG_CHARDELETE_KEEP_DAYS] = sConfigMgr->GetIntDefault("CharDelete.KeepDays", 30);
 
     // No aggro from gray mobs
@@ -1273,7 +1310,7 @@ void World::LoadConfigSettings(bool reload)
     if (dataPath.empty() || (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\'))
         dataPath.push_back('/');
 
-#if PLATFORM == PLATFORM_UNIX || PLATFORM == PLATFORM_APPLE
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_UNIX || TRINITY_PLATFORM == TRINITY_PLATFORM_APPLE
     if (dataPath[0] == '~')
     {
         const char* home = getenv("HOME");
@@ -1388,7 +1425,6 @@ void World::LoadConfigSettings(bool reload)
 
     // Guild save interval
     m_int_configs[CONFIG_GUILD_SAVE_INTERVAL] = sConfigMgr->GetIntDefault("Guild.SaveInterval", 15);
-    m_int_configs[CONFIG_GUILD_UNDELETABLE_LEVEL] = sConfigMgr->GetIntDefault("Guild.UndeletableLevel", 4);
 
     // misc
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = sConfigMgr->GetBoolDefault("PlayerDump.DisallowPaths", true);
@@ -1534,6 +1570,8 @@ void World::SetInitialWorldSettings()
     sDB2Manager.LoadHotfixData();
     ///- Close hotfix database - it is only used during DB2 loading
     HotfixDatabase.Close();
+    ///- Load M2 fly by cameras
+    LoadM2Cameras(m_dataPath);
     ///- Load GameTables
     LoadGameTables(m_dataPath);
 
@@ -1587,6 +1625,8 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadCreatureLocales();
     sObjectMgr->LoadGameObjectLocales();
     sObjectMgr->LoadQuestTemplateLocale();
+    sObjectMgr->LoadQuestOfferRewardLocale();
+    sObjectMgr->LoadQuestRequestItemsLocale();
     sObjectMgr->LoadQuestObjectivesLocale();
     sObjectMgr->LoadPageTextLocales();
     sObjectMgr->LoadGossipMenuItemsLocales();
@@ -1609,6 +1649,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Transport templates...");
     sTransportMgr->LoadTransportTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading Transport animations and rotations...");
+    sTransportMgr->LoadTransportAnimationAndRotation();
 
     TC_LOG_INFO("server.loading", "Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();
@@ -1801,6 +1844,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
     sAreaTriggerDataStore->LoadAreaTriggerTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
+    sConversationDataStore->LoadConversationTemplates();
 
     TC_LOG_INFO("server.loading", "Loading Scenes Templates...");
     sObjectMgr->LoadSceneTemplates();
@@ -2155,8 +2201,7 @@ void World::SetInitialWorldSettings()
 
     TC_METRIC_EVENT("events", "World initialized", "World initialized in " + std::to_string(startupDuration / 60000) + " minutes " + std::to_string((startupDuration % 60000) / 1000) + " seconds");
 
-    if (uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0)) // 0 reserved for auth
-        sLog->SetRealmId(realmId);
+    sLog->SetRealmId(realm.Id.Realm);
 }
 
 void World::ResetTimeDiffRecord()
@@ -2187,9 +2232,8 @@ void World::LoadAutobroadcasts()
 
     m_Autobroadcasts.clear();
 
-    uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0);
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
-    stmt->setInt32(0, realmId);
+    stmt->setInt32(0, realm.Id.Realm);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (!result)
@@ -2246,7 +2290,7 @@ void World::Update(uint32 diff)
     if (m_gameTime > m_NextDailyQuestReset)
     {
         DailyReset();
-        m_NextDailyQuestReset += DAY;
+        InitDailyQuestResetTime(false);
     }
 
     /// Handle weekly quests reset time
@@ -2921,22 +2965,24 @@ void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 }
 
 /// Cancel a planned server shutdown
-void World::ShutdownCancel()
+uint32 World::ShutdownCancel()
 {
     // nothing cancel or too later
     if (!m_ShutdownTimer || m_stopEvent)
-        return;
+        return 0;
 
     ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
 
+    uint32 oldTimer = m_ShutdownTimer;
     m_ShutdownMask = 0;
     m_ShutdownTimer = 0;
     m_ExitCode = SHUTDOWN_EXIT_CODE;                       // to default value
     SendServerMessage(msgid);
 
-    TC_LOG_DEBUG("misc", "Server %s cancelled.", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
+    TC_LOG_DEBUG("misc", "Server %s cancelled.", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shutdown"));
 
     sScriptMgr->OnShutdownCancel();
+    return oldTimer;
 }
 
 /// Send a server message to the user(s)
@@ -2989,9 +3035,9 @@ void World::UpdateSessions(uint32 diff)
 // This handles the issued and queued CLI commands
 void World::ProcessCliCommands()
 {
-    CliCommandHolder::Print* zprint = NULL;
-    void* callbackArg = NULL;
-    CliCommandHolder* command = NULL;
+    CliCommandHolder::Print zprint = nullptr;
+    void* callbackArg = nullptr;
+    CliCommandHolder* command = nullptr;
     while (cliCmdQueue.next(command))
     {
         TC_LOG_INFO("misc", "CLI command under processing...");
@@ -3069,25 +3115,25 @@ void World::InitWeeklyQuestResetTime()
     m_NextWeeklyQuestReset = wstime < curtime ? curtime : wstime;
 }
 
-void World::InitDailyQuestResetTime()
+void World::InitDailyQuestResetTime(bool loading)
 {
-    time_t mostRecentQuestTime;
+    time_t mostRecentQuestTime = 0;
 
-    QueryResult result = CharacterDatabase.Query("SELECT MAX(time) FROM character_queststatus_daily");
-    if (result)
+    if (loading)
     {
-        Field* fields = result->Fetch();
-        mostRecentQuestTime = time_t(fields[0].GetUInt32());
+        QueryResult result = CharacterDatabase.Query("SELECT MAX(time) FROM character_queststatus_daily");
+        if (result)
+        {
+            Field* fields = result->Fetch();
+            mostRecentQuestTime = time_t(fields[0].GetUInt32());
+        }
     }
-    else
-        mostRecentQuestTime = 0;
 
-    // client built-in time for reset is 6:00 AM
     // FIX ME: client not show day start time
     time_t curTime = time(NULL);
     tm localTm;
     localtime_r(&curTime, &localTm);
-    localTm.tm_hour = 6;
+    localTm.tm_hour = getIntConfig(CONFIG_DAILY_QUEST_RESET_TIME_HOUR);
     localTm.tm_min  = 0;
     localTm.tm_sec  = 0;
 
@@ -3357,14 +3403,14 @@ void World::UpdateMaxSessionCounters()
 
 void World::LoadDBVersion()
 {
-    QueryResult result = WorldDatabase.Query("SELECT db_version, cache_id FROM version LIMIT 1");
-    if (result)
+    if (QueryResult result = WorldDatabase.Query("SELECT db_version, cache_id, hotfix_cache_id FROM version LIMIT 1"))
     {
         Field* fields = result->Fetch();
 
         m_DBVersion = fields[0].GetString();
         // will be overwrite by config values if different and non-0
         m_int_configs[CONFIG_CLIENTCACHE_VERSION] = fields[1].GetUInt32();
+        m_int_configs[CONFIG_HOTFIX_CACHE_VERSION] = fields[2].GetUInt32();
     }
 
     if (m_DBVersion.empty())
@@ -3409,12 +3455,25 @@ void World::LoadWorldStates()
 
 }
 
+bool World::IsPvPRealm() const
+{
+    return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP);
+}
+
+bool World::IsFFAPvPRealm() const
+{
+    return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP;
+}
+
 // Setting a worldstate will save it to DB
 void World::setWorldState(uint32 index, uint32 value)
 {
     WorldStatesMap::const_iterator it = m_worldstates.find(index);
     if (it != m_worldstates.end())
     {
+        if (it->second == value)
+            return;
+
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_WORLDSTATE);
 
         stmt->setUInt32(0, uint32(value));
@@ -3569,5 +3628,15 @@ Realm realm;
 
 uint32 GetVirtualRealmAddress()
 {
-    return uint32(realm.Id.Region) << 24 | uint32(realm.Id.Site) << 16 | realm.Id.Realm;
+    return realm.Id.GetAddress();
+}
+
+CliCommandHolder::CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished)
+    : m_callbackArg(callbackArg), m_command(strdup(command)), m_print(zprint), m_commandFinished(commandFinished)
+{
+}
+
+CliCommandHolder::~CliCommandHolder()
+{
+    free(m_command);
 }
