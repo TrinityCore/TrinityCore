@@ -5983,7 +5983,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 ((@CGUID+1887)*10, 29, 899.6667, 4474.631, 243.1496, 0, 0, 1, 0, 100, 0);
 
 DELETE FROM `waypoint_scripts` WHERE `id` BETWEEN @CGUID*10 AND (@CGUID+2849)*10;
-SET @WSGUID=(SELECT IFNULL((SELECT MAX(guid)+1 FROM waypoint_scripts), 1));
+SET @WSGUID=(SELECT IFNULL((SELECT MAX(`guid`)+1 FROM `waypoint_scripts`), 1));
 INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
 ((@CGUID+215)*10, 2, 35, 2704, 0, 0, 0, 0, 0, 0, @WSGUID+0),
 (((@CGUID+215)*10)+1, 0, 1, 16, 0, 0, 0, 0, 0, 0, @WSGUID+1),
@@ -6079,7 +6079,7 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`,
 (57466, 1, 1906, 0, 0, 20886); -- 57466
 
 DELETE FROM `pool_template` WHERE `description`="Pilfered Pumpkin Spawnpoint";
-SET @POOL_ENTRY=(SELECT MAX(`entry`)+1 FROM `pool_template`);
+SET @POOL_ENTRY=(SELECT IFNULL((SELECT MAX(`entry`)+1 FROM `pool_template`), 1));
 INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES
 (@POOL_ENTRY+1, 1, 'Pilfered Pumpkin Spawnpoint'),
 (@POOL_ENTRY+2, 1, 'Pilfered Pumpkin Spawnpoint'),
