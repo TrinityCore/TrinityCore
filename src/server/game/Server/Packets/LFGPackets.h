@@ -19,6 +19,7 @@
 #define LFGPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "LFGPacketsCommon.h"
 #include "Optional.h"
 
