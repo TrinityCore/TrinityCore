@@ -26106,6 +26106,9 @@ TalentLearnResult Player::LearnPvpTalent(uint32 talentID, int32* spellOnCooldown
     if (IsInCombat())
         return TALENT_FAILED_AFFECTING_COMBAT;
 
+    if (getLevel() < PLAYER_LEVEL_MIN_HONOR)
+        return TALENT_FAILED_UNKNOWN;
+
     PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(talentID);
     if (!talentInfo)
         return TALENT_FAILED_UNKNOWN;
