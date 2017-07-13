@@ -5983,7 +5983,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 ((@CGUID+1887)*10, 29, 899.6667, 4474.631, 243.1496, 0, 0, 1, 0, 100, 0);
 
 DELETE FROM `waypoint_scripts` WHERE `id` BETWEEN @CGUID*10 AND (@CGUID+2849)*10;
-SET @WSGUID=(SELECT MAX(`guid`)+1 FROM `waypoint_scripts`);
+SET @WSGUID=(SELECT IFNULL((SELECT MAX(guid)+1 FROM waypoint_scripts), 1));
 INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
 ((@CGUID+215)*10, 2, 35, 2704, 0, 0, 0, 0, 0, 0, @WSGUID+0),
 (((@CGUID+215)*10)+1, 0, 1, 16, 0, 0, 0, 0, 0, 0, @WSGUID+1),
