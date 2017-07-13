@@ -2115,9 +2115,6 @@ struct PvpRewardEntry
     uint32 RewardPackID;
 };
 
-#define MAX_PVP_TALENT_TIERS 6
-#define MAX_PVP_TALENT_COLUMNS 3
-
 struct PvpTalentEntry
 {
     uint32 ID;

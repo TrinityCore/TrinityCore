@@ -123,6 +123,18 @@ namespace WorldPackets
 
             Array<uint16, 6> Talents;
         };
+
+        class LearnPvpTalentsFailed final : public ServerPacket
+        {
+        public:
+            LearnPvpTalentsFailed() : ServerPacket(SMSG_LEARN_PVP_TALENTS_FAILED, 1 + 4 + 4 + 2 * MAX_PVP_TALENT_TIERS) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Reason = 0;
+            int32 SpellID = 0;
+            std::vector<uint16> Talents;
+        };
     }
 }
 

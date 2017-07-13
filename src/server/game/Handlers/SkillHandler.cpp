@@ -53,23 +53,23 @@ void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& 
 
 void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet)
 {
-    WorldPackets::Talent::LearnTalentsFailed learnTalentsFailed;
+    WorldPackets::Talent::LearnPvpTalentsFailed learnPvpTalentsFailed;
     bool anythingLearned = false;
     for (uint32 talentId : packet.Talents)
     {
-        if (TalentLearnResult result = _player->LearnPvpTalent(talentId, &learnTalentsFailed.SpellID))
+        if (TalentLearnResult result = _player->LearnPvpTalent(talentId, &learnPvpTalentsFailed.SpellID))
         {
-            if (!learnTalentsFailed.Reason)
-                learnTalentsFailed.Reason = result;
+            if (!learnPvpTalentsFailed.Reason)
+                learnPvpTalentsFailed.Reason = result;
 
-            learnTalentsFailed.Talents.push_back(talentId);
+            learnPvpTalentsFailed.Talents.push_back(talentId);
         }
         else
             anythingLearned = true;
     }
 
-    if (learnTalentsFailed.Reason)
-        SendPacket(learnTalentsFailed.Write());
+    if (learnPvpTalentsFailed.Reason)
+        SendPacket(learnPvpTalentsFailed.Write());
 
     if (anythingLearned)
         _player->SendTalentsInfoData();
