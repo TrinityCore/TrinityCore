@@ -96,3 +96,14 @@ void WorldPackets::Talent::LearnPvpTalents::Read()
     for (uint32 i = 0; i < Talents.size(); ++i)
         _worldPacket >> Talents[i];
 }
+
+WorldPacket const* WorldPackets::Talent::LearnPvpTalentsFailed::Write()
+{
+    _worldPacket.WriteBits(Reason, 4);
+    _worldPacket << int32(SpellID);
+    _worldPacket << uint32(Talents.size());
+    if (!Talents.empty())
+        _worldPacket.append(Talents.data(), Talents.size());
+
+    return &_worldPacket;
+}
