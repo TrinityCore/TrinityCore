@@ -299,6 +299,13 @@ const uint32 MAX_CREATURE_NAMES = 4;
 const uint32 MAX_CREATURE_SPELLS = 8;
 const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
+struct CreatureLevelScaling
+{
+    uint16 minLevel;
+    uint16 maxLevel;
+    int16 deltaLevel;
+};
+
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
 {
@@ -316,7 +323,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
-    Optional<int16> levelScalingDelta;
+    Optional<CreatureLevelScaling> levelScaling;
     int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
@@ -760,11 +767,13 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint8 GetLevelForTarget(WorldObject const* target) const override;
 
         uint64 GetMaxHealthByLevel(uint8 level) const;
-        uint64 GetMaxHealthForTarget(WorldObject const* target) const;
         float GetHealthMultiplierForTarget(WorldObject const* target) const;
 
         float GetBaseDamageForLevel(uint8 level) const;
         float GetDamageMultiplierForTarget(WorldObject const* target) const;
+
+        float GetBaseArmorForLevel(uint8 level) const;
+        float GetArmorMultiplierForTarget(WorldObject const* target) const;
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }

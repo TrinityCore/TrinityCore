@@ -108,9 +108,9 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Creature, Pl
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
-    TargetMinScalingLevel   = creatureTemplate->minlevel;
-    TargetMaxScalingLevel   = creatureTemplate->maxlevel;
-    TargetScalingLevelDelta = (int8)creatureTemplate->levelScalingDelta.get();
+    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->minLevel;
+    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->maxLevel;
+    TargetScalingLevelDelta = (int8)creatureTemplate->levelScaling->deltaLevel;
     return true;
 }
 
@@ -124,26 +124,23 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Player, Crea
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
-    TargetMinScalingLevel   = creatureTemplate->minlevel;
-    TargetMaxScalingLevel   = creatureTemplate->maxlevel;
+    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->minLevel;
+    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->maxLevel;
     return true;
 }
 
 template<>
 bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Creature, Creature>(Creature* attacker, Creature* target)
 {
-    CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
-
-    if (!creatureTemplate->levelScalingDelta.is_initialized())
-        creatureTemplate = attacker->GetCreatureTemplate();
+    CreatureTemplate const* creatureTemplate = target->HasScalableLevels() ? attacker->GetCreatureTemplate() : target->GetCreatureTemplate();
 
     Type                    = TYPE_CREATURE_TO_CREATURE_DAMAGE;
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
-    TargetMinScalingLevel   = creatureTemplate->minlevel;
-    TargetMaxScalingLevel   = creatureTemplate->maxlevel;
-    TargetScalingLevelDelta = (int8)creatureTemplate->levelScalingDelta.get();
+    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->minLevel;
+    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->maxLevel;
+    TargetScalingLevelDelta = (int8)creatureTemplate->levelScaling->deltaLevel;
     return true;
 }
 

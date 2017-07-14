@@ -1200,12 +1200,10 @@ void Creature::SelectLevel()
     }
     else
     {
-        SetLevel(maxlevel);
-        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, minlevel);
-        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, maxlevel);
-
-        if (*cInfo->levelScalingDelta != 0)
-            SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, *cInfo->levelScalingDelta);
+        SetLevel(cInfo->levelScaling->maxLevel);
+        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, cInfo->levelScaling->minLevel);
+        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, cInfo->levelScaling->maxLevel);
+        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, cInfo->levelScaling->deltaLevel);
     }
 
     UpdateLevelDependantStats();
@@ -2505,24 +2503,20 @@ void Creature::AllLootRemovedFromCorpse()
 bool Creature::HasScalableLevels() const
 {
     CreatureTemplate const* cinfo = GetCreatureTemplate();
-    return cinfo->levelScalingDelta.is_initialized();
-}
-
-uint64 Creature::GetMaxHealthForTarget(WorldObject const* target) const
-{
-    if (!HasScalableLevels())
-        return GetMaxHealth();
-
-    uint8 levelForTarget = GetLevelForTarget(target);
-
-    float targetLevelMaxHealth = float(GetMaxHealthByLevel(levelForTarget));
-
-    return ceil(targetLevelMaxHealth * (float(GetMaxHealth()) / float(GetCreateHealth())));
+    return cinfo->levelScaling.is_initialized();
 }
 
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
 {
-    return float(GetMaxHealth()) / float(GetMaxHealthForTarget(target));
+    Unit const* unitTarget = target->ToUnit();
+    if (!HasScalableLevels() || !unitTarget)
+        return 1.0f;
+
+    uint8 levelForTarget = GetLevelForTarget(target);
+    if (getLevel() < levelForTarget)
+        return 1.0f;
+
+    return double(GetCreateHealth()) / double(GetMaxHealthByLevel(levelForTarget));
 }
 
 float Creature::GetBaseDamageForLevel(uint8 level) const
@@ -2539,10 +2533,25 @@ float Creature::GetDamageMultiplierForTarget(WorldObject const* target) const
 
     uint8 levelForTarget = GetLevelForTarget(target);
 
-    float meBaseDamage          = GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
-    float targetLevelBaseDamage = GetBaseDamageForLevel(levelForTarget);
+    return GetBaseDamageForLevel(levelForTarget) / GetBaseDamageForLevel(getLevel());
+}
 
-    return targetLevelBaseDamage / meBaseDamage;
+float Creature::GetBaseArmorForLevel(uint8 level) const
+{
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+    return stats->GenerateArmor(cInfo);
+}
+
+float Creature::GetArmorMultiplierForTarget(WorldObject const* target) const
+{
+    Unit const* unitTarget = target->ToUnit();
+    if (!HasScalableLevels() || !unitTarget)
+        return 1.0f;
+
+    uint8 levelForTarget = GetLevelForTarget(target);
+
+    return GetBaseArmorForLevel(unitTarget->getLevel()) / GetBaseArmorForLevel(getLevel());
 }
 
 uint8 Creature::GetLevelForTarget(WorldObject const* target) const
@@ -2564,7 +2573,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
     // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
     if (HasScalableLevels())
     {
-        uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + *(GetCreatureTemplate()->levelScalingDelta);
+        uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + GetCreatureTemplate()->levelScaling->deltaLevel;
 
         if (target->IsPlayer())
             targetLevelWithDelta += target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
