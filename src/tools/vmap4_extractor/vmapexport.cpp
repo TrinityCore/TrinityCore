@@ -65,7 +65,7 @@ bool preciseVectorData = false;
 
 //static const char * szWorkDirMaps = ".\\Maps";
 char const* szWorkDirWmo = "./Buildings";
-char const* szRawVMAPMagic = "VMAP043";
+char const* szRawVMAPMagic = "VMAP044";
 
 // Local testing functions
 
