@@ -7,14 +7,15 @@ ECHO ...............................................
 ECHO Trinitycore dbc/db2, maps, vmaps, mmaps extractor
 ECHO ...............................................
 ECHO PRESS 1, 2, 3 OR 4 to select your task, or 5 to EXIT.
+ECHO ...............................................
 ECHO.
-ECHO The vmaps extractor output text below is intended and not an error: 
+ECHO The vmaps extractor output text below is intended and not an error:
 ECHO ..........................................  
-ECHO Extracting World\Wmo\Band\Final_Stage.wmo 
-ECHO No such file. 
-ECHO Couldn't open RootWmo!!! 
-ECHO Done! 
-ECHO .......................................... 
+ECHO Extracting World\Wmo\Band\Final_Stage.wmo
+ECHO No such file.
+ECHO Couldn't open RootWmo!!!
+ECHO Done!
+ECHO ..........................................
 ECHO.
 ECHO 1 - Extract dbc/db2 and maps
 ECHO 2 - Extract vmaps (needs maps to be extracted before you run this)
