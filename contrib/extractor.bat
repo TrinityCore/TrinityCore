@@ -8,9 +8,13 @@ ECHO ...............................................
 ECHO PRESS 1, 2, 3 OR 4 to select your task, or 5 to EXIT.
 ECHO ...............................................
 ECHO.
-ECHO If you see one row with the error
-ECHO "Couldn't open RootWmo!!!"
-ECHO Ignore it, it's not real error.
+ECHO The vmaps extractor output text below is intended and not an error:
+ECHO ..........................................
+ECHO Extracting World\Wmo\Band\Final_Stage.wmo
+ECHO No such file.
+ECHO Couldn't open RootWmo!!!
+ECHO Done!
+ECHO ..........................................
 ECHO.
 ECHO 1 - Extract dbc/db2 and maps
 ECHO 2 - Extract vmaps (needs maps to be extracted before you run this)
@@ -26,16 +30,16 @@ IF %M%==4 GOTO ALL
 IF %M%==5 GOTO EOF
 :MAPS
 start mapextractor.exe
-ECHO wait before mapextractor.exe closes before continue
+ECHO Wait until mapextractor.exe closes before continuing.
 pause
 GOTO MENU
 :VMAPS
 md vmaps
 start vmap4extractor.exe
-ECHO wait before vmap4extractor.exe closes before continue
+ECHO Wait until vmap4extractor.exe closes before continuing.
 pause
 start vmap4assembler.exe Buildings vmaps
-ECHO wait before vmap4assembler.exe closes before continue
+ECHO Wait until vmap4assembler.exe closes before continuing.
 pause
 rmdir Buildings /s /q
 GOTO MENU
@@ -46,18 +50,19 @@ pause
 GOTO MENU
 :ALL
 start mapextractor.exe
-ECHO wait before mapextractor.exe closes before continue
+ECHO Wait until mapextractor.exe closes before continuing.
 pause
 md vmaps
 start vmap4extractor.exe
-ECHO wait before vmap4extractor.exe closes before continue
+ECHO Wait until vmap4extractor.exe closes before continuing.
 pause
 start vmap4assembler.exe Buildings vmaps
-ECHO wait before vmap4assembler.exe closes before continue
+ECHO Wait until vmap4assembler.exe closes before continuing.
 pause
 rmdir Buildings /s /q
 md mmaps
 start mmaps_generator.exe --threads %NUMBER_OF_PROCESSORS%
-ECHO wait before mmaps_generator.exe closes before continue (may take hours)
+ECHO Wait until mmaps_generator.exe closes before continuing (may take hours).
 pause
 GOTO MENU
+:EOF
