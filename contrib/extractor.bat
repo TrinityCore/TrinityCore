@@ -48,5 +48,6 @@ start /b /w vmap4extractor.exe
 start /b /w vmap4assembler.exe
 rmdir Buildings /s /q
 ECHO The next step may take a few hours to complete. Please be patient.
+PAUSE
 start /b /w mmaps_generator.exe
 GOTO MENU
