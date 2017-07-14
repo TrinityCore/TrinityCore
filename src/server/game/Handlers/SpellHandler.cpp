@@ -19,12 +19,15 @@
 #include "WorldSession.h"
 #include "CollectionMgr.h"
 #include "Common.h"
-#include "Config.h"
+#include "DatabaseEnv.h"
 #include "GameObjectAI.h"
 #include "GameObjectPackets.h"
+#include "Guild.h"
 #include "GuildMgr.h"
+#include "Item.h"
 #include "Log.h"
 #include "Player.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
@@ -33,6 +36,7 @@
 #include "SpellPackets.h"
 #include "Totem.h"
 #include "TotemPackets.h"
+#include "World.h"
 
 void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
 {
@@ -106,7 +110,7 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
     }
 
     // check also  BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
-    if (item->GetTemplate()->GetBonding() == BIND_ON_USE || item->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE || item->GetTemplate()->GetBonding() == BIND_QUEST)
+    if (item->GetBonding() == BIND_ON_USE || item->GetBonding() == BIND_ON_ACQUIRE || item->GetBonding() == BIND_QUEST)
     {
         if (!item->IsSoulBound())
         {
@@ -452,7 +456,7 @@ void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& tot
     if (!_player->m_SummonSlot[slotId])
         return;
 
-    Creature* totem = GetPlayer()->GetMap()->GetCreature(_player->m_SummonSlot[slotId]);
+    Creature* totem = ObjectAccessor::GetCreature(*GetPlayer(), _player->m_SummonSlot[slotId]);
     if (totem && totem->IsTotem() && totem->GetGUID() == totemDestroyed.TotemGUID)
         totem->ToTotem()->UnSummon();
 }
@@ -594,25 +598,13 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMis
     if (!spell || spell->m_spellInfo->Id != uint32(packet.SpellID) || !spell->m_targets.HasDst() || !spell->m_targets.HasSrc())
         return;
 
-    Position pos = *spell->m_targets.GetSrcPos();
-    pos.Relocate(packet.FirePos);
-    spell->m_targets.ModSrc(pos);
-
-    pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(packet.ImpactPos);
-    spell->m_targets.ModDst(pos);
-
+    spell->m_targets.ModSrc(packet.FirePos);
+    spell->m_targets.ModDst(packet.ImpactPos);
     spell->m_targets.SetPitch(packet.Pitch);
     spell->m_targets.SetSpeed(packet.Speed);
 
-    if (packet.Status.is_initialized())
-    {
-        GetPlayer()->ValidateMovementInfo(packet.Status.get_ptr());
-        /*uint32 opcode;
-        recvPacket >> opcode;
-        recvPacket.SetOpcode(CMSG_MOVE_STOP); // always set to CMSG_MOVE_STOP in client SetOpcode
-                                              //HandleMovementOpcodes(recvPacket);*/
-    }
+    if (packet.Status)
+        HandleMovementOpcode(CMSG_MOVE_STOP, *packet.Status);
 }
 
 void WorldSession::HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& /*requestCategoryCooldowns*/)

@@ -17,9 +17,10 @@
  */
 
 #include "HostileRefManager.h"
+#include "DB2Structure.h"
+#include "SpellInfo.h"
 #include "ThreatManager.h"
 #include "Unit.h"
-#include "SpellInfo.h"
 
 HostileRefManager::~HostileRefManager()
 {

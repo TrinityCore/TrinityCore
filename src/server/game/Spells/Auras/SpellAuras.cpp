@@ -17,27 +17,27 @@
  */
 
 #include "Common.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
+#include "CellImpl.h"
+#include "Config.h"
+#include "DB2Stores.h"
+#include "DynamicObject.h"
+#include "GridNotifiersImpl.h"
+#include "Item.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "SpellMgr.h"
 #include "Player.h"
-#include "Unit.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
+#include "SpellMgr.h"
 #include "SpellPackets.h"
-#include "DynamicObject.h"
-#include "ObjectAccessor.h"
-#include "Util.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
-#include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "Unit.h"
+#include "Util.h"
 #include "Vehicle.h"
-#include "Config.h"
+#include "World.h"
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura* aura, uint32 effMask):
 _target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), _slot(MAX_AURAS),
@@ -364,7 +364,7 @@ AuraScript* Aura::GetScriptByName(std::string const& scriptName) const
     for (auto itr = m_loadedScripts.begin(); itr != m_loadedScripts.end(); ++itr)
         if ((*itr)->_GetScriptName()->compare(scriptName) == 0)
             return *itr;
-    return NULL;
+    return nullptr;
 }
 
 SpellEffectInfo const* Aura::GetSpellEffectInfo(uint32 index) const
@@ -2252,7 +2252,7 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
                         targetList.push_back(GetUnitOwner());
                         Trinity::AnyGroupedUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius, effect->Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID);
                         Trinity::UnitListSearcher<Trinity::AnyGroupedUnitInObjectRangeCheck> searcher(GetUnitOwner(), targetList, u_check);
-                        GetUnitOwner()->VisitNearbyObject(radius, searcher);
+                        Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
                         break;
                     }
                     case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
@@ -2260,14 +2260,14 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
                         targetList.push_back(GetUnitOwner());
                         Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius);
                         Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(GetUnitOwner(), targetList, u_check);
-                        GetUnitOwner()->VisitNearbyObject(radius, searcher);
+                        Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
                         break;
                     }
                     case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
                     {
                         Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius); // No GetCharmer in searcher
                         Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(GetUnitOwner(), targetList, u_check);
-                        GetUnitOwner()->VisitNearbyObject(radius, searcher);
+                        Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
                         break;
                     }
                     case SPELL_EFFECT_APPLY_AREA_AURA_PET:
@@ -2335,13 +2335,13 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* /*caster
         {
             Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius);
             Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(GetDynobjOwner(), targetList, u_check);
-            GetDynobjOwner()->VisitNearbyObject(radius, searcher);
+            Cell::VisitAllObjects(GetDynobjOwner(), searcher, radius);
         }
         else
         {
             Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius);
             Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(GetDynobjOwner(), targetList, u_check);
-            GetDynobjOwner()->VisitNearbyObject(radius, searcher);
+            Cell::VisitAllObjects(GetDynobjOwner(), searcher, radius);
         }
 
         for (UnitList::iterator itr = targetList.begin(); itr!= targetList.end();++itr)

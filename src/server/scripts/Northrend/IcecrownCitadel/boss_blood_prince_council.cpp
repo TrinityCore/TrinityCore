@@ -15,12 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -381,7 +388,7 @@ class boss_prince_keleseth_icc : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
+                if (CreatureData const* data = me->GetCreatureData())
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
@@ -596,7 +603,7 @@ class boss_prince_taldaram_icc : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
+                if (CreatureData const* data = me->GetCreatureData())
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
@@ -815,7 +822,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
+                if (CreatureData const* data = me->GetCreatureData())
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
@@ -885,7 +892,7 @@ class boss_prince_valanar_icc : public CreatureScript
                     {
                         float x, y, z;
                         summon->GetPosition(x, y, z);
-                        float ground_Z = summon->GetMap()->GetHeight(summon->GetPhaseMask(), x, y, z, true, 500.0f);
+                        float ground_Z = summon->GetMap()->GetHeight(summon->GetPhases(), x, y, z, true, 500.0f);
                         summon->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, x, y, ground_Z);
                         summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         break;
@@ -1245,7 +1252,7 @@ class npc_kinetic_bomb : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->GetPosition(_x, _y, _groundZ);
                 me->DespawnOrUnsummon(60000);
-                _groundZ = me->GetMap()->GetHeight(me->GetPhaseMask(), _x, _y, _groundZ, true, 500.0f);
+                _groundZ = me->GetMap()->GetHeight(me->GetPhases(), _x, _y, _groundZ, true, 500.0f);
             }
 
             void DoAction(int32 action) override

@@ -29,10 +29,14 @@ npc_weegli_blastfuse
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "zulfarrak.h"
-#include "Player.h"
 
 /*######
 ## npc_sergeant_bly
@@ -97,7 +101,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_sergeant_blyAI>(creature);
+        return GetZulFarrakAI<npc_sergeant_blyAI>(creature);
     }
 
     struct npc_sergeant_blyAI : public ScriptedAI
@@ -141,7 +145,7 @@ public:
                     {
                         case 1:
                             //weegli doesn't fight - he goes & blows up the door
-                            if (Creature* pWeegli = instance->instance->GetCreature(instance->GetGuidData(ENTRY_WEEGLI)))
+                            if (Creature* pWeegli = ObjectAccessor::GetCreature(*me, instance->GetGuidData(ENTRY_WEEGLI)))
                                 pWeegli->AI()->DoAction(0);
                             Talk(SAY_1);
                             Text_Timer = 5000;
@@ -217,19 +221,19 @@ public:
         {
             instance->SetData(EVENT_PYRAMID, PYRAMID_CAGES_OPEN);
             //set bly & co to aggressive & start moving to top of stairs
-            initBlyCrewMember(instance, ENTRY_BLY, 1884.99f, 1263, 41.52f);
-            initBlyCrewMember(instance, ENTRY_RAVEN, 1882.5f, 1263, 41.52f);
-            initBlyCrewMember(instance, ENTRY_ORO, 1886.47f, 1270.68f, 41.68f);
-            initBlyCrewMember(instance, ENTRY_WEEGLI, 1890, 1263, 41.52f);
-            initBlyCrewMember(instance, ENTRY_MURTA, 1891.19f, 1272.03f, 41.60f);
+            initBlyCrewMember(instance, go, ENTRY_BLY, 1884.99f, 1263, 41.52f);
+            initBlyCrewMember(instance, go, ENTRY_RAVEN, 1882.5f, 1263, 41.52f);
+            initBlyCrewMember(instance, go, ENTRY_ORO, 1886.47f, 1270.68f, 41.68f);
+            initBlyCrewMember(instance, go, ENTRY_WEEGLI, 1890, 1263, 41.52f);
+            initBlyCrewMember(instance, go, ENTRY_MURTA, 1891.19f, 1272.03f, 41.60f);
         }
         return false;
     }
 
 private:
-    void initBlyCrewMember(InstanceScript* instance, uint32 entry, float x, float y, float z)
+    void initBlyCrewMember(InstanceScript* instance, GameObject* go, uint32 entry, float x, float y, float z)
     {
-        if (Creature* crew = instance->instance->GetCreature(instance->GetGuidData(entry)))
+        if (Creature* crew = ObjectAccessor::GetCreature(*go, instance->GetGuidData(entry)))
         {
             crew->SetReactState(REACT_AGGRESSIVE);
             crew->SetWalk(true);
@@ -300,7 +304,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_weegli_blastfuseAI>(creature);
+        return GetZulFarrakAI<npc_weegli_blastfuseAI>(creature);
     }
 
     struct npc_weegli_blastfuseAI : public ScriptedAI

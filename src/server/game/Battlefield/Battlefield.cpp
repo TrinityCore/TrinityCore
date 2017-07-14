@@ -18,18 +18,23 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
+#include "BattlegroundPackets.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
+#include "DB2Stores.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "GroupMgr.h"
+#include "Log.h"
 #include "Map.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "WorldPacket.h"
-#include "MiscPackets.h"
+#include "WorldSession.h"
+#include "WorldStatePackets.h"
+#include <G3D/g3dmath.h>
 
 Battlefield::Battlefield()
 {
@@ -250,6 +255,11 @@ void Battlefield::InvitePlayersInZoneToWar()
             }
         }
     }
+}
+
+uint64 Battlefield::GetQueueId() const
+{
+    return MAKE_PAIR64(m_BattleId | 0x20000, 0x1F100000);
 }
 
 void Battlefield::InvitePlayerToWar(Player* player)
@@ -815,7 +825,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
 }
 
 // Method for spawning gameobject on map
-GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot)
+GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, QuaternionData const& rot)
 {
     // Get map object
     Map* map = sMapMgr->CreateBaseMap(m_MapId);
@@ -1011,7 +1021,7 @@ bool BfCapturePoint::Update(uint32 diff)
         std::list<Player*> players;
         Trinity::AnyPlayerInObjectRangeCheck checker(capturePoint, radius);
         Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(capturePoint, players, checker);
-        capturePoint->VisitNearbyWorldObject(radius, searcher);
+        Cell::VisitWorldObjects(capturePoint, searcher, radius);
 
         for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
             if ((*itr)->IsOutdoorPvPActive())

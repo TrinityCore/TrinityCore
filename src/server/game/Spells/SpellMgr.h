@@ -22,6 +22,7 @@
 // For static or at-server-startup loaded spell data
 
 #include "Define.h"
+#include "Duration.h"
 #include "SharedDefines.h"
 #include "Util.h"
 

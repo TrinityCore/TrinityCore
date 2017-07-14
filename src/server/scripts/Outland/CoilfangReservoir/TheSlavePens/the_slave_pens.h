@@ -18,6 +18,8 @@
 #ifndef SLAVE_PENS_H
 #define SLAVE_PENS_H
 
+#include "CreatureAIImpl.h"
+
 uint32 const EncounterCount               = 3;
 
 #define SPScriptName "instance_the_slave_pens"
@@ -65,5 +67,11 @@ enum SPGameObjectIds
     GO_ICE_SPEAR                         = 188077,
     GO_ICE_STONE                         = 187882
 };
+
+template<typename AI>
+inline AI* GetSlavePensAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, SPScriptName);
+}
 
 #endif // SLAVE_PENS_H

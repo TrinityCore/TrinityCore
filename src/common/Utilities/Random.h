@@ -21,7 +21,6 @@
 #include "Define.h"
 #include "Duration.h"
 #include <limits>
-#include <random>
 
 /* Return a random number in the range min..max. */
 TC_COMMON_API int32 irand(int32 min, int32 max);

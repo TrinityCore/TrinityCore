@@ -16,9 +16,12 @@
  */
 
 #include "OutdoorPvPMgr.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "DisableMgr.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "DisableMgr.h"
 #include "ScriptMgr.h"
 
 OutdoorPvPMgr::OutdoorPvPMgr()

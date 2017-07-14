@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Vehicle.h"
-#include "Player.h"
+#include "DB2Structure.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
+#include "Vehicle.h"
 #include "VehiclePackets.h"
 
 void WorldSession::HandleMoveDismissVehicle(WorldPackets::Vehicle::MoveDismissVehicle& moveDismissVehicle)

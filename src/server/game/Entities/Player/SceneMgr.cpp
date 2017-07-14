@@ -17,6 +17,7 @@
 
 #include "SceneMgr.h"
 #include "Chat.h"
+#include "DB2Stores.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -62,7 +63,7 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
     playScene.Location             = *position;
     playScene.TransportGUID        = GetPlayer()->GetTransGUID();
 
-    GetPlayer()->GetSession()->SendPacket(playScene.Write(), true);
+    GetPlayer()->SendDirectMessage(playScene.Write());
 
     AddInstanceIdToSceneMap(sceneInstanceID, sceneTemplate);
 
@@ -89,7 +90,7 @@ void SceneMgr::CancelScene(uint32 sceneInstanceID, bool removeFromMap /*= true*/
 
     WorldPackets::Scenes::CancelScene cancelScene;
     cancelScene.SceneInstanceID = sceneInstanceID;
-    GetPlayer()->GetSession()->SendPacket(cancelScene.Write(), true);
+    GetPlayer()->SendDirectMessage(cancelScene.Write());
 }
 
 void SceneMgr::OnSceneTrigger(uint32 sceneInstanceID, std::string const& triggerName)
@@ -121,6 +122,9 @@ void SceneMgr::OnSceneCancel(uint32 sceneInstanceID)
         RemoveAurasDueToSceneId(sceneTemplate->SceneId);
 
     sScriptMgr->OnSceneCancel(GetPlayer(), sceneInstanceID, sceneTemplate);
+
+    if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
+        CancelScene(sceneInstanceID, false);
 }
 
 void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
@@ -140,6 +144,9 @@ void SceneMgr::OnSceneComplete(uint32 sceneInstanceID)
         RemoveAurasDueToSceneId(sceneTemplate->SceneId);
 
     sScriptMgr->OnSceneComplete(GetPlayer(), sceneInstanceID, sceneTemplate);
+
+    if (sceneTemplate->PlaybackFlags & SCENEFLAG_CANCEL_AT_END)
+        CancelScene(sceneInstanceID, false);
 }
 
 bool SceneMgr::HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId /*= 0*/) const

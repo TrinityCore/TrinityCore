@@ -18,11 +18,13 @@
 #include "GarrisonMgr.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Garrison.h"
-#include "ObjectDefines.h"
-#include "World.h"
-#include "GameObject.h"
+#include "Log.h"
 #include "ObjectMgr.h"
+#include "Random.h"
+#include "Timer.h"
+#include "World.h"
 
 GarrisonMgr& GarrisonMgr::Instance()
 {
@@ -43,7 +45,7 @@ void GarrisonMgr::Initialize()
         _garrisonBuildingsByPlot[plotBuilding->GarrPlotID].insert(plotBuilding->GarrBuildingID);
 
     for (GarrBuildingPlotInstEntry const* buildingPlotInst : sGarrBuildingPlotInstStore)
-        _garrisonBuildingPlotInstances[MAKE_PAIR64(buildingPlotInst->GarrBuildingID, buildingPlotInst->GarrSiteLevelPlotInstID)] = buildingPlotInst->ID;
+        _garrisonBuildingPlotInstances[std::make_pair(buildingPlotInst->GarrBuildingID, buildingPlotInst->GarrSiteLevelPlotInstID)] = buildingPlotInst->ID;
 
     for (GarrBuildingEntry const* building : sGarrBuildingStore)
         _garrisonBuildingsByType[building->Type].push_back(building->ID);
@@ -115,7 +117,7 @@ bool GarrisonMgr::IsPlotMatchingBuilding(uint32 garrPlotId, uint32 garrBuildingI
 
 uint32 GarrisonMgr::GetGarrBuildingPlotInst(uint32 garrBuildingId, uint32 garrSiteLevelPlotInstId) const
 {
-    auto itr = _garrisonBuildingPlotInstances.find(MAKE_PAIR64(garrBuildingId, garrSiteLevelPlotInstId));
+    auto itr = _garrisonBuildingPlotInstances.find(std::make_pair(garrBuildingId, garrSiteLevelPlotInstId));
     if (itr != _garrisonBuildingPlotInstances.end())
         return itr->second;
 

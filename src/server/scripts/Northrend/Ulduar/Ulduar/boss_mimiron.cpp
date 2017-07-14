@@ -15,14 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "ulduar.h"
 #include "Vehicle.h"
 
@@ -644,10 +646,10 @@ class boss_mimiron : public CreatureScript
                             {
                                 if (Creature* computer = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_COMPUTER)))
                                     computer->AI()->DoAction(DO_DEACTIVATE_COMPUTER);
-                                me->SummonGameObject(RAID_MODE(GO_CACHE_OF_INNOVATION_FIREFIGHTER, GO_CACHE_OF_INNOVATION_FIREFIGHTER_HERO), 2744.040f, 2569.352f, 364.3135f, 3.124123f, G3D::Quat(0.f, 0.f, 0.9999619f, 0.008734641f), 604800);
+                                me->SummonGameObject(RAID_MODE(GO_CACHE_OF_INNOVATION_FIREFIGHTER, GO_CACHE_OF_INNOVATION_FIREFIGHTER_HERO), 2744.040f, 2569.352f, 364.3135f, 3.124123f, QuaternionData(0.f, 0.f, 0.9999619f, 0.008734641f), 604800);
                             }
                             else
-                                me->SummonGameObject(RAID_MODE(GO_CACHE_OF_INNOVATION, GO_CACHE_OF_INNOVATION_HERO), 2744.040f, 2569.352f, 364.3135f, 3.124123f, G3D::Quat(0.f, 0.f, 0.9999619f, 0.008734641f), 604800);
+                                me->SummonGameObject(RAID_MODE(GO_CACHE_OF_INNOVATION, GO_CACHE_OF_INNOVATION_HERO), 2744.040f, 2569.352f, 364.3135f, 3.124123f, QuaternionData(0.f, 0.f, 0.9999619f, 0.008734641f), 604800);
                             events.ScheduleEvent(EVENT_OUTTRO_3, 11000);
                             break;
                         case EVENT_OUTTRO_3:
@@ -1779,9 +1781,7 @@ class spell_mimiron_fire_search : public SpellScriptLoader
         private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WATER_SPRAY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WATER_SPRAY });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1870,9 +1870,7 @@ class spell_mimiron_magnetic_core : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CORE_VISUAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MAGNETIC_CORE_VISUAL });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1925,9 +1923,7 @@ class spell_mimiron_napalm_shell : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NAPALM_SHELL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NAPALM_SHELL });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1976,9 +1972,7 @@ class spell_mimiron_plasma_blast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PLASMA_BLAST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PLASMA_BLAST });
             }
 
             bool Load() override
@@ -2052,9 +2046,7 @@ class spell_mimiron_proximity_mines : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_PROXIMITY_MINE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_PROXIMITY_MINE });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2087,9 +2079,7 @@ class spell_mimiron_proximity_trigger : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PROXIMITY_MINE_EXPLOSION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_PROXIMITY_MINE_EXPLOSION });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2130,9 +2120,7 @@ class spell_mimiron_rapid_burst : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RAPID_BURST_LEFT) || !sSpellMgr->GetSpellInfo(SPELL_RAPID_BURST_RIGHT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RAPID_BURST_LEFT, SPELL_RAPID_BURST_RIGHT });
             }
 
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2172,9 +2160,7 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SCRIPT_EFFECT_ROCKET_STRIKE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SCRIPT_EFFECT_ROCKET_STRIKE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2182,12 +2168,14 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                if (m_scriptSpellId == SPELL_ROCKET_STRIKE_SINGLE && GetCaster()->IsVehicle())
+                if (GetSpellInfo()->Id == SPELL_ROCKET_STRIKE_SINGLE && GetCaster()->IsVehicle())
+                {
                     if (WorldObject* target = GetCaster()->GetVehicleKit()->GetPassenger(RAND(ROCKET_SEAT_LEFT, ROCKET_SEAT_RIGHT)))
                     {
                         targets.clear();
                         targets.push_back(target);
                     }
+                }
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2220,9 +2208,7 @@ class spell_mimiron_rocket_strike_damage : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NOT_SO_FRIENDLY_FIRE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NOT_SO_FRIENDLY_FIRE });
             }
 
             void HandleAfterCast()
@@ -2270,9 +2256,7 @@ class spell_mimiron_rocket_strike_target_select : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ROCKET_STRIKE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_ROCKET_STRIKE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2351,9 +2335,7 @@ class spell_mimiron_summon_assault_bot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ASSAULT_BOT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_ASSAULT_BOT });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -2388,9 +2370,7 @@ class spell_mimiron_summon_assault_bot_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_ASSAULT_BOT_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_ASSAULT_BOT_DUMMY });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2422,10 +2402,7 @@ class spell_mimiron_summon_fire_bot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FIRE_BOT))
-                    return false;
-
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_FIRE_BOT });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -2460,9 +2437,7 @@ class spell_mimiron_summon_fire_bot_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FIRE_BOT_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_FIRE_BOT_DUMMY });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -2531,9 +2506,7 @@ class spell_mimiron_summon_flames_spread : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FLAMES_SPREAD))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_FLAMES_SPREAD });
             }
 
             void HandleTick(AuraEffect const* /*aurEff*/)
@@ -2568,9 +2541,7 @@ class spell_mimiron_summon_frost_bomb_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FROST_BOMB))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_FROST_BOMB });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2619,9 +2590,7 @@ class spell_mimiron_summon_junk_bot : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_JUNK_BOT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_JUNK_BOT });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -2656,9 +2625,7 @@ class spell_mimiron_summon_junk_bot_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_JUNK_BOT_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_JUNK_BOT_DUMMY });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

@@ -27,9 +27,12 @@ On his death the vault door opens.
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "uldaman.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellMgr.h"
+#include "uldaman.h"
 
 enum Says
 {
@@ -211,7 +214,7 @@ class boss_archaedas : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_archaedasAI>(creature);
+            return GetUldamanAI<boss_archaedasAI>(creature);
         }
 };
 
@@ -317,7 +320,7 @@ class npc_archaedas_minions : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_archaedas_minionsAI>(creature);
+            return GetUldamanAI<npc_archaedas_minionsAI>(creature);
         }
 };
 
@@ -380,7 +383,7 @@ class npc_stonekeepers : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_stonekeepersAI>(creature);
+            return GetUldamanAI<npc_stonekeepersAI>(creature);
         }
 };
 

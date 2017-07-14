@@ -19,8 +19,8 @@
 #define ArtifactPackets_h__
 
 #include "Packet.h"
-#include "PacketUtilities.h"
 #include "ObjectGuid.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {

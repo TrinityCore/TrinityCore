@@ -17,6 +17,8 @@
  */
 
 #include "Unit.h"
+#include "DB2Stores.h"
+#include "Item.h"
 #include "Player.h"
 #include "Pet.h"
 #include "Creature.h"
@@ -25,6 +27,8 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "World.h"
+#include <G3D/g3dmath.h>
+#include <numeric>
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {
@@ -552,7 +556,7 @@ void Player::UpdateMastery()
                 if (G3D::fuzzyEq(mult, 0.0f))
                     continue;
 
-                aura->GetEffect(effect->EffectIndex)->ChangeAmount(int32(value * effect->BonusCoefficient));
+                aura->GetEffect(effect->EffectIndex)->ChangeAmount(int32(value * mult));
             }
         }
     }

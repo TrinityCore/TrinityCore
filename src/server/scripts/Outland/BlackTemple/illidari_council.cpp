@@ -24,10 +24,12 @@ SDCategory: Black Temple
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "black_temple.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "black_temple.h"
 
 enum IllidariCouncil
 {
@@ -120,7 +122,7 @@ public:
 
     CreatureAI* GetAI(Creature* c) const override
     {
-        return new npc_blood_elf_council_voice_triggerAI(c);
+        return GetBlackTempleAI<npc_blood_elf_council_voice_triggerAI>(c);
     }
 
     struct npc_blood_elf_council_voice_triggerAI : public ScriptedAI
@@ -220,7 +222,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_illidari_councilAI>(creature);
+        return GetBlackTempleAI<npc_illidari_councilAI>(creature);
     }
 
     struct npc_illidari_councilAI : public ScriptedAI
@@ -456,7 +458,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_gathios_the_shattererAI>(creature);
+        return GetBlackTempleAI<boss_gathios_the_shattererAI>(creature);
     }
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
@@ -596,7 +598,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_high_nethermancer_zerevorAI>(creature);
+        return GetBlackTempleAI<boss_high_nethermancer_zerevorAI>(creature);
     }
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
@@ -708,7 +710,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_lady_malandeAI>(creature);
+        return GetBlackTempleAI<boss_lady_malandeAI>(creature);
     }
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
@@ -794,7 +796,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_veras_darkshadowAI>(creature);
+        return GetBlackTempleAI<boss_veras_darkshadowAI>(creature);
     }
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI
@@ -912,7 +914,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return sSpellMgr->GetSpellInfo(SPELL_REFLECTIVE_SHIELD_T) != nullptr;
+            return ValidateSpellInfo({ SPELL_REFLECTIVE_SHIELD_T });
         }
 
         void Trigger(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)

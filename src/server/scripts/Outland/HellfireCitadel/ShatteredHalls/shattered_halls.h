@@ -19,6 +19,10 @@
 #ifndef DEF_SHATTERED_H
 #define DEF_SHATTERED_H
 
+#include "CreatureAIImpl.h"
+#include "Position.h"
+
+#define SHScriptName "instance_shattered_halls"
 #define DataHeader "SH"
 
 uint32 const EncounterCount          = 4;
@@ -98,9 +102,9 @@ struct FactionSpawnerHelper
     inline Position const& GetPos() const { return _spawnPos; }
 
 private:
-    const uint32 _allianceNPC;
-    const uint32 _hordeNPC;
-    const Position _spawnPos;
+    uint32 const _allianceNPC;
+    uint32 const _hordeNPC;
+    Position const _spawnPos;
 };
 
 const FactionSpawnerHelper executionerVictims[VictimCount] =
@@ -110,5 +114,10 @@ const FactionSpawnerHelper executionerVictims[VictimCount] =
     { NPC_ALLIANCE_VICTIM_2, NPC_HORDE_VICTIM_2,      { 151.0459f, -77.51981f, 2.021008f, 4.74729500f } }
 };
 
+template<typename AI>
+inline AI* GetShatteredHallsAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, SHScriptName);
+}
 
 #endif

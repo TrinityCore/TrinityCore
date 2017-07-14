@@ -15,15 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
+#include "icecrown_citadel.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "icecrown_citadel.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -222,7 +223,7 @@ class ValithriaDespawner : public BasicEvent
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
             Trinity::CreatureWorker<ValithriaDespawner> worker(_creature, *this);
-            _creature->VisitNearbyGridObject(333.0f, worker);
+            Cell::VisitGridObjects(_creature, worker, 333.0f);
             return true;
         }
 
@@ -297,7 +298,7 @@ class boss_valithria_dreamwalker : public CreatureScript
 
             void InitializeAI() override
             {
-                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetSpawnId()))
+                if (CreatureData const* data = me->GetCreatureData())
                     if (data->curhealth)
                         _spawnHealth = data->curhealth;
 
@@ -675,7 +676,7 @@ class npc_the_lich_king_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_the_lich_king_controllerAI>(creature);
+            return GetIcecrownCitadelAI<npc_the_lich_king_controllerAI>(creature);
         }
 };
 
@@ -719,7 +720,7 @@ class npc_risen_archmage : public CreatureScript
                     std::list<Creature*> archmages;
                     RisenArchmageCheck check;
                     Trinity::CreatureListSearcher<RisenArchmageCheck> searcher(me, archmages, check);
-                    me->VisitNearbyGridObject(100.0f, searcher);
+                    Cell::VisitGridObjects(me, searcher, 100.0f);
                     for (std::list<Creature*>::iterator itr = archmages.begin(); itr != archmages.end(); ++itr)
                         (*itr)->AI()->DoAction(ACTION_ENTER_COMBAT);
 
@@ -1094,7 +1095,7 @@ class npc_dream_cloud : public CreatureScript
                             Player* player = NULL;
                             Trinity::AnyPlayerInObjectRangeCheck check(me, 5.0f);
                             Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
-                            me->VisitNearbyWorldObject(7.5f, searcher);
+                            Cell::VisitWorldObjects(me, searcher, 7.5f);
                             _events.ScheduleEvent(player ? EVENT_EXPLODE : EVENT_CHECK_PLAYER, 1000);
                             break;
                         }

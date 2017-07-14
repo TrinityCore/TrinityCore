@@ -19,18 +19,32 @@
 #ifndef _AUCTION_HOUSE_MGR_H
 #define _AUCTION_HOUSE_MGR_H
 
-#include "Common.h"
-#include "DatabaseEnv.h"
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
+#include "ItemTemplate.h"
 #include "ObjectGuid.h"
-#include "AuctionHousePackets.h"
+#include "Optional.h"
+#include <map>
 #include <set>
+#include <unordered_map>
 
 class Item;
 class Player;
 class WorldPacket;
 
+namespace WorldPackets
+{
+    namespace AuctionHouse
+    {
+        struct AuctionItem;
+        class AuctionListBidderItemsResult;
+        class AuctionListOwnerItemsResult;
+        class AuctionListItemsResult;
+        class AuctionReplicateResponse;
+    }
+}
+
 #define MIN_AUCTION_TIME (12*HOUR)
-#define MAX_AUCTION_ITEMS 160
 
 enum AuctionError
 {

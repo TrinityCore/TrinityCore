@@ -18,6 +18,9 @@
 #ifndef DEF_ARCHAVON_H
 #define DEF_ARCHAVON_H
 
+#include "CreatureAIImpl.h"
+
+#define VoAScriptName "instance_vault_of_archavon"
 #define DataHeader "VA"
 
 uint32 const EncounterCount = 4;
@@ -48,5 +51,11 @@ enum VAAchievementSpells
 {
     SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK = 68308,
 };
+
+template<typename AI>
+inline AI* GetVaultOfArchavonAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, VoAScriptName);
+}
 
 #endif

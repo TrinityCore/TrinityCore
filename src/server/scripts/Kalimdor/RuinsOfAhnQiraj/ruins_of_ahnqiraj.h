@@ -18,6 +18,9 @@
 #ifndef DEF_RUINS_OF_AHNQIRAJ_H
 #define DEF_RUINS_OF_AHNQIRAJ_H
 
+#include "CreatureAIImpl.h"
+
+#define AQ20ScriptName "instance_ruins_of_ahnqiraj"
 #define DataHeader "AQR"
 
 enum AQRDataTypes
@@ -56,5 +59,11 @@ enum AQRGameObjectIds
 {
     GO_OSSIRIAN_CRYSTAL         = 180619
 };
+
+template<typename AI>
+inline AI* GetAQ20AI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, AQ20ScriptName);
+}
 
 #endif

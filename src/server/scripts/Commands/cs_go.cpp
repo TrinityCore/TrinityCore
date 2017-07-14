@@ -23,13 +23,17 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ObjectMgr.h"
-#include "MapManager.h"
-#include "SupportMgr.h"
 #include "Chat.h"
+#include "DatabaseEnv.h"
 #include "Language.h"
+#include "MapManager.h"
+#include "MotionMaster.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "RBAC.h"
+#include "SupportMgr.h"
 #include "Transport.h"
+#include "WorldSession.h"
 
 class go_commandscript : public CommandScript
 {
@@ -114,7 +118,7 @@ public:
             {
                 std::string name = param1;
                 WorldDatabase.EscapeString(name);
-                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name " _LIKE_" '" << name << '\'';
+                whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name LIKE '" << name << '\'';
             }
             else
                 whereClause <<  "WHERE guid = '" << guidLow << '\'';

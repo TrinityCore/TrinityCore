@@ -457,7 +457,7 @@ static DWORD WowHandler_GetFileId(TRootHandler_WoW6 * pRootHandler, const char *
 
     // Find by the file name hash
     pFileEntry = FindRootEntry(pRootHandler->pRootMap, szFileName, NULL);
-    return (pFileEntry != NULL) ? pFileEntry->FileDataId : NULL;
+    return (pFileEntry != NULL) ? pFileEntry->FileDataId : 0;
 }
 
 static void WowHandler_Close(TRootHandler_WoW6 * pRootHandler)

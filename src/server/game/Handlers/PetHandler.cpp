@@ -16,27 +16,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectMgr.h"
-#include "SpellMgr.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "Spell.h"
-#include "ObjectAccessor.h"
+#include "Common.h"
 #include "CreatureAI.h"
-#include "Util.h"
+#include "DatabaseEnv.h"
+#include "Group.h"
+#include "Log.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "Pet.h"
 #include "PetPackets.h"
-#include "World.h"
-#include "Group.h"
+#include "PetPackets.h"
+#include "Player.h"
+#include "QueryPackets.h"
+#include "Spell.h"
 #include "SpellHistory.h"
 #include "SpellInfo.h"
-#include "Player.h"
-#include "PetPackets.h"
+#include "SpellMgr.h"
 #include "SpellPackets.h"
-#include "QueryPackets.h"
+#include "Util.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleDismissCritter(WorldPackets::Pet::DismissCritter& packet)
 {
@@ -98,7 +100,7 @@ void WorldSession::HandlePetAction(WorldPackets::Pet::PetAction& packet)
         return;
 
     if (GetPlayer()->m_Controlled.size() == 1)
-        HandlePetActionHelper(pet, guid1, spellid, flag, guid2, packet.ActionPosition.x, packet.ActionPosition.y, packet.ActionPosition.z);
+        HandlePetActionHelper(pet, guid1, spellid, flag, guid2, packet.ActionPosition);
     else
     {
         //If a pet is dismissed, m_Controlled will change
@@ -107,7 +109,7 @@ void WorldSession::HandlePetAction(WorldPackets::Pet::PetAction& packet)
             if ((*itr)->GetEntry() == pet->GetEntry() && (*itr)->IsAlive())
                 controlled.push_back(*itr);
         for (std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
-            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2, packet.ActionPosition.x, packet.ActionPosition.y, packet.ActionPosition.z);
+            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2, packet.ActionPosition);
     }
 }
 
@@ -134,7 +136,7 @@ void WorldSession::HandlePetStopAttack(WorldPackets::Pet::PetStopAttack& packet)
     pet->AttackStop();
 }
 
-void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, float x, float y, float z)
+void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spellid, uint16 flag, ObjectGuid guid2, Position const& pos)
 {
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
@@ -259,7 +261,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                 case COMMAND_MOVE_TO:
                     pet->StopMoving();
                     pet->GetMotionMaster()->Clear(false);
-                    pet->GetMotionMaster()->MovePoint(0, x, y, z);
+                    pet->GetMotionMaster()->MovePoint(0, pos);
                     charmInfo->SetCommandState(COMMAND_MOVE_TO);
 
                     charmInfo->SetIsCommandAttack(false);

@@ -16,8 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "halls_of_lightning.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {

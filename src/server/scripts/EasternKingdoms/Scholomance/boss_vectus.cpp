@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 
 enum Emotes
@@ -112,7 +113,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_vectusAI(creature);
+        return GetScholomanceAI<boss_vectusAI>(creature);
     }
 };
 

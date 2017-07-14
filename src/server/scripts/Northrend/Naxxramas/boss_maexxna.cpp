@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "SpellScript.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -94,7 +97,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_maexxnaAI(creature);
+        return GetNaxxramasAI<boss_maexxnaAI>(creature);
     }
 
     struct boss_maexxnaAI : public BossAI
@@ -195,7 +198,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_webwrapAI(creature);
+        return GetNaxxramasAI<npc_webwrapAI>(creature);
     }
 
     struct npc_webwrapAI : public NullCreatureAI

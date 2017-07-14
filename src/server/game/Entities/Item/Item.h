@@ -19,12 +19,13 @@
 #ifndef TRINITYCORE_ITEM_H
 #define TRINITYCORE_ITEM_H
 
-#include "Common.h"
 #include "Object.h"
-#include "LootMgr.h"
+#include "Common.h"
+#include "DatabaseEnvFwd.h"
+#include "ItemDefines.h"
 #include "ItemEnchantmentMgr.h"
 #include "ItemTemplate.h"
-#include "DatabaseEnv.h"
+#include "Loot.h"
 
 class SpellInfo;
 class Bag;
@@ -44,158 +45,6 @@ struct ItemSetEffect
     std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
 };
 
-enum InventoryResult
-{
-    EQUIP_ERR_OK                                           = 0,
-    EQUIP_ERR_CANT_EQUIP_LEVEL_I                           = 1,  // You must reach level %d to use that item.
-    EQUIP_ERR_CANT_EQUIP_SKILL                             = 2,  // You aren't skilled enough to use that item.
-    EQUIP_ERR_WRONG_SLOT                                   = 3,  // That item does not go in that slot.
-    EQUIP_ERR_BAG_FULL                                     = 4,  // That bag is full.
-    EQUIP_ERR_BAG_IN_BAG                                   = 5,  // Can't put non-empty bags in other bags.
-    EQUIP_ERR_TRADE_EQUIPPED_BAG                           = 6,  // You can't trade equipped bags.
-    EQUIP_ERR_AMMO_ONLY                                    = 7,  // Only ammo can go there.
-    EQUIP_ERR_PROFICIENCY_NEEDED                           = 8,  // You do not have the required proficiency for that item.
-    EQUIP_ERR_NO_SLOT_AVAILABLE                            = 9,  // No equipment slot is available for that item.
-    EQUIP_ERR_CANT_EQUIP_EVER                              = 10, // You can never use that item.
-    EQUIP_ERR_CANT_EQUIP_EVER_2                            = 11, // You can never use that item.
-    EQUIP_ERR_NO_SLOT_AVAILABLE_2                          = 12, // No equipment slot is available for that item.
-    EQUIP_ERR_2HANDED_EQUIPPED                             = 13, // Cannot equip that with a two-handed weapon.
-    EQUIP_ERR_2HSKILLNOTFOUND                              = 14, // You cannot dual-wield
-    EQUIP_ERR_WRONG_BAG_TYPE                               = 15, // That item doesn't go in that container.
-    EQUIP_ERR_WRONG_BAG_TYPE_2                             = 16, // That item doesn't go in that container.
-    EQUIP_ERR_ITEM_MAX_COUNT                               = 17, // You can't carry any more of those items.
-    EQUIP_ERR_NO_SLOT_AVAILABLE_3                          = 18, // No equipment slot is available for that item.
-    EQUIP_ERR_CANT_STACK                                   = 19, // This item cannot stack.
-    EQUIP_ERR_NOT_EQUIPPABLE                               = 20, // This item cannot be equipped.
-    EQUIP_ERR_CANT_SWAP                                    = 21, // These items can't be swapped.
-    EQUIP_ERR_SLOT_EMPTY                                   = 22, // That slot is empty.
-    EQUIP_ERR_ITEM_NOT_FOUND                               = 23, // The item was not found.
-    EQUIP_ERR_DROP_BOUND_ITEM                              = 24, // You can't drop a soulbound item.
-    EQUIP_ERR_OUT_OF_RANGE                                 = 25, // Out of range.
-    EQUIP_ERR_TOO_FEW_TO_SPLIT                             = 26, // Tried to split more than number in stack.
-    EQUIP_ERR_SPLIT_FAILED                                 = 27, // Couldn't split those items.
-    EQUIP_ERR_SPELL_FAILED_REAGENTS_GENERIC                = 28, // Missing reagent
-    EQUIP_ERR_NOT_ENOUGH_MONEY                             = 29, // You don't have enough money.
-    EQUIP_ERR_NOT_A_BAG                                    = 30, // Not a bag.
-    EQUIP_ERR_DESTROY_NONEMPTY_BAG                         = 31, // You can only do that with empty bags.
-    EQUIP_ERR_NOT_OWNER                                    = 32, // You don't own that item.
-    EQUIP_ERR_ONLY_ONE_QUIVER                              = 33, // You can only equip one quiver.
-    EQUIP_ERR_NO_BANK_SLOT                                 = 34, // You must purchase that bag slot first
-    EQUIP_ERR_NO_BANK_HERE                                 = 35, // You are too far away from a bank.
-    EQUIP_ERR_ITEM_LOCKED                                  = 36, // Item is locked.
-    EQUIP_ERR_GENERIC_STUNNED                              = 37, // You are stunned
-    EQUIP_ERR_PLAYER_DEAD                                  = 38, // You can't do that when you're dead.
-    EQUIP_ERR_CLIENT_LOCKED_OUT                            = 39, // You can't do that right now.
-    EQUIP_ERR_INTERNAL_BAG_ERROR                           = 40, // Internal Bag Error
-    EQUIP_ERR_ONLY_ONE_BOLT                                = 41, // You can only equip one quiver.
-    EQUIP_ERR_ONLY_ONE_AMMO                                = 42, // You can only equip one ammo pouch.
-    EQUIP_ERR_CANT_WRAP_STACKABLE                          = 43, // Stackable items can't be wrapped.
-    EQUIP_ERR_CANT_WRAP_EQUIPPED                           = 44, // Equipped items can't be wrapped.
-    EQUIP_ERR_CANT_WRAP_WRAPPED                            = 45, // Wrapped items can't be wrapped.
-    EQUIP_ERR_CANT_WRAP_BOUND                              = 46, // Bound items can't be wrapped.
-    EQUIP_ERR_CANT_WRAP_UNIQUE                             = 47, // Unique items can't be wrapped.
-    EQUIP_ERR_CANT_WRAP_BAGS                               = 48, // Bags can't be wrapped.
-    EQUIP_ERR_LOOT_GONE                                    = 49, // Already looted
-    EQUIP_ERR_INV_FULL                                     = 50, // Inventory is full.
-    EQUIP_ERR_BANK_FULL                                    = 51, // Your bank is full
-    EQUIP_ERR_VENDOR_SOLD_OUT                              = 52, // That item is currently sold out.
-    EQUIP_ERR_BAG_FULL_2                                   = 53, // That bag is full.
-    EQUIP_ERR_ITEM_NOT_FOUND_2                             = 54, // The item was not found.
-    EQUIP_ERR_CANT_STACK_2                                 = 55, // This item cannot stack.
-    EQUIP_ERR_BAG_FULL_3                                   = 56, // That bag is full.
-    EQUIP_ERR_VENDOR_SOLD_OUT_2                            = 57, // That item is currently sold out.
-    EQUIP_ERR_OBJECT_IS_BUSY                               = 58, // That object is busy.
-    EQUIP_ERR_CANT_BE_DISENCHANTED                         = 59,
-    EQUIP_ERR_NOT_IN_COMBAT                                = 60, // You can't do that while in combat
-    EQUIP_ERR_NOT_WHILE_DISARMED                           = 61, // You can't do that while disarmed
-    EQUIP_ERR_BAG_FULL_4                                   = 62, // That bag is full.
-    EQUIP_ERR_CANT_EQUIP_RANK                              = 63, // You don't have the required rank for that item
-    EQUIP_ERR_CANT_EQUIP_REPUTATION                        = 64, // You don't have the required reputation for that item
-    EQUIP_ERR_TOO_MANY_SPECIAL_BAGS                        = 65, // You cannot equip another bag of that type
-    EQUIP_ERR_LOOT_CANT_LOOT_THAT_NOW                      = 66, // You can't loot that item now.
-    EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE                       = 67, // You cannot equip more than one of those.
-    EQUIP_ERR_VENDOR_MISSING_TURNINS                       = 68, // You do not have the required items for that purchase
-    EQUIP_ERR_NOT_ENOUGH_HONOR_POINTS                      = 69, // You don't have enough honor points
-    EQUIP_ERR_NOT_ENOUGH_ARENA_POINTS                      = 70, // You don't have enough arena points
-    EQUIP_ERR_ITEM_MAX_COUNT_SOCKETED                      = 71, // You have the maximum number of those gems in your inventory or socketed into items.
-    EQUIP_ERR_MAIL_BOUND_ITEM                              = 72, // You can't mail soulbound items.
-    EQUIP_ERR_INTERNAL_BAG_ERROR_2                         = 73, // Internal Bag Error
-    EQUIP_ERR_BAG_FULL_5                                   = 74, // That bag is full.
-    EQUIP_ERR_ITEM_MAX_COUNT_EQUIPPED_SOCKETED             = 75, // You have the maximum number of those gems socketed into equipped items.
-    EQUIP_ERR_ITEM_UNIQUE_EQUIPPABLE_SOCKETED              = 76, // You cannot socket more than one of those gems into a single item.
-    EQUIP_ERR_TOO_MUCH_GOLD                                = 77, // At gold limit
-    EQUIP_ERR_NOT_DURING_ARENA_MATCH                       = 78, // You can't do that while in an arena match
-    EQUIP_ERR_TRADE_BOUND_ITEM                             = 79, // You can't trade a soulbound item.
-    EQUIP_ERR_CANT_EQUIP_RATING                            = 80, // You don't have the personal, team, or battleground rating required to buy that item
-    EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM                 = 81,
-    EQUIP_ERR_NOT_SAME_ACCOUNT                             = 82, // Account-bound items can only be given to your own characters.
-    EQUIP_ERR_NO_OUTPUT                                    = 83,
-    EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS    = 84, // You can only carry %d %s
-    EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS = 85, // You can only equip %d |4item:items in the %s category
-    EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED             = 86, // Your level is too high to use that item
-    EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW                       = 87, // You must reach level %d to purchase that item.
-    EQUIP_ERR_CANT_EQUIP_NEED_TALENT                       = 88, // You do not have the required talent to equip that.
-    EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS = 89, // You can only equip %d |4item:items in the %s category
-    EQUIP_ERR_SHAPESHIFT_FORM_CANNOT_EQUIP                 = 90, // Cannot equip item in this form
-    EQUIP_ERR_ITEM_INVENTORY_FULL_SATCHEL                  = 91, // Your inventory is full. Your satchel has been delivered to your mailbox.
-    EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_TOO_LOW              = 92, // Your level is too low to use that item
-    EQUIP_ERR_CANT_BUY_QUANTITY                            = 93, // You can't buy the specified quantity of that item.
-    EQUIP_ERR_ITEM_IS_BATTLE_PAY_LOCKED                    = 94, // Your purchased item is still waiting to be unlocked
-    EQUIP_ERR_REAGENT_BANK_FULL                            = 95, // Your reagent bank is full
-    EQUIP_ERR_REAGENT_BANK_LOCKED                          = 96,
-    EQUIP_ERR_WRONG_BAG_TYPE_3                             = 97,
-    EQUIP_ERR_CANT_USE_ITEM                                = 98, // You can't use that item.
-    EQUIP_ERR_CANT_BE_OBLITERATED                          = 99, // You can't obliterate that item
-    EQUIP_ERR_GUILD_BANK_CONJURED_ITEM                     = 100,// You cannot store conjured items in the guild bank
-};
-
-enum BuyResult
-{
-    BUY_ERR_CANT_FIND_ITEM                      = 0,
-    BUY_ERR_ITEM_ALREADY_SOLD                   = 1,
-    BUY_ERR_NOT_ENOUGHT_MONEY                   = 2,
-    BUY_ERR_SELLER_DONT_LIKE_YOU                = 4,
-    BUY_ERR_DISTANCE_TOO_FAR                    = 5,
-    BUY_ERR_ITEM_SOLD_OUT                       = 7,
-    BUY_ERR_CANT_CARRY_MORE                     = 8,
-    BUY_ERR_RANK_REQUIRE                        = 11,
-    BUY_ERR_REPUTATION_REQUIRE                  = 12
-};
-
-enum SellResult
-{
-    SELL_ERR_CANT_FIND_ITEM                      = 1,
-    SELL_ERR_CANT_SELL_ITEM                      = 2,       // merchant doesn't like that item
-    SELL_ERR_CANT_FIND_VENDOR                    = 3,       // merchant doesn't like you
-    SELL_ERR_YOU_DONT_OWN_THAT_ITEM              = 4,       // you don't own that item
-    SELL_ERR_UNK                                 = 5,       // nothing appears...
-    SELL_ERR_ONLY_EMPTY_BAG                      = 6        // can only do with empty bags
-};
-
-// -1 from client enchantment slot number
-enum EnchantmentSlot : uint16
-{
-    PERM_ENCHANTMENT_SLOT           = 0,
-    TEMP_ENCHANTMENT_SLOT           = 1,
-    SOCK_ENCHANTMENT_SLOT           = 2,
-    SOCK_ENCHANTMENT_SLOT_2         = 3,
-    SOCK_ENCHANTMENT_SLOT_3         = 4,
-    BONUS_ENCHANTMENT_SLOT          = 5,
-    PRISMATIC_ENCHANTMENT_SLOT      = 6,                    // added at apply special permanent enchantment
-    USE_ENCHANTMENT_SLOT            = 7,
-
-    MAX_INSPECTED_ENCHANTMENT_SLOT  = 8,
-
-    PROP_ENCHANTMENT_SLOT_0         = 8,                   // used with RandomSuffix
-    PROP_ENCHANTMENT_SLOT_1         = 9,                   // used with RandomSuffix
-    PROP_ENCHANTMENT_SLOT_2         = 10,                   // used with RandomSuffix and RandomProperty
-    PROP_ENCHANTMENT_SLOT_3         = 11,                   // used with RandomProperty
-    PROP_ENCHANTMENT_SLOT_4         = 12,                   // used with RandomProperty
-    MAX_ENCHANTMENT_SLOT            = 13
-};
-
-#define MAX_VISIBLE_ITEM_OFFSET       2                     // 2 fields per visible item (entry+enchantment)
-
 #define MAX_GEM_SOCKETS               MAX_ITEM_PROTO_SOCKETS// (BONUS_ENCHANTMENT_SLOT-SOCK_ENCHANTMENT_SLOT) and item proto size, equal value expected
 
 enum EnchantmentOffset
@@ -207,16 +56,6 @@ enum EnchantmentOffset
 
 #define MAX_ENCHANTMENT_OFFSET    3
 
-enum EnchantmentSlotMask
-{
-    ENCHANTMENT_CAN_SOULBOUND           = 0x01,
-    ENCHANTMENT_UNK1                    = 0x02,
-    ENCHANTMENT_UNK2                    = 0x04,
-    ENCHANTMENT_UNK3                    = 0x08,
-    ENCHANTMENT_COLLECTABLE             = 0x100,
-    ENCHANTMENT_HIDE_IF_NOT_COLLECTED   = 0x200,
-};
-
 enum ItemUpdateState
 {
     ITEM_UNCHANGED                               = 0,
@@ -225,36 +64,6 @@ enum ItemUpdateState
     ITEM_REMOVED                                 = 3
 };
 
-enum ItemModifier : uint16
-{
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS         = 0,
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1            = 1,
-    ITEM_MODIFIER_UPGRADE_ID                            = 2,
-    ITEM_MODIFIER_BATTLE_PET_SPECIES_ID                 = 3,
-    ITEM_MODIFIER_BATTLE_PET_BREED_DATA                 = 4, // (breedId) | (breedQuality << 24)
-    ITEM_MODIFIER_BATTLE_PET_LEVEL                      = 5,
-    ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID                 = 6,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS            = 7,
-    ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID                = 8,
-    ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL = 9,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1               = 10,
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2            = 11,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2               = 12,
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3            = 13,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3               = 13,
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4            = 15,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4               = 16,
-    ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID       = 17,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL              = 18,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1         = 19,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2         = 20,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3         = 21,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_IS_CHARGED         = 22,
-    ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL              = 23,
-    ITEM_MODIFIER_ARTIFACT_TIER                         = 24,
-
-    MAX_ITEM_MODIFIERS
-};
 
 #define MAX_ITEM_SPELLS 5
 
@@ -272,11 +81,15 @@ struct BonusData
     int32 ItemStatAllocation[MAX_ITEM_PROTO_STATS];
     float ItemStatSocketCostMultiplier[MAX_ITEM_PROTO_STATS];
     uint32 SocketColor[MAX_ITEM_PROTO_SOCKETS];
+    ItemBondingType Bonding;
     uint32 AppearanceModID;
     float RepairCostMultiplier;
     uint32 ScalingStatDistribution;
     uint32 ItemLevelOverride;
     uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
+    int32 GemRelicType[MAX_ITEM_PROTO_SOCKETS];
+    uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
+    int32 RelicType;
     bool HasItemLevelBonus;
 
     void Initialize(ItemTemplate const* proto);
@@ -313,6 +126,8 @@ struct ItemDynamicFieldGems
 
 class TC_GAME_API Item : public Object
 {
+    friend void AddItemToUpdateQueueOf(Item* item, Player* player);
+    friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
         static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);
         Item* CloneItem(uint32 count, Player const* player = NULL) const;
@@ -328,6 +143,7 @@ class TC_GAME_API Item : public Object
         void SetOwnerGUID(ObjectGuid guid) { SetGuidValue(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
 
+        ItemBondingType GetBonding() const { return _bonusData.Bonding; }
         void SetBinding(bool val) { ApplyModFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND, val); }
         bool IsSoulBound() const { return HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_SOULBOUND); }
         bool IsBoundAccountWide() const { return (GetTemplate()->GetFlags() & ITEM_FLAG_IS_BOUND_TO_ACCOUNT) != 0; }
@@ -336,7 +152,7 @@ class TC_GAME_API Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(SQLTransaction& trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
-        void LoadArtifactData(uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
+        void LoadArtifactData(Player* owner, uint64 xp, uint32 artifactAppearanceId, std::vector<ItemDynamicFieldArtifactPowers>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
 
         void AddBonuses(uint32 bonusListID);
 
@@ -399,7 +215,6 @@ class TC_GAME_API Item : public Object
         uint32 GetItemSuffixFactor() const { return GetUInt32Value(ITEM_FIELD_PROPERTY_SEED); }
         void SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId);
         void UpdateItemSuffixFactor();
-        static ItemRandomEnchantmentId GenerateItemRandomPropertyId(uint32 item_id);
         ItemRandomEnchantmentId GetItemRandomEnchantmentId() const { return m_randomEnchantment; }
         void SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges, ObjectGuid caster = ObjectGuid::Empty);
         void SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player* owner);
@@ -430,7 +245,6 @@ class TC_GAME_API Item : public Object
         // Update States
         ItemUpdateState GetState() const { return uState; }
         void SetState(ItemUpdateState state, Player* forplayer = NULL);
-        void AddToUpdateQueueOf(Player* player);
         void RemoveFromUpdateQueueOf(Player* player);
         bool IsInUpdateQueue() const { return uQueuePos != -1; }
         uint16 GetQueuePos() const { return uQueuePos; }
@@ -510,9 +324,9 @@ class TC_GAME_API Item : public Object
         ItemDynamicFieldArtifactPowers const* GetArtifactPower(uint32 artifactPowerId) const;
         void SetArtifactPower(ItemDynamicFieldArtifactPowers const* artifactPower, bool createIfMissing = false);
 
-        void InitArtifactPowers(uint8 artifactId);
+        void InitArtifactPowers(uint8 artifactId, uint8 artifactTier);
         uint32 GetTotalPurchasedArtifactPowers() const;
-        void ApplyArtifactPowerEnchantmentBonuses(uint32 enchantId, bool apply, Player* owner);
+        void ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enchantId, bool apply, Player* owner);
         void CopyArtifactDataFromParent(Item* parent);
 
         void GiveArtifactXp(uint64 amount, Item* sourceItem, uint32 artifactCategoryId);

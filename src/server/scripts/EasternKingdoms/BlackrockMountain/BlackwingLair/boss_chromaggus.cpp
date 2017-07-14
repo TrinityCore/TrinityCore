@@ -17,9 +17,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
 #include "blackwing_lair.h"
+#include "Map.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 
 enum Emotes
 {
@@ -290,7 +291,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_chromaggusAI>(creature);
+        return GetBlackwingLairAI<boss_chromaggusAI>(creature);
     }
 };
 

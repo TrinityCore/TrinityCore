@@ -36,8 +36,14 @@ at_area_52_entrance
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "DB2Structure.h"
+#include "GameObject.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "Player.h"
+#include "TemporarySummon.h"
+#include "World.h"
 
 /*######
 ## at_coilfang_waterfall

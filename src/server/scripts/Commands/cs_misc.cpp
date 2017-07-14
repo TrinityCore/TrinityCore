@@ -15,31 +15,47 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Chat.h"
-#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "ArenaTeamMgr.h"
 #include "CellImpl.h"
+#include "Chat.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "DisableMgr.h"
 #include "GridNotifiers.h"
 #include "Group.h"
+#include "GroupMgr.h"
 #include "InstanceSaveMgr.h"
+#include "Item.h"
 #include "Language.h"
+#include "LFG.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "MiscPackets.h"
+#include "MMapFactory.h"
 #include "MovementGenerator.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
-#include "SpellAuras.h"
-#include "TargetedMovementGenerator.h"
-#include "WeatherMgr.h"
-#include "Player.h"
 #include "Pet.h"
-#include "LFG.h"
-#include "GroupMgr.h"
-#include "MMapFactory.h"
-#include "DisableMgr.h"
+#include "Player.h"
+#include "Realm.h"
+#include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "SpellHistory.h"
-#include "MiscPackets.h"
+#include "SpellMgr.h"
+#include "TargetedMovementGenerator.h"
 #include "Transport.h"
-#include "MapManager.h"
+#include "Weather.h"
+#include "WeatherMgr.h"
+#include "World.h"
+#include "WorldSession.h"
+#include <boost/asio/ip/address_v4.hpp>
+
+ // temporary hack until database includes are sorted out (don't want to pull in Windows.h everywhere from mysql.h)
+#ifdef GetClassName
+#undef GetClassName
+#endif
 
 class misc_commandscript : public CommandScript
 {
@@ -179,7 +195,7 @@ public:
             {
                 case HighGuid::Player:
                 {
-                    object = sObjectMgr->GetPlayerByLowGUID(guidLow);
+                    object = ObjectAccessor::FindConnectedPlayer(ObjectGuid::Create<HighGuid::Player>(guidLow));
                     if (!object)
                     {
                         handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -242,8 +258,8 @@ public:
         sDB2Manager.Map2ZoneCoordinates(zoneId, zoneX, zoneY);
 
         Map const* map = object->GetMap();
-        float groundZ = map->GetHeight(object->GetPhaseMask(), object->GetPositionX(), object->GetPositionY(), MAX_HEIGHT);
-        float floorZ = map->GetHeight(object->GetPhaseMask(), object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
+        float groundZ = map->GetHeight(object->GetPhases(), object->GetPositionX(), object->GetPositionY(), MAX_HEIGHT);
+        float floorZ = map->GetHeight(object->GetPhases(), object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
 
         GridCoord gridCoord = Trinity::ComputeGridCoord(object->GetPositionX(), object->GetPositionY());
 
@@ -816,7 +832,7 @@ public:
             {
                 case HighGuid::Player:
                 {
-                    object = sObjectMgr->GetPlayerByLowGUID(guidLow);
+                    object = ObjectAccessor::GetPlayer(*handler->GetSession()->GetPlayer(), ObjectGuid::Create<HighGuid::Player>(guidLow));
                     if (!object)
                     {
                         handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -1351,7 +1367,7 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId), GuidSet(), bonusListIDs);
+        Item* item = playerTarget->StoreNewItem(dest, itemId, true, GenerateItemRandomPropertyId(itemId), GuidSet(), 0, bonusListIDs);
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
@@ -1420,7 +1436,7 @@ public:
                 InventoryResult msg = playerTarget->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itr->second.GetId(), 1);
                 if (msg == EQUIP_ERR_OK)
                 {
-                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true, {}, GuidSet(), bonusListIDs);
+                    Item* item = playerTarget->StoreNewItem(dest, itr->second.GetId(), true, {}, GuidSet(), 0, bonusListIDs);
 
                     // remove binding (let GM give it to another player later)
                     if (player == playerTarget)
@@ -1768,7 +1784,7 @@ public:
                 lastIp    = fields[4].GetString();
                 lastLogin = fields[5].GetString();
 
-                uint32 ip = inet_addr(lastIp.c_str());
+                uint32 ip = boost::asio::ip::address_v4::from_string(lastIp).to_ulong();;
                 EndianConvertReverse(ip);
 
                 // If ip2nation table is populated, it displays the country
@@ -1978,7 +1994,7 @@ public:
 
         Trinity::RespawnDo u_do;
         Trinity::WorldObjectWorker<Trinity::RespawnDo> worker(player, u_do);
-        player->VisitNearbyGridObject(player->GetGridActivationRange(), worker);
+        Cell::VisitGridObjects(player, worker, player->GetGridActivationRange());
 
         return true;
     }

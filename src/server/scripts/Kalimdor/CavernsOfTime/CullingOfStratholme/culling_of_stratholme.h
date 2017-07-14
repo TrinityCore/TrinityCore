@@ -18,8 +18,11 @@
 #ifndef DEF_CULLING_OF_STRATHOLME_H
 #define DEF_CULLING_OF_STRATHOLME_H
 
-#define DataHeader "CS"
+#include "CreatureAIImpl.h"
+
 #define CoSScriptName "instance_culling_of_stratholme"
+#define DataHeader "CS"
+
 uint32 const EncounterCount = 5;
 
 enum CSDataTypes
@@ -99,5 +102,11 @@ enum CSInstanceEvents
 {
     EVENT_INFINITE_TIMER    = 1
 };
+
+template<typename AI>
+inline AI* GetCullingOfStratholmeAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, CoSScriptName);
+}
 
 #endif

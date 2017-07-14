@@ -23,6 +23,10 @@
 #include "DBCEnums.h"
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
+#include <unordered_map>
+
+class Battleground;
+struct BattlemasterListEntry;
 
 typedef std::map<uint32, Battleground*> BattlegroundContainer;
 typedef std::set<uint32> BattlegroundClientIdsContainer;
@@ -54,7 +58,7 @@ struct BattlegroundTemplate
     uint32 ScriptId;
     BattlemasterListEntry const* BattlemasterEntry;
 
-    bool IsArena() const { return BattlemasterEntry->InstanceType == MAP_ARENA; }
+    bool IsArena() const;
 };
 
 namespace WorldPackets
@@ -84,7 +88,7 @@ class TC_GAME_API BattlegroundMgr
         /* Packet Building */
         void SendBattlegroundList(Player* player, ObjectGuid const& guid, BattlegroundTypeId bgTypeId);
         void BuildBattlegroundStatusHeader(WorldPackets::Battleground::BattlefieldStatusHeader* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 arenaType);
-        void BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime, uint32 arenaType);
+        void BuildBattlegroundStatusNone(WorldPackets::Battleground::BattlefieldStatusNone* battlefieldStatus, Player* player, uint32 ticketId, uint32 joinTime);
         void BuildBattlegroundStatusNeedConfirmation(WorldPackets::Battleground::BattlefieldStatusNeedConfirmation* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 timeout, uint32 arenaType);
         void BuildBattlegroundStatusActive(WorldPackets::Battleground::BattlefieldStatusActive* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 arenaType);
         void BuildBattlegroundStatusQueued(WorldPackets::Battleground::BattlefieldStatusQueued* battlefieldStatus, Battleground* bg, Player* player, uint32 ticketId, uint32 joinTime, uint32 avgWaitTime, uint32 arenaType, bool asGroup);

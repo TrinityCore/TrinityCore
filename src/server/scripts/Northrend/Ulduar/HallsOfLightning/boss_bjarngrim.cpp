@@ -24,8 +24,10 @@ SDCategory: Halls of Lightning
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Yells
 {
@@ -99,7 +101,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_bjarngrimAI>(creature);
+        return GetHallsOfLightningAI<boss_bjarngrimAI>(creature);
     }
 
     struct boss_bjarngrimAI : public ScriptedAI
@@ -392,7 +394,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_stormforged_lieutenantAI>(creature);
+        return GetHallsOfLightningAI<npc_stormforged_lieutenantAI>(creature);
     }
 
     struct npc_stormforged_lieutenantAI : public ScriptedAI

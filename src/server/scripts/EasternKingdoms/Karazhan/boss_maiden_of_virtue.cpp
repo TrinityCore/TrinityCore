@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "karazhan.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -128,7 +128,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_maiden_of_virtueAI(creature);
+        return GetKarazhanAI<boss_maiden_of_virtueAI>(creature);
     }
 };
 

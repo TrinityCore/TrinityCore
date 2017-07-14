@@ -18,11 +18,13 @@
 #ifndef TRINITY_DB2STRUCTURE_H
 #define TRINITY_DB2STRUCTURE_H
 
-#include "Common.h"
+#include "Define.h"
 #include "DBCEnums.h"
 #include "Util.h"
 
 #pragma pack(push, 1)
+
+struct LocalizedString;
 
 struct AchievementEntry
 {
@@ -189,6 +191,12 @@ struct ArtifactPowerLinkEntry
     uint32 ID;
     uint16 FromArtifactPowerID;
     uint16 ToArtifactPowerID;
+};
+
+struct ArtifactPowerPickerEntry
+{
+    uint32 ID;
+    uint32 PlayerConditionID;
 };
 
 struct ArtifactPowerRankEntry
@@ -469,6 +477,19 @@ struct CinematicSequencesEntry
     uint16 Camera[8];
 };
 
+struct ConversationLineEntry
+{
+    uint32 ID;
+    uint32 BroadcastTextID;
+    uint32 SpellVisualKitID;
+    uint32 Duration;
+    uint16 NextLineID;
+    uint16 Unk1;
+    uint8 Yell;
+    uint8 Unk2;
+    uint8 Unk3;
+};
+
 struct CreatureDisplayInfoEntry
 {
     uint32 ID;
@@ -718,7 +739,6 @@ struct CurrencyTypesEntry
 {
     uint32 ID;
     LocalizedString* Name;
-    char const* InventoryIcon[2];
     uint32 MaxQty;
     uint32 MaxEarnablePerWeek;
     uint32 Flags;
@@ -726,6 +746,7 @@ struct CurrencyTypesEntry
     uint8 CategoryID;
     uint8 SpellCategory;
     uint8 Quality;
+    uint32 InventoryIconFileDataID;
     uint32 SpellWeight;
 };
 
@@ -822,12 +843,12 @@ struct EmotesEntry
     char const* EmoteSlashCommand;
     uint32 SpellVisualKitID;
     uint32 EmoteFlags;
+    int32 RaceMask;
     uint16 AnimID;
     uint8 EmoteSpecProc;
     uint32 EmoteSpecProcParam;
     uint32 EmoteSoundID;
     int32 ClassMask;
-    int32 RaceMask;
 };
 
 struct EmotesTextEntry
@@ -1185,8 +1206,8 @@ struct HeirloomEntry
     LocalizedString* SourceText;
     uint32 OldItem[2];
     uint32 NextDifficultyItemID;
-    uint32 UpgradeItemID[2];
-    uint16 ItemBonusListID[2];
+    uint32 UpgradeItemID[3];
+    uint16 ItemBonusListID[3];
     uint8 Flags;
     uint8 Source;
     uint32 ID;
@@ -1200,7 +1221,6 @@ struct HolidaysEntry
 {
     uint32 ID;
     uint32 Date[MAX_HOLIDAY_DATES];                                 // dates in unix time starting at January, 1, 2000
-    char const* TextureFilename;
     uint16 Duration[MAX_HOLIDAY_DURATIONS];
     uint16 Region;
     uint8 Looping;
@@ -1210,6 +1230,7 @@ struct HolidaysEntry
     uint8 Flags;
     uint32 HolidayNameID;
     uint32 HolidayDescriptionID;
+    int32 TextureFileDataID[3];
 };
 
 struct ImportPriceArmorEntry
@@ -1496,10 +1517,6 @@ struct ItemSetSpellEntry
     uint8 Threshold;
 };
 
-#define MAX_ITEM_PROTO_FLAGS 3
-#define MAX_ITEM_PROTO_SOCKETS 3
-#define MAX_ITEM_PROTO_STATS  10
-
 struct ItemSparseEntry
 {
     uint32 ID;
@@ -1614,9 +1631,9 @@ struct KeyChainEntry
 
 struct LfgDungeonsEntry
 {
+    uint32 ID;
     LocalizedString* Name;
     uint32 Flags;
-    char const* TextureFilename;
     LocalizedString* Description;
     float MinItemLevel;
     uint16 MaxLevel;
@@ -1645,7 +1662,9 @@ struct LfgDungeonsEntry
     uint8 MinCountDamage;
     uint8 SubType;
     uint8 MentorCharLevel;
-    uint32 ID;
+    int32 TextureFileDataID;
+    int32 RewardIconFileDataID;
+    int32 ProposalTextureFileDataID;
 
     // Helpers
     uint32 Entry() const { return ID + (Type << 24); }
@@ -1768,6 +1787,7 @@ struct MapDifficultyEntry
     uint8 RaidDurationType;                                 // 1 means daily reset, 2 means weekly
     uint8 MaxPlayers;                                       // m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
     uint8 LockID;
+    uint8 Flags;
     uint8 ItemBonusTreeModID;
     uint32 Context;
 
@@ -2007,6 +2027,17 @@ struct PowerTypeEntry
     uint8 UIModifier;
 };
 
+struct PrestigeLevelInfoEntry
+{
+    uint32 ID;
+    uint32 IconID;
+    LocalizedString* PrestigeText;
+    uint8 PrestigeLevel;
+    uint8 Flags;
+
+    bool IsDisabled() const { return (Flags & PRESTIGE_FLAG_DISABLED) != 0; }
+};
+
 struct PvpDifficultyEntry
 {
     uint32 ID;
@@ -2017,6 +2048,14 @@ struct PvpDifficultyEntry
 
     // helpers
     BattlegroundBracketId GetBracketId() const { return BattlegroundBracketId(BracketID); }
+};
+
+struct PvpRewardEntry
+{
+    uint32 ID;
+    uint32 HonorLevel;
+    uint32 Prestige;
+    uint32 RewardPackID;
 };
 
 struct QuestFactionRewardEntry
@@ -2065,6 +2104,25 @@ struct RandPropPointsEntry
     uint32 EpicPropertiesPoints[5];
     uint32 RarePropertiesPoints[5];
     uint32 UncommonPropertiesPoints[5];
+};
+
+struct RewardPackEntry
+{
+    uint32 ID;
+    uint32 Money;
+    float ArtifactXPMultiplier;
+    uint8 ArtifactXPDifficulty;
+    uint8 ArtifactCategoryID;
+    uint32 TitleID;
+    uint32 Unused;
+};
+
+struct RewardPackXItemEntry
+{
+    uint32 ID;
+    uint32 ItemID;
+    uint32 RewardPackID;
+    uint32 Amount;
 };
 
 struct RulesetItemUpgradeEntry
@@ -2342,9 +2400,6 @@ struct SpellEffectEntry
     float BonusCoefficientFromAP;
     float PvPMultiplier;
 };
-
-#define MAX_SPELL_EFFECTS 32
-#define MAX_EFFECT_MASK 0xFFFFFFFF
 
 struct SpellEffectScalingEntry
 {
@@ -2629,9 +2684,6 @@ struct TactKeyEntry
     uint32 ID;
     uint8 Key[TACTKEY_SIZE];
 };
-
-#define MAX_TALENT_TIERS 7
-#define MAX_TALENT_COLUMNS 3
 
 struct TalentEntry
 {

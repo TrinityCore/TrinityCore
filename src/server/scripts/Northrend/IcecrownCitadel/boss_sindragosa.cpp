@@ -15,12 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
 #include "icecrown_citadel.h"
+#include "GameObject.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Texts
 {
@@ -1066,12 +1076,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             bool Load() override
             {
                 // This script should execute only in Icecrown Citadel
-                if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
-                    if (instance->GetInstanceScript())
-                        if (instance->GetScriptId() == sObjectMgr->GetScriptId(ICCScriptName))
-                            return true;
-
-                return false;
+                return InstanceHasScript(GetCaster(), ICCScriptName);
             }
 
             void SelectDest()
@@ -1224,9 +1229,7 @@ class spell_sindragosa_instability : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BACKLASH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BACKLASH });
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1258,9 +1261,7 @@ class spell_sindragosa_frost_beacon : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ICE_TOMB_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ICE_TOMB_DAMAGE });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
@@ -1314,7 +1315,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                         {
                             summon->AI()->SetGUID(GetTarget()->GetGUID(), DATA_TRAPPED_PLAYER);
                             GetTarget()->CastSpell(GetTarget(), SPELL_ICE_TOMB_UNTARGETABLE);
-                            if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos, G3D::Quat(), 0))
+                            if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos, QuaternionData(), 0))
                             {
                                 go->SetSpellId(SPELL_ICE_TOMB_DAMAGE);
                                 summon->AddGameObject(go);
@@ -1353,9 +1354,7 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ICY_GRIP_JUMP))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ICY_GRIP_JUMP });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -1427,9 +1426,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ICY_BLAST_AREA))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_ICY_BLAST_AREA });
             }
 
             void HandleTriggerMissile(SpellEffIndex effIndex)
@@ -1479,9 +1476,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FOCUS_FIRE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FOCUS_FIRE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1554,7 +1549,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                 {
-                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->GetEffect(caster, EFFECT_1)->CalcValue()));
+                    caster->AddThreat(GetTarget(), -float(GetSpellInfo()->GetEffect(caster->GetMap()->GetDifficultyID(), EFFECT_1)->CalcValue()));
                     caster->GetAI()->SetData(DATA_WHELP_MARKER, 0);
                 }
             }

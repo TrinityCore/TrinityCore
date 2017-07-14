@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "gundrak.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "gundrak.h"
 
 /// @todo: implement mojo frenzy
 

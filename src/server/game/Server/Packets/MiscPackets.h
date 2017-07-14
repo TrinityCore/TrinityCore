@@ -19,15 +19,20 @@
 #define MiscPackets_h__
 
 #include "Packet.h"
-#include "ObjectGuid.h"
-#include "WorldSession.h"
-#include "G3D/Vector3.h"
-#include "Object.h"
-#include "Unit.h"
-#include "Player.h"
-#include "Weather.h"
 #include "CollectionMgr.h"
+#include "CUFProfile.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
 #include "PacketUtilities.h"
+#include "Position.h"
+#include "SharedDefines.h"
+#include <array>
+#include <map>
+#include <set>
+
+enum MountStatusFlags : uint8;
+enum UnitStandStateType : uint8;
+enum WeatherState : uint32;
 
 namespace WorldPackets
 {
@@ -40,8 +45,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 BindMapID = MAPID_INVALID;
-            G3D::Vector3 BindPosition;
+            uint32 BindMapID = 0;
+            TaggedPosition<Position::XYZ> BindPosition;
             uint32 BindAreaID = 0;
         };
 
@@ -307,7 +312,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 MapID = 0;
-            G3D::Vector3 Loc;
+            TaggedPosition<Position::XYZ> Loc;
         };
 
         class PortGraveyard final : public ClientPacket
@@ -388,7 +393,7 @@ namespace WorldPackets
 
             bool Abrupt = false;
             float Intensity = 0.0f;
-            WeatherState WeatherID = WEATHER_STATE_FINE;
+            WeatherState WeatherID = WeatherState(0);
         };
 
         class StandStateChange final : public ClientPacket
@@ -398,7 +403,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            UnitStandStateType StandState = UNIT_STAND_STATE_STAND;
+            UnitStandStateType StandState = UnitStandStateType(0);
         };
 
         class StandStateUpdate final : public ServerPacket
@@ -410,7 +415,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 AnimKitID = 0;
-            UnitStandStateType State = UNIT_STAND_STATE_STAND;
+            UnitStandStateType State = UnitStandStateType(0);
         };
 
         class StartMirrorTimer final : public ServerPacket
@@ -589,7 +594,7 @@ namespace WorldPackets
             ObjectGuid TargetObjectGUID;
             ObjectGuid SourceObjectGUID;
             int32 SoundKitID = 0;
-            G3D::Vector3 Position;
+            TaggedPosition<::Position::XYZ> Position;
         };
 
         class TC_GAME_API PlaySound final : public ServerPacket
@@ -762,20 +767,6 @@ namespace WorldPackets
             bool EnablePVP = false;
         };
 
-        class WorldTeleport final : public ClientPacket
-        {
-        public:
-            WorldTeleport(WorldPacket&& packet) : ClientPacket(CMSG_WORLD_TELEPORT, std::move(packet)) { }
-
-            void Read() override;
-
-            uint32 MapID = 0;
-            ObjectGuid TransportGUID;
-            G3D::Vector3 Pos;
-            float Facing = 0.0f;
-            int32 LfgDungeonID = 0;
-        };
-
         class AccountHeirloomUpdate final : public ServerPacket
         {
         public:
@@ -784,7 +775,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             bool IsFullUpdate = false;
-            HeirloomContainer const* Heirlooms = nullptr;
+            std::map<uint32, HeirloomData> const* Heirlooms = nullptr;
             int32 Unk = 0;
         };
 
@@ -874,6 +865,14 @@ namespace WorldPackets
 
             uint32 MountSpellID = 0;
             bool IsFavorite = false;
+        };
+
+        class PvpPrestigeRankUp final : public ClientPacket
+        {
+        public:
+            PvpPrestigeRankUp(WorldPacket&& packet) : ClientPacket(CMSG_PVP_PRESTIGE_RANK_UP, std::move(packet)) { }
+
+            void Read() override { }
         };
     }
 }

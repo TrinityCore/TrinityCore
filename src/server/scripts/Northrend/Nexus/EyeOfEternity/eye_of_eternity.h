@@ -18,6 +18,9 @@
 #ifndef DEF_EYE_OF_ETERNITY_H
 #define DEF_EYE_OF_ETERNITY_H
 
+#include "CreatureAIImpl.h"
+
+#define EoEScriptName "instance_eye_of_eternity"
 #define DataHeader "EOE"
 
 enum InstanceData
@@ -83,5 +86,11 @@ enum InstanceSpells
     SPELL_IRIS_OPENED                     = 61012, // visual when starting encounter
     SPELL_SUMMOM_RED_DRAGON_BUDDY         = 56070
 };
+
+template<typename AI>
+inline AI* GetEyeOfEternityAI(Creature* creature)
+{
+    return GetInstanceAI<AI>(creature, EoEScriptName);
+}
 
 #endif

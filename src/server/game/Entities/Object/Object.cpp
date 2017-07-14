@@ -17,35 +17,37 @@
  */
 
 #include "Object.h"
-#include "Common.h"
-#include "SharedDefines.h"
-#include "WorldPacket.h"
-#include "Opcodes.h"
-#include "Log.h"
-#include "World.h"
-#include "Creature.h"
-#include "Player.h"
-#include "Vehicle.h"
-#include "ObjectMgr.h"
-#include "UpdateData.h"
-#include "Util.h"
-#include "ObjectAccessor.h"
-#include "Transport.h"
-#include "VMapFactory.h"
+#include "AreaTriggerTemplate.h"
+#include "BattlefieldMgr.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
+#include "CinematicMgr.h"
+#include "Common.h"
+#include "Creature.h"
 #include "GridNotifiersImpl.h"
+#include "InstanceScenario.h"
+#include "Item.h"
+#include "Log.h"
+#include "MiscPackets.h"
+#include "MovementPackets.h"
+#include "MovementTypedefs.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
+#include "Player.h"
+#include "SharedDefines.h"
 #include "SpellAuraEffects.h"
-#include "UpdateFieldFlags.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
-#include "MovementPackets.h"
-#include "OutdoorPvPMgr.h"
+#include "Transport.h"
 #include "Unit.h"
-#include "BattlefieldMgr.h"
-#include "MiscPackets.h"
-#include "InstanceScenario.h"
-#include "AreaTriggerTemplate.h"
+#include "UpdateData.h"
+#include "UpdateFieldFlags.h"
+#include "Util.h"
+#include "VMapFactory.h"
+#include "Vehicle.h"
+#include "World.h"
+#include "WorldSession.h"
+#include <G3D/Vector3.h>
 
 Object::Object()
 {
@@ -127,7 +129,6 @@ void Object::_Create(ObjectGuid const& guid)
 
     SetGuidValue(OBJECT_FIELD_GUID, guid);
     SetUInt16Value(OBJECT_FIELD_TYPE, 0, m_objectType);
-    m_PackGUID.Set(guid);
 }
 
 std::string Object::_ConcatFields(uint16 startIndex, uint16 size) const
@@ -182,6 +183,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         case HighGuid::Corpse:
         case HighGuid::DynamicObject:
         case HighGuid::AreaTrigger:
+        case HighGuid::Conversation:
             updateType = UPDATETYPE_CREATE_OBJECT2;
             break;
         case HighGuid::Creature:
@@ -238,7 +240,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
     ByteBuffer buf(0x400);
     buf << uint8(updateType);
-    buf << GetPackGUID();
+    buf << GetGUID();
     buf << uint8(m_objectTypeId);
 
     BuildMovementUpdate(&buf, flags);
@@ -258,7 +260,7 @@ void Object::SendUpdateToPlayer(Player* player)
     else
         BuildCreateUpdateBlockForPlayer(&upd, player);
     upd.BuildPacket(&packet);
-    player->GetSession()->SendPacket(&packet);
+    player->SendDirectMessage(&packet);
 }
 
 void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const
@@ -266,7 +268,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
     ByteBuffer buf(500);
 
     buf << uint8(UPDATETYPE_VALUES);
-    buf << GetPackGUID();
+    buf << GetGUID();
 
     BuildValuesUpdate(UPDATETYPE_VALUES, &buf, target);
     BuildDynamicValuesUpdate(UPDATETYPE_VALUES, &buf, target);
@@ -353,10 +355,16 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     bool SmoothPhasing = false;
     bool SceneObjCreate = false;
     bool PlayerCreateData = false;
+    std::vector<uint32> const* PauseTimes = nullptr;
     uint32 PauseTimesCount = 0;
     if (GameObject const* go = ToGameObject())
+    {
         if (go->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
-            PauseTimesCount = go->GetGOValue()->Transport.StopFrames->size();
+        {
+            PauseTimes = go->GetGOValue()->Transport.StopFrames;
+            PauseTimesCount = PauseTimes->size();
+        }
+    }
 
     data->WriteBit(NoBirthAnim);
     data->WriteBit(EnablePortals);
@@ -384,7 +392,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         bool HasFall = HasFallDirection || unit->m_movementInfo.jump.fallTime != 0;
         bool HasSpline = unit->IsSplineEnabled();
 
-        *data << GetPackGUID();                                         // MoverGUID
+        *data << GetGUID();                                             // MoverGUID
 
         *data << uint32(unit->m_movementInfo.time);                     // MoveTime
         *data << float(unit->GetPositionX());
@@ -445,7 +453,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         //    *data << ObjectGuid(ID);
         //    *data << Vector3(Origin);
         //    *data << Vector3(Direction);
-        //    *data << int32(TransportID);
+        //    *data << uint32(TransportID);
         //    *data << float(Magnitude);
         //    data->WriteBits(Type, 2);
         //}
@@ -500,9 +508,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     if (Rotation)
         *data << uint64(ToGameObject()->GetPackedWorldRotation());      // Rotation
 
-    if (GameObject const* go = ToGameObject())
-        for (uint32 i = 0; i < PauseTimesCount; ++i)
-            *data << uint32(go->GetGOValue()->Transport.StopFrames->at(i));
+    if (PauseTimesCount)
+        data->append(PauseTimes->data(), PauseTimes->size());
 
     if (HasMovementTransport)
     {
@@ -518,7 +525,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         *data << uint32(areaTrigger->GetTimeSinceCreated());
 
-        *data << areaTrigger->GetRollPitchYaw();
+        *data << areaTrigger->GetRollPitchYaw().PositionXYZStream();
 
         bool hasAbsoluteOrientation = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_ABSOLUTE_ORIENTATION);
         bool hasDynamicShape        = areaTriggerTemplate->HasFlag(AREATRIGGER_FLAG_HAS_DYNAMIC_SHAPE);
@@ -569,19 +576,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
 
         if (hasAreaTriggerSpline)
         {
-            std::vector<G3D::Vector3> const& splinePoints = areaTrigger->GetSpline().getPoints();
-
             *data << uint32(areaTrigger->GetTimeToTarget());
             *data << uint32(areaTrigger->GetElapsedTimeForMovement());
 
-            data->WriteBits(splinePoints.size(), 16);
-
-            for (G3D::Vector3 const& spline : splinePoints)
-                *data << spline;
+            WorldPackets::Movement::CommonMovement::WriteCreateObjectAreaTriggerSpline(areaTrigger->GetSpline(), *data);
         }
 
         if (hasTargetRollPitchYaw)
-            *data << areaTrigger->GetTargetRollPitchYaw();
+            *data << areaTrigger->GetTargetRollPitchYaw().PositionXYZStream();
 
         if (hasScaleCurveID)
             *data << uint32(areaTriggerMiscTemplate->ScaleCurveId);
@@ -624,10 +626,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
             *data << float(areaTriggerTemplate->PolygonDatas.Height);
             *data << float(areaTriggerTemplate->PolygonDatas.HeightTarget);
 
-            for (G3D::Vector2 const& vertice : areaTriggerTemplate->PolygonVertices)
+            for (TaggedPosition<Position::XY> const& vertice : areaTriggerTemplate->PolygonVertices)
                 *data << vertice;
 
-            for (G3D::Vector2 const& vertice : areaTriggerTemplate->PolygonVerticesTarget)
+            for (TaggedPosition<Position::XY> const& vertice : areaTriggerTemplate->PolygonVerticesTarget)
                 *data << vertice;
         }
 
@@ -665,11 +667,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
         }
     }
 
-    //if (GameObject)
+    //if (HasGameObject)
     //{
     //    *data << uint32(WorldEffectID);
-
     //    data->WriteBit(bit8);
+    //    data->FlushBits();
     //    if (bit8)
     //        *data << uint32(Int1);
     //}
@@ -677,7 +679,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //if (SmoothPhasing)
     //{
     //    data->WriteBit(ReplaceActive);
-    //    data->WriteBit(HasReplaceObjectt);
+    //    data->WriteBit(HasReplaceObject);
+    //    data->FlushBits();
     //    if (HasReplaceObject)
     //        *data << ObjectGuid(ReplaceObject);
     //}
@@ -686,10 +689,12 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //{
     //    data->WriteBit(HasLocalScriptData);
     //    data->WriteBit(HasPetBattleFullUpdate);
+    //    data->FlushBits();
 
     //    if (HasLocalScriptData)
     //    {
     //        data->WriteBits(Data.length(), 7);
+    //        data->FlushBits();
     //        data->WriteString(Data);
     //    }
 
@@ -705,6 +710,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //            *data << uint8(Players[i].InputFlags);
 
     //            data->WriteBits(Players[i].Pets.size(), 2);
+    //            data->FlushBits();
     //            for (std::size_t j = 0; j < Players[i].Pets.size(); ++j)
     //            {
     //                *data << ObjectGuid(Players[i].Pets[j].BattlePetGUID);
@@ -750,6 +756,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //                }
 
     //                data->WriteBits(Players[i].Pets[j].CustomName.length(), 7);
+    //                data->FlushBits();
     //                data->WriteString(Players[i].Pets[j].CustomName);
     //            }
     //        }
@@ -784,6 +791,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //        *data << ObjectGuid(InitialWildPetGUID);
     //        data->WriteBit(IsPVP);
     //        data->WriteBit(CanAwardXP);
+    //        data->FlushBits();
     //    }
     //}
 
@@ -791,6 +799,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint32 flags) const
     //{
     //    data->WriteBit(HasSceneInstanceIDs);
     //    data->WriteBit(HasRuneState);
+    //    data->FlushBits();
     //    if (HasSceneInstanceIDs)
     //    {
     //        *data << uint32(SceneInstanceIDs.size());
@@ -1012,6 +1021,9 @@ uint32 Object::GetDynamicUpdateFieldData(Player const* target, uint32*& flags) c
             break;
         case TYPEID_CONVERSATION:
             flags = ConversationDynamicUpdateFieldFlags;
+
+            if (ToConversation()->GetCreatorGuid() == target->GetGUID())
+                visibleFlag |= UF_FLAG_0x100;
             break;
         default:
             flags = nullptr;
@@ -1755,7 +1767,7 @@ bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
         else
             GetHitSpherePointFor({ ox, oy, oz }, x, y, z);
 
-        return GetMap()->isInLineOfSight(x, y, z + 2.0f, ox, oy, oz + 2.0f, GetPhaseMask());
+        return GetMap()->isInLineOfSight(x, y, z + 2.0f, ox, oy, oz + 2.0f, GetPhases());
     }
 
     return true;
@@ -1925,7 +1937,7 @@ Position WorldObject::GetRandomPoint(const Position &srcPos, float distance) con
 
 void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
 {
-    float new_z = GetMap()->GetHeight(GetPhaseMask(), x, y, z + 2.0f, true);
+    float new_z = GetMap()->GetHeight(GetPhases(), x, y, z + 2.0f, true);
     if (new_z > INVALID_HEIGHT)
         z = new_z + 0.05f;                                   // just to be sure that we are not a few pixel under the surface
 }
@@ -1947,8 +1959,8 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
                 bool canSwim = ToCreature()->CanSwim();
                 float ground_z = z;
                 float max_z = canSwim
-                    ? GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))
-                    : ((ground_z = GetMap()->GetHeight(GetPhaseMask(), x, y, z, true)));
+                    ? GetMap()->GetWaterOrGroundLevel(GetPhases(), x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))
+                    : ((ground_z = GetMap()->GetHeight(GetPhases(), x, y, z, true)));
                 if (max_z > INVALID_HEIGHT)
                 {
                     if (z > max_z)
@@ -1959,7 +1971,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             }
             else
             {
-                float ground_z = GetMap()->GetHeight(GetPhaseMask(), x, y, z, true);
+                float ground_z = GetMap()->GetHeight(GetPhases(), x, y, z, true);
                 if (z < ground_z)
                     z = ground_z;
             }
@@ -1971,7 +1983,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             if (!ToPlayer()->CanFly())
             {
                 float ground_z = z;
-                float max_z = GetMap()->GetWaterOrGroundLevel(GetPhaseMask(), x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK));
+                float max_z = GetMap()->GetWaterOrGroundLevel(GetPhases(), x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK));
                 if (max_z > INVALID_HEIGHT)
                 {
                     if (z > max_z)
@@ -1982,7 +1994,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             }
             else
             {
-                float ground_z = GetMap()->GetHeight(GetPhaseMask(), x, y, z, true);
+                float ground_z = GetMap()->GetHeight(GetPhases(), x, y, z, true);
                 if (z < ground_z)
                     z = ground_z;
             }
@@ -1990,7 +2002,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         }
         default:
         {
-            float ground_z = GetMap()->GetHeight(GetPhaseMask(), x, y, z, true);
+            float ground_z = GetMap()->GetHeight(GetPhases(), x, y, z, true);
             if (ground_z > INVALID_HEIGHT)
                 z = ground_z;
             break;
@@ -2059,7 +2071,7 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (this == obj)
         return true;
 
-    if (obj->IsNeverVisible() || CanNeverSee(obj))
+    if (obj->IsNeverVisibleFor(this) || CanNeverSee(obj))
         return false;
 
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
@@ -2267,13 +2279,13 @@ void WorldObject::SendMessageToSet(WorldPacket const* data, bool self)
 void WorldObject::SendMessageToSetInRange(WorldPacket const* data, float dist, bool /*self*/)
 {
     Trinity::MessageDistDeliverer notifier(this, data, dist);
-    VisitNearbyWorldObject(dist, notifier);
+    Cell::VisitWorldObjects(this, notifier, dist);
 }
 
 void WorldObject::SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr)
 {
     Trinity::MessageDistDeliverer notifier(this, data, GetVisibilityRange(), false, skipped_rcvr);
-    VisitNearbyWorldObject(GetVisibilityRange(), notifier);
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 }
 
 void WorldObject::SetMap(Map* map)
@@ -2415,7 +2427,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
     // call MoveInLineOfSight for nearby creatures
     Trinity::AIRelocationNotifier notifier(*summon);
-    summon->VisitNearbyObject(GetVisibilityRange(), notifier);
+    Cell::VisitAllObjects(summon, notifier, GetVisibilityRange());
 
     return summon;
 }
@@ -2491,7 +2503,7 @@ TempSummon* WorldObject::SummonCreature(uint32 id, float x, float y, float z, fl
     return SummonCreature(id, pos, spwtype, despwtime, 0);
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, G3D::Quat const& rot, uint32 respawnTime)
+GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime)
 {
     if (!IsInWorld())
         return nullptr;
@@ -2523,7 +2535,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, Position const& pos, G3D
     return go;
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, G3D::Quat const& rot, uint32 respawnTime)
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime)
 {
     if (!x && !y && !z)
     {
@@ -2582,7 +2594,7 @@ Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive
     Creature* creature = NULL;
     Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck checker(*this, entry, alive, range);
     Trinity::CreatureLastSearcher<Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(this, creature, checker);
-    VisitNearbyObject(range, searcher);
+    Cell::VisitAllObjects(this, searcher, range);
     return creature;
 }
 
@@ -2591,7 +2603,7 @@ GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
     GameObject* go = NULL;
     Trinity::NearestGameObjectEntryInObjectRangeCheck checker(*this, entry, range);
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
-    VisitNearbyGridObject(range, searcher);
+    Cell::VisitGridObjects(this, searcher, range);
     return go;
 }
 
@@ -2600,41 +2612,29 @@ GameObject* WorldObject::FindNearestGameObjectOfType(GameobjectTypes type, float
     GameObject* go = NULL;
     Trinity::NearestGameObjectTypeInObjectRangeCheck checker(*this, type, range);
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectTypeInObjectRangeCheck> searcher(this, go, checker);
-    VisitNearbyGridObject(range, searcher);
+    Cell::VisitGridObjects(this, searcher, range);
     return go;
 }
 
 void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>& gameobjectList, uint32 entry, float maxSearchRange) const
 {
-    CellCoord pair(Trinity::ComputeCellCoord(this->GetPositionX(), this->GetPositionY()));
-    Cell cell(pair);
-    cell.SetNoCreate();
-
     Trinity::AllGameObjectsWithEntryInRange check(this, entry, maxSearchRange);
     Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInRange> searcher(this, gameobjectList, check);
-    TypeContainerVisitor<Trinity::GameObjectListSearcher<Trinity::AllGameObjectsWithEntryInRange>, GridTypeMapContainer> visitor(searcher);
-
-    cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
+    Cell::VisitGridObjects(this, searcher, maxSearchRange);
 }
 
 void WorldObject::GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureList, uint32 entry, float maxSearchRange) const
 {
-    CellCoord pair(Trinity::ComputeCellCoord(this->GetPositionX(), this->GetPositionY()));
-    Cell cell(pair);
-    cell.SetNoCreate();
-
     Trinity::AllCreaturesOfEntryInRange check(this, entry, maxSearchRange);
     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(this, creatureList, check);
-    TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> visitor(searcher);
-
-    cell.Visit(pair, visitor, *(this->GetMap()), *this, maxSearchRange);
+    Cell::VisitGridObjects(this, searcher, maxSearchRange);
 }
 
 void WorldObject::GetPlayerListInGrid(std::list<Player*>& playerList, float maxSearchRange) const
 {
     Trinity::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange);
     Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, playerList, checker);
-    this->VisitNearbyWorldObject(maxSearchRange, searcher);
+    Cell::VisitWorldObjects(this, searcher, maxSearchRange);
 }
 
 /*
@@ -2810,8 +2810,8 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
         return;
     }
 
-    ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
-    floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
+    ground = GetMap()->GetHeight(GetPhases(), destx, desty, MAX_HEIGHT, true);
+    floor = GetMap()->GetHeight(GetPhases(), destx, desty, pos.m_positionZ, true);
     destz = std::fabs(ground - pos.m_positionZ) <= std::fabs(floor - pos.m_positionZ) ? ground : floor;
 
     float step = dist/10.0f;
@@ -2823,8 +2823,8 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
         {
             destx -= step * std::cos(angle);
             desty -= step * std::sin(angle);
-            ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
-            floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
+            ground = GetMap()->GetHeight(GetPhases(), destx, desty, MAX_HEIGHT, true);
+            floor = GetMap()->GetHeight(GetPhases(), destx, desty, pos.m_positionZ, true);
             destz = std::fabs(ground - pos.m_positionZ) <= std::fabs(floor - pos.m_positionZ) ? ground : floor;
         }
         // we have correct destz now
@@ -2844,8 +2844,8 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
 // @todo: replace with WorldObject::UpdateAllowedPositionZ
 float NormalizeZforCollision(WorldObject* obj, float x, float y, float z)
 {
-    float ground = obj->GetMap()->GetHeight(obj->GetPhaseMask(), x, y, MAX_HEIGHT, true);
-    float floor = obj->GetMap()->GetHeight(obj->GetPhaseMask(), x, y, z + 2.0f, true);
+    float ground = obj->GetMap()->GetHeight(obj->GetPhases(), x, y, MAX_HEIGHT, true);
+    float floor = obj->GetMap()->GetHeight(obj->GetPhases(), x, y, z + 2.0f, true);
     float helper = std::fabs(ground - z) <= std::fabs(floor - z) ? ground : floor;
     if (z > helper) // must be above ground
     {
@@ -2894,7 +2894,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     }
 
     // check dynamic collision
-    col = GetMap()->getObjectHitPos(GetPhaseMask(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
+    col = GetMap()->getObjectHitPos(GetPhases(), pos.m_positionX, pos.m_positionY, pos.m_positionZ + 0.5f, destx, desty, destz + 0.5f, destx, desty, destz, -0.5f);
 
     // Collided with a gameobject
     if (col)
@@ -3071,22 +3071,27 @@ void WorldObject::ClearPhases(bool update)
         UpdateObjectVisibility();
 }
 
-bool WorldObject::IsInPhase(WorldObject const* obj) const
+bool WorldObject::IsInPhase(std::set<uint32> const& phases) const
 {
     // PhaseId 169 is the default fallback phase
-    if (_phases.empty() && obj->GetPhases().empty())
+    if (_phases.empty() && phases.empty())
         return true;
 
-    if (_phases.empty() && obj->IsInPhase(DEFAULT_PHASE))
+    if (_phases.empty() && phases.count(DEFAULT_PHASE) > 0)
         return true;
 
-    if (obj->GetPhases().empty() && IsInPhase(DEFAULT_PHASE))
+    if (phases.empty() && _phases.count(DEFAULT_PHASE) > 0)
         return true;
 
+    return Trinity::Containers::Intersects(_phases.begin(), _phases.end(), phases.begin(), phases.end());
+}
+
+bool WorldObject::IsInPhase(WorldObject const* obj) const
+{
     if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->IsGameMaster())
         return true;
 
-    return Trinity::Containers::Intersects(_phases.begin(), _phases.end(), obj->GetPhases().begin(), obj->GetPhases().end());
+    return IsInPhase(obj->GetPhases());
 }
 
 void WorldObject::PlayDistanceSound(uint32 soundId, Player* target /*= nullptr*/)
@@ -3113,7 +3118,7 @@ void WorldObject::DestroyForNearbyPlayers()
     std::list<Player*> targets;
     Trinity::AnyPlayerInObjectRangeCheck check(this, GetVisibilityRange(), false);
     Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, targets, check);
-    VisitNearbyWorldObject(GetVisibilityRange(), searcher);
+    Cell::VisitWorldObjects(this, searcher, GetVisibilityRange());
     for (std::list<Player*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
     {
         Player* player = (*iter);
@@ -3136,7 +3141,7 @@ void WorldObject::UpdateObjectVisibility(bool /*forced*/)
 {
     //updates object's visibility for nearby players
     Trinity::VisibleChangesNotifier notifier(*this);
-    VisitNearbyWorldObject(GetVisibilityRange(), notifier);
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 }
 
 struct WorldObjectChangeAccumulator
@@ -3211,14 +3216,9 @@ struct WorldObjectChangeAccumulator
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
 {
-    CellCoord p = Trinity::ComputeCellCoord(GetPositionX(), GetPositionY());
-    Cell cell(p);
-    cell.SetNoCreate();
     WorldObjectChangeAccumulator notifier(*this, data_map);
-    TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
-    Map& map = *GetMap();
     //we must build packets for all visible players
-    cell.Visit(p, player_notifier, map, *this, GetVisibilityRange());
+    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 
     ClearUpdateMask(false);
 }

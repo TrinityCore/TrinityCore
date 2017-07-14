@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "vault_of_archavon.h"
 
@@ -117,7 +116,7 @@ class boss_koralon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_koralonAI(creature);
+            return GetVaultOfArchavonAI<boss_koralonAI>(creature);
         }
 };
 
@@ -181,7 +180,7 @@ class npc_flame_warder : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_flame_warderAI(creature);
+            return GetVaultOfArchavonAI<npc_flame_warderAI>(creature);
         }
 };
 
@@ -196,9 +195,7 @@ class spell_koralon_meteor_fists : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_METEOR_FISTS_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_METEOR_FISTS_DAMAGE });
             }
 
             void TriggerFists(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -273,9 +270,7 @@ class spell_flame_warder_meteor_fists : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FW_METEOR_FISTS_DAMAGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FW_METEOR_FISTS_DAMAGE });
             }
 
             void TriggerFists(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

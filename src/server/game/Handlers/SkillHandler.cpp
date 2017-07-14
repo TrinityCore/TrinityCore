@@ -16,15 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "Common.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "Pet.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "TalentPackets.h"
+#include "Player.h"
 #include "SpellPackets.h"
+#include "TalentPackets.h"
 
 void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet)
 {

@@ -21,39 +21,43 @@
 /// \file
 
 #include "Common.h"
-#include "DatabaseEnv.h"
+#include "AppenderDB.h"
 #include "AsyncAcceptor.h"
-#include "RASession.h"
-#include "Configuration/Config.h"
-#include "OpenSSLCrypto.h"
-#include "ProcessPriority.h"
+#include "Banner.h"
+#include "BattlegroundMgr.h"
 #include "BigNumber.h"
-#include "World.h"
-#include "MapManager.h"
+#include "CliRunnable.h"
+#include "Configuration/Config.h"
+#include "DatabaseEnv.h"
+#include "DatabaseLoader.h"
+#include "GitRevision.h"
 #include "InstanceSaveMgr.h"
+#include "MapManager.h"
+#include "Metric.h"
+#include "MySQLThreading.h"
 #include "ObjectAccessor.h"
+#include "OpenSSLCrypto.h"
+#include "OutdoorPvP/OutdoorPvPMgr.h"
+#include "ProcessPriority.h"
+#include "RASession.h"
+#include "RealmList.h"
+#include "ScriptLoader.h"
 #include "ScriptMgr.h"
 #include "ScriptReloadMgr.h"
-#include "ScriptLoader.h"
-#include "OutdoorPvP/OutdoorPvPMgr.h"
-#include "BattlegroundMgr.h"
 #include "TCSoap.h"
-#include "CliRunnable.h"
-#include "Banner.h"
-#include "GitRevision.h"
+#include "World.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "RealmList.h"
-#include "DatabaseLoader.h"
-#include "AppenderDB.h"
-#include "Metric.h"
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/deadline_timer.hpp>
-#include <boost/filesystem/path.hpp>
+#include <boost/asio/signal_set.hpp>
+#include <boost/filesystem/operations.hpp>
 #include <boost/program_options.hpp>
 #include <google/protobuf/stubs/common.h>
+#include <iostream>
+#include <csignal>
 
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
@@ -78,21 +82,34 @@ char serviceDescription[] = "TrinityCore World of Warcraft emulator world servic
 int m_ServiceStatus = -1;
 #endif
 
-boost::asio::io_service _ioService;
-boost::asio::deadline_timer _freezeCheckTimer(_ioService);
-uint32 _worldLoopCounter(0);
-uint32 _lastChangeMsTime(0);
-uint32 _maxCoreStuckTimeInMs(0);
+class FreezeDetector
+{
+public:
+    FreezeDetector(boost::asio::io_service& ioService, uint32 maxCoreStuckTime)
+        : _timer(ioService), _worldLoopCounter(0), _lastChangeMsTime(0), _maxCoreStuckTimeInMs(maxCoreStuckTime) { }
 
-void SignalHandler(const boost::system::error_code& error, int signalNumber);
-void FreezeDetectorHandler(const boost::system::error_code& error);
+    static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
+    {
+        freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(5));
+        freezeDetector->_timer.async_wait(std::bind(&FreezeDetector::Handler, std::weak_ptr<FreezeDetector>(freezeDetector), std::placeholders::_1));
+    }
+
+    static void Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error);
+
+private:
+    boost::asio::deadline_timer _timer;
+    uint32 _worldLoopCounter;
+    uint32 _lastChangeMsTime;
+    uint32 _maxCoreStuckTimeInMs;
+};
+
+void SignalHandler(boost::system::error_code const& error, int signalNumber);
 AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService);
 bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
 void ClearOnlineAccounts();
 void ShutdownCLIThread(std::thread* cliThread);
-void ShutdownThreadPool(std::vector<std::thread>& threadPool);
 bool LoadRealmInfo();
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, std::string& cfg_service);
 
@@ -110,6 +127,8 @@ extern int main(int argc, char** argv)
         return 0;
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+    std::shared_ptr<void> protobufHandle(nullptr, [](void*) { google::protobuf::ShutdownProtobufLibrary(); });
 
 #ifdef _WIN32
     if (configService.compare("install") == 0)
@@ -129,9 +148,11 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
+    std::shared_ptr<boost::asio::io_service> ioService = std::make_shared<boost::asio::io_service>();
+
     sLog->RegisterAppender<AppenderDB>();
     // If logs are supposed to be handled async then we need to pass the io_service into the Log singleton
-    sLog->Initialize(sConfigMgr->GetBoolDefault("Log.Async.Enable", false) ? &_ioService : nullptr);
+    sLog->Initialize(sConfigMgr->GetBoolDefault("Log.Async.Enable", false) ? ioService.get() : nullptr);
 
     Trinity::Banner::Show("worldserver-daemon",
         [](char const* text)
@@ -147,6 +168,8 @@ extern int main(int argc, char** argv)
     );
 
     OpenSSLCrypto::threadsSetup();
+
+    std::shared_ptr<void> opensslHandle(nullptr, [](void*) { OpenSSLCrypto::threadsCleanup(); });
 
     // Seed the OpenSSL's PRNG here.
     // That way it won't auto-seed when calling BigNumber::SetRand and slow down the first world login
@@ -167,7 +190,7 @@ extern int main(int argc, char** argv)
     }
 
     // Set signal handlers (this must be done before starting io_service threads, because otherwise they would unblock and exit)
-    boost::asio::signal_set signals(_ioService, SIGINT, SIGTERM);
+    boost::asio::signal_set signals(*ioService, SIGINT, SIGTERM);
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     signals.add(SIGBREAK);
 #endif
@@ -175,67 +198,92 @@ extern int main(int argc, char** argv)
 
     // Start the Boost based thread pool
     int numThreads = sConfigMgr->GetIntDefault("ThreadPool", 1);
-    std::vector<std::thread> threadPool;
+    std::shared_ptr<std::vector<std::thread>> threadPool(new std::vector<std::thread>(), [ioService](std::vector<std::thread>* del)
+    {
+        ioService->stop();
+        for (std::thread& thr : *del)
+            thr.join();
+
+        delete del;
+    });
 
     if (numThreads < 1)
         numThreads = 1;
 
     for (int i = 0; i < numThreads; ++i)
-        threadPool.push_back(std::thread(boost::bind(&boost::asio::io_service::run, &_ioService)));
+        threadPool->push_back(std::thread([ioService]() { ioService->run(); }));
 
     // Set process priority according to configuration settings
-    SetProcessPriority("server.worldserver");
+    SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
 
     // Start the databases
     if (!StartDB())
-    {
-        ShutdownThreadPool(threadPool);
         return 1;
-    }
+
+    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // Set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
 
-    sRealmList->Initialize(_ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
+    sRealmList->Initialize(*ioService, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
+
+    std::shared_ptr<void> sRealmListHandle(nullptr, [](void*) { sRealmList->Close(); });
 
     LoadRealmInfo();
 
-    sMetric->Initialize(realm.Name, _ioService, []()
+    sMetric->Initialize(realm.Name, *ioService, []()
     {
         TC_METRIC_VALUE("online_players", sWorld->GetPlayerCount());
     });
 
     TC_METRIC_EVENT("events", "Worldserver started", "");
 
-    // Initialize the World
+    std::shared_ptr<void> sMetricHandle(nullptr, [](void*)
+    {
+        TC_METRIC_EVENT("events", "Worldserver shutdown", "");
+        sMetric->ForceSend();
+    });
+
     sScriptMgr->SetScriptLoader(AddScripts);
+    std::shared_ptr<void> sScriptMgrHandle(nullptr, [](void*)
+    {
+        sScriptMgr->Unload();
+        sScriptReloadMgr->Unload();
+    });
+
+    // Initialize the World
     sWorld->SetInitialWorldSettings();
 
-    // Launch CliRunnable thread
-    std::thread* cliThread = nullptr;
-#ifdef _WIN32
-    if (sConfigMgr->GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
-#else
-    if (sConfigMgr->GetBoolDefault("Console.Enable", true))
-#endif
+    std::shared_ptr<void> mapManagementHandle(nullptr, [](void*)
     {
-        cliThread = new std::thread(CliThread);
-    }
+        // unload battleground templates before different singletons destroyed
+        sBattlegroundMgr->DeleteAllBattlegrounds();
+
+        sInstanceSaveMgr->Unload();
+        sOutdoorPvPMgr->Die();                    // unload it before MapManager
+        sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
+    });
 
     // Start the Remote Access port (acceptor) if enabled
-    AsyncAcceptor* raAcceptor = nullptr;
+    std::unique_ptr<AsyncAcceptor> raAcceptor;
     if (sConfigMgr->GetBoolDefault("Ra.Enable", false))
-        raAcceptor = StartRaSocketAcceptor(_ioService);
+        raAcceptor.reset(StartRaSocketAcceptor(*ioService));
 
     // Start soap serving thread if enabled
-    std::thread* soapThread = nullptr;
+    std::shared_ptr<std::thread> soapThread;
     if (sConfigMgr->GetBoolDefault("SOAP.Enabled", false))
     {
-        soapThread = new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878)));
+        soapThread.reset(new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878))),
+            [](std::thread* thr)
+        {
+            thr->join();
+            delete thr;
+        });
     }
 
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
+    uint16 instancePort = uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
     int networkThreads = sConfigMgr->GetIntDefault("Network.Threads", 1);
@@ -243,10 +291,36 @@ extern int main(int argc, char** argv)
     if (networkThreads <= 0)
     {
         TC_LOG_ERROR("server.worldserver", "Network.Threads must be greater than 0");
-        return false;
+        return 1;
     }
 
-    sWorldSocketMgr.StartNetwork(_ioService, worldListener, worldPort, networkThreads);
+    if (!sWorldSocketMgr.StartWorldNetwork(*ioService, worldListener, worldPort, instancePort, networkThreads))
+    {
+        TC_LOG_ERROR("server.worldserver", "Failed to initialize network");
+        return 1;
+    }
+
+    std::shared_ptr<void> sWorldSocketMgrHandle(nullptr, [](void*)
+    {
+        sWorld->KickAll();                                       // save and kick all players
+        sWorld->UpdateSessions(1);                             // real players unload required UpdateSessions call
+
+        sWorldSocketMgr.StopNetwork();
+
+        ///- Clean database before leaving
+        ClearOnlineAccounts();
+    });
+
+    // Launch CliRunnable thread
+    std::shared_ptr<std::thread> cliThread;
+#ifdef _WIN32
+    if (sConfigMgr->GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
+#else
+    if (sConfigMgr->GetBoolDefault("Console.Enable", true))
+#endif
+    {
+        cliThread.reset(new std::thread(CliThread), &ShutdownCLIThread);
+    }
 
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_OFFLINE, realm.Id.Realm);
@@ -254,11 +328,11 @@ extern int main(int argc, char** argv)
     realm.Flags = RealmFlags(realm.Flags & ~uint32(REALM_FLAG_OFFLINE));
 
     // Start the freeze check callback cycle in 5 seconds (cycle itself is 1 sec)
+    std::shared_ptr<FreezeDetector> freezeDetector;
     if (int coreStuckTime = sConfigMgr->GetIntDefault("MaxCoreStuckTime", 0))
     {
-        _maxCoreStuckTimeInMs = coreStuckTime * 1000;
-        _freezeCheckTimer.expires_from_now(boost::posix_time::seconds(5));
-        _freezeCheckTimer.async_wait(FreezeDetectorHandler);
+        freezeDetector = std::make_shared<FreezeDetector>(*ioService, coreStuckTime * 1000);
+        FreezeDetector::Start(freezeDetector);
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
 
@@ -269,54 +343,16 @@ extern int main(int argc, char** argv)
     WorldUpdateLoop();
 
     // Shutdown starts here
-    ShutdownThreadPool(threadPool);
+    threadPool.reset();
 
     sLog->SetSynchronous();
 
     sScriptMgr->OnShutdown();
 
-    sWorld->KickAll();                                       // save and kick all players
-    sWorld->UpdateSessions(1);                             // real players unload required UpdateSessions call
-
-    // unload battleground templates before different singletons destroyed
-    sBattlegroundMgr->DeleteAllBattlegrounds();
-
-    sWorldSocketMgr.StopNetwork();
-
-    sInstanceSaveMgr->Unload();
-    sOutdoorPvPMgr->Die();                    // unload it before MapManager
-    sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
-    sScriptMgr->Unload();
-    sScriptReloadMgr->Unload();
-
     // set server offline
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
-    sRealmList->Close();
-
-    // Clean up threads if any
-    if (soapThread != nullptr)
-    {
-        soapThread->join();
-        delete soapThread;
-    }
-
-    delete raAcceptor;
-
-    ///- Clean database before leaving
-    ClearOnlineAccounts();
-
-    StopDB();
-
-    TC_METRIC_EVENT("events", "Worldserver shutdown", "");
-    sMetric->ForceSend();
 
     TC_LOG_INFO("server.worldserver", "Halting process...");
-
-    ShutdownCLIThread(cliThread);
-
-    OpenSSLCrypto::threadsCleanup();
-
-    google::protobuf::ShutdownProtobufLibrary();
 
     // 0 - normal shutdown
     // 1 - shutdown at error
@@ -342,9 +378,10 @@ void ShutdownCLIThread(std::thread* cliThread)
             if (!formatReturnCode)
                 errorBuffer = "Unknown error";
 
-            TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s",
-                uint32(errorCode), errorBuffer);
-            LocalFree(errorBuffer);
+            TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
+
+            if (!formatReturnCode)
+                LocalFree(errorBuffer);
 
             // send keyboard input to safely unblock the CLI thread
             INPUT_RECORD b[4];
@@ -382,18 +419,6 @@ void ShutdownCLIThread(std::thread* cliThread)
 #endif
         cliThread->join();
         delete cliThread;
-    }
-}
-
-void ShutdownThreadPool(std::vector<std::thread>& threadPool)
-{
-    sScriptMgr->OnNetworkStop();
-
-    _ioService.stop();
-
-    for (auto& thread : threadPool)
-    {
-        thread.join();
     }
 }
 
@@ -438,33 +463,36 @@ void WorldUpdateLoop()
     }
 }
 
-void SignalHandler(const boost::system::error_code& error, int /*signalNumber*/)
+void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
 {
     if (!error)
         World::StopNow(SHUTDOWN_EXIT_CODE);
 }
 
-void FreezeDetectorHandler(const boost::system::error_code& error)
+void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, boost::system::error_code const& error)
 {
     if (!error)
     {
-        uint32 curtime = getMSTime();
-
-        uint32 worldLoopCounter = World::m_worldLoopCounter;
-        if (_worldLoopCounter != worldLoopCounter)
+        if (std::shared_ptr<FreezeDetector> freezeDetector = freezeDetectorRef.lock())
         {
-            _lastChangeMsTime = curtime;
-            _worldLoopCounter = worldLoopCounter;
-        }
-        // possible freeze
-        else if (getMSTimeDiff(_lastChangeMsTime, curtime) > _maxCoreStuckTimeInMs)
-        {
-            TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
-            ABORT();
-        }
+            uint32 curtime = getMSTime();
 
-        _freezeCheckTimer.expires_from_now(boost::posix_time::seconds(1));
-        _freezeCheckTimer.async_wait(FreezeDetectorHandler);
+            uint32 worldLoopCounter = World::m_worldLoopCounter;
+            if (freezeDetector->_worldLoopCounter != worldLoopCounter)
+            {
+                freezeDetector->_lastChangeMsTime = curtime;
+                freezeDetector->_worldLoopCounter = worldLoopCounter;
+            }
+            // possible freeze
+            else if (getMSTimeDiff(freezeDetector->_lastChangeMsTime, curtime) > freezeDetector->_maxCoreStuckTimeInMs)
+            {
+                TC_LOG_ERROR("server.worldserver", "World Thread hangs, kicking out server!");
+                ABORT();
+            }
+
+            freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));
+            freezeDetector->_timer.async_wait(std::bind(&FreezeDetector::Handler, freezeDetectorRef, std::placeholders::_1));
+        }
     }
 }
 
@@ -474,63 +502,38 @@ AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService)
     std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
 
     AsyncAcceptor* acceptor = new AsyncAcceptor(ioService, raListener, raPort);
+    if (!acceptor->Bind())
+    {
+        TC_LOG_ERROR("server.worldserver", "Failed to bind RA socket acceptor");
+        delete acceptor;
+        return nullptr;
+    }
+
     acceptor->AsyncAccept<RASession>();
     return acceptor;
 }
 
 bool LoadRealmInfo()
 {
-    boost::asio::ip::tcp::resolver resolver(_ioService);
-    boost::asio::ip::tcp::resolver::iterator end;
-
-    QueryResult result = LoginDatabase.PQuery("SELECT id, name, address, localAddress, localSubnetMask, port, icon, flag, timezone, allowedSecurityLevel, population, gamebuild, Region, Battlegroup FROM realmlist WHERE id = %u", realm.Id.Realm);
-    if (!result)
-        return false;
-
-    Field* fields = result->Fetch();
-    realm.Name = fields[1].GetString();
-    boost::asio::ip::tcp::resolver::query externalAddressQuery(ip::tcp::v4(), fields[2].GetString(), "");
-
-    boost::system::error_code ec;
-    boost::asio::ip::tcp::resolver::iterator endPoint = resolver.resolve(externalAddressQuery, ec);
-    if (endPoint == end || ec)
+    if (Realm const* realmListRealm = sRealmList->GetRealm(realm.Id))
     {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[2].GetString().c_str());
-        return false;
+        realm.Id = realmListRealm->Id;
+        realm.Build = realmListRealm->Build;
+        realm.ExternalAddress = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->ExternalAddress);
+        realm.LocalAddress = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->LocalAddress);
+        realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->LocalSubnetMask);
+        realm.Port = realmListRealm->Port;
+        realm.Name = realmListRealm->Name;
+        realm.NormalizedName = realmListRealm->NormalizedName;
+        realm.Type = realmListRealm->Type;
+        realm.Flags = realmListRealm->Flags;
+        realm.Timezone = realmListRealm->Timezone;
+        realm.AllowedSecurityLevel = realmListRealm->AllowedSecurityLevel;
+        realm.PopulationLevel = realmListRealm->PopulationLevel;
+        return true;
     }
 
-    realm.ExternalAddress = (*endPoint).endpoint().address();
-
-    boost::asio::ip::tcp::resolver::query localAddressQuery(ip::tcp::v4(), fields[3].GetString(), "");
-    endPoint = resolver.resolve(localAddressQuery, ec);
-    if (endPoint == end || ec)
-    {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[3].GetString().c_str());
-        return false;
-    }
-
-    realm.LocalAddress = (*endPoint).endpoint().address();
-
-    boost::asio::ip::tcp::resolver::query localSubmaskQuery(ip::tcp::v4(), fields[4].GetString(), "");
-    endPoint = resolver.resolve(localSubmaskQuery, ec);
-    if (endPoint == end || ec)
-    {
-        TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[4].GetString().c_str());
-        return false;
-    }
-
-    realm.LocalSubnetMask = (*endPoint).endpoint().address();
-
-    realm.Port = fields[5].GetUInt16();
-    realm.Type = fields[6].GetUInt8();
-    realm.Flags = RealmFlags(fields[7].GetUInt8());
-    realm.Timezone = fields[8].GetUInt8();
-    realm.AllowedSecurityLevel = AccountTypes(fields[9].GetUInt8());
-    realm.PopulationLevel = fields[10].GetFloat();
-    realm.Id.Region = fields[12].GetUInt8();
-    realm.Id.Site = fields[13].GetUInt8();
-    realm.Build = fields[11].GetUInt32();
-    return true;
+    return false;
 }
 
 /// Initialize connection to the databases

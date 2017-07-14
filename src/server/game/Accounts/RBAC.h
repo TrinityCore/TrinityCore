@@ -40,7 +40,8 @@
 #ifndef _RBAC_H
 #define _RBAC_H
 
-#include "DatabaseEnv.h"
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
 #include <string>
 #include <set>
 #include <map>
@@ -757,6 +758,13 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SCENE_TEMPLATE                  = 850,
     RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TEMPLATE            = 851,
     RBAC_PERM_COMMAND_GO_OFFSET                              = 852,
+    RBAC_PERM_COMMAND_RELOAD_CONVERSATION_TEMPLATE           = 853,
+    RBAC_PERM_COMMAND_DEBUG_CONVERSATION                     = 854,
+    RBAC_PERM_COMMAND_NPC_SPAWNGROUP                         = 856, // reserved for dynamic_spawning
+    RBAC_PERM_COMMAND_NPC_DESPAWNGROUP                       = 857, // reserved for dynamic_spawning
+    RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP                     = 858, // reserved for dynamic_spawning
+    RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP                   = 859, // reserved for dynamic_spawning
+    RBAC_PERM_COMMAND_LIST_RESPAWNS                          = 860, // reserved for dynamic_spawning
 
     // custom permissions 1000+
     RBAC_PERM_MAX

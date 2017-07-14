@@ -18,6 +18,8 @@
 #ifndef AUCHENAI_CRYPTS_H_
 #define AUCHENAI_CRYPTS_H_
 
+#include "CreatureAIImpl.h"
+
 #define ACScriptName "instance_auchenai_crypts"
 #define DataHeader   "AC"
 
@@ -30,8 +32,8 @@ enum ACDataTypes
     DATA_EXARCH_MALADAAR            = 1
 };
 
-template<class AI>
-AI* GetAuchenaiCryptsAI(Creature* creature)
+template<typename AI>
+inline AI* GetAuchenaiCryptsAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, ACScriptName);
 }

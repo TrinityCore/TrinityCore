@@ -23,10 +23,14 @@ SDComment:
 SDCategory: Npc
 EndScriptData */
 
-#include "Player.h"
-#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "Creature.h"
 #include "Group.h"
+#include "Log.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 
 enum Points
 {
@@ -63,6 +67,11 @@ void npc_escortAI::AttackStart(Unit* who)
         if (IsCombatMovementAllowed())
             me->GetMotionMaster()->MoveChase(who);
     }
+}
+
+Player* npc_escortAI::GetPlayerForEscort()
+{
+    return ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID);
 }
 
 //see followerAI

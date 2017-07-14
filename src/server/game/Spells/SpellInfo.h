@@ -36,7 +36,7 @@ struct SpellModifier;
 struct SpellTargetPosition;
 struct Condition;
 
-enum SpellCastTargetFlags
+enum SpellCastTargetFlags : uint32
 {
     TARGET_FLAG_NONE            = 0x00000000,
     TARGET_FLAG_UNUSED_1        = 0x00000001,               // not used
@@ -93,7 +93,7 @@ enum SpellTargetReferenceTypes
     TARGET_REFERENCE_TYPE_DEST
 };
 
-enum SpellTargetObjectTypes
+enum SpellTargetObjectTypes : uint8
 {
     TARGET_OBJECT_TYPE_NONE = 0,
     TARGET_OBJECT_TYPE_SRC,
@@ -109,7 +109,7 @@ enum SpellTargetObjectTypes
     TARGET_OBJECT_TYPE_CORPSE_ALLY
 };
 
-enum SpellTargetCheckTypes
+enum SpellTargetCheckTypes : uint8
 {
     TARGET_CHECK_DEFAULT,
     TARGET_CHECK_ENTRY,
@@ -320,6 +320,12 @@ typedef std::vector<AuraEffect*> AuraEffectVector;
 
 struct SpellInfoLoadHelper;
 
+struct SpellPowerCost
+{
+    Powers Power;
+    int32 Amount;
+};
+
 class TC_GAME_API SpellInfo
 {
 public:
@@ -513,13 +519,7 @@ public:
     uint32 CalcCastTime(uint8 level = 0, Spell* spell = NULL) const;
     uint32 GetRecoveryTime() const;
 
-    struct CostData
-    {
-        Powers Power;
-        int32 Amount;
-    };
-
-    std::vector<CostData> CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
+    std::vector<SpellPowerCost> CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) const;
 
     float CalcProcPPM(Unit* caster, int32 itemLevel) const;
 
@@ -550,7 +550,6 @@ public:
     SpellEffectInfoVector GetEffectsForDifficulty(uint32 difficulty) const;
     SpellEffectInfo const* GetEffect(uint32 difficulty, uint32 index) const;
     SpellEffectInfo const* GetEffect(uint32 index) const { return GetEffect(DIFFICULTY_NONE, index); }
-    SpellEffectInfo const* GetEffect(WorldObject const* obj, uint32 index) const { return GetEffect(obj->GetMap()->GetDifficultyID(), index); }
 
     SpellEffectInfoMap _effects;
     SpellVisualMap _visuals;

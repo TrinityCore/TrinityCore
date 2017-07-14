@@ -22,13 +22,16 @@ Comment: All guild related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AchievementMgr.h"
 #include "Chat.h"
 #include "Language.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
-#include "ScriptMgr.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "RBAC.h"
 #include <iomanip>
 
 class guild_commandscript : public CommandScript

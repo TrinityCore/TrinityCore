@@ -16,9 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "gnomeregan.h"
-#include "Player.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 
 #define    MAX_ENCOUNTER  1
 

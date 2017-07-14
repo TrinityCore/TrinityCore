@@ -18,12 +18,16 @@
 /// @todo Harpoon chain from 62505 should not get removed when other chain is applied
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "SpellScript.h"
-#include "ulduar.h"
 #include "SpellInfo.h"
-#include "Player.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "ulduar.h"
 
 enum Says
 {
@@ -237,12 +241,12 @@ class boss_razorscale_controller : public CreatureScript
                 {
                     case ACTION_HARPOON_BUILD:
                         events.ScheduleEvent(EVENT_BUILD_HARPOON_1, 50000);
-                        if (me->GetMap()->GetSpawnMode() == DIFFICULTY_25_N)
+                        if (Is25ManRaid())
                             events.ScheduleEvent(EVENT_BUILD_HARPOON_3, 90000);
                         break;
                     case ACTION_PLACE_BROKEN_HARPOON:
                         for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
-                            me->SummonGameObject(GO_RAZOR_BROKEN_HARPOON, PosHarpoon[n].GetPositionX(), PosHarpoon[n].GetPositionY(), PosHarpoon[n].GetPositionZ(), 2.286f, G3D::Quat(), 180);
+                            me->SummonGameObject(GO_RAZOR_BROKEN_HARPOON, PosHarpoon[n].GetPositionX(), PosHarpoon[n].GetPositionY(), PosHarpoon[n].GetPositionZ(), 2.286f, QuaternionData(), 180);
                         break;
                 }
             }
@@ -257,7 +261,7 @@ class boss_razorscale_controller : public CreatureScript
                     {
                         case EVENT_BUILD_HARPOON_1:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, G3D::Quat(), uint32(me->GetRespawnTime())))
+                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_1, PosHarpoon[0].GetPositionX(), PosHarpoon[0].GetPositionY(), PosHarpoon[0].GetPositionZ(), 4.790f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f)) //only nearest broken harpoon
                                     BrokenHarpoon->RemoveFromWorld();
@@ -267,7 +271,7 @@ class boss_razorscale_controller : public CreatureScript
                             return;
                         case EVENT_BUILD_HARPOON_2:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_2, PosHarpoon[1].GetPositionX(), PosHarpoon[1].GetPositionY(), PosHarpoon[1].GetPositionZ(), 4.659f, G3D::Quat(), uint32(me->GetRespawnTime())))
+                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_2, PosHarpoon[1].GetPositionX(), PosHarpoon[1].GetPositionY(), PosHarpoon[1].GetPositionZ(), 4.659f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
                                     BrokenHarpoon->RemoveFromWorld();
@@ -276,7 +280,7 @@ class boss_razorscale_controller : public CreatureScript
                             return;
                         case EVENT_BUILD_HARPOON_3:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_3, PosHarpoon[2].GetPositionX(), PosHarpoon[2].GetPositionY(), PosHarpoon[2].GetPositionZ(), 5.382f, G3D::Quat(), uint32(me->GetRespawnTime())))
+                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_3, PosHarpoon[2].GetPositionX(), PosHarpoon[2].GetPositionY(), PosHarpoon[2].GetPositionZ(), 5.382f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
                                     BrokenHarpoon->RemoveFromWorld();
@@ -286,7 +290,7 @@ class boss_razorscale_controller : public CreatureScript
                             return;
                         case EVENT_BUILD_HARPOON_4:
                             Talk(EMOTE_HARPOON);
-                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_4, PosHarpoon[3].GetPositionX(), PosHarpoon[3].GetPositionY(), PosHarpoon[3].GetPositionZ(), 4.266f, G3D::Quat(), uint32(me->GetRespawnTime())))
+                            if (GameObject* Harpoon = me->SummonGameObject(GO_RAZOR_HARPOON_4, PosHarpoon[3].GetPositionX(), PosHarpoon[3].GetPositionY(), PosHarpoon[3].GetPositionZ(), 4.266f, QuaternionData(), uint32(me->GetRespawnTime())))
                             {
                                 if (GameObject* BrokenHarpoon = Harpoon->FindNearestGameObject(GO_RAZOR_BROKEN_HARPOON, 5.0f))
                                     BrokenHarpoon->RemoveFromWorld();
@@ -300,7 +304,7 @@ class boss_razorscale_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_razorscale_controllerAI>(creature);
+            return GetUlduarAI<boss_razorscale_controllerAI>(creature);
         }
 };
 
@@ -747,8 +751,6 @@ class npc_expedition_commander : public CreatureScript
             InstanceScript* instance = creature->GetInstanceScript();
             if (instance && instance->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED)
             {
-                player->PrepareGossipMenu(creature);
-
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                 SendGossipMenuFor(player, 13853, creature->GetGUID());
             }
@@ -760,7 +762,7 @@ class npc_expedition_commander : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_expedition_commanderAI>(creature);
+            return GetUlduarAI<npc_expedition_commanderAI>(creature);
         }
 };
 
@@ -846,7 +848,7 @@ class npc_mole_machine_trigger : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_mole_machine_triggerAI(creature);
+            return GetUlduarAI<npc_mole_machine_triggerAI>(creature);
         }
 };
 
@@ -871,7 +873,7 @@ class npc_devouring_flame : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_devouring_flameAI(creature);
+            return GetUlduarAI<npc_devouring_flameAI>(creature);
         }
 };
 
@@ -928,7 +930,7 @@ class npc_darkrune_watcher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_darkrune_watcherAI(creature);
+            return GetUlduarAI<npc_darkrune_watcherAI>(creature);
         }
 };
 
@@ -991,7 +993,7 @@ class npc_darkrune_guardian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_darkrune_guardianAI(creature);
+            return GetUlduarAI<npc_darkrune_guardianAI>(creature);
         }
 };
 
@@ -1058,7 +1060,7 @@ class npc_darkrune_sentinel : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_darkrune_sentinelAI(creature);
+            return GetUlduarAI<npc_darkrune_sentinelAI>(creature);
         }
 };
 

@@ -19,7 +19,11 @@
 #ifndef TRINITY_CONDITIONMGR_H
 #define TRINITY_CONDITIONMGR_H
 
-#include "Common.h"
+#include "Define.h"
+#include "Hash.h"
+#include <array>
+#include <unordered_map>
+#include <vector>
 
 class Creature;
 class Player;
@@ -151,7 +155,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_SPELL                          = 17,
     CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT              = 18,
     CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19,
-    CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20,
+    // Condition source type 20 unused
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
     CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
     CONDITION_SOURCE_TYPE_NPC_VENDOR                     = 23,

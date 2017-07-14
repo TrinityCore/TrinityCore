@@ -21,9 +21,10 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
-#include "QuestDef.h"
 #include "NPCHandler.h"
+#include <map>
 
+class Quest;
 class WorldSession;
 
 #define GOSSIP_MAX_MENU_ITEMS               32
@@ -258,7 +259,7 @@ class TC_GAME_API PlayerMenu
         /*********************************************************/
         void SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const;
 
-        void SendQuestGiverQuestList(ObjectGuid npcGUID);
+        void SendQuestGiverQuestListMessage(ObjectGuid npcGUID);
 
         void SendQuestQueryResponse(Quest const* quest) const;
         void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool activateAccept) const;

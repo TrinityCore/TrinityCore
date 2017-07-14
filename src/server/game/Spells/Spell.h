@@ -19,11 +19,12 @@
 #ifndef __SPELL_H
 #define __SPELL_H
 
-#include "GridDefines.h"
+#include "ConditionMgr.h"
+#include "DBCEnums.h"
+#include "ObjectGuid.h"
+#include "Position.h"
 #include "SharedDefines.h"
-#include "ObjectMgr.h"
-#include "SpellInfo.h"
-#include "PathGenerator.h"
+#include <memory>
 
 namespace WorldPackets
 {
@@ -36,14 +37,31 @@ namespace WorldPackets
     }
 }
 
-class Unit;
-class Player;
-class GameObject;
-class DynamicObject;
-class WorldObject;
 class Aura;
+class AuraEffect;
+class Corpse;
+class DynamicObject;
+class GameObject;
+class Item;
+class Object;
+class PathGenerator;
+class Player;
+class SpellEffectInfo;
+class SpellImplicitTargetInfo;
+class SpellInfo;
 class SpellScript;
-class ByteBuffer;
+class Unit;
+class WorldObject;
+struct SpellPowerCost;
+struct SummonPropertiesEntry;
+enum CurrentSpellTypes : uint8;
+enum LootType : uint8;
+enum SpellCastTargetFlags : uint32;
+enum SpellTargetCheckTypes : uint8;
+enum SpellTargetObjectTypes : uint8;
+enum SpellValueMod : uint8;
+enum TriggerCastFlags : uint32;
+enum WeaponAttackType : uint8;
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 
@@ -237,8 +255,8 @@ class TC_GAME_API SpellCastTargets
         void ModDst(SpellDestination const& spellDest);
         void RemoveDst();
 
-        bool HasSrc() const { return (GetTargetMask() & TARGET_FLAG_SOURCE_LOCATION) != 0; }
-        bool HasDst() const { return (GetTargetMask() & TARGET_FLAG_DEST_LOCATION) != 0; }
+        bool HasSrc() const;
+        bool HasDst() const;
         bool HasTraj() const { return m_speed != 0; }
 
         float GetPitch() const { return m_pitch; }
@@ -307,7 +325,7 @@ static const uint32 SPELL_INTERRUPT_NONPLAYER = 32747;
 
 class TC_GAME_API Spell
 {
-    friend void Unit::SetCurrentCastSpell(Spell* pSpell);
+    friend void SetUnitCurrentCastSpell(Unit* unit, Spell* spell);
     friend class SpellScript;
     public:
 
@@ -444,6 +462,7 @@ class TC_GAME_API Spell
         void EffectDestroyItem(SpellEffIndex effIndex);
         void EffectLearnGarrisonBuilding(SpellEffIndex effIndex);
         void EffectCreateGarrison(SpellEffIndex effIndex);
+        void EffectCreateConversation(SpellEffIndex effIndex);
         void EffectAddGarrisonFollower(SpellEffIndex effIndex);
         void EffectActivateGarrisonBuilding(SpellEffIndex effIndex);
         void EffectHealBattlePetPct(SpellEffIndex effIndex);
@@ -456,6 +475,8 @@ class TC_GAME_API Spell
         void EffectUpdateZoneAurasAndPhases(SpellEffIndex effIndex);
         void EffectGiveArtifactPower(SpellEffIndex effIndex);
         void EffectGiveArtifactPowerNoBonus(SpellEffIndex effIndex);
+        void EffectPlayScene(SpellEffIndex effIndex);
+        void EffectGiveHonor(SpellEffIndex effIndex);
 
         typedef std::set<Aura*> UsedSpellMods;
 
@@ -518,7 +539,7 @@ class TC_GAME_API Spell
         SpellCastResult CheckCasterAuras() const;
         SpellCastResult CheckArenaAndRatedBattlegroundCastRules();
 
-        int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i], var, m_castItemLevel); }
+        int32 CalculateDamage(uint8 i, Unit const* target, float* var = nullptr) const;
 
         bool HaveTargetsForEffect(uint8 effect) const;
         void Delayed();
@@ -526,14 +547,14 @@ class TC_GAME_API Spell
         uint32 getState() const { return m_spellState; }
         void setState(uint32 state) { m_spellState = state; }
 
-        void DoCreateItem(uint32 i, uint32 itemtype, std::vector<int32> const& bonusListIDs = std::vector<int32>());
+        void DoCreateItem(uint32 i, uint32 itemtype, uint8 context = 0, std::vector<int32> const& bonusListIDs = std::vector<int32>());
 
         bool CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect, Position const* losPosition) const;
         bool CheckEffectTarget(GameObject const* target, SpellEffectInfo const* effect) const;
         bool CheckEffectTarget(Item const* target, SpellEffectInfo const* effect) const;
         bool CanAutoCast(Unit* target);
-        void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
-        void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
+        void CheckSrc();
+        void CheckDst();
 
         static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint32 spellVisual, ObjectGuid cast_count, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, uint32* misc = nullptr);
         void SendCastResult(SpellCastResult result);
@@ -615,9 +636,9 @@ class TC_GAME_API Spell
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
         bool IsNextMeleeSwingSpell() const;
-        bool IsTriggered() const { return (_triggeredCastFlags & TRIGGERED_FULL_MASK) != 0; }
-        bool IsIgnoringCooldowns() const { return (_triggeredCastFlags & TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD) != 0; }
-        bool IsChannelActive() const { return m_caster->GetUInt32Value(UNIT_CHANNEL_SPELL) != 0; }
+        bool IsTriggered() const;
+        bool IsIgnoringCooldowns() const;
+        bool IsChannelActive() const;
         bool IsAutoActionResetSpell() const;
 
         bool IsDeletable() const { return !m_referencedFromCurrentSpell && !m_executedCurrently; }
@@ -635,7 +656,7 @@ class TC_GAME_API Spell
         Unit* GetCaster() const { return m_caster; }
         Unit* GetOriginalCaster() const { return m_originalCaster; }
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
-        std::vector<SpellInfo::CostData> const& GetPowerCost() const { return m_powerCost; }
+        std::vector<SpellPowerCost> const& GetPowerCost() const { return m_powerCost; }
 
         bool UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
 
@@ -643,7 +664,7 @@ class TC_GAME_API Spell
 
         void SetSpellValue(SpellValueMod mod, int32 value);
 
-        SpellEffectInfoVector const& GetEffects() const { return _effects; }
+        std::vector<SpellEffectInfo const*> const& GetEffects() const { return _effects; }
         SpellEffectInfo const* GetEffect(uint32 index) const
         {
             if (index >= _effects.size())
@@ -680,7 +701,7 @@ class TC_GAME_API Spell
         SpellSchoolMask m_spellSchoolMask;                  // Spell school (can be overwrite for some spells (wand shoot for example)
         WeaponAttackType m_attackType;                      // For weapon based attack
 
-        std::vector<SpellInfo::CostData> m_powerCost;       // Calculated spell cost initialized only in Spell::prepare
+        std::vector<SpellPowerCost> m_powerCost;       // Calculated spell cost initialized only in Spell::prepare
         int32 m_casttime;                                   // Calculated spell cast time initialized only in Spell::prepare
         int32 m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
         bool m_canReflect;                                  // can reflect this spell?
@@ -851,7 +872,7 @@ class TC_GAME_API Spell
 
         bool m_skipCheck;
         uint32 m_auraScaleMask;
-        PathGenerator m_preGeneratedPath;
+        std::unique_ptr<PathGenerator> m_preGeneratedPath;
 
         std::vector<SpellLogEffectPowerDrainParams> _powerDrainTargets[MAX_SPELL_EFFECTS];
         std::vector<SpellLogEffectExtraAttacksParams> _extraAttacksTargets[MAX_SPELL_EFFECTS];
@@ -863,7 +884,7 @@ class TC_GAME_API Spell
         Spell(Spell const& right) = delete;
         Spell& operator=(Spell const& right) = delete;
 
-        SpellEffectInfoVector _effects;
+        std::vector<SpellEffectInfo const*> _effects;
 };
 
 namespace Trinity
@@ -917,17 +938,4 @@ namespace Trinity
 }
 
 typedef void(Spell::*pEffect)(SpellEffIndex effIndex);
-
-class TC_GAME_API SpellEvent : public BasicEvent
-{
-    public:
-        SpellEvent(Spell* spell);
-        virtual ~SpellEvent();
-
-        virtual bool Execute(uint64 e_time, uint32 p_time) override;
-        virtual void Abort(uint64 e_time) override;
-        virtual bool IsDeletable() const override;
-    protected:
-        Spell* m_Spell;
-};
 #endif

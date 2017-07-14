@@ -15,17 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "ObjectMgr.h"
-#include "Cell.h"
+#include "CreatureTextMgr.h"
+#include "CreatureTextMgrImpl.h"
 #include "CellImpl.h"
 #include "Chat.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CreatureTextMgr.h"
 #include "ChatPackets.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "DB2Stores.h"
+#include "GridNotifiersImpl.h"
+#include "Log.h"
 #include "MiscPackets.h"
+#include "ObjectMgr.h"
+#include "World.h"
 
 class CreatureTextBuilder
 {
@@ -33,7 +35,7 @@ class CreatureTextBuilder
         CreatureTextBuilder(WorldObject const* obj, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
             : _source(obj), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
-        WorldPackets::Chat::Chat* operator()(LocaleConstant locale) const
+        WorldPackets::Packet* operator()(LocaleConstant locale) const
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
             WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
@@ -57,7 +59,7 @@ class PlayerTextBuilder
         PlayerTextBuilder(WorldObject const* obj, WorldObject const* speaker, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
             : _source(obj), _talker(speaker), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
-        WorldPackets::Chat::Chat* operator()(LocaleConstant locale) const
+        WorldPackets::Packet* operator()(LocaleConstant locale) const
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
             WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
@@ -224,7 +226,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     }
 
     CreatureTextGroup const& textGroupContainer = itr->second;  //has all texts in the group
-    CreatureTextRepeatIds repeatGroup = GetRepeatGroup(source, textGroup);//has all textIDs from the group that were already said
+    CreatureTextRepeatIds repeatGroup = source->GetTextRepeatGroup(textGroup);//has all textIDs from the group that were already said
     CreatureTextGroup tempGroup;//will use this to talk after sorting repeatGroup
 
     for (CreatureTextGroup::const_iterator giter = textGroupContainer.begin(); giter != textGroupContainer.end(); ++giter)
@@ -275,7 +277,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
         SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
     }
 
-    SetRepeatId(source, textGroup, iter->id);
+    source->SetTextRepeatId(textGroup, iter->id);
     return iter->duration;
 }
 
@@ -347,7 +349,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
             Map::PlayerList const& players = source->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 if (itr->GetSource()->GetAreaId() == areaId && (!team || Team(itr->GetSource()->GetTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
-                    itr->GetSource()->GetSession()->SendPacket(data);
+                    itr->GetSource()->SendDirectMessage(data);
             return;
         }
         case TEXT_RANGE_ZONE:
@@ -356,7 +358,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
             Map::PlayerList const& players = source->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 if (itr->GetSource()->GetZoneId() == zoneId && (!team || Team(itr->GetSource()->GetTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
-                    itr->GetSource()->GetSession()->SendPacket(data);
+                    itr->GetSource()->SendDirectMessage(data);
             return;
         }
         case TEXT_RANGE_MAP:
@@ -364,7 +366,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
             Map::PlayerList const& players = source->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 if ((!team || Team(itr->GetSource()->GetTeam()) == team) && (!gmOnly || itr->GetSource()->IsGameMaster()))
-                    itr->GetSource()->GetSession()->SendPacket(data);
+                    itr->GetSource()->SendDirectMessage(data);
             return;
         }
         case TEXT_RANGE_WORLD:
@@ -372,8 +374,8 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
             SessionMap const& smap = sWorld->GetAllSessions();
             for (SessionMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
                 if (Player* player = iter->second->GetPlayer())
-                    if (player->GetSession()  && (!team || Team(player->GetTeam()) == team) && (!gmOnly || player->IsGameMaster()))
-                        player->GetSession()->SendPacket(data);
+                    if ((!team || Team(player->GetTeam()) == team) && (!gmOnly || player->IsGameMaster()))
+                        player->SendDirectMessage(data);
             return;
         }
         case TEXT_RANGE_NORMAL:
@@ -391,21 +393,6 @@ void CreatureTextMgr::SendEmote(Unit* source, uint32 emote)
         return;
 
     source->HandleEmoteCommand(emote);
-}
-
-void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
-{
-    if (!source)
-        return;
-
-    source->SetTextRepeatId(textGroup, id);
-}
-
-CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 textGroup) const
-{
-    ASSERT(source);//should never happen
-
-    return source->GetTextRepeatGroup(textGroup);
 }
 
 bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup) const

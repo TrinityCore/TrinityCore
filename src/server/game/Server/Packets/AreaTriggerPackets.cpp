@@ -25,7 +25,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AreaTrigger::AreaTriggerS
     data.WriteBits(areaTriggerSpline.Points.size(), 16);
     data.FlushBits();
 
-    for (G3D::Vector3 const& point : areaTriggerSpline.Points)
+    for (TaggedPosition<Position::XYZ> const& point : areaTriggerSpline.Points)
         data << point;
 
     return data;

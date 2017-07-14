@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "naxxramas.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -61,7 +62,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_patchwerkAI>(creature);
+        return GetNaxxramasAI<boss_patchwerkAI>(creature);
     }
 
     struct boss_patchwerkAI : public BossAI

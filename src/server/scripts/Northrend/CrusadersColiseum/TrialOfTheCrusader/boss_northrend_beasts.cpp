@@ -20,12 +20,17 @@
 // Gormok - Snobolled (creature at back)
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "trial_of_the_crusader.h"
-#include "Vehicle.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "TemporarySummon.h"
+#include "trial_of_the_crusader.h"
+#include "Vehicle.h"
 
 enum Yells
 {
@@ -288,7 +293,7 @@ class boss_gormok : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_gormokAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_gormokAI>(creature);
         }
 };
 
@@ -449,7 +454,7 @@ class npc_snobold_vassal : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_snobold_vassalAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_snobold_vassalAI>(creature);
         }
 };
 
@@ -485,7 +490,7 @@ class npc_firebomb : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_firebombAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_firebombAI>(creature);
         }
 };
 
@@ -713,7 +718,7 @@ class boss_acidmaw : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_acidmawAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_acidmawAI>(creature);
         }
 };
 
@@ -777,7 +782,7 @@ class boss_dreadscale : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_dreadscaleAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_dreadscaleAI>(creature);
         }
 };
 
@@ -824,7 +829,7 @@ class npc_slime_pool : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_slime_poolAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_slime_poolAI>(creature);
         }
 };
 
@@ -1141,7 +1146,7 @@ class boss_icehowl : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_icehowlAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_icehowlAI>(creature);
         }
 };
 
@@ -1156,9 +1161,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PARALYSIS))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_PARALYSIS });
         }
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1227,9 +1230,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(_spellId))
-                return false;
-            return true;
+            return ValidateSpellInfo({ _spellId });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)

@@ -28,9 +28,14 @@
  EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "DB2Structure.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
+#include "PetDefines.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 
 enum BabyBlizzardBearMisc
 {

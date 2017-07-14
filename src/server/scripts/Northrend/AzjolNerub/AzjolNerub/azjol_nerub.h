@@ -18,6 +18,8 @@
 #ifndef AZJOL_NERUB_H_
 #define AZJOL_NERUB_H_
 
+#include "CreatureAIImpl.h"
+
 #define AzjolNerubScriptName "instance_azjol_nerub"
 #define DataHeader           "AN"
 
@@ -62,8 +64,8 @@ enum ANInstanceActions
     ACTION_GATEWATCHER_GREET        = 1
 };
 
-template<class AI>
-AI* GetAzjolNerubAI(Creature* creature)
+template<typename AI>
+inline AI* GetAzjolNerubAI(Creature* creature)
 {
     return GetInstanceAI<AI>(creature, AzjolNerubScriptName);
 }

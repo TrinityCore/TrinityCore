@@ -15,18 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "PassiveAI.h"
-#include "Cell.h"
-#include "CellImpl.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "SpellAuraEffects.h"
-#include "SmartAI.h"
 #include "icecrown_citadel.h"
+#include "CellImpl.h"
+#include "GameObject.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "PetDefines.h"
+#include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "SmartAI.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "VehicleDefines.h"
 
 // Weekly quest support
 // * Deprogramming                (DONE)
@@ -1083,7 +1088,7 @@ class npc_crok_scourgebane : public CreatureScript
                         std::list<Creature*> temp;
                         FrostwingVrykulSearcher check(me, 80.0f);
                         Trinity::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
-                        me->VisitNearbyGridObject(80.0f, searcher);
+                        Cell::VisitGridObjects(me, searcher, 80.0f);
 
                         _aliveTrash.clear();
                         for (std::list<Creature*>::iterator itr = temp.begin(); itr != temp.end(); ++itr)
@@ -1110,7 +1115,7 @@ class npc_crok_scourgebane : public CreatureScript
                     Player* player = NULL;
                     Trinity::AnyPlayerInObjectRangeCheck check(me, 60.0f);
                     Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
-                    me->VisitNearbyWorldObject(60.0f, searcher);
+                    Cell::VisitWorldObjects(me, searcher, 60.0f);
                     // wipe
                     if (!player)
                     {
@@ -1119,7 +1124,7 @@ class npc_crok_scourgebane : public CreatureScript
                         {
                             FrostwingGauntletRespawner respawner;
                             Trinity::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
-                            me->VisitNearbyGridObject(333.0f, worker);
+                            Cell::VisitGridObjects(me, worker, 333.0f);
                             Talk(SAY_CROK_DEATH);
                         }
                         return;
@@ -1424,7 +1429,7 @@ class npc_captain_arnath : public CreatureScript
                 Creature* target = NULL;
                 Trinity::MostHPMissingInRange u_check(me, 60.0f, 0);
                 Trinity::CreatureLastSearcher<Trinity::MostHPMissingInRange> searcher(me, target, u_check);
-                me->VisitNearbyGridObject(60.0f, searcher);
+                Cell::VisitGridObjects(me, searcher, 60.0f);
                 return target;
             }
         };
@@ -2016,7 +2021,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
                     return;
 
                 Position pos = caster->GetNearPosition(5.0f, 0.0f);
-                //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
+                //pos.m_positionZ = caster->GetBaseMap()->GetHeight(caster->GetPhases(), pos.GetPositionX(), pos.GetPositionY(), caster->GetPositionZ(), true, 50.0f);
                 //pos.m_positionZ += 0.05f;
                 caster->SetHomePosition(pos);
                 caster->GetMotionMaster()->MoveLand(POINT_LAND, pos);
@@ -2094,6 +2099,48 @@ class spell_icc_soul_missile : public SpellScriptLoader
             return new spell_icc_soul_missile_SpellScript();
         }
 };
+
+class spell_trigger_spell_from_caster_SpellScript : public SpellScript
+{
+    PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
+
+public:
+    spell_trigger_spell_from_caster_SpellScript(uint32 triggerId, TriggerCastFlags triggerFlags)
+        : SpellScript(), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ _triggerId });
+    }
+
+    void HandleTrigger()
+    {
+        GetCaster()->CastSpell(GetHitUnit(), _triggerId, _triggerFlags);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
+    }
+
+    uint32 _triggerId;
+    TriggerCastFlags _triggerFlags;
+};
+
+spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId)
+    : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(TRIGGERED_FULL_MASK)
+{
+}
+
+spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags)
+    : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(triggerFlags)
+{
+}
+
+SpellScript* spell_trigger_spell_from_caster::GetSpellScript() const
+{
+    return new spell_trigger_spell_from_caster_SpellScript(_triggerId, _triggerFlags);
+}
 
 class at_icc_saurfang_portal : public AreaTriggerScript
 {

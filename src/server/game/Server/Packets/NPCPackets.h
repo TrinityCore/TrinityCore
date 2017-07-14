@@ -19,10 +19,10 @@
 #define NPCPackets_h__
 
 #include "Packet.h"
-#include "ItemPackets.h"
-#include "Creature.h"
-
-#include "G3D/Vector2.h"
+#include "ItemPacketsCommon.h"
+#include "ObjectGuid.h"
+#include "Position.h"
+#include <array>
 
 namespace WorldPackets
 {
@@ -133,7 +133,7 @@ namespace WorldPackets
             int32 MoneyCost     = 0;
             int32 ReqSkillLine  = 0;
             int32 ReqSkillRank  = 0;
-            int32 ReqAbility[MAX_TRAINERSPELL_ABILITY_REQS] = { };
+            std::array<int32, 3> ReqAbility;
             uint8 Usable        = 0;
             uint8 ReqLevel      = 0;
         };
@@ -180,7 +180,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 Flags        = 0;
-            G3D::Vector2 Pos;
+            TaggedPosition<Position::XY> Pos;
             int32 Icon          = 0;
             int32 Importance    = 0;
             std::string Name;

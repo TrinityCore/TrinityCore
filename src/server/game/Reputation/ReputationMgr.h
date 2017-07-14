@@ -22,7 +22,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Language.h"
-#include "QueryResult.h"
+#include "DatabaseEnvFwd.h"
 #include <map>
 
 struct FactionEntry;
