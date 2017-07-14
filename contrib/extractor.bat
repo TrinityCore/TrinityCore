@@ -1,5 +1,6 @@
 @ECHO OFF
 CLS
+
 :MENU
 ECHO.
 ECHO ...............................................
@@ -8,13 +9,9 @@ ECHO ...............................................
 ECHO PRESS 1, 2, 3 OR 4 to select your task, or 5 to EXIT.
 ECHO ...............................................
 ECHO.
-ECHO The vmaps extractor output text below is intended and not an error:
-ECHO ..........................................
-ECHO Extracting World\Wmo\Band\Final_Stage.wmo
-ECHO No such file.
-ECHO Couldn't open RootWmo!!!
-ECHO Done!
-ECHO ..........................................
+ECHO If you see one row with the error
+ECHO "Couldn't open RootWmo!!!"
+ECHO Ignore it, it's not real error.
 ECHO.
 ECHO 1 - Extract dbc/db2 and maps
 ECHO 2 - Extract vmaps (needs maps to be extracted before you run this)
@@ -28,41 +25,25 @@ IF %M%==2 GOTO VMAPS
 IF %M%==3 GOTO MMAPS
 IF %M%==4 GOTO ALL
 IF %M%==5 GOTO EOF
+
 :MAPS
-start mapextractor.exe
-ECHO Wait until mapextractor.exe closes before continuing.
-pause
+start /b /w mapextractor.exe
 GOTO MENU
+
 :VMAPS
-md vmaps
-start vmap4extractor.exe
-ECHO Wait until vmap4extractor.exe closes before continuing.
-pause
-start vmap4assembler.exe Buildings vmaps
-ECHO Wait until vmap4assembler.exe closes before continuing.
-pause
+start /b /w vmap4extractor.exe
+start /b /w vmap4assembler.exe Buildings vmaps
 rmdir Buildings /s /q
 GOTO MENU
+
 :MMAPS
-md mmaps
-start mmaps_generator.exe
-pause
+start /b /w mmaps_generator.exe
 GOTO MENU
+
 :ALL
-start mapextractor.exe
-ECHO Wait until mapextractor.exe closes before continuing.
-pause
-md vmaps
-start vmap4extractor.exe
-ECHO Wait until vmap4extractor.exe closes before continuing.
-pause
-start vmap4assembler.exe Buildings vmaps
-ECHO Wait until vmap4assembler.exe closes before continuing.
-pause
+start /b /w mapextractor.exe
+start /b /w vmap4extractor.exe
+start /b /w vmap4assembler.exe
 rmdir Buildings /s /q
-md mmaps
-start mmaps_generator.exe --threads %NUMBER_OF_PROCESSORS%
-ECHO Wait until mmaps_generator.exe closes before continuing (may take hours).
-pause
+start /b /w mmaps_generator.exe
 GOTO MENU
-:EOF
