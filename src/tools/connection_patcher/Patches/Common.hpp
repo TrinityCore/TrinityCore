@@ -51,6 +51,7 @@ namespace Connection_Patcher
                 };
             }
             static const std::string VersionsFile() { return "trinity6.github.io/%s/%s/build/versi"; };
+            static const std::vector<unsigned char> CdnsFile() { return {'t', 'r', 'i', 'n', 'i', 't', 'y', '6', '.', 'g', 'i', 't', 'h', 'u', 'b', '.', 'i', 'o', '/', '%', 's', '/', '%', 's', '/', 'c', 'd', 'n', 's', 0x00, 0x00 }; }
             static const std::vector<unsigned char> CertFileName() { return{ 't', 'c', '_', 'b', 'u', 'n', 'd', 'l', 'e', '.', 't', 'x', 't', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }; }
             static const std::string CertificateBundle()
             {

@@ -79,6 +79,10 @@ namespace Connection_Patcher
             std::vector<unsigned char> verVec(verPatch.begin(), verPatch.end());
             patcher->Patch(verVec, Patterns::Common::VersionsFile());
 
+            std::cout << "patching CDNs\n";
+
+            patcher->Patch(Patches::Common::CdnsFile(), Patterns::Common::CdnsFile());
+
             patcher->Finish(output);
 
             std::cout << "Patching done.\n";
