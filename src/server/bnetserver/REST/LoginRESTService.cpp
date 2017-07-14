@@ -20,7 +20,6 @@
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "ProtobufJSON.h"
-#include "Optional.h"
 #include "Realm.h"
 #include "SessionManager.h"
 #include "SHA1.h"
@@ -46,18 +45,18 @@ public:
 
     bool InvokeIfReady()
     {
-        ASSERT(_callback.is_initialized());
+        ASSERT(_callback);
         return _callback->InvokeIfReady() == QueryCallback::Completed;
     }
 
     soap* GetClient() const { return _client.get(); }
-    void SetCallback(QueryCallback val) { _callback = std::move(val); }
+    void SetCallback(std::unique_ptr<QueryCallback> callback) { _callback = std::move(callback); }
     std::unique_ptr<Battlenet::Session::AccountInfo>& GetResult() { return _result; }
-    void SetResult(std::unique_ptr<Battlenet::Session::AccountInfo> val) { _result = std::move(val); }
+    void SetResult(std::unique_ptr<Battlenet::Session::AccountInfo> result) { _result = std::move(result); }
 
 private:
     std::shared_ptr<soap> _client;
-    Optional<QueryCallback> _callback;
+    std::unique_ptr<QueryCallback> _callback;
     std::unique_ptr<Battlenet::Session::AccountInfo> _result;
 };
 
@@ -288,7 +287,7 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
     std::string sentPasswordHash = CalculateShaPassHash(login, password);
 
     std::shared_ptr<AsyncLoginRequest> request = std::make_shared<AsyncLoginRequest>(*reinterpret_cast<std::shared_ptr<soap>*>(soapClient->user));
-    request->SetCallback(LoginDatabase.AsyncQuery(stmt)
+    request->SetCallback(Trinity::make_unique<QueryCallback>(LoginDatabase.AsyncQuery(stmt)
         .WithChainingPreparedCallback([request, login, sentPasswordHash](QueryCallback& callback, PreparedQueryResult result)
     {
         if (result)
@@ -401,7 +400,7 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
         sLoginService.SendResponse(request->GetClient(), loginResult);
 
         sLoginService.AddLoginTicket(loginResult.login_ticket(), std::move(request->GetResult()));
-    }));
+    })));
 
     _ioService->post(std::bind(&LoginRESTService::HandleAsyncRequest, this, std::move(request)));
 
