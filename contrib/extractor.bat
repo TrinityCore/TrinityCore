@@ -28,7 +28,7 @@ IF %M%==1 GOTO MAPS
 IF %M%==2 GOTO VMAPS
 IF %M%==3 GOTO MMAPS
 IF %M%==4 GOTO ALL
-IF %M%==5 GOTO EOF
+IF %M%==5 GOTO :EOF
 
 :MAPS
 start /b /w mapextractor.exe
