@@ -37,14 +37,6 @@ class Player;
 class SpellInfo;
 class WorldSession;
 enum MovementGeneratorType : uint8;
-struct CreatureLevelScaling
-{
-    uint16 minLevel;
-    uint16 maxLevel;
-    int16 deltaLevel;
-};
-
-    Optional<CreatureLevelScaling> levelScaling;
 
 struct VendorItemCount
 {
