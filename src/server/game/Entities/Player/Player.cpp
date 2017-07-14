@@ -11662,7 +11662,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
 
         // Since 4.x bags are getting equipped automaticly when they have no bind on equip boundary
         // This includes looted bags, bags from quest rewards and purchased bags from vendors
-        if (item->IsBag() && item->GetTemplate()->GetBonding() != BIND_WHEN_EQUIPED)
+        if (item->IsBag() && item->GetTemplate()->GetBonding() != BIND_ON_EQUIP)
             item = StoreItem(pos, item, update, true);
         else
             item = StoreItem(pos, item, update, false);
