@@ -649,7 +649,7 @@ void ObjectMgr::LoadCreatureScalingDatas()
     uint32 oldMSTime = getMSTime();
 
     //                                                 0            1
-    QueryResult result = WorldDatabase.Query("SELECT entry, levelScalingMin, levelScalingMax, levelScalingDelta FROM creature_template_scaling");
+    QueryResult result = WorldDatabase.Query("SELECT Entry, LevelScalingMin, LevelScalingMax, LevelScalingDelta FROM creature_template_scaling");
 
     if (!result)
     {
@@ -664,18 +664,18 @@ void ObjectMgr::LoadCreatureScalingDatas()
 
         uint32 entry = fields[0].GetUInt32();
 
-        if (!sObjectMgr->GetCreatureTemplate(entry))
+        CreatureTemplateContainer::iterator itr = _creatureTemplateStore.find(entry);
+        if (itr == _creatureTemplateStore.end())
         {
             TC_LOG_ERROR("sql.sql", "Creature template (Entry: %u) does not exist but has a record in `creature_template_scaling`", entry);
             continue;
         }
 
         CreatureLevelScaling creatureLevelScaling;
-        creatureLevelScaling.minLevel              = fields[1].GetUInt16();
-        creatureLevelScaling.maxLevel              = fields[2].GetUInt16();
-        creatureLevelScaling.deltaLevel            = fields[3].GetInt16();
-
-        _creatureTemplateStore[entry].levelScaling = creatureLevelScaling;
+        creatureLevelScaling.MinLevel              = fields[1].GetUInt16();
+        creatureLevelScaling.MaxLevel              = fields[2].GetUInt16();
+        creatureLevelScaling.DeltaLevel            = fields[3].GetInt16();
+        itr->second.levelScaling                   = creatureLevelScaling;
 
         ++count;
     } while (result->NextRow());

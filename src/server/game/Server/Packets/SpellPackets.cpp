@@ -106,9 +106,9 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Creature, Pl
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
-    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->minLevel;
-    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->maxLevel;
-    TargetScalingLevelDelta = (int8)creatureTemplate->levelScaling->deltaLevel;
+    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->MinLevel;
+    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->MaxLevel;
+    TargetScalingLevelDelta = (int8)creatureTemplate->levelScaling->DeltaLevel;
     return true;
 }
 
@@ -122,8 +122,8 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Player, Crea
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
-    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->minLevel;
-    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->maxLevel;
+    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->MinLevel;
+    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->MaxLevel;
     return true;
 }
 
@@ -136,9 +136,9 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Creature, Cr
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
-    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->minLevel;
-    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->maxLevel;
-    TargetScalingLevelDelta = (int8)creatureTemplate->levelScaling->deltaLevel;
+    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->MinLevel;
+    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->MaxLevel;
+    TargetScalingLevelDelta = (int8)creatureTemplate->levelScaling->DeltaLevel;
     return true;
 }
 
