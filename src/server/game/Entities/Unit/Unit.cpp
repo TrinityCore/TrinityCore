@@ -696,7 +696,7 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 
     if (Creature* creAttacker = ToCreature())
         if (creAttacker->HasScalableLevels())
-            damage *= creAttacker->GetDamageMultiplierForTarget(victim));
+            damage *= creAttacker->GetDamageMultiplierForTarget(victim);
 }
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
