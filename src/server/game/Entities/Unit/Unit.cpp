@@ -694,15 +694,9 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
         return;
     }
 
-    if (IsPlayer())
-        if (Creature* creVictim = victim->ToCreature())
-            if (creVictim->HasScalableLevels())
-                damage = ceil(float(damage) * creVictim->GetHealthMultiplierForTarget(this));
-
-    if (victim->IsPlayer())
-        if (Creature* creAttacker = ToCreature())
-            if (creAttacker->HasScalableLevels())
-                damage = ceil(float(damage) * creAttacker->GetDamageMultiplierForTarget(victim));
+    if (Creature* creAttacker = ToCreature())
+        if (creAttacker->HasScalableLevels())
+            damage *= creAttacker->GetDamageMultiplierForTarget(victim));
 }
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
@@ -849,6 +843,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (IsControlledByPlayer())
             victim->ToCreature()->LowerPlayerDamageReq(health < damage ?  health : damage);
     }
+
+    if (Creature* creVictim = victim->ToCreature())
+        if (creVictim->HasScalableLevels())
+            damage *= creVictim->GetHealthMultiplierForTarget(this);
 
     if (health <= damage)
     {
