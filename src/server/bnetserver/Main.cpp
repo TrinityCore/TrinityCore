@@ -163,7 +163,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    if (!sLoginService.Start(*ioService))
+    if (!sLoginService.Start(ioService.get()))
     {
         TC_LOG_ERROR("server.bnetserver", "Failed to initialize login service");
         return 1;
