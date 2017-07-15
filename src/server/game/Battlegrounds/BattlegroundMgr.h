@@ -178,8 +178,6 @@ class TC_GAME_API BattlegroundMgr
             return nullptr;
         }
 
-        typedef std::map<BattlegroundTypeId, uint8 /*weight*/> BattlegroundSelectionWeightMap;
-
         typedef std::map<BattlegroundTypeId, BattlegroundTemplate> BattlegroundTemplateMap;
         typedef std::map<uint32 /*mapId*/, BattlegroundTemplate*> BattlegroundMapTemplateContainer;
         BattlegroundTemplateMap _battlegroundTemplates;
