@@ -2515,11 +2515,12 @@ float Creature::GetBaseArmorForLevel(uint8 level) const
 
 float Creature::GetArmorMultiplierForTarget(WorldObject const* target) const
 {
-    Unit const* unitTarget = target->ToUnit();
-    if (!HasScalableLevels() || !unitTarget)
+    if (!HasScalableLevels())
         return 1.0f;
 
-    return GetBaseArmorForLevel(unitTarget->getLevel()) / GetBaseArmorForLevel(getLevel());
+    uint8 levelForTarget = GetLevelForTarget(target);
+
+    return GetBaseArmorForLevel(levelForTarget) / GetBaseArmorForLevel(getLevel());
 }
 
 uint8 Creature::GetLevelForTarget(WorldObject const* target) const
