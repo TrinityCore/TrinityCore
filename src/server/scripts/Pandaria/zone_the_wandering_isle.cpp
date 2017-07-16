@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2016 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -243,77 +243,90 @@ public:
 
 enum SingingPoolsATSpells
 {
-    SPELL_CURSE_OF_THE_FROG     = 102938,
-    SPELL_CURSE_OF_THE_SKUNK    = 102939,
-    SPELL_CURSE_OF_THE_TURTLE   = 102940,
-    SPELL_CURSE_OF_THE_CRANE    = 102941,
-    SPELL_RIDE_VEHICLE_POLE     = 102717
+    SPELL_CURSE_OF_THE_FROG             = 102938,
+    SPELL_CURSE_OF_THE_SKUNK            = 102939,
+    SPELL_CURSE_OF_THE_TURTLE           = 102940,
+    SPELL_CURSE_OF_THE_CRANE            = 102941,
+    SPELL_RIDE_VEHICLE_POLE             = 102717,
+    SPELL_RIDE_VEHICLE_BELL_POLE        = 107049,
+    SPELL_TRAINING_BELL_EXCLUSION_AURA  = 133381
 };
 
-enum SingingPoolsATNPCs
-{
-    NPC_CURSED_POOL_CONTROLLER  = 55123
-};
-
-enum SingingPoolsATData
-{
-    DATA_FROG   = 1,
-    DATA_SKUNK  = 2,
-    DATA_TURTLE = 3,
-    DATA_CRANE  = 4
-};
+//enum SingingPoolsATNPCs
+//{
+//    NPC_CURSED_POOL_CONTROLLER  = 55123
+//};
+//
+//enum SingingPoolsATData
+//{
+//    DATA_FROG   = 1,
+//    DATA_SKUNK  = 2,
+//    DATA_TURTLE = 3,
+//    DATA_CRANE  = 4
+//};
 
 class at_singing_pools_transform : public AreaTriggerScript
 {
 public:
     at_singing_pools_transform() : AreaTriggerScript("at_singing_pools_transform") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger, bool entered) override
     {
         if (player->IsAlive() && !player->HasAura(SPELL_RIDE_VEHICLE_POLE))
         {
-            switch (areaTrigger->ID)
+            if (entered)
             {
-                case 6986:
-                case 6987:
-                    if (!player->HasAura(SPELL_CURSE_OF_THE_FROG))
-                    {
-                        player->CastSpell(player, SPELL_CURSE_OF_THE_FROG, true);
-
-                        if (Creature* creature = player->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 80.0f, true))
-                            creature->AI()->SetDataWithTarget(DATA_FROG, player->GetGUID());
-                    }
-                    break;
-                case 6988:
-                case 6989:
-                    if (!player->HasAura(SPELL_CURSE_OF_THE_SKUNK))
-                    {
-                        player->CastSpell(player, SPELL_CURSE_OF_THE_SKUNK, true);
-
-                        if (Creature* creature = player->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 60.0f, true))
-                            creature->AI()->SetDataWithTarget(DATA_SKUNK, player->GetGUID());
-                    }
-                    break;
-                case 6991:
-                case 6992:
-                    if (!player->HasAura(SPELL_CURSE_OF_THE_CRANE))
-                    {
-                        player->CastSpell(player, SPELL_CURSE_OF_THE_CRANE, true);
-
-                        if (Creature* creature = player->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 110.0f, true))
-                            creature->AI()->SetDataWithTarget(DATA_CRANE, player->GetGUID());
-                    }
-                    break;
-                case 7011:
-                case 7012:
-                    if (!player->HasAura(SPELL_CURSE_OF_THE_TURTLE))
-                    {
-                        player->CastSpell(player, SPELL_CURSE_OF_THE_TURTLE, true);
-
-                        if (Creature* creature = player->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 50.0f, true))
-                            creature->AI()->SetDataWithTarget(DATA_TURTLE, player->GetGUID());
-                    }
-                    break;
+                switch (areaTrigger->ID)
+                {
+                    case 6986:
+                    case 6987:
+                        if (!player->HasAura(SPELL_CURSE_OF_THE_FROG))
+                            player->CastSpell(player, SPELL_CURSE_OF_THE_FROG, true);
+                        if (player->HasAura(SPELL_TRAINING_BELL_EXCLUSION_AURA))
+                            player->RemoveAura(SPELL_TRAINING_BELL_EXCLUSION_AURA);
+                        break;
+                    case 6988:
+                    case 6989:
+                        if (!player->HasAura(SPELL_CURSE_OF_THE_SKUNK))
+                            player->CastSpell(player, SPELL_CURSE_OF_THE_SKUNK, true);
+                        break;
+                    case 6991:
+                    case 6992:
+                        if (!player->HasAura(SPELL_CURSE_OF_THE_CRANE))
+                            player->CastSpell(player, SPELL_CURSE_OF_THE_CRANE, true);
+                        break;
+                    case 7011:
+                    case 7012:
+                        if (!player->HasAura(SPELL_CURSE_OF_THE_TURTLE))
+                            player->CastSpell(player, SPELL_CURSE_OF_THE_TURTLE, true);
+                        break;
+                }
+            }
+            else
+            {
+                switch (areaTrigger->ID)
+                {
+                    case 6986:
+                    case 6987:
+                        if (player->HasAura(SPELL_CURSE_OF_THE_FROG) && player->GetPositionZ() > 117.0f && !player->HasUnitState(UNIT_STATE_JUMPING))
+                            player->RemoveAura(SPELL_CURSE_OF_THE_FROG);
+                        break;
+                    case 6988:
+                    case 6989:
+                        if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK) && player->GetPositionZ() > 114.8f && !player->HasUnitState(UNIT_STATE_JUMPING))
+                            player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
+                        break;
+                    case 6991:
+                    case 6992:
+                        if (player->HasAura(SPELL_CURSE_OF_THE_CRANE) && player->GetPositionZ() > 79.7f && !player->HasUnitState(UNIT_STATE_JUMPING))
+                            player->RemoveAura(SPELL_CURSE_OF_THE_CRANE);
+                        break;
+                    case 7011:
+                    case 7012:
+                        if (player->HasAura(SPELL_CURSE_OF_THE_TURTLE) && player->GetPositionZ() > 106.4f && !player->HasUnitState(UNIT_STATE_JUMPING))
+                            player->RemoveAura(SPELL_CURSE_OF_THE_TURTLE);
+                        break;
+                }
             }
             return true;
         }
@@ -321,116 +334,116 @@ public:
     }
 };
 
-class npc_cursed_pool_controller : public CreatureScript
-{
-public:
-    npc_cursed_pool_controller() : CreatureScript("npc_cursed_pool_controller") { }
-
-    struct npc_cursed_pool_controllerAI : public ScriptedAI
-    {
-        npc_cursed_pool_controllerAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void SetDataWithTarget(uint32 id, ObjectGuid target)
-        {
-            if (std::find(targets.begin(), targets.end(), target) == targets.end())
-                targets.push_back(target);
-
-            switch (id)
-            {
-                case DATA_FROG:
-                    pool = 1;
-                    break;
-                case DATA_SKUNK:
-                    pool = 2;
-                    break;
-                case DATA_TURTLE:
-                    pool = 3;
-                    break;
-                case DATA_CRANE:
-                    pool = 4;
-                    break;
-            }
-        }
-
-        void MoveInLineOfSight(Unit* who) override // need to check on greater range. now its around 55y
-        {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (std::find(targets.begin(), targets.end(), who->GetGUID()) == targets.end())
-                {
-                    targets.push_back(who->GetGUID());
-
-                    if (who->HasAura(SPELL_CURSE_OF_THE_FROG))
-                        pool = 1;
-                    if (who->HasAura(SPELL_CURSE_OF_THE_SKUNK))
-                        pool = 2;
-                    if (who->HasAura(SPELL_CURSE_OF_THE_TURTLE))
-                        pool = 3;
-                    if (who->HasAura(SPELL_CURSE_OF_THE_CRANE))
-                        pool = 4;
-                }
-            }
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            for (std::list<ObjectGuid>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-            {
-                Player* player = ObjectAccessor::FindPlayer(*itr);
-                if (!player)
-                    return;
-
-                switch (pool)
-                {
-                    case 1: // TODO: check position greather than line between points 980.15, 3275.5 - 1002.5, 3281.31 & 909.96, 3280.91 - 916.8, 3283.37
-                        if (player->HasAura(SPELL_CURSE_OF_THE_FROG) && player->GetPositionZ() > 118.5f && !player->HasUnitState(UNIT_STATE_JUMPING))
-                        {
-                            player->RemoveAura(SPELL_CURSE_OF_THE_FROG);
-                            targets.erase(itr);
-                        }
-                        break;
-                    case 2:
-                        if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK) && player->GetPositionZ() > 114.8f && !player->HasUnitState(UNIT_STATE_JUMPING))
-                        {
-                            player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
-                            targets.erase(itr);
-                        }
-                        break;
-                    case 3:
-                        if (player->HasAura(SPELL_CURSE_OF_THE_TURTLE) && player->GetPositionZ() > 106.5f && !player->HasUnitState(UNIT_STATE_JUMPING))
-                        {
-                            player->RemoveAura(SPELL_CURSE_OF_THE_TURTLE);
-                            targets.erase(itr);
-                        }
-                        break;
-                    case 4:
-                        if (player->HasAura(SPELL_CURSE_OF_THE_CRANE) && player->GetPositionZ() > 80.95f && !player->HasUnitState(UNIT_STATE_JUMPING))
-                        {
-                            player->RemoveAura(SPELL_CURSE_OF_THE_CRANE);
-                            targets.erase(itr);
-                        }
-                        break;
-                }
-            }
-        }
-        
-    private:
-        std::list<ObjectGuid> targets;
-        uint8 pool;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_cursed_pool_controllerAI(creature);
-    }
-};
+//class npc_cursed_pool_controller : public CreatureScript
+//{
+//public:
+//    npc_cursed_pool_controller() : CreatureScript("npc_cursed_pool_controller") { }
+//
+//    struct npc_cursed_pool_controllerAI : public ScriptedAI
+//    {
+//        npc_cursed_pool_controllerAI(Creature* creature) : ScriptedAI(creature) { }
+//
+//        void SetDataWithTarget(uint32 id, ObjectGuid target)
+//        {
+//            if (std::find(targets.begin(), targets.end(), target) == targets.end())
+//                targets.push_back(target);
+//
+//            switch (id)
+//            {
+//                case DATA_FROG:
+//                    pool = 1;
+//                    break;
+//                case DATA_SKUNK:
+//                    pool = 2;
+//                    break;
+//                case DATA_TURTLE:
+//                    pool = 3;
+//                    break;
+//                case DATA_CRANE:
+//                    pool = 4;
+//                    break;
+//            }
+//        }
+//
+//        void MoveInLineOfSight(Unit* who) override // need to check on greater range. now its around 55y
+//        {
+//            if (who->GetTypeId() == TYPEID_PLAYER)
+//            {
+//                if (std::find(targets.begin(), targets.end(), who->GetGUID()) == targets.end())
+//                {
+//                    targets.push_back(who->GetGUID());
+//
+//                    if (who->HasAura(SPELL_CURSE_OF_THE_FROG))
+//                        pool = 1;
+//                    if (who->HasAura(SPELL_CURSE_OF_THE_SKUNK))
+//                        pool = 2;
+//                    if (who->HasAura(SPELL_CURSE_OF_THE_TURTLE))
+//                        pool = 3;
+//                    if (who->HasAura(SPELL_CURSE_OF_THE_CRANE))
+//                        pool = 4;
+//                }
+//            }
+//        }
+//
+//        void UpdateAI(uint32 /*diff*/) override
+//        {
+//            for (std::list<ObjectGuid>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+//            {
+//                Player* player = ObjectAccessor::FindPlayer(*itr);
+//                if (!player)
+//                    return;
+//
+//                switch (pool)
+//                {
+//                    case 1: // TODO: check position greather than line between points 980.15, 3275.5 - 1002.5, 3281.31 & 909.96, 3280.91 - 916.8, 3283.37
+//                        if (player->HasAura(SPELL_CURSE_OF_THE_FROG) && player->GetPositionZ() > 118.5f && !player->HasUnitState(UNIT_STATE_JUMPING))
+//                        {
+//                            player->RemoveAura(SPELL_CURSE_OF_THE_FROG);
+//                            targets.erase(itr);
+//                        }
+//                        break;
+//                    case 2:
+//                        if (player->HasAura(SPELL_CURSE_OF_THE_SKUNK) && player->GetPositionZ() > 114.8f && !player->HasUnitState(UNIT_STATE_JUMPING))
+//                        {
+//                            player->RemoveAura(SPELL_CURSE_OF_THE_SKUNK);
+//                            targets.erase(itr);
+//                        }
+//                        break;
+//                    case 3:
+//                        if (player->HasAura(SPELL_CURSE_OF_THE_TURTLE) && player->GetPositionZ() > 106.5f && !player->HasUnitState(UNIT_STATE_JUMPING))
+//                        {
+//                            player->RemoveAura(SPELL_CURSE_OF_THE_TURTLE);
+//                            targets.erase(itr);
+//                        }
+//                        break;
+//                    case 4:
+//                        if (player->HasAura(SPELL_CURSE_OF_THE_CRANE) && player->GetPositionZ() > 80.95f && !player->HasUnitState(UNIT_STATE_JUMPING))
+//                        {
+//                            player->RemoveAura(SPELL_CURSE_OF_THE_CRANE);
+//                            targets.erase(itr);
+//                        }
+//                        break;
+//                }
+//            }
+//        }
+//        
+//    private:
+//        std::list<ObjectGuid> targets;
+//        uint8 pool;
+//    };
+//
+//    CreatureAI* GetAI(Creature* creature) const override
+//    {
+//        return new npc_cursed_pool_controllerAI(creature);
+//    }
+//};
 
 enum BalancePole
 {
     EVENT_CAST_TRANSFORM                        = 1,
     NPC_TRAINING_BELL_BALANCE_POLE              = 55083,
-    SPELL_TRAINING_BELL_EXCLUSION_AURA          = 133381,
-    SPELL_TRAINING_BELL_FORCECAST_RIDE_VEHICLE  = 107050
+    SPELL_TRAINING_BELL_FORCECAST_RIDE_VEHICLE  = 107050,
+    SPELL_TRAINING_BELL_RIDE_VEHICLE            = 107049
 };
 
 class npc_balance_pole : public CreatureScript
@@ -446,11 +459,10 @@ public:
         {
             if (passenger->GetTypeId() == TYPEID_PLAYER)
             {
+                _passenger = passenger;
+
                 if (!apply)
-                {
-                    _passenger = passenger;
                     events.ScheduleEvent(EVENT_CAST_TRANSFORM, 1000);
-                }
                 else
                 {
                     if (me->GetEntry() == NPC_TRAINING_BELL_BALANCE_POLE)
@@ -468,16 +480,12 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CAST_TRANSFORM:
-                        if (!_passenger->HasAura(SPELL_RIDE_VEHICLE_POLE))
+                        if (!_passenger->HasAura(SPELL_TRAINING_BELL_RIDE_VEHICLE) && !_passenger->HasAura(SPELL_RIDE_VEHICLE_POLE))
                         {
+                            _passenger->CastSpell(_passenger, SPELL_CURSE_OF_THE_FROG, true);
+
                             if (_passenger->HasAura(SPELL_TRAINING_BELL_EXCLUSION_AURA))
                                 _passenger->RemoveAura(SPELL_TRAINING_BELL_EXCLUSION_AURA);
-
-                            if (Creature* creature = _passenger->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 80.0f, true))
-                            {
-                                _passenger->CastSpell(_passenger, SPELL_CURSE_OF_THE_FROG, true);
-                                creature->AI()->SetDataWithTarget(DATA_FROG, _passenger->GetGUID());
-                            }
                         }
                         break;
                 }
@@ -1328,41 +1336,41 @@ public:
             {
                 case SPELL_TRIGGER_WITH_ANIM_0:
                     me->Talk(TEXT_1, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                    me->PlayDirectSound(27822);
+                    me->PlayDirectSound(27822, caster->ToPlayer());
                     break;
                 case SPELL_TRIGGER:
                     me->Talk(TEXT_2, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                    me->PlayDirectSound(27823);
+                    me->PlayDirectSound(27823, caster->ToPlayer());
                     break;
                 case SPELL_TRIGGER_WITH_ANIM_1:
                     if (hitCount == 0)
                     {
                         me->Talk(TEXT_3, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                        me->PlayDirectSound(27824);
+                        me->PlayDirectSound(27824, caster->ToPlayer());
                         hitCount++;
                     }
                     else if (hitCount == 1)
                     {
                         me->Talk(TEXT_4, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                        me->PlayDirectSound(27825);
+                        me->PlayDirectSound(27825, caster->ToPlayer());
                         hitCount++;
                     }
                     else if (hitCount == 2)
                     {
-                        me->Talk(TEXT_6, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                        me->PlayDirectSound(27827);
+                        me->Talk(TEXT_6, CHAT_MSG_MONSTER_SAY, 350.0f, caster);
+                        me->PlayDirectSound(27827, caster->ToPlayer());
                         hitCount = 0;
                     }
                     break;
                 case SPELL_TRIGGER_WITH_TURN:
                     me->Talk(TEXT_5, CHAT_MSG_MONSTER_SAY, 300.0f, caster);
-                    me->PlayDirectSound(27826);
+                    me->PlayDirectSound(27826, caster->ToPlayer());
                     break;
             }
         }
 
     private:
-        uint8 hitCount;
+        uint8 hitCount = 0;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -1379,7 +1387,7 @@ void AddSC_the_wandering_isle()
     new spell_summon_living_air();
     new spell_fan_the_flames();
     new at_singing_pools_transform();
-    new npc_cursed_pool_controller();
+    //new npc_cursed_pool_controller();
     new npc_balance_pole();
     new at_singing_pools_training_bell();
     new spell_rock_jump_a();
