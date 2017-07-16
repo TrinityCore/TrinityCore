@@ -189,6 +189,7 @@ bool BattlegroundSA::ResetObjs()
     for (uint8 i = 0; i < BG_SA_MAX_GY; i++)
     {
         WorldSafeLocsEntry const* sg = sObjectMgr->GetWorldSafeLoc(BG_SA_GYEntries[i]);
+
         if (!sg)
         {
             TC_LOG_ERROR("bg.battleground", "SOTA: Can't find GY entry %u", BG_SA_GYEntries[i]);
