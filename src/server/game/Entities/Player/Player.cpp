@@ -23163,6 +23163,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
     SendItemDurations();                                    // must be after add to map
+    SendQuestGiverStatusMultiple();
 
     // raid downscaling - send difficulty to player
     if (GetMap()->IsRaid())
