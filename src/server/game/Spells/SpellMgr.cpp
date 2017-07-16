@@ -3879,6 +3879,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(4); // 120 seconds
     });
+
+    // Eject Passenger 1
+    ApplySpellFix({ 60603 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->BasePoints = 1;
+    });
     // ENDOF THE WANDERING ISLE SPELLS
 
     SpellInfo* spellInfo = NULL;

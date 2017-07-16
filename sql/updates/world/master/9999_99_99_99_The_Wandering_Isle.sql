@@ -6912,7 +6912,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=13249, `VerifiedBuild`=20886 WHE
 UPDATE `creature_template` SET `gossip_menu_id`=14671, `VerifiedBuild`=20886 WHERE `entry`=57721;
 UPDATE `creature_template` SET `gossip_menu_id`=14670, `VerifiedBuild`=20886 WHERE `entry`=57720;
 UPDATE `creature_template` SET `gossip_menu_id`=13726, `VerifiedBuild`=20886 WHERE `entry`=56013;
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (57164, 54568, 60245, 61126, 61127, 54786, 57132, 60253, 60248, 54734, 54135, 59626, 60176, 41200, 54131, 40789, 57205, 54943, 60244, 53566, 54586, 65470, 60183, 54611, 59642);
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (57779, 57164, 54568, 60245, 61126, 61127, 54786, 57132, 60253, 60248, 54734, 54135, 59626, 60176, 41200, 54131, 40789, 57205, 54943, 60244, 53566, 54586, 65470, 60183, 54611, 59642);
 UPDATE `creature_template` SET `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry` IN (55640, 65102, 65107, 55918, 56663, 56662, 65476, 65477, 56274, 55586, 64506, 64505, 55592, 55665, 57465, 57466, 55633, 57419, 64875, 64876, 64879, 64880, 64881, 64885, 60918, 65044, 65045, 65085, 65086, 66689, 66691, 66692, 65467, 55539, 55506, 60915, 60914, 55556, 57797, 53704, 55022, 55015, 55504, 55483, 56241, 65473, 57712, 55019, 65468, 56393, 56394, 60411, 54976);
 UPDATE `creature_template` SET `flags_extra`=64 WHERE `entry` IN (53714, 57873);
 UPDATE `creature_template` SET `faction`=2104, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `VehicleId`=1953, `AIName`='SmartAI', `HoverHeight`=2, `VerifiedBuild`=20886 WHERE `entry`=57750;
@@ -6925,10 +6925,10 @@ UPDATE `creature_template` SET `AIName`='SmartAI', `InhabitType`=4, `VerifiedBui
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `AIName`='SmartAI' WHERE `entry`=56730;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33544, `unit_flags2`=2048, `AIName`='SmartAI', `InhabitType`=4, `VerifiedBuild`=20886 WHERE `entry`=54958;
 UPDATE `creature_template` SET `lootid`=54130, `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry`=54130;
-UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33587976, `unit_flags2`=2048, `VerifiedBuild`=20886 WHERE `entry`=56550;
+UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33587976, `unit_flags2`=2048, `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry`=56550;
 UPDATE `creature_template` SET `npcflag`=16777216, `ScriptName`='npc_balance_pole', `VerifiedBuild`=20886 WHERE `entry` IN (54993, 57431, 55083);
 UPDATE `creature_template` SET `npcflag`=16777216, `VerifiedBuild`=20886 WHERE `entry`=57626;
-UPDATE `creature_template` SET `InhabitType`=4, `ScriptName`='npc_cursed_pool_controller', `VerifiedBuild`=20886 WHERE `entry`=55123;
+UPDATE `creature_template` SET `InhabitType`=4, `ScriptName`='', `VerifiedBuild`=20886 WHERE `entry`=55123; -- npc_cursed_pool_controller
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=8, `unit_flags2`=67635200, `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry` IN (57636, 57667, 57668);
 UPDATE `creature_template` SET `unit_flags`=32768, `skinloot`=16353, `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry`=55292;
 UPDATE `creature_template` SET `ScriptName`='npc_shu_playing', `VerifiedBuild`=20886 WHERE `entry`=65493;
@@ -6950,7 +6950,7 @@ UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `u
 UPDATE `creature_template` SET `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33536, `unit_flags2`=2048, `VerifiedBuild`=20886 WHERE `entry`=55874;
 UPDATE `creature_template` SET `speed_walk`=1.555556, `VerifiedBuild`=20886 WHERE `entry`=65105;
 UPDATE `creature_template` SET `InhabitType`=4, `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry`=57769;
-UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=8, `unit_flags2`=67635200, `VerifiedBuild`=20886 WHERE `entry`=57874;
+UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=8, `unit_flags2`=67635200, `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry`=57874;
 UPDATE `creature_template` SET `faction`=2395, `speed_run`=1.1, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=32776, `unit_flags2`=2048, `VehicleId`=1820, `AIName`='SmartAI', `InhabitType`=4, `VerifiedBuild`=20886 WHERE `entry`=55649;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33536, `unit_flags2`=2048, `AIName`='SmartAI', `VerifiedBuild`=20886 WHERE `entry`=56660;
 UPDATE `creature_template` SET `InhabitType`=4, `ScriptName`='shen_zin_shu_bunny', `VerifiedBuild`=20886 WHERE `entry`=56676;
@@ -7788,8 +7788,8 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceEntry` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944)) OR (`SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (524, 592, 593, 594, 595, 596, 597, 598, 964, 1430, 1510, 1518, 1523, 1526, 1527, 1836, 1885));
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 54567, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710) AND `SourceId`=2;
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337);
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (54567, 55019, 5501900)) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 102522, 107049, 125961)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup`=13140);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337);
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (54567, 55019, 5501900)) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 102522, 107049, 125961)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup`=13140);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Phases Specific
 (26, 629, 5825, 0, 0, 28, 0, 29419, 0, 0, 1, 0, 0, '', 'The Dawning Valley Phase 629 until Quest 29419 not complete'),
@@ -7894,7 +7894,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (22, 1, 7784, 2, 0, 1, 0, 116219, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
 (22, 1, 7783, 2, 0, 9, 0, 29678, 0, 0, 0, 0, 0, '', 'SAI only when quest taken'),
 (22, 1, 7258, 2, 0, 1, 0, 88811, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
-(22, 1, 7822, 2, 0, 9, 0, 29775, 0, 0, 0, 0, 0, '', 'SAI only when quest taken'),
+(22, 1, 7822, 2, 0, 28, 0, 29775, 0, 0, 0, 0, 0, '', 'SAI only when quest complete'),
 (22, 1, 7822, 2, 0, 1, 0, 88811, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
 (22, 1, 7116, 2, 0, 28, 0, 29775, 0, 0, 0, 0, 0, '', 'SAI only when player has completed quest'),
 (22, 1, 8287, 2, 0, 1, 0, 116219, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
@@ -7924,6 +7924,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 109095, 0, 0, 31, 0, 3, 57779, 0, 0, 0, 0, '', 'Fan the Flames: Blow Air target Huo'),
 (13, 1, 109105, 0, 0, 31, 0, 3, 57779, 0, 0, 0, 0, '', 'Fan the Flames: Blow Air Big target Huo'),
 (13, 1, 109109, 0, 0, 31, 0, 3, 57779, 0, 0, 0, 0, '', 'Fan the Flames: Blow Air Bigger target Huo'),
+(13, 1, 109178, 0, 0, 31, 0, 3, 54958, 0, 0, 0, 0, '', 'Despawn Fire Spirit target Huo pet'),
 (13, 1, 105090, 0, 0, 31, 0, 3, 54958, 0, 0, 0, 0, '', 'Trigger Spirit of Fire at Temple target Huo'),
 (13, 1, 105090, 0, 0, 33, 0, 1, 3, 0, 0, 0, 0, '', 'Trigger Spirit of Fire at Temple target Huo owned by summoner'), -- temp?
 (13, 2, 106465, 0, 0, 31, 0, 3, 56479, 0, 0, 0, 0, '', 'Trigger Cental Statue Fire Change target Legacy of Liu Lang'),
@@ -7999,6 +8000,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (22, 1, 54567, 0, 0, 28, 0, 29419, 0, 0, 1, 0, 0, '', 'SAI only when player has not completed quest'),
 (22, 1, 54567, 0, 0, 8, 0, 29419, 0, 0, 1, 0, 0, '', 'SAI only when player has not rewarded quest'),
 (17, 0, 106299, 0, 0, 2, 0, 72112, 1, 0, 1, 0, 0, '', 'Summon Living Air only when player has not quest item'),
+(17, 0, 105156, 0, 0, 2, 0, 75000, 1, 0, 0, 0, 0, '', 'Use red brazier - See Quest Invis 13 only when player has item'),
+(17, 0, 105157, 0, 0, 2, 0, 75000, 1, 0, 0, 0, 0, '', 'Use blue brazier - See Quest Invis 14 only when player has item'),
+(17, 0, 105158, 0, 0, 2, 0, 75000, 1, 0, 0, 0, 0, '', 'Use violet brazier - See Quest Invis 15 only when player has item'),
 (17, 0, 102522, 0, 0, 29, 0, 57779, 10, 0, 0, 0, 0, '', 'Fan the Flames when Huo within 10y'),
 (18, 54993, 102717, 0, 0, 1, 0, 102938, 0, 0, 1, 0, 0, '', 'Show spellclick only when has not aura'),
 (18, 57431, 102717, 0, 0, 1, 0, 102938, 0, 0, 1, 0, 0, '', 'Show spellclick only when has not aura'),
@@ -8119,7 +8123,7 @@ INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 -- Forlorn Hut
 (5944, 903, 'Forlorn Hut - x');
 
-DELETE FROM `spell_area` WHERE `spell` IN (105095, 105001, 104566, 105306, 104334, 106394, 104567, 105005, 105307, 105308, 108842, 108844, 109100, 104028, 115446, 115448, 118028, 104018, 114455, 109303, 108835, 108822, 108823, 128574, 102875, 102871, 116571, 102874, 102870, 103051, 108879, 108834, 102873, 102872, 102869, 106494, 106493, 102868, 105156, 105157, 105158, 108695, 108694, 105162, 105161, 105160, 102521, 102400, 102399, 102398, 102397, 102396, 102395, 114735, 102194, 100709, 107027, 107028, 107032, 102403, 100711, 107033, 102393, 102429);
+DELETE FROM `spell_area` WHERE `spell` IN (105095, 105001, 104566, 105306, 104334, 106394, 104567, 105005, 105307, 105308, 108842, 108844, 109100, 104028, 115446, 115448, 118028, 104018, 114455, 109303, 108835, 108822, 108823, 128574, 102875, 102871, 116571, 102874, 102870, 103051, 108879, 108834, 102873, 102872, 102869, 106494, 106493, 102868, 105156, 105157, 105158, 108695, 108694, 105162, 105161, 105160, 102521, 119305, 119306, 119307, 102400, 102399, 102398, 102397, 102396, 102395, 114735, 102194, 100709, 107027, 107028, 107032, 102403, 100711, 107033, 102393, 102429);
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`, `quest_start_status`, `quest_end_status`) VALUES
 (100709, 5834, 0, 29524, 0, 0, 2, 1, 0, 9), -- See Quest Invis 1 (Master Shang bench)
 (107027, 5834, 0, 29406, 0, 0, 2, 1, 0, 11), -- See Quest Invis 20 (Gate 1 - GO)
@@ -8154,9 +8158,12 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (105162, 5849, 0, 29664, 0, 0, 2, 1, 0, 9), -- See Quest Invis 18 (Violet Flame - GO)
 (108694, 5849, 29664, 0, 0, 0, 2, 1, 8, 0), -- See Quest Invis 19 (Sparkle Bunny - Flickering Flame)
 (108695, 5849, 29664, 0, 0, 0, 2, 1, 8, 0), -- See Quest Invis 20 (Sparkle Bunny flames)
-(105156, 5849, 29664, 0, 0, 0, 2, 0, 74, 0), -- See Quest Invis 13 (Red Flame activated - GO)
-(105157, 5849, 29664, 0, 0, 0, 2, 0, 74, 0), -- See Quest Invis 14 (Blue Flame activated - GO)
-(105158, 5849, 29664, 0, 0, 0, 2, 0, 74, 0), -- See Quest Invis 15 (Violet Flame activated - GO)
+(105156, 5849, 29664, 29422, 0, 0, 2, 0, 74, 1), -- See Quest Invis 13 (Red Flame activated - GO)
+(105157, 5849, 29664, 29422, 0, 0, 2, 0, 74, 1), -- See Quest Invis 14 (Blue Flame activated - GO)
+(105158, 5849, 29664, 29422, 0, 0, 2, 0, 74, 1), -- See Quest Invis 15 (Violet Flame activated - GO)
+(119305, 5849, 29422, 0, 0, 0, 2, 1, 74, 0), -- See Quest Invis 13 (Red Flame activated - GO)
+(119306, 5849, 29422, 0, 0, 0, 2, 1, 74, 0), -- See Quest Invis 14 (Blue Flame activated - GO)
+(119307, 5849, 29422, 0, 0, 0, 2, 1, 74, 0), -- See Quest Invis 15 (Violet Flame activated - GO)
 (106493, 5820, 0, 29423, 0, 0, 2, 1, 0, 11), -- See Quest Invis 15 (Brazier temple)
 (102868, 5820, 29423, 29775, 0, 0, 2, 1, 74, 9), -- See Quest Invis 1 (Master Shang temple)
 (106494, 5820, 29423, 0, 0, 0, 2, 1, 66, 0), -- See Quest Invis 16 (Brazier temple - GO) // should be delayed
@@ -8236,7 +8243,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 
 DELETE FROM `smart_scripts` WHERE `entryorguid` BETWEEN -@CGUID-2849 AND -@CGUID AND `source_type`=0;
 -- Temp Spawns
-DELETE FROM `smart_scripts` WHERE `entryorguid` IN (59637, 54856, 59652, 56503, 57750, 54631, 61126, 61127, 54958, 60250, 60249, 57636, 57638, 60488, 55213, 57208, 57207, 64258, 57667, 57669, 55558, 60916, 59496, 59498, 56566, 55685, 55694, 57668, 57670, 65558, 56134, 57465, 57690, 57692, 64530, 55744, 64543, 64532, 56159, 65476, 65477, 56686, 56679, 56663, 55649, 56660, 56661, 65102, 65107, 59986, 59988, 59989) AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (59637, 54856, 59652, 56503, 57750, 54631, 61126, 61127, 54958, 56550, 60250, 60249, 57636, 57638, 60488, 55213, 57208, 57207, 64258, 57667, 57669, 55558, 60916, 59496, 59498, 56566, 55685, 55694, 57668, 57670, 65558, 56134, 57465, 57690, 57692, 64530, 55744, 64543, 64532, 56159, 65476, 65477, 56686, 57874, 56679, 56663, 55649, 56660, 56661, 65102, 65107, 59986, 59988, 59989) AND `source_type`=0;
 -- Action Lists > x*100
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (5485600, 5485601, 5485602, 5485603, 5965200, 5650300, 5461101, 5461102, 5458701, 5458702, 5458703, 5458704, 5458705, 5458706, 5458707, 5458708, 5458601, 5356501, 5356502, 5356503, 5356504, 5774801, 5774802, 5774803, 6141101, 6141102, 6141103, 5413001, 5413002, 5413003, 5413004, 5413005, 5413006, 5413007, 5413008, 5413009, 5673001, 5673002, 5673003, 5463100, 6112600, 6112700, 5495800, 6025000, 6024900, 5763800, 5639301, 5639302, 6048800, 5720800, 5720700, 5766900, 5639303, 6546701, 5547701, 5555800, 6091600, 5949600, 6668901, 6669101, 6669201, 5656600, 5569400, 5560101, 5560102, 5767000, 5639304, 5639305, 5639306, 5639307, 6546702, 5639401, 5639402, 5639403, 6555800, 5769200, 6454300, 5566501, 6453200, 6450501, 5615900, 5668600, 5668601, 5668602, 5668603, 5564900, 5564901, 5564902, 5666100, 5666101, 5666000, 5666001, 5998600) AND `source_type`=9;
 -- Area Triggers
@@ -8788,6 +8795,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (54135, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 1329, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On Spellhit - Remove Phase'),
 (54135, 0, 3, 0, 8, 0, 100, 0, 106275, 0, 0, 0, 80, 5413500, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On Spellhit - Run Script'),
 (5413500, 9, 0, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - Talk'),
+(54135, 0, 4, 0, 19, 0, 100, 0, 29422, 0, 0, 0, 44, 631, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On Quest Accepted - Add Phase'),
 -- Master Li Fei fight
 (54734, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On Respawn - Set React State'),
 (54734, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 42, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On Respawn - Set Invincibility'),
@@ -8803,7 +8811,12 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (54734, 0, 10, 11, 61, 0, 100, 0, 0, 0, 0, 0, 86, 106275, 2, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On 15% HP - Corss Cast Trigger Master Li Fei, Fight Completion'),
 (54734, 0, 11, 0, 61, 0, 100, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On 15% HP - Evade'),
 -- Huo
-(54787, 0, 0, 0, 19, 0, 100, 0, 29423, 0, 0, 0, 85, 128700, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Quest Accepted - Cast Summon Spirit of Fire'),
+(57779, 0, 0, 1, 8, 0, 100, 0, 109109, 0, 0, 0, 44, 632, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Spellhit - Add Phase'),
+(57779, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5777900, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Spellhit - Run Script'),
+(5777900, 9, 0, 0, 0, 0, 100, 0, 500, 500, 0, 0, 44, 631, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - Remove Phase'),
+-- Huo
+(54787, 0, 0, 1, 19, 0, 100, 0, 29423, 0, 0, 0, 85, 128700, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Quest Accepted - Cast Summon Spirit of Fire'),
+(54787, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 632, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Quest Accepted - Remove Phase'),
 -- Trigger 7750 The Dawning Stair
 (7750, 2, 0, 1, 46, 0, 100, 0, 7750, 0, 0, 0, 64, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Store Target'),
 (7750, 2, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 100, 1, 0, 0, 0, 0, 0, 11, 0, 25, 0, 0, 0, 0, 0, 'On Trigger - Send Target'),
@@ -8893,6 +8906,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (54958, 0, 8, 9, 61, 0, 100, 0, 0, 0, 0, 0, 44, 1323, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Remove Phase'),
 (54958, 0, 9, 10, 61, 0, 100, 0, 0, 0, 0, 0, 85, 106494, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Add Aura'),
 (54958, 0, 10, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Movement Inform - Despawn'),
+-- Fire Central Temple Turn-in Controller
+(56550, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 3, 0, 11686, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Fire Central Temple Turn-in Controller - Just Spawned - Morph'),
 -- Trigger 7784 Temple of Five Dawns (Summon kids)
 (7784, 2, 0, 0, 46, 0, 100, 0, 7784, 0, 0, 0, 85, 116190, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Invoker Cast Summon Child 1'),
 -- Cai
@@ -8948,7 +8963,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (57638, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5763800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5763800, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5763800, 9, 1, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
-(5763800, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1039.19, 3284.26, 129.3971, 0, 'Jojo Ironbrow - Move to Pos'),
+(5763800, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1039.19, 3284.26, 129.3971, 0, 'Jojo Ironbrow - Move to Pos'),
 (5763800, 9, 3, 0, 0, 0, 100, 0, 3200, 3200, 0, 0, 11, 129272, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast Jojo Headbash, Reeds Cast'),
 (5763800, 9, 4, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5763800, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Data'),
@@ -9032,11 +9047,11 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5547700, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
 (5547700, 9, 1, 0, 0, 0, 100, 0, 16000, 16000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
 (5547700, 9, 2, 0, 0, 0, 100, 0, 17000, 17000, 0, 0, 1, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(5547700, 9, 3, 0, 0, 0, 100, 0, 18000, 18000, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 628.734, 3138.05, 87.83704, 0, 'Ji Firepaw - Move to Pos'),
+(5547700, 9, 3, 0, 0, 0, 100, 0, 18000, 18000, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 628.734, 3138.05, 87.83704, 0, 'Ji Firepaw - Move to Pos'),
 (5547700, 9, 4, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
 (5547700, 9, 5, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 11, 118026, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Cast SpecialUnarmed w/ Gong Song'),
 (5547700, 9, 6, 0, 0, 0, 100, 0, 3500, 3500, 0, 0, 1, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
-(5547700, 9, 7, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 629.354, 3139.15, 87.83704, 0, 'Ji Firepaw - Move to Pos'),
+(5547700, 9, 7, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 629.354, 3139.15, 87.83704, 0, 'Ji Firepaw - Move to Pos'),
 (5547700, 9, 8, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 1, 5, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
 (5547700, 9, 9, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 510, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Emote State'),
 (5547700, 9, 10, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 6, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
@@ -9106,7 +9121,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (57669, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5766900, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5766900, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5766900, 9, 1, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
-(5766900, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 599.215, 3132.27, 89.06574, 0, 'Jojo Ironbrow - Move to Pos'),
+(5766900, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 599.215, 3132.27, 89.06574, 0, 'Jojo Ironbrow - Move to Pos'),
 (5766900, 9, 3, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 11, 129293, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast Jojo Headbash, Planks Cast'),
 (5766900, 9, 4, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5766900, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Data'),
@@ -9157,7 +9172,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (6091600, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 5, 53, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Wugou - Play Emote'),
 (6091600, 9, 1, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 29, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Wugou - Follow'),
 (60916, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 29, 0, 5, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Wugou - On Data Set - Follow Summoner'),
-(60916, 0, 3, 0, 8, 0, 100, 0, 105893, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 927.573, 3610.24, 196.4419, 0, 'Wugou - On Spellhit - Move to Pos'),
+(60916, 0, 3, 0, 8, 0, 100, 0, 105893, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 927.573, 3610.24, 196.4419, 0, 'Wugou - On Spellhit - Move to Pos'),
 (60916, 0, 4, 5, 34, 0, 100, 0, 8, 1, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 3.996804, 'Wugou - Movement Inform - Set Orientation'),
 (60916, 0, 5, 6, 61, 0, 100, 0, 0, 0, 0, 0, 44, 1029, 1, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Wugou - Movement Inform - Add Phase'),
 (60916, 0, 6, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Wugou - Movement Inform - Despawn'),
@@ -9468,7 +9483,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (57670, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5767000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5767000, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5767000, 9, 1, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
-(5767000, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1077.31, 4179.94, 205.7737, 0, 'Jojo Ironbrow - Move to Pos'),
+(5767000, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1077.31, 4179.94, 205.7737, 0, 'Jojo Ironbrow - Move to Pos'),
 (5767000, 9, 3, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 11, 129294, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast Jojo Headbash, Blocks Cast'),
 (5767000, 9, 4, 0, 0, 0, 100, 0, 2500, 2500, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5767000, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 0, 10, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Data'),
@@ -9601,7 +9616,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (57692, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 5769200, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Just Spawned - Run Script'),
 (5769200, 9, 0, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5769200, 9, 1, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
-(5769200, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1077.47, 4180.03, 205.7929, 0, 'Jojo Ironbrow - Move to Pos'),
+(5769200, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1077.47, 4180.03, 205.7929, 0, 'Jojo Ironbrow - Move to Pos'),
 (5769200, 9, 3, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5769200, 9, 4, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 11, 129297, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Cast Jojo Headbash, Pillar Cast'),
 (5769200, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 128, 1078, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set AI AnimKit'),
@@ -9609,7 +9624,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5769200, 9, 7, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5769200, 9, 8, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 3, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Talk'),
 (5769200, 9, 9, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 59, 1, 2, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Set Run'),
-(5769200, 9, 10, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1078.09, 4177.64, 205.7422, 0, 'Jojo Ironbrow - Move to Pos'),
+(5769200, 9, 10, 0, 0, 0, 100, 0, 0, 0, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 1078.09, 4177.64, 205.7422, 0, 'Jojo Ironbrow - Move to Pos'),
 (57692, 0, 1, 2, 34, 0, 100, 0, 8, 2, 0, 0, 128, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set AI AnimKit'),
 (57692, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 90, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Jojo Ironbrow - Movement Inform - Set Bytes1'),
 -- Frightened Winds
@@ -9624,7 +9639,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (-@CGUID-1762, 0, 1, 2, 60, 0, 100, 0, 11000, 11000, 22000, 22000, 28, 104333, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Frightened Winds - Update - Remove Aura'),
 (-@CGUID-1762, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 20, 209685, 1, 0, 0, 0, 0, 0, 'Frightened Winds - Update - Activate GO'),
 (-@CGUID-1762, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5566501, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Frightened Winds - Update - Run Script'),
-(5566501, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 45, 1, 1, 0, 0, 0, 0, 11, 55744, 50, 0, 0, 0, 0, 0, 'Frightened Winds - Set Data'),
+(5566501, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 45, 2, 2, 0, 0, 0, 0, 11, 55744, 50, 0, 0, 0, 0, 0, 'Frightened Winds - Set Data'),
 (-@CGUID-1762, 0, 4, 5, 60, 0, 100, 0, 22000, 22000, 22000, 22000, 28, 105678, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Frightened Winds - Update - Remove Aura'),
 (-@CGUID-1762, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 20, 209685, 1, 0, 0, 0, 0, 0, 'Frightened Winds - Update - Reset GO'),
 -- Dafeng
@@ -9633,11 +9648,11 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Trigger 7041 Chamber of Winds entrance
 (7041, 2, 0, 0, 46, 0, 100, 0, 7041, 0, 0, 0, 86, 104593, 2, 10, @CGUID+1759, 55665, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Cross Cast Forcecast Summon Aysa, Wind Chamber'),
 -- Aysa Cloudsinger
-(55744, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 653.1528, 4224.64, 202.9091, 0, 'Aysa Cloudsinger - Just Spawned - Move to Pos'),
+(55744, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 653.1528, 4224.64, 202.9091, 0, 'Aysa Cloudsinger - Just Spawned - Move to Pos'),
 (55744, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Just Spawned - Set Event Phase 1'),
 (55744, 0, 2, 0, 34, 1, 100, 0, 8, 1, 0, 0, 1, 0, 2000, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Movement Inform - Talk'),
 (55744, 0, 3, 0, 52, 1, 100, 0, 0, 55744, 0, 0, 1, 1, 4000, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Text Over - Talk'),
-(55744, 0, 4, 0, 52, 1, 100, 0, 1, 55744, 0, 0, 69, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 647.493, 4224.63, 202.9091, 0, 'Aysa Cloudsinger - On Text Over - Move to Pos'),
+(55744, 0, 4, 0, 52, 1, 100, 0, 1, 55744, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 647.493, 4224.63, 202.9091, 0, 'Aysa Cloudsinger - On Text Over - Move to Pos'),
 (55744, 0, 5, 6, 34, 1, 100, 0, 8, 2, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 2.426008, 'Aysa Cloudsinger - Movement Inform - Set Orientation'),
 (55744, 0, 6, 0, 61, 1, 100, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Movement Inform - Set Event Phase 2'),
 (55744, 0, 7, 8, 38, 2, 100, 0, 1, 1, 0, 0, 53, 1, 55744, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Start WP'),
@@ -9668,7 +9683,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Dafeng
 (64532, 0, 1, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 6453200, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dafeng - Just Spawned - Run Script'),
 (6453200, 9, 0, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 53, 1, 64532, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Dafeng - Start WP'),
-(64532, 0, 2, 0, 38, 0, 100, 0, 5, 5, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 709.238, 4177.15, 198.7956, 0, 'Dafeng - On Data Set - Move to Pos'),
+(64532, 0, 2, 0, 38, 0, 100, 0, 5, 5, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 709.238, 4177.15, 198.7956, 0, 'Dafeng - On Data Set - Move to Pos'),
 -- Firework Launcher
 (64507, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Respawn - Set Event Phase 1'),
 (64507, 0, 1, 2, 8, 1, 100, 0, 125961, 0, 0, 0, 11, 125970, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Firework Launcher - On Spellhit - Cast AICast Overpacked Firework'),
@@ -9683,7 +9698,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 -- Ji Firepaw
 (64505, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Reset - Set React State'),
 (64505, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Respawn - Set Event Phase 1'),
-(64505, 0, 2, 3, 8, 1, 100, 0, 104080, 0, 0, 0, 69, 1, 0, 1, 1, 10, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Move to Pos'),
+(64505, 0, 2, 3, 8, 1, 100, 0, 104080, 0, 0, 0, 69, 1, 0, 0, 1, 1, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Move to Pos'),
 (64505, 0, 3, 0, 61, 1, 100, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Spellhit - Set Event Phase 2'),
 (64505, 0, 4, 0, 34, 2, 100, 0, 8, 1, 0, 0, 80, 6450500, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Movement Inform - Run Script'),
 (6450500, 9, 0, 0, 0, 0, 100, 0, 200, 200, 0, 0, 66, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Orientation'),
@@ -9697,7 +9712,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (64505, 0, 8, 0, 0, 4, 100, 0, 5000, 8000, 8000, 12000, 11, 128631, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Update IC - Cast Blackout Kick'),
 (64505, 0, 9, 10, 38, 4, 100, 0, 4, 4, 0, 0, 20, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Stop Attack'),
 (64505, 0, 10, 0, 61, 4, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Set Event Phase 1'),
-(64505, 0, 11, 12, 38, 0, 100, 0, 5, 5, 0, 0, 69, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 714.385, 4163.74, 195.8898, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
+(64505, 0, 11, 12, 38, 0, 100, 0, 5, 5, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 714.385, 4163.74, 195.8898, 0, 'Ji Firepaw - On Data Set - Move to Pos'),
 (64505, 0, 12, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 6450501, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Run Script'),
 (6450501, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 22, 4, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Set Event Phase 4'),
 (6450501, 9, 1, 0, 0, 0, 100, 0, 15000, 15000, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Evade'),
@@ -9712,12 +9727,12 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (64506, 0, 7, 8, 38, 0, 100, 0, 4, 4, 0, 0, 20, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Stop Attack'),
 (64506, 0, 8, 0, 61, 0, 100, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Set Event Phase 2'),
 (64506, 0, 9, 0, 60, 2, 100, 0, 4000, 8000, 8000, 12000, 11, 117312, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Update - Cast Combat Roll'),
-(64506, 0, 10, 11, 38, 0, 100, 0, 5, 5, 0, 0, 69, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 714.385, 4163.74, 195.8898, 0, 'Aysa Cloudsinger - On Data Set - Move to Pos'),
+(64506, 0, 10, 11, 38, 0, 100, 0, 5, 5, 0, 0, 69, 2, 0, 0, 0, 0, 0, 8, 0, 0, 0, 714.385, 4163.74, 195.8898, 0, 'Aysa Cloudsinger - On Data Set - Move to Pos'),
 (64506, 0, 11, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 6450600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Run Script'),
 (6450600, 9, 0, 0, 0, 0, 100, 0, 15000, 15000, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - Evade'),
 -- Master Shang Xi
 (64530, 0, 0, 1, 54, 0, 100, 0, 0, 0, 0, 0, 2, 2395, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Shang - Just Spawned - Set Faction'), -- temp
-(64530, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 711.335, 4178.05, 197.7852, 0, 'Master Shang - Just Spawned - Move to Pos'),
+(64530, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 711.335, 4178.05, 197.7852, 0, 'Master Shang - Just Spawned - Move to Pos'),
 (64530, 0, 2, 3, 34, 0, 100, 0, 8, 1, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 5.410521, 'Master Shang - Movement Inform - Set Orientation'),
 (64530, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 44, 536, 1, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Master Shang - Movement Inform - Add Phase'),
 (64530, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 44, 1526, 1, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Master Shang - Movement Inform - Add Phase'),
@@ -9789,6 +9804,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5668603, 9, 4, 0, 0, 0, 100, 0, 1500, 1500, 0, 0, 11, 109336, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Shang - Cast Trigger Walking Stick Blossom'),
 (5668603, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 106625, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Master Shang - Cast Planting Stave Credit'),
 (5668603, 9, 6, 0, 0, 0, 100, 0, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Shang - Despawn'),
+-- Walking Stick (hackfix - spawns shouldn't be visible to other units)
+(57874, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 18, 520, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Walking Stick - Just Spawned - Add Unit Flags'),
 -- Thornbranch Scamp
 (55640, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
 -- Trigger 7106 The Wood of Staves - Balloon
@@ -9833,30 +9850,31 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5564900, 9, 4, 0, 0, 0, 100, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0.2443461, 'Shang Xi''s Hot Air Balloon - Set Orientation'),
 (5564900, 9, 5, 0, 0, 0, 100, 0, 0, 0, 0, 0, 19, 32768, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - Remove Unit Flags 2'),
 (5564900, 9, 6, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 53, 1, 55649, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - Start WP'),
-(5564900, 9, 7, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 2, 1, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - Set Data'),
+(5564900, 9, 7, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 2, 1, 0, 0, 0, 0, 11, 0, 1, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - Set Data'),
 (5564900, 9, 8, 0, 0, 0, 100, 0, 0, 0, 0, 0, 4, 33099, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - Play Sound'),
 (55649, 0, 2, 0, 31, 0, 100, 0, 82721, 0, 0, 0, 85, 46598, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On Spellhit Target - Invoker Cast Ride Vehicle Hardcoded'),
-(55649, 0, 3, 0, 40, 0, 100, 0, 1, 55649, 0, 0, 59, 1, 8, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Run'),
-(55649, 0, 4, 0, 40, 0, 100, 0, 2, 55649, 0, 0, 45, 2, 2, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
-(55649, 0, 5, 0, 40, 0, 100, 0, 4, 55649, 0, 0, 45, 2, 3, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
+(55649, 0, 3, 0, 40, 0, 100, 0, 1, 55649, 0, 0, 59, 1, 9, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Run'),
+(55649, 0, 4, 0, 40, 0, 100, 0, 2, 55649, 0, 0, 45, 2, 2, 0, 0, 0, 0, 11, 0, 1, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
+(55649, 0, 5, 0, 40, 0, 100, 0, 4, 55649, 0, 0, 45, 2, 3, 0, 0, 0, 0, 29, 1, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
 (55649, 0, 6, 7, 40, 0, 100, 0, 5, 55649, 0, 0, 86, 114898, 2, 23, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Cross Cast General Trigger to Shen-zin Su + Talk Anim 0'),
 (55649, 0, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5564901, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Run Script'),
 (5564901, 9, 0, 0, 0, 0, 100, 0, 14000, 14000, 0, 0, 86, 106759, 2, 23, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Cross Cast General Trigger to Shen-zin Su'),
 (55649, 0, 8, 9, 40, 0, 100, 0, 6, 55649, 0, 0, 86, 118571, 2, 23, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Cross Cast General Trigger to Shen-zin Su + Talk Anim 1'),
 (55649, 0, 9, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5564902, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Run Script'),
 (5564902, 9, 0, 0, 0, 0, 100, 0, 14000, 14000, 0, 0, 86, 118571, 2, 23, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - Cross Cast General Trigger to Shen-zin Su + Talk Anim 1'),
-(5564902, 9, 1, 0, 0, 0, 100, 0, 15000, 15000, 0, 0, 45, 2, 4, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - Set Data'),
-(55649, 0, 10, 11, 40, 0, 100, 0, 9, 55649, 0, 0, 45, 2, 5, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
+(5564902, 9, 1, 0, 0, 0, 100, 0, 15000, 15000, 0, 0, 45, 2, 4, 0, 0, 0, 0, 29, 1, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - Set Data'),
+(55649, 0, 10, 11, 40, 0, 100, 0, 9, 55649, 0, 0, 45, 2, 5, 0, 0, 0, 0, 29, 2, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
 (55649, 0, 11, 0, 61, 0, 100, 0, 0, 0, 0, 0, 59, 1, 16, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Run'),
 (55649, 0, 12, 0, 40, 0, 100, 0, 11, 55649, 0, 0, 59, 1, 36, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Run'),
-(55649, 0, 13, 0, 40, 0, 100, 0, 12, 55649, 0, 0, 45, 2, 7, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
-(55649, 0, 14, 0, 40, 0, 100, 0, 14, 55649, 0, 0, 45, 2, 8, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
+(55649, 0, 13, 0, 40, 0, 100, 0, 12, 55649, 0, 0, 45, 2, 7, 0, 0, 0, 0, 29, 2, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
+(55649, 0, 14, 0, 40, 0, 100, 0, 14, 55649, 0, 0, 45, 2, 8, 0, 0, 0, 0, 11, 0, 1, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
 (55649, 0, 15, 0, 40, 0, 100, 0, 15, 55649, 0, 0, 11, 105010, 2, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Cast Speak to Shen-zin Su Credit'),
-(55649, 0, 16, 0, 40, 0, 100, 0, 18, 55649, 0, 0, 45, 2, 9, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
+(55649, 0, 16, 0, 40, 0, 100, 0, 18, 55649, 0, 0, 45, 2, 9, 0, 0, 0, 0, 29, 1, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Reached - Set Data'),
 (55649, 0, 17, 18, 58, 0, 100, 0, 21, 55649, 0, 0, 11, 60603, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Ended - Cast Eject Passenger 1'),
 (55649, 0, 18, 19, 61, 0, 100, 0, 0, 0, 0, 0, 11, 45472, 2, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Ended - Cast Parachute'),
-(55649, 0, 19, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 10000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Ended - Despawn'),
-(55649, 0, 20, 0, 28, 0, 100, 0, 0, 0, 0, 0, 28, 105002, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On Passenger Removed - Remove Aura'),
+(55649, 0, 19, 20, 61, 0, 100, 0, 0, 0, 0, 0, 45, 3, 1, 0, 0, 0, 0, 29, 1, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Ended - Set Data'),
+(55649, 0, 20, 0, 61, 0, 100, 0, 0, 0, 0, 0, 41, 10000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On WP Ended - Despawn'),
+(55649, 0, 21, 0, 28, 0, 100, 0, 0, 0, 0, 0, 28, 105002, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shang Xi''s Hot Air Balloon - On Passenger Removed - Remove Aura'),
 -- Aysa Cloudsinger
 (56661, 0, 0, 0, 8, 0, 100, 0, 106617, 0, 0, 0, 11, 63313, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Spellhit - Cast Ride Vehicle'),
 (56661, 0, 1, 0, 38, 0, 100, 0, 2, 1, 0, 0, 80, 5666100, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Run Script'),
@@ -9874,8 +9892,9 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (56661, 0, 10, 11, 38, 0, 100, 0, 2, 6, 0, 0, 4, 33104, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Play Music'),
 (56661, 0, 11, 0, 61, 0, 100, 0, 0, 0, 0, 0, 1, 7, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Talk'),
 (56661, 0, 12, 0, 38, 0, 100, 0, 2, 8, 0, 0, 1, 8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Talk'),
-(56661, 0, 13, 0, 38, 0, 100, 0, 2, 9, 0, 0, 1, 9, 6000, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Talk'),
+(56661, 0, 13, 0, 38, 0, 100, 0, 2, 9, 0, 0, 1, 9, 6500, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Talk'),
 (56661, 0, 14, 0, 52, 0, 100, 0, 9, 56661, 0, 0, 1, 10, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Text Over - Talk'),
+(56661, 0, 15, 0, 38, 0, 100, 0, 3, 1, 0, 0, 41, 10000, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cloudsinger - On Data Set - Despawn'),
 -- Ji Firepaw
 (56660, 0, 0, 0, 38, 0, 100, 0, 2, 1, 0, 0, 1, 0, 10000, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
 (56660, 0, 1, 0, 52, 0, 100, 0, 0, 56660, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Text Over - Talk'),
@@ -9883,7 +9902,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (5666000, 9, 0, 0, 0, 0, 100, 0, 6000, 6000, 0, 0, 1, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
 (56660, 0, 3, 0, 38, 0, 100, 0, 2, 5, 0, 0, 1, 3, 6000, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
 (56660, 0, 4, 0, 52, 0, 100, 0, 3, 56660, 0, 0, 1, 4, 6000, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Text Over - Talk'),
-(56660, 0, 5, 0, 52, 0, 100, 0, 4, 56660, 0, 0, 45, 2, 6, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Text Over - Set Data'),
+(56660, 0, 5, 0, 52, 0, 100, 0, 4, 56660, 0, 0, 45, 2, 6, 0, 0, 0, 0, 11, 0, 1, 0, 0, 0, 0, 0, 'Ji Firepaw - On Text Over - Set Data'),
 (56660, 0, 6, 0, 38, 0, 100, 0, 2, 7, 0, 0, 1, 5, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Talk'),
 (56660, 0, 7, 0, 38, 0, 100, 0, 2, 8, 0, 0, 80, 5666001, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Run Script'),
 (5666001, 9, 0, 0, 0, 0, 100, 0, 7000, 7000, 0, 0, 1, 6, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
@@ -10707,8 +10726,9 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (60603, 'spell_gen_eject_passenger');
 
 UPDATE `spell_area` SET `quest_end`=0 WHERE `spell` IN (108834, 108835, 108844);
-
+/*
 -- FOR TESTING PURPOSES
+-- Don't use when hackfix in MiscPacket.cpp is applied
 UPDATE `creature` SET `PhaseId`=0, `PhaseGroup`=0 WHERE `map`=860;
 UPDATE `creature` SET `PhaseId`=838 WHERE `guid` IN (@CGUID+514, @CGUID+517, @CGUID+518);
 UPDATE `creature` SET `PhaseId`=504 WHERE `id` IN (54734, 54900, 54901, 54902);
@@ -10725,3 +10745,4 @@ UPDATE `smart_scripts` SET `link`=0 WHERE `entryorguid`=55595 AND `id`=1;
 UPDATE `smart_scripts` SET `link`=6 WHERE `entryorguid`=64530 AND `id`=2;
 UPDATE `smart_scripts` SET `link`=0 WHERE `entryorguid`=55586 AND `id`=0;
 UPDATE `smart_scripts` SET `link`=13 WHERE `entryorguid`=56159 AND `id`=11;
+*/
