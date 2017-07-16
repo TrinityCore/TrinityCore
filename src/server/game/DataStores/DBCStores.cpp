@@ -239,7 +239,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
             localizedName.push_back('/');
             localizedName.append(filename);
 
-            if (!storage.LoadStringsFrom(localizedName.c_str()))
+            if (!storage.LoadStringsFrom(localizedName))
                 availableDbcLocales &= ~(1 << i);             // mark as not available for speedup next checks
         }
 
