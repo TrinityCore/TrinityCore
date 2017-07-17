@@ -513,7 +513,7 @@ public:
             if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
                 return false;
 
-            if (target->IsBeingTeleported())
+            if (!target->IsInWorld() || target->IsBeingTeleported())
             {
                 handler->PSendSysMessage(LANG_IS_TELEPORTED, nameLink.c_str());
                 handler->SetSentErrorMessage(true);
