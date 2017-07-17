@@ -315,6 +315,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_session = session;
 
     m_ingametime = 0;
+    m_sharedQuestId = 0;
 
     m_ExtraFlags = 0;
 
