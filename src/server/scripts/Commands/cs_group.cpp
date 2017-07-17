@@ -115,7 +115,7 @@ public:
 
             std::string plNameLink = handler->GetNameLink(player);
 
-            if (!player->IsInWorld() || player->IsBeingTeleported())
+            if (player->IsBeingTeleported())
             {
                 handler->PSendSysMessage(LANG_IS_TELEPORTED, plNameLink.c_str());
                 continue;
