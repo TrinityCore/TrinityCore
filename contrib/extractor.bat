@@ -1,5 +1,6 @@
 @ECHO OFF
 CLS
+
 :MENU
 ECHO.
 ECHO ...............................................
@@ -27,42 +28,30 @@ IF %M%==1 GOTO MAPS
 IF %M%==2 GOTO VMAPS
 IF %M%==3 GOTO MMAPS
 IF %M%==4 GOTO ALL
-IF %M%==5 GOTO EOF
+IF %M%==5 GOTO :EOF
+
 :MAPS
-start mapextractor.exe
-ECHO Wait until mapextractor.exe closes before continuing.
-pause
+start /b /w mapextractor.exe
 GOTO MENU
+
 :VMAPS
-md vmaps
-start vmap4extractor.exe
-ECHO Wait until vmap4extractor.exe closes before continuing.
-pause
-start vmap4assembler.exe Buildings vmaps
-ECHO Wait until vmap4assembler.exe closes before continuing.
-pause
+start /b /w vmap4extractor.exe
+start /b /w vmap4assembler.exe Buildings vmaps
 rmdir Buildings /s /q
 GOTO MENU
+
 :MMAPS
-md mmaps
-start mmaps_generator.exe
-pause
+ECHO This may take a few hours to complete. Please be patient.
+PAUSE
+start /b /w mmaps_generator.exe
 GOTO MENU
+
 :ALL
-start mapextractor.exe
-ECHO Wait until mapextractor.exe closes before continuing.
-pause
-md vmaps
-start vmap4extractor.exe
-ECHO Wait until vmap4extractor.exe closes before continuing.
-pause
-start vmap4assembler.exe Buildings vmaps
-ECHO Wait until vmap4assembler.exe closes before continuing.
-pause
+ECHO This may take a few hours to complete. Please be patient.
+PAUSE
+start /b /w mapextractor.exe
+start /b /w vmap4extractor.exe
+start /b /w vmap4assembler.exe
 rmdir Buildings /s /q
-md mmaps
-start mmaps_generator.exe --threads %NUMBER_OF_PROCESSORS%
-ECHO Wait until mmaps_generator.exe closes before continuing (may take hours).
-pause
+start /b /w mmaps_generator.exe
 GOTO MENU
-:EOF
