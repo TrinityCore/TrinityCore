@@ -3305,18 +3305,18 @@ class spell_item_brewfest_mount_transformation : public SpellScriptLoader
 
 enum NitroBoots
 {
-    SPELL_NITRO_BOOTS_SUCCESS       = 54861,
-    SPELL_NITRO_BOOTS_BACKFIRE      = 46014,
+    SPELL_NITRO_BOOSTS_SUCCESS       = 54861,
+    SPELL_NITRO_BOOSTS_BACKFIRE      = 46014,
 };
 
-class spell_item_nitro_boots : public SpellScriptLoader
+class spell_item_nitro_boosts : public SpellScriptLoader
 {
     public:
-        spell_item_nitro_boots() : SpellScriptLoader("spell_item_nitro_boots") { }
+        spell_item_nitro_boosts() : SpellScriptLoader("spell_item_nitro_boosts") { }
 
-        class spell_item_nitro_boots_SpellScript : public SpellScript
+        class spell_item_nitro_boosts_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_nitro_boots_SpellScript);
+            PrepareSpellScript(spell_item_nitro_boosts_SpellScript);
 
             bool Load() override
             {
@@ -3327,25 +3327,28 @@ class spell_item_nitro_boots : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo({ SPELL_NITRO_BOOTS_SUCCESS, SPELL_NITRO_BOOTS_BACKFIRE });
+                return ValidateSpellInfo({ SPELL_NITRO_BOOSTS_SUCCESS, SPELL_NITRO_BOOSTS_BACKFIRE });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 Unit* caster = GetCaster();
-                bool success = caster->GetMap()->IsDungeon() || roll_chance_i(95);
-                caster->CastSpell(caster, success ? SPELL_NITRO_BOOTS_SUCCESS : SPELL_NITRO_BOOTS_BACKFIRE, true, GetCastItem());
+                AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(caster->GetAreaId());
+                bool success = true;
+                if (areaEntry && areaEntry->IsFlyable() && !caster->GetMap()->IsDungeon())
+                    success = roll_chance_i(95); // nitro boosts can only fail in flying-enabled locations on 3.3.5
+                caster->CastSpell(caster, success ? SPELL_NITRO_BOOSTS_SUCCESS : SPELL_NITRO_BOOSTS_BACKFIRE, true, GetCastItem());
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_item_nitro_boots_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_item_nitro_boosts_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_item_nitro_boots_SpellScript();
+            return new spell_item_nitro_boosts_SpellScript();
         }
 };
 
@@ -4924,7 +4927,7 @@ void AddSC_item_spell_scripts()
     new spell_item_complete_raptor_capture();
     new spell_item_impale_leviroth();
     new spell_item_brewfest_mount_transformation();
-    new spell_item_nitro_boots();
+    new spell_item_nitro_boosts();
     RegisterSpellScript(spell_item_teach_language);
     new spell_item_rocket_boots();
     new spell_item_pygmy_oil();
