@@ -1297,9 +1297,7 @@ int GetLocale() {
 
 	int i = 0;
 	int result = -1;
-
-	if (!((CONF_Locale && !(CONF_Locale & (1 << i))) && (i == LOCALE_none))){
-		
+	
 		while (i < TOTAL_LOCALES && result < 0) {
 			boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
 			CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[i]);
@@ -1311,8 +1309,7 @@ int GetLocale() {
 			}
 
 			i++;
-		}
-	}
+		}	
 
 	return result;
 }
