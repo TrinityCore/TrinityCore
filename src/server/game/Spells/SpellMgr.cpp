@@ -30,6 +30,7 @@
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include <G3D/g3dmath.h>
 
 PetFamilySpellsStore sPetFamilySpellsStore;
 
@@ -2887,9 +2888,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         if (!spellInfo->_IsPositiveEffect(EFFECT_2, false))
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF2;
 
-        if (spellInfo->GetSpellVisual() == 3879)
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_BACK;
-
         if (talentSpells.count(spellInfo->Id))
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_TALENT;
 
@@ -3857,6 +3855,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                         spellInfo->Speed = SPEED_CHARGE;
                     break;
             }
+
+            if (effect->TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE || effect->TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE)
+                if (G3D::fuzzyEq(spellInfo->ConeAngle, 0.f))
+                    spellInfo->ConeAngle = 90.f;
         }
 
         if (spellInfo->ActiveIconFileDataId == 135754)  // flight
