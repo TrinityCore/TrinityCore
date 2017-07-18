@@ -50,14 +50,11 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
     // find taxi node
     uint32 nearest = sObjectMgr->GetNearestTaxiNode(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), unit->GetMapId(), player->GetTeam());
     if (!nearest)
-
-    // not found nearest
-    if (curloc == 0)
         return;
 
     WorldPacket data(SMSG_TAXINODE_STATUS, 9);
     data << guid;
-    data << uint8(player()->m_taxi.IsTaximaskNodeKnown(nearest) ? 1 : 0);
+    data << uint8(player->m_taxi.IsTaximaskNodeKnown(nearest) ? 1 : 0);
     SendPacket(&data);
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_TAXINODE_STATUS");
 }
