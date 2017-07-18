@@ -21326,6 +21326,27 @@ void Player::ContinueTaxiFlight() const
     GetSession()->SendDoFlight(mountDisplayId, path, startNode);
 }
 
+void Player::SendTaxiNodeStatusMultiple()
+{
+    for (auto itr = m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
+    {
+        if (!itr->IsCreature())
+            continue;
+        Creature* creature = ObjectAccessor::GetCreature(*this, *itr);
+        if (!creature || creature->IsHostileTo(this))
+            continue;
+        if (!creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_FLIGHTMASTER))
+            continue;
+        uint32 nearestNode = sObjectMgr->GetNearestTaxiNode(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetMapId(), GetTeam());
+        if (!nearestNode)
+            continue;
+        WorldPacket data(SMSG_TAXINODE_STATUS, 9);
+        data << *itr;
+        data << uint8(m_taxi.IsTaximaskNodeKnown(nearestNode) ? 1 : 0);
+        SendDirectMessage(&data);
+    }
+}
+
 void Player::InitDataForForm(bool reapplyMods)
 {
     ShapeshiftForm form = GetShapeshiftForm();
@@ -22519,6 +22540,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendEnchantmentDurations();                             // must be after add to map
     SendItemDurations();                                    // must be after add to map
     SendQuestGiverStatusMultiple();
+    SendTaxiNodeStatusMultiple();
 
     // raid downscaling - send difficulty to player
     if (GetMap()->IsRaid())
