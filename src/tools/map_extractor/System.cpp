@@ -1292,6 +1292,31 @@ void ExtractGameTables()
     printf("Extracted %u files\n\n", count);
 }
 
+
+int GetLocale() {
+
+	int i = 0;
+	int result = -1;
+
+	if (!((CONF_Locale && !(CONF_Locale & (1 << i))) && (i == LOCALE_none))){
+		
+		while (i < TOTAL_LOCALES && result < 0) {
+			boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
+			CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[i]);
+			
+			char const* fileName = DBFilesClientList[0];
+			if (CascStorage &&  CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
+			{
+				result = i;
+			}
+
+			i++;
+		}
+	}
+
+	return result;
+}
+
 bool OpenCascStorage(int locale)
 {
     try
@@ -1351,57 +1376,47 @@ int main(int argc, char * arg[])
 
     HandleArgs(argc, arg);
 
-    int FirstLocale = -1;
+	int locale = GetLocale();
     uint32 build = 0;
 
     if (!RetardCheck())
         return 1;
 
-    for (int i = 0; i < TOTAL_LOCALES; ++i)
-    {
-        if (CONF_Locale && !(CONF_Locale & (1 << i)))
-            continue;
+   
+       
+	if (OpenCascStorage(locale)) {
+		if ((CONF_extract & EXTRACT_DBC) == 0)
+		{
+			
+			build = CASC::GetBuildNumber(CascStorage);
+			if (build)
+			{
+				printf("Detected client build: %u\n\n", build);
+				CascStorage.reset();
+			}
+		}
+		else {
+			//Extract DBC files
+			uint32 tempBuild = CASC::GetBuildNumber(CascStorage);
+			if (!tempBuild)
+			{
+				CascStorage.reset();
+			}
+			else {
+				printf("Detected client build %u for locale %s\n\n", tempBuild, localeNames[locale]);
+				ExtractDBFilesClient(locale);
+				CascStorage.reset();
+			}
+		}
 
-        if (i == LOCALE_none)
-            continue;
+		
+	}
+           
 
-        if (!OpenCascStorage(i))
-            continue;
+       
+    
 
-        if ((CONF_extract & EXTRACT_DBC) == 0)
-        {
-            FirstLocale = i;
-            build = CASC::GetBuildNumber(CascStorage);
-            if (!build)
-            {
-                CascStorage.reset();
-                continue;
-            }
-
-            printf("Detected client build: %u\n\n", build);
-            break;
-        }
-
-        //Extract DBC files
-        uint32 tempBuild = CASC::GetBuildNumber(CascStorage);
-        if (!tempBuild)
-        {
-            CascStorage.reset();
-            continue;
-        }
-
-        printf("Detected client build %u for locale %s\n\n", tempBuild, localeNames[i]);
-        ExtractDBFilesClient(i);
-        CascStorage.reset();
-
-        if (FirstLocale < 0)
-        {
-            FirstLocale = i;
-            build = tempBuild;
-        }
-    }
-
-    if (FirstLocale < 0)
+    if (locale < 0)
     {
         printf("No locales detected\n");
         return 0;
@@ -1409,21 +1424,21 @@ int main(int argc, char * arg[])
 
     if (CONF_extract & EXTRACT_CAMERA)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(locale);
         ExtractCameraFiles();
         CascStorage.reset();
     }
 
     if (CONF_extract & EXTRACT_GT)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(locale);
         ExtractGameTables();
         CascStorage.reset();
     }
 
     if (CONF_extract & EXTRACT_MAP)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(locale);
         ExtractMaps(build);
         CascStorage.reset();
     }

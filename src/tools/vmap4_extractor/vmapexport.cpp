@@ -141,8 +141,36 @@ uint32 WowLocaleToCascLocaleFlags[12] =
     CASC_LOCALE_ITIT,
 };
 
+
+int GetLocale() {
+
+	int i = 0;
+	int result = -1;
+
+	if (!(i == LOCALE_none)) {
+
+		while (i < TOTAL_LOCALES && result < 0) {
+			boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
+			CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[i]);
+
+			char const* fileName = "DBFilesClient\\GameObjectDisplayInfo.db2";
+			if (CascStorage &&  CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
+			{
+				result = i;
+			}
+
+			i++;
+		}
+	}
+
+	return result;
+}
+
+
+
 bool OpenCascStorage(int locale)
 {
+
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
@@ -414,28 +442,22 @@ int main(int argc, char ** argv)
                     ))
             success = (errno == EEXIST);
 
-    int FirstLocale = -1;
-    for (int i = 0; i < TOTAL_LOCALES; ++i)
-    {
-        if (i == LOCALE_none)
-            continue;
+	int locale = GetLocale();
 
-        if (!OpenCascStorage(i))
-            continue;
+	if (!(locale == LOCALE_none) && OpenCascStorage(locale)) 
+	{
+		uint32 build = CASC::GetBuildNumber(CascStorage);
+		if (!build)
+		{
+			CascStorage.reset();			
+		}
+		else {
+			printf("Detected client build: %u\n\n", build);
+		}
+	}
 
-        FirstLocale = i;
-        uint32 build = CASC::GetBuildNumber(CascStorage);
-        if (!build)
-        {
-            CascStorage.reset();
-            continue;
-        }
 
-        printf("Detected client build: %u\n\n", build);
-        break;
-    }
-
-    if (FirstLocale == -1)
+    if (locale == -1)
     {
         printf("FATAL ERROR: No locales defined, unable to continue.\n");
         return 1;
