@@ -3331,20 +3331,21 @@ class spell_item_brewfest_mount_transformation : public SpellScriptLoader
         }
 };
 
-enum NitroBoots
+enum NitroBoosts
 {
-    SPELL_NITRO_BOOTS_SUCCESS       = 54861,
-    SPELL_NITRO_BOOTS_BACKFIRE      = 46014,
+    SPELL_NITRO_BOOSTS_SUCCESS       = 54861,
+    SPELL_NITRO_BOOSTS_BACKFIRE      = 54621,
+    SPELL_NITRO_BOOSTS_PARACHUTE     = 54649,
 };
 
-class spell_item_nitro_boots : public SpellScriptLoader
+class spell_item_nitro_boosts : public SpellScriptLoader
 {
     public:
-        spell_item_nitro_boots() : SpellScriptLoader("spell_item_nitro_boots") { }
+        spell_item_nitro_boosts() : SpellScriptLoader("spell_item_nitro_boosts") { }
 
-        class spell_item_nitro_boots_SpellScript : public SpellScript
+        class spell_item_nitro_boosts_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_item_nitro_boots_SpellScript);
+            PrepareSpellScript(spell_item_nitro_boosts_SpellScript);
 
             bool Load() override
             {
@@ -3355,25 +3356,76 @@ class spell_item_nitro_boots : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo({ SPELL_NITRO_BOOTS_SUCCESS, SPELL_NITRO_BOOTS_BACKFIRE });
+                return ValidateSpellInfo({ SPELL_NITRO_BOOSTS_SUCCESS, SPELL_NITRO_BOOSTS_BACKFIRE });
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 Unit* caster = GetCaster();
-                bool success = caster->GetMap()->IsDungeon() || roll_chance_i(95);
-                caster->CastSpell(caster, success ? SPELL_NITRO_BOOTS_SUCCESS : SPELL_NITRO_BOOTS_BACKFIRE, true, GetCastItem());
+                AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(caster->GetAreaId());
+                bool success = true;
+                if (areaEntry && areaEntry->IsFlyable() && !caster->GetMap()->IsDungeon())
+                    success = roll_chance_i(95); // nitro boosts can only fail in flying-enabled locations on 3.3.5
+                caster->CastSpell(caster, success ? SPELL_NITRO_BOOSTS_SUCCESS : SPELL_NITRO_BOOSTS_BACKFIRE, true, GetCastItem());
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_item_nitro_boots_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_item_nitro_boosts_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_item_nitro_boots_SpellScript();
+            return new spell_item_nitro_boosts_SpellScript();
+        }
+};
+
+class spell_item_nitro_boosts_backfire : public SpellScriptLoader
+{
+    public:
+        spell_item_nitro_boosts_backfire() : SpellScriptLoader("spell_item_nitro_boosts_backfire") { }
+
+        class spell_item_nitro_boosts_backfire_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_item_nitro_boosts_backfire_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/) override
+            {
+                return ValidateSpellInfo({ SPELL_NITRO_BOOSTS_PARACHUTE });
+            }
+
+            void HandleApply(AuraEffect const* /*effect*/, AuraEffectHandleModes /*mode*/)
+            {
+                lastZ = GetTarget()->GetPositionZ();
+            }
+
+            void HandlePeriodicDummy(AuraEffect const* effect)
+            {
+                PreventDefaultAction();
+                float curZ = GetTarget()->GetPositionZ();
+                if (curZ < lastZ)
+                {
+                    if (roll_chance_i(80)) // we don't have enough sniffs to verify this, guesstimate
+                        GetTarget()->CastSpell(GetTarget(), SPELL_NITRO_BOOSTS_PARACHUTE, true, nullptr, effect);
+                    GetAura()->Remove();
+                }
+                else
+                    lastZ = curZ;
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_item_nitro_boosts_backfire_AuraScript::HandleApply, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_nitro_boosts_backfire_AuraScript::HandlePeriodicDummy, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+
+            float lastZ = INVALID_HEIGHT;
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_item_nitro_boosts_backfire_AuraScript();
         }
 };
 
@@ -4732,7 +4784,8 @@ void AddSC_item_spell_scripts()
     new spell_item_complete_raptor_capture();
     new spell_item_impale_leviroth();
     new spell_item_brewfest_mount_transformation();
-    new spell_item_nitro_boots();
+    new spell_item_nitro_boosts();
+    new spell_item_nitro_boosts_backfire();
     new spell_item_teach_language();
     new spell_item_rocket_boots();
     new spell_item_pygmy_oil();
