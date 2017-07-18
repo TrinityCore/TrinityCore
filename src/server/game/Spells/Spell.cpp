@@ -990,8 +990,9 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
                 WorldObject* target = ObjectAccessor::GetUnit(*m_caster, channelTarget);
                 CallScriptObjectTargetSelectHandlers(target, effIndex, targetType);
                 // unit target may be no longer avalible - teleported out of map for example
-                if (target && target->GetTypeId() == TYPEID_UNIT)
-                    AddUnitTarget(target->ToUnit(), 1 << effIndex);
+                Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                if (unitTarget)
+                    AddUnitTarget(unitTarget, 1 << effIndex);
                 else
                     TC_LOG_DEBUG("spells", "SPELL: cannot find channel spell target for spell ID %u, effect %u", m_spellInfo->Id, effIndex);
             }
@@ -1159,13 +1160,13 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
     SpellEffectInfo const* effect = GetEffect(effIndex);
     if (!effect)
         return;
+
     ConditionContainer* condList = effect->ImplicitTargetConditions;
-    float coneAngle = float(M_PI) / 2;
     float radius = effect->CalcRadius(m_caster) * m_spellValue->RadiusMod;
 
     if (uint32 containerTypeMask = GetSearcherTypeMask(objectType, condList))
     {
-        Trinity::WorldObjectSpellConeTargetCheck check(coneAngle, radius, m_caster, m_spellInfo, selectionType, condList);
+        Trinity::WorldObjectSpellConeTargetCheck check(DegToRad(m_spellInfo->ConeAngle), radius, m_caster, m_spellInfo, selectionType, condList);
         Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
         SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius);
 
@@ -7724,7 +7725,9 @@ bool WorldObjectSpellConeTargetCheck::operator()(WorldObject* target)
     else
     {
         if (!_caster->IsWithinBoundaryRadius(target->ToUnit()))
-            if (!_caster->isInFront(target, _coneAngle))
+            // ConeAngle > 0 -> select targets in front
+            // ConeAngle < 0 -> select targets in back
+            if (_caster->HasInArc(_coneAngle, target) != G3D::fuzzyGe(_coneAngle, 0.f))
                 return false;
     }
     return WorldObjectSpellAreaTargetCheck::operator ()(target);

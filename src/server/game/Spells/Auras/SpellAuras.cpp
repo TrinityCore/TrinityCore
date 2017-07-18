@@ -1014,10 +1014,6 @@ bool Aura::CanBeSaved() const
         if (GetSpellInfo()->IsSingleTarget())
             return false;
 
-    // Can't be saved - aura handler relies on calculated amount and changes it
-    if (HasEffectType(SPELL_AURA_CONVERT_RUNE))
-        return false;
-
     // No point in saving this, since the stable dialog can't be open on aura load anyway.
     if (HasEffectType(SPELL_AURA_OPEN_STABLE))
         return false;
