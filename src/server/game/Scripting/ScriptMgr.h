@@ -1176,7 +1176,7 @@ class TC_GAME_API ScriptMgr
 };
 
 template <class S>
-struct GenericSpellScriptLoader : public SpellScriptLoader
+class GenericSpellScriptLoader : public SpellScriptLoader
 {
     GenericSpellScriptLoader(char const* name) : SpellScriptLoader(name) { }
     SpellScript* GetSpellScript() const override { return new S(); }
@@ -1184,7 +1184,7 @@ struct GenericSpellScriptLoader : public SpellScriptLoader
 #define REGISTER_SPELL_SCRIPT(spell_script) new GenericSpellScriptLoader<spell_script>(#spell_script)
 
 template <class A>
-struct GenericAuraScriptLoader : public SpellScriptLoader
+class GenericAuraScriptLoader : public SpellScriptLoader
 {
     GenericAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
     AuraScript* GetAuraScript() const override { return new A(); }
@@ -1192,35 +1192,39 @@ struct GenericAuraScriptLoader : public SpellScriptLoader
 #define REGISTER_AURA_SCRIPT(aura_script) new GenericAuraScriptLoader<aura_script>(#aura_script)
 
 template <class S, class A>
-struct GenericSpellAndAuraScriptLoader : public SpellScriptLoader
+class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
 {
-    GenericSpellAndAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
-    SpellScript* GetSpellScript() const override { return new S(); }
-    AuraScript* GetAuraScript() const override { return new A(); }
+    public:
+        GenericSpellAndAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
+        SpellScript* GetSpellScript() const override { return new S(); }
+        AuraScript* GetAuraScript() const override { return new A(); }
 };
 #define REGISTER_SPELL_AND_AURA_SCRIPT_PAIR(spell_script, aura_script) new GenericSpellAndAuraScriptLoader<spell_script, aura_script>(#spell_script)
 
 template <class AI>
-struct GenericCreatureScript : public CreatureScript
+class GenericCreatureScript : public CreatureScript
 {
-    GenericCreatureScript(char const* name) : CreatureScript(name) { }
-    CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
+    public:
+        GenericCreatureScript(char const* name) : CreatureScript(name) { }
+        CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
 };
 #define REGISTER_CREATURE_AI(ai_name) new GenericCreatureScript<ai_name>(#ai_name)
 
 template <class AI>
-struct GenericGameObjectScript : public GameObjectScript
+class GenericGameObjectScript : public GameObjectScript
 {
-    GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
-    GameObjectAI* GetAI(GameObject* go) const override { return new AI(go); }
+    public:
+        GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
+        GameObjectAI* GetAI(GameObject* go) const override { return new AI(go); }
 };
 #define REGISTER_GAMEOBJECT_AI(ai_name) new GenericGameObjectScript<ai_name>(#ai_name)
 
 template <class AI>
-struct GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
+class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
 {
-    GenericAreaTriggerEntityScript(char const* name) : AreaTriggerEntityScript(name) { }
-    AreaTriggerAI* GetAI(AreaTrigger* at) const override { return new AI(at); }
+    public:
+        GenericAreaTriggerEntityScript(char const* name) : AreaTriggerEntityScript(name) { }
+        AreaTriggerAI* GetAI(AreaTrigger* at) const override { return new AI(at); }
 };
 #define REGISTER_AREATRIGGER_AI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
 
