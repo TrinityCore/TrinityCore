@@ -1178,16 +1178,18 @@ class TC_GAME_API ScriptMgr
 template <class S>
 class GenericSpellScriptLoader : public SpellScriptLoader
 {
-    GenericSpellScriptLoader(char const* name) : SpellScriptLoader(name) { }
-    SpellScript* GetSpellScript() const override { return new S(); }
+    public:
+        GenericSpellScriptLoader(char const* name) : SpellScriptLoader(name) { }
+        SpellScript* GetSpellScript() const override { return new S(); }
 };
 #define REGISTER_SPELL_SCRIPT(spell_script) new GenericSpellScriptLoader<spell_script>(#spell_script)
 
 template <class A>
 class GenericAuraScriptLoader : public SpellScriptLoader
 {
-    GenericAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
-    AuraScript* GetAuraScript() const override { return new A(); }
+    public:
+        GenericAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
+        AuraScript* GetAuraScript() const override { return new A(); }
 };
 #define REGISTER_AURA_SCRIPT(aura_script) new GenericAuraScriptLoader<aura_script>(#aura_script)
 
