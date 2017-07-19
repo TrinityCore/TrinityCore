@@ -1182,7 +1182,7 @@ class GenericSpellScriptLoader : public SpellScriptLoader
         GenericSpellScriptLoader(char const* name) : SpellScriptLoader(name) { }
         SpellScript* GetSpellScript() const override { return new S(); }
 };
-#define REGISTER_SPELL_SCRIPT(spell_script) new GenericSpellScriptLoader<spell_script>(#spell_script)
+#define RegisterSpellScript(spell_script) new GenericSpellScriptLoader<spell_script>(#spell_script)
 
 template <class A>
 class GenericAuraScriptLoader : public SpellScriptLoader
@@ -1191,7 +1191,7 @@ class GenericAuraScriptLoader : public SpellScriptLoader
         GenericAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
         AuraScript* GetAuraScript() const override { return new A(); }
 };
-#define REGISTER_AURA_SCRIPT(aura_script) new GenericAuraScriptLoader<aura_script>(#aura_script)
+#define RegisterAuraScript(aura_script) new GenericAuraScriptLoader<aura_script>(#aura_script)
 
 template <class S, class A>
 class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
@@ -1201,7 +1201,7 @@ class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
         SpellScript* GetSpellScript() const override { return new S(); }
         AuraScript* GetAuraScript() const override { return new A(); }
 };
-#define REGISTER_SPELL_AND_AURA_SCRIPT_PAIR(spell_script, aura_script) new GenericSpellAndAuraScriptLoader<spell_script, aura_script>(#spell_script)
+#define RegisterSpellAndAuraScriptPair(spell_script, aura_script) new GenericSpellAndAuraScriptLoader<spell_script, aura_script>(#spell_script)
 
 template <class AI>
 class GenericCreatureScript : public CreatureScript
@@ -1210,7 +1210,7 @@ class GenericCreatureScript : public CreatureScript
         GenericCreatureScript(char const* name) : CreatureScript(name) { }
         CreatureAI* GetAI(Creature* me) const override { return new AI(me); }
 };
-#define REGISTER_CREATURE_AI(ai_name) new GenericCreatureScript<ai_name>(#ai_name)
+#define RegisterCreatureAI(ai_name) new GenericCreatureScript<ai_name>(#ai_name)
 
 template <class AI>
 class GenericGameObjectScript : public GameObjectScript
@@ -1219,7 +1219,7 @@ class GenericGameObjectScript : public GameObjectScript
         GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
         GameObjectAI* GetAI(GameObject* go) const override { return new AI(go); }
 };
-#define REGISTER_GAMEOBJECT_AI(ai_name) new GenericGameObjectScript<ai_name>(#ai_name)
+#define RegisterGameObjectAI(ai_name) new GenericGameObjectScript<ai_name>(#ai_name)
 
 template <class AI>
 class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
@@ -1228,7 +1228,7 @@ class GenericAreaTriggerEntityScript : public AreaTriggerEntityScript
         GenericAreaTriggerEntityScript(char const* name) : AreaTriggerEntityScript(name) { }
         AreaTriggerAI* GetAI(AreaTrigger* at) const override { return new AI(at); }
 };
-#define REGISTER_AREATRIGGER_AI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
+#define RegisterAreaTriggerAI(ai_name) new GenericAreaTriggerEntityScript<ai_name>(#ai_name)
 
 #define sScriptMgr ScriptMgr::instance()
 

@@ -4597,7 +4597,7 @@ void AddSC_item_spell_scripts()
     new spell_item_impale_leviroth();
     new spell_item_brewfest_mount_transformation();
     new spell_item_nitro_boots();
-    REGISTER_SPELL_SCRIPT(spell_item_teach_language);
+    RegisterSpellScript(spell_item_teach_language);
     new spell_item_rocket_boots();
     new spell_item_pygmy_oil();
     new spell_item_unusual_compass();
