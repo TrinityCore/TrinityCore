@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "LuaEngine.h"
 
 GameEventMgr* GameEventMgr::instance()
 {
@@ -169,6 +170,8 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 
         return conditions_met;
     }
+    if (IsActiveEvent(event_id))
+        sEluna->OnGameEventStart(event_id);
 }
 
 void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
@@ -212,6 +215,8 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
             CharacterDatabase.CommitTransaction(trans);
         }
     }
+    if (!IsActiveEvent(event_id))
+        sEluna->OnGameEventStop(event_id);
 }
 
 void GameEventMgr::LoadFromDB()
