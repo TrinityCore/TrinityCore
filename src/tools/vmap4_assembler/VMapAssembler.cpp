@@ -24,7 +24,7 @@
 int main(int argc, char* argv[])
 {
     std::string src = "Buildings";
-    std::string dest = "vmaps";       
+    std::string dest = "vmaps";
 
     if (argc > 3)
     {
