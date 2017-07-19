@@ -1294,24 +1294,21 @@ void ExtractGameTables()
 
 
 int GetLocale() {
-
-	int i = 0;
-	int result = -1;
+    int i = 0;
+    int result = -1;
 	
-		while (i < TOTAL_LOCALES && result < 0) {
-			boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-			CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[i]);
+        while (i < TOTAL_LOCALES && result < 0) {
+            boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
+            CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[i]);
 			
-			char const* fileName = DBFilesClientList[0];
-			if (CascStorage &&  CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
-			{
-				result = i;
-			}
-
-			i++;
-		}	
-
-	return result;
+            char const* fileName = DBFilesClientList[0];
+            if (CascStorage &&  CASC::OpenFile(CascStorage, fileName, CASC_LOCALE_NONE))
+            {
+                result = i;
+            }
+            i++;
+        }	
+    return result;
 }
 
 bool OpenCascStorage(int locale)
@@ -1373,46 +1370,37 @@ int main(int argc, char * arg[])
 
     HandleArgs(argc, arg);
 
-	int locale = GetLocale();
+    int locale = GetLocale();
     uint32 build = 0;
 
     if (!RetardCheck())
         return 1;
 
-   
-       
-	if (OpenCascStorage(locale)) {
-		if ((CONF_extract & EXTRACT_DBC) == 0)
-		{
-			
-			build = CASC::GetBuildNumber(CascStorage);
-			if (build)
-			{
-				printf("Detected client build: %u\n\n", build);
-				CascStorage.reset();
-			}
-		}
-		else {
-			//Extract DBC files
-			uint32 tempBuild = CASC::GetBuildNumber(CascStorage);
-			if (!tempBuild)
-			{
-				CascStorage.reset();
-			}
-			else {
-				printf("Detected client build %u for locale %s\n\n", tempBuild, localeNames[locale]);
-				ExtractDBFilesClient(locale);
-				CascStorage.reset();
-			}
-		}
-
-		
-	}
+    if (OpenCascStorage(locale)) {
+        if ((CONF_extract & EXTRACT_DBC) == 0)
+        {	
+            build = CASC::GetBuildNumber(CascStorage);
+            if (build)
+            {
+                printf("Detected client build: %u\n\n", build);
+                CascStorage.reset();
+            }
+        }
+        else {
+            //Extract DBC files
+            uint32 tempBuild = CASC::GetBuildNumber(CascStorage);
+            if (!tempBuild)
+            {
+                CascStorage.reset();
+            }
+            else {
+                printf("Detected client build %u for locale %s\n\n", tempBuild, localeNames[locale]);
+                ExtractDBFilesClient(locale);
+                CascStorage.reset();
+            }
+        }
+    }
            
-
-       
-    
-
     if (locale < 0)
     {
         printf("No locales detected\n");
