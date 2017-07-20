@@ -60,9 +60,6 @@ private:
     std::unique_ptr<Battlenet::Session::AccountInfo> _result;
 };
 
-/* Codes 600 to 999 are user definable */
-#define SOAP_CUSTOM_STATUS_ASYNC 600
-
 int32 handle_get_plugin(soap* soapClient)
 {
     return sLoginService.HandleGet(soapClient);
@@ -209,8 +206,7 @@ void LoginRESTService::Run()
         {
             soapClient->user = (void*)&soapClient; // this allows us to make a copy of pointer inside GET/POST handlers to increment reference count
             soap_begin(soapClient.get());
-            if (soap_begin_recv(soapClient.get()) != SOAP_CUSTOM_STATUS_ASYNC)
-                soap_closesock(soapClient.get());
+            soap_begin_recv(soapClient.get());
         });
     }
 
@@ -404,7 +400,7 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
 
     _ioService->post(std::bind(&LoginRESTService::HandleAsyncRequest, this, std::move(request)));
 
-    return SOAP_CUSTOM_STATUS_ASYNC;
+    return SOAP_OK;
 }
 
 int32 LoginRESTService::SendResponse(soap* soapClient, google::protobuf::Message const& response)
