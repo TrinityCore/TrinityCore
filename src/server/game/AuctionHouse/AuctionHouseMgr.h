@@ -122,10 +122,10 @@ struct AuctionSearchFilters
     struct SubclassFilter
     {
         uint32 SubclassMask = FILTER_SKIP_CLASS;
-        std::array<uint32, MAX_ITEM_SUBCLASS_TOTAL> InvTypes;
+        std::array<uint32, MAX_ITEM_SUBCLASS_TOTAL> InvTypes = { };
     };
 
-    std::array<SubclassFilter, MAX_ITEM_CLASS> Classes;
+    std::array<SubclassFilter, MAX_ITEM_CLASS> Classes = { };
 };
 
 //this class is used as auctionhouse instance
