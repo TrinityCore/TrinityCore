@@ -121,7 +121,7 @@ namespace WorldPackets
             int32 RewardMoneyDifficulty     = 0;
             float RewardMoneyMultiplier     = 1.0f;
             int32 RewardBonusMoney          = 0;
-            int32 RewardDisplaySpell[QUEST_REWARD_DISPLAY_SPELL_COUNT] = {}; // reward spell, this spell will be displayed (icon)
+            int32 RewardDisplaySpell[QUEST_REWARD_DISPLAY_SPELL_COUNT] = { }; // reward spell, this spell will be displayed (icon)
             int32 RewardSpell               = 0;
             int32 RewardHonor               = 0;
             float RewardKillHonor           = 0.0f;
@@ -159,17 +159,17 @@ namespace WorldPackets
             int32 QuestRewardID             = 0;
             int32 Expansion                 = 0;
             std::vector<QuestObjective> Objectives;
-            int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 ItemDrop[QUEST_ITEM_DROP_COUNT] = {};
-            int32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT] = {};
+            int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = { };
+            int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = { };
+            int32 ItemDrop[QUEST_ITEM_DROP_COUNT] = { };
+            int32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT] = { };
             QuestInfoChoiceItem UnfilteredChoiceItems[QUEST_REWARD_CHOICES_COUNT];
-            int32 RewardFactionID[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 RewardFactionCapIn[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
-            int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
+            int32 RewardFactionID[QUEST_REWARD_REPUTATIONS_COUNT] = { };
+            int32 RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = { };
+            int32 RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = { };
+            int32 RewardFactionCapIn[QUEST_REWARD_REPUTATIONS_COUNT] = { };
+            int32 RewardCurrencyID[QUEST_REWARD_CURRENCY_COUNT] = { };
+            int32 RewardCurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = { };
         };
 
         class QueryQuestInfoResponse final : public ServerPacket
@@ -239,20 +239,20 @@ namespace WorldPackets
             int32 Honor                     = 0;
             int32 Title                     = 0;
             int32 FactionFlags              = 0;
-            int32 SpellCompletionDisplayID[QUEST_REWARD_DISPLAY_SPELL_COUNT] = {};
+            int32 SpellCompletionDisplayID[QUEST_REWARD_DISPLAY_SPELL_COUNT] = { };
             int32 SpellCompletionID         = 0;
             int32 SkillLineID               = 0;
             int32 NumSkillUps               = 0;
             int32 RewardID                  = 0;
             QuestChoiceItem ChoiceItems[QUEST_REWARD_CHOICES_COUNT];
-            int32 ItemID[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 ItemQty[QUEST_REWARD_ITEM_COUNT] = {};
-            int32 FactionID[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 FactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 FactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 FactionCapIn[QUEST_REWARD_REPUTATIONS_COUNT] = {};
-            int32 CurrencyID[QUEST_REWARD_CURRENCY_COUNT] = {};
-            int32 CurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = {};
+            int32 ItemID[QUEST_REWARD_ITEM_COUNT] = { };
+            int32 ItemQty[QUEST_REWARD_ITEM_COUNT] = { };
+            int32 FactionID[QUEST_REWARD_REPUTATIONS_COUNT] = { };
+            int32 FactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = { };
+            int32 FactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = { };
+            int32 FactionCapIn[QUEST_REWARD_REPUTATIONS_COUNT] = { };
+            int32 CurrencyID[QUEST_REWARD_CURRENCY_COUNT] = { };
+            int32 CurrencyQty[QUEST_REWARD_CURRENCY_COUNT] = { };
             bool IsBoostSpell = false;
         };
 
@@ -272,7 +272,7 @@ namespace WorldPackets
             int32 SuggestedPartyMembers     = 0;
             QuestRewards Rewards;
             std::vector<QuestDescEmote> Emotes;
-            int32 QuestFlags[2]             = {}; // Flags and FlagsEx
+            int32 QuestFlags[2]             = { }; // Flags and FlagsEx
         };
 
         class QuestGiverOfferRewardMessage final : public ServerPacket
@@ -356,7 +356,7 @@ namespace WorldPackets
             ObjectGuid InformUnit;
             int32 QuestID           = 0;
             int32 QuestPackageID    = 0;
-            uint32 QuestFlags[2]    = {};
+            uint32 QuestFlags[2]    = { };
             int32 SuggestedPartyMembers = 0;
             QuestRewards Rewards;
             std::vector<QuestObjectiveSimple> Objectives;
@@ -410,7 +410,7 @@ namespace WorldPackets
             std::vector<QuestObjectiveCollect> Collect;
             std::vector<QuestCurrency> Currency;
             int32 StatusFlags           = 0;
-            uint32 QuestFlags[2]        = {};
+            uint32 QuestFlags[2]        = { };
             std::string QuestTitle;
             std::string CompletionText;
         };
