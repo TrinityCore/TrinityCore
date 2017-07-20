@@ -145,6 +145,8 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 
         // When event is started, set its worldstate to current time
         sWorld->setWorldState(event_id, time(nullptr));
+        if (IsActiveEvent(event_id))
+            sEluna->OnGameEventStart(event_id);
         return false;
     }
     else
@@ -168,10 +170,10 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
         if (overwrite && conditions_met)
             sWorld->ForceGameEventUpdate();
 
+        if (IsActiveEvent(event_id))
+            sEluna->OnGameEventStart(event_id);
         return conditions_met;
     }
-    if (IsActiveEvent(event_id))
-        sEluna->OnGameEventStart(event_id);
 }
 
 void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
