@@ -317,8 +317,8 @@ namespace WorldPackets
             uint32 Slot = 0;
             uint32 AvgWaitTimeMe = 0;
             uint32 AvgWaitTime = 0;
-            uint32 AvgWaitTimeByRole[3] = {};
-            uint8 LastNeeded[3] = {};
+            uint32 AvgWaitTimeByRole[3] = { };
+            uint8 LastNeeded[3] = { };
             uint32 QueuedTime = 0;
         };
 

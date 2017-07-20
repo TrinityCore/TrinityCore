@@ -18,7 +18,6 @@
 #include "PacketUtilities.h"
 #include "Errors.h"
 #include <sstream>
-#include <array>
 
 WorldPackets::PacketArrayMaxCapacityException::PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit)
 {
