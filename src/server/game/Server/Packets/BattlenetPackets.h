@@ -101,7 +101,7 @@ namespace WorldPackets
             void Read() override;
 
             uint32 Token = 0;
-            std::array<uint8, 32> Secret;
+            std::array<uint8, 32> Secret = { };
         };
     }
 }

@@ -510,8 +510,8 @@ class TC_GAME_API Quest
     protected:
 
         // quest_detais table
-        uint32 DetailsEmote[QUEST_EMOTE_COUNT] = {};
-        uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT] = {};
+        uint32 DetailsEmote[QUEST_EMOTE_COUNT] = { };
+        uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT] = { };
 
         // quest_request_items table
         uint32 EmoteOnComplete          = 0;
@@ -521,8 +521,8 @@ class TC_GAME_API Quest
         std::string RequestItemsText;
 
         // quest_offer_reward table
-        uint32 OfferRewardEmote[QUEST_EMOTE_COUNT] = {};
-        uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT] = {};
+        uint32 OfferRewardEmote[QUEST_EMOTE_COUNT] = { };
+        uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT] = { };
         std::string OfferRewardText;
 
         // quest_template_addon table (custom data)

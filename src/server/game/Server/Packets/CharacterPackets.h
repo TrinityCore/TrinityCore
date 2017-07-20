@@ -53,7 +53,7 @@ namespace WorldPackets
             uint8 HairStyle       = 0;
             uint8 HairColor       = 0;
             uint8 FacialHairStyle = 0;
-            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay = { };
             uint8 OutfitId        = 0;
             Optional<int32> TemplateSet;
             std::string Name;
@@ -78,7 +78,7 @@ namespace WorldPackets
             uint8 HairColorID       = 0;
             uint8 FacialHairStyleID = 0;
             uint8 SkinID            = 0;
-            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay = { };
         };
 
         struct CharRaceOrFactionChangeInfo
@@ -93,7 +93,7 @@ namespace WorldPackets
             std::string Name;
             uint8 FaceID            = 0;
             uint8 HairStyleID       = 0;
-            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay = { };
         };
 
         struct CharacterUndeleteInfo
@@ -131,7 +131,7 @@ namespace WorldPackets
                 uint8 HairStyle          = 0;
                 uint8 HairColor          = 0;
                 uint8 FacialHair         = 0;
-                std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
+                std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay = { };
                 uint8 Level              = 0;
                 int32 ZoneId             = 0;
                 int32 MapId              = 0;
@@ -155,7 +155,7 @@ namespace WorldPackets
                 } Pet;
 
                 bool BoostInProgress = false; ///< @todo
-                int32 ProfessionIds[2];       ///< @todo
+                int32 ProfessionIds[2] = { }; ///< @todo
 
                 struct VisualItemInfo
                 {
@@ -164,7 +164,7 @@ namespace WorldPackets
                     uint8 InventoryType     = 0;
                 };
 
-                std::array<VisualItemInfo, 23> VisualItems;
+                std::array<VisualItemInfo, 23> VisualItems = { };
             };
 
             struct RestrictedFactionChangeRuleInfo
@@ -329,7 +329,7 @@ namespace WorldPackets
                 uint8 FacialHairStyleID = 0;
                 uint8 FaceID            = 0;
                 uint8 RaceID            = RACE_NONE;
-                std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
+                std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay = { };
             };
 
             CharFactionChangeResult() : ServerPacket(SMSG_CHAR_FACTION_CHANGE_RESULT, 20 + sizeof(CharFactionChangeDisplayInfo)) { }
@@ -598,7 +598,7 @@ namespace WorldPackets
             uint32 NewFacialHair = 0;
             uint32 NewSkinColor = 0;
             uint32 NewFace = 0;
-            std::array<uint32, PLAYER_CUSTOM_DISPLAY_SIZE> NewCustomDisplay;
+            std::array<uint32, PLAYER_CUSTOM_DISPLAY_SIZE> NewCustomDisplay = { };
         };
 
         class BarberShopResult final : public ServerPacket
@@ -711,7 +711,7 @@ namespace WorldPackets
             uint8 HairStyleID = 0;
             uint8 FacialHairStyleID = 0;
             uint8 FaceID = 0;
-            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
+            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay = { };
         };
 
         class CharCustomizeFailed final : public ServerPacket
