@@ -357,7 +357,7 @@ class spell_mage_combustion : public SpellScriptLoader
                 // Do not take charges, add a stack of crit buff
                 if (!(eventInfo.GetHitMask() & PROC_HIT_CRITICAL))
                 {
-                    eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_COMBUSTION_PROC, true);
+                    eventInfo.GetActor()->CastSpell(nullptr, SPELL_MAGE_COMBUSTION_PROC, true);
                     return false;
                 }
 
@@ -461,7 +461,7 @@ class spell_mage_imp_mana_gems : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MAGE_MANA_SURGE, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(nullptr, SPELL_MAGE_MANA_SURGE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -712,7 +712,7 @@ class spell_mage_gen_extra_effects : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
 
                 if (caster->HasAura(SPELL_MAGE_T10_2P_BONUS))
-                    caster->CastSpell((Unit*)nullptr, SPELL_MAGE_T10_2P_BONUS_EFFECT, true);
+                    caster->CastSpell(nullptr, SPELL_MAGE_T10_2P_BONUS_EFFECT, true);
             }
 
             void Register() override

@@ -1071,7 +1071,7 @@ class npc_scarlet_miner_cart : public CreatureScript
                 if (apply)
                 {
                     _playerGUID = who->GetGUID();
-                    me->CastSpell((Unit*)nullptr, SPELL_SUMMON_MINER, true);
+                    me->CastSpell(nullptr, SPELL_SUMMON_MINER, true);
                 }
                 else
                 {
