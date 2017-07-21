@@ -885,6 +885,8 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
     hdr.append(RealmListSizeBuffer);                        // append RealmList's size buffer
     hdr.append(pkt);                                        // append realms in the realmlist
     SendPacket(hdr);
+
+    _status = STATUS_AUTHED;
 }
 
 // Make the SRP6 calculation from hash in dB
