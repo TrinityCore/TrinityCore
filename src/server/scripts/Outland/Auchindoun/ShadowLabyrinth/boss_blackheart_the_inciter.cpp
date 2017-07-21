@@ -56,26 +56,6 @@ enum Events
 class BlackheartCharmedPlayerAI : public SimpleCharmedPlayerAI
 {
     using SimpleCharmedPlayerAI::SimpleCharmedPlayerAI;
-    Unit* SelectAttackTarget() const override
-    {
-        if (Unit* charmer = me->GetCharmer())
-        {
-            std::list<Player*> targets;
-            for (ThreatReference const* ref : charmer->GetThreatManager().GetUnsortedThreatList())
-            {
-                if (Player* victim = ref->GetVictim()->ToPlayer())
-                    if (me->IsValidAttackTarget(victim))
-                        targets.push_back(victim);
-            }
-            if (targets.empty())
-                return nullptr;
-
-            auto it = targets.begin();
-            std::advance(it, urand(0, targets.size() - 1));
-            return *it;
-        }
-        return nullptr;
-    }
     void OnCharmed(bool apply) override
     {
         SimpleCharmedPlayerAI::OnCharmed(apply);
