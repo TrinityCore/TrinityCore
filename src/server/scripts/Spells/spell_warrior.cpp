@@ -444,13 +444,13 @@ class spell_warr_extra_proc : public SpellScriptLoader
                 if (!roll_chance_i(bonusAurEff->GetAmount()))
                     return;
 
-                target->CastSpell((Unit*)nullptr, SPELL_WARRIOR_EXTRA_CHARGE, true, nullptr, aurEff);
+                target->CastSpell(nullptr, SPELL_WARRIOR_EXTRA_CHARGE, true, nullptr, aurEff);
 
                 SpellInfo const* auraInfo = aurEff->GetSpellInfo();
                 if (auraInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_BLOODSURGE_R1)))
-                    target->CastSpell((Unit*)nullptr, SPELL_WARRIOR_SLAM_GCD_REDUCED, true, nullptr, aurEff);
+                    target->CastSpell(nullptr, SPELL_WARRIOR_SLAM_GCD_REDUCED, true, nullptr, aurEff);
                 else if (auraInfo->IsRankOf(sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_SUDDEN_DEATH_R1)))
-                    target->CastSpell((Unit*)nullptr, SPELL_WARRIOR_EXECUTE_GCD_REDUCED, true, nullptr, aurEff);
+                    target->CastSpell(nullptr, SPELL_WARRIOR_EXECUTE_GCD_REDUCED, true, nullptr, aurEff);
             }
 
             void Register() override

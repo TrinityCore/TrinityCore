@@ -558,7 +558,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                             if (Creature* yogg = instance->GetCreature(BOSS_YOGG_SARON))
                             {
                                 yogg->AI()->Talk(EMOTE_YOGG_SARON_EXTINGUISH_ALL_LIFE, me);
-                                yogg->CastSpell((Unit*)nullptr, SPELL_EXTINGUISH_ALL_LIFE, true);
+                                yogg->CastSpell(nullptr, SPELL_EXTINGUISH_ALL_LIFE, true);
                             }
                             events.ScheduleEvent(EVENT_EXTINGUISH_ALL_LIFE, 10000);    // cast it again after a short while, players can survive
                             break;
@@ -2340,7 +2340,7 @@ class spell_yogg_saron_empowering_shadows_missile : public SpellScriptLoader    
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    target->CastSpell((Unit*)nullptr, SPELL_EMPOWERING_SHADOWS, true);
+                    target->CastSpell(nullptr, SPELL_EMPOWERING_SHADOWS, true);
             }
 
             void Register() override
@@ -2600,7 +2600,7 @@ class spell_yogg_saron_death_ray_warning_visual : public SpellScriptLoader     /
                 if (Unit* caster = GetCaster())
                 {
                     caster->CastSpell(caster, SPELL_DEATH_RAY_PERIODIC, true);
-                    caster->CastSpell((Unit*)nullptr, SPELL_DEATH_RAY_DAMAGE_VISUAL, true);
+                    caster->CastSpell(nullptr, SPELL_DEATH_RAY_DAMAGE_VISUAL, true);
                     // TODO: set better movement
                     caster->GetMotionMaster()->MoveConfused();
                 }
@@ -2778,7 +2778,7 @@ class spell_yogg_saron_induce_madness : public SpellScriptLoader    // 64059
 
             void ClearShatteredIllusion()
             {
-                GetCaster()->CastSpell((Unit*)nullptr, SPELL_SHATTERED_ILLUSION_REMOVE);
+                GetCaster()->CastSpell(nullptr, SPELL_SHATTERED_ILLUSION_REMOVE);
 
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                     if (Creature* voice = instance->GetCreature(DATA_VOICE_OF_YOGG_SARON))

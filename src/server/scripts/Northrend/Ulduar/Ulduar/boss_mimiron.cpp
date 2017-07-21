@@ -2129,7 +2129,7 @@ class spell_mimiron_proximity_trigger : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell((Unit*)nullptr, SPELL_PROXIMITY_MINE_EXPLOSION, true);
+                GetCaster()->CastSpell(nullptr, SPELL_PROXIMITY_MINE_EXPLOSION, true);
             }
 
             void Register() override
@@ -2215,7 +2215,7 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell((Unit*)nullptr, SPELL_SCRIPT_EFFECT_ROCKET_STRIKE, true, nullptr, nullptr, GetCaster()->GetGUID());
+                GetHitUnit()->CastSpell(nullptr, SPELL_SCRIPT_EFFECT_ROCKET_STRIKE, true, nullptr, nullptr, GetCaster()->GetGUID());
             }
 
             void Register() override
@@ -2262,7 +2262,7 @@ class spell_mimiron_rocket_strike_damage : public SpellScriptLoader
 
             void HandleFriendlyFire(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell((Unit*)nullptr, SPELL_NOT_SO_FRIENDLY_FIRE, true);
+                GetHitUnit()->CastSpell(nullptr, SPELL_NOT_SO_FRIENDLY_FIRE, true);
             }
 
             void Register() override

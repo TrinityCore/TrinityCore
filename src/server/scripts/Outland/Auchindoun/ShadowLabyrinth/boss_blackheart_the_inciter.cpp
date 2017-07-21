@@ -229,7 +229,7 @@ class spell_blackheart_incite_chaos : public SpellScript
     {
         if (Unit* target = GetHitUnit())
         {
-            target->CastSpell((Unit*)nullptr, INCITE_SPELLS[i], true);
+            target->CastSpell(nullptr, INCITE_SPELLS[i], true);
             i = (i + 1) % NUM_INCITE_SPELLS;
         }
     }

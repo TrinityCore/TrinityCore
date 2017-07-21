@@ -185,7 +185,7 @@ class spell_murmur_sonic_boom : public SpellScriptLoader
 
             void HandleEffect(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell((Unit*)nullptr, SPELL_SONIC_BOOM_EFFECT, true);
+                GetCaster()->CastSpell(nullptr, SPELL_SONIC_BOOM_EFFECT, true);
             }
 
             void Register() override
