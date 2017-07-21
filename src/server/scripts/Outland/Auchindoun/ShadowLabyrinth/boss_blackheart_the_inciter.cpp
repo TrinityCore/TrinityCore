@@ -20,6 +20,7 @@
 #include "PlayerAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "shadow_labyrinth.h"
 
 enum BlackheartTheInciter
