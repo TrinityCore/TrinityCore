@@ -436,7 +436,7 @@ public:
                 .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
                     me->UseDoorOrButton(8);
-                    me->CastSpell((Unit*)nullptr, SPELL_MOLE_MACHINE_EMERGE, true);
+                    me->CastSpell(nullptr, SPELL_MOLE_MACHINE_EMERGE, true);
                 })
                 .Schedule(Seconds(4), [this](TaskContext /*context*/)
                 {
@@ -667,7 +667,7 @@ class spell_barreled_control_aura : public SpellScriptLoader
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell((Unit*)nullptr, SPELL_BARRELED, true);
+                GetTarget()->CastSpell(nullptr, SPELL_BARRELED, true);
             }
 
             void Register() override
