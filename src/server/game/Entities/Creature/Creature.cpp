@@ -1196,12 +1196,11 @@ void Creature::SelectLevel()
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
 
-    // level
-    uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
-    uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
-
     if (!HasScalableLevels())
     {
+        // level
+        uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
+        uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
         uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
         SetLevel(level);
     }
@@ -2525,32 +2524,33 @@ float Creature::GetArmorMultiplierForTarget(WorldObject const* target) const
 
 uint8 Creature::GetLevelForTarget(WorldObject const* target) const
 {
-    if (!target->ToUnit())
-        return Unit::GetLevelForTarget(target);
-
-    if (isWorldBoss())
+    if (target->IsUnit())
     {
-        uint16 level = target->ToUnit()->getLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
-        if (level < 1)
-            return 1;
-        if (level > 255)
-            return 255;
-        return uint8(std::min(std::max(uint16(1), level), uint16(255)));
+        if (isWorldBoss())
+        {
+            uint8 level = target->ToUnit()->getLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
+            if (level < 1)
+                return 1;
+            if (level > 255)
+                return 255;
+
+            return RoundToInterval(level, uint8(1), uint8(255));
+        }
+
+        // If this creature should scale level, adapt level depending of target level
+        // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
+        if (HasScalableLevels())
+        {
+            uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + GetCreatureTemplate()->levelScaling->DeltaLevel;
+
+            if (target->IsPlayer())
+                targetLevelWithDelta += target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+
+            return RoundToInterval(targetLevelWithDelta, (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
+        }
     }
 
-    // If this creature should scale level, adapt level depending of target level
-    // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
-    if (HasScalableLevels())
-    {
-        uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + GetCreatureTemplate()->levelScaling->DeltaLevel;
-
-        if (target->IsPlayer())
-            targetLevelWithDelta += target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
-
-        return std::min(std::max(targetLevelWithDelta, (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN)), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
-    }
-
-    return getLevel();
+    return Unit::GetLevelForTarget(target);
 }
 
 std::string Creature::GetAIName() const

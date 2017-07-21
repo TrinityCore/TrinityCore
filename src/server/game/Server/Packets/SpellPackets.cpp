@@ -119,7 +119,7 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Player, Crea
 
     Type                    = TYPE_PLAYER_TO_CREATURE_DAMAGE;
     PlayerItemLevel         = attacker->GetAverageItemLevel();
-    TargetLevel             = target->getLevel();
+    TargetLevel             = attacker->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
     TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->MinLevel;
@@ -146,7 +146,7 @@ template<>
 bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
 {
     // No scalable levels for any of them
-    if (   (!attacker->ToCreature() || !attacker->ToCreature()->HasScalableLevels())
+    if ((!attacker->ToCreature() || !attacker->ToCreature()->HasScalableLevels())
         && (!target->ToCreature()   || !target->ToCreature()->HasScalableLevels()))
         return false;
 

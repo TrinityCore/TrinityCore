@@ -5,5 +5,5 @@ CREATE TABLE `creature_template_scaling` (
   `LevelScalingMax` SMALLINT (5) UNSIGNED NOT NULL DEFAULT 0,
   `LevelScalingDelta` SMALLINT (5) NOT NULL DEFAULT 0,
   `VerifiedBuild` SMALLINT (5) DEFAULT NULL,
-  PRIMARY KEY (`entry`)
+  PRIMARY KEY (`Entry`)
 );
