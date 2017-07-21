@@ -681,7 +681,6 @@ void ObjectMgr::LoadCreatureScalingDatas()
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature template scaling in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
 }
 
 void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)

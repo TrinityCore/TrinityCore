@@ -49,15 +49,14 @@ namespace WorldPackets
 
         struct SandboxScalingData
         {
-            enum SandboxScalingDataType
+            enum SandboxScalingDataType : uint32
             {
-                TYPE_PLAYER_TO_PLAYER = 1, // NYI
-                TYPE_CREATURE_TO_PLAYER_DAMAGE = 2,
-                TYPE_PLAYER_TO_CREATURE_DAMAGE = 3,
-                TYPE_CREATURE_TO_CREATURE_DAMAGE = 4
+                TYPE_PLAYER_TO_PLAYER               = 1, // NYI
+                TYPE_CREATURE_TO_PLAYER_DAMAGE      = 2,
+                TYPE_PLAYER_TO_CREATURE_DAMAGE      = 3,
+                TYPE_CREATURE_TO_CREATURE_DAMAGE    = 4
             };
 
-        public:
             uint32 Type = 0;
             int16 PlayerLevelDelta = 0;
             uint16 PlayerItemLevel = 0;

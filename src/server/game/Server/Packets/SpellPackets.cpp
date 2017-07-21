@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SpellPackets.h"
+#include "Creature.h"
 #include "MovementPackets.h"
+#include "Player.h"
+#include "SpellPackets.h"
 
 void WorldPackets::Spells::CancelAura::Read()
 {
@@ -102,13 +104,14 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Creature, Pl
     CreatureTemplate const* creatureTemplate = attacker->GetCreatureTemplate();
 
     Type                    = TYPE_CREATURE_TO_PLAYER_DAMAGE;
+    PlayerLevelDelta        = 0;
     PlayerItemLevel         = target->GetAverageItemLevel();
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
-    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->MinLevel;
-    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->MaxLevel;
-    TargetScalingLevelDelta = (int8)creatureTemplate->levelScaling->DeltaLevel;
+    TargetMinScalingLevel   = uint8(creatureTemplate->levelScaling->MinLevel);
+    TargetMaxScalingLevel   = uint8(creatureTemplate->levelScaling->MaxLevel);
+    TargetScalingLevelDelta = int8(creatureTemplate->levelScaling->DeltaLevel);
     return true;
 }
 
@@ -118,12 +121,14 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Player, Crea
     CreatureTemplate const* creatureTemplate = target->GetCreatureTemplate();
 
     Type                    = TYPE_PLAYER_TO_CREATURE_DAMAGE;
+    PlayerLevelDelta        = 0;
     PlayerItemLevel         = attacker->GetAverageItemLevel();
     TargetLevel             = attacker->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
-    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->MinLevel;
-    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->MaxLevel;
+    TargetMinScalingLevel   = uint8(creatureTemplate->levelScaling->MinLevel);
+    TargetMaxScalingLevel   = uint8(creatureTemplate->levelScaling->MaxLevel);
+    TargetScalingLevelDelta = int8(creatureTemplate->levelScaling->DeltaLevel);
     return true;
 }
 
@@ -133,31 +138,42 @@ bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Creature, Cr
     CreatureTemplate const* creatureTemplate = target->HasScalableLevels() ? attacker->GetCreatureTemplate() : target->GetCreatureTemplate();
 
     Type                    = TYPE_CREATURE_TO_CREATURE_DAMAGE;
+    PlayerLevelDelta        = 0;
+    PlayerItemLevel         = 0;
     TargetLevel             = target->getLevel();
     Expansion               = creatureTemplate->RequiredExpansion;
     Class                   = creatureTemplate->unit_class;
-    TargetMinScalingLevel   = (uint8)creatureTemplate->levelScaling->MinLevel;
-    TargetMaxScalingLevel   = (uint8)creatureTemplate->levelScaling->MaxLevel;
-    TargetScalingLevelDelta = (int8)creatureTemplate->levelScaling->DeltaLevel;
+    TargetMinScalingLevel   = uint8(creatureTemplate->levelScaling->MinLevel);
+    TargetMaxScalingLevel   = uint8(creatureTemplate->levelScaling->MaxLevel);
+    TargetScalingLevelDelta = int8(creatureTemplate->levelScaling->DeltaLevel);
     return true;
 }
 
 template<>
 bool WorldPackets::Spells::SandboxScalingData::GenerateDataForUnits<Unit, Unit>(Unit* attacker, Unit* target)
 {
-    // No scalable levels for any of them
-    if ((!attacker->ToCreature() || !attacker->ToCreature()->HasScalableLevels())
-        && (!target->ToCreature()   || !target->ToCreature()->HasScalableLevels()))
-        return false;
+    if (Player* playerAttacker = attacker->ToPlayer())
+    {
+        if (Player* playerTarget = target->ToPlayer())
+            return GenerateDataForUnits(playerAttacker, playerTarget);
+        else if (Creature* creatureTarget = target->ToCreature())
+        {
+            if (creatureTarget->HasScalableLevels())
+                return GenerateDataForUnits(playerAttacker, creatureTarget);
+        }
+    }
+    else if (Creature* creatureAttacker = attacker->ToCreature())
+    {
+        if (Player* playerTarget = target->ToPlayer())
+            return GenerateDataForUnits(creatureAttacker, playerTarget);
+        else if (Creature* creatureTarget = target->ToCreature())
+        {
+            if (creatureAttacker->HasScalableLevels() || creatureTarget->HasScalableLevels())
+                return GenerateDataForUnits(creatureAttacker, creatureTarget);
+        }
+    }
 
-    if (attacker->IsCreature() && target->IsPlayer())
-        GenerateDataForUnits(attacker->ToCreature(), target->ToPlayer());
-    else if (attacker->IsPlayer() && target->IsCreature())
-        GenerateDataForUnits(attacker->ToPlayer(), target->ToCreature());
-    else
-        GenerateDataForUnits(attacker->ToCreature(), target->ToCreature());
-
-    return true;
+    return false;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo const& auraData)

@@ -2524,29 +2524,24 @@ float Creature::GetArmorMultiplierForTarget(WorldObject const* target) const
 
 uint8 Creature::GetLevelForTarget(WorldObject const* target) const
 {
-    if (target->IsUnit())
+    if (Unit const* unitTarget = target->ToUnit())
     {
         if (isWorldBoss())
         {
-            uint8 level = target->ToUnit()->getLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
-            if (level < 1)
-                return 1;
-            if (level > 255)
-                return 255;
-
-            return RoundToInterval(level, uint8(1), uint8(255));
+            uint8 level = unitTarget->getLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
+            return RoundToInterval<uint8>(level, 1u, 255u);
         }
 
         // If this creature should scale level, adapt level depending of target level
         // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
         if (HasScalableLevels())
         {
-            uint8 targetLevelWithDelta = target->ToUnit()->getLevel() + GetCreatureTemplate()->levelScaling->DeltaLevel;
+            uint8 targetLevelWithDelta = unitTarget->getLevel() + GetCreatureTemplate()->levelScaling->DeltaLevel;
 
             if (target->IsPlayer())
                 targetLevelWithDelta += target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
 
-            return RoundToInterval(targetLevelWithDelta, (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN), (uint8)GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
+            return RoundToInterval<uint8>(targetLevelWithDelta, GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN), GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
         }
     }
 
