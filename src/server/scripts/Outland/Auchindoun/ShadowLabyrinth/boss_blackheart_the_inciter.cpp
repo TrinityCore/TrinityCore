@@ -16,6 +16,7 @@
  */
 
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "PlayerAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
