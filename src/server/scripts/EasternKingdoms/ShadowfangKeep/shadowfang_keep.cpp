@@ -333,7 +333,7 @@ class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
 
             void HandleDummyTick(AuraEffect const* aurEff)
             {
-                GetTarget()->CastSpell((Unit*)nullptr, aurEff->GetAmount(), true);
+                GetTarget()->CastSpell(nullptr, aurEff->GetAmount(), true);
             }
 
             void HandleUpdatePeriodic(AuraEffect* aurEff)
