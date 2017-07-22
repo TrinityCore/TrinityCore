@@ -142,7 +142,7 @@ public:
             char const* itemIdStr = strtok(itemStr, ":");
             char const* itemCountStr = strtok(NULL, " ");
 
-            uint32 itemId = atoi(itemIdStr);
+            uint32 itemId = atoul(itemIdStr);
             if (!itemId)
                 return false;
 
