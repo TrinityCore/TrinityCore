@@ -5883,8 +5883,9 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
         creature->SendAIReaction(AI_REACTION_HOSTILE);
         creature->CallAssistance();
 
-        // Remove emote state - will be restored on creature reset
+        // Remove emote state and bytes - will be restored on creature reset
         SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+        SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
     }
 
     // delay offhand weapon attack to next attack time
