@@ -266,7 +266,7 @@ public:
             return false;
 
         // Display Guild Information
-        handler->PSendSysMessage(LANG_GUILD_INFO_NAME, guild->GetName().c_str(), guild->GetId()); // Guild Id + Name
+        handler->PSendSysMessage(LANG_GUILD_INFO_NAME, guild->GetName().c_str(), std::to_string(guild->GetId()).c_str()); // Guild Id + Name
 
         std::string guildMasterName;
         if (ObjectMgr::GetPlayerNameByGUID(guild->GetLeaderGUID(), guildMasterName))
@@ -280,7 +280,7 @@ public:
 
         handler->PSendSysMessage(LANG_GUILD_INFO_CREATION_DATE, createdDateStr); // Creation Date
         handler->PSendSysMessage(LANG_GUILD_INFO_MEMBER_COUNT, guild->GetMembersCount()); // Number of Members
-        handler->PSendSysMessage(LANG_GUILD_INFO_BANK_GOLD, guild->GetBankMoney() / 100 / 100); // Bank Gold (in gold coins)
+        handler->PSendSysMessage(LANG_GUILD_INFO_BANK_GOLD, std::to_string(guild->GetBankMoney() / 100 / 100).c_str()); // Bank Gold (in gold coins)
         handler->PSendSysMessage(LANG_GUILD_INFO_LEVEL, guild->GetLevel()); // Level
         handler->PSendSysMessage(LANG_GUILD_INFO_MOTD, guild->GetMOTD().c_str()); // Message of the Day
         handler->PSendSysMessage(LANG_GUILD_INFO_EXTRA_INFO, guild->GetInfo().c_str()); // Extra Information
