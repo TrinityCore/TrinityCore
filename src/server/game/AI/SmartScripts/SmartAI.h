@@ -185,11 +185,13 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         uint32 mEscortQuestID;
 
-        void SetDespawnTime (uint32 t)
+        void SetDespawnTime (uint32 t, uint32 r = 0)
         {
             mDespawnTime = t;
+            mRespawnTime = r;
             mDespawnState = t ? 1 : 0;
         }
+
         void StartDespawn() { mDespawnState = 2; }
 
         void OnSpellClick(Unit* clicker, bool& result) override;
@@ -226,6 +228,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool AssistPlayerInCombatAgainst(Unit* who);
 
         uint32 mDespawnTime;
+        uint32 mRespawnTime;
         uint32 mDespawnState;
         void UpdateDespawn(const uint32 diff);
         uint32 mEscortInvokerCheckTimer;

@@ -284,12 +284,11 @@ public:
                 ? handler->GetTrinityString(LANG_ACTIVE)
                 : "";
 
-                char titleNameStr[80];
-                snprintf(titleNameStr, 80, name.c_str(), targetName);
+                std::string titleNameStr = Trinity::StringFormat(name.c_str(), targetName);
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())
-                    handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr, localeNames[loc], knownStr, activeStr);
+                    handler->PSendSysMessage(LANG_TITLE_LIST_CHAT, id, titleInfo->MaskID, id, titleNameStr.c_str(), localeNames[loc], knownStr, activeStr);
                 else
                     handler->PSendSysMessage(LANG_TITLE_LIST_CONSOLE, id, titleInfo->MaskID, name.c_str(), localeNames[loc], knownStr, activeStr);
             }
@@ -922,7 +921,7 @@ public:
 
             if (ObjectMgr::GetPlayerAccountIdByGUID(ObjectGuid::Create<HighGuid::Player>(guid)))
             {
-                handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, guid);
+                handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, std::to_string(guid).c_str());
                 handler->SetSentErrorMessage(true);
                 return false;
             }

@@ -62,8 +62,8 @@ public:
         if (!id_p)
             return false;
 
-        int32 id = atoi(id_p);
-        if (id <= 0)
+        uint32 id = atoul(id_p);
+        if (id == 0)
         {
             handler->PSendSysMessage(LANG_INVALID_TITLE_ID, id);
             handler->SetSentErrorMessage(true);
@@ -108,8 +108,8 @@ public:
         if (!id_p)
             return false;
 
-        int32 id = atoi(id_p);
-        if (id <= 0)
+        uint32 id = atoul(id_p);
+        if (id == 0)
         {
             handler->PSendSysMessage(LANG_INVALID_TITLE_ID, id);
             handler->SetSentErrorMessage(true);
@@ -138,13 +138,13 @@ public:
 
         std::string tNameLink = handler->GetNameLink(target);
 
-        char titleNameStr[80];
-        snprintf(titleNameStr, 80,
+        std::string titleNameStr = Trinity::StringFormat(
             (target->getGender() == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[handler->GetSessionDbcLocale()],
-            target->GetName().c_str());
+            target->GetName().c_str()
+        );
 
         target->SetTitle(titleInfo);
-        handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr.c_str(), tNameLink.c_str());
 
         return true;
     }
@@ -156,8 +156,8 @@ public:
         if (!id_p)
             return false;
 
-        int32 id = atoi(id_p);
-        if (id <= 0)
+        uint32 id = atoul(id_p);
+        if (id == 0)
         {
             handler->PSendSysMessage(LANG_INVALID_TITLE_ID, id);
             handler->SetSentErrorMessage(true);
@@ -188,12 +188,12 @@ public:
 
         std::string tNameLink = handler->GetNameLink(target);
 
-        char titleNameStr[80];
-        snprintf(titleNameStr, 80,
+        std::string titleNameStr = Trinity::StringFormat(
             (target->getGender() == GENDER_MALE ? titleInfo->NameMale : titleInfo->NameFemale)->Str[handler->GetSessionDbcLocale()],
-            target->GetName().c_str());
+            target->GetName().c_str()
+        );
 
-        handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr.c_str(), tNameLink.c_str());
 
         if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
         {

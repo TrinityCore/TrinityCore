@@ -1071,7 +1071,7 @@ public:
         if (!px)
             return false;
 
-        uint32 graveyardId = uint32(atoi(px));
+        uint32 graveyardId = atoul(px);
 
         uint32 team;
 
@@ -1541,15 +1541,15 @@ public:
 
         char const* maxPureSkill = strtok(NULL, " ");
 
-        int32 skill = atoi(skillStr);
-        if (skill <= 0)
+        uint32 skill = atoul(skillStr);
+        if (skill == 0)
         {
             handler->PSendSysMessage(LANG_INVALID_SKILL_ID, skill);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        int32 level = atol(levelStr);
+        uint32 level = atoul(levelStr);
 
         Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
@@ -1573,7 +1573,7 @@ public:
         // the max level of the new profession.
         uint16 max = maxPureSkill ? atoul(maxPureSkill) : targetHasSkill ? target->GetPureMaxSkillValue(skill) : uint16(level);
 
-        if (level <= 0 || level > max || max <= 0)
+        if (level == 0 || level > max || max <= 0)
             return false;
 
         // If the player has the skill, we get the current skill step. If they don't have the skill, we
@@ -1642,8 +1642,8 @@ public:
          * * Phases: %s                              - XIII. LANG_PINFO_CHR_PHASE (if not GM)
          * * Money: %ug%us%uc                        - XIV.  LANG_PINFO_CHR_MONEY
          * * Map: %s, Area: %s                       - XV.   LANG_PINFO_CHR_MAP
-         * * Guild: %s (Id: %u)                      - XVI.  LANG_PINFO_CHR_GUILD (if in guild)
-         * ** Rank: %s                               - XVII. LANG_PINFO_CHR_GUILD_RANK (if in guild)
+         * * Guild: %s (Id: %s)                      - XVI.  LANG_PINFO_CHR_GUILD (if in guild)
+         * ** Rank: %s, ID: %u                       - XVII. LANG_PINFO_CHR_GUILD_RANK (if in guild)
          * ** Note: %s                               - XVIII.LANG_PINFO_CHR_GUILD_NOTE (if in guild and has note)
          * ** O. Note: %s                            - XVIX. LANG_PINFO_CHR_GUILD_ONOTE (if in guild and has officer note)
          * * Played time: %s                         - XX.   LANG_PINFO_CHR_PLAYEDTIME
@@ -1942,7 +1942,7 @@ public:
         // Output XVII. - XVIX. if they are not empty
         if (!guildName.empty())
         {
-            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD, guildName.c_str(), guildId);
+            handler->PSendSysMessage(LANG_PINFO_CHR_GUILD, guildName.c_str(), std::to_string(guildId).c_str());
             handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_RANK, guildRank.c_str(), uint32(guildRankId));
             if (!note.empty())
                 handler->PSendSysMessage(LANG_PINFO_CHR_GUILD_NOTE, note.c_str());
@@ -2358,7 +2358,7 @@ public:
                 GameObject* go = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
                 if (!go)
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, std::to_string(guidLow).c_str());
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -2371,7 +2371,7 @@ public:
                 }
 
                 go->ModifyHealth(-damage, player);
-                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guidLow, -damage, go->GetGOValue()->Building.Health);
+                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), std::to_string(guidLow).c_str(), -damage, go->GetGOValue()->Building.Health);
             }
 
             return true;
@@ -2706,7 +2706,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 soundId = atoi((char*)args);
+        uint32 soundId = atoul(args);
 
         if (!sSoundKitStore.LookupEntry(soundId))
         {
@@ -2783,7 +2783,7 @@ public:
         }
 
         Unit::AuraApplicationMap const& uAuras = target->GetAppliedAuras();
-        handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, uAuras.size());
+        handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, std::to_string(uAuras.size()).c_str());
         for (Unit::AuraApplicationMap::const_iterator itr = uAuras.begin(); itr != uAuras.end(); ++itr)
         {
             AuraApplication const* aurApp = itr->second;
