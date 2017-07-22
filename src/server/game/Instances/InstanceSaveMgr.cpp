@@ -373,7 +373,7 @@ void InstanceSaveManager::LoadResetTimes()
                     itr->second.second = resettime;
                 }
             }
-            while (result->NextRow());
+            while (result2->NextRow());
         }
 
         // schedule the reset times

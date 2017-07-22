@@ -31,6 +31,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "Spline.h"
 #include "Transport.h"
 #include "Unit.h"
@@ -501,17 +502,17 @@ void AreaTrigger::UpdateShape()
         UpdatePolygonOrientation();
 }
 
-bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerActionUserTypes targetType)
+bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerAction const& action)
 {
-    switch (targetType)
+    switch (action.TargetType)
     {
         case AREATRIGGER_ACTION_USER_FRIEND:
         {
-            return caster->IsFriendlyTo(unit);
+            return caster->_IsValidAssistTarget(unit, sSpellMgr->GetSpellInfo(action.Param));
         }
         case AREATRIGGER_ACTION_USER_ENEMY:
         {
-            return !caster->IsFriendlyTo(unit);
+            return caster->_IsValidAttackTarget(unit, sSpellMgr->GetSpellInfo(action.Param));
         }
         case AREATRIGGER_ACTION_USER_RAID:
         {
@@ -539,7 +540,7 @@ void AreaTrigger::DoActions(Unit* unit)
     {
         for (AreaTriggerAction const& action : GetTemplate()->Actions)
         {
-            if (UnitFitToActionRequirement(unit, caster, action.TargetType))
+            if (UnitFitToActionRequirement(unit, caster, action))
             {
                 switch (action.ActionType)
                 {

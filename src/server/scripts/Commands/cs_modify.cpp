@@ -206,9 +206,6 @@ public:
     //Edit Player Faction
     static bool HandleModifyFactionCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)
-            return false;
-
         char* pfactionid = handler->extractKeyFromLink((char*)args, "Hfaction");
 
         Creature* target = handler->getSelectedCreature();
@@ -225,18 +222,18 @@ public:
             uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
             uint64 npcflag   = target->GetUInt64Value(UNIT_NPC_FLAGS);
             uint32 dyflag    = target->GetUInt32Value(OBJECT_DYNAMIC_FLAGS);
-            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, npcflag, dyflag);
+            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, std::to_string(npcflag).c_str(), dyflag);
             return true;
         }
 
-        uint32 factionid = atoi(pfactionid);
+        uint32 factionid = atoul(pfactionid);
         uint32 flag;
 
         char *pflag = strtok(NULL, " ");
         if (!pflag)
             flag = target->GetUInt32Value(UNIT_FIELD_FLAGS);
         else
-            flag = atoi(pflag);
+            flag = atoul(pflag);
 
         char* pnpcflag = strtok(NULL, " ");
 
@@ -244,7 +241,7 @@ public:
         if (!pnpcflag)
             npcflag = target->GetUInt64Value(UNIT_NPC_FLAGS);
         else
-            npcflag = std::strtoull(pnpcflag, nullptr, 10);
+            npcflag = atoull(pnpcflag);
 
         char* pdyflag = strtok(NULL, " ");
 
@@ -252,7 +249,7 @@ public:
         if (!pdyflag)
             dyflag = target->GetUInt32Value(OBJECT_DYNAMIC_FLAGS);
         else
-            dyflag = atoi(pdyflag);
+            dyflag = atoul(pdyflag);
 
         if (!sFactionTemplateStore.LookupEntry(factionid))
         {
@@ -261,7 +258,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, npcflag, dyflag);
+        handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, std::to_string(npcflag).c_str(), dyflag);
 
         target->setFaction(factionid);
         target->SetUInt32Value(UNIT_FIELD_FLAGS, flag);
@@ -790,7 +787,7 @@ public:
         {
             int64 newmoney = int64(targetMoney) + moneyToAdd;
 
-            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(newmoney));
+            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), std::to_string(targetMoney).c_str(), std::to_string(moneyToAdd).c_str(), std::to_string(newmoney).c_str());
             if (newmoney <= 0)
             {
                 NotifyModification(handler, target, LANG_YOU_TAKE_ALL_MONEY, LANG_YOURS_ALL_MONEY_GONE);
@@ -802,17 +799,17 @@ public:
                 if (newmoney > static_cast<int64>(MAX_MONEY_AMOUNT))
                     newmoney = MAX_MONEY_AMOUNT;
 
-                handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, moneyToAddMsg, handler->GetNameLink(target).c_str());
+                handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, std::to_string(moneyToAddMsg).c_str(), handler->GetNameLink(target).c_str());
                 if (handler->needReportToTarget(target))
-                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), moneyToAddMsg);
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), std::to_string(moneyToAddMsg).c_str());
                 target->SetMoney(newmoney);
             }
         }
         else
         {
-            handler->PSendSysMessage(LANG_YOU_GIVE_MONEY, uint32(moneyToAdd), handler->GetNameLink(target).c_str());
+            handler->PSendSysMessage(LANG_YOU_GIVE_MONEY, std::to_string(moneyToAdd).c_str(), handler->GetNameLink(target).c_str());
             if (handler->needReportToTarget(target))
-                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, handler->GetNameLink().c_str(), uint32(moneyToAdd));
+                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, handler->GetNameLink().c_str(), std::to_string(moneyToAdd).c_str());
 
             if (moneyToAdd >= int64(MAX_MONEY_AMOUNT))
                 moneyToAdd = MAX_MONEY_AMOUNT;
@@ -823,7 +820,7 @@ public:
             target->ModifyMoney(moneyToAdd);
         }
 
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
+        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), std::to_string(targetMoney).c_str(), std::to_string(moneyToAdd).c_str(), std::to_string(target->GetMoney()).c_str());
 
         return true;
     }
@@ -900,7 +897,7 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        int32 amount = (uint32)atoi(args);
+        int32 amount = atoi(args);
 
         handler->PSendSysMessage("NOT IMPLEMENTED: %d honor NOT added.", amount);
 
@@ -1030,7 +1027,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 display_id = (uint32)atoi((char*)args);
+        uint32 display_id = atoul(args);
 
         Unit* target = handler->getSelectedUnit();
         if (!target)
