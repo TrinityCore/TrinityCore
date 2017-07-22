@@ -846,7 +846,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     if (Creature* creVictim = victim->ToCreature())
         if (creVictim->HasScalableLevels())
-            damage *= creVictim->GetHealthMultiplierForTarget(this);
+            damage /= creVictim->GetHealthMultiplierForTarget(this);
 
     if (health <= damage)
     {

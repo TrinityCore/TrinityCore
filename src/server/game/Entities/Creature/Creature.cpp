@@ -1295,13 +1295,6 @@ float Creature::_GetHealthMod(int32 Rank)
     }
 }
 
-uint64 Creature::GetMaxHealthByLevel(uint8 level) const
-{
-    CreatureTemplate const* cInfo = GetCreatureTemplate();
-    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
-    return stats->GenerateHealth(cInfo);
-}
-
 void Creature::LowerPlayerDamageReq(uint64 unDamage)
 {
     if (m_PlayerDamageReq)
@@ -2475,17 +2468,23 @@ bool Creature::HasScalableLevels() const
     return cinfo->levelScaling.is_initialized();
 }
 
+uint64 Creature::GetMaxHealthByLevel(uint8 level) const
+{
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+    return stats->GenerateHealth(cInfo);
+}
+
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
 {
-    Unit const* unitTarget = target->ToUnit();
-    if (!HasScalableLevels() || !unitTarget)
+    if (!HasScalableLevels())
         return 1.0f;
 
     uint8 levelForTarget = GetLevelForTarget(target);
     if (getLevel() < levelForTarget)
         return 1.0f;
 
-    return double(GetCreateHealth()) / double(GetMaxHealthByLevel(levelForTarget));
+    return double(GetMaxHealthByLevel(levelForTarget)) / double(GetCreateHealth());
 }
 
 float Creature::GetBaseDamageForLevel(uint8 level) const
