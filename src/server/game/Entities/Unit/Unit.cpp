@@ -445,7 +445,7 @@ void Unit::Update(uint32 p_time)
     // Having this would prevent spells from being proced, so let's crash
     ASSERT(!m_procDeep);
 
-    if (CanHaveThreatList() && getThreatManager().isNeedUpdateToClient(p_time))
+    if (CanHaveThreatList() && GetThreatManager().isNeedUpdateToClient(p_time))
         SendThreatListUpdate();
 
     // update combat timer only for players and pets (only pets with PetAI)
@@ -880,7 +880,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             if (damagetype != DOT && damage > 0 && !victim->GetOwnerGUID().IsPlayer() && (!spellProto || !spellProto->HasAura(SPELL_AURA_DAMAGE_SHIELD)))
                 victim->ToCreature()->SetLastDamagedTime(GameTime::GetGameTime() + MAX_AGGRO_RESET_TIME);
 
-            victim->AddThreat(this, float(damage), damageSchoolMask, spellProto);
+            victim->GetThreatManager().AddThreat(this, float(damage), spellProto);
         }
         else                                                // victim is a player
         {
@@ -2607,7 +2607,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const
 {
     // Can`t miss on dead target (on skinning for example)
-    if ((!victim->IsAlive() && victim->GetTypeId() != TYPEID_PLAYER))
+    if (!victim->IsAlive() && victim->GetTypeId() != TYPEID_PLAYER)
         return SPELL_MISS_NONE;
 
     SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
@@ -5675,8 +5675,6 @@ ReputationRank Unit::GetFactionReactionTo(FactionTemplateEntry const* factionTem
         return REP_NEUTRAL;
 
     FactionTemplateEntry const* targetFactionTemplateEntry = target->GetFactionTemplateEntry();
-    if (!targetFactionTemplateEntry)
-        return REP_NEUTRAL;
 
     if (Player const* targetPlayerOwner = target->GetAffectingPlayer())
     {
@@ -5728,7 +5726,7 @@ bool Unit::IsFriendlyTo(Unit const* unit) const
 bool Unit::IsHostileToPlayers() const
 {
     FactionTemplateEntry const* my_faction = GetFactionTemplateEntry();
-    if (!my_faction || !my_faction->faction)
+    if (!my_faction->faction)
         return false;
 
     FactionEntry const* raw_faction = sFactionStore.LookupEntry(my_faction->faction);
@@ -5741,7 +5739,7 @@ bool Unit::IsHostileToPlayers() const
 bool Unit::IsNeutralToAll() const
 {
     FactionTemplateEntry const* my_faction = GetFactionTemplateEntry();
-    if (!my_faction || !my_faction->faction)
+    if (!my_faction->faction)
         return true;
 
     FactionEntry const* raw_faction = sFactionStore.LookupEntry(my_faction->faction);
@@ -5763,6 +5761,9 @@ void Unit::_removeAttacker(Unit* pAttacker)
 
 Unit* Unit::getAttackerForHelper() const                 // If someone wants to help, who to give them
 {
+    if (!IsEngaged())
+        return nullptr;
+
     if (Unit* victim = GetVictim())
         if ((!IsPet() && !GetPlayerMovingMe()) || IsInCombatWith(victim) || victim->IsInCombatWith(this))
             return victim;
@@ -5866,14 +5867,14 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     if (creature && !IsPet())
     {
         // should not let player enter combat by right clicking target - doesn't helps
-        AddThreat(victim, 0.0f);
+        GetThreatManager().AddThreat(victim, 0.0f);
         SetInCombatWith(victim);
         if (victim->GetTypeId() == TYPEID_PLAYER)
             victim->SetInCombatWith(this);
 
         if (Unit* owner = victim->GetOwner())
         {
-            AddThreat(owner, 0.0f);
+            GetThreatManager().AddThreat(owner, 0.0f);
             SetInCombatWith(owner);
             if (owner->GetTypeId() == TYPEID_PLAYER)
                 owner->SetInCombatWith(this);
@@ -5882,8 +5883,9 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
         creature->SendAIReaction(AI_REACTION_HOSTILE);
         creature->CallAssistance();
 
-        // Remove emote state - will be restored on creature reset
+        // Remove emote state and bytes - will be restored on creature reset
         SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+        SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
     }
 
     // delay offhand weapon attack to next attack time
@@ -6768,12 +6770,16 @@ void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powe
 
 void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
 {
-    SendEnergizeSpellLog(victim, spellId, damage, powerType);
+    if (SpellInfo const* info = sSpellMgr->GetSpellInfo(spellId))
+        EnergizeBySpell(victim, info, damage, powerType);
+}
+
+void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damage, Powers powerType)
+{
+    SendEnergizeSpellLog(victim, spellInfo->Id, damage, powerType);
     // needs to be called after sending spell log
     victim->ModifyPower(powerType, damage);
-
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
-    victim->getHostileRefManager().threatAssist(this, float(damage) * 0.5f, spellInfo);
+    victim->GetThreatManager().ForwardThreatForAssistingMe(this, float(damage)/2, spellInfo, true);
 }
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack) const
@@ -8676,6 +8682,24 @@ void Unit::SetInCombatWith(Unit* enemy)
     SetInCombatState(false, enemy);
 }
 
+void Unit::SetImmuneToPC(bool apply, bool keepCombat)
+{
+    (void)keepCombat;
+    if (apply)
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+    else
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+}
+
+void Unit::SetImmuneToNPC(bool apply, bool keepCombat)
+{
+    (void)keepCombat;
+    if (apply)
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+    else
+        RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+}
+
 void Unit::CombatStart(Unit* target, bool initialAggro)
 {
     if (initialAggro)
@@ -8690,11 +8714,11 @@ void Unit::CombatStart(Unit* target, bool initialAggro)
         SetInCombatWith(target);
         target->SetInCombatWith(this);
     }
-    Unit* who = target->GetCharmerOrOwnerOrSelf();
-    if (who->GetTypeId() == TYPEID_PLAYER)
-      SetContestedPvP(who->ToPlayer());
 
     Player* me = GetCharmerOrOwnerPlayerOrPlayerItself();
+    Unit* who = target->GetCharmerOrOwnerOrSelf();
+    if (me && who->GetTypeId() == TYPEID_PLAYER)
+        me->SetContestedPvP(who->ToPlayer());
     if (me && who->IsPvP()
         && (who->GetTypeId() != TYPEID_PLAYER
         || !me->duel || me->duel->opponent != who))
@@ -8732,7 +8756,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
                 creature->AI()->EnterCombat(enemy);
 
             if (creature->GetFormation())
-                creature->GetFormation()->MemberAttackStart(creature, enemy);
+                creature->GetFormation()->MemberEngagingTarget(creature, enemy);
         }
 
         if (IsPet())
@@ -8871,11 +8895,11 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
     }
     // check flags
     if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_TAXI_FLIGHT | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_UNK_16)
-        || (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
-        || (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
-        || (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
+        || (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && target->IsImmuneToNPC())
+        || (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && IsImmuneToNPC())
+        || (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && target->IsImmuneToPC())
         // check if this is a world trigger cast - GOs are using world triggers to cast their spells, so we need to ignore their immunity flag here, this is a temp workaround, needs removal when go cast is implemented properly
-        || ((GetEntry() != WORLD_TRIGGER && (!obj || !obj->isType(TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT))) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC)))
+        || ((GetEntry() != WORLD_TRIGGER && (!obj || !obj->isType(TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT))) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && IsImmuneToPC()))
         return false;
 
     // CvC case - can attack each other only when one of them is hostile
@@ -8979,12 +9003,12 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
     {
         if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE))
         {
-            if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
+            if (target->IsImmuneToPC())
                 return false;
         }
         else
         {
-            if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
+            if (target->IsImmuneToNPC())
                 return false;
         }
     }
@@ -9419,7 +9443,7 @@ void Unit::setDeathState(DeathState s)
     if (s != ALIVE && s != JUST_RESPAWNED)
     {
         CombatStop();
-        DeleteThreatList();
+        GetThreatManager().ClearAllThreat();
         getHostileRefManager().deleteReferences();
         ClearComboPointHolders();                           // any combo points pointed to unit lost at it death
 
@@ -9489,7 +9513,7 @@ bool Unit::CanHaveThreatList(bool skipAliveCheck) const
     //    return false;
 
     // summons can not have a threat list, unless they are controlled by a creature
-    if (HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN | UNIT_MASK_CONTROLABLE_GUARDIAN) && ((Pet*)this)->GetOwnerGUID().IsPlayer())
+    if (HasUnitTypeMask(UNIT_MASK_MINION | UNIT_MASK_GUARDIAN | UNIT_MASK_CONTROLABLE_GUARDIAN) && GetOwnerGUID().IsPlayer())
         return false;
 
     return true;
@@ -9505,24 +9529,6 @@ float Unit::ApplyTotalThreatModifier(float fThreat, SpellSchoolMask schoolMask)
     SpellSchools school = GetFirstSchoolInMask(schoolMask);
 
     return fThreat * m_threatModifier[school];
-}
-
-//======================================================================
-
-void Unit::AddThreat(Unit* victim, float fThreat, SpellSchoolMask schoolMask, SpellInfo const* threatSpell)
-{
-    // Only mobs can manage threat lists
-    if (CanHaveThreatList() && !HasUnitState(UNIT_STATE_EVADE))
-        m_ThreatManager.addThreat(victim, fThreat, schoolMask, threatSpell);
-}
-
-//======================================================================
-
-void Unit::DeleteThreatList()
-{
-    if (CanHaveThreatList(true) && !m_ThreatManager.isThreatListEmpty())
-        SendClearThreatListOpcode();
-    m_ThreatManager.clearReferences();
 }
 
 //======================================================================
@@ -10678,7 +10684,7 @@ void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
     CombatStop();
     ClearComboPoints();
     ClearComboPointHolders();
-    DeleteThreatList();
+    GetThreatManager().ClearAllThreat();
     getHostileRefManager().deleteReferences();
 }
 
@@ -11338,8 +11344,7 @@ Player* Unit::GetSpellModOwner() const
     if (HasUnitTypeMask(UNIT_MASK_PET | UNIT_MASK_TOTEM | UNIT_MASK_GUARDIAN))
     {
         if (Unit* owner = GetOwner())
-            if (Player* player = owner->ToPlayer())
-                return player;
+            return owner->ToPlayer();
     }
     return nullptr;
 }
@@ -11904,29 +11909,6 @@ bool Unit::IsUnderLastManaUseEffect() const
     return getMSTimeDiff(m_lastManaUse, GameTime::GetGameTimeMS()) < 5000;
 }
 
-void Unit::SetContestedPvP(Player* attackedPlayer)
-{
-    Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
-
-    if (!player || (attackedPlayer && (attackedPlayer == player || (player->duel && player->duel->opponent == attackedPlayer))))
-        return;
-
-    player->SetContestedPvPTimer(30000);
-    if (!player->HasUnitState(UNIT_STATE_ATTACK_PLAYER))
-    {
-        player->AddUnitState(UNIT_STATE_ATTACK_PLAYER);
-        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP);
-        // call MoveInLineOfSight for nearby contested guards
-        UpdateObjectVisibility();
-    }
-    if (!HasUnitState(UNIT_STATE_ATTACK_PLAYER))
-    {
-        AddUnitState(UNIT_STATE_ATTACK_PLAYER);
-        // call MoveInLineOfSight for nearby contested guards
-        UpdateObjectVisibility();
-    }
-}
-
 Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
 {
     if (GetTypeId() != TYPEID_PLAYER)
@@ -12184,7 +12166,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
 
         if (!creature->IsPet())
         {
-            creature->DeleteThreatList();
+            creature->GetThreatManager().ClearAllThreat();
 
             // must be after setDeathState which resets dynamic flags
             if (!creature->loot.isLooted())
@@ -12576,7 +12558,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     CastStop();
     CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
-    DeleteThreatList();
+    GetThreatManager().ClearAllThreat();
 
     Player* playerCharmer = charmer->ToPlayer();
 
@@ -12719,7 +12701,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     CastStop();
     CombatStop(); /// @todo CombatStop(true) may cause crash (interrupt spells)
     getHostileRefManager().deleteReferences();
-    DeleteThreatList();
+    GetThreatManager().ClearAllThreat();
 
     if (_oldFactionId)
     {
@@ -13177,8 +13159,8 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
             // modify threat lists for new phasemask
             if (GetTypeId() != TYPEID_PLAYER)
             {
-                std::list<HostileReference*> threatList = getThreatManager().getThreatList();
-                std::list<HostileReference*> offlineThreatList = getThreatManager().getOfflineThreatList();
+                std::list<HostileReference*> threatList = GetThreatManager().getThreatList();
+                std::list<HostileReference*> offlineThreatList = GetThreatManager().getOfflineThreatList();
 
                 // merge expects sorted lists
                 threatList.sort();
@@ -14027,15 +14009,15 @@ void Unit::UpdateHeight(float newZ)
 
 void Unit::SendThreatListUpdate()
 {
-    if (!getThreatManager().isThreatListEmpty())
+    if (!GetThreatManager().isThreatListEmpty())
     {
-        uint32 count = getThreatManager().getThreatList().size();
+        uint32 count = GetThreatManager().getThreatList().size();
 
         //TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_THREAT_UPDATE Message");
         WorldPacket data(SMSG_THREAT_UPDATE, 8 + count * 8);
         data << GetPackGUID();
         data << uint32(count);
-        ThreatContainer::StorageType const& tlist = getThreatManager().getThreatList();
+        ThreatContainer::StorageType const& tlist = GetThreatManager().getThreatList();
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
             data << (*itr)->getUnitGuid().WriteAsPacked();
@@ -14047,16 +14029,16 @@ void Unit::SendThreatListUpdate()
 
 void Unit::SendChangeCurrentVictimOpcode(HostileReference* pHostileReference)
 {
-    if (!getThreatManager().isThreatListEmpty())
+    if (!GetThreatManager().isThreatListEmpty())
     {
-        uint32 count = getThreatManager().getThreatList().size();
+        uint32 count = GetThreatManager().getThreatList().size();
 
         TC_LOG_DEBUG("entities.unit", "WORLD: Send SMSG_HIGHEST_THREAT_UPDATE Message");
         WorldPacket data(SMSG_HIGHEST_THREAT_UPDATE, 8 + 8 + count * 8);
         data << GetPackGUID();
         data << pHostileReference->getUnitGuid().WriteAsPacked();
         data << uint32(count);
-        ThreatContainer::StorageType const& tlist = getThreatManager().getThreatList();
+        ThreatContainer::StorageType const& tlist = GetThreatManager().getThreatList();
         for (ThreatContainer::StorageType::const_iterator itr = tlist.begin(); itr != tlist.end(); ++itr)
         {
             data << (*itr)->getUnitGuid().WriteAsPacked();

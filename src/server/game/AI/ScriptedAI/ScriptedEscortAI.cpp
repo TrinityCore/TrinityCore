@@ -103,8 +103,7 @@ bool npc_escortAI::AssistPlayerInCombatAgainst(Unit* who)
         }
         else
         {
-            who->SetInCombatWith(me);
-            me->AddThreat(who, 0.0f);
+            me->EngageWithTarget(who);
             return true;
         }
     }
@@ -126,24 +125,7 @@ void npc_escortAI::MoveInLineOfSight(Unit* who)
         {
             float fAttackRadius = me->GetAttackDistance(who);
             if (me->IsWithinDistInMap(who, fAttackRadius) && me->IsWithinLOSInMap(who))
-            {
-                if (!me->GetVictim())
-                {
-                    // Clear distracted state on combat
-                    if (me->HasUnitState(UNIT_STATE_DISTRACTED))
-                    {
-                        me->ClearUnitState(UNIT_STATE_DISTRACTED);
-                        me->GetMotionMaster()->Clear();
-                    }
-
-                    AttackStart(who);
-                }
-                else if (me->GetMap()->IsDungeon())
-                {
-                    who->SetInCombatWith(me);
-                    me->AddThreat(who, 0.0f);
-                }
-            }
+                me->EngageWithTarget(who);
         }
     }
 }
@@ -193,7 +175,7 @@ void npc_escortAI::ReturnToLastPoint()
 void npc_escortAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     me->RemoveAllAuras();
-    me->DeleteThreatList();
+    me->GetThreatManager().ClearAllThreat();
     me->CombatStop(true);
     me->SetLootRecipient(nullptr);
 
@@ -207,7 +189,7 @@ void npc_escortAI::EnterEvadeMode(EvadeReason /*why*/)
     {
         me->GetMotionMaster()->MoveTargetedHome();
         if (HasImmuneToNPCFlags)
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+            me->SetImmuneToNPC(true);
         Reset();
     }
 }
@@ -490,10 +472,10 @@ void npc_escortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false 
 
     //disable npcflags
     me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-    if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC))
+    if (me->IsImmuneToNPC())
     {
         HasImmuneToNPCFlags = true;
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+        me->SetImmuneToNPC(false);
     }
 
     TC_LOG_DEBUG("scripts", "EscortAI started with " UI64FMTD " waypoints. ActiveAttacker = %d, Run = %d, %s", uint64(WaypointList.size()), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID.ToString().c_str());

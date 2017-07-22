@@ -39,6 +39,7 @@
 #include "Spell.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "ThreatManager.h"
 #include "Unit.h"
 #include "Util.h"
 #include "Vehicle.h"
@@ -229,7 +230,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModRangedAttackPowerPercent,           //167 SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT
     &AuraEffect::HandleNoImmediateEffect,                         //168 SPELL_AURA_MOD_DAMAGE_DONE_VERSUS            implemented in Unit::SpellDamageBonus, Unit::MeleeDamageBonus
     &AuraEffect::HandleNoImmediateEffect,                         //169 SPELL_AURA_MOD_CRIT_PERCENT_VERSUS           implemented in Unit::DealDamageBySchool, Unit::DoAttackDamage, Unit::SpellCriticalBonus
-    &AuraEffect::HandleNULL,                                      //170 SPELL_AURA_DETECT_AMORE       various spells that change visual of units for aura target (clientside?)
+    &AuraEffect::HandleDetectAmore,                               //170 SPELL_AURA_DETECT_AMORE       used to detect various spells that change visual of units for aura target
     &AuraEffect::HandleAuraModIncreaseSpeed,                      //171 SPELL_AURA_MOD_SPEED_NOT_STACK
     &AuraEffect::HandleAuraModIncreaseMountedSpeed,               //172 SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK
     &AuraEffect::HandleUnused,                                    //173 unused (3.2.0) no spells, old SPELL_AURA_ALLOW_CHAMPION_SPELLS  only for Proclaim Champion spell
@@ -664,13 +665,15 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
     else
         prevented = GetBase()->CallScriptEffectRemoveHandlers(this, aurApp, (AuraEffectHandleModes)mode);
 
-    // check if script events have removed the aura or if default effect prevention was requested
-    if ((apply && aurApp->GetRemoveMode()) || prevented)
+    // check if script events have removed the aura already
+    if (apply && aurApp->GetRemoveMode())
         return;
 
-    (*this.*AuraEffectHandler[GetAuraType()])(aurApp, mode, apply);
+    // call default effect handler if it wasn't prevented
+    if (!prevented)
+        (*this.*AuraEffectHandler[GetAuraType()])(aurApp, mode, apply);
 
-    // check if script events have removed the aura or if default effect prevention was requested
+    // check if the default handler reemoved the aura
     if (apply && aurApp->GetRemoveMode())
         return;
 
@@ -1529,6 +1532,34 @@ void AuraEffect::HandleModStealthLevel(AuraApplication const* aurApp, uint8 mode
 
     // call functions which may have additional effects after chainging state of unit
     target->UpdateObjectVisibility();
+}
+
+void AuraEffect::HandleDetectAmore(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
+        return;
+
+    Unit* target = aurApp->GetTarget();
+
+    if (target->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    if (apply)
+        target->SetByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, 1 << (GetMiscValue() - 1));
+    else
+    {
+        if (target->HasAuraType(SPELL_AURA_DETECT_AMORE))
+        {
+            Unit::AuraEffectList const& amoreAuras = target->GetAuraEffectsByType(SPELL_AURA_DETECT_AMORE);
+            for (Unit::AuraEffectList::const_iterator i = amoreAuras.begin(); i != amoreAuras.end(); ++i)
+            {
+                if (GetMiscValue() == (*i)->GetMiscValue())
+                    return;
+            }
+        }
+
+        target->RemoveByteFlag(PLAYER_FIELD_BYTES2, PLAYER_FIELD_BYTES_2_OFFSET_AURA_VISION, 1 << (GetMiscValue() - 1));
+    }
 }
 
 void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4371,7 +4402,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case 1515:                                      // Tame beast
                     // FIX_ME: this is 2.0.12 threat effect replaced in 2.1.x by dummy aura, must be checked for correctness
                     if (caster && target->CanHaveThreatList())
-                        target->AddThreat(caster, 10.0f);
+                        target->GetThreatManager().AddThreat(caster, 10.0f);
                     break;
                 case 13139:                                     // net-o-matic
                     // root to self part of (root_target->charge->root_self sequence
@@ -4532,7 +4563,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             break;
                         case 52172:  // Coyote Spirit Despawn Aura
                         case 60244:  // Blood Parrot Despawn Aura
-                            target->CastSpell((Unit*)nullptr, GetAmount(), true, nullptr, this);
+                            target->CastSpell(nullptr, GetAmount(), true, nullptr, this);
                             break;
                         case 58600: // Restricted Flight Area
                         case 58730: // Restricted Flight Area
@@ -5090,7 +5121,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 }
                 case 62292: // Blaze (Pool of Tar)
                     // should we use custom damage?
-                    target->CastSpell((Unit*)nullptr, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
+                    target->CastSpell(nullptr, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
                     break;
                 case 62399: // Overload Circuit
                     if (target->GetMap()->IsDungeon() && int(target->GetAppliedAuras().count(62399)) >= (target->GetMap()->IsHeroic() ? 4 : 2))
@@ -5114,7 +5145,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             // Mirror Image
             if (GetId() == 55342)
                 // Set name of summons to name of caster
-                target->CastSpell((Unit*)nullptr, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
+                target->CastSpell(nullptr, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
             break;
         }
         case SPELLFAMILY_DRUID:
@@ -5775,7 +5806,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         HealInfo healInfo(caster, caster, heal, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
         caster->HealBySpell(healInfo);
 
-        caster->getHostileRefManager().threatAssist(caster, healInfo.GetEffectiveHeal() * 0.5f, GetSpellInfo());
+        caster->GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.GetEffectiveHeal()*0.5f, GetSpellInfo());
         caster->ProcSkillsAndAuras(caster, PROC_FLAG_DONE_PERIODIC, PROC_FLAG_TAKEN_PERIODIC, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_NONE, hitMask, nullptr, nullptr, &healInfo);
     }
 }
@@ -5901,7 +5932,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     SpellPeriodicAuraLogInfo pInfo(this, heal, heal - healInfo.GetEffectiveHeal(), healInfo.GetAbsorb(), 0, 0.0f, crit);
     target->SendPeriodicAuraLog(&pInfo);
 
-    target->getHostileRefManager().threatAssist(caster, float(healInfo.GetEffectiveHeal()) * 0.5f, GetSpellInfo());
+    target->GetThreatManager().ForwardThreatForAssistingMe(caster, float(healInfo.GetEffectiveHeal())*0.5f, GetSpellInfo());
 
     bool haveCastItem = !GetBase()->GetCastItemGUID().IsEmpty();
 
@@ -5984,7 +6015,8 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
     if (gainAmount)
     {
         gainedAmount = caster->ModifyPower(powerType, gainAmount);
-        target->AddThreat(caster, float(gainedAmount) * 0.5f, GetSpellInfo()->GetSchoolMask(), GetSpellInfo());
+        // energize is not modified by threat modifiers
+        target->GetThreatManager().AddThreat(caster, float(gainedAmount) * 0.5f, GetSpellInfo(), true);
     }
 
     // Drain Mana
@@ -6035,7 +6067,7 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
     int32 gain = target->ModifyPower(powerType, amount);
 
     if (caster)
-        target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellInfo());
+        target->GetThreatManager().ForwardThreatForAssistingMe(caster, float(gain)*0.5f, GetSpellInfo(), true);
 }
 
 void AuraEffect::HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const
@@ -6070,7 +6102,7 @@ void AuraEffect::HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) cons
     int32 gain = target->ModifyPower(powerType, amount);
 
     if (caster)
-        target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellInfo());
+        target->GetThreatManager().ForwardThreatForAssistingMe(caster, float(gain)*0.5f, GetSpellInfo(), true);
 }
 
 void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const

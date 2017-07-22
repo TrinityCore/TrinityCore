@@ -785,6 +785,7 @@ bool AuthSession::HandleRealmList()
     stmt->setUInt32(0, _accountInfo.Id);
 
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&AuthSession::RealmListCallback, this, std::placeholders::_1)));
+    _status = STATUS_WAITING_FOR_REALM_LIST;
     return true;
 }
 
@@ -884,6 +885,8 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
     hdr.append(RealmListSizeBuffer);                        // append RealmList's size buffer
     hdr.append(pkt);                                        // append realms in the realmlist
     SendPacket(hdr);
+
+    _status = STATUS_AUTHED;
 }
 
 // Make the SRP6 calculation from hash in dB

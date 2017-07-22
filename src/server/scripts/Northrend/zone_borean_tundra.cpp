@@ -721,13 +721,13 @@ public:
             Creature* owner = GetOwner()->ToCreature();
             owner->RemoveAllAurasExceptType(SPELL_AURA_DUMMY);
             owner->CombatStop(true);
-            owner->DeleteThreatList();
+            owner->GetThreatManager().ClearAllThreat();
             owner->GetMotionMaster()->Clear(false);
             owner->GetMotionMaster()->MoveFollow(GetCaster(), 4.0f, 0.0f);
             owner->CastSpell(owner, SPELL_SUBDUED, true);
             GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
             owner->SetFaction(35);
-            owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            owner->SetImmuneToAll(true);
             owner->DespawnOrUnsummon(3 * MINUTE*IN_MILLISECONDS);
         }
 

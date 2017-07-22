@@ -443,7 +443,7 @@ class spell_hun_glyph_of_mend_pet : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetProcTarget()->CastSpell((Unit*)nullptr, SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, true, nullptr, aurEff);
+                eventInfo.GetProcTarget()->CastSpell(nullptr, SPELL_HUNTER_GLYPH_OF_MEND_PET_HAPPINESS, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -476,7 +476,7 @@ class spell_hun_hunting_party : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(nullptr, SPELL_REPLENISHMENT, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -775,7 +775,7 @@ class spell_hun_masters_call : public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell((Unit*)nullptr, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, true);
+                GetHitUnit()->CastSpell(nullptr, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, true);
             }
 
             void Register() override
@@ -1105,7 +1105,7 @@ class spell_hun_rapid_recuperation_trigger : public SpellScriptLoader
 
                 uint8 rank = GetSpellInfo()->GetRank();
                 uint32 spellId = triggerSpells[rank - 1];
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(nullptr, spellId, true, nullptr, aurEff);
             }
 
             void Register() override

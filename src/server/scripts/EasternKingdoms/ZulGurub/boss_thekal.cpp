@@ -172,7 +172,7 @@ class boss_thekal : public CreatureScript
                                 me->UpdateDamagePhysical(BASE_ATTACK);
                                 */
                                 me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageIncrease); // hack
-                                DoResetThreat();
+                                ResetThreatList();
                                 events.ScheduleEvent(EVENT_FRENZY, 30000, 0, PHASE_TWO);          // Phase 2
                                 events.ScheduleEvent(EVENT_FORCEPUNCH, 4000, 0, PHASE_TWO);       // Phase 2
                                 events.ScheduleEvent(EVENT_SPELL_CHARGE, 12000, 0, PHASE_TWO);    // Phase 2
@@ -226,7 +226,7 @@ class boss_thekal : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 DoCast(target, SPELL_CHARGE);
-                                DoResetThreat();
+                                ResetThreatList();
                                 AttackStart(target);
                             }
                             events.ScheduleEvent(EVENT_CHARGE, urand(15000, 22000), 0, PHASE_TWO);
@@ -503,8 +503,8 @@ class npc_zealot_zath : public CreatureScript
                 {
                     DoCastVictim(SPELL_GOUGE);
 
-                    if (DoGetThreat(me->GetVictim()))
-                        DoModifyThreatPercent(me->GetVictim(), -100);
+                    if (GetThreat(me->GetVictim()))
+                        ModifyThreatByPercent(me->GetVictim(), -100);
 
                     Gouge_Timer = 17000 + rand32() % 10000;
                 } else Gouge_Timer -= diff;

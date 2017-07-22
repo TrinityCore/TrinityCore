@@ -1308,7 +1308,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             return;
 
                         stalkers.sort(Trinity::ObjectDistanceOrderPred(teleporter));
-                        stalkers.front()->CastSpell((Unit*)nullptr, SPELL_ARTHAS_TELEPORTER_CEREMONY, false);
+                        stalkers.front()->CastSpell(nullptr, SPELL_ARTHAS_TELEPORTER_CEREMONY, false);
                         stalkers.pop_front();
                         for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
                             (*itr)->AI()->Reset();
@@ -1460,7 +1460,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                             if (Creature* warden = instance->SummonCreature(NPC_SPIRIT_WARDEN, SpiritWardenSpawn, nullptr, 63000))
                             {
                                 terenas->AI()->AttackStart(warden);
-                                warden->AddThreat(terenas, 300000.0f);
+                                warden->GetThreatManager().AddThreat(terenas, 300000.0f, nullptr, true, true);
                             }
                         }
                         break;

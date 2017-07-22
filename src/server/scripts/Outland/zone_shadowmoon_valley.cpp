@@ -167,7 +167,8 @@ public:
         {
             if (spell->Id == SPELL_SUMMON_INFERNAL)
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToPC(false);
                 me->SetDisplayId(MODEL_INFERNAL);
             }
         }
@@ -398,13 +399,11 @@ public:
                 Unit* Dragonmaw = me->FindNearestCreature(NPC_DRAGONMAW_SUBJUGATOR, 50);
                 if (Dragonmaw)
                 {
-                    me->AddThreat(Dragonmaw, 100000.0f);
+                    AddThreat(Dragonmaw, 100000.0f);
                     AttackStart(Dragonmaw);
                 }
 
-                HostileReference* ref = me->getThreatManager().getOnlineContainer().getReferenceByTarget(caster);
-                if (ref)
-                    ref->removeReference();
+                me->GetThreatManager().ClearThreat(caster);
             }
         }
 
@@ -908,7 +907,7 @@ public:
                 if (Player* AggroTarget = ObjectAccessor::GetPlayer(*me, AggroTargetGUID))
                 {
                     me->SetTarget(AggroTarget->GetGUID());
-                    me->AddThreat(AggroTarget, 1);
+                    AddThreat(AggroTarget, 1);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
                 }
                 break;

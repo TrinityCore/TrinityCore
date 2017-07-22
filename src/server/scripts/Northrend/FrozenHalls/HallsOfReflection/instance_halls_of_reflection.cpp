@@ -346,7 +346,7 @@ class instance_halls_of_reflection : public InstanceMapScript
 
                                 if (Creature* lichking = instance->GetCreature(TheLichKingEscapeGUID))
                                 {
-                                    lichking->CastSpell((Unit*)nullptr, SPELL_ACHIEV_CHECK, true);
+                                    lichking->CastSpell(nullptr, SPELL_ACHIEV_CHECK, true);
                                     lichking->DespawnOrUnsummon(1);
                                 }
                                 break;
@@ -453,7 +453,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             if (_quelDelarState == NOT_STARTED)
                             {
                                 if (Creature* bunny = instance->GetCreature(FrostmourneAltarBunnyGUID))
-                                    bunny->CastSpell((Unit*)nullptr, SPELL_ESSENCE_OF_CAPTURED);
+                                    bunny->CastSpell(nullptr, SPELL_ESSENCE_OF_CAPTURED);
                                 events.ScheduleEvent(EVENT_QUEL_DELAR_SUMMON_UTHER, 2000);
                             }
                         }
@@ -590,7 +590,8 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 if (Creature* temp = instance->GetCreature(guid))
                                 {
                                     temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, false);
-                                    temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE);
+                                    temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                    temp->SetImmuneToAll(false);
                                     temp->AI()->DoZoneInCombat(temp, 100.00f);
                                 }
                             }

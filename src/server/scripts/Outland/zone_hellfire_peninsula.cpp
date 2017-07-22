@@ -99,7 +99,7 @@ public:
                 me->SetFaction(FACTION_FRIENDLY);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 me->RemoveAllAuras();
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 Talk(SAY_FREE);
                 return;
@@ -959,7 +959,7 @@ public:
             me->RestoreFaction();
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
@@ -971,10 +971,10 @@ public:
                 _events.Reset();
                 me->RestoreFaction();
                 me->RemoveAllAuras();
-                me->DeleteThreatList();
+                me->GetThreatManager().ClearAllThreat();
                 me->CombatStop(true);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
                 Talk(SAY_DEFEATED);
 
                 _events.ScheduleEvent(EVENT_EVADE, Minutes(1));
@@ -994,9 +994,9 @@ public:
                     _events.ScheduleEvent(EVENT_ATTACK, Seconds(2));
                     break;
                 case EVENT_ATTACK:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     me->SetFaction(FACTION_MONSTER_2);
-                    me->CombatStart(ObjectAccessor::GetPlayer(*me, _playerGUID));
+                    me->EngageWithTarget(ObjectAccessor::GetPlayer(*me, _playerGUID));
                     _events.ScheduleEvent(EVENT_FIREBALL, 1);
                     _events.ScheduleEvent(EVENT_FROSTNOVA, Seconds(5));
                     break;

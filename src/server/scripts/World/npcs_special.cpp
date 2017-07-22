@@ -1603,7 +1603,7 @@ class npc_tournament_mount : public CreatureScript
                 if (apply)
                 {
                     _pennantSpellId = GetPennantSpellId(player);
-                    player->CastSpell((Unit*)nullptr, _pennantSpellId, true);
+                    player->CastSpell(nullptr, _pennantSpellId, true);
                 }
                 else
                     player->RemoveAurasDueToSpell(_pennantSpellId);
@@ -1810,7 +1810,7 @@ public:
 
         void DamageTaken(Unit* doneBy, uint32& damage) override
         {
-            me->AddThreat(doneBy, float(damage));    // just to create threat reference
+            AddThreat(doneBy, float(damage));    // just to create threat reference
             _damageTimes[doneBy->GetGUID()] = time(nullptr);
             damage = 0;
         }

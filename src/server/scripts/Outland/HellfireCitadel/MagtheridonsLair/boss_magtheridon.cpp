@@ -248,7 +248,8 @@ class boss_magtheridon : public CreatureScript
                             CombatStart();
                             break;
                         case EVENT_RELEASED:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetImmuneToPC(false);
                             me->SetInCombatWithZone();
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
                             events.ScheduleEvent(EVENT_CLEAVE, Seconds(10));
@@ -476,9 +477,9 @@ public:
                 return true;
 
             if (Creature* trigger = player->FindNearestCreature(NPC_HELFIRE_RAID_TRIGGER, 10.0f))
-                trigger->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP_VISUAL);
+                trigger->CastSpell(nullptr, SPELL_SHADOW_GRASP_VISUAL);
 
-            player->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP, true);
+            player->CastSpell(nullptr, SPELL_SHADOW_GRASP, true);
             return true;
         }
     };

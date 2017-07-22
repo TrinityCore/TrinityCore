@@ -295,7 +295,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 events.Reset();
                 events.SetPhase(PHASE_COMBAT);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 if (!_introDone)
                 {
                     DoCast(me, SPELL_GRIP_OF_AGONY);
@@ -323,7 +323,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void AttackStart(Unit* victim) override
             {
-                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
+                if (me->IsImmuneToPC())
                     return;
 
                 ScriptedAI::AttackStart(victim);
@@ -333,7 +333,7 @@ class boss_deathbringer_saurfang : public CreatureScript
             {
                 ScriptedAI::EnterEvadeMode(why);
                 if (_introDone)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
             }
 
             void JustReachedHome() override
@@ -369,7 +369,8 @@ class boss_deathbringer_saurfang : public CreatureScript
                     _dead = true;
                     _JustDied();
                     _EnterEvadeMode();
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetImmuneToPC(true);
 
                     DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
                     DoCast(me, SPELL_ACHIEVEMENT, true);
@@ -489,7 +490,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                         case EVENT_INTRO_FINISH:
                             events.SetPhase(PHASE_COMBAT);
                             _introDone = true;
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
                             break;
                         case EVENT_SUMMON_BLOOD_BEAST:
                             for (uint32 i10 = 0; i10 < 2; ++i10)
@@ -580,7 +581,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     }
                     case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
                         {
                             ++_fallenChampionCastCount;
                             DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);

@@ -1334,11 +1334,11 @@ class spell_warl_soul_leech : public SpellScriptLoader
                 uint32 selfSpellId = casterMana[impSoulLeechRank - 1];
                 uint32 petSpellId = petMana[impSoulLeechRank - 1];
 
-                caster->CastSpell((Unit*)nullptr, selfSpellId, true, nullptr, aurEff);
-                caster->CastSpell((Unit*)nullptr, petSpellId, true, nullptr, aurEff);
+                caster->CastSpell(nullptr, selfSpellId, true, nullptr, aurEff);
+                caster->CastSpell(nullptr, petSpellId, true, nullptr, aurEff);
 
                 if (roll_chance_i(impSoulLeech->GetAmount()))
-                    caster->CastSpell((Unit*)nullptr, SPELL_REPLENISHMENT, true, nullptr, aurEff);
+                    caster->CastSpell(nullptr, SPELL_REPLENISHMENT, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1373,7 +1373,7 @@ class spell_warl_soulshatter : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
                 {
-                    if (target->CanHaveThreatList() && target->getThreatManager().getThreat(caster) > 0.0f)
+                    if (target->CanHaveThreatList() && target->GetThreatManager().IsThreatenedBy(caster, true))
                         caster->CastSpell(target, SPELL_WARLOCK_SOULSHATTER, true);
                 }
             }
