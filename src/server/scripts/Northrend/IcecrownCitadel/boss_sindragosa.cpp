@@ -194,7 +194,7 @@ class FrostBombExplosion : public BasicEvent
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
         {
-            _owner->CastSpell((Unit*)nullptr, SPELL_FROST_BOMB, false, nullptr, nullptr, _sindragosaGUID);
+            _owner->CastSpell(nullptr, SPELL_FROST_BOMB, false, nullptr, nullptr, _sindragosaGUID);
             _owner->RemoveAurasDueToSpell(SPELL_FROST_BOMB_VISUAL);
             return true;
         }

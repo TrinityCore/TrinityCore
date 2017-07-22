@@ -16,8 +16,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PassiveAI.h"
+#include "InstanceScript.h"
 #include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "PlayerAI.h"
 #include "ScriptMgr.h"
@@ -27,7 +28,6 @@
 
 enum BlackheartTheInciter
 {
-    NPC_BLACKHEART          = 18667,
     SPELL_INCITE_CHAOS      = 33676,
     SPELL_INCITE_CHAOS_B    = 33684,                         //debuff applied to each member of party
     SPELL_CHARGE            = 33709,
@@ -57,30 +57,10 @@ enum Events
 class BlackheartCharmedPlayerAI : public SimpleCharmedPlayerAI
 {
     using SimpleCharmedPlayerAI::SimpleCharmedPlayerAI;
-    Unit* SelectAttackTarget() const override
-    {
-        if (Unit* charmer = me->GetCharmer())
-        {
-            std::list<Player*> targets;
-            for (ThreatReference const* ref : charmer->GetThreatManager().GetUnsortedThreatList())
-            {
-                if (Player* victim = ref->GetVictim()->ToPlayer())
-                    if (me->IsValidAttackTarget(victim))
-                        targets.push_back(victim);
-            }
-            if (targets.empty())
-                return nullptr;
-
-            auto it = targets.begin();
-            std::advance(it, urand(0, targets.size() - 1));
-            return *it;
-        }
-        return nullptr;
-    }
     void OnCharmed(bool apply) override
     {
         SimpleCharmedPlayerAI::OnCharmed(apply);
-        if (Creature* blackheart = me->FindNearestCreature(NPC_BLACKHEART, 50000.0f))
+        if (Creature* blackheart = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_BLACKHEART_THE_INCITER)))
         {
             blackheart->AI()->SetData(0, apply);
             blackheart->GetThreatManager().AddThreat(me, 0.0f);
@@ -183,24 +163,25 @@ struct boss_blackheart_the_inciter_mc_dummy : public NullCreatureAI
 {
     using NullCreatureAI::NullCreatureAI;
     void InitializeAI() override { me->SetReactState(REACT_PASSIVE); }
-    static const uint32 FIRST_DUMMY = 19300, LAST_DUMMY = 19304;
+    static const uint32 FIRST_DUMMY = NPC_BLACKHEART_DUMMY1, LAST_DUMMY = NPC_BLACKHEART_DUMMY5;
     void IsSummonedBy(Unit* who) override
     {
         me->CastSpell(who, SPELL_INCITE_CHAOS_B, true);
 
         // ensure everyone is in combat with everyone
-        for (uint32 entry = FIRST_DUMMY; entry <= LAST_DUMMY; ++entry)
-            if (entry != me->GetEntry())
-                if (Creature* trigger = me->FindNearestCreature(entry, 50000.0f))
-                {
-                    me->GetThreatManager().AddThreat(trigger, 0.0f);
-                    trigger->GetThreatManager().AddThreat(who, 0.0f);
-                    for (Unit* other : trigger->m_Controlled)
+        if (auto* dummies = GetBlackheartDummies(me->GetInstanceScript()))
+            for (ObjectGuid const& guid : *dummies)
+                if (Creature* trigger = ObjectAccessor::GetCreature(*me, guid))
+                    if (me->GetEntry() != trigger->GetEntry())
                     {
-                        me->GetThreatManager().AddThreat(other, 0.0f);
-                        other->GetThreatManager().AddThreat(who, 0.0f);
+                        me->GetThreatManager().AddThreat(trigger, 0.0f);
+                        trigger->GetThreatManager().AddThreat(who, 0.0f);
+                        for (Unit* other : trigger->m_Controlled)
+                        {
+                            me->GetThreatManager().AddThreat(other, 0.0f);
+                            other->GetThreatManager().AddThreat(who, 0.0f);
+                        }
                     }
-                }
     }
     void UpdateAI(uint32 /*diff*/) override
     {
@@ -228,7 +209,7 @@ class spell_blackheart_incite_chaos : public SpellScript
     {
         if (Unit* target = GetHitUnit())
         {
-            target->CastSpell((Unit*)nullptr, INCITE_SPELLS[i], true);
+            target->CastSpell(nullptr, INCITE_SPELLS[i], true);
             i = (i + 1) % NUM_INCITE_SPELLS;
         }
     }

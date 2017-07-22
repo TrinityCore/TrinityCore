@@ -208,7 +208,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
 
-                caster->CastSpell((Unit*)nullptr, SPELL_MOTE_OF_ANGER, true);
+                caster->CastSpell(nullptr, SPELL_MOTE_OF_ANGER, true);
                 Aura const* motes = caster->GetAura(SPELL_MOTE_OF_ANGER);
                 if (!motes || motes->GetStackAmount() < Stacks)
                     return;
@@ -727,7 +727,7 @@ class spell_item_discerning_eye_beast_dummy : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_DISCERNING_EYE_BEAST, true, nullptr, aurEff);
+        eventInfo.GetActor()->CastSpell(nullptr, SPELL_DISCERNING_EYE_BEAST, true, nullptr, aurEff);
     }
 
     void Register() override
@@ -930,7 +930,7 @@ class spell_item_harm_prevention_belt : public AuraScript
 
     void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
-        GetTarget()->CastSpell((Unit*)nullptr, SPELL_FORCEFIELD_COLLAPSE, true);
+        GetTarget()->CastSpell(nullptr, SPELL_FORCEFIELD_COLLAPSE, true);
     }
 
     void Register() override
@@ -958,7 +958,7 @@ class spell_item_healing_touch_refund : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_HEALING_TOUCH_MANA, true, nullptr, aurEff);
+        eventInfo.GetActor()->CastSpell(nullptr, SPELL_HEALING_TOUCH_MANA, true, nullptr, aurEff);
     }
 
     void Register() override
@@ -1032,7 +1032,7 @@ class spell_item_heartpierce : public SpellScriptLoader
                         return;
                 }
 
-                caster->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
+                caster->CastSpell(nullptr, spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1145,7 +1145,7 @@ class spell_item_mark_of_conquest : public AuraScript
             // in that case, do not cast heal spell
             PreventDefaultAction();
             // but mana instead
-            eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_MARK_OF_CONQUEST_ENERGIZE, true, nullptr, aurEff);
+            eventInfo.GetActor()->CastSpell(nullptr, SPELL_MARK_OF_CONQUEST_ENERGIZE, true, nullptr, aurEff);
         }
     }
 
@@ -1825,7 +1825,7 @@ class spell_item_totem_of_flowing_water : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        eventInfo.GetActor()->CastSpell((Unit*)nullptr, SPELL_LESSER_HEALING_WAVE_MANA, true, nullptr, aurEff);
+        eventInfo.GetActor()->CastSpell(nullptr, SPELL_LESSER_HEALING_WAVE_MANA, true, nullptr, aurEff);
     }
 
     void Register() override
