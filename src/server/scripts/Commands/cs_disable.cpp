@@ -90,7 +90,7 @@ public:
             return false;
 
         std::string disableComment = commentStr;
-        uint32 entry = uint32(atoi(entryStr));
+        uint32 entry = atoul(entryStr);
 
         char const* disableTypeStr = "";
 

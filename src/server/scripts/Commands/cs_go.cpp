@@ -321,7 +321,7 @@ public:
         if (!id)
             return false;
 
-        uint32 questID = atoi(id);
+        uint32 questID = atoul(id);
         if (!questID)
             return false;
 
