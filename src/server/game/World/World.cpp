@@ -1714,7 +1714,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadCreatureTemplateAddons();
 
     TC_LOG_INFO("server.loading", "Loading Creature template scaling...");
-    sObjectMgr->LoadCreatureScalingDatas();
+    sObjectMgr->LoadCreatureScalingData();
 
     TC_LOG_INFO("server.loading", "Loading Reputation Reward Rates...");
     sObjectMgr->LoadReputationRewardRate();
