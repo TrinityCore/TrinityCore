@@ -432,7 +432,7 @@ public:
 
         for (Tokenizer::const_iterator itr = entries.begin(); itr != entries.end(); ++itr)
         {
-            uint32 entry = uint32(atoi(*itr));
+            uint32 entry = atoul(*itr);
 
             PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
             stmt->setUInt32(0, entry);

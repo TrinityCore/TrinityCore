@@ -95,7 +95,7 @@ void SmartAI::UpdateDespawn(const uint32 diff)
             mDespawnState++;
         }
         else
-            me->DespawnOrUnsummon();
+            me->DespawnOrUnsummon(0, Seconds(mRespawnTime));
     } else mDespawnTime -= diff;
 }
 
@@ -532,6 +532,7 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
 void SmartAI::JustRespawned()
 {
     mDespawnTime = 0;
+    mRespawnTime = 0;
     mDespawnState = 0;
     mEscortState = SMART_ESCORT_NONE;
     me->SetVisible(true);

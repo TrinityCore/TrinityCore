@@ -3011,13 +3011,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENEMY);
     });
 
-    // Glyph of Life Tap
-    ApplySpellFix({ 63320 }, [](SpellInfo* spellInfo)
-    {
-        // Entries were not updated after spell effect change, we have to do that manually :/
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
-    });
-
     // Execute
     ApplySpellFix({ 5308 }, [](SpellInfo* spellInfo)
     {
@@ -3142,9 +3135,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         34477, // Misdirection
         48108, // Hot Streak
         51124, // Killing Machine
-        57761, // Fireball!
-        64823, // Item - Druid T8 Balance 4P Bonus
-        88819  // Daybreak
+        64823  // Item - Druid T8 Balance 4P Bonus
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->ProcCharges = 1;
@@ -3154,13 +3145,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 44544 }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(685904631, 1151048, 0, 0);
-    });
-
-    // Cobra Strikes
-    ApplySpellFix({ 53257 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->ProcCharges = 2;
-        spellInfo->StackAmount = 0;
     });
 
     // Ascendance (Talisman of Ascendance trinket)
@@ -3224,13 +3208,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 15290 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
-    });
-
-    // Tremor Totem (instant pulse)
-    ApplySpellFix({ 8145 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
     });
 
     // Earthbind Totem (instant pulse)
