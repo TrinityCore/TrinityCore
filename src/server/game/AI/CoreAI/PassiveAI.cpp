@@ -28,7 +28,7 @@ int32 NullCreatureAI::Permissible(Creature const* creature)
         return PERMIT_BASE_PROACTIVE + 50;
 
     if (creature->IsTrigger())
-        return PERMIT_BASE_REACTIVE;
+        return PERMIT_BASE_PROACTIVE;
 
     return PERMIT_BASE_IDLE;
 }
@@ -104,7 +104,7 @@ void TriggerAI::IsSummonedBy(Unit* summoner)
 int32 TriggerAI::Permissible(Creature const* creature)
 {
     if (creature->IsTrigger() && creature->m_spells[0])
-        return PERMIT_BASE_PROACTIVE;
+        return PERMIT_BASE_SPECIAL;
 
     return PERMIT_BASE_NO;
 }
