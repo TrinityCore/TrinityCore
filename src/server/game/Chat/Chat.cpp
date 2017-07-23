@@ -416,7 +416,7 @@ bool ChatHandler::_ParseCommands(char const* text)
 {
     if (ExecuteCommandInTable(getCommandTable(), text, text))
         return true;
-    
+
     // Pretend commands don't exist for regular players
     if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
         return false;
@@ -1316,7 +1316,7 @@ bool AddonChannelCommandHandler::ParseCommands(char const* str)
     if (!str[13] || !str[14] || !str[15] || !str[16]) // str[13] through str[16] is 4-character command counter
         return false;
     echo = str+13;
-    
+
     switch (opcode)
     {
         case 'p': // p Ping
