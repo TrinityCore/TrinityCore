@@ -93,7 +93,8 @@ class TC_GAME_API ChatHandler
             return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
         }
 
-        bool ParseCommands(char const* text);
+        bool _ParseCommands(char const* text);
+        virtual bool ParseCommands(char const* text);
 
         static std::vector<ChatCommand> const& getCommandTable();
         static void invalidateCommandTable();
@@ -111,6 +112,7 @@ class TC_GAME_API ChatHandler
         virtual LocaleConstant GetSessionDbcLocale() const;
         virtual int GetSessionDbLocaleIndex() const;
 
+        bool IsHumanReadable() const { return humanReadable; }
         bool HasLowerSecurity(Player* target, ObjectGuid guid, bool strong = false);
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
@@ -152,6 +154,7 @@ class TC_GAME_API ChatHandler
         static bool SetDataForCommandInTable(std::vector<ChatCommand>& table, char const* text, uint32 permission, std::string const& help, std::string const& fullcommand);
         bool ExecuteCommandInTable(std::vector<ChatCommand> const& table, char const* text, std::string const& fullcmd);
         bool ShowHelpForSubCommands(std::vector<ChatCommand> const& table, char const* cmd, char const* subcmd);
+        bool humanReadable = true;
 
     private:
         WorldSession* m_session;                           // != nullptr for chat command call and nullptr for CLI command
@@ -171,6 +174,7 @@ class TC_GAME_API CliHandler : public ChatHandler
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
         void SendSysMessage(const char *str, bool escapeCharacters) override;
+        bool ParseCommands(char const* str) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
@@ -179,6 +183,24 @@ class TC_GAME_API CliHandler : public ChatHandler
     private:
         void* m_callbackArg;
         Print* m_print;
+};
+
+class TC_GAME_API AddonCliHandler : public ChatHandler
+{
+    public:
+        using ChatHandler::ChatHandler;
+        bool ParseCommands(char const* str) override;
+        void SendSysMessage(char const* str, bool escapeCharacters) override;
+        using ChatHandler::SendSysMessage;
+
+    private:
+        void Send(std::string const& msg);
+        void SendAck();
+        void SendOK();
+        void SendFailed();
+
+        char const* echo = nullptr;
+        bool hadAck = false;
 };
 
 #endif
