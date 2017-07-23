@@ -264,6 +264,7 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
     }
 
     SetPhaseMask(phaseMask, false);
+    UpdatePositionData();
 
     SetZoneScript();
     if (m_zoneScript)

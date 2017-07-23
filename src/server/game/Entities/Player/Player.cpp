@@ -494,6 +494,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, CharacterCreateInfo* createInfo
     }
 
     SetMap(sMapMgr->CreateMap(info->mapId, this));
+    UpdatePositionData();
 
     uint8 powertype = cEntry->powerType;
 
@@ -17410,6 +17411,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     SetMap(map);
     StoreRaidMapDifficulty();
+    UpdatePositionData();
 
     // now that map position is determined, check instance validity
     if (!CheckInstanceValidity(true) && !IsInstanceLoginGameMasterException())
