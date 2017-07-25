@@ -164,7 +164,7 @@ enum Races
 #define RACEMASK_HORDE RACEMASK_ALL_PLAYABLE & ~RACEMASK_ALLIANCE
 
 // Class value is index in ChrClasses.dbc
-enum Classes
+enum Classes : uint8
 {
     CLASS_NONE          = 0,
     CLASS_WARRIOR       = 1,
@@ -3801,12 +3801,7 @@ enum LockType
 enum TrainerType
 {
     TRAINER_TYPE_CLASS             = 0,
-    TRAINER_TYPE_MOUNTS            = 1, // on blizz it's 2
-    TRAINER_TYPE_TRADESKILLS       = 2,
-    TRAINER_TYPE_PETS              = 3
 };
-
-#define MAX_TRAINER_TYPE 4
 
 // CreatureType.dbc (6.0.2.18988)
 enum CreatureType
