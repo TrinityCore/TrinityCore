@@ -135,12 +135,13 @@ void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, ui
     }
 }
 
-void GossipMenu::AddGossipMenuItemData(uint32 menuItemId, uint32 gossipActionMenuId, uint32 gossipActionPoi)
+void GossipMenu::AddGossipMenuItemData(uint32 optionIndex, uint32 gossipActionMenuId, uint32 gossipActionPoi, uint32 trainerId)
 {
-    GossipMenuItemData& itemData = _menuItemData[menuItemId];
+    GossipMenuItemData& itemData = _menuItemData[optionIndex];
 
     itemData.GossipActionMenuId  = gossipActionMenuId;
     itemData.GossipActionPoi     = gossipActionPoi;
+    itemData.TrainerId           = trainerId;
 }
 
 uint32 GossipMenu::GetMenuItemSender(uint32 menuItemId) const
@@ -168,6 +169,15 @@ bool GossipMenu::IsMenuItemCoded(uint32 menuItemId) const
         return false;
 
     return itr->second.IsCoded;
+}
+
+bool GossipMenu::HasMenuItemType(uint32 optionType) const
+{
+    for (auto const& menuItemPair : _menuItems)
+        if (menuItemPair.second.OptionType == optionType)
+            return true;
+
+    return false;
 }
 
 void GossipMenu::ClearMenu()

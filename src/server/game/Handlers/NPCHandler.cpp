@@ -44,6 +44,7 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "Trainer.h"
 #include "WorldPacket.h"
 
 enum StableResultCode
@@ -89,16 +90,10 @@ void WorldSession::SendShowMailBox(ObjectGuid guid)
 
 void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
 {
-    SendTrainerList(packet.Unit);
+    TC_LOG_INFO("network", "%s sent legacy gossipless trainer hello for unit %s, no trainer list available", GetPlayerInfo().c_str(), packet.Unit.ToString().c_str());
 }
 
-void WorldSession::SendTrainerList(ObjectGuid guid, uint32 index)
-{
-    std::string str = GetTrinityString(LANG_NPC_TAINER_HELLO);
-    SendTrainerList(guid, str, index);
-}
-
-void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle, uint32 index)
+void WorldSession::SendTrainerList(ObjectGuid guid, uint32 trainerId)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)
@@ -111,92 +106,23 @@ void WorldSession::SendTrainerList(ObjectGuid guid, const std::string& strTitle,
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    TrainerSpellData const* trainer_spells = unit->GetTrainerSpells();
-    if (!trainer_spells)
+    Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(trainerId);
+    if (!trainer)
     {
-        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - Training spells not found for %s", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - trainer spells not found for trainer %s id %d", guid.ToString().c_str(), trainerId);
         return;
     }
 
-    WorldPackets::NPC::TrainerList packet;
-    packet.TrainerGUID = guid;
-    packet.TrainerType = trainer_spells->trainerType;
-    packet.Greeting = strTitle;
-
-    // reputation discount
-    float fDiscountMod = _player->GetReputationPriceDiscount(unit);
-
-    packet.Spells.reserve(trainer_spells->spellList.size());
-    for (TrainerSpellMap::const_iterator itr = trainer_spells->spellList.begin(); itr != trainer_spells->spellList.end(); ++itr)
-    {
-        TrainerSpell const* tSpell = &itr->second;
-
-        if (index && tSpell->Index != index)
-            continue;
-
-        bool valid = true;
-        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
-        {
-            if (!tSpell->ReqAbility[i])
-                continue;
-            if (!_player->IsSpellFitByClassAndRace(tSpell->ReqAbility[i]))
-            {
-                valid = false;
-                break;
-            }
-        }
-
-        if (!valid)
-            continue;
-
-        TrainerSpellState state = _player->GetTrainerSpellState(tSpell);
-
-        WorldPackets::NPC::TrainerListSpell spell;
-        spell.SpellID = tSpell->SpellID;
-        spell.MoneyCost = floor(tSpell->MoneyCost * fDiscountMod);
-        spell.ReqSkillLine = tSpell->ReqSkillLine;
-        spell.ReqSkillRank = tSpell->ReqSkillRank;
-        spell.ReqLevel = tSpell->ReqLevel;
-        spell.Usable = (state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
-
-        uint8 maxReq = 0;
-        for (uint8 i = 0; i < MAX_TRAINERSPELL_ABILITY_REQS; ++i)
-        {
-            if (!tSpell->ReqAbility[i])
-                continue;
-
-            if (uint32 prevSpellId = sSpellMgr->GetPrevSpellInChain(tSpell->ReqAbility[i]))
-            {
-                spell.ReqAbility[maxReq] = prevSpellId;
-                ++maxReq;
-            }
-
-            if (maxReq == 2)
-                break;
-
-            SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->ReqAbility[i]);
-            for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < MAX_TRAINERSPELL_ABILITY_REQS; ++itr2)
-            {
-                spell.ReqAbility[maxReq] = itr2->second;
-                ++maxReq;
-            }
-
-            if (maxReq == 2)
-                break;
-        }
-
-        packet.Spells.push_back(spell);
-    }
-
-    SendPacket(packet.Write());
+    _player->SetCurrentTrainerId(trainerId);
+    trainer->SendSpells(unit, _player, GetSessionDbLocaleIndex());
 }
 
 void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_TRAINER_BUY_SPELL %s, learn spell id is: %i", packet.TrainerGUID.ToString().c_str(), packet.SpellID);
 
-    Creature* trainer = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER);
-    if (!trainer)
+    Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(packet.TrainerGUID, UNIT_NPC_FLAG_TRAINER);
+    if (!npc)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleTrainerBuySpellOpcode - %s not found or you can not interact with him.", packet.TrainerGUID.ToString().c_str());
         return;
@@ -206,70 +132,14 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    // check race for mount trainers
-    if (trainer->GetCreatureTemplate()->trainer_type == TRAINER_TYPE_MOUNTS)
-    {
-        if (uint32 trainerRace = trainer->GetCreatureTemplate()->trainer_race)
-            if (_player->getRace() != trainerRace)
-                return;
-    }
-
-    // check class for class trainers
-    if (_player->getClass() != trainer->GetCreatureTemplate()->trainer_class && trainer->GetCreatureTemplate()->trainer_type == TRAINER_TYPE_CLASS)
+    if (_player->GetCurrentTrainerId() != packet.TrainerID)
         return;
 
-    // check present spell in trainer spell list
-    TrainerSpellData const* trainer_spells = trainer->GetTrainerSpells();
-    if (!trainer_spells)
-    {
-        SendTrainerBuyFailed(packet.TrainerGUID, packet.SpellID, 0);
+    Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(packet.TrainerID);
+    if (!npc)
         return;
-    }
 
-    // not found, cheat?
-    TrainerSpell const* trainerSpell = trainer_spells->Find(packet.SpellID);
-    if (!trainerSpell)
-    {
-        SendTrainerBuyFailed(packet.TrainerGUID, packet.SpellID, 0);
-        return;
-    }
-
-    // can't be learn, cheat? Or double learn with lags...
-    if (_player->GetTrainerSpellState(trainerSpell) != TRAINER_SPELL_GREEN)
-    {
-        SendTrainerBuyFailed(packet.TrainerGUID, packet.SpellID, 0);
-        return;
-    }
-
-    // apply reputation discount
-    uint32 nSpellCost = uint32(floor(trainerSpell->MoneyCost * _player->GetReputationPriceDiscount(trainer)));
-
-    // check money requirement
-    if (!_player->HasEnoughMoney(uint64(nSpellCost)))
-    {
-        SendTrainerBuyFailed(packet.TrainerGUID, packet.SpellID, 1);
-        return;
-    }
-
-    _player->ModifyMoney(-int64(nSpellCost));
-
-    trainer->SendPlaySpellVisualKit(179, 0, 0);    // 53 SpellCastDirected
-    _player->SendPlaySpellVisualKit(362, 1, 0);    // 113 EmoteSalute
-
-    // learn explicitly or cast explicitly
-    if (trainerSpell->IsCastable())
-        _player->CastSpell(_player, trainerSpell->SpellID, true);
-    else
-        _player->LearnSpell(packet.SpellID, false);
-}
-
-void WorldSession::SendTrainerBuyFailed(ObjectGuid trainerGUID, uint32 spellID, int32 trainerFailedReason)
-{
-    WorldPackets::NPC::TrainerBuyFailed trainerBuyFailed;
-    trainerBuyFailed.TrainerGUID = trainerGUID;
-    trainerBuyFailed.SpellID = spellID;                             // should be same as in packet from client
-    trainerBuyFailed.TrainerFailedReason = trainerFailedReason;     // 1 == "Not enough money for trainer service." 0 == "Trainer service %d unavailable."
-    SendPacket(trainerBuyFailed.Write());
+    trainer->TeachSpell(npc, _player, packet.SpellID);
 }
 
 void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)

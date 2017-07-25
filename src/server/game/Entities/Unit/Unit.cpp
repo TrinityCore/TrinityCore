@@ -12743,7 +12743,7 @@ void Unit::SendCancelSpellVisualKit(uint32 id)
     SendMessageToSet(cancelSpellVisualKit.Write(), true);
 }
 
-void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration)
+void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration) const
 {
     WorldPackets::Spells::PlaySpellVisualKit playSpellVisualKit;
     playSpellVisualKit.Unit = GetGUID();
