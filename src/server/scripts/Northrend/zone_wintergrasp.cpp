@@ -396,10 +396,7 @@ class npc_wg_quest_giver : public CreatureScript
                 return true;
 
             if (creature->IsVendor())
-            {
                 AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_VENDOR);
-                player->PlayerTalkClass->GetGossipMenu().AddGossipMenuItemData(0, 0, 0);
-            }
 
             /// @todo: move this to conditions or something else
 
