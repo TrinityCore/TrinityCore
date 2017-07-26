@@ -132,10 +132,7 @@ public:
     // Display the 'Message of the day' for the realm
     static bool HandleServerMotdCommand(ChatHandler* handler, char const* /*args*/)
     {
-        if (handler->IsHumanReadable())
-            handler->PSendSysMessage(LANG_MOTD_CURRENT, Motd::GetMotd());
-        else
-            handler->SendSysMessage(Motd::GetMotd());
+        handler->PSendSysMessage(LANG_MOTD_CURRENT, Motd::GetMotd());
         return true;
     }
 

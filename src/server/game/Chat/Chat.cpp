@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <boost/algorithm/string/replace.hpp>
 #include "Chat.h"
 #include "AccountMgr.h"
 #include "CellImpl.h"
@@ -34,6 +33,7 @@
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include <boost/algorithm/string/replace.hpp>
 
 ChatCommand::ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands /*= std::vector<ChatCommand>()*/)
     : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands))
