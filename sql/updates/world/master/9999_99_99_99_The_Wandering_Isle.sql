@@ -7239,6 +7239,12 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `Q
 
 UPDATE `gameobject_loot_template` SET `QuestRequired`=1 WHERE `Entry` IN (40266, 40401, 40379, 40442, 40443, 40444, 40445, 40446, 40458, 40459, 40461);
 
+DELETE FROM `gameobject_loot_template` WHERE `Entry`=40856;
+INSERT INTO `gameobject_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
+-- Trainee's Handwrap
+(40856, 77278, 0, 100, 1, 1, 0, 1, 1, NULL),
+(40856, 77279, 0, 100, 1, 1, 0, 1, 1, NULL);
+
 DELETE FROM `reference_loot_template` WHERE `Entry`=11117;
 INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
 (11117, 55973, 0, 65, 0, 1, 1, 1, 1, NULL),
