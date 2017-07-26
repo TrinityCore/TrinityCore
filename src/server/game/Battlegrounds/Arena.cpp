@@ -16,7 +16,6 @@
  */
 
 #include "Arena.h"
-#include "ArenaScore.h"
 #include "ArenaTeamMgr.h"
 #include "GuildMgr.h"
 #include "Guild.h"
@@ -95,6 +94,23 @@ void Arena::HandleKillPlayer(Player* player, Player* killer)
 
     UpdateArenaWorldState();
     CheckWinConditions();
+}
+
+void Arena::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData) const
+{
+    Battleground::BuildPvPLogDataPacket(pvpLogData);
+
+    if (isRated())
+    {
+        pvpLogData.Ratings = boost::in_place();
+
+        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+        {
+            pvpLogData.Ratings->Postmatch[i] = _arenaTeamScores[i].PostMatchRating;
+            pvpLogData.Ratings->Prematch[i] = _arenaTeamScores[i].PreMatchRating;
+            pvpLogData.Ratings->PrematchMMR[i] = _arenaTeamScores[i].PreMatchMMR;
+        }
+    }
 }
 
 void Arena::RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket)
@@ -179,8 +195,8 @@ void Arena::EndBattleground(uint32 winner)
                 uint8 winnerTeam = winner == ALLIANCE ? BG_TEAM_ALLIANCE : BG_TEAM_HORDE;
                 uint8 loserTeam = winner == ALLIANCE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
 
-                _arenaTeamScores[winnerTeam].Assign(winnerTeamRating, winnerTeamRating + winnerChange, winnerMatchmakerRating);
-                _arenaTeamScores[loserTeam].Assign(loserTeamRating, loserTeamRating + loserChange, loserMatchmakerRating);
+                _arenaTeamScores[winnerTeam].Assign(winnerTeamRating, winnerTeamRating + winnerChange, winnerMatchmakerRating, GetArenaMatchmakerRating(winner));
+                _arenaTeamScores[loserTeam].Assign(loserTeamRating, loserTeamRating + loserChange, loserMatchmakerRating, GetArenaMatchmakerRating(GetOtherTeam(winner)));
 
                 TC_LOG_DEBUG("bg.arena", "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d",
                     GetArenaType(), GetArenaTeamIdByIndex(TEAM_ALLIANCE), GetArenaTeamIdByIndex(TEAM_HORDE), winnerArenaTeam->GetId(), winnerChange, loserChange);
@@ -197,8 +213,8 @@ void Arena::EndBattleground(uint32 winner)
             // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
             else
             {
-                _arenaTeamScores[BG_TEAM_ALLIANCE].Assign(winnerTeamRating, winnerTeamRating + ARENA_TIMELIMIT_POINTS_LOSS, winnerMatchmakerRating);
-                _arenaTeamScores[BG_TEAM_HORDE].Assign(loserTeamRating, loserTeamRating + ARENA_TIMELIMIT_POINTS_LOSS, loserMatchmakerRating);
+                _arenaTeamScores[BG_TEAM_ALLIANCE].Assign(winnerTeamRating, winnerTeamRating + ARENA_TIMELIMIT_POINTS_LOSS, winnerMatchmakerRating, GetArenaMatchmakerRating(ALLIANCE));
+                _arenaTeamScores[BG_TEAM_HORDE].Assign(loserTeamRating, loserTeamRating + ARENA_TIMELIMIT_POINTS_LOSS, loserMatchmakerRating, GetArenaMatchmakerRating(HORDE));
 
                 winnerArenaTeam->FinishGame(ARENA_TIMELIMIT_POINTS_LOSS);
                 loserArenaTeam->FinishGame(ARENA_TIMELIMIT_POINTS_LOSS);
