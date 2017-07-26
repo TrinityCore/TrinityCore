@@ -17,7 +17,6 @@
  */
 
 #include "Battleground.h"
-#include "ArenaScore.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundPackets.h"
 #include "BattlegroundScore.h"
@@ -649,6 +648,12 @@ Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::co
     return player;
 }
 
+BattlegroundMap* Battleground::GetBgMap() const
+{
+    ASSERT(m_Map);
+    return m_Map;
+}
+
 void Battleground::SetTeamStartPosition(TeamId teamId, Position const& pos)
 {
     ASSERT(teamId < TEAM_NEUTRAL);
@@ -1062,9 +1067,6 @@ void Battleground::Reset()
         delete itr->second;
     PlayerScores.clear();
 
-    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
-        _arenaTeamScores[i].Reset();
-
     ResetBGSubclass();
 }
 
@@ -1333,7 +1335,7 @@ bool Battleground::HasFreeSlots() const
     return GetPlayersSize() < GetMaxPlayers();
 }
 
-void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData)
+void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData) const
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         pvpLogData.Winner = GetWinner();
@@ -1342,54 +1344,22 @@ void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData&
     for (auto const& score : PlayerScores)
     {
         WorldPackets::Battleground::PVPLogData::PlayerData playerData;
-
-        playerData.PlayerGUID = score.second->PlayerGuid;
-        playerData.Kills = score.second->KillingBlows;
-        playerData.Faction = score.second->TeamId;
-        if (score.second->HonorableKills || score.second->Deaths || score.second->BonusHonor)
-        {
-            playerData.Honor = boost::in_place();
-            playerData.Honor->HonorKills = score.second->HonorableKills;
-            playerData.Honor->Deaths = score.second->Deaths;
-            playerData.Honor->ContributionPoints = score.second->BonusHonor;
-        }
-
-        playerData.DamageDone = score.second->DamageDone;
-        playerData.HealingDone = score.second->HealingDone;
-        score.second->BuildObjectivesBlock(playerData.Stats);
+        score.second->BuildPvPLogPlayerDataPacket(playerData);
 
         if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerData.PlayerGUID))
         {
             playerData.IsInWorld = true;
             playerData.PrimaryTalentTree = player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID);
+            playerData.PrimaryTalentTreeNameIndex = 0;
             playerData.Race = player->getRace();
+            playerData.Prestige = player->GetPrestigeLevel();
         }
-
-        //if (isRated())
-        //{
-        //    playerData.PreMatchRating;
-        //    playerData.RatingChange;
-        //    playerData.PreMatchMMR;
-        //    playerData.MmrChange;
-        //}
 
         pvpLogData.Players.push_back(playerData);
     }
 
-    if (isRated())
-    {
-        pvpLogData.Ratings = boost::in_place();
-
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
-        {
-            pvpLogData.Ratings->Postmatch[i] = _arenaTeamScores[i].NewRating;
-            pvpLogData.Ratings->Prematch[i] = _arenaTeamScores[i].OldRating;
-            pvpLogData.Ratings->PrematchMMR[i] = _arenaTeamScores[i].MatchmakerRating;
-        }
-    }
-
-    pvpLogData.PlayerCount[0] = int8(GetPlayersCountByTeam(HORDE));
-    pvpLogData.PlayerCount[1] = int8(GetPlayersCountByTeam(ALLIANCE));
+    pvpLogData.PlayerCount[BG_TEAM_HORDE] = int8(GetPlayersCountByTeam(HORDE));
+    pvpLogData.PlayerCount[BG_TEAM_ALLIANCE] = int8(GetPlayersCountByTeam(ALLIANCE));
 }
 
 bool Battleground::UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor)
