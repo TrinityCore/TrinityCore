@@ -77,7 +77,7 @@ namespace Trainer
         void SendTeachFailure(Creature const* npc, Player const* player, uint32 spellId, FailReason reason) const;
         std::string const& GetGreeting(LocaleConstant locale) const;
 
-        friend class ObjectMgr;
+        friend ObjectMgr;
         void AddGreetingLocale(LocaleConstant locale, std::string greeting);
 
         uint32 _id;
