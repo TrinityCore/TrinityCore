@@ -2215,7 +2215,8 @@ enum Targets
     TARGET_UNIT_UNK_105                = 105, // 1 spell
     TARGET_DEST_CHANNEL_CASTER         = 106,
     TARGET_UNK_DEST_AREA_UNK_107       = 107, // not enough info - only generic spells avalible
-    TARGET_GAMEOBJECT_CONE             = 108,
+    TARGET_GAMEOBJECT_CONE_108         = 108,
+    TARGET_GAMEOBJECT_CONE_109         = 109,
     TARGET_UNIT_CONE_ENTRY_110         = 110,
     TARGET_UNK_111                     = 111,
     TARGET_UNK_112                     = 112,
