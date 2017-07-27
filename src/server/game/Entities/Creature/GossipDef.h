@@ -234,20 +234,19 @@ class TC_GAME_API QuestMenu
         QuestMenuItemList _questMenuItems;
 };
 
-struct TC_GAME_API SelectionData
+class TC_GAME_API SelectionData
 {
-    SelectionData() { Reset(); };
+    public:
+        SelectionData() { Reset(); };
 
-    void Reset()
-    {
-        senderGuid = ObjectGuid::Empty;
-        trainerId = 0;
-        menuId = 0;
-    }
+        void Reset()
+        {
+            senderGuid = ObjectGuid::Empty;
+            trainerId = 0;
+        }
 
-    ObjectGuid senderGuid;
-    uint32 trainerId;
-    uint32 menuId;
+        ObjectGuid senderGuid;
+        uint32 trainerId;
 };
 
 class TC_GAME_API PlayerMenu
