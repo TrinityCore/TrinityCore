@@ -1733,41 +1733,6 @@ class npc_wormhole : public CreatureScript
 };
 
 /*######
-## npc_pet_trainer
-######*/
-
-enum PetTrainer
-{
-    MENU_ID_PET_UNLEARN      = 6520,
-    OPTION_ID_PLEASE_DO      = 0
-};
-
-class npc_pet_trainer : public CreatureScript
-{
-public:
-    npc_pet_trainer() : CreatureScript("npc_pet_trainer") { }
-
-    struct npc_pet_trainerAI : public ScriptedAI
-    {
-        npc_pet_trainerAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-        {
-            if (menuId == MENU_ID_PET_UNLEARN && gossipListId == OPTION_ID_PLEASE_DO)
-            {
-                player->ResetPetTalents();
-                CloseGossipMenuFor(player);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_pet_trainerAI(creature);
-    }
-};
-
-/*######
 ## npc_experience
 ######*/
 
@@ -2553,7 +2518,6 @@ void AddSC_npcs_special()
     new npc_brewfest_reveler();
     new npc_training_dummy();
     new npc_wormhole();
-    new npc_pet_trainer();
     new npc_experience();
     new npc_firework();
     new npc_spring_rabbit();

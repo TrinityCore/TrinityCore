@@ -531,10 +531,12 @@ struct BattlegroundSAScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(std::vector<int32>& stats) override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PlayerData& playerData) const override
         {
-            stats.push_back(DemolishersDestroyed);
-            stats.push_back(GatesDestroyed);
+            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+
+            playerData.Stats.push_back(DemolishersDestroyed);
+            playerData.Stats.push_back(GatesDestroyed);
         }
 
         uint32 GetAttr1() const final override { return DemolishersDestroyed; }
