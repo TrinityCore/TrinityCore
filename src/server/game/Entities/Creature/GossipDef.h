@@ -237,7 +237,7 @@ class TC_GAME_API QuestMenu
 class SelectionData
 {
     public:
-        SelectionData() { Reset(); };
+        SelectionData() { Reset(); }
 
         void Reset()
         {
