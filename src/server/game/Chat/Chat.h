@@ -106,13 +106,13 @@ class TC_GAME_API ChatHandler
 
         // function with different implementation for chat/console
         virtual bool isAvailable(ChatCommand const& cmd) const;
+        virtual bool IsHumanReadable() const { return true; }
         virtual bool HasPermission(uint32 permission) const;
         virtual std::string GetNameLink() const;
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
         virtual int GetSessionDbLocaleIndex() const;
 
-        bool IsHumanReadable() const { return humanReadable; }
         bool HasLowerSecurity(Player* target, ObjectGuid guid, bool strong = false);
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
@@ -154,7 +154,6 @@ class TC_GAME_API ChatHandler
         static bool SetDataForCommandInTable(std::vector<ChatCommand>& table, char const* text, uint32 permission, std::string const& help, std::string const& fullcommand);
         bool ExecuteCommandInTable(std::vector<ChatCommand> const& table, char const* text, std::string const& fullcmd);
         bool ShowHelpForSubCommands(std::vector<ChatCommand> const& table, char const* cmd, char const* subcmd);
-        bool humanReadable = true;
 
     private:
         WorldSession* m_session;                           // != nullptr for chat command call and nullptr for CLI command
@@ -185,13 +184,14 @@ class TC_GAME_API CliHandler : public ChatHandler
         Print* m_print;
 };
 
-class TC_GAME_API AddonCliHandler : public ChatHandler
+class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
 {
     public:
         using ChatHandler::ChatHandler;
         bool ParseCommands(char const* str) override;
         void SendSysMessage(char const* str, bool escapeCharacters) override;
         using ChatHandler::SendSysMessage;
+        bool IsHumanReadable() const override { return humanReadable; }
 
     private:
         void Send(std::string const& msg);
@@ -201,6 +201,7 @@ class TC_GAME_API AddonCliHandler : public ChatHandler
 
         char const* echo = nullptr;
         bool hadAck = false;
+        bool humanReadable = false;
 };
 
 #endif

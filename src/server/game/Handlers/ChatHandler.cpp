@@ -218,7 +218,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
         if (lang == LANG_ADDON)
         {
-            if (AddonCliHandler(this).ParseCommands(msg.c_str()))
+            if (AddonChannelCommandHandler(this).ParseCommands(msg.c_str()))
                 return;
         }
         if (lang != LANG_ADDON)

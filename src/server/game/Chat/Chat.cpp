@@ -1306,7 +1306,7 @@ int CliHandler::GetSessionDbLocaleIndex() const
     return sObjectMgr->GetDBCLocaleIndex();
 }
 
-bool AddonCliHandler::ParseCommands(char const* str)
+bool AddonChannelCommandHandler::ParseCommands(char const* str)
 {
     if (memcmp(str, "TrinityCore\t", 12))
         return false;
@@ -1347,14 +1347,14 @@ bool AddonCliHandler::ParseCommands(char const* str)
     }
 }
 
-void AddonCliHandler::Send(std::string const& msg)
+void AddonChannelCommandHandler::Send(std::string const& msg)
 {
     WorldPacket data;
     ChatHandler::BuildChatPacket(data, CHAT_MSG_WHISPER, LANG_ADDON, GetSession()->GetPlayer(), GetSession()->GetPlayer(), msg);
     GetSession()->SendPacket(&data);
 }
 
-void AddonCliHandler::SendAck() // a Command acknowledged, no body
+void AddonChannelCommandHandler::SendAck() // a Command acknowledged, no body
 {
     ASSERT(echo);
     char ack[18] = "TrinityCore\ta";
@@ -1364,7 +1364,7 @@ void AddonCliHandler::SendAck() // a Command acknowledged, no body
     hadAck = true;
 }
 
-void AddonCliHandler::SendOK() // o Command OK, no body
+void AddonChannelCommandHandler::SendOK() // o Command OK, no body
 {
     ASSERT(echo);
     char ok[18] = "TrinityCore\to";
@@ -1373,7 +1373,7 @@ void AddonCliHandler::SendOK() // o Command OK, no body
     Send(ok);
 }
 
-void AddonCliHandler::SendFailed() // f Command failed, no body
+void AddonChannelCommandHandler::SendFailed() // f Command failed, no body
 {
     ASSERT(echo);
     char fail[18] = "TrinityCore\tf";
@@ -1383,7 +1383,7 @@ void AddonCliHandler::SendFailed() // f Command failed, no body
 }
 
 // m Command message, message in body
-void AddonCliHandler::SendSysMessage(char const* str, bool escapeCharacters)
+void AddonChannelCommandHandler::SendSysMessage(char const* str, bool escapeCharacters)
 {
     ASSERT(echo);
     if (!hadAck)
