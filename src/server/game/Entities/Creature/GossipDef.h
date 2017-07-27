@@ -172,8 +172,6 @@ class TC_GAME_API GossipMenu
 
         void SetMenuId(uint32 menu_id) { _menuId = menu_id; }
         uint32 GetMenuId() const { return _menuId; }
-        void SetSenderGUID(ObjectGuid guid) { _senderGUID = guid; }
-        ObjectGuid GetSenderGUID() const { return _senderGUID; }
         void SetLocale(LocaleConstant locale) { _locale = locale; }
         LocaleConstant GetLocale() const { return _locale; }
 
@@ -216,7 +214,6 @@ class TC_GAME_API GossipMenu
         GossipMenuItemContainer _menuItems;
         GossipMenuItemDataContainer _menuItemData;
         uint32 _menuId;
-        ObjectGuid _senderGUID;
         LocaleConstant _locale;
 };
 
@@ -237,6 +234,22 @@ class TC_GAME_API QuestMenu
         QuestMenuItemList _questMenuItems;
 };
 
+struct TC_GAME_API SelectionData
+{
+    SelectionData() { Reset(); };
+
+    void Reset()
+    {
+        senderGuid = ObjectGuid::Empty;
+        trainerId = 0;
+        menuId = 0;
+    }
+
+    ObjectGuid senderGuid;
+    uint32 trainerId;
+    uint32 menuId;
+};
+
 class TC_GAME_API PlayerMenu
 {
     public:
@@ -245,6 +258,7 @@ class TC_GAME_API PlayerMenu
 
         GossipMenu& GetGossipMenu() { return _gossipMenu; }
         QuestMenu& GetQuestMenu() { return _questMenu; }
+        SelectionData& GetSelectionData() { return _selectionData; }
 
         bool Empty() const { return _gossipMenu.Empty() && _questMenu.Empty(); }
 
@@ -276,5 +290,6 @@ class TC_GAME_API PlayerMenu
         GossipMenu _gossipMenu;
         QuestMenu  _questMenu;
         WorldSession* _session;
+        SelectionData _selectionData;
 };
 #endif

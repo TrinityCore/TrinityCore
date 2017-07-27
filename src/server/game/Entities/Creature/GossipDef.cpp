@@ -33,7 +33,6 @@ GossipMenu::GossipMenu()
 {
     _menuId = 0;
     _locale = DEFAULT_LOCALE;
-    _senderGUID.Clear();
 }
 
 GossipMenu::~GossipMenu()
@@ -207,7 +206,8 @@ void PlayerMenu::ClearMenus()
 
 void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
 {
-    _gossipMenu.SetSenderGUID(objectGUID);
+    _selectionData.Reset();
+    _selectionData.senderGuid = objectGUID;
 
     WorldPackets::NPC::GossipMessage packet;
     packet.GossipGUID = objectGUID;
@@ -269,7 +269,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
 
 void PlayerMenu::SendCloseGossip()
 {
-    _gossipMenu.SetSenderGUID(ObjectGuid::Empty);
+    _selectionData.Reset();
 
     WorldPackets::NPC::GossipComplete packet;
     _session->SendPacket(packet.Write());
