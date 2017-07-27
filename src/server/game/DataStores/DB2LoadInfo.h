@@ -4310,7 +4310,7 @@ struct SpellPowerLoadInfo
         static DB2FieldMeta const fields[] =
         {
             { false, FT_INT, "SpellID" },
-            { false, FT_INT, "ManaCost" },
+            { true, FT_INT, "ManaCost" },
             { false, FT_FLOAT, "ManaCostPercentage" },
             { false, FT_FLOAT, "ManaCostPercentagePerSecond" },
             { false, FT_INT, "RequiredAura" },
@@ -4320,7 +4320,7 @@ struct SpellPowerLoadInfo
             { false, FT_INT, "ID" },
             { true, FT_INT, "ManaCostPerLevel" },
             { true, FT_INT, "ManaCostPerSecond" },
-            { false, FT_INT, "ManaCostAdditional" },
+            { true, FT_INT, "ManaCostAdditional" },
             { false, FT_INT, "PowerDisplayID" },
             { false, FT_INT, "UnitPowerBarID" },
         };

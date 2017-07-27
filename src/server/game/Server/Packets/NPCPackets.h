@@ -145,11 +145,11 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::string Greeting;
-            int32 TrainerType   = 0;
             ObjectGuid TrainerGUID;
+            int32 TrainerType   = 0;
             int32 TrainerID     = 1;
             std::vector<TrainerListSpell> Spells;
+            std::string Greeting;
         };
 
         class ShowBank final : public ServerPacket

@@ -2521,7 +2521,7 @@ struct SpellMiscEntry
 struct SpellPowerEntry
 {
     uint32 SpellID;
-    uint32 ManaCost;
+    int32 ManaCost;
     float ManaCostPercentage;
     float ManaCostPercentagePerSecond;
     uint32 RequiredAura;
@@ -2531,7 +2531,7 @@ struct SpellPowerEntry
     uint32 ID;
     int32 ManaCostPerLevel;
     int32 ManaCostPerSecond;
-    uint32 ManaCostAdditional;                                      // Spell uses [ManaCost, ManaCost+ManaCostAdditional] power - affects tooltip parsing as multiplier on SpellEffectEntry::EffectPointsPerResource
+    int32 ManaCostAdditional;                                       // Spell uses [ManaCost, ManaCost+ManaCostAdditional] power - affects tooltip parsing as multiplier on SpellEffectEntry::EffectPointsPerResource
                                                                     //   only SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE, SPELL_EFFECT_WEAPON_DAMAGE, SPELL_EFFECT_NORMALIZED_WEAPON_DMG
     uint32 PowerDisplayID;
     uint32 UnitPowerBarID;

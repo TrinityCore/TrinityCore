@@ -19,6 +19,7 @@
 #include "WorldSession.h"
 #include "Common.h"
 #include "DB2Stores.h"
+#include "GossipDef.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
@@ -65,7 +66,10 @@ void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRe
         return;
     }
 
-    if (!unit->isCanTrainingAndResetTalentsOf(_player))
+    if (!unit->CanResetTalents(_player))
+        return;
+
+    if (!_player->PlayerTalkClass->GetGossipMenu().HasMenuItemType(GOSSIP_OPTION_UNLEARNTALENTS))
         return;
 
     // remove fake death
