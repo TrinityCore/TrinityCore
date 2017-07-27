@@ -1906,7 +1906,7 @@ uint32 DB2Manager::GetRequiredHonorLevelForPvpTalent(PvpTalentEntry const* talen
     return _pvpTalentUnlock[talentInfo->TierID][talentInfo->ColumnIndex];
 }
 
-std::vector<PvpTalentEntry const*> const & DB2Manager::GetPvpTalentsByPosition(uint32 tier, uint32 column) const
+std::vector<PvpTalentEntry const*> const& DB2Manager::GetPvpTalentsByPosition(uint32 tier, uint32 column) const
 {
     return _pvpTalentsByPosition[tier][column];
 }
