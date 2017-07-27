@@ -234,7 +234,7 @@ class TC_GAME_API QuestMenu
         QuestMenuItemList _questMenuItems;
 };
 
-class TC_GAME_API SelectionData
+class SelectionData
 {
     public:
         SelectionData() { Reset(); };
