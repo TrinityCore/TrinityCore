@@ -241,12 +241,12 @@ class SelectionData
 
         void Reset()
         {
-            senderGuid = ObjectGuid::Empty;
-            trainerId = 0;
+            SenderGuid = ObjectGuid::Empty;
+            TrainerId = 0;
         }
 
-        ObjectGuid senderGuid;
-        uint32 trainerId;
+        ObjectGuid SenderGuid;
+        uint32 TrainerId;
 };
 
 class TC_GAME_API PlayerMenu
