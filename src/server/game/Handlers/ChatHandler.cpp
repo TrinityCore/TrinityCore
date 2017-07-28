@@ -432,6 +432,9 @@ void WorldSession::HandleChatAddonMessage(ChatMsg type, std::string prefix, std:
     if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
         return;
 
+    if (prefix == AddonChannelCommandHandler::PREFIX && AddonChannelCommandHandler(this).ParseCommands(text.c_str()))
+        return;
+
     switch (type)
     {
         case CHAT_MSG_GUILD:
