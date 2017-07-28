@@ -26235,7 +26235,7 @@ void Player::EnablePvpRules(bool dueToCombat /*= false*/)
 
 void Player::DisablePvpRules()
 {
-    if (!IsInCombat())
+    if (!GetCombatTimer())
         RemoveAurasDueToSpell(SPELL_PVP_RULES_ENABLED);
     else if (Aura* aura = GetAura(SPELL_PVP_RULES_ENABLED))
         aura->SetDuration(aura->GetSpellInfo()->GetMaxDuration());
