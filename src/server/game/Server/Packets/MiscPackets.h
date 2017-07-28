@@ -479,8 +479,8 @@ namespace WorldPackets
 
             int32 Level = 0;
             int32 HealthDelta = 0;
-            std::array<int32, 6> PowerDelta;
-            std::array<int32, MAX_STATS> StatDelta;
+            std::array<int32, 6> PowerDelta = { };
+            std::array<int32, MAX_STATS> StatDelta = { };
             int32 Cp = 0;
         };
 

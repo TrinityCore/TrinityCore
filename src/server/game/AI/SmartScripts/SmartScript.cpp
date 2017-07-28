@@ -1237,11 +1237,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (target->IsAlive() && IsSmart(target))
                     {
-                        ENSURE_AI(SmartAI, target->AI())->SetDespawnTime(e.action.forceDespawn.delay + 1); // Next tick
+                        ENSURE_AI(SmartAI, target->AI())->SetDespawnTime(e.action.forceDespawn.delay + 1, e.action.forceDespawn.respawn); // Next tick
                         ENSURE_AI(SmartAI, target->AI())->StartDespawn();
                     }
                     else
-                        target->DespawnOrUnsummon(e.action.forceDespawn.delay);
+                        target->DespawnOrUnsummon(e.action.forceDespawn.delay, Seconds(e.action.forceDespawn.respawn));
                 }
                 else if (GameObject* goTarget = (*itr)->ToGameObject())
                     goTarget->SetRespawnTime(e.action.forceDespawn.delay + 1);

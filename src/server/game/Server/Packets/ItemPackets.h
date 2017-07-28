@@ -479,7 +479,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid ItemGuid;
-            std::array<ObjectGuid, MAX_ITEM_PROTO_SOCKETS> GemItem;
+            std::array<ObjectGuid, MAX_ITEM_PROTO_SOCKETS> GemItem = { };
         };
 
         class SocketGemsResult final : public ServerPacket
