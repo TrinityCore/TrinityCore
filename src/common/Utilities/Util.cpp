@@ -573,3 +573,8 @@ bool StringToBool(std::string const& str)
     std::transform(str.begin(), str.end(), lowerStr.begin(), [](char c) { return char(::tolower(c)); });
     return lowerStr == "1" || lowerStr == "true" || lowerStr == "yes";
 }
+
+float DegToRad(float degrees)
+{
+    return degrees * (2.f * float(M_PI) / 360.f);
+}

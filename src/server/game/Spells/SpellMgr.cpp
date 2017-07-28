@@ -30,6 +30,7 @@
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include <G3D/g3dmath.h>
 
 PetFamilySpellsStore sPetFamilySpellsStore;
 
@@ -606,9 +607,9 @@ uint32 SpellMgr::GetSpellWithRank(uint32 spell_id, uint32 rank, bool strict) con
     return spell_id;
 }
 
-SpellRequiredMapBounds SpellMgr::GetSpellsRequiredForSpellBounds(uint32 spell_id) const
+Trinity::IteratorPair<SpellRequiredMap::const_iterator> SpellMgr::GetSpellsRequiredForSpellBounds(uint32 spell_id) const
 {
-    return mSpellReq.equal_range(spell_id);
+    return Trinity::Containers::MapEqualRange(mSpellReq, spell_id);
 }
 
 SpellsRequiringSpellMapBounds SpellMgr::GetSpellsRequiringSpellBounds(uint32 spell_id) const
@@ -2887,9 +2888,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         if (!spellInfo->_IsPositiveEffect(EFFECT_2, false))
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF2;
 
-        if (spellInfo->GetSpellVisual() == 3879)
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_BACK;
-
         if (talentSpells.count(spellInfo->Id))
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_IS_TALENT;
 
@@ -2925,12 +2923,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
-    });
-
-    // Drink! (Brewfest)
-    ApplySpellFix({ 42436 }, [](SpellInfo* spellInfo)
-    {
-        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_TARGET_ANY);
     });
 
     // Summon Skeletons
@@ -2993,31 +2985,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 36350 }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TriggerSpell = 36325; // They Must Burn Bomb Drop (DND)
-    });
-
-    ApplySpellFix({
-        61407, // Energize Cores
-        62136, // Energize Cores
-        54069, // Energize Cores
-        56251  // Energize Cores
-    }, [](SpellInfo* spellInfo)
-    {
-        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENTRY);
-    });
-
-    ApplySpellFix({
-        50785, // Energize Cores
-        59372  // Energize Cores
-    }, [](SpellInfo* spellInfo)
-    {
-        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ENEMY);
-    });
-
-    // Glyph of Life Tap
-    ApplySpellFix({ 63320 }, [](SpellInfo* spellInfo)
-    {
-        // Entries were not updated after spell effect change, we have to do that manually :/
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
     });
 
     // Execute
@@ -3144,9 +3111,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         34477, // Misdirection
         48108, // Hot Streak
         51124, // Killing Machine
-        57761, // Fireball!
-        64823, // Item - Druid T8 Balance 4P Bonus
-        88819  // Daybreak
+        64823  // Item - Druid T8 Balance 4P Bonus
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->ProcCharges = 1;
@@ -3156,13 +3121,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 44544 }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(685904631, 1151048, 0, 0);
-    });
-
-    // Cobra Strikes
-    ApplySpellFix({ 53257 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->ProcCharges = 2;
-        spellInfo->StackAmount = 0;
     });
 
     // Ascendance (Talisman of Ascendance trinket)
@@ -3226,13 +3184,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 15290 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
-    });
-
-    // Tremor Totem (instant pulse)
-    ApplySpellFix({ 8145 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-        spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
     });
 
     // Earthbind Totem (instant pulse)
@@ -3909,6 +3860,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                         spellInfo->Speed = SPEED_CHARGE;
                     break;
             }
+
+            if (effect->TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE || effect->TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE)
+                if (G3D::fuzzyEq(spellInfo->ConeAngle, 0.f))
+                    spellInfo->ConeAngle = 90.f;
         }
 
         if (spellInfo->ActiveIconFileDataId == 135754)  // flight

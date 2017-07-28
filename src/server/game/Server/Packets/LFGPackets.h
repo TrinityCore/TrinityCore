@@ -19,6 +19,7 @@
 #define LFGPackets_h__
 
 #include "Packet.h"
+#include "PacketUtilities.h"
 #include "LFGPacketsCommon.h"
 #include "Optional.h"
 
@@ -316,8 +317,8 @@ namespace WorldPackets
             uint32 Slot = 0;
             uint32 AvgWaitTimeMe = 0;
             uint32 AvgWaitTime = 0;
-            uint32 AvgWaitTimeByRole[3] = {};
-            uint8 LastNeeded[3] = {};
+            uint32 AvgWaitTimeByRole[3] = { };
+            uint8 LastNeeded[3] = { };
             uint32 QueuedTime = 0;
         };
 
@@ -394,10 +395,10 @@ namespace WorldPackets
             uint32 Slot = 0;
             int8 State = 0;
             uint32 CompletedMask = 0;
-            uint8 Unused;
+            uint8 Unused = 0;
             bool ValidCompletedMask = false;
             bool ProposalSilent = false;
-            bool IsRequeue;
+            bool IsRequeue = false;
             std::vector<LFGProposalUpdatePlayer> Players;
         };
 

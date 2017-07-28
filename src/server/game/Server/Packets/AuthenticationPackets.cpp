@@ -339,6 +339,7 @@ uint8 const WherePacketHmac[] =
 
 WorldPackets::Auth::ConnectTo::ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 8 + 4 + 256 + 1)
 {
+    Payload.Where.fill(0);
     HexStrToByteArray("F41DCB2D728CF3337A4FF338FA89DB01BBBE9C3B65E9DA96268687353E48B94C", Payload.PanamaKey);
     Payload.Adler32 = 0xA0A66C10;
 

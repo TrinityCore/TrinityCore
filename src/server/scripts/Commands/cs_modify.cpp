@@ -206,9 +206,6 @@ public:
     //Edit Player Faction
     static bool HandleModifyFactionCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)
-            return false;
-
         char* pfactionid = handler->extractKeyFromLink((char*)args, "Hfaction");
 
         Creature* target = handler->getSelectedCreature();
@@ -225,18 +222,18 @@ public:
             uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
             uint64 npcflag   = target->GetUInt64Value(UNIT_NPC_FLAGS);
             uint32 dyflag    = target->GetUInt32Value(OBJECT_DYNAMIC_FLAGS);
-            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, npcflag, dyflag);
+            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, std::to_string(npcflag).c_str(), dyflag);
             return true;
         }
 
-        uint32 factionid = atoi(pfactionid);
+        uint32 factionid = atoul(pfactionid);
         uint32 flag;
 
         char *pflag = strtok(NULL, " ");
         if (!pflag)
             flag = target->GetUInt32Value(UNIT_FIELD_FLAGS);
         else
-            flag = atoi(pflag);
+            flag = atoul(pflag);
 
         char* pnpcflag = strtok(NULL, " ");
 
@@ -244,7 +241,7 @@ public:
         if (!pnpcflag)
             npcflag = target->GetUInt64Value(UNIT_NPC_FLAGS);
         else
-            npcflag = std::strtoull(pnpcflag, nullptr, 10);
+            npcflag = atoull(pnpcflag);
 
         char* pdyflag = strtok(NULL, " ");
 
@@ -252,7 +249,7 @@ public:
         if (!pdyflag)
             dyflag = target->GetUInt32Value(OBJECT_DYNAMIC_FLAGS);
         else
-            dyflag = atoi(pdyflag);
+            dyflag = atoul(pdyflag);
 
         if (!sFactionTemplateStore.LookupEntry(factionid))
         {
@@ -261,7 +258,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, npcflag, dyflag);
+        handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().ToString().c_str(), factionid, flag, std::to_string(npcflag).c_str(), dyflag);
 
         target->setFaction(factionid);
         target->SetUInt32Value(UNIT_FIELD_FLAGS, flag);
@@ -507,221 +504,15 @@ public:
         if (!*args)
             return false;
 
-        uint16 mId = 1147;
-        float speed = (float)15;
-        uint32 num = 0;
+        const char* mount_cstr = strtok(const_cast<char*>(args), " ");
+        const char* speed_cstr = strtok(NULL, " ");
 
-        num = atoi((char*)args);
-        switch (num)
+        if (!mount_cstr || !speed_cstr)
+            return false;
+
+        uint32 mount = atoul(args);
+        if (!sCreatureDisplayInfoStore.HasRecord(mount))
         {
-        case 1:
-            mId=14340;
-            break;
-        case 2:
-            mId=4806;
-            break;
-        case 3:
-            mId=6471;
-            break;
-        case 4:
-            mId=12345;
-            break;
-        case 5:
-            mId=6472;
-            break;
-        case 6:
-            mId=6473;
-            break;
-        case 7:
-            mId=10670;
-            break;
-        case 8:
-            mId=10719;
-            break;
-        case 9:
-            mId=10671;
-            break;
-        case 10:
-            mId=10672;
-            break;
-        case 11:
-            mId=10720;
-            break;
-        case 12:
-            mId=14349;
-            break;
-        case 13:
-            mId=11641;
-            break;
-        case 14:
-            mId=12244;
-            break;
-        case 15:
-            mId=12242;
-            break;
-        case 16:
-            mId=14578;
-            break;
-        case 17:
-            mId=14579;
-            break;
-        case 18:
-            mId=14349;
-            break;
-        case 19:
-            mId=12245;
-            break;
-        case 20:
-            mId=14335;
-            break;
-        case 21:
-            mId=207;
-            break;
-        case 22:
-            mId=2328;
-            break;
-        case 23:
-            mId=2327;
-            break;
-        case 24:
-            mId=2326;
-            break;
-        case 25:
-            mId=14573;
-            break;
-        case 26:
-            mId=14574;
-            break;
-        case 27:
-            mId=14575;
-            break;
-        case 28:
-            mId=604;
-            break;
-        case 29:
-            mId=1166;
-            break;
-        case 30:
-            mId=2402;
-            break;
-        case 31:
-            mId=2410;
-            break;
-        case 32:
-            mId=2409;
-            break;
-        case 33:
-            mId=2408;
-            break;
-        case 34:
-            mId=2405;
-            break;
-        case 35:
-            mId=14337;
-            break;
-        case 36:
-            mId=6569;
-            break;
-        case 37:
-            mId=10661;
-            break;
-        case 38:
-            mId=10666;
-            break;
-        case 39:
-            mId=9473;
-            break;
-        case 40:
-            mId=9476;
-            break;
-        case 41:
-            mId=9474;
-            break;
-        case 42:
-            mId=14374;
-            break;
-        case 43:
-            mId=14376;
-            break;
-        case 44:
-            mId=14377;
-            break;
-        case 45:
-            mId=2404;
-            break;
-        case 46:
-            mId=2784;
-            break;
-        case 47:
-            mId=2787;
-            break;
-        case 48:
-            mId=2785;
-            break;
-        case 49:
-            mId=2736;
-            break;
-        case 50:
-            mId=2786;
-            break;
-        case 51:
-            mId=14347;
-            break;
-        case 52:
-            mId=14346;
-            break;
-        case 53:
-            mId=14576;
-            break;
-        case 54:
-            mId=9695;
-            break;
-        case 55:
-            mId=9991;
-            break;
-        case 56:
-            mId=6448;
-            break;
-        case 57:
-            mId=6444;
-            break;
-        case 58:
-            mId=6080;
-            break;
-        case 59:
-            mId=6447;
-            break;
-        case 60:
-            mId=4805;
-            break;
-        case 61:
-            mId=9714;
-            break;
-        case 62:
-            mId=6448;
-            break;
-        case 63:
-            mId=6442;
-            break;
-        case 64:
-            mId=14632;
-            break;
-        case 65:
-            mId=14332;
-            break;
-        case 66:
-            mId=14331;
-            break;
-        case 67:
-            mId=8469;
-            break;
-        case 68:
-            mId=2830;
-            break;
-        case 69:
-            mId=2346;
-            break;
-        default:
             handler->SendSysMessage(LANG_NO_MOUNT);
             handler->SetSentErrorMessage(true);
             return false;
@@ -739,24 +530,14 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
+        float speed;
+        if (!CheckModifySpeed(handler, speed_cstr, target, speed, 0.1f, 50.0f))
+            return false;
+
         NotifyModification(handler, target, LANG_YOU_GIVE_MOUNT, LANG_MOUNT_GIVED);
-
-        target->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP);
-        target->Mount(mId);
-
-        WorldPacket data(SMSG_MOVE_SET_RUN_SPEED, (8+4+1+4));
-        data << target->GetGUID();
-        data << (uint32)0;
-        data << (uint8)0;                                       //new 2.1.0
-        data << float(speed);
-        target->SendMessageToSet(&data, true);
-
-        data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, (8+4+4));
-        data << target->GetGUID();
-        data << (uint32)0;
-        data << float(speed);
-        target->SendMessageToSet(&data, true);
-
+        target->Mount(mount);
+        target->SetSpeedRate(MOVE_RUN, speed);
+        target->SetSpeedRate(MOVE_FLIGHT, speed);
         return true;
     }
 
@@ -790,7 +571,7 @@ public:
         {
             int64 newmoney = int64(targetMoney) + moneyToAdd;
 
-            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(newmoney));
+            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), std::to_string(targetMoney).c_str(), std::to_string(moneyToAdd).c_str(), std::to_string(newmoney).c_str());
             if (newmoney <= 0)
             {
                 NotifyModification(handler, target, LANG_YOU_TAKE_ALL_MONEY, LANG_YOURS_ALL_MONEY_GONE);
@@ -802,17 +583,17 @@ public:
                 if (newmoney > static_cast<int64>(MAX_MONEY_AMOUNT))
                     newmoney = MAX_MONEY_AMOUNT;
 
-                handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, moneyToAddMsg, handler->GetNameLink(target).c_str());
+                handler->PSendSysMessage(LANG_YOU_TAKE_MONEY, std::to_string(moneyToAddMsg).c_str(), handler->GetNameLink(target).c_str());
                 if (handler->needReportToTarget(target))
-                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), moneyToAddMsg);
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_TAKEN, handler->GetNameLink().c_str(), std::to_string(moneyToAddMsg).c_str());
                 target->SetMoney(newmoney);
             }
         }
         else
         {
-            handler->PSendSysMessage(LANG_YOU_GIVE_MONEY, uint32(moneyToAdd), handler->GetNameLink(target).c_str());
+            handler->PSendSysMessage(LANG_YOU_GIVE_MONEY, std::to_string(moneyToAdd).c_str(), handler->GetNameLink(target).c_str());
             if (handler->needReportToTarget(target))
-                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, handler->GetNameLink().c_str(), uint32(moneyToAdd));
+                ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, handler->GetNameLink().c_str(), std::to_string(moneyToAdd).c_str());
 
             if (moneyToAdd >= int64(MAX_MONEY_AMOUNT))
                 moneyToAdd = MAX_MONEY_AMOUNT;
@@ -823,7 +604,7 @@ public:
             target->ModifyMoney(moneyToAdd);
         }
 
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
+        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), std::to_string(targetMoney).c_str(), std::to_string(moneyToAdd).c_str(), std::to_string(target->GetMoney()).c_str());
 
         return true;
     }
@@ -900,7 +681,7 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        int32 amount = (uint32)atoi(args);
+        int32 amount = atoi(args);
 
         handler->PSendSysMessage("NOT IMPLEMENTED: %d honor NOT added.", amount);
 
@@ -1030,7 +811,7 @@ public:
         if (!*args)
             return false;
 
-        uint32 display_id = (uint32)atoi((char*)args);
+        uint32 display_id = atoul(args);
 
         Unit* target = handler->getSelectedUnit();
         if (!target)

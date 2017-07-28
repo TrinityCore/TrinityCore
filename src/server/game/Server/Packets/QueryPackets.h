@@ -45,6 +45,13 @@ namespace WorldPackets
 
         struct CreatureStats
         {
+            CreatureStats()
+            {
+                Flags.fill(0);
+                ProxyCreatureID.fill(0);
+                CreatureDisplayID.fill(0);
+            }
+
             std::string Title;
             std::string TitleAlt;
             std::string CursorName;

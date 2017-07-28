@@ -73,7 +73,7 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        uint32 amount = (uint32)atoi(args);
+        int32 amount = atoi(args);
         target->RewardHonor(NULL, 1, amount);
         return true;
     }

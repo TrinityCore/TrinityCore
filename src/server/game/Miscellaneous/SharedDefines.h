@@ -164,7 +164,7 @@ enum Races
 #define RACEMASK_HORDE RACEMASK_ALL_PLAYABLE & ~RACEMASK_ALLIANCE
 
 // Class value is index in ChrClasses.dbc
-enum Classes
+enum Classes : uint8
 {
     CLASS_NONE          = 0,
     CLASS_WARRIOR       = 1,
@@ -2215,8 +2215,9 @@ enum Targets
     TARGET_UNIT_UNK_105                = 105, // 1 spell
     TARGET_DEST_CHANNEL_CASTER         = 106,
     TARGET_UNK_DEST_AREA_UNK_107       = 107, // not enough info - only generic spells avalible
-    TARGET_GAMEOBJECT_CONE             = 108,
-    TARGET_DEST_UNK_110                = 110, // 1 spell
+    TARGET_GAMEOBJECT_CONE_108         = 108,
+    TARGET_GAMEOBJECT_CONE_109         = 109,
+    TARGET_UNIT_CONE_ENTRY_110         = 110,
     TARGET_UNK_111                     = 111,
     TARGET_UNK_112                     = 112,
     TARGET_UNK_113                     = 113,
@@ -3801,12 +3802,7 @@ enum LockType
 enum TrainerType
 {
     TRAINER_TYPE_CLASS             = 0,
-    TRAINER_TYPE_MOUNTS            = 1, // on blizz it's 2
-    TRAINER_TYPE_TRADESKILLS       = 2,
-    TRAINER_TYPE_PETS              = 3
 };
-
-#define MAX_TRAINER_TYPE 4
 
 // CreatureType.dbc (6.0.2.18988)
 enum CreatureType
@@ -4851,27 +4847,33 @@ enum MailResponseResult
 
 enum SpellFamilyNames
 {
-    SPELLFAMILY_GENERIC     = 0,
-    SPELLFAMILY_UNK1        = 1,                            // events, holidays
+    SPELLFAMILY_GENERIC         = 0,
+    SPELLFAMILY_EVENTS          = 1,                            // events, holidays
     // 2 - unused
-    SPELLFAMILY_MAGE        = 3,
-    SPELLFAMILY_WARRIOR     = 4,
-    SPELLFAMILY_WARLOCK     = 5,
-    SPELLFAMILY_PRIEST      = 6,
-    SPELLFAMILY_DRUID       = 7,
-    SPELLFAMILY_ROGUE       = 8,
-    SPELLFAMILY_HUNTER      = 9,
-    SPELLFAMILY_PALADIN     = 10,
-    SPELLFAMILY_SHAMAN      = 11,
-    SPELLFAMILY_UNK2        = 12,                           // 2 spells (silence resistance)
-    SPELLFAMILY_POTION      = 13,
+    SPELLFAMILY_MAGE            = 3,
+    SPELLFAMILY_WARRIOR         = 4,
+    SPELLFAMILY_WARLOCK         = 5,
+    SPELLFAMILY_PRIEST          = 6,
+    SPELLFAMILY_DRUID           = 7,
+    SPELLFAMILY_ROGUE           = 8,
+    SPELLFAMILY_HUNTER          = 9,
+    SPELLFAMILY_PALADIN         = 10,
+    SPELLFAMILY_SHAMAN          = 11,
+    SPELLFAMILY_UNK12           = 12,                           // 2 spells (silence resistance)
+    SPELLFAMILY_POTION          = 13,
     // 14 - unused
-    SPELLFAMILY_DEATHKNIGHT = 15,
+    SPELLFAMILY_DEATHKNIGHT     = 15,
     // 16 - unused
-    SPELLFAMILY_PET         = 17,
-    SPELLFAMILY_UNK3        = 50,
-    SPELLFAMILY_MONK        = 53,
-    SPELLFAMILY_WARLOCK_PET = 57,
+    SPELLFAMILY_PET             = 17,
+    SPELLFAMILY_TOTEMS          = 50,
+    SPELLFAMILY_MONK            = 53,
+    SPELLFAMILY_WARLOCK_PET     = 57,
+    SPELLFAMILY_UNK66           = 66,
+    SPELLFAMILY_UNK71           = 71,
+    SPELLFAMILY_UNK78           = 78,
+    SPELLFAMILY_UNK91           = 91,
+    SPELLFAMILY_UNK100          = 100,
+    SPELLFAMILY_DEMON_HUNTER    = 107,
 };
 
 enum TradeStatus

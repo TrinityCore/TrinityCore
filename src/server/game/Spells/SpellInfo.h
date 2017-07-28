@@ -395,6 +395,8 @@ public:
     uint32 IconFileDataId;
     uint32 ActiveIconFileDataId;
     LocalizedString const* SpellName;
+    float ConeAngle;
+    float Width;
     uint32 MaxTargetLevel;
     uint32 MaxAffectedTargets;
     uint32 SpellFamilyName;

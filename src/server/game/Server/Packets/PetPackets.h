@@ -111,7 +111,7 @@ namespace WorldPackets
             uint8 CommandState = 0;
             uint8 Flag = 0;
 
-            std::array<int, 10> ActionButtons;
+            std::array<int, 10> ActionButtons = { };
 
             std::vector<uint32> Actions;
             std::vector<PetSpellCooldown> Cooldowns;

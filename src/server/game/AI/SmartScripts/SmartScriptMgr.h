@@ -777,6 +777,7 @@ struct SmartAction
         struct
         {
             uint32 delay;
+            uint32 respawn;
         } forceDespawn;
 
         struct

@@ -637,8 +637,12 @@ void WorldSession::HandleAuctionListItems(WorldPackets::AuctionHouse::AuctionLis
             {
                 for (auto const& subClassFilter : classFilter.SubClassFilters)
                 {
-                    filters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
-                    filters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
+                    if (classFilter.ItemClass < MAX_ITEM_CLASS)
+                    {
+                        filters->Classes[classFilter.ItemClass].SubclassMask |= 1 << subClassFilter.ItemSubclass;
+                        if (subClassFilter.ItemSubclass < MAX_ITEM_SUBCLASS_TOTAL)
+                            filters->Classes[classFilter.ItemClass].InvTypes[subClassFilter.ItemSubclass] = subClassFilter.InvTypeMask;
+                    }
                 }
             }
             else
