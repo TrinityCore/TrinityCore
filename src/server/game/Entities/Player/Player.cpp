@@ -2449,6 +2449,9 @@ void Player::GiveLevel(uint8 level)
     InitTalentForLevel();
     InitTaxiNodesForLevel();
 
+    if (level < PLAYER_LEVEL_MIN_HONOR)
+        ResetPvpTalents();
+
     UpdateAllStats();
 
     if (sWorld->getBoolConfig(CONFIG_ALWAYS_MAXSKILL)) // Max weapon skill when leveling up
@@ -3543,6 +3546,30 @@ bool Player::ResetTalents(bool noCost)
     */
 
     return true;
+}
+
+void Player::ResetPvpTalents()
+{
+    for (uint32 talentId = 0; talentId < sPvpTalentStore.GetNumRows(); ++talentId)
+    {
+        PvpTalentEntry const* talentInfo = sPvpTalentStore.LookupEntry(talentId);
+        if (!talentInfo)
+            continue;
+
+        if (talentInfo->ClassID && talentInfo->ClassID != getClass())
+            continue;
+
+        // skip non-existent talent ranks
+        if (talentInfo->SpellID == 0)
+            continue;
+
+        RemovePvpTalent(talentInfo);
+    }
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    _SaveTalents(trans);
+    _SaveSpells(trans);
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 Mail* Player::GetMail(uint32 id)
@@ -17978,6 +18005,8 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     InitTalentForLevel();
     LearnDefaultSkills();
     LearnCustomSpells();
+    if (getLevel() < PLAYER_LEVEL_MIN_HONOR)
+        ResetPvpTalents();
 
     // must be before inventory (some items required reputation check)
     m_reputationMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_REPUTATION));
