@@ -694,9 +694,7 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
         return;
     }
 
-    if (Creature* creAttacker = ToCreature())
-        if (creAttacker->HasScalableLevels())
-            damage *= creAttacker->GetDamageMultiplierForTarget(victim);
+    damage *= GetDamageMultiplierForTarget(victim);
 }
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
@@ -844,9 +842,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             victim->ToCreature()->LowerPlayerDamageReq(health < damage ?  health : damage);
     }
 
-    if (Creature* creVictim = victim->ToCreature())
-        if (creVictim->HasScalableLevels())
-            damage /= creVictim->GetHealthMultiplierForTarget(this);
+    damage /= victim->GetHealthMultiplierForTarget(this);
 
     if (health <= damage)
     {
@@ -1563,8 +1559,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 d
 {
     float armor = float(victim->GetArmor());
 
-    if (victim->IsCreature())
-        armor *= victim->ToCreature()->GetArmorMultiplierForTarget(attacker);
+    armor *= victim->GetArmorMultiplierForTarget(attacker);
 
     // bypass enemy armor by SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
     int32 armorBypassPct = 0;

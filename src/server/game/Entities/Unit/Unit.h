@@ -1121,6 +1121,10 @@ class TC_GAME_API Unit : public WorldObject
         int64 ModifyHealth(int64 val);
         int64 GetHealthGain(int64 dVal);
 
+        virtual float GetHealthMultiplierForTarget(WorldObject const* target) const { return 1.0f; }
+        virtual float GetDamageMultiplierForTarget(WorldObject const* target) const { return 1.0f; }
+        virtual float GetArmorMultiplierForTarget(WorldObject const* target) const { return 1.0f; }
+
         Powers getPowerType() const { return Powers(GetUInt32Value(UNIT_FIELD_DISPLAY_POWER)); }
         void setPowerType(Powers power);
         void UpdateDisplayPower();
