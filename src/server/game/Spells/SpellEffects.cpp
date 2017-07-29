@@ -139,7 +139,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectThreat,                                   // 63 SPELL_EFFECT_THREAT
     &Spell::EffectTriggerSpell,                             // 64 SPELL_EFFECT_TRIGGER_SPELL
     &Spell::EffectApplyAreaAura,                            // 65 SPELL_EFFECT_APPLY_AREA_AURA_RAID
-    &Spell::EffectRechargeManaGem,                          // 66 SPELL_EFFECT_CREATE_MANA_GEM          (possibly recharge it, misc - is item ID)
+    &Spell::EffectRechargeItem,                             // 66 SPELL_EFFECT_RECHARGE_ITEM
     &Spell::EffectHealMaxHealth,                            // 67 SPELL_EFFECT_HEAL_MAX_HEALTH
     &Spell::EffectInterruptCast,                            // 68 SPELL_EFFECT_INTERRUPT_CAST
     &Spell::EffectDistract,                                 // 69 SPELL_EFFECT_DISTRACT
@@ -5481,35 +5481,24 @@ void Spell::EffectCastButtons(SpellEffIndex /*effIndex*/)
     }
 }
 
-void Spell::EffectRechargeManaGem(SpellEffIndex /*effIndex*/)
+void Spell::EffectRechargeItem(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!unitTarget)
         return;
 
-    Player* player = m_caster->ToPlayer();
-
+    Player* player = unitTarget->ToPlayer();
     if (!player)
         return;
-    if (SpellEffectInfo const* effect = GetEffect(EFFECT_0))
+
+    if (Item* item = player->GetItemByEntry(effectInfo->ItemType))
     {
-        uint32 item_id = effect->ItemType;
-
-        ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item_id);
-        if (!pProto)
-        {
-            player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
-            return;
-        }
-
-        if (Item* pItem = player->GetItemByEntry(item_id))
-        {
-            for (size_t x = 0; x < pProto->Effects.size() && x < 5; ++x)
-                pItem->SetSpellCharges(x, pProto->Effects[x]->Charges);
-            pItem->SetState(ITEM_CHANGED, player);
-        }
+        ItemTemplate const* proto = item->GetTemplate();
+        for (size_t x = 0; x < proto->Effects.size() && x < 5; ++x)
+            item->SetSpellCharges(x, proto->Effects[x]->Charges);
+        item->SetState(ITEM_CHANGED, player);
     }
 }
 
