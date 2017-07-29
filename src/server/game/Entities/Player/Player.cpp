@@ -26251,6 +26251,9 @@ void Player::EnablePvpRules(bool dueToCombat /*= false*/)
     if (HasPvpRulesEnabled())
         return;
 
+    if (!HasSpell(195710)) // Honorable Medallion
+        CastSpell(this, 208682); // Learn Gladiator's Medallion
+
     CastSpell(this, SPELL_PVP_RULES_ENABLED);
     if (!dueToCombat)
     {
