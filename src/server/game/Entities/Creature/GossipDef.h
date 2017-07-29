@@ -241,7 +241,7 @@ class InteractionData
 
         void Reset()
         {
-            SourceGuid = ObjectGuid::Empty;
+            SourceGuid.Clear();
             TrainerId = 0;
         }
 
