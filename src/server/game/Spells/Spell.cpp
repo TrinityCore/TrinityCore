@@ -6544,18 +6544,18 @@ SpellCastResult Spell::CheckItems()
                 }
                 break;
             }
-            case SPELL_EFFECT_CREATE_MANA_GEM:
+            case SPELL_EFFECT_RECHARGE_ITEM:
             {
-                 uint32 item_id = effect->ItemType;
-                 ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item_id);
+                 uint32 itemId = effect->ItemType;
 
-                 if (!pProto)
+                 ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
+                 if (!proto)
                      return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
 
-                 if (Item* pitem = player->GetItemByEntry(item_id))
+                 if (Item* item = player->GetItemByEntry(itemId))
                  {
-                     for (uint8 x = 0; x < pProto->Effects.size() && x < 5; ++x)
-                         if (pProto->Effects[x]->Charges != 0 && pitem->GetSpellCharges(x) == pProto->Effects[x]->Charges)
+                     for (uint8 x = 0; x < proto->Effects.size() && x < 5; ++x)
+                         if (proto->Effects[x]->Charges != 0 && item->GetSpellCharges(x) == proto->Effects[x]->Charges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
                  break;
