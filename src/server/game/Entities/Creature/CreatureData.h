@@ -19,13 +19,13 @@
 #define CreatureData_h__
 
 #include "DBCEnums.h"
+#include "Optional.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <cmath>
-#include "Optional.h"
 
 struct ItemTemplate;
 
