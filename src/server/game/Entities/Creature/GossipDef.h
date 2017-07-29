@@ -234,18 +234,18 @@ class TC_GAME_API QuestMenu
         QuestMenuItemList _questMenuItems;
 };
 
-class SelectionData
+class InteractionData
 {
     public:
-        SelectionData() { Reset(); }
+        InteractionData() { Reset(); }
 
         void Reset()
         {
-            SenderGuid = ObjectGuid::Empty;
+            SourceGuid = ObjectGuid::Empty;
             TrainerId = 0;
         }
 
-        ObjectGuid SenderGuid;
+        ObjectGuid SourceGuid;
         uint32 TrainerId;
 };
 
@@ -257,7 +257,7 @@ class TC_GAME_API PlayerMenu
 
         GossipMenu& GetGossipMenu() { return _gossipMenu; }
         QuestMenu& GetQuestMenu() { return _questMenu; }
-        SelectionData& GetSelectionData() { return _selectionData; }
+        InteractionData& GetInteractionData() { return _interactionData; }
 
         bool Empty() const { return _gossipMenu.Empty() && _questMenu.Empty(); }
 
@@ -289,6 +289,6 @@ class TC_GAME_API PlayerMenu
         GossipMenu _gossipMenu;
         QuestMenu  _questMenu;
         WorldSession* _session;
-        SelectionData _selectionData;
+        InteractionData _interactionData;
 };
 #endif

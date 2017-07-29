@@ -206,8 +206,8 @@ void PlayerMenu::ClearMenus()
 
 void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
 {
-    _selectionData.Reset();
-    _selectionData.SenderGuid = objectGUID;
+    _interactionData.Reset();
+    _interactionData.SourceGuid = objectGUID;
 
     WorldPackets::NPC::GossipMessage packet;
     packet.GossipGUID = objectGUID;
@@ -269,7 +269,7 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
 
 void PlayerMenu::SendCloseGossip()
 {
-    _selectionData.Reset();
+    _interactionData.Reset();
 
     WorldPackets::NPC::GossipComplete packet;
     _session->SendPacket(packet.Write());
