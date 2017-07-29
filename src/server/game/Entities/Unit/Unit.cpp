@@ -691,7 +691,10 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
         if (absorb)
             *absorb += damage;
         damage = 0;
+        return;
     }
+
+    damage *= GetDamageMultiplierForTarget(victim);
 }
 
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
@@ -838,6 +841,8 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (IsControlledByPlayer())
             victim->ToCreature()->LowerPlayerDamageReq(health < damage ?  health : damage);
     }
+
+    damage /= victim->GetHealthMultiplierForTarget(this);
 
     if (health <= damage)
     {
@@ -1443,7 +1448,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 
         // there is a newbie protection, at level 10 just 7% base chance; assuming linear function
         if (victim->getLevel() < 30)
-            Probability = 0.65f * victim->getLevel() + 0.5f;
+            Probability = 0.65f * victim->GetLevelForTarget(this) + 0.5f;
 
         uint32 VictimDefense = victim->GetMaxSkillValueForLevel(this);
         uint32 AttackerMeleeSkill = GetMaxSkillValueForLevel();
@@ -1554,6 +1559,8 @@ uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 d
 {
     float armor = float(victim->GetArmor());
 
+    armor *= victim->GetArmorMultiplierForTarget(attacker);
+
     // bypass enemy armor by SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
     int32 armorBypassPct = 0;
     AuraEffectList const & reductionAuras = victim->GetAuraEffectsByType(SPELL_AURA_BYPASS_ARMOR_FOR_CASTER);
@@ -1580,10 +1587,10 @@ uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 d
     if (GetTypeId() == TYPEID_PLAYER)
     {
         float maxArmorPen = 0;
-        if (victim->getLevel() < 60)
-            maxArmorPen = float(400 + 85 * victim->getLevel());
+        if (victim->GetLevelForTarget(attacker) < 60)
+            maxArmorPen = float(400 + 85 * victim->GetLevelForTarget(attacker));
         else
-            maxArmorPen = 400 + 85 * victim->getLevel() + 4.5f * 85 * (victim->getLevel() - 59);
+            maxArmorPen = 400 + 85 * victim->GetLevelForTarget(attacker) + 4.5f * 85 * (victim->GetLevelForTarget(attacker) - 59);
 
         // Cap armor penetration to this number
         maxArmorPen = std::min((armor + maxArmorPen) / 3, armor);
@@ -1621,7 +1628,7 @@ uint32 Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, Spell
     uint8 const bossLevel = 83;
     uint32 const bossResistanceConstant = 510;
     uint32 resistanceConstant = 0;
-    uint8 level = victim->getLevel();
+    uint8 level = victim->GetLevelForTarget(this);
 
     if (level == bossLevel)
         resistanceConstant = bossResistanceConstant;
@@ -2066,8 +2073,8 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     int32    sum = 0, tmp = 0;
     int32    roll = urand(0, 9999);
 
-    int32 attackerLevel = getLevelForTarget(victim);
-    int32 victimLevel = getLevelForTarget(this);
+    int32 attackerLevel = GetLevelForTarget(victim);
+    int32 victimLevel = GetLevelForTarget(this);
 
     // check if attack comes from behind, nobody can parry or block if attacker is behind
     bool canParryOrBlock = victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION);
@@ -2470,10 +2477,10 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     SpellSchoolMask schoolMask = spellInfo->GetSchoolMask();
     // PvP - PvE spell misschances per leveldif > 2
     int32 lchance = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
-    int32 thisLevel = getLevelForTarget(victim);
+    int32 thisLevel = GetLevelForTarget(victim);
     if (GetTypeId() == TYPEID_UNIT && ToCreature()->IsTrigger())
         thisLevel = std::max<int32>(thisLevel, spellInfo->SpellLevel);
-    int32 leveldif = int32(victim->getLevelForTarget(this)) - thisLevel;
+    int32 leveldif = int32(victim->GetLevelForTarget(this)) - thisLevel;
     int32 levelBasedHitDiff = leveldif;
 
     // Base hit chance from attacker and victim levels
@@ -2601,7 +2608,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, boo
 
 float Unit::GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) const
 {
-    int32 const levelDiff = victim->getLevelForTarget(this) - getLevelForTarget(victim);
+    int32 const levelDiff = victim->GetLevelForTarget(this) - GetLevelForTarget(victim);
 
     float chance = 0.0f;
     float levelBonus = 0.0f;
@@ -2637,7 +2644,7 @@ float Unit::GetUnitDodgeChance(WeaponAttackType attType, Unit const* victim) con
 
 float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) const
 {
-    int32 const levelDiff = victim->getLevelForTarget(this) - getLevelForTarget(victim);
+    int32 const levelDiff = victim->GetLevelForTarget(this) - GetLevelForTarget(victim);
 
     float chance = 0.0f;
     float levelBonus = 0.0f;
@@ -2686,7 +2693,7 @@ float Unit::GetUnitMissChance(WeaponAttackType attType) const
 
 float Unit::GetUnitBlockChance(WeaponAttackType /*attType*/, Unit const* victim) const
 {
-    int32 const levelDiff = victim->getLevelForTarget(this) - getLevelForTarget(victim);
+    int32 const levelDiff = victim->GetLevelForTarget(this) - GetLevelForTarget(victim);
 
     float chance = 0.0f;
     float levelBonus = 0.0f;
@@ -5052,6 +5059,11 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
     packet.Absorbed = log->absorb;
     packet.Periodic = log->periodicLog;
     packet.Flags = log->HitInfo;
+
+    WorldPackets::Spells::SandboxScalingData sandboxScalingData;
+    if (sandboxScalingData.GenerateDataForUnits(log->attacker, log->target))
+        packet.SandboxScaling = sandboxScalingData;
+
     SendCombatLogMessage(&packet);
 }
 
@@ -5085,6 +5097,11 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
     spellLogEffect.Resisted = info->resist;
     spellLogEffect.Crit = info->critical;
     /// @todo: implement debug info
+
+    WorldPackets::Spells::SandboxScalingData sandboxScalingData;
+    if (Unit* caster = ObjectAccessor::GetUnit(*this, aura->GetCasterGUID()))
+        if (sandboxScalingData.GenerateDataForUnits(caster, this))
+            spellLogEffect.SandboxScaling = sandboxScalingData;
 
     data.Effects.push_back(spellLogEffect);
 
@@ -5140,6 +5157,10 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     packet.BlockAmount = damageInfo->blocked_amount;
 
     packet.LogData.Initialize(damageInfo->attacker);
+
+    WorldPackets::Spells::SandboxScalingData sandboxScalingData;
+    if (sandboxScalingData.GenerateDataForUnits(damageInfo->attacker, damageInfo->target))
+        packet.SandboxScaling = sandboxScalingData;
 
     SendCombatLogMessage(&packet);
 }
@@ -11327,7 +11348,7 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
         return NULL;
     }
 
-    uint8 level = creatureTarget->getLevel() + 5 < getLevel() ? (getLevel() - 5) : creatureTarget->getLevel();
+    uint8 level = creatureTarget->GetLevelForTarget(this) + 5 < getLevel() ? (getLevel() - 5) : creatureTarget->GetLevelForTarget(this);
 
     InitTamedPet(pet, level, spell_id);
 
