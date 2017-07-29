@@ -272,11 +272,15 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         if (msg.empty())
             return;
 
-        if (ChatHandler(this).ParseCommands(msg.c_str()))
-            return;
-
+        if (lang == LANG_ADDON)
+        {
+            if (AddonChannelCommandHandler(this).ParseCommands(msg.c_str()))
+                return;
+        }
         if (lang != LANG_ADDON)
         {
+            if (ChatHandler(this).ParseCommands(msg.c_str()))
+                return;
             // Strip invisible characters for non-addon messages
             if (sWorld->getBoolConfig(CONFIG_CHAT_FAKE_MESSAGE_PREVENTING))
                 stripLineInvisibleChars(msg);
