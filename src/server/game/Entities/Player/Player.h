@@ -242,14 +242,6 @@ typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
 
 typedef std::unordered_map<uint32 /*instanceId*/, time_t/*releaseTime*/> InstanceTimeMap;
 
-enum TrainerSpellState
-{
-    TRAINER_SPELL_GRAY  = 0,
-    TRAINER_SPELL_GREEN = 1,
-    TRAINER_SPELL_RED   = 2,
-    TRAINER_SPELL_GREEN_DISABLED = 10                       // custom value, not send to client: formally green but learn not allowed
-};
-
 enum ActionButtonUpdateState
 {
     ACTIONBUTTON_UNCHANGED = 0,
@@ -1506,7 +1498,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetBindPoint(ObjectGuid guid) const;
         void SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost) const;
-        void ResetPetTalents();
         void RegenerateAll();
         void Regenerate(Powers power);
         void RegenerateHealth();
@@ -1576,7 +1567,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool HasSpell(uint32 spell) const override;
         bool HasActiveSpell(uint32 spell) const;            // show in spellbook
         SpellInfo const* GetCastSpellInfo(SpellInfo const* spellInfo) const override;
-        TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace(uint32 spell_id) const;
         bool IsNeedCastPassiveSpellAtLearn(SpellInfo const* spellInfo) const;
         bool IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const;
@@ -1852,10 +1842,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdatePosition(const Position &pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z) override;
 
-        void SendMessageToSet(WorldPacket const* data, bool self) override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
-        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) override;
-        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only);
-        void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) override;
+        void SendMessageToSet(WorldPacket const* data, bool self) const override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const override;
+        void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only) const;
+        void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) const override;
 
         Corpse* GetCorpse() const;
         void SpawnCorpseBones(bool triggerSave = true);
@@ -2347,6 +2337,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
 
+        uint32 GetCurrentTrainerId() const { return _currentTrainerId; }
+        void SetCurrentTrainerId(uint32 trainerId) { _currentTrainerId = trainerId; }
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2698,6 +2690,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void _InitHonorLevelOnLoadFromDB(uint32 /*honor*/, uint32 /*honorLevel*/, uint32 /*prestigeLevel*/);
         std::unique_ptr<RestMgr> _restMgr;
+
+        uint32 _currentTrainerId;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

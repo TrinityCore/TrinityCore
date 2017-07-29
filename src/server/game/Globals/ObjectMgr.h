@@ -31,6 +31,7 @@
 #include "Position.h"
 #include "QuestDef.h"
 #include "SharedDefines.h"
+#include "Trainer.h"
 #include "VehicleDefines.h"
 #include <map>
 #include <unordered_map>
@@ -662,6 +663,7 @@ struct GossipMenuItems
     uint32          BoxMoney;
     std::string     BoxText;
     uint32          BoxBroadcastTextId;
+    uint32          TrainerId;
     ConditionContainer   Conditions;
 };
 
@@ -737,7 +739,6 @@ typedef std::pair<GraveYardContainer::const_iterator, GraveYardContainer::const_
 typedef std::pair<GraveYardContainer::iterator, GraveYardContainer::iterator> GraveYardMapBoundsNonConst;
 
 typedef std::unordered_map<uint32, VendorItemData> CacheVendorItemContainer;
-typedef std::unordered_map<uint32, TrainerSpellData> CacheTrainerSpellContainer;
 
 typedef std::unordered_map<uint32, std::string> RealmNameContainer;
 
@@ -1163,8 +1164,7 @@ class TC_GAME_API ObjectMgr
         void LoadGossipMenuItems();
 
         void LoadVendors();
-        void LoadTrainerSpell();
-        void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel, uint32 Index);
+        void LoadTrainers();
 
         void LoadTerrainPhaseInfo();
         void LoadTerrainSwapDefaults();
@@ -1377,14 +1377,7 @@ class TC_GAME_API ObjectMgr
         bool AddGameTele(GameTele& data);
         bool DeleteGameTele(std::string const& name);
 
-        TrainerSpellData const* GetNpcTrainerSpells(uint32 entry) const
-        {
-            CacheTrainerSpellContainer::const_iterator  iter = _cacheTrainerSpellStore.find(entry);
-            if (iter == _cacheTrainerSpellStore.end())
-                return nullptr;
-
-            return &iter->second;
-        }
+        Trainer::Trainer const* GetTrainer(uint32 trainerId) const;
 
         VendorItemData const* GetNpcVendorItemList(uint32 entry) const
         {
@@ -1664,7 +1657,7 @@ class TC_GAME_API ObjectMgr
         TrinityStringContainer _trinityStringStore;
 
         CacheVendorItemContainer _cacheVendorItemStore;
-        CacheTrainerSpellContainer _cacheTrainerSpellStore;
+        std::unordered_map<uint32, Trainer::Trainer> _trainers;
 
         std::set<uint32> _difficultyEntries[MAX_CREATURE_DIFFICULTIES]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> _hasDifficultyEntries[MAX_CREATURE_DIFFICULTIES]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
