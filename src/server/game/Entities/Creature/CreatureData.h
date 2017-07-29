@@ -19,6 +19,7 @@
 #define CreatureData_h__
 
 #include "DBCEnums.h"
+#include "Optional.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
 #include <string>
@@ -291,6 +292,13 @@ const uint32 MAX_CREATURE_NAMES = 4;
 const uint32 MAX_CREATURE_SPELLS = 8;
 const uint32 MAX_CREATURE_DIFFICULTIES = 3;
 
+struct CreatureLevelScaling
+{
+    uint16 MinLevel;
+    uint16 MaxLevel;
+    int16 DeltaLevel;
+};
+
 // from `creature_template` table
 struct TC_GAME_API CreatureTemplate
 {
@@ -308,6 +316,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GossipMenuId;
     int16   minlevel;
     int16   maxlevel;
+    Optional<CreatureLevelScaling> levelScaling;
     int32   HealthScalingExpansion;
     uint32  RequiredExpansion;
     uint32  VignetteID;                                     /// @todo Read Vignette.db2
