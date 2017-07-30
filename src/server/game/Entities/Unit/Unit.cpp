@@ -1603,7 +1603,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 d
     if (G3D::fuzzyLe(armor, 0.0f))
         return damage;
 
-    uint8 attackerLevel = attacker->getLevel();
+    uint8 attackerLevel = attacker->GetLevelForTarget(victim);
     if (attackerLevel > sArmorMitigationByLvlGameTable.GetTableRowCount())
         attackerLevel = sArmorMitigationByLvlGameTable.GetTableRowCount();
 
