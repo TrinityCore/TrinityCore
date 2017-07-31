@@ -117,6 +117,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
     }
 
     if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT) ||
+        GetBase()->HasEffectType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN) ||
         GetBase()->HasEffectType(SPELL_AURA_MOD_MAX_CHARGES) ||
         GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD) ||
         GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER))
