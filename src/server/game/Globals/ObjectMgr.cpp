@@ -8563,13 +8563,15 @@ void ObjectMgr::LoadTrainers()
             if (!allReqValid)
                 continue;
 
+            spell.LearnedSpellId = spell.SpellId;
             for (SpellEffectInfo const* spellEffect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
             {
-                if (spellEffect->IsEffect(SPELL_EFFECT_LEARN_SPELL))
+                if (spellEffect && spellEffect->IsEffect(SPELL_EFFECT_LEARN_SPELL))
                 {
-                    spell.CastSpellId = spell.SpellId;
-                    spell.SpellId = spellEffect->TriggerSpell;
-                    break;
+                    ASSERT(spell.LearnedSpellId == spell.SpellId,
+                        "Only one learned spell is currently supported - spell %u already teaches %u but it tried to overwrite it with %u",
+                        spell.SpellId, spell.LearnedSpellId, spellEffect->TriggerSpell);
+                    spell.LearnedSpellId = spellEffect->TriggerSpell;
                 }
             }
 
