@@ -38,16 +38,24 @@ class WorldPacket;
 
 struct GameTele;
 
+enum ChatCommandModes
+{
+    CHATCOMMAND_MODE_NONE    = 0x00,
+    CHATCOMMAND_MODE_CONSOLE = 0x01,
+    CHATCOMMAND_MODE_CHAT    = 0x02,
+    CHATCOMMAND_MODE_ADDON   = 0x04
+};
 class TC_GAME_API ChatCommand
 {
     typedef bool(*pHandler)(ChatHandler*, char const*);
 
     public:
-        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>());
+        ChatCommand(char const* name, uint32 permission, uint32 modes, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>());
+        ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands = std::vector<ChatCommand>()) : ChatCommand(name, permission, uint32((allowConsole ? CHATCOMMAND_MODE_CONSOLE : 0) | CHATCOMMAND_MODE_CHAT | CHATCOMMAND_MODE_ADDON), handler, help, childCommands) { }
 
         char const* Name;
         uint32 Permission;                   // function pointer required correct align (use uint32)
-        bool AllowConsole;
+        uint32 Modes;
         pHandler Handler;
         std::string Help;
         std::vector<ChatCommand> ChildCommands;
@@ -240,6 +248,7 @@ class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
         bool ParseCommands(char const* str) override;
         void _SendSysMessage(char const* str, bool escapeCharacters) override;
         using ChatHandler::SendSysMessage;
+        bool isAvailable(ChatCommand const& cmd) const override;
         bool IsHumanReadable() const override { return humanReadable; }
 
     private:

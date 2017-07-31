@@ -35,8 +35,8 @@
 #include "World.h"
 #include <boost/algorithm/string/replace.hpp>
 
-ChatCommand::ChatCommand(char const* name, uint32 permission, bool allowConsole, pHandler handler, std::string help, std::vector<ChatCommand> childCommands /*= std::vector<ChatCommand>()*/)
-    : Name(ASSERT_NOTNULL(name)), Permission(permission), AllowConsole(allowConsole), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands))
+ChatCommand::ChatCommand(char const* name, uint32 permission, uint32 modes, pHandler handler, std::string help, std::vector<ChatCommand> childCommands /*= std::vector<ChatCommand>()*/)
+    : Name(ASSERT_NOTNULL(name)), Permission(permission), Modes(modes), Handler(handler), Help(std::move(help)), ChildCommands(std::move(childCommands))
 {
 }
 
@@ -84,7 +84,7 @@ char const* ChatHandler::GetTrinityString(uint32 entry) const
 
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
 {
-    return HasPermission(cmd.Permission);
+    return (cmd.Modes & CHATCOMMAND_MODE_CHAT) && HasPermission(cmd.Permission);
 }
 
 bool ChatHandler::HasPermission(uint32 permission) const
@@ -1226,7 +1226,7 @@ char const* CliHandler::GetTrinityString(uint32 entry) const
 bool CliHandler::isAvailable(ChatCommand const& cmd) const
 {
     // skip non-console commands in console case
-    return cmd.AllowConsole;
+    return (cmd.Modes & CHATCOMMAND_MODE_CONSOLE) != 0;
 }
 
 void CliHandler::_SendSysMessage(const char *str, bool /*escapeCharacters*/)
@@ -1348,6 +1348,14 @@ bool AddonChannelCommandHandler::ParseCommands(char const* str)
         default:
             return false;
     }
+}
+
+bool AddonChannelCommandHandler::isAvailable(ChatCommand const& cmd) const
+{
+    if (humanReadable)
+        return ChatHandler::isAvailable(cmd);
+    else
+        return (cmd.Modes & CHATCOMMAND_MODE_ADDON) && HasPermission(cmd.Permission);
 }
 
 void AddonChannelCommandHandler::Send(std::string const& msg)
