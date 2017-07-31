@@ -31,6 +31,7 @@ EndScriptData */
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "World.h"
 
 enum Points
 {
