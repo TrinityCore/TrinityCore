@@ -74,7 +74,12 @@ class TC_GAME_API PathGenerator
 
         PathType GetPathType() const { return _type; }
 
-        void ReducePathLenghtByDist(float dist); // path must be already built
+        /*
+        Reduce the total length of the path by removing excess waypoints and cuting at the right distance
+        while making sure that the last point is in LoS with the target. If by the first cut, the new last point
+        isn't in LoS with the target, the cutted length will be smaller than "dist".
+        */
+        void ReducePathLenghtByDist(float dist, Unit* target); // path must be already built
 
     private:
 
@@ -133,6 +138,10 @@ class TC_GAME_API PathGenerator
         dtStatus FindSmoothPath(float const* startPos, float const* endPos,
                               dtPolyRef const* polyPath, uint32 polyPathSize,
                               float* smoothPath, int* smoothPathSize, uint32 smoothPathMaxSize);
+
+        bool IsValidFinalPoint(const G3D::Vector3 finalPoint, Unit* target, float dist) const;
+        uint32 SearchForFirstValidPoint(int startAtIndex, Unit* target, float dist) const;
+        void CutAtFirstValidPoint(int startAtIndex, Unit* target, float dist);
 };
 
 #endif

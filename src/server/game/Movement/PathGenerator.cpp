@@ -904,7 +904,7 @@ float PathGenerator::Dist3DSqr(G3D::Vector3 const& p1, G3D::Vector3 const& p2) c
     return (p1 - p2).squaredLength();
 }
 
-void PathGenerator::ReducePathLenghtByDist(float dist)
+void PathGenerator::ReducePathLenghtByDist(const float dist, Unit* target)
 {
     if (GetPathType() == PATHFIND_BLANK)
     {
@@ -915,35 +915,121 @@ void PathGenerator::ReducePathLenghtByDist(float dist)
     if (_pathPoints.size() < 2) // path building failure
         return;
 
-    uint32 i = _pathPoints.size();
-    G3D::Vector3 nextVec = _pathPoints[--i];
-    while (i > 0)
+    /*
+    evolution of idx:
+     x---->x---->x---->X
+     0     1     2     3
+                idx   idx+1
+          idx  idx+1
+    idx  idx+1
+    ---------------------------
+    diffVec when idx==1 in example above:
+            ---->
+    */
+    int idx = _pathPoints.size() - 2;
+    float totalLengthSoFar = 0.0f;
+    G3D::Vector3 diffVec;
+    for ( ; idx >= 0; idx--)
     {
-        G3D::Vector3 currVec = _pathPoints[--i];
-        G3D::Vector3 diffVec = (nextVec - currVec);
-        float len = diffVec.length();
-        if (len > dist)
-        {
-            float step = dist / len;
-            // same as nextVec
-            _pathPoints[i + 1] -= diffVec * step;
-            _sourceUnit->UpdateAllowedPositionZ(_pathPoints[i + 1].x, _pathPoints[i + 1].y, _pathPoints[i + 1].z);
-            _pathPoints.resize(i + 2);
+        diffVec = _pathPoints[idx + 1] - _pathPoints[idx];
+        totalLengthSoFar += diffVec.length();
+        if (totalLengthSoFar >= dist)
             break;
+    }
+
+    if (totalLengthSoFar > dist)
+    {
+        float delta = totalLengthSoFar - dist;
+        G3D::Vector3 newFinalPoint = _pathPoints[idx] + diffVec.unit() * delta;
+        _sourceUnit->UpdateAllowedPositionZ(newFinalPoint.x, newFinalPoint.y, newFinalPoint.z);
+
+        /*
+        3 potential problems could have occured up until this point:
+        1) the "actual end position" (closest position to the target found by the PathGen) could be not exactly on the target.
+        Which means the distance from the target to the last point of the path BEFORE THE CUT could be > 0
+        and add into that the cutted distance and this can result in the target being further away than dist to the 
+        path's end position AFTER CUT.
+        2) AFTER THE CUT, the Z of the new last point is normalized 
+        (to make sure our point is on the ground in case non flying/swimming unit).
+        This means the distance from the target to the path's last point AFTER CUT can be higher than dist.
+        3) The path's last point AFTER CUT can be out of LoS from the target.
+
+        We need to make sure that in ANY case: 
+        a) the last point after cut is at MAX at "dist" yards from the target + marginal error factor (0.5f)
+        b) the last point after cut is in LoS of the target
+
+        In order to do that, we iterate on the points of the path starting by the point on idx+1 and we cut the path at the first
+        point that is both in LoS and in range.
+        Worst case scenario, we use the last position, which should be close (if not equal) to the target position.
+        */
+        if (IsValidFinalPoint(newFinalPoint, target, dist))
+        {
+            _pathPoints[idx + 1] = newFinalPoint;
+            _pathPoints.resize(idx + 2);
         }
-        else if (i == 0) // at second point
+        else
+        {
+            CutAtFirstValidPoint(idx + 1, target, dist);
+        }
+    }
+    else if (totalLengthSoFar == dist && idx > 0)
+    {
+        if (IsValidFinalPoint(_pathPoints[idx], target, dist))
+        {
+            _pathPoints.resize(idx + 1);
+        }
+        else
+        {
+            CutAtFirstValidPoint(idx + 1, target, dist);
+        }
+    }
+    else
+    {
+        // if initial position is "valid", no need to move
+        if (IsValidFinalPoint(_pathPoints[0], target, dist))
         {
             _pathPoints[1] = _pathPoints[0];
             _pathPoints.resize(2);
-            break;
         }
-
-        dist -= len;
-        nextVec = currVec; // we're going backwards
+        else
+        {
+            CutAtFirstValidPoint(1, target, dist);
+        }
     }
 }
 
 bool PathGenerator::IsInvalidDestinationZ(Unit const* target) const
 {
     return (target->GetPositionZ() - GetActualEndPosition().z) > 5.0f;
+}
+
+bool PathGenerator::IsValidFinalPoint(const G3D::Vector3 finalPoint, Unit* target, float dist) const
+{
+    return target->GetExactDist(finalPoint.x, finalPoint.y, finalPoint.z) <= dist + 0.5f
+        && target->IsWithinLOS(finalPoint.x, finalPoint.y, finalPoint.z);
+}
+
+uint32 PathGenerator::SearchForFirstValidPoint(int startAtIndex, Unit* target, float dist) const
+{
+    uint32 index = startAtIndex;
+    for ( ; index < _pathPoints.size() ; index++)
+    {
+        if (IsValidFinalPoint(_pathPoints[index], target, dist))
+            break;
+    }
+    return index;
+}
+
+void PathGenerator::CutAtFirstValidPoint(int startAtIndex, Unit* target, float dist)
+{
+    // directly test the last point in order to avoid iterating over all points in case of unreachable target
+    if (!IsValidFinalPoint(_pathPoints[_pathPoints.size() - 1], target, dist))
+    {
+        // even the last position of the generated path, which should be close if not on top of the target, was not good enough. we mark the path as unusable.
+        _type = PATHFIND_NOPATH;
+        return;
+    }
+
+    uint32 indexToCutAt = SearchForFirstValidPoint(startAtIndex, target, dist); // should never return "_pathPoints.size" because of the check done above
+    _pathPoints.resize(indexToCutAt + 1);
 }

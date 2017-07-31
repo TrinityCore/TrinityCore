@@ -132,7 +132,9 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
             if (GetTarget()->IsWithinDistInMap(owner, CONTACT_DISTANCE))
                 return;
 
-            GetTarget()->GetContactPoint(owner, x, y, z);
+            x = GetTarget()->GetPositionX();
+            y = GetTarget()->GetPositionY();
+            z = GetTarget()->GetPositionZ();
         }
         else
         {
@@ -167,6 +169,16 @@ void TargetedMovementGenerator<T, D>::SetTargetLocation(T* owner, bool updateDes
     bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsPet() && owner->HasUnitState(UNIT_STATE_FOLLOW));
 
     bool result = _path->CalculatePath(x, y, z, forceDest);
+
+    float distFromTarget;
+    if(!_offset)
+        distFromTarget = owner->GetCombatReach() + GetTarget()->GetCombatReach() + CONTACT_DISTANCE;
+    else if(owner->IsPet() && GetTarget()->GetTypeId() == TYPEID_PLAYER) // special case for offset != 0 and pets. cf above
+        distFromTarget = 1.0f + GetTarget()->GetCombatReach() + _offset;
+    else
+        distFromTarget = owner->GetCombatReach() + GetTarget()->GetCombatReach() + _offset;
+
+    _path->ReducePathLenghtByDist(distFromTarget, GetTarget()->ToUnit());
     if (!result || (_path->GetPathType() & PATHFIND_NOPATH))
     {
         // can't reach target
