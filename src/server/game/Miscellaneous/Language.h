@@ -28,6 +28,9 @@ enum BroadcastTextIds
 
 enum TrinityStrings
 {
+    // reserved, do not use
+    LANG_NONE                           = 0,
+
     // for chat commands
     LANG_SELECT_CHAR_OR_CREATURE        = 1,
     LANG_SELECT_CREATURE                = 2,

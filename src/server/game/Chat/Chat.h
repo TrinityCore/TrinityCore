@@ -20,6 +20,7 @@
 #define TRINITYCORE_CHAT_H
 
 #include "Common.h"
+#include "Language.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include "StringFormat.h"
@@ -71,9 +72,23 @@ class TC_GAME_API ChatHandler
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
-        virtual void SendSysMessage(char const* str, bool escapeCharacters = false);
+        virtual void _SendSysMessage(char const* str, bool escapeCharacters);
 
-        void SendSysMessage(uint32 entry);
+        void SendSysMessage(char const* str, bool escapeCharacters = false)
+        {
+            if (IsHumanReadable())
+                _SendSysMessage(str, escapeCharacters);
+            else
+                SendMessageData(LANG_NONE, fmt::arg("RawFormatString", str));
+        }
+
+        void SendSysMessage(uint32 entry)
+        {
+            if (IsHumanReadable())
+                SendSysMessage(GetTrinityString(entry));
+            else
+                SendMessageData(entry);
+        }
 
         template<typename... Args>
         void PSendSysMessage(char const* fmt, Args&&... args)
@@ -85,6 +100,40 @@ class TC_GAME_API ChatHandler
         void PSendSysMessage(uint32 entry, Args&&... args)
         {
             SendSysMessage(PGetParseString(entry, std::forward<Args>(args)...).c_str());
+        }
+
+        template <typename... Args>
+        void AppendMessageData(std::string& str, fmt::internal::NamedArg<char> arg, Args&&... other)
+        {
+            AppendMessageData(str, arg);
+            AppendMessageData(str, std::forward<Args>(other)...); // recurse to append the remaining args
+        }
+        void AppendMessageData(std::string& str, fmt::internal::NamedArg<char> arg);
+        void AppendMessageData(std::string& str) {}
+        template <typename... Args>
+        void SendMessageData(uint32 entry, Args&&... args)
+        {
+            std::string str = std::to_string(entry);
+            AppendMessageData(str, std::forward<Args>(args)...);
+            _SendSysMessage(str.c_str(), false);
+        }
+
+        template<typename... Args>
+        void SendSysMessageF(char const* fmt, Args&&... args)
+        {
+            if (IsHumanReadable())
+                SendSysMessage(fmt::format(fmt, std::forward<Args>(args)...).c_str());
+            else
+                SendMessageData(LANG_NONE, fmt::arg("RawFormatString", fmt), std::forward<Args>(args)...);
+        }
+
+        template<typename... Args>
+        void SendSysMessageF(uint32 entry, Args&&... args)
+        {
+            if (IsHumanReadable())
+                SendSysMessageF(GetTrinityString(entry), std::forward<Args>(args)...);
+            else
+                SendMessageData(entry, std::forward<Args>(args)...);
         }
 
         template<typename... Args>
@@ -172,7 +221,7 @@ class TC_GAME_API CliHandler : public ChatHandler
         char const* GetTrinityString(uint32 entry) const override;
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
-        void SendSysMessage(const char *str, bool escapeCharacters) override;
+        void _SendSysMessage(const char *str, bool escapeCharacters) override;
         bool ParseCommands(char const* str) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
@@ -189,7 +238,7 @@ class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
     public:
         using ChatHandler::ChatHandler;
         bool ParseCommands(char const* str) override;
-        void SendSysMessage(char const* str, bool escapeCharacters) override;
+        void _SendSysMessage(char const* str, bool escapeCharacters) override;
         using ChatHandler::SendSysMessage;
         bool IsHumanReadable() const override { return humanReadable; }
 

@@ -190,7 +190,7 @@ public:
                 secName = "<unknown>";
                 break;
         }
-        handler->PSendSysMessage("Player limits: amount %u, min. security level %s.", playerAmountLimit, secName);
+        handler->SendSysMessageF("Player limits: amount {playerAmountLimit}, min. security level {secName}.", FMTARG(playerAmountLimit), FMTARG(secName));
 
         return true;
     }

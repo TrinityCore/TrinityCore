@@ -21,6 +21,8 @@
 
 #include "fmt/format.h"
 
+#define FMTARG(v) fmt::arg(#v, v)
+
 namespace Trinity
 {
     /// Default TC string format function.

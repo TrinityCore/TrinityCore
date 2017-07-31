@@ -172,7 +172,7 @@ bool ChatHandler::hasStringAbbr(char const* name, char const* part)
     return true;
 }
 
-void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
+void ChatHandler::_SendSysMessage(const char *str, bool escapeCharacters)
 {
     WorldPacket data;
 
@@ -209,6 +209,14 @@ void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
     free(buf);
 }
 
+void ChatHandler::AppendMessageData(std::string& str, fmt::internal::NamedArg<char> arg)
+{
+    str.append(1, '\t').append(arg.name.to_string()).append(1, '\t');
+    std::string s = fmt::format("{}", arg);
+    boost::replace_all(s, "\t", "\t\t");
+    str.append(s);
+}
+
 void ChatHandler::SendGlobalSysMessage(const char *str)
 {
     // Chat output
@@ -243,11 +251,6 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
     }
 
     free(buf);
-}
-
-void ChatHandler::SendSysMessage(uint32 entry)
-{
-    SendSysMessage(GetTrinityString(entry));
 }
 
 bool ChatHandler::ExecuteCommandInTable(std::vector<ChatCommand> const& table, char const* text, std::string const& fullcmd)
@@ -1226,7 +1229,7 @@ bool CliHandler::isAvailable(ChatCommand const& cmd) const
     return cmd.AllowConsole;
 }
 
-void CliHandler::SendSysMessage(const char *str, bool /*escapeCharacters*/)
+void CliHandler::_SendSysMessage(const char *str, bool /*escapeCharacters*/)
 {
     m_print(m_callbackArg, str);
     m_print(m_callbackArg, "\r\n");
@@ -1383,7 +1386,7 @@ void AddonChannelCommandHandler::SendFailed() // f Command failed, no body
 }
 
 // m Command message, message in body
-void AddonChannelCommandHandler::SendSysMessage(char const* str, bool escapeCharacters)
+void AddonChannelCommandHandler::_SendSysMessage(char const* str, bool escapeCharacters)
 {
     ASSERT(echo);
     if (!hadAck)
