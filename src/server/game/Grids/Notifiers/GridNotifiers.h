@@ -552,6 +552,11 @@ namespace Trinity
             : ContainerInserter<Player*>(container),
               i_phaseMask(searcher->GetPhaseMask()), i_check(check) { }
 
+        template<typename Container>
+        PlayerListSearcher(uint32 phaseMask, Container& container, Check & check)
+            : ContainerInserter<Player*>(container),
+              i_phaseMask(phaseMask), i_check(check) { }
+
         void Visit(PlayerMapType &m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
@@ -1319,6 +1324,27 @@ namespace Trinity
             WorldObject const* _obj;
             float _range;
             bool _reqAlive;
+    };
+
+    class AnyPlayerInPositionRangeCheck
+    {
+    public:
+        AnyPlayerInPositionRangeCheck(Position const* pos, float range, bool reqAlive = true) : _pos(pos), _range(range), _reqAlive(reqAlive) { }
+        bool operator()(Player* u)
+        {
+            if (_reqAlive && !u->IsAlive())
+                return false;
+
+            if (!u->IsWithinDist3d(_pos, _range))
+                return false;
+
+            return true;
+        }
+
+    private:
+        Position const* _pos;
+        float _range;
+        bool _reqAlive;
     };
 
     class NearestPlayerInObjectRangeCheck
