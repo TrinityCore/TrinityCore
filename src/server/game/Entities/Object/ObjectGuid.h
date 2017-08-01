@@ -287,6 +287,7 @@ public:
 
 protected:
     static void HandleCounterOverflow(HighGuid high);
+    static void CheckGuidTrigger(ObjectGuid::LowType guid);
     ObjectGuid::LowType _nextGuid;
 };
 
@@ -300,6 +301,10 @@ public:
     {
         if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
             HandleCounterOverflow(high);
+
+        if (high == HighGuid::Unit || high == HighGuid::GameObject)
+            CheckGuidTrigger(_nextGuid);
+
         return _nextGuid++;
     }
 };
