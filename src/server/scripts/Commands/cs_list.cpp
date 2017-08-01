@@ -648,10 +648,7 @@ public:
     static bool HandleListSpawnPointsCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player const* player = handler->GetSession()->GetPlayer();
-        Map const* map = player->FindMap();
-        if (!map)
-            return false;
-
+        Map const* map = player->GetMap();
         uint32 const mapId = map->GetId();
         bool const showAll = map->IsBattlegroundOrArena() || map->IsDungeon();
         handler->PSendSysMessage("Listing all spawn points in map %u (%s)%s:", mapId, map->GetMapName(), showAll ? "" : " within 5000yd");
@@ -687,13 +684,8 @@ public:
     }
     static bool HandleListRespawnsCommand(ChatHandler* handler, char const* args)
     {
-        // We need a player
         Player const* player = handler->GetSession()->GetPlayer();
-        // And we need a map
-        Map const* map = player->FindMap();
-        if (!map)
-            return false;
-
+        Map const* map = player->GetMap();
         uint32 range = 0;
         if (*args)
             range = atoi((char*)args);
