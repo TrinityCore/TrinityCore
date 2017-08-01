@@ -48,13 +48,14 @@ public:
     {
         static std::vector<ChatCommand> listCommandTable =
         {
-            { "creature", rbac::RBAC_PERM_COMMAND_LIST_CREATURE, true, &HandleListCreatureCommand, "" },
-            { "item",     rbac::RBAC_PERM_COMMAND_LIST_ITEM,     true, &HandleListItemCommand,     "" },
-            { "object",   rbac::RBAC_PERM_COMMAND_LIST_OBJECT,   true, &HandleListObjectCommand,   "" },
-            { "auras",    rbac::RBAC_PERM_COMMAND_LIST_AURAS,   false, &HandleListAurasCommand,    "" },
-            { "mail",     rbac::RBAC_PERM_COMMAND_LIST_MAIL,     true, &HandleListMailCommand,     "" },
-            { "respawns", rbac::RBAC_PERM_COMMAND_LIST_MAIL,    false, &HandleListRespawnsCommand, "" },
-            { "scenes",   rbac::RBAC_PERM_COMMAND_LIST_SCENES,  false, &HandleListScenesCommand,   "" },
+            { "creature",    rbac::RBAC_PERM_COMMAND_LIST_CREATURE,    true,  &HandleListCreatureCommand,    "" },
+            { "item",        rbac::RBAC_PERM_COMMAND_LIST_ITEM,        true,  &HandleListItemCommand,        "" },
+            { "object",      rbac::RBAC_PERM_COMMAND_LIST_OBJECT,      true,  &HandleListObjectCommand,      "" },
+            { "auras",       rbac::RBAC_PERM_COMMAND_LIST_AURAS,       false, &HandleListAurasCommand,       "" },
+            { "mail",        rbac::RBAC_PERM_COMMAND_LIST_MAIL,        true,  &HandleListMailCommand,        "" },
+            { "spawnpoints", rbac::RBAC_PERM_COMMAND_LIST_SPAWNPOINTS, false, &HandleListSpawnPointsCommand, "" },
+            { "respawns",    rbac::RBAC_PERM_COMMAND_LIST_RESPAWNS,    false, &HandleListRespawnsCommand,    "" },
+            { "scenes",      rbac::RBAC_PERM_COMMAND_LIST_SCENES,      false, &HandleListScenesCommand,      "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -645,6 +646,38 @@ public:
         return true;
     }
 
+    static bool HandleListSpawnPointsCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        Player const* player = handler->GetSession()->GetPlayer();
+        Map const* map = player->GetMap();
+        uint32 const mapId = map->GetId();
+        bool const showAll = map->IsBattlegroundOrArena() || map->IsDungeon();
+        handler->PSendSysMessage("Listing all spawn points in map %u (%s)%s:", mapId, map->GetMapName(), showAll ? "" : " within 5000yd");
+        for (auto const& pair : sObjectMgr->GetAllCreatureData())
+        {
+            SpawnData const& data = pair.second;
+            if (data.spawnPoint.GetMapId() != mapId)
+                continue;
+            CreatureTemplate const* cTemp = sObjectMgr->GetCreatureTemplate(data.id);
+            if (!cTemp)
+                continue;
+            if (showAll || data.spawnPoint.IsInDist2d(player, 5000.0))
+                handler->PSendSysMessage("Type: %u | SpawnId: " UI64FMTD " | Entry: %u (%s) | X: %.3f | Y: %.3f | Z: %.3f", uint32(data.type), data.spawnId, data.id, cTemp->Name.c_str(), data.spawnPoint.GetPositionX(), data.spawnPoint.GetPositionY(), data.spawnPoint.GetPositionZ());
+        }
+        for (auto const& pair : sObjectMgr->GetAllGameObjectData())
+        {
+            SpawnData const& data = pair.second;
+            if (data.spawnPoint.GetMapId() != mapId)
+                continue;
+            GameObjectTemplate const* goTemp = sObjectMgr->GetGameObjectTemplate(data.id);
+            if (!goTemp)
+                continue;
+            if (showAll || data.spawnPoint.IsInDist2d(player, 5000.0))
+                handler->PSendSysMessage("Type: %u | SpawnId: " UI64FMTD " | Entry: %u (%s) | X: %.3f | Y: %.3f | Z: %.3f", uint32(data.type), data.spawnId, data.id, goTemp->name.c_str(), data.spawnPoint.GetPositionX(), data.spawnPoint.GetPositionY(), data.spawnPoint.GetPositionZ());
+        }
+        return true;
+    }
+
     static char const* GetZoneName(uint32 zoneId, LocaleConstant locale)
     {
         AreaTableEntry const* zoneEntry = sAreaTableStore.LookupEntry(zoneId);
@@ -652,15 +685,8 @@ public:
     }
     static bool HandleListRespawnsCommand(ChatHandler* handler, char const* args)
     {
-        // We need a player
         Player const* player = handler->GetSession()->GetPlayer();
-        if (!player)
-            return false;
-        // And we need a map
         Map const* map = player->GetMap();
-        if (!map)
-            return false;
-
         uint32 range = 0;
         if (*args)
             range = atoi((char*)args);
