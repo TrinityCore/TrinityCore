@@ -724,15 +724,14 @@ public:
 
         void Initialize()
         {
-            jumpPosition = 1;
             positionBefore = 1;
-            startAI = true;
         }
 
         void Reset() override
         {
             events.Reset();
             Initialize();
+            events.ScheduleEvent(EVENT_JUMP_SPELL, 1000);
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -751,12 +750,6 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (startAI)
-            {
-                events.ScheduleEvent(EVENT_JUMP_SPELL, 1000);
-                startAI = false;
-            }
-
             events.Update(diff);
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -764,16 +757,10 @@ public:
                 switch (eventId)
                 {
                     case EVENT_JUMP_SPELL:
-                        if (urand(0, 2) != 0)
-                            jumpPosition = urand(JUMP_POSITION_1, JUMP_POSITION_4);
-                        else
-                            jumpPosition = positionBefore;
+                        jumpPosition = urand(JUMP_POSITION_1, JUMP_POSITION_4);
 
                         if (jumpPosition == positionBefore)
-                        {
-                            events.CancelEvent(EVENT_SET_ORIENTATION);
                             events.ScheduleEvent(EVENT_SUMMON, 1500);
-                        }
                         else
                         {
                             DoCast(jumpSpells[jumpPosition]);
@@ -812,7 +799,6 @@ public:
         uint32 jumpSpells[4] = { SPELL_JUMP_FRONT_RIGHT, SPELL_JUMP_FRONT_LEFT, SPELL_JUMP_BACK_RIGHT, SPELL_JUMP_BACK_LEFT };
         uint8 jumpPosition;
         uint8 positionBefore;
-        bool startAI;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
