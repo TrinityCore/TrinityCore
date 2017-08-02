@@ -60,7 +60,7 @@ GameObject * GOMove::GetGameObject(Player * player, ObjectGuid::LowType lowguid)
 
 void GOMove::SendAdd(Player * player, ObjectGuid::LowType lowguid)
 {
-    GameObjectData const* data = sObjectMgr->GetGOData(lowguid);
+    GameObjectData const* data = sObjectMgr->GetGameObjectData(lowguid);
     if (!data)
         return;
     GameObjectTemplate const* temp = sObjectMgr->GetGameObjectTemplate(data->id);
@@ -137,14 +137,14 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
 
     object = new GameObject();
     // this will generate a new guid if the object is in an instance
-    if (!object->LoadGameObjectFromDB(guidLow, map))
+    if (!object->LoadFromDB(guidLow, map, true))
     {
         delete object;
         return nullptr;
     }
 
     /// @todo is it really necessary to add both the real and DB table guid here ?
-    sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
+    sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGameObjectData(guidLow));
 
     if (object)
         SendAdd(player, guidLow);
@@ -179,7 +179,7 @@ GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, f
     object->Delete();
 
     object = new GameObject();
-    if (!object->LoadGameObjectFromDB(lowguid, map))
+    if (!object->LoadFromDB(lowguid, map, true))
     {
         delete object;
         SendRemove(player, lowguid);
