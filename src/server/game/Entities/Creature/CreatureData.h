@@ -20,6 +20,7 @@
 
 #include "DBCEnums.h"
 #include "SharedDefines.h"
+#include "SpawnData.h"
 #include "UnitDefines.h"
 #include "WorldPacket.h"
 #include <string>
@@ -235,33 +236,19 @@ struct EquipmentInfo
 };
 
 // from `creature` table
-struct CreatureData
+struct CreatureData : public SpawnData
 {
-    CreatureData() : id(0), mapid(0), phaseMask(0), displayid(0), equipmentId(0),
-                     posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0),
-                     spawndist(0.0f), currentwaypoint(0), curhealth(0), curmana(0), movementType(0),
-                     spawnMask(0), npcflag(0), unit_flags(0), dynamicflags(0), ScriptId(0), dbData(true) { }
-    uint32 id;                                              // entry in creature_template
-    uint16 mapid;
-    uint32 phaseMask;
-    uint32 displayid;
-    int8 equipmentId;
-    float posX;
-    float posY;
-    float posZ;
-    float orientation;
-    uint32 spawntimesecs;
-    float spawndist;
-    uint32 currentwaypoint;
-    uint32 curhealth;
-    uint32 curmana;
-    uint8 movementType;
-    uint8 spawnMask;
-    uint32 npcflag;
-    uint32 unit_flags;                                      // enum UnitFlags mask values
-    uint32 dynamicflags;
-    uint32 ScriptId;
-    bool dbData;
+    CreatureData() : SpawnData(SPAWN_TYPE_CREATURE) { }
+    uint32 displayid = 0;
+    int8 equipmentId = 0;
+    float spawndist = 0.0f;
+    uint32 currentwaypoint = 0;
+    uint32 curhealth = 0;
+    uint32 curmana = 0;
+    uint8 movementType = 0;
+    uint32 npcflag = 0;
+    uint32 unit_flags = 0;
+    uint32 dynamicflags = 0;
 };
 
 struct CreatureModelInfo
