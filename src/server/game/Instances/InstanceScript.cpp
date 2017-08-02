@@ -383,7 +383,7 @@ bool InstanceScript::_SkipCheckRequiredBosses(Player const* player /*= nullptr*/
 
 void InstanceScript::Create()
 {
-    for (int8 i = 0; i < bosses.size(); ++i)
+    for (size_t i = 0; i < bosses.size(); ++i)
         SetBossState(i, NOT_STARTED);
     UpdateSpawnGroups();
 }

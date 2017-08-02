@@ -21,7 +21,6 @@
 
 #include "ZoneScript.h"
 #include "Common.h"
-#include "ObjectMgr.h"
 #include <map>
 #include <memory>
 #include <set>
@@ -135,6 +134,22 @@ struct MinionInfo
     explicit MinionInfo(BossInfo* _bossInfo) : bossInfo(_bossInfo) { }
     BossInfo* bossInfo;
 };
+
+struct InstanceSpawnGroupInfo
+{
+    enum
+    {
+        FLAG_ACTIVATE_SPAWN = 0x01,
+        FLAG_BLOCK_SPAWN = 0x02,
+
+        FLAG_ALL = (FLAG_ACTIVATE_SPAWN | FLAG_BLOCK_SPAWN)
+    };
+    uint8 bossStateId;
+    uint8 bossStates;
+    uint32 spawnGroupId;
+    uint8 flags;
+};
+typedef std::unordered_multimap<uint16, InstanceSpawnGroupInfo> InstanceSpawnGroupMap;
 
 typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
 typedef std::pair<DoorInfoMap::const_iterator, DoorInfoMap::const_iterator> DoorInfoMapBounds;
@@ -299,7 +314,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
-        Trinity::IteratorPair<InstanceSpawnGroupContainer::const_iterator> _instanceSpawnGroups;
+        Trinity::IteratorPair<InstanceSpawnGroupMap::const_iterator> _instanceSpawnGroups;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module
