@@ -941,7 +941,9 @@ public:
         if (!player)
             return false;
 
-        if (!creature)
+        if (creature)
+            lowguid = creature->GetSpawnId();
+        else
         {
             // number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
             char* cId = handler->extractKeyFromLink((char*)args, "Hcreature");
@@ -949,47 +951,44 @@ public:
                 return false;
 
             lowguid = atoull(cId);
-
-            // Attempting creature load from DB data
-            CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
-            if (!data)
-            {
-                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, std::to_string(lowguid).c_str());
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            if (player->GetMapId() != data->spawnPoint.GetMapId())
-            {
-                handler->PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, std::to_string(lowguid).c_str());
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
         }
-        else
-            lowguid = creature->GetSpawnId();
-
-        if (creature)
+        // Attempting creature load from DB data
+        CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
+        if (!data)
         {
-            sObjectMgr->NewOrExistCreatureData(creature->GetSpawnId()).spawnPoint.Relocate(*player);
-            creature->UpdatePosition(*player);
-            creature->GetMotionMaster()->Initialize();
-            if (creature->IsAlive())                            // dead creature will reset movement generator at respawn
-            {
-                creature->setDeathState(JUST_DIED);
-                creature->Respawn();
-            }
+            handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, std::to_string(lowguid).c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
         }
 
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_POSITION);
+        if (player->GetMapId() != data->spawnPoint.GetMapId())
+        {
+            handler->PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, std::to_string(lowguid).c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
+        // update position in memory
+        const_cast<CreatureData*>(data)->spawnPoint.Relocate(*player);
+
+        // update position in DB
+        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_POSITION);
         stmt->setFloat(0, player->GetPositionX());
         stmt->setFloat(1, player->GetPositionY());
         stmt->setFloat(2, player->GetPositionZ());
         stmt->setFloat(3, player->GetOrientation());
         stmt->setUInt64(4, lowguid);
-
         WorldDatabase.Execute(stmt);
+
+        // respawn selected creature at the new location
+        if (creature)
+        {
+            if (creature->IsAlive())
+                creature->setDeathState(JUST_DIED);
+            creature->Respawn(true);
+            if (!creature->GetRespawnCompatibilityMode())
+                creature->AddObjectToRemoveList();
+        }
 
         handler->PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
         return true;

@@ -1765,9 +1765,13 @@ void Creature::DeleteFromDB()
         return;
     }
 
+    // remove any scheduled respawns
     GetMap()->RemoveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId);
+
+    // delete data from memory
     sObjectMgr->DeleteCreatureData(m_spawnId);
 
+    // delete data and all its associations from DB
     WorldDatabaseTransaction trans = WorldDatabase.BeginTransaction();
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE);
@@ -1792,6 +1796,11 @@ void Creature::DeleteFromDB()
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
+
+    // then delete any active instances of the creature
+    auto const& range = GetMap()->GetCreatureBySpawnIdStore().equal_range(m_spawnId);
+    for (auto it = range.first; it != range.second; ++it)
+        it->second->AddObjectToRemoveList();
 }
 
 bool Creature::IsInvisibleDueToDespawn() const
