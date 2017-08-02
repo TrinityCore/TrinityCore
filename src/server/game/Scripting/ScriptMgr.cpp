@@ -1646,16 +1646,32 @@ void ScriptMgr::OnGossipSelectCode(Player* player, Item* item, uint32 sender, ui
     tmpscript->OnGossipSelectCode(player, item, sender, action, code);
 }
 
-bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureTemplate const* actTemplate, CreatureData const* cData, Map const* map)
+bool ScriptMgr::CanSpawn(ObjectGuid::LowType spawnId, uint32 entry, CreatureData const* cData, Map const* map)
 {
-    ASSERT(actTemplate);
-
+    ASSERT(map);
     CreatureTemplate const* baseTemplate = sObjectMgr->GetCreatureTemplate(entry);
-    if (!baseTemplate)
-        baseTemplate = actTemplate;
+    ASSERT(baseTemplate);
+
+    // find out which template we'd be using
+    CreatureTemplate const* actTemplate = baseTemplate;
+    for (uint8 diff = uint8(map->GetSpawnMode()); diff > 0;)
+    {
+        if (uint32 diffEntry = baseTemplate->DifficultyEntry[diff - 1])
+            if (CreatureTemplate const* diffTemplate = sObjectMgr->GetCreatureTemplate(diffEntry))
+            {
+                actTemplate = diffTemplate;
+                break;
+            }
+        if (diff >= RAID_DIFFICULTY_10MAN_HEROIC && map->IsRaid())
+            diff -= 2;
+        else
+            diff -= 1;
+    }
+
     uint32 scriptId = baseTemplate->ScriptID;
-    if (cData && cData->ScriptId)
-        scriptId = cData->ScriptId;
+    if (cData && cData->scriptId)
+        scriptId = cData->scriptId;
+
     GET_SCRIPT_RET(CreatureScript, scriptId, tmpscript, true);
     return tmpscript->CanSpawn(spawnId, entry, baseTemplate, actTemplate, cData, map);
 }
