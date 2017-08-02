@@ -589,8 +589,12 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_ALL_GAMEOBJECTS             = 126,
     SMART_ACTION_STOP_MOTION                        = 127,    // stopMoving, movementExpired
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // don't use on 3.3.5a
+    SMART_ACTION_SCENE_PLAY                         = 129,    // don't use on 3.3.5a
+    SMART_ACTION_SCENE_CANCEL                       = 130,    // don't use on 3.3.5a
+    SMART_ACTION_SPAWN_SPAWNGROUP                   = 131,    // Group ID, min secs, max secs, spawnflags
+    SMART_ACTION_DESPAWN_SPAWNGROUP                 = 132,    // Group ID, min secs, max secs, spawnflags
 
-    SMART_ACTION_END                                = 129
+    SMART_ACTION_END                                = 133
 };
 
 struct SmartAction
@@ -1094,6 +1098,13 @@ struct SmartAction
         {
             uint32 disable;
         } disableEvade;
+        struct
+        {
+            uint32 groupId;
+            uint32 minDelay;
+            uint32 maxDelay;
+            uint32 spawnflags;
+        } groupSpawn;
 
         struct
         {
@@ -1136,6 +1147,14 @@ struct SmartAction
             uint32 param6;
         } raw;
     };
+};
+
+enum SMARTAI_SPAWN_FLAGS
+{
+    SMARTAI_SPAWN_FLAG_NONE                 = 0x00,
+    SMARTAI_SPAWN_FLAG_IGNORE_RESPAWN       = 0x01,
+    SMARTAI_SPAWN_FLAG_FORCE_SPAWN          = 0x02,
+    SMARTAI_SPAWN_FLAG_NOSAVE_RESPAWN       = 0x04,
 };
 
 enum SMARTAI_TEMPLATE
