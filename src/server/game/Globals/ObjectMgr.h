@@ -431,10 +431,10 @@ struct TC_GAME_API InstanceSpawnGroupInfo
 
         FLAG_ALL = (FLAG_ACTIVATE_SPAWN | FLAG_BLOCK_SPAWN)
     };
-    uint8 bossStateId;
-    uint8 bossStates;
-    uint32 spawnGroupId;
-    uint8 flags;
+    uint8 BossStateId;
+    uint8 BossStates;
+    uint32 SpawnGroupId;
+    uint8 Flags;
 };
 
 struct TC_GAME_API SpellClickInfo

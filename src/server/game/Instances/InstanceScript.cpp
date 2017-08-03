@@ -48,8 +48,6 @@ BossBoundaryData::~BossBoundaryData()
 
 InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0), _instanceSpawnGroups(sObjectMgr->GetSpawnGroupsForInstance(map->GetId()))
 {
-    if (_instanceSpawnGroups)
-        printf("%u groups for %s loaded\n", uint32(_instanceSpawnGroups->size()), map->GetMapName());
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
     auto const scriptname = sObjectMgr->GetScriptName(scriptId);
@@ -247,14 +245,14 @@ void InstanceScript::UpdateSpawnGroups()
     for (auto it = _instanceSpawnGroups->begin(), end = _instanceSpawnGroups->end(); it != end; ++it)
     {
         InstanceSpawnGroupInfo const& info = *it;
-        states& curValue = newStates[info.spawnGroupId]; // makes sure there's a BLOCK value in the map
+        states& curValue = newStates[info.SpawnGroupId]; // makes sure there's a BLOCK value in the map
         if (curValue == FORCEBLOCK) // nothing will change this
             continue;
-        if (!((1 << GetBossState(info.bossStateId)) & info.bossStates))
+        if (!((1 << GetBossState(info.BossStateId)) & info.BossStates))
             continue;
-        if (info.flags & InstanceSpawnGroupInfo::FLAG_BLOCK_SPAWN)
+        if (info.Flags & InstanceSpawnGroupInfo::FLAG_BLOCK_SPAWN)
             curValue = FORCEBLOCK;
-        else if (info.flags & InstanceSpawnGroupInfo::FLAG_ACTIVATE_SPAWN)
+        else if (info.Flags & InstanceSpawnGroupInfo::FLAG_ACTIVATE_SPAWN)
             curValue = SPAWN;
     }
     for (auto const& pair : newStates)
@@ -263,7 +261,6 @@ void InstanceScript::UpdateSpawnGroups()
         bool const doSpawn = (pair.second == SPAWN);
         if (sObjectMgr->IsSpawnGroupActive(groupId) == doSpawn)
             continue; // nothing to do here
-        printf("Setting group '%s' (%u) to %u.\n", sObjectMgr->GetSpawnGroupData(groupId)->name.c_str(), groupId, uint8(doSpawn));
         // if we should spawn group, then spawn it...
         if (doSpawn)
             sObjectMgr->SpawnGroupSpawn(groupId, instance);

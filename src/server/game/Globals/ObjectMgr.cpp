@@ -2352,27 +2352,27 @@ void ObjectMgr::LoadInstanceSpawnGroups()
         auto& vector = _instanceSpawnGroupStore[instanceMapId];
         vector.emplace_back();
         InstanceSpawnGroupInfo& info = vector.back();
-        info.spawnGroupId = spawnGroupId;
-        info.bossStateId = fields[1].GetUInt8();
+        info.SpawnGroupId = spawnGroupId;
+        info.BossStateId = fields[1].GetUInt8();
         
         uint8 const ALL_STATES = (1 << TO_BE_DECIDED) - 1;
         uint8 const states = fields[2].GetUInt8();
         if (states & ~ALL_STATES)
         {
-            info.bossStates = states & ALL_STATES;
-            TC_LOG_ERROR("server.loading", "Instance spawn group (%u,%u) had invalid boss state mask %u - truncated to %u.", instanceMapId, spawnGroupId, states, info.bossStates);
+            info.BossStates = states & ALL_STATES;
+            TC_LOG_ERROR("server.loading", "Instance spawn group (%u,%u) had invalid boss state mask %u - truncated to %u.", instanceMapId, spawnGroupId, states, info.BossStates);
         }
         else
-            info.bossStates = states;
+            info.BossStates = states;
 
         uint8 const flags = fields[4].GetUInt8();
         if (flags & ~InstanceSpawnGroupInfo::FLAG_ALL)
         {
-            info.flags = flags & InstanceSpawnGroupInfo::FLAG_ALL;
-            TC_LOG_ERROR("server.loading", "Instance spawn group (%u,%u) had invalid flags %u - truncated to %u.", instanceMapId, spawnGroupId, flags, info.flags);
+            info.Flags = flags & InstanceSpawnGroupInfo::FLAG_ALL;
+            TC_LOG_ERROR("server.loading", "Instance spawn group (%u,%u) had invalid flags %u - truncated to %u.", instanceMapId, spawnGroupId, flags, info.Flags);
         }
         else
-            info.flags = flags;
+            info.Flags = flags;
         
         ++n;
     } while (result->NextRow());
