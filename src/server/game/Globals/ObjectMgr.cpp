@@ -2349,7 +2349,9 @@ void ObjectMgr::LoadInstanceSpawnGroups()
         }
 
         uint16 const instanceMapId = fields[0].GetUInt16();
-        InstanceSpawnGroupInfo& info = _instanceSpawnGroupStore.emplace(instanceMapId, InstanceSpawnGroupInfo())->second;
+        auto& vector = _instanceSpawnGroupStore[instanceMapId];
+        vector.emplace_back();
+        InstanceSpawnGroupInfo& info = vector.back();
         info.spawnGroupId = spawnGroupId;
         info.bossStateId = fields[1].GetUInt8();
         

@@ -48,7 +48,8 @@ BossBoundaryData::~BossBoundaryData()
 
 InstanceScript::InstanceScript(Map* map) : instance(map), completedEncounters(0), _instanceSpawnGroups(sObjectMgr->GetSpawnGroupsForInstance(map->GetId()))
 {
-    printf("%u groups for %s loaded\n", uint32(std::distance(_instanceSpawnGroups.begin(), _instanceSpawnGroups.end())), map->GetMapName());
+    if (_instanceSpawnGroups)
+        printf("%u groups for %s loaded\n", uint32(_instanceSpawnGroups->size()), map->GetMapName());
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     uint32 scriptId = sObjectMgr->GetInstanceTemplate(map->GetId())->ScriptId;
     auto const scriptname = sObjectMgr->GetScriptName(scriptId);
@@ -239,11 +240,13 @@ void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)
 
 void InstanceScript::UpdateSpawnGroups()
 {
+    if (!_instanceSpawnGroups)
+        return;
     enum states { BLOCK, SPAWN, FORCEBLOCK };
     std::unordered_map<uint32, states> newStates;
-    for (auto const& pair : _instanceSpawnGroups)
+    for (auto it = _instanceSpawnGroups->begin(), end = _instanceSpawnGroups->end(); it != end; ++it)
     {
-        InstanceSpawnGroupInfo const& info = pair.second;
+        InstanceSpawnGroupInfo const& info = *it;
         states& curValue = newStates[info.spawnGroupId]; // makes sure there's a BLOCK value in the map
         if (curValue == FORCEBLOCK) // nothing will change this
             continue;
