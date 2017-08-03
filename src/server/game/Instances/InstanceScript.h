@@ -34,6 +34,7 @@
 class AreaBoundary;
 class Creature;
 class GameObject;
+struct InstanceSpawnGroupInfo;
 class Map;
 class ModuleReference;
 class Player;
@@ -156,7 +157,10 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
         virtual void Initialize() { }
 
-        // On load
+        // On instance load, exactly ONE of these methods will ALWAYS be called:
+        // if we're starting without any saved instance data
+        virtual void Create();
+        // if we're loading existing instance save data
         virtual void Load(char const* data);
 
         // When save is needed, this function generates the data
@@ -267,6 +271,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
         virtual void UpdateDoorState(GameObject* door);
         void UpdateMinionState(Creature* minion, EncounterState state);
 
+        void UpdateSpawnGroups();
+
         // Exposes private data that should never be modified unless exceptional cases.
         // Pay very much attention at how the returned BossInfo data is modified to avoid issues.
         BossInfo* GetBossInfo(uint32 id);
@@ -293,6 +299,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         ObjectInfoMap _gameObjectInfo;
         ObjectGuidMap _objectGuids;
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
+        std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module
