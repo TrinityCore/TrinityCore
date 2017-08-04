@@ -656,7 +656,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
     // Send scripted event call
     if (unit)
         if (Creature* creature = unit->ToCreature())
-            creature->AI()->ReceiveEmote(_player, packet.SoundIndex);
+            creature->AI()->ReceiveEmote(_player, packet.EmoteID);
 }
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored)
