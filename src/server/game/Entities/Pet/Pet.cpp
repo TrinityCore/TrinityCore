@@ -1307,7 +1307,6 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     {
         if (itr->second.state == PETSPELL_REMOVED)
         {
-            m_spells.erase(itr);
             state = PETSPELL_CHANGED;
         }
         else if (state == PETSPELL_UNCHANGED && itr->second.state != PETSPELL_UNCHANGED)
