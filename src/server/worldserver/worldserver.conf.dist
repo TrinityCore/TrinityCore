@@ -1855,7 +1855,7 @@ Respawn.DynamicMode = 0
 #                     1 - Enabled
 #        Default:     0 - Disabled
 
-Respawn.DynamicEscortNPC = 1
+Respawn.DynamicEscortNPC = 0
 
 #
 #    Respawn.DynamicRateCreature

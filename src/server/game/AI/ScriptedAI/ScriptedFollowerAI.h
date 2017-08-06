@@ -52,7 +52,7 @@ class TC_GAME_API FollowerAI : public ScriptedAI
 
         void JustDied(Unit*) override;
 
-        void JustRespawned() override;
+        void JustAppeared() override;
 
         void UpdateAI(uint32) override;                        //the "internal" update, calls UpdateFollowerAI()
         virtual void UpdateFollowerAI(uint32);        //used when it's needed to add code in update (abilities, scripted events, etc)

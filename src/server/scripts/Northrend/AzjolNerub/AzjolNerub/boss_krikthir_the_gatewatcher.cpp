@@ -163,9 +163,9 @@ class boss_krik_thir : public CreatureScript
                 SummonAdds();
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
-                BossAI::JustRespawned();
+                BossAI::JustAppeared();
                 SummonAdds();
             }
 

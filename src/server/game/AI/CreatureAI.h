@@ -121,8 +121,8 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         virtual bool IsEscorted() const { return false; }
 
-        // Called when creature is spawned or respawned
-        virtual void JustRespawned() { }
+        // Called when creature appears in the world (spawn, respawn, grid load etc...)
+        virtual void JustAppeared() { }
 
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) { }

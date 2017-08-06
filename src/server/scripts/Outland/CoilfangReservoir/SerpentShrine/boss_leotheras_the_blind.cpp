@@ -736,7 +736,7 @@ public:
             instance->SetGuidData(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             AddedBanish = false;
             Reset();
