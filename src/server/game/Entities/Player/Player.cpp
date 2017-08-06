@@ -7964,7 +7964,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             }
 
             // Apply spell mods
-            ApplySpellMod<SPELLMOD_CHANCE_OF_SUCCESS>(pEnchant->EffectSpellID[s], chance);
+            ApplySpellMod(pEnchant->EffectSpellID[s], SPELLMOD_CHANCE_OF_SUCCESS, chance);
 
             // Shiv has 100% chance to apply the poison
             if (FindCurrentSpellBySpellId(5938) && e_slot == TEMP_ENCHANTMENT_SLOT)
@@ -21452,8 +21452,8 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
     return spellInfo->IsAffectedBySpellMod(mod);
 }
 
-template <SpellModOp op, class T>
-void Player::ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell /*= nullptr*/)
+template <class T>
+void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell /*= nullptr*/) const
 {
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
@@ -21472,7 +21472,7 @@ void Player::ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell /*= nullpt
         case SPELLMOD_CASTING_TIME:
         {
             SpellModifier* modInstantSpell = nullptr;
-            for (SpellModifier* mod : m_spellMods[SPELLMOD_CASTING_TIME][SPELLMOD_PCT])
+            for (SpellModifier* mod : m_spellMods[op][SPELLMOD_PCT])
             {
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
@@ -21496,7 +21496,7 @@ void Player::ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell /*= nullpt
         case SPELLMOD_CRITICAL_CHANCE:
         {
             SpellModifier* modCritical = nullptr;
-            for (SpellModifier* mod : m_spellMods[SPELLMOD_CRITICAL_CHANCE][SPELLMOD_FLAT])
+            for (SpellModifier* mod : m_spellMods[op][SPELLMOD_FLAT])
             {
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
@@ -21520,10 +21520,8 @@ void Player::ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell /*= nullpt
             break;
     }
 
-    for (SpellModList::iterator itr = m_spellMods[op][SPELLMOD_FLAT].begin(); itr != m_spellMods[op][SPELLMOD_FLAT].end(); ++itr)
+    for (SpellModifier* mod : m_spellMods[op][SPELLMOD_FLAT])
     {
-        SpellModifier* mod = *itr;
-
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
 
@@ -21531,10 +21529,8 @@ void Player::ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell /*= nullpt
         Player::ApplyModToSpell(mod, spell);
     }
 
-    for (SpellModList::iterator itr = m_spellMods[op][SPELLMOD_PCT].begin(); itr != m_spellMods[op][SPELLMOD_PCT].end(); ++itr)
+    for (SpellModifier* mod : m_spellMods[op][SPELLMOD_PCT])
     {
-        SpellModifier* mod = *itr;
-
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
 
@@ -21543,7 +21539,7 @@ void Player::ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell /*= nullpt
             continue;
 
         // special case (skip > 10sec spell casts for instant cast setting)
-        if (mod->op == SPELLMOD_CASTING_TIME)
+        if (op == SPELLMOD_CASTING_TIME)
         {
             if (basevalue >= T(10000) && mod->value <= -100)
                 continue;
@@ -21556,9 +21552,9 @@ void Player::ApplySpellMod(uint32 spellId, T& basevalue, Spell* spell /*= nullpt
     basevalue = T(float(basevalue + totalflat) * totalmul);
 }
 
-template TC_GAME_API void Player::ApplySpellMod(uint32 spellId, SpellModOp op, int32& basevalue, Spell* spell);
-template TC_GAME_API void Player::ApplySpellMod(uint32 spellId, SpellModOp op, uint32& basevalue, Spell* spell);
-template TC_GAME_API void Player::ApplySpellMod(uint32 spellId, SpellModOp op, float& basevalue, Spell* spell);
+template TC_GAME_API void Player::ApplySpellMod(uint32 spellId, SpellModOp op, int32& basevalue, Spell* spell) const;
+template TC_GAME_API void Player::ApplySpellMod(uint32 spellId, SpellModOp op, uint32& basevalue, Spell* spell) const;
+template TC_GAME_API void Player::ApplySpellMod(uint32 spellId, SpellModOp op, float& basevalue, Spell* spell) const;
 
 void Player::AddSpellMod(SpellModifier* mod, bool apply)
 {
