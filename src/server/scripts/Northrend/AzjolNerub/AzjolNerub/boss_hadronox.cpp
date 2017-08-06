@@ -297,9 +297,9 @@ public:
                 Initialize();
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
-            BossAI::JustRespawned();
+            BossAI::JustAppeared();
             Initialize();
         }
 
