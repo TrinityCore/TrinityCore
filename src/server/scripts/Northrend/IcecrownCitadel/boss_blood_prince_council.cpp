@@ -445,7 +445,7 @@ struct BloodPrincesBossAI : public BossAI
     {
         _spawnHealth = 1;
         if (!me->isDead())
-            JustRespawned();
+            JustAppeared();
     }
 
     void Reset() override
@@ -493,7 +493,7 @@ struct BloodPrincesBossAI : public BossAI
         }
     }
 
-    void JustRespawned() override
+    void JustAppeared() override
     {
         if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_PRINCES_CONTROL)))
             if (controller->AI()->GetData(DATA_INTRO) != DATA_INTRO_DONE)

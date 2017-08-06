@@ -188,12 +188,12 @@ public:
             Initialize();
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             _IsByOutrunner = false;
             spawnId = 0;
 
-            npc_escortAI::JustRespawned();
+            npc_escortAI::JustAppeared();
         }
 
         void EnterCombat(Unit* who) override
