@@ -379,11 +379,11 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRankData cons
 
 void WorldPackets::Guild::GuildAddRank::Read()
 {
-    _worldPacket.WriteBits(Name.length(), 7);
-    _worldPacket.FlushBits();
+    uint32 nameLen = _worldPacket.ReadBits(7);
+    _worldPacket.ResetBitPos();
 
     _worldPacket >> RankOrder;
-    _worldPacket.WriteString(Name);
+    Name = _worldPacket.ReadString(nameLen);
 }
 
 void WorldPackets::Guild::GuildAssignMemberRank::Read()
