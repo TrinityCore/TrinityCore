@@ -1131,6 +1131,14 @@ void ExtractMaps(uint32 build)
 
 bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filename)
 {
+    DWORD fileSize, fileSizeHigh;
+    fileSize = CASC::GetFileSize(fileInArchive, &fileSizeHigh);
+    if (fileSize == CASC_INVALID_SIZE)
+    {
+        printf("Can't read file size of '%s'\n", filename.c_str());
+        return false;
+    }
+
     FILE* output = fopen(filename.c_str(), "wb");
     if (!output)
     {
@@ -1139,14 +1147,28 @@ bool ExtractFile(CASC::FileHandle const& fileInArchive, std::string const& filen
     }
 
     char  buffer[0x10000];
-    DWORD readBytes = 1;
+    DWORD readBytes;
 
-    while (readBytes > 0)
+    do
     {
-        CASC::ReadFile(fileInArchive, buffer, sizeof(buffer), &readBytes);
-        if (readBytes > 0)
-            fwrite(buffer, 1, readBytes, output);
-    }
+        readBytes = 0;
+        if (!CASC::ReadFile(fileInArchive, buffer, std::min<DWORD>(fileSize, sizeof(buffer)), &readBytes))
+        {
+            printf("Can't read file '%s'\n", filename.c_str());
+            fclose(output);
+            boost::filesystem::remove(filename);
+            return false;
+        }
+
+        if (!readBytes)
+            break;
+
+        fwrite(buffer, 1, readBytes, output);
+        fileSize -= readBytes;
+        if (!fileSize) // now we have read entire file
+            break;
+
+    } while (true);
 
     fclose(output);
     return true;
