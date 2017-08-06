@@ -125,7 +125,10 @@ namespace WorldPackets
             else if (Creature* creatureAttacker = attacker->ToCreature())
             {
                 if (Player* playerTarget = target->ToPlayer())
-                    return GenerateDataForUnits(creatureAttacker, playerTarget);
+                {
+                    if (creatureAttacker->HasScalableLevels())
+                        return GenerateDataForUnits(creatureAttacker, playerTarget);
+                }
                 else if (Creature* creatureTarget = target->ToCreature())
                 {
                     if (creatureAttacker->HasScalableLevels() || creatureTarget->HasScalableLevels())
