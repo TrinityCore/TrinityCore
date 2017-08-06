@@ -566,7 +566,7 @@ class npc_halion_controller : public CreatureScript
                 _twilightDamageTaken = 0;
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
                 if (_instance->GetGuidData(DATA_HALION) || _instance->GetBossState(DATA_GENERAL_ZARITHRIAN) != DONE)
                     return;

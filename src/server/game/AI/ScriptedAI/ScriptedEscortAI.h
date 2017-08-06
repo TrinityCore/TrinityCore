@@ -65,7 +65,7 @@ struct TC_GAME_API npc_escortAI : public ScriptedAI
 
         void JustDied(Unit*) override;
 
-        void JustRespawned() override;
+        void JustAppeared() override;
 
         void ReturnToLastPoint();
 
