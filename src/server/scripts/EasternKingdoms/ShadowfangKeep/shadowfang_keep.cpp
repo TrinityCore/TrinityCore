@@ -67,9 +67,9 @@ class npc_shadowfang_prisoner : public CreatureScript
 public:
     npc_shadowfang_prisoner() : CreatureScript("npc_shadowfang_prisoner") { }
 
-    struct npc_shadowfang_prisonerAI : public npc_escortAI
+    struct npc_shadowfang_prisonerAI : public EscortAI
     {
-        npc_shadowfang_prisonerAI(Creature* creature) : npc_escortAI(creature)
+        npc_shadowfang_prisonerAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
         }

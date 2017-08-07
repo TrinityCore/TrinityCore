@@ -176,9 +176,9 @@ class npc_dalinda : public CreatureScript
 public:
     npc_dalinda() : CreatureScript("npc_dalinda") { }
 
-    struct npc_dalindaAI : public npc_escortAI
+    struct npc_dalindaAI : public EscortAI
     {
-        npc_dalindaAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_dalindaAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
@@ -209,7 +209,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;

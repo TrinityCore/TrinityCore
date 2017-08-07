@@ -37,17 +37,17 @@ void SystemMgr::LoadScriptWaypoints()
 {
     uint32 oldMSTime = getMSTime();
 
-    // Drop Existing Waypoint list
-    m_mPointMoveMap.clear();
+    // drop Existing Waypoint list
+    _pointMoveMap.clear();
 
-    uint64 uiCreatureCount = 0;
+    uint64 entryCount = 0;
 
-    // Load Waypoints
+    // load Waypoints
     QueryResult result = WorldDatabase.Query("SELECT COUNT(entry) FROM script_waypoint GROUP BY entry");
     if (result)
-        uiCreatureCount = result->GetRowCount();
+        entryCount = result->GetRowCount();
 
-    TC_LOG_INFO("server.loading", "Loading Script Waypoints for " UI64FMTD " creature(s)...", uiCreatureCount);
+    TC_LOG_INFO("server.loading", "Loading Script Waypoints for " UI64FMTD " creature(s)...", entryCount);
 
     //                                     0       1         2           3           4           5
     result = WorldDatabase.Query("SELECT entry, pointid, location_x, location_y, location_z, waittime FROM script_waypoint ORDER BY pointid");
@@ -61,29 +61,29 @@ void SystemMgr::LoadScriptWaypoints()
 
     do
     {
-        Field* pFields = result->Fetch();
+        Field* fields = result->Fetch();
         ScriptPointMove temp;
 
-        temp.uiCreatureEntry   = pFields[0].GetUInt32();
-        uint32 uiEntry         = temp.uiCreatureEntry;
-        temp.uiPointId         = pFields[1].GetUInt32();
-        temp.fX                = pFields[2].GetFloat();
-        temp.fY                = pFields[3].GetFloat();
-        temp.fZ                = pFields[4].GetFloat();
-        temp.uiWaitTime        = pFields[5].GetUInt32();
+        temp.entry    = fields[0].GetUInt32();
+        temp.id       = fields[1].GetUInt32();
+        temp.x        = fields[2].GetFloat();
+        temp.y        = fields[3].GetFloat();
+        temp.z        = fields[4].GetFloat();
+        temp.waitTime = fields[5].GetUInt32();
 
-        CreatureTemplate const* pCInfo = sObjectMgr->GetCreatureTemplate(temp.uiCreatureEntry);
+        uint32 entry = temp.entry;
+        CreatureTemplate const* info = sObjectMgr->GetCreatureTemplate(entry);
 
-        if (!pCInfo)
+        if (!info)
         {
-            TC_LOG_ERROR("sql.sql", "TSCR: DB table script_waypoint has waypoint for non-existant creature entry %u", temp.uiCreatureEntry);
+            TC_LOG_ERROR("sql.sql", "SystemMgr: DB table script_waypoint has waypoint for non-existant creature entry %u", entry);
             continue;
         }
 
-        if (!pCInfo->ScriptID)
-            TC_LOG_ERROR("sql.sql", "TSCR: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", temp.uiCreatureEntry);
+        if (!info->ScriptID)
+            TC_LOG_ERROR("sql.sql", "SystemMgr: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", entry);
 
-        m_mPointMoveMap[uiEntry].push_back(temp);
+        _pointMoveMap[entry].push_back(temp);
         ++count;
     } while (result->NextRow());
 

@@ -55,9 +55,9 @@ class npc_oox09hl : public CreatureScript
 public:
     npc_oox09hl() : CreatureScript("npc_oox09hl") { }
 
-    struct npc_oox09hlAI : public npc_escortAI
+    struct npc_oox09hlAI : public EscortAI
     {
-        npc_oox09hlAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_oox09hlAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
@@ -81,7 +81,7 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetFaction(player->GetTeam() == ALLIANCE ? FACTION_ESCORTEE_A_PASSIVE : FACTION_ESCORTEE_H_PASSIVE);
                 Talk(SAY_OOX_START, player);
-                npc_escortAI::Start(false, false, player->GetGUID(), quest);
+                EscortAI::Start(false, false, player->GetGUID(), quest);
             }
         }
 
@@ -168,9 +168,9 @@ class npc_rinji : public CreatureScript
 public:
     npc_rinji() : CreatureScript("npc_rinji") { }
 
-    struct npc_rinjiAI : public npc_escortAI
+    struct npc_rinjiAI : public EscortAI
     {
-        npc_rinjiAI(Creature* creature) : npc_escortAI(creature)
+        npc_rinjiAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             _IsByOutrunner = false;
@@ -193,7 +193,7 @@ public:
             _IsByOutrunner = false;
             spawnId = 0;
 
-            npc_escortAI::JustAppeared();
+            EscortAI::JustAppeared();
         }
 
         void EnterCombat(Unit* who) override
@@ -241,7 +241,7 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_RINJI_CAGE, INTERACTION_DISTANCE))
                     go->UseDoorOrButton();
 
-                npc_escortAI::Start(false, false, player->GetGUID(), quest);
+                EscortAI::Start(false, false, player->GetGUID(), quest);
             }
         }
 

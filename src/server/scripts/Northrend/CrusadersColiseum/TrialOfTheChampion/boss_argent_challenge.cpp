@@ -505,9 +505,9 @@ public:
     npc_argent_soldier() : CreatureScript("npc_argent_soldier") { }
 
     // THIS AI NEEDS MORE IMPROVEMENTS
-    struct npc_argent_soldierAI : public npc_escortAI
+    struct npc_argent_soldierAI : public EscortAI
     {
-        npc_argent_soldierAI(Creature* creature) : npc_escortAI(creature)
+        npc_argent_soldierAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
             me->SetReactState(REACT_DEFENSIVE);
@@ -592,7 +592,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim())
                 return;

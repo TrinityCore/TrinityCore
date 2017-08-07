@@ -115,7 +115,7 @@ enum YellId
     DEATH        = 6,                                       // Used on death
 };
 
-struct hyjalAI : public npc_escortAI
+struct hyjalAI : public EscortAI
 {
     hyjalAI(Creature* creature);
 

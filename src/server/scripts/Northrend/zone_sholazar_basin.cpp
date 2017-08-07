@@ -253,9 +253,9 @@ class npc_engineer_helice : public CreatureScript
 public:
     npc_engineer_helice() : CreatureScript("npc_engineer_helice") { }
 
-    struct npc_engineer_heliceAI : public npc_escortAI
+    struct npc_engineer_heliceAI : public EscortAI
     {
-        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature)
+        npc_engineer_heliceAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -322,7 +322,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {

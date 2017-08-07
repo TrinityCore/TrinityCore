@@ -149,9 +149,9 @@ public:
         return GetScarletMonasteryAI<npc_scarlet_traineeAI>(creature);
     }
 
-    struct npc_scarlet_traineeAI : public npc_escortAI
+    struct npc_scarlet_traineeAI : public EscortAI
     {
-        npc_scarlet_traineeAI(Creature* creature) : npc_escortAI(creature)
+        npc_scarlet_traineeAI(Creature* creature) : EscortAI(creature)
         {
             Start_Timer = urand(1000, 6000);
         }
@@ -173,7 +173,7 @@ public:
                 } else Start_Timer -= diff;
             }
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 };

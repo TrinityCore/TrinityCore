@@ -24,6 +24,7 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "WaypointManager.h"
 #include <vector>
 
 class MovementGenerator;
@@ -160,7 +161,8 @@ class TC_GAME_API MotionMaster
         void MoveSeekAssistanceDistract(uint32 timer);
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
         void MoveDistract(uint32 time);
-        void MovePath(uint32 path_id, bool repeatable);
+        void MovePath(uint32 pathId, bool repeatable);
+        void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
 
         void MoveFormation(uint32 id, Position destination, uint32 moveType, bool forceRun = false, bool forceOrientation = false);

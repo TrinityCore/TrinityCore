@@ -1514,7 +1514,7 @@ struct SmartScriptHolder
     operator bool() const { return entryOrGuid != 0; }
 };
 
-typedef std::unordered_map<uint32, WayPoint*> WPPath;
+typedef std::vector<WayPoint> SmartWaypointPath;
 
 typedef std::vector<WorldObject*> ObjectVector;
 
@@ -1544,22 +1544,23 @@ class TC_GAME_API SmartWaypointMgr
 {
     private:
         SmartWaypointMgr() { }
-        ~SmartWaypointMgr();
+        ~SmartWaypointMgr() { }
 
     public:
         static SmartWaypointMgr* instance();
 
         void LoadFromDB();
 
-        WPPath* GetPath(uint32 id)
+        SmartWaypointPath const* GetPath(uint32 id)
         {
-            if (waypoint_map.find(id) != waypoint_map.end())
-                return waypoint_map[id];
-            else return nullptr;
+            auto itr = _waypointMap.find(id);
+            if (itr != _waypointMap.end())
+                return &itr->second;
+            return nullptr;
         }
 
     private:
-        std::unordered_map<uint32, WPPath*> waypoint_map;
+        std::unordered_map<uint32, SmartWaypointPath> _waypointMap;
 };
 
 // all events for a single entry

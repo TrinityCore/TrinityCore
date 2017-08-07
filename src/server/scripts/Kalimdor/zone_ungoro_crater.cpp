@@ -57,9 +57,9 @@ class npc_ame : public CreatureScript
 public:
     npc_ame() : CreatureScript("npc_ame") { }
 
-    struct npc_ameAI : public npc_escortAI
+    struct npc_ameAI : public EscortAI
     {
-        npc_ameAI(Creature* creature) : npc_escortAI(creature)
+        npc_ameAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -118,7 +118,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
             if (!UpdateVictim())
                 return;
 

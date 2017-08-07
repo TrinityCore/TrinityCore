@@ -43,9 +43,9 @@ class npc_galen_goodward : public CreatureScript
 public:
     npc_galen_goodward() : CreatureScript("npc_galen_goodward") { }
 
-    struct npc_galen_goodwardAI : public npc_escortAI
+    struct npc_galen_goodwardAI : public EscortAI
     {
-        npc_galen_goodwardAI(Creature* creature) : npc_escortAI(creature)
+        npc_galen_goodwardAI(Creature* creature) : EscortAI(creature)
         {
             galensCageGUID.Clear();
             Reset();
@@ -67,7 +67,7 @@ public:
             if (quest->GetQuestId() == QUEST_GALENS_ESCAPE)
             {
                 Talk(SAY_QUEST_ACCEPTED, player);
-                npc_escortAI::Start(false, false, player->GetGUID(), quest);
+                EscortAI::Start(false, false, player->GetGUID(), quest);
             }
         }
 
@@ -118,7 +118,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (HasEscortState(STATE_ESCORT_NONE))
                 return;

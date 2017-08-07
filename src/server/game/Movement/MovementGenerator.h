@@ -36,10 +36,11 @@ class TC_GAME_API MovementGenerator
         virtual void Finalize(Unit*) = 0;
         virtual void Reset(Unit*) = 0;
         virtual bool Update(Unit*, uint32 diff) = 0;
-
         virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 
         virtual void UnitSpeedChanged() { }
+        virtual void Pause() { }
+        virtual void Resume() { }
 
         // used by Evade code for select point to evade with expected restart default movement
         virtual bool GetResetPosition(Unit*, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }

@@ -94,9 +94,9 @@ public:
         return GetGnomereganAI<npc_blastmaster_emi_shortfuseAI>(creature);
     }
 
-    struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
+    struct npc_blastmaster_emi_shortfuseAI : public EscortAI
     {
-        npc_blastmaster_emi_shortfuseAI(Creature* creature) : npc_escortAI(creature)
+        npc_blastmaster_emi_shortfuseAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
             creature->RestoreFaction();
