@@ -117,23 +117,6 @@ void MotionMaster::Clear(bool reset /*= true*/)
         DirectClean(reset);
 }
 
-void MotionMaster::ClearExpireList()
-{
-    for (auto itr : _expireList)
-        DirectDelete(itr);
-
-    _expireList.clear();
-
-    if (empty())
-        Initialize();
-    else if (NeedInitTop())
-        InitTop();
-    else if (_cleanFlag & MMCF_RESET)
-        top()->Reset(_owner);
-
-    _cleanFlag &= ~MMCF_RESET;
-}
-
 void MotionMaster::MovementExpired(bool reset /*= true*/)
 {
     if (_cleanFlag & MMCF_UPDATE)
@@ -146,6 +129,29 @@ void MotionMaster::MovementExpired(bool reset /*= true*/)
     }
     else
         DirectExpire(reset);
+}
+
+void MotionMaster::ExpireMovement(MovementSlot slot)
+{
+    if (empty() || slot >= MAX_MOTION_SLOT)
+        return;
+
+    if (MovementGenerator* motion = GetMotionSlot(slot))
+    {
+        DirectDelete(motion);
+        _slot[slot] = nullptr;
+    }
+
+    if (!top())
+    {
+        while (!empty() && !top())
+            --_top;
+
+        if (empty())
+            Initialize();
+        else if (NeedInitTop())
+            InitTop();
+    }
 }
 
 MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
@@ -846,4 +852,21 @@ void MotionMaster::DelayedDelete(MovementGenerator* curr)
         return;
 
     _expireList.push_back(curr);
+}
+
+void MotionMaster::ClearExpireList()
+{
+    for (auto itr : _expireList)
+        DirectDelete(itr);
+
+    _expireList.clear();
+
+    if (empty())
+        Initialize();
+    else if (NeedInitTop())
+        InitTop();
+    else if (_cleanFlag & MMCF_RESET)
+        top()->Reset(_owner);
+
+    _cleanFlag &= ~MMCF_RESET;
 }
