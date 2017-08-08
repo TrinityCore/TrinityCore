@@ -105,6 +105,7 @@ class TC_GAME_API MotionMaster
         void UpdateMotion(uint32 diff);
 
         void Clear(bool reset = true);
+        void Clear(MovementSlot slot);
         void MovementExpired(bool reset = true);
 
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
@@ -172,10 +173,12 @@ class TC_GAME_API MotionMaster
         bool NeedInitTop() const;
         void InitTop();
 
-        void Mutate(MovementGenerator *m, MovementSlot slot);
+        void Mutate(MovementGenerator* m, MovementSlot slot);
 
         void DirectClean(bool reset);
         void DelayedClean();
+        void DirectClean(MovementSlot slot);
+        void DelayedClean(MovementSlot slot);
         void DirectExpire(bool reset);
         void DelayedExpire();
         void DirectDelete(MovementGenerator* curr);
