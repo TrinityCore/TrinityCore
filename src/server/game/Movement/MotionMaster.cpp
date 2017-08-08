@@ -178,11 +178,14 @@ MovementGenerator* MotionMaster::GetMotionSlot(int slot) const
 
 void MotionMaster::PropagateSpeedChange()
 {
-    for (int i = 0; i <= _top; ++i)
-    {
-        if (_slot[i])
-            _slot[i]->UnitSpeedChanged();
-    }
+    if (empty())
+        return;
+
+    MovementGenerator* movement = top();
+    if (!movement)
+        return;
+
+    movement->UnitSpeedChanged();
 }
 
 bool MotionMaster::GetDestination(float &x, float &y, float &z)
