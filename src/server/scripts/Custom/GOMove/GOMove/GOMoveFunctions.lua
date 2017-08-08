@@ -204,19 +204,18 @@ function GOMove:Move(ID, input)
     if(input) then
         ARG = input
     end
-    -- SendAddonMessage("$GOMOVE$,"..ID, ARG, "WHISPER", UnitName("player"))
     if(not trinityID[ID] or not tonumber(trinityID[ID][1])) then
         return
     end
     if(not trinityID[ID][2]) then
-        SendAddonMessage(".gomove "..trinityID[ID][1].." "..(0).." "..ARG, "", "WHISPER", UnitName("player"))
+        SendChatMessage(".gomove "..trinityID[ID][1].." "..(0).." "..ARG)
     elseif(trinityID[ID][3] and tonumber(ARG) and tonumber(ARG) > 0) then
-        SendAddonMessage(".gomove "..trinityID[ID][1].." "..ARG.." "..(0), "", "WHISPER", UnitName("player"))
+        SendChatMessage(".gomove "..trinityID[ID][1].." "..ARG.." "..(0))
     else
         local did = false
         for GUID, NAME in pairs(GOMove.Selected) do
             if(tonumber(GUID)) then
-                SendAddonMessage(".gomove "..trinityID[ID][1].." "..GUID.." "..ARG, "", "WHISPER", UnitName("player"))
+                SendChatMessage(".gomove "..trinityID[ID][1].." "..GUID.." "..ARG)
                 if(ID == "GOTO") then
                     return
                 end
