@@ -21618,15 +21618,13 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId /*= 0*/, Aura* au
     if (!spell || spell->m_appliedMods.empty())
         return;
 
-    std::list<Aura*> aurasQueue;
+    std::vector<Aura*> aurasQueue;
     for (uint8 i = 0; i < MAX_SPELLMOD; ++i)
     {
         for (uint8 j = 0; j < SPELLMOD_END; ++j)
         {
-            for (auto itr = m_spellMods[i][j].begin(); itr != m_spellMods[i][j].end(); ++itr)
+            for (SpellModifier* mod : m_spellMods[i][j])
             {
-                SpellModifier* mod = *itr;
-
                 // Spellmods without charged aura set cannot be charged
                 if (!mod->ownerAura->IsUsingCharges())
                     continue;
