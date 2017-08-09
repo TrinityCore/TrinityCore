@@ -1229,7 +1229,7 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
             // Power type required to proc
             Powers powerRequired = Powers(_effectInfo->MiscValue);
 
-            bool powerBelowRequired = bool(_effectInfo->MiscValueB);
+            bool powerBelowRequired = _effectInfo->MiscValueB != 0;
 
             if ((aurApp->GetTarget()->GetPower(powerRequired) < powerAmountRequired) != powerBelowRequired)
                 result = false;
