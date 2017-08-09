@@ -1713,7 +1713,7 @@ Creature.MovingStopTimeForPlayer = 180000
 
 #
 #
-# No more informations avaible about that!
+# Specifies the visibility of the monsters.
 #
 #       Default 50.000000
 
