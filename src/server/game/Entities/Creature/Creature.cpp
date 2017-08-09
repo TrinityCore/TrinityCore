@@ -590,7 +590,7 @@ void Creature::Update(uint32 diff)
     {
         m_triggerJustAppeared = false;
         AI()->JustAppeared();
-        if (m_vehicleKit)
+        if (m_respawnCompatibilityMode && m_vehicleKit)
             m_vehicleKit->Reset();
     }
 
@@ -1653,8 +1653,8 @@ void Creature::DeleteFromDB()
     WorldDatabase.CommitTransaction(trans);
 
     // then delete any active instances of the creature
-    auto const& range = GetMap()->GetCreatureBySpawnIdStore().equal_range(m_spawnId);
-    for (auto it = range.first; it != range.second; ++it)
+    auto const& spawnMap = GetMap()->GetCreatureBySpawnIdStore();
+    for (auto it = spawnMap.find(m_spawnId); it != spawnMap.end(); it = spawnMap.find(m_spawnId))
         it->second->AddObjectToRemoveList();
 }
 
