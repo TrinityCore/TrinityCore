@@ -437,8 +437,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     if (updateLevel)
         SelectLevel();
-
-    UpdateLevelDependantStats();
+    else
+        UpdateLevelDependantStats(); // We still re-initialize level dependant stats on entry update
 
     SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
     SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->resistance[SPELL_SCHOOL_HOLY]));
@@ -1186,11 +1186,23 @@ void Creature::SelectLevel()
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
 
-    // level
-    uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
-    uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
-    uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
-    SetLevel(level);
+    if (!HasScalableLevels())
+    {
+        // level
+        uint8 minlevel = std::min(cInfo->maxlevel, cInfo->minlevel);
+        uint8 maxlevel = std::max(cInfo->maxlevel, cInfo->minlevel);
+        uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
+        SetLevel(level);
+    }
+    else
+    {
+        SetLevel(cInfo->levelScaling->MaxLevel);
+        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN, cInfo->levelScaling->MinLevel);
+        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX, cInfo->levelScaling->MaxLevel);
+        SetUInt32Value(UNIT_FIELD_SCALING_LEVEL_DELTA, cInfo->levelScaling->DeltaLevel);
+    }
+
+    UpdateLevelDependantStats();
 }
 
 void Creature::UpdateLevelDependantStats()
@@ -1612,7 +1624,7 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
         return false;
 
     // No aggro from gray creatures
-    if (CheckNoGrayAggroConfig(who->getLevelForTarget(this), getLevelForTarget(who)))
+    if (CheckNoGrayAggroConfig(who->GetLevelForTarget(this), GetLevelForTarget(who)))
         return false;
 
     return IsWithinLOSInMap(who);
@@ -1640,8 +1652,8 @@ float Creature::GetAttackDistance(Unit const* player) const
     if (aggroRate == 0)
         return 0.0f;
 
-    uint32 playerlevel   = player->getLevelForTarget(this);
-    uint32 creaturelevel = getLevelForTarget(player);
+    uint32 playerlevel   = player->GetLevelForTarget(this);
+    uint32 creaturelevel = GetLevelForTarget(player);
 
     int32 leveldif       = int32(playerlevel) - int32(creaturelevel);
 
@@ -1779,8 +1791,8 @@ void Creature::Respawn(bool force)
         loot.clear();
         if (m_originalEntry != GetEntry())
             UpdateEntry(m_originalEntry);
-
-        SelectLevel();
+        else
+            SelectLevel();
 
         setDeathState(JUST_RESPAWNED);
 
@@ -2440,17 +2452,89 @@ void Creature::AllLootRemovedFromCorpse()
     m_respawnTime = m_corpseRemoveTime + m_respawnDelay;
 }
 
-uint8 Creature::getLevelForTarget(WorldObject const* target) const
+bool Creature::HasScalableLevels() const
 {
-    if (!isWorldBoss() || !target->ToUnit())
-        return Unit::getLevelForTarget(target);
+    CreatureTemplate const* cinfo = GetCreatureTemplate();
+    return cinfo->levelScaling.is_initialized();
+}
 
-    uint16 level = target->ToUnit()->getLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
-    if (level < 1)
-        return 1;
-    if (level > 255)
-        return 255;
-    return uint8(level);
+uint64 Creature::GetMaxHealthByLevel(uint8 level) const
+{
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+    return stats->GenerateHealth(cInfo);
+}
+
+float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
+{
+    if (!HasScalableLevels())
+        return 1.0f;
+
+    uint8 levelForTarget = GetLevelForTarget(target);
+    if (getLevel() < levelForTarget)
+        return 1.0f;
+
+    return double(GetMaxHealthByLevel(levelForTarget)) / double(GetCreateHealth());
+}
+
+float Creature::GetBaseDamageForLevel(uint8 level) const
+{
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+    return stats->GenerateBaseDamage(cInfo);
+}
+
+float Creature::GetDamageMultiplierForTarget(WorldObject const* target) const
+{
+    if (!HasScalableLevels())
+        return 1.0f;
+
+    uint8 levelForTarget = GetLevelForTarget(target);
+
+    return GetBaseDamageForLevel(levelForTarget) / GetBaseDamageForLevel(getLevel());
+}
+
+float Creature::GetBaseArmorForLevel(uint8 level) const
+{
+    CreatureTemplate const* cInfo = GetCreatureTemplate();
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cInfo->unit_class);
+    return stats->GenerateArmor(cInfo);
+}
+
+float Creature::GetArmorMultiplierForTarget(WorldObject const* target) const
+{
+    if (!HasScalableLevels())
+        return 1.0f;
+
+    uint8 levelForTarget = GetLevelForTarget(target);
+
+    return GetBaseArmorForLevel(levelForTarget) / GetBaseArmorForLevel(getLevel());
+}
+
+uint8 Creature::GetLevelForTarget(WorldObject const* target) const
+{
+    if (Unit const* unitTarget = target->ToUnit())
+    {
+        if (isWorldBoss())
+        {
+            uint8 level = unitTarget->getLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
+            return RoundToInterval<uint8>(level, 1u, 255u);
+        }
+
+        // If this creature should scale level, adapt level depending of target level
+        // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
+        if (HasScalableLevels())
+        {
+            uint8 targetLevelWithDelta = unitTarget->getLevel() + GetCreatureTemplate()->levelScaling->DeltaLevel;
+
+            if (target->IsPlayer())
+                targetLevelWithDelta += target->GetUInt32Value(PLAYER_FIELD_SCALING_PLAYER_LEVEL_DELTA);
+
+            return RoundToInterval<uint8>(targetLevelWithDelta, GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MIN), GetUInt32Value(UNIT_FIELD_SCALING_LEVEL_MAX));
+        }
+    }
+
+    return Unit::GetLevelForTarget(target);
 }
 
 std::string Creature::GetAIName() const
@@ -2601,11 +2685,11 @@ float Creature::GetAggroRange(Unit const* target) const
         uint32 targetLevel = 0;
 
         if (target->GetTypeId() == TYPEID_PLAYER)
-            targetLevel = target->getLevelForTarget(this);
+            targetLevel = target->GetLevelForTarget(this);
         else if (target->GetTypeId() == TYPEID_UNIT)
-            targetLevel = target->ToCreature()->getLevelForTarget(this);
+            targetLevel = target->ToCreature()->GetLevelForTarget(this);
 
-        uint32 myLevel = getLevelForTarget(target);
+        uint32 myLevel = GetLevelForTarget(target);
         int32 levelDiff = int32(targetLevel) - int32(myLevel);
 
         // The maximum Aggro Radius is capped at 45 yards (25 level difference)

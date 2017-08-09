@@ -82,8 +82,8 @@ namespace Trainer
         player->SendPlaySpellVisualKit(362, 1, 0);  // 113 EmoteSalute
 
         // learn explicitly or cast explicitly
-        if (trainerSpell->CastSpellId)
-            player->CastSpell(player, trainerSpell->CastSpellId, true);
+        if (trainerSpell->IsCastable())
+            player->CastSpell(player, trainerSpell->SpellId, true);
         else
             player->LearnSpell(trainerSpell->SpellId, false);
     }
@@ -134,6 +134,11 @@ namespace Trainer
         // check level requirement
         if (player->getLevel() < trainerSpell->ReqLevel)
             return SpellState::Unavailable;
+
+        // check ranks
+        if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(trainerSpell->LearnedSpellId))
+            if (!player->HasSpell(previousRankSpellId))
+                return SpellState::Unavailable;
 
         // check additional spell requirement
         for (auto const& requirePair : sSpellMgr->GetSpellsRequiredForSpellBounds(trainerSpell->SpellId))

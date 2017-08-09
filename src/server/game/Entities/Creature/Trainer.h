@@ -59,7 +59,8 @@ namespace Trainer
         std::array<uint32, 3> ReqAbility = { };
         uint8 ReqLevel = 0;
 
-        uint32 CastSpellId = 0;
+        uint32 LearnedSpellId = 0;
+        bool IsCastable() const { return LearnedSpellId != SpellId; }
     };
 
     class Trainer
