@@ -1712,14 +1712,6 @@ ListenRange.Yell = 300
 Creature.MovingStopTimeForPlayer = 180000
 
 #
-#
-# Specifies the visibility of the monsters.
-#
-#       Default 50.000000
-
-MonsterSight = 50.000000
-
-#
 ###################################################################################################
 
 ###################################################################################################
@@ -2110,6 +2102,13 @@ Visibility.Distance.BGArenas = 533
 Visibility.Notify.Period.OnContinents = 1000
 Visibility.Notify.Period.InInstances  = 1000
 Visibility.Notify.Period.InBGArenas   = 1000
+
+#
+#    MonsterSight
+#        Description: Monster creature sight distance
+#        Default:     50.000000
+
+MonsterSight = 50.000000
 
 #
 ###################################################################################################
