@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SpellPackets.h"
 #include "MovementPackets.h"
+#include "SpellPackets.h"
 
 void WorldPackets::Spells::CancelAura::Read()
 {

@@ -203,45 +203,6 @@ enum SpellFacingFlags
     SPELL_FACING_FLAG_INFRONT = 0x0001
 };
 
-// high byte (3 from 0..3) of UNIT_FIELD_BYTES_2
-enum ShapeshiftForm
-{
-    FORM_NONE                       = 0,
-    FORM_CAT_FORM                   = 1,
-    FORM_TREE_OF_LIFE               = 2,
-    FORM_TRAVEL_FORM                = 3,
-    FORM_AQUATIC_FORM               = 4,
-    FORM_BEAR_FORM                  = 5,
-    FORM_AMBIENT                    = 6,
-    FORM_GHOUL                      = 7,
-    FORM_DIRE_BEAR_FORM             = 8,
-    FORM_CRANE_STANCE               = 9,
-    FORM_THARONJA_SKELETON          = 10,
-    FORM_DARKMOON_TEST_OF_STRENGTH  = 11,
-    FORM_BLB_PLAYER                 = 12,
-    FORM_SHADOW_DANCE               = 13,
-    FORM_CREATURE_BEAR              = 14,
-    FORM_CREATURE_CAT               = 15,
-    FORM_GHOST_WOLF                 = 16,
-    FORM_BATTLE_STANCE              = 17,
-    FORM_DEFENSIVE_STANCE           = 18,
-    FORM_BERSERKER_STANCE           = 19,
-    FORM_SERPENT_STANCE             = 20,
-    FORM_ZOMBIE                     = 21,
-    FORM_METAMORPHOSIS              = 22,
-    FORM_OX_STANCE                  = 23,
-    FORM_TIGER_STANCE               = 24,
-    FORM_UNDEAD                     = 25,
-    FORM_FRENZY                     = 26,
-    FORM_FLIGHT_FORM_EPIC           = 27,
-    FORM_SHADOWFORM                 = 28,
-    FORM_FLIGHT_FORM                = 29,
-    FORM_STEALTH                    = 30,
-    FORM_MOONKIN_FORM               = 31,
-    FORM_SPIRIT_OF_REDEMPTION       = 32,
-    FORM_GLADIATOR_STANCE           = 33
-};
-
 #define MAX_SPELL_CHARM         4
 #define MAX_SPELL_VEHICLE       6
 #define MAX_SPELL_POSSESS       8
@@ -1086,7 +1047,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsVehicle() const  { return (m_unitTypeMask & UNIT_MASK_VEHICLE) != 0; }
 
         uint8 getLevel() const { return uint8(GetUInt32Value(UNIT_FIELD_LEVEL)); }
-        uint8 getLevelForTarget(WorldObject const* /*target*/) const override { return getLevel(); }
+        uint8 GetLevelForTarget(WorldObject const* /*target*/) const override { return getLevel(); }
         void SetLevel(uint8 lvl);
         uint8 getRace() const { return GetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE); }
         uint32 getRaceMask() const { return 1 << (getRace()-1); }
@@ -1120,6 +1081,10 @@ class TC_GAME_API Unit : public WorldObject
         inline void SetFullHealth() { SetHealth(GetMaxHealth()); }
         int64 ModifyHealth(int64 val);
         int64 GetHealthGain(int64 dVal);
+
+        virtual float GetHealthMultiplierForTarget(WorldObject const* /*target*/) const { return 1.0f; }
+        virtual float GetDamageMultiplierForTarget(WorldObject const* /*target*/) const { return 1.0f; }
+        virtual float GetArmorMultiplierForTarget(WorldObject const* /*target*/) const { return 1.0f; }
 
         Powers getPowerType() const { return Powers(GetUInt32Value(UNIT_FIELD_DISPLAY_POWER)); }
         void setPowerType(Powers power);
@@ -1190,7 +1155,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetMeleeAnimKitId(uint16 animKitId);
         uint16 GetMeleeAnimKitId() const override { return _meleeAnimKitId; }
 
-        uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
+        uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? GetLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb);
         uint32 DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage = NULL, DamageEffectType damagetype = DIRECT_DAMAGE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* spellProto = NULL, bool durabilityLoss = true);
         void Kill(Unit* victim, bool durabilityLoss = true);
