@@ -6155,12 +6155,11 @@ void AuraEffect::HandleAuraPvpTalents(AuraApplication const* auraApp, uint8 mode
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Unit* target = auraApp->GetTarget();
-    if (target && target->GetTypeId() == TYPEID_PLAYER)
+    if (Player* target = auraApp->GetTarget()->ToPlayer())
     {
         if (apply)
-            target->ToPlayer()->TogglePvpTalents(true);
+            target->TogglePvpTalents(true);
         else if (!target->HasAuraType(SPELL_AURA_PVP_TALENTS))
-            target->ToPlayer()->TogglePvpTalents(false);
+            target->TogglePvpTalents(false);
     }
 }
