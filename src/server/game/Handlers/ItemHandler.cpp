@@ -24,6 +24,8 @@
 #include "Opcodes.h"
 #include "Item.h"
 #include "Log.h"
+#include "MotionMaster.h"
+#include "MovementGenerator.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SpellInfo.h"
@@ -615,8 +617,10 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    if (vendor->HasUnitState(UNIT_STATE_MOVING))
-        vendor->StopMoving();
+    if (MovementGenerator* movementGenerator = vendor->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
+        movementGenerator->Pause(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
+
+    vendor->StopMoving();
 
     VendorItemData const* items = vendor->GetVendorItems();
     if (!items)

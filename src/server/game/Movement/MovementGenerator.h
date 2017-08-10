@@ -39,7 +39,7 @@ class TC_GAME_API MovementGenerator
         virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 
         virtual void UnitSpeedChanged() { }
-        virtual void Pause() { }
+        virtual void Pause(uint32 timer = 0) { } // timer in ms
         virtual void Resume() { }
 
         // used by Evade code for select point to evade with expected restart default movement

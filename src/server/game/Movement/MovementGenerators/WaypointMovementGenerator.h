@@ -70,7 +70,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
 
         MovementGeneratorType GetMovementGeneratorType() const override { return WAYPOINT_MOTION_TYPE; }
         void UnitSpeedChanged() override { _recalculateSpeed = true; }
-        void Pause() override;
+        void Pause(uint32 timer = 0) override;
         void Resume() override;
 
         void MovementInform(Creature*);
