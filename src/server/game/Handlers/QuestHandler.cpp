@@ -95,10 +95,10 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    if (MovementGenerator* movementGenerator = unit->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
+    if (MovementGenerator* movementGenerator = creature->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
         movementGenerator->Pause(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
 
-    unit->StopMoving();
+    creature->StopMoving();
 
     _player->PlayerTalkClass->ClearMenus();
     if (creature->AI()->GossipHello(_player))
