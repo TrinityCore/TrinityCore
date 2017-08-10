@@ -470,7 +470,7 @@ void EscortAI::SetEscortPaused(bool on)
     {
         AddEscortState(STATE_ESCORT_PAUSED);
         if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-            movementGenerator->Pause();
+            movementGenerator->Pause(0);
     }
     else
     {

@@ -364,7 +364,7 @@ void Creature::SignalFormationMovement(Position const& destination, uint32 id/* 
 bool Creature::IsFormationLeaderMoveAllowed() const
 {
     if (!m_formation)
-        return;
+        return false;
 
     return m_formation->CanLeaderStartMoving();
 }

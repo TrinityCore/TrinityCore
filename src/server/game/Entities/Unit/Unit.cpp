@@ -12618,7 +12618,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (GetTypeId() == TYPEID_UNIT)
     {
         if (MovementGenerator* movementGenerator = GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-            movementGenerator->Pause();
+            movementGenerator->Pause(0);
 
         GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
 
