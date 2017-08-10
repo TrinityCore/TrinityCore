@@ -76,7 +76,7 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void SetCanAttack(bool attack) { _activeAttacker = attack; }
         ObjectGuid GetEventStarterGUID() const { return _playerGUID; }
         virtual bool IsEscortNPC(bool isEscorting) const override;
-        void SetWaitTimer(uint32 Timer) { _pauseTimer = Timer; }
+        void SetPauseTimer(uint32 Timer) { _pauseTimer = Timer; }
 
     protected:
         Player* GetPlayerForEscort();
