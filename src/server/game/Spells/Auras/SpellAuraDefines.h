@@ -225,7 +225,7 @@ enum AuraType
     SPELL_AURA_MOD_WATER_BREATHING                          = 155,  //    Mod Water Breathing
     SPELL_AURA_MOD_REPUTATION_GAIN                          = 156,  //    Mod Reputation Gain
     SPELL_AURA_PET_DAMAGE_MULTI                             = 157,  //    Mod Pet Damage
-    SPELL_AURA_MOD_SHIELD_BLOCKVALUE                        = 158,
+    SPELL_AURA_ALLOW_TALENT_SWAPPING                        = 158,
     SPELL_AURA_NO_PVP_CREDIT                                = 159,
     SPELL_AURA_160                                          = 160,  // old SPELL_AURA_MOD_AOE_AVOIDANCE. Unused 4.3.4
     SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT                   = 161,
