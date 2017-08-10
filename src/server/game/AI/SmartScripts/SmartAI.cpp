@@ -413,7 +413,7 @@ void SmartAI::MovepointReached(uint32 id)
         return;
     }
 
-    ASSERT(id >= _path.size(), "SmartAI::MovepointReached: referenced movement id (%u) points to non-existing node in loaded path (%u)", id, GetScript()->GetPathId());
+    ASSERT(id < _path.size(), "SmartAI::MovepointReached: referenced movement id (%u) points to non-existing node in loaded path (%u)", id, GetScript()->GetPathId());
     uint32 nodeId = _path[id].id;
     _currentWaypointNode = nodeId;
 

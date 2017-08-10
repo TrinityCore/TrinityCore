@@ -288,7 +288,7 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
     }
     else if (type == WAYPOINT_MOTION_TYPE)
     {
-        ASSERT(id >= _path.size(), "EscortAI::MovementInform: referenced movement id (%u) points to non-existing node in loaded path", id);
+        ASSERT(id < _path.size(), "EscortAI::MovementInform: referenced movement id (%u) points to non-existing node in loaded path", id);
         WaypointData waypoint = _path[id];
 
         TC_LOG_DEBUG("scripts", "EscortAI::MovementInform: waypoint node %u reached", waypoint.id);
