@@ -35,6 +35,7 @@ class Quest;
 class Player;
 class SpellInfo;
 class WorldSession;
+
 enum MovementGeneratorType : uint8;
 
 struct VendorItemCount
@@ -296,7 +297,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetCurrentWaypointID() const { return m_waypointID; }
         void UpdateWaypointID(uint32 wpID) { m_waypointID = wpID; }
 
-        void PauseMovement(uint32 timer = 0) override; // timer in ms
+        void PauseMovement(uint32 timer = 0, uint8 slot = 0) override; // timer in ms
 
         void SearchFormation();
         CreatureGroup* GetFormation() { return m_formation; }

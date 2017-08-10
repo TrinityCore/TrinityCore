@@ -62,9 +62,9 @@ enum MovementGeneratorType : uint8
     MAX_MOTION_TYPE                                       // limit
 };
 
-enum MovementSlot
+enum MovementSlot : uint8
 {
-    MOTION_SLOT_IDLE,
+    MOTION_SLOT_IDLE = 0,
     MOTION_SLOT_ACTIVE,
     MOTION_SLOT_CONTROLLED,
     MAX_MOTION_SLOT

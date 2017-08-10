@@ -23,7 +23,6 @@
 #include "Group.h"
 #include "Log.h"
 #include "MotionMaster.h"
-#include "MovementGenerator.h"
 #include "ObjectAccessor.h"
 #include "PetDefines.h"
 #include "Player.h"
@@ -153,15 +152,18 @@ void SmartAI::PausePath(uint32 delay, bool forced)
         return;
     }
 
-    AddEscortState(SMART_ESCORT_PAUSED);
     _waypointPauseTimer = delay;
-    if (forced && !_waypointReached)
+
+    if (forced)
     {
         _waypointPauseForced = forced;
         SetRun(mRun);
-        if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-            movementGenerator->Pause();
+        me->PauseMovement();
     }
+    else
+        _waypointReached = false;
+
+    AddEscortState(SMART_ESCORT_PAUSED);
     GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_PAUSED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
 }
 
@@ -259,14 +261,15 @@ void SmartAI::EndPath(bool fail)
 void SmartAI::ResumePath()
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_RESUMED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+
     RemoveEscortState(SMART_ESCORT_PAUSED);
+
     _waypointPauseForced = false;
     _waypointReached = false;
     _waypointPauseTimer = 0;
-    SetRun(mRun);
 
-    if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-        movementGenerator->Resume();
+    SetRun(mRun);
+    me->ResumeMovement();
 }
 
 void SmartAI::ReturnToLastOOCPos()
@@ -300,11 +303,11 @@ void SmartAI::UpdatePath(const uint32 diff)
         _escortInvokerCheckTimer -= diff;
 
     // handle pause
-    if (HasEscortState(SMART_ESCORT_PAUSED))
+    if (HasEscortState(SMART_ESCORT_PAUSED) && (_waypointReached || _waypointPauseForced))
     {
         if (_waypointPauseTimer <= diff)
         {
-            if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING) && (_waypointReached || _waypointPauseForced))
+            if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING))
                 ResumePath();
         }
         else
@@ -406,28 +409,19 @@ bool SmartAI::IsEscortInvokerInRange()
 
 void SmartAI::MovepointReached(uint32 id)
 {
-    // both point movement and escort generator can enter this function
-    if (id == SMART_ESCORT_LAST_OOC_POINT)
-    {
-        _OOCReached = true;
-        return;
-    }
-
     ASSERT(id < _path.size(), "SmartAI::MovepointReached: referenced movement id (%u) points to non-existing node in loaded path (%u)", id, GetScript()->GetPathId());
     uint32 nodeId = _path[id].id;
     _currentWaypointNode = nodeId;
 
-    _waypointReached = true;
     GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_REACHED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
 
-    if (HasEscortState(SMART_ESCORT_PAUSED))
+    if (_waypointPauseTimer && !_waypointPauseForced)
     {
-        if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-            movementGenerator->Pause();
+        _waypointReached = true;
+        me->PauseMovement();
     }
     else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
-        _waypointReached = false;
         if (_currentWaypointNode == _path.size())
             _waypointPathEnded = true;
         else
@@ -441,10 +435,13 @@ void SmartAI::MovementInform(uint32 type, uint32 id)
         me->ClearUnitState(UNIT_STATE_EVADE);
 
     GetScript()->ProcessEventsFor(SMART_EVENT_MOVEMENTINFORM, nullptr, type, id);
+
     if (!HasEscortState(SMART_ESCORT_ESCORTING))
         return;
 
-    if (type == WAYPOINT_MOTION_TYPE || (type == POINT_MOTION_TYPE && id == SMART_ESCORT_LAST_OOC_POINT))
+    if (type == POINT_MOTION_TYPE && id == SMART_ESCORT_LAST_OOC_POINT)
+        _OOCReached = true;
+    else if (type == WAYPOINT_MOTION_TYPE)
         MovepointReached(id);
 }
 
@@ -577,8 +574,8 @@ void SmartAI::JustReachedHome()
         {
             if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE && me->GetWaypointPath())
                 me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
-            else if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-                movementGenerator->Resume();
+            else
+                me->ResumeMovement();
         }
         else if (formation->isFormed())
             me->GetMotionMaster()->MoveIdle(); // wait the order of leader
@@ -625,11 +622,8 @@ void SmartAI::AttackStart(Unit* who)
 
     if (who && me->Attack(who, mCanAutoAttack))
     {
-        if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-            movementGenerator->Pause();
-
         me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
-        me->StopMoving();
+        me->PauseMovement();
 
         if (mCanCombatMove)
         {

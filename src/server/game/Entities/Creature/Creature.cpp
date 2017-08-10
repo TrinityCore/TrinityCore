@@ -313,9 +313,9 @@ void Creature::DisappearAndDie()
     ForcedDespawn(0);
 }
 
-void Creature::PauseMovement(uint32 timer/* = 0*/)
+void Creature::PauseMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/)
 {
-    Unit::PauseMovement(timer);
+    Unit::PauseMovement(timer, slot);
 
     SetHomePosition(GetPosition());
 }
