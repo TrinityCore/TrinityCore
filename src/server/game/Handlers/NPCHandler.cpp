@@ -29,8 +29,6 @@
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
-#include "MotionMaster.h"
-#include "MovementGenerator.h"
 #include "Opcodes.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
@@ -326,10 +324,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     //    GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    if (MovementGenerator* movementGenerator = unit->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-        movementGenerator->Pause(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
-
-    unit->StopMoving();
+    unit->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
 
     // If spiritguide, no need for gossip menu, just put player into resurrect queue
     if (unit->IsSpiritGuide())

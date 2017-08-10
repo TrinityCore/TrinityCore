@@ -27,8 +27,6 @@
 #include "GossipDef.h"
 #include "Group.h"
 #include "Log.h"
-#include "MotionMaster.h"
-#include "MovementGenerator.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -95,10 +93,7 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    if (MovementGenerator* movementGenerator = creature->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-        movementGenerator->Pause(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
-
-    creature->StopMoving();
+    creature->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
 
     _player->PlayerTalkClass->ClearMenus();
     if (creature->AI()->GossipHello(_player))

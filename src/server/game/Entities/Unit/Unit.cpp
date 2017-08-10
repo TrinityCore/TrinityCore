@@ -11407,6 +11407,14 @@ void Unit::StopMoving()
     init.Stop();
 }
 
+void Unit::PauseMovement(uint32 timer/* = 0*/)
+{
+    if (MovementGenerator* movementGenerator = GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
+        movementGenerator->Pause(timer);
+
+    StopMoving();
+}
+
 void Unit::SendMovementFlagUpdate(bool self /* = false */)
 {
     WorldPacket data;

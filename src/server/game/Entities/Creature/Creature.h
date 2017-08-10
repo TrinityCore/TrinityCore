@@ -296,6 +296,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetCurrentWaypointID() const { return m_waypointID; }
         void UpdateWaypointID(uint32 wpID) { m_waypointID = wpID; }
 
+        void PauseMovement(uint32 timer = 0) override; // timer in ms
+
         void SearchFormation();
         CreatureGroup* GetFormation() { return m_formation; }
         void SetFormation(CreatureGroup* formation) { m_formation = formation; }

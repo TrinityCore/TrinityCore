@@ -32,7 +32,6 @@
 #include "Language.h"
 #include "Log.h"
 #include "MotionMaster.h"
-#include "MovementGenerator.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -52,10 +51,7 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
         return;
 
     // Stop the npc if moving
-    if (MovementGenerator* movementGenerator = unit->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-        movementGenerator->Pause(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
-
-    unit->StopMoving();
+    unit->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
 
     BattlegroundTypeId bgTypeId = sBattlegroundMgr->GetBattleMasterBG(unit->GetEntry());
 

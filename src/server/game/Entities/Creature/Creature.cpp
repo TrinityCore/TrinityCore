@@ -313,6 +313,13 @@ void Creature::DisappearAndDie()
     ForcedDespawn(0);
 }
 
+void Creature::PauseMovement(uint32 timer/* = 0*/)
+{
+    Unit::PauseMovement(timer);
+
+    SetHomePosition(GetPosition());
+}
+
 void Creature::SearchFormation()
 {
     if (IsSummon())
