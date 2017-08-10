@@ -64,11 +64,25 @@ Position const WintergraspStalkerPos   = { 4948.985f, 2937.789f, 550.5172f,  1.8
 Position const WintergraspRelicPos     = { 5440.379f, 2840.493f, 430.2816f, -1.832595f };
 QuaternionData const WintergraspRelicRot    = { 0.f, 0.f, -0.7933531f, 0.6087617f };
 
+uint8 const WG_MAX_GRID             = 8;
 uint8 const WG_MAX_OBJ              = 32;
 uint8 const WG_MAX_TURRET           = 15;
 uint8 const WG_MAX_TELEPORTER       = 12;
 uint8 const WG_MAX_WORKSHOP         = 6;
 uint8 const WG_MAX_TOWER            = 7;
+
+// Grids to mark as active and locked
+GridCoord const WGGridCoord[WG_MAX_GRID] =
+{
+    { 40, 35 },
+    { 40, 36 },
+    { 40, 37 },
+    { 40, 38 },
+    { 41, 36 },
+    { 41, 37 },
+    { 42, 36 },
+    { 42, 37 }
+};
 
 // *****************************************************
 // ************ Destructible (Wall, Tower..) ***********
@@ -463,6 +477,13 @@ bool BattlefieldWG::SetupBattlefield()
     SetData(BATTLEFIELD_WG_DATA_WON_H, uint32(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_ATTACKED_H)));
     SetData(BATTLEFIELD_WG_DATA_DEF_H, uint32(sWorld->getWorldState(BATTLEFIELD_WG_WORLD_STATE_DEFENDED_H)));
 
+    // Handle setting WG grids to active.
+    for (uint8 i = 0; i < WG_MAX_GRID; i++)
+    {
+        // Make sure grid is locked and unable to be unloaded to prevent despawning.
+        m_Map->GridMarkNoUnload(WGGridCoord[i].x_coord, WGGridCoord[i].y_coord);
+    }
+    
     for (uint8 i = 0; i < BATTLEFIELD_WG_GRAVEYARD_MAX; i++)
     {
         BfGraveyardWG* graveyard = new BfGraveyardWG(this);
