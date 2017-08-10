@@ -34,9 +34,9 @@ enum Points
     POINT_HOME          = 0xFFFFFE
 };
 
-EscortAI::EscortAI(Creature* creature) : ScriptedAI(creature), _waypointPauseTimer(2500), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
+EscortAI::EscortAI(Creature* creature) : ScriptedAI(creature), _pauseTimer(2500), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
     _escortQuest(nullptr), _activeAttacker(true), _running(false), _instantRespawn(false), _returnToStart(false), _despawnAtEnd(true), _despawnAtFar(true), _manualPath(false),
-    _hasImmuneToNPCFlags(false), _started(false), _ended(false)
+    _hasImmuneToNPCFlags(false), _started(false), _ended(false), _resume(false)
 {
 }
 
@@ -116,7 +116,7 @@ void EscortAI::JustAppeared()
         SetCombatMovement(true);
 
     // add a small delay before going to first waypoint, normal in near all cases
-    _waypointPauseTimer = 2500;
+    _pauseTimer = 2000;
 
     if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
@@ -174,13 +174,13 @@ bool EscortAI::IsPlayerOrGroupInRange()
 void EscortAI::UpdateAI(uint32 diff)
 {
     // Waypoint Updating
-    if (HasEscortState(STATE_ESCORT_ESCORTING) && !me->GetVictim() && _waypointPauseTimer && !HasEscortState(STATE_ESCORT_RETURNING))
+    if (HasEscortState(STATE_ESCORT_ESCORTING) && !me->IsEngaged() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
-        if (_waypointPauseTimer <= diff)
+        if (_pauseTimer <= diff)
         {
             if (!HasEscortState(STATE_ESCORT_PAUSED))
             {
-                _waypointPauseTimer = 0;
+                _pauseTimer = 0;
 
                 if (_ended)
                 {
@@ -214,26 +214,33 @@ void EscortAI::UpdateAI(uint32 diff)
                     _started = true;
                     me->GetMotionMaster()->MovePath(_path, false);
                 }
-                else if (WaypointMovementGenerator<Creature>* movementGenerator = dynamic_cast<WaypointMovementGenerator<Creature>*>(me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE)))
-                    WaypointStart(movementGenerator->GetCurrentNode());
+                else if (_resume)
+                {
+                    _resume = false;
+                    if (WaypointMovementGenerator<Creature>* movementGenerator = dynamic_cast<WaypointMovementGenerator<Creature>*>(me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE)))
+                    {
+                        movementGenerator->Resume();
+                        WaypointStart(movementGenerator->GetCurrentNode());
+                    }
+                }
             }
         }
         else
-            _waypointPauseTimer -= diff;
+            _pauseTimer -= diff;
     }
 
     // Check if player or any member of his group is within range
-    if (HasEscortState(STATE_ESCORT_ESCORTING) && _playerGUID && !me->GetVictim() && !HasEscortState(STATE_ESCORT_RETURNING))
+    if (_despawnAtFar && HasEscortState(STATE_ESCORT_ESCORTING) && _playerGUID && !me->GetVictim() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (_playerCheckTimer <= diff)
         {
-            if (_despawnAtFar && !IsPlayerOrGroupInRange())
+            if (!IsPlayerOrGroupInRange())
             {
                 TC_LOG_DEBUG("scripts", "EscortAI::UpdateAI: failed because player/group was to far away or not found");
 
                 bool isEscort = false;
-                if (CreatureData const* cdata = me->GetCreatureData())
-                    isEscort = (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC));
+                if (CreatureData const* creatureData = me->GetCreatureData())
+                    isEscort = (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (creatureData->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC));
 
                 if (_instantRespawn && !isEscort)
                     me->DespawnOrUnsummon(0, Seconds(1));
@@ -270,8 +277,8 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
 
     if (type == POINT_MOTION_TYPE)
     {
-        if (!_waypointPauseTimer)
-            _waypointPauseTimer = 2000;
+        if (!_pauseTimer)
+            _pauseTimer = 2000;
 
         // continue waypoint movement
         if (id == POINT_LAST_POINT)
@@ -302,14 +309,12 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
             _started = false;
             _ended = true;
 
-            _waypointPauseTimer = 50;
+            _pauseTimer = 1000;
             return;
         }
 
-        _waypointPauseTimer = waypoint.delay;
-
         // notify waypoint start if necessary
-        if (!_waypointPauseTimer && !HasEscortState(STATE_ESCORT_PAUSED))
+        if (!HasEscortState(STATE_ESCORT_PAUSED))
             WaypointStart(_path[id + 1].id);
 
         me->SetWalk(!_running);
@@ -470,8 +475,7 @@ void EscortAI::SetEscortPaused(bool on)
     else
     {
         RemoveEscortState(STATE_ESCORT_PAUSED);
-        if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
-            movementGenerator->Resume();
+        _resume = true;
     }
 }
 

@@ -76,7 +76,7 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void SetCanAttack(bool attack) { _activeAttacker = attack; }
         ObjectGuid GetEventStarterGUID() const { return _playerGUID; }
         virtual bool IsEscortNPC(bool isEscorting) const override;
-        void SetWaitTimer(uint32 Timer) { _waypointPauseTimer = Timer; }
+        void SetWaitTimer(uint32 Timer) { _pauseTimer = Timer; }
 
     protected:
         Player* GetPlayerForEscort();
@@ -90,7 +90,7 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void RemoveEscortState(uint32 escortState) { _escortState &= ~escortState; }
 
         ObjectGuid _playerGUID;
-        uint32 _waypointPauseTimer;
+        uint32 _pauseTimer;
         uint32 _playerCheckTimer;
         uint32 _escortState;
         float _maxPlayerDistance;
@@ -109,5 +109,6 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         bool _hasImmuneToNPCFlags;
         bool _started;
         bool _ended;
+        bool _resume;
 };
 #endif
