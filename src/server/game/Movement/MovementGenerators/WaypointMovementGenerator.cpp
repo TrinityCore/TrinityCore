@@ -19,7 +19,6 @@
 #include "WaypointMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "CreatureGroups.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "MoveSpline.h"
@@ -100,6 +99,10 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     if (!_path || _path->empty())
         return false;
+
+    // if the owner is the leader of its formation, check members status
+    if (creature->IsFormationLeader() && !creature->IsFormationLeaderMoveAllowed())
+        _nextMoveTime.Reset(1000);
 
     bool transportPath = creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !creature->GetTransGUID().IsEmpty();
 
@@ -186,8 +189,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     init.Launch();
 
     // Call for creature group update
-    if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
-        creature->GetFormation()->LeaderMoveTo(formationDest, waypoint.id, waypoint.move_type, (waypoint.orientation && waypoint.delay) ? true : false);
+    creature->SignalFormationMovement(formationDest, waypoint.id, waypoint.move_type, (waypoint.orientation && waypoint.delay) ? true : false);
 
     return true;
 }
@@ -265,8 +267,8 @@ void WaypointMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
 void WaypointMovementGenerator<Creature>::Resume(uint32 overrideTimer/* = 0*/)
 {
     _stalled = false;
-    if (timer)
-        _nextMoveTime.Reset(timer);
+    if (overrideTimer)
+        _nextMoveTime.Reset(overrideTimer);
 }
 
 bool WaypointMovementGenerator<Creature>::CanMove(Creature* creature)

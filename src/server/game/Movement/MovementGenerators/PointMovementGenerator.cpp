@@ -18,7 +18,6 @@
 
 #include "CreatureAI.h"
 #include "Creature.h"
-#include "CreatureGroups.h"
 #include "Player.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
@@ -55,8 +54,7 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
 
     // Call for creature group update
     if (Creature* creature = owner->ToCreature())
-        if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
-            creature->GetFormation()->LeaderMoveTo(Position(_x, _y, _z), _movementId);
+        creature->SignalFormationMovement(Position(_x, _y, _z), _movementId);
 }
 
 template<class T>
@@ -90,8 +88,7 @@ bool PointMovementGenerator<T>::DoUpdate(T* owner, uint32 /*diff*/)
 
         // Call for creature group update
         if (Creature* creature = owner->ToCreature())
-            if (creature->GetFormation() && creature->GetFormation()->getLeader() == creature)
-                creature->GetFormation()->LeaderMoveTo(Position(_x, _y, _z), _movementId);
+            creature->SignalFormationMovement(Position(_x, _y, _z), _movementId);
     }
 
     return !owner->movespline->Finalized();

@@ -298,10 +298,14 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void UpdateWaypointID(uint32 wpID) { m_waypointID = wpID; }
 
         void PauseMovement(uint32 timer = 0, uint8 slot = 0) override; // timer in ms
+        bool IsReturningHome() const;
 
         void SearchFormation();
         CreatureGroup* GetFormation() { return m_formation; }
         void SetFormation(CreatureGroup* formation) { m_formation = formation; }
+        bool IsFormationLeader() const;
+        void SignalFormationMovement(Position const& destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
+        bool IsFormationLeaderMoveAllowed() const;
 
         Unit* SelectVictim();
 
