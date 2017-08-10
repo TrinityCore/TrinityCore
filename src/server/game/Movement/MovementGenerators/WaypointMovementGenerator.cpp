@@ -258,13 +258,15 @@ bool WaypointMovementGenerator<Creature>::GetResetPos(Creature*, float& x, float
 
 void WaypointMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
 {
-    _stalled = true;
+    _stalled = timer ? false : true;
     _nextMoveTime.Reset(timer ? timer : 1);
 }
 
-void WaypointMovementGenerator<Creature>::Resume()
+void WaypointMovementGenerator<Creature>::Resume(uint32 overrideTimer/* = 0*/)
 {
     _stalled = false;
+    if (timer)
+        _nextMoveTime.Reset(timer);
 }
 
 bool WaypointMovementGenerator<Creature>::CanMove(Creature* creature)
