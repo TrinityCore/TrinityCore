@@ -476,7 +476,17 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_FACE_ID, createInfo->Face);
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, createInfo->HairStyle);
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, createInfo->HairColor);
-    SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, createInfo->FacialHairStyle);
+
+    // no facialHairStyle for tauren (HairStyle used instead)
+    if (createInfo->Race != RACE_TAUREN)
+    {
+        // no facialHairStyle for females
+        if (createInfo->Sex != GENDER_FEMALE)
+            SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, createInfo->FacialHairStyle);
+    }
+    else
+        SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, 0);    // tauren or female = 0
+
     for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
         SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i, createInfo->CustomDisplay[i]);
     SetUInt32Value(PLAYER_FIELD_REST_INFO + REST_STATE_XP, (GetSession()->IsARecruiter() || GetSession()->GetRecruiterId() != 0) ? REST_STATE_RAF_LINKED : REST_STATE_NOT_RAF_LINKED);
@@ -27579,9 +27589,15 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
     if (!IsSectionFlagValid(hair, class_, create))
         return false;
 
-    CharSectionsEntry const* facialHair = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHairID, hairColor);
-    if (!facialHair)
-        return false;
+    if (race != RACE_TAUREN)
+    {
+        if (gender != GENDER_FEMALE)
+        {
+            CharSectionsEntry const* facialHair = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHairID, hairColor);
+            if (!facialHair)
+                return false;
+        }
+    }
 
     for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
         if (CharSectionsEntry const* entry = sDB2Manager.GetCharSectionEntry(race, CharSectionType(SECTION_TYPE_CUSTOM_DISPLAY_1 + i * 2), gender, customDisplay[i], 0))
