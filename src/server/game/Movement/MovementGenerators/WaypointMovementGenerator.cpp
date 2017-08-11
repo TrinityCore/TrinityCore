@@ -123,7 +123,10 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     // if the owner is the leader of its formation, check members status
     if (creature->IsFormationLeader() && !creature->IsFormationLeaderMoveAllowed())
+    {
         _nextMoveTime.Reset(1000);
+        return true;
+    }
 
     bool transportPath = creature->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !creature->GetTransGUID().IsEmpty();
 
