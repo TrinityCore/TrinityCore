@@ -821,7 +821,7 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
                 return false;
 
     // check mana requirement
-    if (procEntry.AttributesMask & PROC_ATTR_REQ_MANA_COST)
+    if (procEntry.AttributesMask & PROC_ATTR_REQ_POWER_COST)
         if (SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo())
         {
             std::vector<SpellPowerCost> costs = eventSpellInfo->CalcPowerCost(eventInfo.GetActor(), eventInfo.GetSchoolMask());
