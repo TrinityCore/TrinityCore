@@ -1067,7 +1067,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void WaypointStart(uint32 waypointId) override
+            void WaypointStart(uint32 waypointId, uint32 /*pathId*/) override
             {
                 _currentWPid = waypointId;
                 switch (waypointId)

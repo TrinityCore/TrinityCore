@@ -103,7 +103,7 @@ public:
             }
         }
 
-        void WaypointStart(uint32 pointId) override
+        void WaypointStart(uint32 pointId, uint32 /*pathId*/) override
         {
             switch (pointId)
             {
