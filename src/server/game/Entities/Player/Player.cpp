@@ -477,15 +477,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, createInfo->HairStyle);
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, createInfo->HairColor);
 
-    // no FacialHairStyle for tauren and dranei (HairStyle used instead)
-    if (createInfo->Race != RACE_TAUREN && createInfo->Race != RACE_DRAENEI)
-    {
-        // no FacialHairStyle for females
-        if (createInfo->Sex != GENDER_FEMALE)
-            SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, createInfo->FacialHairStyle);
-    }
-    else
-        SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, 0);    // tauren/dranei or female = 0
+    SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, createInfo->FacialHairStyle);
 
     for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
         SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i, createInfo->CustomDisplay[i]);
@@ -27566,6 +27558,17 @@ bool IsSectionFlagValid(CharSectionsEntry const* entry, uint8 class_, bool creat
     return ComponentFlagsMatch(entry, GetSelectionFromContext(2, class_));
 }
 
+bool Player::CheckFacialHairAttribute(uint8 race_, uint8 gender_)
+{
+    if (race_ == RACE_TAUREN || race_ == RACE_DRAENEI)
+        return false;
+
+    if (gender_ == GENDER_FEMALE)   // temporary no validation checks for females
+        return false;
+
+    return true;
+}
+
 bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHairID, uint8 skinColor, std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> const& customDisplay, bool create /*= false*/)
 {
     CharSectionsEntry const* skin = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_SKIN, gender, 0, skinColor);
@@ -27589,14 +27592,11 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
     if (!IsSectionFlagValid(hair, class_, create))
         return false;
 
-    if (race != RACE_TAUREN && race != RACE_DRAENEI)
+    if (CheckFacialHairAttribute(race, gender))
     {
-        if (gender != GENDER_FEMALE)
-        {
-            CharSectionsEntry const* facialHair = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHairID, hairColor);
-            if (!facialHair)
-                return false;
-        }
+        CharSectionsEntry const* facialHair = sDB2Manager.GetCharSectionEntry(race, SECTION_TYPE_FACIAL_HAIR, gender, facialHairID, hairColor);
+        if (!facialHair)
+            return false;
     }
 
     for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
