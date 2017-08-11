@@ -30,6 +30,8 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "MotionMaster.h"
+#include "MovementGenerator.h"
 #include "Transport.h"
 #include "Vehicle.h"
 #include "WaypointMovementGenerator.h"
@@ -153,8 +155,8 @@ void WorldSession::HandleMoveWorldportAck()
             if (!seamlessTeleport)
             {
                 // short preparations to continue flight
-                FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
-                flight->Initialize(GetPlayer());
+                MovementGenerator* movementGenerator = GetPlayer()->GetMotionMaster()->top();
+                movementGenerator->Initialize(GetPlayer());
             }
             return;
         }

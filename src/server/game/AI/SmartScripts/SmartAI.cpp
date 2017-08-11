@@ -16,8 +16,9 @@
  */
 
 #include "SmartAI.h"
-#include "DB2Structure.h"
 #include "Creature.h"
+#include "CreatureGroups.h"
+#include "DB2Structure.h"
 #include "GameObject.h"
 #include "Group.h"
 #include "Log.h"
@@ -28,54 +29,12 @@
 #include "ScriptMgr.h"
 #include "Vehicle.h"
 
-SmartAI::SmartAI(Creature* c) : CreatureAI(c)
+SmartAI::SmartAI(Creature* creature) : CreatureAI(creature), mIsCharmed(false), mFollowCreditType(0), mFollowArrivedTimer(0), mFollowCredit(0), mFollowArrivedEntry(0), mFollowDist(0.f), mFollowAngle(0.f),
+    _escortState(SMART_ESCORT_NONE), _escortNPCFlags(0), _escortInvokerCheckTimer(1000), _currentWaypointNode(0), _waypointReached(false), _waypointPauseTimer(0), _waypointPauseForced(false), _repeatWaypointPath(false),
+    _OOCReached(false), _waypointPathEnded(false), mRun(true), mEvadeDisabled(false), mCanAutoAttack(true), mCanCombatMove(true), mInvincibilityHpLevel(0), mDespawnTime(0), mDespawnState(0), mJustReset(false),
+    mConditionsTimer(0), _gossipReturn(false)
 {
-    mIsCharmed = false;
-    // copy script to local (protection for table reload)
-
-    mWayPoints = nullptr;
-    mEscortState = SMART_ESCORT_NONE;
-    mCurrentWPID = 0;//first wp id is 1 !!
-    mWPReached = false;
-    mWPPauseTimer = 0;
-    mEscortNPCFlags = 0;
-    mLastWP = nullptr;
-
-    mCanRepeatPath = false;
-
-    // spawn in run mode
-    me->SetWalk(false);
-    mRun = false;
-    mEvadeDisabled = false;
-
-    mLastOOCPos = me->GetPosition();
-
-    mCanAutoAttack = true;
-    mCanCombatMove = true;
-
-    mForcedPaused = false;
-    mLastWPIDReached = 0;
-
-    mEscortQuestID = 0;
-
-    mDespawnTime = 0;
-    mDespawnState = 0;
-
-    mEscortInvokerCheckTimer = 1000;
-    mFollowGuid.Clear();
-    mFollowDist = 0;
-    mFollowAngle = 0;
-    mFollowCredit = 0;
-    mFollowArrivedEntry = 0;
-    mFollowCreditType = 0;
-    mFollowArrivedTimer = 0;
-    mInvincibilityHpLevel = 0;
-
-    mJustReset = false;
-    mConditionsTimer = 0;
-    mHasConditions = sConditionMgr->HasConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, c->GetEntry());
-
-    _gossipReturn = false;
+    mHasConditions = sConditionMgr->HasConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, creature->GetEntry());
 }
 
 bool SmartAI::IsAIControlled() const
@@ -101,74 +60,68 @@ void SmartAI::UpdateDespawn(uint32 diff)
     } else mDespawnTime -= diff;
 }
 
-WayPoint* SmartAI::GetNextWayPoint()
+void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat/* = false*/, Unit* invoker/* = nullptr*/, uint32 nodeId/* = 1*/)
 {
-    if (!mWayPoints || mWayPoints->empty())
-        return nullptr;
-
-    mCurrentWPID++;
-    WPPath::const_iterator itr = mWayPoints->find(mCurrentWPID);
-    if (itr != mWayPoints->end())
+    if (me->IsInCombat()) // no wp movement in combat
     {
-        mLastWP = (*itr).second;
-        if (mLastWP->id != mCurrentWPID)
-        {
-            TC_LOG_ERROR("misc", "SmartAI::GetNextWayPoint: Got not expected waypoint id %u, expected %u", mLastWP->id, mCurrentWPID);
-        }
-        return (*itr).second;
-    }
-    return nullptr;
-}
-
-void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* invoker)
-{
-    if (me->IsInCombat())// no wp movement in combat
-    {
-        TC_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement while in combat, ignoring.", me->GetEntry());
+        TC_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement (%u) while in combat, ignoring.", me->GetEntry(), pathId);
         return;
     }
 
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         StopPath();
 
-    if (path)
+    SetRun(run);
+
+    if (pathId)
     {
-        if (!LoadPath(path))
+        if (!LoadPath(pathId))
             return;
     }
 
-    if (!mWayPoints || mWayPoints->empty())
+    if (_path.nodes.empty())
         return;
 
-    if (WayPoint* wp = GetNextWayPoint())
+    _currentWaypointNode = nodeId;
+    _waypointPathEnded = false;
+
+    _repeatWaypointPath = repeat;
+
+    // Do not use AddEscortState, removing everything from previous
+    _escortState = SMART_ESCORT_ESCORTING;
+
+    if (invoker && invoker->GetTypeId() == TYPEID_PLAYER)
     {
-        AddEscortState(SMART_ESCORT_ESCORTING);
-        mCanRepeatPath = repeat;
-
-        SetRun(run);
-
-        if (invoker && invoker->GetTypeId() == TYPEID_PLAYER)
-        {
-            mEscortNPCFlags = me->m_unitData->NpcFlags[0];
-            me->SetNpcFlags((NPCFlags)0);
-        }
-
-        mLastOOCPos = me->GetPosition();
-        me->GetMotionMaster()->MovePoint(wp->id, wp->x, wp->y, wp->z);
-        GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, wp->id, GetScript()->GetPathId());
+        _escortNPCFlags = me->m_unitData->NpcFlags[0];
+        me->SetNpcFlags((NPCFlags)0);
     }
+
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+
+    me->GetMotionMaster()->MovePath(_path, _repeatWaypointPath);
 }
 
 bool SmartAI::LoadPath(uint32 entry)
 {
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         return false;
-    mWayPoints = sSmartWaypointMgr->GetPath(entry);
-    if (!mWayPoints)
+
+    WaypointPath const* path = sSmartWaypointMgr->GetPath(entry);
+    if (!path || path->nodes.empty())
     {
         GetScript()->SetPathId(0);
         return false;
     }
+
+    _path.id = path->id;
+    _path.nodes = path->nodes;
+    for (WaypointNode& waypoint : _path.nodes)
+    {
+        Trinity::NormalizeMapCoord(waypoint.x);
+        Trinity::NormalizeMapCoord(waypoint.y);
+        waypoint.moveType = mRun ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+    }
+
     GetScript()->SetPathId(entry);
     return true;
 }
@@ -177,22 +130,26 @@ void SmartAI::PausePath(uint32 delay, bool forced)
 {
     if (!HasEscortState(SMART_ESCORT_ESCORTING))
         return;
+
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
-        TC_LOG_ERROR("misc", "SmartAI::PausePath: Creature entry %u wanted to pause waypoint movement while already paused, ignoring.", me->GetEntry());
+        TC_LOG_ERROR("misc", "SmartAI::PausePath: Creature entry %u wanted to pause waypoint (current waypoint: %u) movement while already paused, ignoring.", me->GetEntry(), _currentWaypointNode);
         return;
     }
-    mForcedPaused = forced;
-    mLastOOCPos = me->GetPosition();
-    AddEscortState(SMART_ESCORT_PAUSED);
-    mWPPauseTimer = delay;
+
+    _waypointPauseTimer = delay;
+
     if (forced)
     {
+        _waypointPauseForced = forced;
         SetRun(mRun);
-        me->StopMoving();//force stop
-        me->GetMotionMaster()->MoveIdle();//force stop
+        me->PauseMovement();
     }
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_PAUSED, nullptr, mLastWP->id, GetScript()->GetPathId());
+    else
+        _waypointReached = false;
+
+    AddEscortState(SMART_ESCORT_PAUSED);
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_PAUSED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
 }
 
 void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
@@ -202,39 +159,28 @@ void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
 
     if (quest)
         mEscortQuestID = quest;
-    SetDespawnTime(DespawnTime);
-    //mDespawnTime = DespawnTime;
 
-    mLastOOCPos = me->GetPosition();
-    me->StopMoving();//force stop
+    if (mDespawnState != 2)
+        SetDespawnTime(DespawnTime);
+
     me->GetMotionMaster()->MoveIdle();
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_STOPPED, nullptr, mLastWP->id, GetScript()->GetPathId());
+
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_STOPPED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+
     EndPath(fail);
 }
 
 void SmartAI::EndPath(bool fail)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_ENDED, nullptr, mLastWP->id, GetScript()->GetPathId());
-
     RemoveEscortState(SMART_ESCORT_ESCORTING | SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING);
-    mWayPoints = nullptr;
-    mCurrentWPID = 0;
-    mWPPauseTimer = 0;
-    mLastWP = nullptr;
+    _path.nodes.clear();
+    _waypointPauseTimer = 0;
 
-    if (mEscortNPCFlags)
+    if (_escortNPCFlags)
     {
-        me->SetNpcFlags((NPCFlags)mEscortNPCFlags);
-        mEscortNPCFlags = 0;
+        me->SetNpcFlags((NPCFlags)_escortNPCFlags);
+        _escortNPCFlags = 0;
     }
-
-    if (mCanRepeatPath)
-    {
-        if (IsAIControlled())
-            StartPath(mRun, GetScript()->GetPathId(), true);
-    }
-    else
-        GetScript()->SetPathId(0);
 
     ObjectVector const* targets = GetScript()->GetStoredTargetVector(SMART_ESCORT_TARGETS, *me);
     if (targets && mEscortQuestID)
@@ -279,15 +225,36 @@ void SmartAI::EndPath(bool fail)
         }
     }
 
+    // End Path events should be only processed if it was SUCCESSFUL stop or stop called by SMART_ACTION_WAYPOINT_STOP
+    if (fail)
+        return;
+
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_ENDED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+
+    if (_repeatWaypointPath)
+    {
+        if (IsAIControlled())
+            StartPath(mRun, GetScript()->GetPathId(), _repeatWaypointPath);
+    }
+    else
+        GetScript()->SetPathId(0);
+
     if (mDespawnState == 1)
         StartDespawn();
 }
 
 void SmartAI::ResumePath()
 {
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_RESUMED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+
+    RemoveEscortState(SMART_ESCORT_PAUSED);
+
+    _waypointPauseForced = false;
+    _waypointReached = false;
+    _waypointPauseTimer = 0;
+
     SetRun(mRun);
-    if (mLastWP)
-        me->GetMotionMaster()->MovePoint(mLastWP->id, mLastWP->x, mLastWP->y, mLastWP->z);
+    me->ResumeMovement();
 }
 
 void SmartAI::ReturnToLastOOCPos()
@@ -295,81 +262,57 @@ void SmartAI::ReturnToLastOOCPos()
     if (!IsAIControlled())
         return;
 
-    SetRun(mRun);
-    me->GetMotionMaster()->MovePoint(SMART_ESCORT_LAST_OOC_POINT, mLastOOCPos);
+    me->SetWalk(false);
+    me->GetMotionMaster()->MovePoint(SMART_ESCORT_LAST_OOC_POINT, me->GetHomePosition());
 }
 
 void SmartAI::UpdatePath(const uint32 diff)
 {
     if (!HasEscortState(SMART_ESCORT_ESCORTING))
         return;
-    if (mEscortInvokerCheckTimer < diff)
+
+    if (_escortInvokerCheckTimer < diff)
     {
-        // Escort failed, no players in range 
         if (!IsEscortInvokerInRange())
         {
             StopPath(0, mEscortQuestID, true);
 
             // allow to properly hook out of range despawn action, which in most cases should perform the same operation as dying
             GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, me);
-            me->DespawnOrUnsummon(1);
+            me->DespawnOrUnsummon();
             return;
         }
-        mEscortInvokerCheckTimer = 1000;
+        _escortInvokerCheckTimer = 1000;
     }
     else
-        mEscortInvokerCheckTimer -= diff;
+        _escortInvokerCheckTimer -= diff;
 
     // handle pause
-    if (HasEscortState(SMART_ESCORT_PAUSED))
+    if (HasEscortState(SMART_ESCORT_PAUSED) && (_waypointReached || _waypointPauseForced))
     {
-        if (mWPPauseTimer < diff)
+        if (_waypointPauseTimer <= diff)
         {
-            if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING) && (mWPReached || mLastWPIDReached == SMART_ESCORT_LAST_OOC_POINT || mForcedPaused))
-            {
-                GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_RESUMED, nullptr, mLastWP->id, GetScript()->GetPathId());
-                RemoveEscortState(SMART_ESCORT_PAUSED);
-                if (mForcedPaused)// if paused between 2 wps resend movement
-                {
-                    ResumePath();
-                    mWPReached = false;
-                    mForcedPaused = false;
-                }
-                if (mLastWPIDReached == SMART_ESCORT_LAST_OOC_POINT)
-                    mWPReached = true;
-            }
-            mWPPauseTimer = 0;
+            if (!me->IsInCombat() && !HasEscortState(SMART_ESCORT_RETURNING))
+                ResumePath();
         }
         else
-            mWPPauseTimer -= diff;
+            _waypointPauseTimer -= diff;
+    }
+    else if (_waypointPathEnded) // end path
+    {
+        _waypointPathEnded = false;
+        StopPath();
+        return;
     }
 
     if (HasEscortState(SMART_ESCORT_RETURNING))
     {
-        if (mWPReached)//reached OOC WP
+        if (_OOCReached) // reached OOC WP
         {
+            _OOCReached = false;
             RemoveEscortState(SMART_ESCORT_RETURNING);
             if (!HasEscortState(SMART_ESCORT_PAUSED))
                 ResumePath();
-            mWPReached = false;
-        }
-    }
-
-    if ((!me->HasReactState(REACT_PASSIVE) && me->IsInCombat()) || HasEscortState(SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING))
-        return;
-
-    // handle next wp
-    if (mWPReached)//reached WP
-    {
-        mWPReached = false;
-        if (mCurrentWPID == GetWPCount())
-        {
-            EndPath();
-        }
-        else if (WayPoint* wp = GetNextWayPoint())
-        {
-            SetRun(mRun);
-            me->GetMotionMaster()->MovePoint(wp->id, wp->x, wp->y, wp->z);
         }
     }
 }
@@ -449,24 +392,43 @@ bool SmartAI::IsEscortInvokerInRange()
     return true;
 }
 
-void SmartAI::MovepointReached(uint32 id)
+///@todo Implement new smart event SMART_EVENT_WAYPOINT_STARTED
+void SmartAI::WaypointStarted(uint32 /*nodeId*/, uint32 /*pathId*/)
 {
-    if (id != SMART_ESCORT_LAST_OOC_POINT && mLastWPIDReached != id)
-        GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_REACHED, nullptr, id);
-
-    mLastWPIDReached = id;
-    mWPReached = true;
 }
 
-void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
+void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
 {
-    if ((MovementType == POINT_MOTION_TYPE && Data == SMART_ESCORT_LAST_OOC_POINT) || MovementType == FOLLOW_MOTION_TYPE)
+    _currentWaypointNode = nodeId;
+
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_REACHED, nullptr, _currentWaypointNode, pathId);
+
+    if (_waypointPauseTimer && !_waypointPauseForced)
+    {
+        _waypointReached = true;
+        me->PauseMovement();
+    }
+    else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+    {
+        if (_currentWaypointNode == _path.nodes.size())
+            _waypointPathEnded = true;
+        else
+            SetRun(mRun);
+    }
+}
+
+void SmartAI::MovementInform(uint32 type, uint32 id)
+{
+    if (type == POINT_MOTION_TYPE && id == SMART_ESCORT_LAST_OOC_POINT)
         me->ClearUnitState(UNIT_STATE_EVADE);
 
-    GetScript()->ProcessEventsFor(SMART_EVENT_MOVEMENTINFORM, nullptr, MovementType, Data);
-    if (MovementType != POINT_MOTION_TYPE || !HasEscortState(SMART_ESCORT_ESCORTING))
+    GetScript()->ProcessEventsFor(SMART_EVENT_MOVEMENTINFORM, nullptr, type, id);
+
+    if (!HasEscortState(SMART_ESCORT_ESCORTING))
         return;
-    MovepointReached(Data);
+
+    if (type == POINT_MOTION_TYPE && id == SMART_ESCORT_LAST_OOC_POINT)
+        _OOCReached = true;
 }
 
 void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
@@ -510,8 +472,8 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
     else
         me->GetMotionMaster()->MoveTargetedHome();
 
-    if (!HasEscortState(SMART_ESCORT_ESCORTING)) //dont mess up escort movement after combat
-        SetRun(mRun);
+    if (!me->HasUnitState(UNIT_STATE_EVADE))
+        GetScript()->OnReset();
 }
 
 void SmartAI::MoveInLineOfSight(Unit* who)
@@ -543,19 +505,19 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
     if (!who || !who->GetVictim())
         return false;
 
-    //experimental (unknown) flag not present
+    // experimental (unknown) flag not present
     if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_ASSIST))
         return false;
 
-    //not a player
+    // not a player
     if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
-    //never attack friendly
+    // never attack friendly
     if (!me->IsValidAssistTarget(who->GetVictim()))
         return false;
 
-    //too far away and no free sight?
+    // too far away and no free sight?
     if (me->IsWithinDistInMap(who, SMART_MAX_AID_DIST) && me->IsWithinLOSInMap(who))
     {
         me->EngageWithTarget(who);
@@ -570,14 +532,14 @@ void SmartAI::JustAppeared()
     mDespawnTime = 0;
     mRespawnTime = 0;
     mDespawnState = 0;
-    mEscortState = SMART_ESCORT_NONE;
+    _escortState = SMART_ESCORT_NONE;
     me->SetVisible(true);
     if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
     mJustReset = true;
     JustReachedHome();
     GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
-    mFollowGuid.Clear();//do not reset follower on Reset(), we need it after combat evade
+    mFollowGuid.Clear(); // do not reset follower on Reset(), we need it after combat evade
     mFollowDist = 0;
     mFollowAngle = 0;
     mFollowCredit = 0;
@@ -594,8 +556,16 @@ void SmartAI::JustReachedHome()
     {
         GetScript()->ProcessEventsFor(SMART_EVENT_REACHED_HOME);
 
-        if (!UpdateVictim() && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE && me->GetWaypointPath())
-            me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
+        CreatureGroup* formation = me->GetFormation();
+        if (!formation || formation->getLeader() == me || !formation->isFormed())
+        {
+            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE && me->GetWaypointPath())
+                me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
+            else
+                me->ResumeMovement();
+        }
+        else if (formation->isFormed())
+            me->GetMotionMaster()->MoveIdle(); // wait the order of leader
     }
 
     mJustReset = false;
@@ -607,24 +577,14 @@ void SmartAI::EnterCombat(Unit* enemy)
         me->InterruptNonMeleeSpells(false); // must be before ProcessEvents
 
     GetScript()->ProcessEventsFor(SMART_EVENT_AGGRO, enemy);
-
-    if (!IsAIControlled())
-        return;
-    mLastOOCPos = me->GetPosition();
-    SetRun(mRun);
-    if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == POINT_MOTION_TYPE)
-        me->GetMotionMaster()->MovementExpired();
 }
 
 void SmartAI::JustDied(Unit* killer)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, killer);
     if (HasEscortState(SMART_ESCORT_ESCORTING))
-    {
         EndPath(true);
-        me->StopMoving();//force stop
-        me->GetMotionMaster()->MoveIdle();
-    }
+
+    GetScript()->ProcessEventsFor(SMART_EVENT_DEATH, killer);
 }
 
 void SmartAI::KilledUnit(Unit* victim)
@@ -642,15 +602,21 @@ void SmartAI::AttackStart(Unit* who)
     // dont allow charmed npcs to act on their own
     if (!IsAIControlled())
     {
-        if (who && mCanAutoAttack)
-            me->Attack(who, true);
+        if (who)
+            me->Attack(who, mCanAutoAttack);
         return;
     }
 
-    if (who && me->Attack(who, me->IsWithinMeleeRange(who)))
+    if (who && me->Attack(who, mCanAutoAttack))
     {
+        me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
+        me->PauseMovement();
+
         if (mCanCombatMove)
+        {
+            SetRun(mRun);
             me->GetMotionMaster()->MoveChase(who);
+        }
     }
 }
 
@@ -713,10 +679,10 @@ void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)
 void SmartAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
+
     if (!me->isDead())
     {
-        mJustReset = true;
-        JustReachedHome();
+        GetScript()->OnReset();
         GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     }
 }
@@ -727,13 +693,13 @@ void SmartAI::OnCharmed(bool apply)
     {
         if (HasEscortState(SMART_ESCORT_ESCORTING | SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING))
             EndPath(true);
-        me->StopMoving();
     }
+
     mIsCharmed = apply;
 
     if (!apply && !me->IsInEvadeMode())
     {
-        if (mCanRepeatPath)
+        if (_repeatWaypointPath)
             StartPath(mRun, GetScript()->GetPathId(), true);
         else
             me->SetWalk(!mRun);
@@ -826,30 +792,21 @@ void SmartAI::SetCombatMove(bool on)
 {
     if (mCanCombatMove == on)
         return;
+
     mCanCombatMove = on;
+
     if (!IsAIControlled())
         return;
-    if (!HasEscortState(SMART_ESCORT_ESCORTING))
-    {
-        if (on && me->GetVictim())
-        {
-            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE)
-            {
-                SetRun(mRun);
-                me->GetMotionMaster()->MoveChase(me->GetVictim());
-                me->CastStop();
-            }
-        }
-        else
-        {
-            if (me->HasUnitState(UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE))
-                return;
 
-            me->GetMotionMaster()->MovementExpired();
-            me->GetMotionMaster()->Clear(true);
-            me->StopMoving();
-            me->GetMotionMaster()->MoveIdle();
+    if (me->IsEngaged())
+    {
+        if (on && !me->HasReactState(REACT_PASSIVE) && me->GetVictim() && me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == MAX_MOTION_TYPE)
+        {
+            SetRun(mRun);
+            me->GetMotionMaster()->MoveChase(me->GetVictim());
         }
+        else if (!on && me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == CHASE_MOTION_TYPE)
+            me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
     }
 }
 
@@ -881,7 +838,6 @@ void SmartAI::StopFollow(bool complete)
     mFollowArrivedTimer = 1000;
     mFollowArrivedEntry = 0;
     mFollowCreditType = 0;
-    me->StopMoving();
     me->GetMotionMaster()->MoveIdle();
 
     if (!complete)

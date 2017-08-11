@@ -201,16 +201,16 @@ class npc_morridune : public CreatureScript
 public:
     npc_morridune() : CreatureScript("npc_morridune") { }
 
-    struct npc_morriduneAI : public npc_escortAI
+    struct npc_morriduneAI : public EscortAI
     {
-        npc_morriduneAI(Creature* creature) : npc_escortAI(creature)
+        npc_morriduneAI(Creature* creature) : EscortAI(creature)
         {
             Talk(SAY_MORRIDUNE_1);
             me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             Start(false);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {

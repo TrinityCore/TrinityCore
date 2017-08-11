@@ -16,24 +16,27 @@
  */
 
 #include "MotionMaster.h"
-#include "CreatureAISelector.h"
-#include "Creature.h"
-#include "ScriptSystem.h"
-#include "Log.h"
-#include "Map.h"
 #include "ConfusedMovementGenerator.h"
+#include "Creature.h"
+#include "CreatureAISelector.h"
+#include "DB2Stores.h"
 #include "FleeingMovementGenerator.h"
+#include "FormationMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
-#include "PointMovementGenerator.h"
-#include "TargetedMovementGenerator.h"
-#include "WaypointMovementGenerator.h"
-#include "RandomMovementGenerator.h"
-#include "SplineChainMovementGenerator.h"
-#include "FormationMovementGenerator.h"
+#include "Log.h"
+#include "Map.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
+#include "PetDefines.h"
+#include "Player.h"
+#include "PointMovementGenerator.h"
+#include "RandomMovementGenerator.h"
+#include "ScriptSystem.h"
+#include "SplineChainMovementGenerator.h"
+#include "TargetedMovementGenerator.h"
+#include "WaypointMovementGenerator.h"
 
 inline MovementGenerator* GetIdleMovementGenerator()
 {
@@ -687,15 +690,23 @@ void MotionMaster::MoveDistract(uint32 timer)
     Mutate(mgen, MOTION_SLOT_CONTROLLED);
 }
 
-void MotionMaster::MovePath(uint32 path_id, bool repeatable)
+void MotionMaster::MovePath(uint32 pathId, bool repeatable)
 {
-    if (!path_id)
+    if (!pathId)
         return;
 
-    Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
+    Mutate(new WaypointMovementGenerator<Creature>(pathId, repeatable), MOTION_SLOT_IDLE);
 
     TC_LOG_DEBUG("misc", "%s starts moving over path (Id:%u, repeatable: %s).",
-        _owner->GetGUID().ToString().c_str(), path_id, repeatable ? "YES" : "NO");
+        _owner->GetGUID().ToString().c_str(), pathId, repeatable ? "YES" : "NO");
+}
+
+void MotionMaster::MovePath(WaypointPath& path, bool repeatable)
+{
+    Mutate(new WaypointMovementGenerator<Creature>(path, repeatable), MOTION_SLOT_IDLE);
+
+    TC_LOG_DEBUG("misc", "%s start moving over path (repeatable: %s)",
+        _owner->GetGUID().ToString().c_str(), repeatable ? "YES" : "NO");
 }
 
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)

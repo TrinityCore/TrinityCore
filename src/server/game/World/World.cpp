@@ -92,7 +92,7 @@
 #include "VMapFactory.h"
 #include "VMapManager2.h"
 #include "WardenCheckMgr.h"
-#include "WaypointMovementGenerator.h"
+#include "WaypointManager.h"
 #include "WeatherMgr.h"
 #include "WhoListStorage.h"
 #include "WorldSession.h"

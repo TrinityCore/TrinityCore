@@ -80,9 +80,9 @@ class npc_apothecary_hanes : public CreatureScript
 public:
     npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
 
-    struct npc_Apothecary_HanesAI : public npc_escortAI
+    struct npc_Apothecary_HanesAI : public EscortAI
     {
-        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature)
+        npc_Apothecary_HanesAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -133,7 +133,7 @@ public:
             if (GetAttack() && UpdateVictim())
                 DoMeleeAttackIfReady();
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (me->IsInCombat())
                 return;
@@ -156,7 +156,7 @@ public:
                         events.Reset();
                         me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        ENSURE_AI(npc_escortAI, (me->AI()))->Start(true, true, _player);
+                        ENSURE_AI(EscortAI, (me->AI()))->Start(true, true, _player);
                         break;
                     case EVENT_TALK_1:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
@@ -202,7 +202,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (!GetPlayerForEscort())
                 return;
@@ -271,9 +271,9 @@ class npc_plaguehound_tracker : public CreatureScript
 public:
     npc_plaguehound_tracker() : CreatureScript("npc_plaguehound_tracker") { }
 
-    struct npc_plaguehound_trackerAI : public npc_escortAI
+    struct npc_plaguehound_trackerAI : public EscortAI
     {
-        npc_plaguehound_trackerAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_plaguehound_trackerAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -291,7 +291,7 @@ public:
             Start(false, false, summonerGUID);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId != 26)
                 return;

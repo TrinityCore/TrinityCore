@@ -23,8 +23,7 @@
 #include "GameObjectAI.h"
 #include "Position.h"
 #include "SmartScript.h"
-
-struct WayPoint;
+#include "WaypointDefines.h"
 
 enum SmartEscortState
 {
@@ -43,32 +42,37 @@ enum SmartEscortVars
 class TC_GAME_API SmartAI : public CreatureAI
 {
     public:
-        ~SmartAI(){ }
+        ~SmartAI() { }
         explicit SmartAI(Creature* c);
+
+        // core related
+        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 
         // Check whether we are currently permitted to make the creature take action
         bool IsAIControlled() const;
 
         // Start moving to the desired MovePoint
-        void StartPath(bool run = false, uint32 path = 0, bool repeat = false, Unit* invoker = nullptr);
+        void StartPath(bool run = false, uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 1);
         bool LoadPath(uint32 entry);
         void PausePath(uint32 delay, bool forced = false);
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
-        WayPoint* GetNextWayPoint();
-        bool HasEscortState(uint32 uiEscortState) const { return (mEscortState & uiEscortState) != 0; }
-        void AddEscortState(uint32 uiEscortState) { mEscortState |= uiEscortState; }
-        void RemoveEscortState(uint32 uiEscortState) { mEscortState &= ~uiEscortState; }
+        bool HasEscortState(uint32 uiEscortState) const { return (_escortState & uiEscortState) != 0; }
+        void AddEscortState(uint32 uiEscortState) { _escortState |= uiEscortState; }
+        void RemoveEscortState(uint32 uiEscortState) { _escortState &= ~uiEscortState; }
         void SetAutoAttack(bool on) { mCanAutoAttack = on; }
         void SetCombatMove(bool on);
         bool CanCombatMove() { return mCanCombatMove; }
         void SetFollow(Unit* target, float dist = 0.0f, float angle = 0.0f, uint32 credit = 0, uint32 end = 0, uint32 creditType = 0);
         void StopFollow(bool complete);
+        bool IsEscortInvokerInRange();
+
+        void WaypointStarted(uint32 nodeId, uint32 pathId) override;
+        void WaypointReached(uint32 nodeId, uint32 pathId) override;
 
         void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         SmartScript* GetScript() { return &mScript; }
-        bool IsEscortInvokerInRange();
 
         // Called when creature is spawned or respawned
         void JustAppeared() override;
@@ -157,12 +161,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Used in scripts to share variables
         ObjectGuid GetGUID(int32 id = 0) const override;
 
-        //core related
-        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
-
-        // Called at movepoint reached
-        void MovepointReached(uint32 id);
-
         // Makes the creature run/walk
         void SetRun(bool run = true);
 
@@ -196,11 +194,20 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void OnSpellClick(Unit* clicker, bool& result) override;
 
-        void SetWPPauseTimer(uint32 time) { mWPPauseTimer = time; }
+        void SetWPPauseTimer(uint32 time) { _waypointPauseTimer = time; }
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }
 
     private:
+        bool AssistPlayerInCombatAgainst(Unit* who);
+        void ReturnToLastOOCPos();
+        void UpdatePath(const uint32 diff);
+        void UpdateDespawn(uint32 diff);
+        // Vehicle conditions
+        void CheckConditions(uint32 diff);
+
+        SmartScript mScript;
+
         bool mIsCharmed;
         uint32 mFollowCreditType;
         uint32 mFollowArrivedTimer;
@@ -210,37 +217,30 @@ class TC_GAME_API SmartAI : public CreatureAI
         float mFollowDist;
         float mFollowAngle;
 
-        void ReturnToLastOOCPos();
-        void UpdatePath(const uint32 diff);
-        SmartScript mScript;
-        WPPath* mWayPoints;
-        uint32 mEscortState;
-        uint32 mCurrentWPID;
-        uint32 mLastWPIDReached;
-        bool mWPReached;
-        uint32 mWPPauseTimer;
-        uint32 mEscortNPCFlags;
-        WayPoint* mLastWP;
-        Position mLastOOCPos;//set on enter combat
-        uint32 GetWPCount() const { return mWayPoints ? uint32(mWayPoints->size()) : 0; }
-        bool mCanRepeatPath;
+        uint32 _escortState;
+        uint32 _escortNPCFlags;
+        uint32 _escortInvokerCheckTimer;
+        WaypointPath _path;
+        uint32 _currentWaypointNode;
+        bool _waypointReached;
+        uint32 _waypointPauseTimer;
+        bool _waypointPauseForced;
+        bool _repeatWaypointPath;
+        bool _OOCReached;
+        bool _waypointPathEnded;
+
         bool mRun;
         bool mEvadeDisabled;
         bool mCanAutoAttack;
         bool mCanCombatMove;
-        bool mForcedPaused;
         uint32 mInvincibilityHpLevel;
-        bool AssistPlayerInCombatAgainst(Unit* who);
 
         uint32 mDespawnTime;
         uint32 mRespawnTime;
         uint32 mDespawnState;
-        void UpdateDespawn(uint32 diff);
-        uint32 mEscortInvokerCheckTimer;
         bool mJustReset;
 
         // Vehicle conditions
-        void CheckConditions(uint32 diff);
         bool mHasConditions;
         uint32 mConditionsTimer;
 

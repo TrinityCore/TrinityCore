@@ -356,6 +356,21 @@ void Creature::DisappearAndDie()
     ForcedDespawn(0);
 }
 
+void Creature::PauseMovement(uint32 timer/* = 0*/, uint8 slot/* = 0*/)
+{
+    Unit::PauseMovement(timer, slot);
+
+    SetHomePosition(GetPosition());
+}
+
+bool Creature::IsReturningHome() const
+{
+    if (GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_ACTIVE) == HOME_MOTION_TYPE)
+        return true;
+
+    return false;
+}
+
 void Creature::SearchFormation()
 {
     if (IsSummon())
@@ -368,6 +383,33 @@ void Creature::SearchFormation()
     CreatureGroupInfoType::iterator frmdata = sFormationMgr->CreatureGroupMap.find(lowguid);
     if (frmdata != sFormationMgr->CreatureGroupMap.end())
         sFormationMgr->AddCreatureToGroup(frmdata->second->leaderGUID, this);
+}
+
+bool Creature::IsFormationLeader() const
+{
+    if (!m_formation)
+        return false;
+
+    return m_formation->IsLeader(this);
+}
+
+void Creature::SignalFormationMovement(Position const& destination, uint32 id/* = 0*/, uint32 moveType/* = 0*/, bool orientation/* = false*/)
+{
+    if (!m_formation)
+        return;
+
+    if (!m_formation->IsLeader(this))
+        return;
+
+    m_formation->LeaderMoveTo(destination, id, moveType, orientation);
+}
+
+bool Creature::IsFormationLeaderMoveAllowed() const
+{
+    if (!m_formation)
+        return false;
+
+    return m_formation->CanLeaderStartMoving();
 }
 
 void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)

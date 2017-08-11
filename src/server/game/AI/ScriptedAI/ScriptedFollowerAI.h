@@ -40,8 +40,6 @@ class TC_GAME_API FollowerAI : public ScriptedAI
         explicit FollowerAI(Creature* creature);
         ~FollowerAI() { }
 
-        //virtual void WaypointReached(uint32 uiPointId) = 0;
-
         void MovementInform(uint32 motionType, uint32 pointId) override;
 
         void AttackStart(Unit*) override;

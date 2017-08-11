@@ -959,9 +959,9 @@ class npc_crok_scourgebane : public CreatureScript
     public:
         npc_crok_scourgebane() : CreatureScript("npc_crok_scourgebane") { }
 
-        struct npc_crok_scourgebaneAI : public npc_escortAI
+        struct npc_crok_scourgebaneAI : public EscortAI
         {
-            npc_crok_scourgebaneAI(Creature* creature) : npc_escortAI(creature),
+            npc_crok_scourgebaneAI(Creature* creature) : EscortAI(creature),
                 _instance(creature->GetInstanceScript()), _respawnTime(creature->GetRespawnDelay()),
                 _corpseDelay(creature->GetCorpseDelay())
             {
@@ -1040,7 +1040,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
             {
                 switch (waypointId)
                 {
@@ -1071,7 +1071,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void WaypointStart(uint32 waypointId) override
+            void WaypointStarted(uint32 waypointId, uint32 /*pathId*/) override
             {
                 _currentWPid = waypointId;
                 switch (waypointId)

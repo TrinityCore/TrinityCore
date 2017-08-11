@@ -87,8 +87,9 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHe
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
     // Stop the npc if moving
-    creature->StopMoving();
+    creature->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
 
     _player->PlayerTalkClass->ClearMenus();
     if (creature->GetAI()->GossipHello(_player))
