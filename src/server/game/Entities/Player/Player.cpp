@@ -23586,6 +23586,8 @@ void Player::SendInitialPacketsAfterAddToMap()
 
     if (_garrison)
         _garrison->SendRemoteInfo();
+
+    UpdatePowerScaling();
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()
@@ -27646,4 +27648,18 @@ uint32 Player::DoRandomRoll(uint32 minimum, uint32 maximum)
         SendDirectMessage(randomRoll.Write());
 
     return roll;
+}
+
+void Player::UpdatePowerScaling()
+{
+    // @todo Activate pvp item levels during world pvp
+    bool pvpActivity = GetMap()->IsBattlegroundOrArena();
+
+    if (_usePvpItemLevels != pvpActivity)
+    {
+        _RemoveAllItemMods();
+        ActivatePvpItemLevels(pvpActivity);
+        _ApplyAllItemMods();
+    }
+    // @todo other types of power scaling such as timewalking
 }
