@@ -411,7 +411,7 @@ void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
     }
     else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
-        if (_currentWaypointNode == _path.nodes.size() - 1)
+        if (_currentWaypointNode == _path.nodes.size())
             _waypointPathEnded = true;
         else
             SetRun(mRun);

@@ -40,8 +40,6 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         explicit EscortAI(Creature* creature);
         ~EscortAI() { }
 
-        // CreatureAI functions
-
         void UpdateAI(uint32 diff) override; // the "internal" update, calls UpdateEscortAI()
         void MoveInLineOfSight(Unit* who) override;
         void JustDied(Unit*) override;
@@ -50,8 +48,6 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void EnterEvadeMode(EvadeReason /*why*/ = EVADE_REASON_OTHER) override;
         void MovementInform(uint32, uint32) override;
 
-        // EscortAI functions
-
         virtual void UpdateEscortAI(uint32 diff); // used when it's needed to add code in update (abilities, scripted events, etc)
 
         void AddWaypoint(uint32 id, float x, float y, float z, float orientation = 0.f, uint32 waitTime = 0); // waitTime is in ms
@@ -59,7 +55,9 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = nullptr, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true);
 
         void SetRun(bool on = true);
+
         void SetEscortPaused(bool on);
+        void SetPauseTimer(uint32 Timer) { _pauseTimer = Timer; }
 
         bool HasEscortState(uint32 escortState) { return (_escortState & escortState) != 0; }
         virtual bool IsEscorted() const override { return (_escortState & STATE_ESCORT_ESCORTING); }
@@ -69,11 +67,13 @@ struct TC_GAME_API EscortAI : public ScriptedAI
 
         void SetDespawnAtEnd(bool despawn) { _despawnAtEnd = despawn; }
         void SetDespawnAtFar(bool despawn) { _despawnAtFar = despawn; }
+
         bool GetAttack() const { return _activeAttacker; } // used in EnterEvadeMode override
         void SetCanAttack(bool attack) { _activeAttacker = attack; }
+
         ObjectGuid GetEventStarterGUID() const { return _playerGUID; }
+
         virtual bool IsEscortNPC(bool isEscorting) const override;
-        void SetPauseTimer(uint32 Timer) { _pauseTimer = Timer; }
 
     protected:
         Player* GetPlayerForEscort();
