@@ -477,15 +477,15 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_STYLE_ID, createInfo->HairStyle);
     SetByteValue(PLAYER_BYTES, PLAYER_BYTES_OFFSET_HAIR_COLOR_ID, createInfo->HairColor);
 
-    // no facialHairStyle for tauren (HairStyle used instead)
-    if (createInfo->Race != RACE_TAUREN)
+    // no FacialHairStyle for tauren and dranei (HairStyle used instead)
+    if (createInfo->Race != RACE_TAUREN && createInfo->Race != RACE_DRAENEI)
     {
-        // no facialHairStyle for females
+        // no FacialHairStyle for females
         if (createInfo->Sex != GENDER_FEMALE)
             SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, createInfo->FacialHairStyle);
     }
     else
-        SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, 0);    // tauren or female = 0
+        SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_FACIAL_STYLE, 0);    // tauren/dranei or female = 0
 
     for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
         SetByteValue(PLAYER_BYTES_2, PLAYER_BYTES_2_OFFSET_CUSTOM_DISPLAY_OPTION + i, createInfo->CustomDisplay[i]);
@@ -27589,7 +27589,7 @@ bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 ha
     if (!IsSectionFlagValid(hair, class_, create))
         return false;
 
-    if (race != RACE_TAUREN)
+    if (race != RACE_TAUREN && race != RACE_DRAENEI)
     {
         if (gender != GENDER_FEMALE)
         {
