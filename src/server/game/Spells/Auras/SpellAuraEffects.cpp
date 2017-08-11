@@ -1206,11 +1206,15 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
         case SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT:
         {
             // Skip melee hits and spells with wrong school or zero cost
-            if (!spellInfo || !(spellInfo->GetSchoolMask() & GetMiscValue())) // School Check
+            if (!spellInfo || !(spellInfo->GetSchoolMask() & GetMiscValue()) // School Check
+                || !eventInfo.GetProcSpell())
+            {
                 result = false;
+                break;
+            }
 
             // Costs Check
-            std::vector<SpellPowerCost> costs = spellInfo->CalcPowerCost(eventInfo.GetActor(), eventInfo.GetSchoolMask());
+            std::vector<SpellPowerCost> const& costs = eventInfo.GetProcSpell()->GetPowerCost();
             auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Amount > 0; });
             if (m == costs.end())
                 result = false;

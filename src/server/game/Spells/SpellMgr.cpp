@@ -820,15 +820,17 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
             if (eventInfo.GetActionTarget() && !actor->isHonorOrXPTarget(eventInfo.GetActionTarget()))
                 return false;
 
-    // check mana requirement
+    // check power requirement
     if (procEntry.AttributesMask & PROC_ATTR_REQ_POWER_COST)
-        if (SpellInfo const* eventSpellInfo = eventInfo.GetSpellInfo())
-        {
-            std::vector<SpellPowerCost> costs = eventSpellInfo->CalcPowerCost(eventInfo.GetActor(), eventInfo.GetSchoolMask());
-            auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Amount > 0; });
-            if (m == costs.end())
-                return false;
-        }
+    {
+        if (!eventInfo.GetProcSpell())
+            return false;
+
+        std::vector<SpellPowerCost> const& costs = eventInfo.GetProcSpell()->GetPowerCost();
+        auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Amount > 0; });
+        if (m == costs.end())
+            return false;
+    }
 
     // always trigger for these types
     if (eventInfo.GetTypeMask() & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_DEATH))
