@@ -700,6 +700,11 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_REACH_GUILD_LEVEL:
                 SetCriteriaProgress(criteria, miscValue1, referencePlayer);
                 break;
+            case CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED:
+                if (miscValue1 != criteria->Entry->Asset.TransmogSetGroupID)
+                    continue;
+                SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
+                break;
             // FIXME: not triggered in code as result, need to implement
             case CRITERIA_TYPE_COMPLETE_RAID:
             case CRITERIA_TYPE_PLAY_ARENA:
@@ -1144,6 +1149,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_OWN_BATTLE_PET:
         case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
         case CRITERIA_TYPE_PRESTIGE_REACHED:
+        case CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED:
             return progress->Counter >= 1;
         case CRITERIA_TYPE_LEARN_SKILL_LEVEL:
             return progress->Counter >= (requiredAmount * 75);
@@ -2125,6 +2131,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "ORDER_HALL_RECRUIT_TROOP";
         case CRITERIA_TYPE_COMPLETE_WORLD_QUEST:
             return "COMPLETE_WORLD_QUEST";
+        case CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED:
+            return "TRANSMOG_SET_UNLOCKED";
     }
     return "MISSING_TYPE";
 }

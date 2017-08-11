@@ -603,6 +603,58 @@ void CollectionMgr::AddItemAppearance(uint32 itemId, uint32 appearanceModId /*= 
     AddItemAppearance(itemModifiedAppearance);
 }
 
+void CollectionMgr::AddTransmogSet(uint32 transmogSetId)
+{
+    std::vector<TransmogSetItemEntry const*> const* items = sDB2Manager.GetTransmogSetItems(transmogSetId);
+    if (!items)
+        return;
+
+    for (TransmogSetItemEntry const* item : *items)
+    {
+        ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(item->ItemModifiedAppearance);
+        if (!itemModifiedAppearance)
+            continue;
+
+        AddItemAppearance(itemModifiedAppearance);
+    }
+}
+
+bool CollectionMgr::IsSetCompleted(uint32 transmogSetId) const
+{
+    std::vector<TransmogSetItemEntry const*> const* items = sDB2Manager.GetTransmogSetItems(transmogSetId);
+    if (!items)
+        return false;
+
+    std::unordered_set<uint32> appearanceIDs;
+    std::vector<uint32> possiblyMissingAppearances;
+    for (TransmogSetItemEntry const* item : *items)
+    {
+        ItemModifiedAppearanceEntry const* modifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(item->ItemModifiedAppearance);
+        if (!modifiedAppearance)
+            continue;
+
+        bool hasAppearance, isTemporary;
+        std::tie(hasAppearance, isTemporary) = HasItemAppearance(item->ItemModifiedAppearance);
+
+        if (!hasAppearance || isTemporary)
+        {
+            possiblyMissingAppearances.push_back(modifiedAppearance->AppearanceID);
+            continue;
+        }
+
+        appearanceIDs.insert(modifiedAppearance->AppearanceID);
+    }
+
+    for (uint32 appearance : possiblyMissingAppearances)
+    {
+        auto it = appearanceIDs.find(appearance);
+        if (it == appearanceIDs.end())
+            return false;
+    }
+
+    return true;
+}
+
 bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModifiedAppearance) const
 {
     if (!itemModifiedAppearance)
@@ -705,6 +757,11 @@ void CollectionMgr::AddItemAppearance(ItemModifiedAppearanceEntry const* itemMod
         _owner->GetPlayer()->RemoveDynamicValue(PLAYER_DYNAMIC_FIELD_CONDITIONAL_TRANSMOG, itemModifiedAppearance->ID);
         _temporaryAppearances.erase(temporaryAppearance);
     }
+
+    if (std::vector<TransmogSetEntry const*> const* sets = sDB2Manager.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance->ID))
+        for (TransmogSetEntry const* set : *sets)
+            if (IsSetCompleted(set->ID))
+                _owner->GetPlayer()->UpdateCriteria(CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED, set->TransmogSetGroupID); //FIXME SMSG_ACCOUNT_CRITERIA_UPDATE should be used instead of SMSG_CRITERIA_UPDATE
 }
 
 void CollectionMgr::AddTemporaryAppearance(ObjectGuid const& itemGuid, ItemModifiedAppearanceEntry const* itemModifiedAppearance)
