@@ -1530,21 +1530,13 @@ class TC_GAME_API SmartWaypointMgr
 
         void LoadFromDB();
 
-        WaypointPath const* GetPath(uint32 id)
-        {
-            auto itr = _waypointStore.find(id);
-            if (itr != _waypointStore.end())
-                return &itr->second;
-            return nullptr;
-        }
+        WaypointPath const* GetPath(uint32 id);
 
     private:
-        typedef std::unordered_map<uint32, WaypointPath> SmartWaypointPathContainer;
-
         SmartWaypointMgr() { }
         ~SmartWaypointMgr() { }
 
-        SmartWaypointPathContainer _waypointStore;
+        std::unordered_map<uint32, WaypointPath> _waypointStore;
 };
 
 #define sSmartWaypointMgr SmartWaypointMgr::instance()

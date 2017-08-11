@@ -38,21 +38,12 @@ class TC_GAME_API WaypointMgr
         void Load();
 
         // Returns the path from a given id
-        WaypointPath const* GetPath(uint32 id) const
-        {
-            auto itr = _waypointStore.find(id);
-            if (itr != _waypointStore.end())
-                return &itr->second;
-
-            return nullptr;
-        }
+        WaypointPath const* GetPath(uint32 id) const;
 
     private:
-        typedef std::unordered_map<uint32, WaypointPath> WaypointPathContainer;
-
         WaypointMgr() { }
 
-        WaypointPathContainer _waypointStore;
+        std::unordered_map<uint32, WaypointPath> _waypointStore;
 };
 
 #define sWaypointMgr WaypointMgr::instance()

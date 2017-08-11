@@ -163,6 +163,15 @@ void SystemMgr::LoadScriptSplineChains()
     }
 }
 
+WaypointPath const* SystemMgr::GetPath(uint32 creatureEntry) const
+{
+    auto itr = _waypointStore.find(creatureEntry);
+    if (itr == _waypointStore.end())
+        return nullptr;
+
+    return &itr->second;
+}
+
 std::vector<SplineChainLink> const* SystemMgr::GetSplineChain(uint32 entry, uint16 chainId) const
 {
     auto it = m_mSplineChainsMap.find({ entry, chainId });

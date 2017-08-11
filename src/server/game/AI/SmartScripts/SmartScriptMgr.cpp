@@ -90,6 +90,14 @@ void SmartWaypointMgr::LoadFromDB()
     TC_LOG_INFO("server.loading", ">> Loaded %u SmartAI waypoint paths (total %u waypoints) in %u ms", count, total, GetMSTimeDiffToNow(oldMSTime));
 }
 
+WaypointPath const* SmartWaypointMgr::GetPath(uint32 id)
+{
+    auto itr = _waypointStore.find(id);
+    if (itr != _waypointStore.end())
+        return &itr->second;
+    return nullptr;
+}
+
 SmartAIMgr* SmartAIMgr::instance()
 {
     static SmartAIMgr instance;

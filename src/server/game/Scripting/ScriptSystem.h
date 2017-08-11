@@ -39,20 +39,12 @@ class TC_GAME_API SystemMgr
         void LoadScriptWaypoints();
         void LoadScriptSplineChains();
 
-        WaypointPath const* GetPath(uint32 creatureEntry) const
-        {
-            auto itr = _waypointStore.find(creatureEntry);
-            if (itr == _waypointStore.end())
-                return nullptr;
-
-            return &itr->second;
-        }
+        WaypointPath const* GetPath(uint32 creatureEntry) const;
 
         std::vector<SplineChainLink> const* GetSplineChain(uint32 entry, uint16 chainId) const;
         std::vector<SplineChainLink> const* GetSplineChain(Creature const* who, uint16 id) const;
 
     private:
-        typedef std::unordered_map<uint32, WaypointPath> ScriptWaypointPathContainer;
         typedef std::pair<uint32, uint16> ChainKeyType; // creature entry + chain ID
 
         SystemMgr();
@@ -61,7 +53,7 @@ class TC_GAME_API SystemMgr
         SystemMgr(SystemMgr const&) = delete;
         SystemMgr& operator=(SystemMgr const&) = delete;
 
-        ScriptWaypointPathContainer _waypointStore;
+        std::unordered_map<uint32, WaypointPath> _waypointStore;
         std::unordered_map<ChainKeyType, std::vector<SplineChainLink>> m_mSplineChainsMap; // spline chains
 };
 

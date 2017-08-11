@@ -135,3 +135,12 @@ void WaypointMgr::ReloadPath(uint32 id)
 
     _waypointStore[id] = WaypointPath(id, std::move(values));
 }
+
+WaypointPath const* WaypointMgr::GetPath(uint32 id) const
+{
+    auto itr = _waypointStore.find(id);
+    if (itr != _waypointStore.end())
+        return &itr->second;
+
+    return nullptr;
+}
