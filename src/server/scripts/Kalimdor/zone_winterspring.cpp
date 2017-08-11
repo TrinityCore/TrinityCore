@@ -393,7 +393,7 @@ public:
             StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
         }
 
-        void WaypointReached(uint32 pointId) override
+        void WaypointReached(uint32 pointId, uint32 /*pathId*/) override
         {
             switch (pointId)
             {

@@ -202,7 +202,7 @@ public:
             MobDeath_Timer = 2500;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -543,7 +543,7 @@ public:
                 go->SetGoState((GOState)state);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {

@@ -202,7 +202,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -292,7 +292,7 @@ public:
             Start(false, false, summonerGUID);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId != 26)
                 return;

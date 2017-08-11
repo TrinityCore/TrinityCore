@@ -102,7 +102,7 @@ public:
             Talk(SAY_ONSLAY);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 7 && instance)
             {
@@ -222,10 +222,6 @@ public:
         }
 
         void KilledUnit(Unit* /*victim*/) override
-        {
-        }
-
-        void WaypointReached(uint32 /*waypointId*/) override
         {
         }
 

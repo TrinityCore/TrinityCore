@@ -159,7 +159,6 @@ public:
         uint32 Start_Timer;
 
         void Reset() override { }
-        void WaypointReached(uint32 /*waypointId*/) override { }
         void EnterCombat(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override

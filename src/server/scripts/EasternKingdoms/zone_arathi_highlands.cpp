@@ -64,7 +64,7 @@ class npc_professor_phizzlethorpe : public CreatureScript
         {
             npc_professor_phizzlethorpeAI(Creature* creature) : EscortAI(creature) { }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
             {
                 Player* player = GetPlayerForEscort();
                 if (!player)

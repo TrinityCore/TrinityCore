@@ -988,11 +988,6 @@ public:
             infernoTimer = 2000;
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override
-        {
-
-        }
-
         void Reset() override
         {
             Initialize();

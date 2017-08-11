@@ -443,7 +443,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 0 && !IsOverrun)
             {
@@ -558,7 +558,7 @@ public:
             KnockDownTimer = 10000;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 7 && !IsOverrun)
             {
@@ -656,7 +656,7 @@ public:
             RandomMove = false;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 7 && !IsOverrun)
             {
@@ -766,7 +766,7 @@ public:
             summons.Despawn(summon);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 7 && !IsOverrun)
             {
@@ -879,7 +879,7 @@ public:
             ShellTimer = 50000 + rand32() % 10000;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 7 && !IsOverrun)
             {
@@ -975,7 +975,7 @@ public:
             WebTimer = 20000 + rand32() % 5000;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 7 && !IsOverrun)
             {
@@ -1061,7 +1061,7 @@ public:
             ManaBurnTimer = 9000 + rand32() % 5000;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 7 && !IsOverrun)
             {
@@ -1155,7 +1155,7 @@ public:
             me->SetDisableGravity(true);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 2 && !IsOverrun)
             {
@@ -1280,7 +1280,7 @@ public:
             me->SetDisableGravity(true);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId == 2 && !IsOverrun)
             {

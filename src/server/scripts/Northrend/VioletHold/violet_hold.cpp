@@ -898,7 +898,7 @@ struct violet_hold_trashAI : public EscortAI
         }
     }
 
-    void WaypointReached(uint32 waypointId) override
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
     {
         if (waypointId == _lastWaypointId)
             CreatureStartAttackDoor();

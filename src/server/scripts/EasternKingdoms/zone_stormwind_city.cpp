@@ -173,7 +173,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -410,7 +410,7 @@ public:
             Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {

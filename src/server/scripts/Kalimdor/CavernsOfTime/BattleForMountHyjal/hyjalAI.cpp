@@ -930,7 +930,7 @@ void hyjalAI::RespawnNearPos(float x, float y)
     Cell::VisitGridObjects(x, y, me->GetMap(), worker, me->GetGridActivationRange());
 }
 
-void hyjalAI::WaypointReached(uint32 waypointId)
+void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
 {
     if (waypointId == 1 || (waypointId == 0 && me->GetEntry() == THRALL))
     {

@@ -1130,11 +1130,6 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override
-        {
-
-        }
-
         void UpdateAI(uint32 diff) override
         {
             if (CanRun && !me->IsInCombat())

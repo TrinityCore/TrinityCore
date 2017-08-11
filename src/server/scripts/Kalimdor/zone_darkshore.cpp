@@ -222,7 +222,7 @@ public:
             //pSummoned->AI()->AttackStart(me);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {

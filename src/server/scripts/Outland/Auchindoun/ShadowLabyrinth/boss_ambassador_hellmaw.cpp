@@ -89,10 +89,6 @@ class boss_ambassador_hellmaw : public CreatureScript
                 EscortAI::MoveInLineOfSight(who);
             }
 
-            void WaypointReached(uint32 /*waypointId*/) override
-            {
-            }
-
             void DoAction(int32 actionId) override
             {
                 if (actionId == ACTION_AMBASSADOR_HELLMAW_INTRO)

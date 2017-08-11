@@ -226,7 +226,7 @@ public:
     public:
         npc_skywingAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -441,7 +441,7 @@ public:
     {
         npc_isla_starmaneAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -660,7 +660,7 @@ public:
     {
         npc_akunoAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

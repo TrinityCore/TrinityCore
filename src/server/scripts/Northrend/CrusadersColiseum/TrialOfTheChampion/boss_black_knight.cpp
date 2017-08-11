@@ -361,8 +361,6 @@ public:
             Start(false, true);
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override { }
-
         void UpdateAI(uint32 uiDiff) override
         {
             EscortAI::UpdateAI(uiDiff);

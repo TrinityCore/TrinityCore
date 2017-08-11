@@ -199,7 +199,7 @@ public:
     {
         npc_custodian_of_timeAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -323,7 +323,7 @@ public:
     {
         npc_OOX17AI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {

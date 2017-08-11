@@ -52,7 +52,7 @@ public:
     {
         npc_injured_goblinAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -363,7 +363,6 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override { }
         void JustDied(Unit* /*killer*/) override { }
         void OnCharmed(bool /*apply*/) override { }
 

@@ -593,7 +593,7 @@ public:
                 Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -838,7 +838,7 @@ public:
             Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -1653,7 +1653,7 @@ public:
                 player->FailQuest(QUEST_ESCAPING_THE_MIST);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -1767,7 +1767,7 @@ public:
             else Bonker_agro=0;
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

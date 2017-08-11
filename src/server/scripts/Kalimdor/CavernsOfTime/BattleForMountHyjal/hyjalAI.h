@@ -144,7 +144,7 @@ struct hyjalAI : public EscortAI
     void SummonedCreatureDespawn(Creature* summoned) override;
     void HideNearPos(float x, float y);
     void RespawnNearPos(float x, float y);
-    void WaypointReached(uint32 waypointId) override;
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override;
     void DoOverrun(uint32 faction, const uint32 diff);
     void MoveInLineOfSight(Unit* who) override;
 
