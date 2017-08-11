@@ -105,7 +105,9 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
     if (creature->AI())
     {
         creature->AI()->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
-        creature->AI()->WaypointReached(_path->id, _currentNode);
+
+        ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::OnArrived: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
+        creature->AI()->WaypointReached(_path->nodes[_currentNode].id, _path->id);
     }
 
     creature->UpdateWaypointID(_currentNode);
@@ -155,6 +157,13 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
         }
 
         _currentNode = (_currentNode + 1) % _path->nodes.size();
+
+        // inform AI
+        if (creature->AI())
+        {
+            ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
+            creature->AI()->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
+        }
     }
 
     WaypointNode const &waypoint = _path->nodes.at(_currentNode);
@@ -209,10 +218,6 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     // inform formation
     creature->SignalFormationMovement(formationDest, waypoint.id, waypoint.moveType, (waypoint.orientation && waypoint.delay) ? true : false);
-    
-    // inform AI
-    if (creature->AI())
-        creature->AI()->WaypointStarted(_path->id, _currentNode);
 
     return true;
 }

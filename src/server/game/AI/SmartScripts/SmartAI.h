@@ -46,6 +46,9 @@ class TC_GAME_API SmartAI : public CreatureAI
         ~SmartAI() { }
         explicit SmartAI(Creature* c);
 
+        // core related
+        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
+
         // Check whether we are currently permitted to make the creature take action
         bool IsAIControlled() const;
 
@@ -64,10 +67,13 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool CanCombatMove() { return mCanCombatMove; }
         void SetFollow(Unit* target, float dist = 0.0f, float angle = 0.0f, uint32 credit = 0, uint32 end = 0, uint32 creditType = 0);
         void StopFollow(bool complete);
+        bool IsEscortInvokerInRange();
+
+        void WaypointStarted(uint32 nodeId, uint32 pathId) override;
+        void WaypointReached(uint32 nodeId, uint32 pathId) override;
 
         void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         SmartScript* GetScript() { return &mScript; }
-        bool IsEscortInvokerInRange();
 
         // Called when creature is spawned or respawned
         void JustAppeared() override;
@@ -155,12 +161,6 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // Used in scripts to share variables
         ObjectGuid GetGUID(int32 id = 0) const override;
-
-        //core related
-        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
-
-        // Called at movepoint reached
-        void MovepointReached(uint32 id);
 
         // Makes the creature run/walk
         void SetRun(bool run = true);

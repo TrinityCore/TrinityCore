@@ -393,13 +393,16 @@ bool SmartAI::IsEscortInvokerInRange()
     return true;
 }
 
-void SmartAI::MovepointReached(uint32 id)
+///@todo Implement new smart event SMART_EVENT_WAYPOINT_STARTED
+void SmartAI::WaypointStarted(uint32 /*nodeId*/, uint32 /*pathId*/)
 {
-    ASSERT(id < _path.nodes.size(), "SmartAI::MovepointReached: referenced movement id (%u) points to non-existing node in loaded path (%u)", id, GetScript()->GetPathId());
-    uint32 nodeId = _path.nodes[id].id;
+}
+
+void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
+{
     _currentWaypointNode = nodeId;
 
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_REACHED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_REACHED, nullptr, _currentWaypointNode, pathId);
 
     if (_waypointPauseTimer && !_waypointPauseForced)
     {
@@ -408,7 +411,7 @@ void SmartAI::MovepointReached(uint32 id)
     }
     else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
-        if (_currentWaypointNode == _path.nodes.size())
+        if (_currentWaypointNode == _path.nodes.size() - 1)
             _waypointPathEnded = true;
         else
             SetRun(mRun);
@@ -427,8 +430,6 @@ void SmartAI::MovementInform(uint32 type, uint32 id)
 
     if (type == POINT_MOTION_TYPE && id == SMART_ESCORT_LAST_OOC_POINT)
         _OOCReached = true;
-    else if (type == WAYPOINT_MOTION_TYPE)
-        MovepointReached(id);
 }
 
 void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
