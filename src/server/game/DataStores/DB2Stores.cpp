@@ -1048,7 +1048,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         if (!set)
             continue;
 
-        _transmogItemSets[transmogSetItem->ItemModifiedAppearance].push_back(set);
+        _transmogItemSets[transmogSetItem->ItemModifiedAppearanceID].push_back(set);
         _transmogSetItems[transmogSetItem->TransmogSetID].push_back(transmogSetItem);
     }
 

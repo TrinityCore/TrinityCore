@@ -611,7 +611,7 @@ void CollectionMgr::AddTransmogSet(uint32 transmogSetId)
 
     for (TransmogSetItemEntry const* item : *items)
     {
-        ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(item->ItemModifiedAppearance);
+        ItemModifiedAppearanceEntry const* itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(item->ItemModifiedAppearanceID);
         if (!itemModifiedAppearance)
             continue;
 
@@ -629,12 +629,12 @@ bool CollectionMgr::IsSetCompleted(uint32 transmogSetId) const
     std::vector<uint32> possiblyMissingAppearances;
     for (TransmogSetItemEntry const* item : *items)
     {
-        ItemModifiedAppearanceEntry const* modifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(item->ItemModifiedAppearance);
+        ItemModifiedAppearanceEntry const* modifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(item->ItemModifiedAppearanceID);
         if (!modifiedAppearance)
             continue;
 
         bool hasAppearance, isTemporary;
-        std::tie(hasAppearance, isTemporary) = HasItemAppearance(item->ItemModifiedAppearance);
+        std::tie(hasAppearance, isTemporary) = HasItemAppearance(item->ItemModifiedAppearanceID);
 
         if (!hasAppearance || isTemporary)
         {
