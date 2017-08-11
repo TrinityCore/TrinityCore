@@ -31,6 +31,7 @@ EndScriptData */
 #include "MotionMaster.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "WaypointDefines.h"
 #include "WaypointManager.h"
 #include "WorldSession.h"
 
