@@ -37,6 +37,7 @@
 #include "SplineChainMovementGenerator.h"
 #include "TargetedMovementGenerator.h"
 #include "Unit.h"
+#include "WaypointDefines.h"
 #include "WaypointMovementGenerator.h"
 
 inline MovementGenerator* GetIdleMovementGenerator()

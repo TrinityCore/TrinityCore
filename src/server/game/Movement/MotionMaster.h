@@ -24,7 +24,6 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "SharedDefines.h"
-#include "WaypointManager.h"
 #include <vector>
 
 class MovementGenerator;
@@ -32,6 +31,7 @@ class Unit;
 class PathGenerator;
 struct SplineChainLink;
 struct SplineChainResumeInfo;
+struct WaypointPath;
 
 // Creature Entry ID used for waypoints show, visible only for GMs
 #define VISUAL_WAYPOINT 1
