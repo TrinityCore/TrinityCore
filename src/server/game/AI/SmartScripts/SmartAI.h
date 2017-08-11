@@ -23,8 +23,7 @@
 #include "GameObjectAI.h"
 #include "Position.h"
 #include "SmartScript.h"
-
-struct WaypointPath;
+#include "WaypointDefines.h"
 
 enum SmartEscortState
 {

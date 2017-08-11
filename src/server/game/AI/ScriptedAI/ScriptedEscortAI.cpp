@@ -26,7 +26,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptSystem.h"
-#include "WaypointDefines.h"
 #include "World.h"
 
 enum Points

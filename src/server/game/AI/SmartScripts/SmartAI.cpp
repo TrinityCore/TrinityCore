@@ -28,7 +28,6 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
-#include "WaypointDefines.h"
 
 SmartAI::SmartAI(Creature* creature) : CreatureAI(creature), mIsCharmed(false), mFollowCreditType(0), mFollowArrivedTimer(0), mFollowCredit(0), mFollowArrivedEntry(0), mFollowDist(0.f), mFollowAngle(0.f),
     _escortState(SMART_ESCORT_NONE), _escortNPCFlags(0), _escortInvokerCheckTimer(1000), _currentWaypointNode(0), _waypointReached(false), _waypointPauseTimer(0), _waypointPauseForced(false), _repeatWaypointPath(false),

@@ -20,9 +20,9 @@
 #define SC_ESCORTAI_H
 
 #include "ScriptedCreature.h"
+#include "WaypointDefines.h"
 
 class Quest;
-struct WaypointPath;
 
 #define DEFAULT_MAX_PLAYER_DISTANCE 50
 
