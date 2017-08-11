@@ -23,30 +23,8 @@
 #include <vector>
 #include <unordered_map>
 
-enum WaypointMoveType
-{
-    WAYPOINT_MOVE_TYPE_WALK,
-    WAYPOINT_MOVE_TYPE_RUN,
-    WAYPOINT_MOVE_TYPE_LAND,
-    WAYPOINT_MOVE_TYPE_TAKEOFF,
-
-    WAYPOINT_MOVE_TYPE_MAX
-};
-
-struct WaypointData
-{
-    WaypointData() : id(0), x(0.f), y(0.f), z(0.f), orientation(0.f), delay(0), event_id(0), move_type(WAYPOINT_MOVE_TYPE_RUN), event_chance(0) { }
-
-    uint32 id;
-    float x, y, z, orientation;
-    uint32 delay;
-    uint32 event_id;
-    uint32 move_type;
-    uint8 event_chance;
-};
-
-typedef std::vector<WaypointData> WaypointPath;
-typedef std::unordered_map<uint32, WaypointPath> WaypointPathContainer;
+struct WaypointNode;
+struct WaypointPath;
 
 class TC_GAME_API WaypointMgr
 {
@@ -62,7 +40,7 @@ class TC_GAME_API WaypointMgr
         // Returns the path from a given id
         WaypointPath const* GetPath(uint32 id) const
         {
-            WaypointPathContainer::const_iterator itr = _waypointStore.find(id);
+            auto itr = _waypointStore.find(id);
             if (itr != _waypointStore.end())
                 return &itr->second;
 
@@ -70,6 +48,8 @@ class TC_GAME_API WaypointMgr
         }
 
     private:
+        typedef std::unordered_map<uint32, WaypointPath> WaypointPathContainer;
+
         WaypointMgr() { }
 
         WaypointPathContainer _waypointStore;

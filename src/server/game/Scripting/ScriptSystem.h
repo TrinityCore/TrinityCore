@@ -26,23 +26,9 @@
 
 class Creature;
 struct SplineChainLink;
+struct WaypointPath;
 
 #define TEXT_SOURCE_RANGE -1000000 // the amount of entries each text source has available
-
-struct ScriptPointMove
-{
-    ScriptPointMove() : entry(0), id(0), x(0.f), y(0.f), z(0.f), waitTime(0) { }
-
-    uint32 entry;
-    uint32 id;
-    float  x;
-    float  y;
-    float  z;
-    uint32 waitTime;
-};
-
-typedef std::vector<ScriptPointMove> ScriptPointVector;
-typedef std::unordered_map<uint32, ScriptPointVector> PointMoveMap;
 
 class TC_GAME_API SystemMgr
 {
@@ -53,10 +39,10 @@ class TC_GAME_API SystemMgr
         void LoadScriptWaypoints();
         void LoadScriptSplineChains();
 
-        ScriptPointVector const* GetPointMoveList(uint32 creatureEntry) const
+        WaypointPath const* GetPath(uint32 creatureEntry) const
         {
-            PointMoveMap::const_iterator itr = _pointMoveMap.find(creatureEntry);
-            if (itr == _pointMoveMap.end())
+            auto itr = _waypointStore.find(creatureEntry);
+            if (itr == _waypointStore.end())
                 return nullptr;
 
             return &itr->second;
@@ -66,15 +52,16 @@ class TC_GAME_API SystemMgr
         std::vector<SplineChainLink> const* GetSplineChain(Creature const* who, uint16 id) const;
 
     private:
+        typedef std::unordered_map<uint32, WaypointPath> ScriptWaypointPathContainer;
+        typedef std::pair<uint32, uint16> ChainKeyType; // creature entry + chain ID
+
         SystemMgr();
         ~SystemMgr();
 
         SystemMgr(SystemMgr const&) = delete;
         SystemMgr& operator=(SystemMgr const&) = delete;
 
-        PointMoveMap _pointMoveMap; // waypoint container
-
-        typedef std::pair<uint32, uint16> ChainKeyType; // creature entry + chain ID
+        ScriptWaypointPathContainer _waypointStore;
         std::unordered_map<ChainKeyType, std::vector<SplineChainLink>> m_mSplineChainsMap; // spline chains
 };
 

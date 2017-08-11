@@ -29,10 +29,10 @@
 #include "DBCStructure.h"
 #include "MovementGenerator.h"
 #include "Timer.h"
-#include "WaypointManager.h"
 
 class Creature;
 class Player;
+struct WaypointPath;
 
 template<class Entity, class BasePath>
 class PathMovementBase
@@ -56,10 +56,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
 {
     public:
         explicit WaypointMovementGenerator(uint32 pathId = 0, bool repeating = true) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(pathId), _repeating(repeating), _loadedFromDB(true), _stalled(false) { }
-        explicit WaypointMovementGenerator(WaypointPath& path, bool repeating = true) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(0), _repeating(repeating), _loadedFromDB(false), _stalled(false)
-        {
-            _path = &path;
-        }
+        explicit WaypointMovementGenerator(WaypointPath& path, bool repeating = true);
 
         ~WaypointMovementGenerator() { _path = nullptr; }
 

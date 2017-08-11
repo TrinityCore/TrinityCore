@@ -20,10 +20,9 @@
 #define SC_ESCORTAI_H
 
 #include "ScriptedCreature.h"
-#include "ScriptSystem.h"
-#include "WaypointManager.h"
 
 class Quest;
+struct WaypointPath;
 
 #define DEFAULT_MAX_PLAYER_DISTANCE 50
 
@@ -56,8 +55,6 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         virtual void UpdateEscortAI(uint32 diff); // used when it's needed to add code in update (abilities, scripted events, etc)
 
         void AddWaypoint(uint32 id, float x, float y, float z, float orientation = 0.f, uint32 waitTime = 0); // waitTime is in ms
-        virtual void WaypointReached(uint32 pointId) = 0;
-        virtual void WaypointStart(uint32 /*pointId*/) { }
 
         void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = nullptr, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true);
 

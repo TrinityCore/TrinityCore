@@ -39,6 +39,7 @@
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
+#include "WaypointDefines.h"
 #include <G3D/Quat.h>
 
 SmartScript::SmartScript()
@@ -2000,13 +2001,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {
                         for (uint32 pathId : waypoints)
                         {
-                            SmartWaypointPath const* path = sSmartWaypointMgr->GetPath(pathId);
-                            if (!path || path->empty())
+                            WaypointPath const* path = sSmartWaypointMgr->GetPath(pathId);
+                            if (!path || path->nodes.empty())
                                 continue;
 
-                            for (auto itr = path->begin(); itr != path->end(); ++itr)
+                            for (auto itr = path->nodes.begin(); itr != path->nodes.end(); ++itr)
                             {
-                                WayPoint const waypoint = *itr;
+                                WaypointNode const waypoint = *itr;
                                 float distamceToThisNode = creature->GetDistance(waypoint.x, waypoint.y, waypoint.z);
                                 if (distamceToThisNode < distanceToClosest)
                                 {

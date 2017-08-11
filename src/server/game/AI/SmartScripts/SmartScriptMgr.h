@@ -25,23 +25,8 @@
 #include <unordered_map>
 
 class WorldObject;
+struct WaypointPath;
 enum SpellEffIndex : uint8;
-
-struct WayPoint
-{
-    WayPoint(uint32 _id, float _x, float _y, float _z)
-    {
-        id = _id;
-        x = _x;
-        y = _y;
-        z = _z;
-    }
-
-    uint32 id;
-    float x;
-    float y;
-    float z;
-};
 
 enum eSmartAI
 {
@@ -1514,8 +1499,6 @@ struct SmartScriptHolder
     operator bool() const { return entryOrGuid != 0; }
 };
 
-typedef std::vector<WayPoint> SmartWaypointPath;
-
 typedef std::vector<WorldObject*> ObjectVector;
 
 class ObjectGuidVector
@@ -1542,26 +1525,29 @@ typedef std::unordered_map<uint32, ObjectGuidVector> ObjectVectorMap;
 
 class TC_GAME_API SmartWaypointMgr
 {
-    private:
-        SmartWaypointMgr() { }
-        ~SmartWaypointMgr() { }
-
     public:
         static SmartWaypointMgr* instance();
 
         void LoadFromDB();
 
-        SmartWaypointPath const* GetPath(uint32 id)
+        WaypointPath const* GetPath(uint32 id)
         {
-            auto itr = _waypointMap.find(id);
-            if (itr != _waypointMap.end())
+            auto itr = _waypointStore.find(id);
+            if (itr != _waypointStore.end())
                 return &itr->second;
             return nullptr;
         }
 
     private:
-        std::unordered_map<uint32, SmartWaypointPath> _waypointMap;
+        typedef std::unordered_map<uint32, WaypointPath> SmartWaypointPathContainer;
+
+        SmartWaypointMgr() { }
+        ~SmartWaypointMgr() { }
+
+        SmartWaypointPathContainer _waypointStore;
 };
+
+#define sSmartWaypointMgr SmartWaypointMgr::instance()
 
 // all events for a single entry
 typedef std::vector<SmartScriptHolder> SmartAIEventList;
@@ -1628,5 +1614,5 @@ class TC_GAME_API SmartAIMgr
 };
 
 #define sSmartScriptMgr SmartAIMgr::instance()
-#define sSmartWaypointMgr SmartWaypointMgr::instance()
+
 #endif

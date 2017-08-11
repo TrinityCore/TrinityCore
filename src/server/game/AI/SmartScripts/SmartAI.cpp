@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
+#include "WaypointDefines.h"
 
 SmartAI::SmartAI(Creature* creature) : CreatureAI(creature), mIsCharmed(false), mFollowCreditType(0), mFollowArrivedTimer(0), mFollowCredit(0), mFollowArrivedEntry(0), mFollowDist(0.f), mFollowAngle(0.f),
     _escortState(SMART_ESCORT_NONE), _escortNPCFlags(0), _escortInvokerCheckTimer(1000), _currentWaypointNode(0), _waypointReached(false), _waypointPauseTimer(0), _waypointPauseForced(false), _repeatWaypointPath(false),
@@ -79,7 +80,7 @@ void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat
             return;
     }
 
-    if (_path.empty())
+    if (_path.nodes.empty())
         return;
 
     _currentWaypointNode = nodeId;
@@ -106,35 +107,20 @@ bool SmartAI::LoadPath(uint32 entry)
     if (HasEscortState(SMART_ESCORT_ESCORTING))
         return false;
 
-    SmartWaypointPath const* path = sSmartWaypointMgr->GetPath(entry);
-    if (!path || path->empty())
+    WaypointPath const* path = sSmartWaypointMgr->GetPath(entry);
+    if (!path || path->nodes.empty())
     {
         GetScript()->SetPathId(0);
         return false;
     }
 
-    _path.reserve(path->size());
-    for (WayPoint const &waypoint : *path)
+    _path.id = path->id;
+    _path.nodes = path->nodes;
+    for (WaypointNode& waypoint : _path.nodes)
     {
-        float x = waypoint.x;
-        float y = waypoint.y;
-        float z = waypoint.z;
-
-        Trinity::NormalizeMapCoord(x);
-        Trinity::NormalizeMapCoord(y);
-
-        WaypointData wp;
-        wp.id = waypoint.id;
-        wp.x = x;
-        wp.y = y;
-        wp.z = z;
-        wp.orientation = 0.f;
-        wp.move_type = mRun ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
-        wp.delay = 0;
-        wp.event_id = 0;
-        wp.event_chance = 100;
-
-        _path.push_back(std::move(wp));
+        Trinity::NormalizeMapCoord(waypoint.x);
+        Trinity::NormalizeMapCoord(waypoint.y);
+        waypoint.moveType = mRun ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
     }
 
     GetScript()->SetPathId(entry);
@@ -188,7 +174,7 @@ void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
 void SmartAI::EndPath(bool fail)
 {
     RemoveEscortState(SMART_ESCORT_ESCORTING | SMART_ESCORT_PAUSED | SMART_ESCORT_RETURNING);
-    _path.clear();
+    _path.nodes.clear();
     _waypointPauseTimer = 0;
 
     if (_escortNPCFlags)
@@ -409,8 +395,8 @@ bool SmartAI::IsEscortInvokerInRange()
 
 void SmartAI::MovepointReached(uint32 id)
 {
-    ASSERT(id < _path.size(), "SmartAI::MovepointReached: referenced movement id (%u) points to non-existing node in loaded path (%u)", id, GetScript()->GetPathId());
-    uint32 nodeId = _path[id].id;
+    ASSERT(id < _path.nodes.size(), "SmartAI::MovepointReached: referenced movement id (%u) points to non-existing node in loaded path (%u)", id, GetScript()->GetPathId());
+    uint32 nodeId = _path.nodes[id].id;
     _currentWaypointNode = nodeId;
 
     GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_REACHED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
@@ -422,7 +408,7 @@ void SmartAI::MovepointReached(uint32 id)
     }
     else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
-        if (_currentWaypointNode == _path.size())
+        if (_currentWaypointNode == _path.nodes.size())
             _waypointPathEnded = true;
         else
             SetRun(mRun);

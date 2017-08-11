@@ -25,7 +25,8 @@
 #include "MovementGenerator.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "WaypointMovementGenerator.h"
+#include "ScriptSystem.h"
+#include "WaypointDefines.h"
 #include "World.h"
 
 enum Points
@@ -217,11 +218,8 @@ void EscortAI::UpdateAI(uint32 diff)
                 else if (_resume)
                 {
                     _resume = false;
-                    if (WaypointMovementGenerator<Creature>* movementGenerator = dynamic_cast<WaypointMovementGenerator<Creature>*>(me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE)))
-                    {
-                        movementGenerator->Resume();
-                        WaypointStart(movementGenerator->GetCurrentNode());
-                    }
+                    if (MovementGenerator* movementGenerator = me->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_IDLE))
+                        movementGenerator->Resume(0);
                 }
             }
         }
@@ -295,29 +293,18 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
     }
     else if (type == WAYPOINT_MOTION_TYPE)
     {
-        ASSERT(id < _path.size(), "EscortAI::MovementInform: referenced movement id (%u) points to non-existing node in loaded path", id);
-        WaypointData waypoint = _path[id];
+        ASSERT(id < _path.nodes.size(), "EscortAI::MovementInform: referenced movement id (%u) points to non-existing node in loaded path", id);
+        WaypointNode waypoint = _path.nodes[id];
 
         TC_LOG_DEBUG("scripts", "EscortAI::MovementInform: waypoint node %u reached", waypoint.id);
 
-        // notify node reached
-        WaypointReached(waypoint.id);
-
         // last point
-        if (id == _path.size() - 1)
+        if (id == _path.nodes.size() - 1)
         {
             _started = false;
             _ended = true;
-
             _pauseTimer = 1000;
-            return;
         }
-
-        // notify waypoint start if necessary
-        if (!HasEscortState(STATE_ESCORT_PAUSED))
-            WaypointStart(_path[id + 1].id);
-
-        me->SetWalk(!_running);
     }
 }
 
@@ -333,50 +320,35 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
 
-    WaypointData waypoint;
+    WaypointNode waypoint;
     waypoint.id = id;
     waypoint.x = x;
     waypoint.y = y;
     waypoint.z = z;
     waypoint.orientation = orientation;
-    waypoint.move_type = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
+    waypoint.moveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
     waypoint.delay = waitTime;
-    waypoint.event_id = 0;
-    waypoint.event_chance = 100;
-    _path.push_back(std::move(waypoint));
+    waypoint.eventId = 0;
+    waypoint.eventChance = 100;
+    _path.nodes.push_back(std::move(waypoint));
 
     _manualPath = true;
 }
 
 void EscortAI::FillPointMovementListForCreature()
 {
-    ScriptPointVector const* movePoints = sScriptSystemMgr->GetPointMoveList(me->GetEntry());
-    if (!movePoints)
+    WaypointPath const* path = sScriptSystemMgr->GetPath(me->GetEntry());
+    if (!path)
         return;
 
-    _path.reserve(_path.size() + movePoints->size());
-    for (ScriptPointMove const& point : *movePoints)
+    for (WaypointNode const& value : path->nodes)
     {
-        WaypointData waypoint;
+        WaypointNode node = value;
+        Trinity::NormalizeMapCoord(node.x);
+        Trinity::NormalizeMapCoord(node.y);
+        node.moveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
 
-        float x = point.x;
-        float y = point.y;
-        float z = point.z;
-
-        Trinity::NormalizeMapCoord(x);
-        Trinity::NormalizeMapCoord(y);
-
-        waypoint.id = point.id;
-        waypoint.x = x;
-        waypoint.y = y;
-        waypoint.z = z;
-        waypoint.orientation = 0.f;
-        waypoint.move_type = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
-        waypoint.delay = point.waitTime;
-        waypoint.event_id = 0;
-        waypoint.event_chance = 100;
-
-        _path.push_back(std::move(waypoint));
+        _path.nodes.push_back(std::move(node));
     }
 }
 
@@ -424,7 +396,7 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
     if (!_manualPath && resetWaypoints)
         FillPointMovementListForCreature();
 
-    if (_path.empty())
+    if (_path.nodes.empty())
     {
         TC_LOG_ERROR("scripts", "EscortAI::Start: (script: %s, creature entry: %u) starts with 0 waypoints (possible missing entry in script_waypoint. Quest: %u).", me->GetScriptName().c_str(), me->GetEntry(), quest ? quest->GetQuestId() : 0);
         return;
@@ -452,7 +424,7 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
         me->SetImmuneToNPC(false);
     }
 
-    TC_LOG_DEBUG("scripts", "EscortAI::Start: (script: %s, creature entry: %u) started with %u waypoints. ActiveAttacker = %d, Run = %d, Player = %s", me->GetScriptName().c_str(), me->GetEntry(), uint32(_path.size()), _activeAttacker, _running, _playerGUID.ToString().c_str());
+    TC_LOG_DEBUG("scripts", "EscortAI::Start: (script: %s, creature entry: %u) started with %u waypoints. ActiveAttacker = %d, Run = %d, Player = %s", me->GetScriptName().c_str(), me->GetEntry(), uint32(_path.nodes.size()), _activeAttacker, _running, _playerGUID.ToString().c_str());
 
     // set initial speed
     me->SetWalk(!_running);

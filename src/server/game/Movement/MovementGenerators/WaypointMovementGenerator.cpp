@@ -26,7 +26,21 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Transport.h"
+#include "WaypointDefines.h"
+#include "WaypointManager.h"
 #include "World.h"
+
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating)
+{
+    _path = &path;
+    _nextMoveTime = 0;
+    _recalculateSpeed = false;
+    _isArrivalDone = false;
+    _pathId = 0;
+    _repeating = repeating;
+    _loadedFromDB = false;
+    _stalled = false;
+}
 
 void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
 {
@@ -70,25 +84,30 @@ void WaypointMovementGenerator<Creature>::DoReset(Creature* creature)
 
 void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
 {
-    if (!_path || _path->empty())
+    if (!_path || _path->nodes.empty())
         return;
 
-    WaypointData const &waypoint = _path->at(_currentNode);
+    WaypointNode const &waypoint = _path->nodes.at(_currentNode);
     if (waypoint.delay)
     {
         creature->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         _nextMoveTime.Reset(waypoint.delay);
     }
 
-    if (waypoint.event_id && urand(0, 99) < waypoint.event_chance)
+    if (waypoint.eventId && urand(0, 99) < waypoint.eventChance)
     {
-        TC_LOG_DEBUG("maps.script", "Creature movement start script %u at point %u for %s.", waypoint.event_id, _currentNode, creature->GetGUID().ToString().c_str());
+        TC_LOG_DEBUG("maps.script", "Creature movement start script %u at point %u for %s.", waypoint.eventId, _currentNode, creature->GetGUID().ToString().c_str());
         creature->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
-        creature->GetMap()->ScriptsStart(sWaypointScripts, waypoint.event_id, creature, nullptr);
+        creature->GetMap()->ScriptsStart(sWaypointScripts, waypoint.eventId, creature, nullptr);
     }
 
-    // Inform script
-    MovementInform(creature);
+    // inform AI
+    if (creature->AI())
+    {
+        creature->AI()->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
+        creature->AI()->WaypointReached(_path->id, _currentNode);
+    }
+
     creature->UpdateWaypointID(_currentNode);
 }
 
@@ -97,7 +116,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     if (!creature || !creature->IsAlive())
         return false;
 
-    if (!_path || _path->empty())
+    if (!_path || _path->nodes.empty())
         return false;
 
     // if the owner is the leader of its formation, check members status
@@ -108,9 +127,9 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     if (_isArrivalDone)
     {
-        if ((_currentNode == _path->size() - 1) && !_repeating) // If that's our last waypoint
+        if ((_currentNode == _path->nodes.size() - 1) && !_repeating) // If that's our last waypoint
         {
-            WaypointData const &waypoint = _path->at(_currentNode);
+            WaypointNode const &waypoint = _path->nodes.at(_currentNode);
 
             float x = waypoint.x;
             float y = waypoint.y;
@@ -135,10 +154,10 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
             return false;
         }
 
-        _currentNode = (_currentNode + 1) % _path->size();
+        _currentNode = (_currentNode + 1) % _path->nodes.size();
     }
 
-    WaypointData const &waypoint = _path->at(_currentNode);
+    WaypointNode const &waypoint = _path->nodes.at(_currentNode);
     Position formationDest(waypoint.x, waypoint.y, waypoint.z, (waypoint.orientation && waypoint.delay) ? waypoint.orientation : 0.0f);
 
     _isArrivalDone = false;
@@ -168,7 +187,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     if (waypoint.orientation && waypoint.delay)
         init.SetFacing(waypoint.orientation);
 
-    switch (waypoint.move_type)
+    switch (waypoint.moveType)
     {
         case WAYPOINT_MOVE_TYPE_LAND:
             init.SetAnimation(Movement::ToGround);
@@ -188,8 +207,12 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     init.Launch();
 
-    // Call for creature group update
-    creature->SignalFormationMovement(formationDest, waypoint.id, waypoint.move_type, (waypoint.orientation && waypoint.delay) ? true : false);
+    // inform formation
+    creature->SignalFormationMovement(formationDest, waypoint.id, waypoint.moveType, (waypoint.orientation && waypoint.delay) ? true : false);
+    
+    // inform AI
+    if (creature->AI())
+        creature->AI()->WaypointStarted(_path->id, _currentNode);
 
     return true;
 }
@@ -206,7 +229,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 di
     }
 
     // prevent a crash at empty waypoint path.
-    if (!_path || _path->empty())
+    if (!_path || _path->nodes.empty())
         return false;
 
     if (!_nextMoveTime.Passed())
@@ -247,10 +270,10 @@ void WaypointMovementGenerator<Creature>::MovementInform(Creature* creature)
 bool WaypointMovementGenerator<Creature>::GetResetPos(Creature*, float& x, float& y, float& z)
 {
     // prevent a crash at empty waypoint path.
-    if (!_path || _path->empty())
+    if (!_path || _path->nodes.empty())
         return false;
 
-    WaypointData const &waypoint = _path->at(_currentNode);
+    WaypointNode const &waypoint = _path->nodes.at(_currentNode);
 
     x = waypoint.x;
     y = waypoint.y;

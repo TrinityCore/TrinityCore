@@ -23,6 +23,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "SplineChain.h"
+#include "WaypointDefines.h"
 
 SystemMgr::SystemMgr() = default;
 SystemMgr::~SystemMgr() = default;
@@ -38,7 +39,7 @@ void SystemMgr::LoadScriptWaypoints()
     uint32 oldMSTime = getMSTime();
 
     // drop Existing Waypoint list
-    _pointMoveMap.clear();
+    _waypointStore.clear();
 
     uint64 entryCount = 0;
 
@@ -62,18 +63,14 @@ void SystemMgr::LoadScriptWaypoints()
     do
     {
         Field* fields = result->Fetch();
-        ScriptPointMove temp;
+        uint32 entry = fields[0].GetUInt32();
+        uint32 id = fields[1].GetUInt32();
+        float x = fields[2].GetFloat();
+        float y = fields[3].GetFloat();
+        float z = fields[4].GetFloat();
+        uint32 waitTime = fields[5].GetUInt32();
 
-        temp.entry    = fields[0].GetUInt32();
-        temp.id       = fields[1].GetUInt32();
-        temp.x        = fields[2].GetFloat();
-        temp.y        = fields[3].GetFloat();
-        temp.z        = fields[4].GetFloat();
-        temp.waitTime = fields[5].GetUInt32();
-
-        uint32 entry = temp.entry;
         CreatureTemplate const* info = sObjectMgr->GetCreatureTemplate(entry);
-
         if (!info)
         {
             TC_LOG_ERROR("sql.sql", "SystemMgr: DB table script_waypoint has waypoint for non-existant creature entry %u", entry);
@@ -83,7 +80,10 @@ void SystemMgr::LoadScriptWaypoints()
         if (!info->ScriptID)
             TC_LOG_ERROR("sql.sql", "SystemMgr: DB table script_waypoint has waypoint for creature entry %u, but creature does not have ScriptName defined and then useless.", entry);
 
-        _pointMoveMap[entry].push_back(temp);
+        WaypointPath& path = _waypointStore[entry];
+        path.id = entry;
+        path.nodes.emplace_back(id, x, y, z, 0.f, waitTime);
+
         ++count;
     } while (result->NextRow());
 
