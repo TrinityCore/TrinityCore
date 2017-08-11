@@ -579,7 +579,7 @@ public:
             }
         }
 
-        void WaypointStart(uint32 PointId, uint32 /*pathId*/) override
+        void WaypointStarted(uint32 PointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
 
