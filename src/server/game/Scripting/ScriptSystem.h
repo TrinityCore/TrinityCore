@@ -21,12 +21,12 @@
 
 #include "Define.h"
 #include "Hash.h"
+#include "WaypointDefines.h"
 #include <unordered_map>
 #include <vector>
 
 class Creature;
 struct SplineChainLink;
-struct WaypointPath;
 
 #define TEXT_SOURCE_RANGE -1000000 // the amount of entries each text source has available
 

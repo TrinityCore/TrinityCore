@@ -20,12 +20,12 @@
 
 #include "Define.h"
 #include "ObjectGuid.h"
+#include "WaypointDefines.h"
 #include <map>
 #include <string>
 #include <unordered_map>
 
 class WorldObject;
-struct WaypointPath;
 enum SpellEffIndex : uint8;
 
 enum eSmartAI

@@ -36,7 +36,7 @@ struct WaypointNode
     WaypointNode() : id(0), x(0.f), y(0.f), z(0.f), orientation(0.f), delay(0), eventId(0), moveType(WAYPOINT_MOVE_TYPE_RUN), eventChance(0) { }
     WaypointNode(uint32 _id, float _x, float _y, float _z, float _orientation = 0.f, uint32 _delay = 0)
     {
-        id = id;
+        id = _id;
         x = _x;
         y = _y;
         z = _z;

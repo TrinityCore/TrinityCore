@@ -23,7 +23,6 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "SplineChain.h"
-#include "WaypointDefines.h"
 
 SystemMgr::SystemMgr() = default;
 SystemMgr::~SystemMgr() = default;

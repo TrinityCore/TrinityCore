@@ -21,7 +21,6 @@
 #include "GridDefines.h"
 #include "MapManager.h"
 #include "Log.h"
-#include "WaypointDefines.h"
 
 void WaypointMgr::Load()
 {
@@ -86,7 +85,7 @@ WaypointMgr* WaypointMgr::instance()
 
 void WaypointMgr::ReloadPath(uint32 id)
 {
-    WaypointPathContainer::iterator itr = _waypointStore.find(id);
+    auto itr = _waypointStore.find(id);
     if (itr != _waypointStore.end())
         _waypointStore.erase(itr);
 
