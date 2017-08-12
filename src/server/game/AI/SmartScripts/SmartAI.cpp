@@ -144,6 +144,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
         _waypointPauseForced = forced;
         SetRun(mRun);
         me->PauseMovement();
+        me->SetHomePosition(me->GetPosition());
     }
     else
         _waypointReached = false;
@@ -407,6 +408,7 @@ void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
     {
         _waypointReached = true;
         me->PauseMovement();
+        me->SetHomePosition(me->GetPosition());
     }
     else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
