@@ -4845,7 +4845,7 @@ enum MailResponseResult
     MAIL_ERR_ITEM_HAS_EXPIRED          = 21
 };
 
-enum SpellFamilyNames
+enum SpellFamilyNames : uint8
 {
     SPELLFAMILY_GENERIC         = 0,
     SPELLFAMILY_EVENTS          = 1,                            // events, holidays
