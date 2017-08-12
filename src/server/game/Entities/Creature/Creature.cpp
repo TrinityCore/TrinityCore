@@ -2118,7 +2118,7 @@ void Creature::Respawn(bool force)
 
             if (IsAIEnabled) // reset the AI to be sure no dirty or uninitialized values will be used till next tick
                 AI()->Reset();
-                
+
             m_triggerJustAppeared = true;
 
             uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<Creature>(GetSpawnId()) : 0;

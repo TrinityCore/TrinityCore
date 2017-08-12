@@ -1195,7 +1195,7 @@ public:
                             return false;
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                         SendGossipMenuFor(player, 907, me->GetGUID());
-                        break; 
+                        break;
                     }
                     case 1:
                         AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
