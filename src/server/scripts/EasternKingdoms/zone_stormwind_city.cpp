@@ -128,9 +128,9 @@ public:
         return new npc_lord_gregor_lescovarAI(creature);
     }
 
-    struct npc_lord_gregor_lescovarAI : public npc_escortAI
+    struct npc_lord_gregor_lescovarAI : public EscortAI
     {
-        npc_lord_gregor_lescovarAI(Creature* creature) : npc_escortAI(creature)
+        npc_lord_gregor_lescovarAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -173,7 +173,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -264,7 +264,7 @@ public:
                     }
                 } else uiTimer -= uiDiff;
             }
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim())
                 return;
@@ -389,9 +389,9 @@ public:
         return new npc_tyrion_spybotAI(creature);
     }
 
-    struct npc_tyrion_spybotAI : public npc_escortAI
+    struct npc_tyrion_spybotAI : public EscortAI
     {
-        npc_tyrion_spybotAI(Creature* creature) : npc_escortAI(creature)
+        npc_tyrion_spybotAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -410,7 +410,7 @@ public:
             Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -506,7 +506,7 @@ public:
                     }
                 } else uiTimer -= uiDiff;
             }
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim())
                 return;
