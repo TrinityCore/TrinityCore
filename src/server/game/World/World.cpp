@@ -82,7 +82,7 @@
 #include "VMapFactory.h"
 #include "VMapManager2.h"
 #include "WardenCheckMgr.h"
-#include "WaypointMovementGenerator.h"
+#include "WaypointManager.h"
 #include "WeatherMgr.h"
 #include "WhoListStorage.h"
 #include "WorldSession.h"
@@ -1712,7 +1712,7 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Spawn Group Templates...");
     sObjectMgr->LoadSpawnGroupTemplates();
-    
+
     TC_LOG_INFO("server.loading", "Loading instance spawn groups...");
     sObjectMgr->LoadInstanceSpawnGroups();
 
