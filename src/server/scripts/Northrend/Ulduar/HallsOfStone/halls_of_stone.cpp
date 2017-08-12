@@ -271,9 +271,9 @@ class npc_brann_hos : public CreatureScript
 public:
     npc_brann_hos() : CreatureScript("npc_brann_hos") { }
 
-    struct npc_brann_hosAI : public npc_escortAI
+    struct npc_brann_hosAI : public EscortAI
     {
-        npc_brann_hosAI(Creature* creature) : npc_escortAI(creature)
+        npc_brann_hosAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             instance = creature->GetInstanceScript();
@@ -326,7 +326,7 @@ public:
             lDwarfGUIDList.clear();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {

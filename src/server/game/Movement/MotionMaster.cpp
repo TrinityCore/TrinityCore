@@ -17,25 +17,28 @@
  */
 
 #include "MotionMaster.h"
+#include "ConfusedMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "DBCStores.h"
-#include "Log.h"
-#include "Map.h"
-#include "PathGenerator.h"
-#include "ScriptSystem.h"
-#include "ConfusedMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
+#include "FormationMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
-#include "PointMovementGenerator.h"
-#include "TargetedMovementGenerator.h"
-#include "WaypointMovementGenerator.h"
-#include "RandomMovementGenerator.h"
-#include "SplineChainMovementGenerator.h"
-#include "FormationMovementGenerator.h"
+#include "Log.h"
+#include "Map.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "PathGenerator.h"
+#include "Player.h"
+#include "PointMovementGenerator.h"
+#include "RandomMovementGenerator.h"
+#include "ScriptSystem.h"
+#include "SplineChainMovementGenerator.h"
+#include "TargetedMovementGenerator.h"
+#include "Unit.h"
+#include "WaypointDefines.h"
+#include "WaypointMovementGenerator.h"
 
 inline MovementGenerator* GetIdleMovementGenerator()
 {
@@ -70,7 +73,7 @@ void MotionMaster::Initialize()
     // clear ALL movement generators (including default)
     while (!empty())
     {
-        MovementGenerator *curr = top();
+        MovementGenerator* curr = top();
         pop();
         if (curr)
             DirectDelete(curr);
@@ -672,16 +675,21 @@ void MotionMaster::MoveDistract(uint32 timer)
     Mutate(mgen, MOTION_SLOT_CONTROLLED);
 }
 
-void MotionMaster::MovePath(uint32 path_id, bool repeatable)
+void MotionMaster::MovePath(uint32 pathId, bool repeatable)
 {
-    if (!path_id)
+    if (!pathId)
         return;
 
-    Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
+    Mutate(new WaypointMovementGenerator<Creature>(pathId, repeatable), MOTION_SLOT_IDLE);
 
-    TC_LOG_DEBUG("misc", "%s (GUID: %u) starts moving over path(Id:%u, repeatable: %s).",
-        _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
-        _owner->GetGUID().GetCounter(), path_id, repeatable ? "YES" : "NO");
+    TC_LOG_DEBUG("misc", "%s (GUID: %u) starts moving over path(Id:%u, repeatable: %s).", _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature", _owner->GetGUID().GetCounter(), pathId, repeatable ? "YES" : "NO");
+}
+
+void MotionMaster::MovePath(WaypointPath& path, bool repeatable)
+{
+    Mutate(new WaypointMovementGenerator<Creature>(path, repeatable), MOTION_SLOT_IDLE);
+
+    TC_LOG_DEBUG("misc", "%s (GUID: %u) start moving over path(repeatable: %s)", _owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature", _owner->GetGUID().GetCounter(), repeatable ? "YES" : "NO");
 }
 
 void MotionMaster::MoveRotate(uint32 time, RotateDirection direction)
@@ -853,7 +861,7 @@ void MotionMaster::DirectDelete(MovementGenerator* curr)
 
 void MotionMaster::DelayedDelete(MovementGenerator* curr)
 {
-    TC_LOG_FATAL("misc", "Unit (Entry %u) is trying to delete its updating Movement Generator (Type %u)!", _owner->GetEntry(), curr->GetMovementGeneratorType());
+    TC_LOG_DEBUG("misc", "MotionMaster::DelayedDelete: unit (%u) delayed deleting movement generator (type %u)", _owner->GetEntry(), curr->GetMovementGeneratorType());
     if (IsStatic(curr))
         return;
 
