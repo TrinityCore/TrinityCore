@@ -74,3 +74,4 @@ void DBCStorageBase::LoadFromDB(std::string const& path, std::string const& dbFo
 {
     _dataTableEx = DBCDatabaseLoader(path, dbFormat, primaryKey, _fileFormat).Load(_indexTableSize, indexTable);
 }
+

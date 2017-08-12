@@ -206,7 +206,17 @@ ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_S
 add_library(scripts STATIC
   ScriptLoader.h
   ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
-  ${PRIVATE_SOURCES})
+  ${PRIVATE_SOURCES} 
+
+  Custom/Arena_Anti_Draw.cpp 
+  Custom/BossAnonser.cpp
+  Custom/NPCTransfer.cpp
+
+  Custom/boss_doom.cpp
+
+  Custom/chat_censor.cpp
+  Custom/cs_premium.cpp 
+  Custom/Transmog/Transmogrifier.cpp)
 
 target_link_libraries(scripts
   PUBLIC
@@ -241,3 +251,4 @@ if (DISABLED_SCRIPT_MODULE_PROJECTS)
 endif()
 
 message("")
+

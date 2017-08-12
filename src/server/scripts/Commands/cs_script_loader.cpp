@@ -16,6 +16,12 @@
  */
 
 // This is where scripts' loading functions should be declared:
+
+#include "ScriptLoader.h"
+#include "World.h"
+#include "AnticheatMgr.h"
+
+
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
 void AddSC_ahbot_commandscript();
@@ -56,7 +62,7 @@ void AddSC_tele_commandscript();
 void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
-
+void AddSC_anticheat_commandscript();
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCommandsScripts()
@@ -101,4 +107,5 @@ void AddCommandsScripts()
     AddSC_ticket_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
+	sAnticheatMgr->StartScripts();
 }

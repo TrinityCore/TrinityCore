@@ -102,7 +102,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, bool ispremium, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
     m_muteTime(mute_time),
     m_timeOutTime(0),
     AntiDOS(this),
@@ -110,6 +110,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     _player(nullptr),
     m_Socket(sock),
     _security(sec),
+    _ispremium(ispremium),
     _accountId(id),
     _accountName(std::move(name)),
     m_expansion(expansion),
@@ -130,6 +131,7 @@ WorldSession::WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldS
     _RBACData(nullptr),
     expireTime(60000), // 1 min after socket loss, session is deleted
     forceExit(false),
+    m_currentVendorEntry(0),
     m_currentBankerGUID()
 {
     memset(m_Tutorials, 0, sizeof(m_Tutorials));
@@ -195,7 +197,8 @@ ObjectGuid::LowType WorldSession::GetGUIDLow() const
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet)
 {
-    ASSERT(packet->GetOpcode() != NULL_OPCODE);
+	if(packet->GetOpcode() == NULL_OPCODE) return;
+//    ASSERT(packet->GetOpcode() != NULL_OPCODE);
 
     if (!m_Socket)
         return;

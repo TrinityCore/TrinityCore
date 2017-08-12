@@ -265,7 +265,7 @@ struct PacketCounter
 class TC_GAME_API WorldSession
 {
     public:
-        WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
+        WorldSession(uint32 id, std::string&& name, std::shared_ptr<WorldSocket> sock, AccountTypes sec, bool ispremium, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -302,10 +302,14 @@ class TC_GAME_API WorldSession
         void InvalidateRBACData(); // Used to force LoadPermissions at next HasPermission check
 
         AccountTypes GetSecurity() const { return _security; }
-        uint32 GetAccountId() const { return _accountId; }
+        bool IsPremium() const { return _ispremium; }
+	uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
+
+        uint32 GetCurrentVendor() const { return m_currentVendorEntry; }
+        void SetCurrentVendor(uint32 vendorEntry) { m_currentVendorEntry = vendorEntry; }
 
         ObjectGuid::LowType GetGUIDLow() const;
         void SetSecurity(AccountTypes security) { _security = security; }
@@ -346,7 +350,7 @@ class TC_GAME_API WorldSession
 
         void SendTrainerList(ObjectGuid guid);
         void SendTrainerList(ObjectGuid guid, std::string const& strTitle);
-        void SendListInventory(ObjectGuid guid);
+        void SendListInventory(ObjectGuid guid, uint32 vendorEntry = 0);
         void SendShowBank(ObjectGuid guid);
         bool CanOpenMailBox(ObjectGuid guid);
         void SendShowMailBox(ObjectGuid guid);
@@ -1070,6 +1074,7 @@ class TC_GAME_API WorldSession
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         uint8  m_TutorialsChanged;
+        bool _ispremium;
         AddonsList m_addonsList;
         uint32 recruiterId;
         bool isRecruiter;
@@ -1077,6 +1082,7 @@ class TC_GAME_API WorldSession
         rbac::RBACData* _RBACData;
         uint32 expireTime;
         bool forceExit;
+        uint32 m_currentVendorEntry;
         ObjectGuid m_currentBankerGUID;
 
         WorldSession(WorldSession const& right) = delete;

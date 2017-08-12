@@ -256,6 +256,10 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
             }
 
+             if (!GetPlayer()->IsGameMaster())
+                 if (GetPlayer()->SendBattleGroundChat(type, msg))
+                 return;
+
             sender->Say(msg, Language(lang));
             break;
         }

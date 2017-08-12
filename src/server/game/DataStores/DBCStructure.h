@@ -848,7 +848,8 @@ struct ItemBagFamilyEntry
 struct ItemDisplayInfoEntry
 {
     uint32      ID;                                         // 0        m_ID
-                                                            // 1        m_modelName[2]
+    char*       inventoryIcon;     
+	                                                        // 1        m_modelName[2]
                                                             // 2        m_modelTexture[2]
                                                             // 3        m_inventoryIcon
                                                             // 4        m_geosetGroup[3]

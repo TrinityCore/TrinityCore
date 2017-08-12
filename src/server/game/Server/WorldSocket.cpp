@@ -43,7 +43,7 @@ private:
 
 using boost::asio::ip::tcp;
 
-WorldSocket::WorldSocket(tcp::socket&& socket)
+WorldSocket::WorldSocket(tcp::socket  &&socket)
     : Socket(std::move(socket)), _authSeed(rand32()), _OverSpeedPings(0), _worldSession(nullptr), _authed(false), _sendBufferSize(4096)
 {
     _headerBuffer.Resize(sizeof(ClientPktHeader));
@@ -52,7 +52,7 @@ WorldSocket::WorldSocket(tcp::socket&& socket)
 void WorldSocket::Start()
 {
     std::string ip_address = GetRemoteIpAddress().to_string();
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
+    PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
     stmt->setUInt32(1, inet_addr(ip_address.c_str()));
 
@@ -583,6 +583,15 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
 
     TC_LOG_DEBUG("network", "WorldSocket::HandleAuthSession: Client '%s' authenticated successfully from %s.", authSession->Account.c_str(), address.c_str());
 
+    bool isPremium = false;
+    // Check premium
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_PREMIUM);
+    stmt->setUInt32(0, account.Id);
+    PreparedQueryResult premresult = LoginDatabase.Query(stmt);
+
+    if (premresult) {
+        isPremium = true;
+    }
     // Update the last_ip in the database as it was successful for login
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
 
@@ -595,7 +604,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
     sScriptMgr->OnAccountLogin(account.Id);
 
     _authed = true;
-    _worldSession = new WorldSession(account.Id, std::move(authSession->Account), shared_from_this(), account.Security,
+    _worldSession = new WorldSession(account.Id, std::move(authSession->Account), shared_from_this(), account.Security, isPremium,
         account.Expansion, mutetime, account.Locale, account.Recruiter, account.IsRectuiter);
     _worldSession->ReadAddonsInfo(authSession->AddonInfo);
 

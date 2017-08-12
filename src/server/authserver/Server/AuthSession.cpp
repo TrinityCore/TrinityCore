@@ -303,6 +303,8 @@ bool AuthSession::HandleLogonChallenge()
     for (int i = 0; i < 4; ++i)
         _localizationName[i] = challenge->country[4 - i - 1];
 
+    //set expired premium to inactive
+    LoginDatabase.DirectExecute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_PREMIUM));
     // Get the account details from the account table
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGONCHALLENGE);
     stmt->setString(0, login);

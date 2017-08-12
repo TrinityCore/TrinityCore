@@ -31,6 +31,7 @@
 #include "PlayerTaxi.h"
 #include "QuestDef.h"
 #include <queue>
+#include "Transmogrification.h"
 
 struct AccessRequirement;
 struct AchievementEntry;
@@ -146,6 +147,19 @@ struct SpellModifier
     uint32 spellId;
     Aura* const ownerAura;
 };
+
+typedef std::unordered_map<ObjectGuid, uint32> TransmogMapType;
+
+#ifdef PRESETS
+typedef std::map<uint8, uint32> PresetslotMapType;
+struct PresetData
+{
+    std::string name;
+    PresetslotMapType slotMap; // slotMap[slotId] = entry
+};
+typedef std::map<uint8, PresetData> PresetMapType;
+#endif
+
 
 typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
 typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
@@ -887,6 +901,36 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         PlayerAI* AI() const { return reinterpret_cast<PlayerAI*>(i_AI); }
 
+	        private:
+            bool m_ForgetBGPlayers;
+            bool m_ForgetInListPlayers;
+            uint8 m_FakeRace;
+            uint8 m_RealRace;
+            uint32 m_FakeMorph;
+            public:
+                typedef std::vector<uint64> FakePlayers;
+                void SendChatMessage(const char *format, ...);
+                void FitPlayerInTeam(bool action, Battleground* pBattleGround = NULL);          // void FitPlayerInTeam(bool action, Battleground* bg = NULL);
+                void DoForgetPlayersInList();
+                void DoForgetPlayersInBG(Battleground* pBattleGround);                                          // void DoForgetPlayersInBG(Battleground* bg);
+                uint8 getCFSRace() const { return m_RealRace; }
+                void SetCFSRace() { m_RealRace = GetByteValue(UNIT_FIELD_BYTES_0, 0); }; // SHOULD ONLY BE CALLED ON LOGIN
+                void SetFakeRace(); // SHOULD ONLY BE CALLED ON LOGIN
+                void SetFakeRaceAndMorph(); // SHOULD ONLY BE CALLED ON LOGIN
+                uint32 GetFakeMorph() { return m_FakeMorph; };
+                uint8 getFRace() const { return m_FakeRace; }
+                void SetForgetBGPlayers(bool value) { m_ForgetBGPlayers = value; }
+                bool ShouldForgetBGPlayers() { return m_ForgetBGPlayers; }
+                void SetForgetInListPlayers(bool value) { m_ForgetInListPlayers = value; }
+                bool ShouldForgetInListPlayers() { return m_ForgetInListPlayers; }
+                bool SendBattleGroundChat(uint32 msgtype, std::string message);
+                void MorphFit(bool value);
+                bool IsPlayingNative() const { return GetTeam() == m_team; }
+                uint32 GetCFSTeam() const { return m_team; }
+                uint32 GetTeam() const { return m_bgData.bgTeam && GetBattleground() ? m_bgData.bgTeam : m_team; }
+                bool SendRealNameQuery();
+                FakePlayers m_FakePlayers;
+
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
         void AddToWorld() override;
@@ -941,7 +985,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveSocial();
 
         PlayerTaxi m_taxi;
-        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getRace(), getClass(), getLevel()); }
+        void InitTaxiNodesForLevel() { m_taxi.InitTaxiNodesForLevel(getCFSRace(), getClass(), getLevel()); }
         bool ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc = nullptr, uint32 spellid = 0);
         bool ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid = 0);
         void CleanupAfterTaxiFlight();
@@ -1001,7 +1045,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::unordered_set<PetAura const*> m_petAuras;
         void AddPetAura(PetAura const* petSpell);
         void RemovePetAura(PetAura const* petSpell);
-
+	void BuildPlayerChat(WorldPacket* data, uint8 msgtype, std::string const& text, uint32 language) const;
         /// Handles said message in regular chat based on declared language and in config pre-defined Range.
         void Say(std::string const& text, Language language, WorldObject const* = nullptr) override;
         void Say(uint32 textId, WorldObject const* target = nullptr) override;
@@ -1718,8 +1762,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void CheckAreaExploreAndOutdoor(void);
 
         static uint32 TeamForRace(uint8 race);
-        uint32 GetTeam() const { return m_team; }
-        TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
+	TeamId GetTeamId() const { return GetTeam() == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
         void setFactionForRace(uint8 race);
 
         void InitDisplayIds();
@@ -1884,7 +1927,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetBattlegroundEntryPoint();
 
         void SetBGTeam(uint32 team);
-        uint32 GetBGTeam() const;
+        //uint32 GetBGTeam() const;
 
         void LeaveBattleground(bool teleportToEntryPoint = true);
         bool CanJoinToBattleground(Battleground const* bg) const;
@@ -2135,6 +2178,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
+
+
+        TransmogMapType transmogMap; // transmogMap[iGUID] = entry
+#ifdef PRESETS
+        PresetMapType presetMap; // presetMap[presetId] = presetData
+#endif
 
     protected:
         // Gamemaster whisper whitelist

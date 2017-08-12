@@ -903,6 +903,7 @@ class TC_GAME_API ObjectMgr
         typedef std::vector<std::string> ScriptNameContainer;
 
         typedef std::map<uint32, uint32> CharacterConversionMap;
+	Player* GetPlayerByLowGUID(ObjectGuid::LowType lowguid) const;
 
         GameObjectTemplate const* GetGameObjectTemplate(uint32 entry) const;
         GameObjectTemplateContainer const* GetGameObjectTemplates() const { return &_gameObjectTemplateStore; }
