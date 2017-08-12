@@ -91,6 +91,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         bool _repeating;
         bool _loadedFromDB;
         bool _stalled;
+        bool _done;
 };
 
 /**

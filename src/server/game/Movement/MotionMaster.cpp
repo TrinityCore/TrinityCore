@@ -71,7 +71,7 @@ void MotionMaster::Initialize()
     // clear ALL movement generators (including default)
     while (!empty())
     {
-        MovementGenerator *curr = top();
+        MovementGenerator* curr = top();
         pop();
         if (curr)
             DirectDelete(curr);
