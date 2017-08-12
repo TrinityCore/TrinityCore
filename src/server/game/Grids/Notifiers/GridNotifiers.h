@@ -933,9 +933,9 @@ namespace Trinity
                     return false;
 
                 float searchRadius = i_range;
-                if (i_incOwnRadius) 
+                if (i_incOwnRadius)
                     searchRadius += i_obj->GetCombatReach();
-                if (i_incTargetRadius) 
+                if (i_incTargetRadius)
                     searchRadius += u->GetCombatReach();
 
                 if (!u->IsInMap(i_obj) || !u->InSamePhase(i_obj) || !u->IsWithinDoubleVerticalCylinder(i_obj, searchRadius, searchRadius))
@@ -959,7 +959,7 @@ namespace Trinity
     class AnyGroupedUnitInObjectRangeCheck
     {
         public:
-            AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true) 
+            AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid, bool playerOnly = false, bool incOwnRadius = true, bool incTargetRadius = true)
                 : _source(obj), _refUnit(funit), _range(range), _raid(raid), _playerOnly(playerOnly), i_incOwnRadius(incOwnRadius), i_incTargetRadius(incTargetRadius) { }
 
             bool operator()(Unit* u) const
@@ -982,9 +982,9 @@ namespace Trinity
                     return false;
 
                 float searchRadius = _range;
-                if (i_incOwnRadius) 
+                if (i_incOwnRadius)
                     searchRadius += _source->GetCombatReach();
-                if (i_incTargetRadius) 
+                if (i_incTargetRadius)
                     searchRadius += u->GetCombatReach();
 
                 return u->IsInMap(_source) && u->InSamePhase(_source) && u->IsWithinDoubleVerticalCylinder(_source, searchRadius, searchRadius);
@@ -1069,9 +1069,9 @@ namespace Trinity
                     return false;
 
                 float searchRadius = i_range;
-                if (i_incOwnRadius) 
+                if (i_incOwnRadius)
                     searchRadius += i_obj->GetCombatReach();
-                if (i_incTargetRadius) 
+                if (i_incTargetRadius)
                     searchRadius += u->GetCombatReach();
 
                 return u->IsInMap(i_obj) && u->InSamePhase(i_obj) && u->IsWithinDoubleVerticalCylinder(i_obj, searchRadius, searchRadius);

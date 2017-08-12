@@ -1655,7 +1655,7 @@ void Creature::DeleteFromDB()
 
     // remove any scheduled respawns
     GetMap()->RemoveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId);
-    
+
     // delete data from memory
     sObjectMgr->DeleteCreatureData(m_spawnId);
 
@@ -1950,7 +1950,7 @@ void Creature::Respawn(bool force)
 
             if (IsAIEnabled) // reset the AI to be sure no dirty or uninitialized values will be used till next tick
                 AI()->Reset();
-                
+
             m_triggerJustAppeared = true;
 
             uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<Creature>(GetSpawnId()) : 0;

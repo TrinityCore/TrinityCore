@@ -114,7 +114,7 @@ void AggroAllPlayers(Creature* temp)
                 temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 temp->SetImmuneToPC(true);
                 temp->SetReactState(REACT_AGGRESSIVE);
-                temp->EngageWithTarget(player);                
+                temp->EngageWithTarget(player);
             }
         }
     }
