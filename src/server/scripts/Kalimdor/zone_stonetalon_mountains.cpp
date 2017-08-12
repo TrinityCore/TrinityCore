@@ -46,11 +46,11 @@ class npc_kaya_flathoof : public CreatureScript
 public:
     npc_kaya_flathoof() : CreatureScript("npc_kaya_flathoof") { }
 
-    struct npc_kaya_flathoofAI : public npc_escortAI
+    struct npc_kaya_flathoofAI : public EscortAI
     {
-        npc_kaya_flathoofAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_kaya_flathoofAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

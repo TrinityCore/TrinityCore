@@ -1041,7 +1041,7 @@ void GameObject::DeleteFromDB()
     stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_EVENT_GAMEOBJECT);
     stmt->setUInt32(0, m_spawnId);
     trans->Append(stmt);
-    
+
     WorldDatabase.CommitTransaction(trans);
 }
 

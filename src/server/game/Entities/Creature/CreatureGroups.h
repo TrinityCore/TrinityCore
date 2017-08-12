@@ -84,6 +84,7 @@ class TC_GAME_API CreatureGroup
         uint32 GetId() const { return m_groupID; }
         bool isEmpty() const { return m_members.empty(); }
         bool isFormed() const { return m_Formed; }
+        bool IsLeader(Creature const* creature) const { return m_leader == creature; }
 
         void AddMember(Creature* member);
         void RemoveMember(Creature* member);
@@ -91,6 +92,7 @@ class TC_GAME_API CreatureGroup
 
         void LeaderMoveTo(Position const& destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
         void MemberEngagingTarget(Creature* member, Unit* target);
+        bool CanLeaderStartMoving() const;
 };
 
 #define sFormationMgr FormationMgr::instance()
