@@ -827,7 +827,7 @@ PVOID         UserContext)
     {
         ClearSymbols();
         FormatSymbolValue(pSymInfo, (STACKFRAME64*)UserContext);
-            
+
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
