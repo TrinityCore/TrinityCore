@@ -16,22 +16,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
+#include "Battlefield.h"
+#include "BattlefieldMgr.h"
+#include "BattlefieldWG.h"
+#include "Battleground.h"
+#include "Common.h"
 #include "Corpse.h"
-#include "Player.h"
+#include "GameTime.h"
+#include "InstanceSaveMgr.h"
+#include "Log.h"
 #include "MapManager.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
-#include "Transport.h"
-#include "Battleground.h"
-#include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "Transport.h"
 #include "Vehicle.h"
-#include "GameTime.h"
+#include "WorldPacket.h"
 
 #define MOVEMENT_PACKET_TIME_DELAY 0
 
@@ -86,16 +89,12 @@ void WorldSession::HandleMoveWorldportAck()
         return;
     }
 
-    float z = loc.GetPositionZ();
-    if (GetPlayer()->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
-        z += GetPlayer()->GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
-    GetPlayer()->Relocate(loc.GetPositionX(), loc.GetPositionY(), z, loc.GetOrientation());
+    GetPlayer()->Relocate(loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation());
     GetPlayer()->SetFallInformation(0, GetPlayer()->GetPositionZ());
-
     GetPlayer()->ResetMap();
     GetPlayer()->SetMap(newMap);
-
     GetPlayer()->SendInitialPacketsBeforeAddToMap();
+
     if (!GetPlayer()->GetMap()->AddPlayerToMap(GetPlayer()))
     {
         TC_LOG_ERROR("network", "WORLD: failed to teleport player %s (%d) to map %d (%s) because of unknown reason!",
@@ -128,30 +127,16 @@ void WorldSession::HandleMoveWorldportAck()
 
     GetPlayer()->SendInitialPacketsAfterAddToMap();
 
-    // flight fast teleport case
-    if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
-    {
-        if (!_player->InBattleground())
-        {
-            // short preparations to continue flight
-            MovementGenerator* movementGenerator = GetPlayer()->GetMotionMaster()->top();
-            movementGenerator->Initialize(GetPlayer());
-            return;
-        }
-
-        // battleground state prepare, stop flight
-        GetPlayer()->GetMotionMaster()->MovementExpired();
-        GetPlayer()->CleanupAfterTaxiFlight();
-    }
-
     // resurrect character at enter into instance where his corpse exist after add to map
 
     if (mEntry->IsDungeon() && !GetPlayer()->IsAlive())
+    {
         if (GetPlayer()->GetCorpseLocation().GetMapId() == mEntry->MapID)
         {
             GetPlayer()->ResurrectPlayer(0.5f, false);
             GetPlayer()->SpawnCorpseBones();
         }
+    }
 
     bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattlegroundOrArena();
     if (mInstance)
@@ -186,6 +171,33 @@ void WorldSession::HandleMoveWorldportAck()
     uint32 newzone, newarea;
     GetPlayer()->GetZoneAndAreaId(newzone, newarea);
     GetPlayer()->UpdateZone(newzone, newarea);
+
+    bool InBattlefield = false;
+    if (loc.GetMapId() == MAPID_WINTERGRASP && newzone == ZONEID_WINTERGRASP)
+    {
+        if (Battlefield* battlefield = sBattlefieldMgr->GetEnabledBattlefield(newzone))
+        {
+            if (battlefield->IsWarTime())
+                _player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+            InBattlefield = true;
+        }
+    }
+
+    // flight fast teleport case
+    if (GetPlayer()->IsInFlight())
+    {
+        if (!_player->InBattleground() && !InBattlefield)
+        {
+            // short preparations to continue flight
+            if (MovementGenerator* flight = GetPlayer()->GetMotionMaster()->GetMotionSlot(MOTION_SLOT_CONTROLLED))
+                flight->Initialize(GetPlayer());
+            return;
+        }
+
+        // stop flight
+        GetPlayer()->GetMotionMaster()->Clear(MOTION_SLOT_CONTROLLED);
+        GetPlayer()->CleanupAfterTaxiFlight();
+    }
 
     // honorless target
     if (GetPlayer()->pvpInfo.IsHostile)

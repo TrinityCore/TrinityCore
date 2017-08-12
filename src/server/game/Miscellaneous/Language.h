@@ -78,7 +78,7 @@ enum TrinityStrings
     LANG_UNKNOWN                        = 45,
     LANG_ERROR                          = 46,
     LANG_NON_EXIST_CHARACTER            = 47,
-    // unused                           = 48,
+    // Room for level 0                 = 48, not used
     LANG_LEVEL_MINREQUIRED              = 49,
     LANG_LEVEL_MINREQUIRED_AND_ITEM     = 50,
     LANG_NPC_TAINER_HELLO               = 51,
@@ -117,8 +117,7 @@ enum TrinityStrings
     LANG_GOINFO_SIZE                    = 84,
     LANG_GOINFO_ADDON                   = 85,
     LANG_GOINFO_MODEL                   = 86,
-    // Free 87 - 95
-
+    // Room for level 0                 = 87-95, not used
 
     LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
     LANG_GUILD_RENAME_DONE              = 97,
@@ -152,7 +151,7 @@ enum TrinityStrings
     LANG_YOU_CHANGE_ENERGY              = 122,
     LANG_YOURS_ENERGY_CHANGED           = 123,
 
-    LANG_CURRENT_ENERGY                 = 124,              //log
+    LANG_CURRENT_ENERGY                 = 124, // log
     LANG_YOU_CHANGE_RAGE                = 125,
     LANG_YOURS_RAGE_CHANGED             = 126,
     LANG_YOU_CHANGE_LVL                 = 127,
@@ -192,7 +191,7 @@ enum TrinityStrings
     LANG_YOURS_MONEY_GIVEN              = 158,
     LANG_YOU_HEAR_SOUND                 = 159,
 
-    LANG_NEW_MONEY                      = 160,              // Log
+    LANG_NEW_MONEY                      = 160, // log
 
     LANG_REMOVE_BIT                     = 161,
     LANG_SET_BIT                        = 162,
@@ -216,7 +215,7 @@ enum TrinityStrings
     // 179-185 used in 6.x branch
     LANG_TRANSPORT_POSITION             = 186,
     LANG_PARTIAL_GROUP_SUMMON           = 187,
-    // Room for more level 1              188-199 not used
+    // Room for level 1                 = 188-199, not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -323,9 +322,8 @@ enum TrinityStrings
     LANG_COMMAND_NPC_SHOWLOOT_LABEL_2   = 293,
     LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL  = 294,
     LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2   = 295,
-      // 296 free
+    // Room for level 2                 = 296, not used
 
-      // END
     LANG_COMMAND_SPAWNDIST              = 297,
     LANG_COMMAND_SPAWNTIME              = 298,
     LANG_COMMAND_MODIFY_HONOR           = 299,
@@ -396,7 +394,7 @@ enum TrinityStrings
     LANG_COMMAND_CHEAT_WW               = 362,
     LANG_COMMAND_WHISPEROFFPLAYER       = 363,
     LANG_COMMAND_CHEAT_TAXINODES        = 364,
-    // Room for more level 2              365-399 not used
+    // Room for level 2                 = 365-399, not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,
@@ -507,8 +505,8 @@ enum TrinityStrings
     LANG_REMOVEALL_COOLDOWN             = 492,
     LANG_REMOVE_COOLDOWN                = 493,
 
-    LANG_ADDITEM                        = 494,              //log
-    LANG_ADDITEMSET                     = 495,              //log
+    LANG_ADDITEM                        = 494, // log
+    LANG_ADDITEMSET                     = 495, // log
     LANG_REMOVEITEM                     = 496,
     LANG_ITEM_CANNOT_CREATE             = 497,
     LANG_INSERT_GUILD_NAME              = 498,
@@ -541,7 +539,7 @@ enum TrinityStrings
 
     LANG_GAMEOBJECT_NOT_EXIST           = 522,
 
-    LANG_GAMEOBJECT_CURRENT             = 523,              //log
+    LANG_GAMEOBJECT_CURRENT             = 523, // log
     LANG_GAMEOBJECT_DETAIL              = 524,
     LANG_GAMEOBJECT_ADD                 = 525,
 
@@ -592,22 +590,22 @@ enum TrinityStrings
     LANG_UPDATE                         = 562,
     LANG_UPDATE_CHANGE                  = 563,
     LANG_TOO_BIG_INDEX                  = 564,
-    LANG_SET_UINT                       = 565,              //log
+    LANG_SET_UINT                       = 565, // log
     LANG_SET_UINT_FIELD                 = 566,
-    LANG_SET_FLOAT                      = 567,              //log
+    LANG_SET_FLOAT                      = 567, // log
     LANG_SET_FLOAT_FIELD                = 568,
-    LANG_GET_UINT                       = 569,              //log
+    LANG_GET_UINT                       = 569, // log
     LANG_GET_UINT_FIELD                 = 570,
-    LANG_GET_FLOAT                      = 571,              //log
+    LANG_GET_FLOAT                      = 571, // log
     LANG_GET_FLOAT_FIELD                = 572,
-    LANG_SET_32BIT                      = 573,              //log
+    LANG_SET_32BIT                      = 573, // log
     LANG_SET_32BIT_FIELD                = 574,
-    LANG_CHANGE_32BIT                   = 575,              //log
+    LANG_CHANGE_32BIT                   = 575, // log
     LANG_CHANGE_32BIT_FIELD             = 576,
 
-    LANG_INVISIBLE_INVISIBLE              = 577,
-    LANG_INVISIBLE_VISIBLE                = 578,
-    LANG_SELECTED_TARGET_NOT_HAVE_VICTIM  = 579,
+    LANG_INVISIBLE_INVISIBLE            = 577,
+    LANG_INVISIBLE_VISIBLE              = 578,
+    LANG_SELECTED_TARGET_NOT_HAVE_VICTIM = 579,
 
     LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST = 580,
     LANG_COMMAND_NEAROBJMESSAGE         = 581,
@@ -632,7 +630,6 @@ enum TrinityStrings
     LANG_GMLIST                         = 597,
     LANG_GMLIST_HEADER                  = 598,
     LANG_GMLIST_EMPTY                   = 599,
-
     // End Level 3 list, continued at 1100
 
     // Battleground
@@ -719,31 +716,31 @@ enum TrinityStrings
     LANG_BG_QUEUE_ANNOUNCE_SELF         = 711,
     LANG_BG_QUEUE_ANNOUNCE_WORLD        = 712,
     LANG_YOUR_ARENA_LEVEL_REQ_ERROR     = 713,
-//                                      = 714, see LANG_PINFO_ACC_ACCOUNT
+    //                                  = 714, see LANG_PINFO_ACC_ACCOUNT
     LANG_YOUR_BG_LEVEL_REQ_ERROR        = 715,
-//                                      = 716, see LANG_PINFO_ACC_LASTLOGIN
+    //                                  = 716, see LANG_PINFO_ACC_LASTLOGIN
     LANG_BG_STARTED_ANNOUNCE_WORLD      = 717,
-    LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
-    LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
+    LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN = 718,
+    LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT = 719,
 
-    LANG_BG_GROUP_TOO_LARGE             = 720,              // "Your group is too large for this battleground. Please regroup to join."
-    LANG_ARENA_GROUP_TOO_LARGE          = 721,              // "Your group is too large for this arena. Please regroup to join."
-    LANG_ARENA_YOUR_TEAM_ONLY           = 722,              // "Your group has members not in your arena team. Please regroup to join."
-    LANG_ARENA_NOT_ENOUGH_PLAYERS       = 723,              // "Your group does not have enough players to join this match."
-    LANG_ARENA_GOLD_WINS                = 724,              // "The Gold Team wins!"
-    LANG_ARENA_GREEN_WINS               = 725,              // "The Green Team wins!"
-//                                      = 726, not used
-    LANG_BG_GROUP_OFFLINE_MEMBER        = 727,              // "Your group has an offline member. Please remove him before joining."
-    LANG_BG_GROUP_MIXED_FACTION         = 728,              // "Your group has players from the opposing faction. You can't join the battleground as a group."
-    LANG_BG_GROUP_MIXED_LEVELS          = 729,              // "Your group has players from different battleground brakets. You can't join as group."
-    LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE = 730,            // "Someone in your party is already in this battleground queue. (S)he must leave it before joining as group."
-    LANG_BG_GROUP_MEMBER_DESERTER       = 731,              // "Someone in your party is Deserter. You can't join as group."
-    LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS = 732,         // "Someone in your party is already in three battleground queues. You cannot join as group."
+    LANG_BG_GROUP_TOO_LARGE             = 720,      // "Your group is too large for this battleground. Please regroup to join."
+    LANG_ARENA_GROUP_TOO_LARGE          = 721,      // "Your group is too large for this arena. Please regroup to join."
+    LANG_ARENA_YOUR_TEAM_ONLY           = 722,      // "Your group has members not in your arena team. Please regroup to join."
+    LANG_ARENA_NOT_ENOUGH_PLAYERS       = 723,      // "Your group does not have enough players to join this match."
+    LANG_ARENA_GOLD_WINS                = 724,      // "The Gold Team wins!"
+    LANG_ARENA_GREEN_WINS               = 725,      // "The Green Team wins!"
+    //                                  = 726, not used
+    LANG_BG_GROUP_OFFLINE_MEMBER        = 727,      // "Your group has an offline member. Please remove him before joining."
+    LANG_BG_GROUP_MIXED_FACTION         = 728,      // "Your group has players from the opposing faction. You can't join the battleground as a group."
+    LANG_BG_GROUP_MIXED_LEVELS          = 729,      // "Your group has players from different battleground brakets. You can't join as group."
+    LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE = 730,    // "Someone in your party is already in this battleground queue. (S)he must leave it before joining as group."
+    LANG_BG_GROUP_MEMBER_DESERTER       = 731,      // "Someone in your party is Deserter. You can't join as group."
+    LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS = 732, // "Someone in your party is already in three battleground queues. You cannot join as group."
 
-    LANG_CANNOT_TELE_TO_BG              = 733,              // "You cannot teleport to a battleground or arena map."
-    LANG_CANNOT_SUMMON_TO_BG            = 734,              // "You cannot summon players to a battleground or arena map."
-    LANG_CANNOT_GO_TO_BG_GM             = 735,              // "You must be in GM mode to teleport to a player in a battleground."
-    LANG_CANNOT_GO_TO_BG_FROM_BG        = 736,              // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."
+    LANG_CANNOT_TELE_TO_BG              = 733,      // "You cannot teleport to a battleground or arena map."
+    LANG_CANNOT_SUMMON_TO_BG            = 734,      // "You cannot summon players to a battleground or arena map."
+    LANG_CANNOT_GO_TO_BG_GM             = 735,      // "You must be in GM mode to teleport to a player in a battleground."
+    LANG_CANNOT_GO_TO_BG_FROM_BG        = 736,      // "You cannot teleport to a battleground from another battleground. Please leave the current battleground first."
     LANG_DEBUG_ARENA_ON                 = 737,
     LANG_DEBUG_ARENA_OFF                = 738,
     LANG_DEBUG_BG_ON                    = 739,
@@ -756,13 +753,13 @@ enum TrinityStrings
     LANG_DIST_ARENA_POINTS_END          = 746,
     LANG_BG_DISABLED                    = 747,
     LANG_ARENA_DISABLED                 = 748,
-//                                      = 749, see LANG_PINFO_ACC_OS
-    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 750,       // "Not enough players. This game will close in %u mins."
-    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS = 751,  // "Not enough players. This game will close in %u seconds."
-//                                      = 752, see LANG_PINFO_ACC_IP
-//  LANG_BG_WS_START_TWO_MINUTES        = 753, - defined above
-//  LANG_BG_AB_START_TWO_MINUTES        = 754, - defined above
-//  LANG_BG_EY_START_TWO_MINUTES        = 755, - defined above
+    //                                  = 749, see LANG_PINFO_ACC_OS
+    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 750,      // "Not enough players. This game will close in %u mins."
+    LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS = 751, // "Not enough players. This game will close in %u seconds."
+    //                                  = 752, see LANG_PINFO_ACC_IP
+    //  LANG_BG_WS_START_TWO_MINUTES    = 753, - defined above
+    //  LANG_BG_AB_START_TWO_MINUTES    = 754, - defined above
+    //  LANG_BG_EY_START_TWO_MINUTES    = 755, - defined above
 
     // Room for BG/ARENA                = 773-784, 788-799 not used
     LANG_ARENA_TESTING                  = 785,
@@ -780,7 +777,7 @@ enum TrinityStrings
     LANG_NEED_CHARACTER_NAME            = 807,
     LANG_PLAYER_NOT_EXIST_OR_OFFLINE    = 808,
     LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND   = 809,
-    // unused                           = 810,
+    //                                  = 810, not used
     LANG_GUILD_MASTER                   = 811,
     LANG_GUILD_OFFICER                  = 812,
     LANG_GUILD_VETERAN                  = 813,
@@ -995,11 +992,11 @@ enum TrinityStrings
     LANG_GUILD_INFO_BANK_GOLD           = 1181,
     LANG_GUILD_INFO_MOTD                = 1182,
     LANG_GUILD_INFO_EXTRA_INFO          = 1183,
-    LANG_CHANGEACCOUNT_SUCCESS          = 1184,             // log
+    LANG_CHANGEACCOUNT_SUCCESS          = 1184, // log
     LANG_GROUP_NOT_IN_RAID_GROUP        = 1185,
     LANG_GROUP_ROLE_CHANGED             = 1186,
     LANG_LEADER_CANNOT_BE_ASSISTANT     = 1187,
-    // Room for more level 3              1188-1198 not used
+    // Room for more level 3            = 1188-1198, not used
 
     // Debug commands
     LANG_DO_NOT_USE_6X_DEBUG_AREATRIGGER_LEFT = 1999,
@@ -1030,20 +1027,20 @@ enum TrinityStrings
     LANG_BG_IC_REFINERY                 = 1222,
     LANG_BG_IC_QUARRY                   = 1223,
     LANG_BG_IC_HANGAR                   = 1224,
-    //                                    1225-1299
+    //                                  = 1225-1299, not used
     LANG_BG_IC_ALLIANCE                 = 1300,
     LANG_BG_IC_HORDE                    = 1301,
+    //                                  = 1302-1325, not used
 
-    //                                    1302-1325
     // AV
     LANG_BG_AV_START_ONE_MINUTE         = 1326,
     LANG_BG_AV_START_HALF_MINUTE        = 1327,
     LANG_BG_AV_HAS_BEGUN                = 1328,
     LANG_BG_AV_A_NEAR_LOSE              = 1329,
     LANG_BG_AV_H_NEAR_LOSE              = 1330,
-    //                                    1331-1332
+    //                                  = 1331-1332, not used
     LANG_BG_AV_START_TWO_MINUTES        = 1333,
-    // FREE IDS                           1334-1999
+    //                                  = 1334-1999, not used
 
     // Ticket Strings 2000-2030
     LANG_COMMAND_TICKETNEW              = 2000,
@@ -1086,7 +1083,7 @@ enum TrinityStrings
     LANG_COMMAND_NO_FROZEN_PLAYERS      = 5004,
     LANG_COMMAND_LIST_FREEZE            = 5005,
     LANG_COMMAND_PERMA_FROZEN_PLAYER    = 5006,
-    //                                  = 5007, unused
+    //                                  = 5007, not used
     LANG_INSTANCE_CLOSED                = 5008,
     LANG_COMMAND_PLAYED_TO_ALL          = 5009,
     LANG_NPCINFO_LINKGUID               = 5010,
@@ -1098,7 +1095,7 @@ enum TrinityStrings
     LANG_BATTLEGROUND                   = 5015,
     LANG_ARENA                          = 5016,
     LANG_RAID                           = 5017,
-                                        //= 5018,
+    //                                  = 5018,
     LANG_COMMAND_TEMP_FROZEN_PLAYER     = 5019,
     LANG_NPCINFO_PHASEMASK              = 5020,
     LANG_NPCINFO_ARMOR                  = 5021,
@@ -1148,14 +1145,14 @@ enum TrinityStrings
     LANG_COMMAND_MUTEHISTORY_OUTPUT     = 5061,
 
     // Scene debugs commands [Master only, not used in 3.3.5]
-    /*LANG_COMMAND_SCENE_DEBUG_ON         = 5062,
+    /*LANG_COMMAND_SCENE_DEBUG_ON       = 5062,
     LANG_COMMAND_SCENE_DEBUG_OFF        = 5063,
     LANG_COMMAND_SCENE_DEBUG_PLAY       = 5064,
     LANG_COMMAND_SCENE_DEBUG_TRIGGER    = 5065,
     LANG_COMMAND_SCENE_DEBUG_CANCEL     = 5066,
     LANG_COMMAND_SCENE_DEBUG_COMPLETE   = 5067,
     LANG_DEBUG_SCENE_OBJECT_LIST        = 5068,
-    LANG_DEBUG_SCENE_OBJECT_DETAIL      = 5069, */
+    LANG_DEBUG_SCENE_OBJECT_DETAIL      = 5069,*/
 
     // Strings added for dynamic_spawning
     LANG_SPAWNINFO_GROUP_ID             = 5070,
@@ -1172,7 +1169,19 @@ enum TrinityStrings
     LANG_LIST_RESPAWNS_CREATURES        = 5081,
     LANG_LIST_RESPAWNS_GAMEOBJECTS      = 5082,
 
-    // Room for more Trinity strings      5084-6603
+    // Battlefield
+    LANG_COMMAND_BF_START               = 5083,
+    LANG_COMMAND_BF_ACTIVE              = 5084,
+    LANG_COMMAND_BF_STOP                = 5085,
+    LANG_COMMAND_BF_ALREADY_STOPPED     = 5086,
+    LANG_COMMAND_BF_DISABLE             = 5087,
+    LANG_COMMAND_BF_ENABLE              = 5088,
+    LANG_COMMAND_BF_SWITCH              = 5089,
+    LANG_COMMAND_BF_TIMER               = 5090,
+    LANG_COMMAND_BF_INCORRECT_ID        = 5091,
+    LANG_COMMAND_BF_DISABLED            = 5092,
+
+    // Room for more Trinity strings    = 5092-6603,
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
@@ -1186,14 +1195,14 @@ enum TrinityStrings
     LANG_MAIL_RECEIVER_REQ              = 6612,
 
     // Used for GM Announcements
-    LANG_GM_BROADCAST                    = 6613,
-    LANG_GM_NOTIFY                       = 6614,
-    LANG_GM_ANNOUNCE_COLOR               = 6615,
+    LANG_GM_BROADCAST                   = 6613,
+    LANG_GM_NOTIFY                      = 6614,
+    LANG_GM_ANNOUNCE_COLOR              = 6615,
 
-    LANG_GM_SILENCE                      = 6616,              // "Silence is ON for %s" - Spell 1852
+    LANG_GM_SILENCE                     = 6616, // "Silence is ON for %s" - Spell 1852
 
-    LANG_WORLD_CLOSED                    = 7523,
-    LANG_WORLD_OPENED                    = 7524,
+    LANG_WORLD_CLOSED                   = 7523,
+    LANG_WORLD_OPENED                   = 7524,
 
     LANG_LFG_PLAYER_INFO                = 9980,
     LANG_LFG_GROUP_INFO                 = 9981,
@@ -1217,7 +1226,7 @@ enum TrinityStrings
     LANG_LFG_ERROR                      = 9999,
 
     // Use for not-in-offcial-sources patches
-    //                                    10000-10999
+    //                                  = 10000-10999, not used
     // opvp si
     LANG_OPVP_SI_CAPTURE_H              = 10049,
     LANG_OPVP_SI_CAPTURE_A              = 10050,
@@ -1228,42 +1237,42 @@ enum TrinityStrings
     LANG_OPVP_ZM_GOSSIP_ALLIANCE        = 10054,
     LANG_OPVP_ZM_GOSSIP_HORDE           = 10055,
 
-    LANG_BG_SA_START_TWO_MINUTES            = 10056,
-    LANG_BG_SA_START_ONE_MINUTE             = 10057,
-    LANG_BG_SA_START_HALF_MINUTE            = 10058,
-    // unused                                 10059-10062
-    LANG_BG_SA_ALLIANCE_CAPTURED_RELIC      = 10063, //The Alliance captured the titan portal!
-    LANG_BG_SA_HORDE_CAPTURED_RELIC         = 10064, //The Horde captured the titan portal!
-    LANG_BG_SA_ROUND_TWO_ONE_MINUTE         = 10065, //Round 2 of the Battle for the Strand of the Ancients begins in 1 minute.
-    LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE  = 10066, //Round 2 begins in 30 seconds. Prepare yourselves!
+    LANG_BG_SA_START_TWO_MINUTES        = 10056,
+    LANG_BG_SA_START_ONE_MINUTE         = 10057,
+    LANG_BG_SA_START_HALF_MINUTE        = 10058,
+    //                                  = 10059-10062, not used
+    LANG_BG_SA_ALLIANCE_CAPTURED_RELIC  = 10063, // "The Alliance captured the titan portal!"
+    LANG_BG_SA_HORDE_CAPTURED_RELIC     = 10064, // "The Horde captured the titan portal!"
+    LANG_BG_SA_ROUND_TWO_ONE_MINUTE     = 10065, // "Round 2 of the Battle for the Strand of the Ancients begins in 1 minute."
+    LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE = 10066, // "Round 2 begins in 30 seconds. Prepare yourselves!"
 
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
     LANG_INVALID_REALMID                = 11001,
 
     // Show Kick in world
-    LANG_COMMAND_KICKMESSAGE_WORLD = 11002,
+    LANG_COMMAND_KICKMESSAGE_WORLD      = 11002,
 
     // Show Mute in world
-    LANG_COMMAND_MUTEMESSAGE_WORLD = 11003,
+    LANG_COMMAND_MUTEMESSAGE_WORLD      = 11003,
 
     // Show Ban in world
-    LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD     = 11004,
+    LANG_BAN_CHARACTER_YOUBANNEDMESSAGE_WORLD = 11004,
     LANG_BAN_CHARACTER_YOUPERMBANNEDMESSAGE_WORLD = 11005,
-    LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD       = 11006,
-    LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD   = 11007,
+    LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD = 11006,
+    LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD = 11007,
 
-    LANG_NPCINFO_INHABIT_TYPE                     = 11008,
-    LANG_NPCINFO_FLAGS_EXTRA                      = 11009,
-    LANG_INSTANCE_LOGIN_GAMEMASTER_EXCEPTION      = 11010,
+    LANG_NPCINFO_INHABIT_TYPE           = 11008,
+    LANG_NPCINFO_FLAGS_EXTRA            = 11009,
+    LANG_INSTANCE_LOGIN_GAMEMASTER_EXCEPTION = 11010,
 
-    LANG_CREATURE_NO_INTERIOR_POINT_FOUND         = 11011,
-    LANG_CREATURE_MOVEMENT_NOT_BOUNDED            = 11012,
-    LANG_CREATURE_MOVEMENT_MAYBE_UNBOUNDED        = 11013,
-    LANG_INSTANCE_BIND_MISMATCH                   = 11014,
-    LANG_CREATURE_NOT_AI_ENABLED                  = 11015,
-    LANG_SELECT_PLAYER_OR_PET                     = 11016,
-    LANG_SHUTDOWN_DELAYED                         = 11017,
-    LANG_SHUTDOWN_CANCELLED                       = 11018
+    LANG_CREATURE_NO_INTERIOR_POINT_FOUND = 11011,
+    LANG_CREATURE_MOVEMENT_NOT_BOUNDED  = 11012,
+    LANG_CREATURE_MOVEMENT_MAYBE_UNBOUNDED = 11013,
+    LANG_INSTANCE_BIND_MISMATCH         = 11014,
+    LANG_CREATURE_NOT_AI_ENABLED        = 11015,
+    LANG_SELECT_PLAYER_OR_PET           = 11016,
+    LANG_SHUTDOWN_DELAYED               = 11017,
+    LANG_SHUTDOWN_CANCELLED             = 11018
 };
 #endif

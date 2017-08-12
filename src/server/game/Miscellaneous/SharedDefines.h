@@ -3370,14 +3370,14 @@ enum BanReturn
     BAN_NOTFOUND
 };
 
+#define PVP_TEAMS_COUNT  2
+
 enum BattlegroundTeamId
 {
     BG_TEAM_HORDE       = 0, // Battleground: Horde,    Arena: Green
     BG_TEAM_ALLIANCE    = 1, // Battleground: Alliance, Arena: Gold
     BG_TEAM_NEUTRAL     = 2  // Battleground: Neutral,  Arena: None
 };
-
-#define BG_TEAMS_COUNT  2
 
 // indexes of BattlemasterList.dbc
 enum BattlegroundTypeId : uint32
