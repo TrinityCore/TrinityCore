@@ -24,9 +24,10 @@
 #include "Corpse.h"
 #include "Player.h"
 #include "MapManager.h"
+#include "MotionMaster.h"
+#include "MovementGenerator.h"
 #include "Transport.h"
 #include "Battleground.h"
-#include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 #include "Vehicle.h"
@@ -133,8 +134,8 @@ void WorldSession::HandleMoveWorldportAck()
         if (!_player->InBattleground())
         {
             // short preparations to continue flight
-            FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
-            flight->Initialize(GetPlayer());
+            MovementGenerator* movementGenerator = GetPlayer()->GetMotionMaster()->top();
+            movementGenerator->Initialize(GetPlayer());
             return;
         }
 
