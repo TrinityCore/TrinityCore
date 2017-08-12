@@ -878,7 +878,7 @@ void MotionMaster::DirectDelete(MovementGenerator* curr)
 
 void MotionMaster::DelayedDelete(MovementGenerator* curr)
 {
-    TC_LOG_FATAL("misc", "Unit (Entry %u) is trying to delete its updating Movement Generator (Type %u)!", _owner->GetEntry(), curr->GetMovementGeneratorType());
+    TC_LOG_DEBUG("misc", "MotionMaster::DelayedDelete: unit (%u) delayed deleting movement generator (type %u)", _owner->GetEntry(), curr->GetMovementGeneratorType());
     if (IsStatic(curr))
         return;
 
