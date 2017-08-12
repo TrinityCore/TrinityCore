@@ -524,7 +524,7 @@ void SmartAI::MoveInLineOfSight(Unit* who)
     if (!IsAIControlled())
         return;
 
-    if (AssistPlayerInCombatAgainst(who))
+    if (HasEscortState(SMART_ESCORT_ESCORTING) && AssistPlayerInCombatAgainst(who))
         return;
 
     CreatureAI::MoveInLineOfSight(who);
