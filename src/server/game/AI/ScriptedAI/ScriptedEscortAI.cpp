@@ -61,11 +61,24 @@ bool EscortAI::AssistPlayerInCombatAgainst(Unit* who)
     if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
-    // never attack friendly
+    if (!who->isInAccessiblePlaceFor(me))
+        return false;
+
+    if (!CanAIAttack(who))
+        return false;
+
+    // we cannot attack in evade mode
+    if (me->IsInEvadeMode())
+        return false;
+
+    // or if enemy is in evade mode
+    if (who->GetTypeId() == TYPEID_UNIT && who->ToCreature()->IsInEvadeMode())
+        return false;
+
     if (!me->IsValidAssistTarget(who->GetVictim()))
         return false;
 
-    // too far away and no free sight?
+    // too far away and no free sight
     if (me->IsWithinDistInMap(who, GetMaxPlayerDistance()) && me->IsWithinLOSInMap(who))
     {
         me->EngageWithTarget(who);
