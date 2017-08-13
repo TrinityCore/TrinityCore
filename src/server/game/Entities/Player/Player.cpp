@@ -24063,7 +24063,7 @@ void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidDat
             else
                 m_MirrorTimerFlags &= ~UNDERWATER_INLAVA;
         }
-        
+
         // Slime state (any contact)
         if (liquidData->type_flags & MAP_LIQUID_TYPE_SLIME)
         {

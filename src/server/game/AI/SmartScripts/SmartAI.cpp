@@ -144,6 +144,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
         _waypointPauseForced = forced;
         SetRun(mRun);
         me->PauseMovement();
+        me->SetHomePosition(me->GetPosition());
     }
     else
         _waypointReached = false;
@@ -407,6 +408,7 @@ void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
     {
         _waypointReached = true;
         me->PauseMovement();
+        me->SetHomePosition(me->GetPosition());
     }
     else if (HasEscortState(SMART_ESCORT_ESCORTING) && me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
     {
@@ -486,7 +488,7 @@ void SmartAI::MoveInLineOfSight(Unit* who)
     if (!IsAIControlled())
         return;
 
-    if (AssistPlayerInCombatAgainst(who))
+    if (HasEscortState(SMART_ESCORT_ESCORTING) && AssistPlayerInCombatAgainst(who))
         return;
 
     CreatureAI::MoveInLineOfSight(who);
@@ -513,11 +515,24 @@ bool SmartAI::AssistPlayerInCombatAgainst(Unit* who)
     if (!who->EnsureVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
-    // never attack friendly
+    if (!who->isInAccessiblePlaceFor(me))
+        return false;
+
+    if (!CanAIAttack(who))
+        return false;
+
+    // we cannot attack in evade mode
+    if (me->IsInEvadeMode())
+        return false;
+
+    // or if enemy is in evade mode
+    if (who->GetTypeId() == TYPEID_UNIT && who->ToCreature()->IsInEvadeMode())
+        return false;
+
     if (!me->IsValidAssistTarget(who->GetVictim()))
         return false;
 
-    // too far away and no free sight?
+    // too far away and no free sight
     if (me->IsWithinDistInMap(who, SMART_MAX_AID_DIST) && me->IsWithinLOSInMap(who))
     {
         me->EngageWithTarget(who);
