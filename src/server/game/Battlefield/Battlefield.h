@@ -102,18 +102,21 @@ class TC_GAME_API Battlefield : public ZoneScript
         void InvitePlayersInZoneToQueue();
         void InvitePlayersInQueueToWar();
         void InvitePlayersInZoneToWar();
-        void KickPlayerFromBattlefield(ObjectGuid guid, Player* player = nullptr);
-        void HandlePlayerEnterZone(Player* player, uint32 zone);
-        void HandlePlayerLeaveZone(Player* player, uint32 zone);
-        void PlayerAcceptInviteToQueue(Player* player);
-        void PlayerAcceptInviteToWar(Player* player);
-        void AskToLeaveQueue(Player* player, bool kick = false);
-        void PlayerAskToLeave(Player* player);
         void InvitePlayerToQueue(Player* player);
         bool InvitePlayerToWar(Player* player);
+        void HandlePlayerEnterZone(Player* player, uint32 zone);
+        void HandlePlayerLeaveZone(Player* player, uint32 zone);
+        // removes player from the battlefield and teleports to home bind if necessary
+        void KickPlayerFromBattlefield(ObjectGuid guid, Player* player = nullptr);
+        // called in WorldSession::HandleBfQueueInviteResponse
+        void PlayerAcceptsInviteToQueue(Player* player);
+        // called in WorldSession::HandleBfEntryInviteResponse
+        void PlayerAcceptsInviteToWar(Player* player);
+        // called in WorldSession::HandleBfExitRequest
+        void PlayerLeavesQueue(Player* player, bool kick = false);
+        // move player to a battlefield group
         bool AddOrSetPlayerToCorrectBfGroup(Player* player);
         void RemovePlayerFromResurrectQueue(ObjectGuid playerGUID);
-        void SetGraveyardNumber(uint32 number) { _graveyardList.resize(number); }
         void SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid guid);
         Creature* SpawnCreature(uint32 entry, Position const& pos);
         GameObject* SpawnGameObject(uint32 entry, Position const& pos, QuaternionData const& rot);
@@ -146,12 +149,13 @@ class TC_GAME_API Battlefield : public ZoneScript
         // finds a not full battlefield group
         Group* GetFreeGroup(TeamId TeamId) const;
         // returns battlefield group where the player is
-        Group* GetGroupPlayer(ObjectGuid guid, TeamId TeamId) const;
+        Group* GetGroup(ObjectGuid guid, TeamId TeamId) const;
         Creature* GetCreature(ObjectGuid guid);
         GameObject* GetGameObject(ObjectGuid guid);
 
         void SetTimer(uint32 timer) { _timer = timer; }
         void SetDefenderTeam(TeamId team) { _defenderTeam = team; }
+        void SetGraveyardNumber(uint32 number) { _graveyardList.resize(number); }
 
     protected:
         uint32 _timer;
