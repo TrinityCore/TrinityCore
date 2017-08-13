@@ -698,142 +698,131 @@ GameObject* Battlefield::GetGameObject(ObjectGuid guid)
     return m_Map->GetGameObject(guid);
 }
 
-// *******************************************************
-// ******************* CapturePoint **********************
-// *******************************************************
+//*******************************************************
+//******************* CapturePoint **********************
+//*******************************************************
 
-BfCapturePoint::BfCapturePoint(Battlefield* battlefield) : m_Bf(battlefield), m_capturePointGUID()
+BattlefieldCapturePoint::BattlefieldCapturePoint(Battlefield* battlefield) : _battlefield(battlefield)
 {
-    m_team = TEAM_NEUTRAL;
-    m_value = 0;
-    m_minValue = 0.0f;
-    m_maxValue = 0.0f;
-    m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL;
-    m_OldState = BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL;
-    m_capturePointEntry = 0;
-    m_neutralValuePct = 0;
-    m_maxSpeed = 0;
+    _team = TEAM_NEUTRAL;
+    _value = 0;
+    _minValue = 0.0f;
+    _maxValue = 0.0f;
+    _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL;
+    _oldState = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL;
+    _capturePointEntry = 0;
+    _neutralValuePct = 0;
+    _maxSpeed = 0;
 }
 
-bool BfCapturePoint::HandlePlayerEnter(Player* player)
+void BattlefieldCapturePoint::SetTeam(TeamId newTeam)
 {
-    if (m_capturePointGUID)
+    if (newTeam == TEAM_ALLIANCE)
     {
-        if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
+        _team = newTeam;
+        _value = _maxValue;
+        _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE;
+        SendChangePhase();
+    }
+    else if (newTeam == TEAM_HORDE)
+    {
+        _team = newTeam;
+        _value = -_maxValue;
+        _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_HORDE;
+        SendChangePhase();
+    }
+}
+
+bool BattlefieldCapturePoint::HandlePlayerEnter(Player* player)
+{
+    if (_capturePointGUID)
+    {
+        if (GameObject* capturePoint = _battlefield->GetGameObject(_capturePointGUID))
         {
             player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldState1, 1);
-            player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate2, uint32(ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f)));
-            player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
+            player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate2, uint32(ceil((_value + _maxValue) / (2.f * _maxValue) * 100.0f)));
+            player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate3, _neutralValuePct);
         }
     }
 
-    return m_activePlayers[player->GetTeamId()].insert(player->GetGUID()).second;
+    return _activePlayers[player->GetTeamId()].insert(player->GetGUID()).second;
 }
 
-GuidSet::iterator BfCapturePoint::HandlePlayerLeave(Player* player)
+GuidUnorderedSet::iterator BattlefieldCapturePoint::HandlePlayerLeave(Player* player)
 {
-    if (m_capturePointGUID)
-        if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
+    if (_capturePointGUID)
+        if (GameObject* capturePoint = _battlefield->GetGameObject(_capturePointGUID))
             player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldState1, 0);
 
-    GuidSet::iterator current = m_activePlayers[player->GetTeamId()].find(player->GetGUID());
+    GuidUnorderedSet::iterator current = _activePlayers[player->GetTeamId()].find(player->GetGUID());
 
-    if (current == m_activePlayers[player->GetTeamId()].end())
+    if (current == _activePlayers[player->GetTeamId()].end())
         return current; // return end()
 
-    m_activePlayers[player->GetTeamId()].erase(current++);
+    _activePlayers[player->GetTeamId()].erase(current++);
     return current;
 }
 
-void BfCapturePoint::SendChangePhase()
+void BattlefieldCapturePoint::SendChangePhase()
 {
-    if (!m_capturePointGUID)
+    if (!_capturePointGUID)
         return;
 
-    if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
+    if (GameObject* capturePoint = _battlefield->GetGameObject(_capturePointGUID))
     {
-        // send this too, sometimes the slider disappears, dunno why :(
         SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldState1, 1);
-        // send these updates to only the ones in this objective
-        SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate2, (uint32) std::ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
-        // send this too, sometimes it resets :S
-        SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
+        SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate2, (uint32)std::ceil((_value + _maxValue) / (2.f * _maxValue) * 100.0f));
+        SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate3, _neutralValuePct);
     }
 }
 
-bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
+void BattlefieldCapturePoint::SetCapturePointData(GameObject* capturePoint)
 {
     ASSERT(capturePoint);
 
-    TC_LOG_DEBUG("bg.battlefield", "Creating capture point %u", capturePoint->GetEntry());
-
-    m_capturePointGUID = ObjectGuid(HighGuid::GameObject, capturePoint->GetEntry(), capturePoint->GetGUID().GetCounter());
+    _capturePointGUID = capturePoint->GetGUID();
 
     // check info existence
     GameObjectTemplate const* goinfo = capturePoint->GetGOInfo();
     if (goinfo->type != GAMEOBJECT_TYPE_CAPTURE_POINT)
-    {
-        TC_LOG_ERROR("misc", "OutdoorPvP: GO %u is not a capture point!", capturePoint->GetEntry());
-        return false;
-    }
+        return;
 
     // get the needed values from goinfo
-    m_maxValue = goinfo->capturePoint.maxTime;
-    m_maxSpeed = m_maxValue / (goinfo->capturePoint.minTime ? goinfo->capturePoint.minTime : 60);
-    m_neutralValuePct = goinfo->capturePoint.neutralPercent;
-    m_minValue = m_maxValue * goinfo->capturePoint.neutralPercent / 100;
-    m_capturePointEntry = capturePoint->GetEntry();
-    if (m_team == TEAM_ALLIANCE)
+    _maxValue = float(goinfo->capturePoint.maxTime);
+    _maxSpeed = _maxValue / (goinfo->capturePoint.minTime ? float(goinfo->capturePoint.minTime) : 60.f);
+    _neutralValuePct = float(goinfo->capturePoint.neutralPercent);
+    _minValue = _maxValue * float(goinfo->capturePoint.neutralPercent) / 100.f;
+    _capturePointEntry = capturePoint->GetEntry();
+    if (_team == TEAM_ALLIANCE)
     {
-        m_value = m_maxValue;
-        m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE;
+        _value = _maxValue;
+        _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE;
     }
     else
     {
-        m_value = -m_maxValue;
-        m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE;
+        _value = -_maxValue;
+        _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_HORDE;
     }
 
-    return true;
+    return;
 }
 
-GameObject* BfCapturePoint::GetCapturePointGo()
+void BattlefieldCapturePoint::Update(uint32 diff)
 {
-    return m_Bf->GetGameObject(m_capturePointGUID);
-}
+    if (!_capturePointGUID)
+        return;
 
-bool BfCapturePoint::DelCapturePoint()
-{
-    if (m_capturePointGUID)
-    {
-        if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
-        {
-            capturePoint->SetRespawnTime(0);                  // not save respawn time
-            capturePoint->Delete();
-            capturePoint = nullptr;
-        }
-        m_capturePointGUID.Clear();
-    }
-
-    return true;
-}
-
-bool BfCapturePoint::Update(uint32 diff)
-{
-    if (!m_capturePointGUID)
-        return false;
-
-    if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
+    if (GameObject* capturePoint = _battlefield->GetGameObject(_capturePointGUID))
     {
         float radius = capturePoint->GetGOInfo()->capturePoint.radius;
 
         for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
         {
-            for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
+            for (auto itr = _activePlayers[team].begin(); itr != _activePlayers[team].end();)
             {
                 if (Player* player = ObjectAccessor::FindPlayer(*itr))
                 {
-                    if (!capturePoint->IsWithinDistInMap(player, radius) || !player->IsOutdoorPvPActive())
+                    if (!capturePoint->IsWithinDistInMap(player, radius))
                         itr = HandlePlayerLeave(player);
                     else
                         ++itr;
@@ -848,115 +837,112 @@ bool BfCapturePoint::Update(uint32 diff)
         Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(capturePoint, players, checker);
         Cell::VisitWorldObjects(capturePoint, searcher, radius);
 
-        for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
-            if ((*itr)->IsOutdoorPvPActive())
-                if (m_activePlayers[(*itr)->GetTeamId()].insert((*itr)->GetGUID()).second)
-                    HandlePlayerEnter(*itr);
+        for (Player* player : players)
+            if (_activePlayers[player->GetTeamId()].insert(player->GetGUID()).second)
+                HandlePlayerEnter(player);
     }
 
     // get the difference of numbers
-    float fact_diff = ((float) m_activePlayers[TEAM_ALLIANCE].size() - (float) m_activePlayers[TEAM_HORDE].size()) * diff / BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL;
+    float fact_diff = (float(_activePlayers[TEAM_ALLIANCE].size()) - float(_activePlayers[TEAM_HORDE].size())) * float(diff) / float(BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL);
     if (G3D::fuzzyEq(fact_diff, 0.0f))
-        return false;
+        return;
 
-    uint32 Challenger = 0;
-    float maxDiff = m_maxSpeed * diff;
+    uint32 challenger = 0;
+    float maxDiff = _maxSpeed * diff;
 
     if (fact_diff < 0)
     {
         // horde is in majority, but it's already horde-controlled -> no change
-        if (m_State == BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE && m_value <= -m_maxValue)
-            return false;
+        if (_state == BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_HORDE && _value <= -_maxValue)
+            return;
 
         if (fact_diff < -maxDiff)
             fact_diff = -maxDiff;
 
-        Challenger = HORDE;
+        challenger = HORDE;
     }
     else
     {
         // ally is in majority, but it's already ally-controlled -> no change
-        if (m_State == BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE && m_value >= m_maxValue)
-            return false;
+        if (_state == BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE && _value >= _maxValue)
+            return;
 
         if (fact_diff > maxDiff)
             fact_diff = maxDiff;
 
-        Challenger = ALLIANCE;
+        challenger = ALLIANCE;
     }
 
-    float oldValue = m_value;
-    TeamId oldTeam = m_team;
+    float oldValue = _value;
+    TeamId oldTeam = _team;
 
-    m_OldState = m_State;
+    _oldState = _state;
+    _value += fact_diff;
 
-    m_value += fact_diff;
-
-    if (m_value < -m_minValue)                              // red
+    if (_value < -_minValue) // red
     {
-        if (m_value < -m_maxValue)
-            m_value = -m_maxValue;
-        m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE;
-        m_team = TEAM_HORDE;
+        if (_value < -_maxValue)
+            _value = -_maxValue;
+        _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_HORDE;
+        _team = TEAM_HORDE;
     }
-    else if (m_value > m_minValue)                          // blue
+    else if (_value > _minValue) // blue
     {
-        if (m_value > m_maxValue)
-            m_value = m_maxValue;
-        m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE;
-        m_team = TEAM_ALLIANCE;
+        if (_value > _maxValue)
+            _value = _maxValue;
+        _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE;
+        _team = TEAM_ALLIANCE;
     }
-    else if (oldValue * m_value <= 0)                       // grey, go through mid point
+    else if (oldValue * _value <= 0) // grey, go through mid point
     {
         // if challenger is ally, then n->a challenge
-        if (Challenger == ALLIANCE)
-            m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE;
+        if (challenger == ALLIANCE)
+            _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE;
         // if challenger is horde, then n->h challenge
-        else if (Challenger == HORDE)
-            m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE;
-        m_team = TEAM_NEUTRAL;
+        else if (challenger == HORDE)
+            _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE;
+        _team = TEAM_NEUTRAL;
     }
-    else                                                    // grey, did not go through mid point
+    else  // grey, did not go through mid point
     {
         // old phase and current are on the same side, so one team challenges the other
-        if (Challenger == ALLIANCE && (m_OldState == BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE || m_OldState == BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE))
-            m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE;
-        else if (Challenger == HORDE && (m_OldState == BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE || m_OldState == BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE))
-            m_State = BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE;
-        m_team = TEAM_NEUTRAL;
+        if (challenger == ALLIANCE && (_oldState == BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_HORDE || _oldState == BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE))
+            _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE;
+        else if (challenger == HORDE && (_oldState == BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE || _oldState == BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE))
+            _state = BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE;
+        _team = TEAM_NEUTRAL;
     }
 
-    if (G3D::fuzzyNe(m_value, oldValue))
+    if (G3D::fuzzyNe(_value, oldValue))
         SendChangePhase();
 
-    if (m_OldState != m_State)
+    // inform if necessary
+    if (_oldState != _state)
     {
-        //TC_LOG_ERROR("bg.battlefield", "%u->%u", m_OldState, m_State);
-        if (oldTeam != m_team)
+        if (oldTeam != _team)
             ChangeTeam(oldTeam);
-        return true;
     }
-
-    return false;
 }
 
-void BfCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
+void BattlefieldCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
 {
     for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
-        for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)  // send to all players present in the area
-            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+    {
+        for (auto itr = _activePlayers[team].begin(); itr != _activePlayers[team].end(); ++itr) // send to all players present in the area
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(*itr))
                 player->SendUpdateWorldState(field, value);
+    }
 }
 
-void BfCapturePoint::SendObjectiveComplete(uint32 id, ObjectGuid guid)
+void BattlefieldCapturePoint::SendObjectiveComplete(uint32 id, ObjectGuid guid)
 {
     uint8 team;
-    switch (m_State)
+    switch (_state)
     {
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE:
+        case BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE:
             team = TEAM_ALLIANCE;
             break;
-        case BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE:
+        case BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_HORDE:
             team = TEAM_HORDE;
             break;
         default:
@@ -964,14 +950,9 @@ void BfCapturePoint::SendObjectiveComplete(uint32 id, ObjectGuid guid)
     }
 
     // send to all players present in the area
-    for (GuidSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
-        if (Player* player = ObjectAccessor::FindPlayer(*itr))
+    for (auto itr = _activePlayers[team].begin(); itr != _activePlayers[team].end(); ++itr)
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(*itr))
             player->KilledMonsterCredit(id, guid);
-}
-
-bool BfCapturePoint::IsInsideObjective(Player* player) const
-{
-    return m_activePlayers[player->GetTeamId()].find(player->GetGUID()) != m_activePlayers[player->GetTeamId()].end();
 }
 
 //*******************************************************
@@ -1001,12 +982,6 @@ void BattlefieldGraveyard::SetSpirit(Creature* creature, TeamId team)
 
     _spiritGuides[team] = creature->GetGUID();
     creature->SetReactState(REACT_PASSIVE);
-}
-
-float BattlefieldGraveyard::GetDistance(Player* player) const
-{
-    WorldSafeLocsEntry const* safeLoc = sWorldSafeLocsStore.LookupEntry(_id);
-    return player->GetDistance2d(safeLoc->x, safeLoc->y);
 }
 
 void BattlefieldGraveyard::AddPlayer(ObjectGuid playerGUID)
@@ -1082,6 +1057,12 @@ void BattlefieldGraveyard::RelocateDeadPlayers()
                 player->TeleportTo(player->GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
         }
     }
+}
+
+float BattlefieldGraveyard::GetDistance(Player* player) const
+{
+    WorldSafeLocsEntry const* safeLoc = sWorldSafeLocsStore.LookupEntry(_id);
+    return player->GetDistance2d(safeLoc->x, safeLoc->y);
 }
 
 bool BattlefieldGraveyard::HasCreature(ObjectGuid guid) const

@@ -186,62 +186,50 @@ class TC_GAME_API BattlefieldCapturePoint
         BattlefieldCapturePoint(Battlefield* battlefield);
         virtual ~BattlefieldCapturePoint() { }
 
+        // Returns true if the state of the objective has changed
+        virtual void Update(uint32 diff);
+        virtual void ChangeTeam(TeamId /*oldTeam*/) { }
+        virtual void SendChangePhase();
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
+        // Used when player is activated/inactivated in the area
+        virtual bool HandlePlayerEnter(Player* player);
+        virtual GuidUnorderedSet::iterator HandlePlayerLeave(Player* player);
 
         // Send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
-
         // Send kill notify to players in the controlling faction
         void SendObjectiveComplete(uint32 id, ObjectGuid guid);
-
-        // Used when player is activated/inactivated in the area
-        virtual bool HandlePlayerEnter(Player* player);
-        virtual GuidSet::iterator HandlePlayerLeave(Player* player);
+        void SetCapturePointData(GameObject* capturePoint);
+        void SetTeam(TeamId newTeam);
 
         // Checks if player is in range of a capture credit marker
         bool IsInsideObjective(Player* player) const;
-
-        // Returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
-        virtual bool Update(uint32 diff);
-        virtual void ChangeTeam(TeamId /*oldTeam*/) { }
-        virtual void SendChangePhase();
-
-        bool SetCapturePointData(GameObject* capturePoint);
-        GameObject* GetCapturePointGameObject();
-
+        GameObject* GetCapturePointGameObject() const;
         uint32 GetCapturePointEntry() const { return _capturePointEntry; }
         TeamId GetTeamId() const { return _team; }
 
     protected:
         // active Players in the area of the objective, 0 - alliance, 1 - horde
         GuidUnorderedSet _activePlayers[PVP_TEAMS_COUNT];
-
         // Total shift needed to capture the objective
         float _maxValue;
         float _minValue;
-
         // Maximum speed of capture
         float _maxSpeed;
-
         // The status of the objective
         float _value;
         TeamId _team;
-
         // Objective states
         BattlefieldObjectiveStates _oldState;
         BattlefieldObjectiveStates _state;
-
         // Neutral value on capture bar
         uint32 _neutralValuePct;
-
         // Capture point entry
         uint32 _capturePointEntry;
-
         // Gameobject related to that capture point
         ObjectGuid _capturePointGUID;
-
         // Pointer to the Battlefield this objective belongs to
-        Battlefield* _battlefield;
+        Battlefield const* _battlefield;
 };
 
 class TC_GAME_API BattlefieldGraveyard
@@ -252,33 +240,24 @@ class TC_GAME_API BattlefieldGraveyard
 
         // Set spirit creature for the graveyard
         void SetSpirit(Creature* creature, TeamId team);
-
-        // Get distance between a player and this graveyard
-        float GetDistance(Player* player) const;
-
         // Add a player to the graveyard
         void AddPlayer(ObjectGuid playerGUID);
-
         // Remove a player from the graveyard
         void RemovePlayer(ObjectGuid playerGUID);
-
         // Resurrect players
         void Resurrect();
-
         // Change who controls the graveyard
         void GiveControlTo(TeamId team);
-
         // Move players in queue to nearest graveyard
         void RelocateDeadPlayers();
 
+        // Get distance between a player and this graveyard
+        float GetDistance(Player* player) const;
         // Check if this graveyard has a spirit guide
         bool HasCreature(ObjectGuid guid) const;
-
         TeamId GetSpiritTeamId(ObjectGuid guid) const;
-
         // Check if a player is in this graveyard's resurrect queue
         bool HasPlayer(ObjectGuid guid) const { return _resurrectQueue.find(guid) != _resurrectQueue.end(); }
-
         uint32 GetId() const { return _id; }
         TeamId GetControlTeamId() const { return _controlTeam; }
 
