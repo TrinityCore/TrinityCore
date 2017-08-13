@@ -85,9 +85,6 @@ void MotionMaster::UpdateMotion(uint32 diff)
     if (!_owner)
         return;
 
-    if (_owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED)) // what about UNIT_STATE_DISTRACTED? Why is this not included?
-        return;
-
     ASSERT(!empty());
 
     _cleanFlag |= MMCF_UPDATE;
@@ -164,7 +161,7 @@ MovementGenerator* MotionMaster::GetMotionSlot(int slot) const
     return _slot[slot];
 }
 
-void MotionMaster::propagateSpeedChange()
+void MotionMaster::PropagateSpeedChange()
 {
     if (empty())
         return;

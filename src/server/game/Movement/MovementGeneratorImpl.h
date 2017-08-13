@@ -16,32 +16,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_HOMEMOVEMENTGENERATOR_H
-#define TRINITY_HOMEMOVEMENTGENERATOR_H
+#ifndef TRINITY_MOVEMENTGENERATOR_IMPL_H
+#define TRINITY_MOVEMENTGENERATOR_IMPL_H
 
 #include "MovementGenerator.h"
 
-template <class T>
-class HomeMovementGenerator : public MovementGeneratorMedium< T, HomeMovementGenerator<T> >
+template<class Movement>
+inline MovementGenerator* MovementGeneratorFactory<Movement>::Create(void * /*data*/) const
 {
-    public:
-        explicit HomeMovementGenerator() : _path(nullptr), _arrived(false), _skipToHome(false) { }
-        ~HomeMovementGenerator();
-
-        MovementGeneratorType GetMovementGeneratorType() const override { return HOME_MOTION_TYPE; }
-
-        void DoInitialize(T*);
-        void DoFinalize(T*);
-        void DoReset(T*);
-        bool DoUpdate(T*, uint32);
-
-    private:
-        void SetTargetLocation(T*);
-
-        PathGenerator* _path;
-        bool _arrived;
-        bool _skipToHome;
-};
+    return (new Movement());
+}
 
 #endif
 

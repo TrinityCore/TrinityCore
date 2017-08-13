@@ -8813,7 +8813,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
 
     m_speed_rate[mtype] = rate;
 
-    propagateSpeedChange();
+    PropagateSpeedChange();
 
     static Opcodes const moveTypeToOpcode[MAX_MOVE_TYPE][3] =
     {
