@@ -72,7 +72,7 @@ bool handleArgs(int argc, char** argv,
                bool &bigBaseUnit,
                char* &offMeshInputPath,
                char* &file,
-               int& threads)
+               unsigned int& threads)
 {
     char* param = NULL;
     for (int i = 1; i < argc; ++i)
@@ -94,8 +94,7 @@ bool handleArgs(int argc, char** argv,
             param = argv[++i];
             if (!param)
                 return false;
-            threads = atoi(param);
-            printf("Using %i threads to extract mmaps\n", threads);
+            threads = static_cast<unsigned int>(std::max(0, atoi(param)));
         }
         else if (strcmp(argv[i], "--file") == 0)
         {
@@ -241,7 +240,8 @@ int finish(const char* message, int returnValue)
 
 int main(int argc, char** argv)
 {
-    int threads = 3, mapnum = -1;
+    unsigned int threads = std::thread::hardware_concurrency();
+    int mapnum = -1;
     float maxAngle = 70.0f;
     int tileX = -1, tileY = -1;
     bool skipLiquid = false,
