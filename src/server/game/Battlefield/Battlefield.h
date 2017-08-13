@@ -273,6 +273,8 @@ class TC_GAME_API BattlefieldGraveyard
         // Check if this graveyard has a spirit guide
         bool HasCreature(ObjectGuid guid) const;
 
+        TeamId GetSpiritTeamId(ObjectGuid guid) const;
+
         // Check if a player is in this graveyard's resurrect queue
         bool HasPlayer(ObjectGuid guid) const { return _resurrectQueue.find(guid) != _resurrectQueue.end(); }
 

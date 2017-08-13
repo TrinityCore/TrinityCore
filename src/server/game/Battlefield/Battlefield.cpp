@@ -30,6 +30,7 @@
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
 
@@ -1039,8 +1040,10 @@ void BattlefieldGraveyard::Resurrect()
 
         // Check  if the player is in world and on the good graveyard
         if (player->IsInWorld())
+        {
             if (Creature* spirit = _battlefield->GetCreature(_spiritGuides[_controlTeam]))
                 spirit->CastSpell(spirit, SPELL_SPIRIT_HEAL, true);
+        }
 
         // Resurrect player
         player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
@@ -1081,7 +1084,7 @@ void BattlefieldGraveyard::RelocateDeadPlayers()
     }
 }
 
-bool BattlefieldGraveyard::HasCreature(ObjectGuid guid)
+bool BattlefieldGraveyard::HasCreature(ObjectGuid guid) const
 {
     if (_spiritGuides[TEAM_ALLIANCE] == guid)
         if (_battlefield->GetCreature(_spiritGuides[TEAM_ALLIANCE]))
@@ -1094,10 +1097,10 @@ bool BattlefieldGraveyard::HasCreature(ObjectGuid guid)
     return false;
 }
 
-TeamId BattlefieldGraveyard::GetSpiritTeamId(ObjectGuid guid)
+TeamId BattlefieldGraveyard::GetSpiritTeamId(ObjectGuid guid) const
 {
     if (_spiritGuides[TEAM_ALLIANCE] == guid)
-        if (m_Battlefield->GetCreature(_spiritGuides[TEAM_ALLIANCE]))
+        if (_battlefield->GetCreature(_spiritGuides[TEAM_ALLIANCE]))
             return TEAM_ALLIANCE;
 
     if (_spiritGuides[TEAM_HORDE] == guid)
