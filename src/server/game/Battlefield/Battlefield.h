@@ -85,7 +85,7 @@ enum BattlefieldSpells
 class TC_GAME_API Battlefield : public ZoneScript
 {
     public:
-        Battlefield();
+        explicit Battlefield();
         ~Battlefield();
 
         virtual void Update(uint32 diff);
@@ -209,7 +209,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 class TC_GAME_API BattlefieldCapturePoint
 {
     public:
-        BattlefieldCapturePoint(Battlefield* battlefield);
+        explicit BattlefieldCapturePoint(Battlefield* battlefield);
         virtual ~BattlefieldCapturePoint() { }
 
         // Returns true if the state of the objective has changed
@@ -261,7 +261,7 @@ class TC_GAME_API BattlefieldCapturePoint
 class TC_GAME_API BattlefieldGraveyard
 {
     public:
-        BattlefieldGraveyard(Battlefield* battlefield);
+        explicit BattlefieldGraveyard(Battlefield* battlefield);
         void Initialize(TeamId initialTeam, uint32 id);
 
         // Set spirit creature for the graveyard
