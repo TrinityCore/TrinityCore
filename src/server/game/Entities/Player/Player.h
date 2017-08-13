@@ -2338,8 +2338,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
 
-        uint32 GetCurrentTrainerId() const { return _currentTrainerId; }
-        void SetCurrentTrainerId(uint32 trainerId) { _currentTrainerId = trainerId; }
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2691,8 +2689,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void _InitHonorLevelOnLoadFromDB(uint32 /*honor*/, uint32 /*honorLevel*/, uint32 /*prestigeLevel*/);
         std::unique_ptr<RestMgr> _restMgr;
-
-        uint32 _currentTrainerId;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);
