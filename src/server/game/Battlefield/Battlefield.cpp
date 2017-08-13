@@ -686,16 +686,18 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
 
 Creature* Battlefield::GetCreature(ObjectGuid guid)
 {
-    if (!m_Map)
+    if (!_map)
         return nullptr;
-    return m_Map->GetCreature(guid);
+
+    return _map->GetCreature(guid);
 }
 
 GameObject* Battlefield::GetGameObject(ObjectGuid guid)
 {
-    if (!m_Map)
+    if (!_map)
         return nullptr;
-    return m_Map->GetGameObject(guid);
+
+    return _map->GetGameObject(guid);
 }
 
 //*******************************************************
@@ -960,7 +962,7 @@ bool BattlefieldCapturePoint::IsInsideObjective(Player* player) const
     return _activePlayers[player->GetTeamId()].find(player->GetGUID()) != _activePlayers[player->GetTeamId()].end();
 }
 
-GameObject* BattlefieldCapturePoint::GetCapturePointGameObject() const
+GameObject* BattlefieldCapturePoint::GetCapturePointGameObject()
 {
     return _battlefield->GetGameObject(_capturePointGUID);
 }
@@ -1075,7 +1077,7 @@ float BattlefieldGraveyard::GetDistance(Player* player) const
     return player->GetDistance2d(safeLoc->x, safeLoc->y);
 }
 
-bool BattlefieldGraveyard::HasCreature(ObjectGuid guid) const
+bool BattlefieldGraveyard::HasCreature(ObjectGuid guid)
 {
     if (_spiritGuides[TEAM_ALLIANCE] == guid)
         if (_battlefield->GetCreature(_spiritGuides[TEAM_ALLIANCE]))
@@ -1088,7 +1090,7 @@ bool BattlefieldGraveyard::HasCreature(ObjectGuid guid) const
     return false;
 }
 
-TeamId BattlefieldGraveyard::GetSpiritTeamId(ObjectGuid guid) const
+TeamId BattlefieldGraveyard::GetSpiritTeamId(ObjectGuid guid)
 {
     if (_spiritGuides[TEAM_ALLIANCE] == guid)
         if (_battlefield->GetCreature(_spiritGuides[TEAM_ALLIANCE]))

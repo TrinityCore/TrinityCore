@@ -95,28 +95,6 @@ class TC_GAME_API Battlefield : public ZoneScript
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) = 0;
         virtual void AddPlayerToResurrectQueue(ObjectGuid creatureGUID, ObjectGuid playerGUID);
 
-        bool IsEnabled() const { return _enabled; }
-        bool IsWarTime() const { return _active; }
-        bool CanFlyIn() const { return !_active; }
-        bool HasPlayer(Player* player) const;
-
-        uint32 GetZoneId() const { return _zoneId; }
-        uint32 GetBattleId() const { return _battleId; }
-        TeamId GetDefenderTeam() const { return _defenderTeam; }
-        TeamId GetAttackerTeam() const { return TeamId(1 - _defenderTeam); }
-        TeamId GetOtherTeam(TeamId team) const { return (team == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE); }
-        uint32 GetTimer() const { return _timer; }
-        std::list<Player*> GetPlayerListInSourceRange(WorldObject* source, float range, TeamId teamId) const;
-        BattlefieldGraveyard* GetGraveyard(uint32 id) const;
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) const;
-        Group* GetFreeGroup(TeamId TeamId) const;
-        Group* GetGroupPlayer(ObjectGuid guid, TeamId TeamId) const;
-        Creature* GetCreature(ObjectGuid guid) const;
-        GameObject* GetGameObject(ObjectGuid guid) const;
-
-        void SetTimer(uint32 timer) { _timer = timer; }
-        void SetDefenderTeam(TeamId team) { _defenderTeam = team; }
-
         void ToggleBattlefield(bool enable);
         void StartBattle();
         void EndBattle(bool endByTimer);
@@ -148,6 +126,28 @@ class TC_GAME_API Battlefield : public ZoneScript
         void AddCapturePoint(BattlefieldCapturePoint* capturePoint) { _capturePoints.push_back(capturePoint); }
         void TeamCastSpell(TeamId team, int32 spellId);
 
+        bool IsEnabled() const { return _enabled; }
+        bool IsWarTime() const { return _active; }
+        bool CanFlyIn() const { return !_active; }
+        bool HasPlayer(Player* player) const;
+
+        uint32 GetZoneId() const { return _zoneId; }
+        uint32 GetBattleId() const { return _battleId; }
+        TeamId GetDefenderTeam() const { return _defenderTeam; }
+        TeamId GetAttackerTeam() const { return TeamId(1 - _defenderTeam); }
+        TeamId GetOtherTeam(TeamId team) const { return (team == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE); }
+        uint32 GetTimer() const { return _timer; }
+        std::list<Player*> GetPlayerListInSourceRange(WorldObject* source, float range, TeamId teamId) const;
+        BattlefieldGraveyard* GetGraveyard(uint32 id) const;
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) const;
+        Group* GetFreeGroup(TeamId TeamId) const;
+        Group* GetGroupPlayer(ObjectGuid guid, TeamId TeamId) const;
+        Creature* GetCreature(ObjectGuid guid);
+        GameObject* GetGameObject(ObjectGuid guid);
+
+        void SetTimer(uint32 timer) { _timer = timer; }
+        void SetDefenderTeam(TeamId team) { _defenderTeam = team; }
+
     protected:
         uint32 _timer;
         BattlefieldCapturePointVector _capturePoints;
@@ -167,7 +167,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         bool _startGrouping; // all players in area have been invited
 
         // constant information
-        Map const* _map;
+        Map* _map;
         uint32 _battleId;
         uint32 _zoneId;
         uint32 _mapId;
@@ -204,7 +204,7 @@ class TC_GAME_API BattlefieldCapturePoint
 
         // Checks if player is in range of a capture credit marker
         bool IsInsideObjective(Player* player) const;
-        GameObject* GetCapturePointGameObject() const;
+        GameObject* GetCapturePointGameObject();
         uint32 GetCapturePointEntry() const { return _capturePointEntry; }
         TeamId GetTeamId() const { return _team; }
 
@@ -229,7 +229,7 @@ class TC_GAME_API BattlefieldCapturePoint
         // Gameobject related to that capture point
         ObjectGuid _capturePointGUID;
         // Pointer to the Battlefield this objective belongs to
-        Battlefield const* _battlefield;
+        Battlefield* _battlefield;
 };
 
 class TC_GAME_API BattlefieldGraveyard
@@ -254,8 +254,8 @@ class TC_GAME_API BattlefieldGraveyard
         // Get distance between a player and this graveyard
         float GetDistance(Player* player) const;
         // Check if this graveyard has a spirit guide
-        bool HasCreature(ObjectGuid guid) const;
-        TeamId GetSpiritTeamId(ObjectGuid guid) const;
+        bool HasCreature(ObjectGuid guid);
+        TeamId GetSpiritTeamId(ObjectGuid guid);
         // Check if a player is in this graveyard's resurrect queue
         bool HasPlayer(ObjectGuid guid) const { return _resurrectQueue.find(guid) != _resurrectQueue.end(); }
         uint32 GetId() const { return _id; }
@@ -266,7 +266,7 @@ class TC_GAME_API BattlefieldGraveyard
         TeamId _controlTeam;
         ObjectGuid _spiritGuides[PVP_TEAMS_COUNT];
         GuidUnorderedSet _resurrectQueue;
-        Battlefield const* _battlefield;
+        Battlefield* _battlefield;
 };
 
 #endif
