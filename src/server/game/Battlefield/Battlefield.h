@@ -23,41 +23,35 @@
 #include "ZoneScript.h"
 #include <map>
 
-enum BattlefieldTypes
-{
-    BATTLEFIELD_WG                                          // Wintergrasp
-};
-
 enum BattlefieldIDs
 {
-    BATTLEFIELD_BATTLEID_WG                      = 1        // Wintergrasp battle
+    BATTLEFIELD_BATTLEID_WG = 1 // Wintergrasp battle
 };
 
 enum BattlefieldObjectiveStates
 {
-    BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL = 0,
-    BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE,
-    BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE,
-    BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE,
-    BF_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE,
-    BF_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE,
-    BF_CAPTUREPOINT_OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE
+    BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL = 0,
+    BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE,
+    BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_HORDE,
+    BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE,
+    BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE,
+    BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE,
+    BATTLEFIELD_CAPTUREPOINT_OBJECTIVESTATE_HORDE_ALLIANCE_CHALLENGE
 };
 
 enum BattlefieldSounds
 {
-    BF_SOUND_HORDE_WINS                          = 8454,
-    BF_SOUND_ALLIANCE_WINS                       = 8455,
-    BF_SOUND_START                               = 3439
+    BATTLEFIELD_SOUND_HORDE_WINS = 8454,
+    BATTLEFIELD_SOUND_ALLIANCE_WINS = 8455,
+    BATTLEFIELD_SOUND_START = 3439
 };
 
 enum BattlefieldTimers
 {
-    BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL        = 1000
+    BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL = 1000
 };
 
 // some class predefs
-class Battlefield;
 class BfGraveyard;
 class Creature;
 class GameObject;
@@ -69,123 +63,9 @@ class WorldPacket;
 struct QuaternionData;
 struct WorldSafeLocsEntry;
 
-typedef std::vector<BfGraveyard*> GraveyardVect;
+typedef std::vector<BattlefieldGraveyard*> GraveyardVector;
+typedef std::vector<BattlefieldCapturePoint*> BattlefieldCapturePointVector;
 typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
-
-class TC_GAME_API BfCapturePoint
-{
-    public:
-        BfCapturePoint(Battlefield* bf);
-
-        virtual ~BfCapturePoint() { }
-
-        virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
-
-        // Send world state update to all players present
-        void SendUpdateWorldState(uint32 field, uint32 value);
-
-        // Send kill notify to players in the controlling faction
-        void SendObjectiveComplete(uint32 id, ObjectGuid guid);
-
-        // Used when player is activated/inactivated in the area
-        virtual bool HandlePlayerEnter(Player* player);
-        virtual GuidSet::iterator HandlePlayerLeave(Player* player);
-        //virtual void HandlePlayerActivityChanged(Player* player);
-
-        // Checks if player is in range of a capture credit marker
-        bool IsInsideObjective(Player* player) const;
-
-        // Returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
-        virtual bool Update(uint32 diff);
-        virtual void ChangeTeam(TeamId /*oldTeam*/) { }
-        virtual void SendChangePhase();
-
-        bool SetCapturePointData(GameObject* capturePoint);
-        GameObject* GetCapturePointGo();
-        uint32 GetCapturePointEntry() const { return m_capturePointEntry; }
-
-        TeamId GetTeamId() const { return m_team; }
-
-    protected:
-        bool DelCapturePoint();
-
-        // active Players in the area of the objective, 0 - alliance, 1 - horde
-        GuidSet m_activePlayers[BG_TEAMS_COUNT];
-
-        // Total shift needed to capture the objective
-        float m_maxValue;
-        float m_minValue;
-
-        // Maximum speed of capture
-        float m_maxSpeed;
-
-        // The status of the objective
-        float m_value;
-        TeamId m_team;
-
-        // Objective states
-        BattlefieldObjectiveStates m_OldState;
-        BattlefieldObjectiveStates m_State;
-
-        // Neutral value on capture bar
-        uint32 m_neutralValuePct;
-
-        // Pointer to the Battlefield this objective belongs to
-        Battlefield* m_Bf;
-
-        // Capture point entry
-        uint32 m_capturePointEntry;
-
-        // Gameobject related to that capture point
-        ObjectGuid m_capturePointGUID;
-};
-
-class TC_GAME_API BfGraveyard
-{
-    public:
-        BfGraveyard(Battlefield* Bf);
-
-        // Method to changing who controls the graveyard
-        void GiveControlTo(TeamId team);
-        TeamId GetControlTeamId() const { return m_ControlTeam; }
-
-        // Find the nearest graveyard to a player
-        float GetDistance(Player* player);
-
-        // Initialize the graveyard
-        void Initialize(TeamId startcontrol, uint32 gy);
-
-        // Set spirit service for the graveyard
-        void SetSpirit(Creature* spirit, TeamId team);
-
-        // Add a player to the graveyard
-        void AddPlayer(ObjectGuid player_guid);
-
-        // Remove a player from the graveyard
-        void RemovePlayer(ObjectGuid player_guid);
-
-        // Resurrect players
-        void Resurrect();
-
-        // Move players waiting to that graveyard on the nearest one
-        void RelocateDeadPlayers();
-
-        // Check if this graveyard has a spirit guide
-        bool HasNpc(ObjectGuid guid);
-
-        // Check if a player is in this graveyard's resurrect queue
-        bool HasPlayer(ObjectGuid guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
-
-        // Get the graveyard's ID.
-        uint32 GetGraveyardId() const { return m_GraveyardId; }
-
-    protected:
-        TeamId m_ControlTeam;
-        uint32 m_GraveyardId;
-        ObjectGuid m_SpiritGuide[BG_TEAMS_COUNT];
-        GuidSet m_ResurrectQueue;
-        Battlefield* m_Bf;
-};
 
 class TC_GAME_API Battlefield : public ZoneScript
 {
@@ -416,6 +296,121 @@ class TC_GAME_API Battlefield : public ZoneScript
         void RegisterZone(uint32 zoneid);
         bool HasPlayer(Player* player) const;
         void TeamCastSpell(TeamId team, int32 spellId);
+};
+
+class TC_GAME_API BfCapturePoint
+{
+    public:
+        BfCapturePoint(Battlefield* bf);
+
+        virtual ~BfCapturePoint() { }
+
+        virtual void FillInitialWorldStates(WorldPacket& /*data*/) { }
+
+        // Send world state update to all players present
+        void SendUpdateWorldState(uint32 field, uint32 value);
+
+        // Send kill notify to players in the controlling faction
+        void SendObjectiveComplete(uint32 id, ObjectGuid guid);
+
+        // Used when player is activated/inactivated in the area
+        virtual bool HandlePlayerEnter(Player* player);
+        virtual GuidSet::iterator HandlePlayerLeave(Player* player);
+        //virtual void HandlePlayerActivityChanged(Player* player);
+
+        // Checks if player is in range of a capture credit marker
+        bool IsInsideObjective(Player* player) const;
+
+        // Returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
+        virtual bool Update(uint32 diff);
+        virtual void ChangeTeam(TeamId /*oldTeam*/) { }
+        virtual void SendChangePhase();
+
+        bool SetCapturePointData(GameObject* capturePoint);
+        GameObject* GetCapturePointGo();
+        uint32 GetCapturePointEntry() const { return m_capturePointEntry; }
+
+        TeamId GetTeamId() const { return m_team; }
+
+    protected:
+        bool DelCapturePoint();
+
+        // active Players in the area of the objective, 0 - alliance, 1 - horde
+        GuidSet m_activePlayers[BG_TEAMS_COUNT];
+
+        // Total shift needed to capture the objective
+        float m_maxValue;
+        float m_minValue;
+
+        // Maximum speed of capture
+        float m_maxSpeed;
+
+        // The status of the objective
+        float m_value;
+        TeamId m_team;
+
+        // Objective states
+        BattlefieldObjectiveStates m_OldState;
+        BattlefieldObjectiveStates m_State;
+
+        // Neutral value on capture bar
+        uint32 m_neutralValuePct;
+
+        // Pointer to the Battlefield this objective belongs to
+        Battlefield* m_Bf;
+
+        // Capture point entry
+        uint32 m_capturePointEntry;
+
+        // Gameobject related to that capture point
+        ObjectGuid m_capturePointGUID;
+};
+
+class TC_GAME_API BfGraveyard
+{
+    public:
+        BfGraveyard(Battlefield* Bf);
+
+        // Method to changing who controls the graveyard
+        void GiveControlTo(TeamId team);
+        TeamId GetControlTeamId() const { return m_ControlTeam; }
+
+        // Find the nearest graveyard to a player
+        float GetDistance(Player* player);
+
+        // Initialize the graveyard
+        void Initialize(TeamId startcontrol, uint32 gy);
+
+        // Set spirit service for the graveyard
+        void SetSpirit(Creature* spirit, TeamId team);
+
+        // Add a player to the graveyard
+        void AddPlayer(ObjectGuid player_guid);
+
+        // Remove a player from the graveyard
+        void RemovePlayer(ObjectGuid player_guid);
+
+        // Resurrect players
+        void Resurrect();
+
+        // Move players waiting to that graveyard on the nearest one
+        void RelocateDeadPlayers();
+
+        // Check if this graveyard has a spirit guide
+        bool HasNpc(ObjectGuid guid);
+
+        // Check if a player is in this graveyard's resurrect queue
+        bool HasPlayer(ObjectGuid guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
+
+        // Get the graveyard's ID.
+        uint32 GetGraveyardId() const { return m_GraveyardId; }
+
+    protected:
+        TeamId m_ControlTeam;
+        uint32 m_GraveyardId;
+        ObjectGuid m_SpiritGuide[BG_TEAMS_COUNT];
+        GuidSet m_ResurrectQueue;
+        Battlefield* m_Bf;
 };
 
 #endif
