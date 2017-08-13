@@ -874,6 +874,16 @@ namespace WorldPackets
 
             void Read() override { }
         };
+
+        class CloseInteraction final : public ClientPacket
+        {
+        public:
+            CloseInteraction(WorldPacket&& packet) : ClientPacket(CMSG_CLOSE_INTERACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid SourceGuid;
+        };
     }
 }
 
