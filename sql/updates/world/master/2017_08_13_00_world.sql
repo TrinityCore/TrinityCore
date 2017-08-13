@@ -365,3 +365,6 @@ INSERT INTO `spell_proc` (`SpellId`, `SchoolMask`, `SpellFamilyName`, `SpellFami
 (187878, 0, 11, 0, 16777216, 4, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0),
 (215538, 0, 4, 2097152, 4, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0),
 (235313, 0, 3, 0, 0, 0, 0, 0, 1, 0, 1024, 0, 0, 0, 0, 0);
+
+-- Kill the damned thing already!
+DROP TABLE IF EXISTS `spell_proc_event`;
