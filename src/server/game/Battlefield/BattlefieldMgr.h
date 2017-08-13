@@ -33,13 +33,13 @@ class TC_GAME_API BattlefieldMgr
         void Initialize();
 
         // called when a player enters an battlefield area
-        void HandlePlayerEnterZone(Player* player, uint32 mapId, uint32 zoneId);
+        void HandlePlayerEnterZone(Player* player, uint32 zoneId);
         // called when player leaves an battlefield area
-        void HandlePlayerLeaveZone(Player* player, uint32 mapId, uint32 zoneId);
+        void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
 
-        Battlefield* GetEnabledBattlefield(uint32 mapId, uint32 zoneId);
+        Battlefield* GetEnabledBattlefield(uint32 zoneId);
         Battlefield* GetBattlefield(uint32 battleId);
-        ZoneScript* GetZoneScript(uint32 mapId, uint32 zoneId);
+        ZoneScript* GetZoneScript(uint32 zoneId);
 
         void Update(uint32 diff);
 
@@ -47,8 +47,8 @@ class TC_GAME_API BattlefieldMgr
         BattlefieldMgr();
         ~BattlefieldMgr();
 
-        // contains all initiated battlefield events
-        std::unordered_map<uint32, Battlefield*> _battlefieldContainer;
+        // contains all initiated battlefields
+        std::unordered_map<uint32/*zoneId*/, Battlefield*> _battlefieldContainer;
         // update interval
         uint32 _updateTimer;
 };

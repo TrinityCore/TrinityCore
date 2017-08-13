@@ -22,6 +22,7 @@
 #include "SharedDefines.h"
 #include "Timer.h"
 #include "ZoneScript.h"
+#include <map>
 
 class Creature;
 class GameObject;
@@ -252,7 +253,7 @@ class TC_GAME_API BattlefieldGraveyard
         // Set spirit creature for the graveyard
         void SetSpirit(Creature* creature, TeamId team);
 
-        // Find the nearest graveyard to a player
+        // Get distance between a player and this graveyard
         float GetDistance(Player* player) const;
 
         // Add a player to the graveyard
@@ -264,10 +265,10 @@ class TC_GAME_API BattlefieldGraveyard
         // Resurrect players
         void Resurrect();
 
-        // Method to changing who controls the graveyard
+        // Change who controls the graveyard
         void GiveControlTo(TeamId team);
 
-        // Move players waiting to that graveyard on the nearest one
+        // Move players in queue to nearest graveyard
         void RelocateDeadPlayers();
 
         // Check if this graveyard has a spirit guide

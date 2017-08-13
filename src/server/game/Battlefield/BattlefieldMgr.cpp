@@ -54,59 +54,60 @@ void BattlefieldMgr::Initialize()
     }
 }
 
-void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 mapId, uint32 zoneId)
+void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneId)
 {
-    Battlefield* battlefield = nullptr;
-    for (auto itr = _battlefieldContainer.begin(); !battlefield && itr != _battlefieldContainer.end(); ++itr)
-    {
-        if (itr->second->_mapId == mapId && itr->second->_zoneId == zoneId && !itr->second->HasPlayer(player))
-            battlefield = itr->second;
-    }
+    auto itr = _battlefieldContainer.find(zoneId);
+    if (itr == _battlefieldContainer.end())
+        return;
 
-    battlefield->HandlePlayerEnterZone(player, zoneId);
-    TC_LOG_DEBUG("battlefield", "BattlefieldMgr::HandlePlayerEnterZone: player %u entered battlefield id %u", player->GetGUID().GetCounter(), battlefield->GetBattleId());
+    if (itr->second->HasPlayer(player))
+        return;
+
+    itr->second->HandlePlayerEnterZone(player, zoneId);
+    TC_LOG_DEBUG("battlefield", "BattlefieldMgr::HandlePlayerEnterZone: player %u entered battlefield id %u", player->GetGUID().GetCounter(), itr->second->GetBattleId());
 }
 
-void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 mapId, uint32 zoneId)
+void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneId)
 {
-    Battlefield* battlefield = nullptr;
-    for (auto itr = _battlefieldContainer.begin(); !battlefield && itr != _battlefieldContainer.end(); ++itr)
-    {
-        if (itr->second->_mapId == mapId && itr->second->_zoneId == zoneId && itr->second->HasPlayer(player))
-            battlefield = itr->second;
-    }
+    auto itr = _battlefieldContainer.find(zoneId);
+    if (itr == _battlefieldContainer.end())
+        return;
 
-    battlefield->HandlePlayerLeaveZone(player, zoneId);
-    TC_LOG_DEBUG("battlefield", "BattlefieldMgr::HandlePlayerLeaveZone: player %u left battlefield id %u", player->GetGUID().GetCounter(), battlefield->GetBattleId());
+    if (!itr->second->HasPlayer(player))
+        return;
+
+    itr->second->HandlePlayerLeaveZone(player, zoneId);
+    TC_LOG_DEBUG("battlefield", "BattlefieldMgr::HandlePlayerLeaveZone: player %u left battlefield id %u", player->GetGUID().GetCounter(), itr->second->GetBattleId());
 }
 
-Battlefield* BattlefieldMgr::GetEnabledBattlefield(uint32 mapId, uint32 zoneId)
+Battlefield* BattlefieldMgr::GetEnabledBattlefield(uint32 zoneId)
 {
-    for (auto itr = _battlefieldContainer.begin(); itr != _battlefieldContainer.end(); ++itr)
-    {
-        if (itr->second->_mapId == mapId && itr->second->_zoneId == zoneId && itr->second->IsEnabled())
-            return itr->second;
-    }
+    auto itr = _battlefieldContainer.find(zoneId);
+    if (itr == _battlefieldContainer.end())
+        return nullptr;
 
-    return nullptr;
+    if (!itr->second->IsEnabled())
+        return nullptr;
+
+    return itr->second;
 }
 
 Battlefield* BattlefieldMgr::GetBattlefield(uint32 battleId)
 {
-    auto itr = _battlefieldContainer.find(battleId);
-    if (itr != _battlefieldContainer.end())
-        return itr->second;
+    for (auto itr = _battlefieldContainer.begin(); itr != _battlefieldContainer.end(); ++itr)
+    {
+        if (itr->second->GetBattleId() == battleId)
+            return itr->second;
+    }
 
     return nullptr;
 }
 
-ZoneScript* BattlefieldMgr::GetZoneScript(uint32 mapId, uint32 zoneId)
+ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId)
 {
-    for (auto itr = _battlefieldContainer.begin(); itr != _battlefieldContainer.end(); ++itr)
-    {
-        if (itr->second->_mapId == mapId && itr->second->_zoneId == zoneId)
-            return itr->second;
-    }
+    auto itr = _battlefieldContainer.find(zoneId);
+    if (itr != _battlefieldContainer.end())
+        return itr->second;
 
     return nullptr;
 }
