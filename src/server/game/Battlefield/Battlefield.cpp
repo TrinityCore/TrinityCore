@@ -684,6 +684,84 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
     return go;
 }
 
+std::list<Player*> Battlefield::GetPlayerListInSourceRange(WorldObject* source, float range, TeamId teamId) const
+{
+    std::list<Player*> playerList;
+    for (ObjectGuid guid : _players[teamId])
+    {
+        if (Player* player = ObjectAccessor::FindPlayer(guid))
+            if (player->IsWithinDist(source, range))
+                playerList.push_back(player);
+    }
+
+    return playerList;
+}
+
+BattlefieldGraveyard* Battlefield::GetGraveyard(uint32 id) const
+{
+    if (id < _graveyardList.size())
+    {
+        if (BattlefieldGraveyard* graveyard = _graveyardList.at(id))
+            return graveyard;
+        else
+            TC_LOG_ERROR("battlefield", "Battlefield::GetGraveyard: id %u could not be found", id);
+    }
+    else
+        TC_LOG_ERROR("battlefield", "Battlefield::GetGraveyard: id %u could not be found", id);
+
+    return nullptr;
+}
+
+WorldSafeLocsEntry const* Battlefield::GetClosestGraveYard(Player* player) const
+{
+    BattlefieldGraveyard* closestGY = nullptr;
+    float maxdist = -1;
+    for (uint8 i = 0; i < _graveyardList.size(); i++)
+    {
+        if (_graveyardList[i])
+        {
+            if (_graveyardList[i]->GetControlTeamId() != player->GetTeamId())
+                continue;
+
+            float dist = _graveyardList[i]->GetDistance(player);
+            if (dist < maxdist || maxdist < 0)
+            {
+                closestGY = _graveyardList[i];
+                maxdist = dist;
+            }
+        }
+    }
+
+    if (closestGY)
+        return sWorldSafeLocsStore.LookupEntry(closestGY->GetId());
+
+    return nullptr;
+}
+
+Group* Battlefield::GetFreeGroup(TeamId TeamId) const
+{
+    for (auto itr = _groups[TeamId].begin(); itr != _groups[TeamId].end(); ++itr)
+    {
+        if (Group* group = sGroupMgr->GetGroupByGUID(itr->GetCounter()))
+            if (!group->IsFull())
+                return group;
+    }
+
+    return nullptr;
+}
+
+Group* Battlefield::GetGroupPlayer(ObjectGuid guid, TeamId TeamId) const
+{
+    for (auto itr = _groups[TeamId].begin(); itr != _groups[TeamId].end(); ++itr)
+    {
+        if (Group* group = sGroupMgr->GetGroupByGUID(itr->GetCounter()))
+            if (group->IsMember(guid))
+                return group;
+    }
+
+    return nullptr;
+}
+
 Creature* Battlefield::GetCreature(ObjectGuid guid)
 {
     if (!_map)
