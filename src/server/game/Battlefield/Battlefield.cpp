@@ -34,6 +34,68 @@
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
 
+
+
+void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
+{
+    if (IsEnabled())
+    {
+        if (IsWarTime() && !player->IsInFlight())
+        {
+            if (!InvitePlayerToWar(player))
+            {
+                /// @todo Send a packet to announce it to player
+                if (_playersToKick[player->GetTeamId()].find(player->GetGUID()) == _playersToKick[player->GetTeamId()].end())
+                {
+                    _playersToKick[player->GetTeamId()][player->GetGUID()] = time(nullptr) + 10;
+                    InvitePlayerToQueue(player);
+                }
+            }
+        }
+        else
+        {
+            // If time left is < 15 minutes invite player to join queue
+            if (_timer <= _startGroupingTime)
+                InvitePlayerToQueue(player);
+        }
+
+        // Add player in the list of player in zone
+        _players[player->GetTeamId()].insert(player->GetGUID());
+    }
+
+    OnPlayerEnterZone(player);
+}
+
+void Battlefield::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
+{
+    if (IsEnabled())
+    {
+        for (BattlefieldCapturePoint* capturePoint : _capturePoints)
+            capturePoint->HandlePlayerLeave(player);
+
+        if (IsWarTime())
+        {
+            // If the player is participating to the battle
+            if (_playersInWar[player->GetTeamId()].find(player->GetGUID()) != _playersInWar[player->GetTeamId()].end())
+            {
+                _playersInWar[player->GetTeamId()].erase(player->GetGUID());
+                player->GetSession()->SendBfLeaveMessage(_battleId);
+                if (Group* group = player->GetGroup()) // Remove the player from the raid group
+                    group->RemoveMember(player->GetGUID());
+
+                OnPlayerLeaveWar(player);
+            }
+        }
+
+        _invitedPlayers[player->GetTeamId()].erase(player->GetGUID());
+        _playersToKick[player->GetTeamId()].erase(player->GetGUID());
+        _players[player->GetTeamId()].erase(player->GetGUID());
+    }
+
+    RemovePlayerFromResurrectQueue(player->GetGUID());
+    OnPlayerLeaveZone(player);
+}
+
 void Battlefield::KickPlayerFromBattlefield(ObjectGuid guid, Player* player /*= nullptr*/)
 {
     Player* source = player;

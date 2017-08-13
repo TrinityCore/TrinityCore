@@ -171,9 +171,8 @@ class TC_GAME_API Battlefield : public ZoneScript
         TeamId _defenderTeam;
         TimeTrackerSmall _kickCheckTimer; // timer to kick AFK players
         TimeTrackerSmall _lastResurrectTimer; // timer to resurrect players (every 30 sec)
-        TimeTrackerSmall _startGroupingTimer; // timer to invite players in area 15 minute before starting
         bool _active;
-        bool _startGrouping; // all players in area have been invited
+        bool _startGrouping; // all players in zone have been invited
 
         // constant information
         Map* _map;
@@ -186,6 +185,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         uint32 _noWarBattleTime; // time between two battles
         uint32 _restartAfterCrash; // delay to restart if the server crashed during a running battle
         uint32 _acceptInviteTime; // maximum time to accept battle invite
+        uint32 _startGroupingTime; // time to invite players in zone
         bool _enabled;
 };
 
