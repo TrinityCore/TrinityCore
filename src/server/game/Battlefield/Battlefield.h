@@ -110,6 +110,8 @@ class TC_GAME_API Battlefield : public ZoneScript
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) const;
         Group* GetFreeGroup(TeamId TeamId) const;
         Group* GetGroupPlayer(ObjectGuid guid, TeamId TeamId) const;
+        Creature* GetCreature(ObjectGuid guid) const;
+        GameObject* GetGameObject(ObjectGuid guid) const;
 
         void SetTimer(uint32 timer) { _timer = timer; }
         void SetDefenderTeam(TeamId team) { _defenderTeam = team; }
@@ -245,18 +247,13 @@ class TC_GAME_API BattlefieldGraveyard
 {
     public:
         BattlefieldGraveyard(Battlefield* battlefield);
+        void Initialize(TeamId initialTeam, uint32 id);
 
-        // Method to changing who controls the graveyard
-        void GiveControlTo(TeamId team);
+        // Set spirit creature for the graveyard
+        void SetSpirit(Creature* creature, TeamId team);
 
         // Find the nearest graveyard to a player
         float GetDistance(Player* player) const;
-
-        // Initialize the graveyard
-        void Initialize(TeamId initialTeam, uint32 id);
-
-        // Set spirit service for the graveyard
-        void SetSpirit(Creature* spirit, TeamId team);
 
         // Add a player to the graveyard
         void AddPlayer(ObjectGuid playerGUID);
@@ -266,6 +263,9 @@ class TC_GAME_API BattlefieldGraveyard
 
         // Resurrect players
         void Resurrect();
+
+        // Method to changing who controls the graveyard
+        void GiveControlTo(TeamId team);
 
         // Move players waiting to that graveyard on the nearest one
         void RelocateDeadPlayers();
@@ -284,7 +284,7 @@ class TC_GAME_API BattlefieldGraveyard
         TeamId _controlTeam;
         ObjectGuid _spiritGuides[PVP_TEAMS_COUNT];
         GuidUnorderedSet _resurrectQueue;
-        Battlefield* _battlefield;
+        Battlefield const* _battlefield;
 };
 
 #endif
