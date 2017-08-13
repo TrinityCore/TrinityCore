@@ -1018,7 +1018,7 @@ void Battleground::Reset()
         delete itr->second;
     PlayerScores.clear();
 
-    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+    for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
         _arenaTeamScores[i].Reset();
 
     ResetBGSubclass();
@@ -1265,10 +1265,10 @@ void Battleground::BuildPvPLogDataPacket(WorldPacket& data)
 
     if (type)                                           // arena
     {
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+        for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
             _arenaTeamScores[i].BuildRatingInfoBlock(data);
 
-        for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+        for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
             _arenaTeamScores[i].BuildTeamInfoBlock(data);
     }
 

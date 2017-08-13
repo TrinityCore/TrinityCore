@@ -33,7 +33,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
     _worldPacket << uint32(Info.QuestType);
     _worldPacket << uint32(Info.SuggestedGroupNum);
 
-    for (uint8 i = 0; i < BG_TEAMS_COUNT; ++i)
+    for (uint8 i = 0; i < PVP_TEAMS_COUNT; ++i)
     {
         _worldPacket << uint32(Info.RequiredFactionId[i]);
         _worldPacket << uint32(Info.RequiredFactionValue[i]);

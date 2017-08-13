@@ -516,9 +516,9 @@ class TC_GAME_API Battleground
         bool   m_IsRandom;
 
         BGHonorMode m_HonorMode;
-        int32 m_TeamScores[BG_TEAMS_COUNT];
+        int32 m_TeamScores[PVP_TEAMS_COUNT];
 
-        ArenaTeamScore _arenaTeamScores[BG_TEAMS_COUNT];
+        ArenaTeamScore _arenaTeamScores[PVP_TEAMS_COUNT];
 
     private:
         // Battleground
@@ -585,15 +585,15 @@ class TC_GAME_API Battleground
         uint32 m_InvitedHorde;
 
         // Raid Group
-        Group* m_BgRaids[BG_TEAMS_COUNT];                   // 0 - alliance, 1 - horde
+        Group* m_BgRaids[PVP_TEAMS_COUNT];                   // 0 - alliance, 1 - horde
 
         // Players count by team
-        uint32 m_PlayersCount[BG_TEAMS_COUNT];
+        uint32 m_PlayersCount[PVP_TEAMS_COUNT];
 
         // Arena team ids by team
-        uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];
+        uint32 m_ArenaTeamIds[PVP_TEAMS_COUNT];
 
-        uint32 m_ArenaTeamMMR[BG_TEAMS_COUNT];
+        uint32 m_ArenaTeamMMR[PVP_TEAMS_COUNT];
 
         // Limits
         uint32 m_LevelMin;
@@ -606,7 +606,7 @@ class TC_GAME_API Battleground
         // Start location
         uint32 m_MapId;
         BattlegroundMap* m_Map;
-        Position StartPosition[BG_TEAMS_COUNT];
+        Position StartPosition[PVP_TEAMS_COUNT];
         float m_StartMaxDist;
         uint32 ScriptId;
 };
