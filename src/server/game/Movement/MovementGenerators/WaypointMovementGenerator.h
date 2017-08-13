@@ -55,7 +55,7 @@ template<>
 class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creature, WaypointMovementGenerator<Creature>>, public PathMovementBase<Creature, WaypointPath const*>
 {
     public:
-        explicit WaypointMovementGenerator(uint32 pathId = 0, bool repeating = true) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(pathId), _repeating(repeating), _loadedFromDB(true), _stalled(false) { }
+        explicit WaypointMovementGenerator(uint32 pathId = 0, bool repeating = true) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(pathId), _repeating(repeating), _loadedFromDB(true), _stalled(false), _done(false) { }
         explicit WaypointMovementGenerator(WaypointPath& path, bool repeating = true);
 
         ~WaypointMovementGenerator() { _path = nullptr; }
@@ -92,6 +92,7 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         bool _repeating;
         bool _loadedFromDB;
         bool _stalled;
+        bool _done;
 };
 
 /**
