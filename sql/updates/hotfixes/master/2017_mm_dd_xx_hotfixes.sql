@@ -34,6 +34,7 @@ CREATE TABLE `transmog_set` (
 -- Table structure for table `transmog_set_locale`
 --
 
+DROP TABLE IF EXISTS `transmog_set_locale`;
 CREATE TABLE `transmog_set_locale` (
   `ID` int(10) unsigned NOT NULL DEFAULT '0',
   `locale` varchar(4) NOT NULL,
