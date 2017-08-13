@@ -37,7 +37,7 @@ struct WorldSafeLocsEntry;
 class BattlefieldGraveyard;
 class BattlefieldCapturePoint;
 
-typedef std::vector<BattlefieldGraveyard*> GraveyardVector;
+typedef std::vector<BattlefieldGraveyard*> BattlefieldGraveyardVector;
 typedef std::vector<BattlefieldCapturePoint*> BattlefieldCapturePointVector;
 typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
 
@@ -66,19 +66,30 @@ enum BattlefieldSounds
 
 enum BattlefieldTimers
 {
-    BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL = 1000
+    BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL = 1000,
+    BATTLEFIELD_RESURRECT_ITERVAL = 30000
+};
+
+enum BattlefieldSpells
+{
+    SPELL_WAITING_FOR_RESURRECT  = 2584,  // Waiting to Resurrect
+    SPELL_SPIRIT_HEAL_CHANNEL    = 22011, // Spirit Heal Channel
+    SPELL_SPIRIT_HEAL            = 22012, // Spirit Heal
+    SPELL_RESURRECTION_VISUAL    = 24171, // Resurrection Impact Visual
+    SPELL_SPIRIT_HEAL_MANA       = 44535, // Spirit Heal
+    SPELL_AURA_PLAYER_INACTIVE   = 43681, // Inactive
+    SPELL_HONORABLE_DEFENDER_25Y = 68652, // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
+    SPELL_HONORABLE_DEFENDER_60Y = 66157  // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2)
 };
 
 class TC_GAME_API Battlefield : public ZoneScript
 {
-    friend class BattlefieldMgr;
-
     public:
         Battlefield();
         ~Battlefield();
 
-        virtual bool SetupBattlefield() { return true; }
         virtual void Update(uint32 diff);
+        virtual bool SetupBattlefield() { return true; }
         virtual void HandleKill(Player* /*killer*/, Unit* /*killed*/) { }
         virtual uint32 GetData(uint32 dataId) const override { return _data[dataId]; }
         virtual void SetData(uint32 dataId, uint32 value) override { _data[dataId] = value; }
@@ -95,19 +106,22 @@ class TC_GAME_API Battlefield : public ZoneScript
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) = 0;
         virtual void AddPlayerToResurrectQueue(ObjectGuid creatureGUID, ObjectGuid playerGUID);
 
+        // enables or disables the battlefield
         void ToggleBattlefield(bool enable);
         void StartBattle();
         void EndBattle(bool endByTimer);
+        // update data of a worldstate to all players present in zone
         void SendUpdateWorldState(uint32 field, uint32 value);
         void InvitePlayersInZoneToWar();
         void InvitePlayersInZoneToQueue();
         void InvitePlayersInQueueToWar();
         bool InvitePlayerToWar(Player* player);
         void InvitePlayerToQueue(Player* player);
+        // zone handlers
         void HandlePlayerEnterZone(Player* player, uint32 zone);
         void HandlePlayerLeaveZone(Player* player, uint32 zone);
         // removes player from the battlefield and teleports to home bind if necessary
-        void KickPlayerFromBattlefield(ObjectGuid guid, Player* player = nullptr);
+        void KickPlayer(ObjectGuid guid, Player* player = nullptr);
         // called in WorldSession::HandleBfQueueInviteResponse
         void PlayerAcceptsInviteToQueue(Player* player);
         // called in WorldSession::HandleBfEntryInviteResponse
@@ -141,7 +155,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         TeamId GetDefenderTeam() const { return _defenderTeam; }
         TeamId GetAttackerTeam() const { return TeamId(1 - _defenderTeam); }
         TeamId GetOtherTeam(TeamId team) const { return (team == TEAM_HORDE ? TEAM_ALLIANCE : TEAM_HORDE); }
-        uint32 GetTimer() const { return _timer; }
+        uint32 GetTimer() const { return _timer.GetExpiry() < 0 ? 0 : _timer.GetExpiry(); }
         std::list<Player*> GetPlayerListInSourceRange(WorldObject* source, float range, TeamId teamId) const;
         BattlefieldGraveyard* GetGraveyard(uint32 id) const;
         // finds which graveyard the player must be teleported to
@@ -158,9 +172,9 @@ class TC_GAME_API Battlefield : public ZoneScript
         void SetGraveyardNumber(uint32 number) { _graveyardList.resize(number); }
 
     protected:
-        uint32 _timer;
+        TimeTrackerSmall _timer;
         BattlefieldCapturePointVector _capturePoints;
-        GraveyardVector _graveyardList; // graveyard container
+        BattlefieldGraveyardVector _graveyardList; // graveyard container
         GuidUnorderedSet _players[PVP_TEAMS_COUNT];
         GuidUnorderedSet _playersInQueue[PVP_TEAMS_COUNT];
         GuidUnorderedSet _playersInWar[PVP_TEAMS_COUNT];
@@ -172,6 +186,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         TimeTrackerSmall _kickCheckTimer; // timer to kick AFK players
         TimeTrackerSmall _lastResurrectTimer; // timer to resurrect players (every 30 sec)
         bool _active;
+        bool _enabled;
         bool _startGrouping; // all players in zone have been invited
 
         // constant information
@@ -186,7 +201,9 @@ class TC_GAME_API Battlefield : public ZoneScript
         uint32 _restartAfterCrash; // delay to restart if the server crashed during a running battle
         uint32 _acceptInviteTime; // maximum time to accept battle invite
         uint32 _startGroupingTime; // time to invite players in zone
-        bool _enabled;
+
+    private:
+        void RemovePlayer(ObjectGuid playerGUID);
 };
 
 class TC_GAME_API BattlefieldCapturePoint
