@@ -99,11 +99,11 @@ class TC_GAME_API Battlefield : public ZoneScript
         void StartBattle();
         void EndBattle(bool endByTimer);
         void SendUpdateWorldState(uint32 field, uint32 value);
+        void InvitePlayersInZoneToWar();
         void InvitePlayersInZoneToQueue();
         void InvitePlayersInQueueToWar();
-        void InvitePlayersInZoneToWar();
-        void InvitePlayerToQueue(Player* player);
         bool InvitePlayerToWar(Player* player);
+        void InvitePlayerToQueue(Player* player);
         void HandlePlayerEnterZone(Player* player, uint32 zone);
         void HandlePlayerLeaveZone(Player* player, uint32 zone);
         // removes player from the battlefield and teleports to home bind if necessary

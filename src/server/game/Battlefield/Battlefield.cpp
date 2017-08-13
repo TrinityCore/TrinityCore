@@ -36,6 +36,106 @@
 
 
 
+void Battlefield::InvitePlayersInZoneToWar()
+{
+    for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
+    {
+        for (ObjectGuid guid : _players[team])
+        {
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(guid))
+            {
+                // dead or in flight
+                if (!player->IsAlive() || player->IsInFlight())
+                    continue;
+
+                // level requirement
+                if (player->getLevel() < _minPlayerLevel && _playersToKick[player->GetTeamId()].find(guid) == _playersToKick[player->GetTeamId()].end())
+                {
+                    _playersToKick[player->GetTeamId()][guid] = time(nullptr) + 1;
+                    continue;
+                }
+
+                // already invited
+                if (_invitedPlayers[player->GetTeamId()].find(guid) != _invitedPlayers[player->GetTeamId()].end())
+                    continue;
+
+                // afk
+                if (_playersInWar[player->GetTeamId()].find(guid) != _playersInWar[player->GetTeamId()].end() && player->isAFK() &&
+                    _playersToKick[player->GetTeamId()].find(guid) == _playersToKick[player->GetTeamId()].end())
+                {
+                    _playersToKick[player->GetTeamId()][guid] = time(nullptr) + 1;
+                    continue;
+                }
+
+                // invite
+                if (_playersInWar[player->GetTeamId()].find(guid) == _playersInWar[player->GetTeamId()].end() &&
+                    _playersToKick[player->GetTeamId()].find(guid) == _playersToKick[player->GetTeamId()].end())
+                {
+                    if (_playersInWar[player->GetTeamId()].size() + _invitedPlayers[player->GetTeamId()].size() <= _maxPlayerCount)
+                        InvitePlayerToWar(player);
+                    else
+                        _playersToKick[player->GetTeamId()][guid] = time(nullptr) + 10;
+                }
+            }
+        }
+    }
+}
+
+void Battlefield::InvitePlayersInZoneToQueue()
+{
+    for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
+    {
+        for (ObjectGuid itr : _players[team])
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(itr))
+                InvitePlayerToQueue(player);
+    }
+}
+
+void Battlefield::InvitePlayersInQueueToWar()
+{
+    for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
+    {
+        for (ObjectGuid itr : _playersInQueue[team])
+        {
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(itr))
+                InvitePlayerToWar(player);
+        }
+        _playersInQueue[team].clear();
+    }
+}
+
+bool Battlefield::InvitePlayerToWar(Player* player)
+{
+    if (!player || player->InArena() || player->GetBattleground() || player->getLevel() < _minPlayerLevel)
+        return false;
+
+    // check if player is not already in war
+    if (_playersInWar[player->GetTeamId()].find(player->GetGUID()) != _playersInWar[player->GetTeamId()].end() ||
+        _invitedPlayers[player->GetTeamId()].find(player->GetGUID()) != _invitedPlayers[player->GetTeamId()].end())
+        return false;
+
+    // vacant spaces
+    if (_playersInWar[player->GetTeamId()].size() + _invitedPlayers[player->GetTeamId()].size() > _maxPlayerCount)
+        return false;
+
+    _playersToKick[player->GetTeamId()].erase(player->GetGUID());
+    _invitedPlayers[player->GetTeamId()][player->GetGUID()] = time(nullptr) + _acceptInviteTime;
+    player->GetSession()->SendBfInvitePlayerToWar(_battleId, _zoneId, _acceptInviteTime);
+
+    return true;
+}
+
+void Battlefield::InvitePlayerToQueue(Player* player)
+{
+    if (player->getLevel() < _minPlayerLevel || player->IsInFlight())
+        return;
+
+    if (_playersInQueue[player->GetTeamId()].find(player->GetGUID()) != _playersInQueue[player->GetTeamId()].end())
+        return;
+
+    player->GetSession()->SendBfInvitePlayerToQueue(_battleId);
+}
+
 void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
 {
     if (IsEnabled())
