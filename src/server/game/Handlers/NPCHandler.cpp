@@ -113,7 +113,9 @@ void WorldSession::SendTrainerList(ObjectGuid guid, uint32 trainerId)
         return;
     }
 
-    _player->SetCurrentTrainerId(trainerId);
+    _player->PlayerTalkClass->GetInteractionData().Reset();
+    _player->PlayerTalkClass->GetInteractionData().SourceGuid = guid;
+    _player->PlayerTalkClass->GetInteractionData().TrainerId = trainerId;
     trainer->SendSpells(unit, _player, GetSessionDbLocaleIndex());
 }
 
@@ -132,7 +134,10 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (_player->GetCurrentTrainerId() != uint32(packet.TrainerID))
+    if (_player->PlayerTalkClass->GetInteractionData().SourceGuid != packet.TrainerGUID)
+        return;
+
+    if (_player->PlayerTalkClass->GetInteractionData().TrainerId != uint32(packet.TrainerID))
         return;
 
     Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(packet.TrainerID);
@@ -190,7 +195,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
         return;
 
     // Prevent cheating on C++ scripted menus
-    if (_player->PlayerTalkClass->GetGossipMenu().GetSenderGUID() != packet.GossipUnit)
+    if (_player->PlayerTalkClass->GetInteractionData().SourceGuid != packet.GossipUnit)
         return;
 
     Creature* unit = nullptr;
