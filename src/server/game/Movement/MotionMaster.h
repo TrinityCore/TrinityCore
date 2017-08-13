@@ -169,6 +169,7 @@ class TC_GAME_API MotionMaster
 
         bool NeedInitTop() const;
         void InitTop();
+
         void Mutate(MovementGenerator *m, MovementSlot slot);
 
         void DirectClean(bool reset);
