@@ -120,6 +120,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         void HideCreature(Creature* creature);
         void ShowCreature(Creature* creature, bool aggressive);
         void DoPlaySoundToAll(uint32 soundId);
+        // packet senders
         void BroadcastPacketToZone(WorldPacket& data) const;
         void BroadcastPacketToQueue(WorldPacket& data) const;
         void BroadcastPacketToWar(WorldPacket& data) const;
@@ -128,6 +129,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         bool IsEnabled() const { return _enabled; }
         bool IsWarTime() const { return _active; }
+        // flying mount available
         bool CanFlyIn() const { return !_active; }
         bool HasPlayer(Player* player) const;
 
@@ -139,8 +141,11 @@ class TC_GAME_API Battlefield : public ZoneScript
         uint32 GetTimer() const { return _timer; }
         std::list<Player*> GetPlayerListInSourceRange(WorldObject* source, float range, TeamId teamId) const;
         BattlefieldGraveyard* GetGraveyard(uint32 id) const;
+        // finds which graveyard the player must be teleported to
         WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) const;
+        // finds a not full battlefield group
         Group* GetFreeGroup(TeamId TeamId) const;
+        // returns battlefield group where the player is
         Group* GetGroupPlayer(ObjectGuid guid, TeamId TeamId) const;
         Creature* GetCreature(ObjectGuid guid);
         GameObject* GetGameObject(ObjectGuid guid);

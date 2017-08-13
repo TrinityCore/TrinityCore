@@ -684,6 +684,128 @@ GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, Quat
     return go;
 }
 
+Creature* Battlefield::SpawnCreature(uint32 entry, Position const& pos)
+{
+    if (!_map)
+        return nullptr;
+
+    Creature* creature = new Creature();
+    if (!creature->Create(_map->GenerateLowGuid<HighGuid::Unit>(), _map, PHASEMASK_NORMAL, entry, pos))
+    {
+        TC_LOG_ERROR("battlefield", "Battlefield::SpawnCreature: can't create creature entry %u", entry);
+        delete creature;
+        return nullptr;
+    }
+
+    creature->SetHomePosition(pos);
+
+    // Add to world
+    _map->LoadGrid(pos.GetPositionX(), pos.GetPositionY());
+    _map->AddToMap(creature);
+
+    return creature;
+}
+
+GameObject* Battlefield::SpawnGameObject(uint32 entry, Position const& pos, QuaternionData const& rot)
+{
+    if (!_map)
+        return nullptr;
+
+    GameObject* go = new GameObject();
+    if (!go->Create(_map->GenerateLowGuid<HighGuid::GameObject>(), entry, _map, PHASEMASK_NORMAL, pos, rot, 255, GO_STATE_READY))
+    {
+        TC_LOG_ERROR("battlefield", "Battlefield::SpawnGameObject: can't create gameobject entry %u", entry);
+        delete go;
+        return nullptr;
+    }
+
+    // Add to world
+    _map->LoadGrid(pos.GetPositionX(), pos.GetPositionY());
+    _map->AddToMap(go);
+
+    return go;
+}
+
+void Battlefield::HideCreature(Creature* creature)
+{
+    creature->Respawn(true);
+    creature->SetReactState(REACT_PASSIVE);
+    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+    creature->SetVisible(false);
+}
+
+void Battlefield::ShowCreature(Creature* creature, bool aggressive)
+{
+    creature->SetVisible(true);
+    creature->Respawn(true);
+    creature->SetReactState(aggressive ? REACT_AGGRESSIVE : REACT_PASSIVE);
+    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+}
+
+void Battlefield::DoPlaySoundToAll(uint32 soundId)
+{
+    WorldPacket data;
+    data.Initialize(SMSG_PLAY_SOUND, 4);
+    data << uint32(soundId);
+
+    BroadcastPacketToWar(data);
+}
+
+void Battlefield::BroadcastPacketToZone(WorldPacket& data) const
+{
+    for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
+    {
+        for (auto itr = _players[team].begin(); itr != _players[team].end(); ++itr)
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(*itr))
+                player->SendDirectMessage(&data);
+    }
+}
+
+void Battlefield::BroadcastPacketToQueue(WorldPacket& data) const
+{
+    for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
+    {
+        for (auto itr = _playersInQueue[team].begin(); itr != _playersInQueue[team].end(); ++itr)
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(*itr))
+                player->SendDirectMessage(&data);
+    }
+}
+
+void Battlefield::BroadcastPacketToWar(WorldPacket& data) const
+{
+    for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
+    {
+        for (auto itr = _playersInWar[team].begin(); itr != _playersInWar[team].end(); ++itr)
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(*itr))
+                player->SendDirectMessage(&data);
+    }
+}
+
+void Battlefield::TeamCastSpell(TeamId team, int32 spellId)
+{
+    if (spellId > 0)
+    {
+        for (auto itr = _playersInWar[team].begin(); itr != _playersInWar[team].end(); ++itr)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+                player->CastSpell(player, uint32(spellId), true);
+        }
+    }
+    else
+    {
+        for (auto itr = _playersInWar[team].begin(); itr != _playersInWar[team].end(); ++itr)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+                player->RemoveAuraFromStack(uint32(-spellId));
+        }
+    }
+}
+
+bool Battlefield::HasPlayer(Player* player) const
+{
+    return _players[player->GetTeamId()].find(player->GetGUID()) != _players[player->GetTeamId()].end();
+}
+
 std::list<Player*> Battlefield::GetPlayerListInSourceRange(WorldObject* source, float range, TeamId teamId) const
 {
     std::list<Player*> playerList;
