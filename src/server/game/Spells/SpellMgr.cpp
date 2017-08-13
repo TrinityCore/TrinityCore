@@ -1673,8 +1673,6 @@ bool InitTriggerAuraData()
         isTriggerAura[i] = false;
         isAlwaysTriggeredAura[i] = false;
     }
-    isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT] = true;
-    isTriggerAura[SPELL_AURA_PROC_ON_POWER_AMOUNT_2] = true;
     isTriggerAura[SPELL_AURA_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
     isTriggerAura[SPELL_AURA_MOD_THREAT] = true;

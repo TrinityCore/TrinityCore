@@ -393,7 +393,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //325 unused (4.3.4)
     &AuraEffect::HandlePhaseGroup,                                //326 SPELL_AURA_PHASE_GROUP
     &AuraEffect::HandleUnused,                                    //327 unused (4.3.4)
-    &AuraEffect::HandleNoImmediateEffect,                         //328 SPELL_AURA_PROC_ON_POWER_AMOUNT implemented in Unit::HandleAuraProcOnPowerAmount
+    &AuraEffect::HandleNULL,                                      //328 SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT
     &AuraEffect::HandleNULL,                                      //329 SPELL_AURA_MOD_POWER_GAIN_PCT
     &AuraEffect::HandleNoImmediateEffect,                         //330 SPELL_AURA_CAST_WHILE_WALKING
     &AuraEffect::HandleAuraForceWeather,                          //331 SPELL_AURA_FORCE_WEATHER
@@ -461,7 +461,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //393
     &AuraEffect::HandleShowConfirmationPrompt,                    //394 SPELL_AURA_SHOW_CONFIRMATION_PROMPT
     &AuraEffect::HandleCreateAreaTrigger,                         //395 SPELL_AURA_AREA_TRIGGER
-    &AuraEffect::HandleNoImmediateEffect,                         //396 SPELL_AURA_PROC_ON_POWER_AMOUNT_2 implemented in Unit::HandleAuraProcOnPowerAmount
+    &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT
     &AuraEffect::HandleNULL,                                      //397
     &AuraEffect::HandleNULL,                                      //398
     &AuraEffect::HandleNULL,                                      //399
@@ -533,7 +533,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //465 SPELL_AURA_MOD_BONUS_ARMOR
     &AuraEffect::HandleNULL,                                      //466 SPELL_AURA_MOD_BONUS_ARMOR_PCT
     &AuraEffect::HandleModStatBonusPercent,                       //467 SPELL_AURA_MOD_STAT_BONUS_PCT
-    &AuraEffect::HandleNULL,                                      //468 SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_BELOW_PCT
+    &AuraEffect::HandleNULL,                                      //468 SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT
     &AuraEffect::HandleShowConfirmationPrompt,                    //469 SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY
     &AuraEffect::HandleNULL,                                      //470
     &AuraEffect::HandleNULL,                                      //471 SPELL_AURA_MOD_VERSATILITY
@@ -1225,20 +1225,6 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
             if (!spellInfo || !(spellInfo->GetSchoolMask() & GetMiscValue()))
                 result = false;
             break;
-        case SPELL_AURA_PROC_ON_POWER_AMOUNT:
-        case SPELL_AURA_PROC_ON_POWER_AMOUNT_2:
-        {
-            // Power amount required to proc the spell
-            int32 powerAmountRequired = GetAmount();
-            // Power type required to proc
-            Powers powerRequired = Powers(_effectInfo->MiscValue);
-
-            bool powerBelowRequired = _effectInfo->MiscValueB != 0;
-
-            if ((aurApp->GetTarget()->GetPower(powerRequired) < powerAmountRequired) != powerBelowRequired)
-                result = false;
-            break;
-        }
         default:
             break;
     }
@@ -1265,8 +1251,6 @@ void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
             break;
         case SPELL_AURA_DUMMY:
         case SPELL_AURA_PROC_TRIGGER_SPELL:
-        case SPELL_AURA_PROC_ON_POWER_AMOUNT:
-        case SPELL_AURA_PROC_ON_POWER_AMOUNT_2:
             HandleProcTriggerSpellAuraProc(aurApp, eventInfo);
             break;
         case SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE:
