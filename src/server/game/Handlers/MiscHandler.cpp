@@ -1168,3 +1168,8 @@ void WorldSession::HandlePvpPrestigeRankUp(WorldPackets::Misc::PvpPrestigeRankUp
     if (_player->CanPrestige())
         _player->Prestige();
 }
+
+void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& /*packet*/)
+{
+    _player->PlayerTalkClass->GetInteractionData().Reset();
+}

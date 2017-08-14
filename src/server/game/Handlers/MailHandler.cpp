@@ -20,6 +20,7 @@
 #include "BattlenetAccountMgr.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GossipDef.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Item.h"
@@ -382,9 +383,8 @@ void WorldSession::HandleMailDelete(WorldPackets::Mail::MailDelete& packet)
 
 void WorldSession::HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& packet)
 {
-    //TODO: find a proper way to replace this check. Idea: Save Guid form MailGetList until CMSG_CLOSE_INTERACTION is sent
-    /*if (!CanOpenMailBox(mailbox))
-        return;*/
+    if (!CanOpenMailBox(_player->PlayerTalkClass->GetInteractionData().SourceGuid))
+        return;
 
     Player* player = _player;
     Mail* m = player->GetMail(packet.MailID);
@@ -592,6 +592,8 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
         ++response.TotalNumRecords;
     }
 
+    player->PlayerTalkClass->GetInteractionData().Reset();
+    player->PlayerTalkClass->GetInteractionData().SourceGuid = packet.Mailbox;
     SendPacket(response.Write());
 
     // recalculate m_nextMailDelivereTime and unReadMails
