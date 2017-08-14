@@ -22401,8 +22401,8 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
         return false;
     }
 
-    uint32 currentVendor = GetSession()->GetCurrentVendor();
-    if (currentVendor && vendorguid != PlayerTalkClass->GetGossipMenu().GetSenderGUID())
+    uint32 currentVendor = PlayerTalkClass->GetInteractionData().VendorId;
+    if (currentVendor && vendorguid != PlayerTalkClass->GetInteractionData().SourceGuid)
         return false; // Cheating
 
     VendorItemData const* vItems = currentVendor ? sObjectMgr->GetNpcVendorItemList(currentVendor) : creature->GetVendorItems();

@@ -39,6 +39,7 @@ EndScriptData */
 #include "Transport.h"
 #include "World.h"
 #include "WorldSession.h"
+#include "GossipDef.h"
 
 template<typename E, typename T = char const*>
 struct EnumName
@@ -377,7 +378,7 @@ public:
         }
 
         char* addMulti = strtok(NULL, " ");
-        uint32 vendor_entry = addMulti ? handler->GetSession()->GetCurrentVendor() : vendor ? vendor->GetEntry() : 0;
+        uint32 vendor_entry = addMulti ? handler->GetSession()->GetPlayer()->PlayerTalkClass->GetInteractionData().VendorId : vendor ? vendor->GetEntry() : 0;
 
         if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, type, handler->GetSession()->GetPlayer()))
         {
@@ -562,7 +563,7 @@ public:
         const uint8 type = 1; // FIXME: make type (1 item, 2 currency) an argument
 
         char* addMulti = strtok(NULL, " ");
-        if (!sObjectMgr->RemoveVendorItem(addMulti ? handler->GetSession()->GetCurrentVendor() : vendor->GetEntry(), itemId, type))
+        if (!sObjectMgr->RemoveVendorItem(addMulti ? handler->GetSession()->GetPlayer()->PlayerTalkClass->GetInteractionData().TrainerId : vendor->GetEntry(), itemId, type))
         {
             handler->PSendSysMessage(LANG_ITEM_NOT_IN_LIST, itemId);
             handler->SetSentErrorMessage(true);

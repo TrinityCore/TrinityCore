@@ -243,10 +243,12 @@ class InteractionData
         {
             SourceGuid.Clear();
             TrainerId = 0;
+            VendorId = 0;
         }
 
         ObjectGuid SourceGuid;
         uint32 TrainerId;
+        uint32 VendorId;
 };
 
 class TC_GAME_API PlayerMenu

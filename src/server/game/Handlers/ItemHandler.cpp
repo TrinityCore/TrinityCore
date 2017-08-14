@@ -30,6 +30,7 @@
 #include "Opcodes.h"
 #include "Player.h"
 #include "WorldSession.h"
+#include "GossipDef.h"
 
 void WorldSession::HandleSplitItemOpcode(WorldPackets::Item::SplitItem& splitItem)
 {
@@ -593,7 +594,9 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
     if (vendor->HasUnitState(UNIT_STATE_MOVING))
         vendor->StopMoving();
 
-    SetCurrentVendor(vendorEntry);
+    GetPlayer()->PlayerTalkClass->GetInteractionData().Reset();
+    GetPlayer()->PlayerTalkClass->GetInteractionData().SourceGuid = vendorGuid;
+    GetPlayer()->PlayerTalkClass->GetInteractionData().VendorId = vendorEntry;
 
     VendorItemData const* vendorItems = vendorEntry ? sObjectMgr->GetNpcVendorItemList(vendorEntry) : vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
