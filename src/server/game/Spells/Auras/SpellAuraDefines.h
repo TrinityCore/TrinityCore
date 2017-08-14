@@ -270,8 +270,8 @@ enum AuraType
     SPELL_AURA_MOD_XP_PCT                                   = 200,
     SPELL_AURA_FLY                                          = 201,
     SPELL_AURA_IGNORE_COMBAT_RESULT                         = 202,
-    SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE               = 203,
-    SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE              = 204,
+    SPELL_AURA_PREVENT_INTERRUPT                            = 203, // NYI
+    SPELL_AURA_PREVENT_CORPSE_RELEASE                       = 204, // NYI
     SPELL_AURA_MOD_CHARGE_COOLDOWN                          = 205, // NYI
     SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED            = 206,
     SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED            = 207,
