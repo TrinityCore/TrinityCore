@@ -3476,10 +3476,10 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 73540: // Summon Shadow Trap
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(23); // 90 seconds
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(3); // 60 seconds
                 break;
             case 73530: // Shadow Trap (visual)
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(28); // 5 seconds
+                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(27); // 3 seconds
                 break;
             case 73529: // Shadow Trap
                 spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS); // 10yd
