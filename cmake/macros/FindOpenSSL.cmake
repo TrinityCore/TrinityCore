@@ -62,6 +62,9 @@ FIND_PATH(OPENSSL_INCLUDE_DIR openssl/ssl.h
   ${OPENSSL_ROOT_DIR}/include
 )
 
+SET(OPENSSL_INCLUDE_DIR /usr/local/ssl/include)
+SET(OPENSSL_LIBRARIES /usr/local/ssl/library)
+
 IF(WIN32 AND NOT CYGWIN)
   # MINGW should go here too
   IF(MSVC)

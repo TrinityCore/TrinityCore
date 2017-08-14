@@ -6584,7 +6584,6 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
     return CalculatePct(rep, percent);
 }
 
-// Calculates how many reputation points player gains in victim's enemy factions
 void Player::RewardReputation(Unit* victim, float rate)
 {
     if (!victim || victim->GetTypeId() == TYPEID_PLAYER)
@@ -6594,32 +6593,33 @@ void Player::RewardReputation(Unit* victim, float rate)
         return;
 
     ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(victim->ToCreature()->GetCreatureTemplate()->Entry);
-             return;
-
     if (!Rep)
         return;
 
     uint32 repfaction1 = Rep->RepFaction1;
     uint32 repfaction2 = Rep->RepFaction2;
-    
-        if (!IsPlayingNative())
-         {
-        if (GetCFSTeam() == ALLIANCE)
-             {
-            if (repfaction1 == 729)
-                 repfaction1 = 730;
-            if (repfaction2 == 729)
-                 repfaction2 = 730;
-            }
-        else
-             {
-            if (repfaction1 == 730)
-                 repfaction1 = 729;
-            if (repfaction2 == 730)
-                 repfaction2 = 729;
-            }
-        }
 
+    if (!IsPlayingNative())
+    {
+        if (GetCFSTeam() == ALLIANCE)
+        {
+            if (repfaction1 == 729)
+                repfaction1 = 730;
+            if (repfaction2 == 729)
+                repfaction2 = 730;
+        }
+        else
+        {
+            if (repfaction1 == 730)
+                repfaction1 = 729;
+            if (repfaction2 == 730)
+                repfaction2 = 729;
+        }
+    }
+
+    if(m_session->IsPremium()){
+        rate *= 3;
+    }
 
     uint32 ChampioningFaction = 0;
 
@@ -6629,24 +6629,25 @@ void Player::RewardReputation(Unit* victim, float rate)
         Map const* map = GetMap();
         if (map->IsNonRaidDungeon())
             if (LFGDungeonEntry const* dungeon = GetLFGDungeon(map->GetId(), map->GetDifficulty()))
-                if (dungeon->reclevel == 80)
-                    ChampioningFaction = GetChampioningFaction();
+
+                ChampioningFaction = GetChampioningFaction();
     }
 
     uint32 team = GetTeam();
 
-if (repfaction1 && (!Rep->TeamDependent || team == ALLIANCE))    
-{        int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : repfaction1);
+    if (repfaction1 && (!Rep->TeamDependent || team == ALLIANCE))
+    {
+        int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : repfaction1);
         donerep1 = int32(donerep1 * rate);
 
-        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : repfaction1);
+        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
         uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
         if (factionEntry1)
             GetReputationMgr().ModifyReputation(factionEntry1, donerep1, current_reputation_rank1 > Rep->ReputationMaxCap1);
     }
 
-
-    if (repfaction2 && (!Rep->TeamDependent || team == HORDE)){
+    if (repfaction2 && (!Rep->TeamDependent || team == HORDE))
+    {
         int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : repfaction2);
         donerep2 = int32(donerep2 * rate);
 
@@ -6656,6 +6657,7 @@ if (repfaction1 && (!Rep->TeamDependent || team == ALLIANCE))
             GetReputationMgr().ModifyReputation(factionEntry2, donerep2, current_reputation_rank2 > Rep->ReputationMaxCap2);
     }
 }
+
 
 // Calculate how many reputation points player gain with the quest
 void Player::RewardReputation(Quest const* quest)
@@ -6697,8 +6699,13 @@ void Player::RewardReputation(Quest const* quest)
         else
             rep = CalculateReputationGain(REPUTATION_SOURCE_QUEST, GetQuestLevel(quest), rep, quest->RewardFactionId[i], noQuestBonus);
 
-        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]))
+        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i])) {
+            if(m_session->IsPremium()){
+                rep *= 3;
+            }
+
             GetReputationMgr().ModifyReputation(factionEntry, rep);
+        }
     }
 }
 
@@ -6840,6 +6847,11 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     }
 
     honor_f *= sWorld->getRate(RATE_HONOR);
+
+    if(m_session->IsPremium()){
+        honor_f *= 3;
+    }
+
     // Back to int now
     honor = int32(honor_f);
     // honor - for show honor points in log
