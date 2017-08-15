@@ -23,6 +23,7 @@
 #include "GameObject.h"
 #include "Player.h"
 #include "Unit.h"
+#include "World.h"
 #include "WorldPacket.h"
 
 uint32 const ClockWorldState[]    = { 3781, 4354 };
@@ -518,29 +519,113 @@ void WintergraspBuilding::Save()
 
 WintergraspWorkshop::WintergraspWorkshop(BattlefieldWintergrasp* wintergrasp, uint8 type)
 {
+    ASSERT(wintergrasp && type < WORKSHOPID_MAX);
+
+    _battlefield = wintergrasp;
+    _capturePoint = nullptr;
+    _state = OBJECTSTATE_NONE;
+    _teamControl = TEAM_NEUTRAL;
+    _info = &WorkshopData[type];
 }
 
 void WintergraspWorkshop::GiveControlTo(TeamId teamId, bool initialize)
 {
+    switch (teamId)
+    {
+        case TEAM_NEUTRAL:
+            _battlefield->SendWarning(_teamControl == TEAM_ALLIANCE ? _info->TextIds.HordeAttack : _info->TextIds.AllianceAttack);
+            break;
+        case TEAM_ALLIANCE:
+            // Updating worldstate
+            _state = OBJECTSTATE_ALLIANCE_INTACT;
+            _battlefield->SendUpdateWorldState(_info->WorldStateId, _state);
+
+            // Warning message
+            if (!initialize)
+                _battlefield->SendWarning(_info->TextIds.AllianceCapture);
+
+            if (_info->WorkshopId < WORKSHOPID_KEEP_WEST)
+                if (BattlefieldGraveyard* graveyard = _battlefield->GetGraveyard(_info->WorkshopId))
+                    graveyard->GiveControlTo(TEAM_ALLIANCE);
+
+            _teamControl = teamId;
+            break;
+        case TEAM_HORDE:
+            // Update worldstate
+            _state = OBJECTSTATE_HORDE_INTACT;
+            _battlefield->SendUpdateWorldState(_info->WorldStateId, _state);
+
+            // Warning message
+            if (!initialize)
+                _battlefield->SendWarning(_info->TextIds.HordeCapture);
+
+            if (_info->WorkshopId < WORKSHOPID_KEEP_WEST)
+                if (BattlefieldGraveyard* graveyard = _battlefield->GetGraveyard(_info->WorkshopId))
+                    graveyard->GiveControlTo(TEAM_HORDE);
+
+            _teamControl = teamId;
+            break;
+        default:
+            break;
+    }
+
+    if (!initialize)
+    {
+        _battlefield->UpdateCounterVehicle(false);
+
+        uint32 areaId = 0;
+        switch (_info->WorkshopId)
+        {
+            case WORKSHOPID_NE:
+                areaId = AREA_THE_SUNKEN_RING;
+                break;
+            case WORKSHOPID_NW:
+                areaId = AREA_THE_BROKEN_TEMPLE;
+                break;
+            case WORKSHOPID_SW:
+                areaId = AREA_WESTPARK_WORKSHOP;
+                break;
+            case WORKSHOPID_SE:
+                areaId = AREA_EASTPARK_WORKSHOP;
+                break;
+            default:
+                break;
+        }
+        if (areaId != 0)
+            _battlefield->SendSpellAreaUpdate(areaId);
+    }
 }
 
 void WintergraspWorkshop::UpdateForBattle()
 {
+    if (_info->WorkshopId < WORKSHOPID_KEEP_WEST)
+    {
+        GiveControlTo(_battlefield->GetAttackerTeam(), true);
+        _capturePoint->SetTeam(_battlefield->GetAttackerTeam());
+    }
+    else
+        GiveControlTo(_battlefield->GetDefenderTeam(), true);
 }
 
 void WintergraspWorkshop::UpdateForNoBattle()
 {
+    if (_info->WorkshopId < WORKSHOPID_KEEP_WEST)
+        _capturePoint->SetTeam(_battlefield->GetDefenderTeam());
+
+    GiveControlTo(_battlefield->GetDefenderTeam(), true);
 }
 
 void WintergraspWorkshop::FillInitialWorldStates(WorldPacket& data)
 {
+    data << uint32(_info->WorldStateId) << uint32(_state);
 }
 
 void WintergraspWorkshop::Save()
 {
+    sWorld->setWorldState(_info->WorldStateId, _state);
 }
 
 WintergraspWorkshopId WintergraspWorkshop::GetId() const
 {
-    return WintergraspWorkshopId();
+    return _info->WorkshopId;
 }
