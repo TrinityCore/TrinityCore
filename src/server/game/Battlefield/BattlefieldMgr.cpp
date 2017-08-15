@@ -41,7 +41,7 @@ BattlefieldMgr* BattlefieldMgr::instance()
 
 void BattlefieldMgr::Initialize()
 {
-    Battlefield* wintergrasp = new BattlefieldWG();
+    Battlefield* wintergrasp = new BattlefieldWintergrasp();
     if (!wintergrasp->SetupBattlefield())
     {
         TC_LOG_ERROR("bg.battlefield", "BattlefieldMgr::Initialize: wintergrasp initialized failed");

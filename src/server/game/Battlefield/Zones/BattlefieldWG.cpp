@@ -411,11 +411,6 @@ void BattlefieldWintergrasp::UpdateTenacity()
 {
 }
 
-WintergraspGraveyardId BattlefieldWintergrasp::GetSpiritGraveyardId(uint32 areaId) const
-{
-    return WintergraspGraveyardId();
-}
-
 void BattlefieldWintergrasp::SendWarning(uint8 id, Player const* target)
 {
 }
@@ -424,22 +419,27 @@ void BattlefieldWintergrasp::SendSpellAreaUpdate(uint32 areaId)
 {
 }
 
-WintergraspBuilding* BattlefieldWintergrasp::GetBuilding(uint32 entry)
+WintergraspGraveyardId BattlefieldWintergrasp::GetSpiritGraveyardId(uint32 areaId) const
+{
+    return WintergraspGraveyardId();
+}
+
+WintergraspBuilding* BattlefieldWintergrasp::GetBuilding(uint32 entry) const
 {
     return nullptr;
 }
 
-WintergraspBuilding* BattlefieldWintergrasp::GetBuilding(ObjectGuid guid)
+WintergraspBuilding* BattlefieldWintergrasp::GetBuilding(ObjectGuid guid) const
 {
     return nullptr;
 }
 
-WintergraspWorkshop* BattlefieldWintergrasp::GetWorkshop(WintergraspWorkshopId id)
+WintergraspWorkshop* BattlefieldWintergrasp::GetWorkshop(WintergraspWorkshopId id) const
 {
     return nullptr;
 }
 
-WorldLocation BattlefieldWintergrasp::GetRandomWorldLocation(WorldLocation location)
+WorldLocation BattlefieldWintergrasp::GetRandomWorldLocation(WorldLocation location) const
 {
     return WorldLocation();
 }
@@ -488,6 +488,10 @@ void WintergraspBuilding::Destroyed()
 {
 }
 
+void WintergraspBuilding::CleanRelatedObject(ObjectGuid guid)
+{
+}
+
 void WintergraspBuilding::UpdateCreatureAndGo()
 {
 }
@@ -508,21 +512,12 @@ void WintergraspBuilding::Save()
 {
 }
 
-void WintergraspBuilding::CleanRelatedObject(ObjectGuid guid)
-{
-}
-
 //*******************************************************
 //******************* Workshop **************************
 //*******************************************************
 
 WintergraspWorkshop::WintergraspWorkshop(BattlefieldWintergrasp* wintergrasp, uint8 type)
 {
-}
-
-WintergraspWorkshopId WintergraspWorkshop::GetId() const
-{
-    return WintergraspWorkshopId();
 }
 
 void WintergraspWorkshop::GiveControlTo(TeamId teamId, bool initialize)
@@ -543,4 +538,9 @@ void WintergraspWorkshop::FillInitialWorldStates(WorldPacket& data)
 
 void WintergraspWorkshop::Save()
 {
+}
+
+WintergraspWorkshopId WintergraspWorkshop::GetId() const
+{
+    return WintergraspWorkshopId();
 }

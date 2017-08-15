@@ -355,9 +355,9 @@ struct WintergraspGraveyardData
 
 struct WintergraspBuildingSpawnData
 {
-    uint32 entry;
+    uint32 Entry;
     uint32 WorldState;
-    WintergraspBuildingType type;
+    WintergraspBuildingType Type;
 };
 
 struct WintergraspTowerInfo
@@ -373,29 +373,29 @@ struct WintergraspTowerInfo
 
 struct WintergraspObjectPositionData
 {
-    Position Pos;
+    Position Position;
     uint32 HordeEntry;
     uint32 AllianceEntry;
 };
 
 struct WintergraspGameObjectData
 {
-    Position Pos;
-    QuaternionData Rot;
+    Position Position;
+    QuaternionData Rotation;
     uint32 HordeEntry;
     uint32 AllianceEntry;
 };
 
 struct WintergraspTowerData
 {
-    uint32 towerEntry;
+    uint32 TowerEntry;
     std::vector<WintergraspGameObjectData> GameObject;
     std::vector<WintergraspObjectPositionData> CreatureBottom;
 };
 
 struct WintergraspTowerCannonData
 {
-    uint32 towerEntry;
+    uint32 TowerEntry;
     std::vector<Position> TowerCannonBottom;
     std::vector<Position> TurretTop;
 };
@@ -444,24 +444,25 @@ class TC_GAME_API BattlefieldWintergrasp : public Battlefield
         void UpdateDamagedTowerCount(TeamId team);
         void UpdatedDestroyedTowerCount(TeamId team);
         void RemoveAurasFromPlayer(Player const* player);
-        GameObject* GetRelic() { return GetGameObject(_titansRelicGUID); }
         void SetRelic(ObjectGuid relicGUID) { _titansRelicGUID = relicGUID; }
-        bool CanInteractWithRelic() { return _relicInteractible; }
         void SetRelicInteractible(bool allow);
         void UpdateVehicleCountWG();
         void UpdateCounterVehicle(bool initialize);
         void SendInitWorldStatesTo(Player const* player);
         void PromotePlayer(Player const* killer);
         void UpdateTenacity();
-        WintergraspGraveyardId GetSpiritGraveyardId(uint32 areaId) const;
         void SendWarning(uint8 id, Player const* target = nullptr);
         void SendSpellAreaUpdate(uint32 areaId);
 
+        GameObject* GetRelic() { return GetGameObject(_titansRelicGUID); }
+        bool CanInteractWithRelic() const { return _relicInteractible; }
+        WintergraspGraveyardId GetSpiritGraveyardId(uint32 areaId) const;
+
     private:
-        WintergraspBuilding* GetBuilding(uint32 entry);
-        WintergraspBuilding* GetBuilding(ObjectGuid guid);
-        WintergraspWorkshop* GetWorkshop(WintergraspWorkshopId id);
-        WorldLocation GetRandomWorldLocation(WorldLocation location);
+        WintergraspBuilding* GetBuilding(uint32 entry) const;
+        WintergraspBuilding* GetBuilding(ObjectGuid guid) const;
+        WintergraspWorkshop* GetWorkshop(WintergraspWorkshopId id) const;
+        WorldLocation GetRandomWorldLocation(WorldLocation location) const;
 
         WorkshopSet _workshopSet;
         BuildingSet _buildingSet;
@@ -481,9 +482,10 @@ class WintergraspGraveyard : public BattlefieldGraveyard
         explicit WintergraspGraveyard(BattlefieldWintergrasp* battlefield);
 
         void SetTextId(uint32 textId) { _gossipTextId = textId; }
-        uint32 GetTextId() const { return _gossipTextId; }
         void SetIsSpellAreaForced(bool value) { _spellAreaForced = value; }
-        bool IsSpellAreaForced() { return _spellAreaForced; }
+
+        uint32 GetTextId() const { return _gossipTextId; }
+        bool IsSpellAreaForced() const { return _spellAreaForced; }
 
     protected:
         uint32 _gossipTextId;
@@ -512,14 +514,15 @@ class TC_GAME_API WintergraspBuilding
         void Rebuild();
         void Damaged();
         void Destroyed();
+        void CleanRelatedObject(ObjectGuid guid);
         void UpdateCreatureAndGo();
         void UpdateTurretAttack(bool disable);
         void UpdateForNoBattle(bool initialize = false);
         void FillInitialWorldStates(WorldPacket& data);
         void Save();
+
         ObjectGuid const GetGUID() const { return _buildGUID; }
         uint32 GetEntry() const { return _entry; }
-        void CleanRelatedObject(ObjectGuid guid);
         bool IsDestroyed() const { return _state == OBJECTSTATE_NEUTRAL_DESTROYED || _state == OBJECTSTATE_HORDE_DESTROYED || _state == OBJECTSTATE_ALLIANCE_DESTROYED; }
         bool IsDamaged() const { return _state == OBJECTSTATE_NEUTRAL_DAMAGED || _state == OBJECTSTATE_HORDE_DAMAGED || _state == OBJECTSTATE_ALLIANCE_DAMAGED; }
 
@@ -545,14 +548,15 @@ class TC_GAME_API WintergraspWorkshop
         explicit WintergraspWorkshop(BattlefieldWintergrasp* wintergrasp, uint8 type);
 
         void LinkCapturePoint(WintergraspCapturePoint* capturePoint) { _capturePoint = capturePoint; }
-        WintergraspCapturePoint* GetCapturePoint() { return _capturePoint; }
-        WintergraspWorkshopId GetId() const;
-        TeamId GetTeamControl() const { return _teamControl; }
         void GiveControlTo(TeamId teamId, bool initialize = false);
         void UpdateForBattle();
         void UpdateForNoBattle();
         void FillInitialWorldStates(WorldPacket& data);
         void Save();
+
+        WintergraspCapturePoint* GetCapturePoint() const { return _capturePoint; }
+        WintergraspWorkshopId GetId() const;
+        TeamId GetTeamControl() const { return _teamControl; }
 
     private:
         BattlefieldWintergrasp* _battlefield;
