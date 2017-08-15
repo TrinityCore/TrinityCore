@@ -451,6 +451,8 @@ WorldLocation BattlefieldWintergrasp::GetRandomWorldLocation(WorldLocation locat
 
 WintergraspGraveyard::WintergraspGraveyard(BattlefieldWintergrasp* battlefield) : BattlefieldGraveyard(battlefield)
 {
+    _battlefield = battlefield;
+    _gossipTextId = 0;
 }
 
 //*******************************************************
@@ -459,10 +461,15 @@ WintergraspGraveyard::WintergraspGraveyard(BattlefieldWintergrasp* battlefield) 
 
 WintergraspCapturePoint::WintergraspCapturePoint(BattlefieldWintergrasp* battlefield, TeamId teamInControl) : BattlefieldCapturePoint(battlefield)
 {
+    _battlefield = battlefield;
+    _team = teamInControl;
+    _workshop = nullptr;
 }
 
-void WintergraspCapturePoint::ChangeTeam(TeamId oldteam)
+void WintergraspCapturePoint::ChangeTeam(TeamId /*oldteam*/)
 {
+    ASSERT(_workshop);
+    _workshop->GiveControlTo(_team);
 }
 
 //*******************************************************
@@ -820,13 +827,13 @@ void WintergraspBuilding::UpdateCreatureAndGo()
     for (ObjectGuid guid : _gameObjectList[_battlefield->GetOtherTeam(_teamControl)])
     {
         if (GameObject* go = _battlefield->GetGameObject(guid))
-            go->SetRespawnTime(RESPAWN_ONE_DAY);
+            go->SetRespawnTime(DAY);
     }
 
     for (ObjectGuid guid : _gameObjectList[_teamControl])
     {
         if (GameObject* go = _battlefield->GetGameObject(guid))
-            go->SetRespawnTime(IsDestroyed() ? RESPAWN_ONE_DAY : RESPAWN_IMMEDIATELY);
+            go->SetRespawnTime(IsDestroyed() ? DAY : 1);
     }
 }
 
