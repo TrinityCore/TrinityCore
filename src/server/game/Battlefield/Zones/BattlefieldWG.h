@@ -510,7 +510,7 @@ class TC_GAME_API WintergraspBuilding
     public:
         explicit WintergraspBuilding(BattlefieldWintergrasp* wintergrasp, WintergraspBuildingType type, uint32 entry, uint32 worldState);
 
-        void Initialize(GameObject const* gameObject);
+        void Initialize(GameObject* gameObject);
         void Rebuild();
         void Damaged();
         void Destroyed();

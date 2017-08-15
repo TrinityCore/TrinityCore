@@ -471,46 +471,466 @@ void WintergraspCapturePoint::ChangeTeam(TeamId oldteam)
 
 WintergraspBuilding::WintergraspBuilding(BattlefieldWintergrasp* wintergrasp, WintergraspBuildingType type, uint32 entry, uint32 worldState)
 {
+    ASSERT(wintergrasp);
+
+    _battlefield = wintergrasp;
+    _teamControl = TEAM_NEUTRAL;
+    _type = type;
+    _worldState = worldState;
+    _entry = entry;
+    _state = OBJECTSTATE_NONE;
+    _info = nullptr;
 }
 
-void WintergraspBuilding::Initialize(GameObject const* gameObject)
+void WintergraspBuilding::Initialize(GameObject* gameObject)
 {
+    if (!gameObject)
+        return;
+
+    // GameObject associated to object
+    _buildGUID = gameObject->GetGUID();
+
+    _state = WintergraspGameObjectState(sWorld->getWorldState(_worldState));
+    switch (_state)
+    {
+        case OBJECTSTATE_NEUTRAL_INTACT:
+        case OBJECTSTATE_ALLIANCE_INTACT:
+        case OBJECTSTATE_HORDE_INTACT:
+            gameObject->SetDestructibleState(GO_DESTRUCTIBLE_INTACT, nullptr, true);
+            break;
+        case OBJECTSTATE_NEUTRAL_DESTROYED:
+        case OBJECTSTATE_ALLIANCE_DESTROYED:
+        case OBJECTSTATE_HORDE_DESTROYED:
+            gameObject->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED, nullptr, true);
+            break;
+        case OBJECTSTATE_NEUTRAL_DAMAGED:
+        case OBJECTSTATE_ALLIANCE_DAMAGED:
+        case OBJECTSTATE_HORDE_DAMAGED:
+            gameObject->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED, nullptr, true);
+            break;
+        default:
+            break;
+    }
+
+    int32 towerId = -1;
+    switch (gameObject->GetEntry())
+    {
+        case GO_WINTERGRASP_FORTRESS_TOWER_1:
+            towerId = TOWERID_FORTRESS_NW;
+            break;
+        case GO_WINTERGRASP_FORTRESS_TOWER_2:
+            towerId = TOWERID_FORTRESS_SW;
+            break;
+        case GO_WINTERGRASP_FORTRESS_TOWER_3:
+            towerId = TOWERID_FORTRESS_SE;
+            break;
+        case GO_WINTERGRASP_FORTRESS_TOWER_4:
+            towerId = TOWERID_FORTRESS_NE;
+            break;
+        case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+            towerId = TOWERID_SHADOWSIGHT;
+            break;
+        case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+            towerId = TOWERID_WINTER_S_EDGE;
+            break;
+        case GO_WINTERGRASP_FLAMEWATCH_TOWER:
+            towerId = TOWERID_FLAMEWATCH;
+            break;
+        default:
+            break;
+    }
+
+    if (towerId >= TOWERID_SHADOWSIGHT) // Attacker towers
+    {
+        if (_gameObjectList[TEAM_HORDE].size() != AttackTowers[towerId - 4].GameObject.size())
+            _gameObjectList[TEAM_HORDE].resize(AttackTowers[towerId - 4].GameObject.size(), ObjectGuid::Empty);
+        if (_gameObjectList[TEAM_ALLIANCE].size() != AttackTowers[towerId - 4].GameObject.size())
+            _gameObjectList[TEAM_ALLIANCE].resize(AttackTowers[towerId - 4].GameObject.size(), ObjectGuid::Empty);
+
+        // Spawn associated gameobjects
+        for (size_t position = 0; position < AttackTowers[towerId - 4].GameObject.size(); ++position)
+        {
+            WintergraspGameObjectData const& gobData = AttackTowers[towerId - 4].GameObject[position];
+            if (_gameObjectList[TEAM_HORDE][position].IsEmpty())
+                if (GameObject* goHorde = _battlefield->SpawnGameObject(gobData.HordeEntry, gobData.Position, gobData.Rotation))
+                    _gameObjectList[TEAM_HORDE][position] = goHorde->GetGUID();
+
+            if (_gameObjectList[TEAM_ALLIANCE][position].IsEmpty())
+                if (GameObject* goAlliance = _battlefield->SpawnGameObject(gobData.AllianceEntry, gobData.Position, gobData.Rotation))
+                    _gameObjectList[TEAM_ALLIANCE][position] = goAlliance->GetGUID();
+        }
+
+        if (_creatureList[TEAM_HORDE].size() != AttackTowers[towerId - 4].CreatureBottom.size())
+            _creatureList[TEAM_HORDE].resize(AttackTowers[towerId - 4].CreatureBottom.size(), ObjectGuid::Empty);
+        if (_creatureList[TEAM_ALLIANCE].size() != AttackTowers[towerId - 4].CreatureBottom.size())
+            _creatureList[TEAM_ALLIANCE].resize(AttackTowers[towerId - 4].CreatureBottom.size(), ObjectGuid::Empty);
+
+        // Spawn associated NPCs
+        for (size_t position = 0; position < AttackTowers[towerId - 4].CreatureBottom.size(); ++position)
+        {
+            WintergraspObjectPositionData const& creatureData = AttackTowers[towerId - 4].CreatureBottom[position];
+            if (_creatureList[TEAM_HORDE][position].IsEmpty())
+            {
+                if (Creature* creature = _battlefield->SpawnCreature(creatureData.HordeEntry, creatureData.Position))
+                {
+                    _creatureList[TEAM_HORDE][position] = creature->GetGUID();
+                    creature->SetRespawnTime(2 * MINUTE);
+                }
+            }
+
+            if (_creatureList[TEAM_ALLIANCE][position].IsEmpty())
+            {
+                if (Creature* creature = _battlefield->SpawnCreature(creatureData.AllianceEntry, creatureData.Position))
+                {
+                    _creatureList[TEAM_ALLIANCE][position] = creature->GetGUID();
+                    creature->SetRespawnTime(2 * MINUTE);
+                }
+            }
+        }
+
+        UpdateCreatureAndGo();
+    }
+
+    if (towerId >= 0)
+    {
+        ASSERT(towerId < TOWERID_MAX);
+        _info = &TowerData[towerId];
+
+        if (_bottomCannonList.size() != TowerCannon[towerId].TowerCannonBottom.size())
+            _bottomCannonList.resize(TowerCannon[towerId].TowerCannonBottom.size(), ObjectGuid::Empty);
+
+        // Spawn Turret bottom
+        for (size_t position = 0; position < TowerCannon[towerId].TowerCannonBottom.size(); position++)
+        {
+            Position const& turretPos = TowerCannon[towerId].TowerCannonBottom[position];
+            if (_bottomCannonList[position].IsEmpty())
+            {
+                if (Creature* turret = _battlefield->SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, turretPos))
+                {
+                    switch (gameObject->GetEntry())
+                    {
+                        case GO_WINTERGRASP_FORTRESS_TOWER_1:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_2:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_3:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_4:
+                            turret->SetFaction(WintergraspFaction[_battlefield->GetDefenderTeam()]);
+                            break;
+                        case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+                        case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+                        case GO_WINTERGRASP_FLAMEWATCH_TOWER:
+                            turret->SetFaction(WintergraspFaction[_battlefield->GetAttackerTeam()]);
+                            break;
+                        default:
+                            break;
+                    }
+                    _bottomCannonList[position] = turret->GetGUID();
+                    turret->SetRespawnTime(2 * MINUTE);
+                }
+            }
+        }
+
+        if (_topCannonList.size() != TowerCannon[towerId].TurretTop.size())
+            _topCannonList.resize(TowerCannon[towerId].TurretTop.size(), ObjectGuid::Empty);
+
+        // Spawn Turret top
+        for (size_t position = 0; position < TowerCannon[towerId].TurretTop.size(); ++position)
+        {
+            Position const& turretPos = TowerCannon[towerId].TurretTop[position];
+            if (_topCannonList[position].IsEmpty())
+            {
+                if (Creature* turret = _battlefield->SpawnCreature(NPC_WINTERGRASP_TOWER_CANNON, turretPos))
+                {
+                    switch (gameObject->GetEntry())
+                    {
+                        case GO_WINTERGRASP_FORTRESS_TOWER_1:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_2:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_3:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_4:
+                            turret->SetFaction(WintergraspFaction[_battlefield->GetDefenderTeam()]);
+                            break;
+                        case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+                        case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+                        case GO_WINTERGRASP_FLAMEWATCH_TOWER:
+                            turret->SetFaction(WintergraspFaction[_battlefield->GetAttackerTeam()]);
+                            break;
+                        default:
+                            break;
+                    }
+                    _topCannonList[position] = turret->GetGUID();
+                    turret->SetRespawnTime(2 * MINUTE);
+                }
+            }
+        }
+
+        UpdateTurretAttack(!_battlefield->IsWarTime());
+    }
 }
 
 void WintergraspBuilding::Rebuild()
 {
+    switch (_type)
+    {
+        case OBJECTTYPE_KEEP_TOWER:
+        case OBJECTTYPE_DOOR_LAST:
+        case OBJECTTYPE_DOOR:
+        case OBJECTTYPE_WALL:
+            _teamControl = _battlefield->GetDefenderTeam();      // Objects that are part of the keep should be the defender's
+            break;
+        case OBJECTTYPE_TOWER:
+            _teamControl = _battlefield->GetAttackerTeam();      // The towers in the south should be the attacker's
+            break;
+        default:
+            _teamControl = TEAM_NEUTRAL;
+            break;
+    }
+
+    if (GameObject* build = _battlefield->GetGameObject(_buildGUID))
+    {
+        // Rebuild gameobject
+        if (build->IsDestructibleBuilding())
+        {
+            build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, nullptr, true);
+
+            if (build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
+            {
+                if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
+                {
+                    go->SetGoState(GO_STATE_READY);
+                    go->SetLootState(GO_JUST_DEACTIVATED);
+                }
+            }
+        }
+
+        build->SetFaction(WintergraspFaction[_teamControl]);
+    }
+
+    _state = WintergraspGameObjectState(OBJECTSTATE_ALLIANCE_INTACT - (_teamControl * 3));
+    _battlefield->SendUpdateWorldState(_worldState, _state);
+
+    switch (_type)
+    {
+        case OBJECTTYPE_TOWER:
+            UpdateCreatureAndGo();
+        case OBJECTTYPE_KEEP_TOWER:
+            UpdateTurretAttack(false);
+            break;
+        default:
+            break;
+    }
 }
 
 void WintergraspBuilding::Damaged()
 {
+    // Update worldstate
+    _state = WintergraspGameObjectState(OBJECTSTATE_ALLIANCE_DAMAGED - (_teamControl * 3));
+    _battlefield->SendUpdateWorldState(_worldState, _state);
+
+    // Send warning message
+    if (_info)
+        _battlefield->SendWarning(_info->TextIds.Damaged);
+
+    for (ObjectGuid guid : _topCannonList)
+    {
+        if (Creature* creature = _battlefield->GetCreature(guid))
+            _battlefield->HideCreature(creature);
+    }
+
+    if (_type == OBJECTTYPE_KEEP_TOWER)
+        _battlefield->UpdateDamagedTowerCount(_battlefield->GetDefenderTeam());
+    else if (_type == OBJECTTYPE_TOWER)
+        _battlefield->UpdateDamagedTowerCount(_battlefield->GetAttackerTeam());
 }
 
 void WintergraspBuilding::Destroyed()
 {
+    // Update worldstate
+    _state = WintergraspGameObjectState(OBJECTSTATE_ALLIANCE_DESTROYED - (_teamControl * 3));
+    _battlefield->SendUpdateWorldState(_worldState, _state);
+
+    // Warn players
+    if (_info)
+        _battlefield->SendWarning(_info->TextIds.Destroyed);
+
+    switch (_type)
+    {
+        // Inform the global wintergrasp script of the destruction of this object
+        case OBJECTTYPE_TOWER:
+        case OBJECTTYPE_KEEP_TOWER:
+            _battlefield->UpdatedDestroyedTowerCount(_teamControl);
+            break;
+        case OBJECTTYPE_DOOR_LAST:
+            if (GameObject* build = _battlefield->GetGameObject(_buildGUID))
+            {
+                if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
+                {
+                    go->SetGoState(GO_STATE_ACTIVE);
+                    go->SetLootState(GO_ACTIVATED);
+                }
+            }
+
+            _battlefield->SetRelicInteractible(true);
+            break;
+        default:
+            break;
+    }
 }
 
 void WintergraspBuilding::CleanRelatedObject(ObjectGuid guid)
 {
+    if (guid.IsUnit())
+    {
+        GuidVector::iterator itr = std::find(_creatureList[TEAM_ALLIANCE].begin(), _creatureList[TEAM_ALLIANCE].end(), guid);
+        if (itr != _creatureList[TEAM_ALLIANCE].end())
+            *itr = ObjectGuid::Empty;
+        itr = std::find(_creatureList[TEAM_HORDE].begin(), _creatureList[TEAM_HORDE].end(), guid);
+        if (itr != _creatureList[TEAM_HORDE].end())
+            *itr = ObjectGuid::Empty;
+        itr = std::find(_bottomCannonList.begin(), _bottomCannonList.end(), guid);
+        if (itr != _bottomCannonList.end())
+            *itr = ObjectGuid::Empty;
+        itr = std::find(_topCannonList.begin(), _topCannonList.end(), guid);
+        if (itr != _topCannonList.end())
+            *itr = ObjectGuid::Empty;
+    }
+    else if (guid.IsGameObject())
+    {
+        GuidVector::iterator itr = std::find(_gameObjectList[TEAM_ALLIANCE].begin(), _gameObjectList[TEAM_ALLIANCE].end(), guid);
+        if (itr != _gameObjectList[TEAM_ALLIANCE].end())
+            *itr = ObjectGuid::Empty;
+        itr = std::find(_gameObjectList[TEAM_HORDE].begin(), _gameObjectList[TEAM_HORDE].end(), guid);
+        if (itr != _gameObjectList[TEAM_HORDE].end())
+            *itr = ObjectGuid::Empty;
+    }
 }
 
 void WintergraspBuilding::UpdateCreatureAndGo()
 {
+    for (ObjectGuid guid : _creatureList[_battlefield->GetOtherTeam(_teamControl)])
+    {
+        if (Creature* creature = _battlefield->GetCreature(guid))
+            _battlefield->HideCreature(creature);
+    }
+
+    for (ObjectGuid guid : _creatureList[_teamControl])
+    {
+        if (Creature* creature = _battlefield->GetCreature(guid))
+            _battlefield->ShowCreature(creature, true);
+    }
+
+    for (ObjectGuid guid : _gameObjectList[_battlefield->GetOtherTeam(_teamControl)])
+    {
+        if (GameObject* go = _battlefield->GetGameObject(guid))
+            go->SetRespawnTime(RESPAWN_ONE_DAY);
+    }
+
+    for (ObjectGuid guid : _gameObjectList[_teamControl])
+    {
+        if (GameObject* go = _battlefield->GetGameObject(guid))
+            go->SetRespawnTime(IsDestroyed() ? RESPAWN_ONE_DAY : RESPAWN_IMMEDIATELY);
+    }
 }
 
 void WintergraspBuilding::UpdateTurretAttack(bool disable)
 {
+    for (ObjectGuid guid : _bottomCannonList)
+    {
+        if (Creature* creature = _battlefield->GetCreature(guid))
+        {
+            if (disable || IsDestroyed())
+                _battlefield->HideCreature(creature);
+            else
+            {
+                _battlefield->ShowCreature(creature, false);
+                switch (_buildGUID.GetEntry())
+                {
+                    case GO_WINTERGRASP_FORTRESS_TOWER_1:
+                    case GO_WINTERGRASP_FORTRESS_TOWER_2:
+                    case GO_WINTERGRASP_FORTRESS_TOWER_3:
+                    case GO_WINTERGRASP_FORTRESS_TOWER_4:
+                        creature->SetFaction(WintergraspFaction[_teamControl]);
+                        break;
+                    case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+                    case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+                    case GO_WINTERGRASP_FLAMEWATCH_TOWER:
+                        creature->SetFaction(WintergraspFaction[_teamControl]);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    for (ObjectGuid guid : _topCannonList)
+    {
+        if (Creature* creature = _battlefield->GetCreature(guid))
+        {
+            if (disable || IsDestroyed() || IsDamaged())
+                _battlefield->HideCreature(creature);
+            else
+            {
+                _battlefield->ShowCreature(creature, false);
+                switch (_buildGUID.GetEntry())
+                {
+                    case GO_WINTERGRASP_FORTRESS_TOWER_1:
+                    case GO_WINTERGRASP_FORTRESS_TOWER_2:
+                    case GO_WINTERGRASP_FORTRESS_TOWER_3:
+                    case GO_WINTERGRASP_FORTRESS_TOWER_4:
+                        creature->SetFaction(WintergraspFaction[_teamControl]);
+                        break;
+                    case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+                    case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+                    case GO_WINTERGRASP_FLAMEWATCH_TOWER:
+                        creature->SetFaction(WintergraspFaction[_teamControl]);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 }
 
 void WintergraspBuilding::UpdateForNoBattle(bool initialize)
 {
+    _teamControl = _battlefield->GetDefenderTeam();
+
+    // Update worldstate
+    if (initialize)
+        _state = _state = WintergraspGameObjectState(OBJECTSTATE_ALLIANCE_INTACT - (_teamControl * 3));
+    else
+    {
+        if (_state >= OBJECTSTATE_ALLIANCE_INTACT && _teamControl == TEAM_HORDE)
+            _state = WintergraspGameObjectState(_state - 3);
+        else if (_state < OBJECTSTATE_ALLIANCE_INTACT && _state >= OBJECTSTATE_HORDE_INTACT && _teamControl == TEAM_ALLIANCE)
+            _state = WintergraspGameObjectState(_state + 3);
+    }
+
+    _battlefield->SendUpdateWorldState(_worldState, _state);
+
+    if (GameObject* build = _battlefield->GetGameObject(_buildGUID))
+        build->SetFaction(WintergraspFaction[_teamControl]);
+
+    switch (_type)
+    {
+        case OBJECTTYPE_TOWER:
+            UpdateCreatureAndGo();
+        case OBJECTTYPE_KEEP_TOWER:
+            UpdateTurretAttack(true);
+            break;
+        default:
+            break;
+    }
 }
 
 void WintergraspBuilding::FillInitialWorldStates(WorldPacket& data)
 {
+    data << uint32(_worldState) << uint32(_state);
 }
 
 void WintergraspBuilding::Save()
 {
+    sWorld->setWorldState(_worldState, _state);
 }
 
 //*******************************************************
