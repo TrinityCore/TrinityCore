@@ -21,6 +21,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "Player.h"
+#include "Log.h"
 
 class spell_summon_troublemaker : public SpellScriptLoader
 {
@@ -1002,6 +1003,18 @@ public:
     }
 };
 
+enum MonkeyWisdomTexts
+{
+    TEXT_MONKEY_WISDOM = 54073,
+    TEXT_MONKEY_WISDOM_2 = 54074,
+    TEXT_MONKEY_WISDOM_3 = 54075,
+    TEXT_MONKEY_WISDOM_4 = 54076,
+    TEXT_MONKEY_WISDOM_5 = 54077,
+    TEXT_MONKEY_WISDOM_6 = 54078,
+    TEXT_MONKEY_WISDOM_7 = 54079,
+    TEXT_MONKEY_WISDOM_8 = 54080
+};
+
 class spell_monkey_wisdom_text : public SpellScriptLoader
 {
 public:
@@ -1010,18 +1023,6 @@ public:
     class spell_monkey_wisdom_text_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_monkey_wisdom_text_SpellScript);
-
-        enum
-        {
-            TEXT_MONKEY_WISDOM   = 54073,
-            TEXT_MONKEY_WISDOM_2 = 54074,
-            TEXT_MONKEY_WISDOM_3 = 54075,
-            TEXT_MONKEY_WISDOM_4 = 54076,
-            TEXT_MONKEY_WISDOM_5 = 54077,
-            TEXT_MONKEY_WISDOM_6 = 54078,
-            TEXT_MONKEY_WISDOM_7 = 54079,
-            TEXT_MONKEY_WISDOM_8 = 54080
-        };
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
@@ -1290,12 +1291,16 @@ public:
     }
 };
 
-enum ShenZinShuBunny
+enum ShenZinShuBunnySpells
 {
     SPELL_TRIGGER_WITH_ANIM_0   = 114898,
     SPELL_TRIGGER               = 106759,
     SPELL_TRIGGER_WITH_ANIM_1   = 118571,
-    SPELL_TRIGGER_WITH_TURN     = 118572,
+    SPELL_TRIGGER_WITH_TURN     = 118572
+};
+
+enum ShenZinShuBunnyTexts
+{
     TEXT_1                      = 55550,
     TEXT_2                      = 55568,
     TEXT_3                      = 55569,
@@ -1304,14 +1309,14 @@ enum ShenZinShuBunny
     TEXT_6                      = 63407
 };
 
-class shen_zin_shu_bunny : public CreatureScript
+class npc_shen_zin_shu_bunny : public CreatureScript
 {
 public:
-    shen_zin_shu_bunny() : CreatureScript("shen_zin_shu_bunny") { }
+    npc_shen_zin_shu_bunny() : CreatureScript("npc_shen_zin_shu_bunny") { }
 
-    struct shen_zin_shu_bunnyAI : public ScriptedAI
+    struct npc_shen_zin_shu_bunnyAI : public ScriptedAI
     {
-        shen_zin_shu_bunnyAI(Creature* creature) : ScriptedAI(creature)
+        npc_shen_zin_shu_bunnyAI(Creature* creature) : ScriptedAI(creature)
         {
             me->setActive(true);
         }
@@ -1361,7 +1366,86 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new shen_zin_shu_bunnyAI(creature);
+        return new npc_shen_zin_shu_bunnyAI(creature);
+    }
+};
+
+enum RescueInjuredSailor
+{
+    SPELL_RESCUE_SAILOR_MALE_CAST   = 105520,
+    SPELL_RESCUE_SAILOR_FEMALE_CAST = 129340,
+    NPC_RESCUED_SAILOR              = 56236
+};
+
+class spell_rescue_injured_sailor : public SpellScriptLoader
+{
+public:
+    spell_rescue_injured_sailor() : SpellScriptLoader("spell_rescue_injured_sailor") { }
+
+    class spell_rescue_injured_sailor_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_rescue_injured_sailor_SpellScript);
+
+        bool Load() override
+        {
+            return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        }
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            Player* player = GetCaster()->ToPlayer();
+
+            if (player->getGender() == GENDER_MALE)
+                player->CastSpell(player, SPELL_RESCUE_SAILOR_MALE_CAST, true);
+            else
+                player->CastSpell(player, SPELL_RESCUE_SAILOR_FEMALE_CAST, true);
+        }
+
+        void HandleSummon(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            GetCaster()->GetMap()->SummonCreature(NPC_RESCUED_SAILOR, GetCaster()->GetPosition(), 0, 240000, GetCaster());
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_rescue_injured_sailor_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_rescue_injured_sailor_SpellScript::HandleSummon, EFFECT_1, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_rescue_injured_sailor_SpellScript();
+    }
+};
+
+enum WreckOfTheSkyseeker
+{
+    SPELL_CANCEL_RESCUE_AURA    = 117987,
+    NPC_INJURED_SAILOR          = 56236,
+    QUEST_NONE_LEFT_BEHIND      = 29794
+};
+
+class at_wreck_of_the_skyseeker_injured_sailor : public AreaTriggerScript
+{
+public:
+    at_wreck_of_the_skyseeker_injured_sailor() : AreaTriggerScript("at_wreck_of_the_skyseeker_injured_sailor") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+    {
+        if (player->IsAlive() && player->IsVehicle() && player->GetQuestStatus(QUEST_NONE_LEFT_BEHIND) == QUEST_STATUS_INCOMPLETE)
+        {
+            if (entered)
+            {
+                if (Creature* creature = player->FindNearestCreature(NPC_INJURED_SAILOR, 1.0f, true))
+                    creature->CastSpell(player, SPELL_CANCEL_RESCUE_AURA, true);
+
+                return true;
+            }
+        }
+        return false;
     }
 };
 
@@ -1390,5 +1474,7 @@ void AddSC_the_wandering_isle()
     new spell_monkey_wisdom_text();
     new npc_zhaoren();
     new spell_master_shang_final_escort_say();
-    new shen_zin_shu_bunny();
+    new npc_shen_zin_shu_bunny();
+    new spell_rescue_injured_sailor();
+    new at_wreck_of_the_skyseeker_injured_sailor();
 }
