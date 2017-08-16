@@ -360,43 +360,39 @@ void Battlefield::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
     OnPlayerLeaveZone(player);
 }
 
-void Battlefield::KickPlayer(ObjectGuid guid, Player* player /*= nullptr*/)
+void Battlefield::KickPlayer(Player* player)
 {
-    Player* source = player;
-    if (!source)
-        source = ObjectAccessor::FindPlayer(guid);
+    if (!player)
+        return;
 
-    if (source)
+    BFLeaveReason reason = BF_LEAVE_REASON_EXITED;
+    if (player->getLevel() < _minPlayerLevel)
+        reason = BF_LEAVE_REASON_LOW_LEVEL;
+    player->GetSession()->SendBattlefieldLeaveMessage(_battleId, reason);
+
+    _invitedPlayers[player->GetTeamId()].erase(player->GetGUID());
+    _playersToKick[player->GetTeamId()].erase(player->GetGUID());
+
+    if (player->GetMapId() == _mapId && player->GetZoneId() == _zoneId)
     {
-        BFLeaveReason reason = BF_LEAVE_REASON_EXITED;
-        if (source->getLevel() < _minPlayerLevel)
-            reason = BF_LEAVE_REASON_LOW_LEVEL;
-        source->GetSession()->SendBattlefieldLeaveMessage(_battleId, reason);
+        for (BattlefieldCapturePoint* capturePoint : _capturePoints)
+            capturePoint->HandlePlayerLeave(player);
 
-        _invitedPlayers[player->GetTeamId()].erase(player->GetGUID());
-        _playersToKick[player->GetTeamId()].erase(player->GetGUID());
-
-        if (source->GetMapId() == _mapId && source->GetZoneId() == _zoneId)
+        if (_playersInWar[player->GetTeamId()].find(player->GetGUID()) != _playersInWar[player->GetTeamId()].end())
         {
-            for (BattlefieldCapturePoint* capturePoint : _capturePoints)
-                capturePoint->HandlePlayerLeave(source);
+            _playersInWar[player->GetTeamId()].erase(player->GetGUID());
+            if (Group* group = player->GetGroup())
+                group->RemoveMember(player->GetGUID());
 
-            if (_playersInWar[source->GetTeamId()].find(source->GetGUID()) != _playersInWar[source->GetTeamId()].end())
-            {
-                _playersInWar[source->GetTeamId()].erase(source->GetGUID());
-                if (Group* group = source->GetGroup())
-                    group->RemoveMember(source->GetGUID());
-
-                OnPlayerLeaveWar(source);
-            }
-
-            _players[source->GetTeamId()].erase(source->GetGUID());
-
-            RemovePlayerFromResurrectQueue(source->GetGUID());
-            OnPlayerLeaveZone(source);
-
-            source->TeleportTo(source->m_homebindMapId, source->m_homebindX, source->m_homebindY, source->m_homebindZ, source->GetOrientation());
+            OnPlayerLeaveWar(player);
         }
+
+        _players[player->GetTeamId()].erase(player->GetGUID());
+
+        RemovePlayerFromResurrectQueue(player->GetGUID());
+        OnPlayerLeaveZone(player);
+
+        player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, player->GetOrientation());
     }
 }
 
@@ -431,7 +427,7 @@ void Battlefield::PlayerLeavesQueue(Player* player, bool kick /*= false*/)
     // Remove player from queue
     _playersInQueue[player->GetTeamId()].erase(player->GetGUID());
     if (kick)
-        KickPlayer(ObjectGuid::Empty, player);
+        KickPlayer(player);
     else
         player->GetSession()->SendBattlefieldLeaveMessage(_battleId);
 }
