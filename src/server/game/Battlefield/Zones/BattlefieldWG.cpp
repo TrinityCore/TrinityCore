@@ -928,7 +928,7 @@ void BattlefieldWintergrasp::OnUnitDeath(Unit* unit)
     }
 }
 
-void BattlefieldWintergrasp::DoCompleteOrIncrementAchievement(uint32 achievement, Player* player, uint8 incrementNumber)
+void BattlefieldWintergrasp::DoCompleteOrIncrementAchievement(uint32 achievement, Player* player, uint8 /*incrementNumber = 1*/)
 {
     AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(achievement);
     if (!achievementEntry || !player)
