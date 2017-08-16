@@ -432,10 +432,10 @@ class TC_GAME_API BattlefieldWintergrasp : public Battlefield
         void OnCreatureRemove(Creature* creature) override;
         void OnGameObjectCreate(GameObject* gameObject) override;
         void OnGameObjectRemove(GameObject* gameObject) override;
+        void OnUnitDeath(Unit* unit) override;
         void DoCompleteOrIncrementAchievement(uint32 achievement, Player* player, uint8 incrementNumber = 1) override;
         void FillInitialWorldStates(WorldPacket& data) override;
         void SendInitWorldStatesToAll() override;
-        void OnUnitDeath(Unit* unit) override;
         void HandleKill(Player* killer, Unit* victim) override;
         void ProcessEvent(WorldObject* object, uint32 eventId) override;
         uint32 GetData(uint32 data) const override;
