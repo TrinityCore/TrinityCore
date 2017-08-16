@@ -3898,6 +3898,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yd
     });
 
+    // Coldflame (Lord Marrowgar)
+    ApplySpellFix({ 69146, 70823, 70824, 70825 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx4 &= ~SPELL_ATTR4_IGNORE_RESISTANCES;
+    });
+
     // Shadow's Fate
     ApplySpellFix({ 71169 }, [](SpellInfo* spellInfo)
     {
