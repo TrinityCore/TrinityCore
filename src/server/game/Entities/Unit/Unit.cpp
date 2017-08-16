@@ -8485,7 +8485,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
 
         // Send notification to other players
         WorldPackets::Movement::MoveUpdateSpeed packet(moveTypeToOpcode[mtype][2]);
-        packet.movementInfo = &m_movementInfo;
+        packet.Status = &m_movementInfo;
         packet.Speed = GetSpeed(mtype);
         playerMover->SendMessageToSet(packet.Write(), false);
     }
@@ -11370,7 +11370,7 @@ void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
         playerMover->SendDirectMessage(packet.Write());
 
         WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.movementInfo = &m_movementInfo;
+        moveUpdate.Status = &m_movementInfo;
         SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
@@ -13021,7 +13021,7 @@ void Unit::SendTeleportPacket(Position const& pos)
     // SMSG_MOVE_TELEPORT is sent to self in order to trigger CMSG_MOVE_TELEPORT_ACK and update the position server side
 
     WorldPackets::Movement::MoveUpdateTeleport moveUpdateTeleport;
-    moveUpdateTeleport.movementInfo = &m_movementInfo;
+    moveUpdateTeleport.Status = &m_movementInfo;
     Unit* broadcastSource = this;
 
     if (Player* playerMover = GetPlayerBeingMoved())
@@ -13045,9 +13045,9 @@ void Unit::SendTeleportPacket(Position const& pos)
     {
         // This is the only packet sent for creatures which contains MovementInfo structure
         // we do not update m_movementInfo for creatures so it needs to be done manually here
-        moveUpdateTeleport.movementInfo->guid = GetGUID();
-        moveUpdateTeleport.movementInfo->pos.Relocate(pos);
-        moveUpdateTeleport.movementInfo->time = getMSTime();
+        moveUpdateTeleport.Status->guid = GetGUID();
+        moveUpdateTeleport.Status->pos.Relocate(pos);
+        moveUpdateTeleport.Status->time = getMSTime();
     }
 
     // Broadcast the packet to everyone except self.
@@ -13435,7 +13435,7 @@ bool Unit::SetDisableGravity(bool disable)
         playerMover->SendDirectMessage(packet.Write());
 
         WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.movementInfo = &m_movementInfo;
+        moveUpdate.Status = &m_movementInfo;
         SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
@@ -13513,7 +13513,7 @@ bool Unit::SetCanFly(bool enable)
         playerMover->SendDirectMessage(packet.Write());
 
         WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.movementInfo = &m_movementInfo;
+        moveUpdate.Status = &m_movementInfo;
         SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
@@ -13550,7 +13550,7 @@ bool Unit::SetWaterWalking(bool enable)
         playerMover->SendDirectMessage(packet.Write());
 
         WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.movementInfo = &m_movementInfo;
+        moveUpdate.Status = &m_movementInfo;
         SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
@@ -13587,7 +13587,7 @@ bool Unit::SetFeatherFall(bool enable)
         playerMover->SendDirectMessage(packet.Write());
 
         WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.movementInfo = &m_movementInfo;
+        moveUpdate.Status = &m_movementInfo;
         SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
@@ -13639,7 +13639,7 @@ bool Unit::SetHover(bool enable)
         playerMover->SendDirectMessage(packet.Write());
 
         WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.movementInfo = &m_movementInfo;
+        moveUpdate.Status = &m_movementInfo;
         SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
@@ -13676,7 +13676,7 @@ bool Unit::SetCollision(bool disable)
         playerMover->SendDirectMessage(packet.Write());
 
         WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.movementInfo = &m_movementInfo;
+        moveUpdate.Status = &m_movementInfo;
         SendMessageToSet(moveUpdate.Write(), playerMover);
     }
     else
@@ -13716,7 +13716,7 @@ bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
         playerMover->SendDirectMessage(packet.Write());
 
         WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.movementInfo = &m_movementInfo;
+        moveUpdate.Status = &m_movementInfo;
         SendMessageToSet(moveUpdate.Write(), playerMover);
     }
 
@@ -13747,7 +13747,7 @@ bool Unit::SetCanTurnWhileFalling(bool enable)
         playerMover->SendDirectMessage(packet.Write());
 
         WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.movementInfo = &m_movementInfo;
+        moveUpdate.Status = &m_movementInfo;
         SendMessageToSet(moveUpdate.Write(), playerMover);
     }
 
@@ -13778,7 +13778,7 @@ bool Unit::SetCanDoubleJump(bool enable)
         playerMover->SendDirectMessage(packet.Write());
 
         WorldPackets::Movement::MoveUpdate moveUpdate;
-        moveUpdate.movementInfo = &m_movementInfo;
+        moveUpdate.Status = &m_movementInfo;
         SendMessageToSet(moveUpdate.Write(), playerMover);
     }
 
