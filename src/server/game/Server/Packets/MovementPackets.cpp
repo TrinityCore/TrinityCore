@@ -181,7 +181,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo::TransportInfo const& tran
 
 void WorldPackets::Movement::ClientPlayerMovement::Read()
 {
-    _worldPacket >> movementInfo;
+    _worldPacket >> Status;
 }
 
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MonsterSplineFilterKey const& monsterSplineFilterKey)
@@ -469,7 +469,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetSpeed::Write()
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateSpeed::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
     _worldPacket << Speed;
     return &_worldPacket;
 }
@@ -489,7 +489,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetFlag::Write()
 
 WorldPacket const* WorldPackets::Movement::MoveUpdate::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
 
     return &_worldPacket;
 }
@@ -573,7 +573,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MovementForce c
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateTeleport::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
 
     _worldPacket << uint32(MovementForces.size());
     _worldPacket.WriteBit(WalkSpeed.is_initialized());
@@ -629,7 +629,7 @@ void WorldPackets::Movement::MoveTeleportAck::Read()
 
 ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Movement::MovementAck& ack)
 {
-    data >> ack.movementInfo;
+    data >> ack.Status;
     data >> ack.AckIndex;
     return data;
 }
@@ -685,7 +685,7 @@ WorldPacket const* WorldPackets::Movement::MoveKnockBack::Write()
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateKnockBack::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
 
     return &_worldPacket;
 }
@@ -717,7 +717,7 @@ WorldPacket const* WorldPackets::Movement::MoveSetCollisionHeight::Write()
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
     _worldPacket << float(Height);
     _worldPacket << float(Scale);
 
@@ -726,7 +726,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateCollisionHeight::Write()
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
     _worldPacket << TriggerGUID;
 
     return &_worldPacket;
@@ -734,7 +734,7 @@ WorldPacket const* WorldPackets::Movement::MoveUpdateRemoveMovementForce::Write(
 
 WorldPacket const* WorldPackets::Movement::MoveUpdateApplyMovementForce::Write()
 {
-    _worldPacket << *movementInfo;
+    _worldPacket << *Status;
     _worldPacket << Force;
 
     return &_worldPacket;
@@ -771,7 +771,7 @@ WorldPacket const* WorldPackets::Movement::ControlUpdate::Write()
 
 void WorldPackets::Movement::MoveSplineDone::Read()
 {
-    _worldPacket >> movementInfo;
+    _worldPacket >> Status;
     _worldPacket >> SplineID;
 }
 
