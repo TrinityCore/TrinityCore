@@ -472,7 +472,7 @@ class TC_GAME_API BattlefieldWintergrasp : public Battlefield
         TeamId _tenacityTeam;
         bool _relicInteractible;
         uint32 _tenacityStack;
-        uint32 _saveTimer;
+        TimeTrackerSmall _saveTimer;
 };
 
 class WintergraspGraveyard : public BattlefieldGraveyard

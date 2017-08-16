@@ -23,6 +23,7 @@
 #include "CreatureAI.h"
 #include "GameObject.h"
 #include "Log.h"
+#include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellAuras.h"
@@ -292,11 +293,105 @@ WorldLocation const LocationWintergraspKeep(571, 5345.f, 2842.f, 410.f, 3.14f);
 
 BattlefieldWintergrasp::~BattlefieldWintergrasp()
 {
+    for (WintergraspWorkshop* workshop : _workshopSet)
+        delete workshop;
+
+    for (WintergraspBuilding* building : _buildingSet)
+        delete building;
 }
 
 bool BattlefieldWintergrasp::SetupBattlefield()
 {
-    return false;
+    // battlefield
+    _battleId = BATTLEFIELD_BATTLEID_WINTERGRASP;
+    _zoneId = ZONEID_WINTERGRASP;
+    _mapId = MAPID_WINTERGRASP;
+    _map = sMapMgr->FindMap(_mapId, 0);
+    _maxPlayerCount = sWorld->getIntConfig(CONFIG_WINTERGRASP_PLR_MAX);
+    _enabled = sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE);
+    _minPlayerLevel = sWorld->getIntConfig(CONFIG_WINTERGRASP_PLR_MIN_LVL);
+    _battleTime = sWorld->getIntConfig(CONFIG_WINTERGRASP_BATTLETIME) * MINUTE * IN_MILLISECONDS;
+    _noWarBattleTime = sWorld->getIntConfig(CONFIG_WINTERGRASP_NOBATTLETIME) * MINUTE * IN_MILLISECONDS;
+    _restartAfterCrash = sWorld->getIntConfig(CONFIG_WINTERGRASP_RESTART_AFTER_CRASH) * MINUTE * IN_MILLISECONDS;
+    _acceptInviteTime = 20;
+    _startGroupingTime = 15 * MINUTE * IN_MILLISECONDS;
+    _startGrouping = false;
+    _data.resize(DATA_WINTERGRASP_MAX);
+
+    if ((sWorld->getWorldState(WORLDSTATE_WINTERGRASP_ACTIVE) == 0) && (sWorld->getWorldState(WORLDSTATE_WINTERGRASP_DEFENDER) == 0) && (sWorld->getWorldState(ClockWorldState[0]) == 0))
+    {
+        sWorld->setWorldState(WORLDSTATE_WINTERGRASP_ACTIVE, uint64(false));
+        sWorld->setWorldState(WORLDSTATE_WINTERGRASP_DEFENDER, uint64(urand(0, 1)));
+        sWorld->setWorldState(ClockWorldState[0], uint64(_noWarBattleTime));
+    }
+
+    _defenderTeam = TeamId(sWorld->getWorldState(WORLDSTATE_WINTERGRASP_DEFENDER));
+
+    _timer.Reset(sWorld->getWorldState(ClockWorldState[0]));
+    if (sWorld->getWorldState(WORLDSTATE_WINTERGRASP_ACTIVE) != 0)
+        _timer.Reset(_restartAfterCrash);
+
+    SetData(DATA_WINTERGRASP_WON_ALLIANCE, uint32(sWorld->getWorldState(WORLDSTATE_WINTERGRASP_ATTACKED_ALLIANCE)));
+    SetData(DATA_WINTERGRASP_DEF_ALLIANCE, uint32(sWorld->getWorldState(WORLDSTATE_WINTERGRASP_DEFENDED_ALLIANCE)));
+    SetData(DATA_WINTERGRASP_WON_HORDE, uint32(sWorld->getWorldState(WORLDSTATE_WINTERGRASP_ATTACKED_HORDE)));
+    SetData(DATA_WINTERGRASP_DEF_HORDE, uint32(sWorld->getWorldState(WORLDSTATE_WINTERGRASP_DEFENDED_HORDE)));
+
+    SetGraveyardNumber(GRAVEYARDID_MAX);
+
+    // battlefieldwintergrasp
+    _saveTimer.Reset(60000);
+    _tenacityTeam = TEAM_NEUTRAL;
+    _tenacityStack = 0;
+    _relicInteractible = false;
+
+    for (uint8 itr = 0; WintergraspGraveyards[itr].Id < GRAVEYARDID_MAX; ++itr)
+    {
+        WintergraspGraveyard* graveyard = new WintergraspGraveyard(this);
+
+        // when between games, the graveyard is controlled by the defending team
+        if (WintergraspGraveyards[itr].StartControl == TEAM_NEUTRAL)
+            graveyard->Initialize(_defenderTeam, WintergraspGraveyards[itr].Entry);
+        else
+            graveyard->Initialize(WintergraspGraveyards[itr].StartControl, WintergraspGraveyards[itr].Entry);
+
+        graveyard->SetTextId(WintergraspGraveyards[itr].TextId);
+        _graveyardList[itr] = graveyard;
+
+        // this graveyard needs special handling since its not located in any special area id
+        if (WintergraspGraveyards[itr].Id == GRAVEYARDID_WORKSHOP_NW)
+            graveyard->SetIsSpellAreaForced(true);
+    }
+
+    // create all WintergraspWorkshop & WintergraspCapturePoint objects
+    for (uint8 itr = 0; itr < WORKSHOPID_MAX; ++itr)
+    {
+        WintergraspWorkshop* workshop = new WintergraspWorkshop(this, itr);
+        _workshopSet.insert(workshop);
+
+        if (itr < WORKSHOPID_KEEP_WEST)
+        {
+            WintergraspCapturePoint* capturePoint = new WintergraspCapturePoint(this, GetDefenderTeam());
+            capturePoint->LinkToWorkshop(workshop);
+            workshop->LinkCapturePoint(capturePoint);
+            AddCapturePoint(capturePoint);
+        }
+
+        workshop->UpdateForNoBattle();
+        workshop->Save();
+    }
+
+    // create all WintergraspBuilding objects
+    for (uint8 itr = 0; WintergraspGameObjectBuilding[itr].Entry != 0; ++itr)
+    {
+        WintergraspBuilding* building = new WintergraspBuilding(this, WintergraspGameObjectBuilding[itr].Type, WintergraspGameObjectBuilding[itr].Entry, WintergraspGameObjectBuilding[itr].WorldState);
+        _buildingSet.insert(building);
+        building->UpdateForNoBattle(true);
+        building->Save();
+    }
+
+    UpdateVehicleCounter(true);
+
+    return true;
 }
 
 void BattlefieldWintergrasp::Update(uint32 diff)
