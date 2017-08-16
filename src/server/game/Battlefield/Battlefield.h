@@ -72,14 +72,14 @@ enum BattlefieldTimers
 
 enum BattlefieldSpells
 {
-    SPELL_WAITING_FOR_RESURRECT  = 2584,  // Waiting to Resurrect
-    SPELL_SPIRIT_HEAL_CHANNEL    = 22011, // Spirit Heal Channel
-    SPELL_SPIRIT_HEAL            = 22012, // Spirit Heal
-    SPELL_RESURRECTION_VISUAL    = 24171, // Resurrection Impact Visual
-    SPELL_SPIRIT_HEAL_MANA       = 44535, // Spirit Heal
-    SPELL_AURA_PLAYER_INACTIVE   = 43681, // Inactive
-    SPELL_HONORABLE_DEFENDER_25Y = 68652, // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
-    SPELL_HONORABLE_DEFENDER_60Y = 66157  // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2)
+    BATTLEFIELD_SPELL_WAITING_FOR_RESURRECT  = 2584,  // Waiting to Resurrect
+    BATTLEFIELD_SPELL_SPIRIT_HEAL_CHANNEL    = 22011, // Spirit Heal Channel
+    BATTLEFIELD_SPELL_SPIRIT_HEAL            = 22012, // Spirit Heal
+    BATTLEFIELD_SPELL_RESURRECTION_VISUAL    = 24171, // Resurrection Impact Visual
+    BATTLEFIELD_SPELL_SPIRIT_HEAL_MANA       = 44535, // Spirit Heal
+    BATTLEFIELD_SPELL_AURA_PLAYER_INACTIVE   = 43681, // Inactive
+    BATTLEFIELD_SPELL_HONORABLE_DEFENDER_25Y = 68652, // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
+    BATTLEFIELD_SPELL_HONORABLE_DEFENDER_60Y = 66157  // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2)
 };
 
 class TC_GAME_API Battlefield : public ZoneScript

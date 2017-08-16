@@ -440,16 +440,16 @@ class TC_GAME_API BattlefieldWintergrasp : public Battlefield
         void ProcessEvent(WorldObject* object, uint32 eventId) override;
         uint32 GetData(uint32 data) const override;
 
-        void HandlePromotion(Player* killer, Unit* killed);
+        void RemoveAurasFromPlayer(Player* player);
+        void SetRelic(ObjectGuid relicGUID) { _titansRelicGUID = relicGUID; }
+        void SetRelicInteractible();
         void UpdateDamagedTowerCount(TeamId team);
         void UpdatedDestroyedTowerCount(TeamId team);
-        void RemoveAurasFromPlayer(Player const* player);
-        void SetRelic(ObjectGuid relicGUID) { _titansRelicGUID = relicGUID; }
-        void SetRelicInteractible(bool allow);
         void UpdateVehicleCountWG();
-        void UpdateCounterVehicle(bool initialize);
+        void UpdateVehicleCounter(bool initialize);
         void SendInitWorldStatesTo(Player const* player);
-        void PromotePlayer(Player const* killer);
+        void HandlePromotion(Player* killer, Unit* killed);
+        void PromotePlayer(Player* killer);
         void UpdateTenacity();
         void SendWarning(uint8 id, Player const* target = nullptr);
         void SendSpellAreaUpdate(uint32 areaId);

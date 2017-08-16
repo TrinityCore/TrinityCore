@@ -20,10 +20,12 @@
 
 #include "BattlefieldWG.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "SpellAuras.h"
 #include "Unit.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -374,48 +376,272 @@ uint32 BattlefieldWintergrasp::GetData(uint32 data) const
     return uint32();
 }
 
-void BattlefieldWintergrasp::HandlePromotion(Player* killer, Unit* killed)
+void BattlefieldWintergrasp::RemoveAurasFromPlayer(Player* player)
 {
+    player->RemoveAurasDueToSpell(SPELL_RECRUIT);
+    player->RemoveAurasDueToSpell(SPELL_CORPORAL);
+    player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
+    player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+    player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
+    player->RemoveAurasDueToSpell(SPELL_TENACITY);
+    player->RemoveAurasDueToSpell(SPELL_GREATEST_HONOR);
+    player->RemoveAurasDueToSpell(SPELL_GREATER_HONOR);
+    player->RemoveAurasDueToSpell(SPELL_GREAT_HONOR);
+    player->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_WINTERGRASP);
+    player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
+}
+
+void BattlefieldWintergrasp::SetRelicInteractible()
+{
+    if (GameObject* relic = GetRelic())
+    {
+        relic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
+        relic->SetFaction(WintergraspFaction[GetAttackerTeam()]);
+        relic->UpdateObjectVisibility(true);
+    }
+    _relicInteractible = true;
 }
 
 void BattlefieldWintergrasp::UpdateDamagedTowerCount(TeamId team)
 {
+    if (team == GetAttackerTeam())
+        UpdateData(DATA_WINTERGRASP_DAMAGED_TOWER_ATTACK, 1);
+    else
+        UpdateData(DATA_WINTERGRASP_DAMAGED_TOWER_DEFENCE, 1);
 }
 
 void BattlefieldWintergrasp::UpdatedDestroyedTowerCount(TeamId team)
 {
-}
+    // Destroy an attack tower
+    if (team == GetAttackerTeam())
+    {
+        // Update counter
+        UpdateData(DATA_WINTERGRASP_DAMAGED_TOWER_ATTACK, -1);
+        UpdateData(DATA_WINTERGRASP_BROKEN_TOWER_ATTACK, 1);
 
-void BattlefieldWintergrasp::RemoveAurasFromPlayer(Player const* player)
-{
-}
+        // Remove buff stack on attackers
+        for (auto itr = _playersInWar[GetAttackerTeam()].begin(); itr != _playersInWar[GetAttackerTeam()].end(); ++itr)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+                player->RemoveAuraFromStack(SPELL_TOWER_CONTROL);
+        }
 
-void BattlefieldWintergrasp::SetRelicInteractible(bool allow)
-{
+        // Add buff stack to defenders
+        for (auto itr = _playersInWar[GetDefenderTeam()].begin(); itr != _playersInWar[GetDefenderTeam()].end(); ++itr)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+            {
+                player->CastSpell(player, SPELL_TOWER_CONTROL, true);
+                DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WG_TOWER_DESTROY, player);
+            }
+        }
+
+        // If all three south towers are destroyed (ie. all attack towers), remove ten minutes from battle time
+        if (GetData(DATA_WINTERGRASP_BROKEN_TOWER_ATTACK) == 3)
+        {
+            if (GetTimer() <= 10 * MINUTE * IN_MILLISECONDS)
+                EndBattle(true);
+            else
+                _timer.Update(10 * MINUTE * IN_MILLISECONDS);
+            SendInitWorldStatesToAll();
+        }
+    }
+    else
+    {
+        UpdateData(DATA_WINTERGRASP_DAMAGED_TOWER_DEFENCE, -1);
+        UpdateData(DATA_WINTERGRASP_BROKEN_TOWER_DEFENCE, 1);
+    }
 }
 
 void BattlefieldWintergrasp::UpdateVehicleCountWG()
 {
+    SendUpdateWorldState(WORLDSTATE_WINTERGRASP_VEHICLE_HORDE, GetData(DATA_WINTERGRASP_VEHICLE_HORDE));
+    SendUpdateWorldState(WORLDSTATE_WINTERGRASP_MAX_VEHICLE_HORDE, GetData(DATA_WINTERGRASP_MAX_VEHICLE_HORDE));
+    SendUpdateWorldState(WORLDSTATE_WINTERGRASP_VEHICLE_ALLIANCE, GetData(DATA_WINTERGRASP_VEHICLE_ALLIANCE));
+    SendUpdateWorldState(WORLDSTATE_WINTERGRASP_MAX_VEHICLE_ALLIANCE, GetData(DATA_WINTERGRASP_MAX_VEHICLE_ALLIANCE));
 }
 
-void BattlefieldWintergrasp::UpdateCounterVehicle(bool initialize)
+void BattlefieldWintergrasp::UpdateVehicleCounter(bool initialize)
 {
+    if (initialize)
+    {
+        SetData(DATA_WINTERGRASP_VEHICLE_HORDE, 0);
+        SetData(DATA_WINTERGRASP_VEHICLE_ALLIANCE, 0);
+    }
+    SetData(DATA_WINTERGRASP_MAX_VEHICLE_HORDE, 0);
+    SetData(DATA_WINTERGRASP_MAX_VEHICLE_ALLIANCE, 0);
+
+    for (WintergraspWorkshop* workshop : _workshopSet)
+    {
+        if (workshop->GetTeamControl() == TEAM_ALLIANCE)
+            UpdateData(DATA_WINTERGRASP_MAX_VEHICLE_ALLIANCE, 4);
+        else if (workshop->GetTeamControl() == TEAM_HORDE)
+            UpdateData(DATA_WINTERGRASP_MAX_VEHICLE_HORDE, 4);
+    }
+
+    UpdateVehicleCountWG();
 }
 
 void BattlefieldWintergrasp::SendInitWorldStatesTo(Player const* player)
 {
+    WorldPacket data(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2 + (14 + _buildingSet.size() + _workshopSet.size()) * 8);
+
+    data << uint32(_mapId);
+    data << uint32(_zoneId);
+    data << uint32(0);                                              // AreaId
+    data << uint16(14 + _buildingSet.size() + _workshopSet.size()); // Number of fields
+
+    FillInitialWorldStates(data);
+
+    player->SendDirectMessage(&data);
 }
 
-void BattlefieldWintergrasp::PromotePlayer(Player const* killer)
+void BattlefieldWintergrasp::HandlePromotion(Player* killer, Unit* killed)
 {
+    for (ObjectGuid guid : _playersInWar[killer->GetTeamId()])
+    {
+        if (Player* player = ObjectAccessor::GetPlayer(*killed, guid))
+            if (player->GetDistance2d(killed) < 40.0f)
+                PromotePlayer(player);
+    }
+}
+
+void BattlefieldWintergrasp::PromotePlayer(Player* killer)
+{
+    if (!IsWarTime())
+        return;
+
+    // Updating rank of player
+    if (Aura* auraRecruit = killer->GetAura(SPELL_RECRUIT))
+    {
+        if (auraRecruit->GetStackAmount() >= 5)
+        {
+            killer->RemoveAura(SPELL_RECRUIT);
+            killer->CastSpell(killer, SPELL_CORPORAL, true);
+            SendWarning(TEXT_WINTERGRASP_RANK_CORPORAL, killer);
+        }
+        else
+            killer->CastSpell(killer, SPELL_RECRUIT, true);
+    }
+    else if (Aura* auraCorporal = killer->GetAura(SPELL_CORPORAL))
+    {
+        if (auraCorporal->GetStackAmount() >= 5)
+        {
+            killer->RemoveAura(SPELL_CORPORAL);
+            killer->CastSpell(killer, SPELL_LIEUTENANT, true);
+            SendWarning(TEXT_WINTERGRASP_RANK_FIRST_LIEUTENANT, killer);
+        }
+        else
+            killer->CastSpell(killer, SPELL_CORPORAL, true);
+    }
 }
 
 void BattlefieldWintergrasp::UpdateTenacity()
 {
+    uint32 const alliancePlayers = _playersInWar[TEAM_ALLIANCE].size();
+    uint32 const hordePlayers = _playersInWar[TEAM_HORDE].size();
+    int32 newStack = 0;
+
+    if (alliancePlayers && hordePlayers)
+    {
+        if (alliancePlayers < hordePlayers)
+            newStack = int32((float(hordePlayers) / float(alliancePlayers) - 1.f) * 4.f);  // positive, should cast on alliance
+        else if (alliancePlayers > hordePlayers)
+            newStack = int32((1.f - float(alliancePlayers) / float(hordePlayers)) * 4.f);  // negative, should cast on horde
+    }
+
+    if (newStack == int32(_tenacityStack))
+        return;
+
+    _tenacityStack = newStack;
+
+    // Remove old buff
+    if (_tenacityTeam != TEAM_NEUTRAL)
+    {
+        for (auto itr = _players[_tenacityTeam].begin(); itr != _players[_tenacityTeam].end(); ++itr)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+            {
+                player->RemoveAurasDueToSpell(SPELL_TENACITY);
+                player->RemoveAurasDueToSpell(SPELL_GREATEST_HONOR);
+                player->RemoveAurasDueToSpell(SPELL_GREATER_HONOR);
+                player->RemoveAurasDueToSpell(SPELL_GREAT_HONOR);
+            }
+        }
+
+        for (auto itr = _vehicleSet[_tenacityTeam].begin(); itr != _vehicleSet[_tenacityTeam].end(); ++itr)
+        {
+            if (Creature* creature = GetCreature(*itr))
+            {
+                creature->RemoveAurasDueToSpell(SPELL_TENACITY_VEHICLE);
+                creature->RemoveAurasDueToSpell(SPELL_GREATEST_HONOR);
+                creature->RemoveAurasDueToSpell(SPELL_GREATER_HONOR);
+                creature->RemoveAurasDueToSpell(SPELL_GREAT_HONOR);
+            }
+        }
+    }
+
+    // Apply new buff
+    if (newStack)
+    {
+        _tenacityTeam = newStack > 0 ? TEAM_ALLIANCE : TEAM_HORDE;
+
+        if (newStack < 0)
+            newStack = -newStack;
+        if (newStack > 20)
+            newStack = 20;
+
+        uint32 buff_honor = SPELL_GREATEST_HONOR;
+        if (newStack < 15)
+            buff_honor = SPELL_GREATER_HONOR;
+        if (newStack < 10)
+            buff_honor = SPELL_GREAT_HONOR;
+        if (newStack < 5)
+            buff_honor = 0;
+
+        for (auto itr = _playersInWar[_tenacityTeam].begin(); itr != _playersInWar[_tenacityTeam].end(); ++itr)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+                player->SetAuraStack(SPELL_TENACITY, player, newStack);
+        }
+
+        for (auto itr = _vehicleSet[_tenacityTeam].begin(); itr != _vehicleSet[_tenacityTeam].end(); ++itr)
+        {
+            if (Creature* creature = GetCreature(*itr))
+                creature->SetAuraStack(SPELL_TENACITY_VEHICLE, creature, newStack);
+        }
+
+        if (buff_honor != 0)
+        {
+            for (auto itr = _playersInWar[_tenacityTeam].begin(); itr != _playersInWar[_tenacityTeam].end(); ++itr)
+            {
+                if (Player* player = ObjectAccessor::FindPlayer(*itr))
+                    player->CastSpell(player, buff_honor, true);
+            }
+
+            for (auto itr = _vehicleSet[_tenacityTeam].begin(); itr != _vehicleSet[_tenacityTeam].end(); ++itr)
+            {
+                if (Creature* creature = GetCreature(*itr))
+                    creature->CastSpell(creature, buff_honor, true);
+            }
+        }
+    }
+    else
+        _tenacityTeam = TEAM_NEUTRAL;
 }
 
 void BattlefieldWintergrasp::SendWarning(uint8 id, Player const* target)
 {
+    if (!id)
+        return;
+
+    if (!target)
+    {
+        if (Creature* stalker = GetCreature(_stalkerGUID))
+            stalker->AI()->Talk(id);
+    }
+    else if (Creature* stalker = target->FindNearestCreature(NPC_WINTERGRASP_STALKER, SIZE_OF_GRIDS))
+        stalker->AI()->Talk(id, target);
 }
 
 void BattlefieldWintergrasp::SendSpellAreaUpdate(uint32 areaId)
@@ -814,7 +1040,7 @@ void WintergraspBuilding::Destroyed()
                 }
             }
 
-            _battlefield->SetRelicInteractible(true);
+            _battlefield->SetRelicInteractible();
             break;
         default:
             break;
@@ -1037,7 +1263,7 @@ void WintergraspWorkshop::GiveControlTo(TeamId teamId, bool initialize)
 
     if (!initialize)
     {
-        _battlefield->UpdateCounterVehicle(false);
+        _battlefield->UpdateVehicleCounter(false);
 
         uint32 areaId = 0;
         switch (_info->WorkshopId)

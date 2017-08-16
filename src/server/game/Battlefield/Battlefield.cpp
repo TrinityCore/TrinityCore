@@ -1043,7 +1043,7 @@ void BattlefieldGraveyard::AddPlayer(ObjectGuid playerGUID)
     if (_resurrectQueue.insert(playerGUID).second)
     {
         if (Player* player = ObjectAccessor::FindPlayer(playerGUID))
-            player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
+            player->CastSpell(player, BATTLEFIELD_SPELL_WAITING_FOR_RESURRECT, true);
     }
 }
 
@@ -1051,7 +1051,7 @@ void BattlefieldGraveyard::RemovePlayer(ObjectGuid playerGUID)
 {
     _resurrectQueue.erase(playerGUID);
     if (Player* player = ObjectAccessor::FindPlayer(playerGUID))
-        player->RemoveAurasDueToSpell(SPELL_WAITING_FOR_RESURRECT);
+        player->RemoveAurasDueToSpell(BATTLEFIELD_SPELL_WAITING_FOR_RESURRECT);
 }
 
 void BattlefieldGraveyard::Resurrect()
@@ -1070,14 +1070,14 @@ void BattlefieldGraveyard::Resurrect()
         if (player->IsInWorld())
         {
             if (Creature* spirit = _battlefield->GetCreature(_spiritGuides[_controlTeam]))
-                spirit->CastSpell(spirit, SPELL_SPIRIT_HEAL, true);
+                spirit->CastSpell(spirit, BATTLEFIELD_SPELL_SPIRIT_HEAL, true);
         }
 
         // Resurrect player
-        player->CastSpell(player, SPELL_RESURRECTION_VISUAL, true);
+        player->CastSpell(player, BATTLEFIELD_SPELL_RESURRECTION_VISUAL, true);
         player->ResurrectPlayer(1.0f);
         player->CastSpell(player, 6962, true);
-        player->CastSpell(player, SPELL_SPIRIT_HEAL_MANA, true);
+        player->CastSpell(player, BATTLEFIELD_SPELL_SPIRIT_HEAL_MANA, true);
         player->SpawnCorpseBones(false);
     }
 
