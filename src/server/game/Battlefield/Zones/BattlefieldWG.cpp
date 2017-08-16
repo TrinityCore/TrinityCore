@@ -396,14 +396,168 @@ bool BattlefieldWintergrasp::SetupBattlefield()
 
 void BattlefieldWintergrasp::Update(uint32 diff)
 {
+    Battlefield::Update(diff);
+    _saveTimer.Update(diff);
+    if (_saveTimer.Passed())
+    {
+        sWorld->setWorldState(WORLDSTATE_WINTERGRASP_ACTIVE, IsWarTime() ? 1 : 0);
+        sWorld->setWorldState(WORLDSTATE_WINTERGRASP_DEFENDER, _defenderTeam);
+        sWorld->setWorldState(ClockWorldState[0], GetTimer());
+        sWorld->setWorldState(WORLDSTATE_WINTERGRASP_ATTACKED_ALLIANCE, GetData(DATA_WINTERGRASP_WON_ALLIANCE));
+        sWorld->setWorldState(WORLDSTATE_WINTERGRASP_DEFENDED_ALLIANCE, GetData(DATA_WINTERGRASP_DEF_ALLIANCE));
+        sWorld->setWorldState(WORLDSTATE_WINTERGRASP_ATTACKED_HORDE, GetData(DATA_WINTERGRASP_WON_HORDE));
+        sWorld->setWorldState(WORLDSTATE_WINTERGRASP_DEFENDED_HORDE, GetData(DATA_WINTERGRASP_DEF_HORDE));
+        _saveTimer.Reset(60 * IN_MILLISECONDS);
+    }
 }
 
 void BattlefieldWintergrasp::OnBattleStart()
 {
+    if (GameObject* relic = GetRelic())
+    {
+        relic->SetFaction(WintergraspFaction[GetAttackerTeam()]);
+        relic->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
+        relic->UpdateObjectVisibility(true);
+    }
+
+    // update keep cannons visibility and faction
+    for (ObjectGuid cannonGuid : _keepCannonList)
+    {
+        if (Creature* creature = GetCreature(cannonGuid))
+        {
+            ShowCreature(creature, false);
+            creature->SetFaction(WintergraspFaction[GetDefenderTeam()]);
+        }
+    }
+
+    // rebuild
+    for (WintergraspBuilding* building : _buildingSet)
+    {
+        building->Rebuild();
+    }
+
+    SetData(DATA_WINTERGRASP_BROKEN_TOWER_ATTACK, 0);
+    SetData(DATA_WINTERGRASP_BROKEN_TOWER_DEFENCE, 0);
+    SetData(DATA_WINTERGRASP_DAMAGED_TOWER_ATTACK, 0);
+    SetData(DATA_WINTERGRASP_DAMAGED_TOWER_DEFENCE, 0);
+
+    // update graveyard (in no war time all graveyard is to deffender, in war time, depend of base)
+    for (WintergraspWorkshop* workshop : _workshopSet)
+    {
+        workshop->UpdateForBattle();
+    }
+
+    SendInitWorldStatesToAll();
+
+    // initialize vehicle counter
+    UpdateVehicleCounter(true);
+
+    // send start warning to all players
+    SendWarning(TEXT_WINTERGRASP_START_BATTLE);
 }
 
 void BattlefieldWintergrasp::OnBattleEnd(bool endByTimer)
 {
+    if (GameObject* relic = GetRelic())
+    {
+        relic->SetFaction(WintergraspFaction[GetDefenderTeam()]);
+        relic->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
+        relic->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_GAMEMASTER);
+        relic->UpdateObjectVisibility(true);
+    }
+
+    // successful defense
+    if (endByTimer)
+        UpdateData(GetDefenderTeam() == TEAM_HORDE ? DATA_WINTERGRASP_DEF_HORDE : DATA_WINTERGRASP_DEF_ALLIANCE, 1);
+    else // successful attack (note that teams have already been swapped, so defender team is the one who won)
+        UpdateData(GetDefenderTeam() == TEAM_HORDE ? DATA_WINTERGRASP_WON_HORDE : DATA_WINTERGRASP_WON_ALLIANCE, 1);
+
+    // update keep cannons visibility
+    for (ObjectGuid cannonGuid : _keepCannonList)
+    {
+        if (Creature* creature = GetCreature(cannonGuid))
+            HideCreature(creature);
+    }
+
+    if (BattlefieldGraveyard* graveyard = GetGraveyard(GRAVEYARDID_KEEP))
+        graveyard->GiveControlTo(GetDefenderTeam());
+
+    // saving data
+    for (WintergraspBuilding* building : _buildingSet)
+    {
+        building->UpdateForNoBattle();
+        building->Save();
+    }
+
+    for (WintergraspWorkshop* workshop : _workshopSet)
+    {
+        workshop->UpdateForNoBattle();
+        workshop->Save();
+    }
+
+    for (uint8 team = 0; team < 2; ++team)
+    {
+        for (ObjectGuid guid : _playersInWar[team])
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
+            {
+                if (!player->IsAlive())
+                {
+                    player->ResurrectPlayer(1.0f);
+                    player->SpawnCorpseBones();
+                }
+
+                RemoveAurasFromPlayer(player);
+
+                if (team == GetDefenderTeam())
+                {
+                    // award achievement for succeeding in Wintergrasp in 10 minutes or less
+                    if (!endByTimer && GetTimer() >= 20 * MINUTE * IN_MILLISECONDS)
+                        DoCompleteOrIncrementAchievement(ACHIEVEMENTS_WIN_WG_TIMER_10, player);
+
+                    // Complete victory quests
+                    player->AreaExploredOrEventHappens(QUEST_WINTERGRASP_VICTORY_ALLIANCE);
+                    player->AreaExploredOrEventHappens(QUEST_WINTERGRASP_VICTORY_HORDE);
+
+                    player->CastSpell(player, SPELL_ESSENCE_OF_WINTERGRASP, true);
+                    player->CastSpell(player, SPELL_VICTORY_REWARD, true);
+                }
+                else
+                    player->CastSpell(player, SPELL_DEFEAT_REWARD, true);
+            }
+        }
+
+        _playersInWar[team].clear();
+
+        for (ObjectGuid guid : _vehicleSet[team])
+        {
+            if (Creature* creature = GetCreature(guid))
+                if (creature->IsVehicle())
+                    creature->DespawnOrUnsummon();
+        }
+
+        _vehicleSet[team].clear();
+    }
+
+    if (!endByTimer)
+    {
+        for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
+        {
+            for (auto itr = _players[team].begin(); itr != _players[team].end(); ++itr)
+            {
+                if (Player* player = ObjectAccessor::FindPlayer(*itr))
+                {
+                    player->RemoveAurasDueToSpell(_defenderTeam == TEAM_ALLIANCE ? SPELL_HORDE_CONTROL_PHASE_SHIFT : SPELL_ALLIANCE_CONTROL_PHASE_SHIFT, player->GetGUID());
+                    player->AddAura(_defenderTeam == TEAM_HORDE ? SPELL_HORDE_CONTROL_PHASE_SHIFT : SPELL_ALLIANCE_CONTROL_PHASE_SHIFT, player);
+                }
+            }
+        }
+    }
+
+    if (!endByTimer) // win
+        SendWarning(GetDefenderTeam() == TEAM_ALLIANCE ? TEXT_WINTERGRASP_FORTRESS_CAPTURE_ALLIANCE : TEXT_WINTERGRASP_FORTRESS_CAPTURE_HORDE);
+    else // defend
+        SendWarning(GetDefenderTeam() == TEAM_ALLIANCE ? TEXT_WINTERGRASP_FORTRESS_DEFEND_ALLIANCE : TEXT_WINTERGRASP_FORTRESS_DEFEND_HORDE);
 }
 
 void BattlefieldWintergrasp::OnStartGrouping()
