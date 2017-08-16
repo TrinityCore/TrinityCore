@@ -462,7 +462,6 @@ class TC_GAME_API BattlefieldWintergrasp : public Battlefield
         WintergraspBuilding* GetBuilding(uint32 entry) const;
         WintergraspBuilding* GetBuilding(ObjectGuid guid) const;
         WintergraspWorkshop* GetWorkshop(WintergraspWorkshopId id) const;
-        WorldLocation GetRandomWorldLocation(WorldLocation location) const;
 
         WorkshopSet _workshopSet;
         BuildingSet _buildingSet;

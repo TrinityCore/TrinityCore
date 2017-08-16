@@ -21,6 +21,8 @@
 #include "BattlefieldWG.h"
 #include "Creature.h"
 #include "GameObject.h"
+#include "Log.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "Unit.h"
 #include "World.h"
@@ -418,31 +420,68 @@ void BattlefieldWintergrasp::SendWarning(uint8 id, Player const* target)
 
 void BattlefieldWintergrasp::SendSpellAreaUpdate(uint32 areaId)
 {
+    for (uint8 team = 0; team < 2; ++team)
+    {
+        for (auto itr = _players[team].begin(); itr != _players[team].end(); ++itr)
+            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+                if (player->GetAreaId() == areaId)
+                    player->UpdateAreaDependentAuras(areaId);
+    }
 }
 
 WintergraspGraveyardId BattlefieldWintergrasp::GetSpiritGraveyardId(uint32 areaId) const
 {
-    return WintergraspGraveyardId();
+    switch (areaId)
+    {
+        case AREA_WINTERGRASP_FORTRESS:
+            return GRAVEYARDID_KEEP;
+        case AREA_THE_SUNKEN_RING:
+            return GRAVEYARDID_WORKSHOP_NE;
+        case AREA_THE_BROKEN_TEMPLE:
+            return GRAVEYARDID_WORKSHOP_NW;
+        case AREA_WESTPARK_WORKSHOP:
+            return GRAVEYARDID_WORKSHOP_SW;
+        case AREA_EASTPARK_WORKSHOP:
+            return GRAVEYARDID_WORKSHOP_SE;
+        default:
+            TC_LOG_DEBUG("battlefield", "BattlefieldWintergrasp::GetSpiritGraveyardId: Unexpected Area Id %u", areaId);
+            break;
+    }
+
+    return GRAVEYARDID_MAX;
 }
 
 WintergraspBuilding* BattlefieldWintergrasp::GetBuilding(uint32 entry) const
 {
+    for (WintergraspBuilding* building : _buildingSet)
+    {
+        if (building->GetEntry() == entry)
+            return building;
+    }
+
     return nullptr;
 }
 
 WintergraspBuilding* BattlefieldWintergrasp::GetBuilding(ObjectGuid guid) const
 {
+    for (WintergraspBuilding* building : _buildingSet)
+    {
+        if (building->GetGUID() == guid)
+            return building;
+    }
+
     return nullptr;
 }
 
 WintergraspWorkshop* BattlefieldWintergrasp::GetWorkshop(WintergraspWorkshopId id) const
 {
-    return nullptr;
-}
+    for (WintergraspWorkshop* workshop : _workshopSet)
+    {
+        if (workshop->GetId() == id)
+            return workshop;
+    }
 
-WorldLocation BattlefieldWintergrasp::GetRandomWorldLocation(WorldLocation location) const
-{
-    return WorldLocation();
+    return nullptr;
 }
 
 //*******************************************************
