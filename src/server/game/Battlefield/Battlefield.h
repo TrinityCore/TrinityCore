@@ -122,11 +122,11 @@ class TC_GAME_API Battlefield : public ZoneScript
         void HandlePlayerLeaveZone(Player* player, uint32 zone);
         // removes player from the battlefield and teleports to home bind if necessary
         void KickPlayer(ObjectGuid guid, Player* player = nullptr);
-        // called in WorldSession::HandleBfQueueInviteResponse
+        // called in WorldSession::HandleBattlefieldQueueInviteResponse
         void PlayerAcceptsInviteToQueue(Player* player);
-        // called in WorldSession::HandleBfEntryInviteResponse
+        // called in WorldSession::HandleBattlefieldEntryInviteResponse
         void PlayerAcceptsInviteToWar(Player* player);
-        // called in WorldSession::HandleBfExitRequest
+        // called in WorldSession::HandleBattlefieldExitRequest
         void PlayerLeavesQueue(Player* player, bool kick = false);
         // move player to a battlefield group
         bool AddOrSetPlayerToCorrectBfGroup(Player* player);

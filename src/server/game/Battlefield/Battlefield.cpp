@@ -284,7 +284,7 @@ bool Battlefield::InvitePlayerToWar(Player* player)
 
     _playersToKick[player->GetTeamId()].erase(player->GetGUID());
     _invitedPlayers[player->GetTeamId()][player->GetGUID()] = time(nullptr) + _acceptInviteTime;
-    player->GetSession()->SendBfInvitePlayerToWar(_battleId, _zoneId, _acceptInviteTime);
+    player->GetSession()->SendBattlefieldInvitePlayerToWar(_battleId, _zoneId, _acceptInviteTime);
 
     return true;
 }
@@ -297,7 +297,7 @@ void Battlefield::InvitePlayerToQueue(Player* player)
     if (_playersInQueue[player->GetTeamId()].find(player->GetGUID()) != _playersInQueue[player->GetTeamId()].end())
         return;
 
-    player->GetSession()->SendBfInvitePlayerToQueue(_battleId);
+    player->GetSession()->SendBattlefieldInvitePlayerToQueue(_battleId);
 }
 
 void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
@@ -343,7 +343,7 @@ void Battlefield::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
             if (_playersInWar[player->GetTeamId()].find(player->GetGUID()) != _playersInWar[player->GetTeamId()].end())
             {
                 _playersInWar[player->GetTeamId()].erase(player->GetGUID());
-                player->GetSession()->SendBfLeaveMessage(_battleId);
+                player->GetSession()->SendBattlefieldLeaveMessage(_battleId);
                 if (Group* group = player->GetGroup()) // Remove the player from the raid group
                     group->RemoveMember(player->GetGUID());
 
@@ -371,7 +371,7 @@ void Battlefield::KickPlayer(ObjectGuid guid, Player* player /*= nullptr*/)
         BFLeaveReason reason = BF_LEAVE_REASON_EXITED;
         if (source->getLevel() < _minPlayerLevel)
             reason = BF_LEAVE_REASON_LOW_LEVEL;
-        source->GetSession()->SendBfLeaveMessage(_battleId, reason);
+        source->GetSession()->SendBattlefieldLeaveMessage(_battleId, reason);
 
         _invitedPlayers[player->GetTeamId()].erase(player->GetGUID());
         _playersToKick[player->GetTeamId()].erase(player->GetGUID());
@@ -405,7 +405,7 @@ void Battlefield::PlayerAcceptsInviteToQueue(Player* player)
     // Add player in queue
     _playersInQueue[player->GetTeamId()].insert(player->GetGUID());
     // Send notification
-    player->GetSession()->SendBfQueueInviteResponse(_battleId, _zoneId);
+    player->GetSession()->SendBattlefieldQueueInviteResponse(_battleId, _zoneId);
 }
 
 void Battlefield::PlayerAcceptsInviteToWar(Player* player)
@@ -415,7 +415,7 @@ void Battlefield::PlayerAcceptsInviteToWar(Player* player)
 
     if (AddOrSetPlayerToCorrectBfGroup(player))
     {
-        player->GetSession()->SendBfEntered(_battleId);
+        player->GetSession()->SendBattlefieldEntered(_battleId);
         _playersInWar[player->GetTeamId()].insert(player->GetGUID());
         _invitedPlayers[player->GetTeamId()].erase(player->GetGUID());
 
@@ -433,7 +433,7 @@ void Battlefield::PlayerLeavesQueue(Player* player, bool kick /*= false*/)
     if (kick)
         KickPlayer(ObjectGuid::Empty, player);
     else
-        player->GetSession()->SendBfLeaveMessage(_battleId);
+        player->GetSession()->SendBattlefieldLeaveMessage(_battleId);
 }
 
 bool Battlefield::AddOrSetPlayerToCorrectBfGroup(Player* player)
@@ -712,7 +712,7 @@ void Battlefield::RemovePlayer(ObjectGuid playerGUID)
         BFLeaveReason reason = BF_LEAVE_REASON_EXITED;
         if (source->getLevel() < _minPlayerLevel)
             reason = BF_LEAVE_REASON_LOW_LEVEL;
-        source->GetSession()->SendBfLeaveMessage(_battleId, reason);
+        source->GetSession()->SendBattlefieldLeaveMessage(_battleId, reason);
 
         if (source->GetMapId() == _mapId && source->GetZoneId() == _zoneId)
         {

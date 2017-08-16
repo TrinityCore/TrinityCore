@@ -24,15 +24,15 @@
 #include "WorldPacket.h"
 
 /**
- * @fn void WorldSession::SendBfInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 acceptTime)
+ * @fn void WorldSession::SendBattlefieldInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 acceptTime)
  *
- * @brief This send to player windows for invite player to join the war.
+ * @brief Sends join war frame to the player
  *
- * @param battleId      The BattleId of Bf
- * @param zoneId        The zone where the battle is (4197 for wg)
- * @param acceptTime    Time in second that the player have for accept
+ * @param battleId   BattlefieldIDs enum
+ * @param zoneId     Zone where the battlefield is
+ * @param acceptTime Time in seconds displayed
  */
-void WorldSession::SendBfInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 acceptTime)
+void WorldSession::SendBattlefieldInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 acceptTime)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE, 12);
     data << uint32(battleId);
@@ -42,13 +42,13 @@ void WorldSession::SendBfInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint3
 }
 
 /**
- * @fn void WorldSession::SendBfInvitePlayerToQueue(uint32 battleId)
+ * @fn void WorldSession::SendBattlefieldInvitePlayerToQueue(uint32 battleId)
  *
- * @brief This send invitation to player to join the queue.
+ * @brief Sends join queue frame to the player
  *
- * @param battleId      The BattleId of Bf
+ * @param battleId BattlefieldIDs enum
  */
-void WorldSession::SendBfInvitePlayerToQueue(uint32 battleId)
+void WorldSession::SendBattlefieldInvitePlayerToQueue(uint32 battleId)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_INVITE, 5);
     data << uint32(battleId);
@@ -57,129 +57,118 @@ void WorldSession::SendBfInvitePlayerToQueue(uint32 battleId)
 }
 
 /**
- * @fn void WorldSession::SendBfQueueInviteResponse(uint32 battleId, uint32 zoneId, bool canQueue, bool full)
+ * @fn void WorldSession::SendBattlefieldQueueInviteResponse(uint32 battleId, uint32 zoneId, bool canQueue, bool full)
  *
- * @brief This send packet for inform player that he join queue.
+ * @brief Sends queue information to the player
  *
- * @param battleId      The BattleId of Bf
- * @param zoneId        The zone where the battle is (4197 for wg)
- * @param canQueue      if able to queue
- * @param full          on log in is full
+ * @param battleId BattlefieldIDs enum
+ * @param zoneId   Zone where the battlefield is
+ * @param canQueue Inform if the player can join queue or not
+ * @param full     Inform if its full or not
  */
-void WorldSession::SendBfQueueInviteResponse(uint32 battleId, uint32 zoneId, bool canQueue, bool full)
+void WorldSession::SendBattlefieldQueueInviteResponse(uint32 battleId, uint32 zoneId, bool canQueue, bool full)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 11);
     data << uint32(battleId);
     data << uint32(zoneId);
-    data << uint8(canQueue ? 1 : 0); // Accepted    // 0 you cannot queue wg    // 1 you are queued
-    data << uint8(full ? 0 : 1);     // Logging In  // 0 wg full                // 1 queue for upcoming
+    data << uint8(canQueue ? 1 : 0); // Accepted    // 0 you cannot queue    // 1 you are queued
+    data << uint8(full ? 0 : 1);     // Logging In  // 0 full                // 1 queue for upcoming
     data << uint8(1);                // Warmup
     SendPacket(&data);
 }
 
 /**
- * @fn void WorldSession::SendBfEntered(uint32 battleId)
+ * @fn void WorldSession::SendBattlefieldEntered(uint32 battleId)
  *
- * @brief This is call when player accept to join war.
+ * @brief Sent when the player joins a battlefield
  *
- * @param battleId      The BattleId of Bf
+ * @param battleId BattlefieldIDs enum
  */
-void WorldSession::SendBfEntered(uint32 battleId)
+void WorldSession::SendBattlefieldEntered(uint32 battleId)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERED, 7);
     data << uint32(battleId);
-    data << uint8(1);                           // unk
-    data << uint8(1);                           // unk
-    data << uint8(_player->isAFK() ? 1 : 0);    // Clear AFK
+    data << uint8(1);                        // unk
+    data << uint8(1);                        // unk
+    data << uint8(_player->isAFK() ? 1 : 0); // Clear AFK
     SendPacket(&data);
 }
 
 /**
- * @fn void WorldSession::SendBfLeaveMessage(uint32 battleId, BFLeaveReason reason)
+ * @fn void WorldSession::SendBattlefieldLeaveMessage(uint32 battleId, BFLeaveReason reason)
  *
- * @brief This is call when player leave battlefield zone.
+ * @brief Sent when the player leaves the battlefield
  *
- * @param battleId      The BattleId of Bf
- * @param reason        Reason why player left battlefield
+ * @param battleId BattlefieldIDs enum
+ * @param reason   Reason why player the left
  */
-void WorldSession::SendBfLeaveMessage(uint32 battleId, BFLeaveReason reason /*= BF_LEAVE_REASON_EXITED*/)
+void WorldSession::SendBattlefieldLeaveMessage(uint32 battleId, BFLeaveReason reason /*= BF_LEAVE_REASON_EXITED*/)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_EJECTED, 7);
     data << uint32(battleId);
-    data << uint8(reason);  // byte Reason
-    data << uint8(2);       // byte BattleStatus
-    data << uint8(0);       // bool Relocated
+    data << uint8(reason); // byte Reason
+    data << uint8(2);      // byte BattleStatus
+    data << uint8(0);      // bool Relocated
     SendPacket(&data);
 }
 
 /**
- * @fn void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
+ * @fn void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPacket& recvData)
  *
- * @brief Send by client when he click on accept for queue.
+ * @brief Sent on battlefield queue response
  */
-void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
+void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPacket& recvData)
 {
     uint32 battleId;
     uint8 accepted;
-
     recvData >> battleId >> accepted;
 
-    TC_LOG_DEBUG("misc", "HandleBfQueueInviteResponse: BattleID:%u Accepted:%u", battleId, accepted);
+    TC_LOG_DEBUG("misc", "WorldSession::HandleBattlefieldQueueInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
 
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
-    if (!bf)
+    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
+    if (!battlefield)
         return;
 
     if (accepted)
-        bf->PlayerAcceptInviteToQueue(_player);
+        battlefield->PlayerAcceptsInviteToQueue(_player);
 }
 
 /**
- * @fn void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
+ * @fn void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPacket& recvData)
  *
- * @brief Send by client on clicking in accept or refuse of invitation windows for join game.
+ * @brief Sent on join to battlefield war response
  */
-void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
+void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPacket& recvData)
 {
     uint32 battleId;
     uint8 accepted;
-
     recvData >> battleId >> accepted;
+    TC_LOG_DEBUG("misc", "WorldSession::HandleBattlefieldEntryInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
 
-    TC_LOG_DEBUG("misc", "HandleBfEntryInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
-
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
-    if (!bf)
+    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
+    if (!battlefield)
         return;
 
-    // If player accept invitation
     if (accepted)
-    {
-        bf->PlayerAcceptInviteToWar(_player);
-    }
+        battlefield->PlayerAcceptsInviteToWar(_player);
     else
-    {
-        if (_player->GetZoneId() == bf->GetZoneId())
-            bf->KickPlayerFromBattlefield(_player->GetGUID());
-    }
+        battlefield->PlayerLeavesQueue(_player, true);
 }
 
 /**
- * @fn void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
+ * @fn void WorldSession::HandleBattlefieldExitRequest(WorldPacket& recvData)
  *
- * @brief Send by client when exited battlefield
+ * @brief Sent on battlefield queue exit request
  */
-void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
+void WorldSession::HandleBattlefieldExitRequest(WorldPacket& recvData)
 {
     uint32 battleId;
-
     recvData >> battleId;
-
     TC_LOG_DEBUG("misc", "HandleBfExitRequest: battleId: %u ", battleId);
 
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
-    if (!bf)
+    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
+    if (!battlefield)
         return;
 
-    bf->AskToLeaveQueue(_player);
+    battlefield->PlayerLeavesQueue(_player);
 }
