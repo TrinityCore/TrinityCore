@@ -59,7 +59,7 @@ void Battlefield::Update(uint32 diff)
     }
 
     // invite players a few minutes before the battle's beginning
-    if (!IsWarTime() && !_startGrouping && _timer.GetExpiry() <= _startGroupingTime)
+    if (!IsWarTime() && !_startGrouping && GetTimer() <= _startGroupingTime)
     {
         _startGrouping = true;
         InvitePlayersInZoneToQueue();
@@ -319,7 +319,7 @@ void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
         else
         {
             // If time left is < 15 minutes invite player to join queue
-            if (_timer.GetExpiry() <= _startGroupingTime)
+            if (GetTimer() <= _startGroupingTime)
                 InvitePlayerToQueue(player);
         }
 
