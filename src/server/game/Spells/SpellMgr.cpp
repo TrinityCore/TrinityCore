@@ -3799,7 +3799,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         108847, // Summon Stack of Blocks
         108858, // Summon Tiger Stand
         104450, // Summon Ji Yuan
-        104571  // Summon Aysa
+        104571, // Summon Aysa
+        115334, // Summon Aysa
+        115336, // Summon Ji
+        115338, // Summon Jojo
+        115493, // Summon Aysa
+        115494, // Summon Ji
+        115495 // Summon Jojo
     }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
