@@ -27033,7 +27033,7 @@ void Player::SendMovementSetCollisionHeight(float height)
     SendDirectMessage(setCollisionHeight.Write());
 
     WorldPackets::Movement::MoveUpdateCollisionHeight updateCollisionHeight;
-    updateCollisionHeight.movementInfo = &m_movementInfo;
+    updateCollisionHeight.Status = &m_movementInfo;
     updateCollisionHeight.Height = height;
     updateCollisionHeight.Scale = GetObjectScale();
     SendMessageToSet(updateCollisionHeight.Write(), false);
