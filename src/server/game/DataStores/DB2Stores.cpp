@@ -346,6 +346,7 @@ namespace
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
     SpecializationSpellsContainer _specializationSpellsBySpec;
+    std::unordered_set<uint8> _spellFamilyNames;
     SpellPowerContainer _spellPowers;
     SpellPowerDifficultyContainer _spellPowerDifficulties;
     SpellProcsPerMinuteModContainer _spellProcsPerMinuteMods;
@@ -941,6 +942,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
 
     for (SpecializationSpellsEntry const* specSpells : sSpecializationSpellsStore)
         _specializationSpellsBySpec[specSpells->SpecID].push_back(specSpells);
+
+    for (SpellClassOptionsEntry const* classOption : sSpellClassOptionsStore)
+        _spellFamilyNames.insert(classOption->SpellClassSet);
 
     for (SpellPowerEntry const* power : sSpellPowerStore)
     {
@@ -1881,6 +1885,11 @@ std::vector<SpecializationSpellsEntry const*> const* DB2Manager::GetSpecializati
         return &itr->second;
 
     return nullptr;
+}
+
+bool DB2Manager::IsValidSpellFamiliyName(SpellFamilyNames family)
+{
+    return _spellFamilyNames.count(family) > 0;
 }
 
 std::vector<SpellPowerEntry const*> DB2Manager::GetSpellPowers(uint32 spellId, Difficulty difficulty /*= DIFFICULTY_NONE*/, bool* hasDifficultyPowers /*= nullptr*/) const

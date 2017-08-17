@@ -1352,7 +1352,7 @@ public:
             else
             {
                 WorldPackets::Movement::MoveUpdate moveUpdate;
-                moveUpdate.movementInfo = &target->m_movementInfo;
+                moveUpdate.Status = &target->m_movementInfo;
                 target->SendMessageToSet(moveUpdate.Write(), true);
             }
 
