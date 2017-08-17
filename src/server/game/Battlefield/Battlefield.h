@@ -41,7 +41,7 @@ typedef std::vector<BattlefieldGraveyard*> BattlefieldGraveyardVector;
 typedef std::vector<BattlefieldCapturePoint*> BattlefieldCapturePointVector;
 typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
 
-enum BattlefieldIDs
+enum BattlefieldId
 {
     BATTLEFIELD_BATTLEID_WINTERGRASP = 1 // Wintergrasp battle
 };
@@ -159,7 +159,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         std::list<Player*> GetPlayerListInSourceRange(WorldObject* source, float range, TeamId teamId) const;
         BattlefieldGraveyard* GetGraveyard(uint32 id) const;
         // finds which graveyard the player must be teleported to
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) const;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) const;
         // finds a not full battlefield group
         Group* GetFreeGroup(TeamId TeamId) const;
         // returns battlefield group where the player is

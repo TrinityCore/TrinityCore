@@ -28,7 +28,7 @@
  *
  * @brief Sends join war frame to the player
  *
- * @param battleId   BattlefieldIDs enum
+ * @param battleId   BattlefieldId enum
  * @param zoneId     Zone where the battlefield is
  * @param acceptTime Time in seconds displayed
  */
@@ -46,7 +46,7 @@ void WorldSession::SendBattlefieldInvitePlayerToWar(uint32 battleId, uint32 zone
  *
  * @brief Sends join queue frame to the player
  *
- * @param battleId BattlefieldIDs enum
+ * @param battleId BattlefieldId enum
  */
 void WorldSession::SendBattlefieldInvitePlayerToQueue(uint32 battleId)
 {
@@ -61,7 +61,7 @@ void WorldSession::SendBattlefieldInvitePlayerToQueue(uint32 battleId)
  *
  * @brief Sends queue information to the player
  *
- * @param battleId BattlefieldIDs enum
+ * @param battleId BattlefieldId enum
  * @param zoneId   Zone where the battlefield is
  * @param canQueue Inform if the player can join queue or not
  * @param full     Inform if its full or not
@@ -82,7 +82,7 @@ void WorldSession::SendBattlefieldQueueInviteResponse(uint32 battleId, uint32 zo
  *
  * @brief Sent when the player joins a battlefield
  *
- * @param battleId BattlefieldIDs enum
+ * @param battleId BattlefieldId enum
  */
 void WorldSession::SendBattlefieldEntered(uint32 battleId)
 {
@@ -99,7 +99,7 @@ void WorldSession::SendBattlefieldEntered(uint32 battleId)
  *
  * @brief Sent when the player leaves the battlefield
  *
- * @param battleId BattlefieldIDs enum
+ * @param battleId BattlefieldId enum
  * @param reason   Reason why player the left
  */
 void WorldSession::SendBattlefieldLeaveMessage(uint32 battleId, BFLeaveReason reason /*= BF_LEAVE_REASON_EXITED*/)
@@ -125,7 +125,7 @@ void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPacket& recvData)
 
     TC_LOG_DEBUG("misc", "WorldSession::HandleBattlefieldQueueInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
 
-    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
+    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BattlefieldId(battleId));
     if (!battlefield)
         return;
 
@@ -145,7 +145,7 @@ void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPacket& recvData)
     recvData >> battleId >> accepted;
     TC_LOG_DEBUG("misc", "WorldSession::HandleBattlefieldEntryInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
 
-    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
+    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BattlefieldId(battleId));
     if (!battlefield)
         return;
 
@@ -166,7 +166,7 @@ void WorldSession::HandleBattlefieldExitRequest(WorldPacket& recvData)
     recvData >> battleId;
     TC_LOG_DEBUG("misc", "HandleBfExitRequest: battleId: %u ", battleId);
 
-    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
+    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BattlefieldId(battleId));
     if (!battlefield)
         return;
 

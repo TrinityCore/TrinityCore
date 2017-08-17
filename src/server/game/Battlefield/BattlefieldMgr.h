@@ -23,6 +23,7 @@
 
 class Player;
 class ZoneScript;
+enum BattlefieldId;
 
 class TC_GAME_API BattlefieldMgr
 {
@@ -38,7 +39,7 @@ class TC_GAME_API BattlefieldMgr
         void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
 
         Battlefield* GetEnabledBattlefield(uint32 zoneId);
-        Battlefield* GetBattlefield(uint32 battleId);
+        Battlefield* GetBattlefield(BattlefieldId battleId);
         ZoneScript* GetZoneScript(uint32 zoneId);
 
         void Update(uint32 diff);

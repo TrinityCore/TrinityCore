@@ -16,6 +16,7 @@
  */
 
 #include "BattlefieldMgr.h"
+#include "Battlefield.h"
 #include "BattlefieldWG.h"
 #include "Log.h"
 #include "Player.h"
@@ -41,7 +42,7 @@ BattlefieldMgr* BattlefieldMgr::instance()
 
 void BattlefieldMgr::Initialize()
 {
-    Battlefield* wintergrasp = new BattlefieldWintergrasp();
+    BattlefieldWintergrasp* wintergrasp = new BattlefieldWintergrasp();
     if (!wintergrasp->SetupBattlefield())
     {
         TC_LOG_ERROR("bg.battlefield", "BattlefieldMgr::Initialize: wintergrasp initialized failed");
@@ -92,7 +93,7 @@ Battlefield* BattlefieldMgr::GetEnabledBattlefield(uint32 zoneId)
     return itr->second;
 }
 
-Battlefield* BattlefieldMgr::GetBattlefield(uint32 battleId)
+Battlefield* BattlefieldMgr::GetBattlefield(BattlefieldId battleId)
 {
     for (auto itr = _battlefieldContainer.begin(); itr != _battlefieldContainer.end(); ++itr)
     {
