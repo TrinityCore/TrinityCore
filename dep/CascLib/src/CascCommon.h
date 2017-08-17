@@ -45,6 +45,7 @@
 #define CASC_GAME_DIABLO3    0x00030000         // Diablo 3 since PTR 2.2.0
 #define CASC_GAME_OVERWATCH  0x00040000         // Overwatch since PTR 24919
 #define CASC_GAME_STARCRAFT2 0x00050000         // Starcraft II - Legacy of the Void, since build 38996
+#define CASC_GAME_STARCRAFT1 0x00060000         // Starcraft 1 (remastered)
 #define CASC_GAME_MASK       0xFFFF0000         // Mask for getting game ID
 
 #define CASC_INDEX_COUNT          0x10
@@ -345,6 +346,7 @@ int RootHandler_CreateMNDX(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFil
 int RootHandler_CreateDiablo3(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile);
 int RootHandler_CreateOverwatch(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile);
 int RootHandler_CreateWoW6(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile, DWORD dwLocaleMask);
+int RootHandler_CreateSC1(TCascStorage * hs, LPBYTE pbRootFile, DWORD cbRootFile);
 
 //-----------------------------------------------------------------------------
 // Dumping CASC data structures
