@@ -271,6 +271,9 @@ enum Events
     EVENT_TELEPORT,
     EVENT_MOVE_TO_LICH_KING,
     EVENT_DESPAWN_SELF,
+
+    //Spirit Bomb
+    EVENT_BOMB_EXPLOSION
 };
 
 enum EventGroups
@@ -1037,7 +1040,6 @@ class boss_the_lich_king : public CreatureScript
                                         summon->RemoveAurasDueToSpell(SPELL_VILE_SPIRIT_MOVE_SEARCH);
                                         summon->RemoveAurasDueToSpell(SPELL_VILE_SPIRIT_DAMAGE_SEARCH);
                                         summon->GetMotionMaster()->MoveTargetedHome();
-                                        summon->GetMotionMaster()->MoveRandom(10.0f);
                                     }
                                     else if (summon->GetEntry() == NPC_RAGING_SPIRIT)
                                         summon->AI()->DoAction(ACTION_DISABLE_RAGING);
@@ -1054,6 +1056,7 @@ class boss_the_lich_king : public CreatureScript
                                 {
                                     triggers.sort(Trinity::ObjectDistanceOrderPred(terenas, true));
                                     Creature* spawner = triggers.front();
+                                    spawner->setActive(true);
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_1, true);  // summons bombs randomly
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_2, true);  // summons bombs on players
                                     spawner->m_Events.AddEvent(new TriggerWickedSpirit(spawner), spawner->m_Events.CalculateTime(3000));
@@ -1955,20 +1958,29 @@ class npc_spirit_bomb : public CreatureScript
                 if (type != POINT_MOTION_TYPE || point != POINT_GROUND)
                     return;
 
-                me->RemoveAllAuras();
-                DoCastAOE(SPELL_EXPLOSION);
-                me->DespawnOrUnsummon(1000);
+                _events.ScheduleEvent(EVENT_BOMB_EXPLOSION, 3000);
             }
 
             void AttackStart(Unit* /*victim*/) override
             {
             }
 
-            void UpdateAI(uint32 /*diff*/) override
+            void UpdateAI(uint32 diff) override
             {
                 UpdateVictim();
-                // no melee attacks
+
+                _events.Update(diff);
+
+                if (_events.ExecuteEvent() == EVENT_BOMB_EXPLOSION)
+                {
+                    me->RemoveAllAuras();
+                    DoCastAOE(SPELL_EXPLOSION);
+                    me->DespawnOrUnsummon(1000);
+                }
             }
+
+        private:
+            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -2493,8 +2505,9 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
                 // spirit bombs get higher
                 if (GetSpellInfo()->GetEffect(effIndex)->MiscValue == NPC_SPIRIT_BOMB)
                 {
-                    dest->RelocateOffset(offset);
-                    GetHitDest()->RelocateOffset(offset);
+                    static Position const offsetExtra = { 0.0f, 0.0f, 5.0f, 0.0f };
+                    dest->RelocateOffset(offsetExtra);
+                    GetHitDest()->RelocateOffset(offsetExtra);
                 }
             }
 
