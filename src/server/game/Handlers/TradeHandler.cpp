@@ -285,7 +285,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
         return;
     }
 
-    if (_player->GetMoney() >= uint64(MAX_MONEY_AMOUNT) - his_trade->GetMoney())
+    if (_player->GetMoney() > MAX_MONEY_AMOUNT - his_trade->GetMoney())
     {
         info.Status = TRADE_STATUS_FAILED;
         info.BagResult = EQUIP_ERR_TOO_MUCH_GOLD;
@@ -294,7 +294,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
         return;
     }
 
-    if (trader->GetMoney() >= uint64(MAX_MONEY_AMOUNT) - my_trade->GetMoney())
+    if (trader->GetMoney() > MAX_MONEY_AMOUNT - my_trade->GetMoney())
     {
         info.Status = TRADE_STATUS_FAILED;
         info.BagResult = EQUIP_ERR_TOO_MUCH_GOLD;
