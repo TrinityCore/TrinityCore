@@ -153,6 +153,7 @@
   typedef LONG         * PLONG;
   typedef DWORD        * PDWORD;
   typedef BYTE         * LPBYTE;
+  typedef char         * LPSTR;
 
   #ifdef PLATFORM_32BIT
     #define _LZMA_UINT32_IS_ULONG
