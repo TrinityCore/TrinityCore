@@ -449,7 +449,12 @@ class npc_wg_queue : public CreatureScript
                                 else
                                 {
                                     if (!me->FindNearestGameObject(GO_WINTERGRASP_PORTAL, 25.f))
-                                        me->SummonGameObject(GO_WINTERGRASP_PORTAL, PortalPos[1], QuaternionData(), 1000);
+                                    {
+                                        if (me->GetEntry() == NPC_MAGISTER_BRAEDIN)
+                                            me->SummonGameObject(GO_WINTERGRASP_PORTAL, PortalPos[1], QuaternionData(), 1000);
+                                        else if (me->GetEntry() == NPC_MAGISTER_SURDIEL)
+                                            me->SummonGameObject(GO_WINTERGRASP_PORTAL, PortalPos[0], QuaternionData(), 1000);
+                                    }
                                     _events.Repeat(Minutes(5));
                                 }
                             }
