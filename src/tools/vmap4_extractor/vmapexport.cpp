@@ -162,6 +162,25 @@ bool OpenCascStorage(int locale)
     }
 }
 
+uint32 GetInstalledLocalesMask()
+{
+    try
+    {
+        boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
+        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, 0);
+        if (!storage)
+            return false;
+
+        return CASC::GetInstalledLocalesMask(storage);
+    }
+    catch (boost::filesystem::filesystem_error const& error)
+    {
+        printf("Unable to determine installed locales mask: %s\n", error.what());
+    }
+
+    return 0;
+}
+
 // Local testing functions
 bool FileExists(const char* file)
 {
@@ -414,10 +433,14 @@ int main(int argc, char ** argv)
                     ))
             success = (errno == EEXIST);
 
-    int FirstLocale = -1;
+    uint32 installedLocalesMask = GetInstalledLocalesMask();
+    int32 FirstLocale = -1;
     for (int i = 0; i < TOTAL_LOCALES; ++i)
     {
         if (i == LOCALE_none)
+            continue;
+
+        if (!(installedLocalesMask & WowLocaleToCascLocaleFlags[i]))
             continue;
 
         if (!OpenCascStorage(i))
