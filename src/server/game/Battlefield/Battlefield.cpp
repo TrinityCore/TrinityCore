@@ -144,9 +144,10 @@ void Battlefield::AddPlayerToResurrectQueue(ObjectGuid creatureGUID, ObjectGuid 
 
 void Battlefield::ToggleBattlefield(bool enable)
 {
-    _enabled = enable;
     if (_active && !enable)
         EndBattle(true);
+
+    _enabled = enable;
 }
 
 void Battlefield::StartBattle()

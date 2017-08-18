@@ -1,3 +1,24 @@
+-- Add new trinity strings
+DELETE FROM `trinity_string` WHERE `entry` BETWEEN 5083 AND 5092;
+INSERT INTO `trinity_string` (`entry`, `content_default`) VALUES
+(5083, 'Battlefield %s started'),
+(5084, 'Battlefield %s is currently active'),
+(5085, 'Battlefield %s stopped, no-war-time started'),
+(5086, 'Battlefield %s has not started'),
+(5087, 'Battlefield %s disabled'),
+(5088, 'Battlefield %s enabled'),
+(5089, 'Battlefield %s attackers and defenders switched'),
+(5090, 'Battlefield %s timer set to %u, currently in %s'),
+(5091, 'Incorrect battle id'),
+(5092, 'Battlefield %s is disabled');
+
+-- Update command comments
+UPDATE `command` SET `help`='Syntax: .bf enable $battleid' WHERE `name`='bf enable';
+UPDATE `command` SET `help`='Syntax: .bf start $battleid' WHERE `name`='bf start';
+UPDATE `command` SET `help`='Syntax: .bf stop $battleid' WHERE `name`='bf stop';
+UPDATE `command` SET `help`='Syntax: .bf switch $battleid' WHERE `name`='bf switch';
+UPDATE `command` SET `help`='Syntax: .bf timer $battleid $timer' WHERE `name`='bf timer';
+
 -- Missing phaseMask data
 UPDATE `creature` SET `phaseMask`=64 WHERE `id`=30739;
 UPDATE `creature` SET `phaseMask`=192 WHERE `guid` IN (131279, 131278, 131276, 131277, 131275, 131274, 88392, 88391, 131272, 131273);
