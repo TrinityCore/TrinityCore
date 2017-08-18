@@ -2184,6 +2184,8 @@ uint32 Item::GetItemLevel(Player const* owner) const
             uint32 level = owner->getLevel();
             if (uint32 fixedLevel = GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL))
                 level = fixedLevel;
+            else
+                level = std::min(std::max(level, ssd->MinLevel), ssd->MaxLevel);
             if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, level)))
                 itemLevel = heirloomIlvl;
         }
@@ -2198,6 +2200,16 @@ uint32 Item::GetItemLevel(Player const* owner) const
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
         itemLevel += _bonusData.GemItemLevelBonus[i];
+
+    if (owner->IsUsingPvpItemLevels())
+        itemLevel += sDB2Manager.GetPvpItemLevelBonus(GetEntry());
+
+    if (uint32 maxItemLevel = owner->GetUInt32Value(UNIT_FIELD_MAXITEMLEVEL))
+        itemLevel = std::min(itemLevel, maxItemLevel);
+
+    if (uint32 minItemLevel = owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL))
+        if (itemLevel >= owner->GetUInt32Value(UNIT_FIELD_MIN_ITEM_LEVEL_CUTOFF))
+            itemLevel = std::max(itemLevel, minItemLevel);
 
     return std::min(std::max(itemLevel, uint32(MIN_ITEM_LEVEL)), uint32(MAX_ITEM_LEVEL));
 }

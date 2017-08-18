@@ -2192,6 +2192,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
 
+        void UpdatePowerScaling();
+        void ActivatePvpItemLevels(bool activate) { _usePvpItemLevels = activate; }
+        bool IsUsingPvpItemLevels() const { return _usePvpItemLevels; }
+
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/
         /*********************************************************/
@@ -2689,6 +2693,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void _InitHonorLevelOnLoadFromDB(uint32 /*honor*/, uint32 /*honorLevel*/, uint32 /*prestigeLevel*/);
         std::unique_ptr<RestMgr> _restMgr;
+
+        bool _usePvpItemLevels;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

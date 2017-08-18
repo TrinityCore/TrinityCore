@@ -175,6 +175,7 @@ DB2Storage<PowerDisplayEntry>                   sPowerDisplayStore("PowerDisplay
 DB2Storage<PowerTypeEntry>                      sPowerTypeStore("PowerType.db2", PowerTypeLoadInfo::Instance());
 DB2Storage<PrestigeLevelInfoEntry>              sPrestigeLevelInfoStore("PrestigeLevelInfo.db2", PrestigeLevelInfoLoadInfo::Instance());
 DB2Storage<PvpDifficultyEntry>                  sPvpDifficultyStore("PvpDifficulty.db2", PvpDifficultyLoadInfo::Instance());
+DB2Storage<PvpItemEntry>                        sPvpItemStore("PvpItem.db2", PvpItemLoadInfo::Instance());
 DB2Storage<PvpRewardEntry>                      sPvpRewardStore("PvpReward.db2", PvpRewardLoadInfo::Instance());
 DB2Storage<QuestFactionRewardEntry>             sQuestFactionRewardStore("QuestFactionReward.db2", QuestFactionRewardLoadInfo::Instance());
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", QuestMoneyRewardLoadInfo::Instance());
@@ -338,6 +339,7 @@ namespace
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
+    std::unordered_map<uint32, uint8> _pvpItemBonus;
     std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> _pvpRewardPack;
     QuestPackageItemContainer _questPackages;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
@@ -575,6 +577,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sPowerTypeStore);
     LOAD_DB2(sPrestigeLevelInfoStore);
     LOAD_DB2(sPvpDifficultyStore);
+    LOAD_DB2(sPvpItemStore);
     LOAD_DB2(sPvpRewardStore);
     LOAD_DB2(sQuestFactionRewardStore);
     LOAD_DB2(sQuestMoneyRewardStore);
@@ -912,6 +915,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     {
         ASSERT(entry->BracketID < MAX_BATTLEGROUND_BRACKETS, "PvpDifficulty bracket (%d) exceeded max allowed value (%d)", entry->BracketID, MAX_BATTLEGROUND_BRACKETS);
     }
+
+    for (PvpItemEntry const* pvpItem : sPvpItemStore)
+        _pvpItemBonus[pvpItem->ItemID] = pvpItem->ItemLevelBonus;
 
     for (PvpRewardEntry const* pvpReward : sPvpRewardStore)
         _pvpRewardPack[std::make_pair(pvpReward->Prestige, pvpReward->HonorLevel)] = pvpReward->RewardPackID;
@@ -1827,6 +1833,15 @@ PowerTypeEntry const* DB2Manager::GetPowerTypeEntry(Powers power) const
 {
     ASSERT(power < MAX_POWERS);
     return _powerTypes[power];
+}
+
+uint8 DB2Manager::GetPvpItemLevelBonus(uint32 itemId) const
+{
+    auto itr = _pvpItemBonus.find(itemId);
+    if (itr != _pvpItemBonus.end())
+        return itr->second;
+
+    return 0;
 }
 
 std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsByRewardID(uint32 rewardPackID) const
