@@ -267,7 +267,7 @@ class npc_wg_spirit_guide : public CreatureScript
             void UpdateAI(uint32 diff) override
             {
                 if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    DoCast(me, SPELL_CHANNEL_SPIRIT_HEAL);
+                    DoCastSelf(SPELL_CHANNEL_SPIRIT_HEAL);
 
                 if (!_needSearch)
                     return;
@@ -455,8 +455,8 @@ class npc_wg_queue : public CreatureScript
                             }
                             break;
                         case EVENT_FROST_ARMOR:
-                            DoCast(me, SPELL_FROST_ARMOR);
-                            _events.Repeat(180000);
+                            DoCastSelf(SPELL_FROST_ARMOR);
+                            _events.Repeat(Minutes(3));
                             break;
                         default:
                             break;
