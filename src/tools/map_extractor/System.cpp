@@ -1337,6 +1337,25 @@ bool OpenCascStorage(int locale)
     }
 }
 
+uint32 GetInstalledLocalesMask()
+{
+    try
+    {
+        boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
+        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, 0);
+        if (!storage)
+            return false;
+
+        return CASC::GetInstalledLocalesMask(storage);
+    }
+    catch (boost::filesystem::filesystem_error const& error)
+    {
+        printf("Unable to determine installed locales mask: %s\n", error.what());
+    }
+
+    return 0;
+}
+
 static bool RetardCheck()
 {
     try
@@ -1375,11 +1394,13 @@ int main(int argc, char * arg[])
 
     HandleArgs(argc, arg);
 
-    int FirstLocale = -1;
-    uint32 build = 0;
-
     if (!RetardCheck())
         return 1;
+
+
+    uint32 installedLocalesMask = GetInstalledLocalesMask();
+    int32 firstInstalledLocale = -1;
+    uint32 build = 0;
 
     for (int i = 0; i < TOTAL_LOCALES; ++i)
     {
@@ -1389,12 +1410,15 @@ int main(int argc, char * arg[])
         if (i == LOCALE_none)
             continue;
 
+        if (!(installedLocalesMask & WowLocaleToCascLocaleFlags[i]))
+            continue;
+
         if (!OpenCascStorage(i))
             continue;
 
         if ((CONF_extract & EXTRACT_DBC) == 0)
         {
-            FirstLocale = i;
+            firstInstalledLocale = i;
             build = CASC::GetBuildNumber(CascStorage);
             if (!build)
             {
@@ -1418,14 +1442,14 @@ int main(int argc, char * arg[])
         ExtractDBFilesClient(i);
         CascStorage.reset();
 
-        if (FirstLocale < 0)
+        if (firstInstalledLocale < 0)
         {
-            FirstLocale = i;
+            firstInstalledLocale = i;
             build = tempBuild;
         }
     }
 
-    if (FirstLocale < 0)
+    if (firstInstalledLocale < 0)
     {
         printf("No locales detected\n");
         return 0;
@@ -1433,21 +1457,21 @@ int main(int argc, char * arg[])
 
     if (CONF_extract & EXTRACT_CAMERA)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(firstInstalledLocale);
         ExtractCameraFiles();
         CascStorage.reset();
     }
 
     if (CONF_extract & EXTRACT_GT)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(firstInstalledLocale);
         ExtractGameTables();
         CascStorage.reset();
     }
 
     if (CONF_extract & EXTRACT_MAP)
     {
-        OpenCascStorage(FirstLocale);
+        OpenCascStorage(firstInstalledLocale);
         ExtractMaps(build);
         CascStorage.reset();
     }
