@@ -652,11 +652,17 @@ void BattlefieldWintergrasp::OnCreatureCreate(Creature* creature)
                 _keepCannonList.insert(creature->GetGUID());
                 if (IsWarTime() && IsEnabled())
                 {
-                    ShowCreature(creature, false);
+                    creature->SetVisible(true);
+                    creature->SetReactState(REACT_PASSIVE);
+                    creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     creature->SetFaction(WintergraspFaction[GetDefenderTeam()]);
                 }
                 else
-                    HideCreature(creature);
+                {
+                    creature->SetReactState(REACT_PASSIVE);
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    creature->SetVisible(false);
+                }
             }
             break;
         case NPC_DWARVEN_SPIRIT_GUIDE:
