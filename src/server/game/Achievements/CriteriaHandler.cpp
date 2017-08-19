@@ -2289,6 +2289,7 @@ void CriteriaMgr::LoadCriteriaList()
     uint32 criterias = 0;
     uint32 guildCriterias = 0;
     uint32 scenarioCriterias = 0;
+    uint32 questObjectiveCriterias = 0;
     for (CriteriaEntry const* criteriaEntry : sCriteriaStore)
     {
         ASSERT(criteriaEntry->Type < CRITERIA_TYPE_TOTAL, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
@@ -2321,7 +2322,7 @@ void CriteriaMgr::LoadCriteriaList()
             else if (tree->ScenarioStep)
                 criteria->FlagsCu |= CRITERIA_FLAG_CU_SCENARIO;
             else if (tree->QuestObjective)
-                criteria->FlagsCu |= CRITERIA_FLAG_CU_PLAYER;
+                criteria->FlagsCu |= CRITERIA_FLAG_CU_QUESTOBJECTIVE;
         }
 
         if (criteria->FlagsCu & (CRITERIA_FLAG_CU_PLAYER | CRITERIA_FLAG_CU_ACCOUNT))
@@ -2342,6 +2343,12 @@ void CriteriaMgr::LoadCriteriaList()
             _scenarioCriteriasByType[criteriaEntry->Type].push_back(criteria);
         }
 
+        if (criteria->FlagsCu & CRITERIA_FLAG_CU_QUESTOBJECTIVE)
+        {
+            ++questObjectiveCriterias;
+            _questObjectiveCriteriasByType[criteriaEntry->Type].push_back(criteria);
+        }
+
         if (criteriaEntry->StartTimer)
             _criteriasByTimedType[criteriaEntry->StartEvent].push_back(criteria);
     }
@@ -2349,7 +2356,7 @@ void CriteriaMgr::LoadCriteriaList()
     for (auto& p : _criteriaTrees)
         const_cast<CriteriaTree*>(p.second)->Criteria = GetCriteria(p.second->Entry->CriteriaID);
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u criteria, %u guild criteria and %u scenario criteria in %u ms.", criterias, guildCriterias, scenarioCriterias, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u criteria, %u guild criteria, %u scenario criteria and %u quest objective criteria in %u ms.", criterias, guildCriterias, scenarioCriterias, questObjectiveCriterias, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void CriteriaMgr::LoadCriteriaData()

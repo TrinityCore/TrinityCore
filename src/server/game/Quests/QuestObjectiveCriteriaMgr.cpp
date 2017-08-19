@@ -187,9 +187,6 @@ void QuestObjectiveCriteriaMgr::ResetCriteria(CriteriaTypes type, uint64 miscVal
         bool allComplete = true;
         for (CriteriaTree const* tree : *trees)
         {
-            // only reset quest objective criterias
-            if (!tree->QuestObjective)
-                continue;
             // don't update already completed criteria if not forced
             if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete))
             {
@@ -232,7 +229,7 @@ void QuestObjectiveCriteriaMgr::CompletedObjective(QuestObjective const* objecti
     if (HasCompletedObjective(objective))
         return;
 
-    _owner->KillCreditCriteriaTreeObjective(objective);
+    referencePlayer->KillCreditCriteriaTreeObjective(objective);
 
     TC_LOG_INFO("criteria.quest", "QuestObjectiveCriteriaMgr::CompletedObjective(%u). %s", objective->ID, GetOwnerInfo().c_str());
 
@@ -307,7 +304,7 @@ void QuestObjectiveCriteriaMgr::SendPacket(WorldPacket const* data) const
 
 CriteriaList const& QuestObjectiveCriteriaMgr::GetCriteriaByType(CriteriaTypes type) const
 {
-    return sCriteriaMgr->GetPlayerCriteriaByType(type);
+    return sCriteriaMgr->GetQuestObjectiveCriteriaByType(type);
 }
 
 std::string QuestObjectiveCriteriaMgr::GetOwnerInfo() const

@@ -44,10 +44,11 @@ struct ModifierTreeNode
 
 enum CriteriaFlagsCu
 {
-    CRITERIA_FLAG_CU_PLAYER     = 0x1,
-    CRITERIA_FLAG_CU_ACCOUNT    = 0x2,
-    CRITERIA_FLAG_CU_GUILD      = 0x4,
-    CRITERIA_FLAG_CU_SCENARIO   = 0x8
+    CRITERIA_FLAG_CU_PLAYER         = 0x1,
+    CRITERIA_FLAG_CU_ACCOUNT        = 0x2,
+    CRITERIA_FLAG_CU_GUILD          = 0x4,
+    CRITERIA_FLAG_CU_SCENARIO       = 0x8,
+    CRITERIA_FLAG_CU_QUESTOBJECTIVE = 0x10
 };
 
 struct Criteria
@@ -332,6 +333,11 @@ public:
         return _scenarioCriteriasByType[type];
     }
 
+    CriteriaList const& GetQuestObjectiveCriteriaByType(CriteriaTypes type) const
+    {
+        return _questObjectiveCriteriasByType[type];
+    }
+
     CriteriaTreeList const* GetCriteriaTreesByCriteria(uint32 criteriaId) const
     {
         auto itr = _criteriaTreeByCriteria.find(criteriaId);
@@ -396,7 +402,8 @@ private:
     CriteriaList _criteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _guildCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _scenarioCriteriasByType[CRITERIA_TYPE_TOTAL];
-
+    CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];
+    
     CriteriaList _criteriasByTimedType[CRITERIA_TIMED_TYPE_MAX];
 };
 
