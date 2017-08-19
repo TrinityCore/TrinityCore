@@ -50,7 +50,7 @@ void BattlefieldMgr::Initialize()
     }
     else
     {
-        _battlefieldContainer[wintergrasp->GetBattleId()] = wintergrasp;
+        _battlefieldContainer[wintergrasp->GetZoneId()] = wintergrasp;
         TC_LOG_INFO("bg.battlefield", "BattlefieldMgr: wintergrasp successfully initiated");
     }
 }
