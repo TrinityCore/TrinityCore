@@ -178,7 +178,7 @@ enum AuraType
     SPELL_AURA_ADD_PCT_MODIFIER                             = 108,
     SPELL_AURA_ADD_TARGET_TRIGGER                           = 109,
     SPELL_AURA_MOD_POWER_REGEN_PERCENT                      = 110,
-    SPELL_AURA_ADD_CASTER_HIT_TRIGGER                       = 111,
+    SPELL_AURA_INTERCEPT_MELEE_RANGED_ATTACKS               = 111,
     SPELL_AURA_OVERRIDE_CLASS_SCRIPTS                       = 112,
     SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN                      = 113,
     SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT                  = 114,

@@ -6167,20 +6167,19 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
     return victim;
 }
 
-Unit* Unit::GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
+Unit* Unit::GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo /*= nullptr*/)
 {
-    AuraEffectList const& hitTriggerAuras = victim->GetAuraEffectsByType(SPELL_AURA_ADD_CASTER_HIT_TRIGGER);
-    for (AuraEffectList::const_iterator i = hitTriggerAuras.begin(); i != hitTriggerAuras.end(); ++i)
+    AuraEffectList const& interceptAuras = victim->GetAuraEffectsByType(SPELL_AURA_INTERCEPT_MELEE_RANGED_ATTACKS);
+    for (AuraEffectList::const_iterator i = interceptAuras.begin(); i != interceptAuras.end(); ++i)
     {
         if (Unit* magnet = (*i)->GetBase()->GetCaster())
             if (_IsValidAttackTarget(magnet, spellInfo) && magnet->IsWithinLOSInMap(this)
                 && (!spellInfo || (spellInfo->CheckExplicitTarget(this, magnet) == SPELL_CAST_OK
                 && spellInfo->CheckTarget(this, magnet, false) == SPELL_CAST_OK)))
-                if (roll_chance_i((*i)->GetAmount()))
-                {
-                    (*i)->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
-                    return magnet;
-                }
+            {
+                (*i)->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
+                return magnet;
+            }
     }
     return victim;
 }
