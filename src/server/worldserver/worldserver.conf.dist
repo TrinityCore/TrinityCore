@@ -1732,6 +1732,14 @@ ListenRange.Yell = 300
 
 Creature.MovingStopTimeForPlayer = 180000
 
+#    MonsterSight
+#        Description: The maximum distance in yards that a "monster" creature can see
+#                     regardless of level difference (through CreatureAI::IsVisible).
+#                     Increases CONFIG_SIGHT_MONSTER to 50 yards. Used to be 20 yards.
+#        Default:     50.000000
+
+MonsterSight = 50.000000
+
 #
 ###################################################################################################
 
