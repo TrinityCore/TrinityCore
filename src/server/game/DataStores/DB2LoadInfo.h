@@ -3528,6 +3528,21 @@ struct PvpDifficultyLoadInfo
     }
 };
 
+struct PvpItemLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "ItemID" },
+            { false, FT_BYTE, "ItemLevelBonus" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PVPItemMeta::Instance(), HOTFIX_SEL_PVP_ITEM);
+        return &loadInfo;
+    }
+};
+
 struct PvpRewardLoadInfo
 {
     static DB2LoadInfo const* Instance()
