@@ -1437,9 +1437,9 @@ class TC_GAME_API ObjectMgr
             auto itr = _terrainWorldMapStore.find(terrainId);
             return itr != _terrainWorldMapStore.end() ? &itr->second : nullptr;
         }
-        std::vector<PhaseInfoStruct> const* GetPhasesForArea(uint32 area) const
+        std::vector<PhaseInfoStruct> const* GetPhasesForAreaOrZone(uint32 areaOrZone) const
         {
-            auto itr = _phases.find(area);
+            auto itr = _phases.find(areaOrZone);
             return itr != _phases.end() ? &itr->second : nullptr;
         }
         TerrainPhaseInfo const& GetDefaultTerrainSwapStore() const { return _terrainMapDefaultStore; }

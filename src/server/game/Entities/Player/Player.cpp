@@ -16005,7 +16005,7 @@ void Player::SendQuestUpdate(uint32 questId)
     }
 
     UpdateForQuestWorldObjects();
-    SendUpdatePhasing();
+    UpdateAreaAndZonePhase();
 }
 
 QuestGiverStatus Player::GetQuestDialogStatus(Object* questgiver)
