@@ -2678,7 +2678,7 @@ Battleground.ReportAFK = 3
 #     Wintergrasp.Enable
 #         Description: Enable the Wintergrasp battlefield.
 #         Default:     0 - (Disabled)
-#                      1 - (Enabled, Experimental as in incomplete, bugged and with crashes)
+#                      1 - (Enabled)
 
 Wintergrasp.Enable = 0
 
