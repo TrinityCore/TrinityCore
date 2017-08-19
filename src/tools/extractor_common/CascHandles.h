@@ -50,6 +50,7 @@ namespace CASC
 
     StorageHandle OpenStorage(boost::filesystem::path const& path, DWORD localeMask);
     DWORD GetBuildNumber(StorageHandle const& storage);
+    DWORD GetInstalledLocalesMask(StorageHandle const& storage);
 
     FileHandle OpenFile(StorageHandle const& storage, char const* fileName, DWORD localeMask, bool printErrors = false);
     DWORD GetFileSize(FileHandle const& file, PDWORD fileSizeHigh);
