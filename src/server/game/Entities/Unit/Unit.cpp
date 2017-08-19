@@ -240,15 +240,8 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
     _damageInfo(damageInfo), _healInfo(healInfo)
 { }
 
-SpellNonMeleeDamage::SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _SpellXSpellVisualID, uint32 _schoolMask, ObjectGuid _castId)
-    : target(_target), attacker(_attacker), castId(_castId), SpellID(_SpellID), SpellXSpellVisualID(_SpellXSpellVisualID), damage(0), schoolMask(_schoolMask),
-    absorb(0), resist(0), periodicLog(false), blocked(0), HitInfo(0), cleanDamage(0), preHitHealth(_target->GetHealth())
-{
-}
-
 SpellInfo const* ProcEventInfo::GetSpellInfo() const
 {
-    /// WORKAROUND: unfinished new proc system
     if (_spell)
         return _spell->GetSpellInfo();
     if (_damageInfo)
@@ -260,7 +253,6 @@ SpellInfo const* ProcEventInfo::GetSpellInfo() const
 
 SpellSchoolMask ProcEventInfo::GetSchoolMask() const
 {
-    /// WORKAROUND: unfinished new proc system
     if (_spell)
         return _spell->GetSpellInfo()->GetSchoolMask();
     if (_damageInfo)
@@ -268,6 +260,12 @@ SpellSchoolMask ProcEventInfo::GetSchoolMask() const
     if (_healInfo)
         return _healInfo->GetSchoolMask();
     return SPELL_SCHOOL_MASK_NONE;
+}
+
+SpellNonMeleeDamage::SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _SpellXSpellVisualID, uint32 _schoolMask, ObjectGuid _castId)
+    : target(_target), attacker(_attacker), castId(_castId), SpellID(_SpellID), SpellXSpellVisualID(_SpellXSpellVisualID), damage(0), schoolMask(_schoolMask),
+    absorb(0), resist(0), periodicLog(false), blocked(0), HitInfo(0), cleanDamage(0), preHitHealth(_target->GetHealth())
+{
 }
 
 Unit::Unit(bool isWorldObject) :
@@ -6167,20 +6165,19 @@ Unit* Unit::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
     return victim;
 }
 
-Unit* Unit::GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo)
+Unit* Unit::GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo /*= nullptr*/)
 {
-    AuraEffectList const& hitTriggerAuras = victim->GetAuraEffectsByType(SPELL_AURA_ADD_CASTER_HIT_TRIGGER);
-    for (AuraEffectList::const_iterator i = hitTriggerAuras.begin(); i != hitTriggerAuras.end(); ++i)
+    AuraEffectList const& interceptAuras = victim->GetAuraEffectsByType(SPELL_AURA_INTERCEPT_MELEE_RANGED_ATTACKS);
+    for (AuraEffectList::const_iterator i = interceptAuras.begin(); i != interceptAuras.end(); ++i)
     {
         if (Unit* magnet = (*i)->GetBase()->GetCaster())
             if (_IsValidAttackTarget(magnet, spellInfo) && magnet->IsWithinLOSInMap(this)
                 && (!spellInfo || (spellInfo->CheckExplicitTarget(this, magnet) == SPELL_CAST_OK
                 && spellInfo->CheckTarget(this, magnet, false) == SPELL_CAST_OK)))
-                if (roll_chance_i((*i)->GetAmount()))
-                {
-                    (*i)->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
-                    return magnet;
-                }
+            {
+                (*i)->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
+                return magnet;
+            }
     }
     return victim;
 }

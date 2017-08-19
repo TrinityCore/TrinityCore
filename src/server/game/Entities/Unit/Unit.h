@@ -1719,7 +1719,7 @@ class TC_GAME_API Unit : public WorldObject
         void UnsummonAllTotems();
         bool IsMagnet() const;
         Unit* GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo);
-        Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = NULL);
+        Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = nullptr);
 
         int32  SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const;
         int32  SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const;
