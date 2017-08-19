@@ -168,7 +168,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         Creature* GetCreature(ObjectGuid guid);
         GameObject* GetGameObject(ObjectGuid guid);
 
-        void SetTimer(uint32 timer) { _timer = timer; }
+        void SetTimer(uint32 timer) { _timer.Reset(timer); }
         void SetDefenderTeam(TeamId team) { _defenderTeam = team; }
         void SetGraveyardNumber(uint32 number) { _graveyardList.resize(number); }
 

@@ -275,9 +275,12 @@ bool Battlefield::InvitePlayerToWar(Player* player)
         return false;
 
     // check if player is not already in war
-    if (_playersInWar[player->GetTeamId()].find(player->GetGUID()) != _playersInWar[player->GetTeamId()].end() ||
-        _invitedPlayers[player->GetTeamId()].find(player->GetGUID()) != _invitedPlayers[player->GetTeamId()].end())
-        return false;
+    if (_playersInWar[player->GetTeamId()].find(player->GetGUID()) != _playersInWar[player->GetTeamId()].end())
+        return true;
+
+    // check if already invited
+    if (_invitedPlayers[player->GetTeamId()].find(player->GetGUID()) != _invitedPlayers[player->GetTeamId()].end())
+        return true;
 
     // vacant spaces
     if (_playersInWar[player->GetTeamId()].size() + _invitedPlayers[player->GetTeamId()].size() > _maxPlayerCount)
@@ -286,7 +289,6 @@ bool Battlefield::InvitePlayerToWar(Player* player)
     _playersToKick[player->GetTeamId()].erase(player->GetGUID());
     _invitedPlayers[player->GetTeamId()][player->GetGUID()] = time(nullptr) + _acceptInviteTime;
     player->GetSession()->SendBattlefieldInvitePlayerToWar(_battleId, _zoneId, _acceptInviteTime);
-
     return true;
 }
 
