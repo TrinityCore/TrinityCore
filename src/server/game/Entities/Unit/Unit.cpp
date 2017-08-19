@@ -240,15 +240,8 @@ ProcEventInfo::ProcEventInfo(Unit* actor, Unit* actionTarget, Unit* procTarget,
     _damageInfo(damageInfo), _healInfo(healInfo)
 { }
 
-SpellNonMeleeDamage::SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _SpellXSpellVisualID, uint32 _schoolMask, ObjectGuid _castId)
-    : target(_target), attacker(_attacker), castId(_castId), SpellID(_SpellID), SpellXSpellVisualID(_SpellXSpellVisualID), damage(0), schoolMask(_schoolMask),
-    absorb(0), resist(0), periodicLog(false), blocked(0), HitInfo(0), cleanDamage(0), preHitHealth(_target->GetHealth())
-{
-}
-
 SpellInfo const* ProcEventInfo::GetSpellInfo() const
 {
-    /// WORKAROUND: unfinished new proc system
     if (_spell)
         return _spell->GetSpellInfo();
     if (_damageInfo)
@@ -260,7 +253,6 @@ SpellInfo const* ProcEventInfo::GetSpellInfo() const
 
 SpellSchoolMask ProcEventInfo::GetSchoolMask() const
 {
-    /// WORKAROUND: unfinished new proc system
     if (_spell)
         return _spell->GetSpellInfo()->GetSchoolMask();
     if (_damageInfo)
@@ -268,6 +260,12 @@ SpellSchoolMask ProcEventInfo::GetSchoolMask() const
     if (_healInfo)
         return _healInfo->GetSchoolMask();
     return SPELL_SCHOOL_MASK_NONE;
+}
+
+SpellNonMeleeDamage::SpellNonMeleeDamage(Unit* _attacker, Unit* _target, uint32 _SpellID, uint32 _SpellXSpellVisualID, uint32 _schoolMask, ObjectGuid _castId)
+    : target(_target), attacker(_attacker), castId(_castId), SpellID(_SpellID), SpellXSpellVisualID(_SpellXSpellVisualID), damage(0), schoolMask(_schoolMask),
+    absorb(0), resist(0), periodicLog(false), blocked(0), HitInfo(0), cleanDamage(0), preHitHealth(_target->GetHealth())
+{
 }
 
 Unit::Unit(bool isWorldObject) :
