@@ -358,6 +358,9 @@ void PlayerAchievementMgr::ResetCriteria(CriteriaTypes type, uint64 miscValue1, 
         bool allComplete = true;
         for (CriteriaTree const* tree : *trees)
         {
+            // only reset achievement criterias
+            if (!tree->Achievement)
+                continue;
             // don't update already completed criteria if not forced or achievement already complete
             if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete) || !HasAchieved(tree->Achievement->ID))
             {

@@ -2227,19 +2227,34 @@ void CriteriaMgr::LoadCriteriaList()
         if (scenarioStep->CriteriaTreeID)
             scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
 
+    std::unordered_map<uint32 /*criteriaTreeID*/, QuestObjective const*> questObjectiveCriteriaTreeIds;
+    for (std::pair<uint32 /*questID*/, Quest const*> itr : sObjectMgr->GetQuestTemplates())
+    {
+        for (QuestObjective const& objective : itr.second->Objectives)
+        {
+            if (objective.Type != QUEST_OBJECTIVE_CRITERIA_TREE)
+                continue;
+
+            if (objective.ObjectID)
+                questObjectiveCriteriaTreeIds[objective.ObjectID] = &objective;
+        }
+    }
+
     // Load criteria tree nodes
     for (CriteriaTreeEntry const* tree : sCriteriaTreeStore)
     {
         // Find linked achievement
         AchievementEntry const* achievement = GetEntry(achievementCriteriaTreeIds, tree);
         ScenarioStepEntry const* scenarioStep = GetEntry(scenarioCriteriaTreeIds, tree);
-        if (!achievement && !scenarioStep)
+        QuestObjective const* questObjective = GetEntry(questObjectiveCriteriaTreeIds, tree);
+        if (!achievement && !scenarioStep && !questObjective)
             continue;
 
         CriteriaTree* criteriaTree = new CriteriaTree();
         criteriaTree->ID = tree->ID;
         criteriaTree->Achievement = achievement;
         criteriaTree->ScenarioStep = scenarioStep;
+        criteriaTree->QuestObjective = questObjective;
         criteriaTree->Entry = tree;
 
         _criteriaTrees[criteriaTree->Entry->ID] = criteriaTree;
@@ -2305,6 +2320,8 @@ void CriteriaMgr::LoadCriteriaList()
             }
             else if (tree->ScenarioStep)
                 criteria->FlagsCu |= CRITERIA_FLAG_CU_SCENARIO;
+            else if (tree->QuestObjective)
+                criteria->FlagsCu |= CRITERIA_FLAG_CU_PLAYER;
         }
 
         if (criteria->FlagsCu & (CRITERIA_FLAG_CU_PLAYER | CRITERIA_FLAG_CU_ACCOUNT))
