@@ -59,7 +59,6 @@ enum Spells
     SPELL_DEVOURING_FLAME                   = 63236,
     SPELL_WING_BUFFET                       = 62666,
     SPELL_FIREBOLT                          = 62669,
-    SPELL_FLAME_BREATH                      = 63317,
     SPELL_FUSE_ARMOR                        = 64821,
     SPELL_FUSED_ARMOR                       = 64774,
     SPELL_STUN_SELF                         = 62794,
@@ -84,10 +83,6 @@ enum Spells
     SPELL_TRIGGER_SUMMON_IRON_VRYKUL        = 63798,
     SPELL_SUMMON_IRON_DWARF_WATCHER         = 63135,
 
-    // Dark Rune Watcher
-    SPELL_CHAIN_LIGHTNING                   = 64758,
-    SPELL_LIGHTNING_BOLT                    = 63809,
-
     // Dark Rune Guardian
     SPELL_STORMSTRIKE                       = 64757,
 
@@ -102,6 +97,11 @@ enum Spells
     // Expedition Trapper
     SPELL_SHACKLE                           = 62646
 };
+
+#define DEVOURING_FLAME_GROUND RAID_MODE<uint32>(64709, 64734)
+#define FLAME_BREATH           RAID_MODE<uint32>(63317, 64021)
+#define CHAIN_LIGHTNING        RAID_MODE<uint32>(64758, 64759)
+#define LIGHTNING_BOLT         RAID_MODE<uint32>(63809, 64696)
 
 enum Actions
 {
@@ -612,12 +612,12 @@ public:
                     case EVENT_FLAME_BREATH:
                         me->RemoveAurasDueToSpell(SPELL_STUN_SELF);
                         Talk(EMOTE_BREATH, me);
-                        DoCastVictim(SPELL_FLAME_BREATH);
+                        DoCastVictim(FLAME_BREATH);
                         events.ScheduleEvent(EVENT_WING_BUFFET, Seconds(2), 0, PHASE_GROUND);
                         break;
                     case EVENT_FLAME_BREATH_GROUND:
                         Talk(EMOTE_BREATH, me);
-                        DoCastVictim(SPELL_FLAME_BREATH);
+                        DoCastVictim(FLAME_BREATH);
                         events.Repeat(Seconds(15), Seconds(18));
                         break;
                     case EVENT_WING_BUFFET:
@@ -1360,11 +1360,11 @@ public:
                         me->SetInCombatWithZone();
                         break;
                     case EVENT_LIGHTNING_BOLT:
-                        DoCastVictim(SPELL_LIGHTNING_BOLT);
+                        DoCastVictim(LIGHTNING_BOLT);
                         _events.Repeat(Seconds(3));
                         break;
                     case EVENT_CHAIN_LIGHTNING:
-                        DoCastVictim(SPELL_CHAIN_LIGHTNING);
+                        DoCastVictim(CHAIN_LIGHTNING);
                         _events.Repeat(Seconds(9), Seconds(15));
                         break;
                     default:
@@ -1551,7 +1551,7 @@ public:
 
     struct npc_razorscale_harpoon_fire_stateAI : public ScriptedAI
     {
-        npc_razorscale_harpoon_fire_stateAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()){ }
+        npc_razorscale_harpoon_fire_stateAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
         void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
@@ -1569,6 +1569,27 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return GetUlduarAI<npc_razorscale_harpoon_fire_stateAI>(creature);
+    }
+};
+
+class npc_razorscale_devouring_flame : public CreatureScript
+{
+public:
+    npc_razorscale_devouring_flame() : CreatureScript("npc_razorscale_devouring_flame") { }
+
+    struct npc_razorscale_devouring_flameAI : public ScriptedAI
+    {
+        npc_razorscale_devouring_flameAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
+        {
+            DoCastSelf(DEVOURING_FLAME_GROUND);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetUlduarAI<npc_razorscale_devouring_flameAI>(creature);
     }
 };
 
@@ -1678,166 +1699,118 @@ public:
 };
 
 /* 63317 - Flame Breath
-   64021 - Flame Breath
-*/
-class spell_razorscale_flame_breath : public SpellScriptLoader
+   64021 - Flame Breath */
+class spell_razorscale_flame_breath : public SpellScript
 {
-public:
-    spell_razorscale_flame_breath() : SpellScriptLoader("spell_razorscale_flame_breath") { }
+    PrepareSpellScript(spell_razorscale_flame_breath);
 
-    class spell_razorscale_flame_breath_SpellScript : public SpellScript
+    void CheckDamage()
     {
-        PrepareSpellScript(spell_razorscale_flame_breath_SpellScript);
+        Creature* target = GetHitCreature();
+        if (!target || target->GetEntry() != NPC_DARK_RUNE_GUARDIAN || !target->IsAlive())
+            return;
 
-        void CheckDamage()
-        {
-            Creature* target = GetHitCreature();
-            if (!target || target->GetEntry() != NPC_DARK_RUNE_GUARDIAN || !target->IsAlive())
-                return;
+        if (GetHitDamage() >= int32(target->GetHealth()))
+            target->AI()->SetData(DATA_IRON_DWARF_MEDIUM_RARE, 1);
+    }
 
-            if (GetHitDamage() >= int32(target->GetHealth()))
-                target->AI()->SetData(DATA_IRON_DWARF_MEDIUM_RARE, 1);
-        }
-
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            targets.remove_if([](WorldObject* obj)
-            {
-                if (Creature* target = obj->ToCreature())
-                    if (target->IsTrigger())
-                        return true;
-
-                return false;
-            });
-        }
-
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_razorscale_flame_breath_SpellScript::CheckDamage);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_razorscale_flame_breath_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CONE_ENTRY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        return new spell_razorscale_flame_breath_SpellScript();
+        targets.remove_if([](WorldObject* obj)
+        {
+            if (Creature* target = obj->ToCreature())
+                if (target->IsTrigger())
+                    return true;
+
+            return false;
+        });
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_razorscale_flame_breath::CheckDamage);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_razorscale_flame_breath::FilterTargets, EFFECT_1, TARGET_UNIT_CONE_ENTRY);
     }
 };
 
 /* 63968 - Summon Iron Dwarves
    63970 - Summon Iron Dwarves
-   63969 - Summon Iron Dwarves
-*/
-class spell_razorscale_summon_iron_dwarves : public SpellScriptLoader
+   63969 - Summon Iron Dwarves */
+class spell_razorscale_summon_iron_dwarves : public SpellScript
 {
-public: spell_razorscale_summon_iron_dwarves() : SpellScriptLoader("spell_razorscale_summon_iron_dwarves") { }
+    PrepareSpellScript(spell_razorscale_summon_iron_dwarves);
 
-        class spell_razorscale_summon_iron_dwarves_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_razorscale_summon_iron_dwarves_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo
-                ({
-                    SPELL_SUMMON_IRON_DWARF_GUARDIAN,
-                    SPELL_SUMMON_IRON_DWARF_WATCHER
-                });
-            }
-
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                switch (GetSpellInfo()->Id)
-                {
-                    case SPELL_TRIGGER_SUMMON_IRON_DWARVES:
-                        caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_GUARDIAN, true);
-                        caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_GUARDIAN, true);
-                        caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_WATCHER, true);
-                        break;
-                    case SPELL_TRIGGER_SUMMON_IRON_DWARVES_2:
-                    case SPELL_TRIGGER_SUMMON_IRON_DWARVES_3:
-                        caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_GUARDIAN, true);
-                        caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_WATCHER, true);
-                        caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_WATCHER, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_razorscale_summon_iron_dwarves_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_razorscale_summon_iron_dwarves_SpellScript();
-        }
-};
-
-// 64771 - Fuse Armor
-class spell_razorscale_fuse_armor : public SpellScriptLoader
-{
-public:
-    spell_razorscale_fuse_armor() : SpellScriptLoader("spell_razorscale_fuse_armor") { }
-
-    class spell_razorscale_fuse_armor_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareAuraScript(spell_razorscale_fuse_armor_AuraScript);
+        return ValidateSpellInfo
+        ({
+            SPELL_SUMMON_IRON_DWARF_GUARDIAN,
+            SPELL_SUMMON_IRON_DWARF_WATCHER
+        });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo
-            ({
-                SPELL_FUSED_ARMOR
-            });
-        }
-
-        void HandleFused(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (GetStackAmount() == 5)
-                GetTarget()->CastSpell(GetTarget(), SPELL_FUSED_ARMOR, true);
-        }
-
-        void Register() override
-        {
-            AfterEffectApply += AuraEffectRemoveFn(spell_razorscale_fuse_armor_AuraScript::HandleFused, EFFECT_1, SPELL_AURA_MOD_MELEE_HASTE, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        return new spell_razorscale_fuse_armor_AuraScript();
+        Unit* caster = GetCaster();
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_TRIGGER_SUMMON_IRON_DWARVES:
+                caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_GUARDIAN, true);
+                caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_GUARDIAN, true);
+                caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_WATCHER, true);
+                break;
+            case SPELL_TRIGGER_SUMMON_IRON_DWARVES_2:
+            case SPELL_TRIGGER_SUMMON_IRON_DWARVES_3:
+                caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_GUARDIAN, true);
+                caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_WATCHER, true);
+                caster->CastSpell(caster, SPELL_SUMMON_IRON_DWARF_WATCHER, true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_razorscale_summon_iron_dwarves::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
-class spell_razorscale_firebolt : public SpellScriptLoader
+// 64771 - Fuse Armor
+class spell_razorscale_fuse_armor : public AuraScript
 {
-public:
-    spell_razorscale_firebolt() : SpellScriptLoader("spell_razorscale_firebolt") { }
+    PrepareAuraScript(spell_razorscale_fuse_armor);
 
-    class spell_razorscale_firebolt_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_razorscale_firebolt_SpellScript);
+        return ValidateSpellInfo({ SPELL_FUSED_ARMOR });
+    }
 
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            targets.remove_if([](WorldObject* obj) { return obj->GetEntry() != NPC_RAZORSCALE_HARPOON_FIRE_STATE; });
-        }
-
-        void Register() override
-        {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_razorscale_firebolt_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleFused(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        return new spell_razorscale_firebolt_SpellScript();
+        if (GetStackAmount() == 5)
+            GetTarget()->CastSpell(GetTarget(), SPELL_FUSED_ARMOR, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_razorscale_fuse_armor::HandleFused, EFFECT_1, SPELL_AURA_MOD_MELEE_HASTE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 62669 - Firebolt
+class spell_razorscale_firebolt : public SpellScript
+{
+    PrepareSpellScript(spell_razorscale_firebolt);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject* obj) { return obj->GetEntry() != NPC_RAZORSCALE_HARPOON_FIRE_STATE; });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_razorscale_firebolt::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
@@ -1880,12 +1853,13 @@ void AddSC_boss_razorscale()
     new npc_darkrune_guardian();
     new npc_darkrune_sentinel();
     new npc_razorscale_harpoon_fire_state();
+    new npc_razorscale_devouring_flame();
     new go_razorscale_harpoon();
     new go_razorscale_mole_machine();
-    new spell_razorscale_flame_breath();
-    new spell_razorscale_summon_iron_dwarves();
-    new spell_razorscale_fuse_armor();
-    new spell_razorscale_firebolt();
+    RegisterSpellScript(spell_razorscale_flame_breath);
+    RegisterSpellScript(spell_razorscale_summon_iron_dwarves);
+    RegisterAuraScript(spell_razorscale_fuse_armor);
+    RegisterSpellScript(spell_razorscale_firebolt);
     new achievement_iron_dwarf_medium_rare();
     new achievement_quick_shave();
 }
