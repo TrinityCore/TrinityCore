@@ -30,8 +30,8 @@ enum Spells
 {
     SPELL_CURSEOFAGONY          = 34794,
     SPELL_SHADOWSHOCK           = 34799,
-    SPELL_SILENCE               = 34803,
-    SPELL_FEAR                  = 34803
+    SPELL_SILENCE               = 15487,
+    SPELL_FEAR                  = 5782
 };
 
 enum Events
