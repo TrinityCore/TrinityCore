@@ -55,6 +55,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 #include "WorldSession.h"
+#include "GameEventMgr.h"
 
 /*######
 ## go_cat_figurine
@@ -1191,6 +1192,137 @@ class go_toy_train_set : public GameObjectScript
         }
 };
 
+/*####
+## go_brewfest_music
+####*/
+
+enum BrewfestMusic
+{
+    EVENT_BREWFESTDWARF01 = 11810, // 1.35 min
+    EVENT_BREWFESTDWARF02 = 11812, // 1.55 min 
+    EVENT_BREWFESTDWARF03 = 11813, // 0.23 min
+    EVENT_BREWFESTGOBLIN01 = 11811, // 1.08 min
+    EVENT_BREWFESTGOBLIN02 = 11814, // 1.33 min
+    EVENT_BREWFESTGOBLIN03 = 11815 // 0.28 min
+};
+
+// These are in seconds
+enum BrewfestMusicTime
+{
+    EVENT_BREWFESTDWARF01_TIME = 95000,
+    EVENT_BREWFESTDWARF02_TIME = 155000,
+    EVENT_BREWFESTDWARF03_TIME = 23000,
+    EVENT_BREWFESTGOBLIN01_TIME = 68000,
+    EVENT_BREWFESTGOBLIN02_TIME = 93000,
+    EVENT_BREWFESTGOBLIN03_TIME = 28000
+};
+
+enum BrewfestMusicAreas
+{
+    SILVERMOON = 3430, // Horde
+    UNDERCITY = 1497,
+    ORGRIMMAR_1 = 1296,
+    ORGRIMMAR_2 = 14,
+    THUNDERBLUFF = 1638,
+    IRONFORGE_1 = 809, // Alliance
+    IRONFORGE_2 = 1,
+    STORMWIND = 12,
+    EXODAR = 3557,
+    DARNASSUS = 1657,
+    SHATTRATH = 3703 // General
+};
+
+enum BrewfestMusicEvents
+{
+    EVENT_BM_SELECT_MUSIC = 1,
+    EVENT_BM_START_MUSIC = 2
+};
+
+class go_brewfest_music : public GameObjectScript
+{
+public:
+    go_brewfest_music() : GameObjectScript("go_brewfest_music") { }
+
+    struct go_brewfest_musicAI : public GameObjectAI
+    {
+        go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
+        {
+            _events.ScheduleEvent(EVENT_BM_SELECT_MUSIC, 1000);
+            _events.ScheduleEvent(EVENT_BM_START_MUSIC, 2000);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+            uint32 rnd;
+            uint32 musicTime = 1000;
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_BM_SELECT_MUSIC:
+                    if (!IsHolidayActive(HOLIDAY_BREWFEST)) // Check if Brewfest is active
+                        break;
+                    rnd = urand(0, 2); // Select random music sample
+                    _events.ScheduleEvent(EVENT_BM_SELECT_MUSIC, musicTime); // Select new song music after play time is over
+                    break;
+                case EVENT_BM_START_MUSIC:
+                    if (!IsHolidayActive(HOLIDAY_BREWFEST)) // Check if Brewfest is active
+                        break;
+                    // Check if gob is correct area, play music, set time of music
+                    if (go->GetAreaId() == SILVERMOON || go->GetAreaId() == UNDERCITY || go->GetAreaId() == ORGRIMMAR_1 || go->GetAreaId() == ORGRIMMAR_2 || go->GetAreaId() == THUNDERBLUFF || go->GetAreaId() == SHATTRATH)
+                    {
+                        if (rnd == 0)
+                        {
+                            go->PlayDirectMusic(EVENT_BREWFESTGOBLIN01);
+                            musicTime = EVENT_BREWFESTGOBLIN01_TIME;
+                        }
+                        else if (rnd == 1)
+                        {
+                            go->PlayDirectMusic(EVENT_BREWFESTGOBLIN02);
+                            musicTime = EVENT_BREWFESTGOBLIN02_TIME;
+                        }
+                        else
+                        {
+                            go->PlayDirectMusic(EVENT_BREWFESTGOBLIN03);
+                            musicTime = EVENT_BREWFESTGOBLIN03_TIME;
+                        }
+                    }
+                    if (go->GetAreaId() == IRONFORGE_1 || go->GetAreaId() == IRONFORGE_2 || go->GetAreaId() == STORMWIND || go->GetAreaId() == EXODAR || go->GetAreaId() == DARNASSUS || go->GetAreaId() == SHATTRATH)
+                    {
+                        if (rnd == 0)
+                        {
+                            go->PlayDirectMusic(EVENT_BREWFESTDWARF01);
+                            musicTime = EVENT_BREWFESTDWARF01_TIME;
+                        }
+                        else if (rnd == 1)
+                        {
+                            go->PlayDirectMusic(EVENT_BREWFESTDWARF02);
+                            musicTime = EVENT_BREWFESTDWARF02_TIME;
+                        }
+                        else
+                        {
+                            go->PlayDirectMusic(EVENT_BREWFESTDWARF03);
+                            musicTime = EVENT_BREWFESTDWARF03_TIME;
+                        }
+                    }
+                    _events.ScheduleEvent(EVENT_BM_START_MUSIC, 5000); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+    private:
+        EventMap _events;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_brewfest_musicAI(go);
+    }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine();
@@ -1228,4 +1360,5 @@ void AddSC_go_scripts()
     new go_midsummer_bonfire();
     new go_midsummer_ribbon_pole();
     new go_toy_train_set();
+    new go_brewfest_music();
 }
