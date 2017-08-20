@@ -598,8 +598,7 @@ public:
             if (moneyToAdd >= int64(MAX_MONEY_AMOUNT))
                 moneyToAdd = MAX_MONEY_AMOUNT;
 
-            if (targetMoney >= uint64(MAX_MONEY_AMOUNT) - moneyToAdd)
-                moneyToAdd -= targetMoney;
+            moneyToAdd = std::min(moneyToAdd, int64(MAX_MONEY_AMOUNT - targetMoney));
 
             target->ModifyMoney(moneyToAdd);
         }
