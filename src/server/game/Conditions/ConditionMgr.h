@@ -154,7 +154,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16,
     CONDITION_SOURCE_TYPE_SPELL                          = 17,
     CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT              = 18,
-    CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19,
+    CONDITION_SOURCE_TYPE_QUEST_AVAILABLE                = 19,
     // Condition source type 20 unused
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
     CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
