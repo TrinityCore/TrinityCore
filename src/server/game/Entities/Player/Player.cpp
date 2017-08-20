@@ -89,6 +89,7 @@
 #include "PetPackets.h"
 #include "QueryHolder.h"
 #include "QuestDef.h"
+#include "QuestObjectiveCriteriaMgr.h"
 #include "QuestPackets.h"
 #include "Realm.h"
 #include "ReputationMgr.h"
@@ -346,6 +347,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 
     m_achievementMgr = new PlayerAchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
+    m_questObjectiveCriteriaMgr = new QuestObjectiveCriteriaMgr(this);
 
     for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
         _CUFProfiles[i] = nullptr;
@@ -383,6 +385,7 @@ Player::~Player()
     delete m_runes;
     delete m_achievementMgr;
     delete m_reputationMgr;
+    delete m_questObjectiveCriteriaMgr;
     delete _cinematicMgr;
 
     for (uint8 i = 0; i < VOID_STORAGE_MAX_SLOT; ++i)
@@ -14745,6 +14748,11 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
 {
     AddQuest(quest, questGiver);
 
+    for (QuestObjective const& obj : quest->GetObjectives())
+        if (obj.Type == QUEST_OBJECTIVE_CRITERIA_TREE)
+            if (m_questObjectiveCriteriaMgr->HasCompletedObjective(&obj))
+                KillCreditCriteriaTreeObjective(&obj);
+
     if (CanCompleteQuest(quest->GetQuestId()))
         CompleteQuest(quest->GetQuestId());
 
@@ -16563,6 +16571,37 @@ void Player::TalkedToCreature(uint32 entry, ObjectGuid guid)
     }
 }
 
+void Player::KillCreditCriteriaTreeObjective(QuestObjective const* objective)
+{
+    if (objective->Type != QUEST_OBJECTIVE_CRITERIA_TREE)
+        return;
+
+    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    {
+        uint32 questid = GetQuestSlotQuestId(i);
+        if (!questid)
+            continue;
+
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
+        if (!qInfo)
+            continue;
+
+        if (objective->QuestID != questid)
+            continue;
+
+        QuestStatusData& q_status = m_QuestStatus[questid];
+
+        if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+        {
+            SetQuestObjectiveData(*objective, objective->Amount);
+            SendQuestUpdateAddCreditSimple(*objective);
+
+            if (CanCompleteQuest(questid))
+                CompleteQuest(questid);
+        }
+    }
+}
+
 void Player::MoneyChanged(uint64 value)
 {
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
@@ -16797,6 +16836,7 @@ bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
         case QUEST_OBJECTIVE_WINPVPPETBATTLES:
         case QUEST_OBJECTIVE_HAVE_CURRENCY:
         case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
+        case QUEST_OBJECTIVE_CRITERIA_TREE:
             if (GetQuestObjectiveData(quest, objective.StorageIndex) < objective.Amount)
                 return false;
             break;
@@ -17389,6 +17429,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
 
     // load achievements before anything else to prevent multiple gains for the same achievement/criteria on every loading (as loading does call UpdateCriteria)
     m_achievementMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACHIEVEMENTS), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_CRITERIA_PROGRESS));
+    m_questObjectiveCriteriaMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_CRITERIA), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS_OBJECTIVES_CRITERIA_PROGRESS));
 
     uint64 money = fields[8].GetUInt64();
     if (money > MAX_MONEY_AMOUNT)
@@ -18056,6 +18097,7 @@ bool Player::LoadFromDB(ObjectGuid guid, SQLQueryHolder *holder)
     }
 
     m_achievementMgr->CheckAllAchievementCriteria(this);
+    m_questObjectiveCriteriaMgr->CheckAllQuestObjectiveCriteria(this);
     return true;
 }
 
@@ -19966,6 +20008,7 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveSkills(trans);
     m_achievementMgr->SaveToDB(trans);
     m_reputationMgr->SaveToDB(trans);
+    m_questObjectiveCriteriaMgr->SaveToDB(trans);
     _SaveEquipmentSets(trans);
     GetSession()->SaveTutorialsData(trans);                 // changed only while character in game
     _SaveInstanceTimeRestrictions(trans);
@@ -23448,6 +23491,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendEquipmentSetList();
 
     m_achievementMgr->SendAllData(this);
+    m_questObjectiveCriteriaMgr->SendAllData(this);
 
     /// SMSG_LOGIN_SETTIMESPEED
     static float const TimeSpeed = 0.01666667f;
@@ -25336,6 +25380,11 @@ void Player::SetTitle(CharTitlesEntry const* title, bool lost)
     GetSession()->SendPacket(packet.Write());
 }
 
+void Player::ResetQuestObjectiveCriteria()
+{
+    m_questObjectiveCriteriaMgr->Reset();
+}
+
 bool Player::isTotalImmunity() const
 {
     AuraEffectList const& immune = GetAuraEffectsByType(SPELL_AURA_SCHOOL_IMMUNITY);
@@ -25876,11 +25925,13 @@ void Player::RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
 void Player::ResetCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, bool evenIfCriteriaComplete /* = false*/)
 {
     m_achievementMgr->ResetCriteria(type, miscValue1, miscValue2, evenIfCriteriaComplete);
+    m_questObjectiveCriteriaMgr->ResetCriteria(type, miscValue1, miscValue2, evenIfCriteriaComplete);
 }
 
 void Player::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0*/, uint64 miscValue2 /*= 0*/, uint64 miscValue3 /*= 0*/, Unit* unit /*= NULL*/)
 {
     m_achievementMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
+    m_questObjectiveCriteriaMgr->UpdateCriteria(type, miscValue1, miscValue2, miscValue3, unit, this);
 
     // Update only individual achievement criteria here, otherwise we may get multiple updates
     // from a single boss kill

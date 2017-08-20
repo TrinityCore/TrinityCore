@@ -1186,6 +1186,55 @@ LOCK TABLES `character_queststatus_objectives` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_queststatus_objectives_criteria`
+--
+
+DROP TABLE IF EXISTS `character_queststatus_objectives_criteria`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_queststatus_objectives_criteria` (
+  `guid` bigint(20) unsigned NOT NULL,
+  `objective` int(10) unsigned NOT NULL,
+  `date` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`objective`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_queststatus_objectives_criteria`
+--
+
+LOCK TABLES `character_queststatus_objectives_criteria` WRITE;
+/*!40000 ALTER TABLE `character_queststatus_objectives_criteria` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_queststatus_objectives_criteria` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_queststatus_objectives_criteria_progress`
+--
+
+DROP TABLE IF EXISTS `character_queststatus_objectives_criteria_progress`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_queststatus_objectives_criteria_progress` (
+  `guid` bigint(20) unsigned NOT NULL,
+  `criteria` int(10) unsigned NOT NULL,
+  `counter` bigint(20) unsigned NOT NULL,
+  `date` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`criteria`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_queststatus_objectives_criteria_progress`
+--
+
+LOCK TABLES `character_queststatus_objectives_criteria_progress` WRITE;
+/*!40000 ALTER TABLE `character_queststatus_objectives_criteria_progress` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_queststatus_objectives_criteria_progress` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_queststatus_rewarded`
 --
 
