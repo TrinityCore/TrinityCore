@@ -8633,6 +8633,39 @@ void ObjectMgr::LoadTrainers()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " Trainers in %u ms", _trainers.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadCreatureDefaultTrainers()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _creatureDefaultTrainers.clear();
+
+    if (QueryResult result = WorldDatabase.Query("SELECT CreatureId, TrainerId FROM creature_default_trainer"))
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 creatureId = fields[0].GetUInt32();
+            uint32 trainerId = fields[1].GetUInt32();
+
+            if (!GetCreatureTemplate(creatureId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `trainer_spell` references non-existing creature template (CreatureId: %u), ignoring", creatureId);
+                continue;
+            }
+
+            if (!GetTrainer(trainerId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `trainer_spell` references non-existing trainer (TrainerId: %u) for CreatureId %u, ignoring", trainerId, creatureId);
+                continue;
+            }
+
+            _creatureDefaultTrainers[creatureId] = trainerId;
+        } while (result->NextRow());
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " default trainers in %u ms", _creatureDefaultTrainers.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
 int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, uint8 referenceType, std::set<uint32> *skip_vendors)
 {
     // find all items from the reference vendor
@@ -8866,6 +8899,15 @@ void ObjectMgr::LoadGossipMenuItems()
 Trainer::Trainer const* ObjectMgr::GetTrainer(uint32 trainerId) const
 {
     return Trinity::Containers::MapGetValuePtr(_trainers, trainerId);
+}
+
+uint32 ObjectMgr::GetCreatureDefaultTrainer(uint32 creatureId) const
+{
+    auto itr = _creatureDefaultTrainers.find(creatureId);
+    if (itr != _creatureDefaultTrainers.end())
+        return itr->second;
+
+    return 0;
 }
 
 void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint8 type, bool persist /*= true*/)
