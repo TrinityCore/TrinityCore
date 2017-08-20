@@ -153,7 +153,7 @@ public:
         switch (action)
         {
         case GOSSIP_ACTION_TRAIN:
-            player->GetSession()->SendTrainerList(creature->GetGUID(), TRAINER_ID_ROXI_RAMROCKET);
+            player->GetSession()->SendTrainerList(creature, TRAINER_ID_ROXI_RAMROCKET);
             break;
         case GOSSIP_ACTION_TRADE:
             player->GetSession()->SendListInventory(creature->GetGUID());
