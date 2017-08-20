@@ -230,7 +230,7 @@ public:
             return false;
 
         char* moneyStr = strtok(NULL, "");
-        int32 money = moneyStr ? atoi(moneyStr) : 0;
+        int64 money = moneyStr ? atoll(moneyStr) : 0;
         if (money <= 0)
             return false;
 
