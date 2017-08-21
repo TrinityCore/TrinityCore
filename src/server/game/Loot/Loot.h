@@ -199,12 +199,9 @@ public:
     typedef LinkedListHead::Iterator<LootValidatorRef> iterator;
 
     LootValidatorRef* getFirst() { return (LootValidatorRef*)RefManager<Loot, LootValidatorRef>::getFirst(); }
-    LootValidatorRef* getLast() { return (LootValidatorRef*)RefManager<Loot, LootValidatorRef>::getLast(); }
 
     iterator begin() { return iterator(getFirst()); }
-    iterator end() { return iterator(NULL); }
-    iterator rbegin() { return iterator(getLast()); }
-    iterator rend() { return iterator(NULL); }
+    iterator end() { return iterator(nullptr); }
 };
 
 //=====================================================
