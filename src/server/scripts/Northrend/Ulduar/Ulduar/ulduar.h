@@ -508,6 +508,8 @@ inline AI* GetUlduarAI(T* obj)
     return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
 
+#define RegisterUlduarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUlduarAI)
+
 class KeeperDespawnEvent : public BasicEvent
 {
     public:
