@@ -68,7 +68,7 @@ struct CriteriaTree
     CriteriaTreeEntry const* Entry = nullptr;
     AchievementEntry const* Achievement = nullptr;
     ScenarioStepEntry const* ScenarioStep = nullptr;
-    QuestObjective const* QuestObjective = nullptr;
+    struct QuestObjective const* QuestObjective = nullptr;
     struct Criteria const* Criteria = nullptr;
     std::vector<CriteriaTree const*> Children;
 };
