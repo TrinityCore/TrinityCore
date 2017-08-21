@@ -16,23 +16,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "ObjectMgr.h"
-#include "Player.h"
-#include "World.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "DatabaseEnv.h"
-#include "DBCStores.h"
-#include "ScriptMgr.h"
-#include "AccountMgr.h"
 #include "AuctionHouseMgr.h"
 #include "AuctionHouseBot.h"
+#include "AccountMgr.h"
+#include "Bag.h"
+#include "Common.h"
+#include "CharacterCache.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
-#include "CharacterCache.h"
-#include "GameTime.h"
+#include "Mail.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "Realm.h"
+#include "ScriptMgr.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 enum eAuctionHouse
 {
@@ -182,7 +186,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
     else
     {
         // bidder doesn't exist, delete the item
-        sAuctionMgr->RemoveAItem(auction->itemGUIDLow, true);
+        sAuctionMgr->RemoveAItem(auction->itemGUIDLow, true, &trans);
     }
 }
 
@@ -247,7 +251,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, SQLTransacti
     else
     {
         // owner doesn't exist, delete the item
-        sAuctionMgr->RemoveAItem(auction->itemGUIDLow, true);
+        sAuctionMgr->RemoveAItem(auction->itemGUIDLow, true, &trans);
     }
 }
 
@@ -392,7 +396,7 @@ void AuctionHouseMgr::AddAItem(Item* it)
     mAitems[it->GetGUID().GetCounter()] = it;
 }
 
-bool AuctionHouseMgr::RemoveAItem(ObjectGuid::LowType id, bool deleteItem)
+bool AuctionHouseMgr::RemoveAItem(ObjectGuid::LowType id, bool deleteItem /*= false*/, SQLTransaction* trans /*= nullptr*/)
 {
     ItemMap::iterator i = mAitems.find(id);
     if (i == mAitems.end())
@@ -400,9 +404,9 @@ bool AuctionHouseMgr::RemoveAItem(ObjectGuid::LowType id, bool deleteItem)
 
     if (deleteItem)
     {
-        SQLTransaction trans = SQLTransaction(nullptr);
+        ASSERT(trans);
         i->second->FSetState(ITEM_REMOVED);
-        i->second->SaveToDB(trans);
+        i->second->SaveToDB(*trans);
     }
 
     mAitems.erase(i);
@@ -437,7 +441,7 @@ bool AuctionHouseMgr::PendingAuctionAdd(Player* player, AuctionEntry* aEntry, It
     return true;
 }
 
-uint32 AuctionHouseMgr::PendingAuctionCount(const Player* player) const
+uint32 AuctionHouseMgr::PendingAuctionCount(Player const* player) const
 {
     auto const itr = pendingAuctionMap.find(player->GetGUID());
     if (itr != pendingAuctionMap.end())
@@ -523,7 +527,7 @@ void AuctionHouseMgr::UpdatePendingAuctions()
             {
                 AuctionEntry* AH = (*AHitr);
                 ++AHitr;
-                AH->expire_time = time(NULL);
+                AH->expire_time = time(nullptr);
                 AH->DeleteFromDB(trans);
                 AH->SaveToDB(trans);
             }
@@ -682,7 +686,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     uint32 inventoryType, uint32 itemClass, uint32 itemSubClass, uint32 quality,
     uint32& count, uint32& totalcount, bool getall)
 {
-    int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
+    LocaleConstant localeConstant = player->GetSession()->GetSessionDbLocaleIndex();
     int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
     time_t curTime = GameTime::GetGameTime();
@@ -754,9 +758,9 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                 continue;
 
             // local name
-            if (loc_idx >= 0)
+            if (localeConstant != LOCALE_enUS)
                 if (ItemLocale const* il = sObjectMgr->GetItemLocale(proto->ItemId))
-                    ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
+                    ObjectMgr::GetLocaleString(il->Name, localeConstant, name);
 
             // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result
             //  that matches the search but it may not equal item->GetItemRandomPropertyId()
@@ -773,13 +777,13 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
                 if (propRefID < 0)
                 {
-                    const ItemRandomSuffixEntry* itemRandSuffix = sItemRandomSuffixStore.LookupEntry(-propRefID);
+                    ItemRandomSuffixEntry const* itemRandSuffix = sItemRandomSuffixStore.LookupEntry(-propRefID);
                     if (itemRandSuffix)
                         suffix = itemRandSuffix->nameSuffix;
                 }
                 else
                 {
-                    const ItemRandomPropertiesEntry* itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
+                    ItemRandomPropertiesEntry const* itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
                     if (itemRandProp)
                         suffix = itemRandProp->nameSuffix;
                 }
@@ -838,7 +842,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket& data, Item* sourceItem) const
     data << uint32(bid ? GetAuctionOutBid() : 0);
     // Minimal outbid
     data << uint32(buyout);                                         // Auction->buyout
-    data << uint32((expire_time - time(NULL)) * IN_MILLISECONDS);   // time left
+    data << uint32((expire_time - time(nullptr)) * IN_MILLISECONDS);   // time left
     data << uint64(bidder);                                         // auction->bidder current
     data << uint32(bid);                                            // current bid
     return true;

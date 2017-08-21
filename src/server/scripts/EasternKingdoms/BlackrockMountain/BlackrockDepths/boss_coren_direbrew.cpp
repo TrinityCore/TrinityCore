@@ -16,16 +16,20 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackrock_depths.h"
+#include "GameObjectAI.h"
+#include "GridNotifiers.h"
+#include "Group.h"
+#include "InstanceScript.h"
+#include "LFGMgr.h"
+#include "Map.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "blackrock_depths.h"
-#include "Player.h"
-#include "SpellScript.h"
 #include "SpellAuras.h"
-#include "LFGMgr.h"
-#include "Group.h"
-#include "GridNotifiers.h"
-#include "GameObjectAI.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum DirebrewSays
 {
@@ -95,8 +99,6 @@ enum DirebrewEvents
 
 enum DirebrewMisc
 {
-    COREN_DIREBREW_FACTION_HOSTILE = 736,
-    COREN_DIREBREW_FACTION_FRIEND  = 35,
     GOSSIP_ID                      = 11388,
     GO_MOLE_MACHINE_TRAP           = 188509,
     GOSSIP_OPTION_FIGHT            = 0,
@@ -121,10 +123,10 @@ public:
     {
         boss_coren_direbrewAI(Creature* creature) : BossAI(creature, DATA_COREN) { }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId != GOSSIP_ID)
-                return;
+                return false;
 
             if (gossipListId == GOSSIP_OPTION_FIGHT)
             {
@@ -133,13 +135,15 @@ public:
             }
             else if (gossipListId == GOSSIP_OPTION_APOLOGIZE)
                 CloseGossipMenuFor(player);
+
+            return false;
         }
 
         void Reset() override
         {
             _Reset();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            me->setFaction(COREN_DIREBREW_FACTION_FRIEND);
+            me->SetImmuneToPC(true);
+            me->SetFaction(FACTION_FRIENDLY);
             events.SetPhase(PHASE_ALL);
 
             for (uint8 i = 0; i < MAX_ANTAGONISTS; ++i)
@@ -161,8 +165,8 @@ public:
             if (action == ACTION_START_FIGHT)
             {
                 events.SetPhase(PHASE_ONE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                me->setFaction(COREN_DIREBREW_FACTION_HOSTILE);
+                me->SetImmuneToPC(false);
+                me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
                 me->SetInCombatWithZone();
 
                 EntryCheckPredicate pred(NPC_ANTAGONIST);
@@ -274,7 +278,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_coren_direbrewAI>(creature);
+        return GetBlackrockDepthsAI<boss_coren_direbrewAI>(creature);
     }
 };
 
@@ -317,7 +321,7 @@ public:
                 })
                 .Schedule(Seconds(2), [this](TaskContext mugChuck)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, -SPELL_HAS_DARK_BREWMAIDENS_BREW))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, true, -SPELL_HAS_DARK_BREWMAIDENS_BREW))
                         DoCast(target, SPELL_CHUCK_MUG);
                     mugChuck.Repeat(Seconds(4));
                 });
@@ -338,7 +342,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_coren_direbrew_sistersAI>(creature);
+        return GetBlackrockDepthsAI<npc_coren_direbrew_sistersAI>(creature);
     }
 };
 
@@ -353,7 +357,7 @@ public:
 
         void Reset() override
         {
-            me->setFaction(COREN_DIREBREW_FACTION_HOSTILE);
+            me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
             DoCastAOE(SPELL_MOLE_MACHINE_EMERGE, true);
             me->SetInCombatWithZone();
         }
@@ -370,7 +374,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_direbrew_minionAI>(creature);
+        return GetBlackrockDepthsAI<npc_direbrew_minionAI>(creature);
     }
 };
 
@@ -394,8 +398,8 @@ public:
                     Talk(SAY_ANTAGONIST_2);
                     break;
                 case ACTION_ANTAGONIST_HOSTILE:
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                    me->setFaction(COREN_DIREBREW_FACTION_HOSTILE);
+                    me->SetImmuneToPC(false);
+                    me->SetFaction(FACTION_GOBLIN_DARK_IRON_BAR_PATRON);
                     me->SetInCombatWithZone();
                     break;
                 default:
@@ -412,7 +416,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_direbrew_antagonistAI>(creature);
+        return GetBlackrockDepthsAI<npc_direbrew_antagonistAI>(creature);
     }
 };
 
@@ -427,16 +431,16 @@ public:
 
         void Reset() override
         {
-            go->SetLootState(GO_READY);
+            me->SetLootState(GO_READY);
             _scheduler
                 .Schedule(Seconds(1), [this](TaskContext /*context*/)
                 {
-                    go->UseDoorOrButton(8);
-                    go->CastSpell((Unit*)nullptr, SPELL_MOLE_MACHINE_EMERGE, true);
+                    me->UseDoorOrButton(8);
+                    me->CastSpell(nullptr, SPELL_MOLE_MACHINE_EMERGE, true);
                 })
                 .Schedule(Seconds(4), [this](TaskContext /*context*/)
                 {
-                    if (GameObject* trap = go->FindNearestGameObject(GO_MOLE_MACHINE_TRAP, 3.0f))
+                    if (GameObject* trap = me->FindNearestGameObject(GO_MOLE_MACHINE_TRAP, 3.0f))
                     {
                         trap->SetLootState(GO_ACTIVATED);
                         trap->UseDoorOrButton();
@@ -455,7 +459,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return GetInstanceAI<go_direbrew_mole_machineAI>(go);
+        return GetBlackrockDepthsAI<go_direbrew_mole_machineAI>(go);
     }
 };
 
@@ -471,10 +475,7 @@ class spell_direbrew_disarm : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DIREBREW_DISARM)
-                    || !sSpellMgr->GetSpellInfo(SPELL_DIREBREW_DISARM_GROW))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DIREBREW_DISARM, SPELL_DIREBREW_DISARM_GROW });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
@@ -517,9 +518,7 @@ class spell_direbrew_summon_mole_machine_target_picker : public SpellScriptLoade
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOLE_MACHINE_MINION_SUMMONER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MOLE_MACHINE_MINION_SUMMONER });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -603,9 +602,7 @@ class spell_request_second_mug : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SEND_SECOND_MUG))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SEND_SECOND_MUG });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -637,9 +634,7 @@ class spell_send_mug_control_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SEND_MUG_TARGET_PICKER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SEND_MUG_TARGET_PICKER });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
@@ -672,7 +667,7 @@ class spell_barreled_control_aura : public SpellScriptLoader
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell((Unit*)nullptr, SPELL_BARRELED, true);
+                GetTarget()->CastSpell(nullptr, SPELL_BARRELED, true);
             }
 
             void Register() override

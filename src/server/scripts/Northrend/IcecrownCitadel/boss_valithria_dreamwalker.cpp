@@ -15,15 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
-#include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -223,7 +225,7 @@ class ValithriaDespawner : public BasicEvent
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
             Trinity::CreatureWorker<ValithriaDespawner> worker(_creature, *this);
-            _creature->VisitNearbyGridObject(333.0f, worker);
+            Cell::VisitGridObjects(_creature, worker, 333.0f);
             return true;
         }
 
@@ -262,7 +264,7 @@ class ValithriaDespawner : public BasicEvent
             creature->SetRespawnDelay(10);
 
             if (CreatureData const* data = creature->GetCreatureData())
-                creature->SetPosition(data->posX, data->posY, data->posZ, data->orientation);
+                creature->UpdatePosition(data->spawnPoint);
             creature->DespawnOrUnsummon();
 
             creature->SetCorpseDelay(corpseDelay);
@@ -560,7 +562,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
                 // @TODO check out of bounds on all encounter creatures, evade if matched
 
-                std::list<HostileReference*> const& threatList = me->getThreatManager().getThreatList();
+                std::list<HostileReference*> const& threatList = me->GetThreatManager().getThreatList();
                 if (threatList.empty())
                 {
                     EnterEvadeMode();
@@ -684,7 +686,7 @@ class npc_the_lich_king_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_the_lich_king_controllerAI>(creature);
+            return GetIcecrownCitadelAI<npc_the_lich_king_controllerAI>(creature);
         }
 };
 
@@ -728,7 +730,7 @@ class npc_risen_archmage : public CreatureScript
                     std::list<Creature*> archmages;
                     RisenArchmageCheck check;
                     Trinity::CreatureListSearcher<RisenArchmageCheck> searcher(me, archmages, check);
-                    me->VisitNearbyGridObject(100.0f, searcher);
+                    Cell::VisitGridObjects(me, searcher, 100.0f);
                     for (std::list<Creature*>::iterator itr = archmages.begin(); itr != archmages.end(); ++itr)
                         (*itr)->AI()->DoAction(ACTION_ENTER_COMBAT);
 
@@ -1103,7 +1105,7 @@ class npc_dream_cloud : public CreatureScript
                             Player* player = nullptr;
                             Trinity::AnyPlayerInObjectRangeCheck check(me, 5.0f);
                             Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
-                            me->VisitNearbyWorldObject(7.5f, searcher);
+                            Cell::VisitWorldObjects(me, searcher, 7.5f);
                             _events.ScheduleEvent(player ? EVENT_EXPLODE : EVENT_CHECK_PLAYER, 1000);
                             break;
                         }
@@ -1265,9 +1267,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_SUPPRESSER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SUMMON_SUPPRESSER });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
@@ -1467,7 +1467,7 @@ class spell_dreamwalker_twisted_nightmares : public SpellScriptLoader
                 //    return;
 
                 if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
-                    GetHitUnit()->CastSpell((Unit*)nullptr, GetSpellInfo()->Effects[effIndex].TriggerSpell, true, nullptr, nullptr, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
+                    GetHitUnit()->CastSpell(nullptr, GetSpellInfo()->Effects[effIndex].TriggerSpell, true, nullptr, nullptr, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
             }
 
             void Register() override

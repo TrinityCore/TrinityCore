@@ -17,9 +17,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 #include "SpellInfo.h"
 
 /*######
@@ -65,7 +67,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* unit, const SpellInfo* spell) override
+        void SpellHit(Unit* unit, SpellInfo const* spell) override
         {
             if (spellhit)
                 return;
@@ -97,9 +99,9 @@ public:
                 return;
             }
             // walk 5 seconds before summoning
-            if (spellhit && morphtimer<5000)
+            if (spellhit && morphtimer < 5000)
             {
-                morphtimer+=diff;
+                morphtimer += diff;
                 if (morphtimer >= 5000)
                 {
                     DoCast(me, SPELL_POLYMORPH_BACKFIRE); // summon copies
@@ -259,12 +261,13 @@ public:
             }
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
             me->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
             MustDieTimer = 3000;
             MustDie = true;
+            return false;
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -356,7 +359,7 @@ public:
                 {
                     Talk(SAY_RIZZLE_FINAL);
                     me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
-                    me->setFaction(35);
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->GetMotionMaster()->MoveIdle();
                     me->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
                     Reached = true;
@@ -364,6 +367,15 @@ public:
 
                 CheckTimer = 1000;
             } else CheckTimer -= diff;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
+                return true;
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, 10811, me->GetGUID());
+            return true;
         }
 
     private:
@@ -379,15 +391,6 @@ public:
         bool ContinueWP;
         bool Reached;
     };
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
-            return true;
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        SendGossipMenuFor(player, 10811, creature->GetGUID());
-        return true;
-    }
 
     CreatureAI* GetAI(Creature* creature) const override
     {

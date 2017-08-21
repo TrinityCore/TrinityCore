@@ -30,8 +30,11 @@ go_mausoleum_trigger
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 
 /*######
 ## npc_calvin_montague
@@ -41,30 +44,13 @@ enum Calvin
 {
     SAY_COMPLETE        = 0,
     SPELL_DRINK         = 2639,                             // possibly not correct spell (but iconId is correct)
-    QUEST_590           = 590,
-    FACTION_HOSTILE     = 168
+    QUEST_590           = 590
 };
 
 class npc_calvin_montague : public CreatureScript
 {
 public:
     npc_calvin_montague() : CreatureScript("npc_calvin_montague") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_590)
-        {
-            creature->setFaction(FACTION_HOSTILE);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            ENSURE_AI(npc_calvin_montague::npc_calvin_montagueAI, creature->AI())->AttackStart(player);
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_calvin_montagueAI(creature);
-    }
 
     struct npc_calvin_montagueAI : public ScriptedAI
     {
@@ -90,19 +76,11 @@ public:
 
             me->RestoreFaction();
 
-            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            if (!me->IsImmuneToPC())
+                me->SetImmuneToPC(true);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
-
-        void AttackedBy(Unit* pAttacker) override
-        {
-            if (me->GetVictim() || me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
         {
@@ -111,7 +89,7 @@ public:
                 uiDamage = 0;
 
                 me->RestoreFaction();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
                 me->CombatStop(true);
 
                 m_uiPhase = 1;
@@ -159,7 +137,22 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_590)
+            {
+                me->SetFaction(FACTION_ENEMY);
+                me->SetImmuneToPC(false);
+                AttackStart(player);
+            }
+        }
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_calvin_montagueAI(creature);
+    }
 };
 
 /*######
@@ -177,45 +170,65 @@ enum Mausoleum
 
 class go_mausoleum_door : public GameObjectScript
 {
-public:
-    go_mausoleum_door() : GameObjectScript("go_mausoleum_door") { }
+    public:
+        go_mausoleum_door() : GameObjectScript("go_mausoleum_door") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
-    {
-        if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
-            return false;
+        struct go_mausoleum_doorAI : public GameObjectAI
+        {
+            go_mausoleum_doorAI(GameObject* go) : GameObjectAI(go) { }
 
-        if (!player->FindNearestCreature(NPC_ULAG, 50.0f))
-            if (GameObject* pTrigger = player->FindNearestGameObject(GO_TRIGGER, 30.0f))
+            bool GossipHello(Player* player) override
             {
-                pTrigger->SetGoState(GO_STATE_READY);
-                player->SummonCreature(NPC_ULAG, 2390.26f, 336.47f, 40.01f, 2.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
+                    return false;
+
+                if (!player->FindNearestCreature(NPC_ULAG, 50.0f))
+                {
+                    if (GameObject* pTrigger = player->FindNearestGameObject(GO_TRIGGER, 30.0f))
+                    {
+                        pTrigger->SetGoState(GO_STATE_READY);
+                        player->SummonCreature(NPC_ULAG, 2390.26f, 336.47f, 40.01f, 2.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                        return false;
+                    }
+                }
                 return false;
             }
+        };
 
-        return false;
-    }
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_mausoleum_doorAI(go);
+        }
 };
 
 class go_mausoleum_trigger : public GameObjectScript
 {
-public:
-    go_mausoleum_trigger() : GameObjectScript("go_mausoleum_trigger") { }
+    public:
+        go_mausoleum_trigger() : GameObjectScript("go_mausoleum_trigger") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
-            return false;
-
-        if (GameObject* pDoor = player->FindNearestGameObject(GO_DOOR, 30.0f))
+        struct go_mausoleum_triggerAI : public GameObjectAI
         {
-            go->SetGoState(GO_STATE_ACTIVE);
-            pDoor->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-            return true;
-        }
+            go_mausoleum_triggerAI(GameObject* go) : GameObjectAI(go) { }
 
-        return false;
-    }
+            bool GossipHello(Player* player) override
+            {
+                if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
+                    return false;
+
+                if (GameObject* pDoor = player->FindNearestGameObject(GO_DOOR, 30.0f))
+                {
+                    me->SetGoState(GO_STATE_ACTIVE);
+                    pDoor->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_mausoleum_triggerAI(go);
+        }
 };
 
 void AddSC_tirisfal_glades()

@@ -19,12 +19,19 @@
 #ifndef TRINITY_DBCSTORES_H
 #define TRINITY_DBCSTORES_H
 
-#include "Common.h"
 #include "DBCStore.h"
 #include "DBCStructure.h"
 #include "SharedDefines.h"
-
 #include <list>
+#include <map>
+#include <unordered_map>
+
+enum LocaleConstant : uint8;
+
+ // temporary hack until includes are sorted out (don't want to pull in Windows.h)
+#ifdef GetClassName
+#undef GetClassName
+#endif
 
 typedef std::list<uint32> SimpleFactionsList;
 TC_GAME_API SimpleFactionsList const* GetFactionTeamList(uint32 faction);
@@ -40,7 +47,7 @@ TC_GAME_API WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid,
 
 TC_GAME_API uint32 GetVirtualMapForMapAndZone(uint32 mapid, uint32 zoneId);
 
-enum ContentLevels
+enum ContentLevels : uint8
 {
     CONTENT_1_60 = 0,
     CONTENT_61_70,
@@ -186,6 +193,8 @@ TC_GAME_API extern TaxiMask                                  sAllianceTaxiNodesM
 TC_GAME_API extern TaxiMask                                  sDeathKnightTaxiNodesMask;
 TC_GAME_API extern TaxiPathSetBySource                       sTaxiPathSetBySource;
 TC_GAME_API extern TaxiPathNodesByPath                       sTaxiPathNodesByPath;
+TC_GAME_API extern DBCStorage <TransportAnimationEntry>      sTransportAnimationStore;
+TC_GAME_API extern DBCStorage <TransportRotationEntry>       sTransportRotationStore;
 TC_GAME_API extern DBCStorage <TeamContributionPointsEntry>  sTeamContributionPointsStore;
 TC_GAME_API extern DBCStorage <TotemCategoryEntry>           sTotemCategoryStore;
 TC_GAME_API extern DBCStorage <VehicleEntry>                 sVehicleStore;

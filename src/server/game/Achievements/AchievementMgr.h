@@ -19,14 +19,13 @@
 #ifndef __TRINITY_ACHIEVEMENTMGR_H
 #define __TRINITY_ACHIEVEMENTMGR_H
 
-#include <map>
-#include <string>
-
-#include "Common.h"
-#include "DatabaseEnv.h"
+#include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
 #include "ObjectGuid.h"
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 class Unit;
 class Player;
@@ -218,7 +217,7 @@ struct AchievementCriteriaData
     }
 
     bool IsValid(AchievementCriteriaEntry const* criteria);
-    bool Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscValue1 = 0) const;
+    bool Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
 };
 
 struct TC_GAME_API AchievementCriteriaDataSet
@@ -226,7 +225,7 @@ struct TC_GAME_API AchievementCriteriaDataSet
         AchievementCriteriaDataSet() : criteria_id(0) { }
         typedef std::vector<AchievementCriteriaData> Storage;
         void Add(AchievementCriteriaData const& data) { storage.push_back(data); }
-        bool Meets(Player const* source, Unit const* target, uint32 miscValue = 0) const;
+        bool Meets(Player const* source, Unit const* target, uint32 miscValue1 = 0, uint32 miscValue2 = 0) const;
         void SetCriteriaId(uint32 id) {criteria_id = id;}
     private:
         uint32 criteria_id;
@@ -237,20 +236,20 @@ typedef std::unordered_map<uint32, AchievementCriteriaDataSet> AchievementCriter
 
 struct AchievementReward
 {
-    uint32 titleId[2];
-    uint32 itemId;
-    uint32 sender;
-    std::string subject;
-    std::string text;
-    uint32 mailTemplate;
+    uint32 TitleID[2];
+    uint32 ItemID;
+    uint32 Sender;
+    std::string Subject;
+    std::string Text;
+    uint32 MailTemplateID;
 };
 
 typedef std::unordered_map<uint32, AchievementReward> AchievementRewards;
 
 struct AchievementRewardLocale
 {
-    std::vector<std::string> subject;
-    std::vector<std::string> text;
+    std::vector<std::string> Subject;
+    std::vector<std::string> Text;
 };
 
 typedef std::unordered_map<uint32, AchievementRewardLocale> AchievementRewardLocales;
@@ -282,7 +281,7 @@ class TC_GAME_API AchievementMgr
         void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
         void SaveToDB(SQLTransaction& trans);
         void ResetAchievementCriteria(AchievementCriteriaCondition condition, uint32 value, bool evenIfCriteriaComplete);
-        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
+        void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
         void CompletedAchievement(AchievementEntry const* entry);
         void CheckAllAchievementCriteria();
         void SendAllAchievementData() const;
@@ -342,31 +341,31 @@ class TC_GAME_API AchievementGlobalMgr
         AchievementCriteriaEntryList const* GetAchievementCriteriaByAchievement(uint32 id) const
         {
             AchievementCriteriaListByAchievement::const_iterator itr = m_AchievementCriteriaListByAchievement.find(id);
-            return itr != m_AchievementCriteriaListByAchievement.end() ? &itr->second : NULL;
+            return itr != m_AchievementCriteriaListByAchievement.end() ? &itr->second : nullptr;
         }
 
         AchievementEntryList const* GetAchievementByReferencedId(uint32 id) const
         {
             AchievementListByReferencedId::const_iterator itr = m_AchievementListByReferencedId.find(id);
-            return itr != m_AchievementListByReferencedId.end() ? &itr->second : NULL;
+            return itr != m_AchievementListByReferencedId.end() ? &itr->second : nullptr;
         }
 
         AchievementReward const* GetAchievementReward(AchievementEntry const* achievement) const
         {
             AchievementRewards::const_iterator iter = m_achievementRewards.find(achievement->ID);
-            return iter != m_achievementRewards.end() ? &iter->second : NULL;
+            return iter != m_achievementRewards.end() ? &iter->second : nullptr;
         }
 
         AchievementRewardLocale const* GetAchievementRewardLocale(AchievementEntry const* achievement) const
         {
             AchievementRewardLocales::const_iterator iter = m_achievementRewardLocales.find(achievement->ID);
-            return iter != m_achievementRewardLocales.end() ? &iter->second : NULL;
+            return iter != m_achievementRewardLocales.end() ? &iter->second : nullptr;
         }
 
         AchievementCriteriaDataSet const* GetCriteriaDataSet(AchievementCriteriaEntry const* achievementCriteria) const
         {
             AchievementCriteriaDataMap::const_iterator iter = m_criteriaDataMap.find(achievementCriteria->ID);
-            return iter != m_criteriaDataMap.end() ? &iter->second : NULL;
+            return iter != m_criteriaDataMap.end() ? &iter->second : nullptr;
         }
 
         bool IsRealmCompleted(AchievementEntry const* achievement) const;

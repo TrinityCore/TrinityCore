@@ -17,12 +17,14 @@
  */
 
 #include "QuestDef.h"
-#include "Player.h"
-#include "World.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "Log.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
-
-#include "Packets/QuestPackets.h"
+#include "Player.h"
+#include "QuestPackets.h"
+#include "World.h"
 
 Quest::Quest(Field* questRecord)
 {

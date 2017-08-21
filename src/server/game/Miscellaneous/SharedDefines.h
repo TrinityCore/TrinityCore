@@ -21,7 +21,6 @@
 
 #include "Define.h"
 #include "DetourNavMesh.h"
-#include <cassert>
 
 enum SpellEffIndex : uint8
 {
@@ -153,6 +152,51 @@ enum ReputationRank
     REP_HONORED     = 5,
     REP_REVERED     = 6,
     REP_EXALTED     = 7
+};
+
+enum FactionTemplates
+{
+    FACTION_NONE                        = 0,
+    FACTION_CREATURE                    = 7,
+    FACTION_ESCORTEE_A_NEUTRAL_PASSIVE  = 10,
+    FACTION_MONSTER                     = 14,
+    FACTION_MONSTER_2                   = 16,
+    FACTION_TROLL_BLOODSCALP            = 28,
+    FACTION_PREY                        = 31,
+    FACTION_ESCORTEE_H_NEUTRAL_PASSIVE  = 33,
+    FACTION_FRIENDLY                    = 35,
+    FACTION_OGRE                        = 45,
+    FACTION_ORC_DRAGONMAW               = 62,
+    FACTION_HORDE_GENERIC               = 83,
+    FACTION_ALLIANCE_GENERIC            = 84,
+    FACTION_DEMON                       = 90,
+    FACTION_ELEMENTAL                   = 91,
+    FACTION_DRAGONFLIGHT_BLACK          = 103,
+    FACTION_ESCORTEE_N_NEUTRAL_PASSIVE  = 113,
+    FACTION_ENEMY                       = 168,
+    FACTION_ESCORTEE_A_NEUTRAL_ACTIVE   = 231,
+    FACTION_ESCORTEE_H_NEUTRAL_ACTIVE   = 232,
+    FACTION_ESCORTEE_N_NEUTRAL_ACTIVE   = 250,
+    FACTION_ESCORTEE_N_FRIEND_PASSIVE   = 290,
+    FACTION_TITAN                       = 415,
+    FACTION_ESCORTEE_N_FRIEND_ACTIVE    = 495,
+    FACTION_GOBLIN_DARK_IRON_BAR_PATRON = 736,
+    FACTION_DARK_IRON_DWARVES           = 754,
+    FACTION_ESCORTEE_A_PASSIVE          = 774,
+    FACTION_ESCORTEE_H_PASSIVE          = 775,
+    FACTION_UNDEAD_SCOURGE              = 974,
+    FACTION_EARTHEN_RING                = 1726,
+    FACTION_ALLIANCE_GENERIC_WG         = 1732,
+    FACTION_HORDE_GENERIC_WG            = 1735,
+    FACTION_ARAKKOA                     = 1738,
+    FACTION_ASHTONGUE_DEATHSWORN        = 1820,
+    FACTION_FLAYER_HUNTER               = 1840,
+    FACTION_MONSTER_SPAR_BUDDY          = 1868,
+    FACTION_ESCORTEE_N_ACTIVE           = 1986,
+    FACTION_ESCORTEE_H_ACTIVE           = 2046,
+    FACTION_UNDEAD_SCOURGE_2            = 2068,
+    FACTION_UNDEAD_SCOURGE_3            = 2084,
+    FACTION_SCARLET_CRUSADE             = 2089
 };
 
 #define MIN_REPUTATION_RANK (REP_HATED)
@@ -409,7 +453,7 @@ enum SpellAttr3
     SPELL_ATTR3_REQ_WAND                         = 0x00400000, // 22 Req wand
     SPELL_ATTR3_UNK23                            = 0x00800000, // 23
     SPELL_ATTR3_REQ_OFFHAND                      = 0x01000000, // 24 Req offhand weapon
-    SPELL_ATTR3_UNK25                            = 0x02000000, // 25 no cause spell pushback ?
+    SPELL_ATTR3_TREAT_AS_PERIODIC                = 0x02000000, // 25 Makes the spell appear as periodic in client combat logs - used by spells that trigger another spell on each tick
     SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736 + 52999)
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
@@ -1399,7 +1443,7 @@ enum Targets
     TARGET_DEST_CHANNEL_CASTER         = 106,
     TARGET_UNK_DEST_AREA_UNK_107       = 107, // not enough info - only generic spells avalible
     TARGET_GAMEOBJECT_CONE             = 108,
-    TARGET_DEST_UNK_110                = 110, // 1 spell
+    TARGET_UNIT_CONE_ENTRY_110         = 110, // 1 spell
     TOTAL_SPELL_TARGETS
 };
 
@@ -1509,6 +1553,16 @@ enum GameObjectDynamicLowFlags
     GO_DYNFLAG_LO_SPARKLE           = 0x08,                 // makes GO sparkle
     GO_DYNFLAG_LO_STOPPED           = 0x10                  // Transport is stopped
 };
+
+// client side GO show states
+enum GOState : uint8
+{
+    GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
+    GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
+    GO_STATE_ACTIVE_ALTERNATIVE = 2                         // show in world as used in alt way and not reset (closed door open by cannon fire)
+};
+
+#define MAX_GO_STATE              3
 
 enum GameObjectDestructibleState
 {
@@ -3326,7 +3380,7 @@ enum BattlegroundTeamId
 #define BG_TEAMS_COUNT  2
 
 // indexes of BattlemasterList.dbc
-enum BattlegroundTypeId
+enum BattlegroundTypeId : uint32
 {
     BATTLEGROUND_TYPE_NONE      = 0, // None
     BATTLEGROUND_AV             = 1, // Alterac Valley
@@ -3424,7 +3478,7 @@ enum TradeStatus
     TRADE_STATUS_NOT_ON_TAPLIST = 23                        // Related to trading soulbound loot items
 };
 
-enum XPColorChar
+enum XPColorChar : uint8
 {
     XP_RED,
     XP_ORANGE,
@@ -3433,7 +3487,7 @@ enum XPColorChar
     XP_GRAY
 };
 
-enum RemoveMethod
+enum RemoveMethod : uint8
 {
     GROUP_REMOVEMETHOD_DEFAULT  = 0,
     GROUP_REMOVEMETHOD_KICK     = 1,
@@ -3458,7 +3512,7 @@ enum ActivateTaxiReply
     ERR_TAXINOTSTANDING             = 12
 };
 
-enum DuelCompleteType
+enum DuelCompleteType : uint8
 {
     DUEL_INTERRUPTED = 0,
     DUEL_WON         = 1,
@@ -3577,14 +3631,6 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4
 };
 
-/// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
-enum SpellCooldownFlags
-{
-    SPELL_COOLDOWN_FLAG_NONE                    = 0x0,
-    SPELL_COOLDOWN_FLAG_INCLUDE_GCD             = 0x1,  ///< Starts GCD in addition to normal cooldown specified in the packet
-    SPELL_COOLDOWN_FLAG_INCLUDE_EVENT_COOLDOWNS = 0x2   ///< Starts GCD for spells that should start their cooldown on events, requires SPELL_COOLDOWN_FLAG_INCLUDE_GCD set
-};
-
 enum WeaponAttackType : uint8
 {
     BASE_ATTACK   = 0,
@@ -3592,5 +3638,26 @@ enum WeaponAttackType : uint8
     RANGED_ATTACK = 2,
     MAX_ATTACK
 };
+
+enum CharterTypes
+{
+    CHARTER_TYPE_NONE           = 0,
+    CHARTER_TYPE_ANY            = 10,
+
+    GUILD_CHARTER_TYPE          = 9,
+    ARENA_TEAM_CHARTER_2v2_TYPE = 2,
+    ARENA_TEAM_CHARTER_3v3_TYPE = 3,
+    ARENA_TEAM_CHARTER_5v5_TYPE = 5
+};
+
+enum LineOfSightChecks
+{
+    LINEOFSIGHT_CHECK_VMAP      = 0x1, // check static floor layout data
+    LINEOFSIGHT_CHECK_GOBJECT   = 0x2, // check dynamic game object data
+
+    LINEOFSIGHT_ALL_CHECKS      = (LINEOFSIGHT_CHECK_VMAP | LINEOFSIGHT_CHECK_GOBJECT)
+};
+
+#define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 #endif

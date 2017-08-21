@@ -16,8 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "boss_horAI.h"
 #include "halls_of_reflection.h"
+#include "InstanceScript.h"
+#include "SpellMgr.h"
 
 enum Texts
 {

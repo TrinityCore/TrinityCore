@@ -23,7 +23,7 @@
 
 ArchiveSet gOpenArchives;
 
-MPQArchive::MPQArchive(const char* filename)
+MPQArchive::MPQArchive(char const* filename)
 {
     int result = libmpq__archive_open(&mpq_a, filename, -1);
     printf("Opening %s\n", filename);
@@ -64,7 +64,7 @@ void MPQArchive::close()
     libmpq__archive_close(mpq_a);
 }
 
-MPQFile::MPQFile(const char* filename):
+MPQFile::MPQFile(char const* filename):
     eof(false),
     buffer(0),
     pointer(0),

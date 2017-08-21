@@ -24,10 +24,13 @@ SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "hyjal.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "Player.h"
-#include "hyjal.h"
 
 enum Texts
 {
@@ -99,7 +102,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ancient_wispAI>(creature);
+        return GetHyjalAI<npc_ancient_wispAI>(creature);
     }
 
     struct npc_ancient_wispAI : public ScriptedAI
@@ -140,7 +143,7 @@ public:
         {
             if (CheckTimer <= diff)
             {
-                if (Unit* Archimonde = ObjectAccessor::GetUnit(*me, ArchimondeGUID))
+                if (Creature* Archimonde = ObjectAccessor::GetCreature(*me, ArchimondeGUID))
                 {
                     if (Archimonde->HealthBelowPct(2) || !Archimonde->IsAlive())
                         DoCast(me, SPELL_DENOUEMENT_WISP);
@@ -162,7 +165,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_doomfireAI(creature);
+        return GetHyjalAI<npc_doomfireAI>(creature);
     }
 
     struct npc_doomfireAI : public ScriptedAI
@@ -191,7 +194,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_doomfire_targettingAI(creature);
+        return GetHyjalAI<npc_doomfire_targettingAI>(creature);
     }
 
     struct npc_doomfire_targettingAI : public ScriptedAI
@@ -389,7 +392,7 @@ public:
                     DoSpawnCreature(NPC_ANCIENT_WISP, float(rand32() % 40), float(rand32() % 40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     ++WispCount;
                     if (WispCount >= 30)
-                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                     events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500);
                     break;
                 default:
@@ -530,7 +533,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_archimondeAI>(creature);
+        return GetHyjalAI<boss_archimondeAI>(creature);
     }
 };
 
@@ -546,9 +549,7 @@ class spell_archimonde_drain_world_tree_dummy : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_DRAIN_WORLD_TREE_TRIGGERED))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_DRAIN_WORLD_TREE_TRIGGERED });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

@@ -18,12 +18,14 @@
 #ifndef GUNDRAK_H_
 #define GUNDRAK_H_
 
+#include "CreatureAIImpl.h"
+
 #define GundrakScriptName "instance_gundrak"
 #define DataHeader "GD"
 
 uint32 const EncounterCount = 5;
 
-enum DataTypes
+enum GDDataTypes
 {
     // Encounter Ids // Encounter States // Boss GUIDs
     DATA_SLAD_RAN                    = 0,
@@ -49,7 +51,7 @@ enum DataTypes
     DATA_STATUE_ACTIVATE             = 15,
 };
 
-enum CreatureIds
+enum GDCreatureIds
 {
     NPC_SLAD_RAN                     = 29304,
     NPC_MOORABI                      = 29305,
@@ -61,7 +63,7 @@ enum CreatureIds
     NPC_RHINO_SPIRIT                 = 29791
 };
 
-enum GameObjectIds
+enum GDGameObjectIds
 {
     GO_SLAD_RAN_ALTAR                = 192518,
     GO_MOORABI_ALTAR                 = 192519,
@@ -79,22 +81,22 @@ enum GameObjectIds
     GO_COLLISION                     = 192633,
 };
 
-enum SpellIds
+enum GDSpellIds
 {
     SPELL_FIRE_BEAM_MAMMOTH          = 57068,
     SPELL_FIRE_BEAM_SNAKE            = 57071,
     SPELL_FIRE_BEAM_ELEMENTAL        = 57072
 };
 
-enum InstanceMisc
+enum GDInstanceMisc
 {
     TIMER_STATUE_ACTIVATION          = 3500
 };
 
-template<class AI>
-inline AI* GetGundrakAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetGundrakAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, GundrakScriptName);
+    return GetInstanceAI<AI>(obj, GundrakScriptName);
 }
 
 #endif // GUNDRAK_H_

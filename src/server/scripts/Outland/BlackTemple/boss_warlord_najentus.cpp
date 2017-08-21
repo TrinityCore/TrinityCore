@@ -16,12 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "black_temple.h"
+#include "GameObjectAI.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "GridNotifiers.h"
 
 enum Texts
 {
@@ -87,7 +90,7 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
             {
@@ -139,7 +142,7 @@ public:
                         DoCast(target, SPELL_IMPALING_SPINE, true);
                         SpineTargetGUID = target->GetGUID();
                         //must let target summon, otherwise you cannot click the spine
-                        target->SummonGameObject(GO_NAJENTUS_SPINE, *target, G3D::Quat(), 30);
+                        target->SummonGameObject(GO_NAJENTUS_SPINE, *target, QuaternionData(), 30);
                         Talk(SAY_NEEDLE);
                     }
                     events.Repeat(Seconds(20), Seconds(25));
@@ -172,16 +175,29 @@ class go_najentus_spine : public GameObjectScript
 public:
     go_najentus_spine() : GameObjectScript("go_najentus_spine") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct go_najentus_spineAI : public GameObjectAI
     {
-        if (InstanceScript* instance = go->GetInstanceScript())
+        go_najentus_spineAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
+
+        bool GossipHello(Player* player) override
+        {
             if (Creature* najentus = instance->GetCreature(DATA_HIGH_WARLORD_NAJENTUS))
+            {
                 if (ENSURE_AI(boss_najentus::boss_najentusAI, najentus->AI())->RemoveImpalingSpine())
                 {
-                    go->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
-                    go->Delete();
+                    me->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
+                    me->Delete();
                 }
-        return true;
+            }
+            return true;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetBlackTempleAI<go_najentus_spineAI>(go);
     }
 };
 
@@ -197,9 +213,7 @@ class spell_najentus_needle_spine : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_NEEDLE_SPINE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_NEEDLE_SPINE });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

@@ -81,6 +81,7 @@ enum eTradeskill
 };
 
 class Creature;
+uint32 TC_GAME_API GetGossipActionFor(Player* player, uint32 gossipListId);
 void TC_GAME_API ClearGossipMenuFor(Player* player);
 // Using provided text, not from DB
 void TC_GAME_API AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action);

@@ -18,12 +18,14 @@
 #ifndef MANA_TOMBS_H_
 #define MANA_TOMBS_H_
 
+#include "CreatureAIImpl.h"
+
 #define MTScriptName "instance_mana_tombs"
 #define DataHeader "MT"
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum MTDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_PANDEMONIUS            = 0,
@@ -32,18 +34,10 @@ enum DataTypes
     DATA_YOR                    = 3
 };
 
-enum CreatureIds
+template <class AI, class T>
+inline AI* GetManaTombsAI(T* obj)
 {
-};
-
-enum GameObjectIds
-{
-};
-
-template<class AI>
-AI* GetManaTombsAI(Creature* creature)
-{
-    return GetInstanceAI<AI>(creature, MTScriptName);
+    return GetInstanceAI<AI>(obj, MTScriptName);
 }
 
 #endif // MANA_TOMBS_H_

@@ -224,7 +224,7 @@ class npc_ahnkahar_nerubian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_ahnkahar_nerubianAI(creature);
+            return GetAhnKahetAI<npc_ahnkahar_nerubianAI>(creature);
         }
 };
 
@@ -238,18 +238,9 @@ class spell_ahn_kahet_swarm : public SpellScriptLoader
         {
             PrepareSpellScript(spell_ahn_kahet_swarm_SpellScript);
 
-        public:
-            spell_ahn_kahet_swarm_SpellScript()
-            {
-                _targetCount = 0;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SWARM_BUFF))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_SWARM_BUFF });
             }
 
             void CountTargets(std::list<WorldObject*>& targets)
@@ -279,7 +270,7 @@ class spell_ahn_kahet_swarm : public SpellScriptLoader
                 OnEffectHit += SpellEffectFn(spell_ahn_kahet_swarm_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
-            uint32 _targetCount;
+            uint32 _targetCount = 0;
         };
 
         SpellScript* GetSpellScript() const override

@@ -25,6 +25,11 @@ TCCategory: Zul'Gurub
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "zulgurub.h"
@@ -222,7 +227,7 @@ class boss_arlokk : public CreatureScript
                             break;
                         case EVENT_MARK_OF_ARLOKK:
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, urand(1, 3), 0.0f, false, -SPELL_MARK_OF_ARLOKK);
+                            Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, urand(1, 3), 0.0f, false, true, -SPELL_MARK_OF_ARLOKK);
                             if (!target)
                                 target = me->GetVictim();
                             if (target)
@@ -239,13 +244,13 @@ class boss_arlokk : public CreatureScript
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_UNEQUIP));
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(EQUIP_UNEQUIP));
                             /*
-                            const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                            CreatureTemplate const* cinfo = me->GetCreatureTemplate();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                             me->UpdateDamagePhysical(BASE_ATTACK);
                             */
                             me->AttackStop();
-                            DoResetThreat();
+                            ResetThreatList();
                             me->SetReactState(REACT_PASSIVE);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                             DoCast(me, SPELL_VANISH_VISUAL);
@@ -287,7 +292,7 @@ class boss_arlokk : public CreatureScript
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_DAGGER));
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(WEAPON_DAGGER));
                             /*
-                            const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                            CreatureTemplate const* cinfo = me->GetCreatureTemplate();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg));
                             me->UpdateDamagePhysical(BASE_ATTACK);
@@ -440,17 +445,25 @@ Position const PosSummonArlokk[1] =
 
 class go_gong_of_bethekk : public GameObjectScript
 {
-    public: go_gong_of_bethekk() : GameObjectScript("go_gong_of_bethekk") { }
+    public:
+        go_gong_of_bethekk() : GameObjectScript("go_gong_of_bethekk") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_gong_of_bethekkAI : public GameObjectAI
         {
-            if (go->GetInstanceScript())
+            go_gong_of_bethekkAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* /*player*/) override
             {
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                go->SendCustomAnim(0);
-                go->SummonCreature(NPC_ARLOKK, PosSummonArlokk[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 600000);
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->SendCustomAnim(0);
+                me->SummonCreature(NPC_ARLOKK, PosSummonArlokk[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 600000);
+                return true;
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetZulGurubAI<go_gong_of_bethekkAI>(go);
         }
 };
 

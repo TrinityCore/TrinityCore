@@ -19,10 +19,12 @@
 #ifndef DEF_ZULAMAN_H
 #define DEF_ZULAMAN_H
 
+#include "CreatureAIImpl.h"
+
 #define ZulamanScriptName "instance_zulaman"
 #define DataHeader "ZA"
 
-enum DataTypes
+enum ZADataTypes
 {
     BOSS_NALORAKK                       = 0,
     BOSS_AKILZON                        = 1,
@@ -31,14 +33,14 @@ enum DataTypes
     BOSS_HEXLORD                        = 4,
     BOSS_ZULJIN                         = 5,
     MAX_ENCOUNTER,
-    
+
     DATA_GONGEVENT,
     DATA_CHESTLOOTED,
     TYPE_RAND_VENDOR_1,
     TYPE_RAND_VENDOR_2
 };
 
-enum CreatureIds
+enum ZACreatureIds
 {
     NPC_HARRISON_JONES                  = 24358,
     NPC_NALORAKK                        = 23576,
@@ -49,7 +51,7 @@ enum CreatureIds
     NPC_ZULJIN                          = 23863
 };
 
-enum GameobjectIds
+enum ZAGameObjectIds
 {
     GO_LYNX_TEMPLE_EXIT                 = 186303,
     GO_LYNX_TEMPLE_ENTRANCE             = 186304,
@@ -65,10 +67,10 @@ enum GameobjectIds
     GO_STRANGE_GONG                     = 187359
 };
 
-template <class AI>
-inline AI* GetZulAmanAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetZulAmanAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, ZulamanScriptName);
+    return GetInstanceAI<AI>(obj, ZulamanScriptName);
 }
 
 #endif

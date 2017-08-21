@@ -16,11 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "InstanceScript.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellInfo.h"
 
 enum Yells
 {
@@ -82,7 +83,7 @@ class boss_faerlina : public CreatureScript
 
             void InitializeAI() override
             {
-                if (!me->isDead())
+                if (!me->isDead() && instance->GetBossState(BOSS_FAERLINA) != DONE)
                 {
                     Reset();
                     SummonAdds();
@@ -190,7 +191,7 @@ class boss_faerlina : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_faerlinaAI(creature);
+            return GetNaxxramasAI<boss_faerlinaAI>(creature);
         }
 };
 
@@ -244,7 +245,7 @@ class npc_faerlina_add : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_faerlina_addAI>(creature);
+            return GetNaxxramasAI<npc_faerlina_addAI>(creature);
         }
 };
 

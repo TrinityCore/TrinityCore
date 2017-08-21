@@ -23,7 +23,7 @@
 
 namespace TOTP
 {
-    unsigned int GenerateToken(const char* b32key);
+    unsigned int GenerateToken(char const* b32key);
 }
 
 #endif

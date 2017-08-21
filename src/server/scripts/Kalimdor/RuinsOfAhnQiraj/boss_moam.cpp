@@ -148,13 +148,12 @@ class boss_moam : public CreatureScript
                         {
                             std::list<Unit*> targetList;
                             {
-                                const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-                                for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                    if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->getPowerType() == POWER_MANA)
-                                        targetList.push_back((*itr)->getTarget());
+                                for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
+                                    if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->getPowerType() == POWER_MANA)
+                                        targetList.push_back(ref->GetVictim());
                             }
 
-                            Trinity::Containers::RandomResizeList(targetList, 5);
+                            Trinity::Containers::RandomResize(targetList, 5);
 
                             for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                                 DoCast(*itr, SPELL_DRAIN_MANA);
@@ -183,7 +182,7 @@ class boss_moam : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_moamAI(creature);
+            return GetAQ20AI<boss_moamAI>(creature);
         }
 };
 

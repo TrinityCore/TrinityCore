@@ -16,9 +16,9 @@
  */
 
 #include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 enum Yells
 {
@@ -130,7 +130,7 @@ class boss_rajaxx : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_rajaxxAI(creature);
+            return GetAQ20AI<boss_rajaxxAI>(creature);
         }
 };
 

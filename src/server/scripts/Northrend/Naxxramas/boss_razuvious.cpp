@@ -16,9 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "naxxramas.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "naxxramas.h"
 
 enum Yells
 {
@@ -60,7 +63,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_razuviousAI(creature);
+        return GetNaxxramasAI<boss_razuviousAI>(creature);
     }
 
     struct boss_razuviousAI : public BossAI
@@ -76,7 +79,7 @@ public:
 
         void InitializeAI() override
         {
-            if (!me->isDead())
+            if (!me->isDead() && instance->GetBossState(BOSS_RAZUVIOUS) != DONE)
             {
                 Reset();
                 SummonAdds();
@@ -228,7 +231,7 @@ class npc_dk_understudy : public CreatureScript
                 {
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (Unit* charmer = ObjectAccessor::GetUnit(*me, _charmer))
-                        me->AddThreat(charmer, 100000.0f);
+                        AddThreat(charmer, 100000.0f);
                     DoZoneInCombat(nullptr, 250.0f);
                 }
             }
@@ -240,7 +243,7 @@ class npc_dk_understudy : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_dk_understudyAI>(creature);
+            return GetNaxxramasAI<npc_dk_understudyAI>(creature);
         }
 };
 

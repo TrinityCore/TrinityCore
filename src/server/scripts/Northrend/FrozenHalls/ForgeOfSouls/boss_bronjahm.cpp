@@ -16,10 +16,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "forge_of_souls.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Yells
 {
@@ -212,7 +216,7 @@ class boss_bronjahm : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_bronjahmAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<boss_bronjahmAI>(creature);
         }
 };
 
@@ -242,7 +246,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
                 if (instance->GetGuidData(DATA_BRONJAHM).GetCounter() != id)
                     return;
 
-                me->CastSpell((Unit*)nullptr, SPELL_CONSUME_SOUL, true);
+                me->CastSpell(nullptr, SPELL_CONSUME_SOUL, true);
                 me->DespawnOrUnsummon();
             }
 
@@ -252,7 +256,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_corrupted_soul_fragmentAI>(creature, FoSScriptName);
+            return GetForgeOfSoulsAI<npc_corrupted_soul_fragmentAI>(creature);
         }
 };
 

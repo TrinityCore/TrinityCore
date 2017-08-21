@@ -16,13 +16,19 @@
  */
 
 #include "ScriptMgr.h"
+#include "halls_of_reflection.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Transport.h"
-#include "Player.h"
-#include "MoveSplineInit.h"
-#include "halls_of_reflection.h"
 
 enum Text
 {
@@ -338,24 +344,16 @@ Position const IceWallTargetPosition[] =
     { 5318.289f, 1749.184f, 771.9423f, 0.8726646f }  // 4th Icewall
 };
 
+void GameObjectDeleteDelayEvent::DeleteGameObject()
+{
+    if (GameObject* go = ObjectAccessor::GetGameObject(*_owner, _gameObjectGUID))
+        go->Delete();
+}
+
 class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
 {
     public:
         npc_jaina_or_sylvanas_intro_hor() : CreatureScript("npc_jaina_or_sylvanas_intro_hor") { }
-
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            // override default gossip
-            if (InstanceScript* instance = creature->GetInstanceScript())
-                if (instance->GetData(DATA_QUEL_DELAR_EVENT) == IN_PROGRESS || instance->GetData(DATA_QUEL_DELAR_EVENT) == SPECIAL)
-                {
-                    ClearGossipMenuFor(player);
-                    return true;
-                }
-
-            // load default gossip
-            return false;
-        }
 
         struct npc_jaina_or_sylvanas_intro_horAI : public ScriptedAI
         {
@@ -364,7 +362,20 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool GossipHello(Player* player) override
+            {
+                // override default gossip
+                if (_instance->GetData(DATA_QUEL_DELAR_EVENT) == IN_PROGRESS || _instance->GetData(DATA_QUEL_DELAR_EVENT) == SPECIAL)
+                {
+                    ClearGossipMenuFor(player);
+                    return true;
+                }
+
+                // load default gossip
+                return false;
+            }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 ClearGossipMenuFor(player);
 
@@ -383,6 +394,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                     default:
                         break;
                 }
+                return false;
             }
 
             void Reset() override
@@ -790,21 +802,6 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
     public:
         npc_jaina_or_sylvanas_escape_hor() : CreatureScript("npc_jaina_or_sylvanas_escape_hor") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
-        {
-            // override default gossip
-            if (InstanceScript* instance = creature->GetInstanceScript())
-                if (instance->GetBossState(DATA_THE_LICH_KING_ESCAPE) == DONE)
-                {
-                    player->PrepareGossipMenu(creature, creature->GetEntry() == NPC_JAINA_ESCAPE ? GOSSIP_MENU_JAINA_FINAL : GOSSIP_MENU_SYLVANAS_FINAL, true);
-                    player->SendPreparedGossip(creature);
-                    return true;
-                }
-
-            // load default gossip
-            return false;
-        }
-
         struct npc_jaina_or_sylvanas_escape_horAI : public ScriptedAI
         {
             npc_jaina_or_sylvanas_escape_horAI(Creature* creature) : ScriptedAI(creature),
@@ -858,7 +855,21 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool GossipHello(Player* player) override
+            {
+                // override default gossip
+                if (_instance->GetBossState(DATA_THE_LICH_KING_ESCAPE) == DONE)
+                {
+                    player->PrepareGossipMenu(me, me->GetEntry() == NPC_JAINA_ESCAPE ? GOSSIP_MENU_JAINA_FINAL : GOSSIP_MENU_SYLVANAS_FINAL, true);
+                    player->SendPreparedGossip(me);
+                    return true;
+                }
+
+                // load default gossip
+                return false;
+            }
+
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 ClearGossipMenuFor(player);
 
@@ -872,6 +883,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                     default:
                         break;
                 }
+                return false;
             }
 
             void DestroyIceWall()
@@ -948,14 +960,9 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
 
             void DeleteAllFromThreatList(Unit* target, ObjectGuid except)
             {
-                ThreatContainer::StorageType threatlist = target->getThreatManager().getThreatList();
-                for (auto i : threatlist)
-                {
-                    if (i->getUnitGuid() == except)
-                        continue;
-
-                    i->removeReference();
-                }
+                for (ThreatReference* ref : target->GetThreatManager().GetModifiableThreatList())
+                  if (ref->GetVictim()->GetGUID() != except)
+                    ref->ClearThreat();
             }
 
             void UpdateAI(uint32 diff) override
@@ -1025,7 +1032,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
 
                             if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING_ESCAPE)))
                             {
-                                lichking->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                lichking->SetImmuneToPC(true);
                                 lichking->RemoveAllAttackers();
 
                                 DeleteAllFromThreatList(lichking, me->GetGUID());
@@ -1039,7 +1046,8 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                         case EVENT_ESCAPE_6:
                             if (Creature* lichking = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_THE_LICH_KING_ESCAPE)))
                             {
-                                lichking->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_PACIFIED);
+                                lichking->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED);
+                                lichking->SetImmuneToPC(false);
 
                                 if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                 {
@@ -1330,10 +1338,11 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                 if (!me->HasReactState(REACT_PASSIVE))
                 {
                     if (Unit* victim = me->SelectVictim())
-                        AttackStart(victim);
+                        if (!me->IsFocusing(nullptr, true) && victim != me->GetVictim())
+                            AttackStart(victim);
                     return me->GetVictim() != nullptr;
                 }
-                else if (me->getThreatManager().getThreatList().size() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))
+                else if (me->GetThreatManager().GetThreatListSize() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))
                 {
                     EnterEvadeMode(EVADE_REASON_OTHER);
                     return false;
@@ -1640,7 +1649,7 @@ class npc_phantom_hallucination : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_phantom_hallucinationAI(creature);
+            return GetHallsOfReflectionAI<npc_phantom_hallucinationAI>(creature);
         }
 };
 
@@ -1916,12 +1925,12 @@ class npc_frostsworn_general : public CreatureScript
             void SummonClones()
             {
                 std::list<Unit*> playerList;
-                SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0.0f, true);
+                SelectTargetList(playerList, 5, SELECT_TARGET_MAXTHREAT, 0, 0.0f, true);
                 for (Unit* target : playerList)
                 {
                     if (Creature* reflection = me->SummonCreature(NPC_REFLECTION, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000))
                     {
-                        reflection->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                        reflection->SetImmuneToPC(false);
                         target->CastSpell(reflection, SPELL_CLONE, true);
                         target->CastSpell(reflection, SPELL_GHOST_VISUAL, true);
                         reflection->AI()->AttackStart(target);
@@ -1994,7 +2003,7 @@ class npc_spiritual_reflection : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_spiritual_reflectionAI(creature);
+            return GetHallsOfReflectionAI<npc_spiritual_reflectionAI>(creature);
         }
 };
 
@@ -2156,10 +2165,10 @@ struct npc_escape_event_trash : public ScriptedAI
         DoZoneInCombat(me, 0.0f);
         if (Creature* leader = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_ESCAPE_LEADER)))
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
             me->SetInCombatWith(leader);
             leader->SetInCombatWith(me);
-            me->AddThreat(leader, 0.0f);
+            AddThreat(leader, 0.0f);
         }
     }
 
@@ -2279,7 +2288,7 @@ class npc_risen_witch_doctor : public CreatureScript
                         _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_CURSE, urand(10000, 15000));
                         break;
                     case EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 20.0f, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 20.0f, true))
                             DoCast(target, SPELL_SHADOW_BOLT);
                         _events.ScheduleEvent(EVENT_RISEN_WITCH_DOCTOR_SHADOW_BOLT, urand(2000, 3000));
                         break;
@@ -2587,7 +2596,7 @@ class npc_quel_delar_sword : public CreatureScript
                 if (_intro)
                     _events.ScheduleEvent(EVENT_QUEL_DELAR_INIT, 0);
                 else
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetImmuneToAll(false);
             }
 
             void EnterCombat(Unit* /*victim*/) override
@@ -2655,7 +2664,7 @@ class npc_quel_delar_sword : public CreatureScript
                             case EVENT_QUEL_DELAR_FIGHT:
                                 Talk(SAY_QUEL_DELAR_SWORD);
                                 me->GetMotionMaster()->MovePoint(0, QuelDelarMovement[2]);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                me->SetImmuneToAll(false);
                                 break;
                             default:
                                 break;
@@ -2815,9 +2824,9 @@ class spell_hor_gunship_cannon_fire : public SpellScriptLoader
                 if (!urand(0, 2))
                 {
                     if (GetTarget()->GetEntry() == NPC_GUNSHIP_CANNON_HORDE)
-                        GetTarget()->CastSpell((Unit*)NULL, SPELL_GUNSHIP_CANNON_FIRE_MISSILE_HORDE, true);
+                        GetTarget()->CastSpell(nullptr, SPELL_GUNSHIP_CANNON_FIRE_MISSILE_HORDE, true);
                     else
-                        GetTarget()->CastSpell((Unit*)NULL, SPELL_GUNSHIP_CANNON_FIRE_MISSILE_ALLIANCE, true);
+                        GetTarget()->CastSpell(nullptr, SPELL_GUNSHIP_CANNON_FIRE_MISSILE_ALLIANCE, true);
                 }
             }
 

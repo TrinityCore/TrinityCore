@@ -19,11 +19,14 @@
 #ifndef DEF_MAGISTERS_TERRACE_H
 #define DEF_MAGISTERS_TERRACE_H
 
+#include "CreatureAIImpl.h"
+
+#define MGTScriptName "instance_magisters_terrace"
 #define DataHeader "MT"
 
 uint32 const EncounterCount = 4;
 
-enum DataTypes
+enum MTDataTypes
 {
     DATA_SELIN,
     DATA_VEXALLUS,
@@ -38,7 +41,7 @@ enum DataTypes
     DATA_ESCAPE_ORB
 };
 
-enum CreatureIds
+enum MTCreatureIds
 {
     NPC_SELIN               = 24723,
     NPC_DELRISSA            = 24560,
@@ -47,7 +50,7 @@ enum CreatureIds
     NPC_HUMAN_KALECGOS      = 24848
 };
 
-enum GameObjectIds
+enum MTGameObjectIds
 {
     GO_VEXALLUS_DOOR        = 187896,
     GO_SELIN_DOOR           = 187979,
@@ -59,19 +62,25 @@ enum GameObjectIds
     GO_ESCAPE_ORB           = 188173
 };
 
-enum InstanceEventIds
+enum MTInstanceEventIds
 {
     EVENT_SPAWN_KALECGOS    = 16547
 };
 
-enum InstanceText
+enum MTInstanceText
 {
     SAY_KALECGOS_SPAWN      = 0
 };
 
-enum MovementData
+enum MTMovementData
 {
     PATH_KALECGOS_FLIGHT    = 248440
 };
+
+template <class AI, class T>
+inline AI* GetMagistersTerraceAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, MGTScriptName);
+}
 
 #endif

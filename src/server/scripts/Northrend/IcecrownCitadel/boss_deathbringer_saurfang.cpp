@@ -15,13 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
+#include "icecrown_citadel.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
-#include "icecrown_citadel.h"
-#include "Player.h"
+#include "SpellScript.h"
 
 enum ScriptTexts
 {
@@ -202,7 +205,6 @@ enum Actions
 enum Misc
 {
     DATA_MADE_A_MESS                    = 45374613, // 4537, 4613 are achievement IDs
-    FACTION_SCOURGE                     = 974,
 
     GOSSIP_MENU_MURADIN_BRONZEBEARD     = 10934,
     GOSSIP_MENU_HIGH_OVERLORD_SAURFANG  = 10952
@@ -293,7 +295,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 events.Reset();
                 events.SetPhase(PHASE_COMBAT);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 if (!_introDone)
                 {
                     DoCast(me, SPELL_GRIP_OF_AGONY);
@@ -321,7 +323,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void AttackStart(Unit* victim) override
             {
-                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
+                if (me->IsImmuneToPC())
                     return;
 
                 ScriptedAI::AttackStart(victim);
@@ -331,7 +333,7 @@ class boss_deathbringer_saurfang : public CreatureScript
             {
                 ScriptedAI::EnterEvadeMode(why);
                 if (_introDone)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
             }
 
             void JustReachedHome() override
@@ -367,7 +369,8 @@ class boss_deathbringer_saurfang : public CreatureScript
                     _dead = true;
                     _JustDied();
                     _EnterEvadeMode();
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetImmuneToPC(true);
 
                     DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
                     DoCast(me, SPELL_ACHIEVEMENT, true);
@@ -461,7 +464,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     {
                         case EVENT_INTRO_ALLIANCE_2:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->setFaction(FACTION_SCOURGE);
+                            me->SetFaction(FACTION_UNDEAD_SCOURGE);
                             Talk(SAY_INTRO_ALLIANCE_2);
                             break;
                         case EVENT_INTRO_ALLIANCE_3:
@@ -474,7 +477,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             break;
                         case EVENT_INTRO_HORDE_2:
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->setFaction(FACTION_SCOURGE);
+                            me->SetFaction(FACTION_UNDEAD_SCOURGE);
                             Talk(SAY_INTRO_HORDE_2);
                             break;
                         case EVENT_INTRO_HORDE_4:
@@ -487,7 +490,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                         case EVENT_INTRO_FINISH:
                             events.SetPhase(PHASE_COMBAT);
                             _introDone = true;
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
                             break;
                         case EVENT_SUMMON_BLOOD_BEAST:
                             for (uint32 i10 = 0; i10 < 2; ++i10)
@@ -578,7 +581,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     }
                     case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
                         {
                             ++_fallenChampionCastCount;
                             DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
@@ -636,13 +639,14 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 _events.Reset();
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
                 if (menuId == GOSSIP_MENU_HIGH_OVERLORD_SAURFANG)
                 {
-                    player->PlayerTalkClass->SendCloseGossip();
+                    CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
+                return false;
             }
 
             void DoAction(int32 action) override
@@ -832,13 +836,14 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 _events.Reset();
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
                 if (menuId == GOSSIP_MENU_MURADIN_BRONZEBEARD)
                 {
-                    player->PlayerTalkClass->SendCloseGossip();
+                    CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
+                return false;
             }
 
             void DoAction(int32 action) override
@@ -1006,11 +1011,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_POWER))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_POWER))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_POWER, SPELL_BLOOD_POWER });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1042,9 +1043,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_THE_FALLEN_CHAMPION });
             }
 
             void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
@@ -1127,9 +1126,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -1162,9 +1159,7 @@ class spell_deathbringer_blood_beast_blood_link : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -1196,9 +1191,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
             void HandleScript(SpellEffIndex effIndex)

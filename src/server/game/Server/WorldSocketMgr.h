@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,14 +45,16 @@ public:
 
     void OnSocketOpen(tcp::socket&& sock, uint32 threadIndex) override;
 
+    std::size_t GetApplicationSendBufferSize() const { return _socketApplicationSendBufferSize; }
+
 protected:
     WorldSocketMgr();
 
     NetworkThread<WorldSocket>* CreateThreads() const override;
 
 private:
-    int32 _socketSendBufferSize;
-    int32 m_SockOutUBuff;
+    int32 _socketSystemSendBufferSize;
+    int32 _socketApplicationSendBufferSize;
     bool _tcpNoDelay;
 };
 

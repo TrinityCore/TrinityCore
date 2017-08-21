@@ -24,10 +24,13 @@ SDCategory: Deadmines
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "deadmines.h"
-#include "Spell.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Item.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
 #include "WorldSession.h"
 
 /*#####

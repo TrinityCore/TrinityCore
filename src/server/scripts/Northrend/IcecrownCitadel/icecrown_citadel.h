@@ -18,7 +18,11 @@
 #ifndef ICECROWN_CITADEL_H_
 #define ICECROWN_CITADEL_H_
 
-#include "SpellScript.h"
+#include "CreatureAIImpl.h"
+#include "ScriptMgr.h"
+
+struct Position;
+enum TriggerCastFlags : uint32;
 
 #define ICCScriptName "instance_icecrown_citadel"
 #define DataHeader    "IC"
@@ -37,7 +41,7 @@ extern Position const TerenasSpawnHeroic;
 extern Position const SpiritWardenSpawn;
 
 // Shared spells used by more than one script
-enum SharedSpells
+enum ICSharedSpells
 {
     SPELL_BERSERK                       = 26662,
     SPELL_BERSERK2                      = 47008,
@@ -58,7 +62,7 @@ enum SharedSpells
     SPELL_SHADOWS_FATE                  = 71169
 };
 
-enum TeleporterSpells
+enum ICTeleporterSpells
 {
     LIGHT_S_HAMMER_TELEPORT         = 70781,
     ORATORY_OF_THE_DAMNED_TELEPORT  = 70856,
@@ -69,7 +73,7 @@ enum TeleporterSpells
     SINDRAGOSA_S_LAIR_TELEPORT      = 70861
 };
 
-enum DataTypes
+enum ICDataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_LORD_MARROWGAR                = 0,
@@ -119,7 +123,7 @@ enum DataTypes
     DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL = 42
 };
 
-enum CreaturesIds
+enum ICCreaturesIds
 {
     // At Light's Hammer
     NPC_HIGHLORD_TIRION_FORDRING_LH             = 37119,
@@ -323,7 +327,7 @@ enum CreaturesIds
     NPC_INVISIBLE_STALKER                       = 30298
 };
 
-enum GameObjectsIds
+enum ICGameObjectsIds
 {
     // ICC Teleporters
     GO_SCOURGE_TRANSPORTER_LICHKING         = 202223,
@@ -429,7 +433,7 @@ enum GameObjectsIds
     GO_LAVAMAN_PILLARS_UNCHAINED            = 202438
 };
 
-enum AchievementCriteriaIds
+enum ICAchievementCriteriaIds
 {
     // Lord Marrowgar
     CRITERIA_BONED_10N                  = 12775,
@@ -464,7 +468,7 @@ enum AchievementCriteriaIds
     CRITERIA_ONCE_BITTEN_TWICE_SHY_25V  = 13013
 };
 
-enum SharedActions
+enum ICSharedActions
 {
     // Icecrown Gunship Battle
     ACTION_ENEMY_GUNSHIP_TALK   = -369390,
@@ -496,7 +500,7 @@ enum SharedActions
     ACTION_FROSTMOURNE_INTRO    = -36823
 };
 
-enum WeekliesICC
+enum ICWeekliesICC
 {
     QUEST_DEPROGRAMMING_10                  = 24869,
     QUEST_DEPROGRAMMING_25                  = 24875,
@@ -510,7 +514,7 @@ enum WeekliesICC
     QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25  = 24880
 };
 
-enum WorldStatesICC
+enum ICWorldStatesICC
 {
     WORLDSTATE_SHOW_TIMER           = 4903,
     WORLDSTATE_EXECUTION_TIME       = 4904,
@@ -519,7 +523,7 @@ enum WorldStatesICC
     WORLDSTATE_ATTEMPTS_MAX         = 4942
 };
 
-enum AreaIds
+enum ICAreaIds
 {
     AREA_ICECROWN_CITADEL   = 4812
 };
@@ -527,49 +531,16 @@ enum AreaIds
 class spell_trigger_spell_from_caster : public SpellScriptLoader
 {
     public:
-        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags = TRIGGERED_FULL_MASK)
-            : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
-
-        class spell_trigger_spell_from_caster_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
-
-        public:
-            spell_trigger_spell_from_caster_SpellScript(uint32 triggerId, TriggerCastFlags triggerFlags)
-                : SpellScript(), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                if (!sSpellMgr->GetSpellInfo(_triggerId))
-                    return false;
-                return true;
-            }
-
-            void HandleTrigger()
-            {
-                GetCaster()->CastSpell(GetHitUnit(), _triggerId, _triggerFlags);
-            }
-
-            void Register() override
-            {
-                AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
-            }
-
-            uint32 _triggerId;
-            TriggerCastFlags _triggerFlags;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_trigger_spell_from_caster_SpellScript(_triggerId, _triggerFlags);
-        }
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags);
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId);
+        SpellScript* GetSpellScript() const override;
 
     private:
         uint32 _triggerId;
         TriggerCastFlags _triggerFlags;
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetIcecrownCitadelAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ICCScriptName);

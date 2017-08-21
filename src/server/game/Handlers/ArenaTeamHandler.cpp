@@ -16,16 +16,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 #include "ArenaTeam.h"
-#include "SocialMgr.h"
 #include "ArenaTeamMgr.h"
-#include "Opcodes.h"
+#include "CharacterCache.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "CharacterCache.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "SocialMgr.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket& recvData)
 {
@@ -88,7 +90,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
     uint32 arenaTeamId;                                     // arena team id
     std::string invitedName;
 
-    Player* player = NULL;
+    Player* player = nullptr;
 
     recvData >> arenaTeamId >> invitedName;
 
@@ -160,7 +162,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
     WorldPacket data(SMSG_ARENA_TEAM_INVITE, (8+10));
     data << GetPlayer()->GetName();
     data << arenaTeam->GetName();
-    player->GetSession()->SendPacket(&data);
+    player->SendDirectMessage(&data);
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_ARENA_TEAM_INVITE");
 }

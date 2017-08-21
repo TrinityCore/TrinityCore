@@ -16,12 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "pit_of_saron.h"
-#include "Vehicle.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Spells
 {
@@ -192,16 +197,16 @@ class boss_ick : public CreatureScript
 
             void _ResetThreat(Unit* target)
             {
-                DoModifyThreatPercent(target, -100);
-                me->AddThreat(target, _tempThreat);
+                ModifyThreatByPercent(target, -100);
+                AddThreat(target, _tempThreat);
             }
 
             void UpdateAI(uint32 diff) override
             {
-                if (!me->IsInCombat())
+                if (!me->IsEngaged())
                     return;
 
-                if (!me->GetVictim() && me->getThreatManager().isThreatListEmpty())
+                if (!me->GetVictim() && me->GetThreatManager().IsThreatListEmpty())
                 {
                     EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
@@ -374,7 +379,7 @@ class boss_krick : public CreatureScript
                             if (Creature* temp = ObjectAccessor::GetCreature(*me, _instanceScript->GetGuidData(DATA_JAINA_SYLVANAS_1)))
                                 temp->DespawnOrUnsummon();
 
-                            Creature* jainaOrSylvanas = NULL;
+                            Creature* jainaOrSylvanas = nullptr;
                             if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                 jainaOrSylvanas = me->SummonCreature(NPC_JAINA_PART1, outroPos[2], TEMPSUMMON_MANUAL_DESPAWN);
                             else
@@ -521,7 +526,7 @@ class spell_krick_explosive_barrage : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (caster->GetTypeId() == TYPEID_UNIT)
                     {
-                        Map::PlayerList const &players = caster->GetMap()->GetPlayers();
+                        Map::PlayerList const& players = caster->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             if (Player* player = itr->GetSource())
                                 if (player->IsWithinDist(caster, 60.0f))    // don't know correct range
@@ -633,9 +638,9 @@ class spell_krick_pursuit : public SpellScriptLoader
                         {
                             ick->AI()->Talk(SAY_ICK_CHASE_1, target);
                             ick->AddAura(GetSpellInfo()->Id, target);
-                            ENSURE_AI(boss_ick::boss_ickAI, ick->AI())->SetTempThreat(ick->getThreatManager().getThreat(target));
-                            ick->AddThreat(target, float(GetEffectValue()));
-                            target->AddThreat(ick, float(GetEffectValue()));
+                            ENSURE_AI(boss_ick::boss_ickAI, ick->AI())->SetTempThreat(ick->GetThreatManager().GetThreat(target));
+                            ick->GetThreatManager().AddThreat(target, float(GetEffectValue()), GetSpellInfo(), true, true);
+                            target->GetThreatManager().AddThreat(ick, float(GetEffectValue()), GetSpellInfo(), true, true);
                         }
                     }
             }

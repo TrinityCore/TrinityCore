@@ -16,8 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
+#include "AreaBoundary.h"
 #include "black_temple.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
 
 DoorData const doorData[] =
 {
@@ -123,7 +128,7 @@ class instance_black_temple : public InstanceMapScript
                     case NPC_STORM_FURY:
                         AshtongueGUIDs.emplace_back(creature->GetGUID());
                         if (GetBossState(DATA_SHADE_OF_AKAMA) == DONE)
-                            creature->setFaction(ASHTONGUE_FACTION_FRIEND);
+                            creature->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
                         break;
                     default:
                         break;
@@ -170,7 +175,7 @@ class instance_black_temple : public InstanceMapScript
                         if (state == DONE)
                             for (ObjectGuid ashtongueGuid : AshtongueGUIDs)
                                 if (Creature* ashtongue = instance->GetCreature(ashtongueGuid))
-                                    ashtongue->setFaction(ASHTONGUE_FACTION_FRIEND);
+                                    ashtongue->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
                         // no break
                     case DATA_TERON_GOREFIEND:
                     case DATA_GURTOGG_BLOODBOIL:
@@ -198,7 +203,7 @@ class instance_black_temple : public InstanceMapScript
 
             bool CheckDenOfMortalDoor()
             {
-                for (DataTypes boss : {DATA_SHADE_OF_AKAMA, DATA_TERON_GOREFIEND, DATA_RELIQUARY_OF_SOULS, DATA_GURTOGG_BLOODBOIL})
+                for (BTDataTypes boss : {DATA_SHADE_OF_AKAMA, DATA_TERON_GOREFIEND, DATA_RELIQUARY_OF_SOULS, DATA_GURTOGG_BLOODBOIL})
                     if (GetBossState(boss) != DONE)
                         return false;
                 return true;

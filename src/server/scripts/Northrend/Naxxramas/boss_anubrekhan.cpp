@@ -16,9 +16,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "naxxramas.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 
 enum AnubSays
 {
@@ -79,7 +81,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_anubrekhanAI>(creature);
+        return GetNaxxramasAI<boss_anubrekhanAI>(creature);
     }
 
     struct boss_anubrekhanAI : public BossAI
@@ -94,7 +96,7 @@ public:
 
         void InitializeAI() override
         {
-            if (!me->isDead())
+            if (!me->isDead() && instance->GetBossState(BOSS_ANUBREKHAN) != DONE)
             {
                 Reset();
                 SummonGuards();

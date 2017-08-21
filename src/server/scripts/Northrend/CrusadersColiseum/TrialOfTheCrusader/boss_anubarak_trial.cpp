@@ -22,11 +22,15 @@
 // Scarab   - Kill credit isn't crediting?
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "trial_of_the_crusader.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include <limits>
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "trial_of_the_crusader.h"
 
 enum Yells
 {
@@ -224,7 +228,7 @@ class boss_anubarak_trial : public CreatureScript
                 for (int i = 0; i < 10; i++)
                     if (Creature* scarab = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
                     {
-                        scarab->setFaction(31);
+                        scarab->SetFaction(FACTION_PREY);
                         scarab->GetMotionMaster()->MoveRandom(10);
                     }
             }
@@ -257,7 +261,7 @@ class boss_anubarak_trial : public CreatureScript
                         summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid1);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                         {
-                            summoned->CombatStart(target);
+                            summoned->EngageWithTarget(target);
                             Talk(EMOTE_SPIKE, target);
                         }
                         break;
@@ -428,7 +432,7 @@ class boss_anubarak_trial : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_anubarak_trialAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_anubarak_trialAI>(creature);
         };
 };
 
@@ -506,7 +510,7 @@ class npc_swarm_scarab : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_swarm_scarabAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_swarm_scarabAI>(creature);
         };
 };
 
@@ -600,7 +604,7 @@ class npc_nerubian_burrower : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_nerubian_burrowerAI>(creature);
+            return GetTrialOfTheCrusaderAI<npc_nerubian_burrowerAI>(creature);
         };
 };
 
@@ -626,7 +630,8 @@ class npc_frost_sphere : public CreatureScript
                 if (me->GetHealth() <= damage)
                 {
                     damage = 0;
-                    float floorZ = me->GetMap()->GetHeight(me->GetPhaseMask(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                    float floorZ = me->GetPositionZ();
+                    me->UpdateGroundPositionZ(me->GetPositionX(), me->GetPositionY(), floorZ);
                     if (fabs(me->GetPositionZ() - floorZ) < 0.1f)
                     {
                         // we are close to the ground
@@ -671,7 +676,7 @@ class npc_frost_sphere : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_frost_sphereAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_frost_sphereAI>(creature);
         };
 };
 
@@ -809,12 +814,11 @@ class npc_anubarak_spike : public CreatureScript
                 DoCast(who, SPELL_MARK);
                 me->SetSpeedRate(MOVE_RUN, 0.5f);
                 // make sure the Spine will really follow the one he should
-                me->getThreatManager().clearReferences();
+                ResetThreatList();
                 me->SetInCombatWithZone();
-                me->getThreatManager().addThreat(who, std::numeric_limits<float>::max());
+                AddThreat(who, 1000000.0f);
                 me->GetMotionMaster()->Clear(true);
                 me->GetMotionMaster()->MoveChase(who);
-                me->TauntApply(who);
             }
 
             private:
@@ -824,7 +828,7 @@ class npc_anubarak_spike : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_anubarak_spikeAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_anubarak_spikeAI>(creature);
         };
 };
 
@@ -870,9 +874,7 @@ class spell_anubarak_leeching_swarm : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_DMG) || !sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_LEECHING_SWARM_DMG, SPELL_LEECHING_SWARM_HEAL });
             }
 
             void HandleEffectPeriodic(AuraEffect const* aurEff)

@@ -92,7 +92,7 @@ class boss_grobbulus : public CreatureScript
                             events.Repeat(randtime(Seconds(15), Seconds(30)));
                             return;
                         case EVENT_INJECT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_MUTATING_INJECTION))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_MUTATING_INJECTION))
                                 DoCast(target, SPELL_MUTATING_INJECTION);
                             events.Repeat(Seconds(8) + Milliseconds(uint32(std::round(120 * me->GetHealthPct()))));
                             return;
@@ -107,7 +107,7 @@ class boss_grobbulus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_grobbulusAI(creature);
+            return GetNaxxramasAI<boss_grobbulusAI>(creature);
         }
 };
 
@@ -135,7 +135,7 @@ class npc_grobbulus_poison_cloud : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_grobbulus_poison_cloudAI(creature);
+            return GetNaxxramasAI<npc_grobbulus_poison_cloudAI>(creature);
         }
 };
 
@@ -151,10 +151,7 @@ class spell_grobbulus_mutating_injection : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MUTATING_EXPLOSION)
-                    || !sSpellMgr->GetSpellInfo(SPELL_POISON_CLOUD))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MUTATING_EXPLOSION, SPELL_POISON_CLOUD });
             }
 
             void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -166,7 +163,7 @@ class spell_grobbulus_mutating_injection : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     caster->CastSpell(GetTarget(), SPELL_MUTATING_EXPLOSION, true);
-                    GetTarget()->CastSpell(GetTarget(), SPELL_POISON_CLOUD, true, NULL, aurEff, GetCasterGUID());
+                    GetTarget()->CastSpell(GetTarget(), SPELL_POISON_CLOUD, true, nullptr, aurEff, GetCasterGUID());
                 }
             }
 
@@ -194,9 +191,7 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].TriggerSpell))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
             }
 
             void PeriodicTick(AuraEffect const* aurEff)
@@ -205,7 +200,7 @@ class spell_grobbulus_poison_cloud : public SpellScriptLoader
 
                 uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
                 int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
-                GetTarget()->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, mod, (Unit*)NULL, TRIGGERED_FULL_MASK, NULL, aurEff);
+                GetTarget()->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, mod, (Unit*)nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
 
             void Register() override

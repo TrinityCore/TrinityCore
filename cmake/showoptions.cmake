@@ -30,10 +30,10 @@ else()
 endif()
 
 if( TOOLS )
-  message("* Build map/vmap tools   : Yes")
+  message("* Build map/vmap tools   : Yes (default)")
   add_definitions(-DNO_CORE_FUNCS)
 else()
-  message("* Build map/vmap tools   : No  (default)")
+  message("* Build map/vmap tools   : No")
 endif()
 
 if( USE_COREPCH )

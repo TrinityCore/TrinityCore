@@ -16,10 +16,17 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "Player.h"
 #include "ahnkahet.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "Spell.h"
+#include "SpellScript.h"
 
 enum Spells
 {
@@ -253,7 +260,7 @@ class boss_prince_taldaram : public CreatureScript
                 if (_embraceTargetGUID)
                     return ObjectAccessor::GetUnit(*me, _embraceTargetGUID);
 
-                return NULL;
+                return nullptr;
             }
 
             void RemovePrison()
@@ -370,7 +377,7 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_prince_taldaram_flame_sphereAI(creature);
+            return GetAhnKahetAI<npc_prince_taldaram_flame_sphereAI>(creature);
         }
 };
 
@@ -380,33 +387,41 @@ class go_prince_taldaram_sphere : public GameObjectScript
     public:
         go_prince_taldaram_sphere() : GameObjectScript("go_prince_taldaram_sphere") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_prince_taldaram_sphereAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return false;
+            go_prince_taldaram_sphereAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            Creature* PrinceTaldaram = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_PRINCE_TALDARAM));
-            if (PrinceTaldaram && PrinceTaldaram->IsAlive())
+            InstanceScript* instance;
+
+            bool GossipHello(Player* /*player*/) override
             {
-                go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                go->SetGoState(GO_STATE_ACTIVE);
-
-                switch (go->GetEntry())
+                Creature* princeTaldaram = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PRINCE_TALDARAM));
+                if (princeTaldaram && princeTaldaram->IsAlive())
                 {
-                    case GO_SPHERE_1:
-                        instance->SetData(DATA_SPHERE_1, IN_PROGRESS);
-                        PrinceTaldaram->AI()->Talk(SAY_1);
-                        break;
-                    case GO_SPHERE_2:
-                        instance->SetData(DATA_SPHERE_2, IN_PROGRESS);
-                        PrinceTaldaram->AI()->Talk(SAY_1);
-                        break;
-                }
+                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    me->SetGoState(GO_STATE_ACTIVE);
 
-                ENSURE_AI(boss_prince_taldaram::boss_prince_taldaramAI, PrinceTaldaram->AI())->CheckSpheres();
+                    switch (me->GetEntry())
+                    {
+                        case GO_SPHERE_1:
+                            instance->SetData(DATA_SPHERE_1, IN_PROGRESS);
+                            princeTaldaram->AI()->Talk(SAY_1);
+                            break;
+                        case GO_SPHERE_2:
+                            instance->SetData(DATA_SPHERE_2, IN_PROGRESS);
+                            princeTaldaram->AI()->Talk(SAY_1);
+                            break;
+                    }
+
+                    ENSURE_AI(boss_prince_taldaram::boss_prince_taldaramAI, princeTaldaram->AI())->CheckSpheres();
+                }
+                return true;
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetAhnKahetAI<go_prince_taldaram_sphereAI>(go);
         }
 };
 
@@ -422,11 +437,7 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_1)
-                    || !sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_2)
-                    || !sSpellMgr->GetSpellInfo(SPELL_FLAME_SPHERE_SUMMON_3))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FLAME_SPHERE_SUMMON_1, SPELL_FLAME_SPHERE_SUMMON_2, SPELL_FLAME_SPHERE_SUMMON_3 });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

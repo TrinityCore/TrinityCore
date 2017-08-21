@@ -15,15 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "ScriptedGossip.h"
-#include "GridNotifiers.h"
 #include "black_temple.h"
-#include "SpellScript.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Says
 {
@@ -217,7 +221,7 @@ public:
         {
             _Reset();
             Initialize();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
             me->SetWalk(true);
@@ -258,7 +262,7 @@ public:
             {
                 _isInPhaseOne = false;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 me->SetWalk(false);
                 events.ScheduleEvent(EVENT_ADD_THREAT, Milliseconds(100));
 
@@ -286,7 +290,7 @@ public:
 
         void EnterEvadeModeIfNeeded()
         {
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 if (Player* player = i->GetSource())
                     if (player->IsAlive() && !player->IsGameMaster() && CheckBoundary(player))
@@ -379,7 +383,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->setFaction(ASHTONGUE_FACTION_FRIEND);
+            me->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
             DoCastSelf(SPELL_STEALTH);
 
             if (_instance->GetBossState(DATA_SHADE_OF_AKAMA) != DONE)
@@ -425,7 +429,7 @@ public:
             {
                 _isInCombat = false;
                 me->CombatStop(true);
-                me->setFaction(ASHTONGUE_FACTION_FRIEND);
+                me->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
                 me->SetWalk(true);
                 _events.Reset();
                 me->GetMotionMaster()->MovePoint(AKAMA_INTRO_WAYPOINT, AkamaWP[1]);
@@ -479,7 +483,7 @@ public:
                     case EVENT_SHADE_CHANNEL:
                         me->SetFacingTo(FACE_THE_PLATFORM);
                         DoCastSelf(SPELL_AKAMA_SOUL_CHANNEL);
-                        me->setFaction(AKAMA_FACTION_COMBAT);
+                        me->SetFaction(FACTION_MONSTER_SPAR_BUDDY);
                         _events.ScheduleEvent(EVENT_FIXATE, Seconds(5));
                         break;
                     case EVENT_FIXATE:
@@ -494,7 +498,7 @@ public:
                         _events.Repeat(Seconds(3), Seconds(7));
                         break;
                     case EVENT_START_SOUL_RETRIEVE:
-                        me->SetFacingTo(FACE_THE_DOOR, true);
+                        me->SetFacingTo(FACE_THE_DOOR);
                         DoCast(SPELL_AKAMA_SOUL_RETRIEVE);
                         _events.ScheduleEvent(EVENT_START_BROKEN_FREE, Seconds(15));
                         break;
@@ -527,7 +531,7 @@ public:
                 }
             }
 
-            if (me->getFaction() == AKAMA_FACTION_COMBAT)
+            if (me->GetFaction() == FACTION_MONSTER_SPAR_BUDDY)
             {
                 if (!UpdateVictim())
                     return;
@@ -545,13 +549,14 @@ public:
                     shade->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {
                 CloseGossipMenuFor(player);
                 _events.ScheduleEvent(EVENT_SHADE_START, Milliseconds(500));
             }
+            return false;
         }
 
     private:
@@ -1165,7 +1170,7 @@ public:
                     Talk(SAY_BROKEN_SPECIAL);
                     break;
                 case ACTION_BROKEN_HAIL:
-                    me->setFaction(ASHTONGUE_FACTION_FRIEND);
+                    me->SetFaction(FACTION_ASHTONGUE_DEATHSWORN);
                     Talk(SAY_BROKEN_HAIL);
                     break;
                 case ACTION_BROKEN_EMOTE:
@@ -1199,9 +1204,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_SHADE_SOUL_CHANNEL_2))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_SHADE_SOUL_CHANNEL_2 });
         }
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

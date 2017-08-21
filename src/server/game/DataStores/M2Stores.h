@@ -18,19 +18,18 @@
 #ifndef TRINITY_M2STORES_H
 #define TRINITY_M2STORES_H
 
-#include "SharedDefines.h"
-#include "Common.h"
+#include "Define.h"
+#include "Position.h"
+#include <vector>
 
 struct FlyByCamera
 {
     uint32 timeStamp;
-    G3D::Vector4 locations;
+    Position locations;
 };
 
-typedef std::vector<FlyByCamera> FlyByCameraCollection;
-
-TC_GAME_API extern std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
-
 TC_GAME_API void LoadM2Cameras(std::string const& dataPath);
+
+TC_GAME_API std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId);
 
 #endif

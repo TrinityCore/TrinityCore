@@ -23,6 +23,8 @@ SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "utgarde_keep.h"
 

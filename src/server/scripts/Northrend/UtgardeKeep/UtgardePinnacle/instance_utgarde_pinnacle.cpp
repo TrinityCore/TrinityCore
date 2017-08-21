@@ -16,7 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "utgarde_pinnacle.h"
 
 BossBoundaryData const boundaries =

@@ -16,13 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "Common.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "Pet.h"
+#include "Player.h"
 #include "WorldPacket.h"
-#include "WorldSession.h"
 
 void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 {
