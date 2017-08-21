@@ -347,6 +347,9 @@ public:
         if (!guidLow)
             return false;
 
+        Player const* const player = handler->GetSession()->GetPlayer();
+        // force respawn to make sure we find something
+        player->GetMap()->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, guidLow, true);
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
@@ -358,7 +361,7 @@ public:
         ObjectGuid ownerGuid = object->GetOwnerGUID();
         if (!ownerGuid.IsEmpty())
         {
-            Unit* owner = ObjectAccessor::GetUnit(*handler->GetSession()->GetPlayer(), ownerGuid);
+            Unit* owner = ObjectAccessor::GetUnit(*player, ownerGuid);
             if (!owner || !ownerGuid.IsPlayer())
             {
                 handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.ToString().c_str(), object->GetGUID().ToString().c_str());

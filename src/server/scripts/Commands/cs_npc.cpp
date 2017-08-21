@@ -603,6 +603,9 @@ public:
             ObjectGuid::LowType lowguid = atoull(cId);
             if (!lowguid)
                 return false;
+            // force respawn to make sure we find something
+            handler->GetSession()->GetPlayer()->GetMap()->RemoveRespawnTime(SPAWN_TYPE_CREATURE, lowguid, true);
+            // then try to find it
             creature = handler->GetCreatureFromPlayerMapByDbGuid(lowguid);
         }
         else
