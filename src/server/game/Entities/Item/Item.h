@@ -125,38 +125,7 @@ struct ItemDynamicFieldGems
 };
 #pragma pack(pop)
 
-int32 const ItemTransmogrificationSlots[MAX_INVTYPE] =
-{
-    -1,                                                     // INVTYPE_NON_EQUIP
-    EQUIPMENT_SLOT_HEAD,                                    // INVTYPE_HEAD
-    EQUIPMENT_SLOT_NECK,                                    // INVTYPE_NECK
-    EQUIPMENT_SLOT_SHOULDERS,                               // INVTYPE_SHOULDERS
-    EQUIPMENT_SLOT_BODY,                                    // INVTYPE_BODY
-    EQUIPMENT_SLOT_CHEST,                                   // INVTYPE_CHEST
-    EQUIPMENT_SLOT_WAIST,                                   // INVTYPE_WAIST
-    EQUIPMENT_SLOT_LEGS,                                    // INVTYPE_LEGS
-    EQUIPMENT_SLOT_FEET,                                    // INVTYPE_FEET
-    EQUIPMENT_SLOT_WRISTS,                                  // INVTYPE_WRISTS
-    EQUIPMENT_SLOT_HANDS,                                   // INVTYPE_HANDS
-    -1,                                                     // INVTYPE_FINGER
-    -1,                                                     // INVTYPE_TRINKET
-    -1,                                                     // INVTYPE_WEAPON
-    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_SHIELD
-    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGED
-    EQUIPMENT_SLOT_BACK,                                    // INVTYPE_CLOAK
-    -1,                                                     // INVTYPE_2HWEAPON
-    -1,                                                     // INVTYPE_BAG
-    EQUIPMENT_SLOT_TABARD,                                  // INVTYPE_TABARD
-    EQUIPMENT_SLOT_CHEST,                                   // INVTYPE_ROBE
-    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_WEAPONMAINHAND
-    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_WEAPONOFFHAND
-    EQUIPMENT_SLOT_OFFHAND,                                 // INVTYPE_HOLDABLE
-    -1,                                                     // INVTYPE_AMMO
-    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_THROWN
-    EQUIPMENT_SLOT_MAINHAND,                                // INVTYPE_RANGEDRIGHT
-    -1,                                                     // INVTYPE_QUIVER
-    -1                                                      // INVTYPE_RELIC
-};
+extern int32 const ItemTransmogrificationSlots[MAX_INVTYPE];
 
 class TC_GAME_API Item : public Object
 {

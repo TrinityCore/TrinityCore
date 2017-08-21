@@ -634,6 +634,9 @@ bool CollectionMgr::IsSetCompleted(uint32 transmogSetId) const
             continue;
 
         ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID);
+        if (!item)
+            continue;
+
         int32 transmogSlot = ItemTransmogrificationSlots[item->InventoryType];
         if (transmogSlot < 0 || knownPieces[transmogSlot] == 1)
             continue;
