@@ -2767,7 +2767,7 @@ struct TransmogSetEntry
     uint8 ExpansionID;
     uint32 ID;
     uint32 Flags;
-    uint32 Unknown;
+    uint32 QuestID;
     uint32 ClassMask;
     uint32 ItemNameDescriptionID;
     uint32 TransmogSetGroupID;
@@ -2784,7 +2784,7 @@ struct TransmogSetItemEntry
     uint32 ID;
     uint32 TransmogSetID;
     uint32 ItemModifiedAppearanceID;
-    uint32 Unk;
+    uint32 Flags;
 };
 
 struct TransportAnimationEntry

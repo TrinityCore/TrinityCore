@@ -4770,7 +4770,7 @@ struct TransmogSetLoadInfo
             { false, FT_BYTE, "ExpansionID" },
             { false, FT_INT, "ID" },
             { false, FT_INT, "Flags" },
-            { false, FT_INT, "Unknown" },
+            { false, FT_INT, "QuestID" },
             { false, FT_INT, "ClassMask" },
             { false, FT_INT, "ItemNameDescriptionID" },
             { false, FT_INT, "TransmogSetGroupID" },
@@ -4803,7 +4803,7 @@ struct TransmogSetItemLoadInfo
             { false, FT_INT, "ID" },
             { false, FT_INT, "TransmogSetID" },
             { false, FT_INT, "ItemModifiedAppearanceID" },
-            { false, FT_INT, "Unk" },
+            { false, FT_INT, "Flags" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogSetItemMeta::Instance(), HOTFIX_SEL_TRANSMOG_SET_ITEM);
         return &loadInfo;

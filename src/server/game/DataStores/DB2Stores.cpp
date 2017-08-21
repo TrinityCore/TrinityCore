@@ -1978,9 +1978,9 @@ bool DB2Manager::IsToyItem(uint32 toy) const
     return _toys.count(toy) > 0;
 }
 
-std::vector<TransmogSetEntry const*> const* DB2Manager::GetTransmogSetsForItemModifiedAppearance(uint32 itemModID) const
+std::vector<TransmogSetEntry const*> const* DB2Manager::GetTransmogSetsForItemModifiedAppearance(uint32 itemModifiedAppearanceId) const
 {
-    auto i = _transmogItemSets.find(itemModID);
+    auto i = _transmogItemSets.find(itemModifiedAppearanceId);
     if (i != _transmogItemSets.end())
         return &i->second;
 

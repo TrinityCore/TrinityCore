@@ -22,7 +22,7 @@ CREATE TABLE `transmog_set` (
   `ExpansionID` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `ID` int(10) unsigned NOT NULL DEFAULT '0',
   `Flags` int(10) unsigned NOT NULL DEFAULT '0',
-  `Unknown` int(10) unsigned NOT NULL DEFAULT '0',
+  `QuestID` int(10) unsigned NOT NULL DEFAULT '0',
   `ClassMask` int(10) unsigned NOT NULL DEFAULT '0',
   `ItemNameDescriptionID` int(10) unsigned NOT NULL DEFAULT '0',
   `TransmogSetGroupID` int(10) unsigned NOT NULL DEFAULT '0',
@@ -77,7 +77,7 @@ CREATE TABLE `transmog_set_item` (
   `ID` int(10) unsigned NOT NULL DEFAULT '0',
   `TransmogSetID` int(10) unsigned NOT NULL DEFAULT '0',
   `ItemModifiedAppearanceID` int(10) unsigned NOT NULL DEFAULT '0',
-  `Unk` int(10) unsigned NOT NULL DEFAULT '0',
+  `Flags` int(10) unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` smallint(6) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
