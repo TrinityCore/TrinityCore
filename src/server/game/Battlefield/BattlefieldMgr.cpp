@@ -45,13 +45,13 @@ void BattlefieldMgr::Initialize()
     BattlefieldWintergrasp* wintergrasp = new BattlefieldWintergrasp();
     if (!wintergrasp->SetupBattlefield())
     {
-        TC_LOG_ERROR("bg.battlefield", "BattlefieldMgr::Initialize: wintergrasp initialized failed");
+        TC_LOG_ERROR("server.loading", ">> Wintergrasp initialization failed!");
         delete wintergrasp;
     }
     else
     {
         _battlefieldContainer[wintergrasp->GetZoneId()] = wintergrasp;
-        TC_LOG_INFO("bg.battlefield", "BattlefieldMgr: wintergrasp successfully initiated");
+        TC_LOG_INFO("server.loading", ">> Wintergrasp successfully initialized");
     }
 }
 
