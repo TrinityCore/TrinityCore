@@ -16,8 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "SpellScript.h"
+#include "ObjectAccessor.h"
 #include "Containers.h"
 #include "firelands.h"
+#include "Map.h"
 #include "GridNotifiers.h"
 #include "PassiveAI.h"
 #include "Spell.h"
