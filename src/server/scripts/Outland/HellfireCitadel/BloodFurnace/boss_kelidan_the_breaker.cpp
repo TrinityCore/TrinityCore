@@ -237,9 +237,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 
                     Talk(SAY_NOVA);
 
-                    if (SpellInfo const* nova = sSpellMgr->GetSpellInfo(SPELL_BURNING_NOVA))
-                        if (Aura* aura = Aura::TryRefreshStackOrCreate(nova, ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, me->GetMapId(), nova->Id, me->GetMap()->GenerateLowGuid<HighGuid::Cast>()), MAX_EFFECT_MASK, me, me))
-                            aura->ApplyForTargets();
+                    me->AddAura(SPELL_BURNING_NOVA, me);
 
                     if (IsHeroic())
                         DoTeleportAll(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());

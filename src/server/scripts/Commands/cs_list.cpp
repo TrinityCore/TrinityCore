@@ -516,7 +516,7 @@ public:
                     std::string subject     = queryFields[5].GetString();
                     uint64 deliverTime      = queryFields[6].GetUInt32();
                     uint64 expireTime       = queryFields[7].GetUInt32();
-                    uint32 money            = queryFields[8].GetUInt32();
+                    uint64 money            = queryFields[8].GetUInt64();
                     uint8 hasItem           = queryFields[9].GetUInt8();
                     uint32 gold = money / GOLD;
                     uint32 silv = (money % GOLD) / SILVER;

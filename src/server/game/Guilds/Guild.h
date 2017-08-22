@@ -379,8 +379,10 @@ private:
         inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
         inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
 
-        void UpdateBankWithdrawValue(SQLTransaction& trans, uint8 tabId, uint32 amount);
-        int32 GetBankWithdrawValue(uint8 tabId) const;
+        void UpdateBankTabWithdrawValue(SQLTransaction& trans, uint8 tabId, uint32 amount);
+        void UpdateBankMoneyWithdrawValue(SQLTransaction& trans, uint64 amount);
+        uint32 GetBankTabWithdrawValue(uint8 tabId) const { return m_bankWithdraw[tabId]; };
+        uint64 GetBankMoneyWithdrawValue() const { return m_bankWithdrawMoney; };
         void ResetValues(bool weekly = false);
 
         Player* FindPlayer() const;
@@ -405,7 +407,8 @@ private:
 
         std::set<uint32> m_trackedCriteriaIds;
 
-        int32 m_bankWithdraw[GUILD_BANK_MAX_TABS + 1];
+        uint32 m_bankWithdraw[GUILD_BANK_MAX_TABS];
+        uint64 m_bankWithdrawMoney;
         uint32 m_achievementPoints;
         uint64 m_totalActivity;
         uint64 m_weekActivity;
@@ -560,8 +563,7 @@ private:
         RankInfo(): m_guildId(UI64LIT(0)), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_NONE), m_bankMoneyPerDay(0) { }
         RankInfo(ObjectGuid::LowType guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_NONE), m_bankMoneyPerDay(0) { }
         RankInfo(ObjectGuid::LowType guildId, uint8 rankId, std::string const& name, uint32 rights, uint32 money) :
-            m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights),
-            m_bankMoneyPerDay(rankId != GR_GUILDMASTER ? money : GUILD_WITHDRAW_MONEY_UNLIMITED) { }
+            m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights), m_bankMoneyPerDay(money) { }
 
         void LoadFromDB(Field* fields);
         void SaveToDB(SQLTransaction& trans) const;
@@ -574,7 +576,10 @@ private:
         uint32 GetRights() const { return m_rights; }
         void SetRights(uint32 rights);
 
-        int32 GetBankMoneyPerDay() const { return m_bankMoneyPerDay; }
+        uint32 GetBankMoneyPerDay() const
+        {
+            return m_rankId != GR_GUILDMASTER ? m_bankMoneyPerDay : GUILD_WITHDRAW_MONEY_UNLIMITED;
+        }
 
         void SetBankMoneyPerDay(uint32 money);
 
@@ -929,12 +934,12 @@ private:
     void _SetRankBankTabRightsAndSlots(uint8 rankId, GuildBankRightsAndSlots rightsAndSlots, bool saveToDB = true);
     int8 _GetRankBankTabRights(uint8 rankId, uint8 tabId) const;
     uint32 _GetRankRights(uint8 rankId) const;
-    int32 _GetRankBankMoneyPerDay(uint8 rankId) const;
+    uint32 _GetRankBankMoneyPerDay(uint8 rankId) const;
     int32 _GetRankBankTabSlotsPerDay(uint8 rankId, uint8 tabId) const;
     std::string _GetRankName(uint8 rankId) const;
 
     int32 _GetMemberRemainingSlots(Member const* member, uint8 tabId) const;
-    int32 _GetMemberRemainingMoney(Member const* member) const;
+    int64 _GetMemberRemainingMoney(Member const* member) const;
     void _UpdateMemberWithdrawSlots(SQLTransaction& trans, ObjectGuid guid, uint8 tabId);
     bool _MemberHasTabRights(ObjectGuid guid, uint8 tabId, int32 rights) const;
 
