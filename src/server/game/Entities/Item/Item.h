@@ -125,8 +125,6 @@ struct ItemDynamicFieldGems
 };
 #pragma pack(pop)
 
-extern int32 const ItemTransmogrificationSlots[MAX_INVTYPE];
-
 class TC_GAME_API Item : public Object
 {
     friend void AddItemToUpdateQueueOf(Item* item, Player* player);
