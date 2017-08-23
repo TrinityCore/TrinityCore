@@ -75,24 +75,24 @@ public:
         if (battlearg == 0 || battlearg >= BATTLEFIELD_BATTLEID_MAX)
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_INCORRECT_ID);
-            return false;
+            return true;
         }
 
         BattlefieldId battleId = BattlefieldId(battlearg);
         Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
         if (!battlefield)
-            return false;
+            return true;
 
         if (!battlefield->IsEnabled())
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_DISABLED, GetBattleIdString(battleId));
-            return false;
+            return true;
         }
 
         if (battlefield->IsWarTime())
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_ACTIVE, GetBattleIdString(battleId));
-            return false;
+            return true;
         }
 
         battlefield->StartBattle();
@@ -113,24 +113,24 @@ public:
         if (battlearg == 0 || battlearg >= BATTLEFIELD_BATTLEID_MAX)
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_INCORRECT_ID);
-            return false;
+            return true;
         }
 
         BattlefieldId battleId = BattlefieldId(battlearg);
         Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
         if (!battlefield)
-            return false;
+            return true;
 
         if (!battlefield->IsEnabled())
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_DISABLED, GetBattleIdString(battleId));
-            return false;
+            return true;
         }
 
         if (!battlefield->IsWarTime())
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_ALREADY_STOPPED, GetBattleIdString(battleId));
-            return false;
+            return true;
         }
 
         battlefield->EndBattle(true);
@@ -151,13 +151,13 @@ public:
         if (battlearg == 0 || battlearg >= BATTLEFIELD_BATTLEID_MAX)
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_INCORRECT_ID);
-            return false;
+            return true;
         }
 
         BattlefieldId battleId = BattlefieldId(battlearg);
         Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
         if (!battlefield)
-            return false;
+            return true;
 
         if (battlefield->IsEnabled())
         {
@@ -185,18 +185,18 @@ public:
         if (battlearg == 0 || battlearg >= BATTLEFIELD_BATTLEID_MAX)
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_INCORRECT_ID);
-            return false;
+            return true;
         }
 
         BattlefieldId battleId = BattlefieldId(battlearg);
         Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
         if (!battlefield)
-            return false;
+            return true;
 
         if (battlefield->IsWarTime())
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_ACTIVE, GetBattleIdString(battleId));
-            return false;
+            return true;
         }
 
         battlefield->EndBattle(false);
@@ -221,18 +221,18 @@ public:
         if (battlearg == 0 || battlearg >= BATTLEFIELD_BATTLEID_MAX)
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_INCORRECT_ID);
-            return false;
+            return true;
         }
 
         BattlefieldId battleId = BattlefieldId(battlearg);
         Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(battleId);
         if (!battlefield)
-            return false;
+            return true;
 
         if (!battlefield->IsEnabled())
         {
             handler->PSendSysMessage(LANG_COMMAND_BF_DISABLED, GetBattleIdString(battleId));
-            return false;
+            return true;
         }
 
         uint32 time = atoul(timestr);
