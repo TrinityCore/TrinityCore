@@ -554,6 +554,43 @@ struct BroadcastTextLoadInfo
     }
 };
 
+struct CharacterFacialHairStylesLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "Geoset1" },
+            { false, FT_INT, "Geoset2" },
+            { false, FT_INT, "Geoset3" },
+            { false, FT_INT, "Geoset4" },
+            { false, FT_INT, "Geoset5" },
+            { false, FT_BYTE, "RaceID" },
+            { false, FT_BYTE, "SexID" },
+            { false, FT_BYTE, "VariationID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CharacterFacialHairStylesMeta::Instance(), HOTFIX_SEL_CHARACTER_FACIAL_HAIR_STYLES);
+        return &loadInfo;
+    }
+};
+
+struct CharBaseSectionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_BYTE, "Variation" },
+            { false, FT_BYTE, "ResolutionVariation" },
+            { false, FT_BYTE, "Resolution" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CharBaseSectionMeta::Instance(), HOTFIX_SEL_CHAR_BASE_SECTION);
+        return &loadInfo;
+    }
+};
+
 struct CharSectionsLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -565,11 +602,11 @@ struct CharSectionsLoadInfo
             { false, FT_INT, "TextureFileDataID2" },
             { false, FT_INT, "TextureFileDataID3" },
             { false, FT_SHORT, "Flags" },
-            { false, FT_BYTE, "Race" },
-            { false, FT_BYTE, "Gender" },
-            { false, FT_BYTE, "GenType" },
-            { false, FT_BYTE, "Type" },
-            { false, FT_BYTE, "Color" },
+            { false, FT_BYTE, "RaceID" },
+            { false, FT_BYTE, "SexID" },
+            { false, FT_BYTE, "BaseSection" },
+            { false, FT_BYTE, "VariationIndex" },
+            { false, FT_BYTE, "ColorIndex" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, CharSectionsMeta::Instance(), HOTFIX_SEL_CHAR_SECTIONS);
         return &loadInfo;
