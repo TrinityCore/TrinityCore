@@ -131,8 +131,8 @@ class TC_GAME_API LootTemplate
         LootGroups        Groups;                           // groups have own (optimised) processing, grouped entries go there
 
         // Objects of this class must never be copied, we are storing pointers in container
-        LootTemplate(LootTemplate const&);
-        LootTemplate& operator=(LootTemplate const&);
+        LootTemplate(LootTemplate const&) = delete;
+        LootTemplate& operator=(LootTemplate const&) = delete;
 };
 
 //=====================================================

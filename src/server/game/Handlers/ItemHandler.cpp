@@ -445,6 +445,16 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
         {
             if (pProto->GetSellPrice() > 0)
             {
+                uint64 money = uint64(pProto->GetSellPrice()) * packet.Amount;
+
+                if (!_player->ModifyMoney(money)) // ensure player doesn't exceed gold limit
+                {
+                    _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);
+                    return;
+                }
+
+                _player->UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
+
                 if (packet.Amount < pItem->GetCount())               // need split items
                 {
                     Item* pNewItem = pItem->CloneItem(packet.Amount, _player);
@@ -472,10 +482,6 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                     RemoveItemFromUpdateQueueOf(pItem, _player);
                     _player->AddItemToBuyBackSlot(pItem);
                 }
-
-                uint32 money = pProto->GetSellPrice() * packet.Amount;
-                _player->ModifyMoney(money);
-                _player->UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
             }
             else
                 _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, packet.ItemGUID);

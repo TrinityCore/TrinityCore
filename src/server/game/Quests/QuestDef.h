@@ -132,7 +132,7 @@ enum QuestGiverStatus
     DIALOG_STATUS_SCRIPTED_NO_STATUS       = 0x1000
 };
 
-enum QuestFlags
+enum QuestFlags : uint32
 {
     QUEST_FLAGS_NONE                    = 0x00000000,
     QUEST_FLAGS_STAY_ALIVE              = 0x00000001,   // Not used currently
@@ -164,7 +164,7 @@ enum QuestFlags
 };
 
 // last checked in 19802
-enum QuestFlagsEx
+enum QuestFlagsEx : uint32
 {
     QUEST_FLAGS_EX_NONE                                                 = 0x0000000,
     QUEST_FLAGS_EX_KEEP_ADDITIONAL_ITEMS                                = 0x0000001,
@@ -334,6 +334,8 @@ class TC_GAME_API Quest
 
         bool HasSpecialFlag(uint32 flag) const { return (SpecialFlags & flag) != 0; }
         void SetSpecialFlag(uint32 flag) { SpecialFlags |= flag; }
+
+        bool HasFlagEx(QuestFlagsEx flag) const { return (FlagsEx & uint32(flag)) != 0; }
 
         // table data accessors:
         uint32 GetQuestId() const { return ID; }

@@ -2227,19 +2227,34 @@ void CriteriaMgr::LoadCriteriaList()
         if (scenarioStep->CriteriaTreeID)
             scenarioCriteriaTreeIds[scenarioStep->CriteriaTreeID] = scenarioStep;
 
+    std::unordered_map<uint32 /*criteriaTreeID*/, QuestObjective const*> questObjectiveCriteriaTreeIds;
+    for (std::pair<uint32 /*questID*/, Quest const*> itr : sObjectMgr->GetQuestTemplates())
+    {
+        for (QuestObjective const& objective : itr.second->Objectives)
+        {
+            if (objective.Type != QUEST_OBJECTIVE_CRITERIA_TREE)
+                continue;
+
+            if (objective.ObjectID)
+                questObjectiveCriteriaTreeIds[objective.ObjectID] = &objective;
+        }
+    }
+
     // Load criteria tree nodes
     for (CriteriaTreeEntry const* tree : sCriteriaTreeStore)
     {
         // Find linked achievement
         AchievementEntry const* achievement = GetEntry(achievementCriteriaTreeIds, tree);
         ScenarioStepEntry const* scenarioStep = GetEntry(scenarioCriteriaTreeIds, tree);
-        if (!achievement && !scenarioStep)
+        QuestObjective const* questObjective = GetEntry(questObjectiveCriteriaTreeIds, tree);
+        if (!achievement && !scenarioStep && !questObjective)
             continue;
 
         CriteriaTree* criteriaTree = new CriteriaTree();
         criteriaTree->ID = tree->ID;
         criteriaTree->Achievement = achievement;
         criteriaTree->ScenarioStep = scenarioStep;
+        criteriaTree->QuestObjective = questObjective;
         criteriaTree->Entry = tree;
 
         _criteriaTrees[criteriaTree->Entry->ID] = criteriaTree;
@@ -2274,6 +2289,7 @@ void CriteriaMgr::LoadCriteriaList()
     uint32 criterias = 0;
     uint32 guildCriterias = 0;
     uint32 scenarioCriterias = 0;
+    uint32 questObjectiveCriterias = 0;
     for (CriteriaEntry const* criteriaEntry : sCriteriaStore)
     {
         ASSERT(criteriaEntry->Type < CRITERIA_TYPE_TOTAL, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
@@ -2305,6 +2321,8 @@ void CriteriaMgr::LoadCriteriaList()
             }
             else if (tree->ScenarioStep)
                 criteria->FlagsCu |= CRITERIA_FLAG_CU_SCENARIO;
+            else if (tree->QuestObjective)
+                criteria->FlagsCu |= CRITERIA_FLAG_CU_QUEST_OBJECTIVE;
         }
 
         if (criteria->FlagsCu & (CRITERIA_FLAG_CU_PLAYER | CRITERIA_FLAG_CU_ACCOUNT))
@@ -2325,6 +2343,12 @@ void CriteriaMgr::LoadCriteriaList()
             _scenarioCriteriasByType[criteriaEntry->Type].push_back(criteria);
         }
 
+        if (criteria->FlagsCu & CRITERIA_FLAG_CU_QUEST_OBJECTIVE)
+        {
+            ++questObjectiveCriterias;
+            _questObjectiveCriteriasByType[criteriaEntry->Type].push_back(criteria);
+        }
+
         if (criteriaEntry->StartTimer)
             _criteriasByTimedType[criteriaEntry->StartEvent].push_back(criteria);
     }
@@ -2332,7 +2356,7 @@ void CriteriaMgr::LoadCriteriaList()
     for (auto& p : _criteriaTrees)
         const_cast<CriteriaTree*>(p.second)->Criteria = GetCriteria(p.second->Entry->CriteriaID);
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u criteria, %u guild criteria and %u scenario criteria in %u ms.", criterias, guildCriterias, scenarioCriterias, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded %u criteria, %u guild criteria, %u scenario criteria and %u quest objective criteria in %u ms.", criterias, guildCriterias, scenarioCriterias, questObjectiveCriterias, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void CriteriaMgr::LoadCriteriaData()

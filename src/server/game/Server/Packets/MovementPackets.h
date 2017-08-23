@@ -40,7 +40,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            MovementInfo movementInfo;
+            MovementInfo Status;
         };
 
         class TC_GAME_API MoveUpdate final : public ServerPacket
@@ -50,7 +50,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
         };
 
         struct MonsterSplineFilterKey
@@ -160,7 +160,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             float Speed = 1.0f;
         };
 
@@ -277,7 +277,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             std::vector<MovementForce> MovementForces;
             Optional<float> SwimBackSpeed;
             Optional<float> FlightSpeed;
@@ -297,7 +297,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             MovementForce Force;
         };
 
@@ -308,7 +308,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             ObjectGuid TriggerGUID;
         };
 
@@ -326,7 +326,7 @@ namespace WorldPackets
 
         struct MovementAck
         {
-            MovementInfo movementInfo;
+            MovementInfo Status;
             int32 AckIndex = 0;
         };
 
@@ -397,7 +397,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
         };
 
         class MoveKnockBackAck final : public ClientPacket
@@ -441,7 +441,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            MovementInfo* movementInfo = nullptr;
+            MovementInfo* Status = nullptr;
             float Scale = 1.0f;
             float Height = 1.0f;
         };
@@ -499,7 +499,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            MovementInfo movementInfo;
+            MovementInfo Status;
             int32 SplineID = 0;
         };
 

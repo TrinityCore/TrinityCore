@@ -20,6 +20,7 @@
 #include "DatabaseEnv.h"
 #include "DB2LoadInfo.h"
 #include "Hash.h"
+#include "IteratorPair.h"
 #include "Log.h"
 #include "ObjectDefines.h"
 #include "Regex.h"
@@ -344,6 +345,7 @@ namespace
     RulesetItemUpgradeContainer _rulesetItemUpgrade;
     SkillRaceClassInfoContainer _skillRaceClassInfoBySkill;
     SpecializationSpellsContainer _specializationSpellsBySpec;
+    std::unordered_set<uint8> _spellFamilyNames;
     SpellPowerContainer _spellPowers;
     SpellPowerDifficultyContainer _spellPowerDifficulties;
     SpellProcsPerMinuteModContainer _spellProcsPerMinuteMods;
@@ -936,6 +938,9 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     for (SpecializationSpellsEntry const* specSpells : sSpecializationSpellsStore)
         _specializationSpellsBySpec[specSpells->SpecID].push_back(specSpells);
 
+    for (SpellClassOptionsEntry const* classOption : sSpellClassOptionsStore)
+        _spellFamilyNames.insert(classOption->SpellClassSet);
+
     for (SpellPowerEntry const* power : sSpellPowerStore)
     {
         if (SpellPowerDifficultyEntry const* powerDifficulty = sSpellPowerDifficultyStore.LookupEntry(power->ID))
@@ -1175,12 +1180,17 @@ char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcas
     return broadcastText->MaleText->Str[DEFAULT_LOCALE];
 }
 
+bool DB2Manager::HasCharSections(uint8 race, CharSectionType genType, uint8 gender) const
+{
+    auto range = Trinity::Containers::MapEqualRange(_charSections, uint32(genType) | uint32(gender << 8) | uint32(race << 16));
+    return range.begin() != range.end();
+}
+
 CharSectionsEntry const* DB2Manager::GetCharSectionEntry(uint8 race, CharSectionType genType, uint8 gender, uint8 type, uint8 color) const
 {
-    auto eqr = _charSections.equal_range(uint32(genType) | uint32(gender << 8) | uint32(race << 16));
-    for (auto itr = eqr.first; itr != eqr.second; ++itr)
-        if (itr->second->Type == type && itr->second->Color == color)
-            return itr->second;
+    for (auto const& section : Trinity::Containers::MapEqualRange(_charSections, uint32(genType) | uint32(gender << 8) | uint32(race << 16)))
+        if (section.second->Type == type && section.second->Color == color)
+            return section.second;
 
     return nullptr;
 }
@@ -1866,6 +1876,11 @@ std::vector<SpecializationSpellsEntry const*> const* DB2Manager::GetSpecializati
         return &itr->second;
 
     return nullptr;
+}
+
+bool DB2Manager::IsValidSpellFamiliyName(SpellFamilyNames family)
+{
+    return _spellFamilyNames.count(family) > 0;
 }
 
 std::vector<SpellPowerEntry const*> DB2Manager::GetSpellPowers(uint32 spellId, Difficulty difficulty /*= DIFFICULTY_NONE*/, bool* hasDifficultyPowers /*= nullptr*/) const

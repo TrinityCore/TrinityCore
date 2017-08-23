@@ -662,3 +662,8 @@ void WorldPackets::Misc::MountSetFavorite::Read()
     _worldPacket >> MountSpellID;
     IsFavorite = _worldPacket.ReadBit();
 }
+
+void WorldPackets::Misc::CloseInteraction::Read()
+{
+    _worldPacket >> SourceGuid;
+}

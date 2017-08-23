@@ -1370,6 +1370,35 @@ public:
     }
 };
 
+class spell_injured_sailor_feign_death : public SpellScriptLoader
+{
+public:
+    spell_injured_sailor_feign_death() : SpellScriptLoader("spell_injured_sailor_feign_death") { }
+
+    class spell_injured_sailor_feign_death_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_injured_sailor_feign_death_AuraScript);
+
+        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            target->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+            target->SetHealth(target->CountPctFromMaxHealth(25));
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_injured_sailor_feign_death_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_injured_sailor_feign_death_AuraScript();
+    }
+};
+
 enum RescueInjuredSailor
 {
     SPELL_RESCUE_SAILOR_MALE_CAST   = 105520,
@@ -1475,6 +1504,7 @@ void AddSC_the_wandering_isle()
     new npc_zhaoren();
     new spell_master_shang_final_escort_say();
     new npc_shen_zin_shu_bunny();
+    new spell_injured_sailor_feign_death();
     new spell_rescue_injured_sailor();
     new at_wreck_of_the_skyseeker_injured_sailor();
 }
