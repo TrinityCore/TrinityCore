@@ -178,7 +178,7 @@ enum AuraType
     SPELL_AURA_ADD_PCT_MODIFIER                             = 108,
     SPELL_AURA_ADD_TARGET_TRIGGER                           = 109,
     SPELL_AURA_MOD_POWER_REGEN_PERCENT                      = 110,
-    SPELL_AURA_ADD_CASTER_HIT_TRIGGER                       = 111,
+    SPELL_AURA_INTERCEPT_MELEE_RANGED_ATTACKS               = 111,
     SPELL_AURA_OVERRIDE_CLASS_SCRIPTS                       = 112,
     SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN                      = 113,
     SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT                  = 114,
@@ -225,7 +225,7 @@ enum AuraType
     SPELL_AURA_MOD_WATER_BREATHING                          = 155,  //    Mod Water Breathing
     SPELL_AURA_MOD_REPUTATION_GAIN                          = 156,  //    Mod Reputation Gain
     SPELL_AURA_PET_DAMAGE_MULTI                             = 157,  //    Mod Pet Damage
-    SPELL_AURA_MOD_SHIELD_BLOCKVALUE                        = 158,
+    SPELL_AURA_ALLOW_TALENT_SWAPPING                        = 158,
     SPELL_AURA_NO_PVP_CREDIT                                = 159,
     SPELL_AURA_160                                          = 160,  // old SPELL_AURA_MOD_AOE_AVOIDANCE. Unused 4.3.4
     SPELL_AURA_MOD_HEALTH_REGEN_IN_COMBAT                   = 161,
@@ -270,8 +270,8 @@ enum AuraType
     SPELL_AURA_MOD_XP_PCT                                   = 200,
     SPELL_AURA_FLY                                          = 201,
     SPELL_AURA_IGNORE_COMBAT_RESULT                         = 202,
-    SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_DAMAGE               = 203,
-    SPELL_AURA_MOD_ATTACKER_RANGED_CRIT_DAMAGE              = 204,
+    SPELL_AURA_PREVENT_INTERRUPT                            = 203, // NYI
+    SPELL_AURA_PREVENT_CORPSE_RELEASE                       = 204, // NYI
     SPELL_AURA_MOD_CHARGE_COOLDOWN                          = 205, // NYI
     SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED            = 206,
     SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED            = 207,
@@ -290,9 +290,9 @@ enum AuraType
     SPELL_AURA_MOD_RATING_FROM_STAT                         = 220,
     SPELL_AURA_MOD_DETAUNT                                  = 221,
     SPELL_AURA_222                                          = 222,
-    SPELL_AURA_RAID_PROC_FROM_CHARGE                        = 223,
+    SPELL_AURA_223                                          = 223,  // old SPELL_AURA_RAID_PROC_FROM_CHARGE
     SPELL_AURA_224                                          = 224,
-    SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE             = 225,
+    SPELL_AURA_MOD_VISIBILITY_RANGE                         = 225,
     SPELL_AURA_PERIODIC_DUMMY                               = 226,
     SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE            = 227,
     SPELL_AURA_DETECT_STEALTH                               = 228,
@@ -395,7 +395,7 @@ enum AuraType
     SPELL_AURA_325                                          = 325,  // Not used in 4.3.4
     SPELL_AURA_PHASE_GROUP                                  = 326,  // Puts the player in all the phases that are in the group with id = miscB
     SPELL_AURA_327                                          = 327,  // Not used in 4.3.4
-    SPELL_AURA_PROC_ON_POWER_AMOUNT                         = 328,
+    SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT                   = 328,  // NYI Triggers spell when power goes above (MiscB = 0) or falls below (MiscB = 1) specified percent value (once, not every time condition has meet)
     SPELL_AURA_MOD_POWER_GAIN_PCT                           = 329,  // NYI
     SPELL_AURA_CAST_WHILE_WALKING                           = 330,
     SPELL_AURA_FORCE_WEATHER                                = 331,
@@ -463,7 +463,7 @@ enum AuraType
     SPELL_AURA_393                                          = 393,
     SPELL_AURA_SHOW_CONFIRMATION_PROMPT                     = 394,
     SPELL_AURA_AREA_TRIGGER                                 = 395,  // NYI
-    SPELL_AURA_PROC_ON_POWER_AMOUNT_2                       = 396,  // missing MicValueB handling, probably OnAmountReach ascending/descending or spell/stack add/remove
+    SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT                = 396,  // NYI Triggers spell when health goes above (MiscA = 0) or falls below (MiscA = 1) specified percent value (once, not every time condition has meet)
     SPELL_AURA_397                                          = 397,
     SPELL_AURA_398                                          = 398,
     SPELL_AURA_399                                          = 399,
@@ -535,7 +535,7 @@ enum AuraType
     SPELL_AURA_MOD_BONUS_ARMOR                              = 465,  // NYI
     SPELL_AURA_MOD_BONUS_ARMOR_PCT                          = 466,  // Affects bonus armor gain from all sources except base stats
     SPELL_AURA_MOD_STAT_BONUS_PCT                           = 467,  // Affects stat gain from all sources except base stats
-    SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_BELOW_PCT            = 468,  // Triggers spell when health falls below specified percent value (once, not every time damage is taken below threshold)
+    SPELL_AURA_TRIGGER_SPELL_ON_HEALTH_PCT                  = 468,  // Triggers spell when health goes above (MiscA = 0) or falls below (MiscA = 1) specified percent value (once, not every time condition has meet)
     SPELL_AURA_SHOW_CONFIRMATION_PROMPT_WITH_DIFFICULTY     = 469,
     SPELL_AURA_470                                          = 470,
     SPELL_AURA_MOD_VERSATILITY                              = 471,  // NYI
