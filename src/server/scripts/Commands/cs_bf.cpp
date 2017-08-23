@@ -238,7 +238,7 @@ public:
         uint32 time = atoul(timestr);
         battlefield->SetTimer(time * IN_MILLISECONDS);
         battlefield->SendInitWorldStatesToAll();
-        handler->PSendSysMessage(LANG_COMMAND_BF_TIMER, GetBattleIdString(battleId), time, battlefield->IsWarTime() ? "war time" : "no war time");
+        handler->PSendSysMessage(LANG_COMMAND_BF_TIMER, GetBattleIdString(battleId), battlefield->GetTimer(), battlefield->IsWarTime() ? "war time" : "no war time");
         return true;
     }
 };
