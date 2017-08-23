@@ -326,16 +326,33 @@ struct BroadcastTextEntry
     uint32 PlayerConditionID;
 };
 
+struct CharacterFacialHairStylesEntry
+{
+    uint32 ID;
+    uint32 Geoset[5];
+    uint8 RaceID;
+    uint8 SexID;
+    uint8 VariationID;
+};
+
+struct CharBaseSectionEntry
+{
+    uint32 ID;
+    uint8 Variation;
+    uint8 ResolutionVariation;
+    uint8 Resolution;
+};
+
 struct CharSectionsEntry
 {
     uint32 ID;
     uint32 TextureFileDataID[3];
     uint16 Flags;
-    uint8 Race;
-    uint8 Gender;
-    uint8 GenType;
-    uint8 Type;
-    uint8 Color;
+    uint8 RaceID;
+    uint8 SexID;
+    uint8 BaseSection;
+    uint8 VariationIndex;
+    uint8 ColorIndex;
 };
 
 #define MAX_OUTFIT_ITEMS 24
