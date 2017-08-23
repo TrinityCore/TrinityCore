@@ -753,6 +753,13 @@ void CollectionMgr::AddItemAppearance(ItemModifiedAppearanceEntry const* itemMod
         _temporaryAppearances.erase(temporaryAppearance);
     }
 
+    if (ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID))
+    {
+        int32 transmogSlot = ItemTransmogrificationSlots[item->InventoryType];
+        if (transmogSlot >= 0)
+            _owner->GetPlayer()->UpdateCriteria(CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT, transmogSlot, 1);
+    }
+
     if (std::vector<TransmogSetEntry const*> const* sets = sDB2Manager.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance->ID))
         for (TransmogSetEntry const* set : *sets)
             if (IsSetCompleted(set->ID))

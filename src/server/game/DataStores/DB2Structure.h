@@ -711,6 +711,9 @@ struct CriteriaEntry
         // CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT = 182
         uint32 CharShipmentContainerID;
 
+        // CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT
+        uint32 EquipmentSlot;
+
         // CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED = 205
         uint32 TransmogSetGroupID;
     } Asset;
