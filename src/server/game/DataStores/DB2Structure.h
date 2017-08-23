@@ -727,6 +727,12 @@ struct CriteriaEntry
 
         // CRITERIA_TYPE_COMPLETE_GARRISON_SHIPMENT = 182
         uint32 CharShipmentContainerID;
+
+        // CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT
+        uint32 EquipmentSlot;
+
+        // CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED = 205
+        uint32 TransmogSetGroupID;
     } Asset;
     uint32 StartAsset;
     uint32 FailAsset;
@@ -2765,6 +2771,40 @@ struct ToyEntry
     uint8 Flags;
     uint8 CategoryFilter;
     uint32 ID;
+};
+
+struct TransmogHolidayEntry
+{
+    uint32 ID;
+    uint32 HolidayID;
+};
+
+struct TransmogSetEntry
+{
+    LocalizedString* Name;
+    uint16 BaseSetID;
+    uint16 UIOrder;
+    uint8 ExpansionID;
+    uint32 ID;
+    uint32 Flags;
+    uint32 QuestID;
+    uint32 ClassMask;
+    uint32 ItemNameDescriptionID;
+    uint32 TransmogSetGroupID;
+};
+
+struct TransmogSetGroupEntry
+{
+    LocalizedString* Label;
+    uint32 ID;
+};
+
+struct TransmogSetItemEntry
+{
+    uint32 ID;
+    uint32 TransmogSetID;
+    uint32 ItemModifiedAppearanceID;
+    uint32 Flags;
 };
 
 struct TransportAnimationEntry

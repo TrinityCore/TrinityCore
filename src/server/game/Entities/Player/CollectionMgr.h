@@ -116,6 +116,8 @@ public:
     void SaveAccountItemAppearances(SQLTransaction& trans);
     void AddItemAppearance(Item* item);
     void AddItemAppearance(uint32 itemId, uint32 appearanceModId = 0);
+    void AddTransmogSet(uint32 transmogSetId);
+    bool IsSetCompleted(uint32 transmogSetId) const;
     void RemoveTemporaryAppearance(Item* item);
     // returns pair<hasAppearance, isTemporary>
     std::pair<bool, bool> HasItemAppearance(uint32 itemModifiedAppearanceId) const;

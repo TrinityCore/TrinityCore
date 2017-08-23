@@ -947,6 +947,21 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_TOY, "SELECT ItemID, Description, Flags, CategoryFilter, ID FROM toy ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_TOY, "SELECT ID, Description_lang FROM toy_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // TransmogHoliday.db2
+    PrepareStatement(HOTFIX_SEL_TRANSMOG_HOLIDAY, "SELECT ID, HolidayID FROM transmog_holiday ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // TransmogSet.db2
+    PrepareStatement(HOTFIX_SEL_TRANSMOG_SET, "SELECT Name, BaseSetID, UIOrder, ExpansionID, ID, Flags, QuestID, ClassMask, ItemNameDescriptionID, "
+        "TransmogSetGroupID FROM transmog_set ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TRANSMOG_SET, "SELECT ID, Name_lang FROM transmog_set_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // TransmogSetGroup.db2
+    PrepareStatement(HOTFIX_SEL_TRANSMOG_SET_GROUP, "SELECT Label, ID FROM transmog_set_group ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_TRANSMOG_SET_GROUP, "SELECT ID, Label_lang FROM transmog_set_group_locale WHERE locale = ?", CONNECTION_SYNCH);
+
+    // TransmogSetItem.db2
+    PrepareStatement(HOTFIX_SEL_TRANSMOG_SET_ITEM, "SELECT ID, TransmogSetID, ItemModifiedAppearanceID, Flags FROM transmog_set_item ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // TransportAnimation.db2
     PrepareStatement(HOTFIX_SEL_TRANSPORT_ANIMATION, "SELECT ID, TransportID, TimeIndex, PosX, PosY, PosZ, SequenceID FROM transport_animation"
         " ORDER BY ID DESC", CONNECTION_SYNCH);

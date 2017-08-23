@@ -479,6 +479,7 @@ enum CriteriaTypes : uint8
     // 202 - 0 criterias (Legion - 23420)
     CRITERIA_TYPE_COMPLETE_WORLD_QUEST                  = 203,
     // 204 - Special criteria type to award players for some external events? Comes with what looks like an identifier, so guessing it's not unique.
+    CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED                 = 205
 };
 
 #define CRITERIA_TYPE_TOTAL 208
