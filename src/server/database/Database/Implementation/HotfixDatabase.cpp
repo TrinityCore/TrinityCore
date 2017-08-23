@@ -136,9 +136,16 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "EmoteDelay3, UnkEmoteID, Language, Type, SoundID1, SoundID2, PlayerConditionID FROM broadcast_text ORDER BY ID DESC", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_BROADCAST_TEXT, "SELECT ID, MaleText_lang, FemaleText_lang FROM broadcast_text_locale WHERE locale = ?", CONNECTION_SYNCH);
 
+    // CharacterFacialHairStyles.db2
+    PrepareStatement(HOTFIX_SEL_CHARACTER_FACIAL_HAIR_STYLES, "SELECT ID, Geoset1, Geoset2, Geoset3, Geoset4, Geoset5, RaceID, SexID, VariationID"
+        " FROM character_facial_hair_styles ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // CharBaseSection.db2
+    PrepareStatement(HOTFIX_SEL_CHAR_BASE_SECTION, "SELECT ID, Variation, ResolutionVariation, Resolution FROM char_base_section ORDER BY ID DESC", CONNECTION_SYNCH);
+
     // CharSections.db2
-    PrepareStatement(HOTFIX_SEL_CHAR_SECTIONS, "SELECT ID, TextureFileDataID1, TextureFileDataID2, TextureFileDataID3, Flags, Race, Gender, GenType, "
-        "Type, Color FROM char_sections ORDER BY ID DESC", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CHAR_SECTIONS, "SELECT ID, TextureFileDataID1, TextureFileDataID2, TextureFileDataID3, Flags, RaceID, SexID, "
+        "BaseSection, VariationIndex, ColorIndex FROM char_sections ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // CharStartOutfit.db2
     PrepareStatement(HOTFIX_SEL_CHAR_START_OUTFIT, "SELECT ID, ItemID1, ItemID2, ItemID3, ItemID4, ItemID5, ItemID6, ItemID7, ItemID8, ItemID9, "
