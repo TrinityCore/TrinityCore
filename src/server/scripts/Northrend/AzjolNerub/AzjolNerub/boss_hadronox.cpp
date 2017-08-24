@@ -967,6 +967,8 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
             InstanceScript* instance = caster->GetInstanceScript();
             if (!instance)
                 return;
+            if (!instance->instance->HavePlayers())
+                return;
             if (instance->GetBossState(DATA_HADRONOX) == DONE)
                 GetAura()->Remove();
             else
