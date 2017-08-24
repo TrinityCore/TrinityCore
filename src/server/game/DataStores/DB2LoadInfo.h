@@ -4781,6 +4781,72 @@ struct ToyLoadInfo
     }
 };
 
+struct TransmogHolidayLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "HolidayID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogHolidayMeta::Instance(), HOTFIX_SEL_TRANSMOG_HOLIDAY);
+        return &loadInfo;
+    }
+};
+
+struct TransmogSetLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_STRING, "Name" },
+            { false, FT_SHORT, "BaseSetID" },
+            { false, FT_SHORT, "UIOrder" },
+            { false, FT_BYTE, "ExpansionID" },
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "Flags" },
+            { true, FT_INT, "QuestID" },
+            { true, FT_INT, "ClassMask" },
+            { true, FT_INT, "ItemNameDescriptionID" },
+            { false, FT_INT, "TransmogSetGroupID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogSetMeta::Instance(), HOTFIX_SEL_TRANSMOG_SET);
+        return &loadInfo;
+    }
+};
+
+struct TransmogSetGroupLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_STRING, "Label" },
+            { false, FT_INT, "ID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogSetGroupMeta::Instance(), HOTFIX_SEL_TRANSMOG_SET_GROUP);
+        return &loadInfo;
+    }
+};
+
+struct TransmogSetItemLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "TransmogSetID" },
+            { false, FT_INT, "ItemModifiedAppearanceID" },
+            { true, FT_INT, "Flags" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, TransmogSetItemMeta::Instance(), HOTFIX_SEL_TRANSMOG_SET_ITEM);
+        return &loadInfo;
+    }
+};
+
 struct TransportAnimationLoadInfo
 {
     static DB2LoadInfo const* Instance()
