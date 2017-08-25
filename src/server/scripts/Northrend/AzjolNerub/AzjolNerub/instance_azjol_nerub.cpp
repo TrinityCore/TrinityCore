@@ -76,9 +76,14 @@ class instance_azjol_nerub : public InstanceMapScript
             void OnUnitDeath(Unit* who) override
             {
                 InstanceScript::OnUnitDeath(who);
-                Creature* creature = who->ToCreature();
-                if (!creature || creature->IsCritter() || creature->IsControlledByPlayer())
+
+                if (who->GetTypeId() != TYPEID_UNIT || GetBossState(DATA_KRIKTHIR) == DONE)
                     return;
+
+                Creature* creature = who->ToCreature();
+                if (creature->IsCritter() || creature->IsCharmedOwnedByPlayerOrPlayer())
+                    return;
+
                 if (Creature* gatewatcher = GetCreature(DATA_KRIKTHIR))
                     gatewatcher->AI()->DoAction(-ACTION_GATEWATCHER_GREET);
             }
