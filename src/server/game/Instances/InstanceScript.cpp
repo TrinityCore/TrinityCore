@@ -266,13 +266,13 @@ void InstanceScript::UpdateSpawnGroups()
     {
         uint32 const groupId = pair.first;
         bool const doSpawn = (pair.second == SPAWN);
-        if (sObjectMgr->IsSpawnGroupActive(groupId) == doSpawn)
+        if (instance->IsSpawnGroupActive(groupId) == doSpawn)
             continue; // nothing to do here
         // if we should spawn group, then spawn it...
         if (doSpawn)
-            sObjectMgr->SpawnGroupSpawn(groupId, instance);
+            instance->SpawnGroupSpawn(groupId);
         else // otherwise, set it as inactive so it no longer respawns (but don't despawn it)
-            sObjectMgr->SetSpawnGroupActive(groupId, false);
+            instance->SetSpawnGroupActive(groupId, false);
     }
 }
 
@@ -350,13 +350,19 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
         if (bossInfo->state == TO_BE_DECIDED) // loading
         {
             bossInfo->state = state;
-            TC_LOG_DEBUG("scripts", "InstanceScript: Initialize boss %u state as %u.", id, (uint32)state);
+            TC_LOG_DEBUG("scripts", "InstanceScript: Initialize boss %u state as %s (map %u, %u).", id, GetBossStateName(state), instance->GetId(), instance->GetInstanceId());
             return false;
         }
         else
         {
             if (bossInfo->state == state)
                 return false;
+
+            if (bossInfo->state == DONE)
+            {
+                TC_LOG_ERROR("map", "InstanceScript: Tried to set instance state from %s back to %s for map %u, instance id %u. Blocked!", GetBossStateName(bossInfo->state), GetBossStateName(state), instance->GetId(), instance->GetInstanceId());
+                return false;
+            }
 
             if (state == DONE)
                 for (GuidSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
@@ -815,7 +821,7 @@ void InstanceScript::UpdatePhasing()
             PhasingHandler::SendToPlayer(player);
 }
 
-std::string InstanceScript::GetBossStateName(uint8 state)
+/*static*/ std::string InstanceScript::GetBossStateName(uint8 state)
 {
     // See enum EncounterState in InstanceScript.h
     switch (state)

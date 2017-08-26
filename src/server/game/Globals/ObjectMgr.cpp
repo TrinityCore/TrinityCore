@@ -2543,7 +2543,6 @@ void ObjectMgr::LoadSpawnGroupTemplates()
                 TC_LOG_ERROR("server.loading", "System spawn group %u (%s) has invalid manual spawn flag. Ignored.", groupId, group.name.c_str());
             }
             group.flags = SpawnGroupFlags(flags);
-            group.isActive = !(group.flags & SPAWNGROUP_FLAG_MANUAL_SPAWN);
         } while (result->NextRow());
     }
 
@@ -2555,7 +2554,6 @@ void ObjectMgr::LoadSpawnGroupTemplates()
         data.name = "Default Group";
         data.mapId = 0;
         data.flags = SPAWNGROUP_FLAG_SYSTEM;
-        data.isActive = true;
     }
     if (_spawnGroupDataStore.find(1) == _spawnGroupDataStore.end())
     {
@@ -2565,7 +2563,6 @@ void ObjectMgr::LoadSpawnGroupTemplates()
         data.name = "Legacy Group";
         data.mapId = 0;
         data.flags = SpawnGroupFlags(SPAWNGROUP_FLAG_SYSTEM | SPAWNGROUP_FLAG_COMPATIBILITY_MODE);
-        data.isActive = true;
     }
 
     if (result)
@@ -7104,136 +7101,6 @@ uint64 ObjectMgr::GenerateGameObjectSpawnId()
         World::StopNow(ERROR_EXIT_CODE);
     }
     return _gameObjectSpawnId++;
-}
-
-bool ObjectMgr::SpawnGroupSpawn(uint32 groupId, Map* map, bool ignoreRespawn, bool force, std::vector<WorldObject*>* spawnedObjects)
-{
-    auto itr = _spawnGroupDataStore.find(groupId);
-    if (itr == _spawnGroupDataStore.end() || itr->second.flags & SPAWNGROUP_FLAG_SYSTEM)
-    {
-        TC_LOG_ERROR("maps", "Tried to spawn non-existing (or system) spawn group %u. Blocked.", groupId);
-        return false;
-    }
-
-    if (!map)
-    {
-        TC_LOG_ERROR("maps", "Tried to spawn creature group %u, but no map was supplied. Blocked.", groupId);
-        return false;
-    }
-
-    if (itr->second.mapId != map->GetId())
-    {
-        TC_LOG_ERROR("maps", "Tried to spawn creature group %u, but supplied map is %u, creature group has map %u. Blocked.", groupId, map->GetId(), itr->second.mapId);
-        return false;
-    }
-
-    for (auto& pair : GetSpawnDataForGroup(groupId))
-    {
-        SpawnData const* data = pair.second;
-        ASSERT(itr->second.mapId == data->spawnPoint.GetMapId());
-        // Check if there's already an instance spawned
-        if (!force)
-            if (WorldObject* obj = map->GetWorldObjectBySpawnId(data->type, data->spawnId))
-                if ((data->type != SPAWN_TYPE_CREATURE) || obj->ToCreature()->IsAlive())
-                    continue;
-
-        time_t respawnTime = map->GetRespawnTime(data->type, data->spawnId);
-        if (respawnTime && respawnTime > time(NULL))
-        {
-            if (!force && !ignoreRespawn)
-                continue;
-
-            // we need to remove the respawn time, otherwise we'd end up double spawning
-            map->RemoveRespawnTime(data->type, data->spawnId, false);
-        }
-
-        // don't spawn if the grid isn't loaded (will be handled in grid loader)
-        if (!map->IsGridLoaded(data->spawnPoint))
-            continue;
-
-        // Everything OK, now do the actual (re)spawn
-        switch (data->type)
-        {
-            case SPAWN_TYPE_CREATURE:
-            {
-                Creature* creature = new Creature();
-                if (!creature->LoadFromDB(data->spawnId, map, true, force))
-                    delete creature;
-                else if (spawnedObjects)
-                    spawnedObjects->push_back(creature);
-                break;
-            }
-            case SPAWN_TYPE_GAMEOBJECT:
-            {
-                GameObject* gameobject = new GameObject();
-                if (!gameobject->LoadFromDB(data->spawnId, map, true))
-                    delete gameobject;
-                else if (spawnedObjects)
-                    spawnedObjects->push_back(gameobject);
-                break;
-            }
-            default:
-                ASSERT(false, "Invalid spawn type %u with spawnId " UI64FMTD, uint32(data->type), data->spawnId);
-                return false;
-        }
-    }
-    itr->second.isActive = true; // start processing respawns for the group
-    return true;
-}
-
-bool ObjectMgr::SpawnGroupDespawn(uint32 groupId, Map* map, bool deleteRespawnTimes)
-{
-    auto itr = _spawnGroupDataStore.find(groupId);
-    if (itr == _spawnGroupDataStore.end() || itr->second.flags & SPAWNGROUP_FLAG_SYSTEM)
-    {
-        TC_LOG_ERROR("maps", "Tried to despawn non-existing (or system) spawn group %u. Blocked.", groupId);
-        return false;
-    }
-
-    if (!map)
-    {
-        TC_LOG_ERROR("maps", "Tried to despawn creature group %u, but no map was supplied. Blocked.", groupId);
-        return false;
-    }
-
-    if (itr->second.mapId != map->GetId())
-    {
-        TC_LOG_ERROR("maps", "Tried to despawn creature group %u, but supplied map is %u, creature group has map %u. Blocked.", groupId, map->GetId(), itr->second.mapId);
-        return false;
-    }
-
-    std::vector<WorldObject*> toUnload; // unload after iterating, otherwise iterator invalidation
-    for (auto const& pair : GetSpawnDataForGroup(groupId))
-    {
-        SpawnData const* data = pair.second;
-        if (deleteRespawnTimes)
-            map->RemoveRespawnTime(data->type, data->spawnId);
-        switch (data->type)
-        {
-            case SPAWN_TYPE_CREATURE:
-            {
-                auto bounds = map->GetCreatureBySpawnIdStore().equal_range(data->spawnId);
-                for (auto it = bounds.first; it != bounds.second; ++it)
-                    toUnload.emplace_back(it->second);
-                break;
-            }
-            case SPAWN_TYPE_GAMEOBJECT:
-            {
-                auto bounds = map->GetGameObjectBySpawnIdStore().equal_range(data->spawnId);
-                for (auto it = bounds.first; it != bounds.second; ++it)
-                    toUnload.emplace_back(it->second);
-                break;
-            }
-            default:
-                ASSERT(false, "Invalid spawn type %u in spawn data with spawnId " UI64FMTD ".", uint32(data->type), data->spawnId);
-                return false;
-        }
-    }
-    // now do the actual despawning
-    for (WorldObject* obj : toUnload)
-        obj->AddObjectToRemoveList();
-    itr->second.isActive = false; // stop processing respawns for the group, too
-    return true;
 }
 
 void ObjectMgr::LoadGameObjectLocales()
