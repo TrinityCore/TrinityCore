@@ -1188,12 +1188,12 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
         case SPELL_AURA_MECHANIC_IMMUNITY:
         case SPELL_AURA_MOD_MECHANIC_RESISTANCE:
             // compare mechanic
-            if (!spellInfo || static_cast<int32>(spellInfo->Mechanic) != GetMiscValue())
+            if (!spellInfo || !(spellInfo->GetAllEffectsMechanicMask() & (1 << GetMiscValue())))
                 result = false;
             break;
         case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:
             // skip melee hits and instant cast spells
-            if (!spellInfo || !spellInfo->CalcCastTime())
+            if (!eventInfo.GetProcSpell() || !eventInfo.GetProcSpell()->GetCastTime())
                 result = false;
             break;
         case SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER:
