@@ -3234,7 +3234,7 @@ AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint32 effMask)
         AddInterruptMask(aurSpellInfo->AuraInterruptFlags);
     }
 
-    if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState(GetMap()->GetDifficultyID()))
+    if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState())
         m_auraStateAuras.insert(AuraStateAurasMap::value_type(aState, aurApp));
 
     aura->_ApplyForTarget(this, caster, aurApp);
@@ -3265,7 +3265,7 @@ void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask)
         return;
 
     // Update target aura state flag
-    if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState(GetMap()->GetDifficultyID()))
+    if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState())
         ModifyAuraState(aState, true);
 
     if (aurApp->GetRemoveMode())
@@ -3320,7 +3320,7 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
     }
 
     bool auraStateFound = false;
-    AuraStateType auraState = aura->GetSpellInfo()->GetAuraState(GetMap()->GetDifficultyID());
+    AuraStateType auraState = aura->GetSpellInfo()->GetAuraState();
     if (auraState)
     {
         bool canBreak = false;
