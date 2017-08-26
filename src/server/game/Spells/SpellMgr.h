@@ -714,6 +714,7 @@ class TC_GAME_API SpellMgr
         void UnloadSpellInfoImplicitTargetConditionLists();
         void LoadSpellInfoCustomAttributes();
         void LoadSpellInfoCorrections();
+        void LoadSpellInfoSpellSpecificAndAuraState();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;

@@ -1188,12 +1188,12 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
         case SPELL_AURA_MECHANIC_IMMUNITY:
         case SPELL_AURA_MOD_MECHANIC_RESISTANCE:
             // compare mechanic
-            if (!spellInfo || static_cast<int32>(spellInfo->Mechanic) != GetMiscValue())
+            if (!spellInfo || !(spellInfo->GetAllEffectsMechanicMask() & (1 << GetMiscValue())))
                 result = false;
             break;
         case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:
             // skip melee hits and instant cast spells
-            if (!spellInfo || !spellInfo->CalcCastTime())
+            if (!eventInfo.GetProcSpell() || !eventInfo.GetProcSpell()->GetCastTime())
                 result = false;
             break;
         case SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER:
@@ -1224,6 +1224,16 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
             if (!spellInfo || !(spellInfo->GetSchoolMask() & GetMiscValue()))
                 result = false;
             break;
+        case SPELL_AURA_PROC_TRIGGER_SPELL:
+        case SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE:
+        {
+            // Don't proc extra attacks while already processing extra attack spell
+            uint32 triggerSpellId = GetSpellEffectInfo()->TriggerSpell;
+            if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
+                if (aurApp->GetTarget()->m_extraAttacks && triggeredSpellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+                    result = false;
+            break;
+        }
         default:
             break;
     }
