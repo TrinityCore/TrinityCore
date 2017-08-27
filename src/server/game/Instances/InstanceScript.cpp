@@ -739,7 +739,7 @@ void InstanceScript::UpdateEncounterStateForSpellCast(uint32 spellId, Unit* sour
     UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, spellId, source);
 }
 
-/*static*/ std::string InstanceScript::GetBossStateName(uint8 state)
+/*static*/ char const* InstanceScript::GetBossStateName(uint8 state)
 {
     // See enum EncounterState in InstanceScript.h
     switch (state)
