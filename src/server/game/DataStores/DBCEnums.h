@@ -479,6 +479,7 @@ enum CriteriaTypes : uint8
     // 202 - 0 criterias (Legion - 23420)
     CRITERIA_TYPE_COMPLETE_WORLD_QUEST                  = 203,
     // 204 - Special criteria type to award players for some external events? Comes with what looks like an identifier, so guessing it's not unique.
+    CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED                 = 205
 };
 
 #define CRITERIA_TYPE_TOTAL 208
@@ -505,6 +506,20 @@ enum CriteriaTreeOperator : uint8
     CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT      = 9
 };
 
+enum class CharBaseSectionVariation : uint8
+{
+    Skin           = 0,
+    Face           = 1,
+    FacialHair     = 2,
+    Hair           = 3,
+    Underwear      = 4,
+    CustomDisplay1 = 5,
+    CustomDisplay2 = 6,
+    CustomDisplay3 = 7,
+
+    Count
+};
+
 enum CharSectionFlags
 {
     SECTION_FLAG_PLAYER = 0x01,
@@ -529,7 +544,9 @@ enum CharSectionType
     SECTION_TYPE_CUSTOM_DISPLAY_2_LOW_RES = 12,
     SECTION_TYPE_CUSTOM_DISPLAY_2 = 13,
     SECTION_TYPE_CUSTOM_DISPLAY_3_LOW_RES = 14,
-    SECTION_TYPE_CUSTOM_DISPLAY_3 = 15
+    SECTION_TYPE_CUSTOM_DISPLAY_3 = 15,
+
+    SECTION_TYPE_MAX
 };
 
 enum Curves

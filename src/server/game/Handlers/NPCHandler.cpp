@@ -90,18 +90,21 @@ void WorldSession::SendShowMailBox(ObjectGuid guid)
 
 void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
 {
-    TC_LOG_INFO("network", "%s sent legacy gossipless trainer hello for unit %s, no trainer list available", GetPlayerInfo().c_str(), packet.Unit.ToString().c_str());
-}
-
-void WorldSession::SendTrainerList(ObjectGuid guid, uint32 trainerId)
-{
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
-    if (!unit)
+    Creature* npc = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_TRAINER);
+    if (!npc)
     {
-        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - %s not found or you can not interact with him.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WorldSession::SendTrainerList - %s not found or you can not interact with him.", packet.Unit.ToString().c_str());
         return;
     }
 
+    if (uint32 trainerId = sObjectMgr->GetCreatureDefaultTrainer(npc->GetEntry()))
+        SendTrainerList(npc, trainerId);
+    else
+        TC_LOG_DEBUG("network", "WorldSession::SendTrainerList - Creature id %u has no trainer data.", npc->GetEntry());
+}
+
+void WorldSession::SendTrainerList(Creature* npc, uint32 trainerId)
+{
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
@@ -109,14 +112,14 @@ void WorldSession::SendTrainerList(ObjectGuid guid, uint32 trainerId)
     Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(trainerId);
     if (!trainer)
     {
-        TC_LOG_DEBUG("network", "WORLD: SendTrainerList - trainer spells not found for trainer %s id %d", guid.ToString().c_str(), trainerId);
+        TC_LOG_DEBUG("network", "WorldSession::SendTrainerList - trainer spells not found for trainer %s id %d", npc->GetGUID().ToString().c_str(), trainerId);
         return;
     }
 
     _player->PlayerTalkClass->GetInteractionData().Reset();
-    _player->PlayerTalkClass->GetInteractionData().SourceGuid = guid;
+    _player->PlayerTalkClass->GetInteractionData().SourceGuid = npc->GetGUID();
     _player->PlayerTalkClass->GetInteractionData().TrainerId = trainerId;
-    trainer->SendSpells(unit, _player, GetSessionDbLocaleIndex());
+    trainer->SendSpells(npc, _player, GetSessionDbLocaleIndex());
 }
 
 void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet)

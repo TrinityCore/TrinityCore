@@ -187,7 +187,7 @@ ObjectData const gameObjectData[] =
 MinionData const minionData[] =
 {
     { NPC_EREKEM_GUARD, DATA_EREKEM },
-    { 0,                0,          } // END
+    { 0,                0           } // END
 };
 
 class instance_violet_hold : public InstanceMapScript
