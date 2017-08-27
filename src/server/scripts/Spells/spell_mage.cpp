@@ -153,7 +153,7 @@ class spell_mage_cauterize_AuraScript : public AuraScript
         });
     }
 
-    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
     {
         AuraEffect const* effect1 = GetEffect(EFFECT_1);
         if (!effect1 ||
