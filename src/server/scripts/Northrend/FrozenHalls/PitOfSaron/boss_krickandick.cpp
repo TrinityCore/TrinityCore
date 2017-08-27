@@ -154,7 +154,7 @@ class boss_ick : public CreatureScript
                 events.Reset();
                 instance->SetBossState(DATA_ICK, NOT_STARTED);
                 _oldTargetGUID.Clear();
-                _tempThreat = 0;
+                _tempThreat = 0.0f;
             }
 
             Creature* GetKrick()
