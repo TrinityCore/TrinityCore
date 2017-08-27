@@ -269,8 +269,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id)  const override;
 
-        bool isRegeneratingHealth() { return m_regenHealth; }
-        void setRegeneratingHealth(bool regenHealth) { m_regenHealth = regenHealth; }
+        bool CanRegenerateHealth() { return !_regenerateHealthLock && _regenerateHealth; }
+        void SetRegenerateHealth(bool value) { _regenerateHealthLock = !value; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
@@ -385,7 +385,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;
-        bool m_regenHealth;
         bool m_cannotReachTarget;
         uint32 m_cannotReachTimer;
         bool m_AI_locked;
@@ -429,6 +428,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         int32 outfitId;
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
+
+        // Regenerate health
+        bool _regenerateHealth; // Set on creation
+        bool _regenerateHealthLock; // Dynamically set
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

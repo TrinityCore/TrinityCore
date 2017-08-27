@@ -54,7 +54,6 @@ struct SpawnGroupTemplateData
     std::string name;
     uint32 mapId;
     SpawnGroupFlags flags;
-    bool isActive;
 };
 
 struct SpawnData
