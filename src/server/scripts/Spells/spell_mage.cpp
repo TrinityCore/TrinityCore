@@ -34,6 +34,8 @@
 enum MageSpells
 {
     SPELL_MAGE_BLAZING_BARRIER_TRIGGER           = 235314,
+    SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
+    SPELL_MAGE_CAUTERIZED                        = 87024,
     SPELL_MAGE_CONE_OF_COLD                      = 120,
     SPELL_MAGE_CONE_OF_COLD_SLOW                 = 212792,
     SPELL_MAGE_CONJURE_REFRESHMENT               = 116136,
@@ -118,6 +120,61 @@ class spell_mage_burning_determination : public AuraScript
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_mage_burning_determination::CheckProc);
+    }
+};
+
+// 86949 - Cauterize
+class spell_mage_cauterize : public SpellScript
+{
+    PrepareSpellScript(spell_mage_cauterize);
+
+    void SuppressSpeedBuff(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_mage_cauterize::SuppressSpeedBuff, EFFECT_2, SPELL_EFFECT_TRIGGER_SPELL);
+    }
+};
+
+class spell_mage_cauterize_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_mage_cauterize_AuraScript);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return spellInfo->GetEffect(EFFECT_2) && ValidateSpellInfo
+        ({
+            SPELL_MAGE_CAUTERIZE_DOT,
+            SPELL_MAGE_CAUTERIZED,
+            spellInfo->GetEffect(EFFECT_2)->TriggerSpell
+        });
+    }
+
+    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        AuraEffect const* effect1 = GetEffect(EFFECT_1);
+        if (!effect1 ||
+            !GetTargetApplication()->HasEffect(EFFECT_1) ||
+            dmgInfo.GetDamage() < GetTarget()->GetHealth() ||
+            dmgInfo.GetDamage() > GetTarget()->GetMaxHealth() * 2 ||
+            GetTarget()->HasAura(SPELL_MAGE_CAUTERIZED))
+        {
+            PreventDefaultAction();
+            return;
+        }
+
+        GetTarget()->SetHealth(GetTarget()->CountPctFromMaxHealth(effect1->GetAmount()));
+        GetTarget()->CastSpell(GetTarget(), GetAura()->GetSpellEffectInfo(EFFECT_2)->TriggerSpell, TRIGGERED_FULL_MASK);
+        GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_CAUTERIZE_DOT, TRIGGERED_FULL_MASK);
+        GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_CAUTERIZED, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_cauterize_AuraScript::HandleAbsorb, EFFECT_0);
     }
 };
 
@@ -642,6 +699,7 @@ void AddSC_mage_spell_scripts()
 {
     RegisterAuraScript(spell_mage_blazing_barrier);
     RegisterAuraScript(spell_mage_burning_determination);
+    RegisterSpellAndAuraScriptPair(spell_mage_cauterize, spell_mage_cauterize_AuraScript);
     RegisterSpellScript(spell_mage_cold_snap);
     RegisterSpellScript(spell_mage_cone_of_cold);
     RegisterSpellScript(spell_mage_conjure_refreshment);
