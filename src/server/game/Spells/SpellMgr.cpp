@@ -3187,6 +3187,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_UNIT_NEARBY_ENTRY);
     });
 
+    // Burn Body
+    ApplySpellFix({ 42793 }, [](SpellInfo* spellInfo)
+    {
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->MiscValue = 24008; // Fallen Combatant
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
