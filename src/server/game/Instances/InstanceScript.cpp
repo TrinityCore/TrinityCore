@@ -821,7 +821,7 @@ void InstanceScript::UpdatePhasing()
             PhasingHandler::SendToPlayer(player);
 }
 
-/*static*/ std::string InstanceScript::GetBossStateName(uint8 state)
+/*static*/ char const* InstanceScript::GetBossStateName(uint8 state)
 {
     // See enum EncounterState in InstanceScript.h
     switch (state)

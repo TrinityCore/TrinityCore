@@ -237,7 +237,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         virtual bool SetBossState(uint32 id, EncounterState state);
         EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
-        static std::string GetBossStateName(uint8 state);
+        static char const* GetBossStateName(uint8 state);
         CreatureBoundary const* GetBossBoundary(uint32 id) const { return id < bosses.size() ? &bosses[id].boundary : nullptr; }
 
         // Achievement criteria additional requirements check
