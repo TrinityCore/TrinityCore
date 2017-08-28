@@ -2067,14 +2067,14 @@ void Aura::HeartbeatResistance(uint32 diff)
         {
             TC_LOG_DEBUG("spells", "[Heartbeat Resist] Breaking creature aura. Duration %u, Max %u", auraTimePassed, (GetMaxDuration() / IN_MILLISECONDS));
 
-            SpellSchoolMask spellSchoolMask = m_spellInfo->GetSchoolMask();
-            uint32 pResistance = 0;
+            SpellSchoolMask schoolMask = m_spellInfo->GetSchoolMask();
+            uint32 resistance = 0;
 
-            if (spellSchoolMask != SPELL_SCHOOL_MASK_NORMAL)
-                pResistance = target->GetResistance(GetFirstSchoolInMask(spellSchoolMask));
+            if (schoolMask != SPELL_SCHOOL_MASK_NORMAL)
+                resistance = target->GetResistance(GetFirstSchoolInMask(schoolMask));
 
             uint32 breakChance = urand(0, 100);
-            uint32 breakPct = 5 + uint32((pResistance / powf(target->getLevel(), 1.441f) * 0.10f) * 100);
+            uint32 breakPct = 5 + uint32((resistance / powf(target->getLevel(), 1.441f) * 0.10f) * 100);
 
             if (breakChance < breakPct)
             {
