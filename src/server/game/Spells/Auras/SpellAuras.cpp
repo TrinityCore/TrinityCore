@@ -2065,21 +2065,17 @@ void Aura::HeartbeatResistance(uint32 diff)
             auraTimePassed == (uint32)std::floor((GetMaxDuration() * 0.50f / IN_MILLISECONDS) + 0.5f) ||
             auraTimePassed == (uint32)std::floor((GetMaxDuration() * 0.75f / IN_MILLISECONDS) + 0.5f))
         {
-            TC_LOG_DEBUG("spells", "[Heartbeat Resist] Breaking creature aura. Duration %u, Max %u", auraTimePassed, (GetMaxDuration() / IN_MILLISECONDS));
+            TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura. Duration %u, Max %u", auraTimePassed, (GetMaxDuration() / IN_MILLISECONDS));
 
             SpellSchoolMask schoolMask = m_spellInfo->GetSchoolMask();
-            uint32 resistance = 0;
-
-            if (schoolMask != SPELL_SCHOOL_MASK_NORMAL)
-                resistance = target->GetResistance(GetFirstSchoolInMask(schoolMask));
-
+            uint32 resistance = schoolMask != SPELL_SCHOOL_MASK_NORMAL ? target->GetResistance(GetFirstSchoolInMask(schoolMask)) : 0;
             uint32 breakChance = urand(0, 100);
             uint32 breakPct = 5 + uint32((resistance / powf(target->getLevel(), 1.441f) * 0.10f) * 100);
 
             if (breakChance < breakPct)
             {
                 Remove();
-                TC_LOG_DEBUG("spells", "[Heartbeat Resist] Breaking creature aura %u. Seconds passed %u with chance %u and roll %u.", m_spellInfo->Id, auraTimePassed, breakPct, breakChance);
+                TC_LOG_DEBUG("spells", "Aura::HeartbeatResistance: Breaking creature aura %u. Seconds passed %u with chance %u and roll %u.", m_spellInfo->Id, auraTimePassed, breakPct, breakChance);
                 return;
             }
         }
