@@ -379,7 +379,7 @@ bool BattlefieldWintergrasp::SetupBattlefield()
             AddCapturePoint(capturePoint);
         }
 
-        workshop->Reset();
+        workshop->UpdateForNoBattle();
         workshop->Save();
     }
 
@@ -435,7 +435,9 @@ void BattlefieldWintergrasp::OnBattleStart()
 
     // rebuild
     for (WintergraspBuilding* building : _buildingSet)
+    {
         building->Rebuild();
+    }
 
     SetData(DATA_WINTERGRASP_BROKEN_TOWER_ATTACK, 0);
     SetData(DATA_WINTERGRASP_BROKEN_TOWER_DEFENCE, 0);
@@ -444,7 +446,7 @@ void BattlefieldWintergrasp::OnBattleStart()
 
     // update graveyard (in no war time all graveyard is to deffender, in war time, depend of base)
     for (WintergraspWorkshop* workshop : _workshopSet)
-        workshop->Reset();
+        workshop->UpdateForBattle();
 
     SendInitWorldStatesToAll();
 
@@ -490,7 +492,7 @@ void BattlefieldWintergrasp::OnBattleEnd(bool endByTimer)
 
     for (WintergraspWorkshop* workshop : _workshopSet)
     {
-        workshop->Reset();
+        workshop->UpdateForNoBattle();
         workshop->Save();
     }
 
@@ -1638,8 +1640,10 @@ void WintergraspBuilding::Rebuild()
         case OBJECTTYPE_DOOR_LAST:
         case OBJECTTYPE_DOOR:
         case OBJECTTYPE_WALL:
+            _teamControl = _battlefield->GetDefenderTeam();      // Objects that are part of the keep should be the defender's
+            break;
         case OBJECTTYPE_TOWER:
-            _teamControl = _battlefield->GetDefenderTeam();
+            _teamControl = _battlefield->GetAttackerTeam();      // The towers in the south should be the attacker's
             break;
         default:
             _teamControl = TEAM_NEUTRAL;
@@ -1978,7 +1982,18 @@ void WintergraspWorkshop::GiveControlTo(TeamId teamId, bool initialize)
     }
 }
 
-void WintergraspWorkshop::Reset()
+void WintergraspWorkshop::UpdateForBattle()
+{
+    if (_info->WorkshopId < WORKSHOPID_KEEP_WEST)
+    {
+        GiveControlTo(_battlefield->GetAttackerTeam(), true);
+        _capturePoint->SetTeam(_battlefield->GetAttackerTeam());
+    }
+    else
+        GiveControlTo(_battlefield->GetDefenderTeam(), true);
+}
+
+void WintergraspWorkshop::UpdateForNoBattle()
 {
     if (_info->WorkshopId < WORKSHOPID_KEEP_WEST)
         _capturePoint->SetTeam(_battlefield->GetDefenderTeam());

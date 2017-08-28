@@ -548,7 +548,8 @@ class TC_GAME_API WintergraspWorkshop
 
         void LinkCapturePoint(WintergraspCapturePoint* capturePoint) { _capturePoint = capturePoint; }
         void GiveControlTo(TeamId teamId, bool initialize = false);
-        void Reset();
+        void UpdateForBattle();
+        void UpdateForNoBattle();
         void FillInitialWorldStates(WorldPacket& data);
         void Save();
 
