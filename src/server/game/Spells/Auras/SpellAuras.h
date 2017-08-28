@@ -206,6 +206,8 @@ class TC_GAME_API Aura
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(uint8 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
+        void HeartbeatResistance(uint32 diff);
+
         // AuraScript
         void LoadScripts();
         bool CallScriptCheckAreaTargetHandlers(Unit* target);
@@ -270,6 +272,8 @@ class TC_GAME_API Aura
         bool m_isUsingCharges:1;
 
         ChargeDropEvent* m_dropEvent;
+
+        uint32 m_heartBeatTimer;                        // Heartbeat resist timer
 
         std::chrono::steady_clock::time_point m_procCooldown;
 
