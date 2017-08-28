@@ -2684,10 +2684,10 @@ Wintergrasp.Enable = 0
 
 #
 #     Wintergrasp.PlayerMax
-#         Description: Maximum number of players allowed in Wintergrasp.
-#         Default:     100
+#         Description: Maximum number of players per faction allowed in Wintergrasp.
+#         Default:     120
 
-Wintergrasp.PlayerMax = 100
+Wintergrasp.PlayerMax = 120
 
 #
 #     Wintergrasp.PlayerMin
