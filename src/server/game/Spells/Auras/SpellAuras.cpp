@@ -2078,7 +2078,7 @@ void Aura::HeartbeatResistance(uint32 diff)
 
             if (breakChance < breakPct)
             {
-                target->RemoveAurasDueToSpell(m_spellInfo->Id);
+                target->RemoveAura(this);
                 TC_LOG_DEBUG("spells", "[Heartbeat Resist] Breaking creature aura %u. Seconds passed %u with chance %u and roll %u.", m_spellInfo->Id, auraTimePassed, breakPct, breakChance);
                 return;
             }
