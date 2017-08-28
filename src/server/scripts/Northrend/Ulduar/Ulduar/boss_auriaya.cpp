@@ -561,6 +561,7 @@ class spell_auriaya_agro_creator : public SpellScript
         {
             caster->CastSpell(target, SPELL_POUNCE, true);
             caster->GetThreatManager().AddThreat(target, 50000000.0f, nullptr, true);
+            caster->AI()->AttackStart(target);
         }
     }
 
@@ -590,9 +591,13 @@ class spell_auriaya_random_agro_periodic : public AuraScript
         {
             owner->GetThreatManager().AddThreat(target, 3000000.0f, nullptr, true);
             owner->CastSpell(target, SPELL_FERAL_POUNCE, true);
+            owner->AI()->AttackStart(target);
         }
         else if (Unit* target = owner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+        {
             owner->GetThreatManager().AddThreat(target, 3000000.0f);
+            owner->AI()->AttackStart(target);
+        }
     }
 
     void Register() override
