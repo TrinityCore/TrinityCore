@@ -1026,7 +1026,7 @@ namespace Trinity
 
             bool operator()(Unit* u)
             {
-				Unit* owner = i_funit->GetOwner();
+                Unit* owner = i_funit->GetOwner();
                 if (u->isTargetableForAttack() && i_obj->IsWithinDistInMap(u, i_range) &&
                     (owner && owner->IsInCombatWith(u) || i_funit->IsHostileTo(u)) && i_funit->CanSeeOrDetect(u))
                 {
