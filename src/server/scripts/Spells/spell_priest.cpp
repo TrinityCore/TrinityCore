@@ -76,6 +76,7 @@ enum PriestSpells
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE         = 47755,
     SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE          = 197045,
+    SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827,
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
@@ -1209,6 +1210,35 @@ class spell_pri_shadowform : public SpellScriptLoader
         }
 };
 
+// 20711 - Spirit of Redemption
+class spell_priest_spirit_of_redemption : public AuraScript
+{
+    PrepareAuraScript(spell_priest_spirit_of_redemption);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SPIRIT_OF_REDEMPTION });
+    }
+
+    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+    {
+        Unit* target = GetTarget();
+        if (dmgInfo.GetDamage() >= target->GetHealth())
+        {
+            target->CastSpell(target, SPELL_PRIEST_SPIRIT_OF_REDEMPTION, TRIGGERED_FULL_MASK, nullptr, aurEff);
+            target->SetFullHealth();
+            return;
+        }
+
+        PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_priest_spirit_of_redemption::HandleAbsorb, EFFECT_0);
+    }
+};
+
 // 28809 - Greater Heal
 class spell_pri_t3_4p_bonus : public SpellScriptLoader
 {
@@ -1577,6 +1607,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_power_word_shield();
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_shadowform();
+    RegisterAuraScript(spell_priest_spirit_of_redemption);
     new spell_pri_t3_4p_bonus();
     new spell_pri_t5_heal_2p_bonus();
     new spell_pri_t10_heal_2p_bonus();
