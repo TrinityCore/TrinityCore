@@ -57,22 +57,28 @@ struct TradeStatusInfo;
 
 namespace lfg
 {
-struct LfgJoinResultData;
-struct LfgPlayerBoot;
-struct LfgProposal;
-struct LfgQueueStatusData;
-struct LfgPlayerRewardData;
-struct LfgRoleCheck;
-struct LfgUpdateData;
+    struct LfgJoinResultData;
+    struct LfgPlayerBoot;
+    struct LfgProposal;
+    struct LfgQueueStatusData;
+    struct LfgPlayerRewardData;
+    struct LfgRoleCheck;
+    struct LfgUpdateData;
 }
 
 namespace rbac
 {
-class RBACData;
+    class RBACData;
 }
 
 namespace WorldPackets
 {
+    namespace Battlefield
+    {
+        class MgrEntryInviteResponse;
+        class MgrQueueInviteResponse;
+        class MgrExitRequest;
+    }
     namespace Query
     {
         class QueryCreature;
@@ -835,9 +841,10 @@ class TC_GAME_API WorldSession
         void SendBattlefieldQueueInviteResponse(uint32 battleId, uint32 zoneId, bool canQueue = true, bool full = false);
         void SendBattlefieldEntered(uint32 battleId);
         void SendBattlefieldLeaveMessage(uint32 battleId, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
-        void HandleBattlefieldQueueInviteResponse(WorldPacket& recvData);
-        void HandleBattlefieldEntryInviteResponse(WorldPacket& recvData);
-        void HandleBattlefieldExitRequest(WorldPacket& recvData);
+        void SendBattlefieldEjectPending(bool remove);
+        void HandleBattlefieldEntryInviteResponse(WorldPackets::Battlefield::MgrEntryInviteResponse& entryInviteResponse);
+        void HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefield::MgrQueueInviteResponse& queueInviteResponse);
+        void HandleBattlefieldExitRequest(WorldPackets::Battlefield::MgrExitRequest& exitRequest);
 
         void HandleWardenDataOpcode(WorldPacket& recvData);
         void HandleWorldTeleportOpcode(WorldPacket& recvData);

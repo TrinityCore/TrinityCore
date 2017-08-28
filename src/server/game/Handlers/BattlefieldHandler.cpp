@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "BattlefieldPackets.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -34,11 +35,11 @@
  */
 void WorldSession::SendBattlefieldInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 acceptTime)
 {
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE, 12);
-    data << uint32(battleId);
-    data << uint32(zoneId);
-    data << uint32(time(nullptr) + acceptTime);
-    SendPacket(&data);
+    WorldPackets::Battlefield::MgrEntryInvite entryInvite;
+    entryInvite.BattleID = battleId;
+    entryInvite.ZoneID = zoneId;
+    entryInvite.ExpireTime = uint32(time(nullptr) + acceptTime);
+    SendPacket(entryInvite.Write());
 }
 
 /**
@@ -50,10 +51,10 @@ void WorldSession::SendBattlefieldInvitePlayerToWar(uint32 battleId, uint32 zone
  */
 void WorldSession::SendBattlefieldInvitePlayerToQueue(uint32 battleId)
 {
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_INVITE, 5);
-    data << uint32(battleId);
-    data << uint8(1); // warmup ? used ?
-    SendPacket(&data);
+    WorldPackets::Battlefield::MgrQueueInvite queueInvite;
+    queueInvite.BattleID = battleId;
+    queueInvite.Warmup = 1; // not implemented
+    SendPacket(queueInvite.Write());
 }
 
 /**
@@ -68,13 +69,13 @@ void WorldSession::SendBattlefieldInvitePlayerToQueue(uint32 battleId)
  */
 void WorldSession::SendBattlefieldQueueInviteResponse(uint32 battleId, uint32 zoneId, bool canQueue, bool full)
 {
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 11);
-    data << uint32(battleId);
-    data << uint32(zoneId);
-    data << uint8(canQueue ? 1 : 0); // Accepted    // 0 you cannot queue    // 1 you are queued
-    data << uint8(full ? 0 : 1);     // Logging In  // 0 full                // 1 queue for upcoming
-    data << uint8(1);                // Warmup
-    SendPacket(&data);
+    WorldPackets::Battlefield::MgrQueueRequestResponse queueRequestResponse;
+    queueRequestResponse.BattleID = battleId;
+    queueRequestResponse.ZoneID = zoneId;
+    queueRequestResponse.Accepted = canQueue ? 1 : 0;
+    queueRequestResponse.LoggingIn = !full;
+    queueRequestResponse.Warmup = 1; // not implemented
+    SendPacket(queueRequestResponse.Write());
 }
 
 /**
@@ -86,12 +87,12 @@ void WorldSession::SendBattlefieldQueueInviteResponse(uint32 battleId, uint32 zo
  */
 void WorldSession::SendBattlefieldEntered(uint32 battleId)
 {
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_ENTERED, 7);
-    data << uint32(battleId);
-    data << uint8(1);                        // unk
-    data << uint8(1);                        // unk
-    data << uint8(_player->isAFK() ? 1 : 0); // Clear AFK
-    SendPacket(&data);
+    WorldPackets::Battlefield::MgrEntered entered;
+    entered.BattleID = battleId;
+    entered.OnOffense = true; // not implemented
+    entered.Relocated = true; // not implemented
+    entered.ClearedAFK = _player->isAFK();
+    SendPacket(entered.Write());
 }
 
 /**
@@ -104,45 +105,27 @@ void WorldSession::SendBattlefieldEntered(uint32 battleId)
  */
 void WorldSession::SendBattlefieldLeaveMessage(uint32 battleId, BFLeaveReason reason /*= BF_LEAVE_REASON_EXITED*/)
 {
-    WorldPacket data(SMSG_BATTLEFIELD_MGR_EJECTED, 7);
-    data << uint32(battleId);
-    data << uint8(reason); // byte Reason
-    data << uint8(2);      // byte BattleStatus
-    data << uint8(0);      // bool Relocated
-    SendPacket(&data);
+    WorldPackets::Battlefield::MgrEjected ejected;
+    ejected.BattleID = battleId;
+    ejected.Reason = uint8(reason);
+    ejected.BattleStatus = 2; // not implemented
+    ejected.Relocated = false; // not implemented
+    SendPacket(ejected.Write());
+}
+
+void WorldSession::SendBattlefieldEjectPending(bool remove)
+{
 }
 
 /**
- * @fn void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPacket& recvData)
- *
- * @brief Sent on battlefield queue response
- */
-void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPacket& recvData)
+* @fn void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPackets::Battlefield::MgrEntryInviteResponse& entryInviteResponse)
+*
+* @brief Sent on join to battlefield war response
+*/
+void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPackets::Battlefield::MgrEntryInviteResponse& entryInviteResponse)
 {
-    uint32 battleId;
-    uint8 accepted;
-    recvData >> battleId >> accepted;
-
-    TC_LOG_DEBUG("misc", "WorldSession::HandleBattlefieldQueueInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
-
-    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BattlefieldId(battleId));
-    if (!battlefield)
-        return;
-
-    if (accepted)
-        battlefield->PlayerAcceptsInviteToQueue(_player);
-}
-
-/**
- * @fn void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPacket& recvData)
- *
- * @brief Sent on join to battlefield war response
- */
-void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPacket& recvData)
-{
-    uint32 battleId;
-    uint8 accepted;
-    recvData >> battleId >> accepted;
+    uint32 battleId = entryInviteResponse.BattleID;
+    bool accepted = entryInviteResponse.AcceptedInvite;
     TC_LOG_DEBUG("misc", "WorldSession::HandleBattlefieldEntryInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
 
     Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BattlefieldId(battleId));
@@ -156,14 +139,32 @@ void WorldSession::HandleBattlefieldEntryInviteResponse(WorldPacket& recvData)
 }
 
 /**
- * @fn void WorldSession::HandleBattlefieldExitRequest(WorldPacket& recvData)
+ * @fn void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefield::MgrQueueInviteResponse& queueInviteResponse)
+ *
+ * @brief Sent on battlefield queue response
+ */
+void WorldSession::HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefield::MgrQueueInviteResponse& queueInviteResponse)
+{
+    uint32 battleId = queueInviteResponse.BattleID;
+    bool accepted = queueInviteResponse.AcceptedInvite;
+    TC_LOG_DEBUG("misc", "WorldSession::HandleBattlefieldQueueInviteResponse: battleId: %u, accepted: %u", battleId, accepted);
+
+    Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BattlefieldId(battleId));
+    if (!battlefield)
+        return;
+
+    if (accepted)
+        battlefield->PlayerAcceptsInviteToQueue(_player);
+}
+
+/**
+ * @fn void WorldSession::HandleBattlefieldExitRequest(WorldPackets::Battlefield::MgrExitRequest& exitRequest)
  *
  * @brief Sent on battlefield queue exit request
  */
-void WorldSession::HandleBattlefieldExitRequest(WorldPacket& recvData)
+void WorldSession::HandleBattlefieldExitRequest(WorldPackets::Battlefield::MgrExitRequest& exitRequest)
 {
-    uint32 battleId;
-    recvData >> battleId;
+    uint32 battleId = exitRequest.BattleID;
     TC_LOG_DEBUG("misc", "HandleBfExitRequest: battleId: %u ", battleId);
 
     Battlefield* battlefield = sBattlefieldMgr->GetBattlefield(BattlefieldId(battleId));
