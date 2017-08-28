@@ -17,7 +17,7 @@
 
 #include "BattlefieldPackets.h"
 
-WorldPacket const* WorldPackets::Battlefield::MgrEntryInvite::Write()
+WorldPacket const* WorldPackets::Battlefield::BattlefieldMgrEntryInvite::Write()
 {
     _worldPacket << uint32(BattleID);
     _worldPacket << uint32(ZoneID);
@@ -25,26 +25,26 @@ WorldPacket const* WorldPackets::Battlefield::MgrEntryInvite::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Battlefield::MgrEntryInviteResponse::Read()
+void WorldPackets::Battlefield::BattlefieldMgrEntryInviteResponse::Read()
 {
     _worldPacket >> BattleID;
     AcceptedInvite = _worldPacket.read<uint8>() != 0;
 }
 
-WorldPacket const* WorldPackets::Battlefield::MgrQueueInvite::Write()
+WorldPacket const* WorldPackets::Battlefield::BattlefieldMgrQueueInvite::Write()
 {
     _worldPacket << uint32(BattleID);
     _worldPacket << uint8(Warmup);
     return &_worldPacket;
 }
 
-void WorldPackets::Battlefield::MgrQueueInviteResponse::Read()
+void WorldPackets::Battlefield::BattlefieldMgrQueueInviteResponse::Read()
 {
     _worldPacket >> BattleID;
     AcceptedInvite = _worldPacket.read<uint8>() != 0;
 }
 
-WorldPacket const* WorldPackets::Battlefield::MgrQueueRequestResponse::Write()
+WorldPacket const* WorldPackets::Battlefield::BattlefieldMgrQueueRequestResponse::Write()
 {
     _worldPacket << uint32(BattleID);
     _worldPacket << uint32(ZoneID);
@@ -54,12 +54,12 @@ WorldPacket const* WorldPackets::Battlefield::MgrQueueRequestResponse::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Battlefield::MgrExitRequest::Read()
+void WorldPackets::Battlefield::BattlefieldMgrExitRequest::Read()
 {
     _worldPacket >> BattleID;
 }
 
-WorldPacket const* WorldPackets::Battlefield::MgrEntered::Write()
+WorldPacket const* WorldPackets::Battlefield::BattlefieldMgrEntered::Write()
 {
     _worldPacket << uint32(BattleID);
     _worldPacket << uint8(OnOffense);
@@ -68,7 +68,7 @@ WorldPacket const* WorldPackets::Battlefield::MgrEntered::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Battlefield::MgrEjected::Write()
+WorldPacket const* WorldPackets::Battlefield::BattlefieldMgrEjected::Write()
 {
     _worldPacket << uint32(BattleID);
     _worldPacket << int8(Reason);

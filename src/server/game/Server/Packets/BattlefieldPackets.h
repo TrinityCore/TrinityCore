@@ -24,10 +24,10 @@ namespace WorldPackets
 {
     namespace Battlefield
     {
-        class MgrEntryInvite final : public ServerPacket
+        class BattlefieldMgrEntryInvite final : public ServerPacket
         {
         public:
-            MgrEntryInvite() : ServerPacket(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE, 4 + 4 + 4) { }
+            BattlefieldMgrEntryInvite() : ServerPacket(SMSG_BATTLEFIELD_MGR_ENTRY_INVITE, 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -36,10 +36,10 @@ namespace WorldPackets
             time_t ExpireTime = time_t(0);
         };
 
-        class MgrEntryInviteResponse final : public ClientPacket
+        class BattlefieldMgrEntryInviteResponse final : public ClientPacket
         {
         public:
-            MgrEntryInviteResponse(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE, std::move(packet)) { }
+            BattlefieldMgrEntryInviteResponse(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE, std::move(packet)) { }
 
             void Read() override;
 
@@ -47,10 +47,10 @@ namespace WorldPackets
             bool AcceptedInvite = false;
         };
 
-        class MgrQueueInvite final : public ServerPacket
+        class BattlefieldMgrQueueInvite final : public ServerPacket
         {
         public:
-            MgrQueueInvite() : ServerPacket(SMSG_BATTLEFIELD_MGR_QUEUE_INVITE, 4 + 1) { }
+            BattlefieldMgrQueueInvite() : ServerPacket(SMSG_BATTLEFIELD_MGR_QUEUE_INVITE, 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -58,10 +58,10 @@ namespace WorldPackets
             uint8 Warmup = 0;
         };
 
-        class MgrQueueInviteResponse final : public ClientPacket
+        class BattlefieldMgrQueueInviteResponse final : public ClientPacket
         {
         public:
-            MgrQueueInviteResponse(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE, std::move(packet)) { }
+            BattlefieldMgrQueueInviteResponse(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE, std::move(packet)) { }
 
             void Read() override;
 
@@ -69,10 +69,10 @@ namespace WorldPackets
             bool AcceptedInvite = false;
         };
 
-        class MgrQueueRequestResponse final : public ServerPacket
+        class BattlefieldMgrQueueRequestResponse final : public ServerPacket
         {
         public:
-            MgrQueueRequestResponse() : ServerPacket(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 4 + 4 + 1 + 1 + 1) { }
+            BattlefieldMgrQueueRequestResponse() : ServerPacket(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 4 + 4 + 1 + 1 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -83,20 +83,20 @@ namespace WorldPackets
             uint8 Warmup = 0;
         };
 
-        class MgrExitRequest final : public ClientPacket
+        class BattlefieldMgrExitRequest final : public ClientPacket
         {
         public:
-            MgrExitRequest(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_MGR_EXIT_REQUEST, std::move(packet)) { }
+            BattlefieldMgrExitRequest(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_MGR_EXIT_REQUEST, std::move(packet)) { }
 
             void Read() override;
 
             uint32 BattleID = 0;
         };
 
-        class MgrEntered final : public ServerPacket
+        class BattlefieldMgrEntered final : public ServerPacket
         {
         public:
-            MgrEntered() : ServerPacket(SMSG_BATTLEFIELD_MGR_ENTERED, 4 + 1 + 1 + 1) { }
+            BattlefieldMgrEntered() : ServerPacket(SMSG_BATTLEFIELD_MGR_ENTERED, 4 + 1 + 1 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -106,10 +106,10 @@ namespace WorldPackets
             bool ClearedAFK = false;
         };
 
-        class MgrEjected final : public ServerPacket
+        class BattlefieldMgrEjected final : public ServerPacket
         {
         public:
-            MgrEjected() : ServerPacket(SMSG_BATTLEFIELD_MGR_EJECTED, 4 + 1 + 1 + 1) { }
+            BattlefieldMgrEjected() : ServerPacket(SMSG_BATTLEFIELD_MGR_EJECTED, 4 + 1 + 1 + 1) { }
 
             WorldPacket const* Write() override;
 

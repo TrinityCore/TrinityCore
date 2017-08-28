@@ -75,9 +75,9 @@ namespace WorldPackets
 {
     namespace Battlefield
     {
-        class MgrEntryInviteResponse;
-        class MgrQueueInviteResponse;
-        class MgrExitRequest;
+        class BattlefieldMgrEntryInviteResponse;
+        class BattlefieldMgrQueueInviteResponse;
+        class BattlefieldMgrExitRequest;
     }
     namespace Query
     {
@@ -842,9 +842,9 @@ class TC_GAME_API WorldSession
         void SendBattlefieldEntered(uint32 battleId);
         void SendBattlefieldLeaveMessage(uint32 battleId, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
         void SendBattlefieldEjectPending(bool remove);
-        void HandleBattlefieldEntryInviteResponse(WorldPackets::Battlefield::MgrEntryInviteResponse& entryInviteResponse);
-        void HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefield::MgrQueueInviteResponse& queueInviteResponse);
-        void HandleBattlefieldExitRequest(WorldPackets::Battlefield::MgrExitRequest& exitRequest);
+        void HandleBattlefieldEntryInviteResponse(WorldPackets::Battlefield::BattlefieldMgrEntryInviteResponse& entryInviteResponse);
+        void HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefield::BattlefieldMgrQueueInviteResponse& queueInviteResponse);
+        void HandleBattlefieldExitRequest(WorldPackets::Battlefield::BattlefieldMgrExitRequest& exitRequest);
 
         void HandleWardenDataOpcode(WorldPacket& recvData);
         void HandleWorldTeleportOpcode(WorldPacket& recvData);
