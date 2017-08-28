@@ -361,6 +361,18 @@ namespace Trinity
                 if (spellProtoB->Id == 7812)
                     return false;
 
+                // Cauterize (must be last)
+                if (spellProtoA->Id == 86949)
+                    return false;
+                if (spellProtoB->Id == 86949)
+                    return true;
+
+                // Spirit of Redemption (must be last)
+                if (spellProtoA->Id == 20711)
+                    return false;
+                if (spellProtoB->Id == 20711)
+                    return true;
+
                 return false;
             }
     };
