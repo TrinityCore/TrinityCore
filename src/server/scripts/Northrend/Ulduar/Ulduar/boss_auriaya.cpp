@@ -27,47 +27,46 @@
 enum AuriayaSpells
 {
     // Auriaya
-    SPELL_SENTINEL_BLAST                         = 64389,
-    SPELL_SONIC_SCREECH                          = 64422,
-    SPELL_TERRIFYING_SCREECH                     = 64386,
-    SPELL_SUMMON_SWARMING_GUARDIAN               = 64396,
-    SPELL_ACTIVATE_DEFENDER                      = 64449,
-    SPELL_DEFENDER_TRIGGER                       = 64448,
-    SPELL_BERSERK                                = 47008,
-    SPELL_INSTAKILL_ARACHNOPOD                   = 64900,
+    SPELL_SENTINEL_BLAST                    = 64389,
+    SPELL_SONIC_SCREECH                     = 64422,
+    SPELL_TERRIFYING_SCREECH                = 64386,
+    SPELL_SUMMON_SWARMING_GUARDIAN          = 64396,
+    SPELL_ACTIVATE_DEFENDER                 = 64449,
+    SPELL_DEFENDER_TRIGGER                  = 64448,
+    SPELL_BERSERK                           = 47008,
+    SPELL_INSTAKILL_ARACHNOPOD              = 64900,
 
     // Feral Defender
-    SPELL_FERAL_RUSH                             = 64496,
-    SPELL_FERAL_RUSH_2                           = 64489,
-    SPELL_FERAL_POUNCE                           = 64478,
-    SPELL_SUMMON_ESSENCE                         = 64457,
-    SPELL_FERAL_ESSENCE                          = 64455,
-    SPELL_SHADOW_PAWS                            = 64479,
-    SPELL_REDUCE_CRITCAL                         = 64481,
-    SPELL_RANDOM_AGRO_PERIODIC                   = 61906,
-    SPELL_PERMANENT_FEIGN_DEATH                  = 58951,
-    SPELL_FERAL_ESSENCE_APPLICATION_REMOVAL      = 64456,
-    SPELL_CLEAR_ALL_DEBUFFS                      = 34098,
-    SPELL_DROWNED_STATE                          = 64462,
-    SPELL_FULL_HEAL                              = 64460,
+    SPELL_FERAL_RUSH                        = 64496,
+    SPELL_FERAL_RUSH_2                      = 64489,
+    SPELL_FERAL_POUNCE                      = 64478,
+    SPELL_SUMMON_ESSENCE                    = 64457,
+    SPELL_FERAL_ESSENCE                     = 64455,
+    SPELL_SHADOW_PAWS                       = 64479,
+    SPELL_REDUCE_CRITCAL                    = 64481,
+    SPELL_RANDOM_AGRO_PERIODIC              = 61906,
+    SPELL_PERMANENT_FEIGN_DEATH             = 58951,
+    SPELL_FERAL_ESSENCE_APPLICATION_REMOVAL = 64456,
+    SPELL_CLEAR_ALL_DEBUFFS                 = 34098,
+    SPELL_DROWNED_STATE                     = 64462,
+    SPELL_FULL_HEAL                         = 64460,
 
     // Seeping Essence Stalker
-    SPELL_SEEPING_ESSENCE                       = 64458,
+    SPELL_SEEPING_ESSENCE                   = 64458,
 
     // Sanctum Sentry
-    SPELL_SAVAGE_POUNCE                          = 64666,
-    SPELL_RIP_FLESH                              = 64375,
-    SPELL_STRENGHT_OF_THE_PACK                   = 64369,
+    SPELL_SAVAGE_POUNCE                     = 64666,
+    SPELL_RIP_FLESH                         = 64375,
+    SPELL_STRENGHT_OF_THE_PACK              = 64369,
 
     // Swarming Guardian
-    SPELL_AGRO_CREATOR                          = 63709,
-    SPELL_POUNCE                                = 64399
+    SPELL_AGRO_CREATOR                      = 63709,
+    SPELL_POUNCE                            = 64399
 };
 
 enum AuriayaNPCs
 {
-    NPC_SANCTUM_SENTRY                           = 34014,
-    NPC_ARACHNOPOD_DESTROYER                     = 34183
+    NPC_SANCTUM_SENTRY = 34014
 };
 
 enum AuriayaEvents
@@ -96,31 +95,31 @@ enum AuriayaEvents
 
 enum AuriayaYells
 {
-    SAY_AGGRO                                    = 0,
-    SAY_SLAY                                     = 1,
-    SAY_DEATH                                    = 2,
-    SAY_BERSERK                                  = 3,
-    EMOTE_FEAR                                   = 4,
-    EMOTE_DEFENDER                               = 5
+    SAY_AGGRO      = 0,
+    SAY_SLAY       = 1,
+    SAY_DEATH      = 2,
+    SAY_BERSERK    = 3,
+    EMOTE_FEAR     = 4,
+    EMOTE_DEFENDER = 5
 };
 
 enum AuriayaActions
 {
-    ACTION_CRAZY_CAT_LADY                        = 0,
+    ACTION_CRAZY_CAT_LADY = 0,
     ACTION_DEFENDER_DIED
 };
 
 enum Misc
 {
-    DATA_NINE_LIVES                             = 30763077,
-    DATA_CRAZY_CAT_LADY                         = 30063007,
-    PHASE_NONE                                  = 1,
-    PHASE_COMBAT                                = 2,
-    SUMMON_GROUP_10_MAN                         = 1,
-    SUMMON_GROUP_25_MAN                         = 2
+    DATA_NINE_LIVES     = 30763077,
+    DATA_CRAZY_CAT_LADY = 30063007,
+    PHASE_NONE          = 1,
+    PHASE_COMBAT        = 2,
+    SUMMON_GROUP_10_MAN = 1,
+    SUMMON_GROUP_25_MAN = 2
 };
 
-class CatsTargetSelector : public std::unary_function<Unit*, bool>
+class CatsTargetSelector
 {
 public:
     CatsTargetSelector(Unit const* unit, float minDist, float maxDist) : _me(unit), _minDist(minDist), _maxDist(maxDist) { }
@@ -154,7 +153,12 @@ struct boss_auriaya : public BossAI
         std::list<Creature*> catList;
         me->GetCreatureListWithEntryInGrid(catList, NPC_SANCTUM_SENTRY, 500.0f);
         for (std::list<Creature*>::const_iterator itr = catList.begin(); itr != catList.end(); ++itr)
-            isResetting ? (*itr)->Respawn() : (*itr)->DespawnOrUnsummon();
+        {
+            if (isResetting)
+                (*itr)->Respawn();
+            else
+                (*itr)->DespawnOrUnsummon();
+        }
     }
 
     void EnterCombat(Unit* /*who*/) override
@@ -295,6 +299,12 @@ struct npc_sanctum_sentry : public ScriptedAI
         me->SetWalk(false);
     }
 
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+            auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
+    }
+
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
@@ -331,12 +341,6 @@ struct npc_sanctum_sentry : public ScriptedAI
         }
 
         DoMeleeAttackIfReady();
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
-            auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
     }
 
 private:
@@ -640,56 +644,40 @@ class spell_auriaya_feral_rush : public SpellScript
     }
 };
 
-// 64898 - Instakill Arachnopod
-class spell_auriaya_instakill_arachnopod : public SpellScript
-{
-    PrepareSpellScript(spell_auriaya_instakill_arachnopod);
-
-    void FilterTargets(std::list<WorldObject*>& unitList)
-    {
-        unitList.remove_if([](WorldObject* obj) { return obj->GetEntry() != NPC_ARACHNOPOD_DESTROYER; });
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_auriaya_instakill_arachnopod::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-    }
-};
-
 class achievement_nine_lives : public AchievementCriteriaScript
 {
-public:
-    achievement_nine_lives() : AchievementCriteriaScript("achievement_nine_lives") { }
+    public:
+        achievement_nine_lives() : AchievementCriteriaScript("achievement_nine_lives") { }
 
-    bool OnCheck(Player* /*player*/, Unit* target) override
-    {
-        if (!target)
+        bool OnCheck(Player* /*player*/, Unit* target) override
+        {
+            if (!target)
+                return false;
+
+            if (Creature* auriaya = target->ToCreature())
+                if (auriaya->AI()->GetData(DATA_NINE_LIVES))
+                    return true;
+
             return false;
-
-        if (Creature* Auriaya = target->ToCreature())
-            if (Auriaya->AI()->GetData(DATA_NINE_LIVES))
-                return true;
-
-        return false;
-    }
+        }
 };
 
 class achievement_crazy_cat_lady : public AchievementCriteriaScript
 {
-public:
-    achievement_crazy_cat_lady() : AchievementCriteriaScript("achievement_crazy_cat_lady") { }
+    public:
+        achievement_crazy_cat_lady() : AchievementCriteriaScript("achievement_crazy_cat_lady") { }
 
-    bool OnCheck(Player* /*player*/, Unit* target) override
-    {
-        if (!target)
+        bool OnCheck(Player* /*player*/, Unit* target) override
+        {
+            if (!target)
+                return false;
+
+            if (Creature* auriaya = target->ToCreature())
+                if (auriaya->AI()->GetData(DATA_CRAZY_CAT_LADY))
+                    return true;
+
             return false;
-
-        if (Creature* Auriaya = target->ToCreature())
-            if (Auriaya->AI()->GetData(DATA_CRAZY_CAT_LADY))
-                return true;
-
-        return false;
-    }
+        }
 };
 
 void AddSC_boss_auriaya()
@@ -705,7 +693,6 @@ void AddSC_boss_auriaya()
     RegisterAuraScript(spell_auriaya_random_agro_periodic);
     RegisterSpellScript(spell_auriaya_feral_essence_removal);
     RegisterSpellScript(spell_auriaya_feral_rush);
-    RegisterSpellScript(spell_auriaya_instakill_arachnopod);
     new achievement_nine_lives();
     new achievement_crazy_cat_lady();
 }

@@ -19,16 +19,18 @@ UPDATE `creature_template` SET `modelid1`=29041, `modelid3`=0, `mechanic_immune_
 UPDATE `creature_template` SET `mechanic_immune_mask`=617299839 WHERE `entry`=34035; -- Feral Defender
 UPDATE `creature_template` SET `modelid1`=29042, `modelid2`=29065, `unit_flags`=2048, `ScriptName`='npc_swarming_guardian' WHERE `entry`=34034; -- Swarming Guardian
 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=64898; -- Instakill Arachnopod
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13,1,64898,0,0,31,0,3,34183,0,0,0,0,'','Effect_0 hits Arachnopod Destroyer');
+
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_auriaya_agro_creator',
 'spell_auriaya_random_agro_periodic',
 'spell_auriaya_feral_essence_removal',
-'spell_auriaya_feral_rush',
-'spell_auriaya_instakill_arachnopod');
+'spell_auriaya_feral_rush');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (63709, 'spell_auriaya_agro_creator'),
 (61906, 'spell_auriaya_random_agro_periodic'),
 (64456, 'spell_auriaya_feral_essence_removal'),
 (64496, 'spell_auriaya_feral_rush'),
-(64674, 'spell_auriaya_feral_rush'),
-(64898, 'spell_auriaya_instakill_arachnopod');
+(64674, 'spell_auriaya_feral_rush');
