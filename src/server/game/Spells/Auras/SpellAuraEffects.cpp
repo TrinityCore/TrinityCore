@@ -1317,6 +1317,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_SPIRIT_OF_REDEMPTION:
             spellId  = 27792;
             spellId2 = 27795;
+            spellId3 = 62371;
             break;
         case FORM_SHADOWFORM:
             if (target->HasAura(107906)) // Glyph of Shadow
@@ -1614,8 +1615,6 @@ void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 m
             if (!target->IsStandState())
                 target->SetStandState(UNIT_STAND_STATE_STAND);
         }
-
-        target->SetHealth(1);
     }
     // die at aura end
     else if (target->IsAlive())
