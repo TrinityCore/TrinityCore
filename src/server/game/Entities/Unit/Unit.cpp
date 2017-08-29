@@ -11032,32 +11032,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     if (Player* killerPlayer = GetCharmerOrOwnerPlayerOrPlayerItself())
         killerPlayer->UpdateCriteria(CRITERIA_TYPE_GET_KILLING_BLOWS, 1, 0, 0, victim);
 
-    // if talent known but not triggered (check priest class for speedup check)
-    bool spiritOfRedemption = false;
-    if (victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_PRIEST)
-    {
-        if (AuraEffect const* spiritOfRedemptionEffect = GetAuraEffect(20711, EFFECT_0))
-        {
-            // save value before aura remove
-            uint32 ressSpellId = victim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
-            if (!ressSpellId)
-                ressSpellId = victim->ToPlayer()->GetResurrectionSpellId();
-            // Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
-            victim->RemoveAllAurasOnDeath();
-            // restore for use at real death
-            victim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
-
-            // FORM_SPIRIT_OF_REDEMPTION and related auras
-            victim->CastSpell(victim, 27827, true, NULL, spiritOfRedemptionEffect);
-            spiritOfRedemption = true;
-        }
-    }
-
-    if (!spiritOfRedemption)
-    {
-        TC_LOG_DEBUG("entities.unit", "SET JUST_DIED");
-        victim->setDeathState(JUST_DIED);
-    }
+    TC_LOG_DEBUG("entities.unit", "SET JUST_DIED");
+    victim->setDeathState(JUST_DIED);
 
     // Inform pets (if any) when player kills target)
     // MUST come after victim->setDeathState(JUST_DIED); or pet next target
