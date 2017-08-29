@@ -26,10 +26,10 @@
  */
 
 #include "MovementGenerator.h"
+#include "Player.h"
 #include "Timer.h"
 
 class Creature;
-class Player;
 struct TaxiPathNodeEntry;
 struct WaypointPath;
 
