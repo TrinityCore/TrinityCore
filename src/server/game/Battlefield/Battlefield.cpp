@@ -267,26 +267,19 @@ void Battlefield::InvitePlayersInQueueToWar()
 {
     for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
     {
-        for (auto itr = _playerQueue[team].begin(); itr != _playerQueue[team].end();)
+        for (auto itr = _playerQueue[team].begin(); itr != _playerQueue[team].end(); itr = _playerQueue[team].erase(itr))
         {
             if (Player* player = ObjectAccessor::FindConnectedPlayer(*itr))
             {
                 if (!player || player->InArena() || player->GetBattleground() || player->getLevel() < _minPlayerLevel ||
                     _playersInWar[player->GetTeamId()].find(player->GetGUID()) != _playersInWar[player->GetTeamId()].end() || // already in war
                     _invitedPlayers[player->GetTeamId()].find(player->GetGUID()) != _invitedPlayers[player->GetTeamId()].end()) // already invited
-                {
-                    itr = _playerQueue[team].erase(itr);
                     continue;
-                }
 
                 // vacant space
                 if (_playersInWar[player->GetTeamId()].size() + _invitedPlayers[player->GetTeamId()].size() >= _maxPlayerCount)
-                {
-                    ++itr;
                     break;
-                }
 
-                itr = _playerQueue[team].erase(itr);
                 _playersToKick[player->GetTeamId()].erase(player->GetGUID());
                 _invitedPlayers[player->GetTeamId()][player->GetGUID()] = time(nullptr) + _acceptInviteTime;
                 player->GetSession()->SendBattlefieldInvitePlayerToWar(_battleId, _zoneId, _acceptInviteTime);
