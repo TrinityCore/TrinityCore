@@ -266,14 +266,18 @@ void Battlefield::InvitePlayersInQueueToWar()
 {
     for (uint8 team = 0; team < PVP_TEAMS_COUNT; ++team)
     {
-        for (auto itr = _playerQueue[team].begin(); itr != _playerQueue[team].end(); itr = _playerQueue[team].erase(itr))
+        while (!_playerQueue[team].empty())
         {
-            if (Player* player = ObjectAccessor::FindConnectedPlayer(*itr))
+            ObjectGuid playerGuid = _playerQueue[team].front();
+            if (Player* player = ObjectAccessor::FindConnectedPlayer(playerGuid))
             {
                 if (!player || player->InArena() || player->GetBattleground() || player->getLevel() < _minPlayerLevel ||
                     _playersInWar[player->GetTeamId()].find(player->GetGUID()) != _playersInWar[player->GetTeamId()].end() || // already in war
                     _invitedPlayers[player->GetTeamId()].find(player->GetGUID()) != _invitedPlayers[player->GetTeamId()].end()) // already invited
+                {
+                    _playerQueue[team].pop_front();
                     continue;
+                }
 
                 // vacant space
                 if (_playersInWar[player->GetTeamId()].size() + _invitedPlayers[player->GetTeamId()].size() >= _maxPlayerCount)
@@ -283,6 +287,7 @@ void Battlefield::InvitePlayersInQueueToWar()
                 _invitedPlayers[player->GetTeamId()][player->GetGUID()] = time(nullptr) + _acceptInviteTime;
                 player->GetSession()->SendBattlefieldInvitePlayerToWar(_battleId, _zoneId, _acceptInviteTime);
             }
+            _playerQueue[team].pop_front();
         }
     }
 }
