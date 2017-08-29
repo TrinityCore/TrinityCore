@@ -373,14 +373,14 @@ struct WintergraspTowerInfo
 
 struct WintergraspObjectPositionData
 {
-    Position Position;
+    Position Location;
     uint32 HordeEntry;
     uint32 AllianceEntry;
 };
 
 struct WintergraspGameObjectData
 {
-    Position Position;
+    Position Location;
     QuaternionData Rotation;
     uint32 HordeEntry;
     uint32 AllianceEntry;
