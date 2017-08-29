@@ -841,7 +841,7 @@ class TC_GAME_API WorldSession
         void SendBattlefieldQueueInviteResponse(uint32 battleId, uint32 zoneId, bool canQueue = true, bool full = false);
         void SendBattlefieldEntered(uint32 battleId);
         void SendBattlefieldLeaveMessage(uint32 battleId, BFLeaveReason reason = BF_LEAVE_REASON_EXITED);
-        void SendBattlefieldEjectPending(bool remove);
+        void SendBattlefieldEjectPending(uint32 battleId, bool remove);
         void HandleBattlefieldEntryInviteResponse(WorldPackets::Battlefield::BattlefieldMgrEntryInviteResponse& entryInviteResponse);
         void HandleBattlefieldQueueInviteResponse(WorldPackets::Battlefield::BattlefieldMgrQueueInviteResponse& queueInviteResponse);
         void HandleBattlefieldExitRequest(WorldPackets::Battlefield::BattlefieldMgrExitRequest& exitRequest);

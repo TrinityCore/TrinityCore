@@ -76,3 +76,10 @@ WorldPacket const* WorldPackets::Battlefield::BattlefieldMgrEjected::Write()
     _worldPacket << uint8(Relocated);
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Battlefield::BattlefieldMgrEjectPending::Write()
+{
+    _worldPacket << uint32(BattleID);
+    _worldPacket << uint8(Remove);
+    return &_worldPacket;
+}

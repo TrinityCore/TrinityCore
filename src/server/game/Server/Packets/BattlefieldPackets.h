@@ -118,6 +118,17 @@ namespace WorldPackets
             int8 BattleStatus = 0;
             bool Relocated = false;
         };
+
+        class BattlefieldMgrEjectPending final : public ServerPacket
+        {
+        public:
+            BattlefieldMgrEjectPending() : ServerPacket(SMSG_BATTLEFIELD_MGR_EJECT_PENDING, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 BattleID = 0;
+            bool Remove = false;
+        };
     }
 }
 

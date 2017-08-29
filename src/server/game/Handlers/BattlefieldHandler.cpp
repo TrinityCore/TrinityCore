@@ -113,8 +113,20 @@ void WorldSession::SendBattlefieldLeaveMessage(uint32 battleId, BFLeaveReason re
     SendPacket(ejected.Write());
 }
 
-void WorldSession::SendBattlefieldEjectPending(bool remove)
+/**
+* @fn void WorldSession::SendBattlefieldEjectPending(bool remove)
+*
+* @brief Sent when the player is about to be kicked from the battlefield
+*
+* @param battleId BattlefieldId enum
+* @param remove   Signals if the player is going to be relocated
+*/
+void WorldSession::SendBattlefieldEjectPending(uint32 battleId, bool remove)
 {
+    WorldPackets::Battlefield::BattlefieldMgrEjectPending ejectPending;
+    ejectPending.BattleID = battleId;
+    ejectPending.Remove = !remove;
+    SendPacket(ejectPending.Write());
 }
 
 /**

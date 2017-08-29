@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- /// @todo Notify kick timer to player
-
 #include "Battlefield.h"
 #include "CellImpl.h"
 #include "Creature.h"
@@ -245,6 +243,7 @@ void Battlefield::InvitePlayersInZoneToWar()
                     else // if not, kick and invite to queue
                     {
                         _playersToKick[player->GetTeamId()][guid] = time(nullptr) + 10;
+                        player->GetSession()->SendBattlefieldEjectPending(_battleId, true);
                         InvitePlayerToQueue(player);
                     }
                 }
@@ -341,6 +340,7 @@ void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
                 if (_playersToKick[player->GetTeamId()].find(player->GetGUID()) == _playersToKick[player->GetTeamId()].end())
                 {
                     _playersToKick[player->GetTeamId()][player->GetGUID()] = time(nullptr) + 10;
+                    player->GetSession()->SendBattlefieldEjectPending(_battleId, true);
                     InvitePlayerToQueue(player);
                 }
             }
