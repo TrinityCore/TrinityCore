@@ -25,10 +25,6 @@ class WintergraspCapturePoint;
 class WintergraspBuilding;
 class WintergraspWorkshop;
 
-struct WintergraspTowerInfo;
-struct WintergraspWorkshopInfo;
-struct WintergraspObjectPositionData;
-
 typedef std::unordered_set<WintergraspBuilding*> BuildingSet;
 typedef std::unordered_set<WintergraspWorkshop*> WorkshopSet;
 
