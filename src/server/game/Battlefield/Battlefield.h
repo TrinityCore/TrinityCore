@@ -22,7 +22,6 @@
 #include "SharedDefines.h"
 #include "Timer.h"
 #include "ZoneScript.h"
-#include <deque>
 #include <map>
 
 class Creature;
@@ -180,7 +179,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         GuidUnorderedSet _players[PVP_TEAMS_COUNT];
         GuidUnorderedSet _playersInWar[PVP_TEAMS_COUNT];
         GuidUnorderedSet _groups[PVP_TEAMS_COUNT]; // contains the two different raid groups
-        std::deque<ObjectGuid> _playerQueue[PVP_TEAMS_COUNT];
+        GuidDeque _playerQueue[PVP_TEAMS_COUNT];
         PlayerTimerMap _invitedPlayers[PVP_TEAMS_COUNT];
         PlayerTimerMap _playersToKick[PVP_TEAMS_COUNT];
         std::vector<uint32> _data;
