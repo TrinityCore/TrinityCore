@@ -29,21 +29,15 @@
 #include "WaypointManager.h"
 #include "World.h"
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId /*= 0*/, bool repeating /*= true*/) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(pathId), _repeating(repeating), _loadedFromDB(true), _stalled(false), _done(false)
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(pathId),
+    _repeating(repeating), _loadedFromDB(true), _stalled(false), _done(false)
 {
 }
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating)
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(0),
+    _repeating(repeating), _loadedFromDB(false), _stalled(false), _done(false)
 {
     _path = &path;
-    _nextMoveTime = 0;
-    _recalculateSpeed = false;
-    _isArrivalDone = false;
-    _pathId = 0;
-    _repeating = repeating;
-    _loadedFromDB = false;
-    _stalled = false;
-    _done = false;
 }
 
 WaypointMovementGenerator<Creature>::~WaypointMovementGenerator()
@@ -330,6 +324,15 @@ bool WaypointMovementGenerator<Creature>::CanMove(Creature* creature)
 #define SKIP_SPLINE_POINT_DISTANCE_SQ (40.f * 40.f)
 #define PLAYER_FLIGHT_SPEED 32.0f
 
+FlightPathMovementGenerator::FlightPathMovementGenerator()
+{
+    _currentNode = 0;
+    _endGridX = 0.0f;
+    _endGridY = 0.0f;
+    _endMapId = 0;
+    _preloadTargetNode = 0;
+}
+
 uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
 {
     if (_currentNode >= _path.size())
@@ -346,15 +349,6 @@ uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
 bool IsNodeIncludedInShortenedPath(TaxiPathNodeEntry const* p1, TaxiPathNodeEntry const* p2)
 {
     return p1->ContinentID != p2->ContinentID || std::pow(p1->Loc.X - p2->Loc.X, 2) + std::pow(p1->Loc.Y - p2->Loc.Y, 2) > SKIP_SPLINE_POINT_DISTANCE_SQ;
-}
-
-FlightPathMovementGenerator::FlightPathMovementGenerator()
-{
-    _currentNode = 0;
-    _endGridX = 0.0f;
-    _endGridY = 0.0f;
-    _endMapId = 0;
-    _preloadTargetNode = 0;
 }
 
 void FlightPathMovementGenerator::LoadPath(Player* player, uint32 startNode /*= 0*/)
