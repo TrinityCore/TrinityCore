@@ -55,7 +55,7 @@ template<>
 class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creature, WaypointMovementGenerator<Creature>>, public PathMovementBase<Creature, WaypointPath const*>
 {
     public:
-        explicit WaypointMovementGenerator(uint32 pathId = 0, bool repeating = true) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(pathId), _repeating(repeating), _loadedFromDB(true), _stalled(false), _done(false) { }
+        explicit WaypointMovementGenerator(uint32 pathId = 0, bool repeating = true);
         explicit WaypointMovementGenerator(WaypointPath& path, bool repeating = true);
 
         ~WaypointMovementGenerator() { _path = nullptr; }
@@ -102,14 +102,8 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
 class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, FlightPathMovementGenerator>, public PathMovementBase<Player, TaxiPathNodeList>
 {
     public:
-        explicit FlightPathMovementGenerator(uint32 startNode = 0)
-        {
-            _currentNode = startNode;
-            _endGridX = 0.0f;
-            _endGridY = 0.0f;
-            _endMapId = 0;
-            _preloadTargetNode = 0;
-        }
+        explicit FlightPathMovementGenerator(uint32 startNode = 0);
+
         void LoadPath(Player* player);
         void DoInitialize(Player*);
         void DoReset(Player*);
