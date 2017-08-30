@@ -2560,10 +2560,6 @@ uint32 SpellInfo::GetMaxTicks(uint32 difficulty) const
     if (DotDuration == 0)
         return 1;
 
-    // 200% limit
-    if (DotDuration > 30000)
-        DotDuration = 30000;
-
     for (SpellEffectInfo const* effect : GetEffectsForDifficulty(difficulty))
     {
         if (effect && effect->Effect == SPELL_EFFECT_APPLY_AURA)
