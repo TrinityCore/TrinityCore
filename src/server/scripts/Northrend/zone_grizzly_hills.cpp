@@ -551,7 +551,8 @@ enum StragglerEvents
     EVENT_STRAGGLER_1                           = 1,
     EVENT_STRAGGLER_2                           = 2,
     EVENT_STRAGGLER_3                           = 3,
-    EVENT_STRAGGLER_4                           = 4
+    EVENT_STRAGGLER_4                           = 4,
+    EVENT_CHOP                                  = 5
 };
 
 class npc_venture_co_straggler : public CreatureScript
@@ -561,21 +562,15 @@ public:
 
     struct npc_venture_co_stragglerAI : public ScriptedAI
     {
-        npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) 
-	{
-	    Initialize();
-	}
+        npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) { }
 
-	void Initialize()
+	void EnterCombat(Unit* /*who*/) override
 	{
-	    Chop_Timer = 6000;
+	    _events.ScheduleEvent(EVENT_CHOP, Seconds(3), Seconds(6));
 	}
-
-	uint32 Chop_Timer;
 
         void Reset() override
         {
-	    Initialize();
             _playerGUID.Clear();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -609,6 +604,11 @@ public:
                     case EVENT_STRAGGLER_4:
                         me->DisappearAndDie();
                         break;
+		    case EVENT_CHOP:
+			if (UpdateVictim())
+				DoCastVictim(SPELL_CHOP);
+			_events.Repeat(Seconds(10), Seconds(12));
+			break;
                     default:
                         break;
                 }
@@ -616,15 +616,7 @@ public:
 
             if (!UpdateVictim())
                 return;
-
-	    if (Chop_Timer <= diff)
-	    {
-	        DoCastVictim(SPELL_CHOP);
-		Chop_Timer = 8000;
-	    }
-	    else
-	        Chop_Timer -= diff;
-
+		
             DoMeleeAttackIfReady();
         }
 
