@@ -563,12 +563,12 @@ public:
     {
         npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) 
 	{
-		Initialize();
+	    Initialize();
 	}
 
 	void Initialize()
 	{
-		Chop_Timer = 6000;
+	    Chop_Timer = 6000;
 	}
 
 	uint32 Chop_Timer;
