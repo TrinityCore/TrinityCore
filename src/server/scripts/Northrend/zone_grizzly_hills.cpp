@@ -575,7 +575,7 @@ public:
 
         void Reset() override
         {
-			Initialize();
+	    Initialize();
             _playerGUID.Clear();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -619,11 +619,11 @@ public:
 
 	    if (Chop_Timer <= diff)
 	    {
-		DoCastVictim(SPELL_CHOP);
+	        DoCastVictim(SPELL_CHOP);
 		Chop_Timer = 8000;
 	    }
 	    else
-		Chop_Timer -= diff;
+	        Chop_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
