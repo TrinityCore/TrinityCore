@@ -562,16 +562,16 @@ public:
     struct npc_venture_co_stragglerAI : public ScriptedAI
     {
         npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) 
-		{
-			Initialize();
-		}
+	{
+		Initialize();
+	}
 
-		void Initialize()
-		{
-			Chop_Timer = 6000;
-		}
+	void Initialize()
+	{
+		Chop_Timer = 6000;
+	}
 
-		uint32 Chop_Timer;
+	uint32 Chop_Timer;
 
         void Reset() override
         {
@@ -617,13 +617,13 @@ public:
             if (!UpdateVictim())
                 return;
 
-			if (Chop_Timer <= diff)
-			{
-				DoCastVictim(SPELL_CHOP);
-				Chop_Timer = 8000;
-			}
-			else
-				Chop_Timer -= diff;
+	    if (Chop_Timer <= diff)
+	    {
+		DoCastVictim(SPELL_CHOP);
+		Chop_Timer = 8000;
+	    }
+	    else
+		Chop_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
