@@ -30,17 +30,15 @@
 #include "WaypointManager.h"
 #include "World.h"
 
-WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating)
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(pathId),
+    _repeating(repeating), _loadedFromDB(true), _stalled(false), _done(false)
+{
+}
+
+WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath& path, bool repeating) : _nextMoveTime(0), _recalculateSpeed(false), _isArrivalDone(false), _pathId(0),
+    _repeating(repeating), _loadedFromDB(false), _stalled(false), _done(false)
 {
     _path = &path;
-    _nextMoveTime = 0;
-    _recalculateSpeed = false;
-    _isArrivalDone = false;
-    _pathId = 0;
-    _repeating = repeating;
-    _loadedFromDB = false;
-    _stalled = false;
-    _done = false;
 }
 
 void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
@@ -321,6 +319,15 @@ bool WaypointMovementGenerator<Creature>::CanMove(Creature* creature)
 #define TIMEDIFF_NEXT_WP 250
 #define SKIP_SPLINE_POINT_DISTANCE_SQ (40.f * 40.f)
 #define PLAYER_FLIGHT_SPEED 32.0f
+
+FlightPathMovementGenerator::FlightPathMovementGenerator(uint32 startNode)
+{
+    _currentNode = startNode;
+    _endGridX = 0.0f;
+    _endGridY = 0.0f;
+    _endMapId = 0;
+    _preloadTargetNode = 0;
+}
 
 uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
 {
