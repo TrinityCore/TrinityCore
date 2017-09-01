@@ -1476,6 +1476,8 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            if (!UpdateVictim())
+                return;
         _events.Update(diff);
 
             while (uint32 eventId = _events.ExecuteEvent())
@@ -1511,9 +1513,6 @@ public:
                         break;
                 }
             }
-
-		if (!UpdateVictim())
-			return;
 
 		if (me->GetEntry() == NPC_ENRAGED_FIRE_SPIRIT || me->GetEntry() == NPC_ENRAGED_AIR_SPIRIT)
 			if (HealthBelowPct(35) && !me->GetAura(SPELL_ENRAGE))
