@@ -616,7 +616,6 @@ public:
 
             if (!UpdateVictim())
                 return;
-		
             DoMeleeAttackIfReady();
         }
 
