@@ -3723,7 +3723,8 @@ void SpellMgr::LoadSpellInfoCorrections()
         115338, // Summon Jojo
         115493, // Summon Aysa
         115494, // Summon Ji
-        115495 // Summon Jojo
+        115495, // Summon Jojo
+        117597  // Summon Ji
     }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
