@@ -1392,18 +1392,18 @@ enum Enraged_Dpirits
     NPC_ENRAGED_WATER_SPIRIT                = 21059,
     
     // ENRAGED WATER SPIRIT SPELLS
-    SPELL_STORMBOLT			    = 38032,
+    SPELL_STORMBOLT			                = 38032,
 
     // ENRAGED AIR SPIRIT SPELLS
     SPELL_AIR_SPIRIT_CHAIN_LIGHTNING	    = 12058,
-    SPELL_HURRICANE			    = 32717,
-    SPELL_ENRAGE			    = 8599,
+    SPELL_HURRICANE			                = 32717,
+    SPELL_ENRAGE			                = 8599,
 
     // ENRAGED FIRE SPIRIT SPELLS - Will be using the enrage spell from Air Spirit
-    SPELL_FEL_FIREBALL			    = 36247,
+    SPELL_FEL_FIREBALL			            = 36247,
 
     // ENRAGED EARTH SPIRIT SPELLS
-    SPELL_FIERY_BOULDER			    = 38498,
+    SPELL_FIERY_BOULDER			            = 38498,
     SPELL_SUMMON_ENRAGED_EARTH_SHARD        = 38365,
     
     // SOULS
@@ -1430,11 +1430,11 @@ enum Enraged_Dpirits
 
 enum Enraged_Spirits_Events
 {
-    EVENT_ENRAGED_WATER_SPIRIT			= 1,
-    EVENT_ENRAGED_FIRE_SPIRIT			= 2,
-    EVENT_ENRAGED_EARTH_SPIRIT			= 3,
+    EVENT_ENRAGED_WATER_SPIRIT			        = 1,
+    EVENT_ENRAGED_FIRE_SPIRIT			        = 2,
+    EVENT_ENRAGED_EARTH_SPIRIT			        = 3,
     EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING	= 4,
-    EVENT_ENRAGED_AIR_SPIRIT_HURRICANE		= 5
+    EVENT_ENRAGED_AIR_SPIRIT_HURRICANE		    = 5
 };
 
 class npc_enraged_spirit : public CreatureScript
@@ -1451,7 +1451,7 @@ public:
     {
         npc_enraged_spiritAI(Creature* creature) : ScriptedAI(creature) { }
 
-	void Reset() override { }
+	    void Reset() override { }
 
         void EnterCombat(Unit* /*who*/) override
 	{
@@ -1580,8 +1580,9 @@ public:
                  }
             }
         }
+
     private:
-	EventMap _events;
+	    EventMap _events;
     };
 };
 
