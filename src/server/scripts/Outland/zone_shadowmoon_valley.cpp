@@ -1395,15 +1395,15 @@ enum Enraged_Dpirits
     SPELL_STORMBOLT			                = 38032,
 
     // ENRAGED AIR SPIRIT SPELLS
-    SPELL_AIR_SPIRIT_CHAIN_LIGHTNING	    = 12058,
-    SPELL_HURRICANE			                = 32717,
-    SPELL_ENRAGE			                = 8599,
+    SPELL_AIR_SPIRIT_CHAIN_LIGHTNING        = 12058,
+    SPELL_HURRICANE                         = 32717,
+    SPELL_ENRAGE                            = 8599,
 
     // ENRAGED FIRE SPIRIT SPELLS - Will be using the enrage spell from Air Spirit
     SPELL_FEL_FIREBALL			            = 36247,
 
     // ENRAGED EARTH SPIRIT SPELLS
-    SPELL_FIERY_BOULDER			            = 38498,
+    SPELL_FIERY_BOULDER                     = 38498,
     SPELL_SUMMON_ENRAGED_EARTH_SHARD        = 38365,
     
     // SOULS
