@@ -34,6 +34,7 @@
 enum WarriorSpells
 {
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
+    SPELL_WARRIOR_BLOODTHIRST                       = 23881,
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_CHARGE_EFFECT                     = 218104,
@@ -263,6 +264,30 @@ class spell_warr_concussion_blow : public SpellScriptLoader
         {
             return new spell_warr_concussion_blow_SpellScript();
         }
+};
+
+// 184361 Enrage
+class spell_warr_enrage : public AuraScript
+{
+    PrepareAuraScript(spell_warr_enrage);
+
+    bool CheckProc(ProcEventInfo& procInfo)
+    {
+        if (procInfo.GetActor()->GetTypeId() != TYPEID_PLAYER)
+            return false;
+
+        if (!(procInfo.GetHitMask() & PROC_HIT_CRITICAL))
+            return false;
+
+        if (procInfo.GetSpellInfo()->Id != SPELL_WARRIOR_BLOODTHIRST)
+            return false;
+        return true;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_enrage::CheckProc);
+    }
 };
 
 // 5308 - Execute
@@ -1368,6 +1393,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_charge_drop_fire_periodic();
     new spell_warr_charge_effect();
     new spell_warr_concussion_blow();
+    RegisterAuraScript(spell_warr_enrage);
     new spell_warr_execute();
     new spell_warr_heroic_leap();
     new spell_warr_heroic_leap_jump();
