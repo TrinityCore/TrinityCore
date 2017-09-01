@@ -42,36 +42,31 @@ uint32 ActivePoolData::GetActiveObjectCount(uint32 pool_id) const
 
 // Method that tell if a creature is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<Creature>(uint64 db_guid) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Creature>(uint64 db_guid) const
 {
     return mSpawnedCreatures.find(db_guid) != mSpawnedCreatures.end();
 }
 
 // Method that tell if a gameobject is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<GameObject>(uint64 db_guid) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<GameObject>(uint64 db_guid) const
 {
     return mSpawnedGameobjects.find(db_guid) != mSpawnedGameobjects.end();
 }
 
 // Method that tell if a pool is spawned currently
 template<>
-bool ActivePoolData::IsActiveObject<Pool>(uint64 sub_pool_id) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Pool>(uint64 sub_pool_id) const
 {
     return mSpawnedPools.find(sub_pool_id) != mSpawnedPools.end();
 }
 
 // Method that tell if a quest can be started
 template<>
-bool ActivePoolData::IsActiveObject<Quest>(uint64 quest_id) const
+TC_GAME_API bool ActivePoolData::IsActiveObject<Quest>(uint64 quest_id) const
 {
     return mActiveQuests.find(quest_id) != mActiveQuests.end();
 }
-
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Creature>(uint64) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<GameObject>(uint64) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Pool>(uint64) const;
-template TC_GAME_API bool ActivePoolData::IsActiveObject<Quest>(uint64) const;
 
 template<>
 void ActivePoolData::ActivateObject<Creature>(uint64 db_guid, uint32 pool_id)
