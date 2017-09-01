@@ -28,6 +28,7 @@
 #include "GameObject.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Random.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
@@ -160,6 +161,34 @@ class spell_warl_conflagrate : public SpellScriptLoader
         {
             return new spell_warl_conflagrate_SpellScript();
         }
+};
+
+// 77220 - Mastery: Chaotic Energies
+class spell_warl_chaotic_energies : public AuraScript
+{
+    PrepareAuraScript(spell_warl_chaotic_energies);
+
+    void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        AuraEffect const* effect1 = GetEffect(EFFECT_1);
+        if (!effect1 || !GetTargetApplication()->HasEffect(EFFECT_1))
+        {
+            PreventDefaultAction();
+            return;
+        }
+
+        // You take ${$s2/3}% reduced damage
+        float damageReductionPct = float(effect1->GetAmount()) / 3;
+        // plus a random amount of up to ${$s2/3}% additional reduced damage
+        damageReductionPct += frand(0.0f, damageReductionPct);
+
+        absorbAmount = CalculatePct(dmgInfo.GetDamage(), damageReductionPct);
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_warl_chaotic_energies::HandleAbsorb, EFFECT_2);
+    }
 };
 
 // 6201 - Create Healthstone
@@ -1454,6 +1483,7 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_bane_of_doom();
     new spell_warl_banish();
+    RegisterAuraScript(spell_warl_chaotic_energies);
     new spell_warl_conflagrate();
     new spell_warl_create_healthstone();
     new spell_warl_demonic_circle_summon();
