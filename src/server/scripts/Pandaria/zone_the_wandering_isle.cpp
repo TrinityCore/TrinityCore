@@ -37,10 +37,11 @@ public:
             PreventHitDefaultEffect(effIndex);
             uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
             SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
-            if (!entry || !properties)
+            int32 duration = GetSpellInfo()->GetDuration();
+
+            if (!entry || !properties || !duration)
                 return;
 
-            int32 duration = GetSpellInfo()->GetDuration();
             int32 radius;
             if (urand(0, 2) == 0)
                 radius = urand(0, 6);
@@ -155,7 +156,9 @@ public:
             PreventHitDefaultEffect(effIndex);
             uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
             SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
-            if (!entry || !properties)
+            int32 duration = GetSpellInfo()->GetDuration();
+
+            if (!entry || !properties || !duration)
                 return;
 
             Position const SpawnPosition[6] =
@@ -167,11 +170,8 @@ public:
                 { 1239.606f, 3732.907f, 94.10403f },
                 { 1224.92f, 3727.201f, 92.4472f }
             };
-
-            int32 duration = GetSpellInfo()->GetDuration();
-            uint32 randomPos = urand(0, 5);
             
-            if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, SpawnPosition[randomPos], properties, duration, GetCaster()))
+            if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, SpawnPosition[urand(0, 5)], properties, duration, GetCaster()))
                 summon->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
         }
 
@@ -822,11 +822,10 @@ public:
             PreventHitDefaultEffect(effIndex);
             uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
             SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
-            if (!entry || !properties)
-                return;
-
             int32 duration = GetSpellInfo()->GetDuration();
-            uint32 randomPos = urand(0, 6);
+
+            if (!entry || !properties || !duration)
+                return;
 
             Position const SpawnPosition[4][7] =
             {
@@ -870,7 +869,7 @@ public:
 
             uint32 stone = GetCaster()->ToCreature()->AI()->GetData(DATA_JUMP_POSITION);
             
-            if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, SpawnPosition[stone][randomPos], properties, duration, GetCaster()))
+            if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, SpawnPosition[stone][urand(0, 6)], properties, duration, GetCaster()))
                 summon->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
         }
 
@@ -1078,7 +1077,7 @@ enum ZhaorenSpells
 
 enum ZhaorenMisc
 {
-    ZHAOREN_PATH                    = 4517910,
+    ZHAOREN_PATH                    = 4514730,
     NPC_JI_FIREPAW                  = 64505,
     NPC_AYSA_CLOUDSINGER            = 64506,
     NPC_DAFENG                      = 64532,
@@ -1478,6 +1477,60 @@ public:
     }
 };
 
+class spell_summon_deep_sea_aggressor : public SpellScriptLoader
+{
+public:
+    spell_summon_deep_sea_aggressor() : SpellScriptLoader("spell_summon_deep_sea_aggressor") { }
+
+    class spell_summon_deep_sea_aggressor_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_summon_deep_sea_aggressor_SpellScript);
+
+        void HandleSummon(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            uint32 entry = GetSpellInfo()->GetEffect(effIndex)->MiscValue;
+            SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->GetEffect(effIndex)->MiscValueB);
+            int32 duration = GetSpellInfo()->GetDuration();
+
+            if (!entry || !properties || !duration)
+                return;
+
+            Position const SpawnPosition[15] =
+            {
+                { 313.9983f, 3973.418f, 86.55342f },
+                { 249.4063f, 3972.389f, 75.72471f },
+                { 316.1406f, 3979.06f, 85.13287f },
+                { 252.6632f, 4008.125f, 78.23856f },
+                { 266.5712f, 4014.581f, 79.36336f },
+                { 269.8854f, 4017.54f, 79.76926f },
+                { 271.9392f, 4018.929f, 79.99733f },
+                { 309.474f, 3964.438f, 87.50405f },
+                { 247.1337f, 3968.642f, 75.44573f },
+                { 292.3837f, 3925.203f, 87.69834f },
+                { 254.1892f, 3982.678f, 71.8816f },
+                { 276.5608f, 4034.241f, 75.90926f },
+                { 287.4236f, 3935.447f, 85.55875f },
+                { 256.0226f, 3963.012f, 74.87388f },
+                { 301.6267f, 3923.195f, 87.80573f }
+            };
+
+            if (TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, SpawnPosition[urand(0, 14)], properties, duration, GetCaster()))
+                summon->SetTempSummonType(TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_summon_deep_sea_aggressor_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_summon_deep_sea_aggressor_SpellScript();
+    }
+};
+
 void AddSC_the_wandering_isle()
 {
     new spell_summon_troublemaker();
@@ -1507,4 +1560,5 @@ void AddSC_the_wandering_isle()
     new spell_injured_sailor_feign_death();
     new spell_rescue_injured_sailor();
     new at_wreck_of_the_skyseeker_injured_sailor();
+    new spell_summon_deep_sea_aggressor();
 }
