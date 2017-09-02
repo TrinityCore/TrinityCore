@@ -657,7 +657,6 @@ class spell_krick_pursuit : public SpellScriptLoader
                     ick->AddAura(GetSpellInfo()->Id, target);
                     ick->AI()->DoAction(ACTION_STORE_OLD_TARGET);
                     ick->GetThreatManager().AddThreat(target, float(GetEffectValue()), GetSpellInfo(), true, true);
-                    target->GetThreatManager().AddThreat(ick, float(GetEffectValue()), GetSpellInfo(), true, true);
                     ick->AI()->AttackStart(target);
                 }
             }
