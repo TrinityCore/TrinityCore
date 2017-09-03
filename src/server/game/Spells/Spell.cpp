@@ -2295,6 +2295,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 m_caster->ToCreature()->LowerPlayerDamageReq(target->damage);
         }
     }
+	else if (missInfo == SPELL_MISS_IMMUNE2)
+	{
+		m_caster->CombatStart(ObjectAccessor::GetUnit(*m_caster, target->targetGUID)); // Initiate combat with target, despite target being immune
+	}
 
     bool enablePvP = false; // need to check PvP state before spell effects, but act on it afterwards
 
