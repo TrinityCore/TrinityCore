@@ -762,7 +762,7 @@ enum SpellAttr11
     SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL          = 0x00000004, //  2
     SPELL_ATTR11_UNK3                            = 0x00000008, //  3
     SPELL_ATTR11_UNK4                            = 0x00000010, //  4
-    SPELL_ATTR11_ABSORB_FALL_DAMAGE              = 0x00000020, //  5
+    SPELL_ATTR11_ABSORB_ENVIRONMENTAL_DAMAGE     = 0x00000020, //  5
     SPELL_ATTR11_UNK6                            = 0x00000040, //  6
     SPELL_ATTR11_RANK_IGNORES_CASTER_LEVEL       = 0x00000080, //  7 Spell_C_GetSpellRank returns SpellLevels->MaxLevel * 5 instead of std::min(SpellLevels->MaxLevel, caster->Level) * 5
     SPELL_ATTR11_UNK8                            = 0x00000100, //  8
