@@ -58,10 +58,7 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
         return;
     }
 
-    _nextMoveTime.Reset(3000);
-
-    if (CanMove(creature))
-        StartMoveNow(creature);
+    _nextMoveTime.Reset(1000);
 }
 
 void WaypointMovementGenerator<Creature>::DoInitialize(Creature* creature)
