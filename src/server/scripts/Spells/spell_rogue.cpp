@@ -32,7 +32,6 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
-#include "GridNotifiers.h"
 
 enum RogueSpells
 {
