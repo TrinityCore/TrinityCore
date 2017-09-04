@@ -606,7 +606,7 @@ class spell_rog_shiv : public SpellScriptLoader
         }
 };
 
-/// Stealth - 1784, Subterfuge - 115191 and Subterfuge effect - 115192
+// 1784 - Stealth
 class spell_rog_stealth : public SpellScriptLoader
 {
     public:
