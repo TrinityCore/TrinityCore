@@ -117,7 +117,7 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()) // eventInfo.GetSpellInfo()
+                if (!eventInfo.GetSpellInfo())
                     return false;
 
                 // find Mage Armor
@@ -160,7 +160,7 @@ class spell_gen_adaptive_warding : public SpellScriptLoader
                     default:
                         return;
                 }
-                GetTarget()->CastSpell(GetTarget(), spellId, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), spellId, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -2120,7 +2120,7 @@ class spell_gen_obsidian_armor : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                if (eventInfo.GetDamageInfo()->GetSpellInfo()) // eventInfo.GetSpellInfo()
+                if (!eventInfo.GetSpellInfo())
                     return false;
 
                 if (GetFirstSchoolInMask(eventInfo.GetSchoolMask()) == SPELL_SCHOOL_NORMAL)
