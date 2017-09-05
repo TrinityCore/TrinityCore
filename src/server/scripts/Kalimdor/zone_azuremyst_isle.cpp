@@ -51,7 +51,6 @@ enum draeneiSurvivor
     SAY_THANK_FOR_HEAL     = 0,
     SAY_ASK_FOR_HELP       = 1,
     SPELL_IRRIDATION       = 35046,
-    SPELL_GIFT_OF_THE_NAARU = 59544,
     SPELL_STUNNED          = 28630,
     EVENT_CAN_ASK_FOR_HELP = 1,
     EVENT_THANK_PLAYER     = 2,
@@ -110,7 +109,7 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
-            if (spell->Id == SPELL_GIFT_OF_THE_NAARU && !_tappedBySpell)
+            if (spell->SpellFamilyFlags[2] & 0x80000000 && !_tappedBySpell)
             {
                 _events.Reset();
                 _tappedBySpell = true;
