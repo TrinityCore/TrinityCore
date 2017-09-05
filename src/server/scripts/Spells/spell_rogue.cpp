@@ -624,6 +624,18 @@ class spell_rog_stealth : public SpellScriptLoader
         class spell_rog_stealth_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_rog_stealth_AuraScript);
+            
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo(
+                {
+                    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
+                    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
+                    SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC,
+                    SPELL_ROGUE_SANCTUARY,
+                    SPELL_ROGUE_STEALTH_STEALTH_AURA,
+                    SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA
+                 });
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -640,15 +652,11 @@ class spell_rog_stealth : public SpellScriptLoader
                         if (l_Caster->HasAura(SPELL_ROGUE_SHADOW_FOCUS_AURA))
                             l_Caster->CastSpell(l_Caster, SPELL_ROGUE_SHADOW_FOCUS_COST_PCT, true);
                     }
-                    else
-                    {
-                        if (l_Caster->HasAura(eSpells::StealthSubterfuge))
-                            l_Caster->RemoveAura(eSpells::StealthSubterfuge);
-                    }
+                    
                 }
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* l_Caster = GetCaster())
                 {
@@ -674,10 +682,10 @@ class spell_rog_stealth : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
-                OnEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
