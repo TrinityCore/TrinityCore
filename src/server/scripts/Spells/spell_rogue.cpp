@@ -689,10 +689,10 @@ class spell_rog_stealth : public SpellScriptLoader
             }
         };
 
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_rog_stealth_AuraScript();
-    }
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_rog_stealth_AuraScript();
+        }
 };
 
 // 1856 - Vanish
