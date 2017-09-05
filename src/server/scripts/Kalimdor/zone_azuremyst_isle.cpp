@@ -110,7 +110,7 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
-            if (spell->Id == SPELL_GIFT_OF_THE_NAARU)
+            if (spell->Id == SPELL_GIFT_OF_THE_NAARU && !_tappedBySpell)
             {
                 _events.Reset();
                 _tappedBySpell = true;
