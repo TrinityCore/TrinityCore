@@ -109,7 +109,7 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
-            if (spell->SpellFamilyFlags[2] & 0x080000000 && !_tappedBySpell)
+            if (spell->SpellFamilyFlags[2] & 0x80000000 && !_tappedBySpell)
             {
                 _events.Reset();
                 _tappedBySpell = true;

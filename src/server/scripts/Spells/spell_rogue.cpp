@@ -94,10 +94,11 @@ class spell_rog_blade_flurry : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                TC_LOG_ERROR("misc", "damage: %u procSpell: %u",
-                    eventInfo.GetDamageInfo()->GetDamage(), eventInfo.GetDamageInfo()->GetSpellInfo() ? eventInfo.GetDamageInfo()->GetSpellInfo()->Id : 0);
-
-                GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, eventInfo.GetDamageInfo()->GetDamage(), _procTarget, true, NULL, aurEff);
+                if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
+                {
+                    int32 damage = damageInfo->GetDamage();
+                    GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, nullptr, aurEff);
+                }
             }
 
             void Register() override
