@@ -34,3 +34,12 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (64456, 'spell_auriaya_feral_essence_removal'),
 (64496, 'spell_auriaya_feral_rush'),
 (64674, 'spell_auriaya_feral_rush');
+
+DELETE FROM `creature_text` WHERE `CreatureID`=33515;
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
+(33515,0,0,'Some things are better left alone!',14,0,100,0,0,15473,34341,0,'Auriaya SAY_AGGRO'),
+(33515,1,1,'The secret dies with you.',14,0,100,0,0,15474,34354,0,'Auriaya SAY_SLAY_1'),
+(33515,1,2,'There is no escape!',14,0,100,0,0,15475,37177,0,'Auriaya SAY_SLAY_2'),
+(33515,2,0,'You waste my time!',14,0,100,0,0,15477,34358,0,'Auriaya SAY_BERSERK'),
+(33515,3,0,'%s begins to cast Terrifying Screech.',41,0,100,0,0,0,34450,0,'Auriaya EMOTE_FEAR'),
+(33515,4,0,'%s begins to activate the Feral Defender!',41,0,100,0,0,0,34162,0,'Auriaya EMOTE_DEFENDER');

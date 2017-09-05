@@ -64,11 +64,6 @@ enum AuriayaSpells
     SPELL_POUNCE                            = 64399
 };
 
-enum AuriayaNPCs
-{
-    NPC_SANCTUM_SENTRY = 34014
-};
-
 enum AuriayaEvents
 {
     // Auriaya
@@ -97,10 +92,9 @@ enum AuriayaYells
 {
     SAY_AGGRO      = 0,
     SAY_SLAY       = 1,
-    SAY_DEATH      = 2,
-    SAY_BERSERK    = 3,
-    EMOTE_FEAR     = 4,
-    EMOTE_DEFENDER = 5
+    SAY_BERSERK    = 2,
+    EMOTE_FEAR     = 3,
+    EMOTE_DEFENDER = 4
 };
 
 enum AuriayaActions
@@ -111,12 +105,14 @@ enum AuriayaActions
 
 enum Misc
 {
-    DATA_NINE_LIVES     = 30763077,
-    DATA_CRAZY_CAT_LADY = 30063007,
-    PHASE_NONE          = 1,
-    PHASE_COMBAT        = 2,
-    SUMMON_GROUP_10_MAN = 1,
-    SUMMON_GROUP_25_MAN = 2
+    DATA_NINE_LIVES       = 30763077,
+    DATA_CRAZY_CAT_LADY   = 30063007,
+    PHASE_NONE            = 1,
+    PHASE_COMBAT          = 2,
+    SUMMON_GROUP_10_MAN   = 1,
+    SUMMON_GROUP_25_MAN   = 2,
+    AURIAYA_DEATH_SOUNDID = 15476,
+    NPC_SANCTUM_SENTRY    = 34014
 };
 
 class CatsTargetSelector
@@ -210,7 +206,7 @@ struct boss_auriaya : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
-        Talk(SAY_DEATH);
+        DoPlaySoundToSet(me, AURIAYA_DEATH_SOUNDID);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         HandleCats(false);
     }
