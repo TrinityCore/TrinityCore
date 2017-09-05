@@ -651,11 +651,11 @@ class spell_rog_stealth : public SpellScriptLoader
                         target->CastSpell(target, eSpells::StealthTriggered1, true);
                         target->CastSpell(target, eSpells::StealthTriggered2, true);
 
-                        if (target->HasAura(ROGUE_SPELL_NIGHTSTALKER_AURA))
-                            target->CastSpell(target, ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE, true);
+                        if (target->HasAura(SPELL_ROGUE_NIGHTSTALKER_AURA))
+                            target->CastSpell(target, SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE, true);
 
-                        if (target->HasAura(ROGUE_SPELL_SHADOW_FOCUS_AURA))
-                            target->CastSpell(target, ROGUE_SPELL_SHADOW_FOCUS_COST_PCT, true);
+                        if (target->HasAura(SPELL_ROGUE_SHADOW_FOCUS_AURA))
+                            target->CastSpell(target, SPELL_ROGUE_SHADOW_FOCUS_COST_PCT, true);
                     }
 					if (target->HasAura(eSpells::StealthSubterfuge))
 						target->RemoveAura(eSpells::StealthSubterfuge);
@@ -679,10 +679,10 @@ class spell_rog_stealth : public SpellScriptLoader
                     {
                         target->RemoveAura(eSpells::StealthTriggered1);
 
-                        if (Aura* l_Nightstalker = target->GetAura(ROGUE_SPELL_NIGHTSTALKER_DAMAGE_DONE))
+                        if (Aura* l_Nightstalker = target->GetAura(SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE))
                             l_Nightstalker->SetDuration(200);   ///< We can't remove it now
 
-                        target->RemoveAura(ROGUE_SPELL_SHADOW_FOCUS_COST_PCT);
+                        target->RemoveAura(SPELL_ROGUE_SHADOW_FOCUS_COST_PCT);
                     }
 
                     if (GetSpellInfo()->Id == eSpells::StealthSubterfuge)
