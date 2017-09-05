@@ -612,7 +612,7 @@ class spell_rog_stealth : public SpellScriptLoader
     public:
         spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
         
-                enum eSpells
+       	enum eSpells
         {
             Stealth = 1784,
             StealthSubterfuge = 115191,
