@@ -602,7 +602,7 @@ class spell_warl_fel_synergy : public SpellScriptLoader
                 if (!damageInfo || !damageInfo->GetDamage())
                     return false;
 
-                return GetTarget()->GetGuardianPet();
+                return GetTarget()->GetGuardianPet() != nullptr;
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
