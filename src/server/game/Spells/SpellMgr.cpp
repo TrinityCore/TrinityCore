@@ -3193,6 +3193,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->MiscValue = 24008; // Fallen Combatant
     });
 
+    // Gift of the Naaru (priest and monk variants)
+    ApplySpellFix({ 59544, 121093 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->SpellFamilyFlags[2] = 0x80000000;
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
