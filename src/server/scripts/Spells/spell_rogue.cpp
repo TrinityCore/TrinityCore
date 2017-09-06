@@ -642,11 +642,11 @@ class spell_rog_stealth : public SpellScriptLoader
                 });
             }
 
-            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+	    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
 	    	Unit* target = GetTarget();
                 if (Unit* target = GetTarget())
-               	{
+		{
                     if (GetSpellInfo()->Id != eSpells::StealthSubterfugeEffect)
                     {
                         target->CastSpell(target, eSpells::StealthTriggered1, true);
@@ -657,10 +657,10 @@ class spell_rog_stealth : public SpellScriptLoader
 
                         if (target->HasAura(SPELL_ROGUE_SHADOW_FOCUS_AURA))
                             target->CastSpell(target, SPELL_ROGUE_SHADOW_FOCUS_COST_PCT, true);
-                    }
+                     }
 		if (target->HasAura(eSpells::StealthSubterfuge))
 			target->RemoveAura(eSpells::StealthSubterfuge);
-					
+		}
 		// Master of Subtlety
 		if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
 			target->CastCustomSpell(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true);
@@ -668,8 +668,7 @@ class spell_rog_stealth : public SpellScriptLoader
 		target->CastSpell(target, SPELL_ROGUE_SANCTUARY, TRIGGERED_FULL_MASK);
 		target->CastSpell(target, SPELL_ROGUE_STEALTH_STEALTH_AURA, TRIGGERED_FULL_MASK);
 		target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
-               	}
-            }
+	    }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
@@ -694,14 +693,13 @@ class spell_rog_stealth : public SpellScriptLoader
                     }
 
                     target->RemoveAurasDueToSpell(eSpells::StealthTriggered2);
-				
+		}	
 		   // Master of subtlety
 		   if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
 			target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC, true);
 
 		   target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_STEALTH_AURA);
 		   target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA);
-               	}
             }
 
             void Register() override
