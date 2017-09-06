@@ -65,7 +65,7 @@ class boss_broggok : public CreatureScript
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
-            }
+            } 
 
             void JustSummoned(Creature* summoned) override
             {
