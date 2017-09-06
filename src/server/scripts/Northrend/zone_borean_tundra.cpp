@@ -628,7 +628,7 @@ public:
                             IntroTimer = 7500;
                             break;
                         case 3:
-                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->SetReactState(REACT_DEFENSIVE);
                             IntroPhase = 0;
                             IntroTimer = 0;
                             break;
@@ -672,8 +672,7 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_CAGE, 5.0f))
                 {
                     go->SetRespawnTime(0);
-                    go->SetGoType(GAMEOBJECT_TYPE_BUTTON);
-                    go->UseDoorOrButton(20);
+                    go->UseDoorOrButton(20000);
                 }
 
                 Start(true, false, player->GetGUID());
