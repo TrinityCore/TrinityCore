@@ -77,11 +77,6 @@ class boss_broggok : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                me->SummonCreature(NPC_BROGGOK_POISON_CLOUD, me->GetPosition());
-            }
-
             void ExecuteEvent(uint32 eventId) override
             {
                 switch (eventId)
