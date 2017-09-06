@@ -1881,6 +1881,8 @@ class spell_item_shadows_fate : public SpellScriptLoader
 
             void HandleProc(ProcEventInfo& procInfo)
             {
+                PreventDefaultAction();
+
                 Unit* caster = procInfo.GetActor();
                 Unit* target = GetCaster();
                 if (!caster || !target)
