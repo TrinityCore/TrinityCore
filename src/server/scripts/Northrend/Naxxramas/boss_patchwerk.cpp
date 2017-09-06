@@ -140,13 +140,12 @@ public:
                         }
 
                         Unit* pHatefulTarget = nullptr;
-                        if (!thirdThreat)
+                        if (!secondThreat)
+                            pHatefulTarget = currentVictim;
+                        else if (!thirdThreat)
                             pHatefulTarget = secondThreat->GetVictim();
-                        else if (secondThreat)
+                        else
                             pHatefulTarget = (secondThreat->GetVictim()->GetHealth() < thirdThreat->GetVictim()->GetHealth()) ? thirdThreat->GetVictim() : secondThreat->GetVictim();
-
-                        if (!pHatefulTarget)
-                            pHatefulTarget = me->GetVictim();
 
                         DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
 
