@@ -611,7 +611,7 @@ class spell_rog_stealth : public SpellScriptLoader
 {
     public:
         spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
-  
+
        	enum eSpells
         {
             Stealth = 1784,
@@ -694,13 +694,13 @@ class spell_rog_stealth : public SpellScriptLoader
 
                     target->RemoveAurasDueToSpell(eSpells::StealthTriggered2);
 		}	
-		   // Master of subtlety
-		   if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
+		// Master of subtlety
+		if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
 			target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC, true);
 
-		   target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_STEALTH_AURA);
-		   target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA);
-            }
+		target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_STEALTH_AURA);
+		target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA);
+	    }
 
             void Register() override
             {
