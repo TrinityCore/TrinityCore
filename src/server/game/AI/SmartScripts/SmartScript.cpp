@@ -1348,7 +1348,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     if (!IsCreature(*itr))
                         continue;
 
-                    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && !IsCreatureInControlOfSelf(*itr))
+                    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && IsCharmedCreature(*itr))
                         continue;
 
                     Position pos = (*itr)->GetPosition();
@@ -3097,7 +3097,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
     if ((e.event.event_phase_mask && !IsInPhase(e.event.event_phase_mask)) || ((e.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && e.runOnce))
         return;
 
-    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && IsCreature(me) && !IsCreatureInControlOfSelf(me))
+    if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && IsCharmedCreature(me))
         return;
 
     switch (e.GetEventType())
@@ -3823,12 +3823,15 @@ bool SmartScript::IsCreature(WorldObject* obj)
     return obj && obj->GetTypeId() == TYPEID_UNIT;
 }
 
-bool SmartScript::IsCreatureInControlOfSelf(WorldObject* obj)
+bool SmartScript::IsCharmedCreature(WorldObject* obj)
 {
-    if (Creature* creatureObj = obj ? obj->ToCreature() : nullptr)
-        return !creatureObj->IsCharmed() && !creatureObj->IsControlledByPlayer();
-    else
+    if (!obj)
         return false;
+
+    if (Creature* creatureObj = obj->ToCreature())
+        return creatureObj->IsCharmed();
+
+    return false;
 }
 
 bool SmartScript::IsGameObject(WorldObject* obj)

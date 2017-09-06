@@ -28,6 +28,7 @@
 #include "Packet.h"
 #include "Player.h"
 #include "Spell.h"
+#include "SpellInfo.h"
 #include "UnitAI.h"
 #include "UpdateData.h"
 
@@ -912,10 +913,13 @@ namespace Trinity
     class AnyGroupedUnitInObjectRangeCheck
     {
         public:
-            AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid) : _source(obj), _refUnit(funit), _range(range), _raid(raid) { }
+            AnyGroupedUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool raid, bool playerOnly = false) : _source(obj), _refUnit(funit), _range(range), _raid(raid), _playerOnly(playerOnly) { }
 
             bool operator()(Unit* u) const
             {
+                if (_playerOnly && u->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+
                 if (_raid)
                 {
                     if (!_refUnit->IsInRaidWith(u))
@@ -932,6 +936,7 @@ namespace Trinity
             Unit const* _refUnit;
             float _range;
             bool _raid;
+            bool _playerOnly;
     };
 
     class AnyUnitInObjectRangeCheck
@@ -983,11 +988,12 @@ namespace Trinity
     class AnyAoETargetUnitInObjectRangeCheck
     {
         public:
-            AnyAoETargetUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range)
-                : i_obj(obj), i_funit(funit), _spellInfo(NULL), i_range(range)
+            AnyAoETargetUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, SpellInfo const* spellInfo = nullptr)
+                : i_obj(obj), i_funit(funit), _spellInfo(spellInfo), i_range(range)
             {
-                if (DynamicObject const* dynObj = i_obj->ToDynObject())
-                    _spellInfo = dynObj->GetSpellInfo();
+                if (!_spellInfo)
+                    if (DynamicObject const* dynObj = i_obj->ToDynObject())
+                        _spellInfo = dynObj->GetSpellInfo();
             }
 
             bool operator()(Unit* u) const
@@ -996,10 +1002,10 @@ namespace Trinity
                 if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 
-                if (i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : NULL) && i_obj->IsWithinDistInMap(u, i_range))
-                    return true;
+                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && u->GetTypeId() != TYPEID_PLAYER)
+                    return false;
 
-                return false;
+                return i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : nullptr) && i_obj->IsWithinDistInMap(u, i_range);
             }
 
         private:
