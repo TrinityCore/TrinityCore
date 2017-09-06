@@ -609,9 +609,9 @@ class spell_rog_shiv : public SpellScriptLoader
 // 1784 - Stealth
 class spell_rog_stealth : public SpellScriptLoader
 {
-     public:
+    public:
         spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
-
+  
        	enum eSpells
         {
             Stealth = 1784,
@@ -642,8 +642,8 @@ class spell_rog_stealth : public SpellScriptLoader
                 });
             }
 
-	    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
+	  void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+          {
 	    	Unit* target = GetTarget();
                 if (Unit* target = GetTarget())
 		{
@@ -670,7 +670,7 @@ class spell_rog_stealth : public SpellScriptLoader
 		target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
 	    }
 
-            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+	    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
 		Unit* target = GetTarget();
                 if (Unit* target = GetTarget())
