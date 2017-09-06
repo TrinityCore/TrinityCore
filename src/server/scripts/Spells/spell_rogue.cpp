@@ -612,107 +612,107 @@ class spell_rog_stealth : public SpellScriptLoader
     public:
         spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
 
-       	enum eSpells
+    enum eSpells
+    {
+        Stealth = 1784,
+        StealthSubterfuge = 115191,
+        StealthSubterfugeEffect = 115192,
+        StealthTriggered1 = 158188,
+        StealthTriggered2 = 158185
+    };
+
+    class spell_rog_stealth_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_stealth_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            Stealth = 1784,
-            StealthSubterfuge = 115191,
-            StealthSubterfugeEffect = 115192,
-            StealthTriggered1 = 158188,
-            StealthTriggered2 = 158185
-        };
-
-        class spell_rog_stealth_AuraScript : public AuraScript
+            return ValidateSpellInfo(
         {
-            PrepareAuraScript(spell_rog_stealth_AuraScript);
+            SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
+            SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
+            SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC,
+            SPELL_ROGUE_SANCTUARY,
+            SPELL_ROGUE_STEALTH_STEALTH_AURA,
+            SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA,
+            SPELL_ROGUE_NIGHTSTALKER_AURA,
+            SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE,
+            SPELL_ROGUE_SHADOW_FOCUS_AURA,
+            SPELL_ROGUE_SHADOW_FOCUS_COST_PCT
+        });
+        }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            if (Unit* target = GetTarget())
             {
-                return ValidateSpellInfo(
+                if (GetSpellInfo()->Id != eSpells::StealthSubterfugeEffect)
                 {
-                    SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE,
-                    SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT,
-                    SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC,
-                    SPELL_ROGUE_SANCTUARY,
-                    SPELL_ROGUE_STEALTH_STEALTH_AURA,
-                    SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA,
-                    SPELL_ROGUE_NIGHTSTALKER_AURA,
-                    SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE,
-                    SPELL_ROGUE_SHADOW_FOCUS_AURA,
-                    SPELL_ROGUE_SHADOW_FOCUS_COST_PCT
-                });
+                    target->CastSpell(target, eSpells::StealthTriggered1, true);
+                    target->CastSpell(target, eSpells::StealthTriggered2, true);
+
+                    if (target->HasAura(SPELL_ROGUE_NIGHTSTALKER_AURA))
+                        target->CastSpell(target, SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE, true);
+
+                    if (target->HasAura(SPELL_ROGUE_SHADOW_FOCUS_AURA))
+                        target->CastSpell(target, SPELL_ROGUE_SHADOW_FOCUS_COST_PCT, true);
+                }
+                if (target->HasAura(eSpells::StealthSubterfuge))
+                    target->RemoveAura(eSpells::StealthSubterfuge);
             }
+            // Master of Subtlety
+            if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
+                target->CastCustomSpell(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true);
 
-	  void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-          {
-	    	Unit* target = GetTarget();
-                if (Unit* target = GetTarget())
-		{
-                    if (GetSpellInfo()->Id != eSpells::StealthSubterfugeEffect)
-                    {
-                        target->CastSpell(target, eSpells::StealthTriggered1, true);
-                        target->CastSpell(target, eSpells::StealthTriggered2, true);
+            target->CastSpell(target, SPELL_ROGUE_SANCTUARY, TRIGGERED_FULL_MASK);
+            target->CastSpell(target, SPELL_ROGUE_STEALTH_STEALTH_AURA, TRIGGERED_FULL_MASK);
+            target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
+        }
 
-                        if (target->HasAura(SPELL_ROGUE_NIGHTSTALKER_AURA))
-                            target->CastSpell(target, SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE, true);
-
-                        if (target->HasAura(SPELL_ROGUE_SHADOW_FOCUS_AURA))
-                            target->CastSpell(target, SPELL_ROGUE_SHADOW_FOCUS_COST_PCT, true);
-                     }
-		if (target->HasAura(eSpells::StealthSubterfuge))
-			target->RemoveAura(eSpells::StealthSubterfuge);
-		}
-		// Master of Subtlety
-		if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
-			target->CastCustomSpell(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true);
-
-		target->CastSpell(target, SPELL_ROGUE_SANCTUARY, TRIGGERED_FULL_MASK);
-		target->CastSpell(target, SPELL_ROGUE_STEALTH_STEALTH_AURA, TRIGGERED_FULL_MASK);
-		target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
-	    }
-
-	    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            if (Unit* target = GetTarget())
             {
-		Unit* target = GetTarget();
-                if (Unit* target = GetTarget())
+                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                if (GetSpellInfo()->Id != eSpells::StealthSubterfuge || removeMode == AURA_REMOVE_BY_CANCEL)
                 {
-                    AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                    if (GetSpellInfo()->Id != eSpells::StealthSubterfuge || removeMode == AURA_REMOVE_BY_CANCEL)
-                    {
-                        target->RemoveAura(eSpells::StealthTriggered1);
+                    target->RemoveAura(eSpells::StealthTriggered1);
 
-                        if (Aura* l_Nightstalker = target->GetAura(SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE))
-                            l_Nightstalker->SetDuration(200);   ///< We can't remove it now
+                    if (Aura* l_Nightstalker = target->GetAura(SPELL_ROGUE_NIGHTSTALKER_DAMAGE_DONE))
+                        l_Nightstalker->SetDuration(200);   ///< We can't remove it now
 
-                        target->RemoveAura(SPELL_ROGUE_SHADOW_FOCUS_COST_PCT);
-                    }
+                    target->RemoveAura(SPELL_ROGUE_SHADOW_FOCUS_COST_PCT);
+                }
 
-                    if (GetSpellInfo()->Id == eSpells::StealthSubterfuge)
-                    {
-                        if (!target->HasAura(eSpells::StealthSubterfugeEffect))
-                            target->CastSpell(target, eSpells::StealthSubterfugeEffect, true);
-                    }
+                if (GetSpellInfo()->Id == eSpells::StealthSubterfuge)
+                {
+                    if (!target->HasAura(eSpells::StealthSubterfugeEffect))
+                        target->CastSpell(target, eSpells::StealthSubterfugeEffect, true);
+                }
 
-                    target->RemoveAurasDueToSpell(eSpells::StealthTriggered2);
-		}	
-		// Master of subtlety
-		if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
-			target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC, true);
-
-		target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_STEALTH_AURA);
-		target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA);
-	    }
-
-            void Register() override
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                target->RemoveAurasDueToSpell(eSpells::StealthTriggered2);
             }
-        };
+            // Master of subtlety
+            if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
+                target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC, true);
 
-	AuraScript* GetAuraScript() const
-	{
-	  return new spell_rog_stealth_AuraScript();
-	}
+            target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_STEALTH_AURA);
+            target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA);
+        }
+
+        void Register() override
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_rog_stealth_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            AfterEffectRemove += AuraEffectRemoveFn(spell_rog_stealth_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_rog_stealth_AuraScript();
+    }
 };
 
 // 1856 - Vanish
