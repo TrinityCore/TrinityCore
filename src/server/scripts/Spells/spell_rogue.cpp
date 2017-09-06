@@ -711,7 +711,7 @@ class spell_rog_stealth : public SpellScriptLoader
 
 	AuraScript* GetAuraScript() const
 	{
-	    return new spell_rog_stealth_AuraScript();
+	  return new spell_rog_stealth_AuraScript();
 	}
 };
 
