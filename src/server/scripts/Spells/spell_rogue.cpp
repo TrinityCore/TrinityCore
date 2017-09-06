@@ -644,8 +644,9 @@ class spell_rog_stealth : public SpellScriptLoader
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
+	    	Unit* target = GetTarget();
                 if (Unit* target = GetTarget())
-                {
+               	{
                     if (GetSpellInfo()->Id != eSpells::StealthSubterfugeEffect)
                     {
                         target->CastSpell(target, eSpells::StealthTriggered1, true);
@@ -667,11 +668,12 @@ class spell_rog_stealth : public SpellScriptLoader
 		target->CastSpell(target, SPELL_ROGUE_SANCTUARY, TRIGGERED_FULL_MASK);
 		target->CastSpell(target, SPELL_ROGUE_STEALTH_STEALTH_AURA, TRIGGERED_FULL_MASK);
 		target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
-                }
+               	}
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
+	    	Unit* target = GetTarget();
                 if (Unit* target = GetTarget())
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
@@ -699,7 +701,7 @@ class spell_rog_stealth : public SpellScriptLoader
 
 		   target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_STEALTH_AURA);
 		   target->RemoveAurasDueToSpell(SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA);
-                }
+               	}
             }
 
             void Register() override
@@ -709,10 +711,10 @@ class spell_rog_stealth : public SpellScriptLoader
             }
         };
 
-		AuraScript* GetAuraScript() const
-		{
-			return new spell_rog_stealth_AuraScript();
-		}
+	AuraScript* GetAuraScript() const
+	{
+		return new spell_rog_stealth_AuraScript();
+	}
 };
 
 // 1856 - Vanish
