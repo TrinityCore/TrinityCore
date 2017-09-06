@@ -49,6 +49,7 @@ EndContentData */
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Log.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
