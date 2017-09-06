@@ -147,7 +147,7 @@ class TC_GAME_API Aura
         void _Remove(AuraRemoveMode removeMode);
         virtual void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) = 0;
 
-        virtual void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) = 0;
+        virtual void FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* caster) = 0;
         void UpdateTargetMap(Unit* caster, bool apply = true);
 
         void _RegisterForTargets() {Unit* caster = GetCaster(); UpdateTargetMap(caster, false);}
@@ -349,7 +349,7 @@ class TC_GAME_API UnitAura : public Aura
 
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) override;
+        void FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* caster) override;
 
         // Allow Apply Aura Handler to modify and access m_AuraDRGroup
         void SetDiminishGroup(DiminishingGroup group) { m_AuraDRGroup = group; }
@@ -367,7 +367,7 @@ class TC_GAME_API DynObjAura : public Aura
 
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) override;
 
-        void FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster) override;
+        void FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* caster) override;
 };
 
 class TC_GAME_API ChargeDropEvent : public BasicEvent

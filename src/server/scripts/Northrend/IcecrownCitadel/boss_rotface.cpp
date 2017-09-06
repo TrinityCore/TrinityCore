@@ -546,7 +546,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             bool Validate(SpellInfo const* spellInfo) override
             {
                 SpellEffectInfo const* effect = spellInfo->GetEffect(EFFECT_2);
-                return effect && !ValidateSpellInfo({ uint32(effect->CalcValue()) });
+                return effect && ValidateSpellInfo({ uint32(effect->CalcValue()) });
             }
 
             void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
