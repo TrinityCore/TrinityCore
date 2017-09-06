@@ -347,7 +347,7 @@ class spell_ichoron_merge : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return !ValidateSpellInfo({ SPELL_SHRINK });
+                return ValidateSpellInfo({ SPELL_SHRINK });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
