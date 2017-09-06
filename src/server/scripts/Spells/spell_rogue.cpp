@@ -609,9 +609,9 @@ class spell_rog_shiv : public SpellScriptLoader
 // 1784 - Stealth
 class spell_rog_stealth : public SpellScriptLoader
 {
-    public:
+     public:
         spell_rog_stealth() : SpellScriptLoader("spell_rog_stealth") { }
-        
+
        	enum eSpells
         {
             Stealth = 1784,
@@ -672,7 +672,7 @@ class spell_rog_stealth : public SpellScriptLoader
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-	    	Unit* target = GetTarget();
+		Unit* target = GetTarget();
                 if (Unit* target = GetTarget())
                 {
                     AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
