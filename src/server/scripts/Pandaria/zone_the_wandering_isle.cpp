@@ -253,19 +253,6 @@ enum SingingPoolsATSpells
     SPELL_TRAINING_BELL_EXCLUSION_AURA  = 133381
 };
 
-//enum SingingPoolsATNPCs
-//{
-//    NPC_CURSED_POOL_CONTROLLER  = 55123
-//};
-//
-//enum SingingPoolsATData
-//{
-//    DATA_FROG   = 1,
-//    DATA_SKUNK  = 2,
-//    DATA_TURTLE = 3,
-//    DATA_CRANE  = 4
-//};
-
 class at_singing_pools_transform : public AreaTriggerScript
 {
 public:
@@ -439,10 +426,22 @@ public:
 //    }
 //};
 
-enum BalancePole
+enum BalancePoleEvents
 {
-    EVENT_CAST_TRANSFORM                        = 1,
+    EVENT_CAST_TRANSFORM                        = 1
+};
+
+enum BalancePoleNPCs
+{
+    NPC_BALANCE_POLE_1                          = 54993,
+    NPC_BALANCE_POLE_2                          = 57431,
     NPC_TRAINING_BELL_BALANCE_POLE              = 55083,
+    NPC_CURSED_POOL_CONTROLLER                  = 55123
+};
+
+enum BalancePoleSpells
+{
+    SPELL_MONK_RIDE_POLE                        = 103030,
     SPELL_TRAINING_BELL_FORCECAST_RIDE_VEHICLE  = 107050,
     SPELL_TRAINING_BELL_RIDE_VEHICLE            = 107049
 };
@@ -481,12 +480,16 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CAST_TRANSFORM:
-                        if (!_passenger->HasAura(SPELL_TRAINING_BELL_RIDE_VEHICLE) && !_passenger->HasAura(SPELL_RIDE_VEHICLE_POLE))
+                        // Transform is casted only when in frog pool
+                        if (_passenger->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 71.0f, true))
                         {
-                            _passenger->CastSpell(_passenger, SPELL_CURSE_OF_THE_FROG, true);
+                            if (!_passenger->HasAura(SPELL_TRAINING_BELL_RIDE_VEHICLE) && !_passenger->HasAura(SPELL_RIDE_VEHICLE_POLE))
+                            {
+                                _passenger->CastSpell(_passenger, SPELL_CURSE_OF_THE_FROG, true);
 
-                            if (_passenger->HasAura(SPELL_TRAINING_BELL_EXCLUSION_AURA))
-                                _passenger->RemoveAura(SPELL_TRAINING_BELL_EXCLUSION_AURA);
+                                if (_passenger->HasAura(SPELL_TRAINING_BELL_EXCLUSION_AURA))
+                                    _passenger->RemoveAura(SPELL_TRAINING_BELL_EXCLUSION_AURA);
+                            }
                         }
                         break;
                 }
@@ -501,6 +504,144 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_balance_poleAI(creature);
+    }
+};
+
+enum TushuiMonkOnPoleEvents
+{
+    EVENT_THROW_ROCK                = 1,
+    EVENT_SWITCH_POLE               = 2,
+    EVENT_DESPAWN                   = 3
+};
+
+enum TushuiMonkOnPoleNPCs
+{
+    NPC_MONK_ON_POLE_1              = 55019,
+    NPC_MONK_ON_POLE_2              = 65468,
+};
+
+enum TushuiMonkOnPoleSpells
+{
+    SPELL_FORCECAST_RIDE_POLE       = 103031,
+    SPELL_THROW_ROCK                = 109308
+};
+
+enum TushuiMonkOnPoleMisc
+{
+    QUEST_LESSON_OF_BALANCED_ROCK   = 29663
+};
+
+class npc_tushui_monk_on_pole : public CreatureScript
+{
+public:
+    npc_tushui_monk_on_pole() : CreatureScript("npc_tushui_monk_on_pole") { }
+
+    struct npc_tushui_monk_on_poleAI : public ScriptedAI
+    {
+        npc_tushui_monk_on_poleAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_SWITCH_POLE, 0);
+            me->SetReactState(REACT_DEFENSIVE);
+        }
+
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        {
+            if (spell->Id == SPELL_FORCECAST_RIDE_POLE)
+                me->CastSpell(caster, SPELL_MONK_RIDE_POLE, true);
+        }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            events.ScheduleEvent(EVENT_THROW_ROCK, 0);
+        }
+
+        void DamageTaken(Unit* attacker, uint32& damage) override
+        {
+            if (damage >= me->GetHealth() && _invincibility)
+            {
+                damage = me->GetHealth() - 1;
+                events.Reset();
+                me->RemoveAllAuras();
+                me->setFaction(35);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15 | UNIT_FLAG_IMMUNE_TO_PC);
+                me->AttackStop();
+                me->_ExitVehicle();
+                attacker->ToPlayer()->KilledMonsterCredit(NPC_MONK_ON_POLE_1);
+                events.ScheduleEvent(EVENT_DESPAWN, 1000);
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_THROW_ROCK:
+                        if (!me->IsWithinMeleeRange(me->GetVictim()))
+                            DoCastVictim(SPELL_THROW_ROCK);
+                        events.ScheduleEvent(EVENT_THROW_ROCK, 2500);
+                        break;
+                    case EVENT_SWITCH_POLE:
+                        if (!me->IsInCombat())
+                        {
+                            // This stores objects that are too far away due to big combat reach
+                            me->GetCreatureListWithEntryInGrid(PolesList, NPC_BALANCE_POLE_1, 1.0f);
+                            me->GetCreatureListWithEntryInGrid(PolesList2, NPC_BALANCE_POLE_2, 1.0f);
+                            // Join both lists with possible different NPC entries
+                            PolesList.splice(PolesList.end(), PolesList2);
+                            // Convert list to vector, so we can access iterator to be able to shuffle the list
+                            std::vector<Creature*> BalancePolesList {std::make_move_iterator(std::begin(PolesList)), std::make_move_iterator(std::end(PolesList))};
+                            // Shuffle the list so NPCs won't jump always on the same poles
+                            Trinity::Containers::RandomShuffle(BalancePolesList);
+
+                            for (std::vector<Creature*>::const_iterator itr = BalancePolesList.begin(); itr != BalancePolesList.end(); ++itr)
+                            {
+                                Position offset;
+                                offset.m_positionX = fabsf((*itr)->GetPositionX() - me->GetPositionX());
+                                offset.m_positionY = fabsf((*itr)->GetPositionY() - me->GetPositionY());
+
+                                // Object is too far
+                                if (offset.m_positionX > 5.0f || offset.m_positionY > 5.0f)
+                                    continue;
+
+                                if (!(*itr)->HasAura(SPELL_MONK_RIDE_POLE) && !(*itr)->HasAura(SPELL_RIDE_VEHICLE_POLE))
+                                {
+                                    (*itr)->CastSpell(me, SPELL_FORCECAST_RIDE_POLE, true);
+                                    break;
+                                }
+                            }
+                            events.ScheduleEvent(EVENT_SWITCH_POLE, urand(15000, 30000));
+                        }
+                        break;
+                    case EVENT_DESPAWN:
+                        // Transform is casted only when in frog pool
+                        if (Creature* creature = me->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 71.0f, true))
+                            DoCastSelf(SPELL_CURSE_OF_THE_FROG, true);
+                        me->GetMotionMaster()->MoveRandom(10.0f);
+                        me->DespawnOrUnsummon(3000);
+                        break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        std::list<Creature*> PolesList;
+        std::list<Creature*> PolesList2;
+        bool _invincibility = true;
+        EventMap events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_tushui_monk_on_poleAI(creature);
     }
 };
 
@@ -1541,6 +1682,7 @@ void AddSC_the_wandering_isle()
     new at_singing_pools_transform();
     //new npc_cursed_pool_controller();
     new npc_balance_pole();
+    new npc_tushui_monk_on_pole();
     new at_singing_pools_training_bell();
     new spell_rock_jump_a();
     new spell_jump_to_front_right();

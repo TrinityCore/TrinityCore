@@ -5868,15 +5868,6 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 ((@CGUID+1545)*10, 7, 683.6692, 4460.069, 223.0122, 0, 0, 1, 0, 100, 0),
 ((@CGUID+1545)*10, 8, 687.7723, 4462.131, 223.1372, 0, 0, 1, 0, 100, 0),
 -- Thornbranch Scamp
-((@CGUID+1547)*10, 1, 661.0051, 4452.77, 223.4935, 0, 0, 1, 0, 100, 0),
-((@CGUID+1547)*10, 2, 663.0673, 4448.667, 223.0712, 0, 0, 1, 0, 100, 0),
-((@CGUID+1547)*10, 3, 661.6242, 4444.307, 223.5161, 0, 0, 1, 0, 100, 0),
-((@CGUID+1547)*10, 4, 657.5211, 4442.245, 223.6819, 0, 0, 1, 0, 100, 0),
-((@CGUID+1547)*10, 5, 653.1616, 4443.688, 223.4186, 0, 0, 1, 0, 100, 0),
-((@CGUID+1547)*10, 6, 651.0993, 4447.791, 223.5211, 0, 0, 1, 0, 100, 0),
-((@CGUID+1547)*10, 7, 652.5424, 4452.15, 223.6692, 0, 0, 1, 0, 100, 0),
-((@CGUID+1547)*10, 8, 656.6455, 4454.212, 223.8337, 0, 0, 1, 0, 100, 0),
--- Thornbranch Scamp
 ((@CGUID+1546)*10, 1, 714.0281, 4352.055, 223.0084, 0, 0, 1, 0, 100, 0),
 ((@CGUID+1546)*10, 2, 715.3336, 4347.652, 223.0043, 0, 0, 1, 0, 100, 0),
 ((@CGUID+1546)*10, 3, 713.1436, 4343.616, 223.1293, 0, 0, 1, 0, 100, 0),
@@ -5885,6 +5876,15 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 ((@CGUID+1546)*10, 6, 703.399, 4348.903, 223.7147, 0, 0, 1, 0, 100, 0),
 ((@CGUID+1546)*10, 7, 705.5891, 4352.939, 223.464, 0, 0, 1, 0, 100, 0),
 ((@CGUID+1546)*10, 8, 709.9918, 4354.245, 223.1824, 0, 0, 1, 0, 100, 0),
+-- Thornbranch Scamp
+((@CGUID+1547)*10, 1, 661.0051, 4452.77, 223.4935, 0, 0, 1, 0, 100, 0),
+((@CGUID+1547)*10, 2, 663.0673, 4448.667, 223.0712, 0, 0, 1, 0, 100, 0),
+((@CGUID+1547)*10, 3, 661.6242, 4444.307, 223.5161, 0, 0, 1, 0, 100, 0),
+((@CGUID+1547)*10, 4, 657.5211, 4442.245, 223.6819, 0, 0, 1, 0, 100, 0),
+((@CGUID+1547)*10, 5, 653.1616, 4443.688, 223.4186, 0, 0, 1, 0, 100, 0),
+((@CGUID+1547)*10, 6, 651.0993, 4447.791, 223.5211, 0, 0, 1, 0, 100, 0),
+((@CGUID+1547)*10, 7, 652.5424, 4452.15, 223.6692, 0, 0, 1, 0, 100, 0),
+((@CGUID+1547)*10, 8, 656.6455, 4454.212, 223.8337, 0, 0, 1, 0, 100, 0),
 -- Thornbranch Scamp
 ((@CGUID+1550)*10, 1, 712.0832, 4354.346, 223.1703, 0, 0, 1, 0, 100, 0),
 ((@CGUID+1550)*10, 2, 714.1454, 4350.243, 223.1193, 0, 0, 1, 0, 100, 0),
@@ -7731,7 +7731,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=13249 WHERE `entry`=55944;
 UPDATE `creature_template` SET `gossip_menu_id`=14671 WHERE `entry`=57721;
 UPDATE `creature_template` SET `gossip_menu_id`=14670 WHERE `entry`=57720;
 UPDATE `creature_template` SET `gossip_menu_id`=13726 WHERE `entry`=56013;
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (57779, 57164, 54568, 60245, 61126, 61127, 54786, 57132, 60253, 60248, 54734, 54135, 59626, 60176, 41200, 54131, 57205, 54943, 60244, 53566, 54586, 65470, 60183, 54611, 59642, 60554, 60042, 55943, 56236, 55946, 56174, 56008, 56360, 56362, 55940, 60895, 60896, 55640, 65102, 65107, 55918, 56663, 56662, 65476, 65477, 56274, 55586, 64506, 64505, 55592, 55665, 57465, 57466, 55633, 57419, 64875, 64876, 64879, 64880, 64881, 64885, 60918, 65044, 65045, 65085, 65086, 66689, 66691, 66692, 65467, 55539, 55506, 60915, 60914, 55556, 57797, 53704, 55022, 55015, 55504, 55483, 56241, 65473, 57712, 55019, 65468, 56393, 56394, 60411, 54976);
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (57779, 57164, 54568, 60245, 61126, 61127, 54786, 57132, 60253, 60248, 54734, 54135, 59626, 60176, 41200, 54131, 57205, 54943, 60244, 53566, 54586, 65470, 60183, 54611, 59642, 60554, 60042, 55943, 56236, 55946, 56174, 56008, 56360, 56362, 55940, 60895, 60896, 55640, 65102, 65107, 55918, 56663, 56662, 65476, 65477, 56274, 55586, 64506, 64505, 55592, 55665, 57465, 57466, 55633, 57419, 64875, 64876, 64879, 64880, 64881, 64885, 60918, 65044, 65045, 65085, 65086, 66689, 66691, 66692, 65467, 55539, 55506, 60915, 60914, 55556, 57797, 53704, 55022, 55015, 55504, 55483, 56241, 65473, 57712, 56393, 56394, 60411, 54976);
 UPDATE `creature_template` SET `flags_extra`=64 WHERE `entry` IN (53714, 57873);
 UPDATE `creature_template` SET `faction`=2104, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `VehicleId`=1953, `AIName`='SmartAI', `HoverHeight`=2 WHERE `entry`=57750;
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry` IN (56739, 60920, 55650, 65559, 65560, 57464, 56172);
@@ -7745,6 +7745,7 @@ UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAtta
 UPDATE `creature_template` SET `lootid`=54130, `AIName`='SmartAI' WHERE `entry`=54130;
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33587976, `unit_flags2`=2048, `AIName`='SmartAI' WHERE `entry`=56550;
 UPDATE `creature_template` SET `npcflag`=16777216, `ScriptName`='npc_balance_pole' WHERE `entry` IN (54993, 57431, 55083);
+UPDATE `creature_template` SET `AIName`='', `ScriptName`='npc_tushui_monk_on_pole' WHERE `entry` IN (55019, 65468); 
 UPDATE `creature_template` SET `npcflag`=16777216 WHERE `entry`=57626;
 UPDATE `creature_template` SET `InhabitType`=4, `ScriptName`='' WHERE `entry`=55123; -- npc_cursed_pool_controller
 UPDATE `creature_template` SET `faction`=2395, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=8, `unit_flags2`=67635200, `AIName`='SmartAI' WHERE `entry` IN (57636, 57667, 57668);
@@ -8693,9 +8694,9 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
 
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceEntry` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944)) OR (`SourceTypeOrReferenceId`=26 AND `SourceGroup` IN (524, 592, 593, 594, 595, 596, 597, 598, 964, 1430, 1510, 1518, 1523, 1526, 1527, 1836, 1885, 879, 903, 1835) AND `SourceEntry`=0);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=25 AND `SourceEntry` IN (975, 976);
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 54567, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710, 7714, 7265) AND `SourceId`=2;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 54567, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710, 7709, 7714, 7265) AND `SourceId`=2;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337, 115345, 115346, 115420, 117973, 117497);
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (54567, 55019, 5501900)) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 102522, 107049, 125961, 115446, 115447, 115334, 115336, 115338, 115493, 115494, 115495)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup`=13140);
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry`=54567) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 102522, 107049, 125961, 115446, 115447, 115351, 115491)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup`=13140);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Phases Specific
 (26, 629, 5825, 0, 0, 28, 0, 29419, 0, 0, 1, 0, 0, '', 'The Dawning Valley Phase 629 until Quest 29419 not complete'), -- phase not updated automatically (removed in SAI)
@@ -8839,6 +8840,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (22, 1, 7106, 2, 0, 1, 0, 106603, 1, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
 (22, 1, 7710, 2, 0, 9, 0, 29792, 0, 0, 0, 0, 0, '', 'SAI only when quest taken'),
 (22, 1, 7710, 2, 0, 48, 0, 263982, 0, 0, 1, 0, 0, '', 'SAI only when player has not completed quest objective'),
+(22, 1, 7709, 2, 0, 9, 0, 29792, 0, 0, 0, 0, 0, '', 'SAI only when quest taken'),
+(22, 1, 7709, 2, 0, 48, 0, 263983, 0, 0, 1, 0, 0, '', 'SAI only when player has not completed quest objective'),
 (22, 1, 7714, 2, 0, 28, 0, 29792, 0, 0, 0, 0, 0, '', 'SAI only when quest complete'),
 (22, 1, 7714, 2, 0, 1, 0, 115644, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
 (22, 1, 7265, 2, 0, 1, 0, 88811, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
@@ -8954,8 +8957,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (18, 54993, 102717, 0, 0, 1, 0, 102938, 0, 0, 1, 0, 0, '', 'Show spellclick only when has not aura'),
 (18, 57431, 102717, 0, 0, 1, 0, 102938, 0, 0, 1, 0, 0, '', 'Show spellclick only when has not aura'),
 (18, 55083, 102717, 0, 0, 1, 0, 102938, 0, 0, 1, 0, 0, '', 'Show spellclick only when has not aura'),
-(22, 5, 55019, 0, 0, 1, 0, 103030, 1, 0, 1, 0, 0, '', 'SAI only when creature has not aura'),
-(22, 1, 5501900, 9, 0, 29, 0, 54123, 80, 0, 0, 0, 0, '', 'SAI only when creature near'),
 (17, 0, 107049, 0, 0, 1, 0, 133381, 0, 0, 1, 30, 0, '', 'Ride Vehicle when player has not aura'),
 (17, 0, 107049, 0, 0, 29, 0, 56869, 8, 0, 0, 30, 0, '', 'Ride Vehicle when bunny within 8y'),
 (15, 13140, 0, 0, 0, 9, 0, 29774, 0, 0, 0, 0, 0, '', 'Show gossip menu option when quest taken'),
@@ -8965,18 +8966,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (18, 55918, 56685, 0, 0, 9, 0, 29791, 0, 0, 0, 0, 0, '', 'Show spellclick only when player has taken quest'),
 (17, 0, 115446, 0, 0, 48, 0, 263982, 0, 0, 1, 0, 0, '', 'See Quest Invis 29 only when quest objective not complete'),
 (17, 0, 115447, 0, 0, 48, 0, 263982, 0, 0, 0, 0, 0, '', 'See Quest Invis 28 only when quest objective complete'),
-(17, 0, 115334, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Aysa when Aysa not within 50y'),
-(17, 0, 115334, 0, 0, 9, 0, 29792, 0, 0, 0, 0, 0, '', 'Summon Aysa when quest taken'),
-(17, 0, 115336, 0, 0, 29, 0, 59988, 50, 0, 1, 0, 0, '', 'Summon Ji when Ji not within 50y'),
-(17, 0, 115336, 0, 0, 9, 0, 29792, 0, 0, 0, 0, 0, '', 'Summon Ji when quest taken'),
-(17, 0, 115338, 0, 0, 29, 0, 59989, 50, 0, 1, 0, 0, '', 'Summon Jojo when Jojo not within 50y'),
-(17, 0, 115338, 0, 0, 9, 0, 29792, 0, 0, 0, 0, 0, '', 'Summon Jojo when quest taken'),
-(17, 0, 115493, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Aysa when Aysa not within 50y'),
-(17, 0, 115493, 0, 0, 28, 0, 29792, 0, 0, 0, 0, 0, '', 'Summon Aysa when quest complete'),
-(17, 0, 115494, 0, 0, 29, 0, 59988, 50, 0, 1, 0, 0, '', 'Summon Ji when Ji not within 50y'),
-(17, 0, 115494, 0, 0, 28, 0, 29792, 0, 0, 0, 0, 0, '', 'Summon Aysa when quest complete'),
-(17, 0, 115495, 0, 0, 29, 0, 59989, 50, 0, 1, 0, 0, '', 'Summon Jojo when Jojo not within 50y'),
-(17, 0, 115495, 0, 0, 28, 0, 29792, 0, 0, 0, 0, 0, '', 'Summon Aysa when quest complete'),
+(17, 0, 115447, 0, 1, 28, 0, 29792, 0, 0, 0, 0, 0, '', 'See Quest Invis 28 only when quest complete'),
+(17, 0, 115447, 0, 2, 8, 0, 29792, 0, 0, 0, 0, 0, '', 'See Quest Invis 28 only when quest rewarded'),
+(17, 0, 115351, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Pei-Wu Gate NPCs when Aysa not within 50y'),
+(17, 0, 115491, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Hermit Hut NPCs when Aysa not within 50y'),
 (18, 55999, 56685, 0, 0, 9, 0, 29794, 0, 0, 0, 0, 0, '', 'Show spellclick only when player has taken quest');
 
 DELETE FROM `phase_area` WHERE `AreaId` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944);
@@ -9801,7 +9794,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (54734, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On Respawn - Set React State'),
 (54734, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 42, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - On Respawn - Set Invincibility'),
 (54734, 0, 2, 3, 0, 0, 100, 0, 6000, 6000, 12000, 12000, 21, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - Update IC - Stop Combat Movement'),
-(54734, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 11, 108958, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - Update IC - Cast Feet of Fury'),
+(54734, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 11, 108958, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - Update IC - Cast Feet of Fury'),
 (54734, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 80, 5473400, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - Update IC - Run Script'),
 (5473400, 9, 0, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 21, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - Allow Combat Movement'),
 (54734, 0, 5, 0, 0, 0, 100, 0, 10000, 10000, 15000, 15000, 11, 108936, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Master Li Fei - Update IC - Cast Flying Shadow Kick'),
@@ -9887,13 +9880,13 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (61126, 0, 1, 0, 38, 0, 100, 0, 1, 1, 0, 0, 80, 6112600, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cludsinger - On Data Set - Run Script'),
 (6112600, 9, 0, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cludsinger - Talk'),
 (6112600, 9, 1, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 53, 1, 6112601, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cludsinger - Start WP'),
-(61126, 0, 2, 0, 58, 0, 100, 0, 14, 61126, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cludsinger - WP Ended - Despawn'),
+(61126, 0, 2, 0, 58, 0, 100, 0, 14, 6112601, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Aysa Cludsinger - WP Ended - Despawn'),
 -- Ji Firepaw
 (61127, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 53, 1, 6112700, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Just Spawned - Start WP'),
 (61127, 0, 1, 0, 38, 0, 100, 0, 1, 1, 0, 0, 80, 6112700, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - On Data Set - Run Script'),
 (6112700, 9, 0, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
 (6112700, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 53, 1, 6112701, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Start WP'),
-(61127, 0, 2, 0, 58, 0, 100, 0, 13, 61127, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - WP Ended - Despawn'),
+(61127, 0, 2, 0, 58, 0, 100, 0, 13, 6112701, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - WP Ended - Despawn'),
 -- Huo
 (54958, 0, 0, 1, 8, 0, 100, 0, 105090, 0, 0, 0, 59, 1, 5, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Huo - On Spellhit - Set Fly'),
 (54958, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 69, 1, 0, 0, 0, 0, 0, 8, 0, 0, 0, 955.1158, 3604.04, 200.718, 0, 'Huo - On Spellhit - Move to Pos'),
@@ -9930,35 +9923,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (6024900, 9, 2, 0, 0, 0, 100, 0, 19000, 19000, 0, 0, 1, 2, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Deng - Talk'),
 (6024900, 9, 3, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 89, 10, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Deng - Random Move'),
 (6024900, 9, 4, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Deng - Despawn'),
--- Tushui Monk
-/*
-(55019, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Respawn - Set Event Phase 1'),
-(55019, 0, 1, 2, 61, 1, 100, 0, 0, 0, 0, 0, 42, 0, 10, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Respawn - Set Invincible'),
-(55019, 0, 2, 0, 61, 1, 100, 0, 0, 0, 0, 0, 86, 103031, 2, 19, 54993, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - On Respawn - Cross Cast Forcecast Ride Vehicle'),
-(55019, 0, 3, 0, 8, 0, 100, 0, 103031, 0, 0, 0, 11, 103030, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - On Spellhit - Cast Ride Vehicle'),
-(55019, 0, 4, 0, 1, 1, 100, 0, 20000, 30000, 20000, 30000, 86, 103031, 2, 19, 54993, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Update OCC - Cross Cast Forcecast Ride Vehicle'),
-(55019, 0, 5, 0, 4, 0, 100, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Respawn - Set Event Phase 2'),
-(55019, 0, 6, 0, 0, 2, 100, 0, 0, 0, 2000, 2000, 11, 109308, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Update IC - Cast Throw Rock'),
-(55019, 0, 7, 8, 2, 2, 100, 1, 0, 10, 0, 0, 18, 33024, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - On 10% HP - Set Unit Flags'),
-(55019, 0, 8, 9, 61, 2, 100, 0, 0, 0, 0, 0, 33, 55019, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - On 10% HP - Kill Credit'),
-(55019, 0, 9, 10, 61, 2, 100, 0, 0, 0, 0, 0, 28, 103030, 0, 0, 0, 0, 0, 19, 54993, 1, 0, 0, 0, 0, 0, 'Tushui Monk - On 10% HP - Remove Aura'),
-(55019, 0, 10, 0, 61, 2, 100, 0, 0, 0, 0, 0, 80, 5501900, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - On 10% HP - Run Script'),
-(5501900, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 11, 109314, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Cast Curse of the Frog'),
-(5501900, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 89, 10, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Random Move'),
-(5501900, 9, 2, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Despawn'),
-
-(65468, 0, 0, 1, 11, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Respawn - Set Event Phase 1'),
-(65468, 0, 1, 2, 61, 1, 100, 0, 0, 0, 0, 0, 42, 0, 10, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Respawn - Set Invincible'),
-(65468, 0, 2, 0, 61, 1, 100, 0, 0, 0, 0, 0, 86, 103031, 2, 19, 54993, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - On Respawn - Cross Cast Forcecast Ride Vehicle'),
-(65468, 0, 3, 0, 8, 0, 100, 0, 103031, 0, 0, 0, 11, 103030, 2, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - On Spellhit - Cast Ride Vehicle'),
-(65468, 0, 4, 0, 1, 1, 100, 0, 20000, 30000, 20000, 30000, 86, 103031, 2, 19, 54993, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Update OCC - Cross Cast Forcecast Ride Vehicle'),
-(65468, 0, 5, 0, 4, 0, 100, 0, 0, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Respawn - Set Event Phase 2'),
-(65468, 0, 6, 0, 0, 2, 100, 0, 0, 0, 2000, 2000, 11, 109308, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - Update IC - Cast Throw Rock'),
-(65468, 0, 7, 8, 2, 2, 100, 1, 0, 10, 0, 0, 18, 33024, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - On 10% HP - Set Unit Flags'),
-(65468, 0, 8, 9, 61, 2, 100, 0, 0, 0, 0, 0, 33, 55019, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - On 10% HP - Kill Credit'),
-(65468, 0, 9, 10, 61, 2, 100, 0, 0, 0, 0, 0, 28, 103030, 0, 0, 0, 0, 0, 19, 54993, 1, 0, 0, 0, 0, 0, 'Tushui Monk - On 10% HP - Remove Aura'),
-(65468, 0, 10, 0, 61, 2, 100, 0, 0, 0, 0, 0, 80, 5501900, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Tushui Monk - On 10% HP - Run Script'),
-*/
 -- Stack of Reeds
 (57636, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 4.921828, 'Stack of Reeds - Just Spawned - Set Orientation'),
 -- Jojo Ironbrow
@@ -10810,6 +10774,52 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (57874, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 18, 520, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Walking Stick - Just Spawned - Add Unit Flags'),
 -- Thornbranch Scamp
 (55640, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+/*
+(-@CGUID-1434, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1434, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1435, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1435, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1448, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1448, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1450, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1450, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1453, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1453, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1455, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1455, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1483, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1483, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1485, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1485, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1497, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1497, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1500, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1500, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1506, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1506, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1516, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1516, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1517, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1517, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1523, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1523, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1524, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1524, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1537, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1537, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1541, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1541, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1545, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1545, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1546, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1546, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1547, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1547, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1550, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1550, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+(-@CGUID-1555, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 131, 6, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - On Respawn - Move Circle'),
+(-@CGUID-1555, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 15000, 20000, 11, 109126, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Thornbranch Scamp - Update IC - Cast Mirror Images'),
+*/
 -- Trigger 7106 The Wood of Staves - Balloon
 (7106, 2, 0, 0, 46, 0, 100, 0, 7106, 0, 0, 0, 86, 106604, 2, 10, @CGUID+1560, 40789, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On Trigger - Cross Cast Forcecast Summon Balloon Arrival Controller'),
 -- Balloon Arrival Controller
