@@ -602,6 +602,7 @@ public:
                     IntroTimer = 2000;
                     break;
                 case 41:
+                    SetEscortPaused(true);
                     IntroPhase = 4;
                     IntroTimer = 2000;
                     break;
@@ -643,14 +644,12 @@ public:
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;
-
                         case 6:
                             if (Player* player = GetPlayerForEscort())
                                 player->AreaExploredOrEventHappens(QUEST_ESCAPE_WINTERFIN_CAVERNS);
                             IntroPhase = 7;
                             IntroTimer = 2500;
                             break;
-
                         case 7:
                             me->DespawnOrUnsummon();
                             IntroPhase = 0;
