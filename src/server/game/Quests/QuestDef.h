@@ -156,7 +156,7 @@ enum QuestFlags : uint32
     QUEST_FLAGS_OBJ_TEXT                    = 0x00040000,   // use Objective text as Complete text
     QUEST_FLAGS_AUTO_ACCEPT                 = 0x00080000,   // The client recognizes this flag as auto-accept.
     QUEST_FLAGS_PLAYER_CAST_ON_ACCEPT       = 0x00100000,
-    QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE     = 0x00200000,   // Automatically suggestion of accepting quest. Not from npc.
+    QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE     = 0x00200000,
     QUEST_FLAGS_UPDATE_PHASE_SHIFT          = 0x00400000,
     QUEST_FLAGS_SOR_WHITELIST               = 0x00800000,
     QUEST_FLAGS_LAUNCH_GOSSIP_COMPLETE      = 0x01000000,
