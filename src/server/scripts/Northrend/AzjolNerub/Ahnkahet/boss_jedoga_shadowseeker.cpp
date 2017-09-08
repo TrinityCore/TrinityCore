@@ -101,7 +101,7 @@ Position const JedogaControllerPositions[3] =
 };
 
 typedef std::pair<Position, Position> VolunteerPositionPair;
-std::vector<VolunteerPositionPair> VolunteerSpotPositions =
+std::vector<VolunteerPositionPair> const VolunteerSpotPositions =
 {
     { { 400.7701f, -784.8928f, -31.60143f }, { 365.9514f, -719.1235f, -16.17974f } },
     { { 397.3595f, -788.5157f, -31.59679f }, { 359.7433f, -715.017f,  -16.17974f } },
@@ -149,9 +149,6 @@ struct boss_jedoga_shadowseeker : public BossAI
         _Reset();
         events.SetPhase(PHASE_INTRO);
         me->SetReactState(REACT_PASSIVE);
-        _initiatesKilled = 0;
-        _volunteerGUIDS.clear();
-        _selectedVolunteerGUID.Clear();
         me->SummonCreatureGroup(SUMMON_GROUP_INITIATES);
 
         if (TempSummon* controller = me->SummonCreature(NPC_JEDOGA_CONTROLLER, JedogaControllerPositions[0], TEMPSUMMON_MANUAL_DESPAWN))
