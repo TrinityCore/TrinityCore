@@ -20,7 +20,6 @@
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "TemporarySummon.h"
 
 enum AmanitarSpells
 {
@@ -38,12 +37,6 @@ enum AmanitarSpells
     SPELL_PUTRID_MUSHROOM                 = 31690,
     SPELL_GROW                            = 57059,
     SPELL_SHRINK                          = 31691
-};
-
-enum AmanitarMisc
-{
-    DATA_POSITION = 1,
-    MAX_MUSHROOMS = 32
 };
 
 enum AmanitarEvents
@@ -96,13 +89,6 @@ struct boss_amanitar : public BossAI
 {
     boss_amanitar(Creature* creature) : BossAI(creature, DATA_AMANITAR) { }
 
-    void Reset() override
-    {
-        _Reset();
-        me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
-        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
-    }
-
     void EnterCombat(Unit* /*who*/) override
     {
         _EnterCombat();
@@ -136,19 +122,14 @@ struct boss_amanitar : public BossAI
 
     void SummonedCreatureDies(Creature* summon, Unit* killer) override
     {
-        uint32 pos = summon->AI()->GetData(DATA_POSITION);
-        _mushroomsQueue.push(pos);
+        _mushroomsDeque.emplace_back(summon->GetPosition());
 
         BossAI::SummonedCreatureDies(summon, killer);
     }
 
-    void SpawnMushroom(uint32 pos)
+    void SpawnMushroom(Position const pos)
     {
-        if (pos >= MAX_MUSHROOMS)
-            return;
-
-        if (TempSummon* summon = me->SummonCreature(roll_chance_i(40) ? NPC_HEALTHY_MUSHROOM : NPC_POISONOUS_MUSHROOM, MushroomPositions[pos], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 4000))
-            summon->AI()->SetData(DATA_POSITION, pos);
+        me->SummonCreature(roll_chance_i(40) ? NPC_HEALTHY_MUSHROOM : NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 4000);
     }
 
     void UpdateAI(uint32 diff) override
@@ -166,11 +147,11 @@ struct boss_amanitar : public BossAI
             switch (eventId)
             {
                 case EVENT_SPAWN:
-                    for (uint32 i = 0; i < MAX_MUSHROOMS; i++)
-                        SpawnMushroom(i);
+                    for (Position const pos : MushroomPositions)
+                        SpawnMushroom(pos);
                     break;
                 case EVENT_MINI:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_MINI))
+                    if (SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_MINI))
                     {
                         DoCastAOE(SPELL_MINI);
                         events.Repeat(Seconds(30));
@@ -191,10 +172,10 @@ struct boss_amanitar : public BossAI
                     events.Repeat(Seconds(18), Seconds(22));
                     break;
                 case EVENT_RESPAWN:
-                    while (!_mushroomsQueue.empty())
+                    while (!_mushroomsDeque.empty())
                     {
-                        SpawnMushroom(_mushroomsQueue.front());
-                        _mushroomsQueue.pop();
+                        SpawnMushroom(_mushroomsDeque.front());
+                        _mushroomsDeque.pop_front();
                     }
                     events.Repeat(Seconds(40), Seconds(60));
                     break;
@@ -210,12 +191,12 @@ struct boss_amanitar : public BossAI
     }
 
     private:
-        std::queue<uint32> _mushroomsQueue;
+        std::deque<Position> _mushroomsDeque;
 };
 
 struct npc_amanitar_mushrooms : public ScriptedAI
 {
-    npc_amanitar_mushrooms(Creature* creature) : ScriptedAI(creature), _active(false), _mySpot(0) { }
+    npc_amanitar_mushrooms(Creature* creature) : ScriptedAI(creature), _active(false) { }
 
     void Reset() override
     {
@@ -262,20 +243,6 @@ struct npc_amanitar_mushrooms : public ScriptedAI
             DoCastAOE(SPELL_POTENT_FUNGUS, true);
     }
 
-    void SetData(uint32 data, uint32 value) override
-    {
-        if (data == DATA_POSITION)
-            _mySpot = value;
-    }
-
-    uint32 GetData(uint32 data) const override
-    {
-        if (data == DATA_POSITION)
-            return _mySpot;
-
-        return 0;
-    }
-
     void UpdateAI(uint32 diff) override
     {
         _scheduler.Update(diff);
@@ -284,7 +251,6 @@ struct npc_amanitar_mushrooms : public ScriptedAI
 private:
     TaskScheduler _scheduler;
     bool _active;
-    uint32 _mySpot;
 };
 
 // 56648 - Potent Fungus
