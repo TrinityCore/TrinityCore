@@ -122,7 +122,7 @@ struct boss_amanitar : public BossAI
 
     void SummonedCreatureDies(Creature* summon, Unit* killer) override
     {
-        _mushroomsDeque.emplace_back(summon->GetPosition());
+        _mushroomsDeque.push_back(summon->GetPosition());
 
         BossAI::SummonedCreatureDies(summon, killer);
     }
@@ -160,7 +160,8 @@ struct boss_amanitar : public BossAI
                         events.Repeat(Seconds(1));
                     break;
                 case EVENT_ROOT:
-                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true), SPELL_ENTANGLING_ROOTS, true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
+                        DoCast(target, SPELL_ENTANGLING_ROOTS, true);
                     events.Repeat(Seconds(10), Seconds(15));
                     break;
                 case EVENT_BASH:
@@ -168,7 +169,8 @@ struct boss_amanitar : public BossAI
                     events.Repeat(Seconds(7), Seconds(12));
                     break;
                 case EVENT_BOLT:
-                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true), SPELL_VENOM_BOLT_VOLLEY, true);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        DoCast(target, SPELL_VENOM_BOLT_VOLLEY, true);
                     events.Repeat(Seconds(18), Seconds(22));
                     break;
                 case EVENT_RESPAWN:
