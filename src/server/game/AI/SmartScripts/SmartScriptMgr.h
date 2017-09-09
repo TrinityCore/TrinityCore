@@ -572,9 +572,8 @@ enum SMART_ACTION
     SMART_ACTION_PLAY_ANIMKIT                       = 128,    // id, type (0 = oneShot, 1 = aiAnim, 2 = meleeAnim, 3 = movementAnim)
     SMART_ACTION_SCENE_PLAY                         = 129,    // sceneId
     SMART_ACTION_SCENE_CANCEL                       = 130,    // sceneId
-    SMART_ACTION_MOVE_CIRCLE                        = 131,    // radius, clockwise, steps, walk (0/1)
 
-    SMART_ACTION_END                                = 132
+    SMART_ACTION_END                                = 131
 };
 
 struct SmartAction

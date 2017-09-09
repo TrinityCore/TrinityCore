@@ -2646,27 +2646,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
-        case SMART_ACTION_MOVE_CIRCLE:
-        {
-            ObjectList* targets = GetTargets(e, unit);
-            if (!targets)
-                break;
-
-            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-            {
-                if (IsCreature((*itr)))
-                {
-                    if (e.action.moveCircle.radius)
-                        (*itr)->ToCreature()->GetMotionMaster()->MoveCirclePath((*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ(), (float)e.action.moveCircle.radius,
-                            e.action.moveCircle.clockwise != 0, e.action.moveCircle.steps, e.action.moveCircle.run != 0);
-                    else
-                        (*itr)->ToCreature()->GetMotionMaster()->MoveIdle();
-                }
-            }
-
-            delete targets;
-            break;
-        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry " SI64FMTD " SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
