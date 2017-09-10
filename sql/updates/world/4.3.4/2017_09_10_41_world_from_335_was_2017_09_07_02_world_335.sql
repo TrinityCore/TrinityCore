@@ -1,3 +1,4 @@
+/*
 -- Moonstalker Matriarch
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=2071;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2071;
@@ -272,3 +273,4 @@ DELETE FROM `creature_addon` WHERE `guid` IN (36898, 36904, 36907, 36924, 36938,
 UPDATE `creature` SET `position_x`=6594.56, `position_y`=313.645, `position_z`=28.3839 WHERE `guid`=36643;
 UPDATE `creature` SET `position_x`=4424.85, `position_y`=422.488, `position_z`=56.4554 WHERE `guid`=36794;
 UPDATE `creature` SET `position_x`=7742.69, `position_y`=-1067.14, `position_z`=38.1206 WHERE `guid`=36959;
+*/

@@ -1,3 +1,4 @@
+/*
 -- Farmer Furlbrow
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=237;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=237;
@@ -8,3 +9,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=237;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (237,0,0,"Can't believe the forsaken wagon broke down.  Ain't no luck to be had in this land....",12,7,100,0,0,0,56,0,"Farmer Furlbrow"),
 (237,0,1,"We'll be out of here just as soon as I get this wagon fixed....",12,7,100,0,0,0,57,0,"Farmer Furlbrow");
+*/
