@@ -20,6 +20,7 @@
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 
@@ -106,6 +107,9 @@ public:
                     LordVictorNefarius = creature->GetGUID();
                     if (GetBossState(DATA_GYTH) == DONE)
                         creature->DisappearAndDie();
+                    break;
+                case NPC_SCARSHIELD_INFILTRATOR:
+                    ScarshieldInfiltrator = creature->GetGUID();
                     break;
              }
          }
@@ -316,6 +320,8 @@ public:
                     return TheBeast;
                 case DATA_GENERAL_DRAKKISATH:
                     return GeneralDrakkisath;
+                case DATA_SCARSHIELD_INFILTRATOR:
+                    return ScarshieldInfiltrator;
                 case GO_EMBERSEER_IN:
                     return go_emberseerin;
                 case GO_DOORS:
@@ -494,6 +500,7 @@ public:
             ObjectGuid LordVictorNefarius;
             ObjectGuid TheBeast;
             ObjectGuid GeneralDrakkisath;
+            ObjectGuid ScarshieldInfiltrator;
             ObjectGuid go_emberseerin;
             ObjectGuid go_doors;
             ObjectGuid go_emberseerout;
@@ -563,9 +570,33 @@ public:
     }
 };
 
+class at_nearby_scarshield_infiltrator : public AreaTriggerScript
+{
+public:
+    at_nearby_scarshield_infiltrator() : AreaTriggerScript("at_nearby_scarshield_infiltrator") { }
+
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/, bool /*entered*/) override
+    {
+        if (player && player->IsAlive())
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (Creature* infiltrator = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SCARSHIELD_INFILTRATOR)))
+                {
+                    if (player->getLevel() >= 57)
+                        infiltrator->AI()->SetData(1, 1);
+                    else if (infiltrator->GetEntry() == NPC_SCARSHIELD_INFILTRATOR)
+                        infiltrator->AI()->Talk(0, player);
+
+                    return true;
+                }
+
+        return false;
+    }
+};
+
 void AddSC_instance_blackrock_spire()
 {
     new instance_blackrock_spire();
     new at_dragonspire_hall();
     new at_blackrock_stadium();
+    new at_nearby_scarshield_infiltrator();
 }

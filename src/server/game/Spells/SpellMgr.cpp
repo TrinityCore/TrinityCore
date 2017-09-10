@@ -837,7 +837,8 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
         return true;
 
     // do triggered cast checks
-    if (!(procEntry.AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC))
+    // Do not consider autoattacks as triggered spells
+    if (!(procEntry.AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
     {
         if (Spell const* spell = eventInfo.GetProcSpell())
         {
@@ -1894,11 +1895,14 @@ void SpellMgr::LoadSpellProcs()
 
         SpellProcEntry procEntry;
         procEntry.SchoolMask      = 0;
-        procEntry.SpellFamilyName = spellInfo->SpellFamilyName;
         procEntry.ProcFlags = spellInfo->ProcFlags;
+        procEntry.SpellFamilyName = 0;
         for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
             if (effect && effect->IsEffect() && isTriggerAura[effect->ApplyAuraName])
                 procEntry.SpellFamilyMask |= effect->SpellClassMask;
+
+        if (procEntry.SpellFamilyMask)
+            procEntry.SpellFamilyName = spellInfo->SpellFamilyName;
 
         procEntry.SpellTypeMask   = PROC_SPELL_TYPE_MASK_ALL;
         procEntry.SpellPhaseMask  = PROC_SPELL_PHASE_HIT;
@@ -3191,6 +3195,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 42793 }, [](SpellInfo* spellInfo)
     {
         const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_2))->MiscValue = 24008; // Fallen Combatant
+    });
+
+    // Gift of the Naaru (priest and monk variants)
+    ApplySpellFix({ 59544, 121093 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->SpellFamilyFlags[2] = 0x80000000;
     });
 
     //

@@ -405,7 +405,11 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), 45));
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 damage = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), 45);
                 GetTarget()->CastCustomSpell(SPELL_MIRRORED_SOUL_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetCaster(), true);
             }
 

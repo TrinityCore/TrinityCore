@@ -177,7 +177,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_HEROIC_TOOLTIP                    = 0x00000008, // Makes green "Heroic" text appear on item
     ITEM_FLAG_DEPRECATED                        = 0x00000010, // Cannot equip or use
     ITEM_FLAG_NO_USER_DESTROY                   = 0x00000020, // Item can not be destroyed, except by using spell (item can be reagent for spell)
-    ITEM_FLAG_PLAYERCAST                        = 0x00000040,
+    ITEM_FLAG_PLAYERCAST                        = 0x00000040, // Item's spells are castable by players
     ITEM_FLAG_NO_EQUIP_COOLDOWN                 = 0x00000080, // No default 30 seconds cooldown when equipped
     ITEM_FLAG_MULTI_LOOT_QUEST                  = 0x00000100,
     ITEM_FLAG_IS_WRAPPER                        = 0x00000200, // Item can wrap other items
@@ -185,7 +185,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_MULTI_DROP                        = 0x00000800, // Looting this item does not remove it from available loot
     ITEM_FLAG_ITEM_PURCHASE_RECORD              = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
     ITEM_FLAG_PETITION                          = 0x00002000, // Item is guild or arena charter
-    ITEM_FLAG_HAS_TEXT                          = 0x00004000,
+    ITEM_FLAG_HAS_TEXT                          = 0x00004000, // Only readable items have this (but not all)
     ITEM_FLAG_NO_DISENCHANT                     = 0x00008000,
     ITEM_FLAG_REAL_DURATION                     = 0x00010000,
     ITEM_FLAG_NO_CREATOR                        = 0x00020000,
@@ -193,7 +193,7 @@ enum ItemFlags : uint32
     ITEM_FLAG_UNIQUE_EQUIPPABLE                 = 0x00080000, // You can only equip one of these
     ITEM_FLAG_IGNORE_FOR_AURAS                  = 0x00100000,
     ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS = 0x00200000, // Item can be used during arena match
-    ITEM_FLAG_NO_DURABILITY_LOSS                = 0x00400000,
+    ITEM_FLAG_NO_DURABILITY_LOSS                = 0x00400000, // Some Thrown weapons have it (and only Thrown) but not all
     ITEM_FLAG_USE_WHEN_SHAPESHIFTED             = 0x00800000, // Item can be used in shapeshift forms
     ITEM_FLAG_HAS_QUEST_GLOW                    = 0x01000000,
     ITEM_FLAG_HIDE_UNUSABLE_RECIPE              = 0x02000000, // Profession recipes: can only be looted if you meet requirements and don't already know it
