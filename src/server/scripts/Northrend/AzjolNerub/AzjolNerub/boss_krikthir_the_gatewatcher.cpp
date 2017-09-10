@@ -132,7 +132,7 @@ class boss_krik_thir : public CreatureScript
 
         struct boss_krik_thirAI : public BossAI
         {
-            boss_krik_thirAI(Creature* creature) : BossAI(creature, DATA_KRIKTHIR), _hadGreet(false), _hadFrenzy(false), _petsInCombat(false), _watchersActive(0) { }
+            boss_krik_thirAI(Creature* creature) : BossAI(creature, DATA_KRIKTHIR), _hadFrenzy(false), _petsInCombat(false), _watchersActive(0) { }
 
             void SummonAdds()
             {
@@ -212,9 +212,9 @@ class boss_krik_thir : public CreatureScript
                 switch (action)
                 {
                     case -ACTION_GATEWATCHER_GREET:
-                        if (!_hadGreet && me->IsAlive() && !me->IsInCombat() && !_petsInCombat)
+                        if (!instance->GetData(DATA_GATEWATCHER_GREET) && me->IsAlive() && !me->IsInCombat() && !_petsInCombat)
                         {
-                            _hadGreet = true;
+                            instance->SetData(DATA_GATEWATCHER_GREET, 1);
                             Talk(SAY_PREFIGHT);
                         }
                         break;
@@ -307,7 +307,6 @@ class boss_krik_thir : public CreatureScript
             }
 
             private:
-                bool _hadGreet;
                 bool _hadFrenzy;
                 bool _petsInCombat;
                 uint8 _watchersActive;
