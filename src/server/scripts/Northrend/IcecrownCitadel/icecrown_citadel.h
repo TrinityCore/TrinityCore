@@ -121,7 +121,8 @@ enum ICDataTypes
     DATA_ENEMY_GUNSHIP                 = 40,
     DATA_UPPERSPIRE_TELE_ACT           = 41, /// also used by conditions
     DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL = 42,
-    DATA_BLOOD_PRINCE_COUNCIL_INTRO    = 43
+    DATA_BLOOD_PRINCE_COUNCIL_INTRO    = 43,
+    DATA_SINDRAGOSA_INTRO              = 44
 };
 
 enum ICCreaturesIds
