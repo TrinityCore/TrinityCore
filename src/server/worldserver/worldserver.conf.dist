@@ -1112,6 +1112,14 @@ MaxRecruitAFriendBonusDistance = 100
 MailDeliveryDelay = 3600
 
 #
+#    CleanOldMailTime
+#        Description: The hour at which the server will be return old mails or delete them.
+#                     This can be between 0 and 23. 20 will be 8pm server time
+#        Default:     4 - 4am
+
+CleanOldMailTime = 4
+
+#
 #    SkillChance.Prospecting
 #        Description: Allow skill increase from prospecting.
 #        Default:     0 - (Disabled)
