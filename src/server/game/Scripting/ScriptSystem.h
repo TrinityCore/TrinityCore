@@ -27,8 +27,6 @@
 class Creature;
 struct SplineChainLink;
 
-#define TEXT_SOURCE_RANGE -1000000 // the amount of entries each text source has available
-
 class TC_GAME_API SystemMgr
 {
     public:
