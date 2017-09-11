@@ -1401,6 +1401,7 @@ enum Enraged_Dpirits
 
     // ENRAGED FIRE SPIRIT SPELLS - Will be using the enrage spell from Air Spirit
     SPELL_FEL_FIREBALL                      = 36247,
+    SPELL_FEL_FIRE_AURA                     = 36006, // Earth spirit uses this one
 
     // ENRAGED EARTH SPIRIT SPELLS
     SPELL_FIERY_BOULDER                     = 38498,
@@ -1461,13 +1462,17 @@ public:
                     _events.ScheduleEvent(EVENT_ENRAGED_WATER_SPIRIT, Seconds(0), Seconds(1));
                     break;
                 case NPC_ENRAGED_FIRE_SPIRIT:
-                    _events.ScheduleEvent(EVENT_ENRAGED_FIRE_SPIRIT, Seconds(0), Seconds(1));
+                    if (!me->GetAura(SPELL_FEL_FIRE_AURA))
+                        DoCastSelf(SPELL_FEL_FIRE_AURA);
+                    _events.ScheduleEvent(EVENT_ENRAGED_FIRE_SPIRIT, Seconds(2), Seconds(10));
                     break;
                 case NPC_ENRAGED_EARTH_SPIRIT:
-                    _events.ScheduleEvent(EVENT_ENRAGED_EARTH_SPIRIT, Seconds(0), Seconds(1));
+                    if (!me->GetAura(SPELL_FEL_FIRE_AURA))
+                        DoCastSelf(SPELL_FEL_FIRE_AURA);
+                    _events.ScheduleEvent(EVENT_ENRAGED_EARTH_SPIRIT, Seconds(3), Seconds(4));
                     break;
                 case NPC_ENRAGED_AIR_SPIRIT:
-                    _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, Seconds(0), Seconds(1));
+                    _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, Seconds(10));
                     break;
                 default:
                     break;
@@ -1487,17 +1492,17 @@ public:
                     case EVENT_ENRAGED_WATER_SPIRIT:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_STORMBOLT);
-                        _events.Repeat(Seconds(6), Seconds(9));
+                        _events.Repeat(Seconds(17), Seconds(23));
                         break;
                     case EVENT_ENRAGED_FIRE_SPIRIT:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_FEL_FIREBALL);
-                        _events.Repeat(Seconds(7), Seconds(9));
+                        _events.Repeat(Seconds(6), Seconds(12));
                         break;
                     case EVENT_ENRAGED_EARTH_SPIRIT:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_FIERY_BOULDER);
-                        _events.Repeat(Seconds(2), Seconds(3));
+                        _events.Repeat(Seconds(6), Seconds(9));
                         break;
                     case EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING:
                         if (UpdateVictim())
@@ -1507,7 +1512,7 @@ public:
                     case EVENT_ENRAGED_AIR_SPIRIT_HURRICANE:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_HURRICANE);
-                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, Seconds(10), Seconds(13));
+                        _events.ScheduleEvent(EVENT_ENRAGED_AIR_SPIRIT_CHAIN_LIGHTNING, Seconds(15), Seconds(20));
                         break;
                     default:
                         break;
