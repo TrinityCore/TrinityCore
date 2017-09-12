@@ -1,3 +1,4 @@
+/*
 -- 
 -- Cliff Stormer
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=4008;
@@ -365,3 +366,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (11918,0,0,"You NO take candle!",12,0,100,0,0,0,16658,0,"Gogger Stonepounder"),
 (11918,0,1,"Yiieeeee! Me run!",12,0,100,0,0,0,1864,0,"Gogger Stonepounder"),
 (11918,0,2,"No kill me! No kill me!",12,0,100,0,0,0,1863,0,"Gogger Stonepounder");
+*/
