@@ -6854,7 +6854,7 @@ bool Spell::CheckEffectTarget(Item const* /*target*/, SpellEffectInfo const* eff
 
 bool Spell::IsNextMeleeSwingSpell() const
 {
-    return m_spellInfo->HasAttribute(SPELL_ATTR0_ON_NEXT_SWING | SPELL_ATTR0_ON_NEXT_SWING_2);
+    return m_spellInfo->HasAttribute(SpellAttr0(SPELL_ATTR0_ON_NEXT_SWING | SPELL_ATTR0_ON_NEXT_SWING_2));
 }
 
 bool Spell::IsTriggered() const
