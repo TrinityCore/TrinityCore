@@ -53,6 +53,7 @@ class Player;
 class TempSummon;
 class Transport;
 class Unit;
+class Weather;
 class WorldObject;
 class WorldPacket;
 struct MapDifficulty;
@@ -264,6 +265,7 @@ struct ZoneDynamicInfo
     ZoneDynamicInfo();
 
     uint32 MusicId;
+    std::unique_ptr<Weather> DefaultWeather;
     WeatherState WeatherId;
     float WeatherGrade;
     uint32 OverrideLightId;
@@ -595,9 +597,12 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
-        void SendZoneDynamicInfo(Player* player);
+        void SendZoneDynamicInfo(uint32 zoneId, Player* player) const;
+        void SendZoneWeather(uint32 zoneId, Player* player) const;
+        void SendZoneWeather(ZoneDynamicInfo const& zoneDynamicInfo, Player* player) const;
 
         void SetZoneMusic(uint32 zoneId, uint32 musicId);
+        Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);
         void SetZoneWeather(uint32 zoneId, WeatherState weatherId, float weatherGrade);
         void SetZoneOverrideLight(uint32 zoneId, uint32 lightId, uint32 fadeInTime);
 
@@ -856,6 +861,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::unordered_map<uint32, uint32> _zonePlayerCountMap;
 
         ZoneDynamicInfoMap _zoneDynamicInfo;
+        IntervalTimer _weatherUpdateTimer;
         uint32 _defaultLight;
 
         template<HighGuid high>
