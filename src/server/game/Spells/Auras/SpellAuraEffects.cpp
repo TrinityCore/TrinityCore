@@ -6333,24 +6333,9 @@ void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mod
         return;
 
     if (apply)
-    {
-        WorldPackets::Misc::Weather weather(WeatherState(GetMiscValue()), 1.0f);
-        target->SendDirectMessage(weather.Write());
-    }
+        target->SendDirectMessage(WorldPackets::Misc::Weather(WeatherState(GetMiscValue()), 1.0f).Write());
     else
-    {
-        // send weather for current zone
-        if (Weather* weather = WeatherMgr::FindWeather(target->GetZoneId()))
-            weather->SendWeatherUpdateToPlayer(target);
-        else
-        {
-            if (!WeatherMgr::AddWeather(target->GetZoneId()))
-            {
-                // send fine weather packet to remove old weather
-                WeatherMgr::SendFineWeatherUpdateToPlayer(target);
-            }
-        }
-    }
+        target->GetMap()->SendZoneWeather(target->GetZoneId(), target);
 }
 
 void AuraEffect::HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const
