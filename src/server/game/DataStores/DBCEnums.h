@@ -713,7 +713,7 @@ enum ItemBonusType
     ITEM_BONUS_SCALING_STAT_DISTRIBUTION    = 11,
     ITEM_BONUS_DISENCHANT_LOOT_ID           = 12,
     ITEM_BONUS_SCALING_STAT_DISTRIBUTION_2  = 13,
-    ITEM_BONUS_ITEM_LEVEL_OVERRIDE          = 14,
+    ITEM_BONUS_ITEM_LEVEL_CAN_INCREASE      = 14,                 // Displays a + next to item level indicating it can warforge
     ITEM_BONUS_RANDOM_ENCHANTMENT           = 15,                 // Responsible for showing "<Random additional stats>" or "+%d Rank Random Minor Trait" in the tooltip before item is obtained
     ITEM_BONUS_BONDING                      = 16,
     ITEM_BONUS_RELIC_TYPE                   = 17
