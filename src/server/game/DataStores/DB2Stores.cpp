@@ -140,6 +140,7 @@ DB2Storage<ItemDisenchantLootEntry>             sItemDisenchantLootStore("ItemDi
 DB2Storage<ItemEffectEntry>                     sItemEffectStore("ItemEffect.db2", ItemEffectLoadInfo::Instance());
 DB2Storage<ItemEntry>                           sItemStore("Item.db2", ItemLoadInfo::Instance());
 DB2Storage<ItemExtendedCostEntry>               sItemExtendedCostStore("ItemExtendedCost.db2", ItemExtendedCostLoadInfo::Instance());
+DB2Storage<ItemLevelSelectorEntry>              sItemLevelSelectorStore("ItemLevelSelector.db2", ItemLevelSelectorLoadInfo::Instance());
 DB2Storage<ItemLimitCategoryEntry>              sItemLimitCategoryStore("ItemLimitCategory.db2", ItemLimitCategoryLoadInfo::Instance());
 DB2Storage<ItemModifiedAppearanceEntry>         sItemModifiedAppearanceStore("ItemModifiedAppearance.db2", ItemModifiedAppearanceLoadInfo::Instance());
 DB2Storage<ItemPriceBaseEntry>                  sItemPriceBaseStore("ItemPriceBase.db2", ItemPriceBaseLoadInfo::Instance());
@@ -346,6 +347,7 @@ namespace
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
+    std::unordered_map<int16, uint16> _selectorToBonus;
     std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> _pvpRewardPack;
     QuestPackageItemContainer _questPackages;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
@@ -548,6 +550,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemEffectStore);
     LOAD_DB2(sItemStore);
     LOAD_DB2(sItemExtendedCostStore);
+    LOAD_DB2(sItemLevelSelectorStore);
     LOAD_DB2(sItemLimitCategoryStore);
     LOAD_DB2(sItemModifiedAppearanceStore);
     LOAD_DB2(sItemPriceBaseStore);
@@ -793,7 +796,14 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         _glyphRequiredSpecs[glyphRequiredSpec->GlyphPropertiesID].push_back(glyphRequiredSpec->ChrSpecializationID);
 
     for (ItemBonusEntry const* bonus : sItemBonusStore)
+    {
         _itemBonusLists[bonus->BonusListID].push_back(bonus);
+
+        if (bonus->Type == ITEM_BONUS_ITEM_LEVEL &&
+            ((bonus->BonusListID >= 1372 && bonus->BonusListID <= 1672) || // -100 to 200
+            (bonus->BonusListID >= 2829 && bonus->BonusListID <= 3329))) // -400 to -101 & 201 - 400
+            _selectorToBonus[bonus->Value[0]] = bonus->BonusListID;
+    }
 
     for (ItemBonusListLevelDeltaEntry const* itemBonusListLevelDelta : sItemBonusListLevelDeltaStore)
         _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta->Delta] = itemBonusListLevelDelta->ID;
@@ -1499,6 +1509,11 @@ uint32 DB2Manager::GetItemBonusListForItemLevelDelta(int16 delta) const
 std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const
 {
     std::set<uint32> bonusListIDs;
+
+    ItemSparseEntry const* proto = sItemSparseStore.LookupEntry(itemId);
+    if (!proto)
+        return bonusListIDs;
+
     auto itemIdRange = _itemToBonusTree.equal_range(itemId);
     if (itemIdRange.first == itemIdRange.second)
         return bonusListIDs;
@@ -1510,8 +1525,27 @@ std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTre
             continue;
 
         for (ItemBonusTreeNodeEntry const* bonusTreeNode : treeItr->second)
-            if (bonusTreeNode->BonusTreeModID == itemBonusTreeMod)
+        {
+            if (bonusTreeNode->BonusTreeModID != itemBonusTreeMod)
+                continue;
+            
+            if (bonusTreeNode->BonusListID)
+            {
                 bonusListIDs.insert(bonusTreeNode->BonusListID);
+            }
+            else if (bonusTreeNode->ItemLevelSelectorID)
+            {
+                ItemLevelSelectorEntry const* selector = sItemLevelSelectorStore.LookupEntry(bonusTreeNode->ItemLevelSelectorID);
+                if (!selector)
+                    continue;
+
+                int16 levelChange = int16(selector->ItemLevel) - proto->ItemLevel;
+                
+                auto itr = _selectorToBonus.find(levelChange);
+                if (itr != _selectorToBonus.end())
+                    bonusListIDs.insert(itr->second);
+            }
+        }
     }
 
     return bonusListIDs;
