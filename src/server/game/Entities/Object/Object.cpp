@@ -1105,7 +1105,7 @@ void WorldObject::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
-InstanceScript* WorldObject::GetInstanceScript()
+InstanceScript* WorldObject::GetInstanceScript() const
 {
     Map* map = GetMap();
     return map->IsDungeon() ? ((InstanceMap*)map)->GetInstanceScript() : nullptr;
