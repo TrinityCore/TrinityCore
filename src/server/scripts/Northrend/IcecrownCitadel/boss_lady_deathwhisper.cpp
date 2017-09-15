@@ -203,7 +203,7 @@ class boss_lady_deathwhisper : public CreatureScript
         struct boss_lady_deathwhisperAI : public BossAI
         {
             boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER),
-                _dominateMindCount(RAID_MODE<uint8>(0, 1, 1, 3)), _introDone(false)
+                _dominateMindCount(RAID_MODE<uint8>(0, 1, 1, 3))
             {
                 Initialize();
             }
@@ -237,43 +237,39 @@ class boss_lady_deathwhisper : public CreatureScript
                 if (action != ACTION_START_INTRO)
                     return;
 
-                if (!_introDone)
+                Talk(SAY_INTRO_1);
+                _phase = PHASE_INTRO;
+                scheduler.Schedule(Seconds(10), GROUP_INTRO, [this](TaskContext context)
                 {
-                    _introDone = true;
-                    Talk(SAY_INTRO_1);
-                    _phase = PHASE_INTRO;
-                    scheduler.Schedule(Seconds(10), GROUP_INTRO, [this](TaskContext context)
+                    switch (context.GetRepeatCounter())
                     {
-                        switch (context.GetRepeatCounter())
-                        {
-                            case 0:
-                                Talk(SAY_INTRO_2);
-                                context.Repeat(Seconds(21));
-                                break;
-                            case 1:
-                                Talk(SAY_INTRO_3);
-                                context.Repeat(Seconds(11));
-                                break;
-                            case 2:
-                                Talk(SAY_INTRO_4);
-                                context.Repeat(Seconds(9));
-                                break;
-                            case 3:
-                                Talk(SAY_INTRO_5);
-                                context.Repeat(Seconds(21));
-                                break;
-                            case 4:
-                                Talk(SAY_INTRO_6);
-                                context.Repeat(Seconds(10));
-                                break;
-                            case 5:
-                                Talk(SAY_INTRO_7);
-                                return;
-                            default:
-                                break;
-                        }
-                    });
-                }
+                        case 0:
+                            Talk(SAY_INTRO_2);
+                            context.Repeat(Seconds(21));
+                            break;
+                        case 1:
+                            Talk(SAY_INTRO_3);
+                            context.Repeat(Seconds(11));
+                            break;
+                        case 2:
+                            Talk(SAY_INTRO_4);
+                            context.Repeat(Seconds(9));
+                            break;
+                        case 3:
+                            Talk(SAY_INTRO_5);
+                            context.Repeat(Seconds(21));
+                            break;
+                        case 4:
+                            Talk(SAY_INTRO_6);
+                            context.Repeat(Seconds(10));
+                            break;
+                        case 5:
+                            Talk(SAY_INTRO_7);
+                            return;
+                        default:
+                            break;
+                    }
+                });
             }
 
             void AttackStart(Unit* victim) override
@@ -585,7 +581,6 @@ class boss_lady_deathwhisper : public CreatureScript
             uint32 _waveCounter;
             uint8 const _dominateMindCount;
             uint8 _phase;
-            bool _introDone;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -1022,12 +1017,12 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
         }
 };
 
-class at_lady_deathwhisper_entrance : public AreaTriggerScript
+class at_lady_deathwhisper_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_lady_deathwhisper_entrance() : AreaTriggerScript("at_lady_deathwhisper_entrance") { }
+        at_lady_deathwhisper_entrance() : OnlyOnceAreaTriggerScript("at_lady_deathwhisper_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetBossState(DATA_LADY_DEATHWHISPER) != DONE)

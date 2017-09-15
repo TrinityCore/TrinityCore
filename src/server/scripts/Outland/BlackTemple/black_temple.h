@@ -40,25 +40,22 @@ enum BTDataTypes
 
     // Additional Data
     DATA_AKAMA_SHADE                = 9,
-
     DATA_AKAMA                      = 10,
     DATA_MAIEV                      = 11,
     DATA_GO_ILLIDAN_GATE            = 12,
     DATA_BLACK_TEMPLE_TRIGGER       = 13,
-
     DATA_GATHIOS_THE_SHATTERER      = 14,
     DATA_HIGH_NETHERMANCER_ZEREVOR  = 15,
     DATA_LADY_MALANDE               = 16,
     DATA_VERAS_DARKSHADOW           = 17,
     DATA_BLOOD_ELF_COUNCIL_VOICE    = 18,
-
     DATA_GO_DEN_OF_MORTAL_DOOR      = 19,
-
     DATA_ESSENCE_OF_SUFFERING       = 20,
     DATA_ESSENCE_OF_DESIRE          = 21,
     DATA_ESSENCE_OF_ANGER           = 22,
-
     DATA_ILLIDAN_MUSIC_CONTROLLER   = 23,
+    DATA_TERON_GOREFIEND_INTRO      = 24,
+    DATA_AKAMA_ILLIDAN_INTRO        = 25
 };
 
 enum TriggerEmotes
