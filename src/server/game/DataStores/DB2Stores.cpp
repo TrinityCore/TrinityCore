@@ -347,7 +347,6 @@ namespace
     NameValidationRegexContainer _nameValidators;
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
-    std::unordered_map<int16, uint16> _selectorToBonus;
     std::unordered_map<std::pair<uint32 /*prestige level*/, uint32 /*honor level*/>, uint32> _pvpRewardPack;
     QuestPackageItemContainer _questPackages;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
@@ -796,14 +795,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
         _glyphRequiredSpecs[glyphRequiredSpec->GlyphPropertiesID].push_back(glyphRequiredSpec->ChrSpecializationID);
 
     for (ItemBonusEntry const* bonus : sItemBonusStore)
-    {
         _itemBonusLists[bonus->BonusListID].push_back(bonus);
-
-        if (bonus->Type == ITEM_BONUS_ITEM_LEVEL &&
-            ((bonus->BonusListID >= 1372 && bonus->BonusListID <= 1672) || // -100 to 200
-            (bonus->BonusListID >= 2829 && bonus->BonusListID <= 3329))) // -400 to -101 & 201 - 400
-            _selectorToBonus[bonus->Value[0]] = bonus->BonusListID;
-    }
 
     for (ItemBonusListLevelDeltaEntry const* itemBonusListLevelDelta : sItemBonusListLevelDeltaStore)
         _itemLevelDeltaToBonusListContainer[itemBonusListLevelDelta->Delta] = itemBonusListLevelDelta->ID;
@@ -1539,11 +1531,10 @@ std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTre
                 if (!selector)
                     continue;
 
-                int16 levelChange = int16(selector->ItemLevel) - proto->ItemLevel;
-                
-                auto itr = _selectorToBonus.find(levelChange);
-                if (itr != _selectorToBonus.end())
-                    bonusListIDs.insert(itr->second);
+                int16 delta = int16(selector->ItemLevel) - proto->ItemLevel;
+
+                if (uint32 bonus = GetItemBonusListForItemLevelDelta(delta))
+                    bonusListIDs.insert(bonus);
             }
         }
     }
