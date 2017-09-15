@@ -2170,21 +2170,18 @@ uint32 Item::GetItemLevel(Player const* owner) const
         return MIN_ITEM_LEVEL;
 
     uint32 itemLevel = stats->GetBaseItemLevel();
-    if (_bonusData.HasItemLevelBonus || !_bonusData.ItemLevelOverride)
+    if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
     {
-        if (ScalingStatDistributionEntry const* ssd = sScalingStatDistributionStore.LookupEntry(GetScalingStatDistribution()))
-        {
-            uint32 level = owner->getLevel();
-            if (uint32 fixedLevel = GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL))
-                level = fixedLevel;
-            if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, level)))
-                itemLevel = heirloomIlvl;
-        }
-
-        itemLevel += _bonusData.ItemLevelBonus;
+        uint32 level = owner->getLevel();
+        if (uint32 fixedLevel = GetModifier(ITEM_MODIFIER_SCALING_STAT_DISTRIBUTION_FIXED_LEVEL))
+            level = fixedLevel;
+        else
+            level = std::min(std::max(level, ssd->MinLevel), ssd->MaxLevel);
+        if (uint32 heirloomIlvl = uint32(sDB2Manager.GetCurveValueAt(ssd->ItemLevelCurveID, level)))
+            itemLevel = heirloomIlvl;
     }
-    else
-        itemLevel = _bonusData.ItemLevelOverride;
+
+    itemLevel += _bonusData.ItemLevelBonus;
 
     if (ItemUpgradeEntry const* upgrade = sItemUpgradeStore.LookupEntry(GetModifier(ITEM_MODIFIER_UPGRADE_ID)))
         itemLevel += upgrade->ItemLevelBonus;
@@ -2509,13 +2506,11 @@ void BonusData::Initialize(ItemTemplate const* proto)
     AppearanceModID = 0;
     RepairCostMultiplier = 1.0f;
     ScalingStatDistribution = proto->GetScalingStatDistribution();
-    ItemLevelOverride = 0;
     RelicType = -1;
     HasItemLevelBonus = false;
 
     _state.AppearanceModPriority = std::numeric_limits<int32>::max();
     _state.ScalingStatDistributionPriority = std::numeric_limits<int32>::max();
-    _state.ItemLevelOverridePriority = std::numeric_limits<int32>::max();
     _state.HasQualityBonus = false;
 }
 
@@ -2597,13 +2592,6 @@ void BonusData::AddBonus(uint32 type, int32 const (&values)[2])
             {
                 ScalingStatDistribution = static_cast<uint32>(values[0]);
                 _state.ScalingStatDistributionPriority = values[1];
-            }
-            break;
-        case ITEM_BONUS_ITEM_LEVEL_OVERRIDE:
-            if (values[1] < _state.ItemLevelOverridePriority)
-            {
-                ItemLevelOverride = static_cast<uint32>(values[0]);
-                _state.ItemLevelOverridePriority = values[1];
             }
             break;
         case ITEM_BONUS_BONDING:
