@@ -140,6 +140,7 @@ DB2Storage<ItemDisenchantLootEntry>             sItemDisenchantLootStore("ItemDi
 DB2Storage<ItemEffectEntry>                     sItemEffectStore("ItemEffect.db2", ItemEffectLoadInfo::Instance());
 DB2Storage<ItemEntry>                           sItemStore("Item.db2", ItemLoadInfo::Instance());
 DB2Storage<ItemExtendedCostEntry>               sItemExtendedCostStore("ItemExtendedCost.db2", ItemExtendedCostLoadInfo::Instance());
+DB2Storage<ItemLevelSelectorEntry>              sItemLevelSelectorStore("ItemLevelSelector.db2", ItemLevelSelectorLoadInfo::Instance());
 DB2Storage<ItemLimitCategoryEntry>              sItemLimitCategoryStore("ItemLimitCategory.db2", ItemLimitCategoryLoadInfo::Instance());
 DB2Storage<ItemModifiedAppearanceEntry>         sItemModifiedAppearanceStore("ItemModifiedAppearance.db2", ItemModifiedAppearanceLoadInfo::Instance());
 DB2Storage<ItemPriceBaseEntry>                  sItemPriceBaseStore("ItemPriceBase.db2", ItemPriceBaseLoadInfo::Instance());
@@ -548,6 +549,7 @@ void DB2Manager::LoadStores(std::string const& dataPath, uint32 defaultLocale)
     LOAD_DB2(sItemEffectStore);
     LOAD_DB2(sItemStore);
     LOAD_DB2(sItemExtendedCostStore);
+    LOAD_DB2(sItemLevelSelectorStore);
     LOAD_DB2(sItemLimitCategoryStore);
     LOAD_DB2(sItemModifiedAppearanceStore);
     LOAD_DB2(sItemPriceBaseStore);
@@ -1499,6 +1501,11 @@ uint32 DB2Manager::GetItemBonusListForItemLevelDelta(int16 delta) const
 std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTreeMod) const
 {
     std::set<uint32> bonusListIDs;
+
+    ItemSparseEntry const* proto = sItemSparseStore.LookupEntry(itemId);
+    if (!proto)
+        return bonusListIDs;
+
     auto itemIdRange = _itemToBonusTree.equal_range(itemId);
     if (itemIdRange.first == itemIdRange.second)
         return bonusListIDs;
@@ -1510,8 +1517,26 @@ std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, uint32 itemBonusTre
             continue;
 
         for (ItemBonusTreeNodeEntry const* bonusTreeNode : treeItr->second)
-            if (bonusTreeNode->BonusTreeModID == itemBonusTreeMod)
+        {
+            if (bonusTreeNode->BonusTreeModID != itemBonusTreeMod)
+                continue;
+            
+            if (bonusTreeNode->BonusListID)
+            {
                 bonusListIDs.insert(bonusTreeNode->BonusListID);
+            }
+            else if (bonusTreeNode->ItemLevelSelectorID)
+            {
+                ItemLevelSelectorEntry const* selector = sItemLevelSelectorStore.LookupEntry(bonusTreeNode->ItemLevelSelectorID);
+                if (!selector)
+                    continue;
+
+                int16 delta = int16(selector->ItemLevel) - proto->ItemLevel;
+
+                if (uint32 bonus = GetItemBonusListForItemLevelDelta(delta))
+                    bonusListIDs.insert(bonus);
+            }
+        }
     }
 
     return bonusListIDs;

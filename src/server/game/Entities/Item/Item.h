@@ -86,7 +86,6 @@ struct BonusData
     uint32 AppearanceModID;
     float RepairCostMultiplier;
     uint32 ScalingStatDistribution;
-    uint32 ItemLevelOverride;
     uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 GemRelicType[MAX_ITEM_PROTO_SOCKETS];
     uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
@@ -102,7 +101,6 @@ private:
     {
         int32 AppearanceModPriority;
         int32 ScalingStatDistributionPriority;
-        int32 ItemLevelOverridePriority;
         bool HasQualityBonus;
     } _state;
 };
