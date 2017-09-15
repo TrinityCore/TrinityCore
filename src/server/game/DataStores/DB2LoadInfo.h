@@ -2356,6 +2356,20 @@ struct ItemExtendedCostLoadInfo
     }
 };
 
+struct ItemLevelSelectorLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "ItemLevel" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemLevelSelectorMeta::Instance(), HOTFIX_SEL_ITEM_LEVEL_SELECTOR);
+        return &loadInfo;
+    }
+};
+
 struct ItemLimitCategoryLoadInfo
 {
     static DB2LoadInfo const* Instance()
