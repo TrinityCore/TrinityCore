@@ -1458,6 +1458,12 @@ struct ItemExtendedCostEntry
     uint8 RequiredAchievement;
 };
 
+struct ItemLevelSelectorEntry
+{
+    uint32 ID;
+    uint16 ItemLevel;
+};
+
 struct ItemLimitCategoryEntry
 {
     uint32 ID;
