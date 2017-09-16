@@ -222,7 +222,7 @@ class boss_blood_council_controller : public CreatureScript
 
         struct boss_blood_council_controllerAI : public BossAI
         {
-            boss_blood_council_controllerAI(Creature* creature) : BossAI(creature, DATA_BLOOD_PRINCE_COUNCIL), _intro(true)
+            boss_blood_council_controllerAI(Creature* creature) : BossAI(creature, DATA_BLOOD_PRINCE_COUNCIL)
             {
                 Initialize();
                 SetCombatMovement(false);
@@ -240,7 +240,7 @@ class boss_blood_council_controller : public CreatureScript
                 Initialize();
                 me->SummonCreatureGroup(SUMMON_PRINCES_GROUP);
 
-                if (!_intro)
+                if (!instance->GetData(DATA_BLOOD_PRINCE_COUNCIL_INTRO))
                     for (uint32 bossData : PrincesData)
                         if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetGuidData(bossData)))
                         {
@@ -311,7 +311,7 @@ class boss_blood_council_controller : public CreatureScript
 
             uint32 GetData(uint32 data) const override
             {
-                if (data == DATA_INTRO && !_intro)
+                if (data == DATA_INTRO && !instance->GetData(DATA_BLOOD_PRINCE_COUNCIL_INTRO))
                     return DATA_INTRO_DONE;
                 return 0;
             }
@@ -338,9 +338,9 @@ class boss_blood_council_controller : public CreatureScript
 
             void DoAction(int32 actionId) override
             {
-                if (actionId == ACTION_START_INTRO && _intro && instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) != DONE)
+                if (actionId == ACTION_START_INTRO && instance->GetData(DATA_BLOOD_PRINCE_COUNCIL_INTRO) && instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) != DONE)
                 {
-                    _intro = false;
+                    instance->SetData(DATA_BLOOD_PRINCE_COUNCIL_INTRO, 0);
                     if (Creature* bloodQueen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL)))
                         bloodQueen->AI()->DoAction(ACTION_START_INTRO);
                 }
@@ -425,7 +425,6 @@ class boss_blood_council_controller : public CreatureScript
 
             uint32 _invocationStage;
             uint32 _resetCounter;
-            bool _intro;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
