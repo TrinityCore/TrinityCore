@@ -52,7 +52,9 @@ enum RogueSpells
     SPELL_ROGUE_T10_2P_BONUS                    = 70804,
     SPELL_ROGUE_GLYPH_OF_BACKSTAB_TRIGGER       = 63975,
     SPELL_ROGUE_QUICK_RECOVERY_ENERGY           = 31663,
-    SPELL_ROGUE_CRIPPLING_POISON                = 3409
+	SPELL_ROGUE_CRIPPLING_POISON                = 3409,
+	SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA			= 158188,
+	SPELL_ROGUE_VANISH_AURA						= 11327
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -477,6 +479,52 @@ class spell_rog_nerves_of_steel : public SpellScriptLoader
         {
             return new spell_rog_nerves_of_steel_AuraScript();
         }
+};
+
+// 1856 - Vanish
+class spell_rog_vanish : public SpellScriptLoader
+{
+public:
+	spell_rog_vanish() : SpellScriptLoader("spell_rog_vanish") { }
+
+	class spell_rog_vanish_SpellScript : public SpellScript
+	{
+		PrepareSpellScript(spell_rog_vanish_SpellScript);
+
+		bool Validate(SpellInfo const* /*spellInfo*/) override
+		{
+			return ValidateSpellInfo({ SPELL_ROGUE_VANISH_AURA, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA });
+		}
+
+		void OnLaunchTarget(SpellEffIndex effIndex)
+		{
+			PreventHitDefaultEffect(effIndex);
+
+			Unit* target = GetHitUnit();
+
+			target->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
+			if (target->GetTypeId() != TYPEID_PLAYER)
+				return;
+
+			if (target->HasAura(SPELL_ROGUE_VANISH_AURA))
+				return;
+
+			target->CombatStop();
+
+			target->CastSpell(target, SPELL_ROGUE_VANISH_AURA, TRIGGERED_FULL_MASK);
+			target->CastSpell(target, SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA, TRIGGERED_FULL_MASK);
+		}
+
+		void Register() override
+		{
+			OnEffectLaunchTarget += SpellEffectFn(spell_rog_vanish_SpellScript::OnLaunchTarget, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+		}
+	};
+
+	SpellScript* GetSpellScript() const override
+	{
+		return new spell_rog_vanish_SpellScript();
+	}
 };
 
 // 14185 - Preparation
