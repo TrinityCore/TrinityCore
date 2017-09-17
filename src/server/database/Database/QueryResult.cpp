@@ -324,6 +324,12 @@ bool PreparedResultSet::_NextRow()
     return retval == 0 || retval == MYSQL_DATA_TRUNCATED;
 }
 
+char* ResultSet::GetFieldName(uint32 index) const
+{
+    ASSERT(index < _fieldCount);
+    return _fields[index].name;
+}
+
 void ResultSet::CleanUp()
 {
     if (_currentRow)

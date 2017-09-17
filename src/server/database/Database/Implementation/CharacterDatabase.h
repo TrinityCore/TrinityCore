@@ -526,6 +526,9 @@ enum CharacterDatabaseStatements : uint32
 
     CHAR_INS_DESERTER_TRACK,
 
+	// Feedback System
+	CHAR_INS_SUBMIT_FEEDBACK,
+
     MAX_CHARACTERDATABASE_STATEMENTS
 };
 
