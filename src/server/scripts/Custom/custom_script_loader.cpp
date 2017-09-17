@@ -20,6 +20,11 @@
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
+void AddSC_Npc_Beastmaster();
+void AddSC_Feedback_NPC();
+
 void AddCustomScripts()
 {
+	AddSC_Npc_Beastmaster();
+	AddSC_Feedback_NPC();
 }
