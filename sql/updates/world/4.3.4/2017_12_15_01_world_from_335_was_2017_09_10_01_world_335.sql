@@ -1,3 +1,4 @@
+/*
 -- Trained Razorbeak
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=2657;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2657 AND `source_type`=0;
@@ -352,3 +353,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (14748,0,0,"Another fool falls for the trap!",12,0,100,0,0,0,10003,0,"Vilebranch Kidnapper"),
 (14748,0,1,"Dinner has arrived!",12,0,100,0,0,0,10004,0,"Vilebranch Kidnapper"),
 (14748,0,2,"The High Priestess will feast on your bones!",12,0,100,0,0,0,10005,0,"Vilebranch Kidnapper");
+*/
