@@ -31,6 +31,9 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 {
@@ -205,6 +208,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
             SendPacket(&data);
         }
 
+#ifdef ELUNA
+        sEluna->OnLootMoney(player, loot->gold);
+#endif
         loot->gold = 0;
 
         // Delete the money loot record from the DB
@@ -478,6 +484,9 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item.count);
     target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item.itemid, item.count);
 
+#ifdef ELUNA
+    sEluna->OnLootItem(target, newitem, item.count, lootguid);
+#endif
     // mark as looted
     item.count = 0;
     item.is_looted = true;
