@@ -1390,7 +1390,7 @@ enum Enraged_Dpirits
     NPC_ENRAGED_FIRE_SPIRIT                 = 21061,
     NPC_ENRAGED_AIR_SPIRIT                  = 21060,
     NPC_ENRAGED_WATER_SPIRIT                = 21059,
-
+    
     // ENRAGED WATER SPIRIT SPELLS
     SPELL_STORMBOLT                         = 38032,
 

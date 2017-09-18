@@ -605,10 +605,10 @@ public:
                         me->DisappearAndDie();
                         break;
                     case EVENT_CHOP:
-                        if (UpdateVictim())
-                            DoCastVictim(SPELL_CHOP);
-                        _events.Repeat(Seconds(10), Seconds(12));
-                        break;
+			            if (UpdateVictim())
+				            DoCastVictim(SPELL_CHOP);
+			            _events.Repeat(Seconds(10), Seconds(12));
+			            break;
                     default:
                         break;
                 }
