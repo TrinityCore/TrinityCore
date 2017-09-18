@@ -32,8 +32,9 @@ enum Spells
 {
     SPELL_BANSHEEWAIL       = 16565,
     SPELL_BANSHEECURSE      = 16867,
-    SPELL_SILENCE           = 18327
-    //SPELL_POSSESS           = 17244
+    SPELL_SILENCE           = 18327,
+    SPELL_POSSESS           = 17244,
+    SPELL_POSSESSED         = 17246
 };
 
 class boss_baroness_anastari : public CreatureScript
@@ -56,18 +57,34 @@ public:
 
         void Initialize()
         {
-            BansheeWail_Timer = 1000;
-            BansheeCurse_Timer = 11000;
-            Silence_Timer = 13000;
-            //Possess_Timer = 35000;
+            BansheeWail_Timer   = 1000;
+            BansheeCurse_Timer  = 11000;
+            Silence_Timer       = 13000;
+            Possess_Timer       = 20000;
+            Invisible_Timer     = 0;
+
+            if (invisible)
+            {
+                possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
+                possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
+                possessedTarget->SetObjectScale(1.0f);
+                invisible = false;
+            }
+            else invisible = false;
+            
         }
+
+        Unit* possessedTarget;
 
         InstanceScript* instance;
 
         uint32 BansheeWail_Timer;
         uint32 BansheeCurse_Timer;
         uint32 Silence_Timer;
-        //uint32 Possess_Timer;
+        uint32 Possess_Timer;
+        uint32 Invisible_Timer; // Times out possessed targets
+
+        bool invisible;
 
         void Reset() override
         {
@@ -88,34 +105,88 @@ public:
             if (!UpdateVictim())
                 return;
 
-            //BansheeWail
-            if (BansheeWail_Timer <= diff)
-            {
-                if (rand32() % 100 < 95)
-                    DoCastVictim(SPELL_BANSHEEWAIL);
-                //4 seconds until we should cast this again
-                BansheeWail_Timer = 4000;
-            } else BansheeWail_Timer -= diff;
-
-            //BansheeCurse
-            if (BansheeCurse_Timer <= diff)
-            {
-                if (rand32() % 100 < 75)
-                    DoCastVictim(SPELL_BANSHEECURSE);
-                //18 seconds until we should cast this again
-                BansheeCurse_Timer = 18000;
-            } else BansheeCurse_Timer -= diff;
-
-            //Silence
-            if (Silence_Timer <= diff)
-            {
-                if (rand32() % 100 < 80)
-                    DoCastVictim(SPELL_SILENCE);
-                //13 seconds until we should cast this again
-                Silence_Timer = 13000;
-            } else Silence_Timer -= diff;
-
             DoMeleeAttackIfReady();
+
+            if (!invisible)
+            {
+                //BansheeWail
+                if (BansheeWail_Timer <= diff)
+                {
+                    if (rand32() % 100 < 95)
+                        DoCastVictim(SPELL_BANSHEEWAIL);
+                    //4 seconds until we should cast this again
+                    BansheeWail_Timer = 4000;
+                }
+                else BansheeWail_Timer -= diff;
+
+                //BansheeCurse
+                if (BansheeCurse_Timer <= diff)
+                {
+                    if (rand32() % 100 < 75)
+                        DoCastVictim(SPELL_BANSHEECURSE);
+                    //18 seconds until we should cast this again
+                    BansheeCurse_Timer = 18000;
+                }
+                else BansheeCurse_Timer -= diff;
+
+                //Silence
+                if (Silence_Timer <= diff)
+                {
+                    if (rand32() % 100 < 80)
+                        DoCastVictim(SPELL_SILENCE);
+                    //13 seconds until we should cast this again
+                    Silence_Timer = 13000;
+                }
+                else Silence_Timer -= diff;
+
+                //Possess
+                if (Possess_Timer <= diff)
+                {
+                    if (possessedTarget = SelectTarget(SELECT_TARGET_RANDOM,1,0,false,false))
+                    {
+                        me->CastStop();
+                        DoCast(possessedTarget, SPELL_POSSESS);
+                        DoCast(possessedTarget, SPELL_POSSESSED);
+                        possessedTarget->SetObjectScale(1.5f);
+                        me->SetReactState(REACT_PASSIVE);
+                        me->SetVisible(false);
+                        invisible = true;
+                        Invisible_Timer = 120000; // 2 minute invisible = possessed timeout
+                    }
+                }
+                else Possess_Timer -= diff;
+            }
+
+            if (invisible)
+            {
+                // If someone is possessed
+                if (possessedTarget)
+                {
+                    // Is him under 50% ?
+                    if (possessedTarget->GetHealthPct() <= 50)
+                    {
+                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
+                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetVisible(true);
+                        invisible = false;
+                        possessedTarget->SetObjectScale(1.0f);
+                        Possess_Timer = 20000;
+                    }
+
+                    // Is the target no longer possessed?
+                    if (Invisible_Timer <= diff)
+                    {
+                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetVisible(true);
+                        invisible = false;
+                        possessedTarget->SetObjectScale(1.0f);
+                        Possess_Timer = 20000;
+                    }
+                    else Invisible_Timer -= diff;
+                }
+            }
         }
     };
 
