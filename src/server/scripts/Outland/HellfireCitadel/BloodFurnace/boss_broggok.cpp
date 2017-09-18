@@ -65,7 +65,7 @@ class boss_broggok : public CreatureScript
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
-            } 
+            }
 
             void JustSummoned(Creature* summoned) override
             {
@@ -75,11 +75,6 @@ class boss_broggok : public CreatureScript
                     summoned->CastSpell(summoned, SPELL_POISON_CLOUD_PASSIVE, true);
                     summons.Summon(summoned);
                 }
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                me->SummonCreature(NPC_BROGGOK_POISON_CLOUD, me->GetPosition());
             }
 
             void ExecuteEvent(uint32 eventId) override
