@@ -604,11 +604,11 @@ public:
                     case EVENT_STRAGGLER_4:
                         me->DisappearAndDie();
                         break;
-		            case EVENT_CHOP:
-			            if (UpdateVictim())
-				            DoCastVictim(SPELL_CHOP);
-			            _events.Repeat(Seconds(10), Seconds(12));
-			            break;
+		    case EVENT_CHOP:
+			if (UpdateVictim())
+				DoCastVictim(SPELL_CHOP);
+			_events.Repeat(Seconds(10), Seconds(12));
+			break;
                     default:
                         break;
                 }
