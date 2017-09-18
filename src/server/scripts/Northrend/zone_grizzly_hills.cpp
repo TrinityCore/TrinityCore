@@ -551,7 +551,8 @@ enum StragglerEvents
     EVENT_STRAGGLER_1                           = 1,
     EVENT_STRAGGLER_2                           = 2,
     EVENT_STRAGGLER_3                           = 3,
-    EVENT_STRAGGLER_4                           = 4
+    EVENT_STRAGGLER_4                           = 4,
+    EVENT_CHOP                                  = 5
 };
 
 class npc_venture_co_straggler : public CreatureScript
@@ -561,21 +562,10 @@ public:
 
     struct npc_venture_co_stragglerAI : public ScriptedAI
     {
-        npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) 
-		{
-			Initialize();
-		}
-
-		void Initialize()
-		{
-			Chop_Timer = 6000;
-		}
-
-		uint32 Chop_Timer;
+        npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
-			Initialize();
             _playerGUID.Clear();
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -609,6 +599,11 @@ public:
                     case EVENT_STRAGGLER_4:
                         me->DisappearAndDie();
                         break;
+                    case EVENT_CHOP:
+                        if (UpdateVictim())
+                            DoCastVictim(SPELL_CHOP);
+                        _events.ScheduleEvent(EVENT_CHOP, 10000, 12000);
+                        break;
                     default:
                         break;
                 }
@@ -616,14 +611,6 @@ public:
 
             if (!UpdateVictim())
                 return;
-
-			if (Chop_Timer <= diff)
-			{
-				DoCastVictim(SPELL_CHOP);
-				Chop_Timer = 8000;
-			}
-			else
-				Chop_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -651,7 +638,6 @@ public:
             return new npc_venture_co_stragglerAI(creature);
         }
 };
-
 
 /*######
 ## Quest: A Blade Fit For A Champion
