@@ -37,62 +37,54 @@ enum Spells
     SPELL_POSSESSED         = 17246
 };
 
+enum BaronessAnastariEvents
+{
+    EVENT_SPELL_BANSHEEWAIL     = 1,
+    EVENT_SPELL_BANSHEECURSE    = 2,
+    EVENT_SPELL_SILENCE         = 3,
+    EVENT_SPELL_POSSESS         = 4,
+    EVENT_INVISIBLE             = 5
+};
+
 class boss_baroness_anastari : public CreatureScript
 {
 public:
     boss_baroness_anastari() : CreatureScript("boss_baroness_anastari") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetStratholmeAI<boss_baroness_anastariAI>(creature);
-    }
-
     struct boss_baroness_anastariAI : public ScriptedAI
     {
         boss_baroness_anastariAI(Creature* creature) : ScriptedAI(creature)
         {
-            Initialize();
             instance = me->GetInstanceScript();
         }
 
-        void Initialize()
-        {
-            BansheeWail_Timer   = 1000;
-            BansheeCurse_Timer  = 11000;
-            Silence_Timer       = 13000;
-            Possess_Timer       = 20000;
-            Invisible_Timer     = 0;
-
-            if (invisible)
-            {
-                possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
-                possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                possessedTarget->SetObjectScale(1.0f);
-                invisible = false;
-            }
-            else invisible = false;
-            
-        }
-
-        Unit* possessedTarget;
-
         InstanceScript* instance;
-
-        uint32 BansheeWail_Timer;
-        uint32 BansheeCurse_Timer;
-        uint32 Silence_Timer;
-        uint32 Possess_Timer;
-        uint32 Invisible_Timer; // Times out possessed targets
-
+        
         bool invisible;
+        Unit* possessedTarget;
+        uint32 invisibleTimer; // after 2 minutes dispell possessed
 
         void Reset() override
         {
-            Initialize();
+            if (possessedTarget)
+            {
+                if (possessedTarget->HasAura(SPELL_POSSESSED) && possessedTarget->IsAlive())
+                {
+                    possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
+                    possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
+                    possessedTarget->SetObjectScale(1.0f);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->SetVisible(true);
+                }
+            }
         }
 
         void EnterCombat(Unit* /*who*/) override
         {
+            _events.ScheduleEvent(EVENT_SPELL_BANSHEEWAIL, Seconds(1));
+            _events.ScheduleEvent(EVENT_SPELL_BANSHEECURSE, Seconds(11));
+            _events.ScheduleEvent(EVENT_SPELL_SILENCE, Seconds(13));
+            _events.ScheduleEvent(EVENT_SPELL_POSSESS, Seconds(20), Seconds(30));
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -105,91 +97,73 @@ public:
             if (!UpdateVictim())
                 return;
 
-            DoMeleeAttackIfReady();
+            _events.Update(diff);
 
-            if (!invisible)
+            while (uint32 eventId = _events.ExecuteEvent())
             {
-                //BansheeWail
-                if (BansheeWail_Timer <= diff)
+                if (invisible)
                 {
-                    if (rand32() % 100 < 95)
-                        DoCastVictim(SPELL_BANSHEEWAIL);
-                    //4 seconds until we should cast this again
-                    BansheeWail_Timer = 4000;
-                }
-                else BansheeWail_Timer -= diff;
+                    if (!possessedTarget->HasAura(SPELL_POSSESSED))
+                        _events.ScheduleEvent(EVENT_INVISIBLE, Seconds(0));
 
-                //BansheeCurse
-                if (BansheeCurse_Timer <= diff)
-                {
-                    if (rand32() % 100 < 75)
-                        DoCastVictim(SPELL_BANSHEECURSE);
-                    //18 seconds until we should cast this again
-                    BansheeCurse_Timer = 18000;
-                }
-                else BansheeCurse_Timer -= diff;
-
-                //Silence
-                if (Silence_Timer <= diff)
-                {
-                    if (rand32() % 100 < 80)
-                        DoCastVictim(SPELL_SILENCE);
-                    //13 seconds until we should cast this again
-                    Silence_Timer = 13000;
-                }
-                else Silence_Timer -= diff;
-
-                //Possess
-                if (Possess_Timer <= diff)
-                {
-                    if (possessedTarget = SelectTarget(SELECT_TARGET_RANDOM,1,0,false,false))
-                    {
-                        me->CastStop();
-                        DoCast(possessedTarget, SPELL_POSSESS);
-                        DoCast(possessedTarget, SPELL_POSSESSED);
-                        possessedTarget->SetObjectScale(1.5f);
-                        me->SetReactState(REACT_PASSIVE);
-                        me->SetVisible(false);
-                        invisible = true;
-                        Invisible_Timer = 120000; // 2 minute invisible = possessed timeout
-                    }
-                }
-                else Possess_Timer -= diff;
-            }
-
-            if (invisible)
-            {
-                // If someone is possessed
-                if (possessedTarget)
-                {
-                    // Is him under 50% ?
                     if (possessedTarget->GetHealthPct() <= 50)
-                    {
-                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
-                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetVisible(true);
-                        invisible = false;
-                        possessedTarget->SetObjectScale(1.0f);
-                        Possess_Timer = 20000;
-                    }
+                        _events.ScheduleEvent(EVENT_INVISIBLE, Seconds(0));
+                }
+                
 
-                    // Is the target no longer possessed?
-                    if (Invisible_Timer <= diff)
-                    {
-                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->SetVisible(true);
-                        invisible = false;
-                        possessedTarget->SetObjectScale(1.0f);
-                        Possess_Timer = 20000;
-                    }
-                    else Invisible_Timer -= diff;
+                switch (eventId)
+                {
+                    case EVENT_SPELL_BANSHEEWAIL:
+                        DoCast(me->GetVictim(),SPELL_BANSHEEWAIL);
+                        _events.ScheduleEvent(EVENT_SPELL_BANSHEEWAIL, Seconds(4));
+                        break;
+                    case EVENT_SPELL_BANSHEECURSE:
+                        DoCast(me->GetVictim(), SPELL_BANSHEECURSE);
+                        _events.ScheduleEvent(EVENT_SPELL_BANSHEECURSE, Seconds(18));
+                        break;
+                    case EVENT_SPELL_SILENCE:
+                        DoCast(me->GetVictim(), SPELL_SILENCE);
+                        _events.ScheduleEvent(EVENT_SPELL_SILENCE, Seconds(13));
+                        break;
+                    case EVENT_SPELL_POSSESS:
+                        if (possessedTarget = (SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, false)))
+                        {
+                            me->CastStop();
+                            DoCast(possessedTarget, SPELL_POSSESS);
+                            DoCast(possessedTarget, SPELL_POSSESSED);
+                            possessedTarget->SetObjectScale(1.5f);
+                            me->SetReactState(REACT_PASSIVE);
+                            me->SetVisible(false);
+                            invisible = true;
+                            invisibleTimer = 120000;
+                        }
+                        else
+                            _events.ScheduleEvent(EVENT_SPELL_POSSESS, Seconds(20), Seconds(30));
+                        break;
+                    case EVENT_INVISIBLE:
+                            possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
+                            possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
+                            possessedTarget->SetObjectScale(1.0f);
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->SetVisible(true);
+                            invisible = false;
+                            invisibleTimer = 0;
+                            _events.ScheduleEvent(EVENT_SPELL_POSSESS, Seconds(20), Seconds(30));
+                        break;
                 }
             }
+
+            DoMeleeAttackIfReady();
         }
+
+        private:
+            EventMap _events;
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetStratholmeAI<boss_baroness_anastariAI>(creature);
+    }
 };
 
 void AddSC_boss_baroness_anastari()
