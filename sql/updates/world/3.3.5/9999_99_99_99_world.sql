@@ -188,4 +188,4 @@ UPDATE game_event SET holiday = 374 WHERE eventEntry = 23;  -- Darkmoon construc
 UPDATE game_event SET holiday = 375 WHERE eventEntry = 110;
 UPDATE game_event SET holiday = 376 WHERE eventEntry = 62;
 UPDATE game_event SET holidayStage = 1 WHERE eventEntry IN (1, 2, 7, 8, 9, 10, 11, 12, 18, 19, 20, 21, 23, 24, 26, 50, 51, 53, 54, 62, 110);
-UPDATE game_event SET holidayStage = 2 WHERE eventEntry IN (3, 4, 5);
+UPDATE game_event SET holidayStage = 2 WHERE eventEntry IN (3, 4, 5, 24);
