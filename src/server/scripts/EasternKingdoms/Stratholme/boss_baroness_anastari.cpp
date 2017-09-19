@@ -125,7 +125,8 @@ public:
                         _events.ScheduleEvent(EVENT_SPELL_SILENCE, Seconds(13));
                         break;
                     case EVENT_SPELL_POSSESS:
-                        if (possessedTarget = (SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, false)))
+                        possessedTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, false);
+                        if (possessedTarget->IsAlive())
                         {
                             me->CastStop();
                             DoCast(possessedTarget, SPELL_POSSESS);
