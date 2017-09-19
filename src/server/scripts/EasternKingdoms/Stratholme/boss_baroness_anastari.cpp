@@ -110,7 +110,6 @@ public:
                         _events.ScheduleEvent(EVENT_INVISIBLE, Seconds(0));
                 }
                 
-
                 switch (eventId)
                 {
                     case EVENT_SPELL_BANSHEEWAIL:
