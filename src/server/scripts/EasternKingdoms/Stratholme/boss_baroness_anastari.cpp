@@ -58,23 +58,20 @@ public:
             instance = me->GetInstanceScript();
         }
 
-        InstanceScript* instance;
-        
-        bool invisible;
-        Unit* possessedTarget;
-        uint32 invisibleTimer; // after 2 minutes dispell possessed
-
         void Reset() override
         {
-            if (possessedTarget)
+            Unit* possessedTarget = me->GetMap()->GetPlayer(_possessedTargetGuid);
+
+            if (_invisible)
             {
-                if (possessedTarget->HasAura(SPELL_POSSESSED) && possessedTarget->IsAlive())
+                if (possessedTarget && possessedTarget->IsAlive())
                 {
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
                     possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
                     possessedTarget->SetObjectScale(1.0f);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetVisible(true);
+                    _invisible = false;
                 }
             }
         }
@@ -101,14 +98,12 @@ public:
 
             while (uint32 eventId = _events.ExecuteEvent())
             {
-                if (invisible)
-                {
-                    if (!possessedTarget->HasAura(SPELL_POSSESSED))
-                        _events.ScheduleEvent(EVENT_INVISIBLE, Seconds(0));
+                Unit* possessTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, false);    // Random target to be possessed
+                Unit* possessedTarget = me->GetMap()->GetPlayer(_possessedTargetGuid);          // When there's a possessed target
 
-                    if (possessedTarget->GetHealthPct() <= 50)
+                if (_invisible)
+                    if (!possessedTarget->HasAura(SPELL_POSSESSED) || possessedTarget->GetHealthPct() <= 50)
                         _events.ScheduleEvent(EVENT_INVISIBLE, Seconds(0));
-                }
                 
                 switch (eventId)
                 {
@@ -125,30 +120,28 @@ public:
                         _events.ScheduleEvent(EVENT_SPELL_SILENCE, Seconds(13));
                         break;
                     case EVENT_SPELL_POSSESS:
-                        possessedTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, false);
-                        if (possessedTarget->IsAlive())
+                        if (possessTarget && possessTarget->IsAlive())
                         {
                             me->CastStop();
-                            DoCast(possessedTarget, SPELL_POSSESS);
-                            DoCast(possessedTarget, SPELL_POSSESSED);
-                            possessedTarget->SetObjectScale(1.5f);
+                            DoCast(possessTarget, SPELL_POSSESS);
+                            DoCast(possessTarget, SPELL_POSSESSED);
+                            possessTarget->SetObjectScale(1.5f);
                             me->SetReactState(REACT_PASSIVE);
                             me->SetVisible(false);
-                            invisible = true;
-                            invisibleTimer = 120000;
+                            _invisible = true;
+                            _possessedTargetGuid = possessTarget->GetGUID();
                         }
                         else
                             _events.ScheduleEvent(EVENT_SPELL_POSSESS, Seconds(20), Seconds(30));
                         break;
                     case EVENT_INVISIBLE:
-                            possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
-                            possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
-                            possessedTarget->SetObjectScale(1.0f);
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            me->SetVisible(true);
-                            invisible = false;
-                            invisibleTimer = 0;
-                            _events.ScheduleEvent(EVENT_SPELL_POSSESS, Seconds(20), Seconds(30));
+                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESS);
+                        possessedTarget->RemoveAurasDueToSpell(SPELL_POSSESSED);
+                        possessedTarget->SetObjectScale(1.0f);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetVisible(true);
+                        _invisible = false;
+                        _events.ScheduleEvent(EVENT_SPELL_POSSESS, Seconds(20), Seconds(30));
                         break;
                 }
             }
@@ -156,8 +149,13 @@ public:
             DoMeleeAttackIfReady();
         }
 
+        protected:
+            InstanceScript* instance;
+
         private:
             EventMap _events;
+            bool _invisible;
+            ObjectGuid _possessedTargetGuid;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
