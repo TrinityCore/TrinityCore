@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ServiceRegistry_h__
-#define ServiceRegistry_h__
+#ifndef WorldserverServiceDispatcher_h__
+#define WorldserverServiceDispatcher_h__
 
 #include "WorldSession.h"
 #include "MessageBuffer.h"
@@ -59,11 +59,10 @@ namespace Battlenet
         }
 
         typedef void(*ServiceMethod)(WorldSession*, uint32, uint32, MessageBuffer);
-        // use identity hashing for map keys as they are already a hash (FNV1a of service name)
-        std::unordered_map<uint32, ServiceMethod, std::identity<uint32>> _dispatchers;
+        std::unordered_map<uint32, ServiceMethod> _dispatchers;
     };
 }
 
 #define sServiceDispatcher Battlenet::WorldserverServiceDispatcher::Instance()
 
-#endif // ServiceRegistry_h__
+#endif // WorldserverServiceDispatcher_h__
