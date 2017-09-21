@@ -55,10 +55,12 @@ namespace Battlenet
         template<class Service>
         static void Dispatch(WorldSession* session, uint32 token, uint32 methodId, MessageBuffer buffer)
         {
-            Service(session).CallServerMethod(token, methodId, std::forward<MessageBuffer>(buffer));
+            Service(session).CallServerMethod(token, methodId, std::move(buffer));
         }
 
-        std::unordered_map<uint32, std::function<void(WorldSession*, uint32, uint32, MessageBuffer)>> _dispatchers;
+        typedef void(*ServiceMethod)(WorldSession*, uint32, uint32, MessageBuffer);
+        // use identity hashing for map keys as they are already a hash (FNV1a of service name)
+        std::unordered_map<uint32, ServiceMethod, std::identity<uint32>> _dispatchers;
     };
 }
 
