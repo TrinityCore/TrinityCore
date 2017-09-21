@@ -26,7 +26,7 @@ Battlenet::Services::Connection::Connection(Session* session) : ConnectionServic
 {
 }
 
-uint32 Battlenet::Services::Connection::HandleConnect(connection::v1::ConnectRequest const* request, connection::v1::ConnectResponse* response)
+uint32 Battlenet::Services::Connection::HandleConnect(connection::v1::ConnectRequest const* request, connection::v1::ConnectResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
 {
     if (request->has_client_id())
         response->mutable_client_id()->CopyFrom(request->client_id());
