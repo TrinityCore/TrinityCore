@@ -22,17 +22,12 @@ Battlenet::Services::Authentication::Authentication(Session* session) : Authenti
 {
 }
 
-uint32 Battlenet::Services::Authentication::HandleLogon(authentication::v1::LogonRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
+uint32 Battlenet::Services::Authentication::HandleLogon(authentication::v1::LogonRequest const* request, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
 {
-    uint32 status = _session->HandleLogon(request);
-    // turning this into async call will be done by stealing the continuation and calling it when done
-    // just a test here
-    continuation(this, status, response);
-    continuation = nullptr;
-    return status;
+    return _session->HandleLogon(request, continuation);
 }
 
 uint32 Battlenet::Services::Authentication::HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* request, NoData* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
 {
-    return _session->HandleVerifyWebCredentials(request);
+    return _session->HandleVerifyWebCredentials(request, continuation);
 }
