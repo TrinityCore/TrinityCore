@@ -3865,28 +3865,28 @@ class TC_PROTO_API AccountService : public ServiceBase
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleGetGameAccountBlob(::bgs::protocol::account::v1::GameAccountHandle const* request, ::bgs::protocol::account::v1::GameAccountBlob* response);
-  virtual uint32 HandleGetAccount(::bgs::protocol::account::v1::GetAccountRequest const* request, ::bgs::protocol::account::v1::GetAccountResponse* response);
-  virtual uint32 HandleCreateGameAccount(::bgs::protocol::account::v1::CreateGameAccountRequest const* request, ::bgs::protocol::account::v1::GameAccountHandle* response);
-  virtual uint32 HandleIsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequest const* request, ::bgs::protocol::NoData* response);
+  virtual uint32 HandleGetGameAccountBlob(::bgs::protocol::account::v1::GameAccountHandle const* request, ::bgs::protocol::account::v1::GameAccountBlob* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetAccount(::bgs::protocol::account::v1::GetAccountRequest const* request, ::bgs::protocol::account::v1::GetAccountResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleCreateGameAccount(::bgs::protocol::account::v1::CreateGameAccountRequest const* request, ::bgs::protocol::account::v1::GameAccountHandle* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleIsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleCacheExpire(::bgs::protocol::account::v1::CacheExpireRequest const* request);
-  virtual uint32 HandleCredentialUpdate(::bgs::protocol::account::v1::CredentialUpdateRequest const* request, ::bgs::protocol::account::v1::CredentialUpdateResponse* response);
-  virtual uint32 HandleSubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::account::v1::SubscriptionUpdateResponse* response);
-  virtual uint32 HandleUnsubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleGetAccountState(::bgs::protocol::account::v1::GetAccountStateRequest const* request, ::bgs::protocol::account::v1::GetAccountStateResponse* response);
-  virtual uint32 HandleGetGameAccountState(::bgs::protocol::account::v1::GetGameAccountStateRequest const* request, ::bgs::protocol::account::v1::GetGameAccountStateResponse* response);
-  virtual uint32 HandleGetLicenses(::bgs::protocol::account::v1::GetLicensesRequest const* request, ::bgs::protocol::account::v1::GetLicensesResponse* response);
-  virtual uint32 HandleGetGameTimeRemainingInfo(::bgs::protocol::account::v1::GetGameTimeRemainingInfoRequest const* request, ::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse* response);
-  virtual uint32 HandleGetGameSessionInfo(::bgs::protocol::account::v1::GetGameSessionInfoRequest const* request, ::bgs::protocol::account::v1::GetGameSessionInfoResponse* response);
-  virtual uint32 HandleGetCAISInfo(::bgs::protocol::account::v1::GetCAISInfoRequest const* request, ::bgs::protocol::account::v1::GetCAISInfoResponse* response);
-  virtual uint32 HandleForwardCacheExpire(::bgs::protocol::account::v1::ForwardCacheExpireRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleGetAuthorizedData(::bgs::protocol::account::v1::GetAuthorizedDataRequest const* request, ::bgs::protocol::account::v1::GetAuthorizedDataResponse* response);
+  virtual uint32 HandleCredentialUpdate(::bgs::protocol::account::v1::CredentialUpdateRequest const* request, ::bgs::protocol::account::v1::CredentialUpdateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::account::v1::SubscriptionUpdateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleUnsubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetAccountState(::bgs::protocol::account::v1::GetAccountStateRequest const* request, ::bgs::protocol::account::v1::GetAccountStateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetGameAccountState(::bgs::protocol::account::v1::GetGameAccountStateRequest const* request, ::bgs::protocol::account::v1::GetGameAccountStateResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetLicenses(::bgs::protocol::account::v1::GetLicensesRequest const* request, ::bgs::protocol::account::v1::GetLicensesResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetGameTimeRemainingInfo(::bgs::protocol::account::v1::GetGameTimeRemainingInfoRequest const* request, ::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetGameSessionInfo(::bgs::protocol::account::v1::GetGameSessionInfoRequest const* request, ::bgs::protocol::account::v1::GetGameSessionInfoResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetCAISInfo(::bgs::protocol::account::v1::GetCAISInfoRequest const* request, ::bgs::protocol::account::v1::GetCAISInfoResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleForwardCacheExpire(::bgs::protocol::account::v1::ForwardCacheExpireRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetAuthorizedData(::bgs::protocol::account::v1::GetAuthorizedDataRequest const* request, ::bgs::protocol::account::v1::GetAuthorizedDataResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleAccountFlagUpdate(::bgs::protocol::account::v1::AccountFlagUpdateRequest const* request);
   virtual uint32 HandleGameAccountFlagUpdate(::bgs::protocol::account::v1::GameAccountFlagUpdateRequest const* request);
-  virtual uint32 HandleUpdateParentalControlsAndCAIS(::bgs::protocol::account::v1::UpdateParentalControlsAndCAISRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleCreateGameAccount2(::bgs::protocol::account::v1::CreateGameAccountRequest const* request, ::bgs::protocol::account::v1::CreateGameAccountResponse* response);
-  virtual uint32 HandleGetGameAccount(::bgs::protocol::account::v1::GetGameAccountRequest const* request, ::bgs::protocol::account::v1::GetGameAccountResponse* response);
-  virtual uint32 HandleQueueDeductRecord(::bgs::protocol::account::v1::QueueDeductRecordRequest const* request, ::bgs::protocol::NoData* response);
+  virtual uint32 HandleUpdateParentalControlsAndCAIS(::bgs::protocol::account::v1::UpdateParentalControlsAndCAISRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleCreateGameAccount2(::bgs::protocol::account::v1::CreateGameAccountRequest const* request, ::bgs::protocol::account::v1::CreateGameAccountResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGetGameAccount(::bgs::protocol::account::v1::GetGameAccountRequest const* request, ::bgs::protocol::account::v1::GetGameAccountResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleQueueDeductRecord(::bgs::protocol::account::v1::QueueDeductRecordRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   uint32 service_hash_;
