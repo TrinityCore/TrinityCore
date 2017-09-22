@@ -253,9 +253,11 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
     std::shared_ptr<AccountInfo> accountInfo = std::make_shared<AccountInfo>();
     _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithChainingPreparedCallback([this, accountInfo, asyncContinuation](QueryCallback& callback, PreparedQueryResult result)
     {
+        Battlenet::Services::Authentication asyncContinuationService(this);
+        NoData response;
         if (!result)
         {
-            asyncContinuation(&Battlenet::Services::Authentication(this), ERROR_DENIED, &NoData());
+            asyncContinuation(&asyncContinuationService, ERROR_DENIED, &response);
             return;
         }
 
@@ -263,7 +265,7 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
 
         if (accountInfo->LoginTicketExpiry < time(nullptr))
         {
-            asyncContinuation(&Battlenet::Services::Authentication(this), ERROR_TIMED_OUT, &NoData());
+            asyncContinuation(&asyncContinuationService, ERROR_TIMED_OUT, &response);
             return;
         }
 
@@ -308,6 +310,8 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
         }
 
         _accountInfo = accountInfo;
+        Battlenet::Services::Authentication asyncContinuationService(this);
+        NoData response;
 
         std::string ip_address = GetRemoteIpAddress().to_string();
 
@@ -319,7 +323,7 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
 
             if (_accountInfo->LastIP != ip_address)
             {
-                asyncContinuation(&Battlenet::Services::Authentication(this), ERROR_RISK_ACCOUNT_LOCKED, &NoData());
+                asyncContinuation(&asyncContinuationService, ERROR_RISK_ACCOUNT_LOCKED, &response);
                 return;
             }
         }
@@ -335,7 +339,7 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
 
                 if (_ipCountry != _accountInfo->LockCountry)
                 {
-                    asyncContinuation(&Battlenet::Services::Authentication(this), ERROR_RISK_ACCOUNT_LOCKED, &NoData());
+                    asyncContinuation(&asyncContinuationService, ERROR_RISK_ACCOUNT_LOCKED, &response);
                     return;
                 }
             }
@@ -347,13 +351,13 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
             if (_accountInfo->IsPermanenetlyBanned)
             {
                 TC_LOG_DEBUG("session", "%s [Session::HandleVerifyWebCredentials] Banned account %s tried to login!", GetClientInfo().c_str(), _accountInfo->Login.c_str());
-                asyncContinuation(&Battlenet::Services::Authentication(this), ERROR_GAME_ACCOUNT_BANNED, &NoData());
+                asyncContinuation(&asyncContinuationService, ERROR_GAME_ACCOUNT_BANNED, &response);
                 return;
             }
             else
             {
                 TC_LOG_DEBUG("session", "%s [Session::HandleVerifyWebCredentials] Temporarily banned account %s tried to login!", GetClientInfo().c_str(), _accountInfo->Login.c_str());
-                asyncContinuation(&Battlenet::Services::Authentication(this), ERROR_GAME_ACCOUNT_SUSPENDED, &NoData());
+                asyncContinuation(&asyncContinuationService, ERROR_GAME_ACCOUNT_SUSPENDED, &response);
                 return;
             }
         }
@@ -381,7 +385,7 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
 
         _authed = true;
 
-        asyncContinuation(&Battlenet::Services::Authentication(this), ERROR_OK, &NoData());
+        asyncContinuation(&asyncContinuationService, ERROR_OK, &response);
         Service<authentication::v1::AuthenticationListener>(this).OnLogonComplete(&logonResult);
     }));
 
