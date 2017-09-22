@@ -1357,7 +1357,7 @@ HotSwap.ReCompilerBuildType = ""
 # WARDEN SETTINGS
 #
 #    Warden.Enabled
-#        Description: Enable Warden anticheat system.
+#        Description: Enable Warden anticheat system. (broken on 4.3.4)
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
