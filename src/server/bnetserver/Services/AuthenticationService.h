@@ -35,8 +35,8 @@ namespace Battlenet
         public:
             Authentication(Session* session);
 
-            uint32 HandleLogon(authentication::v1::LogonRequest const* request, NoData* respons) override;
-            uint32 HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* request, NoData* respons) override;
+            uint32 HandleLogon(authentication::v1::LogonRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+            uint32 HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
         };
     }
 }
