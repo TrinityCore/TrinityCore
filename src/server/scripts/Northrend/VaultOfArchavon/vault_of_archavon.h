@@ -30,7 +30,7 @@ enum VAData
     DATA_ARCHAVON       = 0,
     DATA_EMALON         = 1,
     DATA_KORALON        = 2,
-    DATA_TORAVON        = 3,
+    DATA_TORAVON        = 3
 };
 
 enum VACreatureIds
@@ -44,12 +44,12 @@ enum VACreatureIds
 enum VAAchievementCriteriaIds
 {
     CRITERIA_EARTH_WIND_FIRE_10 = 12018,
-    CRITERIA_EARTH_WIND_FIRE_25 = 12019,
+    CRITERIA_EARTH_WIND_FIRE_25 = 12019
 };
 
 enum VAAchievementSpells
 {
-    SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK = 68308,
+    SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK = 68308
 };
 
 template <class AI, class T>
@@ -57,5 +57,7 @@ inline AI* GetVaultOfArchavonAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, VoAScriptName);
 }
+
+#define RegisterVaultOfArchavonCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetVaultOfArchavonAI)
 
 #endif
