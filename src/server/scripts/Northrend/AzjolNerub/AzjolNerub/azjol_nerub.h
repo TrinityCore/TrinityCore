@@ -18,6 +18,9 @@
 #ifndef AZJOL_NERUB_H_
 #define AZJOL_NERUB_H_
 
+#include "CreatureAIImpl.h"
+
+#define AzjolNerubScriptName "instance_azjol_nerub"
 #define DataHeader           "AN"
 
 uint32 const EncounterCount = 3;
@@ -34,7 +37,8 @@ enum ANDataTypes
     DATA_WATCHER_GASHRA,
     DATA_WATCHER_SILTHIK,
     DATA_ANUBARAK_WALL,
-    DATA_ANUBARAK_WALL_2
+    DATA_ANUBARAK_WALL_2,
+    DATA_GATEWATCHER_GREET
 };
 
 enum ANCreatureIds
@@ -61,5 +65,11 @@ enum ANGameObjectIds
     GO_ANUBARAK_DOOR_2              = 192397,
     GO_ANUBARAK_DOOR_3              = 192398
 };
+
+template <class AI, class T>
+inline AI* GetAzjolNerubAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, AzjolNerubScriptName);
+}
 
 #endif // AZJOL_NERUB_H_

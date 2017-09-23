@@ -25,7 +25,7 @@ namespace WorldPackets
     class TC_GAME_API Packet
     {
     public:
-        Packet(WorldPacket&& worldPacket) : _worldPacket(std::move(worldPacket)) { }
+        Packet(WorldPacket&& worldPacket);
 
         virtual ~Packet() = default;
 
@@ -42,12 +42,12 @@ namespace WorldPackets
         WorldPacket _worldPacket;
     };
 
-    class ServerPacket : public Packet
+    class TC_GAME_API ServerPacket : public Packet
     {
     public:
-        ServerPacket(OpcodeServer opcode, size_t initialSize = 200) : Packet(WorldPacket(opcode, initialSize)) { }
+        ServerPacket(OpcodeServer opcode, size_t initialSize = 200);
 
-        void Read() override final { ASSERT(!"Read not implemented for server packets."); }
+        void Read() override final;
 
         void Clear() { _worldPacket.clear(); }
         WorldPacket&& Move() { return std::move(_worldPacket); }
@@ -55,18 +55,13 @@ namespace WorldPackets
         OpcodeServer GetOpcode() const { return OpcodeServer(_worldPacket.GetOpcode()); }
     };
 
-    class ClientPacket : public Packet
+    class TC_GAME_API ClientPacket : public Packet
     {
     public:
-        ClientPacket(WorldPacket&& packet) : Packet(std::move(packet)) { }
-        ClientPacket(OpcodeClient expectedOpcode, WorldPacket&& packet) : Packet(std::move(packet)) { ASSERT(GetOpcode() == expectedOpcode); }
+        ClientPacket(WorldPacket&& packet);
+        ClientPacket(OpcodeClient expectedOpcode, WorldPacket&& packet);
 
-        WorldPacket const* Write() override final
-        {
-            ASSERT(!"Write not allowed for client packets.");
-            // Shut up some compilers
-            return nullptr;
-        }
+        WorldPacket const* Write() override final;
 
         OpcodeClient GetOpcode() const { return OpcodeClient(_worldPacket.GetOpcode()); }
     };

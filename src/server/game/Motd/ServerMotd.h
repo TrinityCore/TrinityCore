@@ -18,6 +18,7 @@
 #ifndef ServerMotd_h__
 #define ServerMotd_h__
 
+#include "Define.h"
 #include <string>
 
 class WorldPacket;

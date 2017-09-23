@@ -24,8 +24,9 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "scarlet_monastery.h"
+#include "InstanceScript.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -44,7 +45,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_high_inquisitor_fairbanksAI>(creature);
+        return GetScarletMonasteryAI<boss_high_inquisitor_fairbanksAI>(creature);
     }
 
     struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
@@ -119,7 +120,7 @@ public:
             //Sleep_Timer
             if (Sleep_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                     DoCast(target, SPELL_SLEEP);
 
                 Sleep_Timer = 30000;

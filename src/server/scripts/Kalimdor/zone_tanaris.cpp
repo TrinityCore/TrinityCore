@@ -31,11 +31,12 @@ npc_tooga
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
-#include "Player.h"
+#include "ScriptedGossip.h"
 #include "WorldSession.h"
 
 /*######
@@ -106,7 +107,7 @@ public:
                 !player->HasItemCount(ITEM_SILVER_TOTEM, 1, true))
             {
                 ItemPosCountVec dest;
-                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
+                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, nullptr);
                 if (msg == EQUIP_ERR_OK)
                     player->StoreNewItem(dest, ITEM_SILVER_TOTEM, true);
             }
@@ -194,11 +195,11 @@ public:
         return new npc_custodian_of_timeAI(creature);
     }
 
-    struct npc_custodian_of_timeAI : public npc_escortAI
+    struct npc_custodian_of_timeAI : public EscortAI
     {
-        npc_custodian_of_timeAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_custodian_of_timeAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -289,7 +290,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
         }
     };
 
@@ -318,11 +319,11 @@ class npc_OOX17 : public CreatureScript
 public:
     npc_OOX17() : CreatureScript("npc_OOX17") { }
 
-    struct npc_OOX17AI : public npc_escortAI
+    struct npc_OOX17AI : public EscortAI
     {
-        npc_OOX17AI(Creature* creature) : npc_escortAI(creature) { }
+        npc_OOX17AI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -369,7 +370,7 @@ public:
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 me->SetFullHealth();
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 Talk(SAY_OOX_START);
 
                 Start(true, false, player->GetGUID());

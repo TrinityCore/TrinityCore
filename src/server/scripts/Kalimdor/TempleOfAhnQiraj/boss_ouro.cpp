@@ -43,7 +43,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_ouroAI(creature);
+        return GetAQ40AI<boss_ouroAI>(creature);
     }
 
     struct boss_ouroAI : public ScriptedAI
@@ -122,7 +122,7 @@ public:
             //ChangeTarget_Timer
             if (Submerged && ChangeTarget_Timer <= diff)
             {
-                Unit* target = NULL;
+                Unit* target = nullptr;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (target)

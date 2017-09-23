@@ -16,8 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
+#include "Log.h"
+#include "Map.h"
 #include "steam_vault.h"
 
 class go_main_chambers_access_panel : public GameObjectScript
@@ -31,7 +35,7 @@ class go_main_chambers_access_panel : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 if (me->GetEntry() == GO_ACCESS_PANEL_HYDRO && (instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE || instance->GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL))
                     instance->SetBossState(DATA_HYDROMANCER_THESPIA, SPECIAL);

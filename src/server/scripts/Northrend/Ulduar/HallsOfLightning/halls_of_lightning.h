@@ -18,6 +18,8 @@
 #ifndef HALLS_OF_LIGHTNING_H_
 #define HALLS_OF_LIGHTNING_H_
 
+#include "CreatureAIImpl.h"
+
 #define HoLScriptName "instance_halls_of_lightning"
 #define DataHeader    "HOL"
 
@@ -49,10 +51,10 @@ enum HOLGameObjectIds
     GO_LOKEN_THRONE         = 192654
 };
 
-template<class AI>
-AI* GetHallsOfLightningAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetHallsOfLightningAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, HoLScriptName);
+    return GetInstanceAI<AI>(obj, HoLScriptName);
 }
 
 #endif // HALLS_OF_LIGHTNING_H_

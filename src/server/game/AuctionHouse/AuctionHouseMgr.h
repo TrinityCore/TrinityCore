@@ -19,14 +19,17 @@
 #ifndef _AUCTION_HOUSE_MGR_H
 #define _AUCTION_HOUSE_MGR_H
 
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "DBCStructure.h"
+#include "Define.h"
+#include "DatabaseEnvFwd.h"
+#include "ObjectGuid.h"
+#include <map>
 #include <set>
+#include <unordered_map>
 
 class Item;
 class Player;
 class WorldPacket;
+struct AuctionHouseEntry;
 
 #define MIN_AUCTION_TIME (12*HOUR)
 #define MAX_AUCTION_ITEMS 160
@@ -121,7 +124,7 @@ class TC_GAME_API AuctionHouseObject
     AuctionEntry* GetAuction(uint32 id) const
     {
         AuctionEntryMap::const_iterator itr = AuctionsMap.find(id);
-        return itr != AuctionsMap.end() ? itr->second : NULL;
+        return itr != AuctionsMap.end() ? itr->second : nullptr;
     }
 
     void AddAuction(AuctionEntry* auction);
@@ -169,7 +172,7 @@ class TC_GAME_API AuctionHouseMgr
             if (itr != mAitems.end())
                 return itr->second;
 
-            return NULL;
+            return nullptr;
         }
 
         //auction messages
@@ -192,7 +195,7 @@ class TC_GAME_API AuctionHouseMgr
         void AddAItem(Item* it);
         bool RemoveAItem(ObjectGuid::LowType id, bool deleteItem = false, SQLTransaction* trans = nullptr);
         bool PendingAuctionAdd(Player* player, AuctionEntry* aEntry, Item* item);
-        uint32 PendingAuctionCount(const Player* player) const;
+        uint32 PendingAuctionCount(Player const* player) const;
         void PendingAuctionProcess(Player* player);
         void UpdatePendingAuctions();
         void Update();

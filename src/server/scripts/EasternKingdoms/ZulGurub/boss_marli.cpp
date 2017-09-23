@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "TemporarySummon.h"
 #include "zulgurub.h"
 
 enum Says
@@ -159,8 +160,8 @@ class boss_marli : public CreatureScript
                             */
                             me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageIncrease); // hack
                             DoCastVictim(SPELL_ENVOLWINGWEB);
-                            if (DoGetThreat(me->GetVictim()))
-                                DoModifyThreatPercent(me->GetVictim(), -100);
+                            if (GetThreat(me->GetVictim()))
+                                ModifyThreatByPercent(me->GetVictim(), -100);
                             events.ScheduleEvent(EVENT_CHARGE_PLAYER, 1500, 0, PHASE_THREE);
                             events.ScheduleEvent(EVENT_TRANSFORM_BACK, 25000, 0, PHASE_THREE);
                             events.SetPhase(PHASE_THREE);
@@ -168,7 +169,7 @@ class boss_marli : public CreatureScript
                         }
                         case EVENT_CHARGE_PLAYER:
                         {
-                            Unit* target = NULL;
+                            Unit* target = nullptr;
                             int i = 0;
                             while (i++ < 3) // max 3 tries to get a random target with power_mana
                             {
@@ -216,7 +217,7 @@ class boss_marli : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_marliAI(creature);
+            return GetZulGurubAI<boss_marliAI>(creature);
         }
 };
 
@@ -265,7 +266,7 @@ class npc_spawn_of_marli : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_spawn_of_marliAI(creature);
+            return GetZulGurubAI<npc_spawn_of_marliAI>(creature);
         }
 };
 

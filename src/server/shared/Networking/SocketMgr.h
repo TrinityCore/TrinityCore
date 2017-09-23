@@ -39,9 +39,10 @@ public:
     {
         ASSERT(threadCount > 0);
 
+        AsyncAcceptor* acceptor = nullptr;
         try
         {
-            _acceptor = new AsyncAcceptor(service, bindIp, port);
+            acceptor = new AsyncAcceptor(service, bindIp, port);
         }
         catch (boost::system::system_error const& err)
         {
@@ -49,6 +50,13 @@ public:
             return false;
         }
 
+        if (!acceptor->Bind())
+        {
+            TC_LOG_ERROR("network", "StartNetwork failed to bind socket acceptor");
+            return false;
+        }
+
+        _acceptor = acceptor;
         _threadCount = threadCount;
         _threads = CreateThreads();
 
@@ -119,7 +127,7 @@ public:
     }
 
 protected:
-    SocketMgr() : _acceptor(nullptr), _threads(nullptr), _threadCount(1)
+    SocketMgr() : _acceptor(nullptr), _threads(nullptr), _threadCount(0)
     {
     }
 

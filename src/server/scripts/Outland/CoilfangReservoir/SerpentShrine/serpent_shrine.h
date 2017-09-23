@@ -19,6 +19,9 @@
 #ifndef DEF_SERPENT_SHRINE_H
 #define DEF_SERPENT_SHRINE_H
 
+#include "CreatureAIImpl.h"
+
+#define SSCScriptName "instance_serpent_shrine"
 #define DataHeader "SS"
 
 enum SSWaterEventState
@@ -56,5 +59,11 @@ enum SSDataTypes
     DATA_WATER                      = 24,
     DATA_TRASH                      = 25,
 };
+
+template <class AI, class T>
+inline AI* GetSerpentshrineCavernAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, SSCScriptName);
+}
 
 #endif

@@ -28,12 +28,15 @@ npc_forest_frog
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "zulaman.h"
-#include "Player.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "zulaman.h"
 
 /*######
 ## npc_forest_frog
@@ -103,7 +106,7 @@ class npc_forest_frog : public CreatureScript
                 me->UpdateEntry(cEntry);
             }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == NPC_FOREST_FROG)
                 {
@@ -171,7 +174,7 @@ class npc_zulaman_hostage : public CreatureScript
                 {
                     if (HostageEntry[i] == entry)
                     {
-                        me->SummonGameObject(ChestEntry[i], Position(x - 2, y, z, 0.f), G3D::Quat(), 0);
+                        me->SummonGameObject(ChestEntry[i], Position(x - 2, y, z, 0.f), QuaternionData(), 0);
                         break;
                     }
                 }
@@ -292,7 +295,7 @@ class npc_harrison_jones : public CreatureScript
                return false;
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell) override
+            void SpellHit(Unit*, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_COSMETIC_SPEAR_THROW)
                 {
@@ -378,13 +381,13 @@ class npc_harrison_jones : public CreatureScript
                                     if (target->GetPositionX() > 120)
                                     {
                                         target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_SPEAR));
-                                        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                        target->SetImmuneToPC(true);
                                         target->SetReactState(REACT_PASSIVE);
                                         target->AI()->SetData(0, 1);
                                     }
                                     else
                                     {
-                                        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                        target->SetImmuneToPC(true);
                                         target->SetReactState(REACT_PASSIVE);
                                         target->AI()->SetData(0, 2);
                                     }

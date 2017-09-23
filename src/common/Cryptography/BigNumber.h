@@ -19,8 +19,8 @@
 #ifndef _AUTH_BIGNUMBER_H
 #define _AUTH_BIGNUMBER_H
 
-#include <memory>
 #include "Define.h"
+#include <memory>
 #include <string>
 
 struct bignum_st;

@@ -21,14 +21,16 @@
 //    - Hardcoded bullets spawner
 
 #include "ScriptMgr.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "Cell.h"
-#include "CellImpl.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 #include "trial_of_the_crusader.h"
 
 enum Texts
@@ -135,7 +137,7 @@ class OrbsDespawner : public BasicEvent
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/) override
         {
             Trinity::CreatureWorker<OrbsDespawner> worker(_creature, *this);
-            _creature->VisitNearbyGridObject(5000.0f, worker);
+            Cell::VisitGridObjects(_creature, worker, SIZE_OF_GRIDS);
             return true;
         }
 
@@ -201,7 +203,8 @@ struct boss_twin_baseAI : public BossAI
         switch (uiId)
         {
             case 1:
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToPC(false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 break;
             default:
@@ -317,7 +320,7 @@ struct boss_twin_baseAI : public BossAI
                 events.ScheduleEvent(EVENT_TWIN_SPIKE, 20 * IN_MILLISECONDS);
                 break;
             case EVENT_TOUCH:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, OtherEssenceSpellId))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true, OtherEssenceSpellId))
                     me->CastCustomSpell(TouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
                 events.ScheduleEvent(EVENT_TOUCH, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
                 break;
@@ -451,7 +454,7 @@ class boss_fjola : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_fjolaAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_fjolaAI>(creature);
         }
 };
 
@@ -484,7 +487,7 @@ class boss_eydis : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_eydisAI>(creature);
+            return GetTrialOfTheCrusaderAI<boss_eydisAI>(creature);
         }
 };
 
@@ -526,7 +529,7 @@ class npc_essence_of_twin : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_essence_of_twinAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_essence_of_twinAI>(creature);
         };
 };
 
@@ -617,7 +620,7 @@ class npc_unleashed_dark : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_unleashed_darkAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_unleashed_darkAI>(creature);
         }
 };
 
@@ -638,9 +641,9 @@ class npc_unleashed_light : public CreatureScript
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT_HELPER);
                         me->GetMotionMaster()->MoveIdle();
-                        me->DespawnOrUnsummon(1*IN_MILLISECONDS);
+                        me->DespawnOrUnsummon(1 * IN_MILLISECONDS);
                     }
-                    RangeCheckTimer = 0.5*IN_MILLISECONDS;
+                    RangeCheckTimer = IN_MILLISECONDS / 2;
                 }
                 else
                     RangeCheckTimer -= diff;
@@ -649,7 +652,7 @@ class npc_unleashed_light : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_unleashed_lightAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_unleashed_lightAI>(creature);
         }
 };
 
@@ -678,7 +681,7 @@ class npc_bullet_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_bullet_controllerAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_bullet_controllerAI>(creature);
         }
 };
 
@@ -691,16 +694,8 @@ class spell_powering_up : public SpellScriptLoader
         {
             PrepareSpellScript(spell_powering_up_SpellScript);
 
-        public:
-            spell_powering_up_SpellScript()
-            {
-                spellId = 0;
-                poweringUp = 0;
-            }
-
-        private:
-            uint32 spellId;
-            uint32 poweringUp;
+            uint32 spellId = 0;
+            uint32 poweringUp = 0;
 
             bool Load() override
             {
@@ -793,17 +788,16 @@ class spell_valkyr_essences : public SpellScriptLoader
                             {
                                 if (dmgInfo.GetSpellInfo()->Id == darkVortex || dmgInfo.GetSpellInfo()->Id == lightVortex)
                                 {
-                                    Aura* pAura = owner->GetAura(poweringUp);
-                                    if (pAura)
+                                    if (Aura* aura = owner->GetAura(poweringUp))
                                     {
-                                        pAura->ModStackAmount(stacksCount);
+                                        aura->ModStackAmount(stacksCount);
                                         owner->CastSpell(owner, poweringUp, true);
                                     }
                                     else
                                     {
                                         owner->CastSpell(owner, poweringUp, true);
-                                        if ((pAura = owner->GetAura(poweringUp)))
-                                            pAura->ModStackAmount(stacksCount);
+                                        if (Aura* newAura = owner->GetAura(poweringUp))
+                                            newAura->ModStackAmount(stacksCount);
                                     }
                                 }
                             }
@@ -817,18 +811,17 @@ class spell_valkyr_essences : public SpellScriptLoader
                                 if (dmgInfo.GetSpellInfo()->Id == unleashedDark || dmgInfo.GetSpellInfo()->Id == unleashedLight)
                                 {
                                     // need to do the things in this order, else players might have 100 charges of Powering Up without anything happening
-                                    Aura* pAura = owner->GetAura(poweringUp);
-                                    if (pAura)
+                                    if (Aura* aura = owner->GetAura(poweringUp))
                                     {
                                         // 2 lines together add the correct amount of buff stacks
-                                        pAura->ModStackAmount(stacksCount);
+                                        aura->ModStackAmount(stacksCount);
                                         owner->CastSpell(owner, poweringUp, true);
                                     }
                                     else
                                     {
                                         owner->CastSpell(owner, poweringUp, true);
-                                        if ((pAura = owner->GetAura(poweringUp)))
-                                            pAura->ModStackAmount(stacksCount);
+                                        if (Aura* newAura = owner->GetAura(poweringUp))
+                                            newAura->ModStackAmount(stacksCount);
                                     }
                                 }
                             }

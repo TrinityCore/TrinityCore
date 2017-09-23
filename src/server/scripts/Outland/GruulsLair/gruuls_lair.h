@@ -18,6 +18,8 @@
 #ifndef GRUULS_LAIR_H_
 #define GRUULS_LAIR_H_
 
+#include "CreatureAIImpl.h"
+
 #define GLScriptName "instance_gruuls_lair"
 #define DataHeader   "GL"
 
@@ -45,10 +47,10 @@ enum GLGameObjectIds
     GO_GRUUL_DOOR               = 184662
 };
 
-template<class AI>
-AI* GetGruulsLairAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetGruulsLairAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, GLScriptName);
+    return GetInstanceAI<AI>(obj, GLScriptName);
 }
 
 #endif // GRUULS_LAIR_H_

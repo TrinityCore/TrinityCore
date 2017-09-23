@@ -16,9 +16,13 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "temple_of_ahnqiraj.h"
+#include "TemporarySummon.h"
 
 enum Spells
 {
@@ -209,7 +213,7 @@ class boss_viscidus : public CreatureScript
 
                 if (_phase == PHASE_GLOB && summons.empty())
                 {
-                    DoResetThreat();
+                    ResetThreatList();
                     me->NearTeleportTo(ViscidusCoord.GetPositionX(),
                         ViscidusCoord.GetPositionY(),
                         ViscidusCoord.GetPositionZ(),
@@ -255,7 +259,7 @@ class boss_viscidus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_viscidusAI(creature);
+            return GetAQ40AI<boss_viscidusAI>(creature);
         }
 };
 
@@ -272,7 +276,7 @@ class npc_glob_of_viscidus : public CreatureScript
             {
                 InstanceScript* Instance = me->GetInstanceScript();
 
-                if (Creature* Viscidus = me->GetMap()->GetCreature(Instance->GetGuidData(DATA_VISCIDUS)))
+                if (Creature* Viscidus = ObjectAccessor::GetCreature(*me, Instance->GetGuidData(DATA_VISCIDUS)))
                 {
                     if (BossAI* ViscidusAI = dynamic_cast<BossAI*>(Viscidus->GetAI()))
                         ViscidusAI->SummonedCreatureDespawn(me);
@@ -304,7 +308,7 @@ class npc_glob_of_viscidus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_glob_of_viscidusAI>(creature);
+            return GetAQ40AI<npc_glob_of_viscidusAI>(creature);
         }
 };
 

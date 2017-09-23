@@ -19,11 +19,20 @@
 #ifndef DEF_SUNKEN_TEMPLE_H
 #define DEF_SUNKEN_TEMPLE_H
 
+#include "CreatureAIImpl.h"
+
+#define STScriptName "instance_sunken_temple"
 #define DataHeader "ST"
 
 enum STEvents
 {
     EVENT_STATE       = 1
 };
+
+template <class AI, class T>
+inline AI* GetSunkenTempleAI(T* obj)
+{
+    return GetInstanceAI<AI>(obj, STScriptName);
+}
 
 #endif

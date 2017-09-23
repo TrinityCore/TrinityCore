@@ -18,6 +18,8 @@
 #ifndef ARCATRAZ_H
 #define ARCATRAZ_H
 
+#include "CreatureAIImpl.h"
+
 #define ArcatrazScriptName "instance_arcatraz"
 #define DataHeader         "AZ"
 
@@ -62,10 +64,10 @@ enum AZGameObjectIds
     GO_WARDENS_SHIELD                           = 184802  // shield 'protecting' mellichar
 };
 
-template<class AI>
-AI* GetArcatrazAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetArcatrazAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, ArcatrazScriptName);
+    return GetInstanceAI<AI>(obj, ArcatrazScriptName);
 }
 
 #endif // ARCATRAZ_H

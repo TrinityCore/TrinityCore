@@ -28,9 +28,10 @@ at_ancient_leaf
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "Map.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 
 /*######
 ## at_ancient_leaf

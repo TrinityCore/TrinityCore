@@ -16,6 +16,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "vault_of_archavon.h"
@@ -92,7 +94,7 @@ class boss_emalon : public CreatureScript
             {
                 BossAI::JustSummoned(summoned);
 
-                // AttackStart has NULL-check for victim
+                // AttackStart has nullptr-check for victim
                 if (summoned->AI())
                     summoned->AI()->AttackStart(me->GetVictim());
             }
@@ -171,7 +173,7 @@ class boss_emalon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_emalonAI(creature);
+            return GetVaultOfArchavonAI<boss_emalonAI>(creature);
         }
 };
 
@@ -277,7 +279,7 @@ class npc_tempest_minion : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_tempest_minionAI>(creature);
+            return GetVaultOfArchavonAI<npc_tempest_minionAI>(creature);
         }
 };
 

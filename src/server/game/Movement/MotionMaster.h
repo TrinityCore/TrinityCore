@@ -20,22 +20,25 @@
 #define MOTIONMASTER_H
 
 #include "Common.h"
-#include <vector>
+#include "Errors.h"
+#include "ObjectGuid.h"
+#include "Position.h"
 #include "SharedDefines.h"
-#include "Object.h"
-#include "MoveSplineInitArgs.h"
-#include "SplineChain.h"
+#include <vector>
 
 class MovementGenerator;
 class Unit;
 class PathGenerator;
+struct SplineChainLink;
+struct SplineChainResumeInfo;
+struct WaypointPath;
 
 // Creature Entry ID used for waypoints show, visible only for GMs
 #define VISUAL_WAYPOINT 1
 // assume it is 25 yard per 0.6 second
 #define SPEED_CHARGE    42.0f
 
-enum MovementGeneratorType
+enum MovementGeneratorType : uint8
 {
     IDLE_MOTION_TYPE                = 0,                  // IdleMovementGenerator.h
     RANDOM_MOTION_TYPE              = 1,                  // RandomMovementGenerator.h
@@ -59,9 +62,9 @@ enum MovementGeneratorType
     MAX_MOTION_TYPE                                       // limit
 };
 
-enum MovementSlot
+enum MovementSlot : uint8
 {
-    MOTION_SLOT_IDLE,
+    MOTION_SLOT_IDLE = 0,
     MOTION_SLOT_ACTIVE,
     MOTION_SLOT_CONTROLLED,
     MAX_MOTION_SLOT
@@ -103,6 +106,7 @@ class TC_GAME_API MotionMaster
         void UpdateMotion(uint32 diff);
 
         void Clear(bool reset = true);
+        void Clear(MovementSlot slot);
         void MovementExpired(bool reset = true);
 
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
@@ -146,11 +150,10 @@ class TC_GAME_API MotionMaster
         }
         void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount);
-        void MoveSmoothPath(uint32 pointId, G3D::Vector3 const* pathPoints, size_t pathSize, bool walk);
-        void MoveSmoothPath(uint32 pointId, Movement::PointsArray const& points, bool walk);
+        void MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk);
         // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
         void MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk);
-        void MoveAlongSplineChain(uint32 pointId, SplineChain const& chain, bool walk);
+        void MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk);
         void ResumeSplineChain(SplineChainResumeInfo const& info);
         void MoveFall(uint32 id = 0);
 
@@ -158,7 +161,8 @@ class TC_GAME_API MotionMaster
         void MoveSeekAssistanceDistract(uint32 timer);
         void MoveTaxiFlight(uint32 path, uint32 pathnode);
         void MoveDistract(uint32 time);
-        void MovePath(uint32 path_id, bool repeatable);
+        void MovePath(uint32 pathId, bool repeatable);
+        void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 time, RotateDirection direction);
 
         void MoveFormation(uint32 id, Position destination, uint32 moveType, bool forceRun = false, bool forceOrientation = false);
@@ -171,10 +175,12 @@ class TC_GAME_API MotionMaster
         bool NeedInitTop() const;
         void InitTop();
 
-        void Mutate(MovementGenerator *m, MovementSlot slot);
+        void Mutate(MovementGenerator* m, MovementSlot slot);
 
         void DirectClean(bool reset);
         void DelayedClean();
+        void DirectClean(MovementSlot slot);
+        void DelayedClean(MovementSlot slot);
         void DirectExpire(bool reset);
         void DelayedExpire();
         void DirectDelete(MovementGenerator* curr);

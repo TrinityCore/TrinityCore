@@ -17,9 +17,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 #include "SpellInfo.h"
 
 /*######
@@ -65,7 +67,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* unit, const SpellInfo* spell) override
+        void SpellHit(Unit* unit, SpellInfo const* spell) override
         {
             if (spellhit)
                 return;
@@ -97,9 +99,9 @@ public:
                 return;
             }
             // walk 5 seconds before summoning
-            if (spellhit && morphtimer<5000)
+            if (spellhit && morphtimer < 5000)
             {
-                morphtimer+=diff;
+                morphtimer += diff;
                 if (morphtimer >= 5000)
                 {
                     DoCast(me, SPELL_POLYMORPH_BACKFIRE); // summon copies

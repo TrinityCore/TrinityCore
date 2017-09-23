@@ -24,9 +24,13 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "the_eye.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
+#include "the_eye.h"
 
 enum Spells
 {
@@ -185,13 +189,13 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell) override
+            void SpellHit(Unit*, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_DIVE_BOMB_VISUAL)
                 {
                     me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
                     me->SetDisplayId(11686);
-                    //me->SendUpdateObjectToAllExcept(NULL);
+                    //me->SendUpdateObjectToAllExcept(nullptr);
                 }
             }
 
@@ -207,7 +211,7 @@ class boss_alar : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!me->IsInCombat()) // sometimes IsInCombat but !incombat, faction bug?
+                if (!me->IsEngaged())
                     return;
 
                 if (Berserk_Timer <= diff)
@@ -324,7 +328,7 @@ class boss_alar : public CreatureScript
 
                 if (Phase1)
                 {
-                    if (me->getThreatManager().getThreatList().empty())
+                    if (!me->IsThreatened())
                     {
                         EnterEvadeMode();
                         return;
@@ -432,7 +436,7 @@ class boss_alar : public CreatureScript
                     }
                     else
                     {
-                        Unit* target = NULL;
+                        Unit* target = nullptr;
                         target = me->SelectNearestTargetInAttackDistance(5);
                         if (target)
                             AttackStart(target);
@@ -448,7 +452,7 @@ class boss_alar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_alarAI>(creature);
+            return GetTheEyeAI<boss_alarAI>(creature);
         }
 };
 
@@ -520,7 +524,7 @@ class npc_ember_of_alar : public CreatureScript
 
                 if (toDie)
                 {
-                    me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                     //me->SetVisibility(VISIBILITY_OFF);
                 }
 
@@ -531,7 +535,7 @@ class npc_ember_of_alar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_ember_of_alarAI>(creature);
+            return GetTheEyeAI<npc_ember_of_alarAI>(creature);
         }
 };
 
@@ -553,7 +557,7 @@ class npc_flame_patch_alar : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_flame_patch_alarAI(creature);
+            return GetTheEyeAI<npc_flame_patch_alarAI>(creature);
         }
 };
 

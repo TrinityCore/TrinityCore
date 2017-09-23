@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
 
 enum Say
 {
@@ -118,14 +118,14 @@ class boss_azuregos : public CreatureScript
                         case EVENT_TELEPORT:
                         {
                             Talk(SAY_TELEPORT);
-                            ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
+                            ThreatContainer::StorageType const& threatlist = me->GetThreatManager().getThreatList();
                             for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
                             {
                                 if (Player* player = ObjectAccessor::GetPlayer(*me, (*i)->getUnitGuid()))
                                     DoTeleportPlayer(player, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, player->GetOrientation());
                             }
 
-                            DoResetThreat();
+                            ResetThreatList();
                             events.ScheduleEvent(EVENT_TELEPORT, 30000);
                             break;
                         }
@@ -188,11 +188,7 @@ class spell_mark_of_frost : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_FROST))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_AURA_OF_FROST))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MARK_OF_FROST, SPELL_AURA_OF_FROST });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

@@ -16,15 +16,17 @@
  */
 
 #include "ScriptMgr.h"
+#include "GridNotifiersImpl.h"
+#include "Group.h"
+#include "InstanceScript.h"
+#include "LFGMgr.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "LFGMgr.h"
-#include "Player.h"
-#include "Group.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "shadowfang_keep.h"
-#include "GridNotifiersImpl.h"
+#include "SpellScript.h"
 
 enum ApothecarySpells
 {
@@ -133,7 +135,7 @@ class boss_apothecary_hummel : public CreatureScript
                     events.SetPhase(PHASE_INTRO);
                     events.ScheduleEvent(EVENT_HUMMEL_SAY_0, Milliseconds(1));
 
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(true);
                     me->SetFaction(FACTION_MONSTER);
                     DummyEntryCheckPredicate pred;
                     summons.DoAction(ACTION_START_EVENT, pred);
@@ -212,7 +214,7 @@ class boss_apothecary_hummel : public CreatureScript
                             break;
                         case EVENT_START_FIGHT:
                         {
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                            me->SetImmuneToAll(false);
                             me->SetInCombatWithZone();
                             events.ScheduleEvent(EVENT_CALL_BAXTER, Seconds(6));
                             events.ScheduleEvent(EVENT_CALL_FRYE, Seconds(14));
@@ -275,7 +277,7 @@ class boss_apothecary_hummel : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_apothecary_hummelAI>(creature);
+            return GetShadowfangKeepAI<boss_apothecary_hummelAI>(creature);
         }
 };
 
@@ -287,13 +289,13 @@ struct npc_apothecary_genericAI : public ScriptedAI
     {
         if (action == ACTION_START_EVENT)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->SetFaction(FACTION_MONSTER);
             me->GetMotionMaster()->MovePoint(1, _movePos);
         }
         else if (action == ACTION_START_FIGHT)
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            me->SetImmuneToAll(false);
             me->SetInCombatWithZone();
         }
     }
@@ -325,7 +327,7 @@ class npc_apothecary_frye : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_apothecary_fryeAI>(creature);
+            return GetShadowfangKeepAI<npc_apothecary_fryeAI>(creature);
         }
 };
 
@@ -388,7 +390,7 @@ class npc_apothecary_baxter : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_apothecary_baxterAI>(creature);
+            return GetShadowfangKeepAI<npc_apothecary_baxterAI>(creature);
         }
 };
 

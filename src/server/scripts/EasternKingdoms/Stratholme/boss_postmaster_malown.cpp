@@ -131,7 +131,7 @@ class boss_postmaster_malown : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_postmaster_malownAI>(creature);
+            return GetStratholmeAI<boss_postmaster_malownAI>(creature);
         }
 };
 

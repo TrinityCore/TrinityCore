@@ -16,15 +16,18 @@
  */
 
 #include "ScriptMgr.h"
+#include "CombatAI.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "oculus.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "SpellScript.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellInfo.h"
-#include "CombatAI.h"
-#include "Player.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
-#include "oculus.h"
 
 enum GossipNPCs
 {
@@ -263,7 +266,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 Initialize();
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
                 if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
                     if (spell->Id == SPELL_GPS)
@@ -478,9 +481,7 @@ class spell_oculus_evasive_maneuvers : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RUBY_EVASIVE_CHARGES))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RUBY_EVASIVE_CHARGES });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
@@ -515,9 +516,7 @@ class spell_oculus_shock_lance : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
             void CalcDamage()
@@ -557,9 +556,7 @@ class spell_oculus_stop_time : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
             void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -597,9 +594,7 @@ class spell_oculus_temporal_rift : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_AMBER_SHOCK_CHARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)

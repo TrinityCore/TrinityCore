@@ -16,20 +16,23 @@
  */
 
 #include "InstanceScript.h"
-#include "Player.h"
-#include "ScriptMgr.h"
+#include "Creature.h"
+#include "EventMap.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "gundrak.h"
-#include "EventMap.h"
+#include "Map.h"
+#include "Player.h"
+#include "ScriptMgr.h"
 
 DoorData const doorData[] =
 {
     { GO_GAL_DARAH_DOOR_1,              DATA_GAL_DARAH,         DOOR_TYPE_PASSAGE },
     { GO_GAL_DARAH_DOOR_2,              DATA_GAL_DARAH,         DOOR_TYPE_PASSAGE },
-    { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         DOOR_TYPE_ROOM },
+    { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         DOOR_TYPE_ROOM    },
     { GO_ECK_THE_FEROCIOUS_DOOR,        DATA_MOORABI,           DOOR_TYPE_PASSAGE },
     { GO_ECK_THE_FEROCIOUS_DOOR_BEHIND, DATA_ECK_THE_FEROCIOUS, DOOR_TYPE_PASSAGE },
-    { 0,                                0,                      DOOR_TYPE_ROOM } // END
+    { 0,                                0,                      DOOR_TYPE_ROOM    } // END
 };
 
 ObjectData const creatureData[] =
@@ -319,7 +322,7 @@ class instance_gundrak : public InstanceMapScript
 
                     if (GameObject* altar = GetGameObject(altarId))
                         if (Creature* trigger = altar->FindNearestCreature(NPC_ALTAR_TRIGGER, 10.0f))
-                            trigger->CastSpell((Unit*)nullptr, spellId, true);
+                            trigger->CastSpell(nullptr, spellId, true);
 
                     // eventId equals statueId
                     ToggleGameObject(eventId, GO_STATE_READY);
@@ -357,7 +360,7 @@ class go_gundrak_altar : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);

@@ -215,7 +215,8 @@ enum TrinityStrings
     LANG_GRID_POSITION                  = 178,
     // 179-185 used in 6.x branch
     LANG_TRANSPORT_POSITION             = 186,
-    // Room for more level 1              187-199 not used
+    LANG_PARTIAL_GROUP_SUMMON           = 187,
+    // Room for more level 1              188-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -314,7 +315,15 @@ enum TrinityStrings
     LANG_COMMAND_WHISPERON              = 285,
     LANG_COMMAND_WHISPEROFF             = 286,
     LANG_COMMAND_CREATGUIDNOTFOUND      = 287,
-      // TICKET STRINGS NEED REWRITE // 288-296 FREE
+    LANG_COMMAND_NOT_DEAD_OR_NO_LOOT    = 288,
+    LANG_COMMAND_NPC_SHOWLOOT_HEADER    = 289,
+    LANG_COMMAND_NPC_SHOWLOOT_LABEL     = 290,
+    LANG_COMMAND_NPC_SHOWLOOT_ENTRY     = 291,
+    LANG_COMMAND_NPC_SHOWLOOT_MONEY     = 292,
+    LANG_COMMAND_NPC_SHOWLOOT_LABEL_2   = 293,
+    LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL  = 294,
+    LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2   = 295,
+      // 296 free
 
       // END
     LANG_COMMAND_SPAWNDIST              = 297,
@@ -987,7 +996,10 @@ enum TrinityStrings
     LANG_GUILD_INFO_MOTD                = 1182,
     LANG_GUILD_INFO_EXTRA_INFO          = 1183,
     LANG_CHANGEACCOUNT_SUCCESS          = 1184,             // log
-    // Room for more level 3              1185-1198 not used
+    LANG_GROUP_NOT_IN_RAID_GROUP        = 1185,
+    LANG_GROUP_ROLE_CHANGED             = 1186,
+    LANG_LEADER_CANNOT_BE_ASSISTANT     = 1187,
+    // Room for more level 3              1188-1198 not used
 
     // Debug commands
     LANG_DO_NOT_USE_6X_DEBUG_AREATRIGGER_LEFT = 1999,
@@ -1135,7 +1147,32 @@ enum TrinityStrings
     LANG_COMMAND_MUTEHISTORY_EMPTY      = 5060,
     LANG_COMMAND_MUTEHISTORY_OUTPUT     = 5061,
 
-    // Room for more Trinity strings      5062-9999
+    // Scene debugs commands [Master only, not used in 3.3.5]
+    /*LANG_COMMAND_SCENE_DEBUG_ON         = 5062,
+    LANG_COMMAND_SCENE_DEBUG_OFF        = 5063,
+    LANG_COMMAND_SCENE_DEBUG_PLAY       = 5064,
+    LANG_COMMAND_SCENE_DEBUG_TRIGGER    = 5065,
+    LANG_COMMAND_SCENE_DEBUG_CANCEL     = 5066,
+    LANG_COMMAND_SCENE_DEBUG_COMPLETE   = 5067,
+    LANG_DEBUG_SCENE_OBJECT_LIST        = 5068,
+    LANG_DEBUG_SCENE_OBJECT_DETAIL      = 5069, */
+
+    // Strings added for dynamic_spawning
+    LANG_SPAWNINFO_GROUP_ID             = 5070,
+    LANG_SPAWNINFO_COMPATIBILITY_MODE   = 5071,
+    LANG_SPAWNINFO_GUIDINFO             = 5072,
+    LANG_SPAWNINFO_SPAWNID_LOCATION     = 5073,
+    LANG_SPAWNINFO_DISTANCEFROMPLAYER   = 5074,
+    LANG_SPAWNGROUP_BADGROUP            = 5075,
+    LANG_SPAWNGROUP_SPAWNCOUNT          = 5076,
+    LANG_LIST_RESPAWNS_RANGE            = 5077,
+    LANG_LIST_RESPAWNS_ZONE             = 5078,
+    LANG_LIST_RESPAWNS_LISTHEADER       = 5079,
+    LANG_LIST_RESPAWNS_OVERDUE          = 5080,
+    LANG_LIST_RESPAWNS_CREATURES        = 5081,
+    LANG_LIST_RESPAWNS_GAMEOBJECTS      = 5082,
+
+    // Room for more Trinity strings      5084-6603
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

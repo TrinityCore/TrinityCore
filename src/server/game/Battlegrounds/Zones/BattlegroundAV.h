@@ -1581,15 +1581,7 @@ struct BattlegroundAVScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override
-        {
-            data << uint32(5); // Objectives Count
-            data << uint32(GraveyardsAssaulted);
-            data << uint32(GraveyardsDefended);
-            data << uint32(TowersAssaulted);
-            data << uint32(TowersDefended);
-            data << uint32(MinesCaptured);
-        }
+        void BuildObjectivesBlock(WorldPacket& data) final override;
 
         uint32 GetAttr1() const final override { return GraveyardsAssaulted; }
         uint32 GetAttr2() const final override { return GraveyardsDefended; }
@@ -1633,7 +1625,7 @@ class BattlegroundAV : public Battleground
 
         void EndBattleground(uint32 winner) override;
 
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
 
         // Achievement: Av perfection and Everything counts
         bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;
@@ -1669,7 +1661,7 @@ class BattlegroundAV : public Battleground
         bool IsTower(BG_AV_Nodes node) { return m_Nodes[node].Tower; }
 
         /*mine*/
-        void ChangeMineOwner(uint8 mine, uint32 team, bool initial=false);
+        void ChangeMineOwner(uint8 mine, uint32 team, bool initial = false);
 
         /*worldstates*/
         void FillInitialWorldStates(WorldPacket& data) override;

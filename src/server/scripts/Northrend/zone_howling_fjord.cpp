@@ -28,12 +28,14 @@ npc_apothecary_hanes
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 /*######
 ## npc_apothecary_hanes
@@ -78,9 +80,9 @@ class npc_apothecary_hanes : public CreatureScript
 public:
     npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
 
-    struct npc_Apothecary_HanesAI : public npc_escortAI
+    struct npc_Apothecary_HanesAI : public EscortAI
     {
-        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature)
+        npc_Apothecary_HanesAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -131,7 +133,7 @@ public:
             if (GetAttack() && UpdateVictim())
                 DoMeleeAttackIfReady();
 
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (me->IsInCombat())
                 return;
@@ -154,7 +156,7 @@ public:
                         events.Reset();
                         me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        ENSURE_AI(npc_escortAI, (me->AI()))->Start(true, true, _player);
+                        ENSURE_AI(EscortAI, (me->AI()))->Start(true, true, _player);
                         break;
                     case EVENT_TALK_1:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
@@ -200,7 +202,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -232,12 +234,12 @@ public:
                     events.ScheduleEvent(EVENT_TALK_6, Seconds(17));
                     break;
                 case 35:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                        Talk(TALK_7, player);
+                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
+                        Talk(TALK_7, pl);
                     break;
                 case 40:
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                        player->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
+                    if (Player* pl = ObjectAccessor::GetPlayer(*me, _player))
+                        pl->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
                     events.ScheduleEvent(EVENT_TALK_8, Seconds(4));
                     break;
             }
@@ -270,9 +272,9 @@ class npc_plaguehound_tracker : public CreatureScript
 public:
     npc_plaguehound_tracker() : CreatureScript("npc_plaguehound_tracker") { }
 
-    struct npc_plaguehound_trackerAI : public npc_escortAI
+    struct npc_plaguehound_trackerAI : public EscortAI
     {
-        npc_plaguehound_trackerAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_plaguehound_trackerAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -290,7 +292,7 @@ public:
             Start(false, false, summonerGUID);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (waypointId != 26)
                 return;
@@ -560,9 +562,7 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON) || !sSpellMgr->GetSpellInfo(SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON, SPELL_COSMETIC_BLOOD_EXPLOSION_GREEN_LARGE });
             }
 
             void HandleScript(SpellEffIndex /*eff*/)

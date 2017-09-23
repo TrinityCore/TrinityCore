@@ -57,7 +57,7 @@ public:
         {
             if (IsHolidayActive(HOLIDAY_HALLOWS_END) && !player->HasAura(SPELL_TRICK_OR_TREATED))
             {
-                const char* localizedEntry;
+                char const* localizedEntry;
                 switch (player->GetSession()->GetSessionDbcLocale())
                 {
                     case LOCALE_frFR: localizedEntry = LOCALE_TRICK_OR_TREAT_2; break;
@@ -76,7 +76,7 @@ public:
 
             if (me->IsInnkeeper())
             {
-                const char* localizedEntry;
+                char const* localizedEntry;
                 switch (player->GetSession()->GetSessionDbcLocale())
                 {
                     case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;

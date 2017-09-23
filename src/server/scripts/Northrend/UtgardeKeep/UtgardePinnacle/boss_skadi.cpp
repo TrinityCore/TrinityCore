@@ -16,13 +16,16 @@
  */
 
 #include "ScriptMgr.h"
+#include "GridNotifiers.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "utgarde_pinnacle.h"
-#include "GridNotifiers.h"
-#include "Player.h"
-#include "MoveSplineInit.h"
 
 enum Spells
 {
@@ -262,7 +265,8 @@ public:
                     Talk(SAY_DRAKE_DEATH);
                     DoCast(me, SPELL_SKADI_TELEPORT, true);
                     summons.DespawnEntry(NPC_WORLD_TRIGGER);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetImmuneToPC(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     _phase = PHASE_GROUND;
 
@@ -322,7 +326,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_skadiAI>(creature);
+        return GetUtgardePinnacleAI<boss_skadiAI>(creature);
     }
 };
 
@@ -338,7 +342,7 @@ public:
         void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
-            me->setRegeneratingHealth(false);
+            me->SetRegenerateHealth(false);
             me->SetSpeedRate(MOVE_RUN, 2.5f);
         }
 
@@ -436,7 +440,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_LAUNCH_HARPOON)
                 if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
@@ -455,7 +459,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_graufAI>(creature);
+        return GetUtgardePinnacleAI<npc_graufAI>(creature);
     }
 };
 
@@ -551,7 +555,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ymirjar_warriorAI>(creature);
+        return GetUtgardePinnacleAI<npc_ymirjar_warriorAI>(creature);
     }
 };
 
@@ -582,7 +586,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ymirjar_witch_doctorAI>(creature);
+        return GetUtgardePinnacleAI<npc_ymirjar_witch_doctorAI>(creature);
     }
 };
 
@@ -600,7 +604,7 @@ public:
             _scheduler
                 .Schedule(Seconds(13), [this](TaskContext net)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 30, true))
                         DoCast(target, SPELL_NET);
                     net.Repeat();
                 })
@@ -619,7 +623,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_ymirjar_harpoonerAI>(creature);
+        return GetUtgardePinnacleAI<npc_ymirjar_harpoonerAI>(creature);
     }
 };
 
@@ -634,9 +638,7 @@ class spell_freezing_cloud_area_right : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FREEZING_CLOUD))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -673,9 +675,7 @@ class spell_freezing_cloud_area_left : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_FREEZING_CLOUD))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_FREEZING_CLOUD });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -821,9 +821,7 @@ class spell_skadi_poisoned_spear : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_POISONED_SPEAR_PERIODIC))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_POISONED_SPEAR_PERIODIC });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -857,7 +855,7 @@ class spell_summon_gauntlet_mobs_periodic : public SpellScriptLoader
                 for (uint8 i = 0; i < 2; ++i)
                 {
                     uint32 spellId = SummonSpellsList.front();
-                    GetTarget()->CastSpell((Unit*)nullptr, spellId, true);
+                    GetTarget()->CastSpell(nullptr, spellId, true);
                     SummonSpellsList.push_back(spellId);
                     SummonSpellsList.pop_front();
                 }

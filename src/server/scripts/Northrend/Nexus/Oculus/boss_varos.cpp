@@ -16,10 +16,13 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "oculus.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -233,7 +236,7 @@ class npc_azure_ring_captain : public CreatureScript
             {
                 switch (action)
                 {
-                   case ACTION_CALL_DRAGON_EVENT:
+                    case ACTION_CALL_DRAGON_EVENT:
                         if (Creature* varos = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VAROS)))
                         {
                             if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -255,7 +258,7 @@ class npc_azure_ring_captain : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_azure_ring_captainAI>(creature);
+            return GetOculusAI<npc_azure_ring_captainAI>(creature);
         }
 };
 
@@ -271,7 +274,7 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
             bool Load() override
             {
                 Unit* caster = GetCaster();
-                return (caster && caster->ToCreature());
+                return caster && caster->GetTypeId() == TYPEID_UNIT;
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -282,7 +285,8 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                     if (caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6))
                     {
                         caster->ToCreature()->SetReactState(REACT_PASSIVE);
-                        caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6);
+                        caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_6);
+                        caster->SetImmuneToAll(true, true);
                     }
                 }
             }
@@ -292,7 +296,8 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     caster->ToCreature()->SetReactState(REACT_AGGRESSIVE);
-                    caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6);
+                    caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_6);
+                    caster->SetImmuneToAll(false);
                 }
             }
 

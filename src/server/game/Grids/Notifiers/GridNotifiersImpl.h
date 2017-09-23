@@ -20,13 +20,13 @@
 #define TRINITY_GRIDNOTIFIERSIMPL_H
 
 #include "GridNotifiers.h"
-#include "WorldPacket.h"
 #include "Corpse.h"
-#include "Player.h"
-#include "UpdateData.h"
 #include "CreatureAI.h"
+#include "Player.h"
 #include "SpellAuras.h"
-#include "Opcodes.h"
+#include "UpdateData.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 template<class T>
 inline void Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)

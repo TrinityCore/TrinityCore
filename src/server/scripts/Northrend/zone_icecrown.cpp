@@ -17,12 +17,14 @@
  */
 
 #include "ScriptMgr.h"
+#include "CombatAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
-#include "Player.h"
 #include "TemporarySummon.h"
-#include "CombatAI.h"
 
 /*######
 ## npc_argent_valiant
@@ -431,7 +433,7 @@ public:
 
         void Reset() override
         {
-            me->setRegeneratingHealth(false);
+            me->SetRegenerateHealth(false);
             DoCast(SPELL_THREAT_PULSE);
             Talk(BANNER_SAY);
             events.ScheduleEvent(EVENT_SPAWN, 3000);

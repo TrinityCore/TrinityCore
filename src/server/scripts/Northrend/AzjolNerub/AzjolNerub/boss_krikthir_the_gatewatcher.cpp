@@ -20,11 +20,14 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "PassiveAI.h"
-#include "SpellAuras.h"
 #include "azjol_nerub.h"
+#include "Containers.h"
+#include "InstanceScript.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum Events
 {
@@ -129,7 +132,7 @@ class boss_krik_thir : public CreatureScript
 
         struct boss_krik_thirAI : public BossAI
         {
-            boss_krik_thirAI(Creature* creature) : BossAI(creature, DATA_KRIKTHIR), _hadGreet(false), _hadFrenzy(false), _petsInCombat(false), _watchersActive(0) { }
+            boss_krik_thirAI(Creature* creature) : BossAI(creature, DATA_KRIKTHIR), _hadFrenzy(false), _petsInCombat(false), _watchersActive(0) { }
 
             void SummonAdds()
             {
@@ -154,15 +157,9 @@ class boss_krik_thir : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void InitializeAI() override
+            void JustAppeared() override
             {
-                BossAI::InitializeAI();
-                SummonAdds();
-            }
-
-            void JustRespawned() override
-            {
-                BossAI::JustRespawned();
+                BossAI::JustAppeared();
                 SummonAdds();
             }
 
@@ -215,9 +212,9 @@ class boss_krik_thir : public CreatureScript
                 switch (action)
                 {
                     case -ACTION_GATEWATCHER_GREET:
-                        if (!_hadGreet && me->IsAlive() && !me->IsInCombat() && !_petsInCombat)
+                        if (!instance->GetData(DATA_GATEWATCHER_GREET) && me->IsAlive() && !me->IsInCombat() && !_petsInCombat)
                         {
-                            _hadGreet = true;
+                            instance->SetData(DATA_GATEWATCHER_GREET, 1);
                             Talk(SAY_PREFIGHT);
                         }
                         break;
@@ -310,7 +307,6 @@ class boss_krik_thir : public CreatureScript
             }
 
             private:
-                bool _hadGreet;
                 bool _hadFrenzy;
                 bool _petsInCombat;
                 uint8 _watchersActive;
@@ -318,7 +314,7 @@ class boss_krik_thir : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_krik_thirAI>(creature);
+            return GetAzjolNerubAI<boss_krik_thirAI>(creature);
         }
 };
 
@@ -481,7 +477,7 @@ class npc_watcher_gashra : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_watcher_gashraAI>(creature);
+            return GetAzjolNerubAI<npc_watcher_gashraAI>(creature);
         }
 };
 
@@ -559,7 +555,7 @@ class npc_watcher_narjil : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_watcher_narjilAI>(creature);
+            return GetAzjolNerubAI<npc_watcher_narjilAI>(creature);
         }
 };
 
@@ -637,7 +633,7 @@ class npc_watcher_silthik : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_watcher_silthikAI>(creature);
+            return GetAzjolNerubAI<npc_watcher_silthikAI>(creature);
         }
 };
 
@@ -697,7 +693,7 @@ class npc_anub_ar_warrior : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_warriorAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_warriorAI>(creature);
         }
 };
 
@@ -765,7 +761,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_skirmisherAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_skirmisherAI>(creature);
         }
 };
 
@@ -826,7 +822,7 @@ class npc_anub_ar_shadowcaster : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_anub_ar_shadowcasterAI>(creature);
+            return GetAzjolNerubAI<npc_anub_ar_shadowcasterAI>(creature);
         }
 };
 
@@ -853,7 +849,7 @@ class npc_skittering_swarmer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_skittering_swarmerAI>(creature);
+            return GetAzjolNerubAI<npc_skittering_swarmerAI>(creature);
         }
 };
 
@@ -886,7 +882,7 @@ class npc_skittering_infector : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_skittering_infectorAI>(creature);
+            return GetAzjolNerubAI<npc_skittering_infectorAI>(creature);
         }
 };
 
@@ -909,7 +905,7 @@ class npc_gatewatcher_web_wrap : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_gatewatcher_web_wrapAI>(creature);
+            return GetAzjolNerubAI<npc_gatewatcher_web_wrapAI>(creature);
         }
 };
 
@@ -945,9 +941,7 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
                 if (!targetList.empty())
                 {
                     // If there are, pick one of them at random
-                    std::list<WorldObject*>::iterator it = targetList.begin();
-                    std::advance(it, urand(0, targetList.size() - 1));
-                    target = *it;
+                    target = Trinity::Containers::SelectRandomContainerElement(targetList);
                 }
                 // And hit only that one
                 targetList.clear();
@@ -978,7 +972,7 @@ class spell_anub_ar_skirmisher_fixtate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_FIXTATE_TRIGGERED) != nullptr;
+                return ValidateSpellInfo({ SPELL_FIXTATE_TRIGGERED });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1010,7 +1004,7 @@ class spell_gatewatcher_web_wrap : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return sSpellMgr->GetSpellInfo(SPELL_WEB_WRAP_WRAPPED) != nullptr;
+                return ValidateSpellInfo({ SPELL_WEB_WRAP_WRAPPED });
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

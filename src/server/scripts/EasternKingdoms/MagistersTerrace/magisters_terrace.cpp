@@ -28,11 +28,11 @@ npc_kalecgos
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "magisters_terrace.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
-#include "magisters_terrace.h"
-#include "EventMap.h"
 
 /*######
 ## npc_kalecgos
@@ -155,7 +155,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_kalecgosAI(creature);
+        return GetMagistersTerraceAI<npc_kalecgosAI>(creature);
     }
 };
 

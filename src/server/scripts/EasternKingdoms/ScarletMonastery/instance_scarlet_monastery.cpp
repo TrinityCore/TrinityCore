@@ -16,7 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "scarlet_monastery.h"
 
 DoorData const doorData[] =
@@ -43,25 +46,12 @@ class instance_scarlet_monastery : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
                     case GO_PUMPKIN_SHRINE:
                         PumpkinShrineGUID = go->GetGUID();
-                        break;
-                    case GO_HIGH_INQUISITORS_DOOR:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_HIGH_INQUISITORS_DOOR:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

@@ -88,7 +88,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_aku_maiAI>(creature);
+        return GetBlackfathomDeepsAI<boss_aku_maiAI>(creature);
     }
 };
 

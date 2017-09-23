@@ -27,11 +27,17 @@ npc_announcer_toc5
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "InstanceScript.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "TemporarySummon.h"
 #include "trial_of_the_champion.h"
 #include "Vehicle.h"
-#include "Player.h"
 
 enum Yells
 {
@@ -362,8 +368,7 @@ public:
 
         void AggroAllPlayers(Creature* temp)
         {
-            Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
-
+            Map::PlayerList const& PlList = me->GetMap()->GetPlayers();
             if (PlList.isEmpty())
                 return;
 
@@ -379,9 +384,7 @@ public:
                         temp->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                         temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         temp->SetReactState(REACT_AGGRESSIVE);
-                        temp->SetInCombatWith(player);
-                        player->SetInCombatWith(temp);
-                        temp->AddThreat(player, 0.0f);
+                        AddThreat(player, 0.0f, temp);
                     }
                 }
             }
@@ -460,7 +463,7 @@ public:
                 instance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
                 instance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            else if (instance)
+            else
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
@@ -482,7 +485,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<npc_announcer_toc5AI>(creature);
+        return GetTrialOfTheChampionAI<npc_announcer_toc5AI>(creature);
     }
 };
 

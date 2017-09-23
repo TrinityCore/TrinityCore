@@ -16,10 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Vehicle.h"
-#include "SpellScript.h"
+#include "CreatureAIImpl.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum Texts
 {
@@ -169,7 +174,7 @@ class npc_tiger_matriarch : public CreatureScript
                 _tigerGuid = summoner->GetVehicle()->GetBase()->GetGUID();
                 if (Unit* tiger = ObjectAccessor::GetUnit(*me, _tigerGuid))
                 {
-                    me->AddThreat(tiger, 500000.0f);
+                    AddThreat(tiger, 500000.0f);
                     DoCast(me, SPELL_FURIOUS_BITE);
                 }
             }
@@ -373,9 +378,7 @@ class spell_mount_check : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOUNTING_CHECK))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_MOUNTING_CHECK });
             }
 
             void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
@@ -421,11 +424,7 @@ class spell_voljin_war_drums : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOTIVATE_1))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOTIVATE_2))
-                    return false;
-               return true;
+                return ValidateSpellInfo({ SPELL_MOTIVATE_1, SPELL_MOTIVATE_2 });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -478,12 +477,7 @@ class spell_voodoo : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BREW) || !sSpellMgr->GetSpellInfo(SPELL_GHOSTLY) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HEX1) || !sSpellMgr->GetSpellInfo(SPELL_HEX2) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HEX3) || !sSpellMgr->GetSpellInfo(SPELL_GROW) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_LAUNCH))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_BREW, SPELL_GHOSTLY, SPELL_HEX1, SPELL_HEX2, SPELL_HEX3, SPELL_GROW, SPELL_LAUNCH });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

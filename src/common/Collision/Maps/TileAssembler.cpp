@@ -24,6 +24,7 @@
 #include <set>
 #include <iomanip>
 #include <sstream>
+#include <boost/filesystem.hpp>
 
 using G3D::Vector3;
 using G3D::AABox;
@@ -32,7 +33,7 @@ using std::pair;
 
 template<> struct BoundsTrait<VMAP::ModelSpawn*>
 {
-    static void getBounds(const VMAP::ModelSpawn* const &obj, G3D::AABox& out) { out = obj->getBounds(); }
+    static void getBounds(VMAP::ModelSpawn const* const& obj, G3D::AABox& out) { out = obj->getBounds(); }
 };
 
 namespace VMAP
@@ -43,7 +44,7 @@ namespace VMAP
         return memcmp(dest, compare, len) == 0;
     }
 
-    Vector3 ModelPosition::transform(const Vector3& pIn) const
+    Vector3 ModelPosition::transform(Vector3 const& pIn) const
     {
         Vector3 out = pIn * iScale;
         out = iRotation * out;
@@ -53,9 +54,9 @@ namespace VMAP
     //=================================================================
 
     TileAssembler::TileAssembler(const std::string& pSrcDirName, const std::string& pDestDirName)
-        : iDestDir(pDestDirName), iSrcDir(pSrcDirName), iFilterMethod(NULL), iCurrentUniqueNameId(0)
+        : iDestDir(pDestDirName), iSrcDir(pSrcDirName), iFilterMethod(nullptr), iCurrentUniqueNameId(0)
     {
-        //mkdir(iDestDir);
+        boost::filesystem::create_directory(iDestDir);
         //init();
     }
 
@@ -136,10 +137,8 @@ namespace VMAP
             // global map spawns (WDT), if any (most instances)
             if (success && fwrite("GOBJ", 4, 1, mapfile) != 1) success = false;
 
-            for (TileMap::iterator glob=globalRange.first; glob != globalRange.second && success; ++glob)
-            {
+            for (TileMap::iterator glob = globalRange.first; glob != globalRange.second && success; ++glob)
                 success = ModelSpawn::writeToFile(mapfile, map_iter->second->UniqueEntries[glob->second]);
-            }
 
             fclose(mapfile);
 
@@ -150,7 +149,7 @@ namespace VMAP
             TileMap::iterator tile;
             for (tile = tileEntries.begin(); tile != tileEntries.end(); ++tile)
             {
-                const ModelSpawn &spawn = map_iter->second->UniqueEntries[tile->second];
+                ModelSpawn const& spawn = map_iter->second->UniqueEntries[tile->second];
                 if (spawn.flags & MOD_WORLDSPAWN) // WDT spawn, saved as tile 65/65 currently...
                     continue;
                 uint32 nSpawns = tileEntries.count(tile->first);
@@ -171,7 +170,7 @@ namespace VMAP
                     {
                         if (s)
                             ++tile;
-                        const ModelSpawn &spawn2 = map_iter->second->UniqueEntries[tile->second];
+                        ModelSpawn const& spawn2 = map_iter->second->UniqueEntries[tile->second];
                         success = success && ModelSpawn::writeToFile(tilefile, spawn2);
                         // MapTree nodes to update when loading tile:
                         std::map<uint32, uint32>::iterator nIdx = modelNodeIdx.find(spawn2.ID);
@@ -266,9 +265,9 @@ namespace VMAP
             printf("Warning: '%s' does not seem to be a M2 model!\n", modelFilename.c_str());
 
         AABox modelBound;
-        bool boundEmpty=true;
+        bool boundEmpty = true;
 
-        for (uint32 g=0; g<groups; ++g) // should be only one for M2 files...
+        for (uint32 g = 0; g < groups; ++g) // should be only one for M2 files...
         {
             std::vector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
 
@@ -284,7 +283,10 @@ namespace VMAP
                 Vector3 v = modelPosition.transform(vertices[i]);
 
                 if (boundEmpty)
-                    modelBound = AABox(v, v), boundEmpty=false;
+                {
+                    modelBound = AABox(v, v);
+                    boundEmpty = false;
+                }
                 else
                     modelBound.merge(v);
             }

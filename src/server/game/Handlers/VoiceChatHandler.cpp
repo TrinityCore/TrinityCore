@@ -17,6 +17,7 @@
  */
 
 #include "Common.h"
+#include "Log.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 

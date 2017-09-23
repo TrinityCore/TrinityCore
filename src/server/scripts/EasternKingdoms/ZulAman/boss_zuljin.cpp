@@ -23,9 +23,12 @@ SDComment:
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "zulaman.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
+#include "zulaman.h"
 
 enum Says
 {
@@ -299,7 +302,7 @@ class boss_zuljin : public CreatureScript
                     case 3:
                     case 4:
                         DoTeleportTo(CENTER_X, CENTER_Y, CENTER_Z, 100);
-                        DoResetThreat();
+                        ResetThreatList();
                         me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
                         me->RemoveAurasDueToSpell(Transform[Phase].unaura);
                         DoCast(me, Transform[Phase].spell);
@@ -580,7 +583,7 @@ class npc_zuljin_vortex : public CreatureScript
 
             void EnterCombat(Unit* /*target*/) override { }
 
-            void SpellHit(Unit* caster, const SpellInfo* spell) override
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_ZAP_INFORM)
                     DoCast(caster, SPELL_ZAP_DAMAGE, true);

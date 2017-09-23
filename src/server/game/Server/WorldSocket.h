@@ -67,6 +67,8 @@ public:
 
     void SendPacket(WorldPacket const& packet);
 
+    void SetSendBufferSize(std::size_t sendBufferSize) { _sendBufferSize = sendBufferSize; }
+
 protected:
     void OnClose() override;
     void ReadHandler() override;
@@ -110,6 +112,7 @@ private:
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
     MPSCQueue<EncryptablePacket> _bufferQueue;
+    std::size_t _sendBufferSize;
 
     QueryCallbackProcessor _queryProcessor;
     std::string _ipCountry;

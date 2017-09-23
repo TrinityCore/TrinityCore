@@ -16,12 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Creature.h"
-#include "Player.h"
-#include "PathGenerator.h"
-#include "MoveSplineInit.h"
-#include "MoveSpline.h"
 #include "ConfusedMovementGenerator.h"
+#include "Creature.h"
+#include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "PathGenerator.h"
+#include "Player.h"
+#include "Random.h"
 
 template<class T>
 ConfusedMovementGenerator<T>::~ConfusedMovementGenerator()
@@ -40,7 +41,7 @@ void ConfusedMovementGenerator<T>::DoInitialize(T* owner)
     owner->StopMoving();
 
     _timer.Reset(0);
-    owner->GetPosition(_reference.x, _reference.y, _reference.z);
+    owner->GetPosition(_x, _y, _z);
 }
 
 template<class T>
@@ -71,7 +72,7 @@ bool ConfusedMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
         // start moving
         owner->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
-        Position destination(_reference);
+        Position destination(_x, _y, _z);
         float distance = 4.0f * frand(0.0f, 1.0f) - 2.0f;
         float angle = frand(0.0f, 1.0f) * float(M_PI) * 2.0f;
         owner->MovePositionToFirstCollision(destination, distance, angle);

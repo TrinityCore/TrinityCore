@@ -17,8 +17,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "nexus.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 
 enum Spells
@@ -170,7 +171,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_ormorokAI>(creature);
+        return GetNexusAI<boss_ormorokAI>(creature);
     }
 };
 
@@ -258,7 +259,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_crystal_spike_triggerAI(creature);
+        return GetNexusAI<npc_crystal_spike_triggerAI>(creature);
     }
 };
 

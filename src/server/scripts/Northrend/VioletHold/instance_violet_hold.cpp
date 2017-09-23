@@ -16,11 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
-#include "WorldPacket.h"
-#include "violet_hold.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
+#include "TemporarySummon.h"
+#include "violet_hold.h"
+#include "WorldPacket.h"
 
 /*
  * TODO:
@@ -65,7 +69,7 @@ Position const PortalIntroPositions[PortalIntroPositionsSize] = // sniff
 uint32 const EncouterPortalsCount = PortalPositionsSize + PortalElitePositionsSize;
 
 uint32 const MoraggPathSize = 3;
-G3D::Vector3 const MoraggPath[MoraggPathSize] = // sniff
+Position const MoraggPath[MoraggPathSize] = // sniff
 {
     { 1893.895f, 728.1261f, 47.75016f },
     { 1892.997f, 738.4987f, 47.66684f },
@@ -73,7 +77,7 @@ G3D::Vector3 const MoraggPath[MoraggPathSize] = // sniff
 };
 
 uint32 const ErekemPathSize = 3;
-G3D::Vector3 const ErekemPath[ErekemPathSize] = // sniff
+Position const ErekemPath[ErekemPathSize] = // sniff
 {
     { 1871.456f, 871.0361f, 43.41524f },
     { 1874.948f, 859.5452f, 43.33349f },
@@ -81,7 +85,7 @@ G3D::Vector3 const ErekemPath[ErekemPathSize] = // sniff
 };
 
 uint32 const ErekemGuardLeftPathSize = 3;
-G3D::Vector3 const ErekemGuardLeftPath[ErekemGuardLeftPathSize] = // sniff
+Position const ErekemGuardLeftPath[ErekemGuardLeftPathSize] = // sniff
 {
     { 1853.752f, 862.4528f, 43.41614f },
     { 1866.931f, 854.577f,  43.3335f  },
@@ -89,7 +93,7 @@ G3D::Vector3 const ErekemGuardLeftPath[ErekemGuardLeftPathSize] = // sniff
 };
 
 uint32 const ErekemGuardRightPathSize = 3;
-G3D::Vector3 const ErekemGuardRightPath[ErekemGuardRightPathSize] = // sniff
+Position const ErekemGuardRightPath[ErekemGuardRightPathSize] = // sniff
 {
     { 1892.418f, 872.2831f, 43.41563f },
     { 1885.639f, 859.0245f, 43.3335f  },
@@ -97,7 +101,7 @@ G3D::Vector3 const ErekemGuardRightPath[ErekemGuardRightPathSize] = // sniff
 };
 
 uint32 const IchoronPathSize = 5;
-G3D::Vector3 const IchoronPath[IchoronPathSize] = // sniff
+Position const IchoronPath[IchoronPathSize] = // sniff
 {
     { 1942.041f, 749.5228f, 30.95229f },
     { 1930.571f, 762.9065f, 31.98814f },
@@ -107,7 +111,7 @@ G3D::Vector3 const IchoronPath[IchoronPathSize] = // sniff
 };
 
 uint32 const LavanthorPathSize = 3;
-G3D::Vector3 const LavanthorPath[LavanthorPathSize] = // sniff
+Position const LavanthorPath[LavanthorPathSize] = // sniff
 {
     { 1844.557f, 748.7083f, 38.74205f },
     { 1854.618f, 761.5295f, 38.65631f },
@@ -115,7 +119,7 @@ G3D::Vector3 const LavanthorPath[LavanthorPathSize] = // sniff
 };
 
 uint32 const XevozzPathSize = 3;
-G3D::Vector3 const XevozzPath[XevozzPathSize] = // sniff
+Position const XevozzPath[XevozzPathSize] = // sniff
 {
     { 1908.417f, 845.8502f, 38.71947f },
     { 1905.557f, 841.3157f, 38.65529f },
@@ -123,7 +127,7 @@ G3D::Vector3 const XevozzPath[XevozzPathSize] = // sniff
 };
 
 uint32 const ZuramatPathSize = 3;
-G3D::Vector3 const ZuramatPath[ZuramatPathSize] = // sniff
+Position const ZuramatPath[ZuramatPathSize] = // sniff
 {
     { 1934.151f, 860.9463f, 47.29499f },
     { 1927.085f, 852.1342f, 47.19214f },
@@ -330,11 +334,11 @@ class instance_violet_hold : public InstanceMapScript
                 {
                     case DATA_1ST_BOSS:
                         if (state == DONE)
-                            UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_EREKEM, nullptr);
+                            UpdateEncounterStateForKilledCreature(NPC_EREKEM, nullptr);
                         break;
                     case DATA_2ND_BOSS:
                         if (state == DONE)
-                            UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, NPC_MORAGG, nullptr);
+                            UpdateEncounterStateForKilledCreature(NPC_MORAGG, nullptr);
                         break;
                     case DATA_CYANIGOSA:
                         if (state == DONE)
@@ -553,7 +557,7 @@ class instance_violet_hold : public InstanceMapScript
                                 {
                                     if (Creature* moragg = GetCreature(DATA_MORAGG))
                                     {
-                                        moragg->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                        moragg->SetImmuneToAll(false);
                                         moragg->AI()->DoZoneInCombat(moragg, 200.0f);
                                     }
                                 });
@@ -586,12 +590,12 @@ class instance_violet_hold : public InstanceMapScript
                                         for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
                                         {
                                             if (Creature* guard = instance->GetCreature(GetGuidData(i)))
-                                                guard->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                                guard->SetImmuneToAll(false);
                                         }
 
                                         if (Creature* erekem = GetCreature(DATA_EREKEM))
                                         {
-                                            erekem->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                            erekem->SetImmuneToAll(false);
                                             erekem->AI()->DoZoneInCombat(erekem, 200.0f);
                                         }
                                     });
@@ -614,7 +618,7 @@ class instance_violet_hold : public InstanceMapScript
                                 {
                                     if (Creature* ichoron = GetCreature(DATA_ICHORON))
                                     {
-                                        ichoron->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                        ichoron->SetImmuneToAll(false);
                                         ichoron->AI()->DoZoneInCombat(ichoron, 200.0f);
                                     }
                                 });
@@ -636,7 +640,7 @@ class instance_violet_hold : public InstanceMapScript
                                 {
                                     if (Creature* lavanthor = GetCreature(DATA_LAVANTHOR))
                                     {
-                                        lavanthor->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                        lavanthor->SetImmuneToAll(false);
                                         lavanthor->AI()->DoZoneInCombat(lavanthor, 200.0f);
                                     }
                                 });
@@ -663,7 +667,7 @@ class instance_violet_hold : public InstanceMapScript
                                     {
                                         if (Creature* xevozz = GetCreature(DATA_XEVOZZ))
                                         {
-                                            xevozz->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                            xevozz->SetImmuneToAll(false);
                                             xevozz->AI()->DoZoneInCombat(xevozz, 200.0f);
                                         }
                                     });
@@ -689,7 +693,7 @@ class instance_violet_hold : public InstanceMapScript
                                 {
                                     if (Creature* zuramat = GetCreature(DATA_ZURAMAT))
                                     {
-                                        zuramat->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                        zuramat->SetImmuneToAll(false);
                                         zuramat->AI()->DoZoneInCombat(zuramat, 200.0f);
                                     }
                                 });
@@ -729,7 +733,7 @@ class instance_violet_hold : public InstanceMapScript
                                     UpdateKilledBoss(guard);
 
                                 guard->GetMotionMaster()->MoveTargetedHome();
-                                guard->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                guard->SetImmuneToAll(true);
                             }
                         }
                         // no break
@@ -742,7 +746,7 @@ class instance_violet_hold : public InstanceMapScript
                         }
 
                         boss->GetMotionMaster()->MoveTargetedHome();
-                        boss->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        boss->SetImmuneToAll(true);
                         break;
                 }
             }
@@ -897,7 +901,7 @@ class instance_violet_hold : public InstanceMapScript
                             {
                                 cyanigosa->RemoveAurasDueToSpell(SPELL_CYANIGOSA_ARCANE_POWER_STATE);
                                 cyanigosa->CastSpell(cyanigosa, SPELL_CYANIGOSA_TRANSFORM, true);
-                                cyanigosa->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                cyanigosa->SetImmuneToAll(false);
                             }
                         });
                     });

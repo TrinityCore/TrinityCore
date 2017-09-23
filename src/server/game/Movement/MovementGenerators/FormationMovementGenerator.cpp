@@ -35,7 +35,7 @@ void FormationMovementGenerator::DoInitialize(Creature* owner)
     owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
     Movement::MoveSplineInit init(owner);
-    init.MoveTo(_destination);
+    init.MoveTo(_destination.GetPositionX(), _destination.GetPositionY(), _destination.GetPositionZ());
     if (_orientation)
         init.SetFacing(_destination.GetOrientation());
 
@@ -81,7 +81,7 @@ bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 /*diff*/)
         owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
         Movement::MoveSplineInit init(owner);
-        init.MoveTo(_destination);
+        init.MoveTo(_destination.GetPositionX(), _destination.GetPositionY(), _destination.GetPositionZ());
         if (_orientation)
             init.SetFacing(_destination.GetOrientation());
 

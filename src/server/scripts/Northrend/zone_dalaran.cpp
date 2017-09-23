@@ -24,9 +24,13 @@ SDCategory: Dalaran
 Script Data End */
 
 #include "ScriptMgr.h"
+#include "DatabaseEnv.h"
+#include "Mail.h"
+#include "Map.h"
+#include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 #include "WorldSession.h"
 
 /*******************************************************
@@ -165,17 +169,16 @@ class npc_minigob_manabonk : public CreatureScript
 
             Player* SelectTargetInDalaran()
             {
-                std::list<Player*> PlayerInDalaranList;
-                PlayerInDalaranList.clear();
+                std::vector<Player*> PlayerInDalaranList;
 
-                Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     if (Player* player = itr->GetSource()->ToPlayer())
                         if (player->GetZoneId() == ZONE_DALARAN && !player->IsFlying() && !player->IsMounted() && !player->IsGameMaster())
                             PlayerInDalaranList.push_back(player);
 
                 if (PlayerInDalaranList.empty())
-                    return NULL;
+                    return nullptr;
                 return Trinity::Containers::SelectRandomContainerElement(PlayerInDalaranList);
             }
 

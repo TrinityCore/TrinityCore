@@ -24,10 +24,13 @@ SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-
+#include "TemporarySummon.h"
 #include "the_eye.h"
 
 enum Yells
@@ -289,7 +292,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         //After these 50 seconds she portals to the middle of the room and disappears, leaving 3 light portals behind.
                         me->GetMotionMaster()->Clear();
                         me->UpdatePosition(CENTER_X, CENTER_Y, CENTER_Z, CENTER_O);
-                        for (uint8 i=0; i <= 2; ++i)
+                        for (uint8 i = 0; i <= 2; ++i)
                         {
                             if (!i)
                             {
@@ -306,15 +309,15 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         if ((std::abs(Portals[2][0] - Portals[1][0]) < 7) && (std::abs(Portals[2][1] - Portals[1][1]) < 7))
                         {
-                            int i=1;
+                            int i = 1;
                             if (std::abs(CENTER_X + 26.0f - Portals[2][0]) < 7)
                                 i = -1;
-                            Portals[2][0] = Portals[2][0]+7*i;
+                            Portals[2][0] = Portals[2][0] + 7 * i;
                             Portals[2][1] = Portal_Y(Portals[2][0], LARGE_PORTAL_RADIUS);
                         }
-                        for (int i=0; i <= 2; ++i)
+                        for (int i = 0; i <= 2; ++i)
                         {
-                            if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
+                            if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer + Phase3_Timer + AppearDelay_Timer + 1700))
                             {
                                 Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);
@@ -323,7 +326,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         AppearDelay = true;
                     }
                     else
-                        Phase1_Timer-=diff;
+                        Phase1_Timer -= diff;
                 }
                 else if (Phase == 2)
                 {
@@ -410,7 +413,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<boss_high_astromancer_solarianAI>(creature);
+            return GetTheEyeAI<boss_high_astromancer_solarianAI>(creature);
         }
 };
 
@@ -455,7 +458,7 @@ class npc_solarium_priest : public CreatureScript
 
                 if (healTimer <= diff)
                 {
-                    Unit* target = NULL;
+                    Unit* target = nullptr;
                     switch (urand(0, 1))
                     {
                         case 0:
@@ -497,7 +500,7 @@ class npc_solarium_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetInstanceAI<npc_solarium_priestAI>(creature);
+            return GetTheEyeAI<npc_solarium_priestAI>(creature);
         }
 };
 
@@ -512,9 +515,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WRATH_OF_THE_ASTROMANCER_DOT))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ SPELL_WRATH_OF_THE_ASTROMANCER_DOT });
             }
 
             void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

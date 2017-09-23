@@ -15,11 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "InstanceScript.h"
 #include "ruby_sanctum.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum Texts
 {
@@ -72,8 +73,7 @@ class boss_baltharus_the_warborn : public CreatureScript
 
         struct boss_baltharus_the_warbornAI : public BossAI
         {
-            boss_baltharus_the_warbornAI(Creature* creature) : BossAI(creature, DATA_BALTHARUS_THE_WARBORN),
-                _cloneCount(0), _introDone(false) { }
+            boss_baltharus_the_warbornAI(Creature* creature) : BossAI(creature, DATA_BALTHARUS_THE_WARBORN), _cloneCount(0) { }
 
             void Reset() override
             {
@@ -90,9 +90,6 @@ class boss_baltharus_the_warborn : public CreatureScript
                 switch (action)
                 {
                     case ACTION_INTRO_BALTHARUS:
-                        if (_introDone)
-                            return;
-                        _introDone = true;
                         me->setActive(true);
                         events.ScheduleEvent(EVENT_INTRO_TALK, Seconds(7), 0, PHASE_INTRO);
                         break;
@@ -231,7 +228,6 @@ class boss_baltharus_the_warborn : public CreatureScript
 
         private:
             uint8 _cloneCount;
-            bool _introDone;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

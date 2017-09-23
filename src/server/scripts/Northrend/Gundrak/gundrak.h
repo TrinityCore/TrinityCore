@@ -18,6 +18,8 @@
 #ifndef GUNDRAK_H_
 #define GUNDRAK_H_
 
+#include "CreatureAIImpl.h"
+
 #define GundrakScriptName "instance_gundrak"
 #define DataHeader "GD"
 
@@ -91,7 +93,7 @@ enum GDInstanceMisc
     TIMER_STATUE_ACTIVATION          = 3500
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetGundrakAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, GundrakScriptName);

@@ -83,7 +83,7 @@ class boss_skeram : public CreatureScript
             {
                 ScriptedAI::EnterEvadeMode(why);
                 if (me->IsSummon())
-                    ((TempSummon*)me)->UnSummon();
+                    me->DespawnOrUnsummon();
             }
 
             void JustSummoned(Creature* creature) override
@@ -166,7 +166,7 @@ class boss_skeram : public CreatureScript
                             break;
                         case EVENT_BLINK:
                             DoCast(me, BlinkSpells[urand(0, 2)]);
-                            DoResetThreat();
+                            ResetThreatList();
                             me->SetVisible(true);
                             events.ScheduleEvent(EVENT_BLINK, urand(10000, 30000));
                             break;
@@ -200,7 +200,7 @@ class boss_skeram : public CreatureScript
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_skeramAI(creature);
+        return GetAQ40AI<boss_skeramAI>(creature);
     }
 };
 
@@ -258,10 +258,7 @@ public:
 
         bool Validate(SpellInfo const* /*spell*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_TRUE_FULFILLMENT_2)
-                || !sSpellMgr->GetSpellInfo(SPELL_GENERIC_DISMOUNT))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_TRUE_FULFILLMENT_2, SPELL_GENERIC_DISMOUNT });
         }
 
         void HandleEffect(SpellEffIndex /*effIndex*/)

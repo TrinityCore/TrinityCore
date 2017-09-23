@@ -18,6 +18,8 @@
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
+#include "CreatureAIImpl.h"
+
 #define UlduarScriptName "instance_ulduar"
 #define DataHeader "UU"
 
@@ -57,9 +59,7 @@ enum UlduarNPCs
     NPC_SALVAGED_CHOPPER                    = 33062,
     NPC_IGNIS                               = 33118,
     NPC_RAZORSCALE                          = 33186,
-    NPC_RAZORSCALE_CONTROLLER               = 33233,
     NPC_STEELFORGED_DEFFENDER               = 33236,
-    NPC_EXPEDITION_COMMANDER                = 33210,
     NPC_XT002                               = 33293,
     NPC_XT_TOY_PILE                         = 33337,
     NPC_STEELBREAKER                        = 32867,
@@ -79,6 +79,18 @@ enum UlduarNPCs
     NPC_VEZAX                               = 33271,
     NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
+
+    // Razorscale
+    NPC_DARK_RUNE_GUARDIAN                  = 33388,
+    NPC_DARK_RUNE_SENTINEL                  = 33846,
+    NPC_DARK_RUNE_WATCHER                   = 33453,
+    NPC_RAZORSCALE_SPAWNER                  = 33245,
+    NPC_EXPEDITION_COMMANDER                = 33210,
+    NPC_EXPEDITION_ENGINEER                 = 33287,
+    NPC_EXPEDITION_DEFENDER                 = 33816,
+    NPC_EXPEDITION_TRAPPER                  = 33259,
+    NPC_RAZORSCALE_CONTROLLER               = 33233,
+    NPC_RAZORSCALE_HARPOON_FIRE_STATE       = 33282,
 
     //XT002
     NPC_XS013_SCRAPBOT                      = 33343,
@@ -490,11 +502,13 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-template<class AI, class T>
-AI* GetUlduarAI(T* obj)
+template <class AI, class T>
+inline AI* GetUlduarAI(T* obj)
 {
     return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
+
+#define RegisterUlduarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUlduarAI)
 
 class KeeperDespawnEvent : public BasicEvent
 {

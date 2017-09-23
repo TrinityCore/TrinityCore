@@ -86,8 +86,8 @@ private:
     void LoadBuyerValues(BuyerConfiguration& config);
 
     // ahInfo can be NULL
-    bool RollBuyChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice);
-    bool RollBidChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice);
+    bool RollBuyChance(BuyerItemInfo const* ahInfo, Item const* item, AuctionEntry const* auction, uint32 bidPrice);
+    bool RollBidChance(BuyerItemInfo const* ahInfo, Item const* item, AuctionEntry const* auction, uint32 bidPrice);
     void PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice);
     void BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctionHouse);
     void PrepareListOfEntry(BuyerConfiguration& config);
