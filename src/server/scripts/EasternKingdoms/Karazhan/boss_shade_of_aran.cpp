@@ -506,26 +506,24 @@ public:
                 DrinkInturrupted = true;
         }
 
-        void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
         {
-            //We only care about interrupt effects and only if they are durring a spell currently being cast
-            for (SpellEffectInfo const* effect : Spell->GetEffectsForDifficulty(me->GetMap()->GetDifficultyID()))
-                if (effect && effect->Effect == SPELL_EFFECT_INTERRUPT_CAST && me->IsNonMeleeSpellCast(false))
+            // We only care about interrupt effects and only if they are durring a spell currently being cast
+            if (spellInfo->HasEffect(SPELL_EFFECT_INTERRUPT_CAST) && me->IsNonMeleeSpellCast(false))
+            {
+                // Interrupt effect
+                me->InterruptNonMeleeSpells(false);
+
+                // Normally we would set the cooldown equal to the spell duration
+                // but we do not have access to the DurationStore
+
+                switch (CurrentNormalSpell)
                 {
-                    //Interrupt effect
-                    me->InterruptNonMeleeSpells(false);
-
-                    //Normally we would set the cooldown equal to the spell duration
-                    //but we do not have access to the DurationStore
-
-                    switch (CurrentNormalSpell)
-                    {
                     case SPELL_ARCMISSLE: ArcaneCooldown = 5000; break;
                     case SPELL_FIREBALL: FireCooldown = 5000; break;
                     case SPELL_FROSTBOLT: FrostCooldown = 5000; break;
-                    }
-                    return;
                 }
+            }
         }
 
         void MoveInLineOfSight(Unit* who) override

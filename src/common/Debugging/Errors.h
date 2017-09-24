@@ -55,10 +55,13 @@ namespace Trinity
 #define ASSERT WPAssert
 #define ABORT WPAbort
 
-template <typename T> inline T* ASSERT_NOTNULL(T* pointer)
+template <typename T>
+inline T* ASSERT_NOTNULL_IMPL(T* pointer, char const* expr)
 {
-    ASSERT(pointer);
+    ASSERT(pointer, "%s", expr);
     return pointer;
 }
+
+#define ASSERT_NOTNULL(pointer) ASSERT_NOTNULL_IMPL(pointer, #pointer)
 
 #endif

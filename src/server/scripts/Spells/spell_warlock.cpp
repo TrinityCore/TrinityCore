@@ -1380,9 +1380,7 @@ class spell_warl_t4_2p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(Trigger))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ Trigger });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
