@@ -1699,7 +1699,7 @@ void Guild::HandleSetMemberNote(WorldSession* session, std::string const& note, 
         else
             member->SetPublicNote(note);
 
-        HandleRoster(session); // FIXME - We should send SMSG_GUILD_MEMBER_UPDATE_NOTE
+        SendMemberUpdateNote(note, guid, officer);
     }
 }
 
@@ -2391,6 +2391,33 @@ void Guild::SendLoginInfo(WorldSession* session)
 
     member->SetStats(player);
     member->AddFlag(GUILDMEMBER_STATUS_ONLINE);
+}
+
+void Guild::SendMemberUpdateNote(std::string const& note, ObjectGuid guid, bool isPublic) const
+{
+    uint8 length = note.length();
+    WorldPacket data(SMSG_GUILD_MEMBER_UPDATE_NOTE, 1 + 1 + 1 + 8 + length);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBits(length, 8); // note length
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(isPublic); // public
+    data.WriteBit(guid[1]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteString(note); // note
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[6]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[4]);
+
+    BroadcastPacket(&data);
 }
 
 // Loading methods

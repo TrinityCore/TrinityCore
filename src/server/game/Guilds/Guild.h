@@ -830,6 +830,7 @@ public:
     void SendMoneyInfo(WorldSession* session) const;
     void SendLoginInfo(WorldSession* session);
     void SendNewsUpdate(WorldSession* session);
+    void SendMemberUpdateNote(std::string const& note, ObjectGuid guid, bool officer) const;
 
     // Load from DB
     bool LoadFromDB(Field* fields);
