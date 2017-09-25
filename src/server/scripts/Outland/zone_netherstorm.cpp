@@ -729,7 +729,7 @@ public:
     {
         npc_captain_tyraliusAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void DoAction(int32 action) override
+        void DoAction(int32 /*action*/) override
         {
             _events.ScheduleEvent(EVENT_TALK, 0);
         }
