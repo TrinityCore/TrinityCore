@@ -552,7 +552,6 @@ void SmartAI::JustAppeared()
         me->RestoreFaction();
     mJustReset = true;
     JustReachedHome();
-    GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     mFollowGuid.Clear(); // do not reset follower on Reset(), we need it after combat evade
     mFollowDist = 0;
     mFollowAngle = 0;
@@ -936,9 +935,6 @@ void SmartGameObjectAI::InitializeAI()
 
 void SmartGameObjectAI::Reset()
 {
-    // call respawn event on reset
-    GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
-
     GetScript()->OnReset();
 }
 
