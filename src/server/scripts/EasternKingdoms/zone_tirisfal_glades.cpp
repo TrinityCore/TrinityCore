@@ -102,7 +102,7 @@ public:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             player->AreaExploredOrEventHappens(QUEST_590);
                         _playerGUID.Clear();
-                        DoCast(me, SPELL_DRINK, true);
+                        DoCastSelf(SPELL_DRINK);
                         _events.ScheduleEvent(EVENT_SET_QUESTGIVER_FLAG, Seconds(12));
                         break;
                     case EVENT_SET_QUESTGIVER_FLAG:
