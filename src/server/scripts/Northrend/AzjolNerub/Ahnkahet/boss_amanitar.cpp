@@ -278,7 +278,7 @@ class spell_amanitar_potent_fungus : public AuraScript
 
 void AddSC_boss_amanitar()
 {
-    RegisterCreatureAI(boss_amanitar);
-    RegisterCreatureAI(npc_amanitar_mushrooms);
+    RegisterAhnKahetCreatureAI(boss_amanitar);
+    RegisterAhnKahetCreatureAI(npc_amanitar_mushrooms);
     RegisterAuraScript(spell_amanitar_potent_fungus);
 }
