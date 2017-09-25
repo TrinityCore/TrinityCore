@@ -1,3 +1,4 @@
+/*
 -- Lord Maldazzar
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=1848;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1848 AND `source_type`=0;
@@ -266,3 +267,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 DELETE FROM `creature` WHERE `guid`=52640;
 DELETE FROM `creature_addon` WHERE `guid`=52640;
+*/

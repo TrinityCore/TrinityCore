@@ -1,3 +1,4 @@
+/*
 -- Stranglethorn Fever 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1449 AND `source_type`=0 AND `id` BETWEEN 1 AND 6;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=144900 AND `source_type`=9;
@@ -62,3 +63,4 @@ INSERT INTO `waypoints` (`entry`, `pointid`, `position_x`, `position_y`, `positi
 (1514, 5, -13743.7, -23.97, 45.14, "Mokk the Savage");
 
 UPDATE `quest_offer_reward` SET `Emote1`=5, `Emote2`=1, `Emote3`=1 WHERE `ID`=349;
+*/

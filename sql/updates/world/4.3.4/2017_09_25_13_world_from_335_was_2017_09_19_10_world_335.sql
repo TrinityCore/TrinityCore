@@ -1,3 +1,4 @@
+/*
 -- Murderous Blisterpaw
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=8208;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=8208 AND `source_type`=0;
@@ -110,3 +111,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (8196,0,0,0,9,0,100,0,0,5,9000,14000,11,18144,0,0,0,0,0,2,0,0,0,0,0,0,0,"Occulus - Within 0-5 Range - Cast Swoop"),
 (8196,0,1,0,0,0,100,0,12000,16000,14000,18000,11,20717,0,0,0,0,0,2,0,0,0,0,0,0,0,"Occulus - In Combat - Cast Sand Breath"),
 (8196,0,2,0,0,0,100,0,9000,14000,11000,15000,11,10833,0,0,0,0,0,5,0,0,0,0,0,0,0,"Occulus - In Combat - Cast Arcane Blast");
+*/

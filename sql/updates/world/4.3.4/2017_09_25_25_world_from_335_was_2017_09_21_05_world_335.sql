@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=2501;
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (2501, 250100) AND `source_type` IN (0, 9);
@@ -12,3 +13,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=2501;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (2501, 0, 0, "%s tries opening Maury's Clubbed Foot...", 16, 0, 100, 0, 0, 0, 744, 0, "\"Sea Wolf\" MacKinley"),
 (2501, 1, 0, "Bah!  $n,  this foot won't budge!", 12, 0, 100, 0, 0, 0, 0, 0, "\"Sea Wolf\" MacKinley");
+*/

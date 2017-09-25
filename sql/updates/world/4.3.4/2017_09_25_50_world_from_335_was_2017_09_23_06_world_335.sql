@@ -1,3 +1,4 @@
+/*
 -- Out of combat texts for NPC Ranger Lethvalin
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=16213;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=16213 AND `source_type`=0;
@@ -9,3 +10,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (16213, 0, 1, "%s glares at the guards.", 16, 0, 100, 0, 0, 0, 12591, 0, "Ranger Lethvalin"),
 (16213, 0, 2, "%s sighs in apparent frustration.", 16, 0, 100, 0, 0, 0, 12592, 0, "Ranger Lethvalin"),
 (16213, 0, 3, "%s peers inside the tower and then clenches his jaw.", 16, 0, 100, 0, 0, 0, 12593, 0, "Ranger Lethvalin");
+*/

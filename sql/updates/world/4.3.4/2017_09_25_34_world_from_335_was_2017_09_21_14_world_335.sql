@@ -1,3 +1,4 @@
+/*
 -- Emotes for Quest "The Balance of Nature (Part 1)"
 DELETE FROM `quest_details` WHERE `ID`=456;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -96,3 +97,4 @@ UPDATE `quest_offer_reward` SET `Emote1`=1 WHERE `ID`=928;
 -- Emotes for Quest "Dolanaar Delivery"
 UPDATE `quest_details` SET `Emote1`=1 WHERE `ID`=2159;
 UPDATE `quest_offer_reward` SET `Emote1`=1 WHERE `ID`=2159;
+*/

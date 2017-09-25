@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry` IN (2949, 2950, 2951);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (2949, 2950, 2951) AND `source_type`=0;
@@ -24,3 +25,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 UPDATE `creature_equip_template` SET `ItemID1`=1900, `VerifiedBuild`=-18019 WHERE `CreatureID`=2950;
 UPDATE `creature_equip_template` SET `ItemID1`=1896, `ItemID2`=2051 WHERE `CreatureID`=2951;
+*/

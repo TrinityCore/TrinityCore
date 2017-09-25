@@ -1,3 +1,4 @@
+/*
 -- Control
 DELETE FROM `creature` WHERE `id`=17612;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry` IN (17190, 17475);
@@ -35,3 +36,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 DELETE FROM `creature_text` WHERE `CreatureID`=17612;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (17612, 0, 0, "Who dares wield magic in my presence?", 14, 0, 100, 0, 0, 0, 14229, 0, "Quel'dorei Magewraith");
+*/

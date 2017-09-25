@@ -1,3 +1,4 @@
+/*
 -- Scorpashi Snapper
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=4696;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=4696 AND `source_type`=0;
@@ -407,3 +408,4 @@ INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`,
 (4666,1,5285,5281,0,0),
 (4663,1,5303,0,0,0),
 (4664,1,4991,0,0,0);
+*/

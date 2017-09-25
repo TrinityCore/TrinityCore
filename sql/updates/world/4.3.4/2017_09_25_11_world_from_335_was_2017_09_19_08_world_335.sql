@@ -1,3 +1,4 @@
+/*
 -- Scarlet High Clerist --> Add Waypoints
 UPDATE `creature` SET `MovementType`=2 WHERE `guid`=49764;
 DELETE FROM `creature_addon` WHERE `guid`=49764;
@@ -37,3 +38,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (497640,30,2382.32,-2013.94,130.22,0,0,0,0,100,0),
 (497640,31,2374.71,-2025.51,135.709,0,0,0,0,100,0),
 (497640,32,2367.91,-2032.53,142.677,0,0,0,0,100,0);
+*/

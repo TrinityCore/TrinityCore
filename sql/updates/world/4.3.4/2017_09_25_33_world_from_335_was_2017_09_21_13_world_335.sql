@@ -1,3 +1,4 @@
+/*
 -- Quest "Hilary's Necklace" --> Completion Event
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=8962;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=8962 AND `source_type`=0;
@@ -15,3 +16,4 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup` IN
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14, 1621, 2273, 0, 0, 8, 0, 3741, 0, 0, 1, 0, 0, "", "Show gossip text 2273 if quest 'Hilary's Necklace' is NOT rewarded"),
 (14, 1621, 2274, 0, 0, 8, 0, 3741, 0, 0, 0, 0, 0, "", "Show gossip text 2274 if quest 'Hilary's Necklace' is rewarded");
+*/

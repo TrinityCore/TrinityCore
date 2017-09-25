@@ -1,3 +1,4 @@
+/*
 -- Enticing Negolash
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2289 AND `source_type`=1;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1494;
@@ -29,3 +30,4 @@ UPDATE `gameobject` SET `rotation0`=0.2217236, `rotation1`=0.4712582, `rotation2
 DELETE FROM `conditions` WHERE `SourceEntry`= 2289 AND `SourceTypeOrReferenceId`=22 AND `SourceId`=1;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 1, 2289, 1, 0, 29, 0, 1494, 100, 0, 1, 0, 0, '', 'Ruined Lifeboat execute SAI if there''s no Negolash around');
+*/

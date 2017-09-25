@@ -1,3 +1,4 @@
+/*
 -- Living Decay
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=8606;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=8606 AND `source_type`=0;
@@ -26,3 +27,4 @@ DELETE FROM `creature_addon` WHERE `guid` IN (92273, 92276, 92277, 92280, 52124,
 
 UPDATE `creature_template` SET `AIName`='' WHERE `entry`=8477;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=8477;
+*/

@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=2498;
 
@@ -11,3 +12,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=2498;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (2498, 0, 0, "Thank you, $n.", 12, 0, 100, 0, 0, 0, 1469, 0, "Crank Fizzlebub"),
 (2498, 1, 0, "I'm sure I can find a use for this mixture...", 12, 0, 100, 0, 0, 0, 1470, 0, "Crank Fizzlebub");
+*/
