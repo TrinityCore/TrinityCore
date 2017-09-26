@@ -1,5 +1,4 @@
--- Add gossip text to menu
-
+--
 DELETE FROM `gossip_menu` WHERE `MenuID` BETWEEN 57020 AND 57022;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
 (57020,9227,0),(57021,9229,0),(57022,9231,0);
@@ -10,15 +9,12 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 (57020,0,0,'I did not mean to deceive you, elder. The draenei of Telredor thought to approach you in a way that would be familiar to you.',14874,1,3,57021,0,0,0,'',0,-1),
 (57021,0,0,'I will tell them. Farewell, elder.',14879,1,3,57022,0,0,0,'',0,-1);
 
--- Migrate NPC to use SmartAI
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = 18197;
 
--- Create SAI
 DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid = 18197);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (18197, 0, 0, 0, 62, 0, 100, 0, 57021, 0, 0, 0, 56, 24573, 1, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Elder Kuruti - On Gossip Option 0 Selected - Add Item \'Elder Kuruti\'s Response\'  1 Time');
 
--- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 7582;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,7582,0,0,0,8,0,9803,0,0,0,0,'','Elder Kuruti - Show Gossip Option 0 if Quest 9803 is not rewarded'),
