@@ -523,6 +523,16 @@ namespace WorldPackets
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
+
+        class RemoveNewItem final : public ClientPacket
+        {
+        public:
+            RemoveNewItem(WorldPacket&& packet) : ClientPacket(CMSG_REMOVE_NEW_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid ItemGuid;
+        };
     }
 }
 

@@ -156,7 +156,7 @@ enum ItemFieldFlags : uint32
     ITEM_FIELD_FLAG_UNK13         = 0x00040000,
     ITEM_FIELD_FLAG_CHILD         = 0x00080000,
     ITEM_FIELD_FLAG_UNK15         = 0x00100000,
-    ITEM_FIELD_FLAG_UNK16         = 0x00200000,
+    ITEM_FIELD_FLAG_NEW_ITEM      = 0x00200000, // Item glows in inventory
     ITEM_FIELD_FLAG_UNK17         = 0x00400000,
     ITEM_FIELD_FLAG_UNK18         = 0x00800000,
     ITEM_FIELD_FLAG_UNK19         = 0x01000000,
