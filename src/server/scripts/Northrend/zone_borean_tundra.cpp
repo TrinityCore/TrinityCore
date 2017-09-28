@@ -2437,6 +2437,9 @@ public:
 
         void SetGUID(ObjectGuid guid, int32 /*action*/) override
         {
+            if (!_playerGUID.IsEmpty())
+                return;
+
             _playerGUID = guid;
 
             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
@@ -2462,6 +2465,7 @@ public:
                     case EVENT_TALK:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             Talk(0, player);
+                        _playerGUID.Clear();
                         _events.ScheduleEvent(EVENT_RESET_ORIENTATION, Seconds(5));
                         break;
                     case EVENT_RESET_ORIENTATION:
