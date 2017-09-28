@@ -42,9 +42,15 @@ EndContentData */
 
 enum Calvin
 {
-    SAY_COMPLETE        = 0,
-    SPELL_DRINK         = 2639,                             // possibly not correct spell (but iconId is correct)
-    QUEST_590           = 590
+    SAY_COMPLETE = 0,
+    SPELL_DRINK  = 7737, // Possibly incorrect spell, but both duration and icon are correct
+    QUEST_590    = 590,
+
+    EVENT_EMOTE_RUDE          = 1,
+    EVENT_TALK                = 2,
+    EVENT_DRINK               = 3,
+    EVENT_SET_QUESTGIVER_FLAG = 4,
+    EVENT_STAND               = 5
 };
 
 class npc_calvin_montague : public CreatureScript
@@ -54,82 +60,59 @@ public:
 
     struct npc_calvin_montagueAI : public ScriptedAI
     {
-        npc_calvin_montagueAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            m_uiPhase = 0;
-            m_uiPhaseTimer = 5000;
-            m_uiPlayerGUID.Clear();
-        }
-
-        uint32 m_uiPhase;
-        uint32 m_uiPhaseTimer;
-        ObjectGuid m_uiPlayerGUID;
+        npc_calvin_montagueAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override
         {
-            Initialize();
-
             me->RestoreFaction();
-
             if (!me->IsImmuneToPC())
                 me->SetImmuneToPC(true);
         }
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage) override
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
         {
-            if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(15, uiDamage))
+            if (damage > me->GetHealth() || me->HealthBelowPctDamaged(15, damage))
             {
-                uiDamage = 0;
-
-                me->RestoreFaction();
-                me->SetImmuneToPC(true);
+                damage = 0;
                 me->CombatStop(true);
-
-                m_uiPhase = 1;
-
-                if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
-                    m_uiPlayerGUID = pDoneBy->GetGUID();
+                EnterEvadeMode();
+                _events.ScheduleEvent(EVENT_EMOTE_RUDE, Seconds(3));
             }
         }
 
         void UpdateAI(uint32 diff) override
         {
-            if (m_uiPhase)
+            _events.Update(diff);
+
+            if (uint32 eventId = _events.ExecuteEvent())
             {
-                if (m_uiPhaseTimer <= diff)
-                    m_uiPhaseTimer = 7500;
-                else
+                switch (eventId)
                 {
-                    m_uiPhaseTimer -= diff;
-                    return;
-                }
-
-                switch (m_uiPhase)
-                {
-                    case 1:
+                    case EVENT_EMOTE_RUDE:
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+                        _events.ScheduleEvent(EVENT_TALK, Seconds(2));
+                        break;
+                    case EVENT_TALK:
                         Talk(SAY_COMPLETE);
-                        ++m_uiPhase;
+                        _events.ScheduleEvent(EVENT_DRINK, Seconds(5));
                         break;
-                    case 2:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, m_uiPlayerGUID))
+                    case EVENT_DRINK:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                             player->AreaExploredOrEventHappens(QUEST_590);
-
-                        DoCast(me, SPELL_DRINK, true);
-                        ++m_uiPhase;
+                        _playerGUID.Clear();
+                        DoCastSelf(SPELL_DRINK);
+                        _events.ScheduleEvent(EVENT_SET_QUESTGIVER_FLAG, Seconds(12));
                         break;
-                    case 3:
-                        EnterEvadeMode();
+                    case EVENT_SET_QUESTGIVER_FLAG:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                        _events.ScheduleEvent(EVENT_STAND, Seconds(3));
+                        break;
+                    case EVENT_STAND:
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
                         break;
                 }
-
-                return;
             }
 
             if (!UpdateVictim())
@@ -142,11 +125,17 @@ public:
         {
             if (quest->GetQuestId() == QUEST_590)
             {
+                _playerGUID = player->GetGUID();
                 me->SetFaction(FACTION_ENEMY);
                 me->SetImmuneToPC(false);
                 AttackStart(player);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             }
         }
+
+    private:
+        EventMap _events;
+        ObjectGuid _playerGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
