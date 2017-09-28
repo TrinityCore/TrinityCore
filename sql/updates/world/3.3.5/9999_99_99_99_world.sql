@@ -1,8 +1,4 @@
 --
-DELETE FROM `gossip_menu` WHERE `MenuID` IN (7583,7585,7586);
-INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
-(7583,9227,0),(7585,9229,0),(7586,9231,0);
-
 DELETE FROM `gossip_menu_option` WHERE `MenuID` IN (7582,7583,7585);
 INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
 (7582,0,0,'Greetings, elder. It is time for your people to end their hostility toward the draenei and their allies.',14872,1,3,7583,0,0,0,'',0,-1),
