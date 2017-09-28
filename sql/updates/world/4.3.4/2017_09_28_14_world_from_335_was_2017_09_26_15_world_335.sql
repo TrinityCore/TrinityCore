@@ -1,377 +1,373 @@
-
--- Winterfall Ursa
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7438;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7438 AND `source_type`=0;
+/*
+-- Felpaw Wolf
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=8959;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=8959 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7438,0,0,0,1,0,100,0,1000,1000,1200000,1200000,11,17205,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Ursa - Out of Combat - Cast Winterfall Firewater");
+(8959,0,0,0,9,0,100,0,0,5,8000,14000,11,3427,32,0,0,0,0,2,0,0,0,0,0,0,0,"Felpaw Wolf - Within 0-5 Range - Cast Infected Wound");
 
--- Winterfall Shaman
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7439;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7439 AND `source_type`=0;
+-- Felpaw Scavenger
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=8960;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=8960 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7439,0,0,0,0,0,100,0,0,0,3400,4700,11,9532,64,0,0,0,0,2,0,0,0,0,0,0,0,"Winterfall Shaman - In Combat - Cast Lightning Bolt"),
-(7439,0,1,0,1,0,100,0,1000,1000,1200000,1200000,11,17205,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Shaman - Out of Combat - Cast Winterfall Firewater"),
-(7439,0,2,0,1,0,100,0,500,1000,600000,600000,11,13585,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Shaman - Out of Combat - Cast Lightning Shield"),
-(7439,0,3,0,16,0,100,0,13585,1,15000,30000,11,13585,1,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Shaman - On Friendly Unit Missing Buff Lightning Shield - Cast Lightning Shield"),
-(7439,0,4,0,2,0,100,0,0,40,14000,21000,11,11431,1,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Shaman - Between 0-40% Health - Cast Healing Touch"),
-(7439,0,5,0,14,0,100,0,800,40,15000,18000,11,11431,1,0,0,0,0,7,0,0,0,0,0,0,0,"Winterfall Shaman - Friendly At 800 Health - Cast Healing Touch");
+(8960,0,0,0,9,0,100,0,0,5,8000,14000,11,3427,32,0,0,0,0,2,0,0,0,0,0,0,0,"Felpaw Scavenger - Within 0-5 Range - Cast Infected Wound"),
+(8960,0,1,0,9,0,100,0,0,5,20000,25000,11,3604,0,0,0,0,0,2,0,0,0,0,0,0,0,"Felpaw Scavenger - Within 0-5 Range - Cast Tendon Rip");
 
--- Winterfall Den Watcher
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7440;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7440 AND `source_type`=0;
+-- Felpaw Ravager
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=8961;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=8961 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7440,0,0,0,1,0,100,0,1000,1000,1200000,1200000,11,17205,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Den Watcher - Out of Combat - Cast Winterfall Firewater");
+(8961,0,0,0,0,0,100,0,8000,12000,15000,20000,11,3391,0,0,0,0,0,2,0,0,0,0,0,0,0,"Felpaw Ravager - In Combat - Cast Thrash"),
+(8961,0,1,0,9,0,100,0,0,5,8000,14000,11,3427,32,0,0,0,0,2,0,0,0,0,0,0,0,"Felpaw Ravager - Within 0-5 Range - Cast Infected Wound");
 
--- Winterfall Totemic
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7441;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7441 AND `source_type`=0;
+-- Death Howl
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=14339;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=14339 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7441,0,0,0,1,0,100,0,1000,1000,1200000,1200000,11,17205,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Totemic - Out of Combat - Cast Winterfall Firewater"),
-(7441,0,1,0,0,0,100,0,6000,9000,45000,50000,11,15786,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Totemic - In Combat - Cast Earthbind Totem"),
-(7441,0,2,0,0,0,100,0,6000,9000,22000,25000,11,15787,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Totemic - In Combat - Cast Moonflare Totem");
+(14339,0,0,0,9,0,100,0,0,5,12000,15000,11,3604,0,0,0,0,0,2,0,0,0,0,0,0,0,"Death Howl - Within 0-5 Range - Cast Tendon Rip"),
+(14339,0,1,0,0,0,100,0,7000,11000,25000,29000,11,8715,0,0,0,0,0,1,0,0,0,0,0,0,0,"Death Howl - In Combat - Cast Terrifying Howl"),
+(14339,0,2,0,0,0,100,0,4000,6000,8000,14000,11,3427,32,0,0,0,0,2,0,0,0,0,0,0,0,"Death Howl - In Combat - Cast Infected Wound");
 
--- Winterfall Pathfinder
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7442;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7442 AND `source_type`=0;
+-- Ironbeak Owl
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7097;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7097 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7442,0,0,0,0,0,100,0,0,0,2300,3900,11,6660,64,0,0,0,0,2,0,0,0,0,0,0,0,"Winterfall Pathfinder - In Combat - Cast Shoot"),
-(7442,0,1,0,1,0,100,0,1000,1000,1200000,1200000,11,17205,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Pathfinder - Out of Combat - Cast Winterfall Firewater"),
-(7442,0,2,0,0,0,100,0,6000,8000,22000,25000,11,16498,0,0,0,0,0,2,0,0,0,0,0,0,0,"Winterfall Pathfinder - In Combat - Cast Faerie Fire");
+(7097,0,0,0,9,0,100,0,0,5,8000,11000,11,5708,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ironbeak Owl - Within 0-5 Range - Cast Swoop");
 
--- High Chief Winterfall
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10738;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10738 AND `source_type`=0;
+-- Ironbeak Screecher
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7098;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7098 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10738,0,0,0,9,0,100,0,0,5,12000,17000,11,15793,0,0,0,0,0,2,0,0,0,0,0,0,0,"High Chief Winterfall - Within 0-5 Range - Cast Maul"),
-(10738,0,1,0,9,0,100,0,0,20,15000,25000,11,12548,0,0,0,0,0,2,0,0,0,0,0,0,0,"High Chief Winterfall - Within 0-20 Range - Cast Frost Shock"),
-(10738,0,2,0,0,0,100,0,5000,7000,24000,25000,11,8364,0,0,0,0,0,4,0,0,0,0,0,0,0,"High Chief Winterfall - In Combat - Cast Blizzard"),
-(10738,0,3,0,1,0,100,0,1000,1000,1200000,1200000,11,17205,0,0,0,0,0,1,0,0,0,0,0,0,0,"High Chief Winterfall - Out of Combat - Cast Winterfall Firewater");
+(7098,0,0,0,9,0,100,0,0,10,13000,16000,11,3589,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ironbeak Screecher - Within 0-10 Range - Cast Deafening Screech");
 
--- Grizzle Snowpaw
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10199;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10199 AND `source_type`=0;
+-- Ironbeak Hunter
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7099;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7099 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10199,0,0,0,9,0,100,0,0,5,12000,17000,11,15793,0,0,0,0,0,2,0,0,0,0,0,0,0,"Grizzle Snowpaw - Within 0-5 Range - Cast Maul"),
-(10199,0,1,0,9,0,100,0,0,20,15000,25000,11,12548,0,0,0,0,0,2,0,0,0,0,0,0,0,"Grizzle Snowpaw - Within 0-20 Range - Cast Frost Shock"),
-(10199,0,2,0,0,0,100,0,5000,7000,24000,25000,11,8364,0,0,0,0,0,4,0,0,0,0,0,0,0,"Grizzle Snowpaw - In Combat - Cast Blizzard"),
-(10199,0,3,0,1,0,100,0,1000,1000,1200000,1200000,11,17205,0,0,0,0,0,1,0,0,0,0,0,0,0,"Grizzle Snowpaw - Out of Combat - Cast Winterfall Firewater");
+(7099,0,0,0,9,0,100,0,0,5,21000,24000,11,13443,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ironbeak Hunter - Within 0-5 Range - Cast Rend");
 
--- Shardtooth Mauler
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7443 AND `source_type`=0;
+-- Angerclaw Grizzly
+DELETE FROM `smart_scripts` WHERE `entryorguid`=8957 AND `source_type`=0 AND `id`=2;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7443,0,0,0,0,0,100,0,4000,6000,8000,10000,11,15793,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shardtooth Mauler - In Combat - Cast Maul");
+(8957,0,2,0,0,0,100,0,6000,8000,12000,16000,11,8716,0,0,0,0,0,2,0,0,0,0,0,0,0,"Angerclaw Grizzly - In Combat - Cast Low Swipe");
 
--- Shardtooth Bear
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7444 AND `source_type`=0;
+-- Angerclaw Mauler
+DELETE FROM `smart_scripts` WHERE `entryorguid`=8958 AND `source_type`=0 AND `id`=2;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7444,0,0,0,0,0,100,0,5000,8000,9000,12000,11,3604,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shardtooth Bear - In Combat - Cast Tendon Rip");
+(8958,0,2,0,9,0,100,0,0,5,5000,8000,11,15793,0,0,0,0,0,2,0,0,0,0,0,0,0,"Angerclaw Mauler - Within 0-5 Range - Cast Maul");
 
--- Elder Shardtooth
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7445 AND `source_type`=0;
+-- Deadwood Warrior
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7153 AND `source_type`=0 AND `id`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7445,0,0,0,9,0,100,0,0,5,12000,19000,11,15971,0,0,0,0,0,1,0,0,0,0,0,0,0,"Elder Shardtooth - Within 0-5 Range - Cast Demoralizing Roar");
+(7153,0,0,0,0,0,100,0,4000,11000,12000,15000,11,13583,32,0,0,0,0,2,0,0,0,0,0,0,0,"Deadwood Warrior - In Combat - Cast Curse of the Deadwood");
 
--- Rabid Shardtooth
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7446 AND `source_type`=0;
+-- Deadwood Gardener
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7154 AND `source_type`=0 AND `id`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7446,0,0,0,9,0,100,0,0,5,5000,8000,11,3150,32,0,0,0,0,2,0,0,0,0,0,0,0,"Rabid Shardtooth - Within 0-5 Range - Cast Rabies"),
-(7446,0,1,0,0,0,100,0,8000,12000,15000,20000,11,3391,0,0,0,0,0,2,0,0,0,0,0,0,0,"Rabid Shardtooth - In Combat - Cast Thrash");
+(7154,0,0,0,0,0,100,0,4000,11000,12000,15000,11,13583,32,0,0,0,0,2,0,0,0,0,0,0,0,"Deadwood Gardener - In Combat - Cast Curse of the Deadwood");
 
--- Ursius
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10806;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10806 AND `source_type`=0;
+-- Overlord Ror
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9464;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9464 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10806,0,0,0,9,0,100,0,0,5,12000,17000,11,15793,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ursius - Within 0-5 Range - Cast Maul"),
-(10806,0,1,0,0,0,100,0,6000,8000,33000,35000,11,15971,0,0,0,0,0,1,0,0,0,0,0,0,0,"Ursius - In Combat - Cast Demoralizing Roar");
+(9464,0,0,0,9,0,100,0,0,5,5000,8000,11,15793,0,0,0,0,0,2,0,0,0,0,0,0,0,"Overlord Ror - Within 0-5 Range - Cast Maul"),
+(9464,0,1,0,0,0,100,0,8000,12000,17000,21000,11,14100,0,0,0,0,0,1,0,0,0,0,0,0,0,"Overlord Ror - In Combat - Cast Terrifying Roar"),
+(9464,0,2,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Overlord Ror - Between 0-15% Health - Flee For Assist (No Repeat)");
 
--- Rogue Ice Thistle
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7457;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7457 AND `source_type`=0;
+-- Ragepaw
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=14342;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=14342 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7457,0,0,0,9,0,100,0,0,5,3000,6000,11,3604,32,0,0,0,0,2,0,0,0,0,0,0,0,"Rogue Ice Thistle - Within 0-5 Range - Cast Tendon Rip");
+(14342,0,0,0,9,0,100,0,0,5,6000,9000,11,13584,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ragepaw - Within 0-5 Range - Cast Strike"),
+(14342,0,1,0,0,0,100,0,4000,11000,12000,15000,11,13583,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ragepaw - In Combat - Cast Curse of the Deadwood");
 
--- Ice Thistle Yeti
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7458;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7458 AND `source_type`=0;
+-- Mongress
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=14344;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=14344 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7458,0,0,0,0,0,100,0,6000,12000,18000,21000,11,15878,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ice Thistle Yeti - In Combat - Cast Ice Blast"),
-(7458,0,1,0,0,0,100,0,4000,6000,19000,26000,11,3604,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ice Thistle Yeti - In Combat - Cast Tendon Rip");
+(14344,0,0,0,2,0,100,1,0,30,0,0,11,8599,0,0,0,0,0,1,0,0,0,0,0,0,0,"Mongress - Between 0-30% Health - Cast Enrage (No Repeat)"),
+(14344,0,1,0,9,0,100,0,0,5,12000,14500,11,31279,0,0,0,0,0,2,0,0,0,0,0,0,0,"Mongress - Within 0-5 Range - Cast Swipe");
 
--- Ice Thistle Matriarch
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7459;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7459 AND `source_type`=0;
+-- Jadefire Satyr
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7105;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7105 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7459,0,0,0,0,0,100,0,6000,12000,18000,21000,11,15878,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ice Thistle Matriarch - In Combat - Cast Ice Blast"),
-(7459,0,1,0,4,0,100,1,0,0,0,0,11,6268,0,0,0,0,0,1,0,0,0,0,0,0,0,"Ice Thistle Matriarch - On Aggro - Cast Rushing Charge");
+(7105,0,0,0,0,0,100,0,6000,9000,16000,19000,11,13578,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jadefire Satyr - In Combat - Cast Jadefire");
 
--- Ice Thistle Patriarch
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7460;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7460 AND `source_type`=0;
+-- Jadefire Rogue
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7106;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7106 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7460,0,0,0,0,0,100,0,8000,12000,18000,21000,11,15878,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ice Thistle Patriarch - In Combat - Cast Ice Blast"),
-(7460,0,1,0,0,0,100,0,6000,8000,16000,24000,11,3131,0,0,0,0,0,2,0,0,0,0,0,0,0,"Ice Thistle Patriarch - In Combat - Cast Frost Breath");
+(7106,0,0,0,0,0,100,0,6000,9000,16000,19000,11,13578,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jadefire Rogue - In Combat - Cast Jadefire"),
+(7106,0,1,0,67,0,100,0,6000,11000,0,0,11,7159,0,0,0,0,0,2,0,0,0,0,0,0,0,"Jadefire Rogue - On Behind Target - Cast Backstab"),
+(7106,0,2,0,0,0,100,0,4000,7000,9000,12000,11,13579,0,0,0,0,0,2,0,0,0,0,0,0,0,"Jadefire Rogue - In Combat - Cast Gouge");
 
--- Mezzir the Howler
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10197;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10197 AND `source_type`=0;
+-- Jadefire Trickster
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7107;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7107 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10197,0,0,0,9,0,100,0,0,5,31000,35000,11,15971,0,0,0,0,0,1,0,0,0,0,0,0,0,"Mezzir the Howler - Within 0-5 Range - Cast Demoralizing Roar"),
-(10197,0,1,0,0,0,100,0,7000,10000,14000,18000,11,3131,0,0,0,0,0,2,0,0,0,0,0,0,0,"Mezzir the Howler - In Combat - Cast Frost Breath"),
-(10197,0,2,0,2,0,100,0,0,40,18000,24000,11,14100,0,0,0,0,0,1,0,0,0,0,0,0,0,"Mezzir the Howler - Between 0-40% Health - Cast Terrifying Roar");
+(7107,0,0,0,0,0,100,0,5000,9000,21000,25000,11,13338,0,0,0,0,0,4,0,0,0,0,0,0,0,"Jadefire Trickster - In Combat - Cast Curse of Tongues"),
+(7107,0,1,0,9,0,100,0,0,30,120000,125000,11,11980,0,0,0,0,0,2,0,0,0,0,0,0,0,"Jadefire Trickster - Within 0-30 Range - Cast Curse of Weakness"),
+(7107,0,2,0,0,0,100,0,9000,14000,15000,18000,11,12888,0,0,0,0,0,5,0,0,0,0,0,0,0,"Jadefire Trickster - In Combat - Cast Cause Insanity"),
+(7107,0,3,0,0,0,100,0,6000,9000,16000,19000,11,13578,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jadefire Trickster - In Combat - Cast Jadefire");
 
--- Fledgling Chillwind
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7447;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7447 AND `source_type`=0;
+-- Jadefire Betrayer
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7108;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7108 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7447,0,0,0,0,0,100,0,4000,6000,8000,12000,11,16552,0,0,0,0,0,2,0,0,0,0,0,0,0,"Fledgling Chillwind - In Combat - Cast Venom Spit");
+(7108,0,0,0,9,0,100,0,0,5,7000,11000,11,15496,0,0,0,0,0,2,0,0,0,0,0,0,0,"Jadefire Betrayer - Within 0-5 Range - Cast Cleave"),
+(7108,0,1,0,0,0,100,0,5000,8000,18000,22000,11,13443,0,0,0,0,0,2,0,0,0,0,0,0,0,"Jadefire Betrayer - In Combat - Cast Rend"),
+(7108,0,2,0,0,0,100,0,6000,9000,16000,19000,11,13578,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jadefire Betrayer - In Combat - Cast Jadefire");
 
--- Chillwind Chimaera
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7448;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7448 AND `source_type`=0;
+-- Jadefire Felsworn
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7109;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7109 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7448,0,0,0,0,0,100,0,6000,8000,14000,18000,11,15797,0,0,0,0,0,2,0,0,0,0,0,0,0,"Chillwind Chimaera - In Combat - Cast Lightning Breath"),
-(7448,0,1,0,0,0,100,0,3000,5000,16000,20000,11,15850,0,0,0,0,0,2,0,0,0,0,0,0,0,"Chillwind Chimaera - In Combat - Cast Chilled");
+(7109,0,0,0,0,0,100,0,0,0,3400,4700,11,9613,64,0,0,0,0,2,0,0,0,0,0,0,0,"Jadefire Felsworn - In Combat - Cast Shadow Bolt"),
+(7109,0,1,0,0,0,100,0,6000,9000,16000,19000,11,13578,2,0,0,0,0,1,0,0,0,0,0,0,0,"Jadefire Felsworn - In Combat - Cast Jadefire"),
+(7109,0,2,0,0,0,100,0,7000,11000,21000,24000,11,11443,2,0,0,0,0,4,0,0,0,0,0,0,0,"Jadefire Felsworn - In Combat - Cast Cripple");
 
--- Chillwind Ravager
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7449;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7449 AND `source_type`=0;
+-- Jadefire Shadowstalker
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7110;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7110 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7449,0,0,0,2,0,100,1,0,30,0,0,11,8599,0,0,0,0,0,1,0,0,0,0,0,0,0,"Chillwind Ravager - Between 0-30% Health - Cast Enrage (No Repeat)");
+(7110,0,0,0,0,0,100,0,6000,9000,16000,19000,11,13578,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jadefire Shadowstalker - In Combat - Cast Jadefire"),
+(7110,0,1,0,25,0,100,1,0,0,0,0,11,5916,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jadefire Shadowstalker - On Reset - Cast Shadowstalker Stealth");
 
--- Winterspring Owl
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7455;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7455 AND `source_type`=0;
+-- Jadefire Hellcaller
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7111;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7111 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7455,0,0,0,0,0,100,0,7000,9000,12000,16000,11,16576,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterspring Owl - In Combat - Cast Piercing Screech");
+(7111,0,0,0,0,0,100,0,0,0,3400,4800,11,20823,64,0,0,0,0,2,0,0,0,0,0,0,0,"Jadefire Hellcaller - In Combat CMC - Cast Fireball"),
+(7111,0,1,0,0,0,100,0,9000,13000,18000,22000,11,11990,1,0,0,0,0,4,0,0,0,0,0,0,0,"Jadefire Hellcaller - In Combat - Cast Rain of Fire"),
+(7111,0,2,0,0,0,100,0,6000,9000,16000,19000,11,13578,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jadefire Hellcaller - In Combat - Cast Jadefire");
 
--- Winterspring Screecher
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7456;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7456 AND `source_type`=0;
+-- Xavathras
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9454;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9454 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7456,0,0,0,9,0,100,0,0,10,13000,16000,11,3589,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterspring Screecher - Within 0-10 Range - Cast Deafening Screech");
+(9454,0,0,0,9,0,100,0,0,5,21000,26000,11,13443,0,0,0,0,0,2,0,0,0,0,0,0,0,"Xavathras - Within 0-5 Range - Cast Rend"),
+(9454,0,1,0,2,0,100,1,0,30,0,0,11,8599,0,0,0,0,0,1,0,0,0,0,0,0,0,"Xavathras - Between 0-30% Health - Cast Enrage (No Repeat)");
 
--- Suffering Highborne
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7523;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7523 AND `source_type`=0;
+-- Alshirr Banebreath
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=14340;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=14340 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7523,0,0,0,9,0,100,0,0,30,13000,20000,11,14868,32,0,0,0,0,2,0,0,0,0,0,0,0,"Suffering Highborne - Within 0-30 Range - Cast Curse of Agony");
+(14340,0,0,0,0,0,100,0,0,0,3400,4700,11,9613,64,0,0,0,0,2,0,0,0,0,0,0,0,"Alshirr Banebreath - In Combat - Cast Shadow Bolt"),
+(14340,0,1,0,0,0,100,0,6000,9000,16000,19000,11,13578,2,0,0,0,0,1,0,0,0,0,0,0,0,"Alshirr Banebreath - In Combat - Cast Jadefire"),
+(14340,0,2,0,0,0,100,0,9000,13000,19000,22000,11,11962,2,0,0,0,0,4,0,0,0,0,0,0,0,"Alshirr Banebreath - In Combat - Cast Immolate");
 
--- Anguished Highborne
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7524;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7524 AND `source_type`=0;
+-- Tainted Ooze
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7092;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7092 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7524,0,0,0,0,0,100,0,0,0,3400,4800,11,13860,64,0,0,0,0,2,0,0,0,0,0,0,0,"Anguished Highborne - In Combat - Cast Mind Blast");
+(7092,0,0,0,9,0,100,0,0,5,180000,180000,11,3335,0,0,0,0,0,2,0,0,0,0,0,0,0,"Tainted Ooze - Within 0-5 Range - Cast Dark Sludge");
 
--- Watery Invader
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=14458;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=14458 AND `source_type`=0;
+-- Vile Ooze
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7093;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7093 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(14458,0,0,0,0,0,100,0,5000,7000,14000,18000,11,15089,0,0,0,0,0,2,0,0,0,0,0,0,0,"Watery Invader - In Combat - Cast Frost Shock"),
-(14458,0,1,0,9,0,100,0,0,5,16000,24000,11,15850,2,0,0,0,0,2,0,0,0,0,0,0,0,"Watery Invader - Within 0-5 Range - Cast Chilled");
+(7093,0,0,0,0,0,100,0,0,0,3400,4700,11,21067,64,0,0,0,0,2,0,0,0,0,0,0,0,"Vile Ooze - In Combat - Cast Poison Bolt"),
+(7093,0,1,0,9,0,100,0,0,5,11000,14000,11,22595,2,0,0,0,0,2,0,0,0,0,0,0,0,"Vile Ooze - Within 0-5 Range - Cast Poison Shock");
 
--- Frostsaber
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7431;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7431 AND `source_type`=0;
+-- The Ongar
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=14345;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=14345 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7431,0,0,0,0,0,100,0,6000,9000,15000,18000,11,24331,0,0,0,0,0,2,0,0,0,0,0,0,0,"Frostsaber - In Combat - Cast Rake");
+(14345,0,0,0,9,0,100,0,0,5,180000,180000,11,3335,0,0,0,0,0,2,0,0,0,0,0,0,0,"The Ongar - Within 0-5 Range - Cast Dark Sludge");
 
--- Frostsaber Stalker
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7432;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7432 AND `source_type`=0;
+-- Jaedenar Cultist
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7112;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7112 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7432,0,0,0,25,0,100,1,0,0,0,0,11,30831,0,0,0,0,0,1,0,0,0,0,0,0,0,"Frostsaber Stalker - On Reset - Cast Stealth");
+(7112,0,0,0,0,0,100,0,0,0,3400,4700,11,20825,64,0,0,0,0,2,0,0,0,0,0,0,0,"Jaedenar Cultist - In Combat - Cast Shadow Bolt"),
+(7112,0,1,0,0,0,100,0,9000,14000,22000,25000,11,11639,2,0,0,0,0,4,0,0,0,0,0,0,0,"Jaedenar Cultist - In Combat - Cast Shadow Word: Pain"),
+(7112,0,2,0,0,0,100,0,6000,9000,16000,19000,11,11980,2,0,0,0,0,2,0,0,0,0,0,0,0,"Jaedenar Cultist - In Combat - Cast Curse of Weakness"),
+(7112,0,3,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jaedenar Cultist - Between 0-15% Health - Flee For Assist (No Repeat)");
 
--- Frostsaber Huntress
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7433;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7433 AND `source_type`=0;
+-- Jaedenar Adept
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7115;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7115 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7433,0,0,0,2,0,100,1,0,30,0,0,11,15716,0,0,0,0,0,1,0,0,0,0,0,0,0,"Frostsaber Huntress - Between 0-30% Health - Cast Enrage (No Repeat)"),
-(7433,0,1,0,0,0,100,0,6000,9000,16000,21000,11,13443,0,0,0,0,0,2,0,0,0,0,0,0,0,"Frostsaber Huntress - In Combat - Cast Rend");
+(7115,0,0,0,0,0,100,0,0,0,3400,4700,11,20823,64,0,0,0,0,2,0,0,0,0,0,0,0,"Jaedenar Adept - In Combat - Cast Fireball"),
+(7115,0,1,0,0,0,100,0,11000,15000,12000,16000,11,20832,2,0,0,0,0,2,0,0,0,0,0,0,0,"Jaedenar Adept - In Combat - Cast Fire Blast"),
+(7115,0,2,0,9,0,100,0,0,5,16000,21000,11,14514,2,0,0,0,0,1,0,0,0,0,0,0,0,"Jaedenar Adept - Within 0-5 Range - Cast Blink"),
+(7115,0,3,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jaedenar Adept - Between 0-15% Health - Flee For Assist (No Repeat)");
 
--- Frostsaber Pride Watcher
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7434;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7434 AND `source_type`=0;
+-- Jaedenar Guardian
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7113;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7113 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7434,0,0,0,2,0,100,1,0,30,0,0,11,15716,0,0,0,0,0,1,0,0,0,0,0,0,0,"Frostsaber Pride Watcher - Between 0-30% Health - Cast Enrage (No Repeat)"),
-(7434,0,1,0,0,0,100,0,6000,10000,18000,24000,11,36590,0,0,0,0,0,2,0,0,0,0,0,0,0,"Frostsaber Pride Watcher - In Combat - Cast Rip");
+(7113,0,0,0,9,0,100,0,0,5,9000,13000,11,11972,0,0,0,0,0,2,0,0,0,0,0,0,0,"Jaedenar Guardian - Within 0-5 Range - Cast Shield Bash"),
+(7113,0,1,0,0,0,100,0,5000,9000,13000,17000,11,3248,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jaedenar Guardian - In Combat - Cast Improved Blocking");
 
--- Rak'shiri
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10200;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10200 AND `source_type`=0;
+-- Jaedenar Hound
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7125;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7125 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10200,0,0,0,2,0,100,0,0,60,15000,21000,11,7399,0,0,0,0,0,2,0,0,0,0,0,0,0,"Rak\'shiri - Between 0-60% Health - Cast Terrify"),
-(10200,0,1,0,2,0,100,1,0,30,0,0,11,15716,0,0,0,0,0,1,0,0,0,0,0,0,0,"Rak\'shiri - Between 0-30% Health - Cast Enrage");
+(7125,0,0,0,9,0,100,0,0,30,9000,15000,11,13321,0,0,0,0,0,2,0,0,0,0,0,0,0,"Jaedenar Hound - Within 0-30 Range - Cast Mana Burn");
 
--- Sian-Rotam
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10741;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10741 AND `source_type`=0;
+-- Jaedenar Enforcer
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7114;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7114 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10741,0,0,0,0,0,100,0,8000,11000,12000,18000,11,14100,0,0,0,0,0,1,0,0,0,0,0,0,0,"Sian-Rotam - In Combat - Cast Terrifying Roar"),
-(10741,0,1,0,9,0,100,0,0,5,15000,20000,11,3604,32,0,0,0,0,2,0,0,0,0,0,0,0,"Sian-Rotam - Within 0-5 Range - Cast Tendon Rip"),
-(10741,0,2,0,0,0,100,0,5000,9000,13000,16000,11,13443,0,0,0,0,0,2,0,0,0,0,0,0,0,"Sian-Rotam - In Combat - Cast Rend"),
-(10741,0,3,0,54,0,100,0,0,0,0,0,49,0,0,0,0,0,0,21,100,0,0,0,0,0,0,"Sian-Rotam - Just Summoned - Start Attacking");
+(7114,0,0,0,9,0,100,0,0,5,17000,21000,11,11977,0,0,0,0,0,2,0,0,0,0,0,0,0,"Jaedenar Enforcer - Within 0-5 Range - Cast Rend");
 
--- Shy-Rotam
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10737 AND `source_type`=0;
+-- Jaedenar Darkweaver
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7118;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7118 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10737,0,0,0,0,0,100,0,8000,11000,12000,18000,11,14100,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shy-Rotam - In Combat - Cast Terrifying Roar"),
-(10737,0,1,0,0,0,100,0,5000,9000,13000,16000,11,13443,0,0,0,0,0,2,0,0,0,0,0,0,0,"Shy-Rotam - In Combat - Cast Rend"),
-(10737,0,2,0,9,0,100,0,0,5,15000,20000,11,3604,32,0,0,0,0,2,0,0,0,0,0,0,0,"Shy-Rotam - Within 0-5 Range - Cast Tendon Rip"),
-(10737,0,3,0,2,0,100,1,0,50,0,0,12,10741,1,180000,0,0,0,8,0,0,0,8074.84,-3840,690.061,4.6,"Shy-Rotam - Between 0-50% Health - Summon Creature \'Sian-Rotam\'");
+(7118,0,0,0,0,0,100,0,0,0,3400,4700,11,9613,64,0,0,0,0,2,0,0,0,0,0,0,0,"Jaedenar Darkweaver - In Combat - Cast Shadow Bolt"),
+(7118,0,1,0,0,0,100,0,9000,13000,21000,26000,11,11962,2,0,0,0,0,2,0,0,0,0,0,0,0,"Jaedenar Darkweaver - In Combat - Cast Immolate"),
+(7118,0,2,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Jaedenar Darkweaver - Between 0-15% Health - Flee For Assist (No Repeat)");
 
--- Ragged Owlbeast
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7450;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7450 AND `source_type`=0;
+-- Jaedenar Legionnaire
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9862;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9862 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7450,0,0,0,9,0,100,0,0,5,4000,8000,11,15848,32,0,0,0,0,2,0,0,0,0,0,0,0,"Ragged Owlbeast - Within 0-5 Range - Cast Festering Rash");
+(9862,0,0,0,9,0,100,0,0,8,12000,17000,11,10966,0,0,0,0,0,2,0,0,0,0,0,0,0,"Jaedenar Legionnaire - Within 0-8 Range - Cast Uppercut");
 
--- Raging Owlbeast
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7451;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7451 AND `source_type`=0;
+-- Prince Xavalis
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9877;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9877 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7451,0,0,0,9,0,100,0,0,5,13000,18000,11,13443,0,0,0,0,0,2,0,0,0,0,0,0,0,"Raging Owlbeast - Within 0-5 Range - Cast Rend");
+(9877,0,0,0,0,0,100,0,9000,13000,19000,22000,11,11962,0,0,0,0,0,2,0,0,0,0,0,0,0,"Prince Xavalis - In Combat - Cast Immolate"),
+(9877,0,1,0,0,0,100,0,6000,9000,16000,19000,11,13578,0,0,0,0,0,2,0,0,0,0,0,0,0,"Prince Xavalis - In Combat - Cast Jadefire");
 
--- Crazed Owlbeast
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7452;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7452 AND `source_type`=0;
+-- Rakaiah
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9518;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9518 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7452,0,0,0,2,0,100,1,0,50,0,0,11,15716,0,0,0,0,0,1,0,0,0,0,0,0,0,"Crazed Owlbeast - Between 0-50% Health - Cast Enrage (No Repeat)");
+(9518,0,0,0,9,0,100,0,0,5,5000,9000,11,15968,0,0,0,0,0,2,0,0,0,0,0,0,0,"Rakaiah - Within 0-5 Range - Cast Lash of Pain"),
+(9518,0,1,0,0,0,100,0,5000,8000,14000,19000,11,17227,32,0,0,0,0,2,0,0,0,0,0,0,0,"Rakaiah - In Combat - Cast Curse of Weakness");
 
--- Moontouched Owlbeast
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7453;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7453 AND `source_type`=0;
+-- Shadow Lord Feldan
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9517;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9517 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7453,0,0,0,2,0,100,0,0,50,18000,21000,11,12160,0,0,0,0,0,1,0,0,0,0,0,0,0,"Moontouched Owlbeast - Between 0-50% Health - Cast Rejuvenation"),
-(7453,0,1,0,0,0,100,0,4000,6000,14000,16000,11,15798,0,0,0,0,0,2,0,0,0,0,0,0,0,"Moontouched Owlbeast - In Combat - Cast Moonfire");
+(9517,0,0,0,0,0,100,0,0,0,3400,4700,11,20825,64,0,0,0,0,2,0,0,0,0,0,0,0,"Shadow Lord Feldan - In Combat - Cast Shadow Bolt"),
+(9517,0,1,0,0,0,100,0,9000,14000,11000,15000,11,9081,2,0,0,0,0,1,0,0,0,0,0,0,0,"Shadow Lord Feldan - In Combat - Cast Shadow Bolt Volley"),
+(9517,0,2,0,0,0,100,0,12000,16000,10000,13000,11,16583,2,0,0,0,0,2,0,0,0,0,0,0,0,"Shadow Lord Feldan - In Combat - Cast Shadow Shock");
 
--- Berserk Owlbeast
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7454;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7454 AND `source_type`=0;
+-- Salia
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9860;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9860 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7454,0,0,0,2,0,100,1,0,30,0,0,11,5915,0,0,0,0,0,1,0,0,0,0,0,0,0,"Berserk Owlbeast - Between 0-30% Health - Cast Crazed (No Repeat)");
+(9860,0,0,0,9,0,100,0,0,20,18000,24000,11,12888,0,0,0,0,0,4,1,0,0,0,0,0,0,"Salia - Within 0-20 Range - Cast Cause Insanity");
 
--- Cobalt Broodling
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10660;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10660 AND `source_type`=0;
+-- Moora
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9861;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9861 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10660,0,0,0,0,0,100,0,0,0,3400,4800,11,9672,64,0,0,0,0,2,0,0,0,0,0,0,0,"Cobalt Broodling - In Combat - Cast Frostbolt"),
-(10660,0,1,0,9,0,100,0,0,10,10000,15000,11,17008,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cobalt Broodling - Within 0-10 Range - Cast Drain Mana"),
-(10660,0,2,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Cobalt Broodling - Between 0-15% Health - Flee For Assist (No Repeat)");
+(9861,0,0,0,0,0,100,0,6000,12000,21000,26000,11,11639,0,0,0,0,0,2,0,0,0,0,0,0,0,"Moora - In Combat - Cast Shadow Word: Pain");
 
--- Spell Eater
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10661;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10661 AND `source_type`=0;
+-- Ur'dan
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=14522;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=14522 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10661,0,0,0,0,0,100,0,6000,8000,14000,20000,11,16340,0,0,0,0,0,2,0,0,0,0,0,0,0,"Spell Eater - In Combat - Cast Frost Breath");
+(14522,0,0,0,1,0,100,1,1000,1000,0,0,11,11939,0,0,0,0,0,1,0,0,0,0,0,0,0,"Ur\'dan - Out of Combat - Cast Summon Imp (No Repeat)"),
+(14522,0,1,0,0,0,100,0,0,0,2400,3800,11,9613,64,0,0,0,0,2,0,0,0,0,0,0,0,"Ur\'dan - In Combat CMC - Cast Shadow Bolt"),
+(14522,0,2,0,2,0,100,1,0,30,0,0,11,8699,1,0,0,0,0,1,0,0,0,0,0,0,0,"Ur\'dan - Between 0-30% Health - Cast Unholy Frenzy (No Repeat)"),
+(14522,0,3,0,2,0,100,1,0,15,0,0,25,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Ur\'dan - Between 0-15% Health - Flee For Assist (No Repeat)");
 
--- Cobalt Whelp
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10659;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10659 AND `source_type`=0;
+-- Lord Banehollow
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9516;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9516 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10659,0,0,0,0,0,100,0,4000,6000,12000,16000,11,15089,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cobalt Whelp - In Combat - Cast Frost Shock"),
-(10659,0,1,0,0,0,100,0,7000,10000,18000,22000,11,13443,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cobalt Whelp - In Combat - Cast Rend");
+(9516,0,0,0,9,0,100,0,0,5,12000,21000,11,16247,0,0,0,0,0,2,0,0,0,0,0,0,0,"Lord Banehollow - Within 0-5 Range - Cast Curse of Thorns"),
+(9516,0,1,0,9,0,100,0,0,15,8000,13000,11,17399,0,0,0,0,0,2,0,0,0,0,0,0,0,"Lord Banehollow - Within 0-15 Range - Cast Shadow Shock");
 
--- Cobalt Wyrmkin
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7435;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7435 AND `source_type`=0;
+-- Entropic Horror
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9879;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9879 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7435,0,0,0,0,0,100,0,6000,9000,7000,10000,11,15580,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cobalt Wyrmkin - In Combat - Cast Strike"),
-(7435,0,1,0,0,0,100,0,4000,6000,14000,18000,11,9080,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cobalt Wyrmkin - In Combat - Cast Hamstring");
+(9879,0,0,0,0,0,100,0,5000,8000,22000,28000,11,2602,2,0,0,0,0,1,0,0,0,0,0,0,0,"Entropic Horror - In Combat - Cast Fire Shield IV");
 
--- Cobalt Scalebane
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7436;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7436 AND `source_type`=0;
+-- Entropic Beast
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9878;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9878 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7436,0,0,0,9,0,100,0,0,5,17000,21000,11,11977,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cobalt Scalebane - Within 0-5 Range - Cast Rend"),
-(7436,0,1,0,9,0,100,0,0,5,9000,13000,11,6713,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cobalt Scalebane - Within 0-5 Range - Cast Disarm"),
-(7436,0,2,0,13,0,100,1,0,0,0,0,11,15655,0,0,0,0,0,2,0,0,0,0,0,0,0,"Cobalt Scalebane - Target Casting - Cast Shield Slam (No Repeat)");
+(9878,0,0,0,9,0,100,0,0,30,25000,28000,11,15661,0,0,0,0,0,2,0,0,0,0,0,0,0,"Entropic Beast - Within 0-30 Range - Cast Immolate");
 
--- Cobalt Mageweaver
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7437;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7437 AND `source_type`=0;
+-- Immolatus
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7137;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7137 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7437,0,0,0,0,0,100,0,0,0,3400,6200,11,15043,64,0,0,0,0,2,0,0,0,0,0,0,0,"Cobalt Mageweaver - In Combat - Cast Frostbolt"),
-(7437,0,1,0,1,0,100,0,1000,1000,1800000,1800000,11,12544,0,0,0,0,0,1,0,0,0,0,0,0,0,"Cobalt Mageweaver - Out of Combat - Cast Frost Armor");
+(7137,0,0,0,9,0,100,0,0,8,10000,14000,11,10101,0,0,0,0,0,2,0,0,0,0,0,0,0,"Immolatus - Within 0-8 Range - Cast Knock Away");
 
--- Spellmaw
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10662 AND `source_type`=0;
+-- Irontree Stomper
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7139;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7139 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10662,0,0,0,25,0,100,0,0,0,0,0,11,34304,0,0,0,0,0,1,0,0,0,0,0,0,0,"Spellmaw - On Reset - Cast Damage Immunity: Arcane"),
-(10662,0,1,0,0,0,100,0,6000,8000,20000,24000,11,16099,0,0,0,0,0,2,0,0,0,0,0,0,0,"Spellmaw - In Combat - Cast Frost Breath"),
-(10662,0,2,0,0,0,100,0,8000,10000,18000,21000,11,17012,0,0,0,0,0,2,0,0,0,0,0,0,0,"Spellmaw - In Combat - Cast Devour Magic");
+(7139,0,0,0,9,0,100,0,0,5,9000,16000,11,45,0,0,0,0,0,1,0,0,0,0,0,0,0,"Irontree Stomper - Within 0-5 Range - Cast War Stomp");
 
--- General Colbatann
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10196;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10196 AND `source_type`=0;
+-- Toxic Horror
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7132;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7132 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10196,0,0,0,4,0,100,1,0,0,0,0,11,9128,0,0,0,0,0,1,0,0,0,0,0,0,0,"General Colbatann - On Aggro - Cast Battle Shout"),
-(10196,0,1,0,0,0,100,0,7000,10000,35000,44000,11,13730,0,0,0,0,0,1,0,0,0,0,0,0,0,"General Colbatann - In Combat - Cast Demoralizing Shout"),
-(10196,0,2,0,9,0,100,0,0,5,15000,19000,11,11971,0,0,0,0,0,2,0,0,0,0,0,0,0,"General Colbatann - Within 0-5 Range - Cast Sunder Armor");
+(7132,0,0,0,9,0,100,0,0,5,8000,16000,11,7947,0,0,0,0,0,2,0,0,0,0,0,0,0,"Toxic Horror - Within 0-5 Range - Cast Localized Toxin"),
+(7132,0,1,0,0,0,100,0,6000,9000,12000,18000,11,13582,0,0,0,0,0,2,0,0,0,0,0,0,0,"Toxic Horror - In Combat - Cast Deadly Poison");
 
--- Manaclaw
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10663 AND `source_type`=0;
+-- Withered Protector
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7149;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7149 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10663,0,0,0,25,0,100,0,0,0,0,0,11,34304,0,0,0,0,0,1,0,0,0,0,0,0,0,"Manaclaw - On Reset - Cast Damage Immunity: Arcane"),
-(10663,0,1,0,0,0,100,0,6000,8000,16000,20000,11,16099,0,0,0,0,0,2,0,0,0,0,0,0,0,"Manaclaw - In Combat - Cast Frost Breath");
+(7149,0,0,0,9,0,100,0,0,5,9000,13000,11,5337,0,0,0,0,0,2,0,0,0,0,0,0,0,"Withered Protector - Within 0-5 Range - Cast Wither Strike"),
+(7149,0,1,0,2,0,100,1,0,30,0,0,11,8599,0,0,0,0,0,1,0,0,0,0,0,0,0,"Withered Protector - Between 0-30% Health - Cast Enrage (No Repeat)");
 
--- Scryer
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10664 AND `source_type`=0;
+-- Warpwood Moss Flayer
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7100;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7100 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10664,0,0,0,25,0,100,0,0,0,0,0,11,34304,0,0,0,0,0,1,0,0,0,0,0,0,0,"Scryer - On Reset - Cast Damage Immunity: Arcane"),
-(10664,0,1,0,0,0,100,0,6000,8000,20000,24000,11,16099,0,0,0,0,0,2,0,0,0,0,0,0,0,"Scryer - In Combat - Cast Frost Breath"),
-(10664,0,2,0,0,0,100,0,3000,6000,15000,20000,11,12738,0,0,0,0,0,2,0,0,0,0,0,0,0,"Scryer - In Combat - Cast Amplify Damage");
+(7100,0,0,0,9,0,100,0,0,30,21000,25000,11,11922,0,0,0,0,0,4,0,0,0,0,0,0,0,"Warpwood Moss Flayer - Within 0-30 Range - Cast Entangling Roots");
 
--- Azurous
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10202 AND `source_type`=0;
+-- Warpwood Shredder
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7101;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7101 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10202,0,0,0,25,0,100,0,0,0,0,0,11,34304,0,0,0,0,0,1,0,0,0,0,0,0,0,"Manaclaw - On Reset - Cast Damage Immunity: Arcane"),
-(10202,0,1,0,0,0,100,0,6000,8000,15000,18000,11,16099,0,0,0,0,0,2,0,0,0,0,0,0,0,"Manaclaw - In Combat - Cast Frost Breath");
+(7101,0,0,0,0,0,100,0,8000,12000,15000,20000,11,3391,0,0,0,0,0,2,0,0,0,0,0,0,0,"Warpwood Shredder - In Combat - Cast Thrash"),
+(7101,0,1,0,9,0,100,0,0,5,8000,12000,11,13444,0,0,0,0,0,2,0,0,0,0,0,0,0,"Warpwood Shredder - Within 0-5 Range - Cast Sunder Armor");
 
--- Brumeran
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10807;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10807 AND `source_type`=0;
+-- Dessecus
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7104;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7104 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10807,0,0,0,0,0,100,0,8000,10000,12000,15000,11,15797,0,0,0,0,0,2,0,0,0,0,0,0,0,"Brumeran - In Combat - Cast Lightning Breath"),
-(10807,0,1,0,0,0,100,0,3000,6000,12000,15000,11,16552,0,0,0,0,0,2,0,0,0,0,0,0,0,"Brumeran - In Combat - Cast Venom Spit"),
-(10807,0,2,0,2,0,100,1,0,30,0,0,11,8599,0,0,0,0,0,1,0,0,0,0,0,0,0,"Brumeran - Between 0-30% Health - Cast Enrage (No Repeat)");
+(7104,0,0,0,9,0,100,0,0,30,6000,10000,11,12058,0,0,0,0,0,2,0,0,0,0,0,0,0,"Dessecus - Within 0-30 Range - Cast Chain Lightning"),
+(7104,0,1,0,0,0,100,0,6000,11000,16000,21000,11,8293,0,0,0,0,0,4,0,0,0,0,0,0,0,"Dessecus - In Combat - Cast Lightning Cloud");
 
--- Frostmaul Giant
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7428;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7428 AND `source_type`=0;
+-- Deadwood Den Watcher
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7156 AND `source_type`=0 AND `id`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7428,0,0,0,0,0,100,0,12000,16000,28000,34000,11,18670,0,0,0,0,0,2,0,0,0,0,0,0,0,"Frostmaul Giant - In Combat - Cast Knock Away"),
-(7428,0,1,0,0,0,100,0,4000,6000,14000,18000,11,18368,0,0,0,0,0,2,0,0,0,0,0,0,0,"Frostmaul Giant - In Combat - Cast Strike");
+(7156,0,0,0,0,0,100,0,4000,11000,12000,15000,11,13583,32,0,0,0,0,2,0,0,0,0,0,0,0,"Deadwood Warrior - In Combat - Cast Curse of the Deadwood");
 
--- Frostmaul Preserver
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7429;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7429 AND `source_type`=0;
+-- Deadwood Avenger
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7157 AND `source_type`=0 AND `id`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7429,0,0,0,2,0,100,0,0,40,19000,26000,11,9616,0,0,0,0,0,1,0,0,0,0,0,0,0,"Frostmaul Preserver - Between 0-40% Health - Cast Wild Regeneration");
+(7157,0,0,0,0,0,100,0,4000,11000,12000,15000,11,13583,32,0,0,0,0,2,0,0,0,0,0,0,0,"Deadwood Warrior - In Combat - Cast Curse of the Deadwood");
 
--- Kashoch the Reaver
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10198;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10198 AND `source_type`=0;
+-- Deadwood Shaman
+DELETE FROM `smart_scripts` WHERE `entryorguid`=7158 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10198,0,0,0,9,0,100,0,0,5,14000,16000,11,40504,0,0,0,0,0,2,0,0,0,0,0,0,0,"Kashoch the Reaver - Within 0-5 Range - Cast Cleave");
+(7158,0,0,0,0,0,100,0,0,0,3400,4700,11,9532,64,0,0,0,0,2,0,0,0,0,0,0,0,"Deadwood Shaman - In Combat - Cast Lightning Bolt"),
+(7158,0,1,0,0,0,100,0,4000,11000,12000,15000,11,13583,2,0,0,0,0,4,0,0,0,0,0,0,0,"Deadwood Shaman - In Combat - Cast Curse of the Deadwood"),
+(7158,0,2,0,0,0,100,0,5500,9500,6500,9500,11,12058,2,0,0,0,0,4,0,0,0,0,0,0,0,"Deadwood Shaman - In Combat - Cast Chain Lightning"),
+(7158,0,3,0,1,0,100,0,500,1000,600000,600000,11,13585,0,0,0,0,0,1,0,0,0,0,0,0,0,"Deadwood Shaman - Out of Combat - Cast Lightning Shield"),
+(7158,0,4,0,16,0,100,0,13585,1,15000,30000,11,13585,0,0,0,0,0,1,0,0,0,0,0,0,0,"Deadwood Shaman - On Friendly Unit Missing Buff Lightning Shield - Cast Lightning Shield");
 
--- Hederine Initiate
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7461;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7461 AND `source_type`=0;
+-- Chieftain Bloodmaw
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=9462;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=9462 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7461,0,0,0,0,0,100,0,0,0,3400,4800,11,12739,64,0,0,0,0,2,0,0,0,0,0,0,0,"Hederine Initiate - In Combat - Cast Shadow Bolt");
+(9462,0,0,0,2,0,100,1,0,30,0,0,11,5915,0,0,0,0,0,1,0,0,0,0,0,0,0,"Chieftain Bloodmaw - Between 0-30% Health - Cast Crazed (No Repeat)"),
+(9462,0,1,0,0,0,100,0,4000,11000,12000,15000,11,13583,0,0,0,0,0,2,0,0,0,0,0,0,0,"Chieftain Bloodmaw - In Combat - Cast Curse of the Deadwood"),
+(9462,0,2,0,9,0,100,0,0,30,15000,18000,11,15117,0,0,0,0,0,2,0,0,0,0,0,0,0,"Chieftain Bloodmaw - Within 0-30 Range - Cast Chain Lightning");
 
--- Hederine Slayer
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=7463;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=7463 AND `source_type`=0;
+-- Winterfall Runner
+UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10916;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=10916 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(7463,0,0,0,0,0,100,0,9000,12000,15000,18000,11,17547,0,0,0,0,0,2,0,0,0,0,0,0,0,"Hederine Slayer - In Combat - Cast Mortal Strike");
-
--- Lady Hederine
-UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=10201;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=10201 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(10201,0,0,0,0,0,100,0,5000,7000,18000,24000,11,17146,0,0,0,0,0,2,0,0,0,0,0,0,0,"Lady Hederine - In Combat - Cast Shadow Word: Pain");
+(10916,0,0,0,1,0,100,0,1000,1000,1200000,1200000,11,17205,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Runner - Out of Combat - Cast Winterfall Firewater");
 
 -- Random movement for some creatures
-UPDATE `creature` SET `spawndist`=8, `MovementType`=1 WHERE `guid`=51891;
-UPDATE `creature` SET `spawndist`=15, `MovementType`=1 WHERE `guid`=42304;
+UPDATE `creature` SET `spawndist`=10, `MovementType`=1 WHERE `guid`=51897;
+UPDATE `creature` SET `spawndist`=5, `MovementType`=1 WHERE `guid` IN (40656, 51895);
+*/

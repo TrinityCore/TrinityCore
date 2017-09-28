@@ -1,3 +1,4 @@
+/*
 -- Quest "Deaths in the Family" --> Add completion event
 DELETE FROM `creature_text` WHERE `CreatureID`=1500;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -15,3 +16,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (150000,9,1,0,0,0,100,0,1000,1000,0,0,1,0,0,0,0,0,0,7,0,0,0,0,0,0,0,"Coleman Farthing - On Script - Say Line 0"),
 (150000,9,2,0,0,0,100,0,5000,5000,0,0,1,1,0,0,0,0,0,7,0,0,0,0,0,0,0,"Coleman Farthing - On Script - Say Line 1"),
 (150000,9,3,0,0,0,100,0,4000,4000,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Coleman Farthing - On Script - Add Npc Flag Questgiver");
+*/

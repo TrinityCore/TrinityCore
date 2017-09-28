@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=4630;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=4630 AND `source_type`=0;
@@ -6,3 +7,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=4630;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (4630, 0, 0, "Okay, crew. Get to work on getting these bones installed.", 12, 0, 100, 0, 0, 0, 1526, 0, "Pozzik");
+*/

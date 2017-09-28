@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=6514;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6514 AND `source_type`=0;
@@ -10,3 +11,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (6514, 0, 0, "%s pounds his chest, calling for help!", 16, 0, 100, 0, 0, 0, 4837, 0, "Un'Goro Gorilla");
 UPDATE `smart_scripts` SET `event_param2`=50, `comment`="Un'Goro Stomper - Between 0-50% Health - Cast 'Enrage' (No Repeat)" WHERE `entryorguid`=6513 AND `id`=0;
 UPDATE `smart_scripts` SET `comment`="Un'Goro Stomper - Between 0-50% Health - Say Line 0" WHERE `entryorguid`=6513 AND `id`=1;
+*/

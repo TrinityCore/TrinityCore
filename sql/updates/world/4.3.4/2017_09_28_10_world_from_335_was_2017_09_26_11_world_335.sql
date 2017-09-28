@@ -1,3 +1,4 @@
+/*
 -- Witch Doctor Mau'ari
 UPDATE `gossip_menu_option` SET `ActionMenuID`=2705 WHERE `MenuID`=2703 AND `OptionID`=2;
 
@@ -17,3 +18,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=10307 AND `source_type`=0 AND `id`=2;
 UPDATE `smart_scripts` SET `link`=0 WHERE `entryorguid`=10307 AND `source_type`=0 AND `id`=1;
+*/

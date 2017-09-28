@@ -1,3 +1,4 @@
+/*
 -- Fix gossip menu for Aurora Skycaller
 DELETE FROM `gossip_menu` WHERE `MenuID` IN (4743, 4744, 4745);
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -18,3 +19,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14,4743,5817,0,0,8,0,5245,0,0,0,0,0,'',"Aurora Skycaller - Show Gossip Menu Text 5817 if Quest 5245 is rewarded"),
 (14,4743,5818,0,0,8,0,5247,0,0,0,0,0,'',"Aurora Skycaller - Show Gossip Menu Text 5818 if Quest 5247 is rewarded");
 UPDATE `gossip_menu_option` SET `ActionMenuID`=3623 WHERE `MenuID`=3624;
+*/

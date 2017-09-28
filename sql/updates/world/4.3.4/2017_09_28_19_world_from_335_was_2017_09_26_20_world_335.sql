@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `gameobject_template` SET `AIName`="SmartGameObjectAI" WHERE `entry` IN (164871, 175080, 176495, 181689, 186238);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (164871, 175080, 176495, 181689, 186238, 17508000, 17649500) AND `source_type` IN (1, 9);
@@ -27,3 +28,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 UPDATE `creature_template` SET `gossip_menu_id`=2441 WHERE `entry`=3149;
 UPDATE `creature_template` SET `gossip_menu_id`=3842 WHERE `entry`=12137;
+*/

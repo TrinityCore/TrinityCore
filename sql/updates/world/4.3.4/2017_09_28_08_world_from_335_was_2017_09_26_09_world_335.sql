@@ -1,3 +1,4 @@
+/*
 -- Completion Event for Quest "Fragments of the Past (Part 2)"
 DELETE FROM `creature_text` WHERE `CreatureID`=10304;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -18,3 +19,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (1030400,9,3,0,0,0,100,0,0,0,0,0,11,2362,0,0,0,0,0,1,0,0,0,0,0,0,0,"Aurora Skycaller - On Script - Cast Create Spellstone"),
 (1030400,9,4,0,0,0,100,0,6000,6000,0,0,1,2,0,0,0,0,0,7,0,0,0,0,0,0,0,"Aurora Skycaller - On Script - Say Line 2"),
 (1030400,9,5,0,0,0,100,0,0,0,0,0,82,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Aurora Skycaller - On Script - Add Npc Flag Questgiver+Gossip");
+*/

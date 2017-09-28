@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry` IN (2956, 3244, 3246);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (2956, 3244, 3246) AND `source_type`=0;
@@ -25,3 +26,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (588, 0, 0, "%s goes into a frenzy!", 16, 0, 100, 0, 0, 0, 1191, 0, "Bloodscalp Scout"),
 (595, 0, 0, "%s goes into a frenzy!", 16, 0, 100, 0, 0, 0, 1191, 0, "Bloodscalp Hunter"),
 (16863, 0, 0, "%s goes into a frenzy!", 16, 0, 100, 0, 0, 0, 1191, 0, "Deranged Helboar");
+*/

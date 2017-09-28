@@ -1,3 +1,4 @@
+/*
 -- Young Scavenger
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=1508;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1508 AND `source_type`=0;
@@ -350,3 +351,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (4285,0,1,0,14,0,100,0,600,40,11000,15000,11,11642,1,0,0,0,0,7,0,0,0,0,0,0,0,"Scarlet Disciple - Friendly At 600 Health - Cast Heal"),
 (4285,0,2,0,2,0,100,1,0,50,0,0,11,11640,0,0,0,0,0,1,0,0,0,0,0,0,0,"Scarlet Disciple - Between 0-50% Health - Cast Renew (No Repeat)"),
 (4285,0,3,0,2,0,100,1,0,15,0,0,25,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Scarlet Disciple - Between 0-15% Health - Flee For Assist (No Repeat)");
+*/
