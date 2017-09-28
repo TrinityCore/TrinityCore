@@ -2447,6 +2447,12 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            if (UpdateVictim())
+            {
+                DoMeleeAttackIfReady();
+                return;
+            }
+
             _events.Update(diff);
 
             if (uint32 eventId = _events.ExecuteEvent())
@@ -2463,11 +2469,6 @@ public:
                         break;
                 }
             }
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
         }
 
         private:
