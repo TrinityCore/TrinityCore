@@ -1467,7 +1467,7 @@ bool ConditionMgr::addToPhases(Condition* cond) const
     {
         for (PhaseInfoStruct& phase : *phases)
         {
-            if (!cond->SourceEntry || cond->SourceEntry == phase.AreaOrZone)
+            if (!cond->SourceEntry || cond->SourceEntry == int32(phase.AreaOrZone))
             {
                 phase.Conditions.push_back(cond);
                 found = true;
