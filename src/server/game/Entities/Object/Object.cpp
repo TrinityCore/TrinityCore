@@ -2950,10 +2950,9 @@ void WorldObject::UpdateAreaAndZonePhase()
     PhaseInfo const& phases = sObjectMgr->GetAreaAndZonePhases();
     for (PhaseInfo::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
     {
-        uint32 areaOrZoneId = itr->first;
         for (PhaseInfoStruct const& phase : itr->second)
         {
-            if (areaOrZoneId == GetAreaId() || areaOrZoneId == GetZoneId())
+            if (phase.AreaOrZone == GetAreaId() || phase.AreaOrZone == GetZoneId())
             {
                 if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
                 {
@@ -3028,13 +3027,11 @@ bool WorldObject::SetInPhase(uint32 id, bool update, bool apply)
         {
             // if area phase passes the condition we should not remove it (ie: if remove called from aura remove)
             // this however breaks the .mod phase command, you wont be able to remove any area based phases with it
-            PhaseInfo const& phases = sObjectMgr->GetAreaAndZonePhases();
-            for (PhaseInfo::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
-                if (itr->first == GetAreaId() || itr->first == GetZoneId())
-                    for (PhaseInfoStruct const& phase : itr->second)
-                        if (id == phase.Id)
-                            if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
-                                return false;
+            std::vector<PhaseInfoStruct> const* phases = sObjectMgr->GetAreaAndZonePhasesById(id);
+            for (PhaseInfoStruct const& phase : *phases)
+                if (GetAreaId() == phase.AreaOrZone || GetZoneId() == phase.AreaOrZone)
+                    if (sConditionMgr->IsObjectMeetToConditions(this, phase.Conditions))
+                        return false;
 
             if (!HasInPhaseList(id)) // do not run the updates if we are not in this phase
                 return false;
