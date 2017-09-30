@@ -41,7 +41,7 @@ void GuildFinderMgr::LoadGuildSettings()
     QueryResult result = CharacterDatabase.Query("SELECT gfgs.guildId, gfgs.availability, gfgs.classRoles, gfgs.interests, gfgs.level, gfgs.listed, gfgs.comment, c.race "
                                                  "FROM guild_finder_guild_settings gfgs "
                                                  "LEFT JOIN guild_member gm ON gm.guildid=gfgs.guildId "
-                                                 "LEFT JOIN characters c ON c.guid = gm.guid LIMIT 1");
+                                                 "LEFT JOIN characters c ON c.guid = gm.guid");
 
     if (!result)
     {
