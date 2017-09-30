@@ -1,16 +1,16 @@
-DROP TABLE IF EXISTS holiday_dates;
-CREATE TABLE holiday_dates (
-  id INT UNSIGNED NOT NULL,
-  date_id TINYINT UNSIGNED NOT NULL,
-  date_value INT UNSIGNED NOT NULL,
-  PRIMARY KEY (id, date_id)
+DROP TABLE IF EXISTS `holiday_dates`;
+CREATE TABLE `holiday_dates` (
+  `id` INT UNSIGNED NOT NULL,
+  `date_id` TINYINT UNSIGNED NOT NULL,
+  `date_value` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`, `date_id`)
 );
 
 CREATE FUNCTION packDate (yy TINYINT UNSIGNED, mm TINYINT UNSIGNED, dd TINYINT UNSIGNED)
 RETURNS INT UNSIGNED DETERMINISTIC
 RETURN (yy << 24) | ((mm - 1) << 20) | ((dd - 1) << 14);
 
-INSERT INTO holiday_dates VALUES
+INSERT INTO `holiday_dates` VALUES
 -- (181, 0, 120700928),
 -- (181, 1, 136675328),
 -- (181, 2, 154550272),
@@ -174,18 +174,16 @@ INSERT INTO holiday_dates VALUES
 (375, 25, packDate(23, 03, 31)),
 (376, 25, packDate(23, 04, 28));
 
-UPDATE holiday_dates SET date_value = date_value & ~0x3FFF; -- All holidays start at 00:00 in 3.3.5 + some unneeded bits
+UPDATE `holiday_dates` SET `date_value` = `date_value` & ~0x3FFF; -- All holidays start at 00:00 in 3.3.5 + some unneeded bits
 
 DROP FUNCTION packDate;
 
-ALTER TABLE game_event ADD COLUMN holidayStage TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER holiday;
+ALTER TABLE `game_event` ADD COLUMN `holidayStage` TINYINT UNSIGNED NOT NULL DEFAULT '0' AFTER `holiday`;
 
-UPDATE game_event SET holiday = 424 WHERE eventEntry = 64; -- Correct Kalu'ak Fishing Derby
-UPDATE game_event SET holiday = 0 WHERE eventEntry = 63;
--- UPDATE game_event SET description = 'Call to Arms: Strand of the Ancients' WHERE eventEntry = 53; -- Wrong descriptions
--- UPDATE game_event SET description = 'Call to Arms: Isle of Conquest' WHERE eventEntry = 54;
-UPDATE game_event SET holiday = 374 WHERE eventEntry = 23;  -- Darkmoon construction
-UPDATE game_event SET holiday = 375 WHERE eventEntry = 110;
-UPDATE game_event SET holiday = 376 WHERE eventEntry = 62;
-UPDATE game_event SET holidayStage = 1 WHERE eventEntry IN (1, 2, 7, 8, 9, 10, 11, 12, 18, 19, 20, 21, 23, 24, 26, 50, 51, 53, 54, 62, 110);
-UPDATE game_event SET holidayStage = 2 WHERE eventEntry IN (3, 4, 5, 24);
+UPDATE `game_event` SET `holiday` = 424 WHERE `eventEntry` = 64; -- Correct Kalu'ak Fishing Derby
+UPDATE `game_event` SET `holiday` = 0 WHERE `eventEntry` = 63;
+UPDATE `game_event` SET `holiday` = 374 WHERE `eventEntry` = 23;  -- Darkmoon construction
+UPDATE `game_event` SET `holiday` = 375 WHERE `eventEntry` = 110;
+UPDATE `game_event` SET `holiday` = 376 WHERE `eventEntry` = 62;
+UPDATE `game_event` SET `holidayStage` = 1 WHERE `eventEntry` IN (1, 2, 7, 8, 9, 10, 11, 12, 18, 19, 20, 21, 23, 26, 50, 51, 53, 54, 62, 110);
+UPDATE `game_event` SET `holidayStage` = 2 WHERE `eventEntry` IN (3, 4, 5, 24);
