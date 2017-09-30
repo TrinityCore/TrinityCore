@@ -1,3 +1,4 @@
+/*
 -- 
 -- Pathing for Insane Ghoul
 SET @NPC := 4444;
@@ -52,3 +53,4 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,43,-10992.53,-1326.81,51.86867,0,0,0,0,100,0),
 (@PATH,44,-10999.91,-1342.19,53.65885,0,0,0,0,100,0);
 -- 0x203ADC0000007FC00065A50000066AAC .go -11012.04 -1350.911 53.65797
+*/
