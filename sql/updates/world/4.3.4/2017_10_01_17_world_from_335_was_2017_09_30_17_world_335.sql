@@ -1,3 +1,4 @@
+/*
 -- Quest "Winterfall Runners" --> Add Completion Event
 -- Donova Snowden
 DELETE FROM `creature_text` WHERE `CreatureID`=9298;
@@ -47,3 +48,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (14372,0,1,2,40,0,100,0,2,14372,0,0,49,0,0,0,0,0,0,21,50,0,0,0,0,0,0,"Winterfall Ambusher - On Waypoint 2 Reached - Start Attack"),
 (14372,0,2,0,61,0,100,0,0,0,0,0,101,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Ambusher - On Waypoint 2 Reached - Set Home Position"),
 (14372,0,3,0,1,0,100,0,1000,1000,1200000,1200000,11,17205,0,0,0,0,0,1,0,0,0,0,0,0,0,"Winterfall Ambusher - Out of Combat - Cast Winterfall Firewater");
+*/

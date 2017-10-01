@@ -1,3 +1,4 @@
+/*
 -- Improve Quest "Plagued Lands" and add completion event
 DELETE FROM `gossip_menu_option` WHERE `MenuID`=21210;
 INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
@@ -52,3 +53,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (216400,9,4,0,0,0,100,0,0,0,0,0,36,11836,0,0,0,0,0,1,0,0,0,0,0,0,0,"Rabid Thistle Bear - On Script - Update Template to \'Captured Rabid Thistle Bear\'");
 
 UPDATE `creature_template` SET `faction`=35, `AIName`="SmartAI", `flags_extra`=0 WHERE `entry`=11836;
+*/

@@ -1,3 +1,4 @@
+/*
 -- Emotes for Quest "Seek Redemption!"
 DELETE FROM `quest_details` WHERE `ID`=489;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -175,3 +176,4 @@ UPDATE `quest_offer_reward` SET `Emote1`=2, `EmoteDelay1`=100 WHERE `ID`=2518;
 DELETE FROM `quest_details` WHERE `ID`=2520;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
 (2520,1,0,0,0,0,0,0,0,0);
+*/

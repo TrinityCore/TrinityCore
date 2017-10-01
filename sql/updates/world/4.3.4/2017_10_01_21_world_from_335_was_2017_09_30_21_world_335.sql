@@ -1,3 +1,4 @@
+/*
 -- Vile Sprite
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=2189;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=2189 AND `source_type`=0;
@@ -45,3 +46,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `creature_text` WHERE `CreatureID`=3660;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (3660,0,0,"Athrikus points at you as he bellows forth words that scrape apart the inside of your ears. They are the last thing you hear.",16,0,100,0,0,0,1223,0,"Athrikus Narassin");
+*/

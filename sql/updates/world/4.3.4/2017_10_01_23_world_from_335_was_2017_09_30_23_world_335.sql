@@ -1,3 +1,4 @@
+/*
 -- Sand Skitterer
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=11738;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=11738 AND `source_type`=0;
@@ -363,3 +364,4 @@ UPDATE `creature` SET `MovementType`=1, `spawndist`=15 WHERE `guid` IN (51837, 4
 
 -- Fix spawn position for one creature
 UPDATE `creature` SET `position_x`=-7162.57, `position_y`=1380.36, `position_z`=2.92073, `orientation`=2.05615 WHERE `guid`=42906;
+*/

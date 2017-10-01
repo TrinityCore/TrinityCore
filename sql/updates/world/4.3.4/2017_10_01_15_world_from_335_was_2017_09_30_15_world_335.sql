@@ -1,3 +1,4 @@
+/*
 -- Guard Ashlock, Guard Howe, Guard Pearce and Guard Hiett
 SET @Howe    := 903;
 SET @Ashlock := 932;
@@ -18,3 +19,4 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 (@Ashlock,0,0,"Where are those reinforcements from Stormwind?  Heavy Blackrock activity has been reported in the East.",12,7,100,6,0,0,51,0,"Guard Ashlock"),
 (@Hiett,  0,0,"Hopefully the reinforcements from Stormwind show up soon. . . .",12,7,100,1,0,0,49,0,"Guard Hiett"),
 (@Pearce, 0,0,"Still no sign of the 2nd Battalion from Stormwind.  Reports are coming in of Shadowhide movement in the Northeast.",12,7,100,6,0,0,52,0,"Guard Pearce");
+*/

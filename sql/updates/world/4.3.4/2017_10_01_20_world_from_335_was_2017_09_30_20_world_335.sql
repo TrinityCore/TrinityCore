@@ -1,3 +1,4 @@
+/*
 -- Emotes for Quest "For Love Eternal"
 DELETE FROM `quest_details` WHERE `ID`=963;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
@@ -336,3 +337,4 @@ DELETE FROM `quest_details` WHERE `ID`=990;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
 (990,1,0,0,0,0,0,0,0,0);
 UPDATE `quest_offer_reward` SET `Emote1`=1 WHERE `ID`=990;
+*/
