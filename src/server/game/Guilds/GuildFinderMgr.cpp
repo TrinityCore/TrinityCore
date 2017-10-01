@@ -41,7 +41,7 @@ void GuildFinderMgr::LoadGuildSettings()
     QueryResult result = CharacterDatabase.Query("SELECT gfgs.guildId, gfgs.availability, gfgs.classRoles, gfgs.interests, gfgs.level, gfgs.listed, gfgs.comment, c.race "
                                                  "FROM guild_finder_guild_settings gfgs "
                                                  "LEFT JOIN guild_member gm ON gm.guildid=gfgs.guildId "
-                                                 "LEFT JOIN characters c ON c.guid = gm.guid LIMIT 1");
+                                                 "LEFT JOIN characters c ON c.guid = gm.guid");
 
     if (!result)
     {
@@ -183,8 +183,6 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
 
     CharacterDatabase.CommitTransaction(trans);
 
-    _membershipRequests[guildId].erase(itr);
-
     // Notify the applicant his submittion has been removed
     if (Player* player = ObjectAccessor::FindPlayer(itr->GetPlayerGUID()))
         SendMembershipRequestListUpdate(*player);
@@ -192,6 +190,8 @@ void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
     // Notify the guild master and officers the list changed
     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
         SendApplicantListUpdate(*guild);
+        
+    _membershipRequests[guildId].erase(itr);
 }
 
 std::list<MembershipRequest> GuildFinderMgr::GetAllMembershipRequestsForPlayer(uint32 playerGuid)
