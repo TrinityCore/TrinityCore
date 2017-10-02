@@ -22,12 +22,6 @@
 #include "Map.h"
 #include "scarlet_monastery.h"
 
-DoorData const doorData[] =
-{
-    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM },
-    { 0,                        0,                             DOOR_TYPE_ROOM } // END
-};
-
 class instance_scarlet_monastery : public InstanceMapScript
 {
     public:
@@ -39,7 +33,6 @@ class instance_scarlet_monastery : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadDoorData(doorData);
 
                 HorsemanAdds.clear();
             }
@@ -52,6 +45,9 @@ class instance_scarlet_monastery : public InstanceMapScript
                 {
                     case GO_PUMPKIN_SHRINE:
                         PumpkinShrineGUID = go->GetGUID();
+                        break;
+                    case GO_HIGH_INQUISITORS_DOOR:
+                        HighInquisitorsDoorGUID = go->GetGUID();
                         break;
                     default:
                         break;
@@ -117,6 +113,10 @@ class instance_scarlet_monastery : public InstanceMapScript
                             HandleGameObject(PumpkinShrineGUID, false);
                         }
                         break;
+                    case DATA_MOGRAINE_AND_WHITE_EVENT:
+                        if (state == DONE || state == IN_PROGRESS)
+                            HandleGameObject(HighInquisitorsDoorGUID, true);
+                        break;
                     default:
                         break;
                 }
@@ -146,6 +146,7 @@ class instance_scarlet_monastery : public InstanceMapScript
             ObjectGuid MograineGUID;
             ObjectGuid WhitemaneGUID;
             ObjectGuid VorrelGUID;
+            ObjectGuid HighInquisitorsDoorGUID;
 
             GuidSet HorsemanAdds;
         };
