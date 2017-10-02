@@ -1,3 +1,4 @@
+/*
 -- 
 -- Quests Poison Water, Thunderhorn Totem and Wildmane Totem
 DELETE FROM `creature_text` WHERE `CreatureID`=2948;
@@ -29,3 +30,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (294800, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Mull Thunderhorn - On Script - Talk 0"),
 (294800, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 11, 4983, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Mull Thunderhorn - On Script - Cast 'Create Cleansing Totem"),
 (294800, 9, 2, 0, 0, 0, 100, 0, 5000, 5000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Mull Thunderhorn - On Script - Talk 1");
+*/

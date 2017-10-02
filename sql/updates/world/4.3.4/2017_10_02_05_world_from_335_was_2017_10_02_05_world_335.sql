@@ -1,3 +1,4 @@
+/*
 -- 
 DELETE FROM `gossip_menu` WHERE `MenuID`=1043 AND `TextID`=1641;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -14,3 +15,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14, 1043, 1640, 0, 0, 25, 0, 9788, 0, 0, 1, 0, 0, "", "Show gossip text 1640 if player does NOT have spell 'Armorsmith'"),
 (14, 1043, 1641, 0, 0, 25, 0, 9788, 0, 0, 0, 0, 0, "", "Show gossip text 1641 if player has spell 'Armorsmith'"),
 (15, 1043, 0, 0, 0, 25, 0, 9788, 0, 0, 0, 0, 0, "", "Show gossip option if player has spell 'Armorsmith'");
+*/
