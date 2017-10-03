@@ -9004,10 +9004,10 @@ DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
     return DiminishingLevels(diminish.hitCount);
 }
 
-void Unit::IncrDiminishing(SpellInfo const* auraSpellInfo, bool triggered)
+void Unit::IncrDiminishing(SpellInfo const* auraSpellInfo)
 {
-    DiminishingGroup const group = auraSpellInfo->GetDiminishingReturnsGroupForSpell(triggered);
-    DiminishingLevels const maxLevel = auraSpellInfo->GetDiminishingReturnsMaxLevel(triggered);
+    DiminishingGroup const group = auraSpellInfo->GetDiminishingReturnsGroupForSpell();
+    DiminishingLevels const maxLevel = auraSpellInfo->GetDiminishingReturnsMaxLevel();
 
     // Checking for existing in the table
     DiminishingReturn& diminish = m_Diminishing[group];
@@ -9015,13 +9015,13 @@ void Unit::IncrDiminishing(SpellInfo const* auraSpellInfo, bool triggered)
         ++diminish.hitCount;
 }
 
-float Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool triggered, int32& duration, Unit* caster, DiminishingLevels previousLevel)
+float Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, int32& duration, Unit* caster, DiminishingLevels previousLevel)
 {
-    DiminishingGroup const group = auraSpellInfo->GetDiminishingReturnsGroupForSpell(triggered);
+    DiminishingGroup const group = auraSpellInfo->GetDiminishingReturnsGroupForSpell();
     if (duration == -1 || group == DIMINISHING_NONE)
         return 1.0f;
 
-    int32 const limitDuration = auraSpellInfo->GetDiminishingReturnsLimitDuration(triggered);
+    int32 const limitDuration = auraSpellInfo->GetDiminishingReturnsLimitDuration();
 
     // test pet/charm masters instead pets/charmeds
     Unit const* targetOwner = GetCharmerOrOwner();
@@ -9061,9 +9061,9 @@ float Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool trig
         }
         case DIMINISHING_AOE_KNOCKBACK:
         {
-            if ((auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
+            if ((auraSpellInfo->GetDiminishingReturnsGroupType() == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
                 || (ToCreature() && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))))
-                || auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_ALL)
+                || auraSpellInfo->GetDiminishingReturnsGroupType() == DRTYPE_ALL)
             {
                 DiminishingLevels diminish = previousLevel;
                 switch (diminish)
@@ -9077,9 +9077,9 @@ float Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, bool trig
         }
         default:
         {
-            if ((auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
+            if ((auraSpellInfo->GetDiminishingReturnsGroupType() == DRTYPE_PLAYER && (((targetOwner ? targetOwner : this)->ToPlayer())
                 || (ToCreature() && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_ALL_DIMINISH))))
-                || auraSpellInfo->GetDiminishingReturnsGroupType(triggered) == DRTYPE_ALL)
+                || auraSpellInfo->GetDiminishingReturnsGroupType() == DRTYPE_ALL)
             {
                 DiminishingLevels diminish = previousLevel;
                 switch (diminish)

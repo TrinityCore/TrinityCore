@@ -2469,7 +2469,7 @@ void SpellInfo::_LoadSpellSpecific()
 
 void SpellInfo::_LoadSpellDiminishInfo()
 {
-    auto diminishingGroupCompute = [this](bool triggered) -> DiminishingGroup
+    auto diminishingGroupCompute = [this]() -> DiminishingGroup
     {
         if (IsPositive())
             return DIMINISHING_NONE;
@@ -2812,7 +2812,7 @@ void SpellInfo::_LoadSpellDiminishInfo()
         }
     };
 
-    auto diminishingLimitDurationCompute = [this](DiminishingGroup group) -> int32
+    auto diminishingLimitDurationCompute = [this]() -> int32
     {
         // Explicit diminishing duration
         switch (SpellFamilyName)
@@ -2848,39 +2848,33 @@ void SpellInfo::_LoadSpellDiminishInfo()
         return 8 * IN_MILLISECONDS;
     };
 
-    SpellDiminishInfo triggeredInfo, normalInfo;
-    triggeredInfo.DiminishGroup = diminishingGroupCompute(true);
-    triggeredInfo.DiminishReturnType = diminishingTypeCompute(triggeredInfo.DiminishGroup);
-    triggeredInfo.DiminishMaxLevel = diminishingMaxLevelCompute(triggeredInfo.DiminishGroup);
-    triggeredInfo.DiminishDurationLimit = diminishingLimitDurationCompute(triggeredInfo.DiminishGroup);
+    SpellDiminishInfo diminishInfo;
+    diminishInfo.DiminishGroup = diminishingGroupCompute();
+    diminishInfo.DiminishReturnType = diminishingTypeCompute(diminishInfo.DiminishGroup);
+    diminishInfo.DiminishMaxLevel = diminishingMaxLevelCompute(diminishInfo.DiminishGroup);
+    diminishInfo.DiminishDurationLimit = diminishingLimitDurationCompute();
 
-    normalInfo.DiminishGroup = diminishingGroupCompute(false);
-    normalInfo.DiminishReturnType = diminishingTypeCompute(normalInfo.DiminishGroup);
-    normalInfo.DiminishMaxLevel = diminishingMaxLevelCompute(normalInfo.DiminishGroup);
-    normalInfo.DiminishDurationLimit = diminishingLimitDurationCompute(normalInfo.DiminishGroup);
-
-    _diminishInfoTriggered = triggeredInfo;
-    _diminishInfoNonTriggered = normalInfo;
+    _diminishInfo = diminishInfo;
 }
 
-DiminishingGroup SpellInfo::GetDiminishingReturnsGroupForSpell(bool triggered) const
+DiminishingGroup SpellInfo::GetDiminishingReturnsGroupForSpell() const
 {
-    return triggered ? _diminishInfoTriggered.DiminishGroup : _diminishInfoNonTriggered.DiminishGroup;
+    return _diminishInfo.DiminishGroup;
 }
 
-DiminishingReturnsType SpellInfo::GetDiminishingReturnsGroupType(bool triggered) const
+DiminishingReturnsType SpellInfo::GetDiminishingReturnsGroupType() const
 {
-    return triggered ? _diminishInfoTriggered.DiminishReturnType : _diminishInfoNonTriggered.DiminishReturnType;
+    return _diminishInfo.DiminishReturnType;
 }
 
-DiminishingLevels SpellInfo::GetDiminishingReturnsMaxLevel(bool triggered) const
+DiminishingLevels SpellInfo::GetDiminishingReturnsMaxLevel() const
 {
-    return triggered ? _diminishInfoTriggered.DiminishMaxLevel : _diminishInfoNonTriggered.DiminishMaxLevel;
+    return _diminishInfo.DiminishMaxLevel;
 }
 
-int32 SpellInfo::GetDiminishingReturnsLimitDuration(bool triggered) const
+int32 SpellInfo::GetDiminishingReturnsLimitDuration() const
 {
-    return triggered ? _diminishInfoTriggered.DiminishDurationLimit : _diminishInfoNonTriggered.DiminishDurationLimit;
+    return _diminishInfo.DiminishDurationLimit;
 }
 
 float SpellInfo::GetMinRange(bool positive) const
