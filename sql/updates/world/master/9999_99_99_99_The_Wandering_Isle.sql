@@ -6479,10 +6479,10 @@ INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2
 ((@CGUID+1720)*10, 10, 5, 112, 8, 0, 0, 0, 0, 0, @WSGUID+28),
 ((@CGUID+1844)*10, 0, 1, 428, 1, 0, 0, 0, 0, 0, @WSGUID+29),
 ((@CGUID+1844)*10, 2, 15, 129315, 1, 0, 0, 0, 0, 0, @WSGUID+30),
-((@CGUID+1844)*10, 0, 1, 30, 1, 0, 0, 0, 0, 0, @WSGUID+31),
+((@CGUID+1844)*10, 2, 1, 30, 1, 0, 0, 0, 0, 0, @WSGUID+31),
 (((@CGUID+1844)*10)+1, 0, 1, 428, 1, 0, 0, 0, 0, 0, @WSGUID+32),
 (((@CGUID+1844)*10)+1, 2, 14, 129315, 1, 0, 0, 0, 0, 0, @WSGUID+33),
-(((@CGUID+1844)*10)+1, 0, 1, 30, 1, 0, 0, 0, 0, 0, @WSGUID+34),
+(((@CGUID+1844)*10)+1, 2, 1, 30, 1, 0, 0, 0, 0, 0, @WSGUID+34),
 ((@CGUID+1849)*10, 0, 1, 428, 1, 0, 0, 0, 0, 0, @WSGUID+35),
 ((@CGUID+1849)*10, 3, 14, 129315, 1, 0, 0, 0, 0, 0, @WSGUID+36),
 ((@CGUID+1849)*10, 0, 1, 30, 1, 0, 0, 0, 0, 0, @WSGUID+37),
@@ -7731,7 +7731,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=13249 WHERE `entry`=55944;
 UPDATE `creature_template` SET `gossip_menu_id`=14671 WHERE `entry`=57721;
 UPDATE `creature_template` SET `gossip_menu_id`=14670 WHERE `entry`=57720;
 UPDATE `creature_template` SET `gossip_menu_id`=13726 WHERE `entry`=56013;
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (57779, 57164, 54568, 60245, 61126, 61127, 54786, 57132, 60253, 60248, 54734, 54135, 59626, 60176, 41200, 54131, 57205, 54943, 60244, 53566, 54586, 65470, 60183, 54611, 59642, 60554, 60042, 55943, 56236, 55946, 56174, 56008, 56360, 56362, 55940, 60895, 60896, 55640, 65102, 65107, 55918, 56663, 56662, 65476, 65477, 56274, 55586, 64506, 64505, 55592, 55665, 57465, 57466, 55633, 57419, 64875, 64876, 64879, 64880, 64881, 64885, 60918, 65044, 65045, 65085, 65086, 66689, 66691, 66692, 65467, 55539, 55506, 60915, 60914, 55556, 57797, 53704, 55022, 55015, 55504, 55483, 56241, 65473, 57712, 56393, 56394, 60411, 54976);
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (57779, 57164, 54568, 60245, 61126, 61127, 54786, 57132, 60253, 60248, 54734, 54135, 59626, 60176, 41200, 54131, 57205, 54943, 60244, 53566, 54586, 65470, 60183, 54611, 59642, 60554, 60042, 55943, 56236, 55946, 56174, 56008, 56360, 56362, 55940, 60895, 60896, 55640, 65102, 65107, 55918, 56663, 56662, 65476, 65477, 56274, 55586, 64506, 64505, 55592, 55665, 57465, 57466, 55633, 57419, 64875, 64876, 64879, 64880, 64881, 64885, 60918, 65044, 65045, 65085, 65086, 66689, 66691, 66692, 65467, 55539, 55506, 60915, 60914, 55556, 57797, 53704, 55022, 55015, 55504, 55483, 56241, 65473, 57712, 56393, 56394, 60411, 54976, 65742);
 UPDATE `creature_template` SET `flags_extra`=64 WHERE `entry` IN (53714, 57873);
 UPDATE `creature_template` SET `faction`=2104, `BaseAttackTime`=2000, `RangeAttackTime`=2000, `unit_flags`=33554432, `unit_flags2`=2048, `VehicleId`=1953, `AIName`='SmartAI', `HoverHeight`=2 WHERE `entry`=57750;
 UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry` IN (56739, 60920, 55650, 65559, 65560, 57464, 56172);
@@ -8696,7 +8696,7 @@ DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceEntry` I
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=25 AND `SourceEntry` IN (975, 976);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry` IN (7746, 7737, 7747, 7748, 54567, 6958, 7756, 7645, 7749, 7736, 7750, 7835, 7784, 7783, 7258, 7822, 7116, 8287, 7041, 7037, 7106, 7710, 7709, 7714, 7265) AND `SourceId`=2;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (114710, 108967, 122484, 106205, 114728, 106299, 109062, 108152, 102499, 102515, 106275, 102522, 109090, 109095, 109105, 109109, 109178, 105090, 106465, 106497, 108808, 108798, 107049, 103070, 103077, 128576, 108877, 108878, 107784, 107783, 108627, 105881, 118032, 118030, 118033, 108830, 108831, 104012, 104017, 118036, 118027, 114453, 114454, 106683, 106667, 105893, 106688, 104489, 108845, 108846, 108857, 125969, 104855, 104612, 104615, 128801, 126043, 126059, 126040, 105333, 106623, 109335, 109336, 105002, 106636, 106617, 114888, 114898, 106759, 118571, 118572, 115332, 115335, 115337, 115345, 115346, 115420, 117973, 117497);
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry`=54567) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 102522, 107049, 125961, 115446, 115447, 115351, 115491)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup`=13140);
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=22 AND `SourceEntry`=54567) OR (`SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (106299, 105156, 105157, 105158, 102522, 107049, 125961, 115446, 115447, 115334, 115336, 115338, 115435, 115493, 115494, 115495)) OR (`SourceTypeOrReferenceId`=18 AND `SourceGroup` IN (54993, 57431, 55083, 55918, 55999)) OR (`SourceTypeOrReferenceId`=15 AND `SourceGroup`=13140);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 -- Phases Specific
 (26, 629, 5825, 0, 0, 28, 0, 29419, 0, 0, 1, 0, 0, '', 'The Dawning Valley Phase 629 until Quest 29419 not complete'), -- phase not updated automatically (removed in SAI)
@@ -8840,7 +8840,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (22, 1, 7106, 2, 0, 1, 0, 106603, 1, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
 (22, 1, 7710, 2, 0, 9, 0, 29792, 0, 0, 0, 0, 0, '', 'SAI only when quest taken'),
 (22, 1, 7710, 2, 0, 48, 0, 263982, 0, 0, 1, 0, 0, '', 'SAI only when player has not completed quest objective'),
-(22, 1, 7709, 2, 0, 9, 0, 29792, 0, 0, 0, 0, 0, '', 'SAI only when quest taken'),
+(22, 1, 7709, 2, 0, 48, 0, 263982, 0, 0, 0, 0, 0, '', 'SAI only when player has completed quest objective'),
 (22, 1, 7709, 2, 0, 48, 0, 263983, 0, 0, 1, 0, 0, '', 'SAI only when player has not completed quest objective'),
 (22, 1, 7714, 2, 0, 28, 0, 29792, 0, 0, 0, 0, 0, '', 'SAI only when quest complete'),
 (22, 1, 7714, 2, 0, 1, 0, 115644, 0, 0, 1, 0, 0, '', 'SAI only when player has not aura'),
@@ -8968,8 +8968,13 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 115447, 0, 0, 48, 0, 263982, 0, 0, 0, 0, 0, '', 'See Quest Invis 28 only when quest objective complete'),
 (17, 0, 115447, 0, 1, 28, 0, 29792, 0, 0, 0, 0, 0, '', 'See Quest Invis 28 only when quest complete'),
 (17, 0, 115447, 0, 2, 8, 0, 29792, 0, 0, 0, 0, 0, '', 'See Quest Invis 28 only when quest rewarded'),
-(17, 0, 115351, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Pei-Wu Gate NPCs when Aysa not within 50y'),
-(17, 0, 115491, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Hermit Hut NPCs when Aysa not within 50y'),
+(17, 0, 115334, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Aysa when Aysa not within 50y'),
+(17, 0, 115336, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Ji when Aysa not within 50y'),
+(17, 0, 115338, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Jojo when Aysa not within 50y'),
+(17, 0, 115435, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Pei-Wu Door when Aysa not within 50y'),
+(17, 0, 115493, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Aysa when Aysa not within 50y'),
+(17, 0, 115494, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Ji when Aysa not within 50y'),
+(17, 0, 115495, 0, 0, 29, 0, 59986, 50, 0, 1, 0, 0, '', 'Summon Jojo when Aysa not within 50y'),
 (18, 55999, 56685, 0, 0, 9, 0, 29794, 0, 0, 0, 0, 0, '', 'Show spellclick only when player has taken quest');
 
 DELETE FROM `phase_area` WHERE `AreaId` IN (5736, 5834, 5825, 5843, 5848, 5849, 5820, 5826, 5860, 5827, 5881, 5884, 5828, 5837, 5829, 5830, 5831, 5946, 5886, 5859, 5832, 5833, 5737, 5944);
@@ -11042,6 +11047,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (60042, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 44, 903, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Korga Strongmane - On Accepted Quest - Remove Phase'),
 -- Wei Palerage
 (55943, 0, 0, 0, 38, 0, 100, 0, 6, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 12, 1, 0, 0, 0, 0, 0, 0, 'Wei Palerage - On Data Set - Talk'),
+-- Escaped Horde Crewman
+(65742, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 8, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Escaped Horde Crewman - On Respawn - Set React State'),
 -- Ji Firepaw
 (60900, 0, 0, 0, 54, 0, 100, 0, 0, 0, 0, 0, 80, 6090000, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Just Spawned - Run Script'),
 (6090000, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'Ji Firepaw - Talk'),
