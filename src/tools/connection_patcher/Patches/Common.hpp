@@ -68,6 +68,11 @@ R"({
     ]
 }NGISerting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature_inserting_dummy_signature)";
             }
+            static std::vector<unsigned char> LauncherLoginParametersLocation()
+            {
+                char const path[] = R"(Software\TrinityCore Developers\Battle.net\Launch Options\)";
+                return std::vector<unsigned char>(std::begin(path), std::end(path));
+            }
         };
     }
 }
