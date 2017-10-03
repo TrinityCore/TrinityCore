@@ -1274,3 +1274,19 @@ void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBank
     // Placeholder to prevent completely locking out bags clientside
     SendPacket(WorldPackets::Item::SortBagsResult().Write());
 }
+
+void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& removeNewItem)
+{
+    Item* item = _player->GetItemByGuid(removeNewItem.ItemGuid);
+    if (!item)
+    {
+        TC_LOG_DEBUG("network", "WorldSession::HandleRemoveNewItem: Item (%s) not found for %s!", removeNewItem.ItemGuid.ToString().c_str(), GetPlayerInfo().c_str());
+        return;
+    }
+
+    if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_NEW_ITEM))
+    {
+        item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_NEW_ITEM);
+        item->SetState(ITEM_CHANGED, _player);
+    }
+}

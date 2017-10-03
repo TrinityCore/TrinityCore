@@ -664,29 +664,3 @@ void WorldBossAI::UpdateAI(uint32 diff)
 
     DoMeleeAttackIfReady();
 }
-
-// SD2 grid searchers.
-Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive /*= true*/)
-{
-    return source->FindNearestCreature(entry, maxSearchRange, alive);
-}
-
-GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange)
-{
-    return source->FindNearestGameObject(entry, maxSearchRange);
-}
-
-void GetCreatureListWithEntryInGrid(std::list<Creature*>& list, WorldObject* source, uint32 entry, float maxSearchRange)
-{
-    source->GetCreatureListWithEntryInGrid(list, entry, maxSearchRange);
-}
-
-void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject* source, uint32 entry, float maxSearchRange)
-{
-    source->GetGameObjectListWithEntryInGrid(list, entry, maxSearchRange);
-}
-
-void GetPlayerListInGrid(std::list<Player*>& list, WorldObject* source, float maxSearchRange)
-{
-    source->GetPlayerListInGrid(list, maxSearchRange);
-}

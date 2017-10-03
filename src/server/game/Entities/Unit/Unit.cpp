@@ -2228,13 +2228,8 @@ bool Unit::isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttac
 
     if (victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION) || victim->HasInArc(float(M_PI), this))
     {
-        // Check creatures flags_extra for disable block
-        if (victim->GetTypeId() == TYPEID_UNIT &&
-            victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_BLOCK)
-                return false;
-
         float blockChance = GetUnitBlockChance(attackType, victim);
-        if (roll_chance_f(blockChance))
+        if (blockChance && roll_chance_f(blockChance))
             return true;
     }
 
@@ -2339,7 +2334,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         canDodge = false;
 
         // only if in front
-        if (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+        if (!victim->HasUnitState(UNIT_STATE_CONTROLLED) && (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
         {
             int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
             tmp += deflect_chance;
@@ -2484,8 +2479,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
 
     int32 tmp = 10000 - HitChance;
 
-    int32 rand = irand(0, 10000);
-
+    int32 rand = irand(0, 9999);
     if (rand < tmp)
         return SPELL_MISS_MISS;
 
@@ -2619,13 +2613,16 @@ float Unit::GetUnitParryChance(WeaponAttackType attType, Unit const* victim) con
                 chance = playerVictim->GetFloatValue(PLAYER_PARRY_PERCENTAGE);
         }
     }
-    else if (victim->GetTypeId() == TYPEID_UNIT && !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
+    else
     {
-        chance = 6.0f;
-        chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
+        if (!victim->IsTotem() && !(victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_PARRY))
+        {
+            chance = 6.0f;
+            chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
 
-        if (levelDiff > 0)
-            levelBonus = 1.5f * levelDiff;
+            if (levelDiff > 0)
+                levelBonus = 1.5f * levelDiff;
+        }
     }
 
     chance += levelBonus;
@@ -3234,7 +3231,7 @@ AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint32 effMask)
         AddInterruptMask(aurSpellInfo->AuraInterruptFlags);
     }
 
-    if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState(GetMap()->GetDifficultyID()))
+    if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState())
         m_auraStateAuras.insert(AuraStateAurasMap::value_type(aState, aurApp));
 
     aura->_ApplyForTarget(this, caster, aurApp);
@@ -3265,7 +3262,7 @@ void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask)
         return;
 
     // Update target aura state flag
-    if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState(GetMap()->GetDifficultyID()))
+    if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState())
         ModifyAuraState(aState, true);
 
     if (aurApp->GetRemoveMode())
@@ -3320,7 +3317,7 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
     }
 
     bool auraStateFound = false;
-    AuraStateType auraState = aura->GetSpellInfo()->GetAuraState(GetMap()->GetDifficultyID());
+    AuraStateType auraState = aura->GetSpellInfo()->GetAuraState();
     if (auraState)
     {
         bool canBreak = false;
@@ -7923,11 +7920,6 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell, Wo
         || (target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->IsGameMaster()))
         return false;
 
-    // can't attack own vehicle or passenger
-    if (m_vehicle)
-        if (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))
-            return false;
-
     // can't attack invisible (ignore stealth for aoe spells) also if the area being looked at is from a spell use the dynamic object created instead of the casting unit. Ignore stealth if target is player and unit in combat with same player
     if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_CAN_TARGET_INVISIBLE)) && (obj ? !obj->CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea(GetMap()->GetDifficultyID())) : !CanSeeOrDetect(target, (bySpell && bySpell->IsAffectingArea(GetMap()->GetDifficultyID())) || (target->GetTypeId() == TYPEID_PLAYER && target->HasStealthAura() && target->IsInCombat() && IsInCombatWith(target)))))
         return false;
@@ -11037,32 +11029,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     if (Player* killerPlayer = GetCharmerOrOwnerPlayerOrPlayerItself())
         killerPlayer->UpdateCriteria(CRITERIA_TYPE_GET_KILLING_BLOWS, 1, 0, 0, victim);
 
-    // if talent known but not triggered (check priest class for speedup check)
-    bool spiritOfRedemption = false;
-    if (victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_PRIEST)
-    {
-        if (AuraEffect const* spiritOfRedemptionEffect = GetAuraEffect(20711, EFFECT_0))
-        {
-            // save value before aura remove
-            uint32 ressSpellId = victim->GetUInt32Value(PLAYER_SELF_RES_SPELL);
-            if (!ressSpellId)
-                ressSpellId = victim->ToPlayer()->GetResurrectionSpellId();
-            // Remove all expected to remove at death auras (most important negative case like DoT or periodic triggers)
-            victim->RemoveAllAurasOnDeath();
-            // restore for use at real death
-            victim->SetUInt32Value(PLAYER_SELF_RES_SPELL, ressSpellId);
-
-            // FORM_SPIRIT_OF_REDEMPTION and related auras
-            victim->CastSpell(victim, 27827, true, NULL, spiritOfRedemptionEffect);
-            spiritOfRedemption = true;
-        }
-    }
-
-    if (!spiritOfRedemption)
-    {
-        TC_LOG_DEBUG("entities.unit", "SET JUST_DIED");
-        victim->setDeathState(JUST_DIED);
-    }
+    TC_LOG_DEBUG("entities.unit", "SET JUST_DIED");
+    victim->setDeathState(JUST_DIED);
 
     // Inform pets (if any) when player kills target)
     // MUST come after victim->setDeathState(JUST_DIED); or pet next target

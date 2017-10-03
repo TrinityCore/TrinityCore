@@ -7022,14 +7022,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     if (!zone)
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_WEATHER) && !HasAuraType(SPELL_AURA_FORCE_WEATHER))
-    {
-        if (Weather* weather = WeatherMgr::FindWeather(newZone))
-            weather->SendWeatherUpdateToPlayer(this);
-        else if (!WeatherMgr::AddWeather(newZone))
-            // send fine weather packet to remove old zone's weather
-            WeatherMgr::SendFineWeatherUpdateToPlayer(this);
-    }
+    if (sWorld->getBoolConfig(CONFIG_WEATHER))
+        GetMap()->GetOrGenerateZoneDefaultWeather(newZone);
+
+    GetMap()->SendZoneDynamicInfo(newZone, this);
 
     sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
 
@@ -9973,7 +9969,7 @@ bool Player::HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_
     return false;
 }
 
-bool Player::HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot) const
+bool Player::HasItemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot) const
 {
     uint32 tempcount = 0;
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
@@ -9995,6 +9991,26 @@ bool Player::HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 
             if (tempcount >= count)
                 return true;
         }
+    }
+
+    return false;
+}
+
+bool Player::HasGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot) const
+{
+    uint32 tempcount = 0;
+    for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        if (i == except_slot)
+            continue;
+
+        Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        if (!pItem)
+            continue;
+
+        ItemTemplate const* pProto = pItem->GetTemplate();
+        if (!pProto)
+            continue;
 
         if (pItem->GetSocketColor(0) || pItem->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
         {
@@ -11591,6 +11607,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         UpdateCriteria(CRITERIA_TYPE_RECEIVE_EPIC_ITEM, itemId, count);
         UpdateCriteria(CRITERIA_TYPE_OWN_ITEM, itemId, 1);
 
+        item->SetFlag(ITEM_FIELD_FLAGS, ITEM_FIELD_FLAG_NEW_ITEM);
         item->SetItemRandomProperties(randomPropertyId);
 
         if (uint32 upgradeID = sDB2Manager.GetRulesetItemUpgrade(itemId))
@@ -25821,7 +25838,9 @@ InventoryResult Player::CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 
             return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS;
 
         // there is an equip limit on this item
-        if (HasItemOrGemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitEntry->Quantity - limit_count + 1, except_slot))
+        if (HasItemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitEntry->Quantity - limit_count + 1, except_slot))
+            return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED_IS;
+        else if (HasGemWithLimitCategoryEquipped(itemProto->GetItemLimitCategory(), limitEntry->Quantity - limit_count + 1, except_slot))
             return EQUIP_ERR_ITEM_MAX_COUNT_EQUIPPED_SOCKETED;
     }
 
@@ -27608,35 +27627,38 @@ bool IsSectionFlagValid(CharSectionsEntry const* entry, uint8 class_, bool creat
     return ComponentFlagsMatch(entry, GetSelectionFromContext(2, class_));
 }
 
-bool IsSectionValid(uint8 race, uint8 class_, CharSectionType genType, uint8 gender, uint8 type, uint8 color, bool create)
+bool IsSectionValid(uint8 race, uint8 class_, uint8 gender, CharBaseSectionVariation variation, uint8 variationIndex, uint8 colorIndex, bool create)
 {
-    CharSectionsEntry const* section = sDB2Manager.GetCharSectionEntry(race, genType, gender, type, color);
+    CharSectionsEntry const* section = sDB2Manager.GetCharSectionEntry(race, gender, variation, variationIndex, colorIndex);
     if (section)
         return IsSectionFlagValid(section, class_, create);
-
-    if (!sDB2Manager.HasCharSections(race, genType, gender))
-        return type == 0;
 
     return false;
 }
 
 bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialHairID, uint8 skinColor, std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> const& customDisplay, bool create /*= false*/)
 {
-    if (!IsSectionValid(race, class_, SECTION_TYPE_SKIN, gender, 0, skinColor, create))
+    if (!IsSectionValid(race, class_, gender, CharBaseSectionVariation::Skin, 0, skinColor, create))
         return false;
 
-    if (!IsSectionValid(race, class_, SECTION_TYPE_FACE, gender, faceID, skinColor, create))
+    if (!IsSectionValid(race, class_, gender, CharBaseSectionVariation::Face, faceID, skinColor, create))
         return false;
 
-    if (!IsSectionValid(race, class_, SECTION_TYPE_HAIR, gender, hairID, hairColor, create))
+    if (!IsSectionValid(race, class_, gender, CharBaseSectionVariation::Hair, hairID, hairColor, create))
         return false;
 
-    if (!IsSectionValid(race, class_, SECTION_TYPE_FACIAL_HAIR, gender, facialHairID, hairColor, create))
-        return false;
-
-    for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
-        if (!IsSectionValid(race, class_, CharSectionType(SECTION_TYPE_CUSTOM_DISPLAY_1 + i * 2), gender, customDisplay[i], 0, create))
+    if (!IsSectionValid(race, class_, gender, CharBaseSectionVariation::FacialHair, facialHairID, hairColor, create))
+        if (sDB2Manager.HasCharSections(race, gender, CharBaseSectionVariation::FacialHair) || !sDB2Manager.HasCharacterFacialHairStyle(race, gender, facialHairID))
             return false;
+
+    if (!IsSectionValid(race, class_, gender, CharBaseSectionVariation::CustomDisplay1, customDisplay[0], 0, create))
+        return false;
+
+    if (!IsSectionValid(race, class_, gender, CharBaseSectionVariation::CustomDisplay2, customDisplay[1], 0, create))
+        return false;
+
+    if (!IsSectionValid(race, class_, gender, CharBaseSectionVariation::CustomDisplay3, customDisplay[2], 0, create))
+        return false;
 
     return true;
 }

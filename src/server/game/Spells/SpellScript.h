@@ -793,7 +793,7 @@ class TC_GAME_API AuraScript : public _SpellScript
 
         // executed when absorb aura effect is going to reduce damage
         // example: OnEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
-        // where function is: void function (AuraEffect const* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
+        // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectAbsorbHandler> OnEffectAbsorb;
         #define AuraEffectAbsorbFn(F, I) EffectAbsorbFunction(&F, I)
 

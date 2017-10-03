@@ -209,11 +209,12 @@ class spell_item_anger_capacitor : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MOTE_OF_ANGER) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MANIFEST_ANGER_MAIN_HAND) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_MANIFEST_ANGER_OFF_HAND))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    SPELL_MOTE_OF_ANGER,
+                    SPELL_MANIFEST_ANGER_MAIN_HAND,
+                    SPELL_MANIFEST_ANGER_OFF_HAND
+                });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -564,13 +565,14 @@ class spell_item_deathbringers_will : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(Strength) ||
-                    !sSpellMgr->GetSpellInfo(Agility) ||
-                    !sSpellMgr->GetSpellInfo(AttackPower) ||
-                    !sSpellMgr->GetSpellInfo(Critical) ||
-                    !sSpellMgr->GetSpellInfo(Haste))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    Strength,
+                    Agility,
+                    AttackPower,
+                    Critical,
+                    Haste
+                });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -1128,12 +1130,13 @@ class spell_item_heartpierce : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(Energy) ||
-                    !sSpellMgr->GetSpellInfo(Mana) ||
-                    !sSpellMgr->GetSpellInfo(Rage) ||
-                    !sSpellMgr->GetSpellInfo(RunicPower))
-                    return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    Energy,
+                    Mana,
+                    Rage,
+                    RunicPower
+                });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -1405,8 +1408,12 @@ class spell_item_necrotic_touch : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                int32 bp = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_ITEM_NECROTIC_TOUCH_PROC, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, NULL, aurEff);
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return;
+
+                int32 bp = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+                GetTarget()->CastCustomSpell(SPELL_ITEM_NECROTIC_TOUCH_PROC, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1877,6 +1884,8 @@ class spell_item_shadows_fate : public SpellScriptLoader
 
             void HandleProc(ProcEventInfo& procInfo)
             {
+                PreventDefaultAction();
+
                 Unit* caster = procInfo.GetActor();
                 Unit* target = GetCaster();
                 if (!caster || !target)
@@ -3605,10 +3614,7 @@ class spell_item_shard_of_the_scale : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(HealProc) ||
-                    !sSpellMgr->GetSpellInfo(DamageProc))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ HealProc, DamageProc });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -3744,11 +3750,13 @@ class spell_item_sunwell_neck : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 if (!sFactionStore.LookupEntry(FACTION_ALDOR) ||
-                    !sFactionStore.LookupEntry(FACTION_SCRYERS) ||
-                    !sSpellMgr->GetSpellInfo(Aldors) ||
-                    !sSpellMgr->GetSpellInfo(Scryers))
+                    !sFactionStore.LookupEntry(FACTION_SCRYERS))
                     return false;
-                return true;
+                return ValidateSpellInfo(
+                {
+                    Aldors,
+                    Scryers
+                });
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)

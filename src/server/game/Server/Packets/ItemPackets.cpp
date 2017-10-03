@@ -358,3 +358,8 @@ WorldPacket const* WorldPackets::Item::ItemUpgradeResult::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Item::RemoveNewItem::Read()
+{
+    _worldPacket >> ItemGuid;
+}

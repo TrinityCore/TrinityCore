@@ -19,6 +19,7 @@
 #define DB2STORE_H
 
 #include "Common.h"
+#include "Errors.h"
 #include "DBStorageIterator.h"
 #include <vector>
 

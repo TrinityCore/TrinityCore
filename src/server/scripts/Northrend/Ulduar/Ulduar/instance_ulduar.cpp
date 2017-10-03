@@ -74,7 +74,7 @@ MinionData const minionData[] =
     { NPC_STEELBREAKER,   BOSS_ASSEMBLY_OF_IRON },
     { NPC_MOLGEIM,        BOSS_ASSEMBLY_OF_IRON },
     { NPC_BRUNDIR,        BOSS_ASSEMBLY_OF_IRON },
-    { 0,                  0,                    }
+    { 0,                  0                     } // END
 };
 
 ObjectData const creatureData[] =

@@ -524,9 +524,14 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
 
-        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry = 0, float fMaxSearchRange = 250.0f) const;
-        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry = 0, float fMaxSearchRange = 250.0f) const;
-        void GetPlayerListInGrid(std::list<Player*>& lList, float fMaxSearchRange) const;
+        template <typename Container>
+        void GetGameObjectListWithEntryInGrid(Container& gameObjectContainer, uint32 entry, float maxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetCreatureListWithEntryInGrid(Container& creatureContainer, uint32 entry, float maxSearchRange = 250.0f) const;
+
+        template <typename Container>
+        void GetPlayerListInGrid(Container& playerContainer, float maxSearchRange) const;
 
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
