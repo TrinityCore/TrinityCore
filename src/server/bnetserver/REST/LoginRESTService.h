@@ -19,15 +19,15 @@
 #define LoginRESTService_h__
 
 #include "Define.h"
-#include "Session.h"
 #include "Login.pb.h"
+#include "Session.h"
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ip/address.hpp>
 #include <atomic>
 #include <thread>
 
-class AsyncLoginRequest;
+class AsyncRequest;
 struct soap;
 struct soap_plugin;
 
@@ -53,14 +53,21 @@ private:
     void Run();
 
     friend int32 handle_get_plugin(soap* soapClient);
-    int32 HandleGet(soap* soapClient);
-
     friend int32 handle_post_plugin(soap* soapClient);
-    int32 HandlePost(soap* soapClient);
+
+    using HttpMethodHandlerMap = std::unordered_map<std::string, int32(LoginRESTService::*)(std::shared_ptr<AsyncRequest>)>;
+    int32 HandleHttpRequest(soap* soapClient, char const* method, HttpMethodHandlerMap const& handlers);
+
+    int32 HandleGetForm(std::shared_ptr<AsyncRequest> request);
+    int32 HandleGetGameAccounts(std::shared_ptr<AsyncRequest> request);
+    int32 HandleGetPortal(std::shared_ptr<AsyncRequest> request);
+
+    int32 HandlePostLogin(std::shared_ptr<AsyncRequest> request);
+    int32 HandlePostRefreshLoginTicket(std::shared_ptr<AsyncRequest> request);
 
     int32 SendResponse(soap* soapClient, google::protobuf::Message const& response);
 
-    void HandleAsyncRequest(std::shared_ptr<AsyncLoginRequest> request);
+    void HandleAsyncRequest(std::shared_ptr<AsyncRequest> request);
 
     std::string CalculateShaPassHash(std::string const& name, std::string const& password);
 
@@ -68,8 +75,11 @@ private:
     {
         static char const* const PluginId;
         static int32 Init(soap* s, soap_plugin*, void*);
+        static int32 Copy(soap* s, soap_plugin* dst, soap_plugin* src);
         static void Destroy(soap* s, soap_plugin* p);
         static int32 ChangeResponse(soap* s, int32 originalResponse, size_t contentLength);
+
+        static ResponseCodePlugin* GetForClient(soap* s);
 
         int32(*fresponse)(soap* s, int32 status, size_t length);
         int32 ErrorCode;
@@ -94,6 +104,10 @@ private:
     int32 _port;
     boost::asio::ip::tcp::endpoint _externalAddress;
     boost::asio::ip::tcp::endpoint _localAddress;
+    uint32 _loginTicketDuration;
+
+    HttpMethodHandlerMap _getHandlers;
+    HttpMethodHandlerMap _postHandlers;
 };
 
 #define sLoginService LoginRESTService::Instance()

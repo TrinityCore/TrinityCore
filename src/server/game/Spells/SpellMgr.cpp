@@ -57,385 +57,6 @@ bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
     return false;
 }
 
-DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto)
-{
-    if (spellproto->IsPositive())
-        return DIMINISHING_NONE;
-
-    if (spellproto->HasAura(DIFFICULTY_NONE, SPELL_AURA_MOD_TAUNT))
-        return DIMINISHING_TAUNT;
-
-    switch (spellproto->Id)
-    {
-        case 64803:     // Entrapment
-        case 135373:    // Entrapment
-            return DIMINISHING_ROOT;
-        case 24394:     // Intimidation
-            return DIMINISHING_STUN;
-        case 118345:    // Pulverize (Primal Earth Elemental)
-            return DIMINISHING_STUN;
-        case 118905:    // Static Charge (Capacitor Totem)
-            return DIMINISHING_STUN;
-        case 108199:    // Gorefiend's Grasp
-            return DIMINISHING_AOE_KNOCKBACK;
-        default:
-            break;
-    }
-
-    // Explicit Diminishing Groups
-    switch (spellproto->SpellFamilyName)
-    {
-        case SPELLFAMILY_GENERIC:
-            break;
-        case SPELLFAMILY_MAGE:
-        {
-            // Frostjaw -- 102051
-            if (spellproto->SpellFamilyFlags[2] & 0x40000)
-                return DIMINISHING_SILENCE;
-
-            // Frost Nova -- 122
-            if (spellproto->SpellFamilyFlags[0] & 0x40)
-                return DIMINISHING_ROOT;
-            // Ice Ward -- 111340
-            if (spellproto->SpellFamilyFlags[0] & 0x80000 && spellproto->SpellFamilyFlags[2] & 0x2000)
-                return DIMINISHING_ROOT;
-            // Freeze (Water Elemental) -- 33395
-            if (spellproto->SpellFamilyFlags[2] & 0x200)
-                return DIMINISHING_ROOT;
-
-            // Deep Freeze -- 44572
-            if (spellproto->SpellFamilyFlags[1] & 0x100000)
-                return DIMINISHING_STUN;
-
-            // Dragon's Breath -- 31661
-            if (spellproto->SpellFamilyFlags[0] & 0x800000)
-                return DIMINISHING_INCAPACITATE;
-            // Polymorph -- 118
-            if (spellproto->SpellFamilyFlags[0] & 0x1000000)
-                return DIMINISHING_INCAPACITATE;
-            // Ring of Frost -- 82691
-            if (spellproto->SpellFamilyFlags[2] & 0x40)
-                return DIMINISHING_INCAPACITATE;
-            // Ice Nova -- 157997
-            if (spellproto->SpellFamilyFlags[2] & 0x800000)
-                return DIMINISHING_INCAPACITATE;
-            break;
-        }
-        case SPELLFAMILY_WARRIOR:
-        {
-            // Shockwave -- 132168
-            if (spellproto->SpellFamilyFlags[1] & 0x8000)
-                return DIMINISHING_STUN;
-            // Storm Bolt -- 132169
-            if (spellproto->SpellFamilyFlags[2] & 0x1000)
-                return DIMINISHING_STUN;
-
-            // Intimidating Shout -- 5246
-            if (spellproto->SpellFamilyFlags[0] & 0x40000)
-                return DIMINISHING_DISORIENT;
-
-            // Hamstring -- 1715, 8 seconds in PvP (6.0)
-            if (spellproto->SpellFamilyFlags[0] & 0x2)
-                return DIMINISHING_LIMITONLY;
-            break;
-        }
-        case SPELLFAMILY_WARLOCK:
-        {
-            // Mortal Coil -- 6789
-            if (spellproto->SpellFamilyFlags[0] & 0x80000)
-                return DIMINISHING_INCAPACITATE;
-            // Banish -- 710
-            if (spellproto->SpellFamilyFlags[1] & 0x8000000)
-                return DIMINISHING_INCAPACITATE;
-
-            // Fear -- 118699
-            if (spellproto->SpellFamilyFlags[1] & 0x400)
-                return DIMINISHING_DISORIENT;
-            // Howl of Terror -- 5484
-            if (spellproto->SpellFamilyFlags[1] & 0x8)
-                return DIMINISHING_DISORIENT;
-
-            // Shadowfury -- 30283
-            if (spellproto->SpellFamilyFlags[1] & 0x1000)
-                return DIMINISHING_STUN;
-            // Summon Infernal -- 22703
-            if (spellproto->SpellFamilyFlags[0] & 0x1000)
-                return DIMINISHING_STUN;
-            break;
-        }
-        case SPELLFAMILY_WARLOCK_PET:
-        {
-            // Fellash -- 115770
-            // Whiplash -- 6360
-            if (spellproto->SpellFamilyFlags[0] & 0x8000000)
-                return DIMINISHING_AOE_KNOCKBACK;
-
-            // Mesmerize (Shivarra pet) -- 115268
-            // Seduction (Succubus pet) -- 6358
-            if (spellproto->SpellFamilyFlags[0] & 0x2000000)
-                return DIMINISHING_DISORIENT;
-
-            // Axe Toss (Felguard pet) -- 89766
-            if (spellproto->SpellFamilyFlags[1] & 0x4)
-                return DIMINISHING_STUN;
-            break;
-        }
-        case SPELLFAMILY_DRUID:
-        {
-            // Maim -- 22570
-            if (spellproto->SpellFamilyFlags[1] & 0x80)
-                return DIMINISHING_STUN;
-            // Mighty Bash -- 5211
-            if (spellproto->SpellFamilyFlags[0] & 0x2000)
-                return DIMINISHING_STUN;
-            // Rake -- 163505 -- no flags on the stun
-            if (spellproto->Id == 163505)
-                return DIMINISHING_STUN;
-
-            // Incapacitating Roar -- 99, no flags on the stun, 14
-            if (spellproto->SpellFamilyFlags[1] & 0x1)
-                return DIMINISHING_INCAPACITATE;
-
-            // Cyclone -- 33786
-            if (spellproto->SpellFamilyFlags[1] & 0x20)
-                return DIMINISHING_DISORIENT;
-
-            // Typhoon -- 61391
-            if (spellproto->SpellFamilyFlags[1] & 0x1000000)
-                return DIMINISHING_AOE_KNOCKBACK;
-            // Ursol's Vortex -- 118283, no family flags
-            if (spellproto->Id == 118283)
-                return DIMINISHING_AOE_KNOCKBACK;
-
-            // Entangling Roots -- 339
-            if (spellproto->SpellFamilyFlags[0] & 0x200)
-                return DIMINISHING_ROOT;
-            // Mass Entanglement -- 102359
-            if (spellproto->SpellFamilyFlags[2] & 0x4)
-                return DIMINISHING_ROOT;
-
-            // Faerie Fire -- 770, 20 seconds in PvP (6.0)
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return DIMINISHING_LIMITONLY;
-            break;
-        }
-        case SPELLFAMILY_ROGUE:
-        {
-            // Cheap Shot -- 1833
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return DIMINISHING_STUN;
-            // Kidney Shot -- 408
-            if (spellproto->SpellFamilyFlags[0] & 0x200000)
-                return DIMINISHING_STUN;
-
-            // Gouge -- 1776
-            if (spellproto->SpellFamilyFlags[0] & 0x8)
-                return DIMINISHING_INCAPACITATE;
-            // Sap -- 6770
-            if (spellproto->SpellFamilyFlags[0] & 0x80)
-                return DIMINISHING_INCAPACITATE;
-
-            // Blind -- 2094
-            if (spellproto->SpellFamilyFlags[0] & 0x1000000)
-                return DIMINISHING_DISORIENT;
-
-            // Garrote -- 1330
-            if (spellproto->SpellFamilyFlags[1] & 0x20000000)
-                return DIMINISHING_SILENCE;
-            break;
-        }
-        case SPELLFAMILY_HUNTER:
-        {
-            // Charge (Tenacity pet) -- 53148, no flags
-            if (spellproto->Id == 53148)
-                return DIMINISHING_ROOT;
-            // Narrow Escape -- 136634, no flags
-            if (spellproto->Id == 136634)
-                return DIMINISHING_ROOT;
-
-            // Binding Shot -- 117526, no flags
-            if (spellproto->Id == 117526)
-                return DIMINISHING_STUN;
-
-            // Freezing Trap -- 3355
-            if (spellproto->SpellFamilyFlags[0] & 0x8)
-                return DIMINISHING_INCAPACITATE;
-            // Wyvern Sting -- 19386
-            if (spellproto->SpellFamilyFlags[1] & 0x1000)
-                return DIMINISHING_INCAPACITATE;
-            break;
-        }
-        case SPELLFAMILY_PALADIN:
-        {
-            // Repentance -- 20066
-            if (spellproto->SpellFamilyFlags[0] & 0x4)
-                return DIMINISHING_INCAPACITATE;
-
-            // Turn Evil -- 10326
-            if (spellproto->SpellFamilyFlags[1] & 0x800000)
-                return DIMINISHING_DISORIENT;
-
-            // Avenger's Shield -- 31935
-            if (spellproto->SpellFamilyFlags[0] & 0x4000)
-                return DIMINISHING_SILENCE;
-
-            // Fist of Justice -- 105593
-            // Hammer of Justice -- 853
-            if (spellproto->SpellFamilyFlags[0] & 0x800)
-                return DIMINISHING_STUN;
-            // Holy Wrath -- 119072
-            if (spellproto->SpellFamilyFlags[1] & 0x200000)
-                return DIMINISHING_STUN;
-            break;
-        }
-        case SPELLFAMILY_SHAMAN:
-        {
-            // Hex -- 51514
-            if (spellproto->SpellFamilyFlags[1] & 0x8000)
-                return DIMINISHING_INCAPACITATE;
-
-            // Thunderstorm -- 51490
-            if (spellproto->SpellFamilyFlags[1] & 0x2000)
-                return DIMINISHING_AOE_KNOCKBACK;
-
-            // Earthgrab Totem -- 64695
-            if (spellproto->SpellFamilyFlags[2] & 0x4000)
-                return DIMINISHING_ROOT;
-            break;
-        }
-        case SPELLFAMILY_DEATHKNIGHT:
-        {
-            // Strangulate -- 47476
-            if (spellproto->SpellFamilyFlags[0] & 0x200)
-                return DIMINISHING_SILENCE;
-
-            // Asphyxiate -- 108194
-            if (spellproto->SpellFamilyFlags[2] & 0x100000)
-                return DIMINISHING_STUN;
-            // Gnaw (Ghoul) -- 91800, no flags
-            if (spellproto->Id == 91800)
-                return DIMINISHING_STUN;
-            // Monstrous Blow (Ghoul w/ Dark Transformation active) -- 91797
-            if (spellproto->Id == 91797)
-                return DIMINISHING_STUN;
-            break;
-        }
-        case SPELLFAMILY_PRIEST:
-        {
-            // Dominate Mind -- 605
-            if (spellproto->SpellFamilyFlags[0] & 0x20000 && spellproto->GetSpellVisual() == 39068)
-                return DIMINISHING_INCAPACITATE;
-            // Holy Word: Chastise -- 88625
-            if (spellproto->SpellFamilyFlags[2] & 0x20)
-                return DIMINISHING_INCAPACITATE;
-            // Psychic Horror -- 64044
-            if (spellproto->SpellFamilyFlags[2] & 0x2000)
-                return DIMINISHING_INCAPACITATE;
-
-            // Psychic Scream -- 8122
-            if (spellproto->SpellFamilyFlags[0] & 0x10000)
-                return DIMINISHING_DISORIENT;
-
-            // Silence -- 15487
-            if (spellproto->SpellFamilyFlags[1] & 0x200000 && spellproto->SchoolMask == 32)
-                return DIMINISHING_SILENCE;
-            break;
-        }
-        case SPELLFAMILY_MONK:
-        {
-            // Disable -- 116706, no flags
-            if (spellproto->Id == 116706)
-                return DIMINISHING_ROOT;
-
-            // Charging Ox Wave -- 119392
-            if (spellproto->SpellFamilyFlags[1] & 0x10000)
-                return DIMINISHING_STUN;
-            // Fists of Fury -- 120086
-            if (spellproto->SpellFamilyFlags[1] & 0x800000 && !(spellproto->SpellFamilyFlags[2] & 0x8))
-                return DIMINISHING_STUN;
-            // Leg Sweep -- 119381
-            if (spellproto->SpellFamilyFlags[1] & 0x200)
-                return DIMINISHING_STUN;
-
-            // Incendiary Breath (honor talent) -- 202274, no flags
-            if (spellproto->Id == 202274)
-                return DIMINISHING_INCAPACITATE;
-            // Paralysis -- 115078
-            if (spellproto->SpellFamilyFlags[2] & 0x800000)
-                return DIMINISHING_INCAPACITATE;
-            break;
-        }
-        default:
-            break;
-    }
-
-    return DIMINISHING_NONE;
-}
-
-DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
-{
-    switch (group)
-    {
-        case DIMINISHING_TAUNT:
-        case DIMINISHING_STUN:
-            return DRTYPE_ALL;
-        case DIMINISHING_LIMITONLY:
-        case DIMINISHING_NONE:
-            return DRTYPE_NONE;
-        default:
-            return DRTYPE_PLAYER;
-    }
-}
-
-DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group)
-{
-    switch (group)
-    {
-        case DIMINISHING_TAUNT:
-            return DIMINISHING_LEVEL_TAUNT_IMMUNE;
-        case DIMINISHING_AOE_KNOCKBACK:
-            return DIMINISHING_LEVEL_2;
-        default:
-            return DIMINISHING_LEVEL_IMMUNE;
-    }
-}
-
-int32 GetDiminishingReturnsLimitDuration(SpellInfo const* spellproto)
-{
-    // Explicit diminishing duration
-    switch (spellproto->SpellFamilyName)
-    {
-        case SPELLFAMILY_DRUID:
-        {
-            // Faerie Fire - 20 seconds in PvP (6.0)
-            if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return 20 * IN_MILLISECONDS;
-            break;
-        }
-        case SPELLFAMILY_HUNTER:
-        {
-            // Binding Shot - 3 seconds in PvP (6.0)
-            if (spellproto->Id == 117526)
-                return 3 * IN_MILLISECONDS;
-            // Wyvern Sting - 6 seconds in PvP (6.0)
-            if (spellproto->SpellFamilyFlags[1] & 0x1000)
-                return 6 * IN_MILLISECONDS;
-            break;
-        }
-        case SPELLFAMILY_MONK:
-        {
-            // Paralysis - 4 seconds in PvP regardless of if they are facing you (6.0)
-            if (spellproto->SpellFamilyFlags[2] & 0x800000)
-                return 4 * IN_MILLISECONDS;
-            break;
-        }
-        default:
-            break;
-    }
-
-    return 8 * IN_MILLISECONDS;
-}
-
 SpellMgr::SpellMgr() { }
 
 SpellMgr::~SpellMgr()
@@ -1654,77 +1275,6 @@ void SpellMgr::LoadSpellGroupStackRules()
     TC_LOG_INFO("server.loading", ">> Loaded %u spell group stack rules in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-// Used for prepare can/can't triggr aura
-static bool InitTriggerAuraData();
-// Define can trigger auras
-static bool isTriggerAura[TOTAL_AURAS];
-// Triggered always, even from triggered spells
-static bool isAlwaysTriggeredAura[TOTAL_AURAS];
-// Prepare lists
-static bool procPrepared = InitTriggerAuraData();
-
-// List of auras that CAN be trigger but may not exist in spell_proc_event
-// in most case need for drop charges
-// in some types of aura need do additional check
-// for example SPELL_AURA_MECHANIC_IMMUNITY - need check for mechanic
-bool InitTriggerAuraData()
-{
-    for (uint16 i = 0; i < TOTAL_AURAS; ++i)
-    {
-        isTriggerAura[i] = false;
-        isAlwaysTriggeredAura[i] = false;
-    }
-    isTriggerAura[SPELL_AURA_DUMMY] = true;
-    isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
-    isTriggerAura[SPELL_AURA_MOD_THREAT] = true;
-    isTriggerAura[SPELL_AURA_MOD_STUN] = true; // Aura does not have charges but needs to be removed on trigger
-    isTriggerAura[SPELL_AURA_MOD_DAMAGE_DONE] = true;
-    isTriggerAura[SPELL_AURA_MOD_DAMAGE_TAKEN] = true;
-    isTriggerAura[SPELL_AURA_MOD_RESISTANCE] = true;
-    isTriggerAura[SPELL_AURA_MOD_STEALTH] = true;
-    isTriggerAura[SPELL_AURA_MOD_FEAR] = true; // Aura does not have charges but needs to be removed on trigger
-    isTriggerAura[SPELL_AURA_MOD_ROOT] = true;
-    isTriggerAura[SPELL_AURA_TRANSFORM] = true;
-    isTriggerAura[SPELL_AURA_REFLECT_SPELLS] = true;
-    isTriggerAura[SPELL_AURA_DAMAGE_IMMUNITY] = true;
-    isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL] = true;
-    isTriggerAura[SPELL_AURA_PROC_TRIGGER_DAMAGE] = true;
-    isTriggerAura[SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK] = true;
-    isTriggerAura[SPELL_AURA_SCHOOL_ABSORB] = true; // Savage Defense untested
-    isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT] = true;
-    isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL] = true;
-    isTriggerAura[SPELL_AURA_REFLECT_SPELLS_SCHOOL] = true;
-    isTriggerAura[SPELL_AURA_MECHANIC_IMMUNITY] = true;
-    isTriggerAura[SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN] = true;
-    isTriggerAura[SPELL_AURA_SPELL_MAGNET] = true;
-    isTriggerAura[SPELL_AURA_MOD_ATTACK_POWER] = true;
-    isTriggerAura[SPELL_AURA_MOD_POWER_REGEN_PERCENT] = true;
-    isTriggerAura[SPELL_AURA_INTERCEPT_MELEE_RANGED_ATTACKS] = true;
-    isTriggerAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
-    isTriggerAura[SPELL_AURA_MOD_MECHANIC_RESISTANCE] = true;
-    isTriggerAura[SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS] = true;
-    isTriggerAura[SPELL_AURA_MOD_MELEE_HASTE] = true;
-    isTriggerAura[SPELL_AURA_MOD_MELEE_HASTE_3] = true;
-    isTriggerAura[SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE] = true;
-    isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE] = true;
-    isTriggerAura[SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER] = true;
-    isTriggerAura[SPELL_AURA_MOD_SPELL_CRIT_CHANCE] = true;
-    isTriggerAura[SPELL_AURA_ABILITY_IGNORE_AURASTATE] = true;
-    isTriggerAura[SPELL_AURA_MOD_ROOT_2] = true;
-
-    isAlwaysTriggeredAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
-    isAlwaysTriggeredAura[SPELL_AURA_MOD_FEAR] = true;
-    isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT] = true;
-    isAlwaysTriggeredAura[SPELL_AURA_MOD_STUN] = true;
-    isAlwaysTriggeredAura[SPELL_AURA_TRANSFORM] = true;
-    isAlwaysTriggeredAura[SPELL_AURA_SPELL_MAGNET] = true;
-    isAlwaysTriggeredAura[SPELL_AURA_SCHOOL_ABSORB] = true;
-    isAlwaysTriggeredAura[SPELL_AURA_MOD_STEALTH] = true;
-    isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT_2] = true;
-
-    return true;
-}
-
 void SpellMgr::LoadSpellProcs()
 {
     uint32 oldMSTime = getMSTime();
@@ -1854,6 +1404,81 @@ void SpellMgr::LoadSpellProcs()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u spell proc conditions and data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
+    // Define can trigger auras
+    bool isTriggerAura[TOTAL_AURAS];
+    // Triggered always, even from triggered spells
+    bool isAlwaysTriggeredAura[TOTAL_AURAS];
+    // SpellTypeMask to add to the proc
+    uint32 spellTypeMask[TOTAL_AURAS];
+
+    // List of auras that CAN trigger but may not exist in spell_proc
+    // in most cases needed to drop charges
+
+    // some aura types need additional checks (eg SPELL_AURA_MECHANIC_IMMUNITY needs mechanic check)
+    // see AuraEffect::CheckEffectProc
+    for (uint16 i = 0; i < TOTAL_AURAS; ++i)
+    {
+        isTriggerAura[i] = false;
+        isAlwaysTriggeredAura[i] = false;
+        spellTypeMask[i] = PROC_SPELL_TYPE_MASK_ALL;
+    }
+
+    isTriggerAura[SPELL_AURA_DUMMY] = true;
+    isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
+    isTriggerAura[SPELL_AURA_MOD_THREAT] = true;
+    isTriggerAura[SPELL_AURA_MOD_STUN] = true; // Aura does not have charges but needs to be removed on trigger
+    isTriggerAura[SPELL_AURA_MOD_DAMAGE_DONE] = true;
+    isTriggerAura[SPELL_AURA_MOD_DAMAGE_TAKEN] = true;
+    isTriggerAura[SPELL_AURA_MOD_RESISTANCE] = true;
+    isTriggerAura[SPELL_AURA_MOD_STEALTH] = true;
+    isTriggerAura[SPELL_AURA_MOD_FEAR] = true; // Aura does not have charges but needs to be removed on trigger
+    isTriggerAura[SPELL_AURA_MOD_ROOT] = true;
+    isTriggerAura[SPELL_AURA_TRANSFORM] = true;
+    isTriggerAura[SPELL_AURA_REFLECT_SPELLS] = true;
+    isTriggerAura[SPELL_AURA_DAMAGE_IMMUNITY] = true;
+    isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL] = true;
+    isTriggerAura[SPELL_AURA_PROC_TRIGGER_DAMAGE] = true;
+    isTriggerAura[SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK] = true;
+    isTriggerAura[SPELL_AURA_SCHOOL_ABSORB] = true; // Savage Defense untested
+    isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT] = true;
+    isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL] = true;
+    isTriggerAura[SPELL_AURA_REFLECT_SPELLS_SCHOOL] = true;
+    isTriggerAura[SPELL_AURA_MECHANIC_IMMUNITY] = true;
+    isTriggerAura[SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN] = true;
+    isTriggerAura[SPELL_AURA_SPELL_MAGNET] = true;
+    isTriggerAura[SPELL_AURA_MOD_ATTACK_POWER] = true;
+    isTriggerAura[SPELL_AURA_MOD_POWER_REGEN_PERCENT] = true;
+    isTriggerAura[SPELL_AURA_INTERCEPT_MELEE_RANGED_ATTACKS] = true;
+    isTriggerAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
+    isTriggerAura[SPELL_AURA_MOD_MECHANIC_RESISTANCE] = true;
+    isTriggerAura[SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS] = true;
+    isTriggerAura[SPELL_AURA_MOD_MELEE_HASTE] = true;
+    isTriggerAura[SPELL_AURA_MOD_MELEE_HASTE_3] = true;
+    isTriggerAura[SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE] = true;
+    isTriggerAura[SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE] = true;
+    isTriggerAura[SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER] = true;
+    isTriggerAura[SPELL_AURA_MOD_SPELL_CRIT_CHANCE] = true;
+    isTriggerAura[SPELL_AURA_ABILITY_IGNORE_AURASTATE] = true;
+    isTriggerAura[SPELL_AURA_MOD_ROOT_2] = true;
+
+    isAlwaysTriggeredAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_FEAR] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_STUN] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_TRANSFORM] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_SPELL_MAGNET] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_SCHOOL_ABSORB] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_STEALTH] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT_2] = true;
+
+    spellTypeMask[SPELL_AURA_MOD_STEALTH] = PROC_SPELL_TYPE_DAMAGE | PROC_SPELL_TYPE_NO_DMG_HEAL;
+    spellTypeMask[SPELL_AURA_MOD_CONFUSE] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_MOD_FEAR] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_MOD_ROOT] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_MOD_ROOT_2] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_MOD_STUN] = PROC_SPELL_TYPE_DAMAGE;
+    spellTypeMask[SPELL_AURA_TRANSFORM] = PROC_SPELL_TYPE_DAMAGE;
+
     // This generates default procs to retain compatibility with previous proc system
     TC_LOG_INFO("server.loading", "Generating spell proc data from SpellMap...");
     count = 0;
@@ -1867,7 +1492,8 @@ void SpellMgr::LoadSpellProcs()
         if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
             continue;
 
-        bool found = false, addTriggerFlag = false;
+        bool addTriggerFlag = false;
+        uint32 procSpellTypeMask = PROC_SPELL_TYPE_NONE;
         for (SpellEffectInfo const* effect : spellInfo->GetEffectsForDifficulty(DIFFICULTY_NONE))
         {
             if (!effect || !effect->IsEffect())
@@ -1880,14 +1506,13 @@ void SpellMgr::LoadSpellProcs()
             if (!isTriggerAura[auraName])
                 continue;
 
-            found = true;
-
-            if (!addTriggerFlag && isAlwaysTriggeredAura[auraName])
+            procSpellTypeMask |= spellTypeMask[auraName];
+            if (isAlwaysTriggeredAura[auraName])
                 addTriggerFlag = true;
             break;
         }
 
-        if (!found)
+        if (!procSpellTypeMask)
             continue;
 
         if (!spellInfo->ProcFlags)
@@ -1904,7 +1529,7 @@ void SpellMgr::LoadSpellProcs()
         if (procEntry.SpellFamilyMask)
             procEntry.SpellFamilyName = spellInfo->SpellFamilyName;
 
-        procEntry.SpellTypeMask   = PROC_SPELL_TYPE_MASK_ALL;
+        procEntry.SpellTypeMask   = procSpellTypeMask;
         procEntry.SpellPhaseMask  = PROC_SPELL_PHASE_HIT;
         procEntry.HitMask         = PROC_HIT_NONE; // uses default proc @see SpellMgr::CanSpellTriggerProcOnEvent
 
@@ -3777,6 +3402,21 @@ void SpellMgr::LoadSpellInfoSpellSpecificAndAuraState()
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo SpellSpecific and AuraState in %u ms", GetMSTimeDiffToNow(oldMSTime));
+}
+
+void SpellMgr::LoadSpellInfoDiminishing()
+{
+    uint32 oldMSTime = getMSTime();
+
+    for (SpellInfo* spellInfo : mSpellInfoMap)
+    {
+        if (!spellInfo)
+            continue;
+
+        spellInfo->_LoadSpellDiminishInfo();
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo diminishing infos in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadPetFamilySpellsStore()

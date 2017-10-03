@@ -1,6 +1,6 @@
 --
 SET @CGUID := 12571;
-DELETE FROM `creature` WHERE `guid`=@GUID;
+DELETE FROM `creature` WHERE `guid`=@CGUID;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `PhaseId`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (@CGUID, 24900, 571, 0, 0, 1, 0, 0, 0, 529.2123, -3530.377, 12.97082, 0, 60, 0, 0, 1, 0, 2, 0, 0, 0, 0);
 

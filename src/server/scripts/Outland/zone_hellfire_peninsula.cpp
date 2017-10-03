@@ -894,6 +894,122 @@ public:
     }
 };
 
+enum Aledis
+{
+    SAY_CHALLENGE = 0,
+    SAY_DEFEATED = 1,
+    EVENT_TALK = 1,
+    EVENT_ATTACK = 2,
+    EVENT_EVADE = 3,
+    EVENT_FIREBALL = 4,
+    EVENT_FROSTNOVA = 5,
+    SPELL_FIREBALL = 20823,
+    SPELL_FROSTNOVA = 11831
+};
+
+class npc_magister_aledis : public CreatureScript
+{
+public:
+    npc_magister_aledis() : CreatureScript("npc_magister_aledis") { }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
+    {
+        CloseGossipMenuFor(player);
+        creature->StopMoving();
+        ENSURE_AI(npc_magister_aledis::npc_magister_aledisAI, creature->AI())->StartFight(player);
+        return true;
+    }
+
+    struct npc_magister_aledisAI : public ScriptedAI
+    {
+        npc_magister_aledisAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void StartFight(Player* player)
+        {
+            me->Dismount();
+            me->SetFacingToObject(player, true);
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            _playerGUID = player->GetGUID();
+            _events.ScheduleEvent(EVENT_TALK, Seconds(2));
+        }
+
+        void Reset() override
+        {
+            me->RestoreFaction();
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
+        {
+            if (damage > me->GetHealth() || me->HealthBelowPctDamaged(20, damage))
+            {
+                damage = 0;
+
+                _events.Reset();
+                me->RestoreFaction();
+                me->RemoveAllAuras();
+                me->DeleteThreatList();
+                me->CombatStop(true);
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                Talk(SAY_DEFEATED);
+
+                _events.ScheduleEvent(EVENT_EVADE, Minutes(1));
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_TALK:
+                    Talk(SAY_CHALLENGE);
+                    _events.ScheduleEvent(EVENT_ATTACK, Seconds(2));
+                    break;
+                case EVENT_ATTACK:
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->setFaction(FACTION_HOSTILE);
+                    me->CombatStart(ObjectAccessor::GetPlayer(*me, _playerGUID));
+                    _events.ScheduleEvent(EVENT_FIREBALL, 1);
+                    _events.ScheduleEvent(EVENT_FROSTNOVA, Seconds(5));
+                    break;
+                case EVENT_FIREBALL:
+                    DoCast(SPELL_FIREBALL);
+                    _events.ScheduleEvent(EVENT_FIREBALL, Seconds(10));
+                    break;
+                case EVENT_FROSTNOVA:
+                    DoCastAOE(SPELL_FROSTNOVA);
+                    _events.ScheduleEvent(EVENT_FROSTNOVA, Seconds(20));
+                    break;
+                case EVENT_EVADE:
+                    EnterEvadeMode();
+                    break;
+                }
+            }
+
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap _events;
+        ObjectGuid _playerGUID;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_magister_aledisAI(creature);
+    }
+};
+
 void AddSC_hellfire_peninsula()
 {
     new npc_aeranas();
@@ -902,4 +1018,5 @@ void AddSC_hellfire_peninsula()
     new npc_fel_guard_hound();
     new npc_colonel_jules();
     new npc_barada();
+    new npc_magister_aledis();
 }
