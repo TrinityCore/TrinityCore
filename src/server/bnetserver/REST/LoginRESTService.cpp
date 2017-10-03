@@ -32,16 +32,15 @@
 
 int ns1__executeCommand(soap*, char*, char**) { return SOAP_OK; }
 
-class AsyncLoginRequest
+class AsyncRequest
 {
 public:
-    AsyncLoginRequest(std::shared_ptr<soap> client)
-        : _client(std::move(client)) { }
+    AsyncRequest(soap const& server) : _client(server) { }
 
-    AsyncLoginRequest(AsyncLoginRequest const&) = delete;
-    AsyncLoginRequest& operator=(AsyncLoginRequest const&) = delete;
-    AsyncLoginRequest(AsyncLoginRequest&&) = default;
-    AsyncLoginRequest& operator=(AsyncLoginRequest&&) = default;
+    AsyncRequest(AsyncRequest const&) = delete;
+    AsyncRequest& operator=(AsyncRequest const&) = delete;
+    AsyncRequest(AsyncRequest&&) = default;
+    AsyncRequest& operator=(AsyncRequest&&) = default;
 
     bool InvokeIfReady()
     {
@@ -49,22 +48,25 @@ public:
         return _callback->InvokeIfReady() == QueryCallback::Completed;
     }
 
-    soap* GetClient() const { return _client.get(); }
+    soap* GetClient() { return &_client; }
     void SetCallback(std::unique_ptr<QueryCallback> callback) { _callback = std::move(callback); }
+    int32 GetResponseStatus() const { return _responseStatus; }
+    void SetResponseStatus(int32 responseStatus) { _responseStatus = responseStatus; }
 
 private:
-    std::shared_ptr<soap> _client;
+    soap _client;
     std::unique_ptr<QueryCallback> _callback;
+    int32 _responseStatus;
 };
 
 int32 handle_get_plugin(soap* soapClient)
 {
-    return sLoginService.HandleGet(soapClient);
+    return sLoginService.HandleHttpRequest(soapClient, "GET", sLoginService._getHandlers);
 }
 
 int32 handle_post_plugin(soap* soapClient)
 {
-    return sLoginService.HandlePost(soapClient);
+    return sLoginService.HandleHttpRequest(soapClient, "POST", sLoginService._postHandlers);
 }
 
 bool LoginRESTService::Start(boost::asio::io_service* ioService)
@@ -124,6 +126,8 @@ bool LoginRESTService::Start(boost::asio::io_service* ioService)
     input->set_type("submit");
     input->set_label("Log In");
 
+    _loginTicketDuration = sConfigMgr->GetIntDefault("LoginREST.TicketDuration", 3600);
+
     _thread = std::thread(std::bind(&LoginRESTService::Run, this));
     return true;
 }
@@ -171,9 +175,17 @@ void LoginRESTService::Run()
         { nullptr, nullptr }
     };
 
+    _getHandlers["/bnetserver/login/"] = &LoginRESTService::HandleGetForm;
+    _getHandlers["/bnetserver/gameAccounts/"] = &LoginRESTService::HandleGetGameAccounts;
+    _getHandlers["/bnetserver/portal/"] = &LoginRESTService::HandleGetPortal;
+
+    _postHandlers["/bnetserver/login/"] = &LoginRESTService::HandlePostLogin;
+    _postHandlers["/bnetserver/refreshLoginTicket/"] = &LoginRESTService::HandlePostRefreshLoginTicket;
+
     soap_register_plugin_arg(&soapServer, &http_get, (void*)&handle_get_plugin);
     soap_register_plugin_arg(&soapServer, &http_post, handlers);
     soap_register_plugin_arg(&soapServer, &ContentTypePlugin::Init, (void*)"application/json;charset=utf-8");
+    soap_register_plugin_arg(&soapServer, &ResponseCodePlugin::Init, nullptr);
 
     // Use our already ready ssl context
     soapServer.ctx = Battlenet::SslContext::instance().native_handle();
@@ -184,21 +196,20 @@ void LoginRESTService::Run()
         if (!soap_valid_socket(soap_accept(&soapServer)))
             continue;   // ran into an accept timeout
 
-        std::shared_ptr<soap> soapClient = std::make_shared<soap>(soapServer);
-        boost::asio::ip::address_v4 address(soapClient->ip);
-        if (soap_ssl_accept(soapClient.get()) != SOAP_OK)
+        std::shared_ptr<AsyncRequest> soapClient = std::make_shared<AsyncRequest>(soapServer);
+        if (soap_ssl_accept(soapClient->GetClient()) != SOAP_OK)
         {
-            TC_LOG_DEBUG("server.rest", "Failed SSL handshake from IP=%s", address.to_string().c_str());
+            TC_LOG_DEBUG("server.rest", "Failed SSL handshake from IP=%s", boost::asio::ip::address_v4(soapClient->GetClient()->ip).to_string().c_str());
             continue;
         }
 
-        TC_LOG_DEBUG("server.rest", "Accepted connection from IP=%s", address.to_string().c_str());
+        TC_LOG_DEBUG("server.rest", "Accepted connection from IP=%s", boost::asio::ip::address_v4(soapClient->GetClient()->ip).to_string().c_str());
 
         _ioService->post([soapClient]()
         {
-            soapClient->user = (void*)&soapClient; // this allows us to make a copy of pointer inside GET/POST handlers to increment reference count
-            soap_begin(soapClient.get());
-            soap_begin_recv(soapClient.get());
+            soapClient->GetClient()->user = (void*)&soapClient; // this allows us to make a copy of pointer inside GET/POST handlers to increment reference count
+            soap_begin(soapClient->GetClient());
+            soap_begin_recv(soapClient->GetClient());
         });
     }
 
@@ -208,51 +219,113 @@ void LoginRESTService::Run()
     TC_LOG_INFO("server.rest", "Login service exiting...");
 }
 
-int32 LoginRESTService::HandleGet(soap* soapClient)
+int32 LoginRESTService::HandleHttpRequest(soap* soapClient, char const* method, HttpMethodHandlerMap const& handlers)
 {
-    boost::asio::ip::address_v4 address(soapClient->ip);
-    std::string ip_address = address.to_string();
+    TC_LOG_DEBUG("server.rest", "[%s:%d] Handling %s request path=\"%s\"",
+        boost::asio::ip::address_v4(soapClient->ip).to_string().c_str(), soapClient->port, method, soapClient->path);
 
-    TC_LOG_DEBUG("server.rest", "[%s:%d] Handling GET request path=\"%s\"", ip_address.c_str(), soapClient->port, soapClient->path);
+    size_t pathLength = strlen(soapClient->path);
+    if (char const* queryPart = strchr(soapClient->path, '?'))
+        pathLength = queryPart - soapClient->path;
 
-    static std::string const expectedPath = "/bnetserver/login/";
-    if (strstr(soapClient->path, expectedPath.c_str()) != &soapClient->path[0])
-        return 404;
+    auto handler = handlers.find(std::string{ soapClient->path, pathLength });
+    if (handler != handlers.end())
+    {
+        int32 status = (this->*handler->second)(*reinterpret_cast<std::shared_ptr<AsyncRequest>*>(soapClient->user));
+        if (status != SOAP_OK)
+        {
+            ResponseCodePlugin::GetForClient(soapClient)->ErrorCode = status;
+            return SendResponse(soapClient, Battlenet::JSON::Login::ErrorResponse());
+        }
 
-    return SendResponse(soapClient, _formInputs);
+        return SOAP_OK;
+    }
+
+    ResponseCodePlugin::GetForClient(soapClient)->ErrorCode = 404;
+    return SendResponse(soapClient, Battlenet::JSON::Login::ErrorResponse());
 }
 
-int32 LoginRESTService::HandlePost(soap* soapClient)
+int32 LoginRESTService::HandleGetForm(std::shared_ptr<AsyncRequest> request)
 {
-    boost::asio::ip::address_v4 address(soapClient->ip);
-    std::string ip_address = address.to_string();
+    return SendResponse(request->GetClient(), _formInputs);
+}
 
-    TC_LOG_DEBUG("server.rest", "[%s:%d] Handling POST request path=\"%s\"", ip_address.c_str(), soapClient->port, soapClient->path);
+int32 LoginRESTService::HandleGetGameAccounts(std::shared_ptr<AsyncRequest> request)
+{
+    if (!request->GetClient()->userid)
+        return 401;
 
-    static std::string const expectedPath = "/bnetserver/login/";
-    if (strstr(soapClient->path, expectedPath.c_str()) != &soapClient->path[0])
-        return 404;
+    request->SetCallback(Trinity::make_unique<QueryCallback>(LoginDatabase.AsyncQuery([&] {
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT_LIST);
+        stmt->setString(0, request->GetClient()->userid);
+        return stmt;
+    }())
+        .WithPreparedCallback([this, request](PreparedQueryResult result)
+    {
+        Battlenet::JSON::Login::GameAccountList response;
+        if (result)
+        {
+            auto formatDisplayName = [](char const* name) -> std::string
+            {
+                if (char const* hashPos = strchr(name, '#'))
+                    return std::string("WoW") + ++hashPos;
+                else
+                    return name;
+            };
 
+            time_t now = time(nullptr);
+            do
+            {
+                Field* fields = result->Fetch();
+                Battlenet::JSON::Login::GameAccountInfo* gameAccount = response.add_game_accounts();
+                gameAccount->set_display_name(formatDisplayName(fields[0].GetCString()));
+                gameAccount->set_expansion(fields[1].GetUInt8());
+                if (!fields[2].IsNull())
+                {
+                    uint32 banDate = fields[2].GetUInt32();
+                    uint32 unbanDate = fields[3].GetUInt32();
+                    gameAccount->set_is_suspended(unbanDate > now);
+                    gameAccount->set_is_banned(banDate == unbanDate);
+                    gameAccount->set_suspension_reason(fields[4].GetString());
+                    gameAccount->set_suspension_expires(unbanDate);
+                }
+            } while (result->NextRow());
+        }
+
+        SendResponse(request->GetClient(), response);
+    })));
+
+    _ioService->post([this, request]() { HandleAsyncRequest(request); });
+
+    return SOAP_OK;
+}
+
+int32 LoginRESTService::HandleGetPortal(std::shared_ptr<AsyncRequest> request)
+{
+    boost::asio::ip::tcp::endpoint const& endpoint = GetAddressForClient(boost::asio::ip::address_v4(request->GetClient()->ip));
+    std::string response = Trinity::StringFormat("%s:%d", endpoint.address().to_string().c_str(), sConfigMgr->GetIntDefault("BattlenetPort", 1119));
+
+    soap_response(request->GetClient(), SOAP_FILE);
+    soap_send_raw(request->GetClient(), response.c_str(), response.length());
+    return soap_end_send(request->GetClient());
+}
+
+int32 LoginRESTService::HandlePostLogin(std::shared_ptr<AsyncRequest> request)
+{
     char *buf;
     size_t len;
-    soap_http_body(soapClient, &buf, &len);
+    soap_http_body(request->GetClient(), &buf, &len);
 
     Battlenet::JSON::Login::LoginForm loginForm;
     if (!JSON::Deserialize(buf, &loginForm))
     {
-        if (soap_register_plugin_arg(soapClient, &ResponseCodePlugin::Init, nullptr) != SOAP_OK)
-            return 500;
-
-        ResponseCodePlugin* responseCode = reinterpret_cast<ResponseCodePlugin*>(soap_lookup_plugin(soapClient, ResponseCodePlugin::PluginId));
-        ASSERT(responseCode);
-
-        responseCode->ErrorCode = 400;
+        ResponseCodePlugin::GetForClient(request->GetClient())->ErrorCode = 400;
 
         Battlenet::JSON::Login::LoginResult loginResult;
         loginResult.set_authentication_state(Battlenet::JSON::Login::LOGIN);
         loginResult.set_error_code("UNABLE_TO_DECODE");
         loginResult.set_error_message("There was an internal error while connecting to Battle.net. Please try again later.");
-        return SendResponse(soapClient, loginResult);
+        return SendResponse(request->GetClient(), loginResult);
     }
 
     std::string login;
@@ -274,7 +347,6 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
 
     std::string sentPasswordHash = CalculateShaPassHash(login, password);
 
-    std::shared_ptr<AsyncLoginRequest> request = std::make_shared<AsyncLoginRequest>(*reinterpret_cast<std::shared_ptr<soap>*>(soapClient->user));
     request->SetCallback(Trinity::make_unique<QueryCallback>(LoginDatabase.AsyncQuery(stmt)
         .WithChainingPreparedCallback([request, login, sentPasswordHash, this](QueryCallback& callback, PreparedQueryResult result)
     {
@@ -300,7 +372,7 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
 
                 PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_AUTHENTICATION);
                 stmt->setString(0, loginTicket);
-                stmt->setUInt32(1, time(nullptr) + 3600);
+                stmt->setUInt32(1, time(nullptr) + _loginTicketDuration);
                 stmt->setUInt32(2, accountId);
                 callback.WithPreparedCallback([request, loginTicket](PreparedQueryResult)
                 {
@@ -358,12 +430,53 @@ int32 LoginRESTService::HandlePost(soap* soapClient)
                 }
             }
         }
+
         Battlenet::JSON::Login::LoginResult loginResult;
         loginResult.set_authentication_state(Battlenet::JSON::Login::DONE);
         sLoginService.SendResponse(request->GetClient(), loginResult);
     })));
 
-    _ioService->post(std::bind(&LoginRESTService::HandleAsyncRequest, this, std::move(request)));
+    _ioService->post([this, request]() { HandleAsyncRequest(request); });
+
+    return SOAP_OK;
+}
+
+int32 LoginRESTService::HandlePostRefreshLoginTicket(std::shared_ptr<AsyncRequest> request)
+{
+    if (!request->GetClient()->userid)
+        return 401;
+
+    request->SetCallback(Trinity::make_unique<QueryCallback>(LoginDatabase.AsyncQuery([&] {
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_EXISTING_AUTHENTICATION);
+        stmt->setString(0, request->GetClient()->userid);
+        return stmt;
+    }())
+        .WithPreparedCallback([this, request](PreparedQueryResult result)
+    {
+        Battlenet::JSON::Login::LoginRefreshResult loginRefreshResult;
+        if (result)
+        {
+            uint32 loginTicketExpiry = (*result)[0].GetUInt32();
+            time_t now = time(nullptr);
+            if (loginTicketExpiry > now)
+            {
+                loginRefreshResult.set_login_ticket_expiry(now + _loginTicketDuration);
+
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_EXISTING_AUTHENTICATION);
+                stmt->setUInt32(0, uint32(now + _loginTicketDuration));
+                stmt->setString(1, request->GetClient()->userid);
+                LoginDatabase.Execute(stmt);
+            }
+            else
+                loginRefreshResult.set_is_expired(true);
+        }
+        else
+            loginRefreshResult.set_is_expired(true);
+
+        SendResponse(request->GetClient(), loginRefreshResult);
+    })));
+
+    _ioService->post([this, request]() { HandleAsyncRequest(request); });
 
     return SOAP_OK;
 }
@@ -377,10 +490,17 @@ int32 LoginRESTService::SendResponse(soap* soapClient, google::protobuf::Message
     return soap_end_send(soapClient);
 }
 
-void LoginRESTService::HandleAsyncRequest(std::shared_ptr<AsyncLoginRequest> request)
+void LoginRESTService::HandleAsyncRequest(std::shared_ptr<AsyncRequest> request)
 {
     if (!request->InvokeIfReady())
-        _ioService->post(std::bind(&LoginRESTService::HandleAsyncRequest, this, std::move(request)));
+    {
+        _ioService->post([this, request]() { HandleAsyncRequest(request); });
+    }
+    else if (request->GetResponseStatus())
+    {
+        ResponseCodePlugin::GetForClient(request->GetClient())->ErrorCode = request->GetResponseStatus();
+        SendResponse(request->GetClient(), Battlenet::JSON::Login::ErrorResponse());
+    }
 }
 
 std::string LoginRESTService::CalculateShaPassHash(std::string const& name, std::string const& password)
@@ -417,10 +537,17 @@ int32 LoginRESTService::ResponseCodePlugin::Init(soap* s, soap_plugin* p, void* 
     data->fresponse = s->fresponse;
 
     p->id = PluginId;
+    p->fcopy = &Copy;
     p->fdelete = &Destroy;
     p->data = data;
 
     s->fresponse = &ChangeResponse;
+    return SOAP_OK;
+}
+
+int32 LoginRESTService::ResponseCodePlugin::Copy(soap* s, soap_plugin* dst, soap_plugin* src)
+{
+    dst->data = new ResponseCodePlugin(*reinterpret_cast<ResponseCodePlugin*>(src->data));
     return SOAP_OK;
 }
 
@@ -435,6 +562,11 @@ int32 LoginRESTService::ResponseCodePlugin::ChangeResponse(soap* s, int32 origin
 {
     ResponseCodePlugin* self = reinterpret_cast<ResponseCodePlugin*>(soap_lookup_plugin(s, PluginId));
     return self->fresponse(s, self->ErrorCode && originalResponse == SOAP_FILE ? self->ErrorCode : originalResponse, contentLength);
+}
+
+LoginRESTService::ResponseCodePlugin* LoginRESTService::ResponseCodePlugin::GetForClient(soap* s)
+{
+    return ASSERT_NOTNULL(reinterpret_cast<ResponseCodePlugin*>(soap_lookup_plugin(s, PluginId)));
 }
 
 char const* const LoginRESTService::ContentTypePlugin::PluginId = "bnet-content-type";

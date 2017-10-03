@@ -68,10 +68,15 @@ BattlenetPort = 1119
 #                     Set it to your local IP address (common 192.168.x.x network)
 #                     or leave it at default value 127.0.0.1 if connecting directly to the internet without a router
 #
+#    LoginREST.TicketDuration
+#        Description: Determines how long the login ticket is valid (in seconds)
+#                     When using client -launcherlogin feature it is recommended to set it to a high value (like a week)
+#
 
 LoginREST.Port = 8081
 LoginREST.ExternalAddress=127.0.0.1
 LoginREST.LocalAddress=127.0.0.1
+LoginREST.TicketDuration=3600
 
 #
 #
