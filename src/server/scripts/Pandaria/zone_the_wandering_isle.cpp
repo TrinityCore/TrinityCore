@@ -621,7 +621,7 @@ public:
                         break;
                     case EVENT_DESPAWN:
                         // Transform is casted only when in frog pool
-                        if (Creature* creature = me->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 71.0f, true))
+                        if (me->FindNearestCreature(NPC_CURSED_POOL_CONTROLLER, 71.0f, true))
                             DoCastSelf(SPELL_CURSE_OF_THE_FROG, true);
                         me->GetMotionMaster()->MoveRandom(10.0f);
                         me->DespawnOrUnsummon(3000);
