@@ -3219,6 +3219,15 @@ GameObject.CheckInvalidPosition = 0
 ###################################################################################################
 # AUCTION HOUSE BOT SETTINGS
 #
+#    AuctionHouseBot.Account
+#       Description: Account ID for AHBot characters. If non-zero, all auctions and bids associated
+#                    with the AHBot will randomly be assigned one of this account's characters.
+#       Default:     0
+#
+
+AuctionHouseBot.Account = 0
+
+#
 #    AuctionHouseBot.Update.Interval
 #       Description: Interval in seconds for AHBot to get updated
 #       Default:     20
