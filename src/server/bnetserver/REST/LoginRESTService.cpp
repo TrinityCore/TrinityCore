@@ -545,7 +545,7 @@ int32 LoginRESTService::ResponseCodePlugin::Init(soap* s, soap_plugin* p, void* 
     return SOAP_OK;
 }
 
-int32 LoginRESTService::ResponseCodePlugin::Copy(soap* s, soap_plugin* dst, soap_plugin* src)
+int32 LoginRESTService::ResponseCodePlugin::Copy(soap* /*s*/, soap_plugin* dst, soap_plugin* src)
 {
     dst->data = new ResponseCodePlugin(*reinterpret_cast<ResponseCodePlugin*>(src->data));
     return SOAP_OK;
