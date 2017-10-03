@@ -206,7 +206,7 @@ void Battlenet::Session::SendRequest(uint32 serviceHash, uint32 methodId, pb::Me
     AsyncWrite(&packet);
 }
 
-uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* logonRequest, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/)
+uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* logonRequest, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation)
 {
     if (logonRequest->program() != "WoW")
     {
@@ -229,6 +229,9 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
     _locale = logonRequest->locale();
     _os = logonRequest->platform();
     _build = logonRequest->application_version();
+
+    if (logonRequest->has_cached_web_credentials())
+        return VerifyWebCredentials(logonRequest->cached_web_credentials(), continuation);
 
     boost::asio::ip::tcp::endpoint const& endpoint = sLoginService.GetAddressForClient(GetRemoteIpAddress());
 

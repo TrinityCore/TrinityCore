@@ -37,11 +37,15 @@ void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
 void protobuf_AssignDesc_Login_2eproto();
 void protobuf_ShutdownFile_Login_2eproto();
 
+class ErrorResponse;
 class FormInput;
 class FormInputs;
 class FormInputValue;
 class LoginForm;
 class LoginResult;
+class LoginRefreshResult;
+class GameAccountInfo;
+class GameAccountList;
 
 enum FormType {
   LOGIN_FORM = 1
@@ -83,6 +87,62 @@ inline bool AuthenticationState_Parse(
     AuthenticationState_descriptor(), name, value);
 }
 // ===================================================================
+
+class TC_PROTO_API ErrorResponse : public ::google::protobuf::Message {
+ public:
+  ErrorResponse();
+  virtual ~ErrorResponse();
+
+  ErrorResponse(const ErrorResponse& from);
+
+  inline ErrorResponse& operator=(const ErrorResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ErrorResponse& default_instance();
+
+  void Swap(ErrorResponse* other);
+
+  // implements Message ----------------------------------------------
+
+  ErrorResponse* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // @@protoc_insertion_point(class_scope:Battlenet.JSON.Login.ErrorResponse)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
+  friend void protobuf_AssignDesc_Login_2eproto();
+  friend void protobuf_ShutdownFile_Login_2eproto();
+
+  void InitAsDefaultInstance();
+  static ErrorResponse* default_instance_;
+};
+// -------------------------------------------------------------------
 
 class TC_PROTO_API FormInput : public ::google::protobuf::Message {
  public:
@@ -598,6 +658,277 @@ class TC_PROTO_API LoginResult : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static LoginResult* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class TC_PROTO_API LoginRefreshResult : public ::google::protobuf::Message {
+ public:
+  LoginRefreshResult();
+  virtual ~LoginRefreshResult();
+
+  LoginRefreshResult(const LoginRefreshResult& from);
+
+  inline LoginRefreshResult& operator=(const LoginRefreshResult& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const LoginRefreshResult& default_instance();
+
+  void Swap(LoginRefreshResult* other);
+
+  // implements Message ----------------------------------------------
+
+  LoginRefreshResult* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required uint64 login_ticket_expiry = 1;
+  inline bool has_login_ticket_expiry() const;
+  inline void clear_login_ticket_expiry();
+  static const int kLoginTicketExpiryFieldNumber = 1;
+  inline ::google::protobuf::uint64 login_ticket_expiry() const;
+  inline void set_login_ticket_expiry(::google::protobuf::uint64 value);
+
+  // optional bool is_expired = 2;
+  inline bool has_is_expired() const;
+  inline void clear_is_expired();
+  static const int kIsExpiredFieldNumber = 2;
+  inline bool is_expired() const;
+  inline void set_is_expired(bool value);
+
+  // @@protoc_insertion_point(class_scope:Battlenet.JSON.Login.LoginRefreshResult)
+ private:
+  inline void set_has_login_ticket_expiry();
+  inline void clear_has_login_ticket_expiry();
+  inline void set_has_is_expired();
+  inline void clear_has_is_expired();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::uint64 login_ticket_expiry_;
+  bool is_expired_;
+  friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
+  friend void protobuf_AssignDesc_Login_2eproto();
+  friend void protobuf_ShutdownFile_Login_2eproto();
+
+  void InitAsDefaultInstance();
+  static LoginRefreshResult* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API GameAccountInfo : public ::google::protobuf::Message {
+ public:
+  GameAccountInfo();
+  virtual ~GameAccountInfo();
+
+  GameAccountInfo(const GameAccountInfo& from);
+
+  inline GameAccountInfo& operator=(const GameAccountInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GameAccountInfo& default_instance();
+
+  void Swap(GameAccountInfo* other);
+
+  // implements Message ----------------------------------------------
+
+  GameAccountInfo* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string display_name = 1;
+  inline bool has_display_name() const;
+  inline void clear_display_name();
+  static const int kDisplayNameFieldNumber = 1;
+  inline const ::std::string& display_name() const;
+  inline void set_display_name(const ::std::string& value);
+  inline void set_display_name(const char* value);
+  inline void set_display_name(const char* value, size_t size);
+  inline ::std::string* mutable_display_name();
+  inline ::std::string* release_display_name();
+  inline void set_allocated_display_name(::std::string* display_name);
+
+  // required uint32 expansion = 2;
+  inline bool has_expansion() const;
+  inline void clear_expansion();
+  static const int kExpansionFieldNumber = 2;
+  inline ::google::protobuf::uint32 expansion() const;
+  inline void set_expansion(::google::protobuf::uint32 value);
+
+  // optional bool is_suspended = 3;
+  inline bool has_is_suspended() const;
+  inline void clear_is_suspended();
+  static const int kIsSuspendedFieldNumber = 3;
+  inline bool is_suspended() const;
+  inline void set_is_suspended(bool value);
+
+  // optional bool is_banned = 4;
+  inline bool has_is_banned() const;
+  inline void clear_is_banned();
+  static const int kIsBannedFieldNumber = 4;
+  inline bool is_banned() const;
+  inline void set_is_banned(bool value);
+
+  // optional uint64 suspension_expires = 5;
+  inline bool has_suspension_expires() const;
+  inline void clear_suspension_expires();
+  static const int kSuspensionExpiresFieldNumber = 5;
+  inline ::google::protobuf::uint64 suspension_expires() const;
+  inline void set_suspension_expires(::google::protobuf::uint64 value);
+
+  // optional string suspension_reason = 6;
+  inline bool has_suspension_reason() const;
+  inline void clear_suspension_reason();
+  static const int kSuspensionReasonFieldNumber = 6;
+  inline const ::std::string& suspension_reason() const;
+  inline void set_suspension_reason(const ::std::string& value);
+  inline void set_suspension_reason(const char* value);
+  inline void set_suspension_reason(const char* value, size_t size);
+  inline ::std::string* mutable_suspension_reason();
+  inline ::std::string* release_suspension_reason();
+  inline void set_allocated_suspension_reason(::std::string* suspension_reason);
+
+  // @@protoc_insertion_point(class_scope:Battlenet.JSON.Login.GameAccountInfo)
+ private:
+  inline void set_has_display_name();
+  inline void clear_has_display_name();
+  inline void set_has_expansion();
+  inline void clear_has_expansion();
+  inline void set_has_is_suspended();
+  inline void clear_has_is_suspended();
+  inline void set_has_is_banned();
+  inline void clear_has_is_banned();
+  inline void set_has_suspension_expires();
+  inline void clear_has_suspension_expires();
+  inline void set_has_suspension_reason();
+  inline void clear_has_suspension_reason();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* display_name_;
+  ::google::protobuf::uint32 expansion_;
+  bool is_suspended_;
+  bool is_banned_;
+  ::google::protobuf::uint64 suspension_expires_;
+  ::std::string* suspension_reason_;
+  friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
+  friend void protobuf_AssignDesc_Login_2eproto();
+  friend void protobuf_ShutdownFile_Login_2eproto();
+
+  void InitAsDefaultInstance();
+  static GameAccountInfo* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class TC_PROTO_API GameAccountList : public ::google::protobuf::Message {
+ public:
+  GameAccountList();
+  virtual ~GameAccountList();
+
+  GameAccountList(const GameAccountList& from);
+
+  inline GameAccountList& operator=(const GameAccountList& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const GameAccountList& default_instance();
+
+  void Swap(GameAccountList* other);
+
+  // implements Message ----------------------------------------------
+
+  GameAccountList* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .Battlenet.JSON.Login.GameAccountInfo game_accounts = 1;
+  inline int game_accounts_size() const;
+  inline void clear_game_accounts();
+  static const int kGameAccountsFieldNumber = 1;
+  inline const ::Battlenet::JSON::Login::GameAccountInfo& game_accounts(int index) const;
+  inline ::Battlenet::JSON::Login::GameAccountInfo* mutable_game_accounts(int index);
+  inline ::Battlenet::JSON::Login::GameAccountInfo* add_game_accounts();
+  inline const ::google::protobuf::RepeatedPtrField< ::Battlenet::JSON::Login::GameAccountInfo >&
+      game_accounts() const;
+  inline ::google::protobuf::RepeatedPtrField< ::Battlenet::JSON::Login::GameAccountInfo >*
+      mutable_game_accounts();
+
+  // @@protoc_insertion_point(class_scope:Battlenet.JSON.Login.GameAccountList)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::Battlenet::JSON::Login::GameAccountInfo > game_accounts_;
+  friend void TC_PROTO_API protobuf_AddDesc_Login_2eproto();
+  friend void protobuf_AssignDesc_Login_2eproto();
+  friend void protobuf_ShutdownFile_Login_2eproto();
+
+  void InitAsDefaultInstance();
+  static GameAccountList* default_instance_;
+};
 // ===================================================================
 
 
@@ -605,6 +936,10 @@ class TC_PROTO_API LoginResult : public ::google::protobuf::Message {
 
 
 // ===================================================================
+
+// ErrorResponse
+
+// -------------------------------------------------------------------
 
 // FormInput
 
@@ -1668,6 +2003,344 @@ inline void LoginResult::set_allocated_login_ticket(::std::string* login_ticket)
     login_ticket_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:Battlenet.JSON.Login.LoginResult.login_ticket)
+}
+
+// -------------------------------------------------------------------
+
+// LoginRefreshResult
+
+// required uint64 login_ticket_expiry = 1;
+inline bool LoginRefreshResult::has_login_ticket_expiry() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void LoginRefreshResult::set_has_login_ticket_expiry() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void LoginRefreshResult::clear_has_login_ticket_expiry() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void LoginRefreshResult::clear_login_ticket_expiry() {
+  login_ticket_expiry_ = GOOGLE_ULONGLONG(0);
+  clear_has_login_ticket_expiry();
+}
+inline ::google::protobuf::uint64 LoginRefreshResult::login_ticket_expiry() const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.LoginRefreshResult.login_ticket_expiry)
+  return login_ticket_expiry_;
+}
+inline void LoginRefreshResult::set_login_ticket_expiry(::google::protobuf::uint64 value) {
+  set_has_login_ticket_expiry();
+  login_ticket_expiry_ = value;
+  // @@protoc_insertion_point(field_set:Battlenet.JSON.Login.LoginRefreshResult.login_ticket_expiry)
+}
+
+// optional bool is_expired = 2;
+inline bool LoginRefreshResult::has_is_expired() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void LoginRefreshResult::set_has_is_expired() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void LoginRefreshResult::clear_has_is_expired() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void LoginRefreshResult::clear_is_expired() {
+  is_expired_ = false;
+  clear_has_is_expired();
+}
+inline bool LoginRefreshResult::is_expired() const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.LoginRefreshResult.is_expired)
+  return is_expired_;
+}
+inline void LoginRefreshResult::set_is_expired(bool value) {
+  set_has_is_expired();
+  is_expired_ = value;
+  // @@protoc_insertion_point(field_set:Battlenet.JSON.Login.LoginRefreshResult.is_expired)
+}
+
+// -------------------------------------------------------------------
+
+// GameAccountInfo
+
+// required string display_name = 1;
+inline bool GameAccountInfo::has_display_name() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void GameAccountInfo::set_has_display_name() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void GameAccountInfo::clear_has_display_name() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void GameAccountInfo::clear_display_name() {
+  if (display_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    display_name_->clear();
+  }
+  clear_has_display_name();
+}
+inline const ::std::string& GameAccountInfo::display_name() const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.GameAccountInfo.display_name)
+  return *display_name_;
+}
+inline void GameAccountInfo::set_display_name(const ::std::string& value) {
+  set_has_display_name();
+  if (display_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    display_name_ = new ::std::string;
+  }
+  display_name_->assign(value);
+  // @@protoc_insertion_point(field_set:Battlenet.JSON.Login.GameAccountInfo.display_name)
+}
+inline void GameAccountInfo::set_display_name(const char* value) {
+  set_has_display_name();
+  if (display_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    display_name_ = new ::std::string;
+  }
+  display_name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:Battlenet.JSON.Login.GameAccountInfo.display_name)
+}
+inline void GameAccountInfo::set_display_name(const char* value, size_t size) {
+  set_has_display_name();
+  if (display_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    display_name_ = new ::std::string;
+  }
+  display_name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:Battlenet.JSON.Login.GameAccountInfo.display_name)
+}
+inline ::std::string* GameAccountInfo::mutable_display_name() {
+  set_has_display_name();
+  if (display_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    display_name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:Battlenet.JSON.Login.GameAccountInfo.display_name)
+  return display_name_;
+}
+inline ::std::string* GameAccountInfo::release_display_name() {
+  clear_has_display_name();
+  if (display_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = display_name_;
+    display_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void GameAccountInfo::set_allocated_display_name(::std::string* display_name) {
+  if (display_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete display_name_;
+  }
+  if (display_name) {
+    set_has_display_name();
+    display_name_ = display_name;
+  } else {
+    clear_has_display_name();
+    display_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:Battlenet.JSON.Login.GameAccountInfo.display_name)
+}
+
+// required uint32 expansion = 2;
+inline bool GameAccountInfo::has_expansion() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void GameAccountInfo::set_has_expansion() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void GameAccountInfo::clear_has_expansion() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void GameAccountInfo::clear_expansion() {
+  expansion_ = 0u;
+  clear_has_expansion();
+}
+inline ::google::protobuf::uint32 GameAccountInfo::expansion() const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.GameAccountInfo.expansion)
+  return expansion_;
+}
+inline void GameAccountInfo::set_expansion(::google::protobuf::uint32 value) {
+  set_has_expansion();
+  expansion_ = value;
+  // @@protoc_insertion_point(field_set:Battlenet.JSON.Login.GameAccountInfo.expansion)
+}
+
+// optional bool is_suspended = 3;
+inline bool GameAccountInfo::has_is_suspended() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void GameAccountInfo::set_has_is_suspended() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void GameAccountInfo::clear_has_is_suspended() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void GameAccountInfo::clear_is_suspended() {
+  is_suspended_ = false;
+  clear_has_is_suspended();
+}
+inline bool GameAccountInfo::is_suspended() const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.GameAccountInfo.is_suspended)
+  return is_suspended_;
+}
+inline void GameAccountInfo::set_is_suspended(bool value) {
+  set_has_is_suspended();
+  is_suspended_ = value;
+  // @@protoc_insertion_point(field_set:Battlenet.JSON.Login.GameAccountInfo.is_suspended)
+}
+
+// optional bool is_banned = 4;
+inline bool GameAccountInfo::has_is_banned() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void GameAccountInfo::set_has_is_banned() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void GameAccountInfo::clear_has_is_banned() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void GameAccountInfo::clear_is_banned() {
+  is_banned_ = false;
+  clear_has_is_banned();
+}
+inline bool GameAccountInfo::is_banned() const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.GameAccountInfo.is_banned)
+  return is_banned_;
+}
+inline void GameAccountInfo::set_is_banned(bool value) {
+  set_has_is_banned();
+  is_banned_ = value;
+  // @@protoc_insertion_point(field_set:Battlenet.JSON.Login.GameAccountInfo.is_banned)
+}
+
+// optional uint64 suspension_expires = 5;
+inline bool GameAccountInfo::has_suspension_expires() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void GameAccountInfo::set_has_suspension_expires() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void GameAccountInfo::clear_has_suspension_expires() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void GameAccountInfo::clear_suspension_expires() {
+  suspension_expires_ = GOOGLE_ULONGLONG(0);
+  clear_has_suspension_expires();
+}
+inline ::google::protobuf::uint64 GameAccountInfo::suspension_expires() const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.GameAccountInfo.suspension_expires)
+  return suspension_expires_;
+}
+inline void GameAccountInfo::set_suspension_expires(::google::protobuf::uint64 value) {
+  set_has_suspension_expires();
+  suspension_expires_ = value;
+  // @@protoc_insertion_point(field_set:Battlenet.JSON.Login.GameAccountInfo.suspension_expires)
+}
+
+// optional string suspension_reason = 6;
+inline bool GameAccountInfo::has_suspension_reason() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void GameAccountInfo::set_has_suspension_reason() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void GameAccountInfo::clear_has_suspension_reason() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void GameAccountInfo::clear_suspension_reason() {
+  if (suspension_reason_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    suspension_reason_->clear();
+  }
+  clear_has_suspension_reason();
+}
+inline const ::std::string& GameAccountInfo::suspension_reason() const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.GameAccountInfo.suspension_reason)
+  return *suspension_reason_;
+}
+inline void GameAccountInfo::set_suspension_reason(const ::std::string& value) {
+  set_has_suspension_reason();
+  if (suspension_reason_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    suspension_reason_ = new ::std::string;
+  }
+  suspension_reason_->assign(value);
+  // @@protoc_insertion_point(field_set:Battlenet.JSON.Login.GameAccountInfo.suspension_reason)
+}
+inline void GameAccountInfo::set_suspension_reason(const char* value) {
+  set_has_suspension_reason();
+  if (suspension_reason_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    suspension_reason_ = new ::std::string;
+  }
+  suspension_reason_->assign(value);
+  // @@protoc_insertion_point(field_set_char:Battlenet.JSON.Login.GameAccountInfo.suspension_reason)
+}
+inline void GameAccountInfo::set_suspension_reason(const char* value, size_t size) {
+  set_has_suspension_reason();
+  if (suspension_reason_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    suspension_reason_ = new ::std::string;
+  }
+  suspension_reason_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:Battlenet.JSON.Login.GameAccountInfo.suspension_reason)
+}
+inline ::std::string* GameAccountInfo::mutable_suspension_reason() {
+  set_has_suspension_reason();
+  if (suspension_reason_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    suspension_reason_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:Battlenet.JSON.Login.GameAccountInfo.suspension_reason)
+  return suspension_reason_;
+}
+inline ::std::string* GameAccountInfo::release_suspension_reason() {
+  clear_has_suspension_reason();
+  if (suspension_reason_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = suspension_reason_;
+    suspension_reason_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void GameAccountInfo::set_allocated_suspension_reason(::std::string* suspension_reason) {
+  if (suspension_reason_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete suspension_reason_;
+  }
+  if (suspension_reason) {
+    set_has_suspension_reason();
+    suspension_reason_ = suspension_reason;
+  } else {
+    clear_has_suspension_reason();
+    suspension_reason_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:Battlenet.JSON.Login.GameAccountInfo.suspension_reason)
+}
+
+// -------------------------------------------------------------------
+
+// GameAccountList
+
+// repeated .Battlenet.JSON.Login.GameAccountInfo game_accounts = 1;
+inline int GameAccountList::game_accounts_size() const {
+  return game_accounts_.size();
+}
+inline void GameAccountList::clear_game_accounts() {
+  game_accounts_.Clear();
+}
+inline const ::Battlenet::JSON::Login::GameAccountInfo& GameAccountList::game_accounts(int index) const {
+  // @@protoc_insertion_point(field_get:Battlenet.JSON.Login.GameAccountList.game_accounts)
+  return game_accounts_.Get(index);
+}
+inline ::Battlenet::JSON::Login::GameAccountInfo* GameAccountList::mutable_game_accounts(int index) {
+  // @@protoc_insertion_point(field_mutable:Battlenet.JSON.Login.GameAccountList.game_accounts)
+  return game_accounts_.Mutable(index);
+}
+inline ::Battlenet::JSON::Login::GameAccountInfo* GameAccountList::add_game_accounts() {
+  // @@protoc_insertion_point(field_add:Battlenet.JSON.Login.GameAccountList.game_accounts)
+  return game_accounts_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::Battlenet::JSON::Login::GameAccountInfo >&
+GameAccountList::game_accounts() const {
+  // @@protoc_insertion_point(field_list:Battlenet.JSON.Login.GameAccountList.game_accounts)
+  return game_accounts_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::Battlenet::JSON::Login::GameAccountInfo >*
+GameAccountList::mutable_game_accounts() {
+  // @@protoc_insertion_point(field_mutable_list:Battlenet.JSON.Login.GameAccountList.game_accounts)
+  return &game_accounts_;
 }
 
 
