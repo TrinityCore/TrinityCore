@@ -28,6 +28,7 @@
 #include "GameObject.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Random.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
@@ -160,6 +161,34 @@ class spell_warl_conflagrate : public SpellScriptLoader
         {
             return new spell_warl_conflagrate_SpellScript();
         }
+};
+
+// 77220 - Mastery: Chaotic Energies
+class spell_warl_chaotic_energies : public AuraScript
+{
+    PrepareAuraScript(spell_warl_chaotic_energies);
+
+    void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        AuraEffect const* effect1 = GetEffect(EFFECT_1);
+        if (!effect1 || !GetTargetApplication()->HasEffect(EFFECT_1))
+        {
+            PreventDefaultAction();
+            return;
+        }
+
+        // You take ${$s2/3}% reduced damage
+        float damageReductionPct = float(effect1->GetAmount()) / 3;
+        // plus a random amount of up to ${$s2/3}% additional reduced damage
+        damageReductionPct += frand(0.0f, damageReductionPct);
+
+        absorbAmount = CalculatePct(dmgInfo.GetDamage(), damageReductionPct);
+    }
+
+    void Register() override
+    {
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_warl_chaotic_energies::HandleAbsorb, EFFECT_2);
+    }
 };
 
 // 6201 - Create Healthstone
@@ -569,15 +598,19 @@ class spell_warl_fel_synergy : public SpellScriptLoader
 
             bool CheckProc(ProcEventInfo& eventInfo)
             {
-                return GetTarget()->GetGuardianPet() && eventInfo.GetDamageInfo()->GetDamage();
+                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+                if (!damageInfo || !damageInfo->GetDamage())
+                    return false;
+
+                return GetTarget()->GetGuardianPet() != nullptr;
             }
 
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
-                int32 heal = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_WARLOCK_FEL_SYNERGY_HEAL, SPELLVALUE_BASE_POINT0, heal, (Unit*)NULL, true, NULL, aurEff); // TARGET_UNIT_PET
+                int32 heal = CalculatePct(static_cast<int32>(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
+                GetTarget()->CastCustomSpell(SPELL_WARLOCK_FEL_SYNERGY_HEAL, SPELLVALUE_BASE_POINT0, heal, (Unit*)nullptr, true, nullptr, aurEff); // TARGET_UNIT_PET
             }
 
             void Register() override
@@ -940,7 +973,7 @@ class spell_warl_seed_of_corruption_dummy : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo)
+                if (!damageInfo || !damageInfo->GetDamage())
                     return;
 
                 int32 amount = aurEff->GetAmount() - damageInfo->GetDamage();
@@ -997,7 +1030,7 @@ class spell_warl_seed_of_corruption_generic : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo)
+                if (!damageInfo || !damageInfo->GetDamage())
                     return;
 
                 int32 amount = aurEff->GetAmount() - damageInfo->GetDamage();
@@ -1347,9 +1380,7 @@ class spell_warl_t4_2p_bonus : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sSpellMgr->GetSpellInfo(Trigger))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ Trigger });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -1454,6 +1485,7 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_bane_of_doom();
     new spell_warl_banish();
+    RegisterAuraScript(spell_warl_chaotic_energies);
     new spell_warl_conflagrate();
     new spell_warl_create_healthstone();
     new spell_warl_demonic_circle_summon();

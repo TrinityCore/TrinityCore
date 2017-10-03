@@ -86,7 +86,6 @@ struct BonusData
     uint32 AppearanceModID;
     float RepairCostMultiplier;
     uint32 ScalingStatDistribution;
-    uint32 ItemLevelOverride;
     uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 GemRelicType[MAX_ITEM_PROTO_SOCKETS];
     uint16 GemRelicRankBonus[MAX_ITEM_PROTO_SOCKETS];
@@ -102,7 +101,6 @@ private:
     {
         int32 AppearanceModPriority;
         int32 ScalingStatDistributionPriority;
-        int32 ItemLevelOverridePriority;
         bool HasQualityBonus;
     } _state;
 };
@@ -130,12 +128,12 @@ class TC_GAME_API Item : public Object
     friend void AddItemToUpdateQueueOf(Item* item, Player* player);
     friend void RemoveItemFromUpdateQueueOf(Item* item, Player* player);
     public:
-        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);
-        Item* CloneItem(uint32 count, Player const* player = NULL) const;
+        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = nullptr);
+        Item* CloneItem(uint32 count, Player const* player = nullptr) const;
 
         Item();
 
-        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(ObjectGuid::LowType guidlow, uint32 itemId, Player const* owner);
 
         ItemTemplate const* GetTemplate() const;
         BonusData const* GetBonus() const { return &_bonusData; }

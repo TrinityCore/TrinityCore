@@ -1185,21 +1185,44 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
     SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
     switch (GetAuraType())
     {
+        case SPELL_AURA_MOD_CONFUSE:
+        case SPELL_AURA_MOD_FEAR:
+        case SPELL_AURA_MOD_STUN:
+        case SPELL_AURA_MOD_ROOT:
+        case SPELL_AURA_TRANSFORM:
+        {
+            DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+            if (!damageInfo || !damageInfo->GetDamage())
+                return false;
+
+            // Spell own damage at apply won't break CC
+            if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+            {
+                if (spellInfo == GetSpellInfo())
+                {
+                    Aura* aura = GetBase();
+                    // called from spellcast, should not have ticked yet
+                    if (aura->GetDuration() == aura->GetMaxDuration())
+                        return false;
+                }
+            }
+            break;
+        }
         case SPELL_AURA_MECHANIC_IMMUNITY:
         case SPELL_AURA_MOD_MECHANIC_RESISTANCE:
             // compare mechanic
-            if (!spellInfo || static_cast<int32>(spellInfo->Mechanic) != GetMiscValue())
-                result = false;
+            if (!spellInfo || !(spellInfo->GetAllEffectsMechanicMask() & (1 << GetMiscValue())))
+                return false;
             break;
         case SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK:
             // skip melee hits and instant cast spells
-            if (!spellInfo || !spellInfo->CalcCastTime())
-                result = false;
+            if (!eventInfo.GetProcSpell() || !eventInfo.GetProcSpell()->GetCastTime())
+                return false;
             break;
         case SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER:
             // Compare casters
             if (GetCasterGUID() != eventInfo.GetActor()->GetGUID())
-                result = false;
+                return false;
             break;
         case SPELL_AURA_MOD_POWER_COST_SCHOOL:
         case SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT:
@@ -1207,23 +1230,30 @@ bool AuraEffect::CheckEffectProc(AuraApplication* aurApp, ProcEventInfo& eventIn
             // Skip melee hits and spells with wrong school or zero cost
             if (!spellInfo || !(spellInfo->GetSchoolMask() & GetMiscValue()) // School Check
                 || !eventInfo.GetProcSpell())
-            {
-                result = false;
-                break;
-            }
+                return false;
 
             // Costs Check
             std::vector<SpellPowerCost> const& costs = eventInfo.GetProcSpell()->GetPowerCost();
             auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Amount > 0; });
             if (m == costs.end())
-                result = false;
+                return false;
             break;
         }
         case SPELL_AURA_REFLECT_SPELLS_SCHOOL:
             // Skip melee hits and spells with wrong school
             if (!spellInfo || !(spellInfo->GetSchoolMask() & GetMiscValue()))
-                result = false;
+                return false;
             break;
+        case SPELL_AURA_PROC_TRIGGER_SPELL:
+        case SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE:
+        {
+            // Don't proc extra attacks while already processing extra attack spell
+            uint32 triggerSpellId = GetSpellEffectInfo()->TriggerSpell;
+            if (SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(triggerSpellId))
+                if (aurApp->GetTarget()->m_extraAttacks && triggeredSpellInfo->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+                    return false;
+            break;
+        }
         default:
             break;
     }
@@ -1307,6 +1337,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
         case FORM_SPIRIT_OF_REDEMPTION:
             spellId  = 27792;
             spellId2 = 27795;
+            spellId3 = 62371;
             break;
         case FORM_SHADOWFORM:
             if (target->HasAura(107906)) // Glyph of Shadow
@@ -1616,8 +1647,6 @@ void AuraEffect::HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 m
             if (!target->IsStandState())
                 target->SetStandState(UNIT_STAND_STATE_STAND);
         }
-
-        target->SetHealth(1);
     }
     // die at aura end
     else if (target->IsAlive())
@@ -6252,23 +6281,12 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
 
 void AuraEffect::HandleBreakableCCAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
-    DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-    if (!damageInfo)
-        return;
+    int32 const damageLeft = GetAmount() - static_cast<int32>(eventInfo.GetDamageInfo()->GetDamage());
 
-    // aura own damage at apply won't break CC
-    if (eventInfo.GetSpellPhaseMask() & PROC_SPELL_PHASE_CAST)
-    {
-        if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
-            if (spellInfo == GetSpellInfo())
-                return;
-    }
-
-    int32 damageLeft = GetAmount();
-    if (damageLeft < int32(damageInfo->GetDamage()))
+    if (damageLeft <= 0)
         aurApp->GetTarget()->RemoveAura(aurApp);
     else
-        ChangeAmount(damageLeft - damageInfo->GetDamage());
+        ChangeAmount(damageLeft);
 }
 
 void AuraEffect::HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
@@ -6327,24 +6345,9 @@ void AuraEffect::HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mod
         return;
 
     if (apply)
-    {
-        WorldPackets::Misc::Weather weather(WeatherState(GetMiscValue()), 1.0f);
-        target->SendDirectMessage(weather.Write());
-    }
+        target->SendDirectMessage(WorldPackets::Misc::Weather(WeatherState(GetMiscValue()), 1.0f).Write());
     else
-    {
-        // send weather for current zone
-        if (Weather* weather = WeatherMgr::FindWeather(target->GetZoneId()))
-            weather->SendWeatherUpdateToPlayer(target);
-        else
-        {
-            if (!WeatherMgr::AddWeather(target->GetZoneId()))
-            {
-                // send fine weather packet to remove old weather
-                WeatherMgr::SendFineWeatherUpdateToPlayer(target);
-            }
-        }
-    }
+        target->GetMap()->SendZoneWeather(target->GetZoneId(), target);
 }
 
 void AuraEffect::HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const

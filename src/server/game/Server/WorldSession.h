@@ -398,6 +398,7 @@ namespace WorldPackets
         class SortBankBags;
         class SortReagentBankBags;
         struct ItemInstance;
+        class RemoveNewItem;
     }
 
     namespace LFG
@@ -1570,6 +1571,7 @@ class TC_GAME_API WorldSession
         void HandleSortBags(WorldPackets::Item::SortBags& sortBags);
         void HandleSortBankBags(WorldPackets::Item::SortBankBags& sortBankBags);
         void HandleSortReagentBankBags(WorldPackets::Item::SortReagentBankBags& sortReagentBankBags);
+        void HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& removeNewItem);
 
         void HandleCancelTempEnchantmentOpcode(WorldPackets::Item::CancelTempEnchantment& cancelTempEnchantment);
 
@@ -1645,7 +1647,7 @@ class TC_GAME_API WorldSession
         void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
-        void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& packet);
+        void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction);
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);

@@ -2203,10 +2203,10 @@ class TC_PROTO_API AuthenticationListener : public ServiceBase
 
  protected:
   virtual uint32 HandleOnModuleLoad(::bgs::protocol::authentication::v1::ModuleLoadRequest const* request);
-  virtual uint32 HandleOnModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, ::bgs::protocol::NoData* response);
+  virtual uint32 HandleOnModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleOnServerStateChange(::bgs::protocol::authentication::v1::ServerStateChangeRequest const* request);
   virtual uint32 HandleOnLogonComplete(::bgs::protocol::authentication::v1::LogonResult const* request);
-  virtual uint32 HandleOnMemModuleLoad(::bgs::protocol::authentication::v1::MemModuleLoadRequest const* request, ::bgs::protocol::authentication::v1::MemModuleLoadResponse* response);
+  virtual uint32 HandleOnMemModuleLoad(::bgs::protocol::authentication::v1::MemModuleLoadRequest const* request, ::bgs::protocol::authentication::v1::MemModuleLoadResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleOnLogonUpdate(::bgs::protocol::authentication::v1::LogonUpdateRequest const* request);
   virtual uint32 HandleOnVersionInfoUpdated(::bgs::protocol::authentication::v1::VersionInfoNotification const* request);
   virtual uint32 HandleOnLogonQueueUpdate(::bgs::protocol::authentication::v1::LogonQueueUpdateRequest const* request);
@@ -2248,14 +2248,14 @@ class TC_PROTO_API AuthenticationService : public ServiceBase
   void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
 
  protected:
-  virtual uint32 HandleLogon(::bgs::protocol::authentication::v1::LogonRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleModuleNotify(::bgs::protocol::authentication::v1::ModuleNotification const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleSelectGameAccount_DEPRECATED(::bgs::protocol::EntityId const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleGenerateSSOToken(::bgs::protocol::authentication::v1::GenerateSSOTokenRequest const* request, ::bgs::protocol::authentication::v1::GenerateSSOTokenResponse* response);
-  virtual uint32 HandleSelectGameAccount(::bgs::protocol::authentication::v1::SelectGameAccountRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleVerifyWebCredentials(::bgs::protocol::authentication::v1::VerifyWebCredentialsRequest const* request, ::bgs::protocol::NoData* response);
-  virtual uint32 HandleGenerateWebCredentials(::bgs::protocol::authentication::v1::GenerateWebCredentialsRequest const* request, ::bgs::protocol::authentication::v1::GenerateWebCredentialsResponse* response);
+  virtual uint32 HandleLogon(::bgs::protocol::authentication::v1::LogonRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleModuleNotify(::bgs::protocol::authentication::v1::ModuleNotification const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleModuleMessage(::bgs::protocol::authentication::v1::ModuleMessageRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSelectGameAccount_DEPRECATED(::bgs::protocol::EntityId const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGenerateSSOToken(::bgs::protocol::authentication::v1::GenerateSSOTokenRequest const* request, ::bgs::protocol::authentication::v1::GenerateSSOTokenResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleSelectGameAccount(::bgs::protocol::authentication::v1::SelectGameAccountRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleVerifyWebCredentials(::bgs::protocol::authentication::v1::VerifyWebCredentialsRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
+  virtual uint32 HandleGenerateWebCredentials(::bgs::protocol::authentication::v1::GenerateWebCredentialsRequest const* request, ::bgs::protocol::authentication::v1::GenerateWebCredentialsResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
   uint32 service_hash_;

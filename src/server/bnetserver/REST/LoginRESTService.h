@@ -24,9 +24,7 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ip/address.hpp>
-#include <boost/asio/deadline_timer.hpp>
 #include <atomic>
-#include <mutex>
 #include <thread>
 
 class AsyncLoginRequest;
@@ -42,7 +40,7 @@ enum class BanMode
 class LoginRESTService
 {
 public:
-    LoginRESTService() : _ioService(nullptr), _stopped(false), _port(0), _loginTicketCleanupTimer(nullptr) { }
+    LoginRESTService() : _ioService(nullptr), _stopped(false), _port(0) { }
 
     static LoginRESTService& Instance();
 
@@ -50,8 +48,6 @@ public:
     void Stop();
 
     boost::asio::ip::tcp::endpoint const& GetAddressForClient(boost::asio::ip::address const& address) const;
-
-    std::unique_ptr<Battlenet::Session::AccountInfo> VerifyLoginTicket(std::string const& id);
 
 private:
     void Run();
@@ -67,18 +63,6 @@ private:
     void HandleAsyncRequest(std::shared_ptr<AsyncLoginRequest> request);
 
     std::string CalculateShaPassHash(std::string const& name, std::string const& password);
-
-    void AddLoginTicket(std::string const& id, std::unique_ptr<Battlenet::Session::AccountInfo> accountInfo);
-    void CleanupLoginTickets(boost::system::error_code const& error);
-
-    struct LoginTicket
-    {
-        LoginTicket& operator=(LoginTicket&& right);
-
-        std::string Id;
-        std::unique_ptr<Battlenet::Session::AccountInfo> Account;
-        std::time_t ExpiryTime;
-    };
 
     struct ResponseCodePlugin
     {
@@ -110,9 +94,6 @@ private:
     int32 _port;
     boost::asio::ip::tcp::endpoint _externalAddress;
     boost::asio::ip::tcp::endpoint _localAddress;
-    std::mutex _loginTicketMutex;
-    std::unordered_map<std::string, LoginTicket> _validLoginTickets;
-    boost::asio::deadline_timer* _loginTicketCleanupTimer;
 };
 
 #define sLoginService LoginRESTService::Instance()

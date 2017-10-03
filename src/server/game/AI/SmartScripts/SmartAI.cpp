@@ -74,11 +74,7 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
 
 bool SmartAI::IsAIControlled() const
 {
-    if (me->IsControlledByPlayer())
-        return false;
-    if (mIsCharmed)
-        return false;
-    return true;
+    return !mIsCharmed;
 }
 
 void SmartAI::UpdateDespawn(const uint32 diff)
