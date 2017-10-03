@@ -793,7 +793,7 @@ struct npc_hadronox_foeAI : public ScriptedAI
                                 me->GetMotionMaster()->MovePoint(MOVE_HADRONOX, hadronoxStep[2]);
                                 break;
                             }
-                        me->GetMotionMaster()->MoveChase(hadronox);
+                        AttackStart(hadronox);
                     }
                     break;
                 }
