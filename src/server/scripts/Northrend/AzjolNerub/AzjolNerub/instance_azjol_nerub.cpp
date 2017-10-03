@@ -88,7 +88,7 @@ class instance_azjol_nerub : public InstanceMapScript
                 if (_SkipCheckRequiredBosses(player))
                     return true;
 
-                if (bossId > DATA_KRIKTHIR && GetBossState(DATA_KRIKTHIR) != DONE)
+                if (bossId > DATA_KRIKTHIR_THE_GATEWATCHER && GetBossState(DATA_KRIKTHIR_THE_GATEWATCHER) != DONE)
                     return false;
 
                 return true;
