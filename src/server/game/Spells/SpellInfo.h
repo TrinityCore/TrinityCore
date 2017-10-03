@@ -556,10 +556,10 @@ class TC_GAME_API SpellInfo
         SpellEffectInfo const* GetEffect(uint32 index) const { return GetEffect(DIFFICULTY_NONE, index); }
 
         // spell diminishing returns
-        DiminishingGroup GetDiminishingReturnsGroupForSpell(bool triggered) const;
-        DiminishingReturnsType GetDiminishingReturnsGroupType(bool triggered) const;
-        DiminishingLevels GetDiminishingReturnsMaxLevel(bool triggered) const;
-        int32 GetDiminishingReturnsLimitDuration(bool triggered) const;
+        DiminishingGroup GetDiminishingReturnsGroupForSpell() const;
+        DiminishingReturnsType GetDiminishingReturnsGroupType() const;
+        DiminishingLevels GetDiminishingReturnsMaxLevel() const;
+        int32 GetDiminishingReturnsLimitDuration() const;
 
     private:
         // loading helpers
@@ -582,8 +582,7 @@ class TC_GAME_API SpellInfo
         SpellSpecificType _spellSpecific;
         AuraStateType _auraState;
 
-        SpellDiminishInfo _diminishInfoNonTriggered;
-        SpellDiminishInfo _diminishInfoTriggered;
+        SpellDiminishInfo _diminishInfo;
 };
 
 #endif // _SPELLINFO_H
