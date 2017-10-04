@@ -18,7 +18,7 @@ cppformat (type safe format library)
 
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
-  ff0b69daeca1edf7785a8a580518e462be5a6f3d
+  Version: 1.0.0 9a7cbec70b8a88b2e876a382f57c59f3796da0d9
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
