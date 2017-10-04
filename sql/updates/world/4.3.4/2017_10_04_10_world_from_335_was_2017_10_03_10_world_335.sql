@@ -1,3 +1,4 @@
+/*
 -- Improve Event for Quest "Making Sense of It"
 DELETE FROM `creature_text` WHERE `CreatureID`=9117;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -13,3 +14,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (911700,9,3,0,0,0,100,0,6000,6000,0,0,1,2,0,0,0,0,0,7,0,0,0,0,0,0,0,"J.D. Collie - On Script - Say Line 2"),
 (911700,9,4,0,0,0,100,0,3000,3000,0,0,15,4321,0,0,0,0,0,7,0,0,0,0,0,0,0,"J.D. Collie - On Script - Quest Credit \'Making Sense of It\'"),
 (911700,9,5,0,0,0,100,0,0,0,0,0,82,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"J.D. Collie - On Script - Add Npc Flag Questgiver+Gossip");
+*/

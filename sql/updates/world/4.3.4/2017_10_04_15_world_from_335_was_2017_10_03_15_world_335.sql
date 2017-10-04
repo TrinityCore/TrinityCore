@@ -1,3 +1,4 @@
+/*
 -- Add waypoints and fix spawnpoint of Fury Shelda
 SET @GUID := 46352;
 SET @PATH_ID := @GUID * 10;
@@ -22,3 +23,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@PATH_ID, 14, 10600.19, 2014.94, 1329.95),
 (@PATH_ID, 15, 10630.13, 2031.82, 1331.574),
 (@PATH_ID, 16, 10652.09, 2065.57, 1330.61);
+*/

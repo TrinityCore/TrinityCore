@@ -1,3 +1,4 @@
+/*
 -- Mulgris Deepriver --> Fix gossip texts
 DELETE FROM `gossip_menu` WHERE `MenuID`=2921 AND `TextID` IN (3633, 3635);
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -9,3 +10,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14,2921,3635,0,0,8,0,4985,0,0,0,0,0,'',"Show Gossip Menu Text 3635 if Quest 'The Wildlife Suffers Too (Part 2)' is rewarded"),
 (14,2921,3633,0,0,6,0,67,0,0,0,0,0,'',"Show Gossip Menu Text 3633 if Player is Horde"),
 (14,2921,3634,0,0,6,0,469,0,0,0,0,0,'',"Show Gossip Menu Text 3634 if Player is Alliance");
+*/

@@ -1,3 +1,4 @@
+/*
 -- 
 -- Gnarlpine Ursa
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=2006;
@@ -235,3 +236,4 @@ UPDATE `creature` SET `MovementType`=1, `spawndist`=8 WHERE `guid` IN (46351, 47
 -- Add Waypoint Movement to Rageclaw (Path already in database)
 UPDATE `creature` SET `MovementType`=2 WHERE `guid`=46818;
 UPDATE `creature_addon` SET `path_id`=468180, `bytes2`=4097 WHERE `guid`=46818;
+*/

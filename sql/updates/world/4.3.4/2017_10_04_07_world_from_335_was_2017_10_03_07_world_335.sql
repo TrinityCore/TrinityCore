@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `npc_text` SET `BroadcastTextID0`=0 WHERE `ID`=3753;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=14 AND `SourceGroup` IN (3223, 3183, 3228, 3184, 7385);
@@ -12,3 +13,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14, 3184, 4039, 0, 0, 8, 0, 5217, 0, 0, 0, 0, 0, "", "Gossip text requires quest 'Return to Chillwind Camp' rewarded"),
 (14, 7385, 8846, 0, 0, 47, 0, 9474, 65, 0, 0, 0, 0, "", "Gossip text requires quest 'The Mark of the Lightbringer' rewarded or not taken"),
 (14, 7385, 8964, 0, 0, 47, 0, 9474, 10, 0, 0, 0, 0, "", "Gossip text requires quest 'The Mark of the Lightbringer' taken or completed");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Quest "The Annals of Darrowshire" --> Add Completion Event
 DELETE FROM `creature_text` WHERE `CreatureID`=10667;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -14,3 +15,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (1066700,9,2,0,0,0,100,0,5000,5000,0,0,11,17285,0,0,0,0,0,1,0,0,0,0,0,0,0,"Chromie - On Script - Cast Enchant Annals of Darrowshire"),
 (1066700,9,3,0,0,0,100,0,4500,4500,0,0,1,1,0,0,0,0,0,7,0,0,0,0,0,0,0,"Chromie - On Script - Say Line 1"),
 (1066700,9,4,0,0,0,100,0,0,0,0,0,82,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Chromie - On Script - Add Npc Flag Questgiver+Gossip");
+*/

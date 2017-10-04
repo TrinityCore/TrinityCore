@@ -1,3 +1,4 @@
+/*
 -- Add Missing Spawn and Waypoint Movement for Grimmaw
 SET @GUID := 27589;
 DELETE FROM `creature` WHERE `guid`=@GUID;
@@ -25,3 +26,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@GUID*10,12,9141.35,1689.69,1320.03,0,0,0,0,100,0),
 (@GUID*10,13,9131.44,1665.16,1320.95,0,0,0,0,100,0),
 (@GUID*10,14,9132.59,1646.61,1322.61,0,0,0,0,100,0);
+*/
