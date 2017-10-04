@@ -3925,6 +3925,9 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
     if (!unitTarget)
         return;
 
+    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+        unitTarget->ToPlayer()->SendAttackSwingCancelAttack();     // melee and ranged forced attack cancel
+
     unitTarget->getHostileRefManager().UpdateVisibility();
 
     Unit::AttackerSet const& attackers = unitTarget->getAttackers();
