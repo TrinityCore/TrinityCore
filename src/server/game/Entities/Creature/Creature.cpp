@@ -1718,6 +1718,7 @@ void Creature::setDeathState(DeathState s)
             SaveRespawnTime();
 
         ReleaseFocus(nullptr, false); // remove spellcast focus
+        DoNotReacquireTarget(); // cancel delayed re-target
         SetTarget(ObjectGuid::Empty); // drop target - dead mobs shouldn't ever target things
 
         SetUInt64Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
@@ -1826,6 +1827,8 @@ void Creature::Respawn(bool force)
         }
 
         GetMotionMaster()->InitDefault();
+        //Re-initialize reactstate that could be altered by movementgenerators
+        InitializeReactState();
 
         //Call AI respawn virtual function
         if (IsAIEnabled)
@@ -1838,9 +1841,6 @@ void Creature::Respawn(bool force)
         uint32 poolid = GetSpawnId() ? sPoolMgr->IsPartOfAPool<Creature>(GetSpawnId()) : 0;
         if (poolid)
             sPoolMgr->UpdatePool<Creature>(poolid, GetSpawnId());
-
-        //Re-initialize reactstate that could be altered by movementgenerators
-        InitializeReactState();
     }
 
     UpdateObjectVisibility();
