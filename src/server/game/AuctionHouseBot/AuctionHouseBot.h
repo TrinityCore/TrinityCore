@@ -21,7 +21,7 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
-#include <cstring>
+#include <string>
 
 class AuctionBotSeller;
 class AuctionBotBuyer;
