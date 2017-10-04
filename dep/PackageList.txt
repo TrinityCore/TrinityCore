@@ -12,13 +12,13 @@ bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
   Version: 1.0.6
 
-cppformat (type safe format library)
-  https://github.com/cppformat/cppformat
-  Version: 3.0.1 7fa8f8fa48b0903deab5bb42e6760477173ac485
-
 efws (Entropia File System Watcher - crossplatform file system watcher)
   https://bitbucket.org/SpartanJ/efsw
   Version: 1.0.0 9a7cbec70b8a88b2e876a382f57c59f3796da0d9
+
+fmt (a small, safe and fast formatting library)
+  https://github.com/fmtlib/fmt
+  Version: 4.0.0 5f39721c0a41be404a23c3893cdea89e598c9531
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
