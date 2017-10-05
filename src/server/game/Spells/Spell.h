@@ -743,10 +743,6 @@ class TC_GAME_API Spell
         // used in effects handlers
         Aura* m_spellAura;
 
-        // this is set in Spell Hit, but used in Apply Aura handler
-        DiminishingLevels m_diminishLevel;
-        DiminishingGroup m_diminishGroup;
-
         // -------------------------------------------
         GameObject* focusObject;
 
