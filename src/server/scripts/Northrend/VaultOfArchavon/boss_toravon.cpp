@@ -88,7 +88,7 @@ struct boss_toravon : public BossAI
                 case EVENT_FREEZING_GROUND:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_FREEZING_GROUND);
-                    events.Repeat(38);
+                    events.Repeat(Seconds(38));
                     break;
                 default:
                     break;
