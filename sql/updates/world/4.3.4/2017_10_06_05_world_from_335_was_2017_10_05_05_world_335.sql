@@ -1,3 +1,4 @@
+/*
 SET @ENTRY := 3937;
 -- Add missing text
 DELETE from creature_text WHERE `CreatureID`=@ENTRY;
@@ -13,3 +14,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,0,1,0,100,0,5000,10000,30000,45000,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Kira Songshine - Out of Combat - Say Line 0"),
 (@ENTRY,0,1,2,4,0,100,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Kira Songshine - On Aggro - Say Line 1"),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,39,60,1,0,0,0,0,1,0,0,0,0,0,0,0,"Kira Songshine - On Aggro Link - Call For Help");
+*/
