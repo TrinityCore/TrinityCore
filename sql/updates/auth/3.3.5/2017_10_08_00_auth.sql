@@ -6,10 +6,10 @@ DELETE FROM `rbac_linked_permissions` WHERE `linkedId` = 843;
 INSERT INTO `rbac_linked_permissions` (`id`,`linkedId`) VALUES
 (196, 843);
 
-DELETE FROM `rbac_permissions` WHERE `id` = 866;
+DELETE FROM `rbac_permissions` WHERE `id` = 867;
 INSERT INTO `rbac_permissions` (`id`,`name`) VALUES
-(866, 'Command: reload quest_greeting_locale');
+(867, 'Command: reload quest_greeting_locale');
 
-DELETE FROM `rbac_linked_permissions` WHERE `id` = 866;
+DELETE FROM `rbac_linked_permissions` WHERE `id` = 867;
 INSERT INTO `rbac_linked_permissions` (`id`,`linkedId`) VALUES
-(196, 866);
+(196, 867);
