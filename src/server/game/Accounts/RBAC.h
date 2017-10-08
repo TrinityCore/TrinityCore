@@ -765,7 +765,12 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP                     = 858, // reserved for dynamic_spawning
     RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP                   = 859, // reserved for dynamic_spawning
     RBAC_PERM_COMMAND_LIST_RESPAWNS                          = 860, // reserved for dynamic_spawning
-
+    RBAC_PERM_COMMAND_GROUP_SET                              = 861, // reserved 
+    RBAC_PERM_COMMAND_GROUP_ASSISTANT                        = 862, // reserved 
+    RBAC_PERM_COMMAND_GROUP_MAINTANK                         = 863, // reserved 
+    RBAC_PERM_COMMAND_GROUP_MAINASSIST                       = 864, // reserved 
+    RBAC_PERM_COMMAND_NPC_SHOWLOOT                           = 865, // reserved 
+    RBAC_PERM_COMMAND_LIST_SPAWNPOINTS                       = 866, // reserved 
     // custom permissions 1000+
     RBAC_PERM_MAX
 };
