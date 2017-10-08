@@ -1,3 +1,4 @@
+/*
 UPDATE `quest_template_addon` SET `PrevQuestID` =0 WHERE `ID`IN(10899,10902,10897);
 UPDATE `quest_template_addon` SET `NextQuestID` =0 WHERE `ID`IN(10907,10906,10905);
 
@@ -6,3 +7,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (19, 0, 10907, 0, 0, 14, 0, 10899, 0, 0, 0, 0, 0, '', 'Master of Transmutation 1/2 is Optional BreadCrumb Quest'),
 (19, 0, 10906, 0, 0, 14, 0, 10902, 0, 0, 0, 0, 0, '', 'Master of Elixirs 1/2 is Optional BreadCrumb Quest'),
 (19, 0, 10905, 0, 0, 14, 0, 10897, 0, 0, 0, 0, 0, '', 'Master of Potions 1/2 is Optional BreadCrumb Quest');
+*/

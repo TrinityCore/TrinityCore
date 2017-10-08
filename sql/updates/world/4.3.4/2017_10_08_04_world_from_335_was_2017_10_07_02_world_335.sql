@@ -1,3 +1,4 @@
+/*
 -- Varo'then's Ghost
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=6118;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6118 AND `source_type`=0;
@@ -355,3 +356,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 -- Random movement for Antilos
 UPDATE `creature` SET `MovementType`=1, `spawndist`=8 WHERE `guid`=51851;
+*/
