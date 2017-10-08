@@ -268,7 +268,10 @@ enum Events
     // Strangulate Vehicle (Harvest Soul)
     EVENT_TELEPORT,
     EVENT_MOVE_TO_LICH_KING,
-    EVENT_DESPAWN_SELF
+    EVENT_DESPAWN_SELF,
+
+    //Spirit Bomb
+    EVENT_BOMB_EXPLOSION
 };
 
 enum EventGroups
@@ -815,6 +818,7 @@ class boss_the_lich_king : public CreatureScript
                 {
                     me->GetMap()->SetZoneOverrideLight(AREA_ICECROWN_CITADEL, LIGHT_SNOWSTORM, 5000);
                     me->GetMap()->SetZoneWeather(AREA_ICECROWN_CITADEL, WEATHER_STATE_LIGHT_SNOW, 0.5f);
+                    summons.DespawnEntry(NPC_SHADOW_TRAP);
                 }
             }
 
@@ -842,8 +846,6 @@ class boss_the_lich_king : public CreatureScript
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_SPECIAL);
                         DoCast(me, SPELL_REMORSELESS_WINTER_1);
-                        summons.DespawnEntry(NPC_SHADOW_TRAP);
-                        events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
                         events.ScheduleEvent(EVENT_QUAKE, 62500, 0, PHASE_TRANSITION);
                         events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 4000, 0, PHASE_TRANSITION);
                         events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, 8000, 0, PHASE_TRANSITION);
@@ -859,7 +861,6 @@ class boss_the_lich_king : public CreatureScript
                         me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_SPECIAL);
                         DoCast(me, SPELL_REMORSELESS_WINTER_2);
                         summons.DespawnEntry(NPC_VALKYR_SHADOWGUARD);
-                        events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
                         events.ScheduleEvent(EVENT_QUAKE_2, 62500, 0, PHASE_TRANSITION);
                         events.ScheduleEvent(EVENT_PAIN_AND_SUFFERING, 6000, 0, PHASE_TRANSITION);
                         events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, 8000, 0, PHASE_TRANSITION);
@@ -963,7 +964,7 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, urand(30000, 33000), 0, PHASE_ONE);
                             break;
                         case EVENT_SHADOW_TRAP:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, SpellTargetSelector(me, SPELL_SHADOW_TRAP)))
                                 DoCast(target, SPELL_SHADOW_TRAP);
                             events.ScheduleEvent(EVENT_SHADOW_TRAP, 15500, 0, PHASE_ONE);
                             break;
@@ -972,7 +973,7 @@ class boss_the_lich_king : public CreatureScript
                             events.ScheduleEvent(EVENT_SOUL_REAPER, urand(33000, 35000), 0, PHASE_TWO_THREE);
                             break;
                         case EVENT_DEFILE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_HARVEST_SOUL_VALKYR))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_HARVEST_SOUL_VALKYR))
                             {
                                 Talk(EMOTE_DEFILE_WARNING);
                                 DoCast(target, SPELL_DEFILE);
@@ -1059,7 +1060,6 @@ class boss_the_lich_king : public CreatureScript
                                         summon->RemoveAurasDueToSpell(SPELL_VILE_SPIRIT_MOVE_SEARCH);
                                         summon->RemoveAurasDueToSpell(SPELL_VILE_SPIRIT_DAMAGE_SEARCH);
                                         summon->GetMotionMaster()->MoveTargetedHome();
-                                        summon->GetMotionMaster()->MoveRandom(10.0f);
                                     }
                                     else if (summon->GetEntry() == NPC_RAGING_SPIRIT)
                                         summon->AI()->DoAction(ACTION_DISABLE_RAGING);
@@ -1076,6 +1076,7 @@ class boss_the_lich_king : public CreatureScript
                                 {
                                     triggers.sort(Trinity::ObjectDistanceOrderPred(terenas, true));
                                     Creature* spawner = triggers.front();
+                                    spawner->setActive(true);
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_1, true);  // summons bombs randomly
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_2, true);  // summons bombs on players
                                     spawner->m_Events.AddEvent(new TriggerWickedSpirit(spawner), spawner->m_Events.CalculateTime(3000));
@@ -1976,20 +1977,29 @@ class npc_spirit_bomb : public CreatureScript
                 if (type != POINT_MOTION_TYPE || point != POINT_GROUND)
                     return;
 
-                me->RemoveAllAuras();
-                DoCastAOE(SPELL_EXPLOSION);
-                me->DespawnOrUnsummon(1000);
+                _events.ScheduleEvent(EVENT_BOMB_EXPLOSION, 3000);
             }
 
             void AttackStart(Unit* /*victim*/) override
             {
             }
 
-            void UpdateAI(uint32 /*diff*/) override
+            void UpdateAI(uint32 diff) override
             {
                 UpdateVictim();
-                // no melee attacks
+
+                _events.Update(diff);
+
+                if (_events.ExecuteEvent() == EVENT_BOMB_EXPLOSION)
+                {
+                    me->RemoveAllAuras();
+                    DoCastAOE(SPELL_EXPLOSION);
+                    me->DespawnOrUnsummon(1000);
+                }
             }
+
+        private:
+            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -2511,8 +2521,9 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
                 // spirit bombs get higher
                 if (GetSpellInfo()->Effects[effIndex].MiscValue == NPC_SPIRIT_BOMB)
                 {
-                    dest->RelocateOffset(offset);
-                    GetHitDest()->RelocateOffset(offset);
+                    static Position const offsetExtra = { 0.0f, 0.0f, 5.0f, 0.0f };
+                    dest->RelocateOffset(offsetExtra);
+                    GetHitDest()->RelocateOffset(offsetExtra);
                 }
             }
 

@@ -17,6 +17,7 @@
  */
 
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
@@ -60,6 +61,8 @@ class BlackheartCharmedPlayerAI : public SimpleCharmedPlayerAI
     void OnCharmed(bool apply) override
     {
         SimpleCharmedPlayerAI::OnCharmed(apply);
+        if (!me->GetMap()->IsDungeon())
+            return;
         if (Creature* blackheart = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetGuidData(DATA_BLACKHEART_THE_INCITER)))
         {
             blackheart->AI()->SetData(0, apply);

@@ -291,7 +291,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 GetAreaId() const { return m_areaId; }
         void GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const { zoneid = m_zoneId, areaid = m_areaId; }
 
-        InstanceScript* GetInstanceScript();
+        InstanceScript* GetInstanceScript() const;
 
         std::string const& GetName() const { return m_name; }
         void SetName(std::string const& newname) { m_name = newname; }
@@ -342,7 +342,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         void SendObjectDeSpawnAnim(ObjectGuid guid);
 
-        virtual void SaveRespawnTime() { }
+        virtual void SaveRespawnTime(uint32 /*forceDelay*/ = 0, bool /*saveToDB*/ = true) { }
         void AddObjectToRemoveList();
 
         float GetGridActivationRange() const;
