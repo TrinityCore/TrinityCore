@@ -5913,6 +5913,21 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
         stmt->setUInt32(0, m->messageID);
         CharacterDatabase.Execute(stmt);
+
+        if (has_items)
+        {
+            for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+                stmt->setUInt32(0, itr2->item_guid);
+                CharacterDatabase.Execute(stmt);
+            }
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM_BY_ID);
+            stmt->setUInt32(0, m->messageID);
+            CharacterDatabase.Execute(stmt);
+        }
+
         delete m;
         ++deletedCount;
     }
