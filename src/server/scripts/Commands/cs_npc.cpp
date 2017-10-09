@@ -393,7 +393,7 @@ public:
                 vItem.BonusListIDs.push_back(int32(atol(token)));
         }
 
-        if (!sObjectMgr->IsVendorItemValid(vendor_entry, &vItem, handler->GetSession()->GetPlayer()))
+        if (!sObjectMgr->IsVendorItemValid(vendor_entry, vItem, handler->GetSession()->GetPlayer()))
         {
             handler->SetSentErrorMessage(true);
             return false;

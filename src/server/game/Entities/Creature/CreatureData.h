@@ -592,9 +592,9 @@ struct VendorItemData
     }
     bool Empty() const { return m_items.empty(); }
     uint32 GetItemCount() const { return uint32(m_items.size()); }
-    void AddItem(VendorItem const& vItem)
+    void AddItem(VendorItem vItem)
     {
-        m_items.emplace_back(vItem);
+        m_items.emplace_back(std::move(vItem));
     }
     bool RemoveItem(uint32 item_id, uint8 type);
     VendorItem const* FindItemCostPair(uint32 item_id, uint32 extendedCost, uint8 type) const;

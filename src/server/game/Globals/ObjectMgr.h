@@ -1393,7 +1393,7 @@ class TC_GAME_API ObjectMgr
 
         void AddVendorItem(uint32 entry, VendorItem const& vItem, bool persist = true); // for event
         bool RemoveVendorItem(uint32 entry, uint32 item, uint8 type, bool persist = true); // for event
-        bool IsVendorItemValid(uint32 vendor_entry, VendorItem const* vItem, Player* player = nullptr, std::set<uint32>* skip_vendors = nullptr, uint32 ORnpcflag = 0) const;
+        bool IsVendorItemValid(uint32 vendor_entry, VendorItem const& vItem, Player* player = nullptr, std::set<uint32>* skip_vendors = nullptr, uint32 ORnpcflag = 0) const;
 
         void LoadScriptNames();
         ScriptNameContainer const& GetAllScriptNames() const;

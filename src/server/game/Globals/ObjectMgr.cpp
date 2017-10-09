@@ -8701,11 +8701,11 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *s
             for (char const* token : bonusListIDsTok)
                 vItem.BonusListIDs.push_back(int32(atol(token)));
 
-            if (!IsVendorItemValid(vendor, &vItem, nullptr, skip_vendors))
+            if (!IsVendorItemValid(vendor, vItem, nullptr, skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[vendor];
-            vList.AddItem(vItem);
+            vList.AddItem(std::move(vItem));
             ++count;
         }
     } while (result->NextRow());
@@ -8758,11 +8758,11 @@ void ObjectMgr::LoadVendors()
             for (char const* token : bonusListIDsTok)
                 vItem.BonusListIDs.push_back(int32(atol(token)));
 
-            if (!IsVendorItemValid(entry, &vItem, nullptr, &skip_vendors))
+            if (!IsVendorItemValid(entry, vItem, nullptr, &skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[entry];
-            vList.AddItem(vItem);
+            vList.AddItem(std::move(vItem));
             ++count;
         }
     }
@@ -8965,7 +8965,7 @@ bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, uint8 type, bool per
     return true;
 }
 
-bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, VendorItem const* vItem, Player* player, std::set<uint32>* skip_vendors, uint32 ORnpcflag) const
+bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, VendorItem const& vItem, Player* player, std::set<uint32>* skip_vendors, uint32 ORnpcflag) const
 {
     CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(vendor_entry);
     if (!cInfo)
@@ -8992,55 +8992,55 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, VendorItem const* vItem, 
         return false;
     }
 
-    if ((vItem->Type == ITEM_VENDOR_TYPE_ITEM && !sObjectMgr->GetItemTemplate(vItem->item)) ||
-        (vItem->Type == ITEM_VENDOR_TYPE_CURRENCY && !sCurrencyTypesStore.LookupEntry(vItem->item)))
+    if ((vItem.Type == ITEM_VENDOR_TYPE_ITEM && !sObjectMgr->GetItemTemplate(vItem.item)) ||
+        (vItem.Type == ITEM_VENDOR_TYPE_CURRENCY && !sCurrencyTypesStore.LookupEntry(vItem.item)))
     {
         if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_NOT_FOUND, vItem->item, vItem->Type);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_NOT_FOUND, vItem.item, vItem.Type);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u, type %u), ignore", vendor_entry, vItem->item, vItem->Type);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u, type %u), ignore", vendor_entry, vItem.item, vItem.Type);
         return false;
     }
 
-    if (vItem->PlayerConditionId && !sPlayerConditionStore.LookupEntry(vItem->PlayerConditionId))
+    if (vItem.PlayerConditionId && !sPlayerConditionStore.LookupEntry(vItem.PlayerConditionId))
     {
-        TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: %u) with invalid PlayerConditionId (%u) for vendor (%u), ignore", vItem->item, vItem->PlayerConditionId, vendor_entry);
+        TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: %u) with invalid PlayerConditionId (%u) for vendor (%u), ignore", vItem.item, vItem.PlayerConditionId, vendor_entry);
         return false;
     }
 
-    if (vItem->ExtendedCost && !sItemExtendedCostStore.LookupEntry(vItem->ExtendedCost))
+    if (vItem.ExtendedCost && !sItemExtendedCostStore.LookupEntry(vItem.ExtendedCost))
     {
         if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, vItem->ExtendedCost);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, vItem.ExtendedCost);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore", vItem->item, vItem->ExtendedCost, vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore", vItem.item, vItem.ExtendedCost, vendor_entry);
         return false;
     }
 
-    if (vItem->Type == ITEM_VENDOR_TYPE_ITEM) // not applicable to currencies
+    if (vItem.Type == ITEM_VENDOR_TYPE_ITEM) // not applicable to currencies
     {
-        if (vItem->maxcount > 0 && vItem->incrtime == 0)
+        if (vItem.maxcount > 0 && vItem.incrtime == 0)
         {
             if (player)
-                ChatHandler(player->GetSession()).PSendSysMessage("MaxCount != 0 (%u) but IncrTime == 0", vItem->maxcount);
+                ChatHandler(player->GetSession()).PSendSysMessage("MaxCount != 0 (%u) but IncrTime == 0", vItem.maxcount);
             else
-                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount` (%u) for item %u of vendor (Entry: %u) but `incrtime`=0, ignore", vItem->maxcount, vItem->item, vendor_entry);
+                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount` (%u) for item %u of vendor (Entry: %u) but `incrtime`=0, ignore", vItem.maxcount, vItem.item, vendor_entry);
             return false;
         }
-        else if (vItem->maxcount == 0 && vItem->incrtime > 0)
+        else if (vItem.maxcount == 0 && vItem.incrtime > 0)
         {
             if (player)
                 ChatHandler(player->GetSession()).PSendSysMessage("MaxCount == 0 but IncrTime<>= 0");
             else
-                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount`=0 for item %u of vendor (Entry: %u) but `incrtime`<>0, ignore", vItem->item, vendor_entry);
+                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount`=0 for item %u of vendor (Entry: %u) but `incrtime`<>0, ignore", vItem.item, vendor_entry);
             return false;
         }
 
-        for (int32 bonusList : vItem->BonusListIDs)
+        for (int32 bonusList : vItem.BonusListIDs)
         {
             if (!sDB2Manager.GetItemBonusList(bonusList))
             {
-                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: %u) with invalid bonus %u for vendor (%u), ignore", vItem->item, bonusList, vendor_entry);
+                TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: %u) with invalid bonus %u for vendor (%u), ignore", vItem.item, bonusList, vendor_entry);
                 return false;
             }
         }
@@ -9050,18 +9050,18 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, VendorItem const* vItem, 
     if (!vItems)
         return true;                                        // later checks for non-empty lists
 
-    if (vItems->FindItemCostPair(vItem->item, vItem->ExtendedCost, vItem->Type))
+    if (vItems->FindItemCostPair(vItem.item, vItem.ExtendedCost, vItem.Type))
     {
         if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, vItem->item, vItem->ExtendedCost, vItem->Type);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, vItem.item, vItem.ExtendedCost, vItem.Type);
         else
-            TC_LOG_ERROR("sql.sql", "Table `npc_vendor` has duplicate items %u (with extended cost %u, type %u) for vendor (Entry: %u), ignoring", vItem->item, vItem->ExtendedCost, vItem->Type, vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `npc_vendor` has duplicate items %u (with extended cost %u, type %u) for vendor (Entry: %u), ignoring", vItem.item, vItem.ExtendedCost, vItem.Type, vendor_entry);
         return false;
     }
 
-    if (vItem->Type == ITEM_VENDOR_TYPE_CURRENCY && vItem->maxcount == 0)
+    if (vItem.Type == ITEM_VENDOR_TYPE_CURRENCY && vItem.maxcount == 0)
     {
-        TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: %u, type: %u) with missing maxcount for vendor (%u), ignore", vItem->item, vItem->Type, vendor_entry);
+        TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` have Item (Entry: %u, type: %u) with missing maxcount for vendor (%u), ignore", vItem.item, vItem.Type, vendor_entry);
         return false;
     }
 

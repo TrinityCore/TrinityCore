@@ -85,15 +85,16 @@ struct ModelEquip
     uint8 equipement_id_prev;
 };
 
-class Player;
 class Creature;
+class Player;
 class Quest;
+struct VendorItem;
 
 class TC_GAME_API GameEventMgr
 {
     private:
         GameEventMgr();
-        ~GameEventMgr() { }
+        ~GameEventMgr();
 
     public:
         static GameEventMgr* instance();

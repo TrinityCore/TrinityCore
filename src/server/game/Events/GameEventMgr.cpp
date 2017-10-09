@@ -843,11 +843,11 @@ void GameEventMgr::LoadFromDB()
                     vItem.BonusListIDs.push_back(int32(atol(token)));
 
                 // check validity with event's npcflag
-                if (!sObjectMgr->IsVendorItemValid(entry, &vItem, nullptr, nullptr, event_npc_flag))
+                if (!sObjectMgr->IsVendorItemValid(entry, vItem, nullptr, nullptr, event_npc_flag))
                     continue;
 
                 NPCVendorMap& vendors = mGameEventVendors[event_id];
-                vendors[entry].emplace_back(vItem);
+                vendors[entry].emplace_back(std::move(vItem));
 
                 ++count;
             }
@@ -1540,7 +1540,13 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
     }
 }
 
-GameEventMgr::GameEventMgr() : isSystemInit(false) { }
+GameEventMgr::GameEventMgr() : isSystemInit(false)
+{
+}
+
+GameEventMgr::~GameEventMgr()
+{
+}
 
 void GameEventMgr::HandleQuestComplete(uint32 quest_id)
 {
