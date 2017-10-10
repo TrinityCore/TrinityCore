@@ -55,10 +55,14 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool()
     : _queue(new ProducerConsumerQueue<SQLOperation*>()),
       _async_threads(0), _synch_threads(0)
 {
+    unsigned long usedMysqlMajorMinorVersion = mysql_get_client_version() / 100;
+    unsigned long compileMysqlMajorMinorVersion = MYSQL_VERSION_ID / 100;
+
     WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
     WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
-    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s) does not match the version used to compile TrinityCore (%s). Search on forum for TCE00011.",
-        mysql_get_client_info(), MYSQL_SERVER_VERSION);
+    WPFatal(usedMysqlMajorMinorVersion == compileMysqlMajorMinorVersion,
+        "Used MySQL library version (%s) does not match the version used to compile TrinityCore (%s). Your version should be >= %s. Search on forum for TCE00011.",
+        mysql_get_client_info(), MYSQL_SERVER_VERSION, compileMysqlMajorMinorVersion * 100);
 }
 
 template <class T>
