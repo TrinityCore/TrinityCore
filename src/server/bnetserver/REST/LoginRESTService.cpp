@@ -35,7 +35,7 @@ int ns1__executeCommand(soap*, char*, char**) { return SOAP_OK; }
 class AsyncRequest
 {
 public:
-    AsyncRequest(soap const& server) : _client(server) { }
+    AsyncRequest(soap const& server) : _client(server), _responseStatus(0) { }
 
     AsyncRequest(AsyncRequest const&) = delete;
     AsyncRequest& operator=(AsyncRequest const&) = delete;
