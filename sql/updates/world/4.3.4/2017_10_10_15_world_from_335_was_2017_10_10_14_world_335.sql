@@ -1,3 +1,4 @@
+/*
 -- Bristleback Battleboar
 UPDATE `smart_scripts` SET `event_chance`=100 WHERE `entryorguid`=2954 AND `source_type`=0;
 
@@ -183,3 +184,4 @@ UPDATE `smart_scripts` SET `event_param3`=2400, `event_param4`=3800 WHERE `entry
 
 -- Palemane Poacher
 UPDATE `smart_scripts` SET `event_param3`=2300, `event_param4`=3900 WHERE `entryorguid`=2951 AND `source_type`=0 AND `id`=1;
+*/

@@ -1,3 +1,4 @@
+/*
 -- Anchorite Avuun & Magtoor
 DELETE FROM `creature_text` WHERE `CreatureID` IN (17127, 1776);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -35,3 +36,4 @@ INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`= 14 AND `SourceGroup`= 7374;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14,7374,8814,0,0,8,0,9448,0,0,0,0,0,"","Show Gossip Menu Text 8814 if Quest 'Mercy for the Cursed' is rewarded");
+*/

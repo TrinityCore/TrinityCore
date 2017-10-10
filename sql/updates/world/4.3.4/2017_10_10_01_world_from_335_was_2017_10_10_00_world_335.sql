@@ -1,3 +1,4 @@
+/*
 -- Geologist Larksbane
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=15183;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=15183 AND `source_type`=0;
@@ -63,3 +64,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (15183,22,0,"Hrm, curious... This ends abruptly. In Tanaris the Qiraji document facing a bronze dragon. There is much missing from this... More information must be found! Surely they are planning to invade Kalimdor once more!",12,0,100,6,0,0,10852,0,"Geologist Larksbane"),
 (15180,0,0,"%s shifts uncomfortably.",16,0,100,0,0,0,10853,0,"Baristolth of the Shifting Sands"),
 (15180,1,0,"When the time is right, my lady. All will be clear when the time is right. The master stirs even now. Look to the skies for the Brood of Nozdormu have returned.",12,0,100,1,0,0,10854,0,"Baristolth of the Shifting Sands");
+*/

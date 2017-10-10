@@ -1,3 +1,4 @@
+/*
 -- Lesser Wind Stone
 DELETE FROM `gossip_menu` WHERE `MenuID`=6540 AND `TextID`=7744;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -42,3 +43,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (14,6543,7754,0,0,1,0,24746,0,0,1,0,0,"","Show Gossip Menu Text 7754 if player has NOT aura 'Twilight Cultist Disguise (I)'");
 
 UPDATE `npc_text` SET `text0_0`="A thunderous voice bellows from the stone...$B$BI sense your Medallion of Station, cultist, but you have no ring of lordship?  Are you truly a commander of the Twilight's Hammer, or do you merely run errands for your betters?", `text0_1`="A thunderous voice bellows from the stone...$B$BI sense your Medallion of Station, cultist, but you have no ring of lordship?  Are you truly a commander of the Twilight's Hammer, or do you merely run errands for your betters?", `BroadcastTextID0`=10749 WHERE `ID`=7775;
+*/

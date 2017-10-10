@@ -1,3 +1,4 @@
+/*
 -- Spitelash Screamer
 UPDATE `creature_template` SET `AIName`="SmartAI", `ScriptName`="" WHERE `entry`=6193;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=6193 AND `source_type`=0;
@@ -120,3 +121,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (22,4,6196,0,0,9,0,9364,0,0,0,0,0,"","Execute SAI only if player has quest 'Fragmented Magic'"),
 (22,4,7885,0,0,9,0,9364,0,0,0,0,0,"","Execute SAI only if player has quest 'Fragmented Magic'"),
 (22,4,7886,0,0,9,0,9364,0,0,0,0,0,"","Execute SAI only if player has quest 'Fragmented Magic'");
+*/

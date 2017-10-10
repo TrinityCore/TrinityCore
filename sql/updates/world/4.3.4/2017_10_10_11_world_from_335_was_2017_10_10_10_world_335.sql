@@ -1,3 +1,4 @@
+/*
 -- Quest "Report to Orgnil" --> Add completion Event
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3142 AND `source_type`=0 AND `id`=1;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=314200 AND `source_type`=9;
@@ -12,3 +13,4 @@ DELETE FROM `creature_text` WHERE `CreatureID`=3142 AND `GroupID` IN (1,2);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (3142,1,0,"%s listens to $n's report...",16,0,100,0,0,0,981,0,"Orgnil Soulscar"),
 (3142,2,0,"What??  The Burning Blade is spreading!  We must investigate!",12,1,100,5,0,0,982,0,"Orgnil Soulscar");
+*/
