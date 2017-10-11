@@ -267,14 +267,17 @@ void WorldSession::LogUnprocessedTail(WorldPacket* packet)
 /// Update the WorldSession (triggered by World update)
 bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 {
-    /// Update Timeout timer.
-    UpdateTimeOutTime(diff);
+    if (!HasPermission(rbac::RBAC_PERM_IGNORE_IDLE_CONNECTION))
+    {
+        /// Update Timeout timer.
+        UpdateTimeOutTime(diff);
 
-    ///- Before we process anything:
-    /// If necessary, kick the player because the client didn't send anything for too long
-    /// (or they've been idling in character select)
-    if (IsConnectionIdle())
-        m_Socket->CloseSocket();
+        ///- Before we process anything:
+        /// If necessary, kick the player because the client didn't send anything for too long
+        /// (or they've been idling in character select)
+        if (IsConnectionIdle())
+            m_Socket->CloseSocket();
+    }
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
