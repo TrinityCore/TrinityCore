@@ -63,7 +63,7 @@ void BuildQuestReward(WorldPacket& data, Quest const* quest, Player* player)
             {
                 data << uint32(currencyId);
                 data << uint32(0);
-                data << uint32(quest->RewardCurrencyCount[i]);
+                data << uint32(quest->RewardCurrencyCount[i] * CURRENCY_PRECISION);
                 data << uint8(1);                                           // Is currency
             }
         }
