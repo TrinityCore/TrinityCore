@@ -1226,13 +1226,13 @@ class go_wind_stone : public GameObjectScript
                         case NPC_DUKE_WATER:
                         case NPC_DUKE_EARTH:
                         case NPC_DUKE_AIR:
-                            summons->AI()->Talk(SAY_DUKE_AGGRO);
+                            summons->AI()->Talk(SAY_DUKE_AGGRO, player);
                             break;
                         case NPC_ROYAL_FIRE:
                         case NPC_ROYAL_AIR:
                         case NPC_ROYAL_EARTH:
                         case NPC_ROYAL_WATER:
-                            summons->AI()->Talk(YELL_ROYAL_AGGRO);
+                            summons->AI()->Talk(YELL_ROYAL_AGGRO, player);
                             break;
                     }
                     summons->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
