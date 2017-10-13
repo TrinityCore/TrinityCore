@@ -25,21 +25,15 @@ INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionTex
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14,15) AND `SourceGroup` IN (8751,8752);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(14, 8751, 11083, 0, 1, 5, 0, 935, 128, 0, 1, 0, 0, '', 'Show gossip menu 8751 text id 11083 if player is not Exalted with faction The Sha\'tar.'),
-(14, 8751, 11083, 0, 1, 5, 0, 942, 128, 0, 1, 0, 0, '', 'Show gossip menu 8751 text id 11083 if player is not Exalted with faction Cenarion Expedition.'),
-(14, 8751, 11083, 0, 1, 5, 0, 932, 128, 0, 1, 0, 0, '', 'Show gossip menu 8751 text id 11083 if player is not Exalted with faction The Aldor.'),
 (14, 8751, 11085, 0, 1, 5, 0, 932, 128, 0, 0, 0, 0, '', 'Show gossip menu 8751 text id 11085 if player is Exalted with faction The Aldor.'),
 (14, 8751, 11085, 0, 1, 5, 0, 935, 128, 0, 0, 0, 0, '', 'Show gossip menu 8751 text id 11085 if player is Exalted with faction The Sha\'tar.'),
 (14, 8751, 11085, 0, 1, 5, 0, 942, 128, 0, 0, 0, 0, '', 'Show gossip menu 8751 text id 11085 if player is Exalted with faction Cenarion Expedition.'),
-(14, 8752, 11084, 0, 1, 5, 0, 942, 128, 0, 1, 0, 0, '', 'Show gossip menu 8752 text id 11084 if player is not Exalted with faction Cenarion Expedition.'),
-(14, 8752, 11084, 0, 1, 5, 0, 935, 128, 0, 1, 0, 0, '', 'Show gossip menu 8752 text id 11084 if player is not Exalted with faction The Sha\'tar.'),
-(14, 8752, 11084, 0, 1, 5, 0, 934, 128, 0, 1, 0, 0, '', 'Show gossip menu 8752 text id 11084 if player is not Exalted with faction The Scryers.'),
 (14, 8752, 11085, 0, 1, 5, 0, 934, 128, 0, 0, 0, 0, '', 'Show gossip menu 8752 text id 11085 if player is Exalted with faction The Scryers.'),
 (14, 8752, 11085, 0, 1, 5, 0, 935, 128, 0, 0, 0, 0, '', 'Show gossip menu 8752 text id 11085 if player is Exalted with faction The Sha\'tar.'),
 (14, 8752, 11085, 0, 1, 5, 0, 942, 128, 0, 0, 0, 0, '', 'Show gossip menu 8752 text id 11085 if player is Exalted with faction Cenarion Expedition.'),
-(15, 8751, 0, 0, 1, 5, 0, 932, 128, 0, 1, 0, 0, '', 'Show gossip menu 8751 option id 0 if player is Exalted with faction The Aldor.'),
-(15, 8751, 0, 0, 1, 5, 0, 935, 128, 0, 1, 0, 0, '', 'Show gossip menu 8751 option id 0 if player is Exalted with faction The Sha\'tar.'),
-(15, 8751, 0, 0, 1, 5, 0, 942, 128, 0, 1, 0, 0, '', 'Show gossip menu 8751 option id 0 if player is Exalted with faction Cenarion Expedition.'),
-(15, 8752, 0, 0, 1, 5, 0, 934, 128, 0, 1, 0, 0, '', 'Show gossip menu 8752 option id 0 if player is Exalted with faction The Scryers.'),
-(15, 8752, 0, 0, 1, 5, 0, 935, 128, 0, 1, 0, 0, '', 'Show gossip menu 8752 option id 0 if player is Exalted with faction The Sha\'tar.'),
-(15, 8752, 0, 0, 1, 5, 0, 942, 128, 0, 1, 0, 0, '', 'Show gossip menu 8752 option id 0 if player is Exalted with faction Cenarion Expedition.');
+(15, 8751, 0, 0, 1, 5, 0, 932, 128, 0, 0, 0, 0, '', 'Show gossip menu 8751 option id 0 if player is Exalted with faction The Aldor.'),
+(15, 8751, 0, 0, 1, 5, 0, 935, 128, 0, 0, 0, 0, '', 'Show gossip menu 8751 option id 0 if player is Exalted with faction The Sha\'tar.'),
+(15, 8751, 0, 0, 1, 5, 0, 942, 128, 0, 0, 0, 0, '', 'Show gossip menu 8751 option id 0 if player is Exalted with faction Cenarion Expedition.'),
+(15, 8752, 0, 0, 1, 5, 0, 934, 128, 0, 0, 0, 0, '', 'Show gossip menu 8752 option id 0 if player is Exalted with faction The Scryers.'),
+(15, 8752, 0, 0, 1, 5, 0, 935, 128, 0, 0, 0, 0, '', 'Show gossip menu 8752 option id 0 if player is Exalted with faction The Sha\'tar.'),
+(15, 8752, 0, 0, 1, 5, 0, 942, 128, 0, 0, 0, 0, '', 'Show gossip menu 8752 option id 0 if player is Exalted with faction Cenarion Expedition.');
