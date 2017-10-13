@@ -146,14 +146,21 @@ public:
                 }
             }
         }
+        
+        if(player->GetQuestStatus(entry) != QUEST_STATUS_NONE /* || player->IsActiveQuest(entry) ? */ ) {
+            player->RemoveActiveQuest(entry, false);
+            player->RemoveRewardedQuest(entry);
 
-        player->RemoveActiveQuest(entry, false);
-        player->RemoveRewardedQuest(entry);
+            sScriptMgr->OnQuestStatusChange(player, entry);
 
-        sScriptMgr->OnQuestStatusChange(player, entry);
-
-        handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
-        return true;
+            handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
+            return true;
+        } else {
+            handler->SendSysMessage(LANG_COMMAND_QUEST_NOTFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        
     }
 
     static bool HandleQuestComplete(ChatHandler* handler, char const* args)
