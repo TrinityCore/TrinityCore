@@ -14,4 +14,5 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 7582;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,7582,0,0,1,8,0,9803,0,0,1,0,'','Elder Kuruti - Show Gossip Option 0 if Quest 9803 is not rewarded'),
+(15,7582,0,0,1,9,0,9803,0,0,0,0,'','Elder Kuruti - Show Gossip Option 0 if Quest 9803 is taken'),
 (15,7582,0,0,1,2,0,24573,1,0,1,0,'','Elder Kuruti - Show Gossip Option 0 if player does not have item 24573 in inventory');
