@@ -142,7 +142,7 @@ Quest::Quest(Field* questRecord)
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
     {
         RewardCurrencyId[i] = questRecord[110 + i].GetUInt16();
-        RewardCurrencyCount[i] = questRecord[114 + i].GetUInt8();
+        RewardCurrencyCount[i] = questRecord[114 + i].GetUInt32();
 
         if (RewardCurrencyId[i])
             ++_rewCurrencyCount;
@@ -151,7 +151,7 @@ Quest::Quest(Field* questRecord)
     for (int i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
     {
         RequiredCurrencyId[i] = questRecord[118 + i].GetUInt16();
-        RequiredCurrencyCount[i] = questRecord[122 + i].GetUInt8();
+        RequiredCurrencyCount[i] = questRecord[122 + i].GetUInt32();
 
         if (RequiredCurrencyId[i])
             ++_reqCurrencyCount;
