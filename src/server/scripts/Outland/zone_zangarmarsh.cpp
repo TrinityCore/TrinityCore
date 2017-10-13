@@ -18,14 +18,13 @@
 /* ScriptData
 SDName: Zangarmarsh
 SD%Complete: 100
-SDComment: Quest support: 9752, 9785, 9803, 10009. Mark Of ... buffs.
+SDComment: Quest support: 9752, 9785, 10009. Mark Of ... buffs.
 SDCategory: Zangarmarsh
 EndScriptData */
 
 /* ContentData
 npcs_ashyen_and_keleth
 npc_cooshcoosh
-npc_elder_kuruti
 npc_kayra_longmane
 EndContentData */
 
@@ -239,74 +238,6 @@ public:
 };
 
 /*######
-## npc_elder_kuruti
-######*/
-
-#define GOSSIP_ITEM_KUR1 "Greetings, elder. It is time for your people to end their hostility towards the draenei and their allies."
-#define GOSSIP_ITEM_KUR2 "I did not mean to deceive you, elder. The draenei of Telredor thought to approach you in a way that would seem familiar to you."
-#define GOSSIP_ITEM_KUR3 "I will tell them. Farewell, elder."
-
-class npc_elder_kuruti : public CreatureScript
-{
-public:
-    npc_elder_kuruti() : CreatureScript("npc_elder_kuruti") { }
-
-    struct npc_elder_kurutiAI : public ScriptedAI
-    {
-        npc_elder_kurutiAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(9803) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-            SendGossipMenuFor(player, 9226, me->GetGUID());
-            return true;
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    SendGossipMenuFor(player, 9227, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_KUR3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    SendGossipMenuFor(player, 9229, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                {
-                    if (!player->HasItemCount(24573))
-                    {
-                        ItemPosCountVec dest;
-                        uint32 itemId = 24573;
-                        InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1, nullptr);
-                        if (msg == EQUIP_ERR_OK)
-                        {
-                            player->StoreNewItem(dest, itemId, true);
-                        }
-                        else
-                            player->SendEquipError(msg, nullptr, nullptr, itemId);
-                    }
-                    SendGossipMenuFor(player, 9231, me->GetGUID());
-                    break;
-                }
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_elder_kurutiAI(creature);
-    }
-};
-
-/*######
 ## npc_kayra_longmane
 ######*/
 
@@ -389,6 +320,5 @@ void AddSC_zangarmarsh()
 {
     new npcs_ashyen_and_keleth();
     new npc_cooshcoosh();
-    new npc_elder_kuruti();
     new npc_kayra_longmane();
 }
