@@ -147,7 +147,8 @@ public:
             }
         }
         
-        if(player->GetQuestStatus(entry) != QUEST_STATUS_NONE /* || player->IsActiveQuest(entry) ? */ ) {
+        if(player->GetQuestStatus(entry) != QUEST_STATUS_NONE /* || player->IsActiveQuest(entry) ? */ )
+        {
             player->RemoveActiveQuest(entry, false);
             player->RemoveRewardedQuest(entry);
 
@@ -155,7 +156,8 @@ public:
 
             handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
             return true;
-        } else {
+        }
+        else {
             handler->SendSysMessage(LANG_COMMAND_QUEST_NOTFOUND);
             handler->SetSentErrorMessage(true);
             return false;
