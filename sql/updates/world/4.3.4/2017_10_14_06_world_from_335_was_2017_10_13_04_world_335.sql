@@ -1,3 +1,4 @@
+/*
 -- Beetix Ficklespragg & Noggle Ficklespragg
 DELETE FROM `gossip_menu` WHERE `MenuID`=6544 AND `TextID`=7752;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -48,3 +49,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (1519002,9,6,0,0,0,100,0,0,0,0,0,22,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Noggle Ficklespragg - On Script 3 - Set Event Phase 1");
 
 UPDATE `smart_scripts` SET `event_param3`=6000,`event_param4`=8000, `action_param2`=0 WHERE `entryorguid`=11319 AND `source_type`=0 AND `id`=0;
+*/

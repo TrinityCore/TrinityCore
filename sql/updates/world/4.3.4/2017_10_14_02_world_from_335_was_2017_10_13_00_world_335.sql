@@ -1,3 +1,4 @@
+/*
 -- Searing Blade Cultist SAI
 SET @ENTRY := 11322;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
@@ -74,3 +75,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 -- RFC bosses have no CC immunity
 UPDATE `creature_template` SET `mechanic_immune_mask`=0 WHERE `entry` IN (11517,11518,11519,11520);
+*/

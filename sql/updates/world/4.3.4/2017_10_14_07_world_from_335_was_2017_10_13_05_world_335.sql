@@ -1,3 +1,4 @@
+/*
 -- Quest "Neeru Fireblade" --> Completion Event
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3216 AND `source_type`=0 AND `id`=1;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=321600 AND `source_type`=9;
@@ -15,3 +16,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (3216,1,1,"The collar is indeed infused with demonic power, $n.  This bodes ill for our people.",12,1,100,1,0,0,992,0,"Neeru Fireblade"),
 (3216,1,2,"Hm...it is good that you brought this to me, $n.",12,1,100,1,0,0,993,0,"Neeru Fireblade"),
 (3216,1,3,"A dangerous device this is, $n.  I am glad you brought it to my attention.",12,1,100,1,0,0,994,0,"Neeru Fireblade");
+*/

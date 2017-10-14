@@ -1,3 +1,4 @@
+/*
 -- Quest "Skull Rock" Completion Event
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=3208;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3208 AND `source_type`=0;
@@ -19,3 +20,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (3208,1,0,"%s is burned by unleashed magic!",16,0,100,0,0,0,987,0,"Margoz"),
 (3208,2,0,"Argh!",12,1,100,34,0,0,989,0,"Margoz"),
 (3208,3,0,"$n, unlocking the secret of these collars is beyond my skills...",12,1,100,274,0,0,988,0,"Margoz");
+*/
