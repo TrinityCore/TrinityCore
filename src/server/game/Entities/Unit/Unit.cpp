@@ -2932,6 +2932,9 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
         if (spell->getState() != SPELL_STATE_FINISHED)
             spell->cancel();
 
+        if (GetTypeId() == TYPEID_UNIT && IsAIEnabled)
+            ToCreature()->AI()->OnSpellCastInterrupt(spell->GetSpellInfo());
+
         m_currentSpells[spellType] = NULL;
         spell->SetReferencedFromCurrent(false);
     }
@@ -5227,6 +5230,8 @@ FactionTemplateEntry const* Unit::GetFactionTemplateEntry() const
             TC_LOG_ERROR("entities.unit", "Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureTemplate()->Entry, getFaction());
         else
             TC_LOG_ERROR("entities.unit", "Unit (name=%s, type=%u) has invalid faction (faction template id) #%u", GetName().c_str(), uint32(GetTypeId()), getFaction());
+
+        ABORT();
     }
     return entry;
 }
