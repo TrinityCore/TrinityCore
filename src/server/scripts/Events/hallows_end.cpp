@@ -16,10 +16,11 @@
 */
 
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum HallowsEnd
 {
@@ -38,9 +39,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_HAS_WATER_BUCKET))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_HAS_WATER_BUCKET });
         }
 
         void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
