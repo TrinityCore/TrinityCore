@@ -9,7 +9,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (25084, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 19, 25060, 70, 0, 0, 0, 0, 0, 'Greengill Slave - On Spellhit \'Orb of Murloc Control\' - Start Attacking nearest Darkspine Myrmidon'),
 (25084, 0, 3, 0, 8, 0, 100, 0, 45109, 0, 0, 0, 11, 45110, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Greengill Slave - On Spellhit \'Orb of Murloc Control\' - Cast \'Greengill Slave Freed\'');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=25084
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=25084;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 4, 25084, 0, 0, 9, 0, 11541, 0, 0, 0, 0, 0, '', 'Smart event 3 for Greengill Slave will execute if quest Disrupt the Greengill Coast has been taken.'),
 (22, 1, 25084, 0, 0, 1, 1, 45111, 1, 0, 1, 0, 0, '', 'Smart event 0 for Greengill Slave will execute if creature does not have aura Enrage.');
