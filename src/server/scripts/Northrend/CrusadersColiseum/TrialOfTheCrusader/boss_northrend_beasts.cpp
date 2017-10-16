@@ -422,8 +422,9 @@ class npc_snobold_vassal : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FIRE_BOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach(), true))
-                                me->CastSpell(target, SPELL_FIRE_BOMB);
+                            if (me->GetVehicleBase())
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -me->GetVehicleBase()->GetCombatReach(), true))
+                                    me->CastSpell(target, SPELL_FIRE_BOMB);
                             _events.Repeat(Seconds(20));
                             break;
                         case EVENT_HEAD_CRACK:
