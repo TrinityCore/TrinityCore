@@ -1,5 +1,5 @@
 -- Table creature_template
-UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 2530;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = 2530;
 
 -- Table smart_scripts
 DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid = 2530);
