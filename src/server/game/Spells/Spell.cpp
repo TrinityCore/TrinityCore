@@ -1134,7 +1134,6 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
     SpellTargetObjectTypes objectType = targetType.GetObjectType();
     SpellTargetCheckTypes selectionType = targetType.GetCheckType();
     ConditionContainer* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
-    float coneAngle = float(M_PI) / 2.f;
 
     float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
     // Workaround for some spells that don't have RadiusEntry set in dbc (but SpellRange instead)
