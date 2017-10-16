@@ -18,15 +18,13 @@
 /* ScriptData
 SDName: Shattrath_City
 SD%Complete: 100
-SDComment: Quest support: 10004, 10009, 10211. Flask vendors, Teleport to Caverns of Time
+SDComment: Quest support: 10004, 10009, 10211.
 SDCategory: Shattrath City
 EndScriptData */
 
 /* ContentData
 npc_raliq_the_drunk
 npc_salsalabim
-npc_shattrathflaskvendors
-npc_zephyr
 npc_kservant
 EndContentData */
 
@@ -225,137 +223,6 @@ public:
     }
 };
 
-/*
-##################################################
-Shattrath City Flask Vendors provides flasks to people exalted with 3 fActions:
-Haldor the Compulsive
-Arcanist Xorith
-Both sell special flasks for use in Outlands 25man raids only,
-purchasable for one Mark of Illidari each
-Purchase requires exalted reputation with Scryers/Aldor, Cenarion Expedition and The Sha'tar
-##################################################
-*/
-
-enum FlaskVendors
-{
-    ALDOR_REPUTATION         = 932,
-    SCRYERS_REPUTATION       = 934,
-    THE_SHA_TAR_REPUTATION   = 935,
-    CENARION_EXPEDITION_REP  = 942,
-    NPC_TEXT_EXALTED_ALDOR   = 11083, // (need to be exalted with Sha'tar, Cenarion Expedition and the Aldor)
-    NPC_TEXT_EXALTED_SCRYERS = 11084, // (need to be exalted with Sha'tar, Cenarion Expedition and the Scryers)
-    NPC_TEXT_WELCOME_NAME    = 11085, // Access granted
-    ARCANIST_XORITH          = 23483, // Scryer Apothecary
-    HALDOR_THE_COMPULSIVE    = 23484  // Aldor Apothecary
-};
-
-class npc_shattrathflaskvendors : public CreatureScript
-{
-public:
-    npc_shattrathflaskvendors() : CreatureScript("npc_shattrathflaskvendors") { }
-
-    struct npc_shattrathflaskvendorsAI : public ScriptedAI
-    {
-        npc_shattrathflaskvendorsAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_TRADE)
-                player->GetSession()->SendListInventory(me->GetGUID());
-
-            return true;
-        }
-
-        bool GossipHello(Player* player) override
-        {
-            if (me->GetEntry() == HALDOR_THE_COMPULSIVE)
-            {
-                // Aldor vendor
-                if (me->IsVendor() && (player->GetReputationRank(ALDOR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(THE_SHA_TAR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(CENARION_EXPEDITION_REP) == REP_EXALTED))
-                {
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                    SendGossipMenuFor(player, NPC_TEXT_WELCOME_NAME, me->GetGUID());
-                }
-                else
-                {
-                    SendGossipMenuFor(player, NPC_TEXT_EXALTED_ALDOR, me->GetGUID());
-                }
-            }
-
-            if (me->GetEntry() == ARCANIST_XORITH)
-            {
-                // Scryers vendor
-                if (me->IsVendor() && (player->GetReputationRank(SCRYERS_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(THE_SHA_TAR_REPUTATION) == REP_EXALTED) && (player->GetReputationRank(CENARION_EXPEDITION_REP) == REP_EXALTED))
-                {
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                    SendGossipMenuFor(player, NPC_TEXT_WELCOME_NAME, me->GetGUID());
-                }
-                else
-                {
-                    SendGossipMenuFor(player, NPC_TEXT_EXALTED_SCRYERS, me->GetGUID());
-                }
-            }
-
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_shattrathflaskvendorsAI(creature);
-    }
-};
-
-/*######
-# npc_zephyr
-######*/
-
-enum Zephyr
-{
-    OPTION_ID_TAKE_ME_TO_C_O_T = 0,
-    KEEPERS_OF_TIME_REPUTATION = 989,
-    MENU_ID_TAKE_ME_TO_C_O_T   = 9205,
-    TELEPORT_CAVERNS_OF_TIME   = 37778
-};
-
-class npc_zephyr : public CreatureScript
-{
-public:
-    npc_zephyr() : CreatureScript("npc_zephyr") { }
-
-    struct npc_zephyrAI : public ScriptedAI
-    {
-        npc_zephyrAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-                player->CastSpell(player, TELEPORT_CAVERNS_OF_TIME, false);
-
-            return true;
-        }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetReputationRank(KEEPERS_OF_TIME_REPUTATION) >= REP_REVERED)
-                AddGossipItemFor(player, MENU_ID_TAKE_ME_TO_C_O_T, OPTION_ID_TAKE_ME_TO_C_O_T, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_zephyrAI(creature);
-    }
-};
-
 /*######
 # npc_kservant
 ######*/
@@ -505,7 +372,5 @@ void AddSC_shattrath_city()
 {
     new npc_raliq_the_drunk();
     new npc_salsalabim();
-    new npc_shattrathflaskvendors();
-    new npc_zephyr();
     new npc_kservant();
 }
