@@ -2193,10 +2193,11 @@ struct SpellShapeshiftEntry
 struct SpellTargetRestrictionsEntry
 {
     uint32    Id;                                           // 0        m_ID
-    uint32    MaxAffectedTargets;                           // 1        m_maxTargets
-    uint32    MaxTargetLevel;                               // 2        m_maxTargetLevel
-    uint32    TargetCreatureType;                           // 3       m_targetCreatureType
-    uint32    Targets;                                      // 4       m_targets
+    float     ConeAngle;                                    // 1        m_coneAngel
+    uint32    MaxAffectedTargets;                           // 2        m_maxTargets
+    uint32    MaxTargetLevel;                               // 3        m_maxTargetLevel
+    uint32    TargetCreatureType;                           // 4        m_targetCreatureType
+    uint32    Targets;                                      // 5        m_targets
 };
 
 // SpellReagents.dbc

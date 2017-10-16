@@ -28,6 +28,7 @@
 #include "BattlefieldWG.h"
 #include "BattlefieldMgr.h"
 #include "Player.h"
+#include <G3D/g3dmath.h>
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -2769,9 +2770,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         if (!spellInfo->_IsPositiveEffect(EFFECT_2, false))
             spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF2;
 
-        if (spellInfo->SpellVisual[0] == 3879)
-            spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_BACK;
-
         spellInfo->_InitializeExplicitTargetMask();
     }
 
@@ -3669,6 +3667,13 @@ void SpellMgr::LoadSpellInfoCorrections()
                 break;
             default:
                 break;
+        }
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+        {
+            if (spellInfo->Effects[i].TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE || spellInfo->Effects[i].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CONE)
+                if (G3D::fuzzyEq(spellInfo->ConeAngle, 0.f))
+                    spellInfo->ConeAngle = 90.f;
         }
 
         switch (spellInfo->SpellFamilyName)

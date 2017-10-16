@@ -392,6 +392,7 @@ class TC_GAME_API SpellInfo
         uint32 ActiveIconID;
         char* SpellName;
         char* Rank;
+        float ConeAngle;
         uint32 MaxTargetLevel;
         uint32 MaxAffectedTargets;
         uint32 SpellFamilyName;
