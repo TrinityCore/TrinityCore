@@ -75,7 +75,7 @@ enum MageSpellIcons
     SPELL_ICON_MAGE_SHATTERED_BARRIER = 2945,
     SPELL_ICON_MAGE_PRESENCE_OF_MIND  = 139,
     SPELL_ICON_MAGE_CLEARCASTING      = 212,
-    SPELL_ICON_LIVING_BOMB            = 3000
+    SPELL_ICON_MAGE_LIVING_BOMB       = 3000
 };
 
 // Incanter's Absorbtion
@@ -418,7 +418,7 @@ class spell_mage_dragon_breath : public AuraScript
     {
         // Dont proc with Living Bomb explosion
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        if (spellInfo && spellInfo->SpellIconID == SPELL_ICON_LIVING_BOMB && spellInfo->SpellFamilyName == SPELLFAMILY_MAGE)
+        if (spellInfo && spellInfo->SpellIconID == SPELL_ICON_MAGE_LIVING_BOMB && spellInfo->SpellFamilyName == SPELLFAMILY_MAGE)
             return false;
         return true;
     }
