@@ -1,4 +1,6 @@
 --
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = 10618;
+
 DELETE FROM `gossip_menu_option` WHERE `MenuID` = 3130;
 -- TODO check against live for what the actual gossip menu is. Didn't find anything helpful searching the broadcast_text table.
 INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
