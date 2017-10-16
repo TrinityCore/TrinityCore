@@ -4,12 +4,12 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 -- Table smart_scripts
 DELETE FROM `smart_scripts` WHERE (source_type = 0 AND entryorguid = 2530);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(2530, 0, 0, 1, 8, 0, 100, 0, 3607, 0, 0, 0, 17, 64, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Spellhit \'Yenniku\'s Release\' - Set Emote State 64'),
-(2530, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 2, 83, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Spellhit \'Yenniku\'s Release\' - Set Faction 83'),
+(2530, 0, 0, 1, 8, 0, 100, 0, 3607, 0, 0, 0, 17, 64, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Spellhit \'Yenniku\'s Release\' - Set Emote State Stun'),
+(2530, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 2, 83, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Spellhit \'Yenniku\'s Release\' - Set Faction Horde'),
 (2530, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 67, 0, 60000, 60000, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Spellhit \'Yenniku\'s Release\' - Create Timed Event'),
 (2530, 0, 3, 4, 59, 0, 100, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Timed Event 0 Triggered - Evade'),
-(2530, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 2, 28, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Timed Event 0 Triggered - Set Faction 28'),
-(2530, 0, 5, 0, 25, 0, 100, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Reset - Set Emote State 30');
+(2530, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 2, 28, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Timed Event 0 Triggered - Set Faction Bloodscalp Trolls'),
+(2530, 0, 5, 0, 25, 0, 100, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Reset - Set Emote State Default'),
 (2530, 0, 6, 7, 0, 0, 100, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - In Combat - Stop Combat'),
 (2530, 0, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 14, 0, 100, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - In Combat - Clear Threat');
 
