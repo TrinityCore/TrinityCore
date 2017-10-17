@@ -36,5 +36,3 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceGroup` 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14, 7725, 9435, 0, 0, 9, 0, 10004, 0, 0, 0, 0, 0, '', 'Show gossip menu 7725 text id 9440 if quest Patience and Understanding has been taken.'),
 (15, 7725, 0, 0, 0, 9, 0, 10004, 0, 0, 0, 0, 0, '', 'Show gossip menu 7725 option id 0 if quest Patience and Understanding has been taken.'),
-(22, 6, 18584, 0, 0, 32, 0, 16, 0, 0, 0, 0, 0, '', 'Creature SmartAI event 5 for Sal\'salabim will execute if invoker is player.'),
-(22, 6, 18584, 0, 0, 38, 1, 20, 4, 0, 0, 0, 0, '', 'Creature SmartAI event 5 for Sal\'salabim will execute if creature health percentage is equal or lower than 20% of max Health.');
