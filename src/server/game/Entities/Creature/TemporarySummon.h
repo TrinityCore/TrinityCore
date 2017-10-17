@@ -63,7 +63,7 @@ class TC_GAME_API Minion : public TempSummon
         bool IsSpiritWolf() const { return GetEntry() == 29264; } // Spirit wolf from feral spirits
         bool IsGuardianPet() const;
         bool IsRisenAlly() const { return GetEntry() == 30230; }
-		bool IsInfernal() const { return GetEntry() == 89; }
+        bool IsInfernal() const { return GetEntry() == 89; }
     protected:
         Unit* const m_owner;
         float m_followAngle;
