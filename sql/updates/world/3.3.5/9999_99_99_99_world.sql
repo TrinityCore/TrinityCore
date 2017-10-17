@@ -10,3 +10,11 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceGroup` 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 1, 9563, 0, 0, 1, 0, 16468, 1, 0, 0, 0, 0, '', 'SAI event 0 for Ragged John will execute if target has aura Mother\'s Milk.'),
 (22, 1, 9563, 0, 0, 32, 0, 16, 0, 0, 0, 0, 0, '', 'SAI event 0 for Ragged John will execute if target is player.');
+
+-- Missing events?
+
+-- per wowhead - player dialog w/NPC "Milk me, John." "With pleasure... just let me savor this moment for a minute longer." "Do it... do it now."
+-- verifiable w/ broadcast_text id 5833, 5834, 5835
+-- no video available that I can find, unfortunately, so I have no idea how this relates at all to the actual event action above, or whether that may be handled by the spell (I'll check on this before PR is opened.)
+
+-- The gossip for the Marshal Windsor quest chain - in fact the entire quest - was removed in 3.0.2, so that gossip (around BroadcastTextID 5009) can safely be ignored.
