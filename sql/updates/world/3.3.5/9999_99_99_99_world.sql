@@ -9,11 +9,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2530, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 67, 0, 60000, 60000, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Spellhit \'Yenniku\'s Release\' - Create Timed Event'),
 (2530, 0, 3, 4, 59, 0, 100, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Timed Event 0 Triggered - Evade'),
 (2530, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 2, 28, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Timed Event 0 Triggered - Set Faction Bloodscalp Trolls'),
-(2530, 0, 5, 0, 25, 0, 100, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Reset - Set Emote State Default'),
-(2530, 0, 6, 7, 0, 0, 100, 0, 0, 0, 0, 0, 27, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - In Combat - Stop Combat'),
-(2530, 0, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 14, 0, 100, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - In Combat - Clear Threat');
+(2530, 0, 5, 0, 25, 0, 100, 0, 0, 0, 0, 0, 17, 30, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Yenniku - On Reset - Set Emote State Default');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceGroup` IN (1,7) AND `SourceEntry`=2530 AND `SourceId`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 2530, 0, 0, 9, 0, 592, 0, 0, 0, 0, 0, '', 'Yenniku SAI event 0 will execute if quest Saving Yenniku has been taken.'),
-(22, 7, 2530, 0, 0, 16, 0, 690, 0, 0, 0, 0, 0, '', 'Yenniku SAI event 6 will execute if victim is Horde');
+(22, 1, 2530, 0, 0, 9, 0, 592, 0, 0, 0, 0, 0, '', 'Yenniku SAI event 0 will execute if quest Saving Yenniku has been taken.');
