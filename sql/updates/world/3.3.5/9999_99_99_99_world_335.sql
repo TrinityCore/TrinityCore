@@ -27,7 +27,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (18584, 0, 3, 4, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sal\'salabim - On Gossip Option 0 Selected - Say Line 0'),
 (18584, 0, 4, 5, 61, 0, 100, 0, 0, 0, 0, 0, 49, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Sal\'salabim - On Gossip Option 0 Selected - Start Attacking'),
 (18584, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 42, 0, 19, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Sal\'salabim - On Gossip Option 0 Selected - Set Invincibility Hp 19%'),
-(18584, 0, 6, 7, 2, 0, 100, 0, 0, 20, 0, 0, 26, 10004, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 'Sal\'salabim - On Health Below 20% - Quest Credit \'Patience and Understanding\''),
+(18584, 0, 6, 7, 2, 0, 100, 0, 0, 20, 0, 0, 15, 10004, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 'Sal\'salabim - On Health Below 20% - Quest Credit \'Patience and Understanding\''),
 (18584, 0, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sal\'salabim - On Health Below 20% - Evade'),
 (18584, 0, 8, 0, 25, 0, 100, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Sal\'salabim - On Reset - Set Default Faction');
 
