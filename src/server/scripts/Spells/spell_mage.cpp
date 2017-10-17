@@ -95,7 +95,8 @@ enum MageIcons
     ICON_MAGE_IMPROVED_FLAMESTRIKE               = 37,
     ICON_MAGE_IMPROVED_FREEZE                    = 94,
     ICON_MAGE_INCANTER_S_ABSORPTION              = 2941,
-    ICON_MAGE_IMPROVED_MANA_GEM                  = 1036
+    ICON_MAGE_IMPROVED_MANA_GEM                  = 1036,
+    SPELL_ICON_MAGE_LIVING_BOMB                  = 3000
 };
 
 enum MiscSpells
@@ -458,6 +459,26 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
         {
             return new spell_mage_conjure_refreshment_SpellScript();
         }
+};
+
+// -31661 - Dragon's Breath
+class spell_mage_dragon_breath : public AuraScript
+{
+    PrepareAuraScript(spell_mage_dragon_breath);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        // Dont proc with Living Bomb explosion
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (spellInfo && spellInfo->SpellIconID == SPELL_ICON_MAGE_LIVING_BOMB && spellInfo->SpellFamilyName == SPELLFAMILY_MAGE)
+            return false;
+        return true;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_dragon_breath::CheckProc);
+    }
 };
 
 // 543  - Fire War
@@ -1518,6 +1539,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cold_snap();
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
+    RegisterAuraScript(spell_mage_dragon_breath);
     new spell_mage_fire_frost_ward();
     new spell_mage_focus_magic();
     new spell_mage_frostbolt();
