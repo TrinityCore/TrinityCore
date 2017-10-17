@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "Creature.h"
 #include "InstanceScript.h"
 #include "vault_of_archavon.h"
 
@@ -26,6 +25,15 @@
 3 - Koralon the Flame Watcher event
 4 - Toravon the Ice Watcher event
 */
+
+ObjectData const creatureData[] =
+{
+    { NPC_ARCHAVON, DATA_ARCHAVON },
+    { NPC_EMALON,   DATA_EMALON   },
+    { NPC_KORALON,  DATA_KORALON  },
+    { NPC_TORAVON,  DATA_TORAVON  },
+    { 0,            0,            }
+};
 
 class instance_vault_of_archavon : public InstanceMapScript
 {
@@ -38,40 +46,11 @@ class instance_vault_of_archavon : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadObjectData(creatureData, nullptr);
 
                 ArchavonDeath   = 0;
                 EmalonDeath     = 0;
                 KoralonDeath    = 0;
-            }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_EMALON:
-                        EmalonGUID = creature->GetGUID();
-                        break;
-                    case NPC_TORAVON:
-                        ToravonGUID = creature->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 identifier) const override
-            {
-                switch (identifier)
-                {
-                    case DATA_EMALON:
-                        return EmalonGUID;
-                    case DATA_TORAVON:
-                        return ToravonGUID;
-                    default:
-                        break;
-                }
-
-                return ObjectGuid::Empty;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -126,8 +105,6 @@ class instance_vault_of_archavon : public InstanceMapScript
             }
 
         private:
-            ObjectGuid EmalonGUID;
-            ObjectGuid ToravonGUID;
             time_t ArchavonDeath;
             time_t EmalonDeath;
             time_t KoralonDeath;

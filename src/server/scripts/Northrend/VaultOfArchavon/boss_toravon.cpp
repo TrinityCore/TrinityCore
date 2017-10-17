@@ -17,28 +17,26 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "vault_of_archavon.h"
 
 enum Spells
 {
     // Toravon
-    SPELL_FREEZING_GROUND   = 72090,    // don't know cd... using 20 secs.
+    SPELL_FREEZING_GROUND   = 72090,
     SPELL_FROZEN_ORB        = 72091,
-    SPELL_WHITEOUT          = 72034,    // Every 38 sec. cast. (after SPELL_FROZEN_ORB)
+    SPELL_WHITEOUT          = 72034,
     SPELL_FROZEN_MALLET     = 71993,
+
+    // Frozen Orb
+    SPELL_FROZEN_ORB_DMG    = 72081,
+    SPELL_FROZEN_ORB_AURA   = 72067,
+    SPELL_RANDOM_AGGRO      = 72084,
 
     // Frost Warder
     SPELL_FROST_BLAST       = 72123,    // don't know cd... using 20 secs.
-    SPELL_FROZEN_MALLET_2   = 72122,
-
-    // Frozen Orb
-    SPELL_FROZEN_ORB_DMG    = 72081,    // priodic dmg aura
-    SPELL_FROZEN_ORB_AURA   = 72067,    // make visible
-
-    // Frozen Orb Stalker
-    SPELL_FROZEN_ORB_SUMMON = 72093,    // summon orb
+    SPELL_FROZEN_MALLET_2   = 72122
 };
 
 enum Events
@@ -47,256 +45,159 @@ enum Events
     EVENT_FROZEN_ORB        = 2,
     EVENT_WHITEOUT          = 3,
 
-    EVENT_FROST_BLAST       = 4,
+    EVENT_FROST_BLAST       = 4
 };
 
-enum Creatures
+struct boss_toravon : public BossAI
 {
-    NPC_FROZEN_ORB          = 38456 // 1 in 10 mode and 3 in 25 mode
+    boss_toravon(Creature* creature) : BossAI(creature, DATA_TORAVON) { }
 
-};
-
-class boss_toravon : public CreatureScript
-{
-    public:
-        boss_toravon() : CreatureScript("boss_toravon") { }
-
-        struct boss_toravonAI : public BossAI
-        {
-            boss_toravonAI(Creature* creature) : BossAI(creature, DATA_TORAVON)
-            {
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                DoCast(me, SPELL_FROZEN_MALLET);
-
-                events.ScheduleEvent(EVENT_FROZEN_ORB, 11000);
-                events.ScheduleEvent(EVENT_WHITEOUT, 13000);
-                events.ScheduleEvent(EVENT_FREEZING_GROUND, 15000);
-
-                _EnterCombat();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_FROZEN_ORB:
-                            me->CastCustomSpell(SPELL_FROZEN_ORB, SPELLVALUE_MAX_TARGETS, 1, me);
-                            events.ScheduleEvent(EVENT_FROZEN_ORB, 38000);
-                            break;
-                        case EVENT_WHITEOUT:
-                            DoCast(me, SPELL_WHITEOUT);
-                            events.ScheduleEvent(EVENT_WHITEOUT, 38000);
-                            break;
-                        case EVENT_FREEZING_GROUND:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                                DoCast(target, SPELL_FREEZING_GROUND);
-                            events.ScheduleEvent(EVENT_FREEZING_GROUND, 20000);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetVaultOfArchavonAI<boss_toravonAI>(creature);
-        }
-};
-
-/*######
-##  Mob Frost Warder
-######*/
-class npc_frost_warder : public CreatureScript
-{
-    public:
-        npc_frost_warder() : CreatureScript("npc_frost_warder") { }
-
-        struct npc_frost_warderAI : public ScriptedAI
-        {
-            npc_frost_warderAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void Reset() override
-            {
-                events.Reset();
-            }
-
-            void EnterCombat(Unit* /*who*/) override
-            {
-                DoZoneInCombat();
-
-                DoCast(me, SPELL_FROZEN_MALLET_2);
-
-                events.ScheduleEvent(EVENT_FROST_BLAST, 5000);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                if (events.ExecuteEvent() == EVENT_FROST_BLAST)
-                {
-                    DoCastVictim(SPELL_FROST_BLAST);
-                    events.ScheduleEvent(EVENT_FROST_BLAST, 20000);
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetVaultOfArchavonAI<npc_frost_warderAI>(creature);
-        }
-};
-
-/*######
-##  Mob Frozen Orb
-######*/
-class npc_frozen_orb : public CreatureScript
-{
-public:
-    npc_frozen_orb() : CreatureScript("npc_frozen_orb") { }
-
-    struct npc_frozen_orbAI : public ScriptedAI
+    void EnterCombat(Unit* /*who*/) override
     {
-        npc_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
+        DoCastSelf(SPELL_FROZEN_MALLET);
 
-        void Initialize()
-        {
-            done = false;
-            killTimer = 60000; // if after this time there is no victim -> destroy!
-        }
+        events.ScheduleEvent(EVENT_FROZEN_ORB, Seconds(12));
+        events.ScheduleEvent(EVENT_WHITEOUT, Seconds(25));
+        events.ScheduleEvent(EVENT_FREEZING_GROUND, Seconds(7));
 
-        void Reset() override
-        {
-            Initialize();
-        }
+        _EnterCombat();
+    }
 
-        void EnterCombat(Unit* /*who*/) override
-        {
-            DoZoneInCombat();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!done)
-            {
-                DoCast(me, SPELL_FROZEN_ORB_AURA, true);
-                DoCast(me, SPELL_FROZEN_ORB_DMG, true);
-                done = true;
-            }
-
-            if (killTimer <= diff)
-            {
-                if (!UpdateVictim())
-                    me->DespawnOrUnsummon();
-                killTimer = 10000;
-            }
-            else
-                killTimer -= diff;
-        }
-
-    private:
-        uint32 killTimer;
-        bool done;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void UpdateAI(uint32 diff) override
     {
-        return GetVaultOfArchavonAI<npc_frozen_orbAI>(creature);
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FROZEN_ORB:
+                    me->CastCustomSpell(SPELL_FROZEN_ORB, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 3), me);
+                    events.Repeat(Seconds(32));
+                    break;
+                case EVENT_WHITEOUT:
+                    DoCastSelf(SPELL_WHITEOUT);
+                    events.Repeat(Seconds(38));
+                    break;
+                case EVENT_FREEZING_GROUND:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        DoCast(target, SPELL_FREEZING_GROUND);
+                    events.Repeat(Seconds(38));
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
     }
 };
 
-/*######
-##  Mob Frozen Orb Stalker
-######*/
-class npc_frozen_orb_stalker : public CreatureScript
+struct npc_frost_warder : public ScriptedAI
 {
-    public:
-        npc_frozen_orb_stalker() : CreatureScript("npc_frozen_orb_stalker") { }
+    npc_frost_warder(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_frozen_orb_stalkerAI : public ScriptedAI
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void EnterCombat(Unit* /*who*/) override
+    {
+        DoZoneInCombat();
+
+        DoCastSelf(SPELL_FROZEN_MALLET_2);
+
+        _events.ScheduleEvent(EVENT_FROST_BLAST, 5000);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        if (_events.ExecuteEvent() == EVENT_FROST_BLAST)
         {
-            npc_frozen_orb_stalkerAI(Creature* creature) : ScriptedAI(creature)
-            {
-                creature->SetVisible(false);
-                creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE));
-                me->SetControlled(true, UNIT_STATE_ROOT);
-                creature->SetReactState(REACT_PASSIVE);
-
-                instance = creature->GetInstanceScript();
-                spawned = false;
-
-                SetCombatMovement(false);
-            }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-                if (spawned)
-                    return;
-
-                spawned = true;
-                Unit* toravon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TORAVON));
-                if (!toravon)
-                    return;
-
-                uint8 num_orbs = RAID_MODE(1, 3);
-                for (uint8 i = 0; i < num_orbs; ++i)
-                {
-                    Position pos;
-                    me->GetNearPoint(toravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 10.0f, 0.0f);
-                    me->UpdatePosition(pos);
-                    DoCast(me, SPELL_FROZEN_ORB_SUMMON);
-                }
-            }
-
-        private:
-            InstanceScript* instance;
-            bool spawned;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetVaultOfArchavonAI<npc_frozen_orb_stalkerAI>(creature);
+            DoCastVictim(SPELL_FROST_BLAST);
+            _events.ScheduleEvent(EVENT_FROST_BLAST, 20000);
         }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_frozen_orb : public ScriptedAI
+{
+    npc_frozen_orb(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        DoCastSelf(SPELL_FROZEN_ORB_AURA, true);
+        DoCastSelf(SPELL_FROZEN_ORB_DMG, true);
+        DoCastSelf(SPELL_RANDOM_AGGRO, true);
+
+        if (Creature* toravon = me->GetInstanceScript()->GetCreature(DATA_TORAVON))
+        {
+            if (toravon->IsInCombat())
+            {
+                toravon->AI()->JustSummoned(me);
+                me->SetInCombatWithZone();
+            }
+            else
+                me->DespawnOrUnsummon();
+        }
+    }
+};
+
+// 46523 - Random Aggro
+class spell_toravon_random_aggro : public SpellScript
+{
+    PrepareSpellScript(spell_toravon_random_aggro);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_UNIT;
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster->IsAIEnabled)
+            return;
+
+        caster->GetThreatManager().resetAllAggro();
+
+        if (Unit* target = caster->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1))
+            caster->GetThreatManager().AddThreat(target, 1000000);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_toravon_random_aggro::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 void AddSC_boss_toravon()
 {
-    new boss_toravon();
-    new npc_frost_warder();
-    new npc_frozen_orb();
-    new npc_frozen_orb_stalker();
+    RegisterVaultOfArchavonCreatureAI(boss_toravon);
+    RegisterVaultOfArchavonCreatureAI(npc_frost_warder);
+    RegisterVaultOfArchavonCreatureAI(npc_frozen_orb);
+    RegisterSpellScript(spell_toravon_random_aggro);
 }
