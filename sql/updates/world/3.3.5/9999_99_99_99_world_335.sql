@@ -35,4 +35,4 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14,15) AND `SourceG
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceGroup` = 6 AND `SourceEntry` = 18584;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (14, 7725, 9435, 0, 0, 9, 0, 10004, 0, 0, 0, 0, 0, '', 'Show gossip menu 7725 text id 9440 if quest Patience and Understanding has been taken.'),
-(15, 7725, 0, 0, 0, 9, 0, 10004, 0, 0, 0, 0, 0, '', 'Show gossip menu 7725 option id 0 if quest Patience and Understanding has been taken.'),
+(15, 7725, 0, 0, 0, 9, 0, 10004, 0, 0, 0, 0, 0, '', 'Show gossip menu 7725 option id 0 if quest Patience and Understanding has been taken.');
