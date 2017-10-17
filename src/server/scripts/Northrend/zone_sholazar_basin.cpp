@@ -61,6 +61,13 @@ enum Vekjik
     QUEST_MAKING_PEACE          = 12573
 };
 
+// 28315
+//menuid 9678, texts 13136 (no quest) 13137 (quest) 
+//menuid 9686, text 13138 (after gossip select)
+//gossip linked for 9678, gossip linked for 9686
+//event for gossipselect menu 9678 to open 9686
+//link event for gossipselect menu 9686 to close, talk, areaexplored, cast invoker
+
 class npc_vekjik : public CreatureScript
 {
 public:
@@ -114,9 +121,13 @@ public:
     }
 };
 
+
+//
 /*######
 ## avatar_of_freya
 ######*/
+// 27801
+//menuid 9720 (start)
 
 #define GOSSIP_ITEM_AOF1 "I want to stop the Scourge as much as you do. How can I help?"
 #define GOSSIP_ITEM_AOF2 "You can trust me. I am no friend of the Lich King."
@@ -552,6 +563,10 @@ public:
 /*######
 ## npc_adventurous_dwarf
 ######*/
+
+//28604
+//gossip 9724 , textid defined (13307)
+//only menuoption 1 (broadcast_text 28595) in gossip_menu_option, need 0 (orange) and 2 (papaya)
 
 #define GOSSIP_OPTION_ORANGE    "Can you spare an orange?"
 #define GOSSIP_OPTION_BANANAS   "Have a spare bunch of bananas?"
