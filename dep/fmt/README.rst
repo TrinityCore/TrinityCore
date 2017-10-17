@@ -40,7 +40,7 @@ Features
   and better than the performance of IOStreams. See `Speed tests`_ and
   `Fast integer to string conversion in C++
   <http://zverovich.net/2013/09/07/integer-to-string-conversion-in-cplusplus.html>`_.
-* Small code size both in terms of source code (format consists of a single
+* Small code size both in terms of source code (the core library consists of a single
   header file and a single source file) and compiled code.
   See `Compile time and code bloat`_.
 * Reliability: the library has an extensive set of `unit tests
@@ -138,6 +138,12 @@ Projects using this library
 
 * `CUAUV <http://cuauv.org/>`_: Cornell University's autonomous underwater vehicle
 
+* `Drake <http://drake.mit.edu/>`_: A planning, control, and analysis toolbox for nonlinear dynamical systems (MIT)
+
+* `Envoy <https://lyft.github.io/envoy/>`_: C++ L7 proxy and communication bus (Lyft)
+
+* `FiveM <https://fivem.net/>`_: a modification framework for GTA V
+
 * `HarpyWar/pvpgn <https://github.com/pvpgn/pvpgn-server>`_:
   Player vs Player Gaming Network with tweaks
 
@@ -145,9 +151,13 @@ Projects using this library
 
 * `Keypirinha <http://keypirinha.com/>`_: A semantic launcher for Windows
 
+* `Kodi <https://kodi.tv/>`_ (formerly xbmc): Home theater software
+
 * `Lifeline <https://github.com/peter-clark/lifeline>`_: A 2D game
 
 * `MongoDB Smasher <https://github.com/duckie/mongo_smasher>`_: A small tool to generate randomized datasets
+
+* `OpenSpace <http://openspaceproject.com/>`_: An open-source astrovisualization framework
 
 * `PenUltima Online (POL) <http://www.polserver.com/>`_:
   An MMO server, compatible with most Ultima Online clients
@@ -401,6 +411,11 @@ It only applies if you distribute the documentation of fmt.
 
 Acknowledgments
 ---------------
+
+The fmt library is maintained by Victor Zverovich (`vitaut <https://github.com/vitaut>`_)
+and Jonathan Müller (`foonathan <https://github.com/foonathan>`_) with contributions from many
+other people. See `Contributors <https://github.com/fmtlib/fmt/graphs/contributors>`_ and `Releases <https://github.com/fmtlib/fmt/releases>`_ for some of the names. Let us know if your contribution
+is not listed or mentioned incorrectly and we'll make it right.
 
 The benchmark section of this readme file and the performance tests are taken
 from the excellent `tinyformat <https://github.com/c42f/tinyformat>`_ library
