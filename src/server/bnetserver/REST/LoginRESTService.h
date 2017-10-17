@@ -40,7 +40,7 @@ enum class BanMode
 class LoginRESTService
 {
 public:
-    LoginRESTService() : _ioService(nullptr), _stopped(false), _port(0) { }
+    LoginRESTService() : _ioService(nullptr), _stopped(false), _port(0), _loginTicketDuration(0) { }
 
     static LoginRESTService& Instance();
 
