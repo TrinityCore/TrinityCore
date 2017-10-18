@@ -28,7 +28,7 @@ npc_engineer_helice
 npc_jungle_punch_target
 spell_q12620_the_lifewarden_wrath
 spell_q12589_shoot_rjr
-npc_haiphoon (Quest: "Song of Wind and Water)
+npc_haiphoon (Quest: "Song of Wind and Water")
 npc_vics_flying_machine
 spell_shango_tracks
 EndContentData */
