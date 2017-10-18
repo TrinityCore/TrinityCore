@@ -25,7 +25,6 @@ EndScriptData */
 /* ContentData
 npc_bushwhacker
 npc_engineer_helice
-npc_adventurous_dwarf
 npc_jungle_punch_target
 spell_q12620_the_lifewarden_wrath
 spell_q12589_shoot_rjr
@@ -411,100 +410,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_jungle_punch_targetAI(creature);
-    }
-};
-
-/*######
-## npc_adventurous_dwarf
-######*/
-
-//28604
-//gossip 9724 , textid defined (13307)
-//only menuoption 1 (broadcast_text 28595) in gossip_menu_option, need 0 (orange) and 2 (papaya)
-
-#define GOSSIP_OPTION_ORANGE    "Can you spare an orange?"
-#define GOSSIP_OPTION_BANANAS   "Have a spare bunch of bananas?"
-#define GOSSIP_OPTION_PAPAYA    "I could really use a papaya."
-
-enum AdventurousDwarf
-{
-    QUEST_12634         = 12634,
-
-    ITEM_BANANAS        = 38653,
-    ITEM_PAPAYA         = 38655,
-    ITEM_ORANGE         = 38656,
-
-    SPELL_ADD_ORANGE    = 52073,
-    SPELL_ADD_BANANAS   = 52074,
-    SPELL_ADD_PAPAYA    = 52076,
-
-    GOSSIP_MENU_DWARF   = 13307,
-
-    SAY_DWARF_OUCH      = 0,
-    SAY_DWARF_HELP      = 1
-};
-
-class npc_adventurous_dwarf : public CreatureScript
-{
-public:
-    npc_adventurous_dwarf() : CreatureScript("npc_adventurous_dwarf") { }
-
-    struct npc_adventurous_dwarfAI : public ScriptedAI
-    {
-        npc_adventurous_dwarfAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Talk(SAY_DWARF_OUCH);
-        }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_12634) != QUEST_STATUS_INCOMPLETE)
-                return false;
-
-            if (player->GetItemCount(ITEM_ORANGE) < 1)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_ORANGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            if (player->GetItemCount(ITEM_BANANAS) < 2)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_BANANAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-            if (player->GetItemCount(ITEM_PAPAYA) < 1)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_PAPAYA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-            player->PlayerTalkClass->SendGossipMenu(GOSSIP_MENU_DWARF, me->GetGUID());
-            return true;
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            uint32 spellId = 0;
-
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    spellId = SPELL_ADD_ORANGE;
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    spellId = SPELL_ADD_BANANAS;
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    spellId = SPELL_ADD_PAPAYA;
-                    break;
-            }
-
-            if (spellId)
-                player->CastSpell(player, spellId, true);
-
-            Talk(SAY_DWARF_HELP);
-            me->DespawnOrUnsummon();
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_adventurous_dwarfAI(creature);
     }
 };
 
@@ -915,7 +820,6 @@ void AddSC_sholazar_basin()
 {
     new npc_bushwhacker();
     new npc_engineer_helice();
-    new npc_adventurous_dwarf();
     new npc_jungle_punch_target();
     new spell_q12620_the_lifewarden_wrath();
     new spell_q12589_shoot_rjr();
