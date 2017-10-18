@@ -1601,43 +1601,99 @@ public:
                 case EVENT_BM_START_MUSIC:
                     if (!IsHolidayActive(HOLIDAY_BREWFEST)) // Check if Brewfest is active
                         break;
-                    // Check if gob is correct area, play music, set time of music
-                    if (me->GetAreaId() == SILVERMOON || me->GetAreaId() == UNDERCITY || me->GetAreaId() == ORGRIMMAR_1 || me->GetAreaId() == ORGRIMMAR_2 || me->GetAreaId() == THUNDERBLUFF || me->GetAreaId() == SHATTRATH)
+
+                    switch (me->GetAreaId())
                     {
-                        if (rnd == 0)
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTGOBLIN01);
-                            musicTime = EVENT_BREWFESTGOBLIN01_TIME;
-                        }
-                        else if (rnd == 1)
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTGOBLIN02);
-                            musicTime = EVENT_BREWFESTGOBLIN02_TIME;
-                        }
-                        else
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTGOBLIN03);
-                            musicTime = EVENT_BREWFESTGOBLIN03_TIME;
-                        }
+                        // Horde
+                        case SILVERMOON:
+                        case UNDERCITY:
+                        case ORGRIMMAR_1:
+                        case ORGRIMMAR_2:
+                        case THUNDERBLUFF:
+                            if (rnd == 0)
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTGOBLIN01);
+                                musicTime = EVENT_BREWFESTGOBLIN01_TIME;
+                            }
+                            else if (rnd == 1)
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTGOBLIN02);
+                                musicTime = EVENT_BREWFESTGOBLIN02_TIME;
+                            }
+                            else
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTGOBLIN03);
+                                musicTime = EVENT_BREWFESTGOBLIN03_TIME;
+                            }
+                            break;
+                        // Alliance
+                        case IRONFORGE_1:
+                        case IRONFORGE_2:
+                        case STORMWIND:
+                        case EXODAR:
+                        case DARNASSUS:
+                            if (rnd == 0)
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTDWARF01);
+                                musicTime = EVENT_BREWFESTDWARF01_TIME;
+                            }
+                            else if (rnd == 1)
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTDWARF02);
+                                musicTime = EVENT_BREWFESTDWARF02_TIME;
+                            }
+                            else
+                            {
+                                me->PlayDirectMusic(EVENT_BREWFESTDWARF03);
+                                musicTime = EVENT_BREWFESTDWARF03_TIME;
+                            }
+                            break;
+                        // Neurtal
+                        case SHATTRATH:
+                            std::vector<Player*> playersNearby;
+                            me->GetPlayerListInGrid(playersNearby, me->GetVisibilityRange());
+                            for (Player* player : playersNearby)
+                            {
+                                if (player->GetTeamId() == TEAM_HORDE)
+                                {
+                                    if (rnd == 0)
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTGOBLIN01);
+                                        musicTime = EVENT_BREWFESTGOBLIN01_TIME;
+                                    }
+                                    else if (rnd == 1)
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTGOBLIN02);
+                                        musicTime = EVENT_BREWFESTGOBLIN02_TIME;
+                                    }
+                                    else
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTGOBLIN03);
+                                        musicTime = EVENT_BREWFESTGOBLIN03_TIME;
+                                    }
+                                }
+                                else
+                                {
+                                    if (rnd == 0)
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTDWARF01);
+                                        musicTime = EVENT_BREWFESTDWARF01_TIME;
+                                    }
+                                    else if (rnd == 1)
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTDWARF02);
+                                        musicTime = EVENT_BREWFESTDWARF02_TIME;
+                                    }
+                                    else
+                                    {
+                                        me->PlayDirectMusic(EVENT_BREWFESTDWARF03);
+                                        musicTime = EVENT_BREWFESTDWARF03_TIME;
+                                    }
+                                }
+                            }
+                            break;
                     }
-                    if (me->GetAreaId() == IRONFORGE_1 || me->GetAreaId() == IRONFORGE_2 || me->GetAreaId() == STORMWIND || me->GetAreaId() == EXODAR || me->GetAreaId() == DARNASSUS || me->GetAreaId() == SHATTRATH)
-                    {
-                        if (rnd == 0)
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTDWARF01);
-                            musicTime = EVENT_BREWFESTDWARF01_TIME;
-                        }
-                        else if (rnd == 1)
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTDWARF02);
-                            musicTime = EVENT_BREWFESTDWARF02_TIME;
-                        }
-                        else
-                        {
-                            me->PlayDirectMusic(EVENT_BREWFESTDWARF03);
-                            musicTime = EVENT_BREWFESTDWARF03_TIME;
-                        }
-                    }
+
                     _events.ScheduleEvent(EVENT_BM_START_MUSIC, 5000); // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client
                     break;
                 default:
