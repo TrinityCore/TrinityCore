@@ -41,7 +41,6 @@ EndContentData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
