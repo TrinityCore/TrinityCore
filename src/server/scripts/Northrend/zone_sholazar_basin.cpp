@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Sholazar_Basin
 SD%Complete: 100
-SDComment: Quest support: 12726
+SDComment: Quest support: 12550, 12569, 12645, 12688, 12726, 13957
 SDCategory: Sholazar_Basin
 EndScriptData */
 
@@ -29,7 +29,7 @@ npc_adventurous_dwarf
 npc_jungle_punch_target
 spell_q12620_the_lifewarden_wrath
 spell_q12589_shoot_rjr
-haiphoon (Quest: "Song of Wind and Water)
+npc_haiphoon (Quest: "Song of Wind and Water)
 npc_vics_flying_machine
 spell_shango_tracks
 EndContentData */
