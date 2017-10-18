@@ -1515,6 +1515,7 @@ void Guardian::UpdateSpellHitChances()
 
 void Guardian::UpdateExpertise()
 {
+    /*
     Unit* owner = GetOwner();
     if (owner && owner->GetTypeId() == TYPEID_PLAYER)
     {
@@ -1526,8 +1527,8 @@ void Guardian::UpdateExpertise()
         // Increase hit spell from spell hit ratings
         Expertise += powner->GetRatingBonusValue(CR_HIT_SPELL);
 
-        SetUInt32Value(PLAYER_EXPERTISE, expertise);
-    }
+        SetUInt32Value(PLAYER_EXPERTISE, Expertise);
+    }*/
 }
 
 void Guardian::SetBonusDamage(int32 damage)
