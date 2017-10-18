@@ -18,14 +18,20 @@
 /* ScriptData
 SDName: Sholazar_Basin
 SD%Complete: 100
-SDComment: Quest support: 12573, 12621, 12726
+SDComment: Quest support: 12726
 SDCategory: Sholazar_Basin
 EndScriptData */
 
 /* ContentData
-npc_vekjik
-avatar_of_freya
-npc_haiphoon (Quest: "Song of Wind and Water")
+npc_bushwhacker
+npc_engineer_helice
+npc_adventurous_dwarf
+npc_jungle_punch_target
+spell_q12620_the_lifewarden_wrath
+spell_q12589_shoot_rjr
+haiphoon (Quest: "Song of Wind and Water)
+npc_vics_flying_machine
+spell_shango_tracks
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -41,77 +47,6 @@ EndContentData */
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
-
-/*######
-## avatar_of_freya
-######*/
-// 27801
-//menuid 9720 (start)
-
-#define GOSSIP_ITEM_AOF1 "I want to stop the Scourge as much as you do. How can I help?"
-#define GOSSIP_ITEM_AOF2 "You can trust me. I am no friend of the Lich King."
-#define GOSSIP_ITEM_AOF3 "I will not fail."
-
-enum Freya
-{
-    QUEST_FREYA_PACT         = 12621,
-
-    SPELL_FREYA_CONVERSATION = 52045,
-
-    GOSSIP_TEXTID_AVATAR1    = 13303,
-    GOSSIP_TEXTID_AVATAR2    = 13304,
-    GOSSIP_TEXTID_AVATAR3    = 13305
-};
-
-class npc_avatar_of_freya : public CreatureScript
-{
-public:
-    npc_avatar_of_freya() : CreatureScript("npc_avatar_of_freya") { }
-
-    struct npc_avatar_of_freyaAI : public ScriptedAI
-    {
-        npc_avatar_of_freyaAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (me->IsQuestGiver())
-                player->PrepareQuestMenu(me->GetGUID());
-
-            if (player->GetQuestStatus(QUEST_FREYA_PACT) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR1, me->GetGUID());
-            return true;
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR2, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR3, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 3:
-                    player->CastSpell(player, SPELL_FREYA_CONVERSATION, true);
-                    CloseGossipMenuFor(player);
-                    break;
-            }
-            return true;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_avatar_of_freyaAI(creature);
-    }
-};
 
 /*######
 ## npc_bushwhacker
@@ -978,8 +913,6 @@ public:
 
 void AddSC_sholazar_basin()
 {
-    new npc_vekjik();
-    new npc_avatar_of_freya();
     new npc_bushwhacker();
     new npc_engineer_helice();
     new npc_adventurous_dwarf();
