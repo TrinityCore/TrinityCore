@@ -96,6 +96,7 @@ public:
         bool _bHasDied;
         bool _bHeal;
         bool _bFakeDeath;
+        bool _canCallForHelp;
 
         void Reset() override
         {
@@ -120,8 +121,7 @@ public:
         {
             Talk(SAY_MO_AGGRO);
             DoCast(me, SPELL_RETRIBUTIONAURA);
-
-            me->CallForHelp(VISIBLE_RANGE);
+            _canCallForHelp = true;
         }
 
         void KilledUnit(Unit* /*victim*/) override
@@ -129,7 +129,7 @@ public:
             Talk(SAY_MO_KILL);
         }
 
-        void DamageTaken(Unit* /*doneBy*/, uint32 &damage) override
+        void DamageTaken(Unit* attacker, uint32 &damage) override
         {
             if (damage < me->GetHealth() || _bHasDied || _bFakeDeath)
                 return;
@@ -140,6 +140,7 @@ public:
                 instance->SetBossState(DATA_MOGRAINE_AND_WHITE_EVENT, IN_PROGRESS);
 
                 Whitemane->GetMotionMaster()->MovePoint(1, 1163.113370f, 1398.856812f, 32.527786f);
+                Whitemane->GetAI()->AttackStart(attacker);
 
                 me->GetMotionMaster()->MovementExpired();
                 me->GetMotionMaster()->MoveIdle();
@@ -197,6 +198,12 @@ public:
 
                     _bHeal = true;
                 }
+            }
+
+            if (_canCallForHelp)
+            {
+                me->CallForHelp(VISIBLE_RANGE);
+                _canCallForHelp = false;
             }
 
             //This if-check to make sure mograine does not attack while fake death
