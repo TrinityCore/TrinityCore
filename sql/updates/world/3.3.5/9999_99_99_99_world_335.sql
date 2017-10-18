@@ -8,7 +8,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (28315, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 15, 12573, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Quest Credit \'Making Peace\''),
 (28315, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 51469, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'Shaman Vekjik - On Gossip Option 0 Selected - Cast \'Frenzyheart\'s Fury\'');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 15 AND `SourceGroup` = 9678;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` IN (14, 15) AND `SourceGroup` = 9678;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(14, 9678, 13136, 0, 0, 9, 0, 12573, 0, 0, 1, 0, 0, '', 'Show gossip menu 9678 text id 13136 if quest Making Peace has not been taken.'),
+(14, 9678, 13137, 0, 0, 9, 0, 12573, 0, 0, 0, 0, 0, '', 'Show gossip menu 9678 text id 13137 if quest Making Peace has been taken.'),
 (15, 9678, 0, 0, 0, 9, 0, 12573, 0, 0, 0, 0, 0, '', 'Show gossip menu 9678 option id 0 if quest Making Peace has been taken.');
-
