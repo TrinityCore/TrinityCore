@@ -1221,6 +1221,10 @@ bool Guardian::UpdateAllStats()
         UpdateMaxPower(Powers(i));
 
     UpdateAllResistances();
+    UpdateMeleeHitChances();
+    UpdateSpellHitChances();
+    UpdateExpertise();
+
 
     return true;
 }
@@ -1483,16 +1487,16 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
 }
 
-
 void Guardian::UpdateMeleeHitChances()
 {
     Unit* owner = GetOwner();
     if (owner && owner->GetTypeId() == TYPEID_PLAYER)
     {
+        Player* powner = owner->ToPlayer();
         // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
-        m_modMeleeHitChance = (float)owner->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);    
+        m_modMeleeHitChance = (float)powner->GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);    
         // Increase hit spell from spell hit ratings
-        m_modMeleeHitChance += owner->GetRatingBonusValue(CR_HIT_MELEE);
+        m_modMeleeHitChance += powner->GetRatingBonusValue(CR_HIT_MELEE);
     }
 }
 
@@ -1501,10 +1505,11 @@ void Guardian::UpdateSpellHitChances()
     Unit* owner = GetOwner();
     if (owner && owner->GetTypeId() == TYPEID_PLAYER)
     {
+        Player* powner = owner->ToPlayer();
         // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
-        m_modSpellHitChance = (float)owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
+        m_modSpellHitChance = (float)powner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
         // Increase hit spell from spell hit ratings
-        m_modSpellHitChance += owner->GetRatingBonusValue(CR_HIT_SPELL);
+        m_modSpellHitChance += powner->GetRatingBonusValue(CR_HIT_SPELL);
     }
 }
 
@@ -1513,18 +1518,17 @@ void Guardian::UpdateExpertise()
     Unit* owner = GetOwner();
     if (owner && owner->GetTypeId() == TYPEID_PLAYER)
     {
+        Player* powner = owner->ToPlayer();
         // For others recalculate it from:
         float Expertise = 0.0f;
         // Increase hit from SPELL_AURA_MOD_SPELL_HIT_CHANCE
-        Expertise += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
+        Expertise += powner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
         // Increase hit spell from spell hit ratings
-        Expertise += owner->GetRatingBonusValue(CR_HIT_SPELL);
+        Expertise += powner->GetRatingBonusValue(CR_HIT_SPELL);
 
         SetUInt32Value(PLAYER_EXPERTISE, expertise);
     }
 }
-
-
 
 void Guardian::SetBonusDamage(int32 damage)
 {
