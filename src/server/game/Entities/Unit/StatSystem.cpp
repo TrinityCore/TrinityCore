@@ -227,6 +227,9 @@ bool Player::UpdateAllStats()
     UpdateExpertise(OFF_ATTACK);
     RecalculateRating(CR_ARMOR_PENETRATION);
     UpdateAllResistances();
+    //npcbot - Player::UpdateAllStats() is called on level change - update bots
+    SetBotsShouldUpdateStats();
+    //end npcbot
 
     return true;
 }
@@ -983,6 +986,8 @@ bool Creature::UpdateAllStats()
         UpdateMaxPower(Powers(i));
 
     UpdateAllResistances();
+ 
+
 
     return true;
 }

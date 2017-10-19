@@ -338,13 +338,15 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
             return;
         }
     }
-
     _player->PlayerTalkClass->ClearMenus();
-    if (!unit->AI()->GossipHello(_player))
+    if (!sScriptMgr->OnGossipHello(_player, unit))
     {
-//        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
-        _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);
-        _player->SendPreparedGossip(unit);
+        if (!unit->AI()->GossipHello(_player))
+        {
+    //        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
+            _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);
+            _player->SendPreparedGossip(unit);
+        }
     }
 }
 

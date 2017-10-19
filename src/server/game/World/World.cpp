@@ -1680,7 +1680,10 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Creature templates...");
     sObjectMgr->LoadCreatureTemplates();
-
+    //npcbot
+    TC_LOG_INFO("server.loading", "Loading Creature template outfits...");     // must be after LoadCreatureTemplates
+    sObjectMgr->LoadCreatureOutfits();
+    //end npcbot
     TC_LOG_INFO("server.loading", "Loading Equipment templates...");           // must be after LoadCreatureTemplates
     sObjectMgr->LoadEquipmentTemplates();
 
@@ -3402,6 +3405,76 @@ void World::ProcessQueryCallbacks()
 {
     _queryProcessor.ProcessReadyQueries();
 }
+//npcbot
+CharacterInfo const* World::GetCharacterInfo(ObjectGuid const& guid) const
+{
+    CharacterInfoContainer::const_iterator itr = _characterInfoStore.find(guid);
+    if (itr != _characterInfoStore.end())
+        return &itr->second;
+
+    return nullptr;
+}
+void World::LoadCharacterInfoStore()
+{
+    TC_LOG_INFO("server.loading", "Loading character info store");
+
+    _characterInfoStore.clear();
+
+    QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level FROM characters");
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", "No character name data loaded, empty query");
+        return;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+        AddCharacterInfo(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32()), fields[2].GetUInt32(), fields[1].GetString(),
+            fields[4].GetUInt8() /*gender*/, fields[3].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/);
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", "Loaded character infos for " SZFMTD " characters", _characterInfoStore.size());
+}
+void World::AddCharacterInfo(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+{
+    CharacterInfo& data = _characterInfoStore[guid];
+    data.Name = name;
+    data.AccountId = accountId;
+    data.Race = race;
+    data.Sex = gender;
+    data.Class = playerClass;
+    data.Level = level;
+}
+
+void World::UpdateCharacterInfo(ObjectGuid const& guid, std::string const& name, uint8 gender /*= GENDER_NONE*/, uint8 race /*= RACE_NONE*/)
+{
+    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
+        return;
+
+    itr->second.Name = name;
+
+    if (gender != GENDER_NONE)
+        itr->second.Sex = gender;
+
+    if (race != RACE_NONE)
+        itr->second.Race = race;
+
+    WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
+    data << guid;
+    SendGlobalMessage(&data);
+}
+
+void World::UpdateCharacterInfoLevel(ObjectGuid const& guid, uint8 level)
+{
+    CharacterInfoContainer::iterator itr = _characterInfoStore.find(guid);
+    if (itr == _characterInfoStore.end())
+        return;
+
+    itr->second.Level = level;
+}
+//end npcbot
 
 void World::ReloadRBAC()
 {

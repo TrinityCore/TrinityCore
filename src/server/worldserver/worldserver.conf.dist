@@ -3958,3 +3958,126 @@ Metric.OverallStatusInterval = 1
 
 #
 ###################################################################################################
+
+
+###################################################################################################
+# NPCBOT CONFIGURATION
+#
+#    NpcBot.Enable
+#        Description: Enable NpcBot system
+#        Default:   1 - enable
+#                   0 - disable
+
+NpcBot.Enable = 1
+
+#
+#    NpcBot.AllowGM
+#        Description: Allow GM's to have NpcBots
+#        Default:   1 - Allow
+#                   0 - disable
+
+NpcBot.AllowGM = 1
+
+#    NpcBot.MaxBots
+#        Description: Maximum number of bots allowed for players.
+#        Default:   1
+#        Recommend: 1-2
+#        Max:       4
+
+NpcBot.MaxBots = 1
+
+#    NpcBot.MaxBotsPerClass
+#        Description: Maximum bots of each class allowed for players.
+#        Default:   1
+#                   0 - no limit
+
+NpcBot.MaxBotsPerClass = 1
+
+#    NpcBot.BaseFollowDistance
+#        Description: Default bot follow distance.
+#        Note: This parameter determines bots' formation size, distance at which bots will chase and attack enemies.
+#        Note2: This parameter is set for each player at login.
+#        Default:   30
+
+NpcBot.BaseFollowDistance = 30
+
+#    NpcBot.XpReduction
+#        Description: XP percent penalty for each bot used starting with second.
+#        Example: 3 bots, xp reduction is 20: ((3-1)*20) = 40%, 60% exp gained only.
+#        Note: Maximum overall xp reduction is 90%.
+#        Default:   0
+
+NpcBot.XpReduction = 0
+
+#    NpcBot.HealTargetIconsMask
+#        Description: Icon number bitmask which bots use to search for additional targets to heal (out of party).
+#        Note: Many creatures cannot accept heal.
+#        Example: to check Star, Triangle and Square we need 1 + 8 + 32 = 41.
+#        Default:   0 (Disable)
+#                   1 - Star
+#                   2 - Circle
+#                   4 - Diamond
+#                   8 - Triangle
+#                   16 - Moon
+#                   32 - Square
+#                   64 - Cross
+#                   128 - Skull
+
+NpcBot.HealTargetIconsMask = 0
+
+#    NpcBot.Mult.Damage.Melee
+#    NpcBot.Mult.Damage.Spell
+#    NpcBot.Mult.Healing
+#        Description: Multipliers for bots' damage and healing. Allows to balance bots vs players.
+#        Minimum:   0.1
+#        Maximum:  10.0
+#        Default:   1.0
+
+NpcBot.Mult.Damage.Melee = 1.0
+NpcBot.Mult.Damage.Spell = 1.0
+NpcBot.Mult.Healing      = 1.0
+
+#    NpcBot.Enable.Dungeon
+#    NpcBot.Enable.Raid
+#    NpcBot.Enable.BG
+#    NpcBot.Enable.Arena
+#    NpcBot.Enable.DungeonFinder
+#        Description: Allow bots to enter PvE/PvP areas and Dungeon Finder query
+#        Default:   1 - (NpcBot.Enable.Dungeon)
+#                   0 - (NpcBot.Enable.Raid)
+#                   0 - (NpcBot.Enable.BG)
+#                   0 - (NpcBot.Enable.Arena)
+#                   1 - (NpcBot.Enable.DungeonFinder)
+
+NpcBot.Enable.Dungeon       = 1
+NpcBot.Enable.Raid          = 0
+NpcBot.Enable.BG            = 0
+NpcBot.Enable.Arena         = 0
+NpcBot.Enable.DungeonFinder = 1
+
+#    NpcBot.Limit.Dungeon
+#    NpcBot.Limit.Raid
+#        Description: Enable/Disable instance players limitation rules for bots.
+#        Default:   1 - (NpcBot.Limit.Dungeon)
+#                   1 - (NpcBot.Limit.Raid)
+
+NpcBot.Limit.Dungeon = 1
+NpcBot.Limit.Raid    = 1
+
+#    NpcBot.Cost
+#        Description: Bot recruitment cost (in copper).
+#        Note: This value is for level 80 characters.
+#              Cost is reduced for lower levels by simple formula: (cost * level / 80).
+#        Default:   1000000 (100 gold, 1g25s at level 1)
+
+NpcBot.Cost = 1000000
+
+#    NpcBot.PvP
+#        Description: Allow bots to attack player-controlled units (players, pets, bots, etc.)
+#        Note: This rule only applies to player-controlled bots
+#        Default:   1
+
+NpcBot.PvP = 1
+
+#
+###################################################################################################
