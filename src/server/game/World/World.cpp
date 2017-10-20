@@ -1088,6 +1088,12 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_GROUP_VISIBILITY] = sConfigMgr->GetIntDefault("Visibility.GroupMode", 1);
 
     m_int_configs[CONFIG_MAIL_DELIVERY_DELAY] = sConfigMgr->GetIntDefault("MailDeliveryDelay", HOUR);
+    m_int_configs[CONFIG_CLEAN_OLD_MAIL_TIME] = sConfigMgr->GetIntDefault("CleanOldMailTime", 4);
+    if (m_int_configs[CONFIG_CLEAN_OLD_MAIL_TIME] > 23)
+    {
+        TC_LOG_ERROR("server.loading", "CleanOldMailTime (%u) must be an hour, between 0 and 23. Set to 4.", m_int_configs[CONFIG_CLEAN_OLD_MAIL_TIME]);
+        m_int_configs[CONFIG_CLEAN_OLD_MAIL_TIME] = 4;
+    }
 
     m_int_configs[CONFIG_UPTIME_UPDATE] = sConfigMgr->GetIntDefault("UpdateUptimeInterval", 10);
     if (int32(m_int_configs[CONFIG_UPTIME_UPDATE]) <= 0)
@@ -2259,7 +2265,8 @@ void World::SetInitialWorldSettings()
     tm localTm;
     time_t gameTime = GameTime::GetGameTime();
     localtime_r(&gameTime, &localTm);
-    mail_timer = ((((localTm.tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
+    uint8 CleanOldMailsTime = getIntConfig(CONFIG_CLEAN_OLD_MAIL_TIME);
+    mail_timer = ((((localTm.tm_hour + (24 - CleanOldMailsTime)) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
     mail_timer_expires = ((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
     TC_LOG_INFO("server.loading", "Mail timer set to: " UI64FMTD ", mail return is called every " UI64FMTD " minutes", uint64(mail_timer), uint64(mail_timer_expires));
