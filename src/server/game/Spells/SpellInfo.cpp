@@ -3446,13 +3446,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const* e
                 target->ApplySpellImmune(Id, IMMUNITY_MECHANIC, i, apply);
 
         if (apply && HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
-        {
-            // exception for purely snare mechanic (eg. hands of freedom)!
-            if (mechanicImmunity == (1 << MECHANIC_SNARE))
-                target->RemoveMovementImpairingAuras(false);
-            else
-                target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
-        }
+            target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
     }
 
     if (uint32 dispelImmunity = immuneInfo->DispelImmune)
