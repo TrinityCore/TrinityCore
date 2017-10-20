@@ -1,4 +1,4 @@
-SET @TEXTID := xxx; -- Need 1
+SET @TEXTID := 11074;
 DELETE FROM `npc_text` WHERE `ID`=@TEXTID;
 INSERT INTO `npc_text` (`ID`, `text0_1`, `BroadcastTextID0`) VALUES
 (@TEXTID, "Forgetting your skill in Potion Mastery is not something to do lightly.$B$BAre you absolutely sure?", 21870);
