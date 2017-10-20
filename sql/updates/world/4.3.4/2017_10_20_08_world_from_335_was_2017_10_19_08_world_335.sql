@@ -1,3 +1,4 @@
+/*
 -- Item should only drop from Riverpaw Mongrel (123)
 DELETE FROM `reference_loot_template` WHERE `Item`=821;
 -- Item should only drop from Sandcrawler  (830)
@@ -79,3 +80,4 @@ INSERT INTO `creature_loot_template` (`Entry`,`Item`,`Reference`,`Chance`,`Quest
 (103, 159, 0, 5, 0, 1, 0, 1, 1, NULL), -- Refreshing Spring Water
 (103, 24073, 24073, 10, 0, 1, 0, 1, 1, NULL), -- Junk
 (103, 11111, 11111, 0.5, 0, 1, 0, 1, 1, NULL); -- Bags
+*/

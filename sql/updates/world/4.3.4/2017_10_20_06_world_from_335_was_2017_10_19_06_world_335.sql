@@ -1,3 +1,4 @@
+/*
 -- 
 -- Nimboya
 DELETE FROM `creature_text` WHERE `CreatureID`=2497;
@@ -40,3 +41,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (207600,9,0,0,0,0,100,0,0,0,0,0,105,16,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bubbling Cauldron - On Script - Add Gameobject Flag"),
 (207600,9,1,0,0,0,100,0,0,0,0,0,45,1,1,0,0,0,0,19,2497,0,0,0,0,0,0,"Bubbling Cauldron - On Script - Set Data"),
 (207600,9,2,0,0,0,100,0,11000,11000,0,0,106,16,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bubbling Cauldron - On Script - Remove Gameobject Flag");
+*/

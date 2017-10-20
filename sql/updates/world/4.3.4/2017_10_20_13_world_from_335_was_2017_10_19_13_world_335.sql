@@ -1,3 +1,4 @@
+/*
 -- Orgnil Soulscar
 UPDATE `creature_text` SET `Emote`=5 WHERE `CreatureID`=3142 AND `GroupID`=0;
 DELETE FROM `creature_text` WHERE `CreatureID`=3142 AND `GroupID`=3;
@@ -12,3 +13,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (314201,9,1,0,0,0,100,0,1000,1000,0,0,1,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Orgnil Soulscar - On Script - Say Line 3"),
 (314201,9,2,0,0,0,100,0,2000,2000,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Orgnil Soulscar - On Script - Say Line 0"),
 (314201,9,3,0,0,0,100,0,0,0,0,0,83,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Orgnil Soulscar - On Script - Add Npc Flag Questgiver");
+*/

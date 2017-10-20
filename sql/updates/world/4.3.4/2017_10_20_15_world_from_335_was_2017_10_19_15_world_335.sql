@@ -1,3 +1,4 @@
+/*
 -- Alexi Barov & Weldon Barov
 DELETE FROM `creature_text` WHERE `CreatureID` IN (11022, 11023);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -27,3 +28,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (11023,0,3,0,0,0,100,0,8000,13000,13000,16000,11,15284,0,0,0,0,0,2,0,0,0,0,0,0,0,"Weldon Barov - In Combat - Cast Cleave"),
 (11023,0,4,0,4,0,100,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Weldon Barov - On Aggro - Say Line 1"),
 (11023,0,5,0,20,0,100,0,5343,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Weldon Barov - On Quest 'Barov Family Fortune' Finished - Say Line 0");
+*/

@@ -1,3 +1,4 @@
+/*
 -- Loh'atu
 DELETE FROM `gossip_menu` WHERE `MenuID`=3481 AND `TextID`=4233;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
@@ -18,3 +19,4 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (15,3481,3,0,0,8,0,5536,0,0,0,0,0,"","Show gossip option 3 if player has quest 'A Land Filled with Hatred' rewarded"),
 (15,3481,4,0,0,8,0,5535,0,0,0,0,0,"","Show gossip option 4 if player has quest 'Spiritual Unrest' rewarded"),
 (15,3481,4,0,0,8,0,5536,0,0,0,0,0,"","Show gossip option 4 if player has quest 'A Land Filled with Hatred' rewarded");
+*/

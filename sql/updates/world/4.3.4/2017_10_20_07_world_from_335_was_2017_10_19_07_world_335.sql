@@ -1,3 +1,4 @@
+/*
 -- Quest "The Corrupter (Part 3)" --> Completion Event
 UPDATE `creature_template` SET `AIName`="SmartAI", `unit_class`=2 WHERE `entry`=4498;
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|898 WHERE `entry` IN (5773,5772);
@@ -30,3 +31,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (5772, 0, 0, "Who dares to seek me out?!", 14, 8, 100, 15, 0, 0, 2090, 0, "Lord Azrethoc's Image"),
 (5772, 1, 0, "Insects!", 14, 8, 100, 0, 0, 0, 2091, 0, "Lord Azrethoc's Image"),
 (5772, 2, 0, "Come! Come to your deaths--if you dare!", 14, 8, 100, 396, 0, 0, 2092, 0, "Lord Azrethoc's Image");
+*/

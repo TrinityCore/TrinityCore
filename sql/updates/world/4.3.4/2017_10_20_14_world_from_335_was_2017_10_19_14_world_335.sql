@@ -1,3 +1,4 @@
+/*
 -- Quest "Rot Hide Origins"
 DELETE FROM `creature_text` WHERE `CreatureID`=1498 AND `GroupID`>0;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -16,3 +17,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (149801,9,3,0,0,0,100,0,3000,3000,0,0,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bethor Iceshard - On Script - Say Line 2"),
 (149801,9,4,0,0,0,100,0,3000,3000,0,0,1,3,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bethor Iceshard - On Script - Say Line 3"),
 (149801,9,5,0,0,0,100,0,0,0,0,0,82,2,0,0,0,0,0,1,0,0,0,0,0,0,0,"Bethor Iceshard - On Script - Add Npc Flag Questgiver");
+*/
