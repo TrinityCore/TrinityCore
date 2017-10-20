@@ -657,7 +657,7 @@ typedef std::pair<ExclusiveQuestGroups::const_iterator, ExclusiveQuestGroups::co
 
 struct PetLevelInfo
 {
-    PetLevelInfo() : health(0), mana(0), armor(0), min_dmg(0), max_dmg(0)
+    PetLevelInfo() : health(0), mana(0), armor(0), minDamage(0), maxDamage(0)
     {
         for (uint16& stat : stats)
             stat = 0;
@@ -667,8 +667,8 @@ struct PetLevelInfo
     uint16 health;
     uint16 mana;
     uint32 armor;
-    uint16 min_dmg;
-    uint16 max_dmg;
+    uint16 minDamage;
+    uint16 maxDamage;
 };
 
 struct MailLevelReward
