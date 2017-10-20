@@ -870,8 +870,8 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction);
     if (!factionTemplate)
     {
-        TC_LOG_FATAL("sql.sql", "Creature (Entry: %u) has non-existing faction template (%u). This can lead to crashes, aborting.", cInfo->Entry, cInfo->faction);
-        ABORT();
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-existing faction template (%u). This can lead to crashes, set to faction 35.", cInfo->Entry, cInfo->faction);
+        factionTemplate = sFactionTemplateStore.AssertEntry(35);
     }
 
     // used later for scale
