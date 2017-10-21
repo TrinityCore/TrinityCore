@@ -12,13 +12,13 @@ INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
 
 DELETE FROM `gossip_menu_option` WHERE `MenuID` IN (8542, @MENUID, 8540, @MENUID+1, 7571, @MENUID+2);
 INSERT INTO `gossip_menu_option` (`MenuID`, `OptionID`, `OptionIcon`, `OptionText`, `OptionBroadcastTextID`, `OptionType`, `OptionNpcFlag`, `ActionMenuID`, `ActionPoiID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `VerifiedBuild`) VALUES
-(8542, 0, 0, "I wish to unlearn Transmutation Mastery.", 0, 1, 1, @MENUID, 0, 0, 0, "", 0, 0),
+(8542, 0, 0, "I wish to unlearn Transmutation Mastery.", 21876, 1, 1, @MENUID, 0, 0, 0, "", 0, 0),
 (8542, 1, 0, "I've trained as an alchemist once again.  I wish to specialize in transmutations.", 20292, 1, 1, 0, 0, 0, 0, "", 0, 0),
 (@MENUID, 0, 0, "I've made up my mind.  Make me forget my alchemy mastery!", 21873, 1, 1, 0, 0, 0, 1500000, "Forgetting your knowledge is an expensive endeavor.  Are you willing to pay the cost?", 21569, 0),
-(8540, 0, 0, "I wish to unlearn Elixir Mastery.", 0, 1, 1, @MENUID+1, 0, 0, 0, "", 0, 0),
+(8540, 0, 0, "I wish to unlearn Elixir Mastery.", 21875, 1, 1, @MENUID+1, 0, 0, 0, "", 0, 0),
 (8540, 1, 0, "I've trained as an alchemist once again.  I wish to specialize in elixirs.", 20289, 1, 1, 0, 0, 0, 0, "", 0, 0),
 (@MENUID+1, 0, 0, "I've made up my mind.  Make me forget my alchemy mastery!", 21873, 1, 1, 0, 0, 0, 1500000, "Forgetting your knowledge is an expensive endeavor.  Are you willing to pay the cost?", 21569, 0),
-(7571, 0, 0, "I wish to unlearn Potion Mastery.", 0, 1, 1, @MENUID+2, 0, 0, 0, "", 0, 0),
+(7571, 0, 0, "I wish to unlearn Potion Mastery.", 21874, 1, 1, @MENUID+2, 0, 0, 0, "", 0, 0),
 (7571, 1, 0, "I've trained as an alchemist once again.  I wish to specialize in potions.", 20287, 1, 1, 0, 0, 0, 0, "", 0, 0),
 (@MENUID+2, 0, 0, "I've made up my mind.  Make me forget my alchemy mastery!", 21873, 1, 1, 0, 0, 0, 1500000, "Forgetting your knowledge is an expensive endeavor.  Are you willing to pay the cost?", 21569, 0);
 
