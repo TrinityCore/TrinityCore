@@ -18,12 +18,11 @@
 /* ScriptData
 SDName: Western_Plaguelands
 SD%Complete: 90
-SDComment: Quest support: 5097, 5098, 5216, 5219, 5222, 5225, 5229, 5231, 5233, 5235. To obtain Vitreous Focuser (could use more spesifics about gossip items)
+SDComment: Quest support: 5097, 5098, 5216, 5219, 5222, 5225, 5229, 5231, 5233, 5235.
 SDCategory: Western Plaguelands
 EndScriptData */
 
 /* ContentData
-npcs_dithers_and_arbington
 npc_the_scourge_cauldron
 npc_andorhal_tower
 EndContentData */
@@ -33,99 +32,6 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "WorldSession.h"
-
-/*######
-## npcs_dithers_and_arbington
-######*/
-
-enum DithersAndArbington
-{
-    GOSSIP_ITEM_ID_FELSTONE_FIELD   = 0,
-    GOSSIP_ITEM_ID_DALSON_S_TEARS   = 1,
-    GOSSIP_ITEM_ID_WRITHING_HAUNT   = 2,
-    GOSSIP_ITEM_ID_GAHRRON_S_WITH   = 3,
-    GOSSIP_MENU_ID_LETS_GET_TO_WORK = 3223,
-    GOSSIP_MENU_ID_VITREOUS_FOCUSER = 3229,
-    NPC_TEXT_OSSEOUS_AGITATORS      = 3980,
-    NPC_TEXT_SOMATIC_INTENSIFIERS_1 = 3981,
-    NPC_TEXT_SOMATIC_INTENSIFIERS_2 = 3982,
-    NPC_TEXT_ECTOPLASMIC_RESONATORS = 3983,
-    NPC_TEXT_LET_S_GET_TO_WORK      = 3985,
-    QUEST_MISSION_ACCOMPLISHED_H    = 5237,
-    QUEST_MISSION_ACCOMPLISHED_A    = 5238,
-    CREATE_ITEM_VITREOUS_FOCUSER    = 17529
-};
-
-class npcs_dithers_and_arbington : public CreatureScript
-{
-    public:
-        npcs_dithers_and_arbington() : CreatureScript("npcs_dithers_and_arbington") { }
-
-        struct npcs_dithers_and_arbingtonAI : public ScriptedAI
-        {
-            npcs_dithers_and_arbingtonAI(Creature* creature) : ScriptedAI(creature) { }
-
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-            {
-                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-                ClearGossipMenuFor(player);
-                switch (action)
-                {
-                    case GOSSIP_ACTION_TRADE:
-                        player->GetSession()->SendListInventory(me->GetGUID());
-                        break;
-                    case GOSSIP_ACTION_INFO_DEF + 1:
-                        AddGossipItemFor(player, GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                        SendGossipMenuFor(player, NPC_TEXT_OSSEOUS_AGITATORS, me->GetGUID());
-                        break;
-                    case GOSSIP_ACTION_INFO_DEF + 2:
-                        AddGossipItemFor(player, GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                        SendGossipMenuFor(player, NPC_TEXT_SOMATIC_INTENSIFIERS_1, me->GetGUID());
-                        break;
-                    case GOSSIP_ACTION_INFO_DEF + 3:
-                        AddGossipItemFor(player, GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                        SendGossipMenuFor(player, NPC_TEXT_SOMATIC_INTENSIFIERS_2, me->GetGUID());
-                        break;
-                    case GOSSIP_ACTION_INFO_DEF + 4:
-                        AddGossipItemFor(player, GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                        SendGossipMenuFor(player, NPC_TEXT_ECTOPLASMIC_RESONATORS, me->GetGUID());
-                        break;
-                    case GOSSIP_ACTION_INFO_DEF + 5:
-                        CloseGossipMenuFor(player);
-                        DoCast(player, CREATE_ITEM_VITREOUS_FOCUSER, false);
-                        break;
-                }
-                return true;
-            }
-
-            bool GossipHello(Player* player) override
-            {
-                if (me->IsQuestGiver())
-                    player->PrepareQuestMenu(me->GetGUID());
-
-                if (me->IsVendor())
-                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-                if (player->GetQuestRewardStatus(QUEST_MISSION_ACCOMPLISHED_H) || player->GetQuestRewardStatus(QUEST_MISSION_ACCOMPLISHED_A))
-                {
-                    AddGossipItemFor(player, GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_FELSTONE_FIELD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    AddGossipItemFor(player, GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_DALSON_S_TEARS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    AddGossipItemFor(player, GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_WRITHING_HAUNT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                    AddGossipItemFor(player, GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_GAHRRON_S_WITH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-                    SendGossipMenuFor(player, NPC_TEXT_LET_S_GET_TO_WORK, me->GetGUID());
-                }
-                else
-                    SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
-
-                return true;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npcs_dithers_and_arbingtonAI(creature);
-        }
-};
 
 /*######
 ## npc_the_scourge_cauldron
@@ -247,7 +153,6 @@ public:
 
 void AddSC_western_plaguelands()
 {
-    new npcs_dithers_and_arbington();
     new npc_the_scourge_cauldron();
     new npc_andorhal_tower();
 }
