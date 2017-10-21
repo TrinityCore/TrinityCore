@@ -357,33 +357,6 @@ public:
     }
 };
 
-enum TheEmissary
-{
-    QUEST_THE_EMISSARY      =   11626,
-    NPC_LEVIROTH            =   26452
-};
-
-class item_trident_of_nazjan : public ItemScript
-{
-public:
-    item_trident_of_nazjan() : ItemScript("item_Trident_of_Nazjan") { }
-
-    bool OnUse(Player* player, Item* item, const SpellCastTargets & /*targets*/) override
-    {
-        if (player->GetQuestStatus(QUEST_THE_EMISSARY) == QUEST_STATUS_INCOMPLETE)
-        {
-            if (Creature* pLeviroth = player->FindNearestCreature(NPC_LEVIROTH, 10.0f)) // spell range
-            {
-                pLeviroth->AI()->AttackStart(player);
-                return false;
-            } else
-                player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, item, NULL);
-        } else
-            player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, NULL);
-        return true;
-    }
-};
-
 enum CapturedFrog
 {
     QUEST_THE_PERFECT_SPIES      = 25444,
@@ -445,7 +418,6 @@ void AddSC_item_scripts()
     new item_pile_fake_furs();
     new item_petrov_cluster_bombs();
     new item_dehta_trap_smasher();
-    new item_trident_of_nazjan();
     new item_captured_frog();
     new item_generic_limit_chance_above_60();
 }
