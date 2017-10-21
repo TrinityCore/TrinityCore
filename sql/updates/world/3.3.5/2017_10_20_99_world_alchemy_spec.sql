@@ -1,3 +1,4 @@
+--
 SET @TEXTID := 11074;
 DELETE FROM `npc_text` WHERE `ID`=@TEXTID;
 INSERT INTO `npc_text` (`ID`, `text0_1`, `BroadcastTextID0`) VALUES
