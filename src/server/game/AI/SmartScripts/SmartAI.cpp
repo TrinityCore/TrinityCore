@@ -552,6 +552,7 @@ void SmartAI::JustAppeared()
         me->RestoreFaction();
     mJustReset = true;
     JustReachedHome();
+    GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     mFollowGuid.Clear(); // do not reset follower on Reset(), we need it after combat evade
     mFollowDist = 0;
     mFollowAngle = 0;
@@ -694,10 +695,7 @@ void SmartAI::InitializeAI()
     GetScript()->OnInitialize(me);
 
     if (!me->isDead())
-    {
         GetScript()->OnReset();
-        GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
-    }
 }
 
 void SmartAI::OnCharmed(bool apply)
@@ -926,15 +924,14 @@ void SmartGameObjectAI::UpdateAI(uint32 diff)
 void SmartGameObjectAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
-
-    // do not call respawn event if go is not spawned
-    if (me->isSpawned())
-        GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     //Reset();
 }
 
 void SmartGameObjectAI::Reset()
 {
+    // call respawn event on reset
+    GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
+
     GetScript()->OnReset();
 }
 
