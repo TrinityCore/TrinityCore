@@ -672,8 +672,8 @@ enum CaptainTyralius
     SPELL_GREEN_BANISH      = 32567,
     SPELL_TELEPORT_VISUAL   = 51347,
     SAY_FREE                = 0,
-    EVENT_TALK              = 1,
-    EVENT_TELEPORT          = 2
+    ACTION_FREED            = 0,
+    EVENT_TELEPORT          = 1
 };
 
 class go_captain_tyralius_prison : public GameObjectScript
@@ -699,7 +699,7 @@ class go_captain_tyralius_prison : public GameObjectScript
                 if (Creature* tyralius = me->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
                 {
                     player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS);
-                    tyralius->AI()->DoAction(0);
+                    tyralius->AI()->DoAction(ACTION_FREED);
                 }
 
                 if (Creature* prisoner = me->FindNearestCreature(NPC_ETHEREUM_PRISONER, 1.0f))
