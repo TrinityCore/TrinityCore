@@ -1,3 +1,4 @@
+/*
 -- 
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = 2530;
 
@@ -13,3 +14,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceGroup` IN (1,7) AND `SourceEntry`=2530 AND `SourceId`=0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (22, 1, 2530, 0, 0, 9, 0, 592, 0, 0, 0, 0, 0, '', 'Yenniku SAI event 0 will execute if quest Saving Yenniku has been taken.');
+*/

@@ -1,3 +1,4 @@
+/*
 -- Worg
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=1765;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=1765 AND `source_type`=0;
@@ -392,3 +393,4 @@ UPDATE `creature` SET `MovementType`=1, `spawndist`=10 WHERE `guid`=26125;
 -- Correct spawn position and add random movement for some creatures
 UPDATE `creature` SET `position_x`=1228.81, `position_y`=395.465, `position_z`=27.4251, `MovementType`=1, `spawndist`=5 WHERE `guid`=17639;
 UPDATE `creature` SET `position_x`=-551.273, `position_y`=1136.9, `position_z`=89.1978, `MovementType`=1, `spawndist`=5 WHERE `guid`=17610;
+*/

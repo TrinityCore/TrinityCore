@@ -1,3 +1,4 @@
+/*
 UPDATE `creature_template` SET `AIName`="SmartAI", `ScriptName`="" WHERE `entry` IN (11056, 11057);
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup` IN (3223, 3224, 3225, 3226, 3227, 3228);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
@@ -51,3 +52,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (11057, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 17529, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Apothecary Dithers - On Gossip Option Selected - Cast 'Vitreous Focuser'"),
 (11057, 0, 6, 7, 62, 0, 100, 0, 3227, 0, 0, 0, 72, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Apothecary Dithers - On Gossip Option Selected - Close Gossip"),
 (11057, 0, 7, 0, 61, 0, 100, 0, 0, 0, 0, 0, 11, 17529, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, "Apothecary Dithers - On Gossip Option Selected - Cast 'Vitreous Focuser'");
+*/

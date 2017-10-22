@@ -1,3 +1,4 @@
+/*
 SET @POOLENTRY := 378;  -- need a new pool_template entry for this
 SET @GUID := 36943; -- need a new GUID for the 2nd spawn
 SET @CGUID := 26081;  -- original TDB spawn
@@ -21,3 +22,4 @@ INSERT INTO `pool_creature` (`guid`,`pool_entry`,`chance`,`description`) VALUES
 
 -- Reduce original Snagglespear (5786) spawn time to 1 hour
 UPDATE `creature` SET `spawntimesecs`=3600 WHERE `guid`=@CGUID;
+*/

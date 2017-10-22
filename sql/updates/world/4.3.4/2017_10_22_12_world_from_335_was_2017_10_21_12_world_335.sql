@@ -1,3 +1,4 @@
+/*
 -- Stonard Scout
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=861;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=861 AND `source_type`=0;
@@ -261,3 +262,4 @@ UPDATE `creature` SET `position_x`=-10157, `position_y`=-2822.25, `position_z`=2
 
 -- Increase movement range for Sawfin Frenzy
 UPDATE `creature` SET `spawndist`=20 WHERE `id`=14356;
+*/
