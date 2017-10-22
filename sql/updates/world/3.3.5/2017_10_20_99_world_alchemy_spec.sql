@@ -4,7 +4,7 @@ DELETE FROM `npc_text` WHERE `ID`=@TEXTID;
 INSERT INTO `npc_text` (`ID`, `text0_1`, `BroadcastTextID0`) VALUES
 (@TEXTID, "Forgetting your skill in Potion Mastery is not something to do lightly.$B$BAre you absolutely sure?", 21870);
 
-SET @MENUID := xxx; -- Need 3
+SET @MENUID := 21402; -- Need 3
 DELETE FROM `gossip_menu` WHERE `MenuID` BETWEEN @MENUID AND @MENUID+2;
 INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
 (@MENUID, 11076, 0), -- Transmutation
