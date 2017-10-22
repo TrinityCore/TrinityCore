@@ -731,7 +731,8 @@ public:
 
         void DoAction(int32 /*action*/) override
         {
-            _events.ScheduleEvent(EVENT_TALK, 0);
+            Talk(SAY_FREE);
+            _events.ScheduleEvent(EVENT_TELEPORT, Seconds(5));
         }
 
         void UpdateAI(uint32 diff) override
@@ -742,14 +743,10 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_TALK:
-                    Talk(SAY_FREE);
-                    _events.ScheduleEvent(EVENT_TELEPORT, Seconds(5));
-                    break;
-                case EVENT_TELEPORT:
-                    DoCastSelf(SPELL_TELEPORT_VISUAL);
-                    me->DespawnOrUnsummon(Seconds(2));
-                    break;
+                    case EVENT_TELEPORT:
+                        DoCastSelf(SPELL_TELEPORT_VISUAL);
+                        me->DespawnOrUnsummon(Seconds(2));
+                        break;
                 }
             }
         }
