@@ -3,7 +3,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (26452, 0, 3, 0, 25, 0, 100, 512, 0, 0, 0, 0, 18, 768, 0, 0, 0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 0, "Leviroth - On Reset - Add Unit flags (Immune to NPC and PC)"),
 (26452, 0, 4, 0, 0, 0, 100, 0, 5000, 10000, 7000, 9000, 11, 19643, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, "Leviroth - In Combat - Cast 'Mortal Strike'");
 
-UPDATE `item_template` SET `ScriptName`="" WHERE `entry`=35850;
+DELETE FROM `item_script_names` WHERE `id`=35850;
 UPDATE `creature_template` SET `InhabitType`=2 WHERE `entry`=26452;
 
 DELETE FROM `conditions` WHERE `SourceEntry`=47170 AND `SourceTypeOrReferenceId`=17;
