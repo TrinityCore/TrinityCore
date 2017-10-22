@@ -669,7 +669,6 @@ enum CaptainTyralius
 {
     NPC_CAPTAIN_TYRALIUS    = 20787,
     NPC_ETHEREUM_PRISONER   = 20825,
-    SPELL_GREEN_BANISH      = 32567,
     SPELL_TELEPORT_VISUAL   = 51347,
     SAY_FREE                = 0,
     ACTION_FREED            = 0,
