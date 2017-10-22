@@ -82,8 +82,12 @@ public:
 
         bool doCast(Unit* victim, uint32 spellId, bool triggered = false)
         {
+            //TC_LOG_ERROR("entities.unit","trying to cast spell %u", spellId);
             if (CheckBotCast(victim, spellId, BOT_CLASS_ROGUE) != SPELL_CAST_OK)
+            {
+                //TC_LOG_ERROR("entities.unit","failed to cast spell %u with error %u", spellId, CheckBotCast(victim, spellId, BOT_CLASS_ROGUE));
                 return false;
+            }
             return bot_ai::doCast(victim, spellId, triggered);
         }
 
@@ -129,7 +133,7 @@ public:
 
         uint32 getenergy()
         {
-            energy = me->GetPower(POWER_ENERGY);
+            energy = me->GetPower(POWER_ENERGY)*10;
             return energy;
         }
 
@@ -182,7 +186,7 @@ public:
             AttackerSet b_attackers = me->getAttackers();
             float dist = me->GetExactDist(opponent);
             float meleedist = me->GetDistance(opponent);
-
+            //TC_LOG_ERROR("entities.unit","rogue has %u energy", getenergy());
             //Blade Flurry (434 deprecated)
             if (IsSpellReady(BLADE_FLURRY_1, diff, false) && HasRole(BOT_ROLE_DPS) && meleedist <= 5 &&
                 Rand() < 30 && getenergy() >= 25 && FindSplashTarget(7, opponent))
@@ -229,11 +233,16 @@ public:
                     return;
             }
             //SINISTER STRIKE
+            //TC_LOG_ERROR("entities.unit","rogue has sinisterstrike ready value of %u, and diff is %u and sinistrike strike id is %u and combopoints of %u and has role dps of %u and melee distance of %u", IsSpellReady(SINISTER_STRIKE_1, diff), diff, SINISTER_STRIKE_1, comboPoints,HasRole(BOT_ROLE_DPS), (unsigned int) meleedist);
             if (IsSpellReady(SINISTER_STRIKE_1, diff) && HasRole(BOT_ROLE_DPS) && meleedist <= 5 && comboPoints < 5 &&
-                Rand() < 25 && getenergy() >= 45)
+                /*Rand() < 25 &&*/ getenergy() >= 45)
             {
+                //TC_LOG_ERROR("entities.unit","passed sinister strike checks");
                 if (doCast(opponent, GetSpell(SINISTER_STRIKE_1)))
+                {
+                    //TC_LOG_ERROR("entities.unit","passed docast for sinister strike");
                     return;
+                }
             }
             //SLICE AND DICE
             if (IsSpellReady(SLICE_DICE_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 20 && comboPoints > 1 && getenergy() >= 25 &&
@@ -764,7 +773,7 @@ public:
         enum RogueBaseSpells
         {
             BACKSTAB_1                          = 53,
-            SINISTER_STRIKE_1                   = 1757,
+            SINISTER_STRIKE_1                   = 1752,
             SLICE_DICE_1                        = 5171,
             EVISCERATE_1                        = 2098,
             KICK_1                              = 1766,

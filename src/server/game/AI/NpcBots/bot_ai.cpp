@@ -316,7 +316,7 @@ SpellCastResult bot_ai::CheckBotCast(Unit* victim, uint32 spellId, uint8 botclas
     //    (int32)me->GetPower(me->getPowerType()) < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()))
     //    return SPELL_FAILED_NO_POWER;
 
-    if ((int32)me->GetPower(Powers(spellInfo->PowerType)) < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()))
+    if ((int32)me->GetPower(Powers(spellInfo->PowerType)) < spellInfo->CalcPowerCost(me, spellInfo->GetSchoolMask()) && botclass != BOT_CLASS_ROGUE)
         return SPELL_FAILED_NO_POWER;
 
     if (victim->isType(TYPEMASK_UNIT) && InDuel(victim))

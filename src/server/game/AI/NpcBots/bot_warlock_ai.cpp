@@ -185,6 +185,12 @@ public:
             if (IsSpellReady(SHADOW_BOLT_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 30 &&
                 doCast(opponent, GetSpell(SHADOW_BOLT_1)))
                 return;
+            if (IsSpellReady(LIFE_TAP_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 30 &&
+                doCast(me, GetSpell(LIFE_TAP_1)))
+            {
+                DoLifeTap();
+                return;
+            }
         }
 
         uint8 Afflicted(Unit* target)
@@ -207,6 +213,42 @@ public:
             Unit* feartarget = FindFearTarget();
             if (feartarget && doCast(feartarget, FEAR))
                 return;
+        }
+
+        void DoLifeTap()
+        {
+            if (me->GetHealth()*2 > me->GetMaxHealth() && GetManaPCT(me) < 100)
+            {
+                int32 baseTransfer = 0;
+                if (me->getLevel() == 80)
+                    baseTransfer = 2000;
+                else if (me->getLevel() >= 68)
+                    baseTransfer = 1124;
+                else if (me->getLevel() >= 56)
+                    baseTransfer = 827;
+                else if (me->getLevel() >= 46)
+                    baseTransfer = 306;
+                else if (me->getLevel() >= 36)
+                    baseTransfer = 215;
+                else if (me->getLevel() >= 26)
+                    baseTransfer = 132;
+                else if (me->getLevel() >= 16)
+                    baseTransfer = 66;
+                else if (me->getLevel() >= 6)
+                    baseTransfer = 27;
+                if (baseTransfer > 0)
+                {
+                    int32 currHealth = me->GetHealth();
+                    int32 currMana = me->GetPower(POWER_MANA);
+                    int32 maxMana = me->GetMaxPower(POWER_MANA);
+                    int32 spp = (int)(me->GetBotAI()->GetBotSpellPower());
+                    int32 restoreMana = (int) (baseTransfer+spp*.5+.5);
+                    if (restoreMana > (maxMana-currMana))
+                        restoreMana = maxMana-currMana;
+                    me->SetPower(POWER_MANA,(restoreMana+currMana));
+                    me->SetHealth(currHealth-baseTransfer);
+                }
+            }
         }
 
         //void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
@@ -331,6 +373,7 @@ public:
             InitSpellMap(CURSE_OF_THE_ELEMENTS_1);
             InitSpellMap(SHADOW_BOLT_1);
             InitSpellMap(IMMOLATE_1);
+            InitSpellMap(LIFE_TAP_1);
             lvl >= 40 ? InitSpellMap(CONFLAGRATE_1) : RemoveSpell(CONFLAGRATE_1);
   /*Talent*/lvl >= 60 ? InitSpellMap(CHAOS_BOLT_1) : RemoveSpell(CHAOS_BOLT_1);
             InitSpellMap(RAIN_OF_FIRE_1);
@@ -358,6 +401,7 @@ public:
             HAUNT_1                             = 59164,
             CORRUPTION_1                        = 172,
             UNSTABLE_AFFLICTION_1               = 30404,
+            LIFE_TAP_1                          = 1454,
             FEAR_1                              = 6215
         };
         enum WarlockPassives
