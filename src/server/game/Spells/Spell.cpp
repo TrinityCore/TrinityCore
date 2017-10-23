@@ -59,6 +59,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "bot_ai.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -564,10 +565,31 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     m_spellSchoolMask = info->GetSchoolMask();           // Can be override for some spell (wand shoot for example)
 
     if (m_attackType == RANGED_ATTACK)
+    {
         // wand case
         if ((m_caster->getClassMask() & CLASSMASK_WAND_USERS) != 0 && m_caster->GetTypeId() == TYPEID_PLAYER)
+        {
             if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
                 m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->Damage[0].DamageType);
+        }
+        //npcbot
+        else if (caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->GetBotAI())
+        {
+            if (Creature* bot = caster->ToCreature())
+                if (bot->GetIAmABot())
+                    if (bot->GetBotMinionAI()->GetBotClass() == BOT_CLASS_WARLOCK ||
+                        bot->GetBotMinionAI()->GetBotClass() == BOT_CLASS_MAGE ||
+                        bot->GetBotMinionAI()->GetBotClass() == BOT_CLASS_PRIEST)
+                    {
+                        if (Item const* pItem = bot->GetBotMinionAI()->GetEquips(2))
+                        {
+                            m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->Damage[0].DamageType);
+                            m_spellValue->EffectBasePoints[0] = urand(pItem->GetTemplate()->Damage[0].DamageMin,pItem->GetTemplate()->Damage[0].DamageMax);
+                        }
+                    }
+        }
+        //end npcbot
+    }
 
     if (originalCasterGUID)
         m_originalCasterGUID = originalCasterGUID;

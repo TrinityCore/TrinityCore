@@ -671,7 +671,7 @@ class bot_ai : public ScriptedAI
         float atpower, maxdist, ap_mod, spp_mod, crit_mod;
         ObjectGuid aftercastTargetGuid;
         int32 cost, value, sppower;
-        uint32 GC_Timer, temptimer, checkAurasTimer, checkMasterTimer, roleTimer, wait, regenTimer_hp, regenTimer_mp,
+        uint32 GC_Timer, temptimer, checkAurasTimer, checkMasterTimer, roleTimer, wait, regenTimer_hp, regenTimer_mp, regenTimer_nrg,
             currentSpell;
         uint8 clear_cd;
         bool doHealth, doMana, shouldUpdateStats;
@@ -799,10 +799,11 @@ class bot_minion_ai : public bot_ai
         void InitEquips();
         void InitOwner();
         void InitFaction();
+        Item const* GetEquips(uint8 slot) const { return _equips[slot]; }
     protected:
         bool GlobalUpdate(uint32 diff);
 
-        Item const* GetEquips(uint8 slot) const { return _equips[slot]; }
+        
 
         virtual bool CanUseManually(uint32 /*basespell*/) const { return false; }
         void BuffAndHealGroup(Player* gPlayer, uint32 diff);

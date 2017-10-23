@@ -48,7 +48,7 @@ public:
 
         bool doCast(Unit* victim, uint32 spellId, bool triggered = false)
         {
-            if (CheckBotCast(victim, spellId, BOT_CLASS_WARRIOR) != SPELL_CAST_OK)
+            if (CheckBotCast(victim, spellId, BOT_CLASS_WARLOCK) != SPELL_CAST_OK)
                 return false;
 
             return bot_ai::doCast(victim, spellId, triggered);
@@ -185,10 +185,18 @@ public:
             if (IsSpellReady(SHADOW_BOLT_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 30 &&
                 doCast(opponent, GetSpell(SHADOW_BOLT_1)))
                 return;
-            if (IsSpellReady(LIFE_TAP_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 30 &&
+            if (IsSpellReady(LIFE_TAP_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 30 && 
+                me->GetHealth()*2 > me->GetMaxHealth() && GetManaPCT(me) < 100 &&
                 doCast(me, GetSpell(LIFE_TAP_1)))
             {
                 DoLifeTap();
+                return;
+            }
+            if (Item const* item = GetEquips(2))
+            if (IsSpellReady(WAND_SHOOT_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 30 && GC_Timer <= diff &&
+                doCast(opponent, GetSpell(WAND_SHOOT_1)))
+            {
+                GC_Timer = 1500;
                 return;
             }
         }
@@ -217,8 +225,8 @@ public:
 
         void DoLifeTap()
         {
-            if (me->GetHealth()*2 > me->GetMaxHealth() && GetManaPCT(me) < 100)
-            {
+            //if (me->GetHealth()*2 > me->GetMaxHealth() && GetManaPCT(me) < 100)
+            //{
                 int32 baseTransfer = 0;
                 if (me->getLevel() == 80)
                     baseTransfer = 2000;
@@ -248,7 +256,7 @@ public:
                     me->SetPower(POWER_MANA,(restoreMana+currMana));
                     me->SetHealth(currHealth-baseTransfer);
                 }
-            }
+            //}
         }
 
         //void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
@@ -374,6 +382,7 @@ public:
             InitSpellMap(SHADOW_BOLT_1);
             InitSpellMap(IMMOLATE_1);
             InitSpellMap(LIFE_TAP_1);
+            InitSpellMap(WAND_SHOOT_1);
             lvl >= 40 ? InitSpellMap(CONFLAGRATE_1) : RemoveSpell(CONFLAGRATE_1);
   /*Talent*/lvl >= 60 ? InitSpellMap(CHAOS_BOLT_1) : RemoveSpell(CHAOS_BOLT_1);
             InitSpellMap(RAIN_OF_FIRE_1);
@@ -402,6 +411,7 @@ public:
             CORRUPTION_1                        = 172,
             UNSTABLE_AFFLICTION_1               = 30404,
             LIFE_TAP_1                          = 1454,
+            WAND_SHOOT_1                        = 5019,
             FEAR_1                              = 6215
         };
         enum WarlockPassives

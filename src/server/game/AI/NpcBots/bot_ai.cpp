@@ -117,6 +117,7 @@ bot_ai::bot_ai(Creature* creature) : ScriptedAI(creature)
     regen_mp = 0;
     regenTimer_hp = 0;
     regenTimer_mp = 0;
+    regenTimer_nrg = 0;
     m_botSpellInfo = NULL;
     clear_cd = 2;
     temptimer = 0;
@@ -3156,6 +3157,19 @@ void bot_minion_ai::Regenerate()
             regenTimer_mp -= 5000;
             int32 add = (!me->IsInCombat() && IAmFree()) ? me->GetMaxPower(POWER_MANA) / 5 : int32(regen_mp);
             me->ModifyPower(POWER_MANA, add);
+        }
+    }
+
+    if (me->GetBotClass() == BOT_CLASS_ROGUE && me->GetPower(POWER_ENERGY) < me->GetMaxPower(POWER_ENERGY))
+    {
+        regenTimer_nrg += lastdiff;
+        while (regenTimer_nrg >= 2000)
+        {
+            regenTimer_nrg -= 2000;
+            if ((me->GetMaxPower(POWER_ENERGY)-me->GetPower(POWER_ENERGY)) < 20)
+                me->SetPower(POWER_ENERGY, me->GetMaxPower(POWER_ENERGY));
+            else
+                me->ModifyPower(POWER_ENERGY, 20);
         }
     }
 }
@@ -8637,6 +8651,8 @@ void bot_pet_ai::CommonTimers(uint32 diff)
     else if (regenTimer_mp > 0)     regenTimer_mp = 0;
     if (regenTimer_hp > diff)       regenTimer_hp -= diff;
     else if (regenTimer_hp > 0)     regenTimer_hp = 0;
+    if (regenTimer_nrg > diff)       regenTimer_nrg -= diff;
+    else if (regenTimer_nrg > 0)     regenTimer_nrg = 0;
 }
 
 void bot_minion_ai::UpdateReviveTimer(uint32 diff)

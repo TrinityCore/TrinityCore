@@ -280,6 +280,13 @@ public:
                             if (doCast(u, GetSpell(MIND_SEAR_1)))
                                 return;
                     }
+                    if (Item const* item = GetEquips(2))
+                    if (IsSpellReady(WAND_SHOOT_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 30 && GC_Timer <= diff &&
+                        doCast(opponent, GetSpell(WAND_SHOOT_1)))
+                    {
+                        GC_Timer = 1500;
+                        return;
+                    }
                 }//endif opponent
             }//endif damage
             //check horror after dots/damage
@@ -899,6 +906,7 @@ public:
             InitSpellMap(DIVINE_SPIRIT_1);
             InitSpellMap(SW_PAIN_1);
             InitSpellMap(MIND_BLAST_1);
+            InitSpellMap(WAND_SHOOT_1);
             InitSpellMap(SW_DEATH_1);
             InitSpellMap(DEVOURING_PLAGUE_1);
   /*Talent*/lvl >= 20 ? InitSpellMap(MIND_FLAY_1) : RemoveSpell(MIND_FLAY_1);
@@ -1013,6 +1021,7 @@ public:
             SW_PAIN_1                           = 589,
             MIND_BLAST_1                        = 8092,
             SW_DEATH_1                          = 32379,
+            WAND_SHOOT_1                        = 5019,
             DEVOURING_PLAGUE_1                  = 2944,
   /*Talent*/MIND_FLAY_1                         = 15407,
   /*Talent*/VAMPIRIC_TOUCH_1                    = 34914

@@ -393,6 +393,13 @@ public:
             if (IsSpellReady(ARCANEMISSILES_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 20 && Rand() < 15 &&
                 doCast(opponent, GetSpell(ARCANEMISSILES_1)))
                 return;
+            if (Item const* item = GetEquips(2))
+            if (IsSpellReady(WAND_SHOOT_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 30 && GC_Timer <= diff &&
+                doCast(opponent, GetSpell(WAND_SHOOT_1)))
+            {
+                GC_Timer = 1500;
+                return;
+            }
         }
 
         void CheckPoly(uint32 diff)
@@ -759,6 +766,7 @@ public:
             InitSpellMap(DAMPENMAGIC_1);
   /*Talent*/lvl >= 50 ? InitSpellMap(COMBUSTION_1) : RemoveSpell(COMBUSTION_1);
             InitSpellMap(FROSTBOLT_1);
+            InitSpellMap(WAND_SHOOT_1);
             InitSpellMap(FROSTNOVA_1);
             InitSpellMap(CONEOFCOLD_1);
             InitSpellMap(BLIZZARD_1);
@@ -858,6 +866,7 @@ public:
             ICEARMOR_1                          = 7302,
             ICE_BARRIER_1                       = 11426,
             ICEBLOCK_1                          = 45438,
+            WAND_SHOOT_1                        = 5019,
             FOCUSMAGIC_1                        = 54646
         };
 

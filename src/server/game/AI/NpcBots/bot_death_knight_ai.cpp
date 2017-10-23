@@ -537,6 +537,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
+            me->SetMaxPower(POWER_RUNIC_POWER, me->GetCreatePowers(POWER_RUNIC_POWER));
             ReduceCD(diff);
             if (!GlobalUpdate(diff))
                 return;
@@ -1342,7 +1343,7 @@ public:
             runicpowerIncomeMult = sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME);
             runicpowerLossMult = sWorld->getRate(RATE_POWER_RUNICPOWER_LOSS);
             me->setPowerType(POWER_RUNIC_POWER);
-            me->SetMaxPower(POWER_RUNIC_POWER, me->GetCreatePowers(POWER_RUNIC_POWER));
+            me->SetMaxPower(POWER_RUNIC_POWER, me->GetCreatePowers(POWER_RUNIC_POWER));            
 
             DefaultInit();
             InitRunes();
