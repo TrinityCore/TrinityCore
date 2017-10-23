@@ -140,6 +140,13 @@ void ObjectGridLoader::Visit(GameObjectMapType &m)
     LoadHelper(cell_guids.gameobjects, cellCoord, m, i_gameObjects, i_map);
 }
 
+void ObjectGridLoader::Visit(AreaTriggerMapType &m)
+{
+    CellCoord cellCoord = i_cell.GetCellCoord();
+    CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetSpawnMode(), cellCoord.GetId());
+    LoadHelper(cell_guids.areatriggers, cellCoord, m, i_areaTriggers, i_map);
+}
+
 void ObjectGridLoader::Visit(CreatureMapType &m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
@@ -168,7 +175,7 @@ void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
 
 void ObjectGridLoader::LoadN(void)
 {
-    i_gameObjects = 0; i_creatures = 0; i_corpses = 0;
+    i_gameObjects = 0; i_creatures = 0; i_corpses = 0; i_areaTriggers = 0;
     i_cell.data.Part.cell_y = 0;
     for (uint32 x = 0; x < MAX_NUMBER_OF_CELLS; ++x)
     {
@@ -191,7 +198,7 @@ void ObjectGridLoader::LoadN(void)
             }
         }
     }
-    TC_LOG_DEBUG("maps", "%u GameObjects, %u Creatures, and %u Corpses/Bones loaded for grid %u on map %u", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
+    TC_LOG_DEBUG("maps", "%u GameObjects, %u Creatures, %u Corpses/Bones and %u AreaTriggers loaded for grid %u on map %u", i_gameObjects, i_creatures, i_corpses, i_areaTriggers, i_grid.GetGridId(), i_map->GetId());
 }
 
 template<class T>

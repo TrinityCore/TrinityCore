@@ -28,6 +28,7 @@
 #include "SpellAuraEffects.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
+#include "ObjectMgr.h"
 #include <numeric>
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
@@ -562,6 +563,29 @@ void Player::UpdateMastery()
     }
 }
 
+void Player::UpdateVersatility()
+{
+    float valueBonus = GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY);
+    float valueDone = GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE);
+
+    SetFloatValue(PLAYER_VERSATILITY, valueDone);
+    SetFloatValue(PLAYER_VERSATILITY_BONUS, valueBonus);
+
+    if (getClass() == CLASS_HUNTER)
+        UpdateDamagePhysical(RANGED_ATTACK);
+    else
+        UpdateDamagePhysical(BASE_ATTACK);
+}
+
+void Player::UpdateAverageItemLevel()
+{
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::PLAYER_AVG_ITEM_LEVEL_EQUIPPED_AND_BAG, (float)GetAverageItemLevelEquippedAndBag());
+    SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::PLAYER_AVG_ITEM_LEVEL_EQUIPPED, (float)GetAverageItemLevelEquipped());
+    // @TODO : Possible old offsets for WoD itemlevel scaling
+    //SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::PLAYER_AVG_ITEM_LEVEL_UNK3, equipped);
+    //SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::PLAYER_AVG_ITEM_LEVEL_UNK4, equipped_bag);
+}
+
 const float m_diminishing_k[MAX_CLASSES] =
 {
     0.9560f,  // Warrior
@@ -743,19 +767,29 @@ void Player::UpdateManaRegen()
     if (manaIndex == MAX_POWERS)
         return;
 
-    // Mana regen from spirit
-    float spirit_regen = 0.0f;
-    // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT aura on spirit base regen
-    spirit_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+    // Base Mana Pool = 5% of Base Mana
+    float regenPct = 5.0f;
 
-    // CombatRegen = 5% of Base Mana
-    float base_regen = GetCreateMana() * 0.02f + GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) / 5.0f;
+    // Get base of Mana Pool in sBaseMPGameTable
+    uint32 basemana = 0;
+    sObjectMgr->GetPlayerClassLevelInfo(getClass(), getLevel(), basemana);
+    float base_regen = basemana * regenPct / 100.f;
 
-    // Set regen rate in cast state apply only on spirit based regen
-    int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
+    base_regen += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA);
 
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + manaIndex, base_regen + CalculatePct(spirit_regen, modManaRegenInterrupt));
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + manaIndex, 0.001f + spirit_regen + base_regen);
+    // Calculate for 1 second, the client multiplies the field values by 5
+    base_regen /= 5;
+
+    // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT
+    base_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
+
+    // Apply PCT bonus from SPELL_AURA_MOD_MANA_REGEN_PCT
+    auto auraEffects = GetAuraEffectsByType(SPELL_AURA_MOD_MANA_REGEN_PCT);
+        for (auto it = auraEffects.begin(); it != auraEffects.end(); ++it)
+            AddPct(base_regen, (*it)->GetAmount());
+
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER + manaIndex, base_regen);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER + manaIndex, base_regen);
 }
 
 void Player::UpdateAllRunesRegen()

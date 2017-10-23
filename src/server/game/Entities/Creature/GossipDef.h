@@ -79,6 +79,17 @@ enum GossipOptionIcon
     GOSSIP_ICON_CHAT_19             = 19,                   // white chat bubble
     GOSSIP_ICON_CHAT_20             = 20,                   // white chat bubble
     GOSSIP_ICON_CHAT_21             = 21,                   // transmogrifier?
+    GOSSIP_ICON_CHAT_22             = 22,
+    GOSSIP_ICON_CHAT_23             = 23,
+    GOSSIP_ICON_CHAT_24             = 24,
+    GOSSIP_ICON_CHAT_25             = 25,
+    GOSSIP_ICON_CHAT_26             = 26,
+    GOSSIP_ICON_CHAT_27             = 27,
+    GOSSIP_ICON_SHIPMENT            = 28,
+    GOSSIP_ICON_CHAT_29             = 29,
+    GOSSIP_ICON_CHAT_30             = 30,
+    GOSSIP_ICON_CHAT_31             = 31,
+    GOSSIP_ICON_CHAT_32             = 32,
     GOSSIP_ICON_MAX
 };
 

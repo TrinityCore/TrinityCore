@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include <vector>
+#include <boost/property_tree/ptree.hpp>
 
 class AccountMgr;
 class AreaTrigger;
@@ -61,6 +62,7 @@ class WorldPacket;
 class WorldSocket;
 class WorldObject;
 class WorldSession;
+class RestResponse;
 
 struct AreaTriggerEntry;
 struct AuctionEntry;
@@ -724,6 +726,9 @@ class TC_GAME_API PlayerScript : public UnitScript
         // Called when a player logs in.
         virtual void OnLogin(Player* /*player*/, bool /*firstLogin*/) { }
 
+        // Called at each player update
+        virtual void OnUpdate(Player* /*player*/, uint32 /*diff*/) { }
+
         // Called when a player logs out.
         virtual void OnLogout(Player* /*player*/) { }
 
@@ -743,13 +748,43 @@ class TC_GAME_API PlayerScript : public UnitScript
         virtual void OnBindToInstance(Player* /*player*/, Difficulty /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/, uint8 /*extendState*/) { }
 
         // Called when a player switches to a new zone
-        virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*newArea*/) { }
+        virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*oldZone*/, uint32 /*newArea*/) { }
+
+        // Called when a player switches to a new area
+        virtual void OnUpdateArea(Player* /*player*/, uint32 /*newArea*/, uint32 /*oldArea*/) { }
 
         // Called when a player changes to a new map (after moving to new map)
         virtual void OnMapChanged(Player* /*player*/) { }
 
+        // Called when player accepts some quest
+        virtual void OnQuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
+
+        // Called when player has quest removed from questlog (active or rewarded)
+        virtual void OnQuestAbandon(Player* /*player*/, Quest const* /*quest*/) { }
+
+        // Called when a player validates some quest objective
+        virtual void OnObjectiveValidate(Player* /*player*/, uint32 /*questId*/, uint32 /*objectiveId*/) { }
+
+        // Called when player completes some quest
+        virtual void OnQuestComplete(Player* /*player*/, Quest const* /*quest*/) { }
+
+        // Called when player rewards some quest
+        virtual void OnQuestReward(Player* /*player*/, Quest const* /*quest*/) { }
+
         // Called after a player's quest status has been changed
         virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
+
+        // Called when a player start a standalone scene
+        virtual void OnSceneStart(Player* /*player*/, uint32 /*scenePackageId*/, uint32 /*sceneInstanceID*/) { }
+
+        // Called when a player receive a scene triggered event
+        virtual void OnSceneTriggerEvent(Player* /*player*/, uint32 /*sceneInstanceID*/, std::string /*event*/) { }
+
+        // Called when a player cancels some scene
+        virtual void OnSceneCancel(Player* /*player*/, uint32 /*sceneInstanceID*/) { }
+
+        // Called when a player complete some scene
+        virtual void OnSceneComplete(Player* /*player*/, uint32 /*sceneInstanceID*/) { }
 
         // Called when a player completes a movie
         virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
@@ -780,6 +815,20 @@ class TC_GAME_API AccountScript : public ScriptObject
 
         // Called when Password failed to change for Account
         virtual void OnFailedPasswordChange(uint32 /*accountId*/) {}
+};
+
+class TC_GAME_API RestScript : public ScriptObject
+{
+    protected:
+        RestScript(const char* url);
+
+    public:
+
+        // Called when Rest request received with GET method for this URL
+        virtual void OnGet(RestResponse& /*response*/) { }
+
+        // Called when Rest request received with POST method for this URL
+        virtual void OnPost(boost::property_tree::ptree /*tree*/, RestResponse& /*response*/) { }
 };
 
 class TC_GAME_API GuildScript : public ScriptObject
@@ -1107,14 +1156,25 @@ class TC_GAME_API ScriptMgr
         void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, ObjectGuid guid);
         void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck);
         void OnPlayerLogin(Player* player, bool firstLogin);
+        void OnPlayerUpdate(Player* player, uint32 diff);
         void OnPlayerLogout(Player* player);
         void OnPlayerCreate(Player* player);
         void OnPlayerDelete(ObjectGuid guid, uint32 accountId);
         void OnPlayerFailedDelete(ObjectGuid guid, uint32 accountId);
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent, uint8 extendState);
-        void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+        void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 oldZone, uint32 newArea);
+        void OnPlayerUpdateArea(Player* player, uint32 newArea, uint32 oldArea);
+        void OnQuestAccept(Player* player, const Quest* quest);
+        void OnQuestReward(Player* player, const Quest* quest);
+        void OnObjectiveValidate(Player* player, uint32 questID, uint32 objectiveID);
+        void OnQuestComplete(Player* player, const Quest* quest);
+        void OnQuestAbandon(Player* player, const Quest* quest);
         void OnQuestStatusChange(Player* player, uint32 questId);
+        void OnSceneStart(Player* player, uint32 scenePackageId, uint32 sceneInstanceId);
+        void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string event);
+        void OnSceneCancel(Player* player, uint32 sceneInstanceId);
+        void OnSceneComplete(Player* player, uint32 sceneInstanceId);
         void OnMovieComplete(Player* player, uint32 movieId);
 
     public: /* AccountScript */
@@ -1125,6 +1185,11 @@ class TC_GAME_API ScriptMgr
         void OnFailedEmailChange(uint32 accountId);
         void OnPasswordChange(uint32 accountId);
         void OnFailedPasswordChange(uint32 accountId);
+
+    public: /* RestScript */
+
+        void OnRestGetReceived(std::string url, RestResponse& response);
+        void OnRestPostReceived(std::string url, boost::property_tree::ptree tree, RestResponse& response);
 
     public: /* GuildScript */
 

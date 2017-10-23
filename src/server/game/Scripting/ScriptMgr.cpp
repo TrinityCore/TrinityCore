@@ -2215,6 +2215,11 @@ void ScriptMgr::OnPlayerLogin(Player* player, bool firstLogin)
     FOREACH_SCRIPT(PlayerScript)->OnLogin(player, firstLogin);
 }
 
+void ScriptMgr::OnPlayerUpdate(Player* player, uint32 diff)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnUpdate(player, diff);
+}
+
 void ScriptMgr::OnPlayerLogout(Player* player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLogout(player);
@@ -2245,14 +2250,64 @@ void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, ui
     FOREACH_SCRIPT(PlayerScript)->OnBindToInstance(player, difficulty, mapid, permanent, extendState);
 }
 
-void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea)
+void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 oldZone, uint32 newArea)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
+    FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, oldZone, newArea);
+}
+
+void ScriptMgr::OnPlayerUpdateArea(Player* player, uint32 newArea, uint32 oldArea)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnUpdateArea(player, newArea, oldArea);
+}
+
+void ScriptMgr::OnQuestAccept(Player* player, const Quest* quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestAccept(player, quest);
+}
+
+void ScriptMgr::OnQuestReward(Player* player, const Quest* quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestReward(player, quest);
+}
+
+void ScriptMgr::OnObjectiveValidate(Player* player, uint32 questID, uint32 objectiveID)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnObjectiveValidate(player, questID, objectiveID);
+}
+
+void ScriptMgr::OnQuestComplete(Player* player, const Quest* quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestComplete(player, quest);
+}
+
+void ScriptMgr::OnQuestAbandon(Player* player, const Quest* quest)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnQuestAbandon(player, quest);
 }
 
 void ScriptMgr::OnQuestStatusChange(Player* player, uint32 questId)
 {
     FOREACH_SCRIPT(PlayerScript)->OnQuestStatusChange(player, questId);
+}
+
+void ScriptMgr::OnSceneStart(Player* player, uint32 scenePackageId, uint32 sceneInstanceId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSceneStart(player, scenePackageId, sceneInstanceId);
+}
+
+void ScriptMgr::OnSceneTriggerEvent(Player* player, uint32 sceneInstanceId, std::string p_Event)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSceneTriggerEvent(player, sceneInstanceId, p_Event);
+}
+
+void ScriptMgr::OnSceneCancel(Player* player, uint32 sceneInstanceId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSceneCancel(player, sceneInstanceId);
+}
+
+void ScriptMgr::OnSceneComplete(Player* player, uint32 sceneInstanceId)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSceneComplete(player, sceneInstanceId);
 }
 
 void ScriptMgr::OnMovieComplete(Player* player, uint32 movieId)
@@ -2289,6 +2344,21 @@ void ScriptMgr::OnPasswordChange(uint32 accountId)
 void ScriptMgr::OnFailedPasswordChange(uint32 accountId)
 {
     FOREACH_SCRIPT(AccountScript)->OnFailedPasswordChange(accountId);
+}
+
+// Rest
+void ScriptMgr::OnRestGetReceived(std::string url, RestResponse& response)
+{
+    FOR_SCRIPTS(RestScript, itr, end)
+        if (itr->second->GetName() == url)
+            itr->second->OnGet(response);
+}
+
+void ScriptMgr::OnRestPostReceived(std::string url, boost::property_tree::ptree tree, RestResponse& response)
+{
+    FOR_SCRIPTS(RestScript, itr, end)
+        if (itr->second->GetName() == url)
+            itr->second->OnPost(tree, response);
 }
 
 // Guild
@@ -2620,6 +2690,12 @@ AccountScript::AccountScript(const char* name)
     ScriptRegistry<AccountScript>::Instance()->AddScript(this);
 }
 
+RestScript::RestScript(const char* url)
+    : ScriptObject(url)
+{
+    ScriptRegistry<RestScript>::Instance()->AddScript(this);
+}
+
 SceneScript::SceneScript(const char* name)
     : ScriptObject(name)
 {
@@ -2671,5 +2747,6 @@ template class TC_GAME_API ScriptRegistry<GuildScript>;
 template class TC_GAME_API ScriptRegistry<GroupScript>;
 template class TC_GAME_API ScriptRegistry<UnitScript>;
 template class TC_GAME_API ScriptRegistry<AccountScript>;
+template class TC_GAME_API ScriptRegistry<RestScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerEntityScript>;
 template class TC_GAME_API ScriptRegistry<SceneScript>;

@@ -40,6 +40,7 @@ class Item;
 class Unit;
 class Vehicle;
 struct AccessRequirement;
+struct AreaTriggerData;
 struct DeclinedName;
 struct DungeonEncounterEntry;
 struct FactionEntry;
@@ -464,6 +465,7 @@ struct CellObjectGuids
 {
     CellGuidSet creatures;
     CellGuidSet gameobjects;
+    CellGuidSet areatriggers;
 };
 typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
 typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
@@ -751,6 +753,8 @@ struct SceneTemplate
 };
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
+
+typedef std::unordered_map<uint32, std::vector<uint32>> WorldQuestContainer;
 
 enum SkillRangeType
 {
@@ -1044,6 +1048,19 @@ class TC_GAME_API ObjectMgr
         void LoadGameobjectQuestEnders();
         void LoadCreatureQuestStarters();
         void LoadCreatureQuestEnders();
+        void LoadQuestTasks();
+
+        struct BonusQuestRectEntry
+        {
+            int32 X, Y, XMax, YMax;
+            uint32 MapID;
+
+            bool IsIn(uint32 mapID, int x, int y)
+            {
+                return MapID == mapID && X <= x && XMax >= x && Y <= y && YMax >= y;
+            }
+        };
+        std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;
 
         QuestRelations* GetGOQuestRelationMap()
         {
@@ -1351,6 +1368,8 @@ class TC_GAME_API ObjectMgr
         // grid objects
         void AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* data);
         void RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData const* data);
+        void AddAreaTriggerToGrid(ObjectGuid::LowType guid, AreaTriggerData const* data);
+        void RemoveAreaTriggerFromGrid(ObjectGuid::LowType guid, AreaTriggerData const* data);
         void AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData const* data);
         void RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data);
         ObjectGuid::LowType AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
@@ -1514,6 +1533,8 @@ class TC_GAME_API ObjectMgr
             return nullptr;
         }
 
+        WorldQuestContainer const& GetWorldQuestStore() const{ return _worldQuestStore; }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1671,6 +1692,8 @@ class TC_GAME_API ObjectMgr
         RealmNameContainer _realmNameStore;
 
         SceneTemplateContainer _sceneTemplateStore;
+
+        WorldQuestContainer _worldQuestStore;
 
         enum CreatureLinkedRespawnType
         {

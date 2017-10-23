@@ -245,6 +245,7 @@ public:
             { "spawndist",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNDIST, false, &HandleNpcSetSpawnDistCommand,     "" },
             { "spawntime",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, false, &HandleNpcSetSpawnTimeCommand,     "" },
             { "data",       rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      false, &HandleNpcSetDataCommand,          "" },
+            { "inhabit",    rbac::RBAC_PERM_COMMAND_NPC_SET,           false, &HandleNpcSetInhabitTypeCommand,   "" },
         };
         static std::vector<ChatCommand> npcCommandTable =
         {
@@ -1697,6 +1698,31 @@ public:
             return true;
         }
         */
+        return true;
+    }
+
+    //set inhabit type of creature
+    static bool HandleNpcSetInhabitTypeCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        uint8 inhabitType = uint8(atoi((char*)args));
+        if (inhabitType > INHABIT_ANYWHERE)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            return false;
+        }
+
+        Creature* creature = handler->getSelectedCreature();
+
+        if (!creature)
+            return false;
+
+        uint32 entry = creature->GetEntry();
+        WorldDatabase.PExecute("UPDATE creature_template SET InhabitType = %u WHERE entry = %u", inhabitType, entry);
+
+        handler->PSendSysMessage("InhabitType updated in database, reboot needed");
         return true;
     }
 };

@@ -87,6 +87,7 @@
 #include "WardenCheckMgr.h"
 #include "WaypointMovementGenerator.h"
 #include "WeatherMgr.h"
+#include "WorldQuestMgr.h"
 #include "WorldSession.h"
 #include "WorldSocket.h"
 
@@ -1850,6 +1851,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
     sAreaTriggerDataStore->LoadAreaTriggerTemplates();
 
+    TC_LOG_INFO("server.loading", "Loading AreaTriggers...");
+    sAreaTriggerDataStore->LoadAreaTriggers();
+
     TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
     sConversationDataStore->LoadConversationTemplates();
 
@@ -2054,6 +2058,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 
+    TC_LOG_INFO("server.loading", "Loading Quest task...");
+    sObjectMgr->LoadQuestTasks();
+
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -2081,6 +2088,8 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_GUILDSAVE].SetInterval(getIntConfig(CONFIG_GUILD_SAVE_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
     m_timers[WUPDATE_BLACKMARKET].SetInterval(10 * IN_MILLISECONDS);
+
+    m_timers[WUPDATE_WORLD_QUEST].SetInterval(0);
 
     blackmarket_timer = 0;
 
@@ -2188,6 +2197,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading scenario poi data");
     sScenarioMgr->LoadScenarioPOI();
+
+    TC_LOG_INFO("server.loading", "Loading world quests status...");
+    sWorldQuestMgr->LoadQuestsStatus();
 
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
@@ -2372,6 +2384,14 @@ void World::Update(uint32 diff)
     {
         sScriptReloadMgr->Update();
         m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
+    }
+
+    if (m_timers[WUPDATE_WORLD_QUEST].Passed())
+    {
+        uint32 interval = MINUTE * IN_MILLISECONDS;
+        sWorldQuestMgr->Update(interval);
+        m_timers[WUPDATE_WORLD_QUEST].SetInterval(interval);
+        m_timers[WUPDATE_WORLD_QUEST].Reset();
     }
 
     /// <li> Handle session updates when the timer has passed
