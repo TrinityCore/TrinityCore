@@ -1,3 +1,4 @@
+/*
 -- Ghostpaw Alpha
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=3825;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3825 AND `source_type`=0;
@@ -326,3 +327,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (326170,11,4206.5,1285.38,1.3025,0,0,0,0,100,0),
 (326170,12,4185.92,1278.95,1.27956,0,0,0,0,100,0),
 (326170,13,4168.32,1281.27,3.36765,0,0,0,0,100,0);
+*/

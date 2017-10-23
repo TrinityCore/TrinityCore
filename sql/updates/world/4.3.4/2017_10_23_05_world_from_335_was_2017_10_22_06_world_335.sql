@@ -1,3 +1,4 @@
+/*
 -- Tirisfal Pumpkin
 DELETE FROM `gameobject` WHERE `guid` IN (409,412,414,420,424,426,432,492,509,513,601,610,612,617,646,660,665,669,672,718,750,763,787,791,796,802,813,828,833,836,853,859);
 DELETE FROM `gameobject_addon` WHERE `guid` IN (45042, 45043, 45157, 45194, 45195, 45196, 45197, 45198, 45200, 45201);
@@ -72,3 +73,4 @@ INSERT INTO `pool_gameobject` (`guid`, `pool_entry`, `chance`, `description`) VA
 (833, 379, 0, '375 - Tirisfal Pumpkin'),
 (836, 379, 0, '375 - Tirisfal Pumpkin'),
 (853, 379, 0, '375 - Tirisfal Pumpkin');
+*/

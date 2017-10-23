@@ -1,3 +1,4 @@
+/*
 -- Lady Anacondra
 UPDATE `creature_template` SET `ManaModifier`=4 WHERE `entry`=3671;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=3671 AND `source_type`=0 AND `id`>0;
@@ -78,3 +79,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 UPDATE `creature_template` SET `DamageModifier`=2.5 WHERE `entry` IN (3669, 3670, 3671, 3673);
 UPDATE `creature_template` SET `DamageModifier`=7.5 WHERE `entry` IN (3654, 5775);
 UPDATE `creature_template` SET `DamageModifier`=1 WHERE `entry` IN (5055, 8886, 5053);
+*/

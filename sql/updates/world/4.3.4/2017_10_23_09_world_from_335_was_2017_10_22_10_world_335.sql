@@ -1,3 +1,4 @@
+/*
 -- Hissperak
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=14227;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=14227 AND `source_type`=0;
@@ -148,3 +149,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (277130,6,-433.731,1854.44,128.407,0,0,0,0,100,0),
 (277130,7,-426.651,1844.51,128.407,0,0,0,0,100,0),
 (277130,8,-414.903,1839.9,128.408,0,0,0,0,100,0);
+*/
