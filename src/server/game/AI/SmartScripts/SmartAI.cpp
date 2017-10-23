@@ -687,10 +687,7 @@ void SmartAI::InitializeAI()
     GetScript()->OnInitialize(me);
 
     if (!me->isDead())
-    {
         GetScript()->OnReset();
-        GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
-    }
 }
 
 void SmartAI::OnCharmed(bool apply)
@@ -919,10 +916,6 @@ void SmartGameObjectAI::UpdateAI(uint32 diff)
 void SmartGameObjectAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
-
-    // do not call respawn event if go is not spawned
-    if (me->isSpawned())
-        GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     //Reset();
 }
 
