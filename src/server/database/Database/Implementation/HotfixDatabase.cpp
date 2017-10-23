@@ -342,6 +342,13 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_GARR_FOLLOWER_X_ABILITY, "SELECT ID, GarrFollowerID, GarrAbilityID, FactionIndex FROM garr_follower_x_ability"
         " ORDER BY ID DESC", CONNECTION_SYNCH);
 
+    // GarrMission.db2
+    PrepareStatement(HOTFIX_SEL_GARR_MISSION, "SELECT Duration, OfferTime, Name, Description, Location, Map1X, Map1Y, Map2X, Map2Y, RequiredItemLevel, "
+        "LocPrefixID, CurrencyID, RequiredLevel, GarrMechanicTypeRecID, RequiredFollowersCount, Category, MissionType, LostChance, unk1, ID, TravelTime, "
+        "SubCategory2, SubCategory1, CurrencyCost, Flags, RewardFollowerExperience, unk2, unk3, unk4, VerifiedBuild FROM garr_mission ORDER BY ID DESC", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_GARR_MISSION, "SELECT ID, Name_lang, Description_lang, Location_lang FROM garr_mission_locale"
+        " WHERE locale = ?", CONNECTION_SYNCH);
+
     // GarrPlot.db2
     PrepareStatement(HOTFIX_SEL_GARR_PLOT, "SELECT ID, Name, AllianceConstructionGameObjectID, HordeConstructionGameObjectID, GarrPlotUICategoryID, "
         "PlotType, Flags, MinCount, MaxCount FROM garr_plot ORDER BY ID DESC", CONNECTION_SYNCH);
@@ -696,6 +703,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // QuestMoneyReward.db2
     PrepareStatement(HOTFIX_SEL_QUEST_MONEY_REWARD, "SELECT ID, Money1, Money2, Money3, Money4, Money5, Money6, Money7, Money8, Money9, Money10"
         " FROM quest_money_reward ORDER BY ID DESC", CONNECTION_SYNCH);
+
+    // QuestV2CliTask.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_V2_CLI_TASK, "SELECT Unk1, Name, Description, Unk2, Unk3, Unk4, Unk5, QuestID0, QuestID1, QuestID2, "
+        "Unk7, Unk8, Unk9, Unk10, Unk11, Unk12, Unk13, Unk14, Unk15, Unk16, RequiredLevel, Unk18, ID, Unk19, QuestInfoID "
+        "FROM QuestV2CliTask ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // QuestPackageItem.db2
     PrepareStatement(HOTFIX_SEL_QUEST_PACKAGE_ITEM, "SELECT ID, ItemID, QuestPackageID, FilterType, ItemCount FROM quest_package_item ORDER BY ID DESC", CONNECTION_SYNCH);

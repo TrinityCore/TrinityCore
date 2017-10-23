@@ -54,7 +54,7 @@ void GarrisonMgr::Initialize()
     {
         if (GarrAbilityEntry const* ability = sGarrAbilityStore.LookupEntry(followerAbility->GarrAbilityID))
         {
-            if (ability->FollowerTypeID != FOLLOWER_TYPE_GARRISON)
+            if (ability->FollowerTypeID != FOLLOWER_TYPE_GARRISON && ability->FollowerTypeID != FOLLOWER_TYPE_CLASS_HALL)
                 continue;
 
             if (!(ability->Flags & GARRISON_ABILITY_CANNOT_ROLL) && ability->Flags & GARRISON_ABILITY_FLAG_TRAIT)
@@ -153,6 +153,17 @@ uint64 GarrisonMgr::GenerateFollowerDbId()
     }
 
     return _followerDbIdGenerator++;
+}
+
+uint64 GarrisonMgr::GenerateMissionDbId()
+{
+    if (_missionDbIdGenerator >= std::numeric_limits<uint64>::max())
+    {
+        TC_LOG_ERROR("misc", "Garrison mission db id overflow! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+
+    return _missionDbIdGenerator++;
 }
 
 uint32 const AbilitiesForQuality[][2] =
@@ -333,6 +344,9 @@ void GarrisonMgr::InitializeDbIdSequences()
 {
     if (QueryResult result = CharacterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_followers"))
         _followerDbIdGenerator = (*result)[0].GetUInt64() + 1;
+
+    if (QueryResult result = CharacterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_missions"))
+        _missionDbIdGenerator = (*result)[0].GetUInt64() + 1;
 }
 
 void GarrisonMgr::LoadPlotFinalizeGOInfo()

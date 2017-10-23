@@ -34,6 +34,8 @@ class TC_GAME_API AuraEffect
     friend Aura::~Aura();
 
     public:
+        Ashamane::VariablesSafe Variables;
+
         ~AuraEffect();
         AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster);
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
@@ -236,6 +238,7 @@ class TC_GAME_API AuraEffect
         void HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideAttackPowerBySpellPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModVersatilityByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -249,6 +252,7 @@ class TC_GAME_API AuraEffect
         void HandleAuraModIncreaseBaseManaPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModOverridePowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModMaxPowerPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   fight
         void HandleAuraModParryPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDodgePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;

@@ -93,6 +93,7 @@ enum WorldTimers
     WUPDATE_GUILDSAVE,
     WUPDATE_BLACKMARKET,
     WUPDATE_CHECK_FILECHANGES,
+    WUPDATE_WORLD_QUEST,
     WUPDATE_COUNT
 };
 
@@ -580,6 +581,8 @@ struct CharacterInfo
 class TC_GAME_API World
 {
     public:
+        Ashamane::VariablesSafe Variables;
+
         static World* instance();
 
         static std::atomic<uint32> m_worldLoopCounter;

@@ -72,6 +72,12 @@ class TC_GAME_API Vehicle : public TransportBase
 
         void RemovePendingEventsForPassenger(Unit* passenger);
 
+        inline bool ArePassengersSpawnedByAI() const { return _passengersSpawnedByAI; }
+        void SetPassengersSpawnedByAI(bool passengersSpawnedByAI) { _passengersSpawnedByAI = passengersSpawnedByAI; }
+
+        inline bool CanBeCastedByPassengers() const { return _canBeCastedByPassengers; }
+        void SetCanBeCastedByPassengers(bool canBeCastedByPassengers) { _canBeCastedByPassengers = canBeCastedByPassengers; }
+
     protected:
         friend class VehicleJoinEvent;
         uint32 UsableSeatNum;                               ///< Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
@@ -116,6 +122,9 @@ class TC_GAME_API Vehicle : public TransportBase
 
         typedef std::list<VehicleJoinEvent*> PendingJoinEventContainer;
         PendingJoinEventContainer _pendingJoinEvents;       ///< Collection of delayed join events for prospective passengers
+
+        bool _passengersSpawnedByAI;
+        bool _canBeCastedByPassengers;
 };
 
 class TC_GAME_API VehicleJoinEvent : public BasicEvent

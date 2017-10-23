@@ -119,6 +119,17 @@ public:
         x = m_positionX; y = m_positionY; z = m_positionZ; o = m_orientation;
     }
 
+    void GetPositionWithDistInFront(float dist, float& x, float& y)
+    {
+        GetPositionWithDistInOrientation(dist, GetOrientation(), x, y);
+    }
+
+    void GetPositionWithDistInOrientation(float dist, float orientation, float& x, float& y)
+    {
+        x = GetPositionX() + (dist * cos(orientation));
+        y = GetPositionY() + (dist * sin(orientation));
+    }
+
     Position GetPosition() const { return *this; }
 
     Streamer<XY> PositionXYStream() { return Streamer<XY>(*this); }

@@ -38,9 +38,11 @@ class Map;
 class ModuleReference;
 class Player;
 class Unit;
+struct Position;
 enum CriteriaTypes : uint8;
 enum CriteriaTimedTypes : uint8;
 enum EncounterCreditType : uint8;
+
 namespace WorldPackets
 {
     namespace WorldState
@@ -174,6 +176,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void SaveToDB();
 
         virtual void Update(uint32 /*diff*/) { }
+        void UpdateOperations(uint32 const diff);
         void UpdateCombatResurrection(uint32 /*diff*/);
 
         // Used by the map's CannotEnter function.
@@ -228,6 +231,17 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Cast spell on all players in instance
         void DoCastSpellOnPlayers(uint32 spell);
 
+        void DoSetAlternatePowerOnPlayers(int32 value);
+
+        void DoModifyPlayerCurrencies(uint32 id, int32 value);
+
+        void DoNearTeleportPlayers(const Position pos, bool casting = false);
+
+        void DoKilledMonsterKredit(uint32 questId, uint32 entry, ObjectGuid guid = ObjectGuid::Empty);
+
+        // Add aura on all players in instance
+        void DoAddAuraOnPlayers(uint32 spell);
+
         // Return wether server allow two side groups or not
         bool ServerAllowsTwoSideGroups();
 
@@ -262,6 +276,22 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Get's the current entrance id
         uint32 GetEntranceLocation() const { return _temporaryEntranceId ? _temporaryEntranceId : _entranceId; }
 
+        /// Add timed delayed operation
+        /// @p_Timeout  : Delay time
+        /// @p_Function : Callback function
+        void AddTimedDelayedOperation(uint32 p_Timeout, std::function<void()> && p_Function)
+        {
+            m_EmptyWarned = false;
+            m_TimedDelayedOperations.push_back(std::pair<uint32, std::function<void()>>(p_Timeout, p_Function));
+        }
+
+        /// Called after last delayed operation was deleted
+        /// Do whatever you want
+        virtual void LastOperationCalled() { }
+
+        std::vector<std::pair<int32, std::function<void()>>>    m_TimedDelayedOperations;   ///< Delayed operations
+        bool                                                    m_EmptyWarned;              ///< Warning when there are no more delayed operations
+
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 priority = 0);
         void SendEncounterStart(uint32 inCombatResCount = 0, uint32 maxInCombatResCount = 0, uint32 inCombatResChargeRecovery = 0, uint32 nextCombatResChargeTime = 0);
         void SendEncounterEnd();
@@ -269,6 +299,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void SendBossKillCredit(uint32 encounterId);
 
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
+
+        // Check if all players are dead (except gamemasters)
+        bool IsWipe() const;
 
         // ReCheck PhaseTemplate related conditions
         void UpdatePhasing();

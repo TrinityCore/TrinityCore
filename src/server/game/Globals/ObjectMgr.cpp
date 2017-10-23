@@ -17,6 +17,7 @@
  */
 
 #include "ObjectMgr.h"
+#include "AreaTriggerDataStore.h"
 #include "ArenaTeamMgr.h"
 #include "Chat.h"
 #include "Containers.h"
@@ -53,6 +54,7 @@
 #include "VMapFactory.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
+#include "WorldQuestMgr.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -3885,6 +3887,7 @@ void ObjectMgr::LoadQuests()
         delete itr->second;
     _questTemplates.clear();
     _questObjectives.clear();
+    _worldQuestStore.clear();
 
     mExclusiveQuestGroups.clear();
 
@@ -3935,6 +3938,9 @@ void ObjectMgr::LoadQuests()
 
         Quest* newQuest = new Quest(fields);
         _questTemplates[newQuest->GetQuestId()] = newQuest;
+
+        if (newQuest->IsWorldQuest())
+            _worldQuestStore[newQuest->QuestInfoID].push_back(newQuest->GetQuestId());
     } while (result->NextRow());
 
     // Load `quest_details`
@@ -4733,6 +4739,8 @@ void ObjectMgr::LoadQuests()
             }
         }
     }
+
+    sWorldQuestMgr->LoadWorldQuests();
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " quests definitions in %u ms", _questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }
@@ -6075,6 +6083,34 @@ void ObjectMgr::LoadAreaTriggerScripts()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " areatrigger scripts in %u ms", _areaTriggerScriptStore.size(), GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::AddAreaTriggerToGrid(ObjectGuid::LowType guid, AreaTriggerData const* data)
+{
+    uint32 mask = data->spawn_mask;
+    for (uint8 i = 0; mask != 0; i++, mask >>= 1)
+    {
+        if (mask & 1)
+        {
+            CellCoord cellCoord = Trinity::ComputeCellCoord(data->position_x, data->position_y);
+            CellObjectGuids& cell_guid = _mapObjectGuidsStore[MAKE_PAIR32(data->map_id, i)][cellCoord.GetId()];
+            cell_guid.areatriggers.insert(guid);
+        }
+    }
+}
+
+void ObjectMgr::RemoveAreaTriggerFromGrid(ObjectGuid::LowType guid, AreaTriggerData const* data)
+{
+    uint32 mask = data->spawn_mask;
+    for (uint8 i = 0; mask != 0; i++, mask >>= 1)
+    {
+        if (mask & 1)
+        {
+            CellCoord cellCoord = Trinity::ComputeCellCoord(data->position_x, data->position_y);
+            CellObjectGuids& cell_guid = _mapObjectGuidsStore[MAKE_PAIR32(data->map_id, i)][cellCoord.GetId()];
+            cell_guid.areatriggers.erase(guid);
+        }
+    }
 }
 
 uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team)
@@ -8800,7 +8836,7 @@ void ObjectMgr::LoadGossipMenu()
 
         GossipMenus gMenu;
 
-        gMenu.entry             = fields[0].GetUInt16();
+        gMenu.entry             = fields[0].GetUInt32();
         gMenu.text_id           = fields[1].GetUInt32();
 
         if (!GetNpcText(gMenu.text_id))
@@ -9927,4 +9963,68 @@ void ObjectMgr::LoadSceneTemplates()
     } while (templates->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u scene templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadQuestTasks()
+{
+    for (auto const& it : _questTemplates)
+    {
+        Quest const* quest_template = it.second;
+
+        //CriteriaEntry const* criteria = sCriteriaStore.LookupEntry(l_I);
+        //if (!criteria || criteria->Type != CRITERIA_TYPE_COMPLETE_QUEST)
+        //    continue;
+
+        QuestV2CliTaskEntry const* cliTask = sQuestV2CliTaskStore.LookupEntry(quest_template->GetQuestId());
+        if (!cliTask)
+            continue;
+
+        if (!quest_template || quest_template->GetQuestType() != QUEST_TYPE_TASK)
+            continue;
+
+        QuestPOIVector const* questPOIs = GetQuestPOIVector(quest_template->GetQuestId());
+        if (questPOIs)
+        {
+            for (QuestPOIVector::const_iterator itr = questPOIs->begin(); itr != questPOIs->end(); ++itr)
+            {
+                int32 minX, minY, maxX, maxY;
+                bool first = true;
+                for (auto poi : itr->points)
+                {
+                    if (first)
+                    {
+                        minX = poi.X;
+                        minY = poi.Y;
+                        maxX = poi.X;
+                        maxY = poi.Y;
+                        first = false;
+                    }
+                    else
+                    {
+                        if (poi.X > maxX)
+                            maxX = poi.X;
+                        if (poi.Y > maxY)
+                            maxY = poi.Y;
+                        if (poi.X < minX)
+                            minX = poi.X;
+                        if (poi.Y < minY)
+                            minY = poi.Y;
+                    }
+                }
+                int32 areaWidth = std::abs(maxX - minX);
+                int32 areaHeight = std::abs(maxY - minY);
+                minX -= (0.35f * float(areaWidth)) / 2.0f;
+                minY -= (0.35f * float(areaHeight)) / 2.0f;
+                maxX += (0.35f * float(areaWidth)) / 2.0f;
+                maxY += (0.35f * float(areaHeight)) / 2.0f;
+                BonusQuestRectEntry rec;
+                rec.X = minX;
+                rec.Y = minY;
+                rec.XMax = maxX;
+                rec.YMax = maxY;
+                rec.MapID = itr->MapID;
+                BonusQuestsRects[quest_template->GetQuestId()].push_back(rec);
+            }
+        }
+    }
 }

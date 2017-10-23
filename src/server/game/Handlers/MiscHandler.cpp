@@ -743,6 +743,22 @@ void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*pack
     if (!movie)
         return;
 
+    auto itr = std::find_if(_player->MovieDelayedTeleports.begin(), _player->MovieDelayedTeleports.end(), [this, movie](const Player::MovieDelayedTeleport & elem) -> bool
+    {
+        return elem.movieId == movie;
+    });
+
+    if (itr != _player->MovieDelayedTeleports.end())
+    {
+        Player::MovieDelayedTeleport delayedTeleportData = *itr;
+        _player->MovieDelayedTeleports.erase(itr);
+
+        if (delayedTeleportData.loc.GetMapId() == _player->GetMapId())
+            _player->NearTeleportTo(delayedTeleportData.loc, false);
+        else
+            _player->TeleportTo(delayedTeleportData.loc);
+    }
+
     _player->SetMovie(0);
     sScriptMgr->OnMovieComplete(_player, movie);
 }
@@ -1093,6 +1109,40 @@ void WorldSession::HandleInstanceLockResponse(WorldPackets::Instance::InstanceLo
 void WorldSession::HandleViolenceLevel(WorldPackets::Misc::ViolenceLevel& /*violenceLevel*/)
 {
     // do something?
+}
+
+void WorldSession::HandlePlayerSelectFactionOpcode(WorldPackets::Misc::PlayerSelectFaction& playerSelectFaction)
+{
+    if (_player->getRace() != RACE_PANDAREN_NEUTRAL)
+        return;
+
+    if (playerSelectFaction.SelectedFaction == WorldPackets::Misc::PlayerSelectFaction::Values::Horde)
+    {
+        _player->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE, RACE_PANDAREN_HORDE);
+        _player->setFactionForRace(RACE_PANDAREN_HORDE);
+        _player->SaveToDB();
+        WorldLocation location(1, 1366.730f, -4371.248f, 26.070f, 3.1266f);
+        _player->TeleportTo(location);
+        _player->SetHomebind(location, 363);
+        _player->LearnSpell(669, false); // Language Orcish
+        _player->LearnSpell(108127, false); // Language Pandaren
+    }
+    else if (playerSelectFaction.SelectedFaction == WorldPackets::Misc::PlayerSelectFaction::Values::Alliance)
+    {
+        _player->SetByteValue(UNIT_FIELD_BYTES_0, UNIT_BYTES_0_OFFSET_RACE, RACE_PANDAREN_ALLIANCE);
+        _player->setFactionForRace(RACE_PANDAREN_ALLIANCE);
+        _player->SaveToDB();
+        WorldLocation location(0, -9096.236f, 411.380f, 92.257f, 3.649f);
+        _player->TeleportTo(location);
+        _player->SetHomebind(location, 9);
+        _player->LearnSpell(668, false); // Language Common
+        _player->LearnSpell(108127, false); // Language Pandaren
+    }
+
+    if (_player->GetQuestStatus(31450) == QUEST_STATUS_INCOMPLETE)
+        _player->KilledMonsterCredit(64594);
+
+    _player->SendMovieStart(116);
 }
 
 void WorldSession::HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed)

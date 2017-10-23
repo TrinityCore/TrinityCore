@@ -62,6 +62,13 @@ enum SpellEffIndex : uint8
 #define EFFECT_FIRST_FOUND 254
 #define EFFECT_ALL 255
 
+enum Roles
+{
+    ROLE_TANK      = 0,
+    ROLE_HEALER    = 1,
+    ROLE_DAMAGE    = 2
+};
+
 // loot modes for creatures and gameobjects, bitmask!
 enum LootModes
 {
@@ -130,7 +137,7 @@ enum Races
     RACE_PANDAREN_HORDE     = 26
 };
 
-// max+1 for player race
+// max1 for player race
 #define MAX_RACES         27
 
 #define RACEMASK_ALL_PLAYABLE      \
@@ -181,7 +188,7 @@ enum Classes : uint8
     CLASS_DEMON_HUNTER  = 12
 };
 
-// max+1 for player class
+// max1 for player class
 #define MAX_CLASSES       13
 
 #define CLASSMASK_ALL_PLAYABLE     \
@@ -495,7 +502,7 @@ enum SpellAttr3
     SPELL_ATTR3_UNK23                            = 0x00800000, // 23
     SPELL_ATTR3_REQ_OFFHAND                      = 0x01000000, // 24 Req offhand weapon
     SPELL_ATTR3_TREAT_AS_PERIODIC                = 0x02000000, // 25 Makes the spell appear as periodic in client combat logs - used by spells that trigger another spell on each tick
-    SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736 + 52999)
+    SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736  52999)
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
     SPELL_ATTR3_NO_DONE_BONUS                    = 0x20000000, // 29 Ignore caster spellpower and done damage mods?  client doesn't apply spellmods for those spells
@@ -1279,7 +1286,7 @@ enum SpellEffectName
     SPELL_EFFECT_SET_GARRISON_CACHE_SIZE            = 251,
     SPELL_EFFECT_TELEPORT_UNITS                     = 252,
     SPELL_EFFECT_GIVE_HONOR                         = 253,
-    SPELL_EFFECT_254                                = 254,
+    SPELL_EFFECT_DASH                               = 254,
     SPELL_EFFECT_LEARN_TRANSMOG_SET                 = 255,
     TOTAL_SPELL_EFFECTS                             = 256,
 };
@@ -2225,23 +2232,23 @@ enum Targets
     TARGET_UNK_115                     = 115,
     TARGET_UNK_116                     = 116,
     TARGET_UNK_117                     = 117,
-    TARGET_UNK_118                     = 118,
-    TARGET_UNK_119                     = 119,
-    TARGET_UNK_120                     = 120,
-    TARGET_UNK_121                     = 121,
-    TARGET_UNK_122                     = 122,
-    TARGET_UNK_123                     = 123,
+    TARGET_UNIT_TARGET_CAN_RAID        = 118,
+    TARGET_UNIT_CASTER_AREA_RAID_DEATH = 119,
+    TARGET_UNIT_CASTER_PET             = 120,
+    TARGET_UNIT_TARGET_DEAD            = 121,
+    TARGET_UNIT_CASTER_AREA_ENEMY      = 122,
+    TARGET_UNIT_TARGET_AREA_ENEMY      = 123,
     TARGET_UNK_124                     = 124,
     TARGET_UNK_125                     = 125,
     TARGET_UNK_126                     = 126,
-    TARGET_UNK_127                     = 127,
+    TARGET_DEST_CASTER_ENEMY_CENTROID  = 127,
     TARGET_UNK_128                     = 128,
-    TARGET_UNK_129                     = 129,
-    TARGET_UNK_130                     = 130,
+    TARGET_UNIT_CASTER_AREA_ENEMY_FRONT= 129,
+    TARGET_ENNEMY_IN_LINE              = 130,
     TARGET_UNK_131                     = 131,
-    TARGET_UNK_132                     = 132,
+    TARGET_DEST_TARGET_ALLY            = 132,
     TARGET_UNK_133                     = 133,
-    TARGET_UNK_134                     = 134,
+    TARGET_UNIT_LINE_ENEMY_134         = 134,
     TARGET_UNK_135                     = 135,
     TARGET_UNK_136                     = 136,
     TARGET_UNK_137                     = 137,
@@ -4035,20 +4042,47 @@ enum QuestType
 // QuestInfo.dbc (6.0.2.18988)
 enum QuestInfo
 {
-    QUEST_INFO_GROUP               = 1,
-    QUEST_INFO_CLASS               = 21,
-    QUEST_INFO_PVP                 = 41,
-    QUEST_INFO_RAID                = 62,
-    QUEST_INFO_DUNGEON             = 81,
-    QUEST_INFO_WORLD_EVENT         = 82,
-    QUEST_INFO_LEGENDARY           = 83,
-    QUEST_INFO_ESCORT              = 84,
-    QUEST_INFO_HEROIC              = 85,
-    QUEST_INFO_RAID_10             = 88,
-    QUEST_INFO_RAID_25             = 89,
-    QUEST_INFO_SCENARIO            = 98,
-    QUEST_INFO_ACCOUNT             = 102,
-    QUEST_INFO_SIDE_QUEST          = 104
+    QUEST_INFO_GROUP                        = 1,
+    QUEST_INFO_CLASS                        = 21,
+    QUEST_INFO_PVP                          = 41,
+    QUEST_INFO_RAID                         = 62,
+    QUEST_INFO_DUNGEON                      = 81,
+    QUEST_INFO_WORLD_EVENT                  = 82,
+    QUEST_INFO_LEGENDARY                    = 83,
+    QUEST_INFO_ESCORT                       = 84,
+    QUEST_INFO_HEROIC                       = 85,
+    QUEST_INFO_RAID_10                      = 88,
+    QUEST_INFO_RAID_25                      = 89,
+    QUEST_INFO_SCENARIO                     = 98,
+    QUEST_INFO_ACCOUNT                      = 102,
+    QUEST_INFO_SIDE_QUEST                   = 104,
+    QUEST_INFO_ARTIFACT                     = 107,
+    QUEST_INFO_WORLD_QUEST                  = 109,
+    QUEST_INFO_WORLD_QUEST_EPIC             = 110,
+    QUEST_INFO_WORLD_QUEST_ELITE            = 111,
+    QUEST_INFO_WORLD_QUEST_RARE_ELITE       = 112,
+    QUEST_INFO_WORLD_QUEST_PVP              = 113,
+    QUEST_INFO_WORLD_QUEST_FIRST_AID        = 114,
+    QUEST_INFO_WORLD_QUEST_BATTLEPET        = 115,
+    QUEST_INFO_WORLD_QUEST_BLACKSMITHING    = 116,
+    QUEST_INFO_WORLD_QUEST_LEATHERWORKING   = 117,
+    QUEST_INFO_WORLD_QUEST_ALCHEMY          = 118,
+    QUEST_INFO_WORLD_QUEST_HERBALISM        = 119,
+    QUEST_INFO_WORLD_QUEST_MINING           = 120,
+    QUEST_INFO_WORLD_QUEST_TAILORING        = 121,
+    QUEST_INFO_WORLD_QUEST_ENGINEERING      = 122,
+    QUEST_INFO_WORLD_QUEST_ENCHANTING       = 123,
+    QUEST_INFO_WORLD_QUEST_SKINNINg         = 124,
+    QUEST_INFO_WORLD_QUEST_JEWELCRAFTING    = 125,
+    QUEST_INFO_WORLD_QUEST_INSCRIPTION      = 126,
+    QUEST_INFO_EMISSARY                     = 128,
+    QUEST_INFO_WORLD_QUEST_ARCHEOLOGY       = 129,
+    QUEST_INFO_WORLD_QUEST_FISHING          = 130,
+    QUEST_INFO_WORLD_QUEST_COOKING          = 131,
+    QUEST_INFO_WORLD_QUEST_RARE_2           = 135,
+    QUEST_INFO_WORLD_QUEST_RARE_ELITE_2     = 136,
+    QUEST_INFO_WORLD_QUEST_DUNGEON          = 137,
+    QUEST_INFO_RATED_REWARD                 = 140
 };
 
 // QuestSort.dbc (6.0)

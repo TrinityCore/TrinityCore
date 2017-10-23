@@ -608,6 +608,64 @@ void Trinity::PlayerLastSearcher<Check>::Visit(PlayerMapType& m)
     }
 }
 
+template<class Check>
+void Trinity::AreaTriggerListSearcher<Check>::Visit(AreaTriggerMapType& p_AreaTriggerMap)
+{
+    for (AreaTriggerMapType::iterator itr = p_AreaTriggerMap.begin(); itr != p_AreaTriggerMap.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(i_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+            m_AreaTriggers.push_back(itr->GetSource());
+    }
+}
+
+template<class Check>
+void Trinity::AreaTriggerSearcher<Check>::Visit(AreaTriggerMapType& p_AreaTriggerMap)
+{
+    for (AreaTriggerMapType::iterator itr = p_AreaTriggerMap.begin(); itr != p_AreaTriggerMap.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(i_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+        {
+            i_object = itr->GetSource();
+            return;
+        }
+    }
+}
+
+template<class Check>
+void Trinity::ConversationVectorSearcher<Check>::Visit(ConversationMapType& p_ConversationMap)
+{
+    for (ConversationMapType::iterator itr = p_ConversationMap.begin(); itr != p_ConversationMap.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(i_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+            m_Conversations.push_back(itr->GetSource());
+    }
+}
+
+template<class Check>
+void Trinity::ConversationSearcher<Check>::Visit(ConversationMapType& p_ConversationMap)
+{
+    for (ConversationMapType::iterator itr = p_ConversationMap.begin(); itr != p_ConversationMap.end(); ++itr)
+    {
+        if (!itr->GetSource()->IsInPhase(i_searcher))
+            continue;
+
+        if (i_check(itr->GetSource()))
+        {
+            i_object = itr->GetSource();
+            return;
+        }
+    }
+}
+
 template<class Builder>
 void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
 {

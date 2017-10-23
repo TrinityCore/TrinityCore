@@ -1,0 +1,375 @@
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "ScriptedEscortAI.h"
+#include "GameObjectAI.h"
+#include "NPCHandler.h"
+#include "Vehicle.h"
+#include <random>
+
+#ifndef TANAAN_INTRO_H
+#define TANAAN_INTRO_H
+
+struct Hut
+{
+    float X, Y, Z;
+    bool Fired;
+};
+
+namespace TanaanQuests
+{
+    enum
+    {
+        //QuestStartDraenor                   = 36881,
+        QuestDarkPortal                       = 34398,
+        QuestAzerothsLastStand                = 35933,
+        QuestOnslaughtEnd                     = 34392,
+        QuestThePortalPower                   = 34393,
+        QuestBledDryAlly                      = 35240,
+        QuestBledDryHorde                     = 34421,
+        QuestCostOfWar                        = 34420,
+        QuestBlazeOfGlory                     = 34422,
+        QuestAltarAltercation                 = 34423,
+        QuestAPotentialAlly                   = 34478,
+        QuestAPotentialAllyHorde              = 34427,
+        QuestKargatharProvingGrounds          = 34425,
+        QuestKillYourHundred                  = 34429,
+        QuestMastersOfShadowAlly              = 34431,
+        QuestMastersOfShadowHorde             = 34737,
+        QuestKeliDanTheBreakerHorde           = 34741,
+        QuestKeliDanTheBreakerAlly            = 34436,
+        QuestTheGunpowderPlot                 = 34987,
+        QuestATasteOfIron                     = 34445,
+        QuestTheHomeStretchHorde              = 34446,
+        QuestTheHomeStretchAlly               = 35884,
+        QuestYrelHorde                        = 34740,
+        QuestYrelTanaan                       = 34434,
+        QuestABattleToPrepareAlly             = 35019,
+        QuestABattleToPrepareHorde            = 35005,
+        QuestTheBattleOfTheForge              = 34439,
+        QuestTakingATripToTheTopOfTheTank     = 35747,
+        QuestGaNarOfTheFrostwolf              = 34442,
+        QuestTheProdigalFrostwolf             = 34437,
+    };
+}
+
+namespace TanaanSceneObjects
+{
+    enum
+    {
+        SceneCostOfWarEscort            = 806,
+        SceneGulDanFreedom              = 808,
+        SceneSouthernCage               = 812,
+        SceneEasterCage                 = 813,
+        SceneCuriousHatchets            = 817,
+        SceneRingOfFire                 = 838,
+        SceneKargathFight               = 839,
+        SceneUmbralHallsPortals         = 844,
+        SceneKelidanVisual1             = 857,
+        SceneKelidanVisual2             = 858,
+        SceneYrelLeaveAlliance          = 861,
+        SceneYrelLeaveHorde             = 870,
+        SceneShootingGallery            = 871,
+        SceneKhadgarAtDam               = 894,
+        SceneBlackHandReveal            = 896,
+        SceneBuildingExplosion          = 893,
+        SceneBuildingExplosionFallBack  = 902,
+        SceneBridgeDestruction          = 903,
+        SceneArmingPrisonersHorde       = 906,
+        SceneArmingPrisonersAlly        = 981,
+        SceneKhadgarGoesToDam           = 908,
+        SceneDamExplosion               = 910,
+        SceneFreeGanar                  = 911,
+        SceneFinaleIronBastion          = 912,
+        SceneFromCaveToRidge            = 922,
+        SceneLoomingArmy                = 923,
+        SceneGulDanReavel               = 925,
+        SceneWaterPortal                = 928,
+        SceneHoldout                    = 933,
+        SceneEyeOfKilrogg               = 938,
+        SceneKilRoggRevealed            = 940,
+        SceneSneakyArmy                 = 940,
+        SceneEnterKarGathArena          = 945,
+        SceneEscapingTheArena           = 946,
+        SceneQuianaAndMaladaarEnter     = 947,
+        SceneLiadrinAndOlinEnter        = 948,
+        SceneKargathYells               = 951,
+        SceneNerZhulReveal              = 952,
+        SceneHordeBoat                  = 953,
+        SceneCaveIn                     = 956,
+        SceneChoGallsFreedom            = 961,
+        SceneTeronGorsFreedom           = 962,
+        SceneAllianceBoat               = 986,
+        SceneSoulTrain                  = 1018,
+        SceneBloodBowl                  = 1029
+    };
+}
+
+namespace TanaanPhaseSpell
+{
+    enum
+    {
+        PHASE_2 = 59073,
+        PHASE_4 = 59074,
+        PHASE_8 = 59087,
+        PHASE_16 = 54341,
+        //PHASE_32                  = 56617, //Probleme d'area actuellement, à chercher
+        PHASE_64 = 57569,
+        PHASE_128 = 74789,
+        PHASE_256 = 69819,
+        //PHASE_512                 = 0,
+        PHASE_1024 = 67789,
+        PHASE_2048 = 68480,
+        PHASE_4096 = 68481,
+        PHASE_8192 = 68482,
+        PHASE_16384 = 68483,
+        PHASE_32768 = 69077,
+        PHASE_65536 = 69078
+    };
+}
+
+namespace TanaanPhases
+{
+    enum
+    {
+        // Devant porte
+        PhaseChoGallSpell               = TanaanPhaseSpell::PHASE_64,
+        PhaseTeronGorSpell              = TanaanPhaseSpell::PHASE_128,
+
+        // Orbite Sanglante
+        PhaseSouthernCageAlly           = TanaanPhaseSpell::PHASE_8,
+        PhaseEasternCageAlly            = TanaanPhaseSpell::PHASE_16,
+        PhaseSouthernCageHorde          = TanaanPhaseSpell::PHASE_64,
+        PhaseEasternCageHorde           = TanaanPhaseSpell::PHASE_128,
+        PhaseAfterBlazeGlobal           = TanaanPhaseSpell::PHASE_256,
+        PhaseAfterBlazeAlliance         = TanaanPhaseSpell::PHASE_1024,
+        PhaseAfterBlazeHorde            = TanaanPhaseSpell::PHASE_2048,
+        PhaseAfterBlazeAriok            = TanaanPhaseSpell::PHASE_4096,
+
+        PhaseBridgeIntact               = TanaanPhaseSpell::PHASE_8192,
+        PhaseBridgeDestroyed            = TanaanPhaseSpell::PHASE_16384,
+
+        PhaseArenaEntranceGateClose     = TanaanPhaseSpell::PHASE_1024,
+        PhaseArenaFight                 = TanaanPhaseSpell::PHASE_2048,
+        PhaseArenaIced                  = TanaanPhaseSpell::PHASE_4096,
+        PhaseArenaExitGateClose         = TanaanPhaseSpell::PHASE_8192,
+        PhaseArenaFightAlliance         = TanaanPhaseSpell::PHASE_16384,
+        PhaseArenaFightHorde            = TanaanPhaseSpell::PHASE_32768,
+
+        PhaseShadowmoonQuianaMaladaar   = TanaanPhaseSpell::PHASE_128,
+        PhaseShadowmoonLiadrinOlin      = TanaanPhaseSpell::PHASE_256,
+
+        PhaseBlackrockSlaves            = TanaanPhaseSpell::PHASE_8,
+        PhaseBlackrockMainNpcs          = TanaanPhaseSpell::PHASE_16,
+        PhaseBlackrockKhadgarRock       = TanaanPhaseSpell::PHASE_256,
+        PhaseBlackrockKhadgarUpper      = TanaanPhaseSpell::PHASE_4096,
+        PhaseBlackrockThaelinLow        = TanaanPhaseSpell::PHASE_32768,
+
+        PhaseFinalThaelinCanon          = TanaanPhaseSpell::PHASE_8,
+        PhaseFinalSideCanons            = TanaanPhaseSpell::PHASE_64,
+        PhaseFinalCanonDeco             = TanaanPhaseSpell::PHASE_128,
+    };
+}
+
+namespace TanaanKillCredits
+{
+    enum
+    {
+        CreditDarkPortalKill            = 78419,
+        CreditStatisRuneDestroyed       = 78333,
+        CreditEnterGuldanPrison         = 82573,
+        CreditCostOfWar                 = 78559,
+        CreditAriokEscort               = 78975,
+        CreditFindKhadgarAtBridge       = 84456,
+        CreditFollowKhadgar             = 80244,
+        CreditBloodOrb                  = 78966,
+        CreditEasternAllianceCage       = 85142,
+        CreditSouthernAllianceCage      = 82871,
+        CreditEasternHordeCage          = 78529,
+        CreditSouthernHordeCage         = 85141,
+        CreditNorthernSpireDisabled     = 82606,
+        CreditSouthernSpireDisabled     = 82607,
+        CreditAriokGossip               = 78556,
+        CreditEnterTheArena             = 82139,
+        CreditCombattantSlainInArena    = 82066,
+        CreditEscapeKargathArena        = 82140,
+        CreditIronHordeSlain            = 80016,
+        CreditCombattantSlainAdd        = 82142,
+        CreditEscortYrel                = 79794,
+        CreditBlackrockGrunt            = 80786,
+        CreditOgronWarcrusher           = 80775,
+        CreditSpeakWithThaelin          = 80880,
+        CreditEscortThaelin             = 80887,
+        CreditBoatsReached              = 81024,
+        CreditEnterWorldbreakerTurret   = 80929,
+        CreditMakeShiftPlunger          = 80520,
+        CreditMainCannonTrigger         = 232538
+    };
+}
+
+namespace TanaanQuestObjectives
+{
+    enum
+    {
+        ObjBloodRitualOrbDestroyed      = 273678,
+        ObjFollowKhadgar                = 273737,
+        ObjBurningBladeDestroyed        = 273438,
+        ObjShatteredHandDestroyed       = 273556,
+        ObjBlackrockMarkDestroyed       = 273557,
+        ObjEasternCageOpened            = 273640,
+        ObjSouthernCageOpened           = 273639,
+        ObjNorthernSpireDisabled        = 272621,
+        ObjSouthernSpireDisabled        = 273946,
+        ObjAriokGossip                  = 273075,
+        ObjEnterGulDanPrison            = 273930,
+        ObjEnterTheArena                = 273758,
+        ObjCombattantSlainInArena       = 273713,
+        ObjCombattantSlainAddHidden     = 273763,
+        ObjUngraMastersOfShadowHorde    = 272982,
+        ObjUngraMastersOfShadowAlly     = 272926,
+        ObjGurranMastersOfShadowHorde   = 272983,
+        ObjGurranMastersOfShadowAlly    = 272927,
+        ObjAnkovaMastersOfShadowsHorde  = 272984,
+        ObjAnkovaMastersOfShadowsAlly   = 272929,
+        ObjIronHordeSlain               = 273041,
+        ObjTopOfTheTank                 = 274029
+    };
+}
+
+namespace TanaanCreatures
+{
+    enum
+    {
+        NpcIronGrunt                    = 78883,
+        NpcMumper                       = 82188,
+        NpcMoriccalas                   = 81990,
+        NpcBleedingHollowBloodchosen    = 81895,
+        NpcArchmageKhadgarSum           = 80244,
+        NpcArchmageKhadgarArena         = 78560,
+        NpcBlazeOfGloryTrigger          = 300004,
+        NpcKargath                      = 79097,
+        NpcShatteredHandBrawler         = 82057,
+        NpcHanselHeavyHands             = 78569,
+        NpcAriok                        = 78556,
+        NpcYrelSummon                   = 79794,
+        NpcExarchMaladaar               = 79537,
+        NpcLadyLiadrin                  = 79675,
+        NpcLadyLiadrinBlackrockSummon   = 81812,
+        NpcOlin                         = 79315,
+        NpcQiana                        = 79316,
+        NpcCordanaFelsong               = 78430,
+        NpcThaelinDarkanvil             = 80521,
+        NpcGogluk                       = 86039,
+        NpcCannonTurret                 = 86690,
+        NpcGunTurret                    = 86691,
+        NpcThaelinDarkanvilSecond       = 78568,
+        NpcBlackRockTrigger             = 300005
+    };
+}
+
+namespace TanaanGameObjects
+{
+    enum
+    {
+        GobWholeBridge          = 231137,
+        GobDestroyedBridge      = 231136,
+        GobEasternCage          = 229350,
+        GobSouthernCage         = 229325,
+        GobMarkOfShadowmoon     = 233056,
+        GobMarkOfBleedingHollow = 233057,
+        GobRingOfFire           = 500003,
+        GobIronCageDoor         = 233197
+    };
+}
+
+namespace TanaanZones
+{
+    enum
+    {
+        MapTanaan                   = 1265,
+        MapDraenor                  = 1116,
+        ZoneTanaanJungle            = 7025,
+        AreaTheDarkPortal           = 7037,
+        AreaHearthBlood             = 7041,
+        AreaBleedingAltar           = 7039,
+        AreaTarThogBridge           = 7129,
+        AreaKargatharProvingGrounds = 7040,
+        AreaUmbralHalls             = 7042,
+        AreaBlackRockQuarry         = 7043,
+        AreaPathOfGlory             = 7044,
+        TerrainSwapID               = 1307
+    };
+}
+
+enum eFactions
+{
+    FactionAggressive   = 14,
+    FactionFriendly     = 35,
+    FactionNeutral      = 7
+};
+
+namespace TanaanActions
+{
+    enum
+    {
+        ActionTimerSummon       = 1,
+        ActionEventSceneArena   = 2,
+        ActionSummonHandBrawler = 3
+    };
+}
+
+namespace TanaanSpells
+{
+    enum
+    {
+        SpellTasteOfIronGameAura    = 164042,
+        SpellHornOfWinter           = 165762,
+        SpellKnockthrough           = 166131,
+        SpellArcaneBarrage          = 133123,
+        SpellMeteorShower           = 165864,
+        SpellCoverOfElune           = 165900,
+        SpellCrushingStomp          = 166032,
+        SpellCannonBarrage          = 173479,
+        SpellMachineGun             = 173502,
+        SpellFinaleCinematic        = 177078,
+        SpellIronBastionProgressA   = 163524,
+        SpellIronBastionProgressB   = 163525,
+        SpellIronBastionProgressC   = 163526,
+        SpellIronBastionProgressD   = 163527,
+        SpellIronBastionProgressE   = 163528,
+        SpellIronBastionProgressF   = 163529,
+        SpellIronBastionProgressG   = 163530,
+        SpellDissociateFaction      = 149211 ///< Originally called "[UNUSED]Talk with Cordana" (unlimited aura dummy)
+    };
+}
+
+namespace TanaanMovies
+{
+    enum
+    {
+        MovieDoorDestruction        = 187,
+        MovieEnterPortal            = 199
+    };
+}
+
+namespace TanaanAchievements
+{
+    enum
+    {
+        AchievementWelcomeToDreanorA    = 8921,
+        AchievementWelcomeToDreanorH    = 8922,
+    };
+}
+
+namespace BlazeOfGloryData
+{
+    enum
+    {
+        SceneId                 = 934,
+        HutsPath                = 10568,
+        SpellTrailOfFlameVisual = 165991,
+        HutProxDist             = 20
+    };
+}
+
+#endif
