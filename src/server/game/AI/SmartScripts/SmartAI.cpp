@@ -128,9 +128,6 @@ bool SmartAI::LoadPath(uint32 entry)
 
 void SmartAI::PausePath(uint32 delay, bool forced)
 {
-    if (!HasEscortState(SMART_ESCORT_ESCORTING))
-        return;
-
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
         TC_LOG_ERROR("misc", "SmartAI::PausePath: Creature entry %u wanted to pause waypoint (current waypoint: %u) movement while already paused, ignoring.", me->GetEntry(), _currentWaypointNode);
@@ -155,9 +152,6 @@ void SmartAI::PausePath(uint32 delay, bool forced)
 
 void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
 {
-    if (!HasEscortState(SMART_ESCORT_ESCORTING))
-        return;
-
     if (quest)
         mEscortQuestID = quest;
 
@@ -269,9 +263,6 @@ void SmartAI::ReturnToLastOOCPos()
 
 void SmartAI::UpdatePath(const uint32 diff)
 {
-    if (!HasEscortState(SMART_ESCORT_ESCORTING))
-        return;
-
     if (_escortInvokerCheckTimer < diff)
     {
         if (!IsEscortInvokerInRange())
