@@ -4299,14 +4299,14 @@ void ObjectMgr::LoadQuests()
             }
             else if (qinfo->StartItemCount == 0)
             {
-                TC_LOG_ERROR("sql.sql", "Quest %u has `StartItem` = %u but `StartItemCount` = 0, set to 1 but need fix in DB.",
+                TC_LOG_ERROR("sql.sql", "Quest %u has `StartItem` = %u but `ProvidedItemCount` = 0, set to 1 but need fix in DB.",
                     qinfo->GetQuestId(), qinfo->StartItem);
                 qinfo->StartItemCount = 1;                    // update to 1 for allow quest work for backward compatibility with DB
             }
         }
         else if (qinfo->StartItemCount>0)
         {
-            TC_LOG_ERROR("sql.sql", "Quest %u has `StartItem` = 0 but `StartItemCount` = %u, useless value.",
+            TC_LOG_ERROR("sql.sql", "Quest %u has `StartItem` = 0 but `ProvidedItemCount` = %u, useless value.",
                 qinfo->GetQuestId(), qinfo->StartItemCount);
             qinfo->StartItemCount=0;                          // no quest work changes in fact
         }
