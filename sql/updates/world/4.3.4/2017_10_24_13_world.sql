@@ -1,6 +1,6 @@
 --
 DELETE FROM `creature` WHERE `guid` IN (77937,77938,77939,77940);
-INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `Movem$
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
 (77937, 22062, 530, 0, 0, 1, 1, 0, 0, 7165.62744, -6604.59228, 60.65881, 5.199848, 72000, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (77938, 22062, 530, 0, 0, 1, 1, 0, 0, 7226.793, -6406.289, 56.1663, 4.067284, 72000, 0, 0, 0, 0, 0, 0, 0, 0, 0),
 (77939, 22062, 530, 0, 0, 1, 1, 0, 0, 6294.86865, -6463.20703, 83.01150, 0.262043, 72000, 0, 0, 0, 0, 0, 0, 0, 0, 0),
