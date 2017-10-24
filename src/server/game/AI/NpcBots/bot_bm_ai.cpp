@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
+#include "TemporarySummon.h"
 //#include "WorldSession.h"
 /*
 Blademaster NpcBot (by Graff onlysuffering@gmail.com)
@@ -255,7 +256,7 @@ public:
         void Aggro(Unit*) { }
         void AttackStart(Unit*) { }
         void KilledUnit(Unit* /*u*/) { }
-        void EnterEvadeMode() { bot_minion_ai::EnterEvadeMode(); }
+        //void EnterEvadeMode() { bot_minion_ai::EnterEvadeMode(); }
         void MoveInLineOfSight(Unit* u) { bot_minion_ai::MoveInLineOfSight(u); }
         void JustDied(Unit* u) { bot_minion_ai::JustDied(u); }
         void DoNonCombatActions(uint32 /*diff*/) { }
@@ -527,7 +528,7 @@ public:
 
         void MirrorImageFinish()
         {
-            /*illusion_Fade = false;
+            illusion_Fade = false;
             me->RemoveAura(BLACK_COLOR);
             me->RemoveAura(STUN_FREEZE);
             if (!me->IsInWorld() ||
@@ -590,7 +591,7 @@ public:
 
             for (std::list<uint64>::const_iterator itr = _illusionGuids.begin(); itr != _illusionGuids.end(); ++itr)
             {
-                if (Creature* illusion = ObjectAccessor::GetCreatureOrPetOrVehicle(*me, *itr))
+                if (Creature* illusion = ObjectAccessor::GetCreatureOrPetOrVehicle(*me, ObjectGuid(*itr)))
                     illusion->SetPhaseMask(master->GetPhaseMask(), true);
 
                 if (counter == r)
@@ -607,7 +608,7 @@ public:
             //me->setAttackTimer(BASE_ATTACK, 3000);
             wait = 18;
             SetSpellCooldown(MIRROR_IMAGE_1, 8000);
-            Potion_cd = std::max<uint32>(Potion_cd, 10000);*/
+            Potion_cd = std::max<uint32>(Potion_cd, 10000);
         }
 
         void CriticalStrike(Unit* target, bool windwalk = false)

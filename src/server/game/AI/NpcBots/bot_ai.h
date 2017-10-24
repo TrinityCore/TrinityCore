@@ -412,7 +412,7 @@ class bot_ai : public ScriptedAI
         uint8 GetBotClass() const { return _botclass; }
         uint32 GetLastDiff() const { return lastdiff; }
         virtual void Reset() {}
-		virtual void EnterEvadeMode(EvadeReason) {}
+		//virtual void EnterEvadeMode(EvadeReason) {}
         virtual void JustDied(Unit*) {}
         virtual void EnterCombat(Unit*) {}
         virtual void MoveInLineOfSight(Unit*) {}
@@ -718,7 +718,7 @@ class bot_minion_ai : public bot_ai
         virtual ~bot_minion_ai();
         bot_minion_ai(Creature* creature);
         virtual void Reset() {}
-		virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);// { EnterEvadeMode(false); }
+		//virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);// { EnterEvadeMode(false); }
         //void EnterEvadeMode(bool force);
         virtual void JustDied(Unit*);
         virtual void EnterCombat(Unit* u);

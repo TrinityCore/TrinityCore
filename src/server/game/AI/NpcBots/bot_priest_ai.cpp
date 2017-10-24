@@ -174,7 +174,7 @@ public:
         void Aggro(Unit*) { }
         void AttackStart(Unit*) { }
         void KilledUnit(Unit*) { }
-        void EnterEvadeMode() { bot_minion_ai::EnterEvadeMode(); }
+        //void EnterEvadeMode() { bot_minion_ai::EnterEvadeMode(); }
         void MoveInLineOfSight(Unit* u) { bot_minion_ai::MoveInLineOfSight(u); }
         void JustDied(Unit* u) { bot_minion_ai::JustDied(u); }
 

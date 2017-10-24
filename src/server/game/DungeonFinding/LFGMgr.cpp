@@ -464,7 +464,6 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                         joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
                     ++memberCount;
                     players.insert(plrg->GetGUID());
-
                     //npcbot
                     if (!plrg->HaveBot())
                         continue;
@@ -474,7 +473,6 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                     {
                         if (!grp->IsMember(ObjectGuid(itr->first)))
                             continue;
-
                         //disabled in config
                         if (!BotMgr::IsNpcBotDungeonFinderEnabled())
                         {
@@ -488,7 +486,6 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                             joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
                             break;
                         }
-
                         if (Creature* bot = ObjectAccessor::GetCreatureOrPetOrVehicle(*plrg, ObjectGuid(itr->first)))
                         {
                             if (!bot->IsTempBot())
@@ -653,7 +650,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                             if (bot->GetBotRoles() & 2) //BOT_ROLE_DPS
                                 broles |= PLAYER_ROLE_DAMAGE;
                             brolemap[bguid] = broles;
-                            //UpdateRoleCheck(gguid, bguid, broles);
+                            UpdateRoleCheck(gguid, ObjectGuid(bguid), broles);
                         }
                     }
                 }

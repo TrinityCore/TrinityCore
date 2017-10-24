@@ -165,7 +165,7 @@ public:
             if (me->getLevel() >= 5 && u->getLevel() + 9 >= me->getLevel())
                 me->CastSpell(me, VICTORIOUS_SPELL, true);
         }
-        void EnterEvadeMode() { bot_minion_ai::EnterEvadeMode(); }
+        //void EnterEvadeMode() { bot_minion_ai::EnterEvadeMode(); }
         void MoveInLineOfSight(Unit* u) { bot_minion_ai::MoveInLineOfSight(u); }
         void JustDied(Unit* u) { bot_minion_ai::JustDied(u); }
         void DoNonCombatActions(uint32 /*diff*/) { }

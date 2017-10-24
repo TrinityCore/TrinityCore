@@ -12,6 +12,7 @@
 #include "SpellAuraEffects.h"
 #include "CreatureAIImpl.h"
 #include "Mail.h"
+#include "TemporarySummon.h"
 /*
 NpcBot System by Graff (onlysuffering@gmail.com)
 Original patch from: LordPsyan https://bitbucket.org/lordpsyan/trinitycore-patches/src/3b8b9072280e/Individual/11185-BOTS-NPCBots.patch
@@ -4057,7 +4058,7 @@ void bot_minion_ai::Evade(bool force)
 
     if (CCed(me)) return;
     if (!force && Rand() > 10) return;
-    EnterEvadeMode();
+    //EnterEvadeMode();
     if (!force && !master->IsInCombat() && !me->IsInCombat() && (!m_botsPet || !m_botsPet->IsInCombat())) return;
     if (!force && CheckAttackTarget(_botclass)) return;
 
@@ -6269,7 +6270,7 @@ bool bot_minion_ai::OnGossipSelectCode(Player* player, Creature* creature/* == m
 //Summons pet for bot
 void bot_minion_ai::SummonBotsPet(uint32 entry)
 {
-    /*Creature* m_botsPet = me->GetBotsPet();
+    Creature* m_botsPet = me->GetBotsPet();
     if (m_botsPet)
         me->SetBotsPetDied();
 
@@ -6284,8 +6285,8 @@ void bot_minion_ai::SummonBotsPet(uint32 entry)
     }
     float x(0),y(0),z(0);
     me->GetClosePoint(x, y, z, me->GetObjectSize());
-    m_botsPet = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN);
-
+    //m_botsPet = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN);
+    m_botsPet = me->SummonCreature(entry, me->GetPosition(), TEMPSUMMON_DEAD_DESPAWN);
     if (!m_botsPet)
     {
         if (!IAmFree())
@@ -6345,7 +6346,7 @@ void bot_minion_ai::SummonBotsPet(uint32 entry)
 
     me->SetBotsPet(m_botsPet);
 
-    m_botsPet->SendUpdateToPlayer(master);*/
+    m_botsPet->SendUpdateToPlayer(master);
 }
 
 //Returns pet type (maybe unneeded)
@@ -8670,7 +8671,7 @@ void bot_minion_ai::UpdateReviveTimer(uint32 diff)
     }
 }
 
-void bot_minion_ai::EnterEvadeMode(EvadeReason why)
+/*void bot_minion_ai::EnterEvadeMode(EvadeReason why)
 {
     //if (me->IsInCombat())
     //    return;
@@ -8801,7 +8802,7 @@ void bot_minion_ai::EnterEvadeMode(EvadeReason why)
         pet->SetFaction(pet->GetCreatureTemplate()->faction);
 
     //RestorePositionMods();
-}
+}*/
 //TeleportHome() ONLY CALLED THROUGH EVENTPROCESSOR
 void bot_minion_ai::TeleportHome()
 {
