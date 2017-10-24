@@ -4057,7 +4057,7 @@ void bot_minion_ai::Evade(bool force)
 
     if (CCed(me)) return;
     if (!force && Rand() > 10) return;
-    EnterEvadeMode(force);
+    EnterEvadeMode();
     if (!force && !master->IsInCombat() && !me->IsInCombat() && (!m_botsPet || !m_botsPet->IsInCombat())) return;
     if (!force && CheckAttackTarget(_botclass)) return;
 
@@ -8670,7 +8670,7 @@ void bot_minion_ai::UpdateReviveTimer(uint32 diff)
     }
 }
 
-void bot_minion_ai::EnterEvadeMode(bool /*force*/)
+void bot_minion_ai::EnterEvadeMode(EvadeReason why)
 {
     //if (me->IsInCombat())
     //    return;
