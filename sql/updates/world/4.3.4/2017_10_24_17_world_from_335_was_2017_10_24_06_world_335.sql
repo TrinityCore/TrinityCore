@@ -1,3 +1,4 @@
+/*
 -- Sara Balloo
 DELETE FROM `creature_text` WHERE `CreatureID`=2695;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -11,3 +12,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (2695,0,0,0,20,0,100,0,637,0,0,0,80,269500,0,0,0,0,0,1,0,0,0,0,0,0,0,"Sara Balloo - On Quest 'Sully Balloo's Letter' finished - Run Script"),
 (269500,9,0,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Sara Balloo - On Script - Say Line 0"),
 (269500,9,1,0,0,0,100,0,2000,2000,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Sara Balloo - On Script - Say Line 1");
+*/

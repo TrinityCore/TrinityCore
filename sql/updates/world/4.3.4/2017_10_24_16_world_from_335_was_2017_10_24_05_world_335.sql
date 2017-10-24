@@ -1,3 +1,4 @@
+/*
 -- Quest "Your Place In The World"
 UPDATE `quest_offer_reward` SET `Emote1`=6 WHERE `ID`=4641;
 
@@ -184,3 +185,4 @@ DELETE FROM `quest_details` WHERE `ID`=6081;
 INSERT INTO `quest_details` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `VerifiedBuild`) VALUES
 (6081,1,0,0,0,0,0,0,0,0);
 UPDATE `quest_offer_reward` SET `Emote1`=1 WHERE `ID`=6081;
+*/
