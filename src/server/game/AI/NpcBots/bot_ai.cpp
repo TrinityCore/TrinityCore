@@ -4058,7 +4058,7 @@ void bot_minion_ai::Evade(bool force)
 
     if (CCed(me)) return;
     if (!force && Rand() > 10) return;
-    //EnterEvadeMode();
+    EnterEvadeMode(force);
     if (!force && !master->IsInCombat() && !me->IsInCombat() && (!m_botsPet || !m_botsPet->IsInCombat())) return;
     if (!force && CheckAttackTarget(_botclass)) return;
 
@@ -8671,7 +8671,7 @@ void bot_minion_ai::UpdateReviveTimer(uint32 diff)
     }
 }
 
-/*void bot_minion_ai::EnterEvadeMode(EvadeReason why)
+void bot_minion_ai::EnterEvadeMode(bool /* force */)
 {
     //if (me->IsInCombat())
     //    return;
@@ -8802,7 +8802,7 @@ void bot_minion_ai::UpdateReviveTimer(uint32 diff)
         pet->SetFaction(pet->GetCreatureTemplate()->faction);
 
     //RestorePositionMods();
-}*/
+}
 //TeleportHome() ONLY CALLED THROUGH EVENTPROCESSOR
 void bot_minion_ai::TeleportHome()
 {
