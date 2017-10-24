@@ -3354,15 +3354,22 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
                 if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
                 {
                     e.enableTimed = false;//disable event if it is in an ActionList and was processed once
+                    bool isActionListOver = true;
+
                     for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
                     {
                         //find the first event which is not the current one and enable it
                         if (i->event_id > e.event_id)
                         {
                             i->enableTimed = true;
+                            isActionListOver = false;
                             break;
                         }
                     }
+
+                    // Set object to non-active if there's nothing else to process
+                    if (isActionListOver)
+                        GetBaseObject()->setActive(false);
                 }
                 break;
             }
@@ -3665,6 +3672,9 @@ void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
         TC_LOG_ERROR("scripts.ai", "Entry %d SourceType %u Event %u Action %u is trying to overwrite timed action list from a timed action, this is not allowed!.", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
         return;
     }
+
+    // Object will be set to active until the actionlist is over.
+    GetBaseObject()->setActive(true);
 
     mTimedActionList.clear();
     mTimedActionList = sSmartScriptMgr->GetScript(entry, SMART_SCRIPT_TYPE_TIMED_ACTIONLIST);
