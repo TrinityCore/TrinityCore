@@ -591,6 +591,7 @@ CREATE TABLE `creature_template` (
   `movementId` int(11) unsigned NOT NULL DEFAULT '0',
   `RegenHealth` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `mechanic_immune_mask` int(10) unsigned NOT NULL DEFAULT '0',
+  `spell_school_immune_mask` int(3) unsigned NOT NULL DEFAULT '0',
   `flags_extra` int(10) unsigned NOT NULL DEFAULT '0',
   `ScriptName` char(64) NOT NULL DEFAULT '',
   `VerifiedBuild` smallint(5) DEFAULT '0',
