@@ -2042,7 +2042,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     uint32 sound = Trinity::Containers::SelectRandomContainerElement(sounds);
 
-                    if (e.action.randomSound.distance = 1)
+                    if (e.action.randomSound.distance == 1)
                         target->PlayDistanceSound(sound, onlySelf ? target->ToPlayer() : nullptr);
                     else
                         target->PlayDirectSound(sound, onlySelf ? target->ToPlayer() : nullptr);
