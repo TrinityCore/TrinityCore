@@ -1777,7 +1777,7 @@ void bot_pet_ai::SetStats(bool force, bool /*unk*/)
         //case PET_TYPE_FELHUNTER:        ap_mod = 0.57f; spp_mod = 0.15f; crit_mod = 1.0f; break;//NYI
         //case PET_TYPE_FELGUARD:         ap_mod = 0.57f; spp_mod = 0.15f; crit_mod = 1.0f; break;//NYI
         //case PET_TYPE_SUCCUBUS:         ap_mod = 0.57f; spp_mod = 0.15f; crit_mod = 1.0f; break;//NYI
-        //case PET_TYPE_IMP:              ap_mod = 0.f;   spp_mod = 0.15f; crit_mod = 1.0f; break;//NYI
+        case PET_TYPE_IMP:              ap_mod = 0.f;   spp_mod = 0.15f; crit_mod = 1.0f; break;
 
         //case PET_TYPE_WATER_ELEMENTAL:  ap_mod = 0.0f;  spp_mod = 0.0f; crit_mod = 0.0f; break;//NYI
 
@@ -3254,6 +3254,8 @@ void bot_ai::ApplyPassives() const
         switch (bot_pet_ai::GetPetType(me))
         {
             case PET_TYPE_VOIDWALKER:
+                break;
+            case PET_TYPE_IMP:
                 break;
             default:
                 TC_LOG_ERROR("entities.player", "bot_ai: ApplyPassives() - unknown pet type %u for bot %s (id: %u)",
@@ -6371,6 +6373,8 @@ uint8 bot_pet_ai::GetPetType(Creature* pet)
     {
         case PET_VOIDWALKER:
             return PET_TYPE_VOIDWALKER;
+        case PET_IMP:
+            return PET_TYPE_IMP;
     }
     return PET_TYPE_NONE;
 }
@@ -6394,6 +6398,8 @@ uint32 bot_pet_ai::GetPetOriginalEntry(uint32 entry)
     {
         case PET_VOIDWALKER:
             return ORIGINAL_ENTRY_VOIDWALKER;
+        case PET_IMP:
+            return ORIGINAL_ENTRY_IMP;
         default:
             return 0;
     }

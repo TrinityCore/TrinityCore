@@ -282,7 +282,7 @@ enum BotPetTypes
 
 enum WarlockBotPets
 {
-    //PET_IMP                     = ,
+    PET_IMP                     = 70249,
     PET_VOIDWALKER              = 70247
     //PET_SUCCUBUS                =
 };
@@ -294,7 +294,8 @@ enum HunterBotPets
 
 enum BotPetsOriginalEntries
 {
-    ORIGINAL_ENTRY_VOIDWALKER   = 1860
+    ORIGINAL_ENTRY_VOIDWALKER   = 1860,
+    ORIGINAL_ENTRY_IMP          = 416
 };
 
 enum BotEquipSlot

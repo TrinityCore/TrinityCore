@@ -90,7 +90,14 @@ public:
             ////if pet is dead or unreachable
             Creature* m_botsPet = me->GetBotsPet();
             if (!IAmFree() && HasRole(BOT_ROLE_TANK))
-            {
+            { //want voidwalker
+                if (m_botsPet)
+                    if (bot_pet_ai::GetPetType(m_botsPet) == PET_TYPE_IMP)
+                    {//imp exists, need to despawn it and summon voidwalker
+                        me->SetBotsPetDied();
+                        me->SetBotsPet(NULL);
+                        m_botsPet = me->GetBotsPet();
+                    }
                 if (!m_botsPet || m_botsPet->FindMap() != master->GetMap() || (me->GetDistance2d(m_botsPet) > sWorld->GetMaxVisibleDistanceOnContinents() - 20.f))
                     if (master->getLevel() >= 10 && !me->IsInCombat() && !IsCasting() && !me->IsMounted())
                     {
@@ -98,11 +105,21 @@ public:
                         SummonBotsPet(PET_VOIDWALKER);
                     }
             }
-            else if (m_botsPet) //no owner and no tank and has a pet...get rid of it
-            {   
-                if (bot_pet_ai::GetPetType(m_botsPet) == PET_TYPE_VOIDWALKER)
-                me->SetBotsPetDied();
-                me->SetBotsPet(NULL);
+            else if (!IAmFree())
+            {  //want imp
+                if (m_botsPet)
+                    if (bot_pet_ai::GetPetType(m_botsPet) == PET_TYPE_VOIDWALKER)
+                    { //voidwalker exists, need to despawn it and summon imp
+                        me->SetBotsPetDied();
+                        me->SetBotsPet(NULL);
+                        m_botsPet = me->GetBotsPet();
+                    }
+                if (!m_botsPet || m_botsPet->FindMap() != master->GetMap() || (me->GetDistance2d(m_botsPet) > sWorld->GetMaxVisibleDistanceOnContinents() - 20.f))
+                    if (!me->IsInCombat() && !IsCasting() && !me->IsMounted())
+                    {
+                        TC_LOG_ERROR("entities.unit","trying to summon imp for bot");
+                        SummonBotsPet(PET_IMP);
+                    }
             }
             //TODO: implement healthstone
             if (Potion_cd <= diff && GetHealthPCT(me) < 67)
@@ -432,6 +449,169 @@ public:
     };
 };
 
+class imp_bot : public CreatureScript
+{
+public:
+    imp_bot() : CreatureScript("imp_bot") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new imp_botAI(creature);
+    }
+
+    struct imp_botAI : public bot_pet_ai
+    {
+        imp_botAI(Creature* creature) : bot_pet_ai(creature)
+        {
+            _botclass = BOT_CLASS_MAGE;
+        }
+
+        bool doCast(Unit* victim, uint32 spellId, bool triggered = false)
+        {
+            if (CheckBotCast(victim, spellId, BOT_CLASS_MAGE) != SPELL_CAST_OK)
+                return false;
+            return bot_ai::doCast(victim, spellId, triggered);
+        }
+
+        void EnterCombat(Unit*) { }
+        void Aggro(Unit*) { }
+        void AttackStart(Unit*) { }
+        void KilledUnit(Unit*) { }
+        void EnterEvadeMode(EvadeReason /*why*/) { }
+        void MoveInLineOfSight(Unit*) { }
+        void JustDied(Unit*) { m_creatureOwner->SetBotsPetDied(); }
+        void DoNonCombatActions() { }
+
+        void StartAttack(Unit* u, bool force = false)
+        {
+            if (GetBotCommandState() == COMMAND_ATTACK && !force) return;
+            Aggro(u);
+            SetBotCommandState(COMMAND_ATTACK);
+            OnStartAttack(u);
+            GetInPosition(force);
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            ReduceCD(diff);
+            if (IAmDead()) return;
+            CheckAttackState();
+            CheckAuras();
+            if (wait == 0)
+                wait = GetWait(true);
+            else
+                return;
+            if (CCed(me)) return;
+
+            //TODO: add checks to help owner
+
+            if (!me->IsInCombat())
+                DoNonCombatActions();
+            //manually resetting master to bot owner; seems to get stuck as npcbot instead
+            master = me->GetBotPetAI()->GetCreatureOwner()->GetBotOwner();
+            if (!CheckAttackTarget(PET_TYPE_IMP))
+                return;
+            DoNormalAttack(diff);
+        }
+
+        void DoNormalAttack(uint32 diff)
+        {
+            opponent = me->GetVictim();
+            /*if (opponent)
+            {
+                if (!IsCasting())
+                    StartAttack(opponent, true);
+            }
+            else
+                return;
+            if (MoveBehind(*opponent))
+                wait = 5;*/
+
+            float dist = me->GetExactDist(opponent);
+            //float meleedist = me->GetDistance(opponent);
+
+            //FIREBOLT
+            if (IsSpellReady(FIREBOLT_1, diff, false) && dist < 30)
+            {
+                temptimer = GC_Timer;
+                if (doCast(opponent, GetSpell(FIREBOLT_1)))
+                {
+                    GC_Timer = temptimer;
+                    return;
+                }
+            }
+        }
+
+        void SpellHit(Unit* caster, SpellInfo const* spell)
+        {
+            OnSpellHit(caster, spell);
+        }
+
+        void DamageTaken(Unit* u, uint32& /*damage*/)
+        {
+            if (m_creatureOwner->IsAIEnabled)
+                if (bot_minion_ai* ai = m_creatureOwner->GetBotMinionAI())
+                    ai->OnOwnerDamagedBy(u);
+        }
+
+        //debug
+        //void ListSpells(ChatHandler* ch) const
+        //{
+        //    ch->PSendSysMessage("Spells list:");
+        //    ch->PSendSysMessage("Torment: %u", TORMENT);
+        //    ch->PSendSysMessage("End of spells list.");
+        //}
+
+        void Reset()
+        {
+            if (master && m_creatureOwner)
+            {
+                DefaultInit();
+                SetBaseArmor(162 * master->getLevel());
+            }
+        }
+
+        void ReduceCD(uint32 /*diff*/)
+        {
+        }
+
+        void InitSpells()
+        {
+            InitSpellMap(FIREBOLT_1);
+        }
+
+        void ApplyClassPassives() 
+        { 
+            uint8 level = master->getLevel();
+            RefreshAura(BLOOD_PACT_7, level >= 74 ? 1 : 0);
+            RefreshAura(BLOOD_PACT_6, level >= 62 && level < 74 ? 1 : 0);
+            RefreshAura(BLOOD_PACT_5, level >= 50 && level < 62 ? 1 : 0);
+            RefreshAura(BLOOD_PACT_4, level >= 38 && level < 50 ? 1 : 0);
+            RefreshAura(BLOOD_PACT_3, level >= 26 && level < 38 ? 1 : 0);
+            RefreshAura(BLOOD_PACT_2, level >= 14 && level < 26 ? 1 : 0);
+            RefreshAura(BLOOD_PACT_1, level >= 4 && level < 14 ? 1 : 0);
+        }
+
+    private:
+        //Timers
+
+        enum ImpBaseSpells
+        {
+            FIREBOLT_1                           = 3110
+        };
+        enum ImpPassives
+        {
+            BLOOD_PACT_1                   = 6307,
+            BLOOD_PACT_2                   = 7804,
+            BLOOD_PACT_3                   = 7805,
+            BLOOD_PACT_4                   = 11766,
+            BLOOD_PACT_5                   = 11767,
+            BLOOD_PACT_6                   = 27268,
+            BLOOD_PACT_7                   = 47982,
+        };
+    };
+};
+
 class voidwalker_bot : public CreatureScript
 {
 public:
@@ -582,4 +762,5 @@ void AddSC_warlock_bot()
 {
     new warlock_bot();
     new voidwalker_bot();
+    new imp_bot();
 }
