@@ -317,6 +317,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_DISTANCE_SOUND:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (IsUnit(target))
+                {
+                    target->PlayDistanceSound(e.action.sound.sound, e.action.sound.onlySelf ? target->ToPlayer() : nullptr);
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_DISTANCE_SOUND: target: %s (GuidLow: %u), sound: %u, onlyself: %u",
+                        target->GetName().c_str(), target->GetGUID().GetCounter(), e.action.sound.sound, e.action.sound.onlySelf);
+                }
+            }
+            break;
+        }
         case SMART_ACTION_SET_FACTION:
         {
             for (WorldObject* target : targets)
