@@ -414,7 +414,7 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                        62           63           64              65            66             67              68                  69
                                              "InhabitType, HoverHeight, HealthModifier, ManaModifier, ArmorModifier, DamageModifier, ExperienceModifier, RacialLeader, "
-    //                                             70          71                72                    73                  74           75
+    //                                        70          71           72                    73                        74           75
                                              "movementId, RegenHealth, mechanic_immune_mask, spell_school_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
