@@ -397,7 +397,8 @@ public:
             if (IsSpellReady(WAND_SHOOT_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 30 && GC_Timer <= diff &&
                 doCast(opponent, GetSpell(WAND_SHOOT_1)))
             {
-                GC_Timer = 1500;
+                uint32 WandSpeed = me->GetAttackTime(RANGED_ATTACK);
+                GC_Timer = WandSpeed;
                 return;
             }
         }

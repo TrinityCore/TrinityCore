@@ -623,7 +623,7 @@ class bot_ai : public ScriptedAI
         virtual bool IgnoreEquipsAttackTime() const { return false; }
         virtual bool CanSeeEveryone() const { return false; }
 
-        uint8 GetWait();
+        uint8 GetWait(bool bypassGetCount = false);
         inline float InitAttackRange(float origRange, bool ranged) const;
         uint16 Rand() const;
         static inline uint32 GetLostHP(Unit const* unit) { return unit->GetMaxHealth() - unit->GetHealth(); }

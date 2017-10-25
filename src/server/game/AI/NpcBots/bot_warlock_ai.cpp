@@ -88,10 +88,13 @@ public:
             if (CCed(me)) return;
 
             ////if pet is dead or unreachable
-            //Creature* m_botsPet = me->GetBotsPet();
-            //if (!m_botsPet || m_botsPet->FindMap() != master->GetMap() || (me->GetDistance2d(m_botsPet) > sWorld->GetMaxVisibleDistanceOnContinents() - 20.f))
-            //    if (master->getLevel() >= 10 && !me->IsInCombat() && !IsCasting() && !me->IsMounted())
-            //        SummonBotsPet(PET_VOIDWALKER);
+            Creature* m_botsPet = me->GetBotsPet();
+            if (!m_botsPet || m_botsPet->FindMap() != master->GetMap() || (me->GetDistance2d(m_botsPet) > sWorld->GetMaxVisibleDistanceOnContinents() - 20.f))
+                if (master->getLevel() >= 10 && !me->IsInCombat() && !IsCasting() && !me->IsMounted())
+                {
+                    TC_LOG_ERROR("entities.unit","trying to summon voidwalker for bot");
+                    SummonBotsPet(PET_VOIDWALKER);
+                }
 
             //TODO: implement healthstone
             if (Potion_cd <= diff && GetHealthPCT(me) < 67)
@@ -196,7 +199,8 @@ public:
             if (IsSpellReady(WAND_SHOOT_1, diff) && HasRole(BOT_ROLE_DPS) && dist < 30 && GC_Timer <= diff &&
                 doCast(opponent, GetSpell(WAND_SHOOT_1)))
             {
-                GC_Timer = 1500;
+                uint32 WandSpeed = me->GetAttackTime(RANGED_ATTACK);
+                GC_Timer = WandSpeed;
                 return;
             }
         }
@@ -434,12 +438,12 @@ public:
     {
         voidwalker_botAI(Creature* creature) : bot_pet_ai(creature)
         {
-            _botclass = BOT_CLASS_MAGE;
+            _botclass = BOT_CLASS_WARRIOR;
         }
 
         bool doCast(Unit* victim, uint32 spellId, bool triggered = false)
         {
-            if (CheckBotCast(victim, spellId, BOT_CLASS_NONE) != SPELL_CAST_OK)
+            if (CheckBotCast(victim, spellId, BOT_CLASS_WARRIOR) != SPELL_CAST_OK)
                 return false;
             return bot_ai::doCast(victim, spellId, triggered);
         }
@@ -469,7 +473,7 @@ public:
             CheckAttackState();
             CheckAuras();
             if (wait == 0)
-                wait = GetWait();
+                wait = GetWait(true);
             else
                 return;
             if (CCed(me)) return;
@@ -478,10 +482,10 @@ public:
 
             if (!me->IsInCombat())
                 DoNonCombatActions();
-
+            //manually resetting master to bot owner; seems to get stuck as npcbot instead
+            master = me->GetBotPetAI()->GetCreatureOwner()->GetBotOwner();
             if (!CheckAttackTarget(PET_TYPE_VOIDWALKER))
                 return;
-
             DoNormalAttack(diff);
         }
 

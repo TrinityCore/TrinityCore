@@ -148,7 +148,10 @@ bot_ai::~bot_ai() { }
 
 uint16 bot_ai::Rand() const
 {
-    return IAmFree() ? urand(0, 100) : urand(0, 100 + (master->GetNpcBotsCount() - 1) * 10);
+    if (IsMinionAI())
+        return IAmFree() ? urand(0, 100) : urand(0, 100 + (master->GetNpcBotsCount() - 1) * 10);
+    else
+        return IAmFree() ? urand(0, 100) : urand(0, 100);
 }
 
 void bot_ai::BotSay(char const* text, Player const* target) const
@@ -2834,20 +2837,21 @@ bool bot_ai::CheckAttackTarget(uint8 botOrPetType)
                 byspell = true;
                 ranged = true;
                 break;
+            case PET_TYPE_VOIDWALKER:
+                byspell = false;
+                ranged = false;
+                break;
             default:
                 TC_LOG_ERROR("entities.player", "bot_ai: CheckAttackTarget() - unknown pet type %u", botOrPetType);
                 return false;
         }
     }
-
     opponent = _getTarget(byspell, ranged, reset);
-
     if (!opponent)
     {
         //TC_LOG_ERROR("entities.player", "bot_ai: CheckAttackTarget() - bot %s lost target", me->GetName().c_str());
         if (me->GetVictim() || me->IsInCombat()/* || !me->getThreatManager().isThreatListEmpty()*/)
         {
-            //TC_LOG_ERROR("entities.player", "bot_ai: CheckAttackTarget() - bot %s Evades", me->GetName().c_str());
             if (me->GetVictim())
                 me->AttackStop();
             else if (me->IsInCombat())
@@ -2856,7 +2860,6 @@ bool bot_ai::CheckAttackTarget(uint8 botOrPetType)
 
         return false;
     }
-
     if (reset)
         m_botCommandState = COMMAND_ABANDON;//reset AttackStart()
 
@@ -2914,13 +2917,20 @@ void bot_ai::GetInPosition(bool force, Unit* newtarget, Position* mypos)
     if (UpdateImpossibleChase(newtarget))
         return;
     bool ranged = !IsMelee();
+    if (IsPetAI())
+    {
+        if (bot_pet_ai::GetPetType(me) == PET_TYPE_VOIDWALKER)
+            ranged = false;
+    }
     uint8 followdist = IAmFree() ? 100 : master->GetBotFollowDist();
     if (ranged)
     {
         if (!force && newtarget->GetTypeId() == TYPEID_PLAYER &&
             me->GetDistance(newtarget) < 6 + urand(followdist/4, followdist/3)) return;//do not allow constant runaway from player
         if (!mypos)
+        {
             CalculateAttackPos(newtarget, attackpos);
+        }
         else
         {
             attackpos.m_positionX = mypos->m_positionX;
@@ -4268,7 +4278,7 @@ void bot_ai::OnSpellHit(Unit* caster, SpellInfo const* spell)
 //Hp + Mana update
 //target update
 //returns fake wait time between overall AI updates (if it is even understandable)
-uint8 bot_ai::GetWait()
+uint8 bot_ai::GetWait(bool bypassGetCount)
 {
     if (doHealth)
     {
@@ -4283,8 +4293,11 @@ uint8 bot_ai::GetWait()
     CheckAuras(true);
     FindMaster();
     //SavePosition();
+    if (bypassGetCount)
+        return IAmFree() ? 3 : (1 + (irand(0,100) <= 50)*int8(RAND(-1,1)));
+    else
     //0 to 2 plus 1 for every 3 bots except first one
-    return IAmFree() ? 3 : (1 + (master->GetNpcBotsCount() - 1)/3 + (irand(0,100) <= 50)*int8(RAND(-1,1)));
+        return IAmFree() ? 3 : (1 + (master->GetNpcBotsCount() - 1)/3 + (irand(0,100) <= 50)*int8(RAND(-1,1)));
 }
 //Damage/Healing Mods
 //1) Apply class-specified damage/healing/crit chance/crit damage/crit healing bonuses
@@ -6293,6 +6306,8 @@ void bot_minion_ai::SummonBotsPet(uint32 entry)
             BotWhisper("Failed to summon pet!", master);
         return;
     }
+    else
+        BotWhisper("Summoned a pet for myself", master);
 
     //std::string name = sObjectMgr->GeneratePetName(originalentry);//voidwalker
     //if (!name.empty())
@@ -6366,6 +6381,8 @@ uint8 bot_pet_ai::GetPetClass(Creature* pet)
     {
         case PET_TYPE_IMP:
             return BOT_CLASS_MAGE;
+        case PET_TYPE_VOIDWALKER:
+            return BOT_CLASS_WARRIOR;
         default:
             return BOT_CLASS_PALADIN;
     }
