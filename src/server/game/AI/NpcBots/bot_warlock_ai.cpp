@@ -89,13 +89,21 @@ public:
 
             ////if pet is dead or unreachable
             Creature* m_botsPet = me->GetBotsPet();
-            if (!m_botsPet || m_botsPet->FindMap() != master->GetMap() || (me->GetDistance2d(m_botsPet) > sWorld->GetMaxVisibleDistanceOnContinents() - 20.f))
-                if (master->getLevel() >= 10 && !me->IsInCombat() && !IsCasting() && !me->IsMounted())
-                {
-                    TC_LOG_ERROR("entities.unit","trying to summon voidwalker for bot");
-                    SummonBotsPet(PET_VOIDWALKER);
-                }
-
+            if (!IAmFree() && HasRole(BOT_ROLE_TANK))
+            {
+                if (!m_botsPet || m_botsPet->FindMap() != master->GetMap() || (me->GetDistance2d(m_botsPet) > sWorld->GetMaxVisibleDistanceOnContinents() - 20.f))
+                    if (master->getLevel() >= 10 && !me->IsInCombat() && !IsCasting() && !me->IsMounted())
+                    {
+                        TC_LOG_ERROR("entities.unit","trying to summon voidwalker for bot");
+                        SummonBotsPet(PET_VOIDWALKER);
+                    }
+            }
+            else if (m_botsPet) //no owner and no tank and has a pet...get rid of it
+            {   
+                if (bot_pet_ai::GetPetType(m_botsPet) == PET_TYPE_VOIDWALKER)
+                me->SetBotsPetDied();
+                me->SetBotsPet(NULL);
+            }
             //TODO: implement healthstone
             if (Potion_cd <= diff && GetHealthPCT(me) < 67)
             {
@@ -263,17 +271,17 @@ public:
             //}
         }
 
-        //void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
-        //{
-        //    if (summon == me->GetBotsPet())
-        //        me->SetBotsPetDied();
-        //}
+        void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+        {
+            if (summon == me->GetBotsPet())
+                me->SetBotsPetDied();
+        }
 
-        //void SummonedCreatureDespawn(Creature* summon)
-        //{
-        //    if (summon == me->GetBotsPet())
-        //        me->SetBotsPet(NULL);
-        //}
+        void SummonedCreatureDespawn(Creature* summon)
+        {
+            if (summon == me->GetBotsPet())
+                me->SetBotsPet(NULL);
+        }
 
         void ApplyClassDamageMultiplierSpell(int32& damage, SpellNonMeleeDamage& /*damageinfo*/, SpellInfo const* /*spellInfo*/, WeaponAttackType /*attackType*/, bool& crit) const
         {
