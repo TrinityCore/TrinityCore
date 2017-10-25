@@ -1031,6 +1031,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         case SMART_ACTION_SOUND:
+        case SMART_ACTION_DISTANCE_SOUND:
             if (!IsSoundValid(e, e.action.sound.sound))
                 return false;
             break;

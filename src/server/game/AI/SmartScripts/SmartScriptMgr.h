@@ -578,8 +578,9 @@ enum SMART_ACTION
     SMART_ACTION_SCENE_CANCEL                       = 130,    // don't use on 3.3.5a
     SMART_ACTION_SPAWN_SPAWNGROUP                   = 131,    // Group ID, min secs, max secs, spawnflags
     SMART_ACTION_DESPAWN_SPAWNGROUP                 = 132,    // Group ID, min secs, max secs, spawnflags
+    SMART_ACTION_DISTANCE_SOUND                     = 133,    // SoundId, onlySelf
 
-    SMART_ACTION_END                                = 133
+    SMART_ACTION_END                                = 134
 };
 
 struct SmartAction
