@@ -105,6 +105,9 @@ class boss_selin_fireheart : public CreatureScript
 
             void SelectNearestCrystal()
             {
+                if (Crystals.empty())
+                    return;
+
                 if (Creature* crystal = me->FindNearestCreature(NPC_FEL_CRYSTAL, 250.0f))
                 {
                     Talk(SAY_ENERGY);
@@ -112,7 +115,7 @@ class boss_selin_fireheart : public CreatureScript
 
                     DoCast(crystal, SPELL_FEL_CRYSTAL_DUMMY);
                     CrystalGUID = crystal->GetGUID();
-
+                    
                     float x, y, z;
                     crystal->GetClosePoint(x, y, z, me->GetCombatReach(), CONTACT_DISTANCE);
 
@@ -131,10 +134,10 @@ class boss_selin_fireheart : public CreatureScript
                     crystal->KillSelf();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _JustEngagedWith();
+                _EnterCombat();
 
                 events.SetPhase(PHASE_NORMAL);
                 events.ScheduleEvent(EVENT_FEL_EXPLOSION, 2100, 0, PHASE_NORMAL);
@@ -244,6 +247,7 @@ class boss_selin_fireheart : public CreatureScript
             }
 
         private:
+            std::list<ObjectGuid> Crystals;
             ObjectGuid CrystalGUID;
             bool _scheduledEvents;
         };
@@ -267,9 +271,9 @@ class npc_fel_crystal : public CreatureScript
             {
                 if (InstanceScript* instance = me->GetInstanceScript())
                 {
-                    Creature* selin = instance->GetCreature(DATA_SELIN_FIREHEART);
-                    if (selin && selin->IsAlive())
-                        selin->AI()->DoAction(ACTION_SWITCH_PHASE);
+                    Creature* Selin = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SELIN));
+                    if (Selin && Selin->IsAlive())
+                        Selin->AI()->DoAction(ACTION_SWITCH_PHASE);
                 }
             }
         };
