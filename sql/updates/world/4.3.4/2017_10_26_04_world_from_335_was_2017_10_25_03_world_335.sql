@@ -1,3 +1,4 @@
+/*
 -- Mottled Boar
 DELETE FROM `creature_loot_template` WHERE `Entry`=3098;
 INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
@@ -57,3 +58,4 @@ INSERT INTO `creature_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `Q
 (3183, 159, 0, 5, 0, 1, 0, 1, 1, "Refreshing Spring Water"), -- Refreshing Spring Water
 (3183, 24073, 24073, 5, 0, 1, 0, 1, 1, "Junk"), -- Junk
 (3183, 11111, 11111, 0.1, 0, 1, 0, 1, 1, "Bags"); -- Bags
+*/
