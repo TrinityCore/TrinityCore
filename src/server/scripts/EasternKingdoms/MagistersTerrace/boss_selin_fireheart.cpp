@@ -105,9 +105,6 @@ class boss_selin_fireheart : public CreatureScript
 
             void SelectNearestCrystal()
             {
-                if (Crystals.empty())
-                    return;
-
                 if (Creature* crystal = me->FindNearestCreature(NPC_FEL_CRYSTAL, 250.0f))
                 {
                     Talk(SAY_ENERGY);
@@ -247,7 +244,6 @@ class boss_selin_fireheart : public CreatureScript
             }
 
         private:
-            std::list<ObjectGuid> Crystals;
             ObjectGuid CrystalGUID;
             bool _scheduledEvents;
         };
