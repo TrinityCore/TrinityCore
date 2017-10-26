@@ -998,7 +998,7 @@ void MovementInfo::OutDebug()
 }
 
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
-m_name(""), m_isActive(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
+m_name(""), m_isActive(false), m_isVisibleFromFarAway(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
 m_transport(nullptr), m_zoneId(0), m_areaId(0), m_staticFloorZ(VMAP_INVALID_HEIGHT), m_currMap(nullptr), m_InstanceId(0),
 m_phaseMask(PHASEMASK_NORMAL), m_notifyflags(0)
 {
@@ -1056,6 +1056,14 @@ void WorldObject::setActive(bool on)
         else if (GetTypeId() == TYPEID_DYNAMICOBJECT)
             map->RemoveFromActive((DynamicObject*)this);
     }
+}
+
+void WorldObject::setVisibleFromFarAway(bool on)
+{
+    if (GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    m_isVisibleFromFarAway = on;
 }
 
 void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
@@ -1500,7 +1508,7 @@ float WorldObject::GetGridActivationRange() const
 
 float WorldObject::GetVisibilityRange() const
 {
-    if (isActiveObject() && !ToPlayer())
+    if (isVisibleFromFarAway() && !ToPlayer())
         return MAX_VISIBILITY_DISTANCE;
     else
         return GetMap()->GetVisibilityRange();
@@ -1512,7 +1520,7 @@ float WorldObject::GetSightRange(WorldObject const* target) const
     {
         if (ToPlayer())
         {
-            if (target && target->isActiveObject() && !target->ToPlayer())
+            if (target && target->isVisibleFromFarAway() && !target->ToPlayer())
                 return MAX_VISIBILITY_DISTANCE;
             else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
                 return DEFAULT_VISIBILITY_INSTANCE;
