@@ -414,8 +414,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         bool isActiveObject() const { return m_isActive; }
         void setActive(bool isActiveObject);
-        bool isVisibleFromFarAway() const { return m_isVisibleFromFarAway; }
-        void setVisibleFromFarAway(bool isVisibleFromFarAway);
+        bool IsFarVisible() const { return m_isFarVisible; }
+        void SetFarVisible(bool m_isFarVisible);
         void SetWorldObject(bool apply);
         bool IsPermanentWorldObject() const { return m_isWorldObject; }
         bool IsWorldObject() const;
@@ -446,7 +446,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
     protected:
         std::string m_name;
         bool m_isActive;
-        bool m_isVisibleFromFarAway;
+        bool m_isFarVisible;
         const bool m_isWorldObject;
         ZoneScript* m_zoneScript;
 
