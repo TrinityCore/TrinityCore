@@ -246,7 +246,7 @@ const uint32 BG_AB_GraveyardIds[BG_AB_ALL_NODES_COUNT] = {895, 894, 893, 897, 89
 const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
 {
     {1185.566f, 1184.629f, -56.36329f, 2.303831f},         // stables
-    {990.1131f, 1008.73f,  -42.60328f, 0.8203033},         // blacksmith
+    {990.1131f, 1008.73f,  -42.60328f, 0.8203033f},         // blacksmith
     {818.0089f, 842.3543f, -56.54062f, 3.176533f},         // farm
     {808.8463f, 1185.417f,  11.92161f, 5.619962f},         // lumber mill
     {1147.091f, 816.8362f, -98.39896f, 6.056293f}          // gold mine
