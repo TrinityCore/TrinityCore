@@ -7088,6 +7088,8 @@ void Player::UpdateArea(uint32 newArea)
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
 {
+    if (!IsInWorld())
+        return;
     uint32 const oldZone = m_zoneUpdateId;
     m_zoneUpdateId = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
