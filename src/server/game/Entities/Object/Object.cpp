@@ -1063,7 +1063,7 @@ void WorldObject::SetFarVisible(bool on)
     if (GetTypeId() == TYPEID_PLAYER)
         return;
 
-    m_IsFarVisible = on;
+    m_isFarVisible = on;
 }
 
 void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
