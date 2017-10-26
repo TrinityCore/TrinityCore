@@ -1071,7 +1071,7 @@ struct SmartAction
 
         struct
         {
-            uint32 sounds[SMART_ACTION_PARAM_COUNT - 1];
+            uint32 sounds[SMART_ACTION_PARAM_COUNT - 2];
             uint32 onlySelf;
             uint32 distance;
         } randomSound;
