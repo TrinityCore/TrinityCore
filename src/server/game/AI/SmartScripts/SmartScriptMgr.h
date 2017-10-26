@@ -622,6 +622,7 @@ struct SmartAction
         {
             uint32 sound;
             uint32 onlySelf;
+            uint32 distance;
         } sound;
 
         struct
@@ -1109,8 +1110,9 @@ struct SmartAction
 
         struct
         {
-            std::array<uint32, SMART_ACTION_PARAM_COUNT - 1> sounds;
+            std::array<uint32, SMART_ACTION_PARAM_COUNT - 2> sounds;
             uint32 onlySelf;
+            uint32 distance;
         } randomSound;
 
         struct
