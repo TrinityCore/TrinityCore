@@ -31,8 +31,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 
-#include <time.h>
-
 GameEventMgr* GameEventMgr::instance()
 {
     static GameEventMgr instance;
@@ -1739,16 +1737,16 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
 
     switch (holiday->CalendarFilterType)
     {
-    case -1: // Yearly
-        event.occurence = YEAR / MINUTE; // Not all too useful
-        break;
-    case 0: // Weekly
-        event.occurence = WEEK / MINUTE;
-        break;
-    case 1: // Defined dates only (Darkmoon Faire)
-        break;
-    case 2: // Only used for looping events (Call to Arms)
-        break;
+        case -1: // Yearly
+            event.occurence = YEAR / MINUTE; // Not all too useful
+            break;
+        case 0: // Weekly
+            event.occurence = WEEK / MINUTE;
+            break;
+        case 1: // Defined dates only (Darkmoon Faire)
+            break;
+        case 2: // Only used for looping events (Call to Arms)
+            break;
     }
 
     if (holiday->Looping)
@@ -1770,6 +1768,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
             timeInfo.tm_year = localtime(&curTime)->tm_year - 1; // First try last year (event active through New Year)
         else
             timeInfo.tm_year = ((date >> 24) & 0x1F) + 100;
+
         timeInfo.tm_mon = (date >> 20) & 0xF;
         timeInfo.tm_mday = ((date >> 14) & 0x3F) + 1;
         timeInfo.tm_hour = (date >> 6) & 0x1F;

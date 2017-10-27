@@ -41,6 +41,7 @@ Copied events should probably have a new owner
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GameEventMgr.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
@@ -51,7 +52,6 @@ Copied events should probably have a new owner
 #include "Player.h"
 #include "SocialMgr.h"
 #include "World.h"
-#include "GameEventMgr.h"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 {
