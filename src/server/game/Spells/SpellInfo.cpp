@@ -3366,6 +3366,8 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             {
                 case 29214: // Wrath of the Plaguebringer
                 case 34700: // Allergic Reaction
+                case 41914: // Parasitic Shadowfiend (Illidan)
+                case 41917: // Parasitic Shadowfiend (Illidan)
                 case 54836: // Wrath of the Plaguebringer
                 case 61987: // Avenging Wrath Marker
                 case 61988: // Divine Shield exclude aura
