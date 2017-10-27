@@ -365,6 +365,7 @@ public:
             init.Launch();
 
             me->setActive(true);
+            me->SetFarVisible(true);
             me->SetCanFly(true);
             me->SetDisableGravity(true);
             me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
