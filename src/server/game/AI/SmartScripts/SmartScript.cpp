@@ -310,7 +310,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 if (IsUnit(target))
                 {
-                    target->PlayDirectSound(e.action.sound.sound, e.action.sound.onlySelf ? target->ToPlayer() : nullptr);
+                    if (e.action.sound.distance == 1)
+                        target->PlayDistanceSound(e.action.sound.sound, e.action.sound.onlySelf ? target->ToPlayer() : nullptr);
+                    else
+                        target->PlayDirectSound(e.action.sound.sound, e.action.sound.onlySelf ? target->ToPlayer() : nullptr);
+
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_SOUND: target: %s (GuidLow: %u), sound: %u, onlyself: %u",
                         target->GetName().c_str(), target->GetGUID().GetCounter(), e.action.sound.sound, e.action.sound.onlySelf);
                 }
@@ -2037,7 +2041,12 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (IsUnit(target))
                 {
                     uint32 sound = Trinity::Containers::SelectRandomContainerElement(sounds);
-                    target->PlayDirectSound(sound, onlySelf ? target->ToPlayer() : nullptr);
+
+                    if (e.action.randomSound.distance == 1)
+                        target->PlayDistanceSound(sound, onlySelf ? target->ToPlayer() : nullptr);
+                    else
+                        target->PlayDirectSound(sound, onlySelf ? target->ToPlayer() : nullptr);
+
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: %s (%s), sound: %u, onlyself: %s",
                         target->GetName().c_str(), target->GetGUID().ToString().c_str(), sound, onlySelf ? "true" : "false");
                 }
