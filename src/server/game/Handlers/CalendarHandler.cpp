@@ -35,18 +35,23 @@ Copied events should probably have a new owner
 
 */
 
+#include "WorldSession.h"
+#include "ArenaTeamMgr.h"
+#include "CalendarMgr.h"
+#include "CharacterCache.h"
+#include "DatabaseEnv.h"
+#include "DBCStores.h"
+#include "GameEventMgr.h"
+#include "Guild.h"
+#include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
 #include "SocialMgr.h"
-#include "CalendarMgr.h"
-#include "ObjectMgr.h"
-#include "ObjectAccessor.h"
-#include "DatabaseEnv.h"
-#include "GuildMgr.h"
-#include "ArenaTeamMgr.h"
-#include "WorldSession.h"
+#include "World.h"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 {
@@ -151,12 +156,10 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
     data << uint32(boundCounter);
     data.append(dataBuffer);
 
-    /// @todo Fix this, how we do know how many and what holidays to send?
-    uint32 holidayCount = 0;
-    data << uint32(holidayCount);
-    for (uint32 i = 0; i < holidayCount; ++i)
+    data << uint32(sGameEventMgr->modifiedHolidays.size());
+    for (uint32 entry : sGameEventMgr->modifiedHolidays)
     {
-        HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(666);
+        HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(entry);
 
         data << uint32(holiday->Id);                        // m_ID
         data << uint32(holiday->Region);                    // m_region, might be looping
