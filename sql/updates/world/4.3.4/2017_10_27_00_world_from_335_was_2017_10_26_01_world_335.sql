@@ -1,3 +1,4 @@
+/*
 DELETE FROM `waypoint_scripts` WHERE `id` IN (1132800,1132801,1132802);
 INSERT INTO `waypoint_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`, `guid`) VALUES
 (1132800, 0, 32, 308, 0, 0, 0, 0, 0, 0, 950),
@@ -66,4 +67,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (812570, 8, -9417.18, -1330.69, 51.4389, 2.26653, 0, 0, 0, 100, 0),
 (812570, 9, -9421.12, -1326.57, 51.466, 2.45103, 0, 0, 0, 100, 0),
 (812570, 10, -9426.09, -1324, 51.4634, 2.67941, 15000, 0, 0, 100, 0);
-
+*/
