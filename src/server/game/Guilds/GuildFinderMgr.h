@@ -18,6 +18,7 @@
 #ifndef __TRINITY_GUILDFINDER_H
 #define __TRINITY_GUILDFINDER_H
 
+#include "CharacterCache.h"
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "World.h"
@@ -81,12 +82,12 @@ struct MembershipRequest
         uint8 GetAvailability() const  { return _availability; }
         uint8 GetClassRoles() const    { return _classRoles; }
         uint8 GetInterests() const     { return _interests; }
-        uint8 GetClass() const         { return sWorld->GetCharacterInfo(GetPlayerGUID())->Class; }
-        uint8 GetLevel() const         { return sWorld->GetCharacterInfo(GetPlayerGUID())->Level; }
+        uint8 GetClass() const         { return sCharacterCache->GetCharacterCacheByGuid(GetPlayerGUID())->Class; }
+        uint8 GetLevel() const         { return sCharacterCache->GetCharacterCacheByGuid(GetPlayerGUID())->Level; }
         time_t GetSubmitTime() const   { return _time; }
         time_t GetExpiryTime() const   { return time_t(_time + 30 * 24 * 3600); } // Adding 30 days
         std::string const& GetComment() const { return _comment; }
-        std::string const& GetName() const    { return sWorld->GetCharacterInfo(GetPlayerGUID())->Name; }
+        std::string const& GetName() const    { return sCharacterCache->GetCharacterCacheByGuid(GetPlayerGUID())->Name; }
     private:
         std::string _comment;
 

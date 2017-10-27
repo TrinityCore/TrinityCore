@@ -212,7 +212,7 @@ class StartLaunchEvent : public BasicEvent
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            Player* player = sObjectMgr->GetPlayerByLowGUID(_lowGuid);
+            Player* player = ObjectAccessor::FindPlayerByLowGUID(_lowGuid);
             if (!player || !player->GetVehicle())
                 return true;
 

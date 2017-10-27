@@ -17,6 +17,7 @@
  */
 
 #include "Unit.h"
+#include "CharacterCache.h"
 #include "Common.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
@@ -9759,7 +9760,7 @@ void Unit::SetLevel(uint8 lvl)
         if (player->GetGroup())
             player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_LEVEL);
 
-        sWorld->UpdateCharacterInfoLevel(GetGUID(), lvl);
+        sCharacterCache->UpdateCharacterLevel(GetGUID(), lvl);
     }
 }
 

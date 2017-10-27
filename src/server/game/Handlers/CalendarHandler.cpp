@@ -452,10 +452,10 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
     else
     {
         // Invitee offline, get data from storage
-        ObjectGuid guid = sWorld->GetCharacterGuidByName(name);
+        ObjectGuid guid = sCharacterCache->GetCharacterGuidByName(name);
         if (!guid.IsEmpty())
         {
-            if (CharacterInfo const* characterInfo = sWorld->GetCharacterInfo(guid))
+            if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(guid))
             {
                 inviteeGuid = guid;
                 inviteeTeam = Player::TeamForRace(characterInfo->Race);
