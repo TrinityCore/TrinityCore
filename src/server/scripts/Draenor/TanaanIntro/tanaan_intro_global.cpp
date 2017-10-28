@@ -1,6 +1,5 @@
 /*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -26,7 +25,7 @@ class playerScript_enter_tanaan : public PlayerScript
 public:
     playerScript_enter_tanaan() : PlayerScript("playerScript_enter_tanaan") { }
 
-    void OnUpdateArea(Player* p_Player, uint32 p_NewAreaId, uint32 p_OldAreaID) override
+    void OnUpdateArea(Player* p_Player, uint32 p_NewAreaId, uint32 /*p_OldAreaID*/) override
     {
         if (p_Player->GetZoneId() != TanaanZones::ZoneTanaanJungle)
             return;
@@ -108,7 +107,7 @@ class npc_archmage_khadgar : public CreatureScript
 public:
     npc_archmage_khadgar() : CreatureScript("npc_archmage_khadgar") { }
 
-    bool OnQuestAccept(Player* p_Player, Creature* p_Creature, Quest const* p_Quest) override
+    bool OnQuestAccept(Player* p_Player, Creature* /*p_Creature*/, Quest const* p_Quest) override
     {
         switch (p_Quest->GetQuestId())
         {

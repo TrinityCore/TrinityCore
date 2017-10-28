@@ -121,7 +121,7 @@ class npc_brewfest_belier_quests_givers : public CreatureScript
 public:
     npc_brewfest_belier_quests_givers() : CreatureScript("npc_brewfest_belier_quests_givers") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
     {
         if (isQuestInBelierQuest(quest->GetQuestId()))
             player->CastSpell(player, SPELL_TRIGGER_BELIER, false);
@@ -140,14 +140,14 @@ public:
         npc_brewfest_apple_bunnyAI(Creature* creature) : ScriptedAI(creature)
         {}
 
-        void Reset()
+        void Reset() override
         {
             me->setFaction(35);
             me->SetReactState(REACT_AGGRESSIVE);
             me->SetVisible(false);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) > 15.0f)
                 return;
@@ -182,14 +182,14 @@ public:
         npc_brewfest_barker_bunnyAI(Creature* creature) : ScriptedAI(creature)
         {}
 
-        void Reset()
+        void Reset() override
         {
             me->setFaction(35);
             me->SetReactState(REACT_AGGRESSIVE);
             me->SetVisible(false);
         }
 
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) > 15.0f)
                 return;
@@ -222,10 +222,7 @@ public:
         npc_brewfest_launch_barrelAI(Creature* creature) : ScriptedAI(creature)
         {}
 
-        void Reset()
-        {}
-
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) > 20.0f)
                 return;
@@ -257,10 +254,7 @@ public:
         npc_brewfest_receive_barrelAI(Creature* creature) : ScriptedAI(creature)
         {}
 
-        void Reset()
-        {}
-
-        void MoveInLineOfSight(Unit* who)
+        void MoveInLineOfSight(Unit* who) override
         {
             if (me->GetDistance(who) > 15.0f)
                 return;
@@ -291,22 +285,22 @@ public:
 // Dark Iron Guzzler in the Brewfest achievement 'Down With The Dark Iron'
 enum DarkIronGuzzler
 {
-    NPC_DARK_IRON_GUZZLER = 23709,
-    NPC_DARK_IRON_HERALD = 24536,
-    NPC_DARK_IRON_SPAWN_BUNNY = 23894,
+    NPC_DARK_IRON_GUZZLER       = 23709,
+    NPC_DARK_IRON_HERALD        = 24536,
+    NPC_DARK_IRON_SPAWN_BUNNY   = 23894,
 
-    NPC_FESTIVE_KEG_1 = 23702, // Thunderbrew Festive Keg
-    NPC_FESTIVE_KEG_2 = 23700, // Barleybrew Festive Keg
-    NPC_FESTIVE_KEG_3 = 23706, // Gordok Festive Keg
-    NPC_FESTIVE_KEG_4 = 24373, // T'chalis's Festive Keg
-    NPC_FESTIVE_KEG_5 = 24372, // Drohn's Festive Keg
+    NPC_FESTIVE_KEG_1           = 23702, // Thunderbrew Festive Keg
+    NPC_FESTIVE_KEG_2           = 23700, // Barleybrew Festive Keg
+    NPC_FESTIVE_KEG_3           = 23706, // Gordok Festive Keg
+    NPC_FESTIVE_KEG_4           = 24373, // T'chalis's Festive Keg
+    NPC_FESTIVE_KEG_5           = 24372, // Drohn's Festive Keg
 
-    SPELL_GO_TO_NEW_TARGET = 42498,
-    SPELL_ATTACK_KEG = 42393,
-    SPELL_RETREAT = 42341,
-    SPELL_DRINK = 42436,
+    SPELL_GO_TO_NEW_TARGET      = 42498,
+    SPELL_ATTACK_KEG            = 42393,
+    SPELL_RETREAT               = 42341,
+    SPELL_DRINK                 = 42436,
 
-    SAY_RANDOM = 0,
+    SAY_RANDOM                  = 0,
 };
 
 class npc_dark_iron_guzzler : public CreatureScript
@@ -334,21 +328,21 @@ public:
         uint32 AttackKegTimer;
         uint32 TalkTimer;
 
-        void Reset()
+        void Reset() override
         {
             AttackKegTimer = 5000;
             TalkTimer = (urand(1000, 120000));
             me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
         }
 
-        void IsSummonedBy(Unit* summoner)
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             // Only cast the spell on spawn
             DoCast(me, SPELL_GO_TO_NEW_TARGET);
         }
 
         // These values are set through SAI - when a Festive Keg dies it will set data to all Dark Iron Guzzlers within 3 yards (the killers)
-        void SetData(uint32 type, uint32 data)
+        void SetData(uint32 type, uint32 data) override
         {
             if (type == 10 && data == 10)
             {
@@ -382,7 +376,7 @@ public:
         }
 
         // As you can see here we do not have to use a spellscript for this
-        void SpellHit(Unit* caster, const SpellInfo* spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (spell->Id == SPELL_DRINK)
             {
@@ -526,7 +520,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 Type, uint32 PointId)
+        void MovementInform(uint32 Type, uint32 PointId) override
         {
             if (Type != POINT_MOTION_TYPE)
                 return;
@@ -544,7 +538,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 diff) override
         {
             if (!IsHolidayActive(HOLIDAY_BREWFEST))
                 return;
@@ -582,7 +576,7 @@ public:
     };
 };
 
-#define NPC_CEVOISE     24108
+#define NPC_CERVOISE     24108
 
 class spell_hol_launch_beer : public SpellScriptLoader
 {
@@ -606,7 +600,7 @@ class spell_hol_launch_beer : public SpellScriptLoader
                 if (!GetExplTargetUnit()->ToCreature())
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (GetExplTargetUnit()->ToCreature()->GetEntry() != NPC_CEVOISE)
+                if (GetExplTargetUnit()->ToCreature()->GetEntry() != NPC_CERVOISE)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 return SPELL_CAST_OK;
@@ -623,7 +617,7 @@ class spell_hol_launch_beer : public SpellScriptLoader
                 if (!caster->ToPlayer())
                     return;
 
-                caster->ToPlayer()->KilledMonsterCredit(NPC_CEVOISE, cervoise->GetGUID());
+                caster->ToPlayer()->KilledMonsterCredit(NPC_CERVOISE, cervoise->GetGUID());
             }
 
             void Register()
@@ -793,7 +787,7 @@ class spell_hol_belier_base : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hol_belier_base_AuraScript);
 
-            bool Load()
+            bool Load() override
             {
                 return true;
             }
@@ -838,7 +832,7 @@ class spell_hol_belier_base : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_hol_belier_base_AuraScript();
         }
@@ -853,13 +847,13 @@ class spell_hol_belier_renes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hol_belier_renes_AuraScript);
 
-            bool Load()
+            bool Load() override
             {
                 return true;
             }
 
             // Toutes les 2 secondes
-            void OnPeriodic(AuraEffect const* aurEff)
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 Unit * target = GetTarget();
 
@@ -892,7 +886,7 @@ class spell_hol_belier_renes : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_hol_belier_renes_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
@@ -944,19 +938,19 @@ class spell_hol_belier_renes : public SpellScriptLoader
                     reneAura->SetStackAmount(1);
             }
 
-            void Register()
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_hol_belier_renes_SpellScript::CheckCast);
                 OnEffectHit += SpellEffectFn(spell_hol_belier_renes_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_hol_belier_renes_AuraScript();
         }
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_hol_belier_renes_SpellScript();
         }
@@ -976,7 +970,7 @@ class spell_hol_belier_all_speeds : public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 timeCounter = 0;
             }
@@ -1010,7 +1004,7 @@ class spell_hol_belier_all_speeds : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectApply += AuraEffectApplyFn(spell_hol_belier_all_speeds_AuraScript::HandleEffectApply, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_hol_belier_all_speeds_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
@@ -1019,7 +1013,7 @@ class spell_hol_belier_all_speeds : public SpellScriptLoader
             uint32 timeCounter;
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_hol_belier_all_speeds_AuraScript();
         }
@@ -1068,7 +1062,7 @@ class spell_hol_belier_all_speeds : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffect += SpellEffectFn(spell_hol_belier_apple_trap_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
@@ -1111,13 +1105,13 @@ class spell_hol_beliers : public SpellScriptLoader
                         pPlayer->DestroyItemCount(33797, 1, true);
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_hol_beliers_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_hol_beliers_AuraScript();
         }

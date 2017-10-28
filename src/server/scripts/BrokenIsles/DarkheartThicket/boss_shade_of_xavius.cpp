@@ -349,7 +349,7 @@ public:
     {
         PrepareAuraScript(spell_shade_of_xavius_apocalyptic_nightmare_AuraScript);
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             Unit* caster = GetCaster();
             if (!caster)

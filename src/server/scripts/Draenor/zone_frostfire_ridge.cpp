@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -104,7 +104,7 @@ class npc_drekthar_frostridge_begin : public CreatureScript
 public:
     npc_drekthar_frostridge_begin() : CreatureScript("npc_drekthar_frostridge_begin") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_A_SONG_OF_FROST_AND_FIRE)
         {
@@ -161,7 +161,7 @@ class npc_durotan_frostridge_begin : public CreatureScript
 public:
     npc_durotan_frostridge_begin() : CreatureScript("npc_durotan_frostridge_begin") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_OF_WOLFES_AND_WARRIORS)
         {
@@ -182,7 +182,7 @@ public:
     {
         PrepareSpellScript(spell_frostridge_claiming_spellscript);
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (!GetCaster())
                 return;
@@ -286,7 +286,7 @@ class npc_groog : public CreatureScript
                 me->setFaction(14);
             }
 
-            void EnterCombat(Unit* p_Victim)
+            void EnterCombat(Unit* /*p_Victim*/)
             {
                 m_Events.Reset();
 
@@ -328,7 +328,7 @@ class spell_groog_rampage : public SpellScriptLoader
         {
             PrepareAuraScript(spell_groog_rampage_AuraScript);
 
-            void OnTick(AuraEffect const* aurEff)
+            void OnTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* l_Caster = GetCaster();
 
@@ -351,13 +351,13 @@ class spell_groog_rampage : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_groog_rampage_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_groog_rampage_AuraScript();
         }

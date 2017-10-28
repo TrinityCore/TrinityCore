@@ -349,7 +349,7 @@ namespace SimpleWeb {
             try {
               content_length = stoull(it->second);
             }
-            catch(const std::exception &e) {
+            catch(const std::exception &/*e*/) {
               if(on_error)
                 on_error(request, make_error_code::make_error_code(errc::protocol_error));
               return;
@@ -480,7 +480,7 @@ namespace SimpleWeb {
       try {
         resource_function(response, request);
       }
-      catch(const std::exception &e) {
+      catch(const std::exception &/*e*/) {
         if(on_error)
           on_error(request, make_error_code::make_error_code(errc::operation_canceled));
         return;

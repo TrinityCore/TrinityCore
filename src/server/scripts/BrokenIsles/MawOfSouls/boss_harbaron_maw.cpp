@@ -107,7 +107,7 @@ class boss_harbaron_maw : public CreatureScript
                 instance->SetBossState(DATA_HARBARON_MAW, FAIL);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* who) override
             {
                 BossAI::EnterCombat(who);
                 Talk(YELL_ENTER_COMBAT);

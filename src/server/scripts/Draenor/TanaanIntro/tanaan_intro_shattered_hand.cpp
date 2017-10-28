@@ -1,6 +1,5 @@
 /*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -63,7 +62,7 @@ public:
         }
     }
 
-    void OnQuestAbandon(Player* p_Player, const Quest* p_Quest)
+    void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
     {
         switch (p_Quest->GetQuestId())
         {
@@ -234,13 +233,13 @@ public:
         uint32 m_DestroyTimer;
         ObjectGuid m_SummonerGuid;
 
-        void Reset()
+        void Reset() override
         {
             m_DestroyTimer = 0;
             m_SummonerGuid = ObjectGuid::Empty;
         }
 
-        void SetGUID(ObjectGuid p_Guid, int32 p_Id) override
+        void SetGUID(ObjectGuid p_Guid, int32 /*p_Id*/) override
         {
             m_SummonerGuid = p_Guid;
             DoCastAOE(TanaanSpells::SpellMeteorShower);
@@ -312,7 +311,7 @@ public:
             SpellImpactSplit    = 161299
         };
 
-        void Reset()
+        void Reset() override
         {
             m_Events.Reset();
         }
@@ -383,7 +382,7 @@ public:
         };
         
 
-        void Reset()
+        void Reset() override
         {
             m_Events.Reset();
             m_Events.ScheduleEvent(EventCleararenaFighterCountByNpc, 10000);
@@ -428,7 +427,7 @@ public:
             }
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 const action) override
         {
             // Spawn next brawler
             if (action == 1)
@@ -652,12 +651,12 @@ public:
             SpellWhipSplash = 167439
         };
 
-        void Reset()
+        void Reset() override
         {
             m_Events.Reset();
         }
 
-        void EnterCombat(Unit* p_Target) override
+        void EnterCombat(Unit* /*p_Target*/) override
         {
             m_Events.ScheduleEvent(eDatas::EventWhipSplash, 3000);
         }

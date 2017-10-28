@@ -280,7 +280,7 @@ public:
     {
         PrepareSpellScript(spell_calamir_wf_target_picker_SpellScript);
 
-        void HandleHitTarget(SpellEffIndex effIndex)
+        void HandleHitTarget(SpellEffIndex /*effIndex*/)
         {
             Unit* target = GetHitUnit();
             if (!target)

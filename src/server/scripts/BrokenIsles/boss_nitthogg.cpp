@@ -292,7 +292,7 @@ public:
             SPELL_TO_CAST = SPELL_ELECTRICAL_STORM_AT
         };
 
-        void Reset()
+        void Reset() override
         {
             //me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE); //TODO : Change this to a spline once those work/I know how to use them.
             ApplyBuff();
@@ -460,7 +460,7 @@ public:
     {
         PrepareSpellScript(spell_nithogg_crackling_jolt_target_SpellScript);
 
-        void HandleHitTarget(SpellEffIndex effIndex)
+        void HandleHitTarget(SpellEffIndex /*effIndex*/)
         {
             Unit* target = GetHitUnit();
             if (!target)

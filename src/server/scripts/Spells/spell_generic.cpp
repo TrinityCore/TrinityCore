@@ -4317,7 +4317,7 @@ class spell_gen_pony_mount_check : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_gen_pony_mount_check_AuraScript();
         }

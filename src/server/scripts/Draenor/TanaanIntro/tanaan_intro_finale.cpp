@@ -1,6 +1,5 @@
 /*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -153,7 +152,7 @@ public:
             p_Player->EnvironmentalDamage(DAMAGE_FIRE, urand(11230, 14320));
     }
 
-    void OnUpdate(Player* p_Player, uint32 p_Diff)
+    void OnUpdate(Player* p_Player, uint32 p_Diff) override
     {
         if (m_timer > p_Diff)
         {
@@ -276,7 +275,7 @@ public:
         ObjectGuid m_PlayerGuid;
         bool m_Summoned;
 
-        void Reset()
+        void Reset() override
         {
             m_Summoned = false;
             m_Events.Reset();
@@ -300,7 +299,7 @@ public:
             m_Events.ScheduleEvent(eEvents::EventCheckSummoner, 500);
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+        void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
         {
             if (p_Damage >= me->GetHealth())
                 me->SetFullHealth();
@@ -420,10 +419,6 @@ public:
     {
         npc_tanaan_goglukAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset()
-        {
-        }
-
         void SetPassengersFightingOrDespawn(uint8 p_Seat, bool p_Despawn, Vehicle* p_Vehicle, Unit* p_Target = nullptr)
         {
             if (Unit* l_Passenger = p_Vehicle->GetPassenger(p_Seat))
@@ -456,7 +451,7 @@ public:
             }
         }
 
-        void JustDied(Unit* p_Killer) override
+        void JustDied(Unit* /*p_Killer*/) override
         {
             if (me->IsVehicle())
             {
@@ -510,7 +505,7 @@ public:
             EventMachineGun = 2
         };
 
-        void DoAction(int32 const p_Action)
+        void DoAction(int32 const /*p_Action*/) override
         {
             switch (me->GetEntry())
             {
@@ -585,7 +580,7 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
     {
         if (p_Player->GetQuestStatus(34445) == QUEST_STATUS_INCOMPLETE && p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) < 200)
         {
@@ -622,7 +617,7 @@ public:
     {
     }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
     {
         if (p_Player->GetQuestStatus(TanaanQuests::QuestATasteOfIron) == QUEST_STATUS_INCOMPLETE && p_Player->GetQuestObjectiveCounter(TanaanQuestObjectives::ObjIronHordeSlain) >= 200)
         {

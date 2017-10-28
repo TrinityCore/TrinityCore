@@ -116,7 +116,7 @@ class boss_ymiron_maw : public CreatureScript
                 instance->SetBossState(DATA_YMIRON_MAW, FAIL);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* who) override
             {
                 BossAI::EnterCombat(who);
                 Talk(YELL_ENTER_COMBAT);
@@ -170,7 +170,7 @@ class boss_ymiron_maw : public CreatureScript
                 }
             }
 
-            void SummonedCreatureDies(Creature* summoned, Unit* /*who*/) override
+            void SummonedCreatureDies(Creature* /*summoned*/, Unit* /*who*/) override
             {
                 // Achievement Logic Missing
             }
@@ -234,7 +234,7 @@ class boss_ymiron_maw : public CreatureScript
                         case EVENT_FALLEN:
                             DoCast(SPELL_FALLEN);
                             Talk(YELL_FALLEN);
-                            for(int sphere = 0; sphere < activeSpheres; sphere++)
+                            for(uint32 sphere = 0; sphere < activeSpheres; sphere++)
                             {
                                 if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 {
@@ -391,7 +391,7 @@ class npc_bane_skeleton : public CreatureScript
                 vigorStackTimer = _vigorStackTimer;
             }
 
-            void JustDied(Unit* killer) override
+            void JustDied(Unit* /*killer*/) override
             {
                 // Handle mechanics when add killed by another one (for the achievement)
             }

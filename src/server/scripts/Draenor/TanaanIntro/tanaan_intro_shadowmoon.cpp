@@ -1,6 +1,5 @@
 /*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -85,18 +84,18 @@ public:
         uint16 m_SceneTimer;
         ObjectGuid p_PlayerGuid;
 
-        void Reset()
+        void Reset() override
         {
             p_PlayerGuid = ObjectGuid::Empty;
             m_SceneTimer = 0;
         }
 
-        void SetData(uint32 p_Id, uint32 p_Value) override
+        void SetData(uint32 /*p_Id*/, uint32 p_Value) override
         {
             m_SceneTimer = (uint16)p_Value;
         }
 
-        void SetGUID(ObjectGuid p_Guid, int32 p_Id) override
+        void SetGUID(ObjectGuid p_Guid, int32 /*p_Id*/) override
         {
             p_PlayerGuid = p_Guid;
         }
@@ -143,7 +142,7 @@ public:
     {
         npc_tanaan_ungraAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void JustDied(Unit* p_Killer) override
+        void JustDied(Unit* /*p_Killer*/) override
         {
             std::list<Player*> l_PlayerList;
             GetPlayerListInGrid(l_PlayerList, me, 20.0f);
@@ -171,7 +170,7 @@ public:
     {
         npc_taskmaster_gurranAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void JustDied(Unit* p_Killer) override
+        void JustDied(Unit* /*p_Killer*/) override
         {
             std::list<Player*> l_PlayerList;
             GetPlayerListInGrid(l_PlayerList, me, 20.0f);
@@ -478,7 +477,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void JustDied(Unit* p_Killer) override
+        void JustDied(Unit* /*p_Killer*/) override
         {
             std::list<Player*> l_PlayerList;
             GetPlayerListInGrid(l_PlayerList, me, 36.0f);

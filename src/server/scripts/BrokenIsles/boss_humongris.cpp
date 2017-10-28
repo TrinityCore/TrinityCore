@@ -74,12 +74,7 @@ public:
 
     struct boss_humongrisAI : public WorldBossAI
     {
-        uint8 lastPhase;
-
-        boss_humongrisAI(Creature* creature) : WorldBossAI(creature)
-        {
-            uint8 lastPhase = 0;
-        }
+        boss_humongrisAI(Creature* creature) : WorldBossAI(creature) { }
 
         void Reset() override
         {

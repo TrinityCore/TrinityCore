@@ -37,7 +37,7 @@ class npc_costumed_orphan_matron : public CreatureScript
 public:
     npc_costumed_orphan_matron() : CreatureScript("npc_costumed_orphan_matron") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_FIRE_ALLI)
             player->CompleteQuest(QUEST_FIRE_ALLI);
@@ -51,7 +51,7 @@ class npc_masked_orphan_matron : public CreatureScript
 public:
     npc_masked_orphan_matron() : CreatureScript("npc_masked_orphan_matron") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_FIRE_HORDE)
             player->CompleteQuest(QUEST_FIRE_HORDE);
@@ -124,7 +124,7 @@ class spell_trick: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_trick_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -173,7 +173,7 @@ class spell_trick_or_treat: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_trick_or_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -212,7 +212,7 @@ class spell_tricky_treat: public SpellScriptLoader
                     caster->CastSpell(caster, SPELL_UPSET_TUMMY, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
@@ -258,7 +258,7 @@ public:
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_hallows_end_has_water_bucket_AuraScript();
     }

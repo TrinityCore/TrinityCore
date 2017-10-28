@@ -215,7 +215,7 @@ public:
     {
         PrepareSpellScript(spell_oakheart_strangling_roots_summon_SpellScript);
 
-        void HandleSummon(Creature* creature)
+        void HandleSummon(Creature* /*creature*/)
         {
             Unit* caster = GetCaster();
             
