@@ -154,7 +154,7 @@ public:
             });
         }
 
-    protected:
+    private:
         uint8 _phase;
     };
 
