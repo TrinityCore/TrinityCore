@@ -92,20 +92,9 @@ public:
             _DespawnAtEvade();
         }
 
-        void UpdateAI(uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
-        }
-
         void _SummonBlackguards()
         {
-            for (auto BlackguardPosition : BlackguardPositions)
+            for (Position BlackguardPosition : BlackguardPositions)
                 DoSummon(NPC_BLACKGUARD, BlackguardPosition, 60000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         }
 
