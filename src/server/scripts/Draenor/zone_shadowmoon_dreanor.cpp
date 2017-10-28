@@ -835,11 +835,11 @@ public:
     {
         npc_void_garaAI(Creature* creature) : ScriptedAI(creature)
         {
-            owner           = nullptr;
+            owner           = creature->SelectNearestPlayer(10);
             Omra            = nullptr;
             gara_teamable   = nullptr;
 
-            if (owner = creature->SelectNearestPlayer(10))
+            if (owner != nullptr)
                 events.ScheduleEvent(EVENT_CHECK_PLAYER, 0);
             else
                 creature->DisappearAndDie();
@@ -888,7 +888,7 @@ public:
                     break;
                     case EVENT_GARA_01:
                     {
-                        if (TempSummon *Xan = me->SummonCreature(NPC_XAN, VoidRealmEventPos[0], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60 * 60 * IN_MILLISECONDS))
+                        if (TempSummon* Xan = me->SummonCreature(NPC_XAN, VoidRealmEventPos[0], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60 * 60 * IN_MILLISECONDS))
                         {
                             Xan->setFaction(14);
                             Xan->SetReactState(REACT_AGGRESSIVE);
@@ -917,7 +917,10 @@ public:
                         me->RemoveAllAuras();
                         me->SetVisible(false);
                         gara_teamable = me->SummonCreature(NPC_GARA_TAMABLE_PET, me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
-                        if(gara_teamable) gara_teamable->SetHealth(gara_teamable->GetHealth() * 60000);
+
+                        if(gara_teamable)
+                            gara_teamable->SetHealth(gara_teamable->GetHealth() * 60000);
+
                         events.ScheduleEvent(EVENT_GARA_04, 0);
                     }
                         break;
@@ -933,20 +936,26 @@ public:
                         break;
                     case EVENT_GARA_05:
                     {
-                        if (Omra) Omra->Say(SAY_OMRA_12, LANG_UNIVERSAL, Omra);
+                        if (Omra)
+                            Omra->Say(SAY_OMRA_12, LANG_UNIVERSAL, Omra);
+
                         events.ScheduleEvent(EVENT_GARA_06, 11 * IN_MILLISECONDS);
                     }
                         break;
                     case EVENT_GARA_06:
                     {
-                        if (Omra) Omra->CastSpell(Omra, SPELL_SOULSTONE_VISUAL);
+                        if (Omra)
+                            Omra->CastSpell(Omra, SPELL_SOULSTONE_VISUAL);
+
                         events.ScheduleEvent(EVENT_GARA_END, 1 * IN_MILLISECONDS);
                     }
                         break;
                     case EVENT_GARA_END:
                     {
                         me->DisappearAndDie();
-                        if (Omra) Omra->DisappearAndDie();
+
+                        if (Omra)
+                            Omra->DisappearAndDie();
                     }
                     break;
                 }
@@ -1012,56 +1021,56 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_CONSUMING_VOID:
-                {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
-                        me->CastSpell(victim, SPELL_CONSUMING_VOID);
+                    case EVENT_CONSUMING_VOID:
+                    {
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                            me->CastSpell(victim, SPELL_CONSUMING_VOID);
 
-                    events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
-                }
-                break;
-                case EVENT_GRIP_OF_THE_VOID:
-                {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
-                        me->CastSpell(victim, SPELL_GRIP_OF_THE_VOID);
+                        events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
+                        break;
+                    }
+                    case EVENT_GRIP_OF_THE_VOID:
+                    {
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
+                            me->CastSpell(victim, SPELL_GRIP_OF_THE_VOID);
 
-                    events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(20, 30) * IN_MILLISECONDS);
-                }
-                break;
-                case EVENT_NEGATE:
-                {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
-                        me->CastSpell(victim, SPELL_NEGATE);
+                        events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(20, 30) * IN_MILLISECONDS);
+                        break;
+                    }
+                    case EVENT_NEGATE:
+                    {
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
+                            me->CastSpell(victim, SPELL_NEGATE);
 
-                    events.ScheduleEvent(EVENT_NEGATE, urand(10, 25) * IN_MILLISECONDS);
-                }
-                break;
-                case EVENT_SINGULARITY:
-                {
-                    DoCast(SPELL_SINGULARITY);
+                        events.ScheduleEvent(EVENT_NEGATE, urand(10, 25) * IN_MILLISECONDS);
+                        break;
+                    }
+                    case EVENT_SINGULARITY:
+                    {
+                        DoCast(SPELL_SINGULARITY);
 
-                    std::list<Player *> players; me->GetPlayerListInGrid(players, 45);
+                        std::list<Player *> players; me->GetPlayerListInGrid(players, 45);
 
-                    for (auto player : players)
-                        player->CastSpell(me, SPELL_SINGULARITY_PULL);
+                        for (auto player : players)
+                            player->CastSpell(me, SPELL_SINGULARITY_PULL);
 
-                    events.ScheduleEvent(EVENT_SINGULARITY, urand(5, 15) * IN_MILLISECONDS);
-                }
-                break;
-                case EVENT_TWIST_REALITY:
-                {
-                    DoCast(SPELL_TWIST_REALITY);
-                    events.ScheduleEvent(EVENT_TWIST_REALITY, urand(2, 6) * IN_MILLISECONDS);
-                }
-                break;
-                case EVENT_VOID_BOLT:
-                {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 40.0f))
-                        me->CastSpell(victim, SPELL_VOID_BOLT);
+                        events.ScheduleEvent(EVENT_SINGULARITY, urand(5, 15) * IN_MILLISECONDS);
+                        break;
+                    }
+                    case EVENT_TWIST_REALITY:
+                    {
+                        DoCast(SPELL_TWIST_REALITY);
+                        events.ScheduleEvent(EVENT_TWIST_REALITY, urand(2, 6) * IN_MILLISECONDS);
+                        break;
+                    }
+                    case EVENT_VOID_BOLT:
+                    {
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 40.0f))
+                            me->CastSpell(victim, SPELL_VOID_BOLT);
 
-                    events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 6) * IN_MILLISECONDS);
-                }
-                break;
+                        events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 6) * IN_MILLISECONDS);
+                        break;
+                    }
                 }
             }
 
@@ -1123,56 +1132,56 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_CONSUMING_VOID:
-                {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
-                        me->CastSpell(victim, SPELL_CONSUMING_VOID);
+                    case EVENT_CONSUMING_VOID:
+                    {
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
+                            me->CastSpell(victim, SPELL_CONSUMING_VOID);
 
-                    events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
-                }
-                    break;
-                case EVENT_GRIP_OF_THE_VOID:
-                {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
-                        me->CastSpell(victim, SPELL_GRIP_OF_THE_VOID);
+                        events.ScheduleEvent(EVENT_CONSUMING_VOID, urand(40, 60) * IN_MILLISECONDS);
+                        break;
+                    }
+                    case EVENT_GRIP_OF_THE_VOID:
+                    {
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 50.0f, true))
+                            me->CastSpell(victim, SPELL_GRIP_OF_THE_VOID);
 
-                    events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(30, 35) * IN_MILLISECONDS);
-                }
-                    break;
-                case EVENT_NEGATE:
-                {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
-                        me->CastSpell(victim, SPELL_NEGATE);
+                        events.ScheduleEvent(EVENT_GRIP_OF_THE_VOID, urand(30, 35) * IN_MILLISECONDS);
+                        break;
+                    }
+                    case EVENT_NEGATE:
+                    {
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
+                            me->CastSpell(victim, SPELL_NEGATE);
 
-                    events.ScheduleEvent(EVENT_NEGATE, urand(20, 25) * IN_MILLISECONDS);
-                }
-                    break;
-                case EVENT_SINGULARITY:
-                {
-                    DoCast(SPELL_SINGULARITY);
+                        events.ScheduleEvent(EVENT_NEGATE, urand(20, 25) * IN_MILLISECONDS);
+                        break;
+                    }
+                    case EVENT_SINGULARITY:
+                    {
+                        DoCast(SPELL_SINGULARITY);
 
-                    std::list<Player *> players; me->GetPlayerListInGrid(players, 45);
+                        std::list<Player *> players; me->GetPlayerListInGrid(players, 45);
 
-                    for (auto player : players)
-                        player->CastSpell(me, SPELL_SINGULARITY_PULL);
+                        for (auto player : players)
+                            player->CastSpell(me, SPELL_SINGULARITY_PULL);
 
-                    events.ScheduleEvent(EVENT_SINGULARITY, urand(15, 40) * IN_MILLISECONDS);
-                }
-                    break;
-                case EVENT_TWIST_REALITY:
-                {
-                    DoCast(SPELL_TWIST_REALITY);
-                    events.ScheduleEvent(EVENT_TWIST_REALITY, urand(2, 9) * IN_MILLISECONDS);
-                }
-                    break;
-                case EVENT_VOID_BOLT:
-                {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 40.0f))
-                        me->CastSpell(victim, SPELL_VOID_BOLT);
+                        events.ScheduleEvent(EVENT_SINGULARITY, urand(15, 40) * IN_MILLISECONDS);
+                        break;
+                    }
+                    case EVENT_TWIST_REALITY:
+                    {
+                        DoCast(SPELL_TWIST_REALITY);
+                        events.ScheduleEvent(EVENT_TWIST_REALITY, urand(2, 9) * IN_MILLISECONDS);
+                        break;
+                    }
+                    case EVENT_VOID_BOLT:
+                    {
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 40.0f))
+                            me->CastSpell(victim, SPELL_VOID_BOLT);
 
-                    events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 5) * IN_MILLISECONDS);
-                }
-                    break;
+                        events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 5) * IN_MILLISECONDS);
+                        break;
+                    }
                 }
             }
 

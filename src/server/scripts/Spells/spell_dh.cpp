@@ -530,7 +530,7 @@ public:
     {
         PrepareAuraScript(spell_dh_fel_devastation_AuraScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DH_FEL_DEVASTATION_DAMAGE) ||
                 !sSpellMgr->GetSpellInfo(SPELL_DH_FEL_DEVASTATION_HEAL))
