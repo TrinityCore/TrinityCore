@@ -80,6 +80,11 @@ enum Sylvanas
     GUID_EVENT_INVOKER              = 1,
 };
 
+enum Sounds
+{
+    SOUND_AGGRO                     = 5886
+};
+
 float HighborneLoc[4][3]=
 {
     {1285.41f, 312.47f, 0.51f},
@@ -118,6 +123,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override
         {
+            DoPlaySoundToSet(me, SOUND_AGGRO);
             _events.ScheduleEvent(EVENT_FADE, 30000);
             _events.ScheduleEvent(EVENT_SUMMON_SKELETON, 20000);
             _events.ScheduleEvent(EVENT_BLACK_ARROW, 15000);
