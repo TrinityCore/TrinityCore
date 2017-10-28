@@ -92,7 +92,7 @@ public:
             _DespawnAtEvade();
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
