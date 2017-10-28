@@ -114,7 +114,7 @@ public:
             p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
     }
  
-    void OnSceneStart(Player* p_Player, uint32 p_ScenePackageId, uint32 p_SceneInstanceId) override
+    void OnSceneStart(Player* p_Player, uint32 p_ScenePackageId, uint32 /*p_SceneInstanceId*/) override
     {
         if (p_ScenePackageId != TanaanSceneObjects::SceneFinaleIronBastion)
             return;
