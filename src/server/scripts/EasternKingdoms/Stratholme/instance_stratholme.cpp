@@ -33,16 +33,15 @@ EndScriptData */
 #include "Player.h"
 #include "stratholme.h"
 
-enum Misc
-{
-    MAX_ENCOUNTER           = 6
-};
-
 enum InstanceEvents
 {
     EVENT_BARON_RUN         = 1,
     EVENT_SLAUGHTER_SQUARE  = 2
 };
+
+const Position timmyTheCurelSpawnPosition = { 3734.215088f, -3260.899658f, 128.673676f, 2.979597f };
+const float scarlet_entrance_position_x = 3630.0f;
+const float scarlet_entrance_position_y = -3140.0f;
 
 class instance_stratholme : public InstanceMapScript
 {
@@ -59,11 +58,16 @@ class instance_stratholme : public InstanceMapScript
 
                 for (uint8 i = 0; i < 5; ++i)
                     IsSilverHandDead[i] = false;
+
+                timmySpawned = false;
+                scarletsKilled = 0;
             }
 
             uint32 EncounterState[MAX_ENCOUNTER];
+            uint8 scarletsKilled;
 
             bool IsSilverHandDead[5];
+            bool timmySpawned;
 
             ObjectGuid serviceEntranceGUID;
             ObjectGuid gauntletGate1GUID;
@@ -75,12 +79,40 @@ class instance_stratholme : public InstanceMapScript
             ObjectGuid portGauntletGUID;
             ObjectGuid portSlaugtherGUID;
             ObjectGuid portElderGUID;
+            ObjectGuid timmyTheCruelGUID;
 
             ObjectGuid baronGUID;
             ObjectGuid ysidaTriggerGUID;
             GuidSet crystalsGUID;
             GuidSet abomnationGUID;
             EventMap events;
+
+            void OnUnitDeath(Unit* who) override
+            {
+                switch (who->GetEntry())
+                {
+                    case NPC_CRIMSON_GUARDSMAN:
+                    case NPC_CRIMSON_CONJUROR:
+                    case NPC_CRIMSON_INITATE:
+                    case NPC_CRIMSON_GALLANT:
+                    {
+                        if (!timmySpawned)
+                        {
+                            Position pos = who->ToCreature()->GetHomePosition();
+                            // check if they're in front of the entrance
+                            if (pos.GetPositionX() > scarlet_entrance_position_x && pos.GetPositionY() < scarlet_entrance_position_y)
+                            {
+                                if (++scarletsKilled >= TIMMY_THE_CRUEL_CRUSADERS_REQUIRED)
+                                {
+                                    instance->SummonCreature(NPC_TIMMY_THE_CRUEL, timmyTheCurelSpawnPosition);
+                                    timmySpawned = true;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
 
             bool StartSlaugtherSquare()
             {
