@@ -1483,7 +1483,7 @@ public:
         {
             if (!UpdateVictim())
                 return;
-        _events.Update(diff);
+            _events.Update(diff);
 
             while (uint32 eventId = _events.ExecuteEvent())
             {
