@@ -39,9 +39,9 @@ enum InstanceEvents
     EVENT_SLAUGHTER_SQUARE  = 2
 };
 
-const Position timmyTheCurelSpawnPosition = { 3734.215088f, -3260.899658f, 128.673676f, 2.979597f };
-const float scarlet_entrance_position_x = 3630.0f;
-const float scarlet_entrance_position_y = -3140.0f;
+const Position timmyTheCurelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
+const float scarletEntrancePositionX = 3630.0f;
+const float scarletEntrancePositionY = -3140.0f;
 
 class instance_stratholme : public InstanceMapScript
 {
@@ -79,7 +79,6 @@ class instance_stratholme : public InstanceMapScript
             ObjectGuid portGauntletGUID;
             ObjectGuid portSlaugtherGUID;
             ObjectGuid portElderGUID;
-            ObjectGuid timmyTheCruelGUID;
 
             ObjectGuid baronGUID;
             ObjectGuid ysidaTriggerGUID;
@@ -100,7 +99,7 @@ class instance_stratholme : public InstanceMapScript
                         {
                             Position pos = who->ToCreature()->GetHomePosition();
                             // check if they're in front of the entrance
-                            if (pos.GetPositionX() > scarlet_entrance_position_x && pos.GetPositionY() < scarlet_entrance_position_y)
+                            if (pos.GetPositionX() > scarletEntrancePositionX && pos.GetPositionY() < scarletEntrancePositionY)
                             {
                                 if (++scarletsKilled >= TIMMY_THE_CRUEL_CRUSADERS_REQUIRED)
                                 {
