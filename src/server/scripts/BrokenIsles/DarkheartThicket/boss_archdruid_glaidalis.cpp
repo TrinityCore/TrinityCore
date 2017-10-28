@@ -565,7 +565,7 @@ public:
     {
         PrepareAuraScript(spell_archdruid_glaidalis_primal_rage_charge_AuraScript);
 
-        void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)

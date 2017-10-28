@@ -205,13 +205,13 @@ public:
             return false;
         }
 
-        void Register()
+        void Register() override
         {
             DoCheckProc += AuraCheckProcFn(spell_dru_primal_fury_AuraScript::CheckProc);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dru_primal_fury_AuraScript();
     }
@@ -271,14 +271,14 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnCheckCast += SpellCheckCastFn(spell_dru_predatory_swiftness_SpellScript::CheckCast);
             AfterHit += SpellHitFn(spell_dru_predatory_swiftness_SpellScript::HandleOnHit);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dru_predatory_swiftness_SpellScript();
     }
@@ -305,13 +305,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             AfterHit += SpellHitFn(spell_dru_predatory_swiftness_aura_SpellScript::HandleAfterHit);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dru_predatory_swiftness_aura_SpellScript();
     }
@@ -407,7 +407,7 @@ public:
     {
         PrepareSpellScript(spell_dru_sunfire_SpellScript);
 
-        void HandleDamage(SpellEffIndex effIndex)
+        void HandleDamage(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             Unit* target = GetHitUnit();
@@ -448,7 +448,7 @@ public:
     {
         PrepareAuraScript(spell_dru_balance_affinity_dps_AuraScript);
 
-        void LearnSpells(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void LearnSpells(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -464,7 +464,7 @@ public:
             }
         }
 
-        void UnlearnSpells(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void UnlearnSpells(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -504,7 +504,7 @@ public:
     {
         PrepareAuraScript(spell_dru_balance_affinity_resto_AuraScript);
 
-        void LearnSpells(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void LearnSpells(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -518,7 +518,7 @@ public:
             }
         }
 
-        void UnlearnSpells(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void UnlearnSpells(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -692,7 +692,7 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnCheckCast += SpellCheckCastFn(spell_dru_savage_roar_SpellScript::CheckCast);
             OnPrepare += SpellOnPrepareFn(spell_dru_savage_roar_SpellScript::HandleOnPrepare);
@@ -716,19 +716,19 @@ public:
                 target->RemoveAurasDueToSpell(SPELL_DRUID_SAVAGE_ROAR);
         }
 
-        void Register()
+        void Register() override
         {
             AfterEffectApply += AuraEffectApplyFn(spell_dru_savage_roar_AuraScript::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             AfterEffectRemove += AuraEffectRemoveFn(spell_dru_savage_roar_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dru_savage_roar_SpellScript();
     }
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dru_savage_roar_AuraScript();
     }
@@ -762,14 +762,14 @@ public:
                 target->RemoveAurasDueToSpell(SPELL_DRUID_SURVIVAL_INSTINCTS);
         }
 
-        void Register()
+        void Register() override
         {
             AfterEffectApply += AuraEffectApplyFn(spell_dru_survival_instincts_AuraScript::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
             AfterEffectRemove += AuraEffectRemoveFn(spell_dru_survival_instincts_AuraScript::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dru_survival_instincts_AuraScript();
     }
@@ -868,7 +868,7 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             AfterHit += SpellHitFn(spell_dru_wild_growth_SpellScript::HandleAfterHit);
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_wild_growth_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
@@ -876,7 +876,7 @@ public:
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dru_wild_growth_SpellScript();
     }
@@ -996,13 +996,13 @@ public:
             return SPELL_CAST_OK;
         }
 
-        void Register()
+        void Register() override
         {
             OnCheckCast += SpellCheckCastFn(spell_dru_wild_charge_moonkin_SpellScript::CheckFight);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dru_wild_charge_moonkin_SpellScript();
     }
@@ -1032,13 +1032,13 @@ public:
                 caster->CastSpell(target, SPELL_DRUID_MOONFIRE_DAMAGE, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_dru_moonfire_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dru_moonfire_SpellScript();
     }
@@ -1084,13 +1084,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_omen_of_clarity_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dru_omen_of_clarity_AuraScript();
     }
@@ -1130,13 +1130,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnCast += SpellCastFn(spell_dru_cat_form_SpellScript::OnActivate);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dru_cat_form_SpellScript();
     }
@@ -1178,14 +1178,14 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectApply += AuraEffectApplyFn(spell_dru_cat_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
             OnEffectRemove += AuraEffectRemoveFn(spell_dru_cat_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dru_cat_form_AuraScript();
     }
@@ -1210,7 +1210,7 @@ public:
     {
         PrepareAuraScript(spell_dru_bear_form_AuraScript);
 
-        void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -1222,7 +1222,7 @@ public:
                 caster->CastSpell(caster, SPELL_DRUID_STAMPEDING_ROAR_BEAR_OVERRIDE, true);
         }
 
-        void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -1273,7 +1273,7 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnHit += SpellHitFn(spell_dru_skull_bash_SpellScript::HandleOnHit);
         }
@@ -1309,7 +1309,7 @@ public:
                 target->RemoveMovementImpairingAuras();
         }
 
-        void Register()
+        void Register() override
         {
             OnHit += SpellHitFn(spell_dru_stampeding_roar_SpellScript::HandleOnHit);
         }
@@ -1343,7 +1343,7 @@ public:
                 caster->CastSpell(caster, SPELL_DRUID_CAT_FORM, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnHit += SpellHitFn(spell_dru_activate_cat_form_SpellScript::HandleOnHit);
         }
@@ -1589,7 +1589,7 @@ public:
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dru_rake_SpellScript();
     }
@@ -1630,14 +1630,14 @@ public:
             caster->SetPower(POWER_COMBO_POINTS, 0);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_dru_maim_SpellScript::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
             AfterHit += SpellHitFn(spell_dru_maim_SpellScript::RemoveCP);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dru_maim_SpellScript();
     }
@@ -1654,7 +1654,7 @@ public:
     {
         PrepareAuraScript(spell_dru_rip_AuraScript);
 
-        void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -1792,14 +1792,14 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectApply += AuraEffectApplyFn(spell_dru_travel_form_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             OnEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dru_travel_form_AuraScript();
     }
@@ -1830,13 +1830,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectRemove += AuraEffectRemoveFn(spell_dru_travel_form_aura_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dru_travel_form_aura_AuraScript();
     }

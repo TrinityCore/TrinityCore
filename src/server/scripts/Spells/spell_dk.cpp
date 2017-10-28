@@ -167,7 +167,7 @@ class spell_dk_anti_magic_shell : public SpellScriptLoader
             bool Load() override
             {
                 absorbPct = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue(GetCaster());
-                maxHealth = GetCaster()->GetMaxHealth();
+                maxHealth = (int32)GetCaster()->GetMaxHealth();
                 absorbedAmount = 0;
                 return true;
             }
@@ -1058,7 +1058,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
                 p_Amount = -1;
             }
 
-            void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+            void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& /*p_DmgInfo*/, uint32& p_AbsorbAmount)
             {
                 p_AbsorbAmount = 0; //This is set at 0 because we don't want to absorb
             }
@@ -1188,13 +1188,13 @@ public:
                         GetCaster()->CastSpell(GetCaster(), SPELL_DK_DESECRATED_GROUND_IMMUNE, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_desecrated_ground_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dk_desecrated_ground_AuraScript();
     }
@@ -1309,14 +1309,14 @@ public:
                 _player->ApplySpellImmune(SPELL_DK_PILLAR_OF_FROST, IMMUNITY_MECHANIC, MECHANIC_KNOCKOUT, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectApply += AuraEffectApplyFn(spell_dk_pillar_of_frost_AuraScript::OnApply, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             OnEffectRemove += AuraEffectRemoveFn(spell_dk_pillar_of_frost_AuraScript::OnRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dk_pillar_of_frost_AuraScript();
     }
@@ -1420,13 +1420,13 @@ public:
 			}
 		}
 
-		void Register()
+		void Register() override
 		{
 			OnEffectRemove += AuraEffectRemoveFn(spell_dk_purgatory_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_SCHOOL_HEAL_ABSORB, AURA_EFFECT_HANDLE_REAL);
 		}
 	};
 
-	AuraScript* GetAuraScript() const
+	AuraScript* GetAuraScript() const override
 	{
 		return new spell_dk_purgatory_AuraScript();
 	}
@@ -1473,14 +1473,14 @@ public:
 			absorbAmount = dmgInfo.GetDamage();
 		}
 
-		void Register()
+		void Register() override
 		{
 			DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_purgatory_absorb_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
 			OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_purgatory_absorb_AuraScript::Absorb, EFFECT_0);
 		}
 	};
 
-	AuraScript* GetAuraScript() const
+	AuraScript* GetAuraScript() const override
 	{
 		return new spell_dk_purgatory_absorb_AuraScript();
 	}
@@ -1945,7 +1945,7 @@ public:
     {
         PrepareAuraScript(spell_dk_anti_magic_barrier_AuraScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DK_ANTI_MAGIC_BARRIER))
                 return false;
@@ -1960,13 +1960,13 @@ public:
             aurEff->GetCaster()->DealDamage(aurEff->GetCaster(), 6969); //debug
         }
 
-        void Register()
+        void Register() override
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_barrier_AuraScript::CalcAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_HEALTH_2);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dk_anti_magic_barrier_AuraScript();
     }
@@ -2001,13 +2001,13 @@ public:
             
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_dk_breath_of_sindragosa_AuraScript::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_dk_breath_of_sindragosa_AuraScript();
     }

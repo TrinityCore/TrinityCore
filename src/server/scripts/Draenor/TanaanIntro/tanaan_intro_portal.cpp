@@ -1,6 +1,5 @@
 /*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -222,7 +221,7 @@ public:
                         if (!spellId)
                         {
                             randomSpellIndex = 0;
-                            uint32 spellId = me->GetCreatureTemplate()->spells[randomSpellIndex];
+                            spellId = me->GetCreatureTemplate()->spells[randomSpellIndex];
                         }
 
                         if (!spellId)
@@ -261,7 +260,7 @@ public:
     {
         npc_iron_gronnlingAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void Reset()
+        void Reset() override
         {
             if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL ||
                 !me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE)))
@@ -369,7 +368,7 @@ class gob_static_rune : public GameObjectScript
 public:
     gob_static_rune() : GameObjectScript("gob_static_rune") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
     {
         if (p_Player->GetQuestStatus(TanaanQuests::QuestThePortalPower) == QUEST_STATUS_INCOMPLETE && p_Player->GetQuestObjectiveCounter(273936) < 1)
         {

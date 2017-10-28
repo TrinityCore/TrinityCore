@@ -1,7 +1,18 @@
 /*
-* Scripts for artficat spells.
-* Scriptnames of files in this file should be prefixed with "spell_arti_classname_".
-* To check the abbreviation of classname, please refer to the other .cpp files in this folder.
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Player.h"
@@ -94,7 +105,7 @@ public:
     {
         PrepareAuraScript(spell_arti_warl_deadwind_harvest_AuraScript);
 
-        void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalcAmount(AuraEffect const* /*aurEff*/, int32& /*amount*/, bool& /*canBeRecalculated*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -133,7 +144,7 @@ public:
     {
         PrepareSpellScript(spell_arti_mage_phoenix_flames_SpellScript);
 
-        bool Validate(SpellInfo const*)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_PHOENIX_FLAMES_TRIGGER) ||
                 !sSpellMgr->GetSpellInfo(SPELL_MAGE_PHOENIX_FLAMES))
@@ -141,7 +152,7 @@ public:
             return true;
         }
 
-        void HandleHit(SpellEffIndex effIndex)
+        void HandleHit(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             Unit* target = GetHitUnit();
@@ -173,7 +184,7 @@ public:
     {
         PrepareSpellScript(spell_arti_mage_phoenix_flames_trigger_SpellScript);
 
-        bool Validate(SpellInfo const*)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_PHOENIX_FLAMES_TRIGGER) ||
                 !sSpellMgr->GetSpellInfo(SPELL_MAGE_PHOENIX_FLAMES))
@@ -181,7 +192,7 @@ public:
             return true;
         }
 
-        void HandleHit(SpellEffIndex effIndex)
+        void HandleHit(SpellEffIndex /*effIndex*/)
         {
             Unit* target = GetHitUnit();
             Unit* originalTarget = GetExplTargetUnit();
@@ -238,7 +249,7 @@ public:
 
         SpellModifier* mod;
 
-        void HandleApply(AuraEffect const* aurEffect, AuraEffectHandleModes mode)
+        void HandleApply(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetCaster()->ToPlayer();
             if (!player)
@@ -247,7 +258,7 @@ public:
             player->AddSpellMod(mod, true);
         }
 
-        void HandleRemove(AuraEffect const* aurEffect, AuraEffectHandleModes mode)
+        void HandleRemove(AuraEffect const* /*aurEffect*/, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetCaster()->ToPlayer();
             if (!player)
@@ -279,7 +290,7 @@ public:
     {
         PrepareSpellScript(spell_arti_dru_half_moon_SpellScript);
 
-        bool Validate(SpellInfo const*)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_HALF_MOON) ||
                 !sSpellMgr->GetSpellInfo(SPELL_DRUID_HALF_MOON_OVERRIDE))
@@ -318,7 +329,7 @@ public:
     {
         PrepareSpellScript(spell_dh_fury_of_the_illidari_SpellScript);
 
-        bool Validate(SpellInfo const* spellInfo)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DH_FURY_OF_THE_ILLIDARI_AT))
                 return false;
@@ -639,7 +650,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new npc_warl_chaos_tearAI(p_Creature);
     }
@@ -682,7 +693,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new npc_warl_shadowy_tearAI(p_Creature);
     }

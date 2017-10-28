@@ -107,14 +107,14 @@ class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
                     target->RemoveAura(SPELL_ROMANTIC_PICNIC_ACHIEV);
             }
 
-            void Register()
+            void Register() override
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_love_is_in_the_air_romantic_picnic_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_love_is_in_the_air_romantic_picnic_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_love_is_in_the_air_romantic_picnic_AuraScript();
         }

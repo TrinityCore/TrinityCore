@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS      <http://getmangos.com/>
+ * Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -213,13 +212,13 @@ class npc_whack_gnoll_mola : public CreatureScript
                 player->PrepareQuestMenu(creature->GetGUID());
 
             if (player->GetQuestStatus(QUEST_WHACK_A_GNOLL) == QUEST_STATUS_INCOMPLETE)
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Je souhaite jouer Ã  Cogne-Gnoll !", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Je souhaite jouer à Cogne-Gnoll !", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
             player->PlayerTalkClass->SendGossipMenu(player->GetGossipTextId(creature), creature->GetGUID());
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/)
         {
             if (!player->HasItemCount(ITEM_DARKMOON_TOKEN))
             {
@@ -228,7 +227,7 @@ class npc_whack_gnoll_mola : public CreatureScript
             }
 
             player->DestroyItemCount(ITEM_DARKMOON_TOKEN, 1, true);
-            player->NearTeleportTo(-3994.28, 6283.58, 13.12, 0.727784, true);
+            player->NearTeleportTo(-3994.28f, 6283.58f, 13.12f, 0.727784f, true);
 
             creature->AddAura(SPELL_OVERRIDE_ACTION, player);
             creature->AddAura(SPELL_ENABLE_POWERBAR, player);
@@ -238,7 +237,7 @@ class npc_whack_gnoll_mola : public CreatureScript
             return true;
         }
 
-        bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest)
+        bool OnQuestComplete(Player* player, Creature* /*creature*/, Quest const* quest)
         {
             if (quest->GetQuestId() == QUEST_WHACK_A_GNOLL)
             {
@@ -368,7 +367,7 @@ public:
     {
         PrepareAuraScript(spell_whack_gnoll_override_action_AuraScript);
 
-        bool Validate(SpellInfo const* /*entry*/)
+        bool Validate(SpellInfo const* /*entry*/) override
         {
             return true;
         }
@@ -386,13 +385,13 @@ public:
             target->CastSpell(target, SPELL_FORBIDDEN_ZONE, true);
         }
 
-        void Register()
+        void Register() override
         {
             AfterEffectRemove += AuraEffectRemoveFn(spell_whack_gnoll_override_action_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_OVERRIDE_SPELLS, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    AuraScript* GetAuraScript() const
+    AuraScript* GetAuraScript() const override
     {
         return new spell_whack_gnoll_override_action_AuraScript();
     }

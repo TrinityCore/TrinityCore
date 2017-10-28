@@ -435,7 +435,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
         public:
             spell_pilgrims_bounty_buff_food_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId) { }
 
-            bool Load()
+            bool Load() override
             {
                 _handled = false;
                 return true;
@@ -462,7 +462,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
             bool _handled;
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_pilgrims_bounty_buff_food_AuraScript(_triggeredSpellId);
         }

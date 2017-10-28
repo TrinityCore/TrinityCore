@@ -97,7 +97,7 @@ class PlayerScript_DarkPortal_Phasing: public PlayerScript
     public:
         PlayerScript_DarkPortal_Phasing() : PlayerScript("PlayerScript_DarkPortal_Phasing") { }
 
-        void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 p_NewAreaID)
+        void OnUpdateZone(Player* p_Player, uint32 p_NewZoneID, uint32 p_OldZoneID, uint32 /*p_NewAreaID*/)
         {
             if (p_Player->IsInFlight())
                 return;
@@ -145,7 +145,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         ObjectGuid l_PlayerGuid = player->GetGUID();
 
@@ -207,7 +207,7 @@ class npc_archmage_khadgar_gossip : public CreatureScript
             QuestTheProdigalFrostwolf             = 34437,
         };
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/)
         {
             if (player->GetQuestStatus(QuestStartDraenor) == QUEST_STATUS_NONE)
                 return true;

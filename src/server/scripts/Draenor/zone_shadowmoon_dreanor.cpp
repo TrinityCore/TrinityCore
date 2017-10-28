@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -92,12 +92,12 @@ public:
 
         ObjectGuid playerGuid;
 
-        void Reset()
+        void Reset() override
         {
             playerGuid = ObjectGuid::Empty;
         }
 
-        void SetGUID(ObjectGuid p_Guid, int32 p_Id) override
+        void SetGUID(ObjectGuid p_Guid, int32 /*p_Id*/) override
         {
             playerGuid = p_Guid;
             Start(true, true, p_Guid);
@@ -186,7 +186,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/)
     {
         Garrison* garrison = player->GetGarrison(GARRISON_TYPE_GARRISON);
         if (!garrison)
@@ -217,7 +217,7 @@ public:
     {
         PrepareSpellScript(spell_shadowmoon_claiming_spellscript);
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (!GetCaster())
                 return;
@@ -263,30 +263,30 @@ public:
 
         enum spells
         {
-            SPELL_AQUATIC_BALL = 172182,
-            SPELL_SHADOW_BINDING = 172181,
+            SPELL_AQUATIC_BALL      = 172182,
+            SPELL_SHADOW_BINDING    = 172181,
 
-            SPELL_JETTISON = 172195,
-            SPELL_SUBMERGE = 172187,
-            SPELL_WATER_BLAST = 172186
+            SPELL_JETTISON          = 172195,
+            SPELL_SUBMERGE          = 172187,
+            SPELL_WATER_BLAST       = 172186
 
         };
 
         enum Events
         {
-            EVENT_JETTISON = 1,
-            EVENT_SUBMERGE = 2,
-            EVENT_WATER_BLAST = 3
+            EVENT_JETTISON      = 1,
+            EVENT_SUBMERGE      = 2,
+            EVENT_WATER_BLAST   = 3
         };
 
 
         enum DisplayID
         {
-            DISPLAYID_AQUATIC_BALL = 59421,
-            DISPLAYID_ELEMENTARY = 58879
+            DISPLAYID_AQUATIC_BALL  = 59421,
+            DISPLAYID_ELEMENTARY    = 58879
         };
 
-        void Reset()
+        void Reset() override
         {
             binderCount = 3;
 
@@ -306,13 +306,13 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) override
         {
             summon->CastSpell(me, SPELL_SHADOW_BINDING, true);
             summons.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             --binderCount;
 
@@ -325,7 +325,7 @@ public:
             me->SetDisplayId(DISPLAYID_ELEMENTARY);
         }
 
-        void UpdateAI(const uint32 p_Diff)
+        void UpdateAI(const uint32 p_Diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -383,7 +383,7 @@ public:
 
         Position bottom = { -867.21f, -1133.19f, 81.22f, 1.75f };
 
-        void OnUpdate(uint32 diff) override
+        void OnUpdate(uint32 /*diff*/) override
         {
             if (Unit* l_Caster = at->GetCaster())
             {
@@ -512,7 +512,7 @@ class npc_gara : public CreatureScript
 public:
     npc_gara() : CreatureScript("npc_gara") { }
 
-    bool OnGossipHello(Player * player, Creature * p_Creature)
+    bool OnGossipHello(Player* player, Creature* p_Creature)
     {
         if(player->GetQuestStatus(37423) != QUEST_STATUS_INCOMPLETE && player->GetQuestStatus(37423) != QUEST_STATUS_COMPLETE && player->GetQuestStatus(37423) != QUEST_STATUS_REWARDED)
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Lean down and scratch the wolf behind its ears.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -525,7 +525,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player * player, Creature * p_Creature, uint32 p_Sender, uint32 p_Action)
+    bool OnGossipSelect(Player * player, Creature * p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
     {
         if (player->getClass() != CLASS_HUNTER || player->GetSpecializationId() != TALENT_SPEC_HUNTER_BEASTMASTER)
             return false;
@@ -579,11 +579,13 @@ public:
     }
 };
 
-Position BurialEventPos[] = {
+Position BurialEventPos[] =
+{
     { -300.479309f, -754.269653f, 16.830910f, 0.251439f }, //Om'ra summon
     { -287.301636f, -751.508606f, 16.896639f, 0.223946f }, //Om'ra WP
     { -285.411957f, -753.524963f, 16.823908f, 5.360457f }, //Om'ra kneel
-    { -280.977783f, -763.287170f, 16.710634f, 1.995033f } };//Xan summon
+    { -280.977783f, -763.287170f, 16.710634f, 1.995033f }  //Xan summon
+};
 
 #define SAY_OMRA_01 "My soul... rest in peace... thanks."
 #define SAY_OMRA_02 "Gara was my wolf, back before we forsook shamanism for these... dark magics. She wouldn't even look at me, not after I was tainted by the Void."
@@ -763,7 +765,7 @@ class go_shadowmoon_voidblade : public GameObjectScript
 public:
     go_shadowmoon_voidblade() : GameObjectScript("go_shadowmoon_voidblade") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if ((player->HasAura(SPELL_VOID_LANTERN) && player->GetQuestStatus(37426) == QUEST_STATUS_REWARDED) || player->GetQuestStatus(37427) == QUEST_STATUS_REWARDED)
             if(player->getClass() == CLASS_HUNTER && player->GetSpecializationId() == TALENT_SPEC_HUNTER_BEASTMASTER)
@@ -784,7 +786,7 @@ public:
     {
         PrepareAuraScript(spell_aura_void_realm_AuraScript);
 
-        void HandlePhasing(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void HandlePhasing(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (!GetCaster()->IsPlayer())
                 return;
@@ -792,7 +794,7 @@ public:
             GetCaster()->SummonCreature(NPC_GARA_VOID_PET, GetCaster()->GetPosition());
         }
 
-        void HandlePhasingRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void HandlePhasingRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (!GetCaster()->IsPlayer())
                 return;
@@ -812,7 +814,8 @@ public:
     }
 };
 
-Position VoidRealmEventPos[] = {
+Position VoidRealmEventPos[] =
+{
     { 932.043701f, -1835.089600f,  0.966880f, 1.500073f }, //Xan Summon
     { 930.837952f, -1810.070801f, -0.442225f, 1.683415f }, //Gara end of path
     { 942.078857f, -1802.449097f,  0.316170f, 3.808706f }, //Om'ra summon
@@ -832,19 +835,26 @@ public:
     {
         npc_void_garaAI(Creature* creature) : ScriptedAI(creature)
         {
-            owner = nullptr; Omra = nullptr; gara_teamable = nullptr;
+            owner           = nullptr;
+            Omra            = nullptr;
+            gara_teamable   = nullptr;
+
             if (owner = creature->SelectNearestPlayer(10))
                 events.ScheduleEvent(EVENT_CHECK_PLAYER, 0);
-            else creature->DisappearAndDie();
+            else
+                creature->DisappearAndDie();
         }
 
         EventMap events;
-        Player *owner = 0;
-        TempSummon *Omra = 0, *gara_teamable = 0;
+        Player* owner;
+        TempSummon* Omra;
+        TempSummon* gara_teamable;
 
         void Reset() override
         {
-            owner = nullptr; Omra = nullptr; gara_teamable = nullptr;
+            owner = nullptr;
+            Omra = nullptr;
+            gara_teamable = nullptr;
         }
 
         void DoAction(int32 action) override
@@ -863,83 +873,83 @@ public:
             {
                 switch (eventId)
                 {
-                case EVENT_CHECK_PLAYER:
-                {
-                    if (owner && owner->IsInWorld())
+                    case EVENT_CHECK_PLAYER:
                     {
-                        if (owner->HasAura(177297))
-                            me->GetMotionMaster()->MoveFollow(owner, 2, (float)M_PI);
+                        if (owner && owner->IsInWorld())
+                        {
+                            if (owner->HasAura(177297))
+                                me->GetMotionMaster()->MoveFollow(owner, 2, (float)M_PI);
+                            else me->DisappearAndDie();
+                        }
                         else me->DisappearAndDie();
-                    }
-                    else me->DisappearAndDie();
 
-                    events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
-                }
-                break;
-                case EVENT_GARA_01:
-                {
-                    if (TempSummon *Xan = me->SummonCreature(NPC_XAN, VoidRealmEventPos[0], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60 * 60 * IN_MILLISECONDS))
-                    {
-                        Xan->setFaction(14);
-                        Xan->SetReactState(REACT_AGGRESSIVE);
+                        events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
                     }
-                }
                     break;
-                case EVENT_GARA_02:
-                {
-                    events.CancelEvent(EVENT_CHECK_PLAYER);
-                    me->GetMotionMaster()->MovePoint(2, VoidRealmEventPos[1], true);
-                    me->CastSpell(me, SPELL_VOID_EFFECT);
-                    events.ScheduleEvent(EVENT_GARA_03, 10 * IN_MILLISECONDS);
-                }
-                    break;
-                case EVENT_GARA_03:
-                {
-                    Omra = me->SummonCreature(NPC_MOTHER_OMRA_BURIAL, VoidRealmEventPos[2], TEMPSUMMON_MANUAL_DESPAWN);
-                    if (Omra)
+                    case EVENT_GARA_01:
                     {
-                        Omra->CastSpell(Omra, SPELL_SOULSTONE_VISUAL);
-                        Omra->SetSpeed(MOVE_WALK, 0.4f);
-                        Omra->SetSpeed(MOVE_RUN, 0.4f);
-                        Omra->GetMotionMaster()->MovePoint(1, VoidRealmEventPos[3], true);
-                        Omra->Say(SAY_OMRA_11, LANG_UNIVERSAL, Omra);
+                        if (TempSummon *Xan = me->SummonCreature(NPC_XAN, VoidRealmEventPos[0], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60 * 60 * IN_MILLISECONDS))
+                        {
+                            Xan->setFaction(14);
+                            Xan->SetReactState(REACT_AGGRESSIVE);
+                        }
                     }
-                    me->RemoveAllAuras();
-                    me->SetVisible(false);
-                    gara_teamable = me->SummonCreature(NPC_GARA_TAMABLE_PET, me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
-                    if(gara_teamable) gara_teamable->SetHealth(gara_teamable->GetHealth() * 60000);
-                    events.ScheduleEvent(EVENT_GARA_04, 0);
-                }
-                    break;
-                case EVENT_GARA_04:
-                {
-                    if (!gara_teamable)
-                        return;
+                        break;
+                    case EVENT_GARA_02:
+                    {
+                        events.CancelEvent(EVENT_CHECK_PLAYER);
+                        me->GetMotionMaster()->MovePoint(2, VoidRealmEventPos[1], true);
+                        me->CastSpell(me, SPELL_VOID_EFFECT);
+                        events.ScheduleEvent(EVENT_GARA_03, 10 * IN_MILLISECONDS);
+                    }
+                        break;
+                    case EVENT_GARA_03:
+                    {
+                        Omra = me->SummonCreature(NPC_MOTHER_OMRA_BURIAL, VoidRealmEventPos[2], TEMPSUMMON_MANUAL_DESPAWN);
+                        if (Omra)
+                        {
+                            Omra->CastSpell(Omra, SPELL_SOULSTONE_VISUAL);
+                            Omra->SetSpeed(MOVE_WALK, 0.4f);
+                            Omra->SetSpeed(MOVE_RUN, 0.4f);
+                            Omra->GetMotionMaster()->MovePoint(1, VoidRealmEventPos[3], true);
+                            Omra->Say(SAY_OMRA_11, LANG_UNIVERSAL, Omra);
+                        }
+                        me->RemoveAllAuras();
+                        me->SetVisible(false);
+                        gara_teamable = me->SummonCreature(NPC_GARA_TAMABLE_PET, me->GetPosition(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
+                        if(gara_teamable) gara_teamable->SetHealth(gara_teamable->GetHealth() * 60000);
+                        events.ScheduleEvent(EVENT_GARA_04, 0);
+                    }
+                        break;
+                    case EVENT_GARA_04:
+                    {
+                        if (!gara_teamable)
+                            return;
 
-                    if (gara_teamable->IsInCombat())
-                        events.ScheduleEvent(EVENT_GARA_05, 2 * IN_MILLISECONDS);
-                    else events.ScheduleEvent(EVENT_GARA_04, 300);
-                }
+                        if (gara_teamable->IsInCombat())
+                            events.ScheduleEvent(EVENT_GARA_05, 2 * IN_MILLISECONDS);
+                        else events.ScheduleEvent(EVENT_GARA_04, 300);
+                    }
+                        break;
+                    case EVENT_GARA_05:
+                    {
+                        if (Omra) Omra->Say(SAY_OMRA_12, LANG_UNIVERSAL, Omra);
+                        events.ScheduleEvent(EVENT_GARA_06, 11 * IN_MILLISECONDS);
+                    }
+                        break;
+                    case EVENT_GARA_06:
+                    {
+                        if (Omra) Omra->CastSpell(Omra, SPELL_SOULSTONE_VISUAL);
+                        events.ScheduleEvent(EVENT_GARA_END, 1 * IN_MILLISECONDS);
+                    }
+                        break;
+                    case EVENT_GARA_END:
+                    {
+                        me->DisappearAndDie();
+                        if (Omra) Omra->DisappearAndDie();
+                    }
                     break;
-                case EVENT_GARA_05:
-                {
-                    if (Omra) Omra->Say(SAY_OMRA_12, LANG_UNIVERSAL, Omra);
-                    events.ScheduleEvent(EVENT_GARA_06, 11 * IN_MILLISECONDS);
                 }
-                    break;
-                case EVENT_GARA_06:
-                {
-                    if (Omra) Omra->CastSpell(Omra, SPELL_SOULSTONE_VISUAL);
-                    events.ScheduleEvent(EVENT_GARA_END, 1 * IN_MILLISECONDS);
-                }
-                    break;
-                case EVENT_GARA_END:
-                {
-                    me->DisappearAndDie();
-                    if (Omra) Omra->DisappearAndDie();
-                }
-                    break;
-            }
             }
         }
     };

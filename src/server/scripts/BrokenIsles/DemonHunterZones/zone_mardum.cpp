@@ -1,10 +1,19 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-//  AshamaneCore
-//  Copyright 2017 Ashamane Project
-//  All Rights Reserved.
-//
-////////////////////////////////////////////////////////////////////////////////
+/*
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -66,7 +75,7 @@ class scene_mardum_welcome : public SceneScript
 public:
     scene_mardum_welcome() : SceneScript("scene_mardum_welcome") { }
 
-    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         player->AddPhase(PHASE_MARDUM_WELCOME);
     }
@@ -77,7 +86,7 @@ class npc_kayn_sunfury_welcome : public CreatureScript
 public:
     npc_kayn_sunfury_welcome() : CreatureScript("npc_kayn_sunfury_welcome") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_INVASION_BEGIN)
         {
@@ -94,7 +103,7 @@ class go_mardum_legion_banner_1 : public GameObjectScript
 public:
     go_mardum_legion_banner_1() : GameObjectScript("go_mardum_legion_banner_1") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
         if (!player->GetQuestObjectiveData(QUEST_INVASION_BEGIN, 1))
             player->CastSpell(player, SPELL_SCENE_MARDUM_LEGION_BANNER, true);
@@ -108,7 +117,7 @@ class scene_mardum_change_legion_banner : public SceneScript
 public:
     scene_mardum_change_legion_banner() : SceneScript("scene_mardum_change_legion_banner") { }
 
-    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         player->AddPhase(PHASE_MARDUM_AFTER_BANNER);
     }
@@ -119,7 +128,7 @@ class go_mardum_portal_ashtongue : public GameObjectScript
 public:
     go_mardum_portal_ashtongue() : GameObjectScript("go_mardum_portal_ashtongue") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
         if (!player->GetQuestObjectiveData(QUEST_ASHTONGUE_FORCES, 0))
         {
@@ -213,7 +222,7 @@ class npc_mardum_ashtongue_mystic : public CreatureScript
 public:
     npc_mardum_ashtongue_mystic() : CreatureScript("npc_mardum_ashtongue_mystic") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action) override
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
     {
         player->KilledMonsterCredit(creature->GetEntry());
         creature->KillSelf();
@@ -226,7 +235,7 @@ class go_mardum_portal_coilskar : public GameObjectScript
 public:
     go_mardum_portal_coilskar() : GameObjectScript("go_mardum_portal_coilskar") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
         if (!player->GetQuestObjectiveData(QUEST_COILSKAR_FORCES, 0))
         {
@@ -244,7 +253,7 @@ class go_meeting_with_queen_ritual : public GameObjectScript
 public:
     go_meeting_with_queen_ritual() : GameObjectScript("go_meeting_with_queen_ritual") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
         if (!player->GetQuestObjectiveData(QUEST_MEETING_WITH_QUEEN, 0))
         {
@@ -260,7 +269,7 @@ class scene_mardum_meeting_with_queen : public SceneScript
 public:
     scene_mardum_meeting_with_queen() : SceneScript("scene_mardum_meeting_with_queen") { }
 
-    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
     {
         player->KilledMonsterCredit(100722);
     }

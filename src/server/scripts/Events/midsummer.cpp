@@ -368,13 +368,13 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
                     target->AddAura(SPELL_RIBBON_DANCE_XP, target);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_ribbon_pole_dancer_check_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
             return new spell_gen_ribbon_pole_dancer_check_AuraScript();
         }
@@ -426,7 +426,7 @@ class spell_hol_torch_launch_achievement : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void Register()
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_hol_torch_launch_achievement_SpellScript::CheckCast);
             }

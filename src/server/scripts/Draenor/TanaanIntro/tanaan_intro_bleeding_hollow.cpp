@@ -1,6 +1,5 @@
 /*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+* Copyright (C) 2017-2018 AshamaneProject <https://github.com/AshamaneProject>
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -211,7 +210,7 @@ public:
         uint32 m_checkObjectiveTimer;
         uint32 m_checkMustDespawnTimer;
 
-        void Reset()
+        void Reset() override
         {
             m_IsSummoned            = false;
             m_PlayerGuid            = ObjectGuid::Empty;
@@ -319,7 +318,7 @@ public:
     {
         npc_blood_ritual_orbAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void Reset()
+        void Reset() override
         {
             me->SetDisableGravity(true);
         }

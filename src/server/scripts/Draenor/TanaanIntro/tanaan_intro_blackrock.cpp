@@ -147,14 +147,14 @@ class playerScript_gunpowder_plot : public PlayerScript
 public:
     playerScript_gunpowder_plot() : PlayerScript("playerScript_gunpowder_plot") { }
 
-    void OnSceneTriggerEvent(Player* p_Player, uint32 p_SceneInstanceID, std::string p_Event) override
+    void OnSceneTriggerEvent(Player* player, uint32 sceneInstanceID, std::string /*event*/) override
     {
-        if (!p_Player->GetSceneMgr().HasScene(p_SceneInstanceID, TanaanSceneObjects::SceneBuildingExplosion))
+        if (!player->GetSceneMgr().HasScene(sceneInstanceID, TanaanSceneObjects::SceneBuildingExplosion))
             return;
 
-        Creature* l_Speaker = p_Player->FindNearestCreature(TanaanCreatures::NpcHanselHeavyHands, 5.0f);
+        Creature* speaker = player->FindNearestCreature(TanaanCreatures::NpcHanselHeavyHands, 5.0f);
 
-        if (!l_Speaker || !l_Speaker->AI())
+        if (!speaker || !speaker->AI())
             return;
 
         /*if (p_Event == "TalkA")
@@ -177,7 +177,7 @@ public:
     {
     }
 
-    bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
+    bool OnQuestReward(Player* p_Player, Creature* /*p_Creature*/, const Quest* p_Quest, uint32 /*p_Option*/) override
     {
         if (p_Quest->GetQuestId() == TanaanQuests::QuestABattleToPrepareAlly)
             p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneArmingPrisonersAlly);
@@ -194,7 +194,7 @@ class npc_blackrock_follower : public CreatureScript
 public:
     npc_blackrock_follower() : CreatureScript("npc_blackrock_follower") { }
 
-    bool OnQuestAccept(Player* p_Player, Creature* p_Creature, const Quest* p_Quest) override
+    bool OnQuestAccept(Player* p_Player, Creature* /*p_Creature*/, const Quest* p_Quest) override
     {
         if (p_Quest->GetQuestId() == TanaanQuests::QuestTheBattleOfTheForge)
         {
@@ -233,7 +233,7 @@ public:
         uint32 m_checkVictimTimer;
         bool m_Summoned;
 
-        void Reset()
+        void Reset() override
         {
             //me->AddAura(TanaanSpells::SpellCoverOfElune, me);
         }
@@ -272,7 +272,7 @@ public:
                 me->GetMotionMaster()->MoveFollow(l_Player, 0.05f, followAngle);
         }
 
-        void DamageTaken(Unit* p_Attacker, uint32& p_Damage) override
+        void DamageTaken(Unit* /*p_Attacker*/, uint32& p_Damage) override
         {
             if (p_Damage >= me->GetHealth())
                 me->SetFullHealth();
@@ -349,7 +349,7 @@ public:
             EventAddaura = 1
         };
 
-        void Reset()
+        void Reset() override
         {
             m_Events.Reset();
             m_Events.ScheduleEvent(EventAddaura, 3000);
@@ -428,7 +428,7 @@ class npc_tanaan_ganar : public CreatureScript
 public:
     npc_tanaan_ganar() : CreatureScript("npc_tanaan_ganar") { }
 
-    bool OnQuestAccept(Player* p_Player, Creature* p_Creature, Quest const* p_Quest) override
+    bool OnQuestAccept(Player* p_Player, Creature* /*p_Creature*/, Quest const* p_Quest) override
     {
         if (p_Quest->GetQuestId() == TanaanQuests::QuestTheProdigalFrostwolf)
             p_Player->GetSceneMgr().PlaySceneByPackageId(TanaanSceneObjects::SceneFreeGanar);
@@ -468,7 +468,7 @@ public:
             m_Events.Reset();
         }
 
-        void EnterCombat(Unit* p_Target) override
+        void EnterCombat(Unit* /*p_Target*/) override
         {
             /// TALK
 
@@ -506,7 +506,7 @@ class gob_powder_keg : public GameObjectScript
 public:
     gob_powder_keg() : GameObjectScript("gob_powder_keg") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
     {
         if (p_Player->GetQuestStatus(TanaanQuests::QuestTheGunpowderPlot) == QUEST_STATUS_INCOMPLETE)
         {
@@ -527,7 +527,7 @@ class gob_makeshift_plunger : public GameObjectScript
 public:
     gob_makeshift_plunger() : GameObjectScript("gob_makeshift_plunger") { }
 
-    bool OnGossipHello(Player* p_Player, GameObject* p_Gameobject) override
+    bool OnGossipHello(Player* p_Player, GameObject* /*p_Gameobject*/) override
     {
         if (p_Player->GetQuestStatus(TanaanQuests::QuestTheGunpowderPlot) == QUEST_STATUS_INCOMPLETE)
         {

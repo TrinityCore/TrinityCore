@@ -60,7 +60,7 @@ public:
         uint32 waitTime;
         ObjectGuid wolfTarget;
 
-        void Reset()
+        void Reset() override
         {
             wolfTarget = ObjectGuid::Empty;
             me->SetSheath(SHEATH_STATE_MELEE);
@@ -74,14 +74,14 @@ public:
                     damage = 0;
         }
 
-        void DamageDealt(Unit* target, uint32& damage, DamageEffectType damageType)
+        void DamageDealt(Unit* target, uint32& damage, DamageEffectType /*damageType*/) override
         {
             if (target->ToCreature())
                 if (target->GetHealth() <= damage || target->GetHealthPct() <= 70.0f)
                     damage = 0;
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             DoMeleeAttackIfReady();
 
@@ -155,7 +155,7 @@ public:
     {
         npc_stormwind_injured_soldierAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void Reset()
+        void Reset() override
         {
             _clicker = nullptr;
 
@@ -163,7 +163,7 @@ public:
             me->SetStandState(UNIT_STAND_STATE_DEAD);
         }
 
-        void OnSpellClick(Unit* Clicker, bool& result) override
+        void OnSpellClick(Unit* Clicker, bool& /*result*/) override
         {
             if (!Clicker->IsPlayer())
                 return;
@@ -187,7 +187,7 @@ public:
             });
         }
 
-        void WaypointReached(uint32 waypointId)
+        void WaypointReached(uint32 waypointId) override
         {
             if (waypointId == 5)
             {
@@ -196,7 +196,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             return;
         }
@@ -236,7 +236,7 @@ public:
 
         uint32 resetTimer;
 
-        void Reset()
+        void Reset() override
         {
             me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
@@ -252,7 +252,7 @@ public:
             Reset();
         }
 
-        void MoveInLineOfSight(Unit* p_Who)
+        void MoveInLineOfSight(Unit* p_Who) override
         {
             if (!me->IsWithinDistInMap(p_Who, 25.f) && p_Who->IsInCombat())
             {
@@ -277,12 +277,12 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit* /*who*/) override
         {
             return;
         }
 
-        void SpellHit(Unit* Caster, const SpellInfo* Spell)
+        void SpellHit(Unit* Caster, const SpellInfo* Spell) override
         {
             switch (Spell->Id)
             {
@@ -309,7 +309,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -353,7 +353,7 @@ public:
                     GetCaster()->ToPlayer()->KilledMonsterCredit(50047);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_quest_fear_no_evil_SpellScript::OnDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
@@ -401,7 +401,7 @@ public:
             fire->DespawnOrUnsummon();
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_quest_extincteur_SpellScript::OnDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }

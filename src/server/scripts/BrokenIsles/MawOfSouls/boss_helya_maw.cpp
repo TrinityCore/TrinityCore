@@ -180,7 +180,7 @@ public:
                 Talk(YELL_KILL);
         }
 
-        void JustSummoned(Creature* summoned) override
+        void JustSummoned(Creature* /*summoned*/) override
         {
 
         }
@@ -259,7 +259,7 @@ class npc_helya_maw_destructor_tentacle : public CreatureScript
                 DoCastVictim(SPELL_DESTRUCTOR_RUPTURE);
             }
 
-            void EnterCombat(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
 
             }

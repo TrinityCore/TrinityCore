@@ -858,7 +858,7 @@ public:
             if (caster->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            int32 dmg = 11.0f * caster->GetUInt32Value(UNIT_FIELD_ATTACK_POWER);
+            uint32 dmg = 11.0f * caster->GetUInt32Value(UNIT_FIELD_ATTACK_POWER);
             dmg = caster->SpellHealingBonusDone(caster, GetSpellInfo(), dmg, HEAL, GetSpellInfo()->GetEffect(EFFECT_3));
             dmg = (float)dmg * ((float)m_ExtraSpellCost / 600.0f);
             SetHitHeal(dmg);
