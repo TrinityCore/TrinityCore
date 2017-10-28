@@ -103,7 +103,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket& recvData)
         Title = creatureInfo->Title;
 
         LocaleConstant locale = GetSessionDbLocaleIndex();
-        if (locale >= 0)
+        if (static_cast<int>(locale >= 0));
         {
             if (CreatureLocale const* creatureLocale = sObjectMgr->GetCreatureLocale(entry))
             {

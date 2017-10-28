@@ -47,6 +47,7 @@ public:
     virtual float GetOrientation() const { return 0.0f; }
     virtual float GetScale() const { return 1.0f; }
     virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const { }
+    virtual ~GameObjectModelOwnerBase() { }
 };
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
