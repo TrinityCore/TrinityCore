@@ -58,13 +58,14 @@ public:
 
     struct boss_vancleefAI: public BossAI
     {
-        boss_vancleefAI(Creature* creature) : BossAI(creature, 0)
-        {
-            _phase = PHASE_NORMAL;
-        }
+        boss_vancleefAI(Creature* creature) : BossAI(creature, 0) { }
 
-        void Initialize()
+        void Reset() override
         {
+            BossAI::Reset();
+
+            _phase = PHASE_NORMAL;
+
             DoCastSelf(SPELL_DUAL_WIELD, true);
             DoCastSelf(SPELL_THRASH, true);
 
@@ -89,12 +90,6 @@ public:
         {
             summons.DespawnAll();
             _DespawnAtEvade();
-        }
-
-        void Reset() override
-        {
-            BossAI::Reset();
-            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
