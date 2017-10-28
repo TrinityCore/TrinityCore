@@ -2387,9 +2387,7 @@ public:
 enum BloodsporeRuination
 {
     NPC_BLOODMAGE_LAURITH = 25381,
-    
     TALK_0 = 0,
-
     EVENT_TALK = 1,
     EVENT_RESET_ORIENTATION
 };
