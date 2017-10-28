@@ -1,5 +1,5 @@
 --
-DELETE FROM `spell_script_names` WHERE `spell_id`=45997;
+DELETE FROM `spell_script_names` WHERE `ScriptName`="spell_q11719_bloodspore_ruination_45997";
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (45997, "spell_q11719_bloodspore_ruination_45997");
 UPDATE `creature_template` SET `ScriptName`="npc_bloodmage_laurith" WHERE `entry`=25381;
