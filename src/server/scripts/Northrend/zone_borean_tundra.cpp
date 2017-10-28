@@ -599,6 +599,7 @@ public:
                     IntroTimer = 2000;
                     break;
                 case 41:
+                    SetEscortPaused(true);
                     IntroPhase = 4;
                     IntroTimer = 2000;
                     break;
@@ -625,7 +626,7 @@ public:
                             IntroTimer = 7500;
                             break;
                         case 3:
-                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->SetReactState(REACT_DEFENSIVE);
                             IntroPhase = 0;
                             IntroTimer = 0;
                             break;
@@ -640,14 +641,12 @@ public:
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;
-
                         case 6:
                             if (Player* player = GetPlayerForEscort())
                                 player->AreaExploredOrEventHappens(QUEST_ESCAPE_WINTERFIN_CAVERNS);
                             IntroPhase = 7;
                             IntroTimer = 2500;
                             break;
-
                         case 7:
                             me->DespawnOrUnsummon();
                             IntroPhase = 0;
@@ -669,8 +668,7 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_CAGE, 5.0f))
                 {
                     go->SetRespawnTime(0);
-                    go->SetGoType(GAMEOBJECT_TYPE_BUTTON);
-                    go->UseDoorOrButton(20);
+                    go->UseDoorOrButton(20000);
                 }
 
                 Start(true, false, player->GetGUID());
