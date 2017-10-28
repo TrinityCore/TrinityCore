@@ -228,7 +228,6 @@ public:
         private:
             uint8 Phase;
             //SummonList summons;
-            bool isSubmerged;
             bool isHeroic = false;
             bool isMythic = false;
     };

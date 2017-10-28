@@ -104,7 +104,7 @@ class npc_drekthar_frostridge_begin : public CreatureScript
 public:
     npc_drekthar_frostridge_begin() : CreatureScript("npc_drekthar_frostridge_begin") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_A_SONG_OF_FROST_AND_FIRE)
         {

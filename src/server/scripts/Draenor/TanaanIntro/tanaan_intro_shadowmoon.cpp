@@ -51,13 +51,12 @@ public:
     {
     }
 
-    bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 p_Option) override
+    bool OnQuestReward(Player* p_Player, Creature* p_Creature, const Quest* p_Quest, uint32 /*p_Option*/) override
     {
         switch (p_Quest->GetQuestId())
         {
             case TanaanQuests::QuestKillYourHundred:
             {
-
                 if (p_Creature->GetAI())
                 {
                     p_Creature->AI()->SetData(0, 1500);

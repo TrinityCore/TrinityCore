@@ -179,7 +179,7 @@ public:
         ActionStartEscort = 1
     };
 
-    bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 action) override
+    bool OnGossipSelect(Player* p_Player, Creature* p_Creature, uint32 /*sender*/, uint32 /*action*/) override
     {
         if (p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_INCOMPLETE ||
             p_Player->GetQuestStatus(TanaanQuests::QuestAltarAltercation) == QUEST_STATUS_FAILED)
