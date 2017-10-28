@@ -415,7 +415,7 @@ public:
     {
         PrepareSpellScript(spell_calamir_arcane_desolation_target_SpellScript);
 
-        void HandleHitTarget(SpellEffIndex effIndex)
+        void HandleHitTarget(SpellEffIndex /*effIndex*/)
         {
             Unit* target = GetHitUnit();
             if (!target)

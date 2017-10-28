@@ -72,7 +72,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_archmage_khadgar_shadowmoonAI(creature);
     }
@@ -133,7 +133,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tanaan_ungraAI(creature);
     }
@@ -161,7 +161,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_taskmaster_gurranAI(creature);
     }
@@ -189,7 +189,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_ankova_the_fallenAI(creature);
     }
@@ -241,7 +241,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tanaan_yrel_summonAI(creature);
     }
@@ -421,7 +421,7 @@ class npc_keli_dan_the_breaker : public CreatureScript
 public:
     npc_keli_dan_the_breaker() : CreatureScript("npc_keli_dan_the_breaker") { }
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new npc_keli_dan_the_breakerAI(p_Creature);
     }

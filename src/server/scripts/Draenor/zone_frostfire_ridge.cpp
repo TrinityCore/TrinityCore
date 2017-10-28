@@ -114,7 +114,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_drekthar_frostridge_beginAI(creature);
     }
@@ -125,12 +125,12 @@ public:
 
         uint32 waitTime;
 
-        void Reset()
+        void Reset() override
         {
             waitTime = 1000;
         }
 
-        void UpdateAI(const uint32 p_Diff)
+        void UpdateAI(const uint32 p_Diff) override
         {
             if (waitTime > p_Diff)
             {
@@ -145,7 +145,7 @@ public:
 
             for (Player* player : playerList)
             {
-                if (player->GetQuestStatus(QUEST_THE_HOME_OF_THE_FROSTWOLFES) != QUEST_STATE_NONE)
+                if (player->GetQuestStatus(QUEST_THE_HOME_OF_THE_FROSTWOLFES) != QUEST_STATUS_NONE)
                     continue;
 
                 if (const Quest* quest = sObjectMgr->GetQuestTemplate(QUEST_THE_HOME_OF_THE_FROSTWOLFES))
@@ -161,7 +161,7 @@ class npc_durotan_frostridge_begin : public CreatureScript
 public:
     npc_durotan_frostridge_begin() : CreatureScript("npc_durotan_frostridge_begin") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_OF_WOLFES_AND_WARRIORS)
         {
@@ -195,13 +195,13 @@ public:
             player->GetSceneMgr().PlaySceneByPackageId(SCENE_PORTAL_OPENING);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_frostridge_claiming_spellscript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_frostridge_claiming_spellscript();
     }
@@ -258,7 +258,7 @@ public:
 
     };
 
-    GameObjectAI* GetAI(GameObject* p_Go) const
+    GameObjectAI* GetAI(GameObject* p_Go) const override
     {
         return new go_frostridge_master_surveyorAI(p_Go);
     }
@@ -270,7 +270,7 @@ class npc_groog : public CreatureScript
     public:
         npc_groog() : CreatureScript("npc_groog") { }
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_groogAI(creature);
         }
@@ -281,12 +281,12 @@ class npc_groog : public CreatureScript
 
             EventMap m_Events;
 
-            void Reset()
+            void Reset() override
             {
                 me->setFaction(14);
             }
 
-            void EnterCombat(Unit* /*p_Victim*/)
+            void EnterCombat(Unit* /*p_Victim*/) override
             {
                 m_Events.Reset();
 
@@ -294,7 +294,7 @@ class npc_groog : public CreatureScript
                 m_Events.ScheduleEvent(EventRampage, 7000);
             }
 
-            void UpdateAI(uint32 const p_Diff)
+            void UpdateAI(uint32 const p_Diff) override
             {
                 m_Events.Update(p_Diff);
 

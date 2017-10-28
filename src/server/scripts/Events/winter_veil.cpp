@@ -43,7 +43,7 @@ class npc_racer_slam_bunny : public CreatureScript
         {
             npc_racer_slam_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset()
+            void Reset() override
             {
                 me->SetVisible(false);
             }
@@ -103,7 +103,7 @@ class npc_racer_slam_bunny : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_racer_slam_bunnyAI(creature);
         }
@@ -145,7 +145,7 @@ public:
 
         ObjectGuid winterVeilTreeGuid;
 
-        void Reset()
+        void Reset() override
         {
             winterVeilTreeGuid = ObjectGuid::Empty;
 
@@ -197,7 +197,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -247,7 +247,7 @@ public:
 
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_abominable_grinchAI(creature);
     }
@@ -267,7 +267,7 @@ public:
             SPELL_SNOW_CRASH = 101907
         };
 
-        void Reset()
+        void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
             DoCastAOE(SPELL_SNOW_CRASH);
@@ -275,7 +275,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_winter_veil_strange_snowmanAI(creature);
     }
@@ -364,7 +364,7 @@ class npc_throw_bomb_bunny : public CreatureScript
         {
             npc_throw_bomb_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset()
+            void Reset() override
             {
                 me->SetDisplayId(DISPLAYID_INVISIBLE);
                 me->SetReactState(REACT_PASSIVE);
@@ -373,12 +373,12 @@ class npc_throw_bomb_bunny : public CreatureScript
                 StartRespawnTimer = false;
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 const action) override
             {
                 StartRespawnTimer = true;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const diff) override
             {
                 if (StartRespawnTimer)
                 {
@@ -402,7 +402,7 @@ class npc_throw_bomb_bunny : public CreatureScript
             bool StartRespawnTimer;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const override
         {
             return new npc_throw_bomb_bunnyAI(creature);
         }
@@ -419,7 +419,7 @@ class npc_sergent_vanderlip : public CreatureScript
     public:
         npc_sergent_vanderlip() : CreatureScript("npc_sergent_vanderlip") {}
 
-        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt)
+        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt) override
         {
             if (quest->GetQuestId() == QUEST_BOMBARDEZ_LES_ENCORE)
             {

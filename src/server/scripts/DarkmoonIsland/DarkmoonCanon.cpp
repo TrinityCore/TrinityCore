@@ -78,7 +78,7 @@ class npc_darkmoon_canon_target : public CreatureScript
     public:
         npc_darkmoon_canon_target() : CreatureScript("npc_darkmoon_canon_target") { }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* pCreature) const override
         {
             return new npc_darkmoon_canon_targetAI(pCreature);
         }
@@ -88,11 +88,11 @@ class npc_darkmoon_canon_target : public CreatureScript
             npc_darkmoon_canon_targetAI(Creature* pCreature) : ScriptedAI(pCreature)
             {}
 
-            void Reset()
+            void Reset() override
             {
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 std::list<Player*> playerList;
                 me->GetPlayerListInGrid(playerList, 30.0f);

@@ -359,7 +359,7 @@ public:
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_quest_fear_no_evil_SpellScript();
     }
@@ -407,7 +407,7 @@ public:
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_quest_extincteur_SpellScript();
     }

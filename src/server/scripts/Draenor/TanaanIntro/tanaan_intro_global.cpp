@@ -154,7 +154,7 @@ public:
 
     };
 
-    GameObjectAI* GetAI(GameObject* p_Go) const
+    GameObjectAI* GetAI(GameObject* p_Go) const override
     {
         return new go_platform_tanaanAI(p_Go);
     }

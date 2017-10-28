@@ -455,7 +455,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
                 caster->CastSpell(caster, _triggeredSpellId, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_pilgrims_bounty_buff_food_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
@@ -474,7 +474,7 @@ class achievement_food_fight : public AchievementCriteriaScript
 public:
     achievement_food_fight() : AchievementCriteriaScript("achievement_food_fight") { }
 
-    bool OnCheck(Player* /*source*/, Unit* target)
+    bool OnCheck(Player* /*source*/, Unit* target) override
     {
         if (!target)
             return false;
