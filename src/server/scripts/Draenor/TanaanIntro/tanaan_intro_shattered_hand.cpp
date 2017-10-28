@@ -316,7 +316,7 @@ public:
             m_Events.Reset();
         }
 
-        void EnterCombat(Unit* p_Target) override
+        void EnterCombat(Unit* /*p_Target*/) override
         {
             m_Events.ScheduleEvent(eDatas::EventChomp, 3000);
             m_Events.ScheduleEvent(eDatas::EventImpactSplit, 10000);

@@ -48,7 +48,7 @@ class npc_racer_slam_bunny : public CreatureScript
                 me->SetVisible(false);
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* summoner) override
             {
                 if (!summoner->GetCharmer() || !summoner->GetCharmer()->ToPlayer())
                     return;
@@ -373,7 +373,7 @@ class npc_throw_bomb_bunny : public CreatureScript
                 StartRespawnTimer = false;
             }
 
-            void DoAction(int32 const action) override
+            void DoAction(int32 const /*action*/) override
             {
                 StartRespawnTimer = true;
             }
@@ -419,7 +419,7 @@ class npc_sergent_vanderlip : public CreatureScript
     public:
         npc_sergent_vanderlip() : CreatureScript("npc_sergent_vanderlip") {}
 
-        bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt) override
+        bool OnQuestReward(Player* player, Creature* /*creature*/, Quest const* quest, uint32 /*opt*/) override
         {
             if (quest->GetQuestId() == QUEST_BOMBARDEZ_LES_ENCORE)
             {

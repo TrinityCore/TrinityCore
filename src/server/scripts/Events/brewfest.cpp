@@ -826,7 +826,7 @@ class spell_hol_belier_base : public SpellScriptLoader
                             aura->SetStackAmount(currentFatigueMod);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_hol_belier_base_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }

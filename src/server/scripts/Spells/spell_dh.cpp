@@ -156,7 +156,7 @@ public:
     {
         PrepareSpellScript(spell_dh_nether_bond_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DH_NETHER_BOND_DAMAGE) ||
                 !sSpellMgr->GetSpellInfo(SPELL_DH_NETHER_BOND_PERIODIC))
@@ -434,7 +434,7 @@ public:
     {
         PrepareSpellScript(spell_dh_spirit_bomb_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DH_SPIRIT_BOMB_DAMAGE) ||
                 !sSpellMgr->GetSpellInfo(SPELL_DH_SPIRIT_BOMB_HEAL))
@@ -740,7 +740,7 @@ public:
     {
         PrepareAuraScript(spell_dh_razor_spikes_AuraScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DH_RAZOR_SPIKES_SLOW))
                 return false;
@@ -798,7 +798,7 @@ public:
             return false;
         }
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DH_SOUL_CLEAVE_DAMAGE))
                 return false;
@@ -985,7 +985,7 @@ public:
     {
         PrepareSpellScript(spell_dh_fiery_brand_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DH_FIERY_BRAND_DOT))
                 return false;
@@ -1132,7 +1132,7 @@ public:
     {
         PrepareAuraScript(spell_dh_last_resort_AuraScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_DH_LAST_RESORT_DEBUFF))
                 return false;
