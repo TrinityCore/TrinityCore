@@ -2231,7 +2231,7 @@ public:
             p_Amount = -1;
         }
 
-        void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& p_DmgInfo, uint32& p_AbsorbAmount)
+        void Absorb(AuraEffect* /*p_AuraEffect*/, DamageInfo& /*p_DmgInfo*/, uint32& p_AbsorbAmount)
         {
             p_AbsorbAmount = 0; //This is set at 0 because we don't want to absorb
             GetCaster()->GetAura(SPELL_DK_BONE_SHIELD)->ModStackAmount(-1);
@@ -2297,7 +2297,7 @@ public:
             amount = -1;
         }
 
-        void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
             Unit* caster = GetCaster();
@@ -2348,7 +2348,7 @@ public:
     {
         PrepareAuraScript(spell_dk_frozen_pulse_AuraScript);
 
-        bool HandleProc(ProcEventInfo& procInfo)
+        bool HandleProc(ProcEventInfo& /*procInfo*/)
         {
             Unit* caster = GetCaster();
             

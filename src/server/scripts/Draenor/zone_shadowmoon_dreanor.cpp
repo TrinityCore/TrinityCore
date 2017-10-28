@@ -407,16 +407,16 @@ public:
 
         void OnRemove() override
         {
-            if (Unit* l_Caster = at->GetCaster())
+            /*if (Unit* l_Caster = at->GetCaster())
             {
                 std::list<Player*> l_PlayerList;
                 l_Caster->GetPlayerListInGrid(l_PlayerList, 70.0f);
 
                 for (Player* l_Player : l_PlayerList)
                 {
-                    //l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, bottom);
+                    l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, bottom);
                 }
-            }
+            }*/
         }
     };
 

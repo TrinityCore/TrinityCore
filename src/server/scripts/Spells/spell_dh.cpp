@@ -332,7 +332,7 @@ public:
                 app->ClientUpdate();
         }
 
-        void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+        void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
         {
             Unit* caster = GetCaster();
             if (!caster)
