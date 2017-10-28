@@ -539,7 +539,6 @@ GameObject* WodGarrison::Plot::CreateGameObject(Map* map, GarrisonFactionIndex f
         return nullptr;
     }
 
-    Position const& pos = PacketInfo.PlotPos;
     GameObject* building = new GameObject();
     if (!building->Create(entry, map, 0, PacketInfo.PlotPos.Pos, QuaternionData(), 255, GO_STATE_READY))
     {
