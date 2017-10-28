@@ -36,18 +36,18 @@ enum VanCleefData
 
 enum Speech
 {
-    SAY_AGGRO = 0,		// None may challenge the Brotherhood!
-    SAY_ONE = 1,		// Lapdogs, all of you!
-    SAY_SUMMON = 2,		// calls more of his allies out of the shadows.
-    SAY_TWO = 3,		// Fools! Our cause is righteous!
-    SAY_KILL = 4,		// And stay down!
-    SAY_THREE = 5		// The Brotherhood shall prevail!
+    SAY_AGGRO  = 0,    // None may challenge the Brotherhood!
+    SAY_ONE    = 1,    // Lapdogs, all of you!
+    SAY_SUMMON = 2,    // calls more of his allies out of the shadows.
+    SAY_TWO    = 3,    // Fools! Our cause is righteous!
+    SAY_KILL   = 4,    // And stay down!
+    SAY_THREE  = 5     // The Brotherhood shall prevail!
 };
 
 // From TDB 335.63
 Position const BlackguardPositions[] =
 {
-        { -78.2791f, -824.784f, 40.0007f,2.93215f },
+        { -78.2791f, -824.784f, 40.0007f, 2.93215f },
         { -77.8071f, -815.097f, 40.0188f, 3.26377f }
 };
 
@@ -106,8 +106,7 @@ public:
         void _SummonBlackguards()
         {
             for (auto BlackguardPosition : BlackguardPositions)
-                DoSummon(NPC_BLACKGUARD, BlackguardPosition, 60000,
-                        TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                DoSummon(NPC_BLACKGUARD, BlackguardPosition, 60000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         }
 
         void _SwitchPhase(uint8 Phase)
@@ -120,21 +119,21 @@ public:
 
             switch (_phase)
             {
-            case PHASE_66_PCT:
-                Talk(SAY_ONE);
-                break;
-            case PHASE_50_PCT:
-                Talk(SAY_SUMMON);
-                DoCastSelf(SPELL_VANCLEEFS_ALLIES);
-                break;
-            case PHASE_33_PCT:
-                Talk(SAY_TWO);
-                break;
-            case PHASE_25_PCT:
-                Talk(SAY_THREE);
-                break;
-            default:
-                break;
+                case PHASE_66_PCT:
+                    Talk(SAY_ONE);
+                    break;
+                case PHASE_50_PCT:
+                    Talk(SAY_SUMMON);
+                    DoCastSelf(SPELL_VANCLEEFS_ALLIES);
+                    break;
+                case PHASE_33_PCT:
+                    Talk(SAY_TWO);
+                    break;
+                case PHASE_25_PCT:
+                    Talk(SAY_THREE);
+                    break;
+                default:
+                    break;
             }
         }
 
