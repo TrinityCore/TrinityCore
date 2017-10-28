@@ -2387,6 +2387,8 @@ public:
 enum BloodsporeRuination
 {
     NPC_BLOODMAGE_LAURITH = 25381,
+    
+    TALK_0 = 0,
 
     EVENT_TALK = 1,
     EVENT_RESET_ORIENTATION
@@ -2464,7 +2466,7 @@ public:
                 {
                     case EVENT_TALK:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                            Talk(0, player);
+                            Talk(TALK_0, player);
                         _playerGUID.Clear();
                         _events.ScheduleEvent(EVENT_RESET_ORIENTATION, Seconds(5));
                         break;
