@@ -197,7 +197,7 @@ public:
 
         Unit* m_BondUnit;
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -258,7 +258,7 @@ public:
             return nullptr;
         }
 
-        void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -290,7 +290,7 @@ public:
     {
         PrepareAuraScript(spell_dh_soul_barrier_AuraScript);
 
-        void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -315,15 +315,15 @@ public:
 
                 switch (at->GetEntry())
                 {
-                case 8867:
-                    caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_25_VENG, true);
-                    break;
-                case 6710:
-                    caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_DEMON_VENG, true);
-                    break;
-                case 6007:
-                    caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_10_VENG, true);
-                    break;
+                    case 8867:
+                        caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_25_VENG, true);
+                        break;
+                    case 6710:
+                        caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_DEMON_VENG, true);
+                        break;
+                    case 6007:
+                        caster->CastSpell(caster, SPELL_DH_CONSUME_SOUL_10_VENG, true);
+                        break;
                 }
                 at->SetDuration(0);
             }
@@ -332,7 +332,7 @@ public:
                 app->ClientUpdate();
         }
 
-        void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+        void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -538,7 +538,7 @@ public:
             return true;
         }
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -548,7 +548,7 @@ public:
             caster->CastSpell(caster, SPELL_DH_FEL_DEVASTATION_HEAL, true);
         }
 
-        void Demorph(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void Demorph(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -712,7 +712,7 @@ public:
     {
         PrepareAuraScript(spell_dh_feast_of_souls_AuraScript);
 
-        void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             if (Unit* caster = GetCaster())
                 amount = caster->GetUInt32Value(UNIT_FIELD_ATTACK_POWER) * (caster->GetHealthPct() / 100.0f) * 1.3f;
@@ -947,7 +947,7 @@ public:
             return false;
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
         {
             PreventDefaultAction();
 
@@ -1092,7 +1092,7 @@ public:
     {
         PrepareAuraScript(spell_dh_fiery_brand_absorb_AuraScript);
 
-        void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             amount = -1;
         }
@@ -1139,12 +1139,12 @@ public:
             return true;
         }
 
-        void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             amount = -1;
         }
 
-        void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+        void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
         {
             Unit* target = GetTarget();
 
@@ -1182,7 +1182,7 @@ public:
     {
         PrepareAuraScript(spell_dh_shattered_souls_AuraScript);
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
             Unit* caster = GetCaster();
             Unit* target = eventInfo.GetActionTarget();
@@ -1267,7 +1267,7 @@ public:
     {
         PrepareAuraScript(spell_dh_nemesis_AuraScript);
 
-        void HandleAfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
                 return;
@@ -1279,58 +1279,58 @@ public:
 
             switch (type)
             {
-            case CREATURE_TYPE_ABERRATION:
-                caster->CastCustomSpell(caster, NEMESIS_ABERRATION, NULL, NULL, NULL, true);
-                if (Aura* nemesis = caster->GetAura(NEMESIS_ABERRATION))
-                    nemesis->SetDuration(dur);
-                break;
-            case CREATURE_TYPE_BEAST:
-                caster->CastCustomSpell(caster, NEMESIS_BEASTS, NULL, NULL, NULL, true);
-                if (Aura* nemesis = caster->GetAura(NEMESIS_BEASTS))
-                    nemesis->SetDuration(dur);
-                break;
-            case CREATURE_TYPE_CRITTER:
-                caster->CastCustomSpell(caster, NEMESIS_CRITTERS, NULL, NULL, NULL, true);
-                if (Aura* nemesis = caster->GetAura(NEMESIS_CRITTERS))
-                    nemesis->SetDuration(dur);
-                break;
-            case CREATURE_TYPE_DEMON:
-                caster->CastCustomSpell(caster, NEMESIS_DEMONS, NULL, NULL, NULL, true);
-                if (Aura* nemesis = caster->GetAura(NEMESIS_DEMONS))
-                    nemesis->SetDuration(dur);
-                break;
-            case CREATURE_TYPE_DRAGONKIN:
-                caster->CastCustomSpell(caster, NEMESIS_DRAGONKIN, NULL, NULL, NULL, true);
-                if (Aura* nemesis = caster->GetAura(NEMESIS_DRAGONKIN))
-                    nemesis->SetDuration(dur);
-                break;
-            case CREATURE_TYPE_ELEMENTAL:
-                caster->CastCustomSpell(caster, NEMESIS_ELEMENTAL, NULL, NULL, NULL, true);
-                if (Aura* nemesis = caster->GetAura(NEMESIS_ELEMENTAL))
-                    nemesis->SetDuration(dur);
-                break;
-            case CREATURE_TYPE_GIANT:
-                caster->CastCustomSpell(caster, NEMESIS_GIANTS, NULL, NULL, NULL, true);
-                if (Aura* nemesis = caster->GetAura(NEMESIS_GIANTS))
-                    nemesis->SetDuration(dur);
-                break;
-            case CREATURE_TYPE_HUMANOID:
-                caster->CastCustomSpell(caster, NEMESIS_HUMANOID, NULL, NULL, NULL, true);
-                if (Aura* nemesis = caster->GetAura(NEMESIS_HUMANOID))
-                    nemesis->SetDuration(dur);
-                break;
-            case CREATURE_TYPE_MECHANICAL:
-                caster->CastCustomSpell(caster, NEMESIS_MECHANICAL, NULL, NULL, NULL, true);
-                if (Aura* nemesis = caster->GetAura(NEMESIS_MECHANICAL))
-                    nemesis->SetDuration(dur);
-                break;
-            case CREATURE_TYPE_UNDEAD:
-                caster->CastCustomSpell(caster, NEMESIS_UNDEAD, NULL, NULL, NULL, true);
-                if (Aura* nemesis = caster->GetAura(NEMESIS_UNDEAD))
-                    nemesis->SetDuration(dur);
-                break;
-            default:
-                break;
+                case CREATURE_TYPE_ABERRATION:
+                    caster->CastCustomSpell(caster, NEMESIS_ABERRATION, NULL, NULL, NULL, true);
+                    if (Aura* nemesis = caster->GetAura(NEMESIS_ABERRATION))
+                        nemesis->SetDuration(dur);
+                    break;
+                case CREATURE_TYPE_BEAST:
+                    caster->CastCustomSpell(caster, NEMESIS_BEASTS, NULL, NULL, NULL, true);
+                    if (Aura* nemesis = caster->GetAura(NEMESIS_BEASTS))
+                        nemesis->SetDuration(dur);
+                    break;
+                case CREATURE_TYPE_CRITTER:
+                    caster->CastCustomSpell(caster, NEMESIS_CRITTERS, NULL, NULL, NULL, true);
+                    if (Aura* nemesis = caster->GetAura(NEMESIS_CRITTERS))
+                        nemesis->SetDuration(dur);
+                    break;
+                case CREATURE_TYPE_DEMON:
+                    caster->CastCustomSpell(caster, NEMESIS_DEMONS, NULL, NULL, NULL, true);
+                    if (Aura* nemesis = caster->GetAura(NEMESIS_DEMONS))
+                        nemesis->SetDuration(dur);
+                    break;
+                case CREATURE_TYPE_DRAGONKIN:
+                    caster->CastCustomSpell(caster, NEMESIS_DRAGONKIN, NULL, NULL, NULL, true);
+                    if (Aura* nemesis = caster->GetAura(NEMESIS_DRAGONKIN))
+                        nemesis->SetDuration(dur);
+                    break;
+                case CREATURE_TYPE_ELEMENTAL:
+                    caster->CastCustomSpell(caster, NEMESIS_ELEMENTAL, NULL, NULL, NULL, true);
+                    if (Aura* nemesis = caster->GetAura(NEMESIS_ELEMENTAL))
+                        nemesis->SetDuration(dur);
+                    break;
+                case CREATURE_TYPE_GIANT:
+                    caster->CastCustomSpell(caster, NEMESIS_GIANTS, NULL, NULL, NULL, true);
+                    if (Aura* nemesis = caster->GetAura(NEMESIS_GIANTS))
+                        nemesis->SetDuration(dur);
+                    break;
+                case CREATURE_TYPE_HUMANOID:
+                    caster->CastCustomSpell(caster, NEMESIS_HUMANOID, NULL, NULL, NULL, true);
+                    if (Aura* nemesis = caster->GetAura(NEMESIS_HUMANOID))
+                        nemesis->SetDuration(dur);
+                    break;
+                case CREATURE_TYPE_MECHANICAL:
+                    caster->CastCustomSpell(caster, NEMESIS_MECHANICAL, NULL, NULL, NULL, true);
+                    if (Aura* nemesis = caster->GetAura(NEMESIS_MECHANICAL))
+                        nemesis->SetDuration(dur);
+                    break;
+                case CREATURE_TYPE_UNDEAD:
+                    caster->CastCustomSpell(caster, NEMESIS_UNDEAD, NULL, NULL, NULL, true);
+                    if (Aura* nemesis = caster->GetAura(NEMESIS_UNDEAD))
+                        nemesis->SetDuration(dur);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -1363,7 +1363,7 @@ public:
             return false;
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
             Unit* caster = GetCaster();
             Unit* target = eventInfo.GetActionTarget();
@@ -1399,7 +1399,7 @@ public:
     {
         PrepareAuraScript(spell_dh_demon_blades_AuraScript);
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
         {
             Unit* caster = GetCaster();
             Unit* target = eventInfo.GetActionTarget();
@@ -1439,7 +1439,7 @@ public:
             return false;
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
         {
             Unit* caster = GetCaster();
             caster->GetSpellHistory()->ResetCooldown(SPELL_DH_FELBLADE, true);
@@ -1499,7 +1499,7 @@ public:
             return true;
         }
 
-        void HandleTrigger(AuraEffect const* aurEff)
+        void HandleTrigger(AuraEffect const* /*aurEff*/)
         {
             Unit* caster = GetCaster();
             Unit* target = GetTarget();
@@ -1567,7 +1567,7 @@ public:
             return std::find(removeSpellIds.begin(), removeSpellIds.end(), eventInfo.GetSpellInfo()->Id) == removeSpellIds.end();
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
         {
             PreventDefaultAction();
 
@@ -1817,7 +1817,7 @@ public:
             return true;
         }
 
-        void Energize(AuraEffect const* aurEff)
+        void Energize(AuraEffect const* /*aurEff*/)
         {
             PreventDefaultAction();
 
@@ -1970,7 +1970,7 @@ public:
             return (eventInfo.GetSpellInfo()->Id == SPELL_DH_FEL_RUSH_DAMAGE);
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -2023,7 +2023,7 @@ public:
             }
         }
 
-        void CalcSpeed(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalcSpeed(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             amount = 1400;
         }
@@ -2137,7 +2137,7 @@ public:
             return true;
         }
 
-        void CalcLeech(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalcLeech(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -2176,7 +2176,7 @@ public:
             return true;
         }
 
-        void CalcLeech(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalcLeech(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -2268,7 +2268,7 @@ public:
             return true;
         }
 
-        void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -2284,7 +2284,7 @@ public:
             }
         }
 
-        void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -2351,13 +2351,13 @@ public:
             return true;
         }
 
-        void HandlePeriodic(AuraEffect const* aurEff)
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
         {
             Unit* caster = GetCaster();
             caster->CastSpell(caster, SPELL_DH_EYE_BEAM_DAMAGE, true);
         }
 
-        void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
 
@@ -2371,7 +2371,7 @@ public:
             }
         }
 
-        void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+        void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* caster = GetCaster();
             caster->CastSpell(caster, SPELL_DH_EYE_BEAM_VISUAL, true);
@@ -2592,7 +2592,7 @@ public:
             return false;
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
         {
             PreventDefaultAction();
 
@@ -2671,12 +2671,12 @@ public:
     {
         PrepareAuraScript(spell_dh_darkness_absorb_AuraScript);
 
-        void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
         {
             amount = 1000000000;
         }
 
-        void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+        void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
         {
             if (roll_chance_i(15))
                 absorbAmount = dmgInfo.GetDamage();

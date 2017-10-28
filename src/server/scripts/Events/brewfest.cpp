@@ -965,7 +965,7 @@ class spell_hol_belier_all_speeds : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hol_belier_all_speeds_AuraScript);
 
-            bool Load()
+            bool Load() override
             {
                 return true;
             }

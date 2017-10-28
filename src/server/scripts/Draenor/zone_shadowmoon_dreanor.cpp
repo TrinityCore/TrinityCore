@@ -385,14 +385,14 @@ public:
 
         void OnUpdate(uint32 /*diff*/) override
         {
-            if (Unit* l_Caster = at->GetCaster())
+            /*if (Unit* l_Caster = at->GetCaster())
             {
                 std::list<Player*> l_PlayerList;
                 l_Caster->GetPlayerListInGrid(l_PlayerList, 50.0f);
 
                 for (Player* l_Player : l_PlayerList)
                 {
-                    /*if (l_Player->IsWithinDist(p_AreaTrigger, 20.0f, true))
+                    if (l_Player->IsWithinDist(p_AreaTrigger, 20.0f, true))
                     {
                         if (l_Player->IsAlive() && !l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
                             l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), true, bottom, 7.0f, 1);
@@ -400,9 +400,9 @@ public:
                             l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, bottom);
                     }
                     else if (l_Player->HasMovementForce(p_AreaTrigger->GetGUID()))
-                        l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, bottom);*/
+                        l_Player->SendApplyMovementForce(p_AreaTrigger->GetGUID(), false, bottom);
                 }
-            }
+            }*/
         }
 
         void OnRemove() override

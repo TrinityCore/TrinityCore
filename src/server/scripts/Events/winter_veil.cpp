@@ -183,7 +183,7 @@ public:
             summons.Despawn(summon);
         }
 
-        void MovementInform(uint32 p_Type, uint32 p_ID) override
+        void MovementInform(uint32 /*p_Type*/, uint32 p_ID) override
         {
             if (p_ID == EVENT_ABOMINABLE_CRUSH)
             {
