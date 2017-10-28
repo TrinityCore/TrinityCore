@@ -493,3 +493,4 @@ template FMT_API int internal::CharTraits<wchar_t>::format_float(
 #ifdef _MSC_VER
 # pragma warning(pop)
 #endif
+

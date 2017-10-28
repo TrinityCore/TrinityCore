@@ -242,5 +242,6 @@ template bool ahbot_commandscript::HandleAHBotItemsRatioHouseCommand<AUCTION_HOU
 
 void AddSC_ahbot_commandscript()
 {
-    new ahbot_commandscript();
+    // playerbot mod
+    // new ahbot_commandscript();
 }
