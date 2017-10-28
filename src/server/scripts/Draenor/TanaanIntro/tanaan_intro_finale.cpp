@@ -110,7 +110,7 @@ public:
 
     void OnQuestAbandon(Player* p_Player, const Quest* p_Quest) override
     {
-        if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde)
+        if (p_Player && p_Quest && (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
             p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
     }
  

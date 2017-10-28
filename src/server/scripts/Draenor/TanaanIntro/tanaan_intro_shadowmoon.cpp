@@ -103,7 +103,7 @@ public:
         {
             if (m_SceneTimer)
             {
-                if (m_SceneTimer <= m_SceneTimer)
+                if (m_SceneTimer <= p_Diff)
                 {
                     if (!p_PlayerGuid.IsEmpty())
                     {

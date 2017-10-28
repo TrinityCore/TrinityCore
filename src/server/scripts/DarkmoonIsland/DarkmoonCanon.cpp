@@ -41,7 +41,7 @@ class npc_canon_maxima : public CreatureScript
     public:
         npc_canon_maxima() : CreatureScript("npc_canon_maxima") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
@@ -53,7 +53,7 @@ class npc_canon_maxima : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
         {
             if (!player->HasItemCount(ITEM_DARKMOON_TOKEN))
             {
@@ -92,7 +92,7 @@ class npc_darkmoon_canon_target : public CreatureScript
             {
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 const /*diff*/) override
             {
                 std::list<Player*> playerList;
                 me->GetPlayerListInGrid(playerList, 30.0f);
@@ -140,7 +140,7 @@ class npc_canon_fozlebub : public CreatureScript
     public:
         npc_canon_fozlebub() : CreatureScript("npc_canon_fozlebub") { }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* player, Creature* creature) override
         {
             if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());
@@ -152,7 +152,7 @@ class npc_canon_fozlebub : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
         {
             player->ModifyMoney(-3000);
             player->TeleportTo(974, -4019.00f, 6286.58f, 12.49f, 1.39f);
@@ -182,7 +182,7 @@ class spell_darkmoon_canon_preparation : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
 				OnEffectPeriodic += AuraEffectPeriodicFn(spell_darkmoon_canon_preparation_AuraScript::HandleTriggerSpell, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
