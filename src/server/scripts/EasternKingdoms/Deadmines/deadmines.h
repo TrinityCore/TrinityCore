@@ -70,4 +70,6 @@ inline AI* GetDeadminesAI(T* obj)
     return GetInstanceAI<AI>(obj, DMScriptName);
 }
 
+#define RegisterDeadminesCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetDeadminesAI)
+
 #endif

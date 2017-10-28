@@ -51,14 +51,10 @@ Position const BlackguardPositions[] =
         { -77.8071f, -815.097f, 40.0188f, 3.26377f }
 };
 
-class boss_vancleef : public CreatureScript
+struct boss_vancleef : public BossAI
 {
-public:
-    boss_vancleef() : CreatureScript("boss_vancleef") { }
-
-    struct boss_vancleefAI: public BossAI
-    {
-        boss_vancleefAI(Creature* creature) : BossAI(creature, 0) { }
+    public:
+        boss_vancleef(Creature* creature) : BossAI(creature, 0) { }
 
         void Reset() override
         {
@@ -145,15 +141,9 @@ public:
 
     private:
         uint8 _phase;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetDeadminesAI<boss_vancleefAI>(creature);
-    }
 };
 
 void AddSC_boss_vancleef()
 {
-    new boss_vancleef();
+    RegisterDeadminesCreatureAI(boss_vancleef);
 }
