@@ -90,11 +90,10 @@ void AddSC_boss_shade_of_xavius();
 //void AddSC_boss_odyn();
 
 // Maw of Souls
-//void AddSC_instance_maw_of_souls();
-//void AddSC_maw_of_souls();
-//void AddSC_boss_ymiron_the_fallen_king();
-//void AddSC_boss_harbaron();
-//void AddSC_boss_helya();
+void AddSC_instance_maw_of_souls();
+void AddSC_boss_ymiron_maw();
+void AddSC_boss_harbaron_maw();
+void AddSC_boss_helya_maw();
 
 // Neltharion's Lair
 //void AddSC_instance_neltharions_lair();
@@ -201,11 +200,10 @@ void AddBrokenIslesScripts()
     //AddSC_boss_odyn();
 
     // Maw of Souls
-    //AddSC_instance_maw_of_souls();
-    //AddSC_maw_of_souls();
-    //AddSC_boss_ymiron_the_fallen_king();
-    //AddSC_boss_harbaron();
-    //AddSC_boss_helya();
+    AddSC_instance_maw_of_souls();
+    AddSC_boss_ymiron_maw();
+    AddSC_boss_harbaron_maw();
+    AddSC_boss_helya_maw();
 
     // Neltharion's Lair
     //AddSC_instance_neltharions_lair();
