@@ -65,7 +65,7 @@ struct boss_vancleef : public BossAI
             DoCastSelf(SPELL_DUAL_WIELD, true);
             DoCastSelf(SPELL_THRASH, true);
 
-            _SummonBlackguards();
+            SummonBlackguards();
         }
 
         void EnterCombat(Unit* victim) override
@@ -88,13 +88,13 @@ struct boss_vancleef : public BossAI
             _DespawnAtEvade();
         }
 
-        void _SummonBlackguards()
+        void SummonBlackguards()
         {
             for (Position BlackguardPosition : BlackguardPositions)
                 DoSummon(NPC_BLACKGUARD, BlackguardPosition, 60000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
         }
 
-        void _SwitchPhase(uint8 Phase)
+        void SwitchPhase(uint8 Phase)
         {
             // don't repeat
             if (_phase == Phase)
@@ -122,18 +122,29 @@ struct boss_vancleef : public BossAI
             }
         }
 
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            scheduler.Update(diff, [this]
+            {
+                DoMeleeAttackIfReady();
+            });
+        }
+
         void ScheduleTasks() override
         {
             scheduler.Schedule(Seconds(1), [this](TaskContext task)
             {
                 if (_phase == PHASE_NORMAL && HealthBelowPct(66))
-                    _SwitchPhase(PHASE_66_PCT);
+                    SwitchPhase(PHASE_66_PCT);
                 else if (_phase == PHASE_66_PCT && HealthBelowPct(50))
-                    _SwitchPhase(PHASE_50_PCT);
+                    SwitchPhase(PHASE_50_PCT);
                 else if (_phase == PHASE_50_PCT && HealthBelowPct(33))
-                    _SwitchPhase(PHASE_33_PCT);
+                    SwitchPhase(PHASE_33_PCT);
                 else if (_phase == PHASE_33_PCT && HealthBelowPct(25))
-                    _SwitchPhase(PHASE_25_PCT);
+                    SwitchPhase(PHASE_25_PCT);
 
                 task.Repeat(Seconds(1));
             });
