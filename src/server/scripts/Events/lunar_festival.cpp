@@ -23,13 +23,13 @@ public:
                     player->TeleportTo(1, 7585.24f, -2214.63f, 472.17f, 5.54f);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_lunar_festival_invitation_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_lunar_festival_invitation_SpellScript();
     }

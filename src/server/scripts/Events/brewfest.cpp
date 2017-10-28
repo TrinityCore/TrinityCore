@@ -620,14 +620,14 @@ class spell_hol_launch_beer : public SpellScriptLoader
                 caster->ToPlayer()->KilledMonsterCredit(NPC_CERVOISE, cervoise->GetGUID());
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_hol_launch_beer_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
                 OnCheckCast += SpellCheckCastFn(spell_hol_launch_beer_SpellScript::CheckCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_hol_launch_beer_SpellScript();
         }
@@ -682,14 +682,14 @@ class spell_hol_wolpertinger_net : public SpellScriptLoader
                 caster->ToPlayer()->AddItem(ITEM_CAPTURED_WOLPERTINGER, 1);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_hol_wolpertinger_net_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
                 OnCheckCast += SpellCheckCastFn(spell_hol_wolpertinger_net_SpellScript::CheckCast);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_hol_wolpertinger_net_SpellScript();
         }
@@ -1028,7 +1028,7 @@ class spell_hol_belier_all_speeds : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hol_belier_apple_trap_SpellScript);
 
-            bool Validate(SpellEntry const* spell)
+            bool Validate(SpellEntry const* spell) override
             {
                 return true;
             }
@@ -1068,7 +1068,7 @@ class spell_hol_belier_all_speeds : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_hol_belier_apple_trap_SpellScript();
         }

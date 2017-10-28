@@ -344,14 +344,14 @@ class spell_whack_gnoll_whack : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
-            void Register()
+            void Register() override
             {
                 OnCheckCast += SpellCheckCastFn(spell_whack_gnoll_whack_SpellScript::CheckCast);
             }
 
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_whack_gnoll_whack_SpellScript();
         }

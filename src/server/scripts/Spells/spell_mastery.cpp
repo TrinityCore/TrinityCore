@@ -369,13 +369,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             AfterHit += SpellHitFn(spell_mastery_ignite_SpellScript::HandleAfterHit);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_mastery_ignite_SpellScript();
     }

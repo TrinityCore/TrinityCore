@@ -83,7 +83,7 @@ class spell_trick: public SpellScriptLoader
         class spell_trick_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_trick_SpellScript);
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE)
                     || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE)
@@ -130,7 +130,7 @@ class spell_trick: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_trick_SpellScript();
         }
@@ -156,7 +156,7 @@ class spell_trick_or_treat: public SpellScriptLoader
         {
             PrepareSpellScript(spell_trick_or_treat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRICK) || !sSpellMgr->GetSpellInfo(SPELL_TREAT) || !sSpellMgr->GetSpellInfo(SPELL_TRICKED_OR_TREATED))
                     return false;
@@ -179,7 +179,7 @@ class spell_trick_or_treat: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_trick_or_treat_SpellScript();
         }
@@ -194,7 +194,7 @@ class spell_tricky_treat: public SpellScriptLoader
         {
             PrepareSpellScript(spell_tricky_treat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_SPEED))
                     return false;
@@ -218,7 +218,7 @@ class spell_tricky_treat: public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_tricky_treat_SpellScript();
         }

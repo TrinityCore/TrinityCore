@@ -230,13 +230,13 @@ public:
             player->KilledMonsterCredit(NPC_FOR_THE_ALLIANCE_PORTAL_KILL_CREDIT);
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_claiming_spellscript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_shadowmoon_claiming_spellscript();
     }

@@ -292,13 +292,13 @@ class spell_gen_torch_launch : public SpellScriptLoader
                             pBrasero->AI()->SpellHit(caster, GetSpellInfo());
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_gen_torch_launch_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_gen_torch_launch_SpellScript();
         }
@@ -432,7 +432,7 @@ class spell_hol_torch_launch_achievement : public SpellScriptLoader
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_hol_torch_launch_achievement_SpellScript();
         }

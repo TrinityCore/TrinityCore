@@ -22,8 +22,9 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
-#include "World.h"
+#include "SpellMgr.h"
 #include "Vehicle.h"
+#include "World.h"
 
 // Achievement: The Turkinator
 enum WildTurkey
@@ -117,7 +118,7 @@ class spell_gen_turkey_tracker : public SpellScriptLoader
         {
             PrepareSpellScript(spell_gen_turkey_tracker_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL))
                     return false;
@@ -162,13 +163,13 @@ class spell_gen_turkey_tracker : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_gen_turkey_tracker_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_gen_turkey_tracker_SpellScript();
         }
@@ -193,13 +194,13 @@ class spell_gen_feast_on : public SpellScriptLoader
                         caster->CastSpell(player, bp0, true, NULL, NULL, player->ToPlayer()->GetGUID());
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_gen_feast_on_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_gen_feast_on_SpellScript();
         }
@@ -247,7 +248,7 @@ class spell_gen_well_fed_pilgrims_bounty : public SpellScriptLoader
             spell_gen_well_fed_pilgrims_bounty_SpellScript(uint32 triggeredSpellId1, uint32 triggeredSpellId2) : SpellScript(),
                 _triggeredSpellId1(triggeredSpellId1), _triggeredSpellId2(triggeredSpellId2) { }
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(_triggeredSpellId2))
                     return false;
@@ -282,13 +283,13 @@ class spell_gen_well_fed_pilgrims_bounty : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_gen_well_fed_pilgrims_bounty_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_gen_well_fed_pilgrims_bounty_SpellScript(_triggeredSpellId1, _triggeredSpellId2);
         }
@@ -333,7 +334,7 @@ class spell_gen_on_plate_pilgrims_bounty : public SpellScriptLoader
             spell_gen_on_plate_pilgrims_bounty_SpellScript(uint32 triggeredSpellId1, uint32 triggeredSpellId2) : SpellScript(),
                 _triggeredSpellId1(triggeredSpellId1), _triggeredSpellId2(triggeredSpellId2) { }
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(_triggeredSpellId1))
                     return false;
@@ -356,13 +357,13 @@ class spell_gen_on_plate_pilgrims_bounty : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_gen_on_plate_pilgrims_bounty_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_gen_on_plate_pilgrims_bounty_SpellScript(_triggeredSpellId1, _triggeredSpellId2);
         }
@@ -396,13 +397,13 @@ class spell_gen_bountiful_feast : public SpellScriptLoader
                 caster->CastSpell(caster, SPELL_BOUNTIFUL_FEAST_REFRESHMENT, true);
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_gen_bountiful_feast_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_gen_bountiful_feast_SpellScript();
         }

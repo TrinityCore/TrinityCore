@@ -296,7 +296,7 @@ class spell_throw_bomb : public SpellScriptLoader
         {
             PrepareSpellScript(spell_throw_bomb_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/) override
             {
                 return true;
             }
@@ -337,14 +337,14 @@ class spell_throw_bomb : public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHit += SpellEffectFn(spell_throw_bomb_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnCheckCast += SpellCheckCastFn(spell_throw_bomb_SpellScript::CheckIfIsMounted);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_throw_bomb_SpellScript();
         }
@@ -452,7 +452,7 @@ class spell_winter_veil_mistletoe: public SpellScriptLoader
         {
             PrepareSpellScript(spell_winter_veil_mistletoe_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_MISTLETOE) ||
                     !sSpellMgr->GetSpellInfo(SPELL_CREATE_HOLLY) ||
@@ -487,13 +487,13 @@ class spell_winter_veil_mistletoe: public SpellScriptLoader
                 }
             }
 
-            void Register()
+            void Register() override
             {
                 OnEffectHitTarget += SpellEffectFn(spell_winter_veil_mistletoe_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript* GetSpellScript() const
+        SpellScript* GetSpellScript() const override
         {
             return new spell_winter_veil_mistletoe_SpellScript();
         }
@@ -532,13 +532,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_winter_veil_snowball_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_winter_veil_snowball_SpellScript();
     }
