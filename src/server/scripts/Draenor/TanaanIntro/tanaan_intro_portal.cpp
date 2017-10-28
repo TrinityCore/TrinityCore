@@ -88,7 +88,7 @@ class npc_generic_tanaan_guardian : public CreatureScript
 public:
     npc_generic_tanaan_guardian() : CreatureScript("npc_generic_tanaan_guardian") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_generic_tanaan_guardianAI(creature);
     }
@@ -116,7 +116,7 @@ public:
             SPELL_RITUALIST_SPAWN   = 158396
         };
 
-        void Reset()
+        void Reset() override
         {
             if (me->GetAreaId() != TanaanZones::AreaTheDarkPortal)
                 return;
@@ -172,18 +172,18 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summon)
+        void JustSummoned(Creature* summon) override
         {
             summons.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature* summon)
+        void SummonedCreatureDespawn(Creature* summon) override
         {
             summons.Despawn(summon);
             events.ScheduleEvent(EVENT_CHECK_ENNEMY, urand(2000, 10000));
         }
 
-        void DamageTaken(Unit* p_DoneBy, uint32& p_Damage)
+        void DamageTaken(Unit* p_DoneBy, uint32& p_Damage) override
         {
             if (p_DoneBy->ToCreature())
             {
@@ -192,7 +192,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const p_Diff)
+        void UpdateAI(uint32 const p_Diff) override
         {
             events.Update(p_Diff);
 
@@ -251,7 +251,7 @@ class npc_iron_gronnling : public CreatureScript
 public:
     npc_iron_gronnling() : CreatureScript("npc_iron_gronnling") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_iron_gronnlingAI(creature);
     }
@@ -337,7 +337,7 @@ class npc_gul_dan_trigger : public CreatureScript
 public:
     npc_gul_dan_trigger() : CreatureScript("npc_gul_dan_trigger") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_gul_dan_triggerAI(creature);
     }

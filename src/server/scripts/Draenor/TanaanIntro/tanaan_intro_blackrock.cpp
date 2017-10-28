@@ -216,7 +216,7 @@ public:
         return false;
     }
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new npc_cordana_felsong_blackrockAI(p_Creature);
     }
@@ -333,7 +333,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new npc_ogron_warcrusherAI(p_Creature);
     }
@@ -396,7 +396,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* p_Creature) const
+    CreatureAI* GetAI(Creature* p_Creature) const override
     {
         return new npc_lady_liadrin_blackrockAI(p_Creature);
     }
@@ -444,7 +444,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tanaan_overseer_gotriggAI(creature);
     }
@@ -463,7 +463,7 @@ public:
             SpellBurningRadiance = 166403
         };
 
-        void Reset()
+        void Reset() override
         {
             m_Events.Reset();
         }

@@ -306,7 +306,6 @@ class boss_ymiron_maw : public CreatureScript
                 InstanceScript* instance;
                 bool instantKarma;
                 bool isHeroicOrMythic = false;
-                uint32 killedWarriors = 0;
 
                 // Bane Spheres Variables
                 uint32 createdSpheres = 0;

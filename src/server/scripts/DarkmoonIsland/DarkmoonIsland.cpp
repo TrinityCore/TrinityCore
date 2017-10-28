@@ -47,7 +47,7 @@ public:
 
         uint32 update;
 
-        bool Validate(SpellInfo const* /*spell*/)
+        bool Validate(SpellInfo const* /*spell*/) override
         {
             update = 0;
             return true;

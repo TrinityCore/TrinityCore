@@ -37,7 +37,7 @@ public:
     {
         npc_brewfest_revelerAI(Creature* c) : ScriptedAI(c) {}
 
-        void ReceiveEmote(Player* player, uint32 emote)
+        void ReceiveEmote(Player* player, uint32 emote) override
         {
             if (!IsHolidayActive(HOLIDAY_BREWFEST))
                 return;
@@ -47,7 +47,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_brewfest_revelerAI(creature);
     }
@@ -121,7 +121,7 @@ class npc_brewfest_belier_quests_givers : public CreatureScript
 public:
     npc_brewfest_belier_quests_givers() : CreatureScript("npc_brewfest_belier_quests_givers") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest) override
     {
         if (isQuestInBelierQuest(quest->GetQuestId()))
             player->CastSpell(player, SPELL_TRIGGER_BELIER, false);
@@ -166,7 +166,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_brewfest_apple_bunnyAI(creature);
     }
@@ -206,7 +206,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_brewfest_barker_bunnyAI(creature);
     }
@@ -238,7 +238,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_brewfest_launch_barrelAI(creature);
     }
@@ -276,7 +276,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_brewfest_receive_barrelAI(creature);
     }
@@ -308,7 +308,7 @@ class npc_dark_iron_guzzler : public CreatureScript
 public:
     npc_dark_iron_guzzler() : CreatureScript("npc_dark_iron_guzzler") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI *GetAI(Creature* creature) const override
     {
         return new npc_dark_iron_guzzlerAI(creature);
     }
@@ -1083,7 +1083,7 @@ class spell_hol_beliers : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hol_beliers_AuraScript);
 
-            bool Load()
+            bool Load() override
             {
                 return true;
             }

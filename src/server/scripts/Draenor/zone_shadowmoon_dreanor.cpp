@@ -52,7 +52,7 @@ class npc_velen_shadowmoon_begin : public CreatureScript
 public:
     npc_velen_shadowmoon_begin() : CreatureScript("npc_velen_shadowmoon_begin") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_FINDING_A_FOOTHOLD)
         {
@@ -81,7 +81,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_velen_shadowmoon_beginAI(creature);
     }
@@ -103,7 +103,7 @@ public:
             Start(true, true, p_Guid);
         }
 
-        void WaypointReached(uint32 pointId)
+        void WaypointReached(uint32 pointId) override
         {
             switch (pointId)
             {
@@ -128,7 +128,7 @@ class npc_velen_shadowmoon_follower : public CreatureScript
 public:
     npc_velen_shadowmoon_follower() : CreatureScript("npc_velen_shadowmoon_follower") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_velen_shadowmoon_followerAI(creature);
     }
@@ -142,7 +142,7 @@ public:
             Start(true, true, guid);
         }
 
-        void WaypointReached(uint32 pointId)
+        void WaypointReached(uint32 pointId) override
         {
             switch (pointId)
             {
@@ -174,7 +174,7 @@ class npc_baros_pre_garrison : public CreatureScript
 public:
     npc_baros_pre_garrison() : CreatureScript("npc_baros_pre_garrison") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (creature->IsQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
@@ -186,7 +186,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 /*action*/) override
     {
         Garrison* garrison = player->GetGarrison(GARRISON_TYPE_GARRISON);
         if (!garrison)
@@ -248,7 +248,7 @@ class npc_aqualir : public CreatureScript
 public:
     npc_aqualir() : CreatureScript("npc_aqualir") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_aqualirAI(creature);
     }
@@ -512,7 +512,7 @@ class npc_gara : public CreatureScript
 public:
     npc_gara() : CreatureScript("npc_gara") { }
 
-    bool OnGossipHello(Player* player, Creature* p_Creature)
+    bool OnGossipHello(Player* player, Creature* p_Creature) override
     {
         if(player->GetQuestStatus(37423) != QUEST_STATUS_INCOMPLETE && player->GetQuestStatus(37423) != QUEST_STATUS_COMPLETE && player->GetQuestStatus(37423) != QUEST_STATUS_REWARDED)
             AddGossipItemFor(player, GOSSIP_ICON_CHAT, "(Beast Mastery) Lean down and scratch the wolf behind its ears.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -525,7 +525,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player * player, Creature * p_Creature, uint32 /*p_Sender*/, uint32 p_Action)
+    bool OnGossipSelect(Player * player, Creature * p_Creature, uint32 /*p_Sender*/, uint32 p_Action) override
     {
         if (player->getClass() != CLASS_HUNTER || player->GetSpecializationId() != TALENT_SPEC_HUNTER_BEASTMASTER)
             return false;
@@ -765,7 +765,7 @@ class go_shadowmoon_voidblade : public GameObjectScript
 public:
     go_shadowmoon_voidblade() : GameObjectScript("go_shadowmoon_voidblade") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/)
+    bool OnGossipHello(Player* player, GameObject* /*go*/) override
     {
         if ((player->HasAura(SPELL_VOID_LANTERN) && player->GetQuestStatus(37426) == QUEST_STATUS_REWARDED) || player->GetQuestStatus(37427) == QUEST_STATUS_REWARDED)
             if(player->getClass() == CLASS_HUNTER && player->GetSpecializationId() == TALENT_SPEC_HUNTER_BEASTMASTER)
@@ -865,7 +865,7 @@ public:
                 events.ScheduleEvent(EVENT_GARA_02, 0);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 diff) override
         {
             events.Update(diff);
 
@@ -954,7 +954,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_void_garaAI(creature);
     }
@@ -998,7 +998,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 diff) override
         {
             if (!UpdateVictim())
                 return;
@@ -1069,7 +1069,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_gara_void_creatureAI(creature);
     }
@@ -1106,7 +1106,7 @@ public:
             events.ScheduleEvent(EVENT_VOID_BOLT, urand(2, 5) * IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 diff) override
         {
             if (me->GetPhaseMask() == 1)
                 return;
@@ -1180,7 +1180,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_xan_void_realmAI(creature);
     }

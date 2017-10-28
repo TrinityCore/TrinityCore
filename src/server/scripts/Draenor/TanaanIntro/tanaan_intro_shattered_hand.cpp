@@ -191,7 +191,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_archmage_khadgar_bridgeAI(creature);
     }
@@ -221,7 +221,7 @@ class npc_tanaan_khadgar_bridge : public CreatureScript
 public:
     npc_tanaan_khadgar_bridge() : CreatureScript("npc_tanaan_khadgar_bridge") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tanaan_khadgar_bridgeAI(creature);
     }
@@ -291,7 +291,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tanaan_mandragoraAI(creature);
     }
@@ -361,7 +361,7 @@ class npc_kargath_bladefist : public CreatureScript
 public:
     npc_kargath_bladefist() : CreatureScript("npc_kargath_bladefist") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_kargath_bladefistAI(creature);
     }
@@ -448,7 +448,7 @@ class npc_shattered_hand_brawler : public CreatureScript
 public:
     npc_shattered_hand_brawler() : CreatureScript("npc_shattered_hand_brawler") { }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_shattered_hand_brawlerAI(creature);
     }
@@ -609,7 +609,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tanaan_arena_helperAI(creature);
     }
@@ -634,7 +634,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tanaan_napestone_riverbeastAI(creature);
     }

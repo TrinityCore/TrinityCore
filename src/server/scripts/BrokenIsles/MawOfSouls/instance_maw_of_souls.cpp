@@ -97,7 +97,7 @@ class instance_maw_of_souls : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go) override
+            void OnGameObjectCreate(GameObject* /*go*/) override
             {
                 /*switch(go->GetEntry())
                 {

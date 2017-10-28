@@ -264,7 +264,7 @@ class npc_helya_maw_destructor_tentacle : public CreatureScript
 
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* /*killer*/) override
             {
                 if(Creature* helya = ObjectAccessor::GetCreature((*me), instance->GetGuidData(DATA_HELYA_MAW)))
                 {

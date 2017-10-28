@@ -97,7 +97,7 @@ public:
 
     void OnQuestReward(Player* p_Player, const Quest* p_Quest) override
     {
-        if (p_Player && p_Quest && p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde)
+        if (p_Player && p_Quest && (p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchAlly || p_Quest->GetQuestId() == TanaanQuests::QuestTheHomeStretchHorde))
         {
             p_Player->GetSceneMgr().CancelSceneByPackageId(TanaanSceneObjects::SceneFinaleIronBastion);
 
@@ -256,7 +256,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_thaelin_darkanvil_tanaanAI(creature);
     }
@@ -410,7 +410,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tanaan_goglukAI(creature);
     }
@@ -463,7 +463,7 @@ public:
             }
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/)
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
             if (me->IsVehicle())
             {
@@ -488,7 +488,7 @@ public:
     {
     }
 
-    CreatureAI* GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_tanaan_gogluk_addsAI(creature);
     }
@@ -603,7 +603,7 @@ public:
         }
     };
 
-    GameObjectAI* GetAI(GameObject* p_Go) const
+    GameObjectAI* GetAI(GameObject* p_Go) const override
     {
         return new gob_worldbreaker_side_turretAI(p_Go);
     }
