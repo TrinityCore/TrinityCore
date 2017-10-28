@@ -1157,13 +1157,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnHit += SpellHitFn(spell_dk_dark_transformation_form_SpellScript::HandleOnHit);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dk_dark_transformation_form_SpellScript();
     }
@@ -1243,14 +1243,14 @@ public:
                 caster->CastSpell(target, SPELL_DK_FROST_FEVER, true);
         }
 
-        void Register()
+        void Register() override
         {
             BeforeCast += SpellCastFn(spell_dk_howling_blast_SpellScript::HandleBeforeCast);
             OnHit += SpellHitFn(spell_dk_howling_blast_SpellScript::HandleOnHit);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dk_howling_blast_SpellScript();
     }
@@ -1275,13 +1275,13 @@ public:
                             _player->CastSpell(target, SPELL_DK_REMORSELESS_WINTER_STUN, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnHit += SpellHitFn(spell_dk_remorseless_winter_SpellScript::HandleOnHit);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dk_remorseless_winter_SpellScript();
     }
@@ -1334,7 +1334,7 @@ public:
     {
         PrepareSpellScript(spell_dk_blood_charges_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/)
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return sSpellMgr->GetSpellInfo(SPELL_DK_BOOD_TAP) && sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_CHARGE);
         }
@@ -1354,13 +1354,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnHit += SpellHitFn(spell_dk_blood_charges_SpellScript::HandleOnHit);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dk_blood_charges_SpellScript();
     }
@@ -1388,13 +1388,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_dk_death_siphon_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dk_death_siphon_SpellScript();
     }
@@ -1505,13 +1505,13 @@ public:
                         _player->CastSpell(target, SPELL_DK_CHAINS_OF_ICE_ROOT, true);
         }
 
-        void Register()
+        void Register() override
         {
             OnHit += SpellHitFn(spell_dk_chilblains_SpellScript::HandleOnHit);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dk_chilblains_SpellScript();
     }
@@ -1545,13 +1545,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnHit += SpellHitFn(spell_dk_outbreak_SpellScript::HandleOnHit);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dk_outbreak_SpellScript();
     }
@@ -2141,13 +2141,13 @@ public:
             }
         }
 
-        void Register()
+        void Register() override
         {
             OnEffectHitTarget += SpellEffectFn(spell_dk_gorefiends_grasp_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
         return new spell_dk_gorefiends_grasp_SpellScript();
     }
