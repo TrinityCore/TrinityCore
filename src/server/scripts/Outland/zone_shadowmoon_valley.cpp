@@ -1517,12 +1517,12 @@ public:
                 }
             }
 
-		if (me->GetEntry() == NPC_ENRAGED_FIRE_SPIRIT || me->GetEntry() == NPC_ENRAGED_AIR_SPIRIT)
-			if (HealthBelowPct(35) && !me->GetAura(SPELL_ENRAGE))
-				DoCastSelf(SPELL_ENRAGE);
+        if (me->GetEntry() == NPC_ENRAGED_FIRE_SPIRIT || me->GetEntry() == NPC_ENRAGED_AIR_SPIRIT)
+            if (HealthBelowPct(35) && !me->GetAura(SPELL_ENRAGE))
+                DoCastSelf(SPELL_ENRAGE);
 
-		DoMeleeAttackIfReady();
-	    }
+        DoMeleeAttackIfReady();
+        }
 
         void JustDied(Unit* /*killer*/) override
         {

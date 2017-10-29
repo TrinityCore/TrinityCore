@@ -559,10 +559,10 @@ public:
     {
         npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) { }
 
-	void EnterCombat(Unit* /*who*/) override
-	{
-	    _events.ScheduleEvent(EVENT_CHOP, Seconds(3), Seconds(6));
-	}
+    void EnterCombat(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_CHOP, Seconds(3), Seconds(6));
+    }
 
         void Reset() override
         {
