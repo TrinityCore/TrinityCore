@@ -152,7 +152,7 @@ class npc_canon_fozlebub : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* /*creature,*/ uint32 /*sender*/, uint32 /*action*/) override
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 /*action*/) override
         {
             player->ModifyMoney(-3000);
             player->TeleportTo(974, -4019.00f, 6286.58f, 12.49f, 1.39f);
