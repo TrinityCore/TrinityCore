@@ -1202,35 +1202,6 @@ public:
     }
 };
 
-class spell_rog_vendetta : public SpellScriptLoader
-{
-public:
-    spell_rog_vendetta() : SpellScriptLoader("spell_rog_vendetta") { }
-
-    class spell_rog_vendetta_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_vendetta_SpellScript);
-
-        void HandleOnCast()
-        {
-            Unit* caster = GetCaster();
-            if (caster->HasAura(157514))
-                caster->CastSpell(caster, 158108, true);
-        }
-
-        void Register() override
-        {
-            OnCast += SpellCastFn(spell_rog_vendetta_SpellScript::HandleOnCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_rog_vendetta_SpellScript();
-    }
-
-};
-
 // Blade Flurry
 class spell_rogue_blade_flurry : public SpellScriptLoader
 {
@@ -1556,35 +1527,6 @@ public:
     }
 };
 
-class spell_rog_shuriken_toss : public SpellScriptLoader
-{
-public:
-    spell_rog_shuriken_toss() : SpellScriptLoader("spell_rog_shuriken_toss") { }
-
-    class spell_rog_shuriken_toss_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_shuriken_toss_SpellScript);
-
-        void HandleOnCast()
-        {
-            if (Player* _player = GetCaster()->ToPlayer())
-                if (Unit* target = GetExplTargetUnit())
-                    if (_player->GetDistance(target) >= 10.0f)
-                        _player->CastSpell(target, 137586, true);
-        }
-
-        void Register() override
-        {
-            OnCast += SpellCastFn(spell_rog_shuriken_toss_SpellScript::HandleOnCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_rog_shuriken_toss_SpellScript();
-    }
-};
-
 class spell_rog_poisons : public SpellScriptLoader
 {
 public:
@@ -1703,45 +1645,6 @@ public:
 };
 
 // static uint32 spell_rog_restless_blades_reducedCooldownsSpells[5] = { SPELL_ROGUE_ADRENALINE_RUSH, SPELL_ROGUE_KILLING_SPREE, SPELL_ROGUE_REDIRECT, SPELL_ROGUE_SHADOW_BLADES, SPELL_ROGUE_SPRINT };
-
-class spell_rog_sanguinary_vein : public SpellScriptLoader
-{
-public:
-    spell_rog_sanguinary_vein() : SpellScriptLoader("spell_rog_sanguinary_vein") { }
-
-    class spell_rog_sanguinary_vein_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_rog_sanguinary_vein_AuraScript);
-
-        void OnRemove(const AuraEffect* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (!GetCaster())
-                return;
-
-            if (Player* _player = GetCaster()->ToPlayer())
-            {
-                if (Unit* target = GetTarget())
-                {
-                    bool glyph = _player->HasAura(146631);
-                    if (target->HasAura(703) || target->HasAura(1943) || target->HasAura(122233) || (target->HasAura(89775) && glyph))
-                        return;
-
-                    target->RemoveAurasDueToSpell(124271);
-                }
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_rog_sanguinary_vein_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_rog_sanguinary_vein_AuraScript();
-    }
-};
 
 class spell_rog_slice_and_dice : public SpellScriptLoader
 {
@@ -2798,7 +2701,7 @@ public:
             return false;
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -2981,20 +2884,17 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_ruthlessness();
     new spell_rog_rupture();
     new spell_rog_saber_slash();
-    new spell_rog_sanguinary_vein();
     new spell_rog_serrated_blades();
     new spell_rog_shadowstrike();
     new spell_rog_shadow_dance();
     new spell_rog_shadow_techniques();
     new spell_rog_shuriken_storm();
-    new spell_rog_shuriken_toss();
     new spell_rog_slice_and_dice();
     new spell_rog_stealth();
     new spell_rog_subterfuge();
     new spell_rog_true_bearing();
     new spell_rog_vanish();
     new spell_rog_vanish_aura();
-    new spell_rog_vendetta();
     new spell_rog_venomous_wounds();
     new spell_rogue_blade_flurry();
     new spell_rogue_combat_potency();
