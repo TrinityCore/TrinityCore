@@ -2716,6 +2716,10 @@ CREATE TABLE `quest_details` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `quest_mail_sender`
+--
+
 DROP TABLE IF EXISTS `quest_mail_sender`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
