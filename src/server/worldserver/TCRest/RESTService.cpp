@@ -38,10 +38,10 @@ bool RESTService::Start(boost::asio::io_service& ioService)
     _restServer.config.port = port;
     _authToken = sConfigMgr->GetStringDefault("WorldREST.AuthToken", "");
 
-    if (_authToken.length < 16)
+    if (_authToken.length() < 16)
     {
-        TC_LOG_ERROR("server.rest", "Specified world rest service authToken length (%d) is lower than minimum token length (16). Aborting start of rest service", _authToken.length);
-        return;
+        TC_LOG_ERROR("server.rest", "Specified world rest service authToken length (%d) is lower than minimum token length (16). Aborting start of rest service", _authToken.length());
+        return false;
     }
 
     _restServer.resource[".+"]["GET"] = [this](std::shared_ptr<HttpServer::Response> response, std::shared_ptr<HttpServer::Request> request)
