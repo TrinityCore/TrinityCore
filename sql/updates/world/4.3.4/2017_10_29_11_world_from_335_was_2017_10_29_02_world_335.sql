@@ -1,3 +1,4 @@
+/*
 -- Add waypoints to Hezrul Bloodmark
 SET @GUID := 13990;
 SET @PATHID := @GUID * 10;
@@ -116,3 +117,4 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@PATHID, 99, -1197.42, -2061.97, 93.0869, 0.66061),
 (@PATHID, 100, -1191.3, -2057.78, 93.244, 0.558508),
 (@PATHID, 101, -1179.36, -2050.48, 93.4187, 0.566362);
+*/

@@ -1,3 +1,4 @@
+/*
 -- 
 SET @GUID     := 81116; -- Need 6
 SET @EVENT_ID := 74;
@@ -120,3 +121,4 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (35589, 1, 0, "The champions of the world's great nations have gathered at the Argent Tournament Grounds in northeastern Icecrown to face all challengers.", 12, 0, 100, 0, 0, 0, 35871, 0, "Jaeren Sunsworn"),
 (35604, 0, 0, "The Argent Crusade invites you to test your skills in honorable combat against other heroes of Azeroth at the Argent Tournament.", 12, 0, 100, 0, 0, 0, 35896, 0, "Arelas Brightstar"),
 (35604, 1, 0, "The champions of the world's great nations have gathered at the Argent Tournament Grounds in northeastern Icecrown to face all challengers.", 12, 0, 100, 0, 0, 0, 35871, 0, "Arelas Brightstar");
+*/

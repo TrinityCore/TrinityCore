@@ -1,3 +1,4 @@
+/*
 DELETE FROM `quest_greeting` WHERE `ID` IN (234, 235, 237, 238, 241, 253, 261, 342, 714, 786, 823, 1343, 1374, 1495, 1499, 1500, 1515, 1518, 2519, 2546, 2930, 3139, 3188, 3338, 3391, 3419, 3446, 3453, 3567, 3616, 3649, 4077, 4453, 5887, 6171, 7407, 7876, 27337);
 INSERT INTO `quest_greeting` (`ID`, `Type`, `GreetEmoteType`, `GreetEmoteDelay`, `Greeting`, `VerifiedBuild`) VALUES
 (234, 0, 1, 0, "A foul corruption has crept into Westfall.  While I was upholding my duty on the battlefields of Lordaeron these honest farms were overrun and made into hide-outs for thugs and murderers. The People's Militia needs your help.", 0),
@@ -42,3 +43,4 @@ INSERT INTO `quest_greeting` (`ID`, `Type`, `GreetEmoteType`, `GreetEmoteDelay`,
 UPDATE `creature_template` SET `gossip_menu_id`=0, `npcflag`=2 WHERE `entry` IN (786, 1343);
 DELETE FROM `gossip_menu` WHERE `MenuID` IN (694, 10893);
 DELETE FROM `npc_text` WHERE `ID`=1244;
+*/
