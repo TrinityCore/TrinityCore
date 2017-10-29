@@ -1486,7 +1486,7 @@ public:
             {
                 caster->GetSpellHistory()->ConsumeCharge(sSpellMgr->GetSpellInfo(SPELL_DH_FEL_BARRAGE)->ChargeCategoryId);
                 _charges++;
-                //caster->GetSpellHistory()->SHSendSetSpellCharges(sSpellCategoryStore.LookupEntry(GetSpellInfo()->ChargeCategoryId));
+                caster->GetSpellHistory()->ForceSendSetSpellCharges(sSpellCategoryStore.LookupEntry(GetSpellInfo()->ChargeCategoryId));
             }
             return true;
         }
@@ -1579,7 +1579,7 @@ public:
             if (SpellCategoryEntry const* barrage = sSpellCategoryStore.LookupEntry(chargeCatId))
             {
                 caster->GetSpellHistory()->RestoreCharge(chargeCatId);
-                //caster->GetSpellHistory()->SHSendSetSpellCharges(barrage);
+                caster->GetSpellHistory()->ForceSendSetSpellCharges(barrage);
             }
         }
 
@@ -2462,7 +2462,7 @@ class npc_dh_spell_trainer : public CreatureScript
 public:
     npc_dh_spell_trainer() : CreatureScript("npc_dh_spell_trainer") {}
 
-    bool OnGossipHello(Player* player, Creature* npc) override
+    bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID) != TALENT_SPEC_DEMON_HUNTER_HAVOC)
             return false;
@@ -2470,11 +2470,11 @@ public:
             return false;
         AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Teach me!", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         AddGossipItemFor(player, GOSSIP_ICON_TRAINER, "Close", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, npc->GetGUID());
+        SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* npc, uint32 sender, uint32 Action) override
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action) override
     {
         player->PlayerTalkClass->ClearMenus();
 
@@ -2484,19 +2484,19 @@ public:
             SPELL_DH_EYE_BEAM, SPELL_DH_BLUR, SPELL_DH_VENGEFUL_RETREAT, SPELL_DH_BLADE_DANCE
         };
 
-        switch (Action)
+        switch (action)
         {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            for (auto spell : spellIds)
-            {
-                if (sSpellMgr->GetSpellInfo(spell) && !player->HasSpell(spell))
-                    player->LearnSpell(spell, false);
-            }
-            CloseGossipMenuFor(player);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            CloseGossipMenuFor(player);
-            break;
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                for (auto spell : spellIds)
+                {
+                    if (sSpellMgr->GetSpellInfo(spell) && !player->HasSpell(spell))
+                        player->LearnSpell(spell, false);
+                }
+                CloseGossipMenuFor(player);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                CloseGossipMenuFor(player);
+                break;
         }
         return true;
     }
@@ -2759,7 +2759,7 @@ public:
                 return;
 
             caster->GetSpellHistory()->RestoreCharge(GetSpellInfo()->ChargeCategoryId);
-            //caster->GetSpellHistory()->SHSendSetSpellCharges(sSpellCategoryStore.LookupEntry(GetSpellInfo()->ChargeCategoryId));
+            caster->GetSpellHistory()->ForceSendSetSpellCharges(sSpellCategoryStore.LookupEntry(GetSpellInfo()->ChargeCategoryId));
             caster->CastSpell(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ(), SPELL_DH_INFERNAL_STRIKE_JUMP, true);
             caster->CastSpell(caster, SPELL_DH_INFERNAL_STRIKE_VISUAL, true);
         }
