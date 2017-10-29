@@ -38,7 +38,7 @@ typedef SimpleWeb::Server<SimpleWeb::HTTP> HttpServer;
 class RESTService
 {
 public:
-    RESTService() : { }
+    RESTService() { }
 
     static RESTService& Instance();
 
