@@ -806,19 +806,18 @@ void SpellHistory::UpdateCharges()
 {
     if (Player* player = GetPlayerOwner())
     {
-        Clock::time_point l_Now = Clock::now();
+        Clock::time_point now = Clock::now();
 
-        for (auto& l_CategoryCharge : _categoryCharges)
+        for (auto& categoryCharge : _categoryCharges)
         {
-            std::deque<ChargeEntry>& l_ChargeRefreshTimes = l_CategoryCharge.second;
+            std::deque<ChargeEntry>& chargeRefreshTimes = categoryCharge.second;
 
-            while (!l_ChargeRefreshTimes.empty() && l_ChargeRefreshTimes.front().RechargeEnd <= l_Now)
+            while (!chargeRefreshTimes.empty() && chargeRefreshTimes.front().RechargeEnd <= now)
             {
-                l_ChargeRefreshTimes.pop_front();
+                chargeRefreshTimes.pop_front();
 
-                SpellCategoryEntry const* l_CategoryEntry = sSpellCategoryStore.LookupEntry(l_CategoryCharge.first);
-                if (l_CategoryEntry != nullptr)
-                    ForceSendSetSpellCharges(l_CategoryEntry);
+                if (SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.LookupEntry(categoryCharge.first))
+                    ForceSendSetSpellCharges(categoryEntry);
             }
         }
     }
@@ -828,11 +827,11 @@ void SpellHistory::UpdateCharge(SpellCategoryEntry const* chargeCategoryEntry)
 {
     Clock::time_point l_Now = Clock::now();
 
-    std::deque<ChargeEntry>& l_Charges = _categoryCharges[chargeCategoryEntry->ID];
+    std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryEntry->ID];
 
-    while (!l_Charges.empty() && l_Charges.front().RechargeEnd <= l_Now)
+    while (!charges.empty() && charges.front().RechargeEnd <= l_Now)
     {
-        l_Charges.pop_front();
+        charges.pop_front();
         ForceSendSetSpellCharges(chargeCategoryEntry);
     }
 }
@@ -842,13 +841,11 @@ void SpellHistory::ReduceChargeCooldown(SpellCategoryEntry const* chargeCategory
     if (!chargeCategoryEntry)
         return;
 
-    Clock::time_point l_Now = Clock::now();
-
-    std::deque<ChargeEntry>& l_Charges = _categoryCharges[chargeCategoryEntry->ID];
-    for (ChargeEntry& l_Entry : l_Charges)
+    std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryEntry->ID];
+    for (ChargeEntry& entry : charges)
     {
-        l_Entry.RechargeStart -= std::chrono::milliseconds(reductionTime);
-        l_Entry.RechargeEnd -= std::chrono::milliseconds(reductionTime);
+        entry.RechargeStart -= std::chrono::milliseconds(reductionTime);
+        entry.RechargeEnd -= std::chrono::milliseconds(reductionTime);
     }
     UpdateCharge(chargeCategoryEntry);
     ForceSendSpellCharge(chargeCategoryEntry);
