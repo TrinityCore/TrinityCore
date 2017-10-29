@@ -38,7 +38,7 @@ typedef SimpleWeb::Server<SimpleWeb::HTTP> HttpServer;
 class RESTService
 {
 public:
-    RESTService() : _port(0) { }
+    RESTService() : { }
 
     static RESTService& Instance();
 
@@ -47,10 +47,12 @@ public:
     void Run();
 
 private:
+    bool checkAuthTokenHeader(std::shared_ptr<HttpServer::Request> request);
+
     HttpServer _restServer;
     std::thread _thread;
     std::string _bindIP;
-    int32 _port;
+    std::string _authToken;
     RestResponse _response;
     boost::asio::ip::tcp::endpoint _externalAddress;
     boost::asio::ip::tcp::endpoint _localAddress;
