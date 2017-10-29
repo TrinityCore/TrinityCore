@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
@@ -135,7 +135,7 @@ namespace MMAP
     bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, Spot portion)
     {
         char mapFileName[255];
-        sprintf(mapFileName, "maps/%03u%02u%02u.map", mapID, tileY, tileX);
+        sprintf(mapFileName, "maps/%04u_%02u_%02u.map", mapID, tileY, tileX);
 
         FILE* mapFile = fopen(mapFileName, "rb");
         if (!mapFile)
@@ -674,7 +674,7 @@ namespace MMAP
 
                 // transform data
                 float scale = instance.iScale;
-                G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z / -180.f, G3D::pi() * instance.iRot.x / -180.f, G3D::pi() * instance.iRot.y / -180.f);
+                G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z / -180.0f, G3D::pi() * instance.iRot.x / -180.0f, G3D::pi() * instance.iRot.y / -180.0f);
                 G3D::Vector3 position = instance.iPos;
                 position.x -= 32 * GRID_SIZE;
                 position.y -= 32 * GRID_SIZE;
@@ -738,8 +738,8 @@ namespace MMAP
                             {
                                 vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y*vertsX + x]);
                                 vert = vert * rotation * scale + position;
-                                vert.x *= -1.f;
-                                vert.y *= -1.f;
+                                vert.x *= -1.0f;
+                                vert.y *= -1.0f;
                                 liqVerts.push_back(vert);
                             }
                         }
@@ -798,8 +798,8 @@ namespace MMAP
         {
             // apply tranform, then mirror along the horizontal axes
             G3D::Vector3 v((*it) * rotation * scale + position);
-            v.x *= -1.f;
-            v.y *= -1.f;
+            v.x *= -1.0f;
+            v.y *= -1.0f;
             transformedVertices.push_back(v);
         }
     }
