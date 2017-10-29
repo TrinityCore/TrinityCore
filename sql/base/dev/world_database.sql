@@ -2716,45 +2716,6 @@ CREATE TABLE `quest_details` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `quest_greeting`
---
-
-DROP TABLE IF EXISTS `quest_greeting`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `quest_greeting` (
-  `ID` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `Type` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `GreetEmoteType` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `GreetEmoteDelay` int(10) unsigned NOT NULL DEFAULT '0',
-  `Greeting` text,
-  `VerifiedBuild` smallint(5) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ID`,`Type`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `quest_greeting_locale`
---
-
-DROP TABLE IF EXISTS `quest_greeting_locale`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `quest_greeting_locale` (
-  `ID` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
-  `Type` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
-  `locale` VARCHAR(4) NOT NULL,
-  `Greeting` TEXT,
-  `VerifiedBuild` SMALLINT(5) DEFAULT '0',
-  PRIMARY KEY (`ID`,`Type`)
-) ENGINE=MYISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `quest_mail_sender`
---
-
 DROP TABLE IF EXISTS `quest_mail_sender`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
