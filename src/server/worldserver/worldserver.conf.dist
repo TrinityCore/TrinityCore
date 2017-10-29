@@ -28,6 +28,7 @@
 #    ARENA CONFIG
 #    NETWORK CONFIG
 #    CONSOLE AND REMOTE ACCESS
+#    REST SERVER
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
 #    AUCTION HOUSE BOT SETTINGS
@@ -2890,6 +2891,42 @@ SOAP.IP = "127.0.0.1"
 #        Default:     7878
 
 SOAP.Port = 7878
+
+#
+###################################################################################################
+
+###################################################################################################
+# REST SERVICE
+#
+#
+#    WorldREST.Enabled
+#        Description: Enable REST service.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+WorldREST.Enabled = 0
+
+#
+#    WorldREST.BindIP
+#        Description: Bind REST service to IP/hostname.
+#        Default:     "127.0.0.1" - (Bind to localhost)
+
+WorldREST.BindIP = "127.0.0.1"
+
+#
+#    WorldREST.Port
+#        Description: TCP port to reach the REST service.
+#        Default:     8082
+
+WorldREST.Port = 8082
+
+#
+#    WorldREST.AuthToken
+#        Description: Auth Token, user will have to set this in headers to reach REST service
+#                     Minimum length (security reason) : 16 characters
+#        Default:     ""
+
+WorldREST.AuthToken = ""
 
 #
 ###################################################################################################
