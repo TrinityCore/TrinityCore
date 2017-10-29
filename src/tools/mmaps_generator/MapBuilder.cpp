@@ -411,7 +411,7 @@ namespace MMAP
             }
 
             // now start building mmtiles for each tile
-            printf("[Map %04i] We have %u tiles. \n", mapID, (unsigned int)tiles->size());
+            printf("[Map %04i] We have %u tiles.\n", mapID, (unsigned int)tiles->size());
             for (std::set<uint32>::iterator it = tiles->begin(); it != tiles->end(); ++it)
             {
                 uint32 tileX, tileY;
@@ -433,7 +433,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
-        printf("%u%% [Map %04i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesProcessed), mapID, tileX, tileY);
+        printf("%u%% [Map %04i] Building tile [%02u, %02u]\n", percentageDone(m_totalTiles, m_totalTilesProcessed), mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -551,7 +551,7 @@ namespace MMAP
     {
         // console output
         char tileString[21];
-        sprintf(tileString, "[Map %04u] [%02i,%02i]: ", mapID, tileX, tileY);
+        sprintf(tileString, "[Map %04u] [%02i, %02i]: ", mapID, tileX, tileY);
         printf("%s Building movemap tiles...\n", tileString);
 
         IntermediateValues iv;

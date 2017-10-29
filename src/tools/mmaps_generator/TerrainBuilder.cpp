@@ -674,7 +674,7 @@ namespace MMAP
 
                 // transform data
                 float scale = instance.iScale;
-                G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z / -180.f, G3D::pi() * instance.iRot.x / -180.f, G3D::pi() * instance.iRot.y / -180.f);
+                G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z / -180.0f, G3D::pi() * instance.iRot.x / -180.0f, G3D::pi() * instance.iRot.y / -180.0f);
                 G3D::Vector3 position = instance.iPos;
                 position.x -= 32 * GRID_SIZE;
                 position.y -= 32 * GRID_SIZE;
@@ -738,8 +738,8 @@ namespace MMAP
                             {
                                 vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y*vertsX + x]);
                                 vert = vert * rotation * scale + position;
-                                vert.x *= -1.f;
-                                vert.y *= -1.f;
+                                vert.x *= -1.0f;
+                                vert.y *= -1.0f;
                                 liqVerts.push_back(vert);
                             }
                         }
@@ -798,8 +798,8 @@ namespace MMAP
         {
             // apply tranform, then mirror along the horizontal axes
             G3D::Vector3 v((*it) * rotation * scale + position);
-            v.x *= -1.f;
-            v.y *= -1.f;
+            v.x *= -1.0f;
+            v.y *= -1.0f;
             transformedVertices.push_back(v);
         }
     }
