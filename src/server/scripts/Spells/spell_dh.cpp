@@ -1026,7 +1026,7 @@ public:
     {
         PrepareAuraScript(spell_dh_fiery_brand_dot_AuraScript);
 
-        void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
         {
             Unit* caster = aurEff->GetCaster();
             if (!caster->HasAura(SPELL_DH_BURNING_ALIVE))
@@ -1934,7 +1934,7 @@ public:
     {
         PrepareAuraScript(spell_dh_demon_spikes_buff_AuraScript);
 
-        void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+        void CalcAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
         {
             Unit* caster = aurEff->GetCaster();
             if (!caster)
