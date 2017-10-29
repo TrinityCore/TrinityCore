@@ -303,7 +303,7 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    if (sConfigMgr->GetBoolDefault("WorldREST.Enabled", true))
+    if (sConfigMgr->GetBoolDefault("WorldREST.Enabled", false))
     {
         if (!sRestService.Start(*ioService))
         {
