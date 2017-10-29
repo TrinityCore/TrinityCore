@@ -1232,7 +1232,7 @@ public:
 
     private:
 
-        void HandleOnHit(SpellEffIndex effIndex)
+        void HandleOnHit(SpellEffIndex /*effIndex*/)
         {
             int32 dmg = GetHitDamage();
             if (targetIndex == 0 && GetCaster()->HasAura(SPELL_DH_FIRST_BLOOD))
@@ -1529,7 +1529,7 @@ public:
     {
         PrepareSpellScript(spell_dh_fel_barrage_damage_SpellScript);
 
-        void HandleHit(SpellEffIndex effIndex)
+        void HandleHit(SpellEffIndex /*effIndex*/)
         {
             int32 chargesUsed = GetSpellValue()->EffectBasePoints[0];
             int32 dmg = GetHitDamage();
@@ -1616,7 +1616,7 @@ public:
             return true;
         }
 
-        void PreventMainhandEffect(SpellEffIndex effIndex)
+        void PreventMainhandEffect(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             Unit* target = GetExplTargetUnit();
@@ -1624,7 +1624,7 @@ public:
             caster->CastSpell(target, SPELL_DH_ANNIHILATION_MAINHAIND, true);
         }
 
-        void PreventOffhandEffect(SpellEffIndex effIndex)
+        void PreventOffhandEffect(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             Unit* target = GetExplTargetUnit();
@@ -1655,7 +1655,7 @@ public:
     {
         PrepareSpellScript(spell_dh_annihilation_damage_SpellScript);
 
-        void HandleHit(SpellEffIndex effIndex)
+        void HandleHit(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             Unit* target = GetHitUnit();
@@ -2409,7 +2409,7 @@ public:
             return true;
         }
 
-        void PreventHit(SpellEffIndex effIndex)
+        void PreventHit(SpellEffIndex /*effIndex*/)
         {
             PreventHitDamage();
         }
