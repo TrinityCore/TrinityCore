@@ -2202,10 +2202,12 @@ public:
                 return;
 
             if (caster->HasAura(SPELL_ROGUE_STRIKE_FROM_THE_SHADOWS))
-                if(target->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (target->GetTypeId() == TYPEID_PLAYER)
                     caster->CastSpell(target, SPELL_ROGUE_STRIKE_FROM_THE_SHADOWS_SLOW, true);
                 else
                     caster->CastSpell(target, SPELL_ROGUE_STRIKE_FROM_THE_SHADOWS_STUN, true);
+            }
         }
 
         void Register() override
