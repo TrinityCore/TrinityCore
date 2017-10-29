@@ -29,7 +29,7 @@ bool RESTService::Start(boost::asio::io_service& ioService)
 {
     _bindIP = sConfigMgr->GetStringDefault("WorldREST.BindIP", "127.0.0.1");
     uint32 port = sConfigMgr->GetIntDefault("WorldREST.Port", 8082);
-    if (port < 0 || port > 0xFFFF)
+    if (port <= 0 || port > 0xFFFF)
     {
         TC_LOG_ERROR("server.rest", "Specified world rest service port (%d) out of allowed range (1-65535), defaulting to 8082", port);
         port = 8082;
@@ -51,7 +51,7 @@ bool RESTService::Start(boost::asio::io_service& ioService)
             TC_LOG_DEBUG("server.rest", "[%s:%d] Handling GET request path=\"%s\"", request->remote_endpoint_address.c_str(), request->remote_endpoint_port, request->path.c_str());
 
             if (!checkAuthTokenHeader(request))
-                return;
+                throw new std::exception("Bad auth token header");
 
             RestResponse restResponse;
             sScriptMgr->OnRestGetReceived(request->path, restResponse);
@@ -74,7 +74,7 @@ bool RESTService::Start(boost::asio::io_service& ioService)
             TC_LOG_DEBUG("server.rest", "[%s:%d] Handling POST request path=\"%s\"", request->remote_endpoint_address.c_str(), request->remote_endpoint_port, request->path.c_str());
 
             if (!checkAuthTokenHeader(request))
-                return;
+                throw new std::exception("Bad auth token header");
 
             boost::property_tree::ptree pt;
             read_json(request->content, pt);
