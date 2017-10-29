@@ -7,6 +7,7 @@
 #include <iosfwd>
 #include <vector>
 
+struct FactionTemplateEntry;
 namespace WorldPackets
 {
     namespace Taxi
@@ -18,7 +19,7 @@ namespace WorldPackets
 class TC_GAME_API PlayerTaxi
 {
     public:
-        PlayerTaxi() { m_taximask.fill(0); }
+        PlayerTaxi() : m_flightMasterFactionId(0) { m_taximask.fill(0); }
         ~PlayerTaxi() { }
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
@@ -63,13 +64,16 @@ class TC_GAME_API PlayerTaxi
         bool RequestEarlyLanding();
         std::deque<uint32> const& GetPath() const { return m_TaxiDestinations; }
         bool empty() const { return m_TaxiDestinations.empty(); }
+        FactionTemplateEntry const* GetFlightMasterFactionTemplate() const;
+        void SetFlightMasterFactionTemplateId(uint32 factionTemplateId) { m_flightMasterFactionId = factionTemplateId; }
 
-        friend std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi);
+        friend std::ostringstream& operator<<(std::ostringstream& ss, PlayerTaxi const& taxi);
     private:
         TaxiMask m_taximask;
         std::deque<uint32> m_TaxiDestinations;
+        uint32 m_flightMasterFactionId;
 };
 
-std::ostringstream& operator << (std::ostringstream& ss, PlayerTaxi const& taxi);
+std::ostringstream& operator <<(std::ostringstream& ss, PlayerTaxi const& taxi);
 
 #endif
