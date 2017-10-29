@@ -298,8 +298,8 @@ class TC_GAME_API Aura
         SpellEffectInfoVector GetSpellEffectInfos() const { return _spelEffectInfos; }
         SpellEffectInfo const* GetSpellEffectInfo(uint32 index) const;
 
-    private:
         AuraScript* GetScriptByName(std::string const& scriptName) const;
+    private:
         void _DeleteRemovedApplications();
 
     protected:
