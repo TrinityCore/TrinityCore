@@ -1,3 +1,4 @@
+/*
 -- Tyrande Whisperwind
 UPDATE `creature_template` SET `AIName`="SmartAI", `flags_extra`=0 WHERE `entry`=7999;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=7999 AND `source_type`=0;
@@ -111,3 +112,4 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 DELETE FROM `spell_target_position` WHERE `ID`=20682;
 INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `VerifiedBuild`) VALUES
 (20682,0,1,-3891.8,-4609.97,9.50106,0.764318,0);
+*/
