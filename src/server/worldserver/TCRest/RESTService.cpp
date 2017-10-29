@@ -51,7 +51,7 @@ bool RESTService::Start(boost::asio::io_service& ioService)
             TC_LOG_DEBUG("server.rest", "[%s:%d] Handling GET request path=\"%s\"", request->remote_endpoint_address.c_str(), request->remote_endpoint_port, request->path.c_str());
 
             if (!checkAuthTokenHeader(request))
-                throw new std::exception("Bad auth token header");
+                throw std::exception("Bad Authorization token header");
 
             RestResponse restResponse;
             sScriptMgr->OnRestGetReceived(request->path, restResponse);
@@ -62,8 +62,7 @@ bool RESTService::Start(boost::asio::io_service& ioService)
         }
         catch (const std::exception &e)
         {
-            *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << strlen(e.what()) << "\r\n\r\n"
-                << e.what();
+            *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << strlen(e.what()) << "\r\n\r\n" << e.what();
         }
     };
 
@@ -74,7 +73,7 @@ bool RESTService::Start(boost::asio::io_service& ioService)
             TC_LOG_DEBUG("server.rest", "[%s:%d] Handling POST request path=\"%s\"", request->remote_endpoint_address.c_str(), request->remote_endpoint_port, request->path.c_str());
 
             if (!checkAuthTokenHeader(request))
-                throw new std::exception("Bad auth token header");
+                throw std::exception("Bad Authorization token header");
 
             boost::property_tree::ptree pt;
             read_json(request->content, pt);
@@ -86,10 +85,13 @@ bool RESTService::Start(boost::asio::io_service& ioService)
 
             *response << "HTTP/1.1 200 OK\r\nContent-Length: " << serializedResponse.length() << "\r\n\r\n" << serializedResponse;
         }
+        catch (const boost::property_tree::json_parser_error &e)
+        {
+            *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: Error while deserializing JSON body : " << strlen(e.what()) << "\r\n\r\n" << e.what();
+        }
         catch (const std::exception &e)
         {
-            *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << strlen(e.what()) << "\r\n\r\n"
-                << e.what();
+            *response << "HTTP/1.1 400 Bad Request\r\nContent-Length: " << strlen(e.what()) << "\r\n\r\n" << e.what();
         }
     };
 
@@ -112,7 +114,7 @@ void RESTService::Run()
 
 bool RESTService::checkAuthTokenHeader(std::shared_ptr<HttpServer::Request> request)
 {
-    auto headerAuthTokenItr = request->header.find("authToken");
+    auto headerAuthTokenItr = request->header.find("Authorization");
 
     if (headerAuthTokenItr == request->header.end())
     {
