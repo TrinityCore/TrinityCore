@@ -948,7 +948,7 @@ void ExtractMapsFromMpq(uint32 build)
                     continue;
 
                 mpqFileName = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
-                outputFileName = Trinity::StringFormat("%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
+                outputFileName = Trinity::StringFormat("%s/maps/%04u_%02u_%02u.map", output_path, map_ids[z].id, y, x);
                 ConvertADT(mpqFileName, outputFileName, y, x, build);
             }
             // draw progress bar

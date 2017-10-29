@@ -65,7 +65,7 @@ bool preciseVectorData = false;
 
 //static const char * szWorkDirMaps = ".\\Maps";
 char const* szWorkDirWmo = "./Buildings";
-char const* szRawVMAPMagic = "VMAP043";
+char const* szRawVMAPMagic = "VMAP050";
 
 // Local testing functions
 
@@ -222,7 +222,7 @@ void ParsMapFiles()
     char id[10];
     for (unsigned int i=0; i<map_count; ++i)
     {
-        sprintf(id,"%03u",map_ids[i].id);
+        sprintf(id,"%04u",map_ids[i].id);
         sprintf(fn,"World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
         WDTFile WDT(fn,map_ids[i].name);
         if(WDT.init(id, map_ids[i].id))
@@ -437,7 +437,7 @@ int main(int argc, char ** argv)
     Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     bool success = true;
-    const char *versionString = "V4.00 2012_02";
+    const char *versionString = "V5.00 2017_10";
 
     // Use command line arguments, when some
     if (!processArgv(argc, argv, versionString))

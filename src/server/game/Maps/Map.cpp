@@ -84,9 +84,9 @@ Map::~Map()
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
 {
-    int len = sWorld->GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
+    int len = sWorld->GetDataPath().length() + strlen("maps/%04u_%02u_%02u.map") + 1;
     char* fileName = new char[len];
-    snprintf(fileName, len, (char *)(sWorld->GetDataPath() + "maps/%03u%02u%02u.map").c_str(), mapid, gx, gy);
+    snprintf(fileName, len, (char *)(sWorld->GetDataPath() + "maps/%04u_%02u_%02u.map").c_str(), mapid, gx, gy);
 
     bool ret = false;
     FILE* pf = fopen(fileName, "rb");
@@ -205,9 +205,9 @@ void Map::LoadMap(int gx, int gy, bool reload)
 
     // map file name
     char* tmp = nullptr;
-    int len = sWorld->GetDataPath().length() + strlen("maps/%03u%02u%02u.map") + 1;
+    int len = sWorld->GetDataPath().length() + strlen("maps/%04u_%02u_%02u.map") + 1;
     tmp = new char[len];
-    snprintf(tmp, len, (char *)(sWorld->GetDataPath() + "maps/%03u%02u%02u.map").c_str(), GetId(), gx, gy);
+    snprintf(tmp, len, (char *)(sWorld->GetDataPath() + "maps/%04u_%02u_%02u.map").c_str(), GetId(), gx, gy);
     TC_LOG_DEBUG("maps", "Loading map %s", tmp);
     // loading data
     GridMaps[gx][gy] = new GridMap();

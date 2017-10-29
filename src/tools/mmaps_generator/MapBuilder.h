@@ -74,7 +74,7 @@ namespace MMAP
     class MapBuilder
     {
         public:
-            MapBuilder(float maxWalkableAngle   = 70.f,
+            MapBuilder(float maxWalkableAngle   = 70.0f,
                 bool skipLiquid          = false,
                 bool skipContinents      = false,
                 bool skipJunkMaps        = true,
