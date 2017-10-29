@@ -308,7 +308,7 @@ public:
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
     {
-        auto quest_status = player->GetQuestStatus(QUEST_MISSING_DIPLO_PT14);
+        QuestStatus quest_status = player->GetQuestStatus(QUEST_MISSING_DIPLO_PT14);
         if (!player->IsAlive() || quest_status == QUEST_STATUS_NONE || quest_status == QUEST_STATUS_REWARDED)
             return false;
 
