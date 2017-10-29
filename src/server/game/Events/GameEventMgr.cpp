@@ -224,7 +224,7 @@ void GameEventMgr::LoadFromDB()
         if (!result)
         {
             mGameEvent.clear();
-            TC_LOG_ERROR("server.loading", ">> Loaded 0 game events. DB table `game_event` is empty.");
+            TC_LOG_INFO("server.loading", ">> Loaded 0 game events. DB table `game_event` is empty.");
             return;
         }
 

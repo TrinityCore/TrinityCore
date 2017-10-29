@@ -1084,7 +1084,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
         return;
     }
 
