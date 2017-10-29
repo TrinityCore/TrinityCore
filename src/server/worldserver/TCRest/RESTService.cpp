@@ -40,7 +40,7 @@ bool RESTService::Start(boost::asio::io_service& ioService)
 
     if (_authToken.length() < 16)
     {
-        TC_LOG_ERROR("server.rest", "Specified world rest service authToken length (%d) is lower than minimum token length (16). Aborting start of rest service", _authToken.length());
+        TC_LOG_ERROR("server.rest", "Specified world rest service authToken length (%lu) is lower than minimum token length (16). Aborting start of rest service", _authToken.length());
         return false;
     }
 
