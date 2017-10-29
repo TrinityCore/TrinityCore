@@ -36,7 +36,10 @@ enum DMCannonState
 enum DMData
 {
     EVENT_STATE,
-    EVENT_RHAHKZOR
+    EVENT_RHAHKZOR,
+
+    DATA_MR_SMITE = 0,  // not currently used
+    DATA_VANCLEEF = 1
 };
 
 enum DMData64

@@ -54,7 +54,7 @@ Position const BlackguardPositions[] =
 struct boss_vancleef : public BossAI
 {
     public:
-        boss_vancleef(Creature* creature) : BossAI(creature, 0) { }
+        boss_vancleef(Creature* creature) : BossAI(creature, DATA_VANCLEEF) { }
 
         void Reset() override
         {
