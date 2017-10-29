@@ -348,6 +348,7 @@ void FlightPathMovementGenerator::LoadPath(Player* player)
 {
     _pointsForPathSwitch.clear();
     std::deque<uint32> const& taxi = player->m_taxi.GetPath();
+    float discount = player->GetReputationPriceDiscount(player->m_taxi.GetFlightMasterFactionTemplate());
     for (uint32 src = 0, dst = 1; dst < taxi.size(); src = dst++)
     {
         uint32 path, cost;
@@ -380,7 +381,7 @@ void FlightPathMovementGenerator::LoadPath(Player* player)
             }
         }
 
-        _pointsForPathSwitch.push_back({ uint32(_path.size() - 1), int32(cost) });
+        _pointsForPathSwitch.push_back({ uint32(_path.size() - 1), int32(ceil(cost * discount)) });
     }
 }
 
