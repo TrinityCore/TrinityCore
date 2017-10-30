@@ -25,6 +25,9 @@ http://rochet2.github.io/
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "DB2Stores.h"
+#include "ObjectAccessor.h"
+
 
 GameObjectStore GOMove::Store;
 
@@ -38,9 +41,7 @@ void GOMove::SendAddonMessage(Player * player, const char * msg)
 
 GameObject * GOMove::GetGameObject(Player * player, ObjectGuid::LowType lowguid)
 {
-    if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-        return ChatHandler(player->GetSession()).GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid, data->id);
-    return nullptr;
+    return ChatHandler(player->GetSession()).GetObjectFromPlayerMapByDbGuid(lowguid);
 }
 
 void GOMove::SendAdd(Player * player, ObjectGuid::LowType lowguid)
@@ -105,13 +106,22 @@ GameObject * GOMove::SpawnGameObject(Player* player, float x, float y, float z, 
 
     Map* map = player->GetMap();
 
+    QuaternionData quat;
+    quat.fromEulerAnglesZYX(z, y, x);
+    Position pos;
+    pos.m_positionX = x;
+    pos.m_positionY = y;
+    pos.m_positionZ = z;
+    pos.SetOrientation(o);
     GameObject* object = new GameObject;
-    if (!object->Create(objectInfo->entry, map, 0, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+    if (!object->Create(objectInfo->entry, map, 0, pos, quat, 0.0f, GO_STATE_READY))
     {
         delete object;
         return nullptr;
     }
 
+    //fix to get the right rotation after spawn visualized
+    object->SetWorldRotationAngles(o, 0.0f, 0.0f);
     // fill the gameobject data and save to the db
     object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), p);
     ObjectGuid::LowType guidLow = object->GetSpawnId();
@@ -140,9 +150,7 @@ GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, f
 {
     if (!player)
         return nullptr;
-    GameObject* object = nullptr;
-    if (GameObjectData const* data = sObjectMgr->GetGOData(lowguid))
-        object = ChatHandler(player->GetSession()).GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid, data->id);
+    GameObject* object = ChatHandler(player->GetSession()).GetObjectFromPlayerMapByDbGuid(lowguid);
     if (!object)
     {
         SendRemove(player, lowguid);
@@ -157,7 +165,9 @@ GameObject * GOMove::MoveGameObject(Player* player, float x, float y, float z, f
     // copy paste .gob turn command
     object->Relocate(x, y, z, o);
     object->RelocateStationaryPosition(x, y, z, o);
-    object->UpdateRotationFields();
+    object->SetWorldRotationAngles(o, 0.0f, 0.0f);
+    object->UpdateModelPosition();
+    object->UpdateObjectVisibility();
     object->SaveToDB();
 
     // Generate a completely new spawn with new guid
@@ -210,6 +220,6 @@ std::list<GameObject*> GOMove::GetNearbyGameObjects(Player* player, float range)
     std::list<GameObject*> objects;
     Trinity::GameObjectInRangeCheck check(x, y, z, range);
     Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(player, objects, check);
-    player->VisitNearbyGridObject(SIZE_OF_GRIDS, searcher);
+    Cell::VisitGridObjects(player, searcher, SIZE_OF_GRIDS, false);
     return objects;
 }
