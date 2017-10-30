@@ -21,13 +21,11 @@
 
 enum VanCleefData
 {
-    NPC_BLACKGUARD = 636,
-
     SPELL_DUAL_WIELD = 674,
     SPELL_THRASH = 12787,
     SPELL_VANCLEEFS_ALLIES = 5200,
 
-    PHASE_NORMAL = 1,
+    PHASE_ONE    = 1,
     PHASE_66_PCT = 2,
     PHASE_50_PCT = 3,
     PHASE_33_PCT = 4,
@@ -54,13 +52,13 @@ Position const BlackguardPositions[] =
 struct boss_vancleef : public BossAI
 {
     public:
-        boss_vancleef(Creature* creature) : BossAI(creature, DATA_VANCLEEF) { }
+        boss_vancleef(Creature* creature) : BossAI(creature, DATA_VANCLEEF), _phase(PHASE_ONE){ }
 
         void Reset() override
         {
             BossAI::Reset();
 
-            _phase = PHASE_NORMAL;
+            _phase = PHASE_ONE;
 
             DoCastSelf(SPELL_DUAL_WIELD, true);
             DoCastSelf(SPELL_THRASH, true);
@@ -122,32 +120,16 @@ struct boss_vancleef : public BossAI
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void DamageTaken(Unit* /*attacker*/, uint32 &damage) override
         {
-            if (!UpdateVictim())
-                return;
-
-            scheduler.Update(diff, [this]
-            {
-                DoMeleeAttackIfReady();
-            });
-        }
-
-        void ScheduleTasks() override
-        {
-            scheduler.Schedule(Seconds(1), [this](TaskContext task)
-            {
-                if (_phase == PHASE_NORMAL && HealthBelowPct(66))
-                    SwitchPhase(PHASE_66_PCT);
-                else if (_phase == PHASE_66_PCT && HealthBelowPct(50))
-                    SwitchPhase(PHASE_50_PCT);
-                else if (_phase == PHASE_50_PCT && HealthBelowPct(33))
-                    SwitchPhase(PHASE_33_PCT);
-                else if (_phase == PHASE_33_PCT && HealthBelowPct(25))
-                    SwitchPhase(PHASE_25_PCT);
-
-                task.Repeat(Seconds(1));
-            });
+            if (_phase == PHASE_ONE && HealthBelowPct(66))
+                SwitchPhase(PHASE_66_PCT);
+            else if (_phase == PHASE_66_PCT && HealthBelowPct(50))
+                SwitchPhase(PHASE_50_PCT);
+            else if (_phase == PHASE_50_PCT && HealthBelowPct(33))
+                SwitchPhase(PHASE_33_PCT);
+            else if (_phase == PHASE_33_PCT && HealthBelowPct(25))
+                SwitchPhase(PHASE_25_PCT);
         }
 
     private:

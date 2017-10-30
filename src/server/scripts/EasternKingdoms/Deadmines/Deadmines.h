@@ -58,7 +58,8 @@ enum DMGameObjects
 
 enum DMCreaturesIds
 {
-    NPC_MR_SMITE   = 646
+    NPC_MR_SMITE   = 646,
+    NPC_BLACKGUARD = 636
 };
 
 enum DMInstanceTexts
