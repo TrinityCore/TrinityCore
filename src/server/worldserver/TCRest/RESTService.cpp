@@ -51,7 +51,7 @@ bool RESTService::Start(boost::asio::io_service& ioService)
             TC_LOG_DEBUG("server.rest", "[%s:%d] Handling GET request path=\"%s\"", request->remote_endpoint_address.c_str(), request->remote_endpoint_port, request->path.c_str());
 
             if (!checkAuthTokenHeader(request))
-                throw std::exception("Bad Authorization token header");
+                throw std::runtime_error("Bad Authorization token header");
 
             RestResponse restResponse;
             sScriptMgr->OnRestGetReceived(request->path, restResponse);
@@ -73,7 +73,7 @@ bool RESTService::Start(boost::asio::io_service& ioService)
             TC_LOG_DEBUG("server.rest", "[%s:%d] Handling POST request path=\"%s\"", request->remote_endpoint_address.c_str(), request->remote_endpoint_port, request->path.c_str());
 
             if (!checkAuthTokenHeader(request))
-                throw std::exception("Bad Authorization token header");
+                throw std::runtime_error("Bad Authorization token header");
 
             boost::property_tree::ptree pt;
             read_json(request->content, pt);
