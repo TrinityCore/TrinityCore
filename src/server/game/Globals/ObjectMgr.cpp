@@ -736,7 +736,7 @@ void ObjectMgr::LoadScriptParams()
             CreatureData const* creature = sObjectMgr->GetCreatureData(lowGuid);
             if (!creature)
             {
-                TC_LOG_ERROR("sql.sql", "ObjectMgr::LoadCreatureScriptParams: Creature guid (%u) does not exist, skipped loading.", lowGuid);
+                TC_LOG_ERROR("sql.sql", "ObjectMgr::LoadCreatureScriptParams: Creature guid (%lu) does not exist, skipped loading.", lowGuid);
                 continue;
             }
 
